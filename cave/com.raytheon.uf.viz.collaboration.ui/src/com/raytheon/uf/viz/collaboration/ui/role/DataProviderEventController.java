@@ -29,6 +29,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
@@ -65,6 +67,17 @@ public class DataProviderEventController extends AbstractRoleEventController {
         super(session);
     }
 
+    @Override
+    public void startup() {
+        super.startup();
+        super.activateTelestrator();
+    }
+
+    @Override
+    public void shutdown() {
+        super.shutdown();
+    }
+
     @Subscribe
     public void participantChanged(VenueParticipantEvent event) {
         if (event.getEventType().equals(ParticipantEventType.ARRIVED)) {
@@ -76,8 +89,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
                     .getInstance().getActiveEditor();
             SharedEditor se = EditorSetup.extractSharedEditor(editor);
             try {
-                session.sendInitData(event.getParticipant().getQualifiedId(),
-                        se);
+                session.sendObjectToPeer(event.getParticipant()
+                        .getQualifiedId(), se);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error sending initialization data to new participant "
@@ -87,13 +100,23 @@ public class DataProviderEventController extends AbstractRoleEventController {
     }
 
     @Subscribe
-    public void sessionLeaderInput(InputEvent event) {
-        // TODO TBD will this pick up events sent by the data provider (ie this
-        // cave) too? if so, need to rework it cause this code should only
-        // execute on the data provider when someone else's cave is the session
-        // leader. ideally no InputEvents are sent when data provider and
-        // session leader are one and the same
+    public void roleTransferred(TransferRoleCommand cmd) {
+        if (cmd.getRole() == ParticipantRole.SESSION_LEADER) {
+            System.out.println("Current session's username: "
+                    + session.getUserID().getFQName());
+            if (cmd.getUser().equals(session.getUserID().getFQName())) {
+                // this cave should assume session leader control
+                InputUtil.enableDataProviderInput(session.getSessionId());
+            } else if (cmd.getUser().equals(
+                    session.getCurrentSessionLeader().getFQName())) {
+                // this cave should release session leader control
+                InputUtil.disableDataProviderInput(session.getSessionId());
+            }
+        }
+    }
 
+    @Subscribe
+    public void sessionLeaderInput(InputEvent event) {
         // TODO should we handle more than 1?
         AbstractEditor editor = CollaborationDataManager.getInstance()
                 .getActivelySharedEditors(session.getSessionId()).get(0);
