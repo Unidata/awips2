@@ -32,8 +32,8 @@ import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.paint.PaintImageEvent;
-import com.raytheon.uf.viz.remote.graphics.events.paint.PaintImagesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingMesh;
 

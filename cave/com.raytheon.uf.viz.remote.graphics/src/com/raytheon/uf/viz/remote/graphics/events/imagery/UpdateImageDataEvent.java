@@ -17,9 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
  * TODO Add Description

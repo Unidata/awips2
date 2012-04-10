@@ -26,7 +26,7 @@ import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.UpdateImageDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
 
 /**
  * Abstract dispatching image object created from graphics image and forwards
