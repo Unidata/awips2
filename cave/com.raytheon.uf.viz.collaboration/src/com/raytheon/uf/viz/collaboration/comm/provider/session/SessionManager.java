@@ -169,6 +169,9 @@ public class SessionManager implements IEventPublisher {
         try {
             connectToContainer();
         } catch (ContainerConnectException e) {
+            if (container != null) {
+                container.dispose();
+            }
             throw new CollaborationException(
                     "Login failed.  Invalid username or password", e);
         }
