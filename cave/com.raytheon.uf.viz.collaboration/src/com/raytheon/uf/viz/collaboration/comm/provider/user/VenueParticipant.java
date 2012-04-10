@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 
@@ -43,42 +44,32 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
  * @version 1.0
  */
 
-public class VenueParticipant implements IVenueParticipant {
+@DynamicSerialize
+public class VenueParticipant extends RosterId implements IVenueParticipant {
 
     private static String CONF_ID = "conference.";
 
     private Map<String, String> properties;
 
-    private String name;
-
-    private String nickname;
-
-    private String host;
-
-    private String resource;
-
-    /**
-     * 
-     */
     public VenueParticipant() {
-        properties = new HashMap<String, String>();
+        this(null, null);
     }
 
     /**
      * 
      */
-    public VenueParticipant(String name, String nickName) {
-        this(name, nickName, null);
+    public VenueParticipant(String name, String host) {
+        this(name, host, null);
     }
 
     /**
      * 
      */
-    public VenueParticipant(String name, String nickName, String host) {
-        this();
+    public VenueParticipant(String name, String host, String resource) {
+        super(name, host, resource);
         this.name = name;
-        this.nickname = nickName;
         this.host = host;
+        this.properties = new HashMap<String, String>();
     }
 
     /**
@@ -112,70 +103,6 @@ public class VenueParticipant implements IVenueParticipant {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant#getName()
-     */
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant#getNickname()
-     */
-    @Override
-    public String getNickname() {
-        return nickname;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant#setName(java.lang.String)
-     */
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant#getNickname(java.lang.String)
-     */
-    @Override
-    public void setNickname(String nickName) {
-        this.nickname = nickName;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHost(java.lang.String)
-     */
-    @Override
-    public void setHost(String hostName) {
-        host = hostName;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getHost()
-     */
-    @Override
-    public String getHost() {
-        return host;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setResource(java.lang.String)
-     */
-    @Override
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getResource()
-     */
-    @Override
-    public String getResource() {
-        return resource;
-    }
-
-    /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.ID#getFQName()
      */
     @Override
@@ -193,21 +120,26 @@ public class VenueParticipant implements IVenueParticipant {
     /**
      * Return the identifier as a qualified field. Removes the "domain"
      * conference from the host string if found.
+     * 
      * @return The qualified id.
      */
     @Override
     public IQualifiedID getQualifiedId() {
         String hostName = host;
-        if(hostName != null) {
-            if(hostName.startsWith(CONF_ID)) {
+        if (hostName != null) {
+            if (hostName.startsWith(CONF_ID)) {
                 hostName = hostName.substring(CONF_ID.length());
             }
         }
-        
+
         UserId id = new UserId(getName(), hostName);
         id.setResource(resource);
 
         return id;
+    }
+
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
     }
 
 }
