@@ -308,10 +308,12 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
 
         boolean anyModified = false;
         for (ResourcePair rp : toAdd) {
-            try {
-                firePreAddListeners(rp);
-            } catch (VizException e1) {
-                return false;
+            if (rp.getResource() != null) {
+                try {
+                    firePreAddListeners(rp);
+                } catch (VizException e1) {
+                    return false;
+                }
             }
 
             boolean modified = this.addInternal(rp);
@@ -321,10 +323,12 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
                     rp.setProperties(new ResourceProperties());
                 }
 
-                try {
-                    firePostAddListeners(rp);
-                } catch (VizException e1) {
-                    return false;
+                if (rp.getResource() != null) {
+                    try {
+                        firePostAddListeners(rp);
+                    } catch (VizException e1) {
+                        return false;
+                    }
                 }
                 anyModified = true;
             }

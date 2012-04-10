@@ -87,7 +87,7 @@ public class ParticipantEventController extends AbstractRoleEventController {
         CollaborationResourceData crd = new CollaborationResourceData();
         ResourcePair rp = ResourcePair.constructSystemResourcePair(crd);
         desc.getResourceList().add(rp);
-        desc.getResourceList().instantiateResources(desc, false);
+        desc.getResourceList().instantiateResources(desc, true);
         collabRsc = (CollaborationResource) rp.getResource();
         this.session.registerEventHandler(collabRsc);
     }
