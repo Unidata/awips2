@@ -26,6 +26,7 @@ import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.IPresenceSender;
+import org.eclipse.ecf.presence.roster.IRosterManager;
 import org.eclipse.ecf.presence.roster.IRosterSubscriptionListener;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
@@ -74,17 +75,13 @@ public class AccountManager implements IAccountManager {
             } else {
                 subscribedType = IPresence.Type.SUBSCRIBED;
             }
-            org.eclipse.ecf.presence.Presence.Type sType = Tools
-                    .convertPresenceType(subscribedType);
 
-            org.eclipse.ecf.presence.IPresence presence = new org.eclipse.ecf.presence.Presence(
-                    sType);
-
+            IPresence presence = new Presence(IPresence.Mode.AVAILABLE,
+                    subscribedType, null);
             try {
-                presenceAdapter.getRosterManager().getPresenceSender()
-                        .sendPresenceUpdate(fromID, presence);
-            } catch (ECFException e) {
-                // Will have to do something with this sooner or later.
+                sendPresence(presence);
+            } catch (CollaborationException e) {
+                e.printStackTrace();
             }
         }
 
@@ -105,11 +102,14 @@ public class AccountManager implements IAccountManager {
 
     private ISubscriptionResponder responder;
 
+    private SessionManager sessionManager = null;
+
     /**
      * 
      * @param adapter
      */
-    AccountManager(IPresenceContainerAdapter adapter) {
+    AccountManager(IPresenceContainerAdapter adapter, SessionManager manager) {
+        sessionManager = manager;
         presenceAdapter = adapter;
         presenceAdapter.getRosterManager().addRosterSubscriptionListener(
                 autoResponder);
@@ -138,7 +138,7 @@ public class AccountManager implements IAccountManager {
      */
     @Override
     public boolean getAutoSubscriptionMode() {
-        return false;
+        return autoRespond;
     }
 
     /**
@@ -228,12 +228,27 @@ public class AccountManager implements IAccountManager {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#createAccount(java.lang.String,
      *      char[], java.util.Map)
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public void createAccount(String name, char[] password,
             Map<String, String> attributes) throws CollaborationException {
         if (name != null) {
             if (password != null) {
+                // create the account
+                org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
+                        .getAccountManager();
+                if (manager != null) {
+                    Map map = null;
+                    if (attributes != null) {
+                        map = (Map) attributes;
+                    }
 
+                    try {
+                        manager.createAccount(name, new String(password), map);
+                    } catch (ECFException e) {
+                        throw new CollaborationException("Could not create account ");
+                    }
+                }
                 // all done so clear the password.
                 Arrays.fill(password, (char) 0);
             }
@@ -249,13 +264,16 @@ public class AccountManager implements IAccountManager {
     @Override
     public void sendPresence(IPresence userPresence)
             throws CollaborationException {
-        IPresenceSender sender = presenceAdapter.getRosterManager()
-                .getPresenceSender();
+
+        IRosterManager manager = presenceAdapter.getRosterManager();
+        IPresenceSender sender = manager.getPresenceSender();
+
         try {
             sender.sendPresenceUpdate(null,
                     Presence.convertPresence(userPresence));
+            sessionManager.setPresence(userPresence);
         } catch (ECFException e) {
-            // TODO : Exception handing....
+            throw new CollaborationException("Could not send presence");
         }
     }
 
