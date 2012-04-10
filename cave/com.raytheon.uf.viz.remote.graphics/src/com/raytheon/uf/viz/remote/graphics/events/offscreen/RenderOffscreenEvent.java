@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.remote.graphics.events.offscreen;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
 /**
  * Event notifying clients to render the image represented by the object id to
@@ -40,6 +41,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent {
+public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
+        implements IRenderEvent {
 
 }

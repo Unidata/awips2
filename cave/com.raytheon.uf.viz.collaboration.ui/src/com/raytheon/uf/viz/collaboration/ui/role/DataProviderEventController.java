@@ -36,7 +36,16 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
+import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
+import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.maps.rsc.MapResourceGroup;
+import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.Dispatcher;
+import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
+import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -65,17 +74,6 @@ public class DataProviderEventController extends AbstractRoleEventController {
 
     public DataProviderEventController(ISharedDisplaySession session) {
         super(session);
-    }
-
-    @Override
-    public void startup() {
-        super.startup();
-        super.activateTelestrator();
-    }
-
-    @Override
-    public void shutdown() {
-        super.shutdown();
     }
 
     @Subscribe
@@ -186,6 +184,72 @@ public class DataProviderEventController extends AbstractRoleEventController {
         }
 
         editor.getMouseManager().handleEvent(swtEvent);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
+     * #startup()
+     */
+    @Override
+    public void startup() {
+        super.startup();
+        super.activateTelestrator();
+        for (IDisplayPaneContainer container : CollaborationDataManager
+                .getInstance().getActivelySharedEditors(session.getSessionId())) {
+            // Replace pane resources that will be shared with
+            // CollaborationWrapperResource objects
+            for (IDisplayPane pane : container.getDisplayPanes()) {
+                for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
+                    if (rp.getResource() instanceof MapResourceGroup) {
+                        CollaborationWrapperResourceData wrapperRscData = new CollaborationWrapperResourceData();
+                        wrapperRscData.setWrappedResourceData(rp.getResource()
+                                .getResourceData());
+                        rp.setResource(new CollaborationWrapperResource(
+                                wrapperRscData, rp.getLoadProperties(), rp
+                                        .getResource()));
+                        if (rp.getResourceData() != null) {
+                            rp.setResourceData(wrapperRscData);
+                        }
+                    }
+                }
+            }
+
+            // Inject remote graphics functionality in container
+            DispatchingGraphicsFactory.injectRemoteFunctionality(container,
+                    new DispatcherFactory() {
+                        @Override
+                        public Dispatcher createNewDispatcher() {
+                            Dispatcher dispatcher = new Dispatcher() {
+                                @Override
+                                public void dispatch(
+                                        AbstractRemoteGraphicsEvent eventObject) {
+                                    try {
+                                        session.sendObjectToVenue(eventObject);
+                                    } catch (CollaborationException e) {
+                                        statusHandler.handle(Priority.PROBLEM,
+                                                e.getLocalizedMessage(), e);
+                                    }
+                                }
+                            };
+                            return dispatcher;
+                        }
+                    });
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
+     * #shutdown()
+     */
+    @Override
+    public void shutdown() {
+        super.shutdown();
     }
 
 }
