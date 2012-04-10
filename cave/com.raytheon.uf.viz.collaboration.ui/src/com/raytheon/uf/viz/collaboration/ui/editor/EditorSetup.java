@@ -29,6 +29,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -37,7 +38,6 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
-import com.raytheon.uf.viz.core.maps.rsc.MapResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiUtil;
@@ -96,8 +96,12 @@ public class EditorSetup {
         Iterator<ResourcePair> itr = desc.getResourceList().iterator();
         while (itr.hasNext()) {
             ResourcePair rp = itr.next();
-            if (rp.getResource() instanceof MapResourceGroup) {
-                rscList.add(rp);
+            if (rp.getResource() instanceof CollaborationWrapperResource) {
+                ResourcePair copy = new ResourcePair();
+                copy.setLoadProperties(rp.getLoadProperties());
+                copy.setProperties(rp.getProperties());
+                copy.setResourceData(rp.getResource().getResourceData());
+                rscList.add(copy);
             }
         }
         se.setLocalResources(rscList);

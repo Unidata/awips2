@@ -40,31 +40,14 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class BeginFrameEvent extends AbstractRemoteGraphicsEvent {
-
-    @DynamicSerializeElement
-    private boolean clear;
+public class BeginFrameEvent extends AbstractRemoteGraphicsEvent implements
+        IRenderEvent {
 
     @DynamicSerializeElement
     private double extentFactor;
 
     @DynamicSerializeElement
     private double[] extentCenter;
-
-    /**
-     * @return the clear
-     */
-    public boolean isClear() {
-        return clear;
-    }
-
-    /**
-     * @param clear
-     *            the clear to set
-     */
-    public void setClear(boolean clear) {
-        this.clear = clear;
-    }
 
     /**
      * @return the extentFactor

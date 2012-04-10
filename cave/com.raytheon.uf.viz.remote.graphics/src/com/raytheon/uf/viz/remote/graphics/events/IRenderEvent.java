@@ -19,11 +19,10 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events;
 
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
-
 /**
- * TODO Add Description
+ * Interface for objects that events for actually rendering an object. These
+ * types of events can be skipped over unlike data events which are required to
+ * execute at some point
  * 
  * <pre>
  * 
@@ -31,15 +30,14 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            mschenke     Initial creation
+ * Apr 9, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@DynamicSerialize
-public class EndFrameEvent extends AbstractRemoteGraphicsEvent implements
-        IRenderEvent {
+
+public interface IRenderEvent {
 
 }
