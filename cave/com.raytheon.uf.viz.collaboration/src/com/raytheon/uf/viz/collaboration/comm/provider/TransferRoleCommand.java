@@ -24,7 +24,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
- * TODO Add Description
+ * A command to transfer a role to a different user on the session.
  * 
  * <pre>
  * 

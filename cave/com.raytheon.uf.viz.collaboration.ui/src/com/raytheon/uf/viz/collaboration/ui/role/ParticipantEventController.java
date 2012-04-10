@@ -117,8 +117,10 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 // this cave should assume session leader control
                 InputUtil.enableSessionLeaderInput(CollaborationDataManager
                         .getInstance().getEditor(session.getSessionId()));
-            } else if (cmd.getUser().equals(
-                    session.getCurrentSessionLeader().getFQName())) {
+            } else if (session.getCurrentSessionLeader().equals(
+                    session.getUserID().getFQName())
+                    && !session.getCurrentSessionLeader().getFQName()
+                            .equals(cmd.getUser())) {
                 // this cave should release session leader control
                 InputUtil.disableSessionLeaderInput(CollaborationDataManager
                         .getInstance().getEditor(session.getSessionId()));
