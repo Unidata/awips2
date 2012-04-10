@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -386,8 +387,13 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
      */
     @Override
     protected Collection<? extends Level> get3DLevels() {
-        return LevelMappingFactory.getInstance()
-                .getLevelMappingForKey("Station").getLevels();
+        try {
+            return LevelMappingFactory.getInstance()
+                    .getLevelMappingForKey("Station").getLevels();
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            return Collections.emptyList();
+        }
     }
 
     @Override

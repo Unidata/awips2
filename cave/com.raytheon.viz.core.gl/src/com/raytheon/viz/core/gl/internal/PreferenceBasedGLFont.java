@@ -135,20 +135,8 @@ public class PreferenceBasedGLFont implements IGLFont, IPropertyChangeListener {
     public void propertyChange(PropertyChangeEvent event) {
         if (propertyName.equals(event.getProperty())) {
             preferenceFont.disposeInternal();
-            preferenceFont = FontFactory.getInstance().getFont(propertyName,
-                    preferenceFont.getTarget());
-            preferenceFont.getTarget().setNeedsRefresh(true);
+            preferenceFont = FontFactory.getInstance().getFont(propertyName);
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.IGLFont#getTarget()
-     */
-    @Override
-    public GLTarget getTarget() {
-        return preferenceFont.getTarget();
     }
 
     /*

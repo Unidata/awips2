@@ -19,9 +19,12 @@
  **/
 package com.raytheon.uf.viz.thinclient.preferences;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.thinclient.Activator;
 
 /**
@@ -53,8 +56,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     public void initializeDefaultPreferences() {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         // Set Defaults for cache directory and cache settings
-        store.setDefault(ThinClientPreferenceConstants.P_CACHE_DIR,
-                System.getProperty("java.io.tmpdir", ""));
+        store.setDefault(ThinClientPreferenceConstants.P_CACHE_DIR, new File(
+                LocalizationManager.getUserDir(), "cache").getAbsolutePath());
         store.setDefault(ThinClientPreferenceConstants.P_CACHE_WEATHER, true);
         store.setDefault(ThinClientPreferenceConstants.P_CACHE_LOCALIZATION,
                 true);

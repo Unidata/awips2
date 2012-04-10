@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -65,6 +66,8 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
 
 public class DerivedLevelNode extends AbstractDerivedLevelNode {
 
+    private static final int TIME_QUERY_CACHE_TIME = 30000;
+
     private Map<IDerivParamField, AbstractRequestableData> fieldStaticData = null;
 
     private Map<DerivParamField, AbstractRequestableLevelNode> fields = null;
@@ -74,6 +77,8 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
      * it can be used to correlate times when requesting data.
      */
     private Map<DerivParamField, Set<DataTime>> timeCache = null;
+
+    private long lastTimeQuery = 0;
 
     private int dt;
 
@@ -145,10 +150,12 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
+            boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
+        this.lastTimeQuery = System.currentTimeMillis();
         Map<DerivParamField, Set<DataTime>> timeCache = new HashMap<DerivParamField, Set<DataTime>>();
         // We have a derived parameter for the requested grid
         Set<DataTime> availableDataTimes = null;
@@ -171,8 +178,8 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
         }
         for (DerivParamField field : fieldsKeys) {
             AbstractRequestableLevelNode node = fields.get(field);
-            Set<DataTime> queryDataTimes = node.timeQuery(false, cache,
-                    latestOnlyCache);
+            Set<DataTime> queryDataTimes = node.timeQuery(originalRequest,
+                    false, cache, latestOnlyCache);
             timeCache.put(field, queryDataTimes);
             if (queryDataTimes == TIME_AGNOSTIC) {
                 if (availableDataTimes == null) {
@@ -277,8 +284,10 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
             int timeOut,
             Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
             throws VizException {
-        if (this.timeCache == null) {
-            this.timeQuery(false);
+        if (this.timeCache == null
+                || this.lastTimeQuery + TIME_QUERY_CACHE_TIME < System
+                        .currentTimeMillis()) {
+            this.timeQuery(null, false);
         }
 
         // keep a reference for scope of method

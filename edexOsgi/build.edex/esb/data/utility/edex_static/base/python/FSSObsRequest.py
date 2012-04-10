@@ -53,10 +53,6 @@ class FSSObsRequest(PointDataQuery.PointDataQuery):
         
     def setOrderByList(self,orderList,ascending,className=None):
         self._pdq.setSortBy(orderList, ascending,className)
-        
-    def makeNullResponse(self):        
-        response = ArrayList()
-        return response
 
     def execute(self):
         print "FSSObsRequest.py"
