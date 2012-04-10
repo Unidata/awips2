@@ -80,7 +80,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
@@ -429,33 +428,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
         LoginData loginData = (LoginData) dialog.getReturnValue();
         if (loginData != null) {
-            // TODO Remove the refresh of the usertree once rostermanger has
-            // handler.
-            LoginUser loginUser = getLoginUser();
-            loginUser.setMode(loginData.getMode());
-            loginUser.setStatusMessage(loginData.getModeMessage());
-            usersTreeViewer.refresh(loginUser, true);
-            SessionManager sessionManager = CollaborationDataManager
-                    .getInstance().getSessionManager();
-            // TODO this will change will be able to get existing presences.
-            Presence presence = new Presence();
-            presence.setProperty("dummy", "dummy");
-            presence.setMode(loginData.getMode());
-            presence.setStatusMessage(loginData.getModeMessage());
-            presence.setType(Type.AVAILABLE);
-            try {
-                sessionManager.getAccountManager().sendPresence(presence);
-            } catch (CollaborationException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            System.out.println("send mode change here: "
-                    + loginData.getMode().toString() + ", Message: \""
-                    + loginData.getModeMessage() + "\"");
+            CollaborationDataManager.getInstance().fireModifiedPresence();
         }
     }
 
@@ -963,26 +936,24 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 .getSessionManager().getRosterManager();
 
         IRoster roster = rosterManager.getRoster();
-        // System.out.println("rosterManager Name " /* +
-        // roster.getUser().getName() */
 
         String name = null;
         int rsize = -1;
         int gsize = -1;
         if (roster != null) {
-            // // TODO remove DEBUG start
-            // if (roster.getUser() != null) {
-            // name = roster.getUser().getName();
-            // }
-            // if (roster.getEntries() != null) {
-            // rsize = roster.getEntries().size();
-            // }
-            // if (roster.getGroups() != null) {
-            // gsize = roster.getGroups().size();
-            // }
-            // System.out.println("rosterManager Name " + name + ": group size "
-            // + gsize + ": entry size " + rsize);
-            // // TODO DEBUG end remove
+            // TODO remove DEBUG start
+            if (roster.getUser() != null) {
+                name = roster.getUser().getName();
+            }
+            if (roster.getEntries() != null) {
+                rsize = roster.getEntries().size();
+            }
+            if (roster.getGroups() != null) {
+                gsize = roster.getGroups().size();
+            }
+            System.out.println("rosterManager Name " + name + ": group size "
+                    + gsize + ": entry size " + rsize);
+            // TODO DEBUG end remove
             for (IRosterGroup rosterGroup : roster.getGroups()) {
                 if (rosterGroup != null) {
                     populateGroup(topLevel, rosterGroup);
