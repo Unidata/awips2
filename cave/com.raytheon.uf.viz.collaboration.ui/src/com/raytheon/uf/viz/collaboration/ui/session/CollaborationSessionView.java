@@ -35,10 +35,15 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchPart;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 
@@ -60,6 +65,9 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
  */
 public class CollaborationSessionView extends SessionView {
     public static final String ID = "com.raytheon.uf.viz.collaboration.CollaborationSession";
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CollaborationSessionView.class);
 
     private static final String COLLABORATION_SESSION_IMAGE_NAME = "messages.gif";
 
@@ -133,6 +141,17 @@ public class CollaborationSessionView extends SessionView {
         System.out.println("Send switchLeader request. " + fqname);
         // TODO need to send invite/request for transfer, and then if successful
         // deactivate the local ones since we won't receive the message
+        TransferRoleCommand trc = new TransferRoleCommand();
+        trc.setUser(fqname);
+        trc.setRole(ParticipantRole.SESSION_LEADER);
+        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
+                .getInstance().getSession(this.sessionId);
+        try {
+            session.sendObjectToVenue(trc);
+        } catch (CollaborationException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to send message to transfer role", e);
+        }
     }
 
     @Override

@@ -172,6 +172,7 @@ public abstract class BaseSession implements ISession {
      */
     public ID createID(String name) throws IDCreateException {
         ID id = null;
+        name += "/foo"; // TODO fix this in a better way
         if (connectionNamespace != null) {
             id = IDFactory.getDefault().createID(connectionNamespace, name);
         }

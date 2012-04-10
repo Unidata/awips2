@@ -243,8 +243,13 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 System.out.println("room: " + info.getVenueName());
                 System.out.println("subject: "
                         + session.getVenue().getInfo().getVenueSubject());
-                session.sendInvitation(ids, session.getVenue().getInfo()
-                        .getVenueSubject());
+                try {
+                    session.sendInvitation(ids, session.getVenue().getInfo()
+                            .getVenueSubject());
+                } catch (CollaborationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error sending invitiation", e);
+                }
             };
         };
         inviteAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
