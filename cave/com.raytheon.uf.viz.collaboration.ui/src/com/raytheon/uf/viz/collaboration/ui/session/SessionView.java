@@ -59,11 +59,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
@@ -207,6 +210,15 @@ public class SessionView extends AbstractSessionView {
         });
     }
 
+    @Subscribe
+    public void handleModifiedPresence(IRosterEntry rosterEntry) {
+        System.out.println("session view roster entry for:"
+                + rosterEntry.getUser().getFQName() + " "
+                + rosterEntry.getPresence().getMode() + "/"
+                + rosterEntry.getPresence().getType());
+        usersTable.refresh();
+    }
+
     /**
      * Ties the view to a session.
      * 
@@ -338,6 +350,8 @@ public class SessionView extends AbstractSessionView {
                             .append("\n");
                     builder.append("type: ").append(user.getType())
                             .append("\n");
+                    builder.append("message: \"")
+                            .append(user.getStatusMessage()).append("\"\n");
                     builder.append("-- Roles --");
                     for (ParticipantRole type : user.getRoles()) {
                         // TODO fake XXX take this out
@@ -363,8 +377,11 @@ public class SessionView extends AbstractSessionView {
                 String userId = getParticipantUserId(participant);
                 CollaborationUser user = new CollaborationUser(userId,
                         sessionId);
-                // user.setMode(Mode.AVAILABLE);
-                // user.setType(Type.AVAILABLE);
+                if (user.getType() == Type.UNKNOWN) {
+                    // Unknown user assume mode/type
+                    user.setMode(Mode.AVAILABLE);
+                    user.setType(Type.AVAILABLE);
+                }
 
                 // ParticipantRole[] roles = user.getRoles(sessionId);
                 // for (ParticipantRole role : roles) {
@@ -373,8 +390,6 @@ public class SessionView extends AbstractSessionView {
                 user.addRole(ParticipantRole.DATA_PROVIDER);
                 user.addRole(ParticipantRole.SESSION_LEADER);
                 user.setText(participant.getFQName());
-                // user.setMode(mode);
-                // user.setType(Type.AVAILABLE);
                 users.add(user);
             }
         } else {
@@ -455,8 +470,10 @@ public class SessionView extends AbstractSessionView {
     public void partClosed(IWorkbenchPart part) {
         super.partClosed(part);
         if (this == part) {
-            CollaborationDataManager.getInstance().getSession(sessionId)
-                    .unRegisterEventHandler(this);
+            CollaborationDataManager manager = CollaborationDataManager
+                    .getInstance();
+            manager.getSession(sessionId).unRegisterEventHandler(this);
+            manager.unRegisterEventHandler(this);
             CollaborationDataManager.getInstance().closeSession(sessionId);
         }
     }
@@ -473,8 +490,10 @@ public class SessionView extends AbstractSessionView {
         // TODO Auto-generated method stub
         super.partOpened(part);
         if (this == part) {
-            CollaborationDataManager.getInstance().getSession(sessionId)
-                    .registerEventHandler(this);
+            CollaborationDataManager manager = CollaborationDataManager
+                    .getInstance();
+            manager.getSession(sessionId).registerEventHandler(this);
+            manager.registerEventHandler(this);
         }
     }
 
@@ -585,7 +604,8 @@ public class SessionView extends AbstractSessionView {
                     participantDeparted(participant);
                     break;
                 case PRESENCE_UPDATED:
-                    participantPresenceUpdated(participant, presence);
+                    // The mode for presence not set correctly do not update
+                    // participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
                     System.out.println("---- handle update here: "
@@ -633,9 +653,17 @@ public class SessionView extends AbstractSessionView {
         }
     }
 
+    /**
+     * @param participant
+     * @param presence
+     */
     @SuppressWarnings("unchecked")
     private void participantPresenceUpdated(IVenueParticipant participant,
             IPresence presence) {
+        // TODO Do not use this to set the mode since it not the user's presence
+        // mode.
+        // Keep as a place holder for now since it may be need to set
+        // leader/provider roles.
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
         System.out.println("++++ handle presence updated here: "
@@ -655,6 +683,5 @@ public class SessionView extends AbstractSessionView {
         CollaborationUser user = new CollaborationUser(name);
         user.setMode(presence.getMode());
         user.setType(presence.getType());
-        // usersTable.refresh();
     }
 }
