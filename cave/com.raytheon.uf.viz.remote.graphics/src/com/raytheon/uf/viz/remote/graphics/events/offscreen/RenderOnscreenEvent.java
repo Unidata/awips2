@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.remote.graphics.events.offscreen;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
 /**
  * Event letting clients know they can render on screen
@@ -39,6 +40,7 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class RenderOnscreenEvent extends AbstractRemoteGraphicsEvent {
+public class RenderOnscreenEvent extends AbstractRemoteGraphicsEvent implements
+        IRenderEvent {
 
 }
