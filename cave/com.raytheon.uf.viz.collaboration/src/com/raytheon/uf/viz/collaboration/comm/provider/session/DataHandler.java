@@ -60,7 +60,8 @@ public class DataHandler {
         System.out.println("DataHandler---------------------------------");
         System.out.println("   venue identifer  " + event.getRoomId());
         System.out.println("   inviter          " + event.getInviter());
-        System.out.println("   sessionid        " + event.getSessionId());
-        System.out.println("   body             " + event.getBody());
+        System.out.println("   sessionid        "
+                + event.getInvite().getSessionId());
+        // System.out.println("   body             " + event.getBody());
     }
 }
