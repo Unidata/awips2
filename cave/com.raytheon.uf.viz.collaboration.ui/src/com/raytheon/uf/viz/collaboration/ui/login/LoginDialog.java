@@ -109,6 +109,10 @@ public class LoginDialog extends CaveSWTDialog {
         setText("Collaboration Server Login");
     }
 
+    /**
+     * @param parent
+     * @return
+     */
     private Control createDialogArea(Composite parent) {
         GridData gd = null;
         Composite body = new Composite(parent, SWT.NONE);
@@ -210,6 +214,13 @@ public class LoginDialog extends CaveSWTDialog {
         return body;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         shell.setLayout(new GridLayout(1, false));
@@ -217,6 +228,9 @@ public class LoginDialog extends CaveSWTDialog {
         createButtonBar(shell);
     }
 
+    /**
+     * @param parent
+     */
     private void createButtonBar(Composite parent) {
         GridData gd = null;
         Composite bar = new Composite(parent, SWT.NONE);
@@ -229,6 +243,11 @@ public class LoginDialog extends CaveSWTDialog {
                 IDialogConstants.CANCEL_LABEL, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
     @Override
     protected void preOpened() {
         super.preOpened();

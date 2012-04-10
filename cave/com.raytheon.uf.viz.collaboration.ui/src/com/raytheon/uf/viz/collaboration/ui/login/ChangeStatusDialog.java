@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -61,8 +62,6 @@ public class ChangeStatusDialog extends CaveSWTDialog {
     private Combo statusCombo;
 
     private Text messageTF;
-
-    private LoginData loginData;
 
     public ChangeStatusDialog(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM);
@@ -121,7 +120,8 @@ public class ChangeStatusDialog extends CaveSWTDialog {
     @Override
     protected void preOpened() {
         super.preOpened();
-        this.loginData = LoginDialog.openUserLoginData();
+        LoginData loginData = CollaborationDataManager.getInstance()
+                .getLoginData();
         userLabel.setText(loginData.getAccount());
         statusCombo.select(CollaborationUtils.statusModesIndex(loginData
                 .getMode()));
@@ -179,6 +179,8 @@ public class ChangeStatusDialog extends CaveSWTDialog {
                 if (val != IDialogConstants.OK_ID) {
                     setReturnValue(null);
                 } else {
+                    LoginData loginData = CollaborationDataManager
+                            .getInstance().getLoginData();
                     boolean modified = false;
                     IPresence.Mode mode = CollaborationUtils.statusModes[statusCombo
                             .getSelectionIndex()];

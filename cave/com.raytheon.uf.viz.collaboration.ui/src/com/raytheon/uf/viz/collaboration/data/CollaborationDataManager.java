@@ -51,10 +51,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
+import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
@@ -97,6 +100,8 @@ public class CollaborationDataManager {
 
     String loginId;
 
+    private LoginData loginData;
+
     Shell shell;
 
     /**
@@ -128,6 +133,10 @@ public class CollaborationDataManager {
             instance = new CollaborationDataManager();
         }
         return instance;
+    }
+
+    public LoginData getLoginData() {
+        return loginData;
     }
 
     /**
@@ -199,7 +208,7 @@ public class CollaborationDataManager {
                         return;
                     }
                     LoginDialog dlg = new LoginDialog(shell);
-                    LoginData loginData = null;
+                    loginData = null;
                     while (isConnected() == false) {
                         loginData = (LoginData) dlg.open();
                         dlg.close();
@@ -212,10 +221,10 @@ public class CollaborationDataManager {
                             loginId = loginData.getAccount();
                             DataUser user = CollaborationDataManager
                                     .getInstance().getUser(loginId);
-                            // TODO set mode and message here.
-                            user.setMode(loginData.getMode());
-                            user.type = Type.AVAILABLE;
-                            user.statusMessage = loginData.getModeMessage();
+                            // // TODO set mode and message here.
+                            // user.setMode(loginData.getMode());
+                            // user.type = Type.AVAILABLE;
+                            // user.statusMessage = loginData.getModeMessage();
                         } catch (Exception e) {
                             MessageBox box = new MessageBox(shell, SWT.ERROR);
                             box.setText("Login Failed");
@@ -229,25 +238,6 @@ public class CollaborationDataManager {
                             // e.getLocalizedMessage(), e);
                         }
                     }
-                    // TODO this will change will be able to get existing
-                    // presences.
-                    Presence presence = new Presence();
-                    presence.setProperty("dummy", "dummy");
-                    presence.setMode(loginData.getMode());
-                    presence.setStatusMessage(loginData.getModeMessage());
-                    presence.setType(Type.AVAILABLE);
-                    try {
-                        sessionManager.getAccountManager().sendPresence(
-                                presence);
-                    } catch (CollaborationException e) {
-                        // TODO Auto-generated catch block. Please revise as
-                        // appropriate.
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-
                 }
             });
 
@@ -263,6 +253,7 @@ public class CollaborationDataManager {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
+                fireModifiedPresence();
                 wbListener = new IWorkbenchListener() {
 
                     @Override
@@ -573,11 +564,34 @@ public class CollaborationDataManager {
         });
     }
 
+    public void fireModifiedPresence() {
+        // TODO this will change will be able to get existing
+        // presences from roster.
+        Presence presence = new Presence();
+        presence.setProperty("dummy", "dummy");
+        presence.setMode(loginData.getMode());
+        presence.setStatusMessage(loginData.getModeMessage());
+        presence.setType(Type.AVAILABLE);
+        try {
+            sessionManager.getAccountManager().sendPresence(presence);
+            IRoster roster = sessionManager.getRosterManager().getRoster();
+            // Generate a fake entry here to update the login user presence in
+            // all registered views.
+            IChatID id = roster.getUser();
+            RosterEntry rosterEntry = new RosterEntry(id);
+            rosterEntry.setPresence(presence);
+            handleModifiedPresence(rosterEntry);
+        } catch (CollaborationException e) {
+            // TODO Auto-generated catch block. Please revise as
+            // appropriate.
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     /**
-     * 
-     * @param venueName
-     * @param sessionId
-     * @return
+     * @param entry
      */
     @Subscribe
     public void handleModifiedPresence(IRosterEntry entry) {
