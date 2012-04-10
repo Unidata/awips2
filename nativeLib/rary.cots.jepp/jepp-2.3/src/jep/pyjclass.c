@@ -136,7 +136,7 @@ PyJclass_Object* pyjclass_new(JNIEnv *env, PyObject *pyjob) {
 
     // caching below added by njensen
     pyc->numArgsPerConstructor = malloc(sizeof(int) * pyc->initLen);
-    pyc->constructorArgTypes = (int *) malloc(sizeof(int*) * pyc->initLen);
+    pyc->constructorArgTypes = (int **) malloc(sizeof(int*) * pyc->initLen);
     for(i = 0; i < pyc->initLen; i++) {
         jmethodID     methodId;
 
@@ -247,6 +247,7 @@ PyObject* pyjclass_call(PyJclass_Object *self,
     jvalue        *jargs       = NULL;
     int            foundArray  = 0;
     PyThreadState *_save;
+	int pyArgLength;
 
     classCallCount = classCallCount + 1;
     if(!PyTuple_Check(args)) {
@@ -269,7 +270,7 @@ PyObject* pyjclass_call(PyJclass_Object *self,
 
 
     // njensen changed below to use cached constructor arguments
-    int pyArgLength = PyTuple_Size(args);
+    pyArgLength = PyTuple_Size(args);
     for(initPos = 0; initPos < self->initLen; initPos++) {
     	jmethodID     methodId;
 

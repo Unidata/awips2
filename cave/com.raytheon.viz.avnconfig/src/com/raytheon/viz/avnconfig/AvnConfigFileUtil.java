@@ -29,10 +29,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 
 /**
- * Aviation File Util class.
+ * This class contains static methods for handling the localization setup up for
+ * AvnFPS.
  * 
  * <pre>
  * 
@@ -49,7 +49,9 @@ import com.raytheon.uf.viz.core.status.StatusConstants;
  */
 
 public class AvnConfigFileUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AvnConfigFileUtil.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AvnConfigFileUtil.class);
+
     /**
      * Obtain the LocalizationFile for configuration file.
      * 
@@ -63,10 +65,9 @@ public class AvnConfigFileUtil {
 
         if (lFile == null) {
             String site = LocalizationManager.getInstance().getCurrentSite();
-            statusHandler.handle(Priority.CRITICAL,
-                    "Unable to find \"" + configFile
-                            + "\" under the directory for site " + site + ".",
-                    null);
+            statusHandler.handle(Priority.CRITICAL, "Unable to find \""
+                    + configFile + "\" under the directory for site " + site
+                    + ".", null);
         }
 
         return lFile;
@@ -119,12 +120,10 @@ public class AvnConfigFileUtil {
         File file = pm.getStaticFile(configFile);
 
         if (file == null) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to find \""
-                            + configFile
-                            + "\" under the directory for site "
-                            + LocalizationManager.getInstance()
-                                    .getCurrentSite() + ".", null);
+            statusHandler.handle(Priority.PROBLEM, "Unable to find \""
+                    + configFile + "\" under the directory for site "
+                    + LocalizationManager.getInstance().getCurrentSite() + ".",
+                    null);
         }
 
         return file;

@@ -24,12 +24,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.StringTokenizer;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
+
+import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
+import com.raytheon.uf.common.dataplugin.radar.level3.TextSymbolPacket;
+import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
+import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
+
 import com.raytheon.uf.common.dataplugin.scan.data.DMDTableDataRow;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableDataRow;
@@ -49,12 +56,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05/07/2009   2037      dhladky    Initial Creation.
- * 
+ * 05/07/2009   2037       dhladky      Initial Creation.
+ * 02/23/2012	14536	   Xiaochuan	Add method getIdsFromGraphicBlock() to 
+ * 										hold the ids that have the same order   
+ * 										as the ids in source file.
+ *
+ *
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
+ * 
  */
 
 public class MesoCycloneTabularProduct extends RadarProduct {
@@ -101,14 +113,11 @@ public class MesoCycloneTabularProduct extends RadarProduct {
 
         // populate needed data
         if (table != null) {
-
-            ArrayList<String> mesoKeys = (ArrayList<String>) rec
-                    .getIds(MapValues.MESO_TYPE);
-
+        	ArrayList<String> mesoKeys = (ArrayList<String>) getIdsFromGraphicBlock(rec);  
+           
             // first check for alarms
-            if (mesoKeys != null) {
-
-                ScanAlarmXML alarms = filter.getAlarmData();
+             if (mesoKeys != null)	{
+            	ScanAlarmXML alarms = filter.getAlarmData();
                 StringBuffer alarmString = null;
 
                 ArrayList<String> newMesoKeys = getAdditions(mesoKeys, table);
@@ -134,16 +143,14 @@ public class MesoCycloneTabularProduct extends RadarProduct {
 
             // remove all rows regardless of age, we need it to blank
             for (String id : table.getTableData().keySet()) {
-                // System.out.println("Removing MESO ID: " + id);
                 table.removeRow(id);
             }
             // add all rows in meso product
             if ((rec != null) && (mesoKeys != null)) {
-
-                table.setFeatureIds(mesoKeys);
-
-                for (String fid : mesoKeys) {
-                    // System.out.println("Adding MESO FID: " + fid);
+            	table.setFeatureIds(mesoKeys);
+ 
+            	for (String fid : mesoKeys)
+                {
                     table.addRow(
                             fid,
                             write(new DMDTableDataRow(rec.getDataTime()), rec,
@@ -159,6 +166,42 @@ public class MesoCycloneTabularProduct extends RadarProduct {
             table.setVolScanTime(rec.getDataTime().getRefTime());
         }
     }
+
+	/**
+	 * @param rec
+	 * @return
+	 */
+	public ArrayList<String> getIdsFromGraphicBlock(RadarRecord rec) {
+		GraphicBlock gb = rec.getGraphicBlock();
+		ArrayList<String> ids = new ArrayList<String>();
+
+		if (gb != null) {
+			Layer[] pages = gb.getPages();
+
+			// Go through each page
+			for (int i = 0; i < pages.length; i++) {
+				SymbologyPacket[] packets = pages[i].getPackets();
+
+				// keys listed in the first packet
+				if (packets[0] instanceof TextSymbolPacket) {
+					String ln_id = ((TextSymbolPacket) packets[0]).getTheText();
+					StringTokenizer st = new StringTokenizer(ln_id, " ");
+					int countE = 0;
+					int countId = 2;
+					while (st.hasMoreTokens()) {
+						String e = st.nextToken();
+						if (countE == countId) {
+							ids.add(e);
+							countId += 2;
+						}
+						countE++;
+					}
+				}
+			}
+		}
+
+		return ids;
+	}
 
     @Override
     public ScanTableDataRow write(ScanTableDataRow row,

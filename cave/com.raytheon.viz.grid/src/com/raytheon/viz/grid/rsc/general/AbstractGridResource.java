@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.measure.Measure;
+import javax.measure.quantity.Angle;
+import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
@@ -48,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -179,6 +182,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         });
         dataTimes = new ArrayList<DataTime>();
         requestJob = new GridDataRequestJob(this);
+        // Capabilities need to be inited in construction for things like the
+        // image combination tool.
+        initCapabilities();
     }
 
     /**
@@ -284,7 +290,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        initCapabilities();
         initStylePreferences();
         initSampling();
     }
@@ -444,7 +449,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     if (params.getColorMapName() == null) {
                         params.setColorMapName("Grid/gridded data");
                     }
-                    params.setColorMap(target.buildColorMap(params
+                    params.setColorMap(ColorMapLoader.loadColorMap(params
                             .getColorMapName()));
                 }
                 this.getCapability(ColorMapCapability.class)
@@ -592,12 +597,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         synchronized (requestJob) {
             GeneralGridData data = this.data.get(time);
             if (data == null) {
-                List<PluginDataObject> pdoList = pdos.get(time);
-                if (pdoList != null) {
-                    data = requestJob.requestData(time, pdoList);
-                    if (data != null) {
-                        this.data.put(time, data);
-                    }
+                data = requestJob.requestData(time, pdos.get(time));
+                if (data != null) {
+                    this.data.put(time, data);
                 }
             }
             return data;
@@ -678,13 +680,17 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return descriptor.getTimeForResource(this);
     }
 
-    public Measure<Float, ?> inspectValue(ReferencedCoordinate coord)
-            throws VizException {
+    protected GeneralGridData getCurrentData() {
         DataTime time = getTimeForResource();
         if (time == null) {
             return null;
         }
-        GeneralGridData data = requestData(time);
+        return requestData(time);
+    }
+
+    public Measure<Float, ?> inspectValue(ReferencedCoordinate coord)
+            throws VizException {
+        GeneralGridData data = getCurrentData();
         if (data == null) {
             return null;
         }
@@ -700,6 +706,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             throw new VizException(e);
         }
 
+        sampleInterpolion.setData(null);
         Unit<?> unit = data.getDataUnit();
 
         if (stylePreferences != null) {
@@ -714,6 +721,32 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return Measure.valueOf(value, unit);
     }
 
+    public Measure<Float, Angle> inspectDirection(ReferencedCoordinate coord)
+            throws VizException {
+        GeneralGridData data = getCurrentData();
+        if (data == null) {
+            return null;
+        }
+        if (!data.isVector()) {
+            return null;
+        }
+        sampleInterpolion.setData(data.getDirection().array());
+        float value = Float.NaN;
+        try {
+            Coordinate xy = coord.asPixel(descriptor.getGridGeometry());
+            value = sampleInterpolion.getReprojectedGridCell((int) xy.x,
+                    (int) xy.y);
+        } catch (FactoryException e) {
+            throw new VizException(e);
+        } catch (TransformException e) {
+            throw new VizException(e);
+        }
+
+        sampleInterpolion.setData(null);
+
+        return Measure.valueOf(value, NonSI.DEGREE_ANGLE);
+    }
+
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Measure<Float, ?> value = inspectValue(coord);
@@ -723,8 +756,14 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         if (value.getValue().isNaN()) {
             return "NO DATA";
         }
-
-        return inspect(value);
+        Measure<Float, Angle> dir = inspectDirection(coord);
+        if (dir != null) {
+            return String.format("%.0f\u00B0 ",
+                    dir.floatValue(NonSI.DEGREE_ANGLE))
+                    + formatInspect(value);
+        } else {
+            return formatInspect(value);
+        }
     }
 
     /**
@@ -734,9 +773,19 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      * @param unit
      * @return
      */
-    protected String inspect(Measure<Float, ?> value) {
-        if (value.getUnit() == null) {
+    protected String formatInspect(Measure<Float, ?> value) {
+        Unit<?> dataUnit = value.getUnit();
+
+        if (dataUnit == null) {
             return sampleFormat.format(value);
+        }
+        Unit<?> styleUnit = null;
+        if (stylePreferences != null) {
+            styleUnit = stylePreferences.getDisplayUnits();
+        }
+        if (dataUnit.equals(styleUnit)) {
+            return sampleFormat.format(value.getValue())
+                    + stylePreferences.getDisplayUnitLabel();
         } else {
             return sampleFormat.format(value.getValue())
                     + UnitFormat.getUCUMInstance().format(value.getUnit());
@@ -748,6 +797,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         pdos.remove(dataTime);
         data.remove(dataTime);
         requestJob.remove(dataTime);
+        dataTimes.remove(dataTime);
         IRenderable renderable = renderables.remove(dataTime);
         if (renderable != null) {
             disposeRenderable(renderable);
@@ -790,7 +840,14 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         }
         renderables.clear();
         data.clear();
+    }
 
+    protected List<PluginDataObject> getCurrentPluginDataObjects() {
+        return pdos.get(getTimeForResource());
+    }
+
+    protected List<PluginDataObject> getPluginDataObjects(DataTime time) {
+        return pdos.get(time);
     }
 
     public AbstractVizResource<?, ?> getArrowResource() throws VizException {
@@ -830,7 +887,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     public boolean isArrowVector() {
         DisplayType displayType = getDisplayType();
         return displayType == DisplayType.BARB
-                || displayType == DisplayType.STREAMLINE;
+                || displayType == DisplayType.STREAMLINE
+                || displayType == DisplayType.DUALARROW;
     }
 
     public boolean isWindVector() {
@@ -840,7 +898,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     }
 
     public boolean isLoadableAsImage() {
-        return true;
+        DisplayType displayType = getDisplayType();
+        return displayType != DisplayType.IMAGE;
     }
 
 }

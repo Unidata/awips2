@@ -25,6 +25,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.media.opengl.GL;
+
+import com.raytheon.viz.core.gl.GLDisposalManager.GLDisposer;
 import com.sun.opengl.util.j2d.TextRenderer;
 
 /**
@@ -60,7 +63,14 @@ public class TextRendererCache {
         @Override
         protected boolean removeEldestEntry(Entry<Font, TextRenderer> eldest) {
             if (size() > UNUSED_RENDERER_SIZE) {
-                eldest.getValue().dispose();
+                final TextRenderer renderer = eldest.getValue();
+                new GLDisposer() {
+                    @Override
+                    protected void dispose(GL gl) {
+                        renderer.dispose();
+
+                    }
+                }.dispose();
                 return true;
             }
             return false;
