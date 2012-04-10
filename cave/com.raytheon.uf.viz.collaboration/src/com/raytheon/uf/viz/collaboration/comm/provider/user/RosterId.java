@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
@@ -38,13 +40,21 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * @author jkorman
  * @version 1.0
  */
-
+@DynamicSerialize
 public class RosterId extends UserId implements IChatID {
 
-    private String nickname;
+    @DynamicSerializeElement
+    protected String nickname;
 
-    
-    
+    /**
+     * 
+     * @param userName
+     * @param hostName
+     */
+    public RosterId(String userName, String hostName) {
+        super(userName, hostName);
+    }
+
     /**
      * 
      * @param userName
@@ -55,7 +65,7 @@ public class RosterId extends UserId implements IChatID {
     public RosterId(String userName, String hostName, String resource) {
         super(userName, hostName, resource);
     }
-    
+
     /**
      * 
      * @param userName

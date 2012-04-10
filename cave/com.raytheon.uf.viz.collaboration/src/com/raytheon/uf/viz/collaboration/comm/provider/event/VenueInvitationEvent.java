@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * TODO Add Description
@@ -48,9 +48,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
 
     private String subject;
 
-    private String body;
-
-    private String sessionId;
+    private SharedDisplayInvite invite;
 
     /**
      * 
@@ -60,12 +58,11 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
      * @param body
      */
     public VenueInvitationEvent(IQualifiedID venueId, IQualifiedID invitor,
-            String subject, String body) {
+            String subject, SharedDisplayInvite invite) {
         this.venueId = venueId;
         this.invitor = invitor;
         this.subject = subject;
-        this.body = body;
-        extractSessionId();
+        this.invite = invite;
     }
 
     /**
@@ -94,36 +91,8 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
         return subject;
     }
 
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent#getBody()
-     */
-    @Override
-    public String getBody() {
-        return body;
-    }
-    
-    /**
-     * @return the sessionId
-     */
-    public String getSessionId() {
-        return sessionId;
+    public SharedDisplayInvite getInvite() {
+        return invite;
     }
 
-    /**
-     * Extract the session identifier from the body of the invitation.
-     */
-    private void extractSessionId() {
-        if (body != null) {
-            if (body.startsWith(Tools.TAG_INVITE)) {
-                int start = Tools.TAG_INVITE.length();
-                // find the end of the invite tag
-                int tagEnd = body.indexOf("]]");
-                if (tagEnd > start) {
-
-                    sessionId = body.substring(start, tagEnd);
-                    body = body.substring(tagEnd + 2);
-                }
-            }
-        }
-    }
 }
