@@ -23,11 +23,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.ecf.core.identity.ID;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 
 /**
  * TODO Add Description
@@ -143,6 +147,37 @@ public class RosterEntry extends RosterItem implements IRosterEntry,
         return true;
     }
 
+    /**
+     * 
+     * @param entry
+     * @return
+     */
+    public static IRosterEntry convertEntry(org.eclipse.ecf.presence.roster.IRosterEntry entry) {
+        RosterEntry rosterEntry = null;
+        if(entry != null) {
+            ID id = entry.getUser().getID();
+            
+            String name = Tools.parseName(id.getName());
+            String host = Tools.parseHost(id.getName());
+            String resource = Tools.parseResource(id.getName());
+            IChatID rosterId = new RosterId(name, host, resource);
+
+            rosterEntry = new RosterEntry(rosterId);
+            IPresence p = Presence.convertPresence(entry.getPresence());
+            rosterEntry.setPresence(p);
+
+            // Now check the groups
+            @SuppressWarnings("unchecked")
+            Collection<org.eclipse.ecf.presence.roster.IRosterGroup> inGroups = entry.getGroups();
+            for(org.eclipse.ecf.presence.roster.IRosterGroup g : inGroups) {
+                RosterGroup group = new RosterGroup(g.getName(), null,null);
+                rosterEntry.addGroup(group);
+            }
+        }
+        return rosterEntry;
+    }
+    
+    
     public static final void main(String[] args) {
 
         IChatID id = new IChatID() {
