@@ -62,7 +62,6 @@ import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
-import com.raytheon.uf.viz.collaboration.ui.role.SessionLeaderEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.core.VizApp;
@@ -442,11 +441,7 @@ public class CollaborationDataManager {
             DataProviderEventController dpec = new DataProviderEventController(
                     displaySession);
             dpec.startup();
-            SessionLeaderEventController slec = new SessionLeaderEventController(
-                    displaySession);
-            slec.startup();
             roleEventControllersMap.put(sessionId, dpec);
-            roleEventControllersMap.put(sessionId, slec);
             // TODO set displaySession's data provider and session leader.
         }
         // TODO Start CAVE editor associated with this session and make sure the

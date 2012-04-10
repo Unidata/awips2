@@ -23,20 +23,17 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingTool;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.drawing.PathToolbar;
-import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 
 /**
  * Handles the events of a session that are specific to the Participant role.
@@ -67,25 +64,23 @@ public class ParticipantEventController extends AbstractRoleEventController {
     }
 
     @Subscribe
-    public void initDataArrived(IInitData initData) {
-        if (initData instanceof SharedEditor) {
-            final SharedEditor se = (SharedEditor) initData;
-            VizApp.runAsync(new Runnable() {
+    public void initDataArrived(final SharedEditor se) {
+        // TODO need to detect if we already have a CollaborationEditor for
+        // this session. If so, that implies DataProvider changed and we
+        // should reuse the editor, reinitializing the descriptor and
+        // renderable display but keeping the drawing and telestrator
+        VizApp.runSync(new Runnable() {
 
-                @Override
-                public void run() {
-                    CollaborationEditor editor = EditorSetup.createEditor(se);
-                    initializeResources(editor.getActiveDisplayPane()
-                            .getDescriptor());
-                    CollaborationDataManager.getInstance().editorCreated(
-                            session.getSessionId(), editor);
-
-                    // activate the drawing tool by default for participants
-                    PathDrawingTool tool = new CollaborationPathDrawingTool();
-                    tool.activate();
-                }
-            });
-        }
+            @Override
+            public void run() {
+                CollaborationEditor editor = EditorSetup.createEditor(se);
+                initializeResources(editor.getActiveDisplayPane()
+                        .getDescriptor());
+                CollaborationDataManager.getInstance().editorCreated(
+                        session.getSessionId(), editor);
+            }
+        });
+        super.activateTelestrator(); // TODO should this be elsewhere?
     }
 
     private void initializeResources(IDescriptor desc) {
@@ -102,34 +97,32 @@ public class ParticipantEventController extends AbstractRoleEventController {
      * 
      * @see
      * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
-     * #startup()
-     */
-    @Override
-    public void startup() {
-        super.startup();
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                PathToolbar toolbar = CollaborationPathToolbar.getToolbar();
-                toolbar.open();
-            }
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
      * #shutdown()
      */
     @Override
     public void shutdown() {
         super.shutdown();
-        CollaborationPathToolbar.getToolbar().close();
-
+        super.deactivateTelestrator(); // TODO should this be here?
         if (this.collabRsc != null) {
             this.session.unRegisterEventHandler(collabRsc);
+        }
+    }
+
+    @Subscribe
+    public void roleTransferred(TransferRoleCommand cmd) {
+        if (cmd.getRole() == ParticipantRole.SESSION_LEADER) {
+            System.out.println("Current session's username: "
+                    + session.getUserID().getFQName());
+            if (cmd.getUser().equals(session.getUserID().getFQName())) {
+                // this cave should assume session leader control
+                InputUtil.enableSessionLeaderInput(CollaborationDataManager
+                        .getInstance().getEditor(session.getSessionId()));
+            } else if (cmd.getUser().equals(
+                    session.getCurrentSessionLeader().getFQName())) {
+                // this cave should release session leader control
+                InputUtil.disableSessionLeaderInput(CollaborationDataManager
+                        .getInstance().getEditor(session.getSessionId()));
+            }
         }
     }
 }
