@@ -23,8 +23,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
@@ -120,13 +120,13 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * 
      * @return
      */
-    IChatID getCurrentDataProvider();
+    public IVenueParticipant getCurrentDataProvider();
 
     /**
      * 
      * @return
      */
-    IChatID getCurrentSessionLeader();
+    public IVenueParticipant getCurrentSessionLeader();
 
     /**
      * 
