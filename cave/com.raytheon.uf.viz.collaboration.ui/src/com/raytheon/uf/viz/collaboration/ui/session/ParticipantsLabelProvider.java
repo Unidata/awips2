@@ -37,7 +37,6 @@ import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -137,8 +136,8 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public Color getForeground(Object element, int columnIndex) {
-        CollaborationDataManager.getInstance().getUser(element.toString());
-        System.out.println("getForeground");
+        // CollaborationUser user = (CollaborationUser) element;
+        // System.out.println("getForeground");
         return null;
     }
 
