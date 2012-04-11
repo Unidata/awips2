@@ -232,7 +232,10 @@ public class CollaborationSessionView extends SessionView {
         super.fillContextMenu(manager);
         // check if data provider
         // check if session leader
-        manager.add(switchToAction);
+        if (!CollaborationDataManager.getInstance().getSession(sessionId)
+                .hasRole(ParticipantRole.SESSION_LEADER)) {
+            manager.add(switchToAction);
+        }
     }
 
     /*
