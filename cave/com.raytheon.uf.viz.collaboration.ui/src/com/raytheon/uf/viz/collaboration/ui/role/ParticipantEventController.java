@@ -29,11 +29,14 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
+import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Handles the events of a session that are specific to the Participant role.
@@ -64,7 +67,7 @@ public class ParticipantEventController extends AbstractRoleEventController {
     }
 
     @Subscribe
-    public void initDataArrived(final SharedEditor se) {
+    public void editorDataArrived(final SharedEditor se) {
         // TODO need to detect if we already have a CollaborationEditor for
         // this session. If so, that implies DataProvider changed and we
         // should reuse the editor, reinitializing the descriptor and
@@ -74,6 +77,14 @@ public class ParticipantEventController extends AbstractRoleEventController {
             @Override
             public void run() {
                 CollaborationEditor editor = EditorSetup.createEditor(se);
+                if (se.getLocalResources() != null) {
+                    IDescriptor descriptor = editor.getActiveDisplayPane()
+                            .getDescriptor();
+                    for (ResourcePair rp : se.getLocalResources()) {
+                        descriptor.getResourceList().add(
+                                convertToLocalResourcePair(rp));
+                    }
+                }
                 initializeResources(editor.getActiveDisplayPane()
                         .getDescriptor());
                 CollaborationDataManager.getInstance().editorCreated(
@@ -81,6 +92,39 @@ public class ParticipantEventController extends AbstractRoleEventController {
             }
         });
         super.activateTelestrator(); // TODO should this be elsewhere?
+    }
+
+    @Subscribe
+    public void resourceDataArrived(SharedResource sr) {
+        ResourcePair rp = sr.getResource();
+        // TODO: Need to tie shared resource adding to a displayId so we add it
+        // to the correct editor/pane
+        for (AbstractEditor editor : CollaborationDataManager.getInstance()
+                .getActivelySharedEditors(session.getSessionId())) {
+            IDescriptor affectedDescriptor = editor.getActiveDisplayPane()
+                    .getDescriptor();
+            if (sr.isRemoveResource()) {
+                affectedDescriptor.getResourceList().remove(
+                        convertToLocalResourcePair(rp));
+            } else {
+                affectedDescriptor.getResourceList().add(
+                        convertToLocalResourcePair(rp));
+                affectedDescriptor.getResourceList().instantiateResources(
+                        affectedDescriptor, true);
+            }
+            break;
+        }
+    }
+
+    private ResourcePair convertToLocalResourcePair(ResourcePair rp) {
+        if (rp.getProperties() != null) {
+            rp.getProperties().setSystemResource(true);
+        } else {
+            ResourceProperties props = new ResourceProperties();
+            props.setSystemResource(true);
+            rp.setProperties(props);
+        }
+        return rp;
     }
 
     private void initializeResources(IDescriptor desc) {
