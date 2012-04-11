@@ -17,39 +17,65 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.event;
+package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2012            jkorman     Initial creation
- *
+ * Apr 11, 2012            jkorman     Initial creation
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
-public interface IRosterChangeEvent {
+public class RosterChangeEvent implements IRosterChangeEvent {
+
+    private final RosterChangeType type;
+
+    private final IRosterEntry entry;
+    
+    /**
+     * Create an instance of this event using the given type and
+     * entry.
+     * @param type The event type.
+     * @param entry The changed entry.
+     */
+    public RosterChangeEvent(RosterChangeType type, IRosterEntry entry) {
+        this.type = type;
+        this.entry = entry;
+    }
     
     /**
      * Get the event type.
+     * 
      * @return The event type.
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent#getType()
      */
-    RosterChangeType getType();
-    
+    @Override
+    public RosterChangeType getType() {
+        return type;
+    }
+
     /**
      * Get the changed entry
      * @return The changed entry.
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent#getEntry()
      */
-    IRosterEntry getEntry();
-    
+    @Override
+    public IRosterEntry getEntry() {
+        return entry;
+    }
+
 }
