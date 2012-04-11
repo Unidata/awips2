@@ -442,17 +442,6 @@ public class SessionManager implements IEventPublisher {
                     session.setCurrentDataProvider(me);
                     session.setUserId(me);
 
-                    IPresence presence = new Presence();
-                    presence.setProperty("DATA_PROVIDER", me.getFQName());
-                    presence.setProperty("SESSION_LEADER", me.getFQName());
-
-                    // TODO why change presence when you create one????!
-                    // presenceAdapter
-                    // .getRosterManager()
-                    // .getPresenceSender()
-                    // .sendPresenceUpdate(null,
-                    // Presence.convertPresence(presence));
-
                     sessions.put(session.getSessionId(), session);
                 }
             }
