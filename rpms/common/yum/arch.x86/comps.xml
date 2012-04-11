@@ -123,6 +123,7 @@
          <packagereq type="default">awips2-cave-viz-nwsauth</packagereq>
          <packagereq type="default">awips2-cave-viz-thinclient</packagereq>
          <packagereq type="default">awips2-cave-viz-npp</packagereq>
+         <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
          <packagereq type="default">awips2-gfesuite-client</packagereq>
 
          <packagereq type="default">awips2-alertviz</packagereq>
@@ -442,6 +443,7 @@
 		 <packagereq type="default">awips2-cave-viz-nwsauth</packagereq>
 		 <packagereq type="default">awips2-cave-viz-thinclient</packagereq>
 		 <packagereq type="default">awips2-cave-viz-npp</packagereq>
+		 <packagereq type="default">awips2-cave-viz-collaboration</packagereq>
 		 <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
