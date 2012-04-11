@@ -26,6 +26,7 @@ import org.eclipse.core.commands.ExecutionException;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
+import com.raytheon.uf.viz.drawing.DrawingLayer.LayerState;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -55,9 +56,12 @@ public class EraseObjectsAction extends AbstractHandler {
                 .getActiveDisplayPane().getDescriptor().getResourceList();
         for (ResourcePair pair : list) {
             if (pair.getResource() instanceof DrawingLayer) {
-                ((DrawingLayer) pair.getResource())
-                        .setErase(!((DrawingLayer) pair.getResource())
-                                .isErase());
+                DrawingLayer layer = (DrawingLayer) pair.getResource();
+                if (layer.getState() == LayerState.ERASING) {
+                    layer.setState(LayerState.NONE);
+                } else {
+                    layer.setState(LayerState.ERASING);
+                }
                 break;
             }
         }
