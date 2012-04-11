@@ -19,6 +19,16 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.ecf.core.IContainer;
@@ -59,8 +69,14 @@ public abstract class Tools {
     private static final String ENV_THRIFT = CMD_PREAMBLE
             + SerializationMode.THRIFT.name() + "]]";
 
+    private static final String ENV_THRIFT_COMPRESSED = CMD_PREAMBLE
+            + SerializationMode.THRIFT.name() + "-COMPRESSED]]";
+
     private static final String ENV_JAXB = CMD_PREAMBLE
             + SerializationMode.JAXB.name() + "]]";
+
+    private static final String ENV_JAXB_COMPRESSED = CMD_PREAMBLE
+            + SerializationMode.JAXB.name() + "-COMPRESSED]]";
 
     private static final String ENV_STRING = CMD_PREAMBLE
             + SerializationMode.STRING.name() + "]]";
@@ -78,6 +94,18 @@ public abstract class Tools {
     public static final String PORT_DELIM = ":";
 
     public static final String RESOURCE_DELIM = "/";
+
+    public static boolean COMPRESSION_ENABLED = false;
+
+    static {
+        try {
+            COMPRESSION_ENABLED = Boolean
+                    .getBoolean("collaboration.compressionEnabled");
+        } catch (Exception e) {
+            // must not have permission to access system properties. ignore and
+            // use default.
+        }
+    }
 
     /**
      * 
@@ -287,7 +315,7 @@ public abstract class Tools {
         }
         return sMode;
     }
-    
+
     /**
      * Decode Base64 encoded String data into a byte array.
      * 
@@ -324,9 +352,16 @@ public abstract class Tools {
             switch (mode) {
             case THRIFT: {
                 try {
-                    marshalledBinary = SerializationUtil
-                            .transformToThrift(data);
-                    sb.append(ENV_THRIFT);
+                    if (COMPRESSION_ENABLED) {
+                        byte[] marshalledThrift = SerializationUtil
+                                .transformToThrift(data);
+                        marshalledBinary = compress(marshalledThrift);
+                        sb.append(ENV_THRIFT_COMPRESSED);
+                    } else {
+                        marshalledBinary = SerializationUtil
+                                .transformToThrift(data);
+                        sb.append(ENV_THRIFT);
+                    }
                 } catch (SerializationException e) {
                     throw new CollaborationException(
                             "[THRIFT] Could not serialize object", e);
@@ -335,10 +370,16 @@ public abstract class Tools {
             }
             case JAXB: {
                 try {
-                    String s = SerializationUtil.marshalToXml(data);
-                    if (s != null) {
-                        sb.append(ENV_JAXB);
-                        sb.append(s);
+                    if (COMPRESSION_ENABLED) {
+                        String rawString = SerializationUtil.marshalToXml(data);
+                        marshalledBinary = compress(rawString.getBytes());
+                        sb.append(ENV_JAXB_COMPRESSED);
+                    } else {
+                        String s = SerializationUtil.marshalToXml(data);
+                        if (s != null) {
+                            sb.append(ENV_JAXB);
+                            sb.append(s);
+                        }
                     }
                 } catch (JAXBException je) {
                     throw new CollaborationException(
@@ -391,9 +432,30 @@ public abstract class Tools {
                     throw new CollaborationException(
                             "Could not deserialize object", e);
                 }
+            } else if (data.startsWith(ENV_THRIFT_COMPRESSED)) {
+                String s = data.substring(ENV_THRIFT_COMPRESSED.length());
+                try {
+                    byte[] rawBytes = decodeFromBase64(s);
+                    byte[] uncompressedBytes = uncompress(rawBytes);
+                    unMarshalledData = SerializationUtil
+                            .transformFromThrift(uncompressedBytes);
+                } catch (SerializationException e) {
+                    throw new CollaborationException(
+                            "Could not deserialize object", e);
+                }
             } else if (data.startsWith(ENV_JAXB)) {
                 String s = data.substring(ENV_JAXB.length());
                 try {
+                    unMarshalledData = SerializationUtil.unmarshalFromXml(s);
+                } catch (JAXBException je) {
+                    throw new CollaborationException(
+                            "[JAXB] Could not deserialize object", je);
+                }
+            } else if (data.startsWith(ENV_JAXB_COMPRESSED)) {
+                String rawString = data.substring(ENV_JAXB_COMPRESSED.length());
+                try {
+                    byte[] rawBytes = decodeFromBase64(rawString);
+                    String s = new String(uncompress(rawBytes));
                     unMarshalledData = SerializationUtil.unmarshalFromXml(s);
                 } catch (JAXBException je) {
                     throw new CollaborationException(
@@ -409,4 +471,39 @@ public abstract class Tools {
         }
         return unMarshalledData;
     }
+
+    private static byte[] compress(byte[] bytes) throws CollaborationException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
+
+        try {
+            GZIPOutputStream compressor = new GZIPOutputStream(out);
+
+            compressor.write(bytes);
+        } catch (IOException e) {
+            throw new CollaborationException("Unable to compress data.", e);
+        }
+        return out.toByteArray();
+    }
+
+    private static byte[] uncompress(byte[] bytes)
+            throws CollaborationException {
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+        try {
+            GZIPInputStream uncompressor = new GZIPInputStream(in, bytes.length);
+            ReadableByteChannel inByteChannel = Channels
+                    .newChannel(uncompressor);
+            WritableByteChannel out = Channels.newChannel(System.out);
+            ByteBuffer buffer = ByteBuffer.allocate(65536);
+
+            while (inByteChannel.read(buffer) != -1) {
+                buffer.flip();
+                out.write(buffer);
+                buffer.clear();
+            }
+            return buffer.array();
+        } catch (IOException e) {
+            throw new CollaborationException("Unable to uncompress data.", e);
+        }
+    }
+
 }
