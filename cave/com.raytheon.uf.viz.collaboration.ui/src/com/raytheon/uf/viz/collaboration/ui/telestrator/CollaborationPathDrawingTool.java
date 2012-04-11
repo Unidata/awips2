@@ -19,7 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 
 /**
@@ -40,6 +43,9 @@ import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
  */
 
 public class CollaborationPathDrawingTool extends PathDrawingTool {
+
+    private String session;
+
     /*
      * (non-Javadoc)
      * 
@@ -48,6 +54,107 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
     @Override
     public AbstractResourceData constructData() {
         CollaborationPathDrawingResourceData data = new CollaborationPathDrawingResourceData();
+        session = data.getSessionId();
+        System.out.println("session : " + session);
         return data;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.drawing.AbstractDrawingTool#activateTool()
+     */
+    @Override
+    protected void activateTool() {
+        super.activateTool();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.drawing.tools.PathDrawingTool#getMouseHandler()
+     */
+    @Override
+    public IInputHandler getMouseHandler() {
+        if (theHandler == null) {
+            theHandler = new CollaborationPathDrawingHandler();
+        }
+        return theHandler;
+    }
+
+    public class CollaborationPathDrawingHandler extends PathDrawingHandler {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
+         * int, int)
+         */
+        @Override
+        public boolean handleMouseDown(int anX, int aY, int button) {
+            boolean allowDraw = ((CollaborationDrawingLayer) theDrawingLayer)
+                    .isAllowDraw();
+            boolean isSessionLeader = CollaborationDataManager.getInstance()
+                    .getSession(session)
+                    .hasRole(ParticipantRole.SESSION_LEADER);
+            if (allowDraw && !isSessionLeader) {
+                return false;
+            }
+            return super.handleMouseDown(anX, aY, button);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDownMove(int,
+         * int, int)
+         */
+        @Override
+        public boolean handleMouseDownMove(int x, int y, int button) {
+            boolean allowDraw = ((CollaborationDrawingLayer) theDrawingLayer)
+                    .isAllowDraw();
+            boolean isSessionLeader = CollaborationDataManager.getInstance()
+                    .getSession(session)
+                    .hasRole(ParticipantRole.SESSION_LEADER);
+            if (allowDraw && !isSessionLeader) {
+                return false;
+            }
+            return super.handleMouseDownMove(x, y, button);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
+         * int)
+         */
+        @Override
+        public boolean handleMouseUp(int anX, int aY, int button) {
+            boolean allowDraw = ((CollaborationDrawingLayer) theDrawingLayer)
+                    .isAllowDraw();
+            boolean isSessionLeader = CollaborationDataManager.getInstance()
+                    .getSession(session)
+                    .hasRole(ParticipantRole.SESSION_LEADER);
+            if (allowDraw && !isSessionLeader) {
+                return false;
+            }
+            return super.handleMouseUp(anX, aY, button);
+        }
+    }
+
+    /**
+     * @param session
+     *            the session to set
+     */
+    public void setSession(String session) {
+        this.session = session;
+    }
+
+    /**
+     * @return the session
+     */
+    public String getSession() {
+        return session;
+    }
+
 }

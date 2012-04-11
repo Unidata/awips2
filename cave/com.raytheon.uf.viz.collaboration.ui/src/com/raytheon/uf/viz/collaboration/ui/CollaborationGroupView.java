@@ -98,6 +98,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.drawing.PathToolbar;
 
 /**
  * This class is the main view to display the user's information and allow the
@@ -165,6 +166,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     private Action changeStatusAction;
 
     private Action changePasswordAction;
+
+    private Action drawToolbarAction;
 
     // private Action refreshActiveSessionsAction;
 
@@ -407,6 +410,16 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             public void run() {
             };
         };
+
+        drawToolbarAction = new Action("Drawing Toolbar") {
+            @Override
+            public void run() {
+                PathToolbar.getToolbar().open();
+            }
+        };
+        drawToolbarAction.setImageDescriptor(IconUtil.getImageDescriptor(
+                com.raytheon.uf.viz.drawing.Activator.getDefault().getBundle(),
+                "draw.gif"));
     }
 
     private void changePassword() {
@@ -570,6 +583,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         mgr.add(changeStatusAction);
         mgr.add(changeStatusMessageAction);
         mgr.add(changePasswordAction);
+        mgr.add(new Separator());
+
+        mgr.add(drawToolbarAction);
+
         mgr.add(new Separator());
         if (CollaborationDataManager.getInstance().isConnected()) {
             mgr.add(logoutAction);
@@ -762,9 +779,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             builder.append("ID: ").append(node.getId());
                             if (node instanceof CollaborationUser) {
                                 CollaborationUser user = (CollaborationUser) node;
-                                builder.append("\nMode: ")
-                                        .append(user.getMode()).append("\n");
-                                builder.append("Type: ").append(user.getType())
+                                builder.append("\nStatus: ")
+                                        .append(user.getMode().getMode())
                                         .append("\n");
                                 builder.append("Message: \"").append(
                                         user.getStatusMessage() + "\"");
@@ -902,7 +918,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             addGroupAction.setEnabled(false);
             addUserAction.setEnabled(false);
             selectGroups.setEnabled(false);
-            changeStatusMessageAction.setEnabled(false);
+            changeStatusAction.setEnabled(false);
+            drawToolbarAction.setEnabled(false);
             changePasswordAction.setEnabled(false);
             return;
         }
@@ -910,7 +927,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         addUserAction.setEnabled(true);
         selectGroups.setEnabled(true);
         changeStatusAction.setEnabled(true);
-        changeStatusMessageAction.setEnabled(true);
+        drawToolbarAction.setEnabled(true);
         changePasswordAction.setEnabled(true);
 
         LoginUser user = new LoginUser(manager.getLoginId());
