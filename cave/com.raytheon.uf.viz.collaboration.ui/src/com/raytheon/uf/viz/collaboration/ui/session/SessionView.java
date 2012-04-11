@@ -69,10 +69,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
+import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -374,7 +374,7 @@ public class SessionView extends AbstractSessionView {
             for (IVenueParticipant participant : session.getVenue()
                     .getParticipants()) {
 
-                String userId = getParticipantUserId(participant);
+                String userId = CollaborationUtils.makeUserId(participant);
                 CollaborationUser user = new CollaborationUser(userId,
                         sessionId);
                 if (user.getType() == Type.UNKNOWN) {
@@ -400,14 +400,6 @@ public class SessionView extends AbstractSessionView {
         }
         usersTable.setInput(users);
         ((GridData) usersComp.getLayoutData()).exclude = true;
-    }
-
-    private String getParticipantUserId(IVenueParticipant participant) {
-        String pFQName = participant.getFQName();
-        StringBuilder sb = new StringBuilder(pFQName.subSequence(0,
-                pFQName.indexOf('@') + 1));
-        sb.append(Tools.parseHost(pFQName).substring("conference.".length()));
-        return sb.toString();
     }
 
     @Override
@@ -604,8 +596,7 @@ public class SessionView extends AbstractSessionView {
                     participantDeparted(participant);
                     break;
                 case PRESENCE_UPDATED:
-                    // The mode for presence not set correctly do not update
-                    // participantPresenceUpdated(participant, presence);
+                    participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
                     System.out.println("---- handle update here: "
@@ -624,7 +615,7 @@ public class SessionView extends AbstractSessionView {
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
         String name = participant.getFQName();
-        String userId = getParticipantUserId(participant);
+        String userId = CollaborationUtils.makeUserId(participant);
         for (CollaborationUser user : users) {
             if (userId.equals(user.getId())) {
                 return;
@@ -640,10 +631,9 @@ public class SessionView extends AbstractSessionView {
     private void participantDeparted(IVenueParticipant participant) {
         System.out.println("++++ handle departed here: "
                 + participant.getName() + ", " + participant.getFQName());
-        String userId = getParticipantUserId(participant);
+        String userId = CollaborationUtils.makeUserId(participant);
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
-        // String name = participant.getFQName();
         for (int i = 0; i < users.size(); ++i) {
             if (userId.equals(users.get(i).getId())) {
                 users.remove(i);
@@ -660,28 +650,14 @@ public class SessionView extends AbstractSessionView {
     @SuppressWarnings("unchecked")
     private void participantPresenceUpdated(IVenueParticipant participant,
             IPresence presence) {
-        // TODO Do not use this to set the mode since it not the user's presence
-        // mode.
-        // Keep as a place holder for now since it may be need to set
+        // Ignore the presence's mode/type. May not be the same as the user's.
+        // TODO Keep as a place holder for now since it may be needed to set
         // leader/provider roles.
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
-        System.out.println("++++ handle presence updated here: "
-                + presence.getMode() + "/" + presence.getType() + ": "
-                + participant.getName() + ", " + participant.getFQName());
         String name = participant.getFQName();
-        String userId = getParticipantUserId(participant);
-        for (CollaborationUser user : users) {
-            if (userId.equals(user.getId())) {
-                user.setMode(presence.getMode());
-                user.setType(presence.getType());
-                usersTable.refresh();
-                return;
-            }
-        }
-
-        CollaborationUser user = new CollaborationUser(name);
-        user.setMode(presence.getMode());
-        user.setType(presence.getType());
+        String userId = CollaborationUtils.makeUserId(participant);
+        System.out.println("++++ handle presence's role updated here name: "
+                + name + ", userId: " + userId);
     }
 }
