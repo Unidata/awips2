@@ -37,8 +37,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
-import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -117,21 +116,10 @@ public class EditorSetup {
             // AbstractRenderableDisplay
             MapDescriptor descriptor = new MapDescriptor(
                     sharedEditor.getGeometry());
-            if (sharedEditor.getLocalResources() != null) {
-                for (ResourcePair rp : sharedEditor.getLocalResources()) {
-                    if (rp.getProperties() != null) {
-                        rp.getProperties().setSystemResource(true);
-                    } else {
-                        ResourceProperties props = new ResourceProperties();
-                        props.setSystemResource(true);
-                        rp.setProperties(props);
-                    }
-                    descriptor.getResourceList().add(rp);
-                }
-            }
 
             // setup renderable display
-            MapRenderableDisplay disp = new MapRenderableDisplay(descriptor);
+            PlainMapRenderableDisplay disp = new PlainMapRenderableDisplay(
+                    descriptor);
             PixelExtent extent = new PixelExtent(sharedEditor.getEnvelope()
                     .getMinX(), sharedEditor.getEnvelope().getMaxX(),
                     sharedEditor.getEnvelope().getMinY(), sharedEditor
