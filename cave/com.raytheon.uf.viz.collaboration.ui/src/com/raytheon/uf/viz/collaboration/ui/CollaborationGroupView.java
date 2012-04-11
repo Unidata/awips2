@@ -100,7 +100,8 @@ import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
- * TODO Add Description
+ * This class is the main view to display the user's information and allow the
+ * user to create sessions.
  * 
  * <pre>
  * 
@@ -234,7 +235,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 List<String> ids = new ArrayList<String>();
 
                 for (CollaborationUser user : getSelectedUsers()) {
-                    // TODO not add to list if user is already in the session.
                     String id = user.getId();
                     System.out.println("Add Selected User: " + id);
                     ids.add(id);
@@ -1047,8 +1047,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
 
         for (IRosterEntry e : rosterGroup.getEntries()) {
-            CollaborationUser child = new CollaborationUser(e.getUser()
-                    .getFQName());
+            String userId = CollaborationUtils.makeUserId(e);
+            CollaborationUser child = new CollaborationUser(userId);
             IPresence presence = e.getPresence();
             child.setMode(presence.getMode());
             child.setType(presence.getType());
@@ -1198,11 +1198,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 CollaborationNode node = (CollaborationNode) selection
                         .getFirstElement();
                 if (node instanceof SessionGroup) {
-                    SessionGroup group = (SessionGroup) selection
-                            .getFirstElement();
-                    if (!group.isSessionRoot()) {
-                        createJoinCollaboration();
-                    }
+                    // SessionGroup group = (SessionGroup) node;
+                    // if (!group.isSessionRoot()) {
+                    // createJoinCollaboration();
+                    // }
                 } else if (node instanceof CollaborationUser) {
                     String loginUserId = CollaborationDataManager.getInstance()
                             .getLoginId();
@@ -1318,7 +1317,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     public void handleModifiedPresence(IRosterEntry rosterEntry) {
         // Assumes the Data Manager has already update
         System.out.println("group view roster entry for:"
-                + rosterEntry.getUser().getFQName() + " "
+                + rosterEntry.getUser().getName() + "@"
+                + rosterEntry.getUser().getHost() + " "
                 + rosterEntry.getPresence().getMode() + "/"
                 + rosterEntry.getPresence().getType());
         usersTreeViewer.refresh(topLevel, true);
