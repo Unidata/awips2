@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -51,7 +52,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
@@ -211,11 +212,10 @@ public class CollaborationDataManager {
                     loginData = null;
                     loginData = (LoginData) dlg.open();
                     dlg.close();
-                    if (loginData == null) {
-                        return;
+                    if (loginData != null) {
+                        sessionManager = dlg.getSessionManager();
+                        loginId = loginData.getAccount();
                     }
-                    sessionManager = dlg.getSessionManager();
-                    loginId = loginData.getAccount();
                 }
             });
 
@@ -259,17 +259,6 @@ public class CollaborationDataManager {
                     }
                 };
                 PlatformUI.getWorkbench().addWorkbenchListener(wbListener);
-                // TODO this sleep needs to go away. It is a temporary fix to
-                // allow the roster manager to get all its entries before we
-                // use
-                // it. Once we have needed eventhandlers for roster updating
-                // this can go away.
-                try {
-                    System.out.println("enter sleep...");
-                    Thread.sleep(5000L);
-                    System.out.println("Wake from sleep...");
-                } catch (InterruptedException e) {
-                }
                 IPresence presence = sessionManager.getPresence();
                 if (sessionManager.getPresence() == null) {
                     presence = new Presence();
@@ -304,15 +293,18 @@ public class CollaborationDataManager {
      * @return session - The venue session or null if none found
      */
     public IVenueSession getSession(String sessionId) {
-        IVenueSession session = null;
-        if (sessionId == null) {
-            if (sessionsMap.size() > 0) {
-                session = sessionsMap.get(sessionsMap.keySet().toArray()[0]);
-            }
-        } else {
-            session = sessionsMap.get(sessionId);
-        }
-        return session;
+        Assert.isNotNull(sessionId,
+                "getSession should never be passed a null sessionId");
+        // IVenueSession session = null;
+        // if (sessionId == null) {
+        // if (sessionsMap.size() > 0) {
+        // session = sessionsMap.get(sessionsMap.keySet().toArray()[0]);
+        // }
+        // } else {
+        // session = sessionsMap.get(sessionId);
+        // }
+        // return session;
+        return sessionsMap.get(sessionId);
     }
 
     public Map<String, IVenueSession> getSessions() {
@@ -566,10 +558,7 @@ public class CollaborationDataManager {
         presence.setStatusMessage(loginData.getModeMessage());
         try {
             sessionManager.getAccountManager().sendPresence(presence);
-            IRoster roster = sessionManager.getRosterManager().getRoster();
-            // Generate a fake entry here to update the login user presence in
-            // all registered views.
-            IChatID id = roster.getUser();
+            IChatID id = sessionManager.getUser();
             RosterEntry rosterEntry = new RosterEntry(id);
             rosterEntry.setPresence(presence);
             handleModifiedPresence(rosterEntry);
@@ -588,15 +577,16 @@ public class CollaborationDataManager {
     @Subscribe
     public void handleModifiedPresence(IRosterEntry entry) {
         final IRosterEntry rosterEntry = entry;
-        System.out.println("CollaborationDataManager.handleModifiedPresence");
-        System.out.println("    user " + rosterEntry.getUser().getFQName());
-        System.out.println("    mode " + rosterEntry.getPresence().getMode());
-        System.out.println("    type " + rosterEntry.getPresence().getType());
-        System.out.println("    message"
-                + rosterEntry.getPresence().getStatusMessage());
-        System.out.println("    groups " + rosterEntry.getGroups());
-        String userId = rosterEntry.getUser().getFQName();
+        System.out.println("CollaborationDataManager.handleModifiedPresence: "
+                + rosterEntry.getUser().getFQName() + "  mode "
+                + rosterEntry.getPresence().getMode() + "/"
+                + rosterEntry.getPresence().getType() + ": \""
+                + rosterEntry.getPresence().getStatusMessage() + "\"  groups "
+                + rosterEntry.getGroups());
+        String userId = CollaborationUtils.makeUserId(rosterEntry);
         DataUser user = usersMap.get(userId);
+        System.out.println("\tuserId: " + userId + " DataUser: " + user);
+        System.out.println(usersMap.keySet());
         if (user != null) {
             user.mode = rosterEntry.getPresence().getMode();
             user.type = rosterEntry.getPresence().getType();
@@ -628,9 +618,6 @@ public class CollaborationDataManager {
                         displaySession);
                 pec.startup();
                 roleEventControllersMap.put(sessionId, pec);
-                // TODO test only delete
-                // SharedEditor editor = EditorSetup.testLoadEditorData();
-                // pec.initDataArrived(editor);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
