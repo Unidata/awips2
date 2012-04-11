@@ -573,8 +573,16 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public IWireframeShape createWireframeShape(boolean mutable,
             IDescriptor descriptor, float simplificationLevel) {
-        return wrappedObject.createWireframeShape(mutable, descriptor,
-                simplificationLevel);
+        // Create original
+        IWireframeShape targetShape = wrappedObject.createWireframeShape(
+                mutable, descriptor, simplificationLevel);
+        // Create wrapped
+        DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
+                targetShape, getDispatcher(), descriptor.getGridGeometry());
+        // Dispatch creation event
+        sendCreateWireframeShapeEvent(dispatching, mutable,
+                descriptor.getGridGeometry(), simplificationLevel, null, null);
+        return dispatching;
     }
 
     /**
@@ -591,8 +599,18 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public IWireframeShape createWireframeShape(boolean mutable,
             IDescriptor descriptor, float simplificationLevel,
             boolean spatialChopFlag, IExtent extent) {
-        return wrappedObject.createWireframeShape(mutable, descriptor,
-                simplificationLevel, spatialChopFlag, extent);
+        // Create original
+        IWireframeShape targetShape = wrappedObject.createWireframeShape(
+                mutable, descriptor, simplificationLevel, spatialChopFlag,
+                extent);
+        // Create wrapped
+        DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
+                targetShape, getDispatcher(), descriptor.getGridGeometry());
+        // Dispatch creation event
+        sendCreateWireframeShapeEvent(dispatching, mutable,
+                descriptor.getGridGeometry(), simplificationLevel,
+                spatialChopFlag, extent);
+        return dispatching;
     }
 
     /**
@@ -604,7 +622,16 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public IWireframeShape createWireframeShape(boolean mutableFlag,
             GeneralGridGeometry geom) {
-        return wrappedObject.createWireframeShape(mutableFlag, geom);
+        // Create original
+        IWireframeShape targetShape = wrappedObject.createWireframeShape(
+                mutableFlag, geom);
+        // Create wrapped
+        DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
+                targetShape, getDispatcher(), geom);
+        // Dispatch creation event
+        sendCreateWireframeShapeEvent(dispatching, mutableFlag, geom, null,
+                null, null);
+        return dispatching;
     }
 
     /**
@@ -621,8 +648,17 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public IWireframeShape createWireframeShape(boolean mutable,
             GeneralGridGeometry geom, float simplificationLevel,
             boolean spatialChopFlag, IExtent extent) {
-        return wrappedObject.createWireframeShape(mutable, geom,
+        // Create original
+        IWireframeShape targetShape = wrappedObject.createWireframeShape(
+                mutable, geom, simplificationLevel, spatialChopFlag, extent);
+        // Create wrapped
+        DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
+                targetShape, getDispatcher(), geom);
+        // Dispatch creation event
+        sendCreateWireframeShapeEvent(dispatching, mutable, geom,
                 simplificationLevel, spatialChopFlag, extent);
+        return dispatching;
+
     }
 
     private void sendCreateWireframeShapeEvent(DispatchingWireframeShape shape,
