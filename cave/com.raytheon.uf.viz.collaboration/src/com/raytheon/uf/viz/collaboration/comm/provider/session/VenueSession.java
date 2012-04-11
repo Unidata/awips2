@@ -499,7 +499,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     sender.sendMessage(SEND_TXT + message);
                 }
             } catch (ECFException e) {
-                throw new CollaborationException("Error sending text messge");
+                throw new CollaborationException("Error sending text messge", e);
             }
         }
     }
