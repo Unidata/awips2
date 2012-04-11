@@ -38,11 +38,11 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 import com.raytheon.uf.viz.drawing.events.DrawingEventBus;
 import com.raytheon.uf.viz.drawing.events.DrawingListener;
+import com.raytheon.viz.ui.input.EditableManager;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -59,6 +59,9 @@ import com.vividsolutions.jts.geom.TopologyException;
  */
 public class DrawingLayer extends
         AbstractVizResource<AbstractResourceData, MapDescriptor> {
+    public static enum LayerState {
+        DRAWING, ERASING, NONE;
+    }
 
     protected List<Geometry> tempGeometries;
 
@@ -72,9 +75,13 @@ public class DrawingLayer extends
 
     protected IGraphicsTarget target;
 
-    protected boolean erase = false;
+    protected LayerState state;
 
-    private PaintProperties paintProps = null;
+    // protected boolean erase = false;
+    //
+    // private boolean draw = true;
+
+    protected PaintProperties paintProps = null;
 
     private boolean needsRefresh = false;
 
@@ -113,6 +120,7 @@ public class DrawingLayer extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        EditableManager.makeEditable(this, true);
         this.tempGeometries = new ArrayList<Geometry>();
         this.wireframeShapes = new LinkedHashMap<Geometry, IWireframeShape>();
         this.deletedShapes = new LinkedHashMap<Geometry, IWireframeShape>();
@@ -120,7 +128,6 @@ public class DrawingLayer extends
         this.target = target;
         outline = getCapability(OutlineCapability.class);
         color = getCapability(ColorableCapability.class).getColor();
-        getCapability(EditableCapability.class);
     }
 
     /*
@@ -143,7 +150,6 @@ public class DrawingLayer extends
         }
 
         outline = getCapability(OutlineCapability.class);
-        color = getCapability(ColorableCapability.class).getColor();
 
         for (IWireframeShape sh : wireframeShapes.values()) {
             target.drawWireframeShape(sh, color,
@@ -205,16 +211,17 @@ public class DrawingLayer extends
      * Finalize a temporary line by putting it in the map of all the drawn
      * shapes
      * 
-     * UUID is optional, and generally should be null
+     * UUID is optional, an generally should be null
      * 
      * @param line
      * @param isFinal
      * @param uuid
      */
     public void finalizeLine(LineString line, String uuid) {
-        tempWireframeShape.compile();
-        wireframeShapes.put(line, tempWireframeShape);
-
+        if (state == LayerState.DRAWING) {
+            tempWireframeShape.compile();
+            wireframeShapes.put(line, tempWireframeShape);
+        }
         // this will update the toolbar if necessary
         DrawingEvent event = new DrawingEvent();
         eventBus.post(event);
@@ -337,21 +344,6 @@ public class DrawingLayer extends
     }
 
     /**
-     * @return are you currently erasing
-     */
-    public boolean isErase() {
-        return erase;
-    }
-
-    /**
-     * @param erase
-     *            to erase or not to erase
-     */
-    public void setErase(boolean erase) {
-        this.erase = erase;
-    }
-
-    /**
      * @return the deletedShapes, these shapes will get disposed when the clear
      *         button is selected
      */
@@ -380,4 +372,39 @@ public class DrawingLayer extends
     public DrawingListener getEventListener() {
         return eventListener;
     }
+
+    /**
+     * @return the state
+     */
+    public LayerState getState() {
+        return state;
+    }
+
+    /**
+     * @param state
+     *            the state to set
+     */
+    public void setState(LayerState state) {
+        this.state = state;
+    }
+    // /*
+    // * (non-Javadoc)
+    // *
+    // * @see
+    // * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
+    // * referencing.crs.CoordinateReferenceSystem)
+    // */
+    // @Override
+    // public void project(CoordinateReferenceSystem crs) throws VizException {
+    // super.project(crs);
+    // for (Geometry geom : wireframeShapes.keySet()) {
+    // IWireframeShape shape = target.createWireframeShape(true,
+    // getDescriptor());
+    // for (int i = 0; i < geom.getNumGeometries(); i++) {
+    // Geometry ls = convertPixels((LineString) geom.getGeometryN(i));
+    // drawTempLinePrimitive(ls, shape);
+    // }
+    // wireframeShapes.put(geom, shape);
+    // }
+    // }
 }
