@@ -57,7 +57,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
@@ -67,6 +70,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
@@ -87,6 +91,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * <li><strong>IConnectionStatusEvent</strong> : This event is posted when the
  * state of the underlying connection changes, reconnecting, connecting,
  * disconnected, for example.</li>
+ * <li><strong>IRosterChangeEvent</strong> : This event is posted when roster changes have occurred.</li>
  * <li><strong>---------------</strong> : ---------------.</li>
  * </ul>
  * </ul>
@@ -143,6 +148,10 @@ public class SessionManager implements IEventPublisher {
 
     private EventBus eventBus;
 
+    private IRosterEventSubscriber rosterEventSubscriber = null;
+
+    RosterEventHandler rosterEventHandler = null;
+
     /**
      * @throws CollaborationException
      * @throws ContainerCreateException
@@ -150,7 +159,49 @@ public class SessionManager implements IEventPublisher {
      */
     public SessionManager(String account, String password)
             throws CollaborationException {
-        // XMPPConnection.DEBUG_ENABLED = true;
+        this(account, password, (IRosterEventSubscriber) null);
+    }
+
+    /**
+     * 
+     * @param account
+     *            The account name to connect to.
+     * @param password
+     *            The password to use for connection.
+     * @param initialPresence
+     *            The initial presence for the account name.
+     * @throws ContainerCreateException
+     * 
+     */
+    public SessionManager(String account, String password,
+            IPresence initialPresence) throws Exception {
+        this(account, password, (IRosterEventSubscriber) null);
+        if (accountManager != null) {
+            accountManager.sendPresence(initialPresence);
+        }
+    }
+
+    /**
+     * 
+     * The roster event subscriber must be ready to accept events before this
+     * constructor is called.
+     * 
+     * @param account
+     *            The account name to connect to.
+     * @param password
+     *            The password to use for connection.
+     * @param rosterEventSubscriber
+     *            A roster event subscriber.
+     * @throws CollaborationException
+     */
+    public SessionManager(String account, String password,
+            IRosterEventSubscriber rosterEventSubscriber)
+            throws CollaborationException {
+        eventBus = new EventBus();
+        if (rosterEventSubscriber != null) {
+            this.rosterEventSubscriber = rosterEventSubscriber;
+            eventBus.register(rosterEventSubscriber);
+        }
 
         try {
             container = ContainerFactory.getDefault().createContainer(PROVIDER);
@@ -193,33 +244,13 @@ public class SessionManager implements IEventPublisher {
 
         setupAccountManager();
 
-        eventBus = new EventBus();
-
         sessions = new HashMap<String, ISession>();
 
         setupInternalConnectionListeners();
         setupInternalVenueInvitationListener();
         setupP2PComm(presenceAdapter);
         getPeerToPeerSession();
-    }
 
-    /**
-     * 
-     * @param account
-     *            The account name to connect to.
-     * @param password
-     *            The password to use for connection.
-     * @param initialPresence
-     *            The initial presence for the account name.
-     * @throws ContainerCreateException
-     * 
-     */
-    public SessionManager(String account, String password,
-            IPresence initialPresence) throws Exception {
-        this(account, password);
-        if (accountManager != null) {
-            accountManager.sendPresence(initialPresence);
-        }
     }
 
     /**
@@ -338,7 +369,9 @@ public class SessionManager implements IEventPublisher {
      */
     public void closeManager() {
         if (container != null) {
-
+            if (rosterEventSubscriber != null) {
+                eventBus.unregister(rosterEventSubscriber);
+            }
             // Close any created sessions.
             for (ISession session : sessions.values()) {
                 if ((chatInstance != null) && chatInstance.equals(session)) {
@@ -441,6 +474,16 @@ public class SessionManager implements IEventPublisher {
                     session.setCurrentSessionLeader(me);
                     session.setCurrentDataProvider(me);
                     session.setUserId(me);
+
+                    IPresence presence = new Presence();
+                    presence.setProperty("DATA_PROVIDER", me.getFQName());
+                    presence.setProperty("SESSION_LEADER", me.getFQName());
+
+                    presenceAdapter
+                            .getRosterManager()
+                            .getPresenceSender()
+                            .sendPresenceUpdate(null,
+                                    Presence.convertPresence(presence));
 
                     sessions.put(session.getSessionId(), session);
                 }
@@ -591,32 +634,30 @@ public class SessionManager implements IEventPublisher {
                     public void handleRosterEntryAdd(IRosterEntry entry) {
                         com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry re = RosterEntry
                                 .convertEntry(entry);
-                        if (re != null) {
-                            getRosterManager().getRoster().addRosterEntry(re);
-                        }
+                        IRosterChangeEvent event = new RosterChangeEvent(
+                                RosterChangeType.ADD, re);
+                        eventBus.post(event);
                     }
 
                     @Override
                     public void handleRosterUpdate(IRoster roster,
-                            IRosterItem changedValue) {
-
-                        if (changedValue instanceof IRosterEntry) {
-                            IRosterEntry re = (IRosterEntry) changedValue;
-                            System.out.println("Roster update RosterEntry "
-                                    + re.getUser());
-                            System.out.println("         groups "
-                                    + re.getGroups());
-                            System.out.println("         name " + re.getName());
-                        } else if (changedValue instanceof IRosterGroup) {
-                            IRosterGroup rg = (IRosterGroup) changedValue;
-
+                            IRosterItem item) {
+                        if (item instanceof IRosterEntry) {
+                            com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry re = RosterEntry
+                                    .convertEntry((IRosterEntry) item);
+                            IRosterChangeEvent event = new RosterChangeEvent(
+                                    RosterChangeType.MODIFY, re);
+                            eventBus.post(event);
+                        } else if (item instanceof IRosterGroup) {
+                            IRosterGroup rg = (IRosterGroup) item;
                             System.out.println("Roster update RosterGroup "
                                     + rg.getName());
-                            System.out.println("         entries "
-                                    + rg.getEntries());
-                            System.out.println("         name " + rg.getName());
-                        } else if (changedValue instanceof IRoster) {
-                            IRoster r = (IRoster) changedValue;
+                            // System.out.println("         entries "
+                            // + rg.getEntries());
+                            // System.out.println("         name " +
+                            // rg.getName());
+                        } else if (item instanceof IRoster) {
+                            IRoster r = (IRoster) item;
                             System.out.println("Roster update Roster "
                                     + r.getName());
                         }
@@ -624,13 +665,13 @@ public class SessionManager implements IEventPublisher {
 
                     @Override
                     public void handleRosterEntryRemove(IRosterEntry entry) {
-                        System.out.println("Roster  " + entry.getUser());
-                        System.out.println("         groups "
-                                + entry.getGroups());
-                        System.out.println("         name " + entry.getName());
+                        com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry re = RosterEntry
+                                .convertEntry((IRosterEntry) entry);
+                        IRosterChangeEvent event = new RosterChangeEvent(
+                                RosterChangeType.MODIFY, re);
+                        eventBus.post(event);
                     }
                 });
-
     }
 
     // ***************************
@@ -674,6 +715,7 @@ public class SessionManager implements IEventPublisher {
                             XMPPRoomID room = (XMPPRoomID) roomID;
                             venueId = new VenueId();
                             venueId.setName(room.getLongName());
+
                         }
                         if (venueId != null) {
                             IQualifiedID id = IDConverter.convertFrom(from);
