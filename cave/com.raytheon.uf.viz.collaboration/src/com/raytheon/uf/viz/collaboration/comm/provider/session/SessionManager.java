@@ -91,7 +91,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * <li><strong>IConnectionStatusEvent</strong> : This event is posted when the
  * state of the underlying connection changes, reconnecting, connecting,
  * disconnected, for example.</li>
- * <li><strong>IRosterChangeEvent</strong> : This event is posted when roster changes have occurred.</li>
+ * <li><strong>IRosterChangeEvent</strong> : This event is posted when roster
+ * changes have occurred.</li>
  * <li><strong>---------------</strong> : ---------------.</li>
  * </ul>
  * </ul>
@@ -150,7 +151,9 @@ public class SessionManager implements IEventPublisher {
 
     private IRosterEventSubscriber rosterEventSubscriber = null;
 
-    RosterEventHandler rosterEventHandler = null;
+    // Debug -- event viewer ----------------
+    private IRosterEventSubscriber rosterEventHandler = null;
+    // Debug -- event viewer ----------------
 
     /**
      * @throws CollaborationException
@@ -177,6 +180,7 @@ public class SessionManager implements IEventPublisher {
             IPresence initialPresence) throws Exception {
         this(account, password, (IRosterEventSubscriber) null);
         if (accountManager != null) {
+            userPresence = initialPresence;
             accountManager.sendPresence(initialPresence);
         }
     }
@@ -202,6 +206,13 @@ public class SessionManager implements IEventPublisher {
             this.rosterEventSubscriber = rosterEventSubscriber;
             eventBus.register(rosterEventSubscriber);
         }
+        // Debug -- event viewer ----------------
+        rosterEventHandler = new RosterEventHandler();
+        eventBus.register(rosterEventHandler);
+        // Debug -- event viewer ----------------
+        
+        
+        sessions = new HashMap<String, ISession>();
 
         try {
             container = ContainerFactory.getDefault().createContainer(PROVIDER);
@@ -220,6 +231,7 @@ public class SessionManager implements IEventPublisher {
             }
 
         } catch (ContainerCreateException cce) {
+            closeInternals();
             throw new CollaborationException(String.format(
                     "Could not create container for provider [%s]", PROVIDER));
         }
@@ -228,9 +240,7 @@ public class SessionManager implements IEventPublisher {
         try {
             connectToContainer();
         } catch (ContainerConnectException e) {
-            if (container != null) {
-                container.dispose();
-            }
+            closeInternals();
             throw new CollaborationException(
                     "Login failed.  Invalid username or password", e);
         }
@@ -243,8 +253,6 @@ public class SessionManager implements IEventPublisher {
         }
 
         setupAccountManager();
-
-        sessions = new HashMap<String, ISession>();
 
         setupInternalConnectionListeners();
         setupInternalVenueInvitationListener();
@@ -364,14 +372,26 @@ public class SessionManager implements IEventPublisher {
         return ((container != null) && (container.getConnectedID() != null));
     }
 
+    private void closeInternals() {
+        if (rosterEventSubscriber != null) {
+            eventBus.unregister(rosterEventSubscriber);
+        }
+        if(container != null) {
+            
+            chatInstance = null;
+            // Get rid of the account and roster managers
+            container.dispose();
+            container = null;
+        }
+    }
+    
+    
+    
     /**
      *  
      */
     public void closeManager() {
         if (container != null) {
-            if (rosterEventSubscriber != null) {
-                eventBus.unregister(rosterEventSubscriber);
-            }
             // Close any created sessions.
             for (ISession session : sessions.values()) {
                 if ((chatInstance != null) && chatInstance.equals(session)) {
@@ -382,10 +402,8 @@ public class SessionManager implements IEventPublisher {
                 }
             }
             chatInstance = null;
-            // Get rid of the account and roster managers
-            container.dispose();
-            container = null;
         }
+        closeInternals();
     }
 
     /**
