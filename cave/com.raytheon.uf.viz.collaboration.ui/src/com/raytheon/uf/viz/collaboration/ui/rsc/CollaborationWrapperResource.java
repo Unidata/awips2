@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
@@ -72,6 +73,12 @@ public class CollaborationWrapperResource extends
             AbstractVizResource<?, ?> wrappedResource) {
         super(resourceData, loadProperties);
         this.wrappedResource = wrappedResource;
+        wrappedResource.registerListener(new IRefreshListener() {
+            @Override
+            public void refresh() {
+                issueRefresh();
+            }
+        });
     }
 
     /**
@@ -269,6 +276,9 @@ public class CollaborationWrapperResource extends
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object obj) {
+        if (super.equals(obj)) {
+            return true;
+        }
         return wrappedResource.equals(obj);
     }
 
