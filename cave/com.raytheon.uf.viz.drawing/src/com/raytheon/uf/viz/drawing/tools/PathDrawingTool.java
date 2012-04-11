@@ -23,6 +23,8 @@ package com.raytheon.uf.viz.drawing.tools;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.commands.HandlerEvent;
+import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.ImageData;
@@ -34,7 +36,9 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.drawing.AbstractDrawingTool;
 import com.raytheon.uf.viz.drawing.Activator;
+import com.raytheon.uf.viz.drawing.DrawingLayer.LayerState;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
+import com.raytheon.viz.ui.input.EditableManager;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -86,12 +90,13 @@ public class PathDrawingTool extends AbstractDrawingTool {
         @Override
         public boolean handleMouseDown(int anX, int aY, int button) {
             if (button != 1
+                    || theDrawingLayer.getState() == LayerState.NONE
                     || !theDrawingLayer.getCapability(EditableCapability.class)
-                            .isEditable())
+                            .isEditable()) {
                 return false;
-
+            }
             Cursor cursor = null;
-            if (theDrawingLayer.isErase()) {
+            if (theDrawingLayer.getState() == LayerState.ERASING) {
                 ImageData data = IconUtil.getImageDescriptor(
                         Activator.getDefault().getBundle(), "eraser_box.gif")
                         .getImageData();
@@ -125,9 +130,11 @@ public class PathDrawingTool extends AbstractDrawingTool {
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) {
             if (button != 1
+                    || theDrawingLayer.getState() == LayerState.NONE
                     || !theDrawingLayer.getCapability(EditableCapability.class)
-                            .isEditable())
+                            .isEditable()) {
                 return false;
+            }
             Coordinate p1 = editor.translateClick(theLastMouseX, theLastMouseY);
             Coordinate p2 = editor.translateClick(x, y);
 
@@ -140,7 +147,7 @@ public class PathDrawingTool extends AbstractDrawingTool {
             LineString ls = gf.createLineString(new Coordinate[] { p1, p2 });
 
             ls = theDrawingLayer.convertPixels(ls);
-            if (theDrawingLayer.isErase()) {
+            if (theDrawingLayer.getState() == LayerState.ERASING) {
                 theDrawingLayer.addTempEraseLine(ls);
             } else {
                 theDrawingLayer.addTempDrawLine(ls);
@@ -160,6 +167,7 @@ public class PathDrawingTool extends AbstractDrawingTool {
         @Override
         public boolean handleMouseUp(int anX, int aY, int button) {
             if (button != 1
+                    || theDrawingLayer.getState() == LayerState.NONE
                     || !theDrawingLayer.getCapability(EditableCapability.class)
                             .isEditable()) {
                 return false;
@@ -176,14 +184,10 @@ public class PathDrawingTool extends AbstractDrawingTool {
             if (coords.length > 1) {
                 LineString ls = gf.createLineString(coords);
                 ls = theDrawingLayer.convertPixels(ls);
-                if (!theDrawingLayer.isErase()) {
+                if (theDrawingLayer.getState() == LayerState.DRAWING) {
                     theDrawingLayer.finalizeLine(ls, null);
                 }
             }
-
-            // this probably should be put elsewhere or genericized in some
-            // manner
-            // PathToolbar.getToolbar().updateToolbar();
 
             editor.refresh();
             return true;
@@ -198,8 +202,16 @@ public class PathDrawingTool extends AbstractDrawingTool {
     @Override
     public void activate() {
         super.activate();
-        theDrawingLayer.getCapability(EditableCapability.class).setEditable(
-                true);
+        editor.registerMouseHandler(getMouseHandler());
+        EditableManager.makeEditable(theDrawingLayer, theDrawingLayer
+                .getCapability(EditableCapability.class).isEditable());
+        addHandlerListener(new IHandlerListener() {
+            @Override
+            public void handlerChanged(HandlerEvent handlerEvent) {
+                // TODO Auto-generated method stub
+                System.out.println("changed");
+            }
+        });
         theDrawingLayer.issueRefresh();
     }
 
@@ -212,9 +224,11 @@ public class PathDrawingTool extends AbstractDrawingTool {
     public void deactivate() {
         super.deactivate();
 
+        editor.unregisterMouseHandler(getMouseHandler());
         // change the cursor back
         Cursor cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_ARROW);
         Display.getCurrent().getActiveShell().setCursor(cursor);
         cursor.dispose();
+        theDrawingLayer = null;
     }
 }
