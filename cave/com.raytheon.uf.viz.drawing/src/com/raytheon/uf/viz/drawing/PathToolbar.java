@@ -39,10 +39,13 @@ import org.eclipse.ui.contexts.IContextService;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.drawing.DrawingLayer.LayerState;
 import com.raytheon.uf.viz.drawing.actions.ClearDrawingAction;
 import com.raytheon.uf.viz.drawing.actions.EraseObjectsAction;
 import com.raytheon.uf.viz.drawing.actions.RedoAddAction;
@@ -53,6 +56,8 @@ import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+import com.raytheon.viz.ui.tools.AbstractModalTool;
 
 /**
  * TODO Add Description
@@ -72,20 +77,24 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 
 public class PathToolbar extends CaveSWTDialog {
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PathToolbar.class);
+
+    private static final String EDIT_TOOL_CATEGY = "com.raytheon.viz.ui.modalTool.nav";
+
+    protected static AbstractModalTool lastTool = null;
 
     protected static PathToolbar pathToolbar;
 
-    // private Map<AbstractEditor, ResourcePair> layers;
-
     protected ToolBar toolbar;
 
-    private ToolItem drawItem;
+    protected ToolItem drawItem;
 
-    private ToolItem eraserItem;
+    protected ToolItem eraserItem;
 
-    private ToolItem undoItem;
+    protected ToolItem undoItem;
 
-    private ToolItem redoItem;
+    protected ToolItem redoItem;
 
     protected ToolItem clearItem;
 
@@ -96,6 +105,9 @@ public class PathToolbar extends CaveSWTDialog {
             pathToolbar = new PathToolbar(new Shell(Display.getCurrent()));
             DrawingEventBus.register(PathToolbar.getToolbar());
         }
+
+        lastTool = VizPerspectiveListener.getCurrentPerspectiveManager()
+                .getToolManager().getSelectedModalTool(EDIT_TOOL_CATEGY);
         return pathToolbar;
     }
 
@@ -106,14 +118,6 @@ public class PathToolbar extends CaveSWTDialog {
     protected PathToolbar(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | CAVE.DO_NOT_BLOCK);
         setText("Drawing");
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        PathToolbar bar = new PathToolbar(new Shell());
-        bar.open();
     }
 
     /*
@@ -154,33 +158,32 @@ public class PathToolbar extends CaveSWTDialog {
         toolbar.setLayout(layout);
         toolbar.setLayoutData(data);
 
-        drawItem = new ToolItem(toolbar, SWT.NONE);
+        drawItem = new ToolItem(toolbar, SWT.CHECK);
         drawItem.setText("Draw");
         drawItem.setImage(IconUtil.getImageDescriptor(
                 Activator.getDefault().getBundle(), "draw.gif").createImage());
-
+        getDrawingResource().setState(LayerState.NONE);
+        drawItem.setSelection(false);
         drawItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                AbstractEditor editor = EditorUtil
-                        .getActiveEditorAs(AbstractEditor.class);
-                IDescriptor desc = editor.getActiveDisplayPane()
-                        .getDescriptor();
-                for (ResourcePair pair : desc.getResourceList()) {
-                    if (pair.getResource() instanceof DrawingLayer) {
-                        ((DrawingLayer) pair.getResource()).erase = false;
-                        eraserItem.setSelection(false);
-                    }
+                DrawingLayer layer = getDrawingResource();
+                switch (layer.getState()) {
+                case DRAWING:
+                    lastTool.activate();
+                    layer.setState(LayerState.NONE);
+                    break;
+                case ERASING:
+                    layer.setState(LayerState.DRAWING);
+                    eraserItem.setSelection(false);
+                    break;
+                case NONE:
+                    layer.setState(LayerState.DRAWING);
+                    break;
                 }
-
-                startTool();
-                // ((VizMultiPaneEditor) editor)
-                // .addSelectedPaneChangedListener(PathToolbar
-                // .getToolbar());
                 updateToolbar();
             }
         });
-
         undoItem = new ToolItem(toolbar, SWT.FLAT);
         undoItem.setText("Undo");
         undoItem.setImage(IconUtil.getImageDescriptor(
@@ -233,6 +236,19 @@ public class PathToolbar extends CaveSWTDialog {
         eraserItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                DrawingLayer layer = getDrawingResource();
+
+                // reactivate the last tool
+                if (layer.getState() == LayerState.ERASING) {
+                    lastTool.activate();
+                } else {
+                    lastTool.deactivate();
+                }
+
+                // uncheck the draw item
+                drawItem.setSelection(false);
+
+                // execute the EraseObjectsAction
                 EraseObjectsAction action = new EraseObjectsAction();
                 executeAction(action);
             }
@@ -253,7 +269,7 @@ public class PathToolbar extends CaveSWTDialog {
         try {
             action.execute(null);
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable to execute action", e);
         }
     }
 
@@ -267,42 +283,46 @@ public class PathToolbar extends CaveSWTDialog {
         if (this.isDisposed()) {
             return;
         }
-        AbstractEditor editor = EditorUtil
-                .getActiveEditorAs(AbstractEditor.class);
-        ResourceList list = editor.getActiveDisplayPane().getDescriptor()
-                .getResourceList();
-        for (ResourcePair pair : list) {
-            if (pair.getResource() instanceof DrawingLayer) {
-                if (toolbar != null && !toolbar.isDisposed()) {
-                    DrawingLayer layer = (DrawingLayer) pair.getResource();
-                    if (layer.getDeletedShapes().isEmpty()
-                            && layer.getWireframeShapes().isEmpty()) {
-                        undoItem.setEnabled(false);
-                        redoItem.setEnabled(false);
-                        clearItem.setEnabled(false);
-                    } else {
-                        clearItem.setEnabled(true);
-                        if (layer.getDeletedShapes().isEmpty()) {
-                            redoItem.setEnabled(false);
-                        } else {
-                            redoItem.setEnabled(true);
-                        }
-                        if (layer.getWireframeShapes().isEmpty()) {
-                            undoItem.setEnabled(false);
-                        } else {
-                            undoItem.setEnabled(true);
-                        }
-                    }
+        DrawingLayer layer = getDrawingResource();
+        if (toolbar != null && !toolbar.isDisposed()) {
+            if (layer.getDeletedShapes().isEmpty()
+                    && layer.getWireframeShapes().isEmpty()) {
+                undoItem.setEnabled(false);
+                redoItem.setEnabled(false);
+                clearItem.setEnabled(false);
+            } else {
+                clearItem.setEnabled(true);
+                if (layer.getDeletedShapes().isEmpty()) {
+                    redoItem.setEnabled(false);
+                } else {
+                    redoItem.setEnabled(true);
+                }
+                if (layer.getWireframeShapes().isEmpty()) {
+                    undoItem.setEnabled(false);
+                } else {
+                    undoItem.setEnabled(true);
                 }
             }
         }
     }
 
-    /**
-     * 
-     */
-    protected void startTool() {
-        PathDrawingTool tool = new PathDrawingTool();
-        tool.activate();
+    protected DrawingLayer getDrawingResource() {
+        AbstractEditor editor = EditorUtil
+                .getActiveEditorAs(AbstractEditor.class);
+        IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
+        DrawingLayer layer = null;
+        for (ResourcePair pair : desc.getResourceList()) {
+            if (pair.getResource() instanceof DrawingLayer) {
+                layer = (DrawingLayer) pair.getResource();
+                break;
+            }
+        }
+        if (layer == null) {
+            PathDrawingTool tool = new PathDrawingTool();
+            tool.activate();
+            lastTool.deactivate();
+            layer = getDrawingResource();
+        }
+        return layer;
     }
 }
