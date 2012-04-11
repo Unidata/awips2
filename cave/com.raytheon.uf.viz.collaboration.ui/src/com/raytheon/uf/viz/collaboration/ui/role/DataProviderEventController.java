@@ -35,13 +35,17 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEve
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
+import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.maps.rsc.MapResourceGroup;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
+import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
@@ -204,19 +208,29 @@ public class DataProviderEventController extends AbstractRoleEventController {
             // Replace pane resources that will be shared with
             // CollaborationWrapperResource objects
             for (IDisplayPane pane : container.getDisplayPanes()) {
+                ResourceList list = pane.getDescriptor().getResourceList();
                 for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
-                    if (rp.getResource() instanceof MapResourceGroup) {
-                        CollaborationWrapperResourceData wrapperRscData = new CollaborationWrapperResourceData();
-                        wrapperRscData.setWrappedResourceData(rp.getResource()
-                                .getResourceData());
-                        rp.setResource(new CollaborationWrapperResource(
-                                wrapperRscData, rp.getLoadProperties(), rp
-                                        .getResource()));
-                        if (rp.getResourceData() != null) {
-                            rp.setResourceData(wrapperRscData);
+                    wrapResourcePair(rp);
+                }
+                list.addPreAddListener(new AddListener() {
+                    @Override
+                    public void notifyAdd(ResourcePair rp) throws VizException {
+                        if (wrapResourcePair(rp)) {
+                            // Send event to venue to load
+                            sendSharedResource(rp, false);
                         }
                     }
-                }
+                });
+                list.addPostRemoveListener(new RemoveListener() {
+                    @Override
+                    public void notifyRemove(ResourcePair rp)
+                            throws VizException {
+                        if (rp.getResource() instanceof CollaborationWrapperResource) {
+                            // Send event to venue to unload
+                            sendSharedResource(rp, true);
+                        }
+                    }
+                });
             }
 
             // Inject remote graphics functionality in container
@@ -240,6 +254,55 @@ public class DataProviderEventController extends AbstractRoleEventController {
                         }
                     });
         }
+    }
+
+    private void sendSharedResource(ResourcePair rp, boolean remove) {
+        // Send event to venue to load resource
+        SharedResource sr = new SharedResource();
+        ResourcePair copy = new ResourcePair();
+        copy.setLoadProperties(rp.getLoadProperties());
+        copy.setProperties(rp.getProperties());
+        if (rp.getResourceData() instanceof CollaborationWrapperResourceData) {
+            copy.setResourceData(((CollaborationWrapperResourceData) rp
+                    .getResourceData()).getWrappedResourceData());
+        } else if (rp.getResource() instanceof CollaborationWrapperResource) {
+            copy.setResourceData(rp.getResource().getResourceData());
+        }
+        sr.setResource(copy);
+        sr.setRemoveResource(remove);
+        try {
+            session.sendObjectToVenue(sr);
+        } catch (CollaborationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+    }
+
+    /**
+     * Wraps ResourcePair in collaboration wrapper resource if resource should
+     * be loaded on locally for every user in venue
+     * 
+     * @param rp
+     * @return true if ResourcePair was wrapped, false otherwise
+     */
+    private boolean wrapResourcePair(ResourcePair rp) {
+        if (rp.getProperties() != null && rp.getProperties().isMapLayer()
+                && (rp.getResource() != null || rp.getResourceData() != null)) {
+            CollaborationWrapperResourceData wrapperRscData = new CollaborationWrapperResourceData();
+            if (rp.getResource() != null) {
+                wrapperRscData.setWrappedResourceData(rp.getResource()
+                        .getResourceData());
+                rp.setResource(new CollaborationWrapperResource(wrapperRscData,
+                        rp.getLoadProperties(), rp.getResource()));
+            } else {
+                wrapperRscData.setWrappedResourceData(rp.getResourceData());
+            }
+
+            if (rp.getResourceData() != null) {
+                rp.setResourceData(wrapperRscData);
+            }
+            return true;
+        }
+        return false;
     }
 
     /*
