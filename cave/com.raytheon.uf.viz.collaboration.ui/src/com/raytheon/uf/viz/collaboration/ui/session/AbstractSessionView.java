@@ -34,6 +34,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -46,8 +47,8 @@ import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
@@ -86,6 +87,8 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     private StyledText composeText;
 
+    protected Map<String, Color> colors;
+
     // protected Action chatAction;
 
     protected abstract String getSessionImageName();
@@ -100,6 +103,12 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
+        colors = new HashMap<String, Color>();
+        Map<String, RGB> rgbs = SessionColorManager.getColorManager()
+                .getColors();
+        for (String user : rgbs.keySet()) {
+            colors.put(user, new Color(Display.getCurrent(), rgbs.get(user)));
+        }
     }
 
     private void initComponents(Composite parent) {
@@ -245,7 +254,6 @@ public abstract class AbstractSessionView extends ViewPart implements
         int offset = sb.length();
 
         sb.append(name).append(": ").append(body);
-
         // here is the place to put the font and color changes for keywords
         // read in localization file once and then don't read in again, per
         // chat room?
@@ -265,19 +273,14 @@ public abstract class AbstractSessionView extends ViewPart implements
             }
         }
 
-        ParticipantRole[] roles = getRoles(fqName);
-
-        Color color = SessionColorAdvisor.getColor(roles, fqName
-                .equals(CollaborationDataManager.getInstance().getLoginId()));
         StyleRange range = new StyleRange(messagesText.getCharCount() + offset,
-                name.length() + 1, color, null, SWT.BOLD);
+                name.length() + 1, colors.get(fqName), null, SWT.BOLD);
         messagesText.append(sb.toString());
         messagesText.setStyleRange(range);
         for (StyleRange newRange : ranges) {
             messagesText.setStyleRange(newRange);
         }
         messagesText.setTopIndex(messagesText.getLineCount() - 1);
-
         // room for other fun things here, such as sounds and such
         executeSightsSounds();
     }
@@ -347,6 +350,10 @@ public abstract class AbstractSessionView extends ViewPart implements
             getViewSite().getWorkbenchWindow().getPartService()
                     .removePartListener(this);
         }
+        for (Color color : colors.values()) {
+            color.dispose();
+        }
+        SessionColorManager.getColorManager().clearColors();
     }
 
     /*
