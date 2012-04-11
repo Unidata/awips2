@@ -46,14 +46,20 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 public class CollaborationDrawingEvent extends DrawingEvent implements
         IDisplayEvent {
 
+    public static enum CollaborationEventType {
+        DRAW, ERASE, REDO, UNDO, CLEAR, DISABLE;
+    }
+
     @DynamicSerializeElement
     private ShapeContainer container;
 
     @DynamicSerializeElement
-    protected String userName;
+    private String userName;
+
+    @DynamicSerializeElement
+    private CollaborationEventType type;
 
     public CollaborationDrawingEvent() {
-
     }
 
     public CollaborationDrawingEvent(ShapeContainer cont) {
@@ -88,5 +94,20 @@ public class CollaborationDrawingEvent extends DrawingEvent implements
      */
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    /**
+     * @return the type
+     */
+    public CollaborationEventType getType() {
+        return type;
+    }
+
+    /**
+     * @param type
+     *            the type to set
+     */
+    public void setType(CollaborationEventType type) {
+        this.type = type;
     }
 }
