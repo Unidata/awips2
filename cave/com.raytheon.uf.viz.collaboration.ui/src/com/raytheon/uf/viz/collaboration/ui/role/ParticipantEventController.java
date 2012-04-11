@@ -113,14 +113,17 @@ public class ParticipantEventController extends AbstractRoleEventController {
         if (cmd.getRole() == ParticipantRole.SESSION_LEADER) {
             System.out.println("Current session's username: "
                     + session.getUserID().getFQName());
-            if (cmd.getUser().equals(session.getUserID().getFQName())) {
+            System.out.println("Command received username: "
+                    + cmd.getUser().getFQName());
+            if (cmd.getUser().getFQName()
+                    .equals(session.getUserID().getFQName())) {
                 // this cave should assume session leader control
                 InputUtil.enableSessionLeaderInput(CollaborationDataManager
                         .getInstance().getEditor(session.getSessionId()));
-            } else if (session.getCurrentSessionLeader().equals(
-                    session.getUserID().getFQName())
+            } else if (session.getCurrentSessionLeader().getFQName()
+                    .equals(session.getUserID().getFQName())
                     && !session.getCurrentSessionLeader().getFQName()
-                            .equals(cmd.getUser())) {
+                            .equals(cmd.getUser().getFQName())) {
                 // this cave should release session leader control
                 InputUtil.disableSessionLeaderInput(CollaborationDataManager
                         .getInstance().getEditor(session.getSessionId()));
