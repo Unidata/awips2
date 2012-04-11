@@ -20,6 +20,9 @@
 
 package com.raytheon.uf.viz.drawing;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -42,6 +45,9 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
  * 
  */
 public abstract class AbstractDrawingTool extends AbstractModalTool {
+
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractDrawingTool.class);
 
     /** The drawing layer */
     protected DrawingLayer theDrawingLayer;
@@ -78,7 +84,8 @@ public abstract class AbstractDrawingTool extends AbstractModalTool {
                 theDrawingLayer = (DrawingLayer) constructData().construct(
                         new LoadProperties(), desc);
             } catch (VizException e1) {
-                e1.printStackTrace();
+                statusHandler.handle(Priority.ERROR,
+                        "Unable to construct the drawing layer", e1);
             }
             try {
                 desc.getResourceList().add(theDrawingLayer);

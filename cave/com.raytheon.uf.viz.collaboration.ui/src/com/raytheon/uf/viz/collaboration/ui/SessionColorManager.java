@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.telestrator;
+package com.raytheon.uf.viz.collaboration.ui;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.viz.core.ColorUtil;
 
 /**
- * TODO Add Description
+ * 
  * 
  * <pre>
  * 
@@ -43,17 +43,18 @@ import com.raytheon.viz.core.ColorUtil;
  * @version 1.0
  */
 
-public class TelestratorColorManager {
+// TODO make so this supports multiple sessions
+public class SessionColorManager {
 
     private Map<String, RGB> colors;
 
-    private static TelestratorColorManager colorManager = null;
+    private static SessionColorManager colorManager = null;
 
     private static RGB[] rgbPresets = null;
 
-    public static TelestratorColorManager getColorManager() {
+    public static SessionColorManager getColorManager() {
         if (colorManager == null) {
-            colorManager = new TelestratorColorManager();
+            colorManager = new SessionColorManager();
             rgbPresets = ColorUtil.getResourceColorPresets();
         }
         return colorManager;
@@ -62,7 +63,7 @@ public class TelestratorColorManager {
     /**
      * 
      */
-    private TelestratorColorManager() {
+    private SessionColorManager() {
         if (colors == null) {
             colors = new HashMap<String, RGB>();
         }
@@ -80,19 +81,23 @@ public class TelestratorColorManager {
      * 
      * @param user
      */
-    public void addUser(String user) {
+    private RGB addUser(String user) {
         int count = colors.size();
         if (rgbPresets.length <= colors.size()) {
             count = rgbPresets.length % colors.size();
         }
         colors.put(user, rgbPresets[count]);
+        return rgbPresets[count];
     }
 
     public RGB getColorFromUser(String user) {
-        if (colors.get(user) == null) {
-            addUser(user);
-        }
+        // if (colors.get(user) == null) {
+        addUser(user);
+        // }
         return colors.get(user);
     }
 
+    public void clearColors() {
+        colors.clear();
+    }
 }

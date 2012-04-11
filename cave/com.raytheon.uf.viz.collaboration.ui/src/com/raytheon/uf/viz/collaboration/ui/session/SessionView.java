@@ -346,19 +346,21 @@ public class SessionView extends AbstractSessionView {
                 if (item != null) {
                     CollaborationUser user = (CollaborationUser) item.getData();
                     StringBuilder builder = new StringBuilder();
-                    builder.append("mode: ").append(user.getMode())
-                            .append("\n");
-                    builder.append("type: ").append(user.getType())
-                            .append("\n");
-                    builder.append("message: \"")
+                    builder.append("Status : ")
+                            .append(user.getMode().getMode()).append("\n");
+                    builder.append("Message : \"")
                             .append(user.getStatusMessage()).append("\"\n");
                     builder.append("-- Roles --");
-                    for (ParticipantRole type : user.getRoles()) {
-                        // TODO fake XXX take this out
-                        // if (type == ParticipantRole.UNKNOWN) {
-                        // continue;
-                        // }
-                        builder.append("\n" + type.toString());
+                    // TODO, this might not work at this point?
+                    if (CollaborationDataManager.getInstance()
+                            .getSession(sessionId)
+                            .hasRole(ParticipantRole.SESSION_LEADER)) {
+                        builder.append("\nSession Leader");
+                    }
+                    if (CollaborationDataManager.getInstance()
+                            .getSession(sessionId)
+                            .hasRole(ParticipantRole.DATA_PROVIDER)) {
+                        builder.append("\nData Provider");
                     }
                     usersTable.getTable().setToolTipText(builder.toString());
                 } else {

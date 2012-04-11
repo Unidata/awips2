@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
 import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -84,8 +85,10 @@ public class DataProviderEventController extends AbstractRoleEventController {
         if (event.getEventType().equals(ParticipantEventType.ARRIVED)) {
             // TODO this seems to trigger when you create the room, in which
             // case you don't need to send it for yourself
-            AbstractEditor editor = CollaborationDataManager.getInstance()
-                    .getActivelySharedEditors(session.getSessionId()).get(0);
+            // TODO instead of going to active editor, should get ones
+            // specifically shared with this session
+            AbstractEditor editor = EditorUtil
+                    .getActiveEditorAs(AbstractEditor.class);
             SharedEditor se = EditorSetup.extractSharedEditor(editor);
             try {
                 session.sendObjectToPeer(event.getParticipant()
@@ -315,6 +318,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
     @Override
     public void shutdown() {
         super.shutdown();
+        super.deactivateTelestrator();
     }
 
 }
