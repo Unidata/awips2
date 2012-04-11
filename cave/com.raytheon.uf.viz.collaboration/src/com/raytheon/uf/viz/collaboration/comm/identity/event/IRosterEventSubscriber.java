@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-
 /**
  * TODO Add Description
  * 
@@ -30,7 +28,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 6, 2012            jkorman     Initial creation
+ * Apr 11, 2012            jkorman     Initial creation
  *
  * </pre>
  *
@@ -38,18 +36,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
  * @version 1.0	
  */
 
-public interface IRosterChangeEvent {
-    
-    /**
-     * Get the event type.
-     * @return The event type.
-     */
-    RosterChangeType getType();
-    
-    /**
-     * Get the changed entry
-     * @return The changed entry.
-     */
-    IRosterEntry getEntry();
-    
+public interface IRosterEventSubscriber {
+    // Tag interface.
 }
