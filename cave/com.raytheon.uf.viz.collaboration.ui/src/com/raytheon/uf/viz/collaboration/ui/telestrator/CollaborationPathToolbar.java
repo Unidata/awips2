@@ -19,12 +19,24 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolItem;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.drawing.DrawingLayer;
 import com.raytheon.uf.viz.drawing.PathToolbar;
+import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 import com.raytheon.uf.viz.drawing.events.DrawingEventBus;
-import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 
 /**
  * TODO Add Description
@@ -44,23 +56,13 @@ import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
  */
 
 public class CollaborationPathToolbar extends PathToolbar {
+    private ToolItem leaderOnly;
 
     /**
      * @param parentShell
      */
     protected CollaborationPathToolbar(Shell parentShell) {
         super(parentShell);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.drawing.PathToolbar#startTool()
-     */
-    @Override
-    protected void startTool() {
-        PathDrawingTool tool = new CollaborationPathDrawingTool();
-        tool.activate();
     }
 
     public static PathToolbar getToolbar() {
@@ -84,26 +86,23 @@ public class CollaborationPathToolbar extends PathToolbar {
         // allows for subclasses to add more items to the toolbar, in this case
         // allowing the user to turn off other collaborator drawings
         super.initializeComponents(shell);
-        // ToolItem allowOthersItem = new ToolItem(toolbar, SWT.CHECK);
-        // allowOthersItem.setText("Leader Only");
-        // allowOthersItem.setImage(IconUtil.getImageDescriptor(
-        // Activator.getDefault().getBundle(), "multiple_draw.gif")
-        // .createImage());
-        // allowOthersItem.setSelection(true);
-        // allowOthersItem.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // AbstractEditor editor = EditorUtil
-        // .getActiveEditorAs(AbstractEditor.class);
-        // IDescriptor desc = editor.getActiveDisplayPane()
-        // .getDescriptor();
-        // for (ResourcePair pair : desc.getResourceList()) {
-        // if (pair.getResource() instanceof CollaborationDrawingLayer) {
-        // System.out.println("collaborating");
-        // }
-        // }
-        // }
-        // });
+        createLeaderItem();
+    }
+
+    @Override
+    public void handleMessage(final DrawingEvent event) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                if (event instanceof CollaborationDrawingEvent) {
+                    CollaborationDrawingEvent cde = (CollaborationDrawingEvent) event;
+                    if (cde.getType() == CollaborationEventType.DISABLE) {
+                        disableAll();
+                    }
+                }
+                CollaborationPathToolbar.super.handleMessage(event);
+            }
+        });
     }
 
     /*
@@ -114,5 +113,39 @@ public class CollaborationPathToolbar extends PathToolbar {
     @Override
     public void updateToolbar() {
         super.updateToolbar();
+        // for non-leaders, need to disable/remove the leaderOnly button
+        DrawingLayer resource = getDrawingResource();
+        if (resource.getResourceData() instanceof CollaborationPathDrawingResourceData) {
+            String sessionId = ((CollaborationPathDrawingResourceData) resource
+                    .getResourceData()).getSessionId();
+
+            if (!CollaborationDataManager.getInstance().getSession(sessionId)
+                    .hasRole(ParticipantRole.SESSION_LEADER)
+                    && leaderOnly != null) {
+                leaderOnly.setEnabled(false);
+            }
+        }
     }
+
+    private void createLeaderItem() {
+        leaderOnly = new ToolItem(toolbar, SWT.CHECK);
+        leaderOnly.setText("Lock Collaborators");
+        leaderOnly.setImage(IconUtil.getImageDescriptor(
+                Activator.getDefault().getBundle(), "multiple_draw.gif")
+                .createImage());
+        leaderOnly.setSelection(false);
+        leaderOnly.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                DrawingLayer layer = getDrawingResource();
+                CollaborationDrawingLayer dLayer = (CollaborationDrawingLayer) layer;
+                dLayer.sendDisableOthers();
+            }
+        });
+    }
+
+    public void disableAll() {
+        toolbar.setEnabled(!toolbar.getEnabled());
+    }
+
 }

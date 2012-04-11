@@ -29,17 +29,19 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.event.ClearDrawingEvent;
+import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.event.RedoDrawingEvent;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.event.UndoDrawingEvent;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -52,6 +54,8 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.TopologyException;
 
 /**
  * A layer that extends Drawing Layer but allows other users to have things
@@ -73,13 +77,18 @@ import com.vividsolutions.jts.geom.LineString;
 
 public class CollaborationDrawingLayer extends DrawingLayer {
 
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CollaborationDrawingLayer.class);
+
     private Multimap<String, ShapeContainer> collaboratorShapes;
 
     private Multimap<String, ShapeContainer> deletedCollaboratorShapes;
 
+    private Map<String, RGB> colors;
+
     private IWireframeShape tempRemoteShape = null;
 
-    private RGB officialColor = null;
+    private boolean allowDraw = false;
 
     /**
      * @param data
@@ -92,10 +101,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                 .getActiveEditorAs(AbstractEditor.class);
         CollaborationDataManager mgr = CollaborationDataManager.getInstance();
         for (String str : mgr.getSessions().keySet()) {
-            // if (editor.equals(mgr.getEditor(str))) {
             mgr.getSession(str).registerEventHandler(this);
             break;
-            // }
         }
     }
 
@@ -120,11 +127,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         this.deletedCollaboratorShapes = LinkedHashMultimap.create();
         this.deletedCollaboratorShapes = Multimaps
                 .synchronizedMultimap(this.deletedCollaboratorShapes);
-
-        TelestratorColorManager colorManager = TelestratorColorManager
-                .getColorManager();
-        officialColor = colorManager.getColorFromUser(CollaborationDataManager
-                .getInstance().getLoginId());
+        colors = SessionColorManager.getColorManager().getColors();
     }
 
     /*
@@ -150,8 +153,13 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             for (String userName : collaboratorShapes.keySet()) {
                 for (ShapeContainer sh : collaboratorShapes.get(userName)) {
                     if (sh != null) {
-                        RGB color = RGBColors.getRGBColor(sh.rgb);
-                        target.drawWireframeShape(sh.shape, color,
+                        sh.getShape().clearLabels();
+                        RGB color = SessionColorManager.getColorManager()
+                                .getColors().get(userName);
+                        if (color == null) {
+                            color = new RGB(255, 0, 0);
+                        }
+                        target.drawWireframeShape(sh.getShape(), color,
                                 outline.getOutlineWidth(),
                                 outline.getLineStyle());
                     }
@@ -161,18 +169,26 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     }
 
     @Subscribe
-    public void handle(IDisplayEvent event) {
-        if (event instanceof ClearDrawingEvent) {
-            resetTemp();
-            clearSelfShapes(((ClearDrawingEvent) event).getUserName());
-            // TODO check if session leader, otherwise only remove my wireframe
-            // shapes
-            if (/* if session leader */false) {
-                disposeInternal();
-            }
-            issueRefresh();
-        } else if (event instanceof UndoDrawingEvent) {
-            String userName = ((UndoDrawingEvent) event).getUserName();
+    public void setColorEvent(ColorChangeEvent event) {
+        if (CollaborationDataManager.getInstance().getLoginId()
+                .equals(event.getUserName())) {
+            this.color = event.getColor();
+        }
+        colors.put(event.getUserName(), event.getColor());
+        issueRefresh();
+    }
+
+    @Subscribe
+    public void handle(CollaborationDrawingEvent event) {
+        switch (event.getType()) {
+        case DRAW:
+            addCollaborationShape(event.getUserName(), event.getContainer());
+            break;
+        case DISABLE:
+            allowDraw = !allowDraw;
+            getEventBus().post(event);
+        case UNDO:
+            String userName = event.getUserName();
             Collection<ShapeContainer> container = collaboratorShapes
                     .get(userName);
             Iterator<ShapeContainer> itr = container.iterator();
@@ -185,13 +201,12 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             }
             deletedCollaboratorShapes.put(userName, lastElement);
             collaboratorShapes.get(userName).remove(lastElement);
-            issueRefresh();
-        } else if (event instanceof RedoDrawingEvent) {
-            String userName = ((RedoDrawingEvent) event).getUserName();
-            Collection<ShapeContainer> container = deletedCollaboratorShapes
-                    .get(userName);
-            Iterator<ShapeContainer> itr = container.iterator();
-            ShapeContainer lastElement = null;
+            break;
+        case REDO:
+            userName = event.getUserName();
+            container = deletedCollaboratorShapes.get(userName);
+            itr = container.iterator();
+            lastElement = null;
             if (itr.hasNext()) {
                 lastElement = itr.next();
             }
@@ -200,13 +215,54 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             }
             collaboratorShapes.put(userName, lastElement);
             deletedCollaboratorShapes.get(userName).remove(lastElement);
-            issueRefresh();
-        } else if (event instanceof CollaborationDrawingEvent) {
-            CollaborationDrawingEvent collEvent = (CollaborationDrawingEvent) event;
-            addCollaborationShape(collEvent.getUserName(),
-                    collEvent.getContainer());
-            issueRefresh();
+            break;
+        case CLEAR:
+            resetTemp();
+            clearSelfShapes(event.getUserName());
+            // TODO check if session leader, otherwise only remove my wireframe
+            // shapes
+            if (/* if session leader */false) {
+                disposeInternal();
+            }
+            break;
+        case ERASE:
+            userName = event.getUserName();
+            double extentPercentageX = paintProps.getView().getExtent()
+                    .getWidth()
+                    / (double) paintProps.getCanvasBounds().width;
+            double cursorSize = 16;
+            double size = extentPercentageX * cursorSize;
+            synchronized (collaboratorShapes) {
+                for (ShapeContainer cont : collaboratorShapes.get(userName)) {
+                    Geometry line = event.getContainer().getGeom();
+                    if (line.buffer(size / 2).intersects(cont.getGeom())) {
+                        Geometry intersection = line.buffer(size / 2)
+                                .intersection(cont.getGeom());
+                        Geometry finalGeom = null;
+                        try {
+                            finalGeom = cont.getGeom().difference(intersection);
+                        } catch (TopologyException e) {
+                            continue;
+                        }
+                        if (finalGeom instanceof MultiLineString) {
+                            Geometry lString = (MultiLineString) finalGeom;
+                            for (int j = 0; j < lString.getNumGeometries(); j++) {
+                                LineString lineString = (LineString) lString
+                                        .getGeometryN(j);
+                                drawTempLinePrimitive(lineString,
+                                        eraseWireframeShape);
+                                ShapeContainer shCont = new ShapeContainer();
+                                shCont.setGeom(lString);
+                                shCont.setShape(eraseWireframeShape);
+                                collaboratorShapes.get(userName).add(shCont);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
         }
+        issueRefresh();
     }
 
     /**
@@ -214,7 +270,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
      */
     private void clearSelfShapes(String userName) {
         for (ShapeContainer cont : collaboratorShapes.get(userName)) {
-            cont.shape.dispose();
+            cont.getShape().dispose();
         }
         collaboratorShapes.removeAll(userName);
     }
@@ -237,6 +293,19 @@ public class CollaborationDrawingLayer extends DrawingLayer {
      * (non-Javadoc)
      * 
      * @see
+     * com.raytheon.uf.viz.drawing.DrawingLayer#addTempEraseLine(com.vividsolutions
+     * .jts.geom.LineString)
+     */
+    @Override
+    public void addTempEraseLine(LineString line) {
+        super.addTempEraseLine(line);
+        sendEraseEvent(line);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * com.raytheon.uf.viz.drawing.DrawingLayer#finalizeLine(com.vividsolutions
      * .jts.geom.LineString, java.lang.String)
      */
@@ -244,7 +313,11 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     public void finalizeLine(LineString line, String uuid) {
         super.finalizeLine(line, uuid);
         // for showing the line only after the artist lets up on the mouse
-        sendDrawEvent(line);
+        if (state == LayerState.DRAWING) {
+            sendDrawEvent(line);
+        } else if (state == LayerState.ERASING) {
+            sendEraseEvent(line);
+        }
     }
 
     /*
@@ -255,7 +328,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     public void undoAdd() {
         super.undoAdd();
-        UndoDrawingEvent event = new UndoDrawingEvent();
+        CollaborationDrawingEvent event = new CollaborationDrawingEvent();
+        event.setType(CollaborationEventType.UNDO);
         event.setUserName(CollaborationDataManager.getInstance().getLoginId());
         sendGenericEvent(event);
     }
@@ -268,17 +342,33 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     public void redoAdd() {
         super.redoAdd();
-        RedoDrawingEvent event = new RedoDrawingEvent();
+        CollaborationDrawingEvent event = new CollaborationDrawingEvent();
+        event.setType(CollaborationEventType.REDO);
         event.setUserName(CollaborationDataManager.getInstance().getLoginId());
         sendGenericEvent(event);
     }
 
+    public void sendDisableOthers() {
+        CollaborationDrawingEvent event = new CollaborationDrawingEvent();
+        event.setType(CollaborationEventType.DISABLE);
+        sendGenericEvent(event);
+    }
+
+    private void sendEraseEvent(LineString line) {
+        ShapeContainer container = new ShapeContainer();
+        container.setGeom(line);
+        CollaborationDrawingEvent eObject = new CollaborationDrawingEvent();
+        eObject.setType(CollaborationEventType.ERASE);
+        eObject.setContainer(container);
+        eObject.setUserName(CollaborationDataManager.getInstance().getLoginId());
+        sendGenericEvent(eObject);
+    }
+
     private void sendDrawEvent(LineString line) {
         ShapeContainer container = new ShapeContainer();
-        String color = RGBColors.getColorName(officialColor);
-        container.setRgb(color);
         container.setGeom(line);
         CollaborationDrawingEvent tObject = new CollaborationDrawingEvent();
+        tObject.setType(CollaborationEventType.DRAW);
         tObject.setContainer(container);
         tObject.setUserName(CollaborationDataManager.getInstance().getLoginId());
         sendGenericEvent(tObject);
@@ -292,7 +382,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     public void reset() {
         super.reset();
-        ClearDrawingEvent event = new ClearDrawingEvent();
+        CollaborationDrawingEvent event = new CollaborationDrawingEvent();
+        event.setType(CollaborationEventType.CLEAR);
         event.setUserName(CollaborationDataManager.getInstance().getLoginId());
         sendGenericEvent(event);
     }
@@ -304,7 +395,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             try {
                 ((ISharedDisplaySession) sessions.get(str)).sendEvent(event);
             } catch (CollaborationException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.ERROR, "Unable to send event", e);
             }
         }
     }
@@ -314,7 +405,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         tempRemoteShape = target.createWireframeShape(false, getDescriptor());
         // }
         drawTempLinePrimitive(container.getGeom(), tempRemoteShape);
-        container.shape = tempRemoteShape;
+        container.setShape(tempRemoteShape);
         synchronized (collaboratorShapes) {
             collaboratorShapes.put(userName, container);
         }
@@ -325,6 +416,17 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         // deletedCollaboratorShapes.
         // collaboratorShapes.remove(geom, color);
         // }
+    }
+
+    public void addColor(String userName, RGB color) {
+        colors.put(userName, color);
+    }
+
+    /**
+     * @return the allowDraw
+     */
+    public boolean isAllowDraw() {
+        return allowDraw;
     }
 
     /*
@@ -343,11 +445,11 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             // }
 
             for (ShapeContainer cont : collaboratorShapes.values()) {
-                cont.shape.dispose();
+                cont.getShape().dispose();
             }
 
             for (ShapeContainer cont : deletedCollaboratorShapes.values()) {
-                cont.shape.dispose();
+                cont.getShape().dispose();
             }
 
             collaboratorShapes.clear();

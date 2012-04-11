@@ -44,14 +44,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @DynamicSerialize
 public class ShapeContainer {
 
-    public IWireframeShape shape;
-
-    @DynamicSerializeElement
-    public String rgb;
-
-    // public LineStyle lineStyle;
-
-    // public float lineWidth;
+    private IWireframeShape shape;
 
     @DynamicSerializeElement
     private Geometry geom;
@@ -72,21 +65,6 @@ public class ShapeContainer {
      */
     public void setShape(IWireframeShape shape) {
         this.shape = shape;
-    }
-
-    /**
-     * @return the rgb
-     */
-    public String getRgb() {
-        return rgb;
-    }
-
-    /**
-     * @param rgb
-     *            the rgb to set
-     */
-    public void setRgb(String rgb) {
-        this.rgb = rgb;
     }
 
     /**
