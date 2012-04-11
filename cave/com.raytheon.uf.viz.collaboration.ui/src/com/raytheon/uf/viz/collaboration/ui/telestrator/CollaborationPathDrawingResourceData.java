@@ -48,6 +48,9 @@ import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
 @XmlAccessorType(XmlAccessType.NONE)
 public class CollaborationPathDrawingResourceData extends
         PathDrawingResourceData {
+
+    private String sessionId;
+
     /*
      * (non-Javadoc)
      * 
@@ -85,6 +88,20 @@ public class CollaborationPathDrawingResourceData extends
      */
     @Override
     public void setClassT(String classT) {
-        System.out.println("setClassT");
+    }
+
+    /**
+     * @param sessionId
+     *            the sessionId to set
+     */
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    /**
+     * @return the sessionId
+     */
+    public String getSessionId() {
+        return sessionId;
     }
 }
