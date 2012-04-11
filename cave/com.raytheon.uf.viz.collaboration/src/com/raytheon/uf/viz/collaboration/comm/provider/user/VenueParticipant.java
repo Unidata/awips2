@@ -103,21 +103,6 @@ public class VenueParticipant extends RosterId implements IVenueParticipant {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.ID#getFQName()
-     */
-    @Override
-    public String getFQName() {
-        StringBuilder sb = new StringBuilder(name);
-        sb.append("@");
-        sb.append(host);
-        if (resource != null) {
-            sb.append("/");
-            sb.append(resource);
-        }
-        return sb.toString();
-    }
-
-    /**
      * Return the identifier as a qualified field. Removes the "domain"
      * conference from the host string if found.
      * 
@@ -140,6 +125,11 @@ public class VenueParticipant extends RosterId implements IVenueParticipant {
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
+    }
+
+    @Override
+    public String toString() {
+        return this.getFQName();
     }
 
 }
