@@ -43,7 +43,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
 public class SimpleWireframeShapeEvent extends AbstractDispatchingObjectEvent {
 
     public static enum EventAction {
-        DISPOSE, RESET, CLEAR_LABELS, COMPILE;
+        RESET, CLEAR_LABELS, COMPILE;
     }
 
     @DynamicSerializeElement
