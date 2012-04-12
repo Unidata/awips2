@@ -520,6 +520,23 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.uf.viz.core.IGraphicsTarget#createWireframeShape(boolean,
+     * org.geotools.coverage.grid.GeneralGridGeometry, float)
+     */
+    @Override
+    public IWireframeShape createWireframeShape(boolean mutable,
+            GeneralGridGeometry geom, float simplificationLevel) {
+        if (simplificationLevel > 0.0) {
+            return new GLWireframeShape(geom, mutable, simplificationLevel);
+        } else {
+            return new GLWireframeShape2D(geom, mutable);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.core.IGraphicsTarget#createWireframeShape(boolean,
      * com.raytheon.viz.core.map.IMapDescriptor, float, boolean,
      * com.raytheon.viz.core.PixelExtent)

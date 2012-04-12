@@ -433,7 +433,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     private void sendDrawWireframeShapeEvent(DispatchingWireframeShape shape,
-            RGB color, Float lineWidth, LineStyle lineStyle, IFont font,
+            RGB color, float lineWidth, LineStyle lineStyle, IFont font,
             Float alpha) {
         RenderWireframeShapeEvent event = RemoteGraphicsEventFactory
                 .createEvent(RenderWireframeShapeEvent.class, shape);
@@ -583,6 +583,28 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         // Dispatch creation event
         sendCreateWireframeShapeEvent(dispatching, mutable,
                 descriptor.getGridGeometry(), simplificationLevel, null, null);
+        return dispatching;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.IGraphicsTarget#createWireframeShape(boolean,
+     * org.geotools.coverage.grid.GeneralGridGeometry, float)
+     */
+    @Override
+    public IWireframeShape createWireframeShape(boolean mutable,
+            GeneralGridGeometry geom, float simplificationLevel) {
+        // Create original
+        IWireframeShape targetShape = wrappedObject.createWireframeShape(
+                mutable, geom, simplificationLevel);
+        // Create wrapped
+        DispatchingWireframeShape dispatching = new DispatchingWireframeShape(
+                targetShape, getDispatcher(), geom);
+        // Dispatch creation event
+        sendCreateWireframeShapeEvent(dispatching, mutable, geom,
+                simplificationLevel, null, null);
         return dispatching;
     }
 
