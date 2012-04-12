@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +29,7 @@ import java.util.Map;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -48,6 +51,8 @@ import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
+import com.raytheon.uf.viz.remote.graphics.events.fonts.CreateFontEvent;
+import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
@@ -460,6 +465,56 @@ public class CollaborationRenderingHandler {
                         event.getLineWidth(), event.getLineStyle(), font,
                         event.getAlpha());
             }
+        }
+    }
+
+    // ================== Font events ==================
+
+    @Subscribe
+    public void createFont(CreateFontEvent event) throws VizException {
+        int fontId = event.getObjectId();
+        IFont font = null;
+        if (event.getFontData() != null) {
+            try {
+                File fontFile = File.createTempFile(event.getFontName(), null);
+                FileUtil.bytes2File(event.getFontData(), fontFile);
+                font = target.initializeFont(fontFile, event.getFontSize(),
+                        event.getFontStyle());
+            } catch (IOException e) {
+                throw new VizException("Unable to write font file: "
+                        + e.getLocalizedMessage());
+            }
+        } else {
+            font = target.initializeFont(event.getFontName(),
+                    event.getFontSize(), event.getFontStyle());
+        }
+        font.setMagnification(event.getMagnification());
+        font.setSmoothing(event.isSmoothing());
+        font.setScaleFont(event.isScaleFont());
+        putRenderableObject(fontId, font);
+    }
+
+    @Subscribe
+    public void updateFont(UpdateFontDataEvent event) {
+        IFont font = getRenderableObject(event.getObjectId(), IFont.class);
+        if (font != null) {
+            if (event.getMagnification() != null) {
+                if (event.getScaleFont() != null) {
+                    font.setMagnification(event.getMagnification(),
+                            event.getScaleFont());
+                } else {
+                    font.setMagnification(event.getMagnification());
+                }
+            } else {
+                if (event.getScaleFont() != null) {
+                    font.setScaleFont(event.getScaleFont());
+                } else if (event.getSmoothing() != null) {
+                    font.setSmoothing(event.getSmoothing());
+                }
+            }
+            font.setMagnification(event.getMagnification());
+            font.setSmoothing(event.getSmoothing());
+            font.setScaleFont(event.getScaleFont());
         }
     }
 }
