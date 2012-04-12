@@ -22,10 +22,15 @@ package com.raytheon.uf.viz.collaboration.comm.provider;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterInputStream;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -97,10 +102,33 @@ public abstract class Tools {
 
     public static boolean COMPRESSION_ENABLED = false;
 
+    public static CompressionType COMPRESSION_TYPE = CompressionType.ZLIB;
+
+    private enum CompressionType {
+        ZLIB, GZIP, SNAPPY;
+
+        public byte toByte() {
+            return (byte) ordinal();
+        }
+
+        public static CompressionType fromByte(byte b) {
+            if (b < 0 || b > CompressionType.values().length) {
+                throw new IndexOutOfBoundsException(
+                        "Unable to determine CompressionType for " + b);
+            }
+            return CompressionType.values()[b];
+        }
+    };
+
     static {
         try {
             COMPRESSION_ENABLED = Boolean
                     .getBoolean("collaboration.compressionEnabled");
+            String compressionType = System
+                    .getProperty("collaboration.compressionType");
+            if (compressionType != null) {
+                COMPRESSION_TYPE = CompressionType.valueOf(compressionType);
+            }
         } catch (Exception e) {
             // must not have permission to access system properties. ignore and
             // use default.
@@ -474,35 +502,68 @@ public abstract class Tools {
 
     private static byte[] compress(byte[] bytes) throws CollaborationException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
+        CompressionType cType = COMPRESSION_TYPE;
 
+        out.write(cType.toByte());
         try {
-            GZIPOutputStream compressor = new GZIPOutputStream(out);
-
-            compressor.write(bytes);
+            OutputStream compressionStrm = createCompressionOutputStream(out);
+            long start = System.currentTimeMillis();
+            compressionStrm.write(bytes);
+            System.out.println(cType + " Compression time(milliseconds): "
+                    + (System.currentTimeMillis() - start) / 1000F);
         } catch (IOException e) {
             throw new CollaborationException("Unable to compress data.", e);
         }
         return out.toByteArray();
     }
 
+    private static OutputStream createCompressionOutputStream(OutputStream out)
+            throws IOException {
+        switch (COMPRESSION_TYPE) {
+        case GZIP:
+            return new GZIPOutputStream(out);
+        case ZLIB:
+        default:
+            return new DeflaterOutputStream(out);
+        }
+    }
+
     private static byte[] uncompress(byte[] bytes)
             throws CollaborationException {
-        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+        CompressionType cType = CompressionType.fromByte(bytes[0]);
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes, 1,
+                bytes.length);
+
         try {
-            GZIPInputStream uncompressor = new GZIPInputStream(in, bytes.length);
+            InputStream compressionStrm = createCompressionInputStream(in,
+                    bytes.length);
             ReadableByteChannel inByteChannel = Channels
-                    .newChannel(uncompressor);
+                    .newChannel(compressionStrm);
             WritableByteChannel out = Channels.newChannel(System.out);
             ByteBuffer buffer = ByteBuffer.allocate(65536);
+            long start = System.currentTimeMillis();
 
             while (inByteChannel.read(buffer) != -1) {
                 buffer.flip();
                 out.write(buffer);
                 buffer.clear();
             }
+            System.out.println(cType + " Uncompression time(milliseconds): "
+                    + (System.currentTimeMillis() - start) / 1000F);
             return buffer.array();
         } catch (IOException e) {
             throw new CollaborationException("Unable to uncompress data.", e);
+        }
+    }
+
+    private static InputStream createCompressionInputStream(InputStream in,
+            int bytesLength) throws IOException {
+        switch (COMPRESSION_TYPE) {
+        case GZIP:
+            return new GZIPInputStream(in, bytesLength);
+        case ZLIB:
+        default:
+            return new DeflaterInputStream(in, new Deflater(), bytesLength);
         }
     }
 
