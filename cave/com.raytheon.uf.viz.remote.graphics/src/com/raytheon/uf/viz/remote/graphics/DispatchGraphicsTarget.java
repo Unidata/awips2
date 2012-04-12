@@ -23,7 +23,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -68,6 +70,7 @@ import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.objects.DispatchingFont;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage.DispatchingRenderedImageCallback;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
@@ -96,6 +99,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DispatchGraphicsTarget.class);
+
+    private IFont defaultFont;
 
     private GraphicsExtensionManager extensionManager;
 
@@ -176,7 +181,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#initializeFont(java.lang.String)
      */
     public IFont initializeFont(String font) {
-        return wrappedObject.initializeFont(font);
+        return new DispatchingFont(wrappedObject.initializeFont(font),
+                getDispatcher());
     }
 
     /**
@@ -188,7 +194,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      float, com.raytheon.uf.viz.core.drawables.IFont.Style[])
      */
     public IFont initializeFont(String fontName, float size, Style[] styles) {
-        return wrappedObject.initializeFont(fontName, size, styles);
+        return new DispatchingFont(wrappedObject.initializeFont(fontName, size,
+                styles), getDispatcher());
     }
 
     /**
@@ -200,7 +207,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      float, com.raytheon.uf.viz.core.drawables.IFont.Style[])
      */
     public IFont initializeFont(File fontFile, float size, Style[] styles) {
-        return wrappedObject.initializeFont(fontFile, size, styles);
+        return new DispatchingFont(wrappedObject.initializeFont(fontFile, size,
+                styles), getDispatcher(), fontFile);
     }
 
     /**
@@ -257,7 +265,19 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawStrings(com.raytheon.uf.viz.core.DrawableString[])
      */
     public void drawStrings(DrawableString... parameters) throws VizException {
+        IFont[] originalFonts = new IFont[parameters.length];
+        for (int i = 0; i < parameters.length; ++i) {
+            DrawableString string = parameters[i];
+            originalFonts[i] = string.font;
+            if (string.font instanceof DispatchingFont) {
+                string.font = ((DispatchingFont) string.font)
+                        .getWrappedObject();
+            }
+        }
         wrappedObject.drawStrings(parameters);
+        for (int i = 0; i < parameters.length; ++i) {
+            parameters[i].font = originalFonts[i];
+        }
     }
 
     /**
@@ -267,7 +287,19 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawStrings(Collection<DrawableString> parameters)
             throws VizException {
+        List<IFont> originalFonts = new ArrayList<IFont>(parameters.size());
+        for (DrawableString string : parameters) {
+            originalFonts.add(string.font);
+            if (string.font instanceof DispatchingFont) {
+                string.font = ((DispatchingFont) string.font)
+                        .getWrappedObject();
+            }
+        }
         wrappedObject.drawStrings(parameters);
+        int i = 0;
+        for (DrawableString string : parameters) {
+            string.font = originalFonts.get(i);
+        }
     }
 
     /**
@@ -276,7 +308,13 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getStringsBounds(com.raytheon.uf.viz.core.DrawableString)
      */
     public Rectangle2D getStringsBounds(DrawableString parameters) {
-        return wrappedObject.getStringsBounds(parameters);
+        IFont font = parameters.font;
+        if (font instanceof DispatchingFont) {
+            parameters.font = ((DispatchingFont) font).getWrappedObject();
+        }
+        Rectangle2D rval = wrappedObject.getStringsBounds(parameters);
+        parameters.font = font;
+        return rval;
     }
 
     /**
@@ -287,7 +325,13 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      java.lang.String)
      */
     public Rectangle2D getStringsBounds(DrawableString parameters, String string) {
-        return wrappedObject.getStringsBounds(parameters, string);
+        IFont font = parameters.font;
+        if (font instanceof DispatchingFont) {
+            parameters.font = ((DispatchingFont) font).getWrappedObject();
+        }
+        Rectangle2D rval = wrappedObject.getStringsBounds(parameters, string);
+        parameters.font = font;
+        return rval;
     }
 
     /**
@@ -403,7 +447,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
         shape = wrapper.getWrappedObject();
         wrappedObject.drawWireframeShape(shape, color, lineWidth, lineStyle,
-                font);
+                ((DispatchingFont) font).getWrappedObject());
         sendDrawWireframeShapeEvent(wrapper, color, lineWidth, lineStyle, font,
                 null);
     }
@@ -426,6 +470,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             throws VizException {
         DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
         shape = wrapper.getWrappedObject();
+        if (font instanceof DispatchingFont) {
+            font = ((DispatchingFont) font).getWrappedObject();
+        }
         wrappedObject.drawWireframeShape(shape, color, lineWidth, lineStyle,
                 font, alpha);
         sendDrawWireframeShapeEvent(wrapper, color, lineWidth, lineStyle, font,
@@ -441,6 +488,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         event.setLineWidth(lineWidth);
         event.setLineStyle(lineStyle);
         event.setAlpha(alpha);
+        if (font instanceof DispatchingFont) {
+            event.setFontId(((DispatchingFont) font).getObjectId());
+        }
         dispatch(event);
     }
 
@@ -716,6 +766,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void init() {
         wrappedObject.init();
+        defaultFont = new DispatchingFont(wrappedObject.getDefaultFont(),
+                getDispatcher());
     }
 
     private IExtent previousExtent;
@@ -837,7 +889,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#getDefaultFont()
      */
     public IFont getDefaultFont() {
-        return wrappedObject.getDefaultFont();
+        return defaultFont;
     }
 
     /**
@@ -982,6 +1034,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment, Double rotation)
             throws VizException {
+        if (font instanceof DispatchingFont) {
+            font = ((DispatchingFont) font).getWrappedObject();
+        }
         wrappedObject.drawString(font, text, x, y, z, textStyle, color,
                 horizontalAlignment, verticalAlignment, rotation);
     }
@@ -1009,6 +1064,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             double z, TextStyle textStyle, RGB color,
             HorizontalAlignment horizontalAlignment, Double rotation)
             throws VizException {
+        if (font instanceof DispatchingFont) {
+            font = ((DispatchingFont) font).getWrappedObject();
+        }
         wrappedObject.drawString(font, text, x, y, z, textStyle, color,
                 horizontalAlignment, rotation);
     }
@@ -1036,6 +1094,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             double z, TextStyle textStyle, RGB[] colors,
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment) throws VizException {
+        if (font instanceof DispatchingFont) {
+            font = ((DispatchingFont) font).getWrappedObject();
+        }
         wrappedObject.drawStrings(font, text, x, y, z, textStyle, colors,
                 horizontalAlignment, verticalAlignment);
     }
@@ -1068,6 +1129,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment, Double rotation, float alpha,
             double magnification) throws VizException {
+        if (font instanceof DispatchingFont) {
+            font = ((DispatchingFont) font).getWrappedObject();
+        }
         wrappedObject.drawString(font, string, xPos, yPos, zPos, textStyle,
                 color, horizontalAlignment, verticalAlignment, rotation, alpha,
                 magnification);
@@ -1082,6 +1146,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      java.lang.String)
      */
     public Rectangle2D getStringBounds(IFont font, String text) {
+        if (font instanceof DispatchingFont) {
+            font = ((DispatchingFont) font).getWrappedObject();
+        }
         return wrappedObject.getStringBounds(font, text);
     }
 
@@ -1097,6 +1164,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public Rectangle2D getStringBounds(IFont font, String[] text,
             TextStyle style) {
+        if (font instanceof DispatchingFont) {
+            font = ((DispatchingFont) font).getWrappedObject();
+        }
         return wrappedObject.getStringBounds(font, text, style);
     }
 
