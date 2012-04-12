@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.CollaborationInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -133,15 +132,7 @@ public class CollaborationEditor extends AbstractEditor implements
      */
     @Override
     public void partOpened(IWorkbenchPart part) {
-        if (this == part) {
-            CollaborationDataManager manager = CollaborationDataManager
-                    .getInstance();
-            String sessionId = manager.getSessionId(this);
-            IVenueSession session = manager.getSession(sessionId);
-            String name = (session == null) ? sessionId : session.getVenue()
-                    .getInfo().getVenueDescription();
-            setPartName(name);
-        }
+
     }
 
     @Override
