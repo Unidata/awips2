@@ -465,7 +465,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
      */
     @Override
     public boolean hasRole(ParticipantRole role) {
-        // TODO do we need this method?
         boolean result = true;
         if (role.equals(ParticipantRole.DATA_PROVIDER)
                 && !this.getUserID().equals(this.getCurrentDataProvider())) {
