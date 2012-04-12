@@ -530,6 +530,20 @@ public interface IGraphicsTarget extends IImagingExtension {
             IDescriptor descriptor, float simplificationLevel);
 
     /**
+     * Create a wireframe shape object
+     * 
+     * @param mutable
+     *            whether the shape changes after creation
+     * @param descriptor
+     *            the geometry for the shape
+     * @param simplificationLevel
+     *            the simplification level
+     * @return a wireframe shape object
+     */
+    public abstract IWireframeShape createWireframeShape(boolean mutable,
+            GeneralGridGeometry geom, float simplificationLevel);
+
+    /**
      * Create a wireframe shape object with options
      * 
      * @param mutable
