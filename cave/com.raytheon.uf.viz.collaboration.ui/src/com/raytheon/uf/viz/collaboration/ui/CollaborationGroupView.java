@@ -273,6 +273,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 createP2PChat(getId());
             }
         };
+        peerToPeerChatAction.setImageDescriptor(IconUtil.getImageDescriptor(
+                bundle, "chats.gif"));
 
         logonAction = new Action("Login...") {
             @Override
@@ -892,6 +894,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     manager.add(removeUserAction);
                     manager.add(removeGroupAction);
                 }
+                manager.add(new Separator());
+                manager.add(createSessionAction);
             }
         } else if (o instanceof CollaborationGroup) {
             CollaborationGroup group = (CollaborationGroup) o;
