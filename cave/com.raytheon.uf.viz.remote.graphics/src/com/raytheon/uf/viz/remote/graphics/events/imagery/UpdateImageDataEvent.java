@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
@@ -41,11 +42,14 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
 @DynamicSerialize
 public class UpdateImageDataEvent extends AbstractDispatchingObjectEvent {
 
-    private boolean interpolated;
+    @DynamicSerializeElement
+    private boolean interpolated = false;
 
-    private float brightness;
+    @DynamicSerializeElement
+    private float brightness = 1.0f;
 
-    private float contrast;
+    @DynamicSerializeElement
+    private float contrast = 1.0f;
 
     /**
      * @return the interpolated

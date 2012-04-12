@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.colormap;
 
+import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -279,6 +280,29 @@ public class UpdateColorMapParametersEvent extends
      */
     public void setUseMask(boolean useMask) {
         this.useMask = useMask;
+    }
+
+    /**
+     * Get the update colormap parameters event as ColorMapParameters object
+     * 
+     * @return
+     */
+    public ColorMapParameters asColorMapParameters() {
+        ColorMapParameters params = new ColorMapParameters();
+        params.setAlphaMask(getAlphaMask());
+        params.setColorMapMin(getColorMapMin());
+        params.setColorMapMax(getColorMapMax());
+        params.setDataMin(getDataMin());
+        params.setDataMax(getDataMax());
+        params.setLogarithmic(isLogarithmic());
+        params.setLogFactor(getLogFactor());
+        params.setMirror(isMirror());
+        params.setUseMask(isUseMask());
+        if (red != null && green != null && blue != null && alpha != null) {
+            params.setColorMap(new ColorMap("" + getObjectId(), red, green,
+                    blue, alpha));
+        }
+        return params;
     }
 
     public static UpdateColorMapParametersEvent createEvent(

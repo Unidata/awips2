@@ -26,8 +26,8 @@ import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
+import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.mesh.DisposeMeshEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mesh.ReprojectMeshEvent;
 
 /**
@@ -67,7 +67,7 @@ public class DispatchingMesh extends DispatchingObject<IMesh> implements IMesh {
     public void dispose() {
         wrappedObject.dispose();
         // Send event to dispose mesh
-        dispatch(RemoteGraphicsEventFactory.createEvent(DisposeMeshEvent.class,
+        dispatch(RemoteGraphicsEventFactory.createEvent(DisposeObjectEvent.class,
                 this));
     }
 

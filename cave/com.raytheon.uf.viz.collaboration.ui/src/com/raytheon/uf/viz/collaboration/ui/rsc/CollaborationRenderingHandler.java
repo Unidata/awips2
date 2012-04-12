@@ -19,11 +19,41 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
+import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.PixelCoverage;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.IColormappedImage;
+import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
+import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.mesh.CreateMeshEvent;
+import com.raytheon.uf.viz.remote.graphics.events.mesh.ReprojectMeshEvent;
+import com.raytheon.uf.viz.remote.graphics.events.offscreen.CreateOffscreenImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.offscreen.RenderOffscreenEvent;
+import com.raytheon.uf.viz.remote.graphics.events.offscreen.RenderOnscreenEvent;
 
 /**
  * Class that handles rendering events for collaboration resource
@@ -44,9 +74,18 @@ import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
 
 public class CollaborationRenderingHandler {
 
+    private Map<Integer, Object[]> renderableObjectMap = new HashMap<Integer, Object[]>();
+
     private IGraphicsTarget target;
 
     private PaintProperties paintProps;
+
+    private EventBus disposerRouter;
+
+    public CollaborationRenderingHandler() {
+        this.disposerRouter = new EventBus();
+        this.disposerRouter.register(new CollaborationDisposingHandler());
+    }
 
     /**
      * @param target
@@ -57,10 +96,93 @@ public class CollaborationRenderingHandler {
         this.paintProps = paintProps;
     }
 
-    public void dispose() {
-
+    /**
+     * Put a renderable object in the object map. If an object already exists
+     * for that id, it will be sent to the disposer
+     * 
+     * @param objectId
+     * @param obj
+     */
+    private void putRenderableObject(int objectId, Object obj) {
+        if (obj != null) {
+            Object[] objects = null;
+            if (obj.getClass().isArray()) {
+                objects = (Object[]) obj;
+            } else {
+                objects = new Object[] { obj };
+            }
+            Object[] oldValue = renderableObjectMap.put(objectId, objects);
+            if (oldValue != null) {
+                dispose(oldValue);
+            }
+        }
     }
 
+    /**
+     * Get a renderable object out of the object map as the objectType, if no
+     * object exists or the object is not of type objectType, null is returned.
+     * If the Object in the map is an Object[], the first object in the array
+     * that is of type objectType will be returned
+     * 
+     * @param <T>
+     * @param objectId
+     * @param objectType
+     * @return
+     */
+    private <T> T getRenderableObject(int objectId, Class<T> objectType) {
+        T obj = null;
+        Object[] toCheck = renderableObjectMap.get(objectId);
+        if (toCheck != null) {
+            for (Object check : toCheck) {
+                if (objectType.isInstance(check)) {
+                    obj = objectType.cast(check);
+                    break;
+                }
+            }
+        }
+        return obj;
+    }
+
+    /**
+     * Dispose all renderable object data
+     */
+    public void dispose() {
+        for (Object[] obj : renderableObjectMap.values()) {
+            dispose(obj);
+        }
+        renderableObjectMap.clear();
+    }
+
+    /**
+     * Disposes a single renderable object by sending it to the disposer
+     * EventBus
+     * 
+     * @param obj
+     */
+    private void dispose(Object[] objects) {
+        for (Object toDispose : objects) {
+            disposerRouter.post(toDispose);
+        }
+    }
+
+    /**
+     * General dispose of a renderable object event
+     * 
+     * @param event
+     */
+    @Subscribe
+    public void disposeRenderable(DisposeObjectEvent event) {
+        Object[] toDispose = renderableObjectMap.remove(event);
+        if (toDispose != null) {
+            dispose(toDispose);
+        }
+    }
+
+    /**
+     * Begin frame event, modifies the target extent
+     * 
+     * @param event
+     */
     @Subscribe
     public void handleBeginFrame(BeginFrameEvent event) {
         double[] center = event.getExtentCenter();
@@ -74,6 +196,173 @@ public class CollaborationRenderingHandler {
             event.setExtentCenter(null);
             target.setNeedsRefresh(true);
         }
+    }
+
+    // ================== Common IImage events ==================
+
+    @Subscribe
+    public void renderImages(PaintImagesEvent event) throws VizException {
+        PaintImageEvent[] events = event.getImageEvents();
+        List<DrawableImage> images = new ArrayList<DrawableImage>(events.length);
+        for (PaintImageEvent pie : events) {
+            IImage image = getRenderableObject(pie.getObjectId(), IImage.class);
+            if (image != null) {
+                PixelCoverage coverage = new PixelCoverage(pie.getUl(),
+                        pie.getUr(), pie.getLr(), pie.getLl());
+                IMesh mesh = getRenderableObject(pie.getMeshId(), IMesh.class);
+                if (mesh != null) {
+                    coverage.setMesh(mesh);
+                }
+                images.add(new DrawableImage(image, coverage));
+            } else {
+                // TODO: Log?
+            }
+        }
+        if (images.size() > 0) {
+            PaintProperties imageProps = new PaintProperties(paintProps);
+            imageProps.setAlpha(event.getAlpha());
+            target.drawRasters(imageProps,
+                    images.toArray(new DrawableImage[images.size()]));
+        }
+    }
+
+    @Subscribe
+    public void updateImageData(UpdateImageDataEvent event) {
+        IImage image = getRenderableObject(event.getObjectId(), IImage.class);
+        if (image != null) {
+            image.setBrightness(event.getBrightness());
+            image.setContrast(event.getContrast());
+            image.setInterpolated(event.isInterpolated());
+        }
+    }
+
+    // ================== IColormappedImage events ==================
+
+    /**
+     * TODO: Manage ColorMaps better! (sharing and updating)
+     * 
+     * Creates an IColormappedImage object from the event
+     * 
+     * @param event
+     * @throws VizException
+     */
+    @Subscribe
+    public void createColormappedImage(CreateColormappedImageEvent event)
+            throws VizException {
+        int imageId = event.getObjectId();
+        IColorMapDataRetrievalCallback callback = new ColorMapDataCallback();
+        UpdateColorMapParametersEvent cmapEvent = event.getColorMapParameters();
+        ColorMapParameters params = null;
+        if (cmapEvent != null) {
+            params = cmapEvent.asColorMapParameters();
+        }
+        IColormappedImage image = target.getExtension(
+                IColormappedImageExtension.class).initializeRaster(callback,
+                params);
+        putRenderableObject(imageId, new Object[] { image, callback });
+    }
+
+    @Subscribe
+    public void dataArrived(ColorMapDataEvent event) {
+        ColorMapDataCallback callback = getRenderableObject(
+                event.getObjectId(), ColorMapDataCallback.class);
+        if (callback != null) {
+            callback.setData(event.getColorMapData());
+        }
+    }
+
+    // TODO: Put utility classes in same package
+
+    public class ColorMapDataCallback implements IColorMapDataRetrievalCallback {
+        private ColorMapData data;
+
+        @Override
+        public ColorMapData getColorMapData() throws VizException {
+            ColorMapData rval = data;
+            if (data != null) {
+                data = null;
+            }
+            return rval;
+        }
+
+        public void setData(ColorMapData data) {
+            this.data = data;
+        }
+    }
+
+    // ================== IMesh events ==================
+
+    @Subscribe
+    public void createMesh(CreateMeshEvent event) throws VizException {
+        // TODO: Should we cache or should we expect data provider or even
+        // internal to the target?
+        int meshId = event.getObjectId();
+        IMesh mesh = target.getExtension(IMapMeshExtension.class)
+                .constructMesh(event.getImageGeometry(),
+                        event.getTargetGeometry());
+        putRenderableObject(meshId, mesh);
+    }
+
+    @Subscribe
+    public void reprojectMesh(ReprojectMeshEvent event) throws VizException {
+        IMesh mesh = getRenderableObject(event.getObjectId(), IMesh.class);
+        if (mesh != null) {
+            mesh.reproject(event.getTargetGeometry());
+        }
+    }
+
+    // ================== Offscreen image events ==================
+
+    @Subscribe
+    public void createOffscreenImage(CreateOffscreenImageEvent event)
+            throws VizException {
+        try {
+            IImage offscreenImage = null;
+            IOffscreenRenderingExtension ext = target
+                    .getExtension(IOffscreenRenderingExtension.class);
+            int[] dims = event.getDimensions();
+            if (event.getBufferType() != null) {
+                Class<? extends Buffer> bufferType = Class.forName(
+                        event.getBufferType()).asSubclass(Buffer.class);
+                if (event.getColorMapParamters() != null) {
+                    offscreenImage = ext.constructOffscreenImage(bufferType,
+                            dims, event.getColorMapParamters()
+                                    .asColorMapParameters());
+                } else {
+                    offscreenImage = ext.constructOffscreenImage(bufferType,
+                            dims);
+                }
+            } else {
+                offscreenImage = ext.constructOffscreenImage(dims);
+            }
+            if (offscreenImage != null) {
+                putRenderableObject(event.getObjectId(), offscreenImage);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new VizException("Could not find class for buffer type: "
+                    + event.getBufferType(), e);
+        }
+    }
+
+    @Subscribe
+    public void renderOffscreen(RenderOffscreenEvent event) throws VizException {
+        IImage offscreenImage = getRenderableObject(event.getObjectId(),
+                IImage.class);
+        if (offscreenImage != null) {
+            if (event.getExtent() != null) {
+                target.getExtension(IOffscreenRenderingExtension.class)
+                        .renderOffscreen(offscreenImage, event.getIExtent());
+            } else {
+                target.getExtension(IOffscreenRenderingExtension.class)
+                        .renderOffscreen(offscreenImage);
+            }
+        }
+    }
+
+    @Subscribe
+    public void renderOnscreen(RenderOnscreenEvent event) throws VizException {
+        target.getExtension(IOffscreenRenderingExtension.class)
+                .renderOnscreen();
     }
 
 }
