@@ -1150,6 +1150,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     }
 
     private void addUsersToGroup() {
+        // TODO, one add user is implemented, remove this
+        if (true) {
+            nyiFeature("Add user is not yet implemented");
+            return;
+        }
         Set<CollaborationUser> users = getSelectedUsers();
         IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
                 .getSelection();
