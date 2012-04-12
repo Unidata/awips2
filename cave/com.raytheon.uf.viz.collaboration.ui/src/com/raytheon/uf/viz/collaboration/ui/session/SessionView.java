@@ -102,6 +102,8 @@ public class SessionView extends AbstractSessionView {
 
     protected String sessionId;
 
+    private IVenueSession session;
+
     private Image downArrow;
 
     private Image rightArrow;
@@ -226,8 +228,6 @@ public class SessionView extends AbstractSessionView {
     @Override
     protected void createListeners() {
         super.createListeners();
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
         // if (session != null) {
         // session.registerEventHandler(this);
         // }
@@ -352,8 +352,6 @@ public class SessionView extends AbstractSessionView {
             }
         });
 
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
         List<CollaborationUser> users = new ArrayList<CollaborationUser>();
         if (session != null) {
             for (IVenueParticipant participant : session.getVenue()
@@ -416,12 +414,8 @@ public class SessionView extends AbstractSessionView {
     public void sendMessage() {
         String message = getComposedMessage();
         if (message.length() > 0) {
-            // CollaborationDataManager.getInstance().getSession(sessionId)
-            // .sendTextMessage(message);
-
             try {
-                CollaborationDataManager.getInstance().getSession(sessionId)
-                        .sendTextMessage(message);
+                session.sendTextMessage(message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
@@ -450,10 +444,8 @@ public class SessionView extends AbstractSessionView {
     public void partClosed(IWorkbenchPart part) {
         super.partClosed(part);
         if (this == part) {
-            CollaborationDataManager manager = CollaborationDataManager
-                    .getInstance();
-            manager.getSession(sessionId).unRegisterEventHandler(this);
-            manager.unRegisterEventHandler(this);
+            session.unRegisterEventHandler(this);
+            CollaborationDataManager.getInstance().unRegisterEventHandler(this);
             CollaborationDataManager.getInstance().closeSession(sessionId);
         }
     }
@@ -470,10 +462,8 @@ public class SessionView extends AbstractSessionView {
         // TODO Auto-generated method stub
         super.partOpened(part);
         if (this == part) {
-            CollaborationDataManager manager = CollaborationDataManager
-                    .getInstance();
-            manager.getSession(sessionId).registerEventHandler(this);
-            manager.registerEventHandler(this);
+            session.registerEventHandler(this);
+            CollaborationDataManager.getInstance().registerEventHandler(this);
         }
     }
 
@@ -538,8 +528,6 @@ public class SessionView extends AbstractSessionView {
     protected void setMessageLabel(Composite comp) {
         Label label = new Label(comp, SWT.WRAP);
         StringBuilder labelInfo = new StringBuilder();
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
         if (session != null) {
             IVenueInfo info = session.getVenue().getInfo();
             labelInfo.append(info.getVenueSubject());
@@ -556,13 +544,17 @@ public class SessionView extends AbstractSessionView {
      */
     @Override
     protected String getSessionName() {
-        sessionId = getViewSite().getSecondaryId();
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
+        setSession(getViewSite().getSecondaryId());
         if (session == null) {
             return sessionId;
         }
         return session.getVenue().getInfo().getVenueDescription();
+    }
+
+    protected void setSession(String sessionId) {
+        this.sessionId = sessionId;
+        this.session = CollaborationDataManager.getInstance().getSession(
+                this.sessionId);
     }
 
     @Subscribe

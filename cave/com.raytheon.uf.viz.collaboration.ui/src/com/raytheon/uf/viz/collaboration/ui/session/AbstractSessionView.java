@@ -46,7 +46,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -295,17 +294,6 @@ public abstract class AbstractSessionView extends ViewPart implements
     protected Collection<String> findAlertWords(StringBuilder builder,
             int offset) {
         return null;
-    }
-
-    /**
-     * Returns a list of Participant roles the user is assigned for the session.
-     * This sets up a default list of user as a PARTICIPANT.
-     * 
-     * @param userId
-     * @return roles
-     */
-    protected ParticipantRole[] getRoles(String userId) {
-        return new ParticipantRole[] { ParticipantRole.PARTICIPANT };
     }
 
     /**
