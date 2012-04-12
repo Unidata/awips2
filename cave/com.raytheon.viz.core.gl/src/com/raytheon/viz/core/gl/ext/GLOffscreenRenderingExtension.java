@@ -1,14 +1,16 @@
 package com.raytheon.viz.core.gl.ext;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.Stack;
 
 import javax.media.opengl.GL;
 
-import org.eclipse.swt.graphics.Rectangle;
-
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -21,17 +23,56 @@ import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
 import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
+import com.raytheon.viz.core.gl.internal.GLView2D;
 import com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension;
 
 public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         implements IOffscreenRenderingExtension {
 
+    private static class ViewInfo {
+        private IView view;
+
+        private AbstractGLImage image;
+
+        /**
+         * @param extent
+         * @param bounds
+         */
+        public ViewInfo(IView view, AbstractGLImage image) {
+            this.view = view;
+            this.image = image;
+        }
+    }
+
     private static boolean checkedLuminance = false;
 
     private static boolean supportsLuminance = true;
 
+    private Stack<ViewInfo> viewStack = new Stack<ViewInfo>();
+
+    private ViewInfo currentInfo = null;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
+     * renderOffscreen(com.raytheon.uf.viz.core.drawables.IImage)
+     */
     @Override
     public void renderOffscreen(IImage offscreenImage) throws VizException {
+        renderOffscreen(offscreenImage, target.getView().getExtent());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
+     * renderOffscreen(com.raytheon.uf.viz.core.drawables.IImage,
+     * com.raytheon.uf.viz.core.IExtent)
+     */
+    @Override
+    public void renderOffscreen(IImage offscreenImage, IExtent offscreenExtent)
+            throws VizException {
         if (!(offscreenImage instanceof AbstractGLImage)) {
             throw new VizException(
                     "Can only use GLImages as offscreen frameBuffer on GLTarget");
@@ -46,16 +87,44 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         if (glImage.getStatus() == IImage.Status.STAGED) {
             glImage.target(target);
         }
-        target.getGl()
-                .glViewport(0, 0, glImage.getWidth(), glImage.getHeight());
-        glImage.usaAsFrameBuffer();
+
+        IView view = new GLView2D(offscreenExtent);
+
+        if (currentInfo == null) {
+            // Use null for image so we use canvas when we pop
+            viewStack.push(new ViewInfo(target.getView(), null));
+        } else {
+            viewStack.push(currentInfo);
+        }
+        setCurrentView(new ViewInfo(view, glImage));
     }
 
     @Override
     public void renderOnscreen() throws VizException {
-        Rectangle canvasSize = target.getBounds();
-        target.getGl().glViewport(0, 0, canvasSize.width, canvasSize.height);
-        target.getGl().glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, 0);
+        if (viewStack.size() > 0) {
+            setCurrentView(viewStack.pop());
+        }
+    }
+
+    private void setCurrentView(ViewInfo current) throws VizException {
+        currentInfo = current;
+        Rectangle bounds = null;
+        if (currentInfo.image == null) {
+            // Null bounds means use current targets bounds
+            bounds = new Rectangle(target.getBounds().width,
+                    target.getBounds().height);
+            // Set currentInfo to null since we are using screen/display info
+            // and we don't want to cache old info
+            currentInfo = null;
+            target.getGl().glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, 0);
+        } else {
+            bounds = new Rectangle(currentInfo.image.getWidth(),
+                    currentInfo.image.getHeight());
+            currentInfo.image.usaAsFrameBuffer();
+        }
+
+        target.setView(current.view);
+        target.getGl().glViewport(0, 0, bounds.width, bounds.height);
     }
 
     /*
