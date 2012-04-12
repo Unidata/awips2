@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
+
 import com.raytheon.viz.ui.actions.ContributedEditorMenuAction;
 
 /**
@@ -55,5 +59,11 @@ public class ShareEditorAction extends ContributedEditorMenuAction {
     public void run() {
         // TODO need to add this editor to the list of editors associated with
         // the collaboration session
+        // remove the message box and the not yet implemented message
+        MessageBox messageBox = new MessageBox(Display.getCurrent()
+                .getActiveShell(), SWT.ICON_INFORMATION);
+        messageBox.setText("Not Yet Implemented");
+        messageBox.setMessage("Share Editor is not yet implemented");
+        messageBox.open();
     }
 }
