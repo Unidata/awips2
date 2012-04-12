@@ -17,13 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.mesh;
+package com.raytheon.uf.viz.collaboration.ui.rsc;
 
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationRenderingHandler.ColorMapDataCallback;
+import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 
 /**
- * TODO Add Description
+ * Collaboration class responsible for disposing renderable objects
  * 
  * <pre>
  * 
@@ -31,14 +34,33 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            mschenke     Initial creation
+ * Apr 11, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@DynamicSerialize
-public class DisposeMeshEvent extends AbstractDispatchingObjectEvent {
 
+public class CollaborationDisposingHandler {
+
+    @Subscribe
+    public void disposeImage(IImage image) {
+        image.dispose();
+    }
+
+    @Subscribe
+    public void disposeMesh(IMesh mesh) {
+        mesh.dispose();
+    }
+
+    @Subscribe
+    public void disposed(ColorMapDataCallback callback) {
+        callback.setData(null);
+    }
+
+    @Subscribe
+    public void disposeWireframeShape(IWireframeShape shape) {
+        shape.dispose();
+    }
 }

@@ -45,6 +45,9 @@ public class PaintImagesEvent extends AbstractRemoteGraphicsEvent implements
         IRenderEvent {
 
     @DynamicSerializeElement
+    private float alpha;
+
+    @DynamicSerializeElement
     private PaintImageEvent[] imageEvents;
 
     /**
@@ -60,6 +63,21 @@ public class PaintImagesEvent extends AbstractRemoteGraphicsEvent implements
      */
     public void setImageEvents(PaintImageEvent[] imageEvents) {
         this.imageEvents = imageEvents;
+    }
+
+    /**
+     * @return the alpha
+     */
+    public float getAlpha() {
+        return alpha;
+    }
+
+    /**
+     * @param alpha
+     *            the alpha to set
+     */
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
     }
 
 }
