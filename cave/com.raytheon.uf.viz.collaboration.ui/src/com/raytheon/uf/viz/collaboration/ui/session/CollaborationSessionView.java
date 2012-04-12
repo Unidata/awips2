@@ -89,34 +89,40 @@ public class CollaborationSessionView extends SessionView {
 
             @Override
             public Menu getMenu(Menu parent) {
-                if (menu == null) {
+                if (menu == null || menu.isDisposed()) {
                     menu = new Menu(parent);
                 }
-                Action leaderAction = new Action("Session Leader") {
-                    public void run() {
-                        IStructuredSelection selection = (IStructuredSelection) usersTable
-                                .getSelection();
-                        CollaborationUser selectedUser = (CollaborationUser) selection
-                                .getFirstElement();
-                        switchLeader(selectedUser.getId());
+                ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
+                        .getInstance().getSession(sessionId);
+                if (session.hasRole(ParticipantRole.SESSION_LEADER)) {
+                    Action leaderAction = new Action("Session Leader") {
+                        public void run() {
+                            IStructuredSelection selection = (IStructuredSelection) usersTable
+                                    .getSelection();
+                            CollaborationUser selectedUser = (CollaborationUser) selection
+                                    .getFirstElement();
+                            switchLeader(selectedUser.getId());
+                        };
                     };
-                };
-                ActionContributionItem leaderItem = new ActionContributionItem(
-                        leaderAction);
-                leaderItem.fill(menu, -1);
+                    ActionContributionItem leaderItem = new ActionContributionItem(
+                            leaderAction);
+                    leaderItem.fill(menu, -1);
+                }
 
-                Action dataProviderAction = new Action("Data Provider") {
-                    public void run() {
-                        IStructuredSelection selection = (IStructuredSelection) usersTable
-                                .getSelection();
-                        CollaborationUser selectedUser = (CollaborationUser) selection
-                                .getFirstElement();
-                        switchDataProvider(selectedUser.getId());
+                if (session.hasRole(ParticipantRole.DATA_PROVIDER)) {
+                    Action dataProviderAction = new Action("Data Provider") {
+                        public void run() {
+                            IStructuredSelection selection = (IStructuredSelection) usersTable
+                                    .getSelection();
+                            CollaborationUser selectedUser = (CollaborationUser) selection
+                                    .getFirstElement();
+                            switchDataProvider(selectedUser.getId());
+                        };
                     };
-                };
-                ActionContributionItem dataProviderItem = new ActionContributionItem(
-                        dataProviderAction);
-                dataProviderItem.fill(menu, -1);
+                    ActionContributionItem dataProviderItem = new ActionContributionItem(
+                            dataProviderAction);
+                    dataProviderItem.fill(menu, -1);
+                }
                 return menu;
             }
 
@@ -152,6 +158,13 @@ public class CollaborationSessionView extends SessionView {
                 .getInstance().getSession(this.sessionId);
         try {
             session.sendObjectToVenue(trc);
+            CollaborationDataManager.getInstance().getUser(vp.getFQName())
+                    .addSessionRole(sessionId, ParticipantRole.SESSION_LEADER);
+            CollaborationDataManager
+                    .getInstance()
+                    .getUser(session.getUserID().getFQName())
+                    .removeSessionRole(sessionId,
+                            ParticipantRole.SESSION_LEADER);
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to send message to transfer role", e);
@@ -180,6 +193,32 @@ public class CollaborationSessionView extends SessionView {
             }
         }
         return new ParticipantRole[] { ParticipantRole.PARTICIPANT };
+    }
+
+    @Override
+    protected String buildParticipantTooltip(CollaborationUser user) {
+        StringBuilder builder = new StringBuilder(
+                super.buildParticipantTooltip(user));
+        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
+                .getInstance().getSession(sessionId);
+        // TODO these should be smarter ifs
+        boolean isSessionLeader = Tools.parseName(user.getId()).equals(
+                session.getCurrentSessionLeader().getName());
+        boolean isDataProvider = Tools.parseName(user.getId()).equals(
+                session.getCurrentSessionLeader().getName());
+        System.out.println(isSessionLeader);
+        System.out.println(isDataProvider);
+        if (isSessionLeader || isDataProvider) {
+            builder.append("-- Roles --");
+            if (isSessionLeader) {
+                builder.append("\nSession Leader");
+            }
+            if (isDataProvider) {
+                builder.append("\nData Provider");
+            }
+        }
+
+        return builder.toString();
     }
 
     @Override
@@ -230,11 +269,18 @@ public class CollaborationSessionView extends SessionView {
     @Override
     protected void fillContextMenu(IMenuManager manager) {
         super.fillContextMenu(manager);
-        // check if data provider
-        // check if session leader
-        if (!CollaborationDataManager.getInstance().getSession(sessionId)
-                .hasRole(ParticipantRole.SESSION_LEADER)) {
-            manager.add(switchToAction);
+        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
+                .getInstance().getSession(this.sessionId);
+        if (session.hasRole(ParticipantRole.DATA_PROVIDER)
+                || session.hasRole(ParticipantRole.SESSION_LEADER)) {
+            IStructuredSelection selection = (IStructuredSelection) usersTable
+                    .getSelection();
+            CollaborationUser selectedUser = (CollaborationUser) selection
+                    .getFirstElement();
+            String selectedUserName = Tools.parseName(selectedUser.getId());
+            if (!selectedUserName.equals(session.getUserID().getName())) {
+                manager.add(switchToAction);
+            }
         }
     }
 
