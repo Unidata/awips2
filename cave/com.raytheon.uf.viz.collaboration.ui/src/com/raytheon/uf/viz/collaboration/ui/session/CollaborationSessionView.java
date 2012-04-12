@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import java.util.Collection;
-import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -75,6 +74,8 @@ public class CollaborationSessionView extends SessionView {
 
     private Action switchToAction;
 
+    private ISharedDisplaySession session;
+
     protected void createActions() {
         super.createActions();
         switchToAction = new Action("Transfer Role...",
@@ -92,8 +93,6 @@ public class CollaborationSessionView extends SessionView {
                 if (menu == null || menu.isDisposed()) {
                     menu = new Menu(parent);
                 }
-                ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
-                        .getInstance().getSession(sessionId);
                 if (session.hasRole(ParticipantRole.SESSION_LEADER)) {
                     Action leaderAction = new Action("Session Leader") {
                         public void run() {
@@ -154,17 +153,8 @@ public class CollaborationSessionView extends SessionView {
                 Tools.parseHost(fqname));
         trc.setUser(vp);
         trc.setRole(ParticipantRole.SESSION_LEADER);
-        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
-                .getInstance().getSession(this.sessionId);
         try {
             session.sendObjectToVenue(trc);
-            CollaborationDataManager.getInstance().getUser(vp.getFQName())
-                    .addSessionRole(sessionId, ParticipantRole.SESSION_LEADER);
-            CollaborationDataManager
-                    .getInstance()
-                    .getUser(session.getUserID().getFQName())
-                    .removeSessionRole(sessionId,
-                            ParticipantRole.SESSION_LEADER);
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to send message to transfer role", e);
@@ -176,38 +166,15 @@ public class CollaborationSessionView extends SessionView {
         return COLLABORATION_SESSION_IMAGE_NAME;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#getRoles
-     * (java.lang.String)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    protected ParticipantRole[] getRoles(String userId) {
-        for (CollaborationUser u : ((List<CollaborationUser>) usersTable
-                .getInput())) {
-            if (userId.equals(u.getId())) {
-                return u.getRoles();
-            }
-        }
-        return new ParticipantRole[] { ParticipantRole.PARTICIPANT };
-    }
-
     @Override
     protected String buildParticipantTooltip(CollaborationUser user) {
         StringBuilder builder = new StringBuilder(
                 super.buildParticipantTooltip(user));
-        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
-                .getInstance().getSession(sessionId);
         // TODO these should be smarter ifs
         boolean isSessionLeader = Tools.parseName(user.getId()).equals(
                 session.getCurrentSessionLeader().getName());
         boolean isDataProvider = Tools.parseName(user.getId()).equals(
                 session.getCurrentSessionLeader().getName());
-        System.out.println(isSessionLeader);
-        System.out.println(isDataProvider);
         if (isSessionLeader || isDataProvider) {
             builder.append("-- Roles --");
             if (isSessionLeader) {
@@ -250,11 +217,11 @@ public class CollaborationSessionView extends SessionView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                CollaborationDataManager.getInstance().getSession(sessionId)
-                        .sendTextMessage(message);
+                ((IVenueSession) session).sendTextMessage(message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
+                e.printStackTrace();
             }
         }
     }
@@ -269,8 +236,6 @@ public class CollaborationSessionView extends SessionView {
     @Override
     protected void fillContextMenu(IMenuManager manager) {
         super.fillContextMenu(manager);
-        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
-                .getInstance().getSession(this.sessionId);
         if (session.hasRole(ParticipantRole.DATA_PROVIDER)
                 || session.hasRole(ParticipantRole.SESSION_LEADER)) {
             IStructuredSelection selection = (IStructuredSelection) usersTable
@@ -294,14 +259,19 @@ public class CollaborationSessionView extends SessionView {
     protected void setMessageLabel(Composite comp) {
         Label label = new Label(comp, SWT.NONE);
         StringBuilder labelInfo = new StringBuilder();
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
         if (session != null) {
-            IVenueInfo info = session.getVenue().getInfo();
+            IVenueInfo info = ((IVenueSession) session).getVenue().getInfo();
             labelInfo.append(info.getVenueSubject());
             label.setToolTipText(info.getVenueSubject());
         }
         label.setText(labelInfo.toString());
+    }
+
+    @Override
+    protected void setSession(String sessionId) {
+        super.setSession(sessionId);
+        this.session = (ISharedDisplaySession) CollaborationDataManager
+                .getInstance().getSession(this.sessionId);
     }
 
     /*
