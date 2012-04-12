@@ -75,7 +75,7 @@ public class GLView2D implements IView {
         this(rect.x, rect.x + rect.width, rect.y, rect.y + rect.height);
     }
 
-    public GLView2D(PixelExtent pe) {
+    public GLView2D(IExtent pe) {
         this.extent = pe;
     }
 
