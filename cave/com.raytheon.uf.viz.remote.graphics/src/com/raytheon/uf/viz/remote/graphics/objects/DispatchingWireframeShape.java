@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.remote.graphics.Activator;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
+import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.AllocatePointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.SimpleWireframeShapeEvent;
@@ -197,7 +198,8 @@ public class DispatchingWireframeShape extends
     public void dispose() {
         wrappedObject.dispose();
         // Send dispose event
-        sendSimpleEvent(EventAction.DISPOSE);
+        dispatch(RemoteGraphicsEventFactory.createEvent(
+                DisposeObjectEvent.class, this));
         shapeData = null;
     }
 
