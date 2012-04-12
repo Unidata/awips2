@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IColormappedDataPreparer;
@@ -662,7 +663,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     private void sendCreateWireframeShapeEvent(DispatchingWireframeShape shape,
-            Boolean mutable, GeneralGridGeometry geom,
+            boolean mutable, GeneralGridGeometry geom,
             Float simplificationLevel, Boolean spatialChopFlag, IExtent extent) {
         CreateWireframeShapeEvent event = RemoteGraphicsEventFactory
                 .createEvent(CreateWireframeShapeEvent.class, shape);
@@ -837,6 +838,15 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             int sliceCount, double rotation, double lean) {
         wrappedObject.drawCylinder(coord, color, alpha, height, baseRadius,
                 topRadius, sideCount, sliceCount, rotation, lean);
+    }
+
+    /**
+     * @return
+     * @see com.raytheon.uf.viz.core.IGraphicsTarget#getView()
+     */
+    @Override
+    public IView getView() {
+        return wrappedObject.getView();
     }
 
     /**

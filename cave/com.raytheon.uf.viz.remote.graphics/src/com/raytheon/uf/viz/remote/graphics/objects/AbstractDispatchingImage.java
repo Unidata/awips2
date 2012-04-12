@@ -24,7 +24,7 @@ import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
-import com.raytheon.uf.viz.remote.graphics.events.DisposeImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
 
@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
 public abstract class AbstractDispatchingImage<T extends IImage> extends
         DispatchingObject<T> implements IImage {
 
-    protected boolean dirty = true;
+    protected boolean dirty = false;
 
     protected UpdateImageDataEvent imageData;
 
@@ -102,7 +102,7 @@ public abstract class AbstractDispatchingImage<T extends IImage> extends
         wrappedObject.dispose();
         // Dispatch the dispose
         dispatch(RemoteGraphicsEventFactory.createEvent(
-                DisposeImageEvent.class, this));
+                DisposeObjectEvent.class, this));
     }
 
     /*

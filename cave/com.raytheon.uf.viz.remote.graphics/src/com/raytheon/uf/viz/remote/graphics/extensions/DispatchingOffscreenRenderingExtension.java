@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.remote.graphics.extensions;
 
 import java.nio.Buffer;
 
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
@@ -65,14 +66,28 @@ public class DispatchingOffscreenRenderingExtension extends
      */
     @Override
     public void renderOffscreen(IImage offscreenImage) throws VizException {
+        renderOffscreen(offscreenImage, target.getView().getExtent());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
+     * renderOffscreen(com.raytheon.uf.viz.core.drawables.IImage)
+     */
+    @Override
+    public void renderOffscreen(IImage offscreenImage, IExtent extent)
+            throws VizException {
         AbstractDispatchingImage<?> image = (AbstractDispatchingImage<?>) offscreenImage;
         // Render off screen for target image
         target.getWrappedObject()
                 .getExtension(IOffscreenRenderingExtension.class)
-                .renderOffscreen(image.getWrappedObject());
+                .renderOffscreen(image.getWrappedObject(), extent);
         // Send event for offscreen rendering
-        image.dispatch(RemoteGraphicsEventFactory.createEvent(
-                RenderOffscreenEvent.class, image));
+        RenderOffscreenEvent event = RemoteGraphicsEventFactory.createEvent(
+                RenderOffscreenEvent.class, image);
+        event.setIExtent(extent);
+        image.dispatch(event);
     }
 
     /*
@@ -99,7 +114,7 @@ public class DispatchingOffscreenRenderingExtension extends
      */
     @Override
     public IImage constructOffscreenImage(int[] dimensions) throws VizException {
-        IImage wrapped = target
+        IImage wrapped = target.getWrappedObject()
                 .getExtension(IOffscreenRenderingExtension.class)
                 .constructOffscreenImage(dimensions);
         return createOffscreenImage(wrapped, null, dimensions, null);
