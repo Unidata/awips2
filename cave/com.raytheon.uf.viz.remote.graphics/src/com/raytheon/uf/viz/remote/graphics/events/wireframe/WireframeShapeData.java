@@ -22,11 +22,18 @@ package com.raytheon.uf.viz.remote.graphics.events.wireframe;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.raytheon.uf.common.serialization.IDeserializationContext;
+import com.raytheon.uf.common.serialization.ISerializationContext;
+import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
+import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeData.WireframeShapeDataAdapter;
 
 /**
- * TODO Add Description
+ * Wireframe shape data event which contains coordinates and labels to add to
+ * the wireframe shape referenced by this event
  * 
  * <pre>
  * 
@@ -42,7 +49,65 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
+@DynamicSerializeTypeAdapter(factory = WireframeShapeDataAdapter.class)
 public class WireframeShapeData {
+
+    public static class WireframeShapeDataAdapter implements
+            ISerializationTypeAdapter<WireframeShapeData> {
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.common.serialization.ISerializationTypeAdapter#serialize
+         * (com.raytheon.uf.common.serialization.ISerializationContext,
+         * java.lang.Object)
+         */
+        @Override
+        public void serialize(ISerializationContext serializer,
+                WireframeShapeData object) throws SerializationException {
+            serializer.writeI32(object.labels.size());
+            for (Label l : object.labels) {
+                serializer.writeString(l.getText());
+                serializer.writeDoubleArray(l.getPoint());
+            }
+            serializer.writeI32(object.coordinates.size());
+            for (double[][] coords : object.coordinates) {
+                serializer.writeI32(coords.length);
+                for (double[] coord : coords) {
+                    serializer.writeDoubleArray(coord);
+                }
+            }
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.common.serialization.ISerializationTypeAdapter#
+         * deserialize
+         * (com.raytheon.uf.common.serialization.IDeserializationContext)
+         */
+        @Override
+        public WireframeShapeData deserialize(
+                IDeserializationContext deserializer)
+                throws SerializationException {
+            WireframeShapeData data = new WireframeShapeData();
+            int size = deserializer.readI32();
+            for (int i = 0; i < size; ++i) {
+                data.addLabel(deserializer.readString(),
+                        deserializer.readDoubleArray());
+            }
+            size = deserializer.readI32();
+            for (int i = 0; i < size; ++i) {
+                int size2 = deserializer.readI32();
+                double[][] coords = new double[size2][];
+                for (int j = 0; j < size2; ++j) {
+                    coords[j] = deserializer.readDoubleArray();
+                }
+                data.addCoordinates(coords);
+            }
+            return data;
+        }
+    }
 
     @DynamicSerialize
     public static class Label {
