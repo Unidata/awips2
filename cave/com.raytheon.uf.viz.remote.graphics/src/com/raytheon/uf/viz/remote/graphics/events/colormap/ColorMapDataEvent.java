@@ -132,6 +132,8 @@ public class ColorMapDataEvent extends AbstractDispatchingObjectEvent {
             ByteBuffer buffer = direct ? ByteBuffer
                     .allocateDirect(bytes.length) : ByteBuffer
                     .allocate(bytes.length);
+            buffer.put(bytes);
+            buffer.rewind();
             Buffer dataBuffer = null;
             switch (dataType) {
             case BYTE:
