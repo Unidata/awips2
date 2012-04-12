@@ -54,8 +54,7 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
     @Override
     public AbstractResourceData constructData() {
         CollaborationPathDrawingResourceData data = new CollaborationPathDrawingResourceData();
-        session = data.getSessionId();
-        System.out.println("session : " + session);
+        data.setSessionId(session);
         return data;
     }
 
