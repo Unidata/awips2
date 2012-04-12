@@ -28,7 +28,7 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
- * TODO Add Description
+ * Event to create a new wireframe shape object
  * 
  * <pre>
  * 
@@ -50,7 +50,7 @@ public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent {
     private GeneralGridGeometry gridGeometry;
 
     @DynamicSerializeElement
-    private Boolean mutable;
+    private boolean mutable;
 
     @DynamicSerializeElement
     private Float simplificationLevel;
@@ -94,7 +94,7 @@ public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent {
     /**
      * @return the simplificationLevel
      */
-    public float getSimplificationLevel() {
+    public Float getSimplificationLevel() {
         return simplificationLevel;
     }
 
@@ -102,14 +102,14 @@ public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent {
      * @param simplificationLevel
      *            the simplificationLevel to set
      */
-    public void setSimplificationLevel(float simplificationLevel) {
+    public void setSimplificationLevel(Float simplificationLevel) {
         this.simplificationLevel = simplificationLevel;
     }
 
     /**
      * @return the spatialChopFlag
      */
-    public boolean isSpatialChopFlag() {
+    public Boolean isSpatialChopFlag() {
         return spatialChopFlag;
     }
 
@@ -117,7 +117,7 @@ public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent {
      * @param spatialChopFlag
      *            the spatialChopFlag to set
      */
-    public void setSpatialChopFlag(boolean spatialChopFlag) {
+    public void setSpatialChopFlag(Boolean spatialChopFlag) {
         this.spatialChopFlag = spatialChopFlag;
     }
 
