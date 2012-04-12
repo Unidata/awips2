@@ -87,8 +87,8 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 }
                 initializeResources(editor.getActiveDisplayPane()
                         .getDescriptor());
-                CollaborationDataManager.getInstance().editorCreated(
-                        session.getSessionId(), editor);
+                CollaborationDataManager.getInstance().editorCreated(session,
+                        editor);
             }
         });
         super.activateTelestrator(); // TODO should this be elsewhere?

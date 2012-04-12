@@ -184,8 +184,10 @@ public class CollaborationDataManager {
         return linkCollaboration;
     }
 
-    public void editorCreated(String sessionId, CollaborationEditor editor) {
-        editorsMap.put(sessionId, editor);
+    public void editorCreated(ISharedDisplaySession session,
+            CollaborationEditor editor) {
+        editorsMap.put(session.getSessionId(), editor);
+        editor.setTabTitle(((IVenueSession) session).getSubject());
     }
 
     public CollaborationEditor getEditor(String sessionId) {
@@ -327,12 +329,14 @@ public class CollaborationDataManager {
     public void closeEditor(String sessionId) {
         CollaborationEditor editor = editorsMap.remove(sessionId);
         if (editor != null) {
-            for (IEditorReference ref : PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage()
-                    .getEditorReferences()) {
-                if (editor == ref.getEditor(false)) {
-                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                            .getActivePage().hideEditor(ref);
+            IWorkbenchPage page = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage();
+            if (page != null) {
+                for (IEditorReference ref : page.getEditorReferences()) {
+                    if (editor == ref.getEditor(false)) {
+                        PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                                .getActivePage().hideEditor(ref);
+                    }
                 }
             }
         }
