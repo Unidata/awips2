@@ -77,7 +77,8 @@ public class DispatchingMapMeshExtension extends
     @Override
     public IMesh constructMesh(GridGeometry2D imageGeometry,
             GeneralGridGeometry targetGeometry) throws VizException {
-        IMesh targetMesh = target.getExtension(IMapMeshExtension.class)
+        IMesh targetMesh = target.getWrappedObject()
+                .getExtension(IMapMeshExtension.class)
                 .constructMesh(imageGeometry, targetGeometry);
         DispatchingMesh mesh = new DispatchingMesh(targetMesh,
                 target.getDispatcher());
