@@ -68,7 +68,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
@@ -345,24 +344,8 @@ public class SessionView extends AbstractSessionView {
                         new Point(e.x, e.y));
                 if (item != null) {
                     CollaborationUser user = (CollaborationUser) item.getData();
-                    StringBuilder builder = new StringBuilder();
-                    builder.append("Status : ")
-                            .append(user.getMode().getMode()).append("\n");
-                    builder.append("Message : \"")
-                            .append(user.getStatusMessage()).append("\"\n");
-                    builder.append("-- Roles --");
-                    // TODO, this might not work at this point?
-                    if (CollaborationDataManager.getInstance()
-                            .getSession(sessionId)
-                            .hasRole(ParticipantRole.SESSION_LEADER)) {
-                        builder.append("\nSession Leader");
-                    }
-                    if (CollaborationDataManager.getInstance()
-                            .getSession(sessionId)
-                            .hasRole(ParticipantRole.DATA_PROVIDER)) {
-                        builder.append("\nData Provider");
-                    }
-                    usersTable.getTable().setToolTipText(builder.toString());
+                    usersTable.getTable().setToolTipText(
+                            buildParticipantTooltip(user));
                 } else {
                     usersTable.getTable().setToolTipText("");
                 }
@@ -385,12 +368,6 @@ public class SessionView extends AbstractSessionView {
                     user.setType(Type.AVAILABLE);
                 }
 
-                // ParticipantRole[] roles = user.getRoles(sessionId);
-                // for (ParticipantRole role : roles) {
-                // user.addRole(role);
-                // }
-                user.addRole(ParticipantRole.DATA_PROVIDER);
-                user.addRole(ParticipantRole.SESSION_LEADER);
                 user.setText(participant.getFQName());
                 users.add(user);
             }
@@ -402,6 +379,15 @@ public class SessionView extends AbstractSessionView {
         }
         usersTable.setInput(users);
         ((GridData) usersComp.getLayoutData()).exclude = true;
+    }
+
+    protected String buildParticipantTooltip(CollaborationUser user) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Status : ").append(user.getMode().getMode())
+                .append("\n");
+        builder.append("Message : \"").append(user.getStatusMessage())
+                .append("\"\n");
+        return builder.toString();
     }
 
     @Override
