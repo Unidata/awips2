@@ -119,9 +119,10 @@ public abstract class AbstractDispatchingImageExtension extends
         PaintImagesEvent bulkRender = RemoteGraphicsEventFactory.createEvent(
                 PaintImagesEvent.class, target);
         bulkRender.setImageEvents(imageEvents);
-        target.dispatch(bulkRender);
-
-        return target.getWrappedObject().drawRasters(paintProps,
+        bulkRender.setAlpha(paintProps.getAlpha());
+        boolean rval = target.getWrappedObject().drawRasters(paintProps,
                 targeted.toArray(new DrawableImage[targeted.size()]));
+        target.dispatch(bulkRender);
+        return rval;
     }
 }

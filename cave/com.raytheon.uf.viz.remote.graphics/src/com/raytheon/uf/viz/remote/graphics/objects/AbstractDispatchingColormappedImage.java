@@ -60,7 +60,6 @@ public abstract class AbstractDispatchingColormappedImage<T extends IImage>
             Dispatcher dispatcher, ColorMapParameters parameters) {
         super(targetObject, extensionClass, dispatcher);
         if (parameters != null) {
-            this.colorMap = parameters.getColorMap();
             parameters.addListener(this);
         }
     }
@@ -85,7 +84,7 @@ public abstract class AbstractDispatchingColormappedImage<T extends IImage>
             ColorMapParameters parameters) {
         UpdateColorMapParametersEvent event = UpdateColorMapParametersEvent
                 .createEvent(this, parameters);
-        if (parameters.getColorMap() == colorMap) {
+        if (parameters.getColorMap() == colorMap && colorMap != null) {
             // Same colormap, discard cm data
             event.setRed(null);
             event.setBlue(null);
