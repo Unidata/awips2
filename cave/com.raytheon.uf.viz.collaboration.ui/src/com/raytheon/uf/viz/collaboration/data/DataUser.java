@@ -19,16 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.data;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
  * A Data class that contains all the user information needed for the current
@@ -62,13 +58,6 @@ public class DataUser {
 
     String statusMessage;
 
-    Map<String, List<ParticipantRole>> roleMap;
-
-    /**
-     * Unique id for the usersData.
-     */
-    private String id;
-
     /**
      * The groups being tracked that user belongs to.
      */
@@ -85,84 +74,10 @@ public class DataUser {
      * @param id
      */
     DataUser(String id) {
-        this.id = id;
         groupsMap = new HashMap<String, DataGroup>();
         sessionsMap = new HashMap<String, String>();
         mode = Mode.EXTENDED_AWAY;
         type = Type.UNKNOWN;
-        roleMap = new HashMap<String, List<ParticipantRole>>();
-    }
-
-    /**
-     * @param sessionId
-     * @return
-     */
-    ParticipantRole[] getSessionRoles(String sessionId) {
-        ParticipantRole[] result = null;
-        List<ParticipantRole> roleList = roleMap.get(sessionId);
-        if (roleList == null) {
-            result = new ParticipantRole[0];
-        } else {
-            result = new ParticipantRole[roleList.size()];
-            roleList.toArray(result);
-        }
-        return result;
-    }
-
-    /**
-     * @param sessionId
-     * @param role
-     */
-    public void addSessionRole(final String sessionId,
-            final ParticipantRole role) {
-        List<ParticipantRole> roleList = roleMap.get(sessionId);
-        if (roleList == null) {
-            roleList = new ArrayList<ParticipantRole>();
-            roleMap.put(sessionId, roleList);
-        }
-
-        if (role == ParticipantRole.PARTICIPANT) {
-            roleList.clear();
-            roleList.add(role);
-        } else {
-            boolean insertRole = true;
-            Iterator<ParticipantRole> iter = roleList.iterator();
-            while (iter.hasNext()) {
-                ParticipantRole r = iter.next();
-                if (r == role) {
-                    insertRole = false;
-                }
-                if (r == ParticipantRole.PARTICIPANT) {
-                    iter.remove();
-                }
-            }
-            if (insertRole) {
-                // Keep order Leader then provider.
-                if (role == ParticipantRole.SESSION_LEADER) {
-                    roleList.add(0, role);
-                } else {
-                    roleList.add(role);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param sessionId
-     * @param role
-     */
-    public void removeSessionRole(String sessionId, ParticipantRole role) {
-        List<ParticipantRole> roleList = roleMap.get(sessionId);
-        if (roleList != null) {
-            roleList.remove(role);
-        }
-    }
-
-    /**
-     * @param sessionId
-     */
-    void removeSession(String sessionId) {
-        roleMap.remove(sessionId);
     }
 
     /**
