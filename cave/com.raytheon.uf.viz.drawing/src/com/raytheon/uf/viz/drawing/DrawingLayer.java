@@ -312,8 +312,12 @@ public class DrawingLayer extends
         for (IWireframeShape shape : this.deletedShapes.values()) {
             shape.dispose();
         }
-        this.tempWireframeShape.dispose();
-        this.eraseWireframeShape.dispose();
+        if (this.tempWireframeShape != null) {
+            this.tempWireframeShape.dispose();
+        }
+        if (this.eraseWireframeShape != null) {
+            this.eraseWireframeShape.dispose();
+        }
 
         this.wireframeShapes.clear();
         this.deletedShapes.clear();
