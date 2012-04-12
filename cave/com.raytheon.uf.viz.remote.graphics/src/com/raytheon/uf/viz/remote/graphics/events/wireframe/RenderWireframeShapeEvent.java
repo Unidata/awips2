@@ -57,7 +57,7 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
     private Integer blue;
 
     @DynamicSerializeElement
-    private Float lineWidth;
+    private float lineWidth;
 
     @DynamicSerializeElement
     private LineStyle lineStyle;
@@ -116,7 +116,7 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
     /**
      * @return the lineWidth
      */
-    public Float getLineWidth() {
+    public float getLineWidth() {
         return lineWidth;
     }
 
@@ -124,7 +124,7 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
      * @param lineWidth
      *            the lineWidth to set
      */
-    public void setLineWidth(Float lineWidth) {
+    public void setLineWidth(float lineWidth) {
         this.lineWidth = lineWidth;
     }
 
