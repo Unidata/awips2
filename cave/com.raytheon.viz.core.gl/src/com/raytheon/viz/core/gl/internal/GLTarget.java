@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
@@ -184,7 +185,7 @@ public class GLTarget implements IGLTarget {
             .getInstance().getBoolean("-no_shader");
 
     /** The current visible extent */
-    protected IExtent viewExtent;
+    protected IView targetView;
 
     protected IExtent updatedExtent;
 
@@ -392,7 +393,7 @@ public class GLTarget implements IGLTarget {
             this.updatedExtent = null;
         }
 
-        viewExtent = display.getExtent().clone();
+        this.targetView = display.getView();
 
         makeContextCurrent();
 
@@ -400,6 +401,7 @@ public class GLTarget implements IGLTarget {
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         }
 
+        IExtent viewExtent = targetView.getExtent();
         theCurrentZoom = (viewExtent.getMaxY() - viewExtent.getMinY())
                 / theHeight;
 
@@ -1399,8 +1401,9 @@ public class GLTarget implements IGLTarget {
         if (shape instanceof GLWireframeShape2D) {
             pushGLState();
             try {
-                ((GLWireframeShape2D) shape).paint(this, viewExtent,
-                        canvasSize, aColor, lineWidth, lineStyle, font, alpha);
+                ((GLWireframeShape2D) shape).paint(this,
+                        targetView.getExtent(), canvasSize, aColor, lineWidth,
+                        lineStyle, font, alpha);
             } finally {
                 popGLState();
             }
@@ -1415,7 +1418,7 @@ public class GLTarget implements IGLTarget {
             throws VizException {
         this.pushGLState();
         try {
-
+            IExtent viewExtent = targetView.getExtent();
             boolean usedStencilBuffer = false;
 
             Map<double[], String> labels = shape.getLabelMap();
@@ -1439,7 +1442,7 @@ public class GLTarget implements IGLTarget {
                 Rectangle2D bounds = null;
                 for (Entry<double[], String> entry : entrySet) {
                     double[] pos = entry.getKey();
-                    if (this.viewExtent.contains(pos)) {
+                    if (viewExtent.contains(pos)) {
 
                         bounds = this.getStringBounds(font, entry.getValue());
                         gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
@@ -1478,7 +1481,7 @@ public class GLTarget implements IGLTarget {
 
             int[] spatialZones = new int[] { 0 };
             if (level != 0) {
-                spatialZones = shape.getSpatialIndices(this.viewExtent);
+                spatialZones = shape.getSpatialIndices(viewExtent);
             }
 
             gl.glEnable(GL.GL_BLEND);
@@ -1536,7 +1539,7 @@ public class GLTarget implements IGLTarget {
                         entrySet.size());
                 for (Entry<double[], String> entry : entrySet) {
                     double[] pos = entry.getKey();
-                    if (this.viewExtent.contains(pos)) {
+                    if (viewExtent.contains(pos)) {
                         DrawableString string = new DrawableString(
                                 entry.getValue(), color);
                         string.font = font;
@@ -1614,12 +1617,12 @@ public class GLTarget implements IGLTarget {
     }
 
     private double getScaleX() {
-        return viewExtent.getWidth() / this.canvasSize.width;
+        return targetView.getExtent().getWidth() / this.canvasSize.width;
 
     }
 
     private double getScaleY() {
-        return viewExtent.getHeight() / this.canvasSize.height;
+        return targetView.getExtent().getHeight() / this.canvasSize.height;
 
     }
 
@@ -2297,6 +2300,29 @@ public class GLTarget implements IGLTarget {
     @Override
     public void updateExtent(IExtent updatedExtent) {
         this.updatedExtent = updatedExtent;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.IGraphicsTarget#getView()
+     */
+    @Override
+    public IView getView() {
+        return targetView;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.core.gl.IGLTarget#setView(com.raytheon.uf.viz.core.IView
+     * )
+     */
+    @Override
+    public void setView(IView view) {
+        this.targetView = view;
+        this.targetView.setupView(this);
     }
 
     /*

@@ -20,6 +20,9 @@
 package com.raytheon.uf.viz.remote.graphics.events.offscreen;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
@@ -43,5 +46,44 @@ import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 @DynamicSerialize
 public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
         implements IRenderEvent {
+
+    @DynamicSerializeElement
+    private double[] extent;
+
+    /**
+     * @return the extent
+     */
+    public double[] getExtent() {
+        return extent;
+    }
+
+    /**
+     * @param extent
+     *            the extent to set
+     */
+    public void setExtent(double[] extent) {
+        this.extent = extent;
+    }
+
+    /**
+     * @return the iextent
+     */
+    public IExtent getIExtent() {
+        if (extent != null) {
+            return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
+        }
+        return null;
+    }
+
+    /**
+     * @param iextent
+     *            the iextent to set
+     */
+    public void setIExtent(IExtent extent) {
+        if (extent != null) {
+            this.extent = new double[] { extent.getMinX(), extent.getMaxX(),
+                    extent.getMinY(), extent.getMaxY() };
+        }
+    }
 
 }
