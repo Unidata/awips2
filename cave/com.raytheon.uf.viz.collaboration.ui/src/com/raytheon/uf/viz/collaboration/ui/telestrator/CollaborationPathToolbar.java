@@ -140,6 +140,11 @@ public class CollaborationPathToolbar extends PathToolbar {
                 DrawingLayer layer = getDrawingResource();
                 CollaborationDrawingLayer dLayer = (CollaborationDrawingLayer) layer;
                 dLayer.sendDisableOthers();
+                if (leaderOnly.getSelection()) {
+                    lastTool.activate();
+                } else {
+                    lastTool.deactivate();
+                }
             }
         });
     }
