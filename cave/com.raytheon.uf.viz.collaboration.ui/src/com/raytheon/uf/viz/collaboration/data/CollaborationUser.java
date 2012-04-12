@@ -3,7 +3,6 @@ package com.raytheon.uf.viz.collaboration.data;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -73,26 +72,6 @@ public class CollaborationUser extends CollaborationNode implements
             return getMode().toString();
         }
         return "contact_disabled";
-    }
-
-    public ParticipantRole[] getRoles() {
-        return CollaborationDataManager.getInstance().getUser(id)
-                .getSessionRoles(session);
-    }
-
-    public void addRole(ParticipantRole role) {
-        CollaborationDataManager.getInstance().getUser(id)
-                .addSessionRole(session, role);
-    }
-
-    public void removeRole(ParticipantRole role) {
-        CollaborationDataManager.getInstance().getUser(id)
-                .removeSessionRole(session, role);
-    }
-
-    public void removeSession(String session) {
-        CollaborationDataManager.getInstance().getUser(id)
-                .removeSession(session);
     }
 
     public IPresence.Mode getMode() {
