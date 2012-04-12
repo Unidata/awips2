@@ -28,5 +28,11 @@
          <graphicsExtension
                class="com.raytheon.uf.viz.remote.graphics.extensions.DispatchingMapMeshExtension">
          </graphicsExtension>
+         <graphicsExtension
+               class="com.raytheon.uf.viz.remote.graphics.extensions.DispatchingOffscreenRenderingExtension">
+         </graphicsExtension>
+         <graphicsExtension
+               class="com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension">
+         </graphicsExtension>
       </extension>
 </plugin>
