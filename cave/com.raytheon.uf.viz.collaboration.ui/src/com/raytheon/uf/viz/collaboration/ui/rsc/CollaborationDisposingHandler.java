@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.ui.rsc;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationRenderingHandler.ColorMapDataCallback;
 import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 
@@ -62,5 +63,10 @@ public class CollaborationDisposingHandler {
     @Subscribe
     public void disposeWireframeShape(IWireframeShape shape) {
         shape.dispose();
+    }
+
+    @Subscribe
+    public void disposeFont(IFont font) {
+        font.dispose();
     }
 }
