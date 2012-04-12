@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.remote.graphics.events;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Event object for disposing of an image
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -38,6 +38,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * @version 1.0
  */
 @DynamicSerialize
-public class DisposeImageEvent extends AbstractDispatchingObjectEvent {
+public class DisposeObjectEvent extends AbstractDispatchingObjectEvent {
 
 }

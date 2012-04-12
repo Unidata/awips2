@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
@@ -91,6 +92,7 @@ public class CollaborationResource extends
     @Override
     protected void disposeInternal() {
         renderingHandler.dispose();
+        renderingRouter.unregister(renderingHandler);
     }
 
     @Override
@@ -159,6 +161,16 @@ public class CollaborationResource extends
             }
             issueRefresh();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getResourceOrder()
+     */
+    @Override
+    public ResourceOrder getResourceOrder() {
+        return ResourceOrder.LOWEST;
     }
 
     /*

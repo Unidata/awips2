@@ -755,6 +755,13 @@ public interface IGraphicsTarget extends IImagingExtension {
             PointStyle pointStyle, float magnification) throws VizException;
 
     /**
+     * Gets the targets current view
+     * 
+     * @return
+     */
+    public IView getView();
+
+    /**
      * Notify the Graphics Target that there are updated extents that need to be
      * set.
      * 
