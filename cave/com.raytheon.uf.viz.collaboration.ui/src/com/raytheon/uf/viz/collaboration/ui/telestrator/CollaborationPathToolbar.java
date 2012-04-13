@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolItem;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -118,9 +119,10 @@ public class CollaborationPathToolbar extends PathToolbar {
         if (resource.getResourceData() instanceof CollaborationPathDrawingResourceData) {
             String sessionId = ((CollaborationPathDrawingResourceData) resource
                     .getResourceData()).getSessionId();
-
-            if (!CollaborationDataManager.getInstance().getSession(sessionId)
-                    .hasRole(ParticipantRole.SESSION_LEADER)
+            IVenueSession session = CollaborationDataManager.getInstance()
+                    .getSession(sessionId);
+            if (session != null
+                    && !session.hasRole(ParticipantRole.SESSION_LEADER)
                     && leaderOnly != null) {
                 leaderOnly.setEnabled(false);
             }
