@@ -89,7 +89,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
             // specifically shared with this session
             AbstractEditor editor = EditorUtil
                     .getActiveEditorAs(AbstractEditor.class);
-            SharedEditorData se = EditorSetup.extractSharedEditor(editor);
+            SharedEditorData se = EditorSetup.extractSharedEditorData(editor);
             try {
                 session.sendObjectToPeer(event.getParticipant()
                         .getQualifiedId(), se);
@@ -328,6 +328,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
     public void shutdown() {
         super.shutdown();
         super.deactivateTelestrator();
+        // TODO should remove the SharedEditorIndiciatorRsc
     }
 
 }
