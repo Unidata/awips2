@@ -70,6 +70,7 @@ import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingFont;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage.DispatchingRenderedImageCallback;
@@ -172,7 +173,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         // Create image from wrapped target and return DispatchingImage
         return new DispatchingImage(
                 wrappedObject.initializeRaster(wrappedCallback),
-                wrappedCallback, getDispatcher());
+                DispatchingImagingExtension.class, wrappedCallback,
+                getDispatcher());
     }
 
     /**

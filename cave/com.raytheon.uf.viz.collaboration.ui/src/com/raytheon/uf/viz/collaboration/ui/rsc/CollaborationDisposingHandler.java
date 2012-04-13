@@ -56,7 +56,7 @@ public class CollaborationDisposingHandler {
     }
 
     @Subscribe
-    public void disposed(ColorMapDataCallback callback) {
+    public void disposeColorMapCallback(ColorMapDataCallback callback) {
         callback.setData(null);
     }
 
