@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.collaboration.data;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
@@ -61,7 +63,7 @@ public class DataUser {
     /**
      * The groups being tracked that user belongs to.
      */
-    private Map<String, DataGroup> groupsMap;
+    Set<String> groups;
 
     /**
      * The active sessions the user is in.
@@ -74,40 +76,48 @@ public class DataUser {
      * @param id
      */
     DataUser(String id) {
-        groupsMap = new HashMap<String, DataGroup>();
+        groups = new HashSet<String>();
         sessionsMap = new HashMap<String, String>();
         mode = Mode.EXTENDED_AWAY;
         type = Type.UNKNOWN;
     }
 
-    /**
-     * @param id
-     * @return
-     */
-    DataGroup getGroup(String id) {
-        DataGroup group = groupsMap.get(id);
-        if (group == null) {
-            group = new DataGroup(id);
-            groupsMap.put(id, group);
-        }
-        return group;
+    public void addGroup(String group) {
+        groups.add(group);
+    }
+
+    public Set<String> getGroups() {
+        return groups;
+    }
+
+    public void clearGroups() {
+        groups.clear();
     }
 
     public String getSessString(String key) {
         return sessionsMap.get(key);
     }
 
-    /**
-     * @param mode
-     *            the mode to set
-     */
-    public void setMode(Mode status) {
-        this.mode = status;
+    public void setPresence(IPresence presence) {
+        type = presence.getType();
+        mode = presence.getMode();
+        statusMessage = presence.getStatusMessage();
+        if (statusMessage == null) {
+            statusMessage = "";
+        }
     }
 
-    public void setMode(String name) {
-        this.mode = modeMap.get(name);
-    }
+    // /**
+    // * @param mode
+    // * the mode to set
+    // */
+    // public void setMode(Mode status) {
+    // this.mode = status;
+    // }
+    //
+    // public void setMode(String name) {
+    // this.mode = modeMap.get(name);
+    // }
 
     /**
      * @return the mode
@@ -120,7 +130,7 @@ public class DataUser {
         return type;
     }
 
-    public void setType(Type type) {
-        this.type = type;
-    }
+    // public void setType(Type type) {
+    // this.type = type;
+    // }
 }

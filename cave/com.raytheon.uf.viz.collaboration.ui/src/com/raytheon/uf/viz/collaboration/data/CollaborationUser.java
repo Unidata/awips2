@@ -82,13 +82,18 @@ public class CollaborationUser extends CollaborationNode implements
         return CollaborationDataManager.getInstance().getUser(id).type;
     }
 
-    public void setMode(IPresence.Mode mode) {
-        CollaborationDataManager.getInstance().getUser(id).mode = mode;
+    public void setPresence(IPresence presence) {
+        CollaborationDataManager.getInstance().getUser(id)
+                .setPresence(presence);
     }
 
-    public void setType(IPresence.Type type) {
-        CollaborationDataManager.getInstance().getUser(id).type = type;
-    }
+    // public void setMode(IPresence.Mode mode) {
+    // CollaborationDataManager.getInstance().getUser(id).mode = mode;
+    // }
+    //
+    // public void setType(IPresence.Type type) {
+    // CollaborationDataManager.getInstance().getUser(id).type = type;
+    // }
 
     // public void setStatus(IPresence.Mode mode) {
     // if (mode.getMode().equals(Mode.AWAY)) {
@@ -107,9 +112,10 @@ public class CollaborationUser extends CollaborationNode implements
         return CollaborationDataManager.getInstance().getUser(id).statusMessage;
     }
 
-    public void setStatusMessage(String statusMessage) {
-        CollaborationDataManager.getInstance().getUser(id).statusMessage = statusMessage;
-    }
+    // public void setStatusMessage(String statusMessage) {
+    // CollaborationDataManager.getInstance().getUser(id).statusMessage =
+    // statusMessage;
+    // }
 
     @Override
     public int compareTo(CollaborationUser o) {
