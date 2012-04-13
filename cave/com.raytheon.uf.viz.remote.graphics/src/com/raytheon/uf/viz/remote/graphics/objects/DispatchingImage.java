@@ -23,11 +23,11 @@ import java.awt.image.RenderedImage;
 
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.RenderedImageEvent;
-import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension;
 
 /**
  * Dispatching image object created from existing image and forwards key events
@@ -81,8 +81,9 @@ public class DispatchingImage extends AbstractDispatchingImage<IImage> {
      * @param dispatcher
      */
     public DispatchingImage(IImage targetObject,
+            Class<? extends IImagingExtension> extension,
             DispatchingRenderedImageCallback callback, Dispatcher dispatcher) {
-        super(targetObject, DispatchingImagingExtension.class, dispatcher);
+        super(targetObject, extension, dispatcher);
         callback.image = this;
     }
 
