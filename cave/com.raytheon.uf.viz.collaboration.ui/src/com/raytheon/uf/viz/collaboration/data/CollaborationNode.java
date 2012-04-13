@@ -36,7 +36,7 @@ package com.raytheon.uf.viz.collaboration.data;
  * @version 1.0
  */
 
-public class CollaborationNode {
+public class CollaborationNode implements Comparable<CollaborationNode> {
 
     private String text;
 
@@ -85,5 +85,15 @@ public class CollaborationNode {
      */
     public void setLocal(boolean local) {
         this.local = local;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(CollaborationNode o) {
+        return id.compareTo(o.id);
     }
 }
