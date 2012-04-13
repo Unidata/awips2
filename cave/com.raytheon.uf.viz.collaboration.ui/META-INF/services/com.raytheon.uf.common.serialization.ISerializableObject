@@ -1,4 +1,4 @@
-com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor
+com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData
 com.raytheon.uf.viz.collaboration.ui.editor.SharedResource
 com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData
 com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData
