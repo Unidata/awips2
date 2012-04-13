@@ -43,6 +43,8 @@ import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
+import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
+import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingleColorImage;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapMeshExtension;
@@ -53,9 +55,11 @@ import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImag
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.CreateFontEvent;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateSingleColorImage;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateSingleColorImage;
 import com.raytheon.uf.viz.remote.graphics.events.mesh.CreateMeshEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mesh.ReprojectMeshEvent;
 import com.raytheon.uf.viz.remote.graphics.events.offscreen.CreateOffscreenImageEvent;
@@ -186,7 +190,7 @@ public class CollaborationRenderingHandler {
      */
     @Subscribe
     public void disposeRenderable(DisposeObjectEvent event) {
-        Object[] toDispose = renderableObjectMap.remove(event);
+        Object[] toDispose = renderableObjectMap.remove(event.getObjectId());
         if (toDispose != null) {
             dispose(toDispose);
         }
@@ -515,6 +519,27 @@ public class CollaborationRenderingHandler {
             font.setMagnification(event.getMagnification());
             font.setSmoothing(event.getSmoothing());
             font.setScaleFont(event.getScaleFont());
+        }
+    }
+
+    // ================== ISingleColorImage events ==================
+
+    @Subscribe
+    public void createSingleColorImage(CreateSingleColorImage event)
+            throws VizException {
+        int imageId = event.getObjectId();
+        ISingleColorImage image = target.getExtension(
+                ISingleColorImageExtension.class).constructImage(
+                event.getRenderedImage(), event.getColor());
+        putRenderableObject(imageId, image);
+    }
+
+    @Subscribe
+    public void updateSingleColorImage(UpdateSingleColorImage event) {
+        ISingleColorImage image = getRenderableObject(event.getObjectId(),
+                ISingleColorImage.class);
+        if (image != null) {
+            image.setColor(event.getColor());
         }
     }
 }
