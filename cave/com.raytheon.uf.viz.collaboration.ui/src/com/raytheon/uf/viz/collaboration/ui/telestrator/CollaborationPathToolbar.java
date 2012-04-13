@@ -138,8 +138,10 @@ public class CollaborationPathToolbar extends PathToolbar {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 DrawingLayer layer = getDrawingResource();
-                CollaborationDrawingLayer dLayer = (CollaborationDrawingLayer) layer;
-                dLayer.sendDisableOthers();
+                if (layer instanceof CollaborationDrawingLayer) {
+                    CollaborationDrawingLayer dLayer = (CollaborationDrawingLayer) layer;
+                    dLayer.sendDisableOthers();
+                }
                 if (leaderOnly.getSelection()) {
                     lastTool.activate();
                 } else {
