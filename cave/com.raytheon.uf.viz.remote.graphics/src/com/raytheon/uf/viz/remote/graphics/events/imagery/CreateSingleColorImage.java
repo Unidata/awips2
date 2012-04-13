@@ -23,11 +23,9 @@ import java.awt.image.RenderedImage;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
- * Event that sends a rendered image object for the object id which should be
- * treated as an image
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -35,7 +33,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2012            mschenke     Initial creation
+ * Apr 13, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -43,7 +41,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class RenderedImageEvent extends AbstractDispatchingObjectEvent {
+public class CreateSingleColorImage extends UpdateSingleColorImage {
 
     @DynamicSerializeElement
     private RenderedImageWrapper wrapper = new RenderedImageWrapper();
@@ -77,5 +75,4 @@ public class RenderedImageEvent extends AbstractDispatchingObjectEvent {
     public void setRenderedImage(RenderedImage renderedImage) {
         wrapper.setWrappedImage(renderedImage);
     }
-
 }
