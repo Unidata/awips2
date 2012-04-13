@@ -106,8 +106,6 @@ public class PathToolbar extends CaveSWTDialog {
             DrawingEventBus.register(PathToolbar.getToolbar());
         }
 
-        lastTool = VizPerspectiveListener.getCurrentPerspectiveManager()
-                .getToolManager().getSelectedModalTool(EDIT_TOOL_CATEGY);
         return pathToolbar;
     }
 
@@ -118,6 +116,9 @@ public class PathToolbar extends CaveSWTDialog {
     protected PathToolbar(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | CAVE.DO_NOT_BLOCK);
         setText("Drawing");
+        lastTool = VizPerspectiveListener.getCurrentPerspectiveManager()
+                .getToolManager().getSelectedModalTool(EDIT_TOOL_CATEGY);
+
     }
 
     /*
@@ -168,18 +169,20 @@ public class PathToolbar extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 DrawingLayer layer = getDrawingResource();
-                switch (layer.getState()) {
-                case DRAWING:
-                    lastTool.activate();
-                    layer.setState(LayerState.NONE);
-                    break;
-                case ERASING:
-                    layer.setState(LayerState.DRAWING);
-                    eraserItem.setSelection(false);
-                    break;
-                case NONE:
-                    layer.setState(LayerState.DRAWING);
-                    break;
+                if (layer != null) {
+                    switch (layer.getState()) {
+                    case DRAWING:
+                        lastTool.activate();
+                        layer.setState(LayerState.NONE);
+                        break;
+                    case ERASING:
+                        layer.setState(LayerState.DRAWING);
+                        eraserItem.setSelection(false);
+                        break;
+                    case NONE:
+                        layer.setState(LayerState.DRAWING);
+                        break;
+                    }
                 }
                 updateToolbar();
             }

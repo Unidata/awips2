@@ -156,11 +156,13 @@ public class DrawingLayer extends
                     (float) outline.getOutlineWidth(), outline.getLineStyle());
         }
 
-        for (Geometry g : this.tempGeometries) {
-            drawTempLinePrimitive(g, tempWireframeShape);
+        if (state == LayerState.DRAWING) {
+            for (Geometry g : this.tempGeometries) {
+                drawTempLinePrimitive(g, tempWireframeShape);
+            }
+            target.drawWireframeShape(tempWireframeShape, color,
+                    outline.getOutlineWidth(), outline.getLineStyle());
         }
-        target.drawWireframeShape(tempWireframeShape, color,
-                outline.getOutlineWidth(), outline.getLineStyle());
     }
 
     /**
