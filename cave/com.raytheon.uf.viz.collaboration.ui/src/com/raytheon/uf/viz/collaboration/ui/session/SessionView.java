@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
@@ -362,8 +363,8 @@ public class SessionView extends AbstractSessionView {
                         sessionId);
                 if (user.getType() == Type.UNKNOWN) {
                     // Unknown user assume mode/type
-                    user.setMode(Mode.AVAILABLE);
-                    user.setType(Type.AVAILABLE);
+                    user.setPresence(new Presence(Mode.AVAILABLE,
+                            Type.AVAILABLE, ""));
                 }
 
                 user.setText(participant.getFQName());
