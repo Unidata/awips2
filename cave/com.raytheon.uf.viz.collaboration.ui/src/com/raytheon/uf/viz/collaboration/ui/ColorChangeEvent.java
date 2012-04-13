@@ -26,7 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 
 /**
- * TODO Add Description
+ * Event for when a new user enters and a color is added
  * 
  * <pre>
  * 
