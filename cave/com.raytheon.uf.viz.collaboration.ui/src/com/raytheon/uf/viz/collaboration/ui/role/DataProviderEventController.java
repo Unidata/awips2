@@ -34,7 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
-import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
+import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
@@ -89,7 +89,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
             // specifically shared with this session
             AbstractEditor editor = EditorUtil
                     .getActiveEditorAs(AbstractEditor.class);
-            SharedEditor se = EditorSetup.extractSharedEditor(editor);
+            SharedEditorData se = EditorSetup.extractSharedEditor(editor);
             try {
                 session.sendObjectToPeer(event.getParticipant()
                         .getQualifiedId(), se);
@@ -256,6 +256,15 @@ public class DataProviderEventController extends AbstractRoleEventController {
                             return dispatcher;
                         }
                     });
+            try {
+                EditorSetup.shareEditor(this.session.getSessionId(),
+                        (AbstractEditor) container);
+            } catch (CollaborationException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
     }
 
