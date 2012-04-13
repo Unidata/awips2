@@ -184,7 +184,8 @@ public class PathDrawingTool extends AbstractDrawingTool {
             if (coords.length > 1) {
                 LineString ls = gf.createLineString(coords);
                 ls = theDrawingLayer.convertPixels(ls);
-                if (theDrawingLayer.getState() == LayerState.DRAWING) {
+                if (theDrawingLayer.getState() == LayerState.DRAWING
+                        || theDrawingLayer.getState() == LayerState.ERASING) {
                     theDrawingLayer.finalizeLine(ls, null);
                 }
             }
