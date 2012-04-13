@@ -25,15 +25,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableFontProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 
+import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
+import com.raytheon.uf.viz.collaboration.data.LoginUser;
+import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 
 /**
  * TODO Add Description
@@ -51,11 +56,13 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
  * @author rferrel
  * @version 1.0
  */
-public class UsersTreeLabelProvider implements ILabelProvider,
+public class UsersTreeLabelProvider implements ITableLabelProvider,
         ITableFontProvider, ITableColorProvider {
     private List<ILabelProviderListener> listeners;
 
     private Map<String, Image> imageMap;
+
+    private Font boldFont = null;
 
     public UsersTreeLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
@@ -86,7 +93,7 @@ public class UsersTreeLabelProvider implements ILabelProvider,
     }
 
     @Override
-    public Image getImage(Object element) {
+    public Image getColumnImage(Object element, int index) {
         if (Activator.getDefault() == null) {
             return null;
         }
@@ -108,7 +115,7 @@ public class UsersTreeLabelProvider implements ILabelProvider,
     }
 
     @Override
-    public String getText(Object element) {
+    public String getColumnText(Object element, int index) {
         CollaborationNode elem = (CollaborationNode) element;
         if (elem.getText() == null) {
             return elem.getId();
@@ -151,8 +158,22 @@ public class UsersTreeLabelProvider implements ILabelProvider,
      */
     @Override
     public Font getFont(Object element, int columnIndex) {
-        // TODO Auto-generated method stub
+        if (element instanceof CollaborationGroup
+                || element instanceof LoginUser) {
+            if (element instanceof SessionGroup
+                    && !((SessionGroup) element).isSessionRoot()) {
+                // for this case do nothing, as it is not the top level of
+                // session groups
+            } else {
+                if (boldFont == null) {
+                    Font currFont = Display.getCurrent().getSystemFont();
+                    boldFont = new Font(Display.getCurrent(),
+                            currFont.toString(),
+                            currFont.getFontData()[0].getHeight(), SWT.BOLD);
+                }
+                return boldFont;
+            }
+        }
         return null;
     }
-
 }
