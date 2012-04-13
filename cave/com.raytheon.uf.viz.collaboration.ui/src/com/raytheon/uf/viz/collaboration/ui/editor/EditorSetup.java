@@ -159,6 +159,8 @@ public class EditorSetup {
                 .getResource();
         rsc.setSubject(((IVenueSession) session).getSubject());
 
+        // TODO we need to track editors associated with a session
+
         // TODO this method should be called by the ShareEditorAction
 
         // TODO should max's target injection be over here too?
