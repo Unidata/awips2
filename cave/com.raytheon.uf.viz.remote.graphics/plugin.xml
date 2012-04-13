@@ -34,5 +34,8 @@
          <graphicsExtension
                class="com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension">
          </graphicsExtension>
+         <graphicsExtension
+               class="com.raytheon.uf.viz.remote.graphics.extensions.DispatchingSingleColorImageExtension">
+         </graphicsExtension>
       </extension>
 </plugin>
