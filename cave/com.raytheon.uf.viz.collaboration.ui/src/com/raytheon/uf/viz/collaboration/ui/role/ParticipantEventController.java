@@ -28,7 +28,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
-import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
+import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData;
@@ -67,7 +67,7 @@ public class ParticipantEventController extends AbstractRoleEventController {
     }
 
     @Subscribe
-    public void editorDataArrived(final SharedEditor se) {
+    public void editorDataArrived(final SharedEditorData se) {
         // TODO need to detect if we already have a CollaborationEditor for
         // this session. If so, that implies DataProvider changed and we
         // should reuse the editor, reinitializing the descriptor and

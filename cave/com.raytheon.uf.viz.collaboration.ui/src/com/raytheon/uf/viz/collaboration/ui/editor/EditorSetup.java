@@ -19,17 +19,19 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.editor;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
+import com.raytheon.uf.viz.collaboration.ui.rsc.SharedEditorIndicatorRsc;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -38,7 +40,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay;
-import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Envelope;
@@ -65,8 +67,6 @@ public class EditorSetup {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(EditorSetup.class);
 
-    public static final String PATH = "/tmp/sharedEditor.xml"; // TODO delete
-
     /**
      * Extracts a SharedEditor object from the editor passed in.
      * 
@@ -74,10 +74,10 @@ public class EditorSetup {
      *            the editor to extract a shared editor for.
      * @return
      */
-    public static SharedEditor extractSharedEditor(AbstractEditor editor) {
+    public static SharedEditorData extractSharedEditor(AbstractEditor editor) {
         // AbstractEditor editor = (AbstractEditor) EditorUtil
         // .findEditor(editorId);
-        SharedEditor se = new SharedEditor();
+        SharedEditorData se = new SharedEditorData();
 
         // extract grid geometry
         IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
@@ -108,7 +108,7 @@ public class EditorSetup {
         return se;
     }
 
-    public static CollaborationEditor createEditor(SharedEditor sharedEditor) {
+    public static CollaborationEditor createEditor(SharedEditorData sharedEditor) {
         CollaborationEditor editor = null;
         AbstractRenderableDisplay[] displays = new AbstractRenderableDisplay[1];
         try {
@@ -135,35 +135,33 @@ public class EditorSetup {
         return editor;
     }
 
-    // TODO delete
-    public static void testSaveEditorData() {
-        AbstractEditor editor = (AbstractEditor) EditorUtil.getActiveEditor();
-        SharedEditor se = extractSharedEditor(editor);
-        try {
-            SerializationUtil.jaxbMarshalToXmlFile(se, PATH);
-        } catch (SerializationException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+    public static void shareEditor(String sessionId, AbstractEditor editor)
+            throws CollaborationException {
+        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
+                .getInstance().getSession(sessionId);
+        if (!session.getUserID().equals(session.getCurrentDataProvider())) {
+            throw new CollaborationException(
+                    "Incorrect role to share an editor");
+        } else if (editor instanceof CollaborationEditor) {
+            throw new CollaborationException(
+                    "Cannot share a CollaborationEditor");
         }
 
-    }
+        IDescriptor desc = editor.getActiveDisplayPane().getRenderableDisplay()
+                .getDescriptor();
+        GenericResourceData grd = new GenericResourceData(
+                SharedEditorIndicatorRsc.class);
+        ResourcePair rp = new ResourcePair();
+        rp.setResourceData(grd);
+        desc.getResourceList().add(rp);
+        desc.getResourceList().instantiateResources(desc, true);
+        SharedEditorIndicatorRsc rsc = (SharedEditorIndicatorRsc) rp
+                .getResource();
+        rsc.setSubject(((IVenueSession) session).getSubject());
 
-    // TODO delete
-    public static SharedEditor testLoadEditorData() {
-        File file = new File(PATH);
-        if (!file.exists()) {
-            testSaveEditorData();
-        }
+        // TODO this method should be called by the ShareEditorAction
 
-        SharedEditor se = null;
-        try {
-            se = (SharedEditor) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(PATH);
-        } catch (SerializationException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        return se;
+        // TODO should max's target injection be over here too?
 
     }
 
