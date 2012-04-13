@@ -76,8 +76,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
@@ -88,6 +88,7 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
+import com.raytheon.uf.viz.collaboration.data.OrphanGroup;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
@@ -122,6 +123,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationGroupView.class);
+
+    private static String ORPHAN_GROUP_ID = "Orphan Users";
 
     private SessionGroup activeSessionGroup;
 
@@ -778,16 +781,19 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             CollaborationNode node = (CollaborationNode) item
                                     .getData();
                             StringBuilder builder = new StringBuilder();
-                            builder.append("ID: ").append(node.getId());
                             if (node instanceof CollaborationUser) {
+                                builder.append("ID: ").append(node.getId());
                                 CollaborationUser user = (CollaborationUser) node;
-                                builder.append("\nStatus: ")
+                                builder.append("\nMode: ")
                                         .append(user.getMode().getMode())
+                                        .append("\n");
+                                builder.append("Type: ").append(user.getType())
                                         .append("\n");
                                 builder.append("Message: \"").append(
                                         user.getStatusMessage() + "\"");
                             } else if (node instanceof SessionGroup
                                     && ((SessionGroup) node).isSessionRoot() == false) {
+                                builder.append("ID: ").append(node.getId());
                                 IVenueInfo info = CollaborationDataManager
                                         .getInstance().getSession(node.getId())
                                         .getVenue().getInfo();
@@ -996,51 +1002,97 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      * Clear and populate the groups from the roster manager entries.
      */
     private void populateGroups() {
+        CollaborationDataManager manager = CollaborationDataManager
+                .getInstance();
+
         for (CollaborationNode node : topLevel.getChildren()) {
             if (!(node instanceof LoginUser || node instanceof SessionGroup)) {
                 topLevel.removeChild(node);
             }
         }
 
-        IRosterManager rosterManager = CollaborationDataManager.getInstance()
-                .getSessionManager().getRosterManager();
-
-        IRoster roster = rosterManager.getRoster();
-
-        String name = null;
-        int rsize = -1;
-        int gsize = -1;
-        if (roster != null) {
-            // TODO remove DEBUG start
-            if (roster.getUser() != null) {
-                name = roster.getUser().getName();
+        for (String groupId : manager.getGroups(false)) {
+            CollaborationGroup child = new CollaborationGroup(groupId);
+            for (String userId : manager.getUsersInGroup(groupId)) {
+                CollaborationUser user = new CollaborationUser(userId);
+                child.addChild(user);
             }
-            if (roster.getEntries() != null) {
-                rsize = roster.getEntries().size();
+            topLevel.addChild(child);
+        }
+        List<String> orphanList = manager.getOrphanUsers();
+        if (orphanList.size() > 0) {
+            OrphanGroup orphanGroup = new OrphanGroup(ORPHAN_GROUP_ID);
+            for (String userId : orphanList) {
+                orphanGroup.addChild(new CollaborationUser(userId));
             }
-            if (roster.getGroups() != null) {
-                gsize = roster.getGroups().size();
-            }
-            System.out.println("rosterManager Name " + name + ": group size "
-                    + gsize + ": entry size " + rsize);
-            // TODO DEBUG end remove
-            for (IRosterGroup rosterGroup : roster.getGroups()) {
-                if (rosterGroup != null) {
-                    populateGroup(topLevel, rosterGroup);
-                }
-            }
-
-            // TODO Are these buddies not in a group that need to be displayed?
-            if (roster.getEntries() != null && roster.getEntries().size() > 0) {
-                for (IRosterEntry e : roster.getEntries()) {
-                    System.out.println(name + " entry: "
-                            + e.getUser().getName() + "@"
-                            + e.getUser().getHost() + "/"
-                            + e.getUser().getResource());
-                }
-            }
+            topLevel.addChild(orphanGroup);
         }
     }
+
+    // private void populateGroups() {
+    // for (CollaborationNode node : topLevel.getChildren()) {
+    // if (!(node instanceof LoginUser || node instanceof SessionGroup)) {
+    // topLevel.removeChild(node);
+    // }
+    // }
+    //
+    // // CollaborationDataManager.getInstance().repopulateGroups();
+    //
+    // IRosterManager rosterManager = CollaborationDataManager.getInstance()
+    // .getSessionManager().getRosterManager();
+    //
+    // IRoster roster = rosterManager.getRoster();
+    //
+    // String name = null;
+    // int rsize = -1;
+    // int gsize = -1;
+    // if (roster != null) {
+    // // TODO remove DEBUG start
+    // if (roster.getUser() != null) {
+    // name = roster.getUser().getName();
+    // }
+    // if (roster.getEntries() != null) {
+    // rsize = roster.getEntries().size();
+    // }
+    // if (roster.getGroups() != null) {
+    // gsize = roster.getGroups().size();
+    // }
+    // System.out.println("rosterManager Name " + name + ": group size "
+    // + gsize + ": entry size " + rsize);
+    // // TODO DEBUG end remove
+    // for (IRosterGroup rosterGroup : roster.getGroups()) {
+    // if (rosterGroup != null) {
+    // populateGroup(topLevel, rosterGroup);
+    // }
+    // }
+    //
+    // // add users not in a group to an orphan group.
+    // if (roster.getEntries() != null && roster.getEntries().size() > 0) {
+    // CollaborationGroup groupNode = new OrphanGroup(ORPHAN_GROUP_ID);
+    // for (IRosterEntry e : roster.getEntries()) {
+    // System.out.println(name + " entry: "
+    // + e.getUser().getName() + "@"
+    // + e.getUser().getHost() + "/"
+    // + e.getUser().getResource());
+    // String userId = CollaborationUtils.makeUserId(e);
+    // CollaborationUser child = new CollaborationUser(userId);
+    // child.setPresence(e.getPresence());
+    // groupNode.addChild(child);
+    // }
+    // topLevel.addChild(groupNode);
+    // } else {
+    // // TODO test do not check in with this else
+    // CollaborationGroup groupNode = new OrphanGroup(
+    // "a test of Orphan Users");
+    // String userId = "foo@bar.com";
+    // CollaborationUser child = new CollaborationUser(userId);
+    // child.setPresence(new Presence(Mode.AWAY, Type.UNAVAILABLE,
+    // "R.I.P."));
+    // groupNode.addChild(child);
+    // topLevel.addChild(groupNode);
+    // }
+    // }
+    // }
 
     /**
      * This creates a group node, populates it with its children and makes it a
@@ -1070,24 +1122,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         for (IRosterEntry e : rosterGroup.getEntries()) {
             String userId = CollaborationUtils.makeUserId(e);
             CollaborationUser child = new CollaborationUser(userId);
-            IPresence presence = e.getPresence();
-            child.setMode(presence.getMode());
-            child.setType(presence.getType());
-            child.setStatusMessage(presence.getStatusMessage());
+            child.setPresence(e.getPresence());
             groupNode.addChild(child);
         }
     }
-
-    // private LoginUser getLoginUser() {
-    // LoginUser loginUser = null;
-    // for (CollaborationNode node : topLevel.getChildren()) {
-    // if (node instanceof LoginUser) {
-    // loginUser = (LoginUser) node;
-    // break;
-    // }
-    // }
-    // return loginUser;
-    // }
 
     /**
      * @return
@@ -1341,12 +1379,160 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      */
     @Subscribe
     public void handleModifiedPresence(IRosterEntry rosterEntry) {
-        // Assumes the Data Manager has already update
+        // Only need to update the usersTreeViewer.
         System.out.println("group view roster entry for:"
                 + rosterEntry.getUser().getName() + "@"
                 + rosterEntry.getUser().getHost() + " "
                 + rosterEntry.getPresence().getMode() + "/"
                 + rosterEntry.getPresence().getType());
+        refreshUser(CollaborationUtils.makeUserId(rosterEntry), topLevel);
         usersTreeViewer.refresh(topLevel, true);
+    }
+
+    private void refreshUser(String userId, CollaborationGroup groupNode) {
+        for (CollaborationNode child : groupNode.getChildren()) {
+            if (child instanceof CollaborationUser) {
+                if (userId.equals(child.getId())) {
+                    usersTreeViewer.refresh(child, true);
+                }
+            } else if (child instanceof CollaborationGroup) {
+                refreshUser(userId, (CollaborationGroup) child);
+            }
+        }
+    }
+
+    @Subscribe
+    public void handleRosterChangeEvent(IRosterChangeEvent rosterChangeEvent) {
+        // Assume the CollaborationDataManager has updated the back end.
+        // Only need to update the usersTreeView.
+        System.out.println("CollaborationGroupView rosterChangeEvent<"
+                + rosterChangeEvent.getType() + ">: "
+                + rosterChangeEvent.getEntry().getUser().getFQName());
+        IRosterEntry rosterEntry = rosterChangeEvent.getEntry();
+        String userId = CollaborationUtils.makeUserId(rosterEntry);
+        List<String> groups = new ArrayList<String>();
+        for (IRosterGroup rosterGroup : rosterEntry.getGroups()) {
+            groups.add(rosterGroup.getName());
+        }
+        switch (rosterChangeEvent.getType()) {
+        case ADD:
+            // Should be a rare event after initial population.
+            // User should only be in enter on list in groups.
+            OrphanGroup orphanGroup = null;
+            if (groups.size() == 0) {
+                // remove from all groups and add to Orphans.
+                for (CollaborationNode node : topLevel.getChildren()) {
+                    if (node instanceof OrphanGroup) {
+                        CollaborationUser user = null;
+                        orphanGroup = (OrphanGroup) node;
+                        for (CollaborationNode child : orphanGroup
+                                .getChildren()) {
+                            if (userId.equals(child.getId())) {
+                                user = (CollaborationUser) child;
+                                break;
+                            }
+                        }
+                        if (user == null) {
+                            orphanGroup.addChild(new CollaborationUser(userId));
+                            usersTreeViewer.refresh(orphanGroup);
+                        }
+                    } else if (node instanceof CollaborationGroup
+                            && !(node instanceof SessionGroup)) {
+                        CollaborationGroup groupNode = (CollaborationGroup) node;
+                        for (CollaborationNode child : groupNode.getChildren()) {
+                            if (userId.equals(child.getId())) {
+                                if (!groups.contains(groupNode.getId())) {
+                                    groupNode.removeChild(child);
+                                    usersTreeViewer.refresh(groupNode);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (orphanGroup == null) {
+                    orphanGroup = new OrphanGroup(ORPHAN_GROUP_ID);
+                    orphanGroup.addChild(new CollaborationUser(userId));
+                    topLevel.addChild(orphanGroup);
+                    usersTreeViewer.refresh();
+                }
+            } else {
+                // TODO add user to all in groups and remove from others.
+                for (CollaborationNode node : topLevel.getChildren()) {
+                    if (node instanceof CollaborationGroup
+                            && !(node instanceof SessionGroup)) {
+                        CollaborationGroup group = (CollaborationGroup) node;
+                        for (CollaborationNode child : group.getChildren()) {
+                            if (userId.equals(child.getId())) {
+                                if (groups.contains(group.getId())) {
+                                    // User already in the group no need to add.
+                                    groups.remove(group.getId());
+                                } else {
+                                    // User no longer in this group.
+                                    group.removeChild(child);
+                                    usersTreeViewer.refresh(group);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // groups now contains new groups. See if they are on the
+                // display list.
+                if (groups.size() > 0) {
+                    CollaborationDataManager manager = CollaborationDataManager
+                            .getInstance();
+                    for (String groupId : groups) {
+                        if (manager.displayGroup(groupId)) {
+                            topLevel.addChild(new CollaborationGroup(groupId));
+                        }
+                    }
+                    usersTreeViewer.refresh(topLevel);
+                }
+            }
+            break;
+        case DELETE:
+            // Should be a rare event.
+            for (CollaborationNode node : topLevel.getChildren()) {
+                if (node instanceof CollaborationGroup
+                        && !(node instanceof SessionGroup)) {
+                    CollaborationGroup groupNode = (CollaborationGroup) node;
+                    for (CollaborationNode child : groupNode.getChildren()) {
+                        if (userId.equals(child.getId())) {
+                            groupNode.removeChild(child);
+                            usersTreeViewer.refresh(groupNode);
+                            break;
+                        }
+                    }
+                }
+            }
+            break;
+        case MODIFY:
+            // Assume this only changes the presence of a user in the desire
+            // groups.
+            // Since this is handled by the handleModifiedPresence nothing needs
+            // to be done.
+            for (String groupId : groups) {
+                for (CollaborationNode node : topLevel.getChildren()) {
+                    if (node instanceof CollaborationGroup
+                            && !(node instanceof SessionGroup)
+                            && groupId.equals(node.getId())) {
+                        CollaborationGroup groupNode = (CollaborationGroup) node;
+                        for (CollaborationNode child : groupNode.getChildren()) {
+                            if (userId.equals(child.getId())) {
+                                usersTreeViewer.refresh(child, true);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+        default:
+            statusHandler.handle(Priority.PROBLEM, "Unknown type: "
+                    + rosterChangeEvent.getType());
+            return;
+        }
     }
 }
