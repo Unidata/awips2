@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
-import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 
 /**
@@ -158,8 +157,7 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
      */
     @Override
     public Font getFont(Object element, int columnIndex) {
-        if (element instanceof CollaborationGroup
-                || element instanceof LoginUser) {
+        if (element instanceof CollaborationGroup) {
             if (element instanceof SessionGroup
                     && !((SessionGroup) element).isSessionRoot()) {
                 // for this case do nothing, as it is not the top level of
