@@ -704,6 +704,12 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         }
     }
 
+    /**
+     * This updates the Data Manager's information then informs and UI of the
+     * change.
+     * 
+     * @param event
+     */
     @Subscribe
     public void handleRosterChangeEvent(IRosterChangeEvent event) {
         final IRosterChangeEvent rosterChangeEvent = event;
@@ -746,31 +752,24 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             // Assume only the presence needs to be updated.
             user.setPresence(rosterEntry.getPresence());
             break;
-        case PRESENCE:
-            System.out.println("\tIgnore assume only presence change");
-            return;
-            // break;
+        // case PRESENCE:
+        // System.out.println("\tIgnore assume only presence change");
+        // return;
+        // break;
         default:
-            statusHandler.handle(Priority.PROBLEM, "Unknown type: "
+            statusHandler.handle(Priority.PROBLEM, "Unhandled type: "
                     + rosterChangeEvent.getType());
             return;
 
         }
-        // synchronized (registerCnt) {
-        // if (registerCnt.compareAndSet(0, 0)) {
-        // System.out.println("post delayed");
-        // rosterChangeEventQueue.add(event);
-        // } else {
-        // Assume only views to be updated will register.
-        System.out.println("post now");
+
+        // Assume only UI updates are registered.
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
                 eventBus.post(rosterChangeEvent);
             }
         });
-        // }
-        // }
     }
 
     @Deprecated

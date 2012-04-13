@@ -34,13 +34,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.osgi.framework.Bundle;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
-import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * TODO Add Description
@@ -61,6 +59,10 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
 
 public class ParticipantsLabelProvider implements ITableColorProvider,
         ITableFontProvider, ITableLabelProvider {
+
+    private static int COLOR_DATA_PROVIDER = SWT.COLOR_GREEN;
+
+    private static int COLOR_SESSION_LEADER = SWT.COLOR_RED;
 
     private List<ILabelProviderListener> listeners;
 
@@ -167,36 +169,47 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         String key = user.getImageKey();
         StringBuilder modKey = new StringBuilder(key);
         List<ParticipantRole> t = Arrays.asList(types);
+        int roleCnt = 0;
         if (t.contains(ParticipantRole.SESSION_LEADER)) {
+            ++roleCnt;
             modKey.append(":")
                     .append(ParticipantRole.SESSION_LEADER.toString());
         }
         if (t.contains(ParticipantRole.DATA_PROVIDER)) {
+            ++roleCnt;
             modKey.append(":").append(ParticipantRole.DATA_PROVIDER.toString());
         }
         Image image = imageMap.get(modKey.toString());
 
         if (image == null) {
-            Bundle bundle = Activator.getDefault().getBundle();
             image = CollaborationUtils.getNodeImage(user);
             // original image is 16x16
-            GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
-
-            if (t.contains(ParticipantRole.SESSION_LEADER)) {
-                Image im = IconUtil.getImageDescriptor(bundle,
-                        "session_leader.png").createImage();
-                gc.drawImage(im, 7, 7);
-                im.dispose();
-            }
-            if (t.contains(ParticipantRole.DATA_PROVIDER)) {
-                Image im = IconUtil.getImageDescriptor(bundle,
-                        "data_provider.png").createImage();
-                gc.drawImage(im, 0, 16);
-                im.dispose();
+            if (roleCnt > 0) {
+                GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
+                System.err.println("Creating icon: " + modKey.toString());
+                int topColor = -1;
+                int bottomColor = -1;
+                if (roleCnt == 1) {
+                    if (t.contains(ParticipantRole.SESSION_LEADER)) {
+                        topColor = COLOR_SESSION_LEADER;
+                        bottomColor = COLOR_SESSION_LEADER;
+                    } else {
+                        topColor = COLOR_DATA_PROVIDER;
+                        bottomColor = COLOR_DATA_PROVIDER;
+                    }
+                } else {
+                    topColor = COLOR_DATA_PROVIDER;
+                    bottomColor = COLOR_SESSION_LEADER;
+                }
+                gc.setBackground(Display.getCurrent().getSystemColor(topColor));
+                gc.fillRectangle(0, 0, 16, 8);
+                gc.setBackground(Display.getCurrent().getSystemColor(
+                        bottomColor));
+                gc.fillRectangle(0, 8, 8, 8);
+                gc.dispose();
             }
             image.getImageData();
             imageMap.put(modKey.toString(), image);
-            gc.dispose();
         }
         return image;
     }
