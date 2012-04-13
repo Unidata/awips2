@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -53,8 +54,10 @@ import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.TopologyException;
 
 /**
@@ -226,15 +229,15 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             }
             break;
         case ERASE:
-            if (true) {
-                return;
-            }
+            // TODO need to functionize this as it is mostly the same as
+            // DrawingLayer
             userName = event.getUserName();
             double extentPercentageX = paintProps.getView().getExtent()
                     .getWidth()
                     / (double) paintProps.getCanvasBounds().width;
             double cursorSize = 16;
             double size = extentPercentageX * cursorSize;
+            Multimap<String, ShapeContainer> containers = HashMultimap.create();
             synchronized (collaboratorShapes) {
                 for (ShapeContainer cont : collaboratorShapes.get(userName)) {
                     Geometry line = event.getContainer().getGeom();
@@ -247,22 +250,45 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                         } catch (TopologyException e) {
                             continue;
                         }
+                        Geometry lString = null;
                         if (finalGeom instanceof MultiLineString) {
-                            Geometry lString = (MultiLineString) finalGeom;
+                            lString = (MultiLineString) finalGeom;
                             for (int j = 0; j < lString.getNumGeometries(); j++) {
                                 LineString lineString = (LineString) lString
                                         .getGeometryN(j);
+                                eraseWireframeShape = target
+                                        .createWireframeShape(true, descriptor);
                                 drawTempLinePrimitive(lineString,
                                         eraseWireframeShape);
                                 ShapeContainer shCont = new ShapeContainer();
                                 shCont.setGeom(lString);
                                 shCont.setShape(eraseWireframeShape);
-                                collaboratorShapes.get(userName).add(shCont);
+                                containers.put(userName, shCont);
                             }
+                        } else if (finalGeom instanceof LineString) {
+                            GeometryFactory factory = new GeometryFactory();
+                            lString = (LineString) finalGeom;
+                            Point point = factory.createPoint(lString
+                                    .getCoordinates()[0]);
+                            intersection = point.buffer(size / 2).intersection(
+                                    cont.getGeom());
+                            finalGeom = cont.getGeom().difference(intersection);
+                            eraseWireframeShape = target.createWireframeShape(
+                                    true, descriptor);
+                            drawTempLinePrimitive(lString, eraseWireframeShape);
+                            ShapeContainer shCont = new ShapeContainer();
+                            shCont.setGeom(lString);
+                            shCont.setShape(eraseWireframeShape);
+                            containers.put(userName, shCont);
+                        } else {
+                            containers.put(userName, cont);
                         }
+                    } else {
+                        containers.put(userName, cont);
                     }
                 }
             }
+            collaboratorShapes = containers;
             break;
         }
         issueRefresh();
@@ -302,7 +328,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     public void addTempEraseLine(LineString line) {
         super.addTempEraseLine(line);
-        sendEraseEvent(line);
+        // sendEraseEvent(line);
     }
 
     /*
