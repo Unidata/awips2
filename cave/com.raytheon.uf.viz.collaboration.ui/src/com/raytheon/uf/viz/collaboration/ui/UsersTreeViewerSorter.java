@@ -23,6 +23,8 @@ package com.raytheon.uf.viz.collaboration.ui;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
+import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
+import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.OrphanGroup;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
@@ -68,12 +70,24 @@ public class UsersTreeViewerSorter extends ViewerSorter {
             return 1;
         }
 
+        // OrpahGroup always at the bottom
         if (e1 instanceof OrphanGroup) {
             return 1;
         }
         if (e2 instanceof OrphanGroup) {
             return -1;
         }
-        return super.compare(viewer, e1, e2);
+
+        // Groups before users.
+        if (e1 instanceof CollaborationGroup) {
+            if (!(e2 instanceof CollaborationGroup)) {
+                return -1;
+            }
+        } else if (e1 instanceof CollaborationGroup) {
+            return 1;
+        }
+
+        // Either both are groups or both are users.
+        return ((CollaborationNode) e1).compareTo((CollaborationNode) e2);
     }
 }
