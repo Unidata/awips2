@@ -37,8 +37,9 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * A SharedEditor is a POJO to be sent out by the Data Provider that contains
- * enough information to create the CollaborationEditor for the participants.
+ * A SharedEditorData is a POJO to be sent out by the Data Provider that
+ * contains enough information to create the CollaborationEditor for the
+ * participants.
  * 
  * <pre>
  * 
@@ -56,7 +57,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class SharedEditor implements ISerializableObject, IInitData {
+public class SharedEditorData implements ISerializableObject, IInitData {
 
     /** The geometry of the descriptor */
     private GeneralGridGeometry geometry;
