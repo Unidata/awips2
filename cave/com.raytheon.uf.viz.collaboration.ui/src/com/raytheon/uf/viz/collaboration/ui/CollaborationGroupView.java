@@ -317,7 +317,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
         addUserAction = new Action("Add User") {
             public void run() {
-                addUsersToGroup();
+                // addUsersToGroup();
+                nyiFeature("Add User to a Group");
             };
         };
         addUserAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
@@ -625,14 +626,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 createTextOnlyView(result);
             }
         }
-    }
 
-    private void createCollaborationView(CreateSessionData result) {
-        String sessionId = result.getSessionId();
         try {
             if (result.isInviteUsers()) {
                 IVenueSession session = CollaborationDataManager.getInstance()
-                        .getSession(sessionId);
+                        .getSession(result.getSessionId());
                 List<String> usersList = new ArrayList<String>();
                 for (CollaborationUser user : getSelectedUsers()) {
                     usersList.add(user.getId());
@@ -642,12 +640,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (sessionId == null) {
-                return;
-            }
         }
+    }
 
+    private void createCollaborationView(CreateSessionData result) {
+        String sessionId = result.getSessionId();
         try {
             PlatformUI
                     .getWorkbench()
@@ -655,18 +652,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     .getActivePage()
                     .showView(CollaborationSessionView.ID, sessionId,
                             IWorkbenchPage.VIEW_ACTIVATE);
-
-            if (result.isInviteUsers()) {
-                // TODO send invites to the users
-                Set<CollaborationUser> selectedUsers = getSelectedUsers();
-                for (CollaborationUser user : selectedUsers) {
-                    System.out.println("sessionId - Invite: " + user.getId());
-                }
-            }
-            // refreshActiveSessions();
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to open collaboation sesson", e);
+                    "Unable to open collaboration sesson", e);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Unexpected excepton", e);
         }
@@ -686,17 +674,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     .getActivePage()
                     .showView(SessionView.ID, sessionId,
                             IWorkbenchPage.VIEW_ACTIVATE);
-
-            if (result.isInviteUsers()) {
-                // TODO send invites to the users
-                Set<CollaborationUser> selectedUsers = getSelectedUsers();
-                for (CollaborationUser user : selectedUsers) {
-                    System.out.println("sessionId - Invite: " + user.getId());
-                }
-            }
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to open collaboation sesson", e);
+                    "Unable to open text  only chat session", e);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Unexpected exception", e);
         }
@@ -754,7 +734,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     }
 
     /**
-     * Genearte the Tree View component and add tooltip tracking.
+     * Generate the Tree View component and add tooltip tracking.
      * 
      * @param parent
      */
@@ -789,13 +769,21 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             if (node instanceof CollaborationUser) {
                                 builder.append("ID: ").append(node.getId());
                                 CollaborationUser user = (CollaborationUser) node;
-                                builder.append("\nMode: ")
-                                        .append(user.getMode().getMode())
-                                        .append("\n");
-                                builder.append("Type: ").append(user.getType())
-                                        .append("\n");
-                                builder.append("Message: \"").append(
-                                        user.getStatusMessage() + "\"");
+                                builder.append("\nStatus: ");
+                                if (user.getType() == Type.UNAVAILABLE) {
+                                    builder.append("Off Line");
+                                } else {
+                                    builder.append(user.getMode().getMode());
+
+                                    builder.append("\n");
+                                    // builder.append("Type: ").append(user.getType())
+                                    // .append("\n");
+                                    String message = user.getStatusMessage();
+                                    if (message != null && message.length() > 0) {
+                                        builder.append("Message: \"").append(
+                                                user.getStatusMessage() + "\"");
+                                    }
+                                }
                             } else if (node instanceof SessionGroup
                                     && ((SessionGroup) node).isSessionRoot() == false) {
                                 builder.append("ID: ").append(node.getId());
@@ -935,6 +923,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             selectGroups.setEnabled(false);
             changeStatusAction.setEnabled(false);
             drawToolbarAction.setEnabled(false);
+            changeStatusMessageAction.setEnabled(false);
             changePasswordAction.setEnabled(false);
             return;
         }
@@ -943,6 +932,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         selectGroups.setEnabled(true);
         changeStatusAction.setEnabled(true);
         drawToolbarAction.setEnabled(true);
+        changeStatusMessageAction.setEnabled(true);
         changePasswordAction.setEnabled(true);
 
         LoginUser user = new LoginUser(manager.getLoginId());
@@ -955,35 +945,16 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
         populateGroups();
 
-        // usersTreeViewer.setInput(topLevel);
         usersTreeViewer.getTree().setEnabled(true);
         usersTreeViewer.refresh(topLevel, true);
         createSessionAction.setEnabled(true);
     }
 
-    // private void refreshActiveSessions() {
-    // populateActiveSessions();
-    // usersTreeViewer.refresh(activeSessionGroup, true);
-    // }
-
     /**
-     * Clears and repopulates the Tree Viewer's active session node.
+     * Clears and populates the Tree Viewer's active session node.
      */
     private void populateActiveSessions() {
         activeSessionGroup.removeChildren();
-        // Collection<IVenueInfo> venuList = CollaborationDataManager
-        // .getInstance().getSessionManager().getVenueInfo();
-        // for (IVenueInfo venu : venuList) {
-        // // SessionGroup gp = new SessionGroup(CollaborationDataManager
-        // // .getInstance().venueIdToSessionId(venu.getVenueID()));
-        // SessionGroup gp = new SessionGroup(null);
-        // gp.setText(venu.getVenueName());
-        //
-        // if (venu.getParticipantCount() > 0) {
-        // // TODO add current participants of the venu here?
-        // }
-        // activeSessionGroup.addChild(gp);
-        // }
         try {
             CollaborationDataManager manager = CollaborationDataManager
                     .getInstance();
@@ -1009,7 +980,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     private void populateGroups() {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-
         for (CollaborationNode node : topLevel.getChildren()) {
             if (!(node instanceof LoginUser || node instanceof SessionGroup)) {
                 topLevel.removeChild(node);
@@ -1031,104 +1001,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 orphanGroup.addChild(new CollaborationUser(userId));
             }
             topLevel.addChild(orphanGroup);
-        }
-    }
-
-    // private void populateGroups() {
-    // for (CollaborationNode node : topLevel.getChildren()) {
-    // if (!(node instanceof LoginUser || node instanceof SessionGroup)) {
-    // topLevel.removeChild(node);
-    // }
-    // }
-    //
-    // // CollaborationDataManager.getInstance().repopulateGroups();
-    //
-    // IRosterManager rosterManager = CollaborationDataManager.getInstance()
-    // .getSessionManager().getRosterManager();
-    //
-    // IRoster roster = rosterManager.getRoster();
-    //
-    // String name = null;
-    // int rsize = -1;
-    // int gsize = -1;
-    // if (roster != null) {
-    // // TODO remove DEBUG start
-    // if (roster.getUser() != null) {
-    // name = roster.getUser().getName();
-    // }
-    // if (roster.getEntries() != null) {
-    // rsize = roster.getEntries().size();
-    // }
-    // if (roster.getGroups() != null) {
-    // gsize = roster.getGroups().size();
-    // }
-    // System.out.println("rosterManager Name " + name + ": group size "
-    // + gsize + ": entry size " + rsize);
-    // // TODO DEBUG end remove
-    // for (IRosterGroup rosterGroup : roster.getGroups()) {
-    // if (rosterGroup != null) {
-    // populateGroup(topLevel, rosterGroup);
-    // }
-    // }
-    //
-    // // add users not in a group to an orphan group.
-    // if (roster.getEntries() != null && roster.getEntries().size() > 0) {
-    // CollaborationGroup groupNode = new OrphanGroup(ORPHAN_GROUP_ID);
-    // for (IRosterEntry e : roster.getEntries()) {
-    // System.out.println(name + " entry: "
-    // + e.getUser().getName() + "@"
-    // + e.getUser().getHost() + "/"
-    // + e.getUser().getResource());
-    // String userId = CollaborationUtils.makeUserId(e);
-    // CollaborationUser child = new CollaborationUser(userId);
-    // child.setPresence(e.getPresence());
-    // groupNode.addChild(child);
-    // }
-    // topLevel.addChild(groupNode);
-    // } else {
-    // // TODO test do not check in with this else
-    // CollaborationGroup groupNode = new OrphanGroup(
-    // "a test of Orphan Users");
-    // String userId = "foo@bar.com";
-    // CollaborationUser child = new CollaborationUser(userId);
-    // child.setPresence(new Presence(Mode.AWAY, Type.UNAVAILABLE,
-    // "R.I.P."));
-    // groupNode.addChild(child);
-    // topLevel.addChild(groupNode);
-    // }
-    // }
-    // }
-
-    /**
-     * This creates a group node, populates it with its children and makes it a
-     * child of its parent.
-     * 
-     * @param parent
-     * @param rosterGroup
-     *            - Information about the group and its children -
-     */
-    private void populateGroup(CollaborationGroup parent,
-            IRosterGroup rosterGroup) {
-
-        CollaborationGroup groupNode = new CollaborationGroup(
-                rosterGroup.getName());
-        // TODO determine if group is modifiable (User) or System group.
-        groupNode.setLocal(false);
-        groupNode.setModifiable(false);
-        parent.addChild(groupNode);
-        System.out.println("group Name " + rosterGroup.getName() + ": entries "
-                + rosterGroup.getEntries());
-        if (rosterGroup.getGroups() != null) {
-            for (IRosterGroup childGroup : rosterGroup.getGroups()) {
-                populateGroup(groupNode, childGroup);
-            }
-        }
-
-        for (IRosterEntry e : rosterGroup.getEntries()) {
-            String userId = CollaborationUtils.makeUserId(e);
-            CollaborationUser child = new CollaborationUser(userId);
-            child.setPresence(e.getPresence());
-            groupNode.addChild(child);
         }
     }
 
@@ -1168,7 +1040,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     }
 
     /**
-     * This recursively searches group Node and returns all users with Type
+     * This recursively searches group Nodes and returns all users with Type
      * AVAILABLE.
      * 
      * @param groupNode
@@ -1423,7 +1295,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         switch (rosterChangeEvent.getType()) {
         case ADD:
             // Should be a rare event after initial population.
-            // User should only be in enter on list in groups.
             OrphanGroup orphanGroup = null;
             if (groups.size() == 0) {
                 // remove from all groups and add to Orphans.
@@ -1463,16 +1334,23 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     usersTreeViewer.refresh();
                 }
             } else {
-                // TODO add user to all in groups and remove from others.
+                // TODO add user to groups and remove from others including
+                // orphan group.
                 for (CollaborationNode node : topLevel.getChildren()) {
                     if (node instanceof CollaborationGroup
                             && !(node instanceof SessionGroup)) {
                         CollaborationGroup group = (CollaborationGroup) node;
+                        if (group instanceof OrphanGroup) {
+                            orphanGroup = (OrphanGroup) group;
+                        }
+                        boolean addUser = groups.contains(group.getId());
                         for (CollaborationNode child : group.getChildren()) {
                             if (userId.equals(child.getId())) {
                                 if (groups.contains(group.getId())) {
-                                    // User already in the group no need to add.
+                                    // User already in the group no need to
+                                    // add.
                                     groups.remove(group.getId());
+                                    addUser = false;
                                 } else {
                                     // User no longer in this group.
                                     group.removeChild(child);
@@ -1481,7 +1359,18 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 break;
                             }
                         }
+                        if (addUser) {
+                            group.addChild(new CollaborationUser(userId));
+                            groups.remove(group.getClass());
+                        }
                     }
+                }
+
+                boolean refreshTopLevel = false;
+                if (orphanGroup != null
+                        && orphanGroup.getChildren().size() == 0) {
+                    topLevel.removeChild(orphanGroup);
+                    refreshTopLevel = true;
                 }
 
                 // groups now contains new groups. See if they are on the
@@ -1491,9 +1380,15 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             .getInstance();
                     for (String groupId : groups) {
                         if (manager.displayGroup(groupId)) {
-                            topLevel.addChild(new CollaborationGroup(groupId));
+                            CollaborationGroup groupNode = new CollaborationGroup(
+                                    groupId);
+                            topLevel.addChild(groupNode);
+                            groupNode.addChild(new CollaborationUser(userId));
                         }
                     }
+                    refreshTopLevel = true;
+                }
+                if (refreshTopLevel) {
                     usersTreeViewer.refresh(topLevel);
                 }
             }
@@ -1515,30 +1410,32 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             }
             break;
         case MODIFY:
-            // Assume this only changes the presence of a user in the desire
+            // Assume this only changes the presence of a user in the
+            // desired
             // groups.
-            // Since this is handled by the handleModifiedPresence nothing needs
+            // Since this is handled by the handleModifiedPresence nothing
+            // needs
             // to be done.
-            for (String groupId : groups) {
-                for (CollaborationNode node : topLevel.getChildren()) {
-                    if (node instanceof CollaborationGroup
-                            && !(node instanceof SessionGroup)
-                            && groupId.equals(node.getId())) {
-                        CollaborationGroup groupNode = (CollaborationGroup) node;
-                        for (CollaborationNode child : groupNode.getChildren()) {
-                            if (userId.equals(child.getId())) {
-                                usersTreeViewer.refresh(child, true);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            // for (String groupId : groups) {
+            // for (CollaborationNode node : topLevel.getChildren()) {
+            // if (node instanceof CollaborationGroup
+            // && !(node instanceof SessionGroup)
+            // && groupId.equals(node.getId())) {
+            // CollaborationGroup groupNode = (CollaborationGroup) node;
+            // for (CollaborationNode child : groupNode.getChildren()) {
+            // if (userId.equals(child.getId())) {
+            // usersTreeViewer.refresh(child, true);
+            // break;
+            // }
+            // }
+            // }
+            // }
+            // }
             break;
         default:
             statusHandler.handle(Priority.PROBLEM, "Unknown type: "
                     + rosterChangeEvent.getType());
-            return;
+            break;
         }
     }
 }
