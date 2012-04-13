@@ -226,6 +226,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             }
             break;
         case ERASE:
+            if (true) {
+                return;
+            }
             userName = event.getUserName();
             double extentPercentageX = paintProps.getView().getExtent()
                     .getWidth()
