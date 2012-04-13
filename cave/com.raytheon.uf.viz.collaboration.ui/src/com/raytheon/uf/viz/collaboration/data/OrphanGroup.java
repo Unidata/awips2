@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.data;
 
 /**
- * TODO Add Description
+ * A special group to places users not in any group.
  * 
  * <pre>
  * 
@@ -28,48 +28,21 @@ package com.raytheon.uf.viz.collaboration.data;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            rferrel     Initial creation
+ * Apr 11, 2012            rferrel     Initial creation
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class DataGroup {
-    /**
-     * The fully qualified group name. When a subgroup the name should contain
-     * all the groups ancestors. For example if "C" is a subgroup of "B" which
-     * is a subgroup of "A" then C's id would be "A.B.C".
-     */
-    String id;
+
+public class OrphanGroup extends CollaborationGroup {
 
     /**
-     * Indicates if the user wants to display the groups information.
-     */
-    boolean display;
-
-    /**
-     * Only allow classes in the package to use the constructor.
-     * 
      * @param id
      */
-    DataGroup(String id) {
-        this.id = id;
-        this.display = true;
+    public OrphanGroup(String id) {
+        super(id);
     }
 
-    /**
-     * @return display
-     */
-    public boolean isDisplay() {
-        return display;
-    }
-
-    public void setDisplay(boolean display) {
-        this.display = display;
-    }
-
-    public String getId() {
-        return id;
-    }
 }
