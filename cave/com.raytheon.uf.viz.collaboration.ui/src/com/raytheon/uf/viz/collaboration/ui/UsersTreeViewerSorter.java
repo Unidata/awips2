@@ -24,6 +24,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
+import com.raytheon.uf.viz.collaboration.data.OrphanGroup;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 
 /**
@@ -67,6 +68,12 @@ public class UsersTreeViewerSorter extends ViewerSorter {
             return 1;
         }
 
+        if (e1 instanceof OrphanGroup) {
+            return 1;
+        }
+        if (e2 instanceof OrphanGroup) {
+            return -1;
+        }
         return super.compare(viewer, e1, e2);
     }
 }
