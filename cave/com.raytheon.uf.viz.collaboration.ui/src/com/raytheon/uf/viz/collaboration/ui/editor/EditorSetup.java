@@ -68,15 +68,13 @@ public class EditorSetup {
             .getHandler(EditorSetup.class);
 
     /**
-     * Extracts a SharedEditor object from the editor passed in.
+     * Extracts a SharedEditorData object from the editor passed in.
      * 
      * @param editor
      *            the editor to extract a shared editor for.
      * @return
      */
-    public static SharedEditorData extractSharedEditor(AbstractEditor editor) {
-        // AbstractEditor editor = (AbstractEditor) EditorUtil
-        // .findEditor(editorId);
+    public static SharedEditorData extractSharedEditorData(AbstractEditor editor) {
         SharedEditorData se = new SharedEditorData();
 
         // extract grid geometry
@@ -108,6 +106,13 @@ public class EditorSetup {
         return se;
     }
 
+    /**
+     * Creates and opens a CollaborationEditor based on the SharedEditorData.
+     * 
+     * @param sharedEditor
+     *            the data necessary to create the editor
+     * @return
+     */
     public static CollaborationEditor createEditor(SharedEditorData sharedEditor) {
         CollaborationEditor editor = null;
         AbstractRenderableDisplay[] displays = new AbstractRenderableDisplay[1];
@@ -135,6 +140,16 @@ public class EditorSetup {
         return editor;
     }
 
+    /**
+     * Initializes the resources necessary to share the editor with others
+     * connected to the collaboration session.
+     * 
+     * @param sessionId
+     *            the id of the session to share the editor with
+     * @param editor
+     *            the editor to share
+     * @throws CollaborationException
+     */
     public static void shareEditor(String sessionId, AbstractEditor editor)
             throws CollaborationException {
         ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
