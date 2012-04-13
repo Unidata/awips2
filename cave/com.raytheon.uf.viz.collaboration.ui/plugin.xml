@@ -30,7 +30,7 @@
                id="com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView"
                icon="icons/browser.gif"
                name="Collaboration Information"
-               restorable="true"/>
+               restorable="false"/>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
