@@ -65,7 +65,7 @@ public class ChangeStatusDialog extends CaveSWTDialog {
 
     public ChangeStatusDialog(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM);
-        setText("Collaboration Server Log On");
+        setText("Change Status");
     }
 
     private Control createDialogArea(Composite parent) {

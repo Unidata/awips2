@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -764,6 +765,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         usersTreeViewer = new TreeViewer(child);
         usersTreeViewer.getTree().setLayoutData(
                 new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        TreeColumn column = new TreeColumn(usersTreeViewer.getTree(), SWT.NONE);
+        column.setWidth(200);
+
         usersTreeViewer.setContentProvider(new UsersTreeContentProvider());
         usersTreeViewer.setLabelProvider(new UsersTreeLabelProvider());
         usersTreeViewer.setSorter(new UsersTreeViewerSorter());
@@ -1369,6 +1374,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         } else if (part == this) {
             CollaborationDataManager.getInstance().registerEventHandler(this);
             populateTree();
+            usersTreeViewer.refresh();
         }
     }
 
