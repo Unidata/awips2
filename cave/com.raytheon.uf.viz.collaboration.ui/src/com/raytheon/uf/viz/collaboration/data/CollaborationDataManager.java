@@ -22,8 +22,10 @@ package com.raytheon.uf.viz.collaboration.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
@@ -47,12 +49,17 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
@@ -88,7 +95,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @author rferrel
  * @version 1.0
  */
-public class CollaborationDataManager {
+public class CollaborationDataManager implements IRosterEventSubscriber {
     private static CollaborationDataManager instance;
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -115,6 +122,8 @@ public class CollaborationDataManager {
      * User information such as sessions and groups user is in.
      */
     Map<String, DataUser> usersMap;
+
+    Set<DataGroup> groupsSet;
 
     private boolean linkCollaboration;
 
@@ -156,11 +165,99 @@ public class CollaborationDataManager {
      */
     private CollaborationDataManager() {
         linkCollaboration = false;
+        groupsSet = new HashSet<DataGroup>();
         usersMap = new HashMap<String, DataUser>();
         sessionsMap = new HashMap<String, IVenueSession>();
         roleEventControllersMap = HashMultimap.create();
         editorsMap = new HashMap<String, CollaborationEditor>();
         eventBus = new EventBus();
+    }
+
+    private void populateGroups() {
+        IRoster roster = sessionManager.getRosterManager().getRoster();
+        System.out.println("rosterManager Name " + roster.getUser().getName()
+                + ": group size " + roster.getGroups().size() + ": entry size "
+                + roster.getEntries().size());
+
+        groupsSet.clear();
+
+        for (IRosterGroup rosterGroup : roster.getGroups()) {
+            String groupName = rosterGroup.getName();
+            DataGroup group = new DataGroup(groupName);
+            groupsSet.add(group);
+            for (IRosterEntry rosterEntry : rosterGroup.getEntries()) {
+                DataUser user = getUser(CollaborationUtils
+                        .makeUserId(rosterEntry));
+                user.addGroup(groupName);
+                user.setPresence(rosterEntry.getPresence());
+            }
+        }
+
+        // Orphan users not in any group.
+        for (IRosterEntry rosterEntry : roster.getEntries()) {
+            DataUser user = getUser(CollaborationUtils.makeUserId(rosterEntry));
+            user.setPresence(rosterEntry.getPresence());
+        }
+    }
+
+    /**
+     * Get a sorted list of groups
+     * 
+     * @param allGroups
+     *            - When true all groups otherwise the groups selected for
+     *            display.
+     * @return groups
+     */
+    public List<String> getGroups(boolean allGroups) {
+        List<String> result = new ArrayList<String>();
+        if (allGroups) {
+            for (DataGroup dataGroup : groupsSet) {
+                result.add(dataGroup.getId());
+            }
+        } else {
+            for (DataGroup dataGroup : groupsSet) {
+                if (dataGroup.isDisplay()) {
+                    result.add(dataGroup.getId());
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<String> getUsersInGroup(String groupId) {
+        List<String> userList = new ArrayList<String>();
+        for (String userId : usersMap.keySet()) {
+            DataUser user = usersMap.get(userId);
+            for (String group : user.groups) {
+                if (groupId.equals(group)) {
+                    userList.add(userId);
+                    break;
+                }
+            }
+        }
+        return userList;
+    }
+
+    public boolean displayGroup(String groupId) {
+        boolean display = true;
+        for (DataGroup group : groupsSet) {
+            if (groupId.equals(group.getId())) {
+                display = group.isDisplay();
+                break;
+            }
+        }
+        return display;
+    }
+
+    public List<String> getOrphanUsers() {
+        List<String> orphanList = new ArrayList<String>();
+        for (String userId : usersMap.keySet()) {
+            DataUser user = usersMap.get(userId);
+            if (user.groups.size() == 0 && userId.equals(loginId) == false) {
+                orphanList.add(userId);
+            }
+        }
+        return orphanList;
     }
 
     public String getLoginId() {
@@ -210,7 +307,8 @@ public class CollaborationDataManager {
                     if (shell == null) {
                         return;
                     }
-                    LoginDialog dlg = new LoginDialog(shell);
+                    LoginDialog dlg = new LoginDialog(shell,
+                            CollaborationDataManager.this);
                     loginData = null;
                     loginData = (LoginData) dlg.open();
                     dlg.close();
@@ -268,6 +366,7 @@ public class CollaborationDataManager {
                     sessionManager.setPresence(presence);
                 }
                 fireModifiedPresence();
+                populateGroups();
             }
         }
 
@@ -276,7 +375,7 @@ public class CollaborationDataManager {
 
     synchronized public void closeManager() {
         if (sessionManager != null) {
-            sessionManager.unRegisterEventHandler(this);
+            // The close unRegisters the event handler
             sessionManager.closeManager();
             sessionManager = null;
         }
@@ -559,6 +658,7 @@ public class CollaborationDataManager {
     public void fireModifiedPresence() {
         IPresence presence = sessionManager.getPresence();
         presence.setMode(loginData.getMode());
+        presence.setType(Type.AVAILABLE);
         presence.setStatusMessage(loginData.getModeMessage());
         try {
             sessionManager.getAccountManager().sendPresence(presence);
@@ -592,9 +692,7 @@ public class CollaborationDataManager {
         System.out.println("\tuserId: " + userId + " DataUser: " + user);
         System.out.println(usersMap.keySet());
         if (user != null) {
-            user.mode = rosterEntry.getPresence().getMode();
-            user.type = rosterEntry.getPresence().getType();
-            user.statusMessage = rosterEntry.getPresence().getStatusMessage();
+            user.setPresence(rosterEntry.getPresence());
             // Assumes only UI updates will be registered.
             VizApp.runAsync(new Runnable() {
 
@@ -604,6 +702,75 @@ public class CollaborationDataManager {
                 }
             });
         }
+    }
+
+    @Subscribe
+    public void handleRosterChangeEvent(IRosterChangeEvent event) {
+        final IRosterChangeEvent rosterChangeEvent = event;
+        // TODO update the event's user groups here for the desired type
+        IRosterEntry rosterEntry = rosterChangeEvent.getEntry();
+        String userId = CollaborationUtils.makeUserId(rosterEntry);
+        DataUser user = getUser(userId);
+        System.out.println("=== RosterChangeEvent<" + event.getType() + ">: "
+                + userId);
+        IPresence presence = rosterChangeEvent.getEntry().getPresence();
+        if (presence != null) {
+            System.out.println("\t" + presence.getMode() + "/"
+                    + presence.getType() + ": \"" + presence.getStatusMessage()
+                    + "\"");
+        }
+        Collection<IRosterGroup> userGroups = rosterEntry.getGroups();
+        switch (rosterChangeEvent.getType()) {
+        case ADD:
+            user.clearGroups();
+            for (IRosterGroup group : userGroups) {
+                String groupName = group.getName();
+                user.addGroup(groupName);
+                DataGroup dataGroup = null;
+                for (DataGroup dGroup : groupsSet) {
+                    if (groupName.equals(dGroup.getId())) {
+                        dataGroup = dGroup;
+                        break;
+                    }
+                }
+                if (dataGroup == null) {
+                    groupsSet.add(new DataGroup(groupName));
+                }
+            }
+            break;
+        case DELETE:
+            // Assume user no longer exists and remove.
+            usersMap.remove(user);
+            break;
+        case MODIFY:
+            // Assume only the presence needs to be updated.
+            user.setPresence(rosterEntry.getPresence());
+            break;
+        case PRESENCE:
+            System.out.println("\tIgnore assume only presence change");
+            return;
+            // break;
+        default:
+            statusHandler.handle(Priority.PROBLEM, "Unknown type: "
+                    + rosterChangeEvent.getType());
+            return;
+
+        }
+        // synchronized (registerCnt) {
+        // if (registerCnt.compareAndSet(0, 0)) {
+        // System.out.println("post delayed");
+        // rosterChangeEventQueue.add(event);
+        // } else {
+        // Assume only views to be updated will register.
+        System.out.println("post now");
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                eventBus.post(rosterChangeEvent);
+            }
+        });
+        // }
+        // }
     }
 
     @Deprecated
