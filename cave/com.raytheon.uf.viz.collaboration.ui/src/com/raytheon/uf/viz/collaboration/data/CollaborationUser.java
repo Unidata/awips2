@@ -40,8 +40,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
  * @author rferrel
  * @version 1.0
  */
-public class CollaborationUser extends CollaborationNode implements
-        Comparable<CollaborationUser> {
+public class CollaborationUser extends CollaborationNode {
 
     String session;
 
@@ -116,10 +115,4 @@ public class CollaborationUser extends CollaborationNode implements
     // CollaborationDataManager.getInstance().getUser(id).statusMessage =
     // statusMessage;
     // }
-
-    @Override
-    public int compareTo(CollaborationUser o) {
-        return getId().compareToIgnoreCase(o.getId());
-    }
-
 }
