@@ -19,15 +19,15 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
-import java.awt.image.RenderedImage;
+import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
- * Event that sends a rendered image object for the object id which should be
- * treated as an image
+ * Creates a new single color image with given color or updates a single color
+ * images color
  * 
  * <pre>
  * 
@@ -35,7 +35,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 29, 2012            mschenke     Initial creation
+ * Apr 12, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -43,39 +43,72 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class RenderedImageEvent extends AbstractDispatchingObjectEvent {
+public class UpdateSingleColorImage extends AbstractDispatchingObjectEvent {
 
     @DynamicSerializeElement
-    private RenderedImageWrapper wrapper = new RenderedImageWrapper();
+    private int red;
+
+    @DynamicSerializeElement
+    private int green;
+
+    @DynamicSerializeElement
+    private int blue;
 
     /**
-     * @return the wrapper
+     * @return the red
      */
-    public RenderedImageWrapper getWrapper() {
-        return wrapper;
+    public int getRed() {
+        return red;
     }
 
     /**
-     * @param wrapper
-     *            the wrapper to set
+     * @param red
+     *            the red to set
      */
-    public void setWrapper(RenderedImageWrapper wrapper) {
-        this.wrapper = wrapper;
+    public void setRed(int red) {
+        this.red = red;
     }
 
     /**
-     * @return the renderedImage
+     * @return the green
      */
-    public RenderedImage getRenderedImage() {
-        return wrapper.getWrappedImage();
+    public int getGreen() {
+        return green;
     }
 
     /**
-     * @param renderedImage
-     *            the renderedImage to set
+     * @param green
+     *            the green to set
      */
-    public void setRenderedImage(RenderedImage renderedImage) {
-        wrapper.setWrappedImage(renderedImage);
+    public void setGreen(int green) {
+        this.green = green;
+    }
+
+    /**
+     * @return the blue
+     */
+    public int getBlue() {
+        return blue;
+    }
+
+    /**
+     * @param blue
+     *            the blue to set
+     */
+    public void setBlue(int blue) {
+        this.blue = blue;
+    }
+
+    public void setColor(RGB color) {
+        if (color != null) {
+            red = color.red;
+            green = color.green;
+            blue = color.blue;
+        }
+    }
+
+    public RGB getColor() {
+        return new RGB(red, green, blue);
     }
 
 }
