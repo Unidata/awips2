@@ -275,7 +275,8 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         SessionContainer container = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
         container.setCollaborationEditor(editor);
-        editor.setTabTitle(((IVenueSession) session).getSubject());
+        editor.setTabTitle(((IVenueSession) session).getVenue().getInfo()
+                .getVenueDescription());
     }
 
     /**
