@@ -17,17 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.radar.rsc.image;
+package com.raytheon.uf.viz.collaboration.ui.rsc.rendering;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
-
-import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 
 /**
- * Interface for constructing radial meshes for radar records
+ * An abstract class which contains a reference to the dataManager the
+ * subclasses will use for data access, also has convenience methods for
+ * accessing current target and paint properties
  * 
  * <pre>
  * 
@@ -35,7 +33,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 16, 2011            mschenke     Initial creation
+ * Apr 16, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -43,17 +41,19 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 
-public interface IRadialMeshExtension extends IGraphicsExtensionInterface {
+public abstract class CollaborationRenderingHandler {
 
-    /**
-     * Construct a mesh to be used for the radar record on the descriptor
-     * 
-     * @param radarData
-     * @param descriptor
-     * @return
-     * @throws VizException
-     */
-    public IMesh constructMesh(RadarRecord radarData,
-            GeneralGridGeometry targetGeometry) throws VizException;
+    protected CollaborationRenderingDataManager dataManager;
 
+    final void setDataManager(CollaborationRenderingDataManager dataManager) {
+        this.dataManager = dataManager;
+    }
+
+    protected final IGraphicsTarget getTarget() {
+        return dataManager.getTarget();
+    }
+
+    protected final PaintProperties getPaintProperties() {
+        return dataManager.getPaintProperties();
+    }
 }
