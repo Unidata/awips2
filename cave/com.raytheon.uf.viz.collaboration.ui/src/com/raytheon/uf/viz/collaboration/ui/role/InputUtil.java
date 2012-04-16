@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.CollaborationInputHandler;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.EventForwardingInputHandler;
@@ -79,8 +80,8 @@ public class InputUtil {
      *            the session to disable input for
      */
     public static void disableDataProviderInput(String sessionId) {
-        List<AbstractEditor> list = CollaborationDataManager.getInstance()
-                .getActivelySharedEditors(sessionId);
+        List<AbstractEditor> list = SharedDisplaySessionMgr
+                .getSessionContainer(sessionId).getSharedEditors();
         for (AbstractEditor editor : list) {
             CollaborationInputHandler handler = getCollaborationInputHandler(editor);
             if (handler == null) {
@@ -104,8 +105,8 @@ public class InputUtil {
      *            the session to enable the input on editors
      */
     public static void enableDataProviderInput(String sessionId) {
-        List<AbstractEditor> list = CollaborationDataManager.getInstance()
-                .getActivelySharedEditors(sessionId);
+        List<AbstractEditor> list = SharedDisplaySessionMgr
+                .getSessionContainer(sessionId).getSharedEditors();
         for (AbstractEditor editor : list) {
             CollaborationInputHandler handler = getCollaborationInputHandler(editor);
             if (handler != null) {
