@@ -23,6 +23,9 @@ package com.raytheon.uf.viz.collaboration.ui;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+
 /**
  * The activator class controls the plug-in life cycle
  * 
@@ -40,6 +43,9 @@ import org.osgi.framework.BundleContext;
  * @version 1.0
  */
 public class Activator extends AbstractUIPlugin {
+
+    public static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Activator.class);
 
     // The plug-in ID
     public static final String PLUGIN_ID = "com.raytheon.uf.viz.collaboration"; //$NON-NLS-1$
