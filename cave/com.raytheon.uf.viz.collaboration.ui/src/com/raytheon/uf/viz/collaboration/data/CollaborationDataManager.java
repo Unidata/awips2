@@ -731,7 +731,12 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             break;
         case MODIFY:
             // Assume only the presence needs to be updated.
-            user.setPresence(rosterEntry.getPresence());
+            IPresence precsence = rosterEntry.getPresence();
+            if (precsence == null) {
+                // Nothing to do don't bother doing eventBus post.
+                return;
+            }
+            user.setPresence(precsence);
             break;
         // case PRESENCE:
         // System.out.println("\tIgnore assume only presence change");

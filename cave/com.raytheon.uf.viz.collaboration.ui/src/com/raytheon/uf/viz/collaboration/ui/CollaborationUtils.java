@@ -60,6 +60,8 @@ public class CollaborationUtils {
     public static final IPresence.Mode[] statusModes = { Mode.AVAILABLE,
             Mode.DND, Mode.AWAY };
 
+    private static final String PREFIX_CONFERENCE = "conference.";
+
     /**
      * Get the statusModes' index for desired mode.
      * 
@@ -111,9 +113,13 @@ public class CollaborationUtils {
         StringBuilder sb = new StringBuilder(participant.getName());
         sb.append(Tools.NAME_DELIM);
         int start = sb.length();
-        // Assume participant's host is conference.site
-        sb.append(participant.getHost());
-        sb.replace(start, start + "conference.".length(), "");
+
+        String host = participant.getHost();
+
+        sb.append(host);
+        if (host.startsWith(PREFIX_CONFERENCE)) {
+            sb.replace(start, start + PREFIX_CONFERENCE.length(), "");
+        }
         return sb.toString();
     }
 
