@@ -81,21 +81,6 @@ public interface IVenueSession extends ISession, IEventPublisher {
     boolean hasRole(ParticipantRole role);
 
     /**
-     * Set the subject of this collaboration venue conversation.
-     * 
-     * @param subject
-     *            The subject.
-     */
-    void setSubject(String subject);
-
-    /**
-     * Get the subject of this collaboration venue conversation.
-     * 
-     * @return The subject.
-     */
-    String getSubject();
-
-    /**
      * Send a Collaboration message.
      * 
      * @param message
