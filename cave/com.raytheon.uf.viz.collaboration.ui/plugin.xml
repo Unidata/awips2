@@ -20,6 +20,8 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="renderingExtension" name="renderingExtension" schema="schema/renderingExtension.exsd"/>
+
    <!-- Collaboration groups -->
    <extension
          point="org.eclipse.ui.views">
@@ -155,5 +157,23 @@
             name="Share Editor"
             icon="icons/add_correction.gif">
       </editorMenuAddition>
+   </extension>
+   <extension 
+   		point="com.raytheon.uf.viz.collaboration.ui.renderingExtension">
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.GeneralRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.FontRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.ImagingRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.OffscreenRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.WireframeShapeRenderingHandler">
+      </renderingExtension>
    </extension>
 </plugin>
