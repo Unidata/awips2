@@ -26,6 +26,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
@@ -36,7 +37,6 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Handles the events of a session that are specific to the Participant role.
@@ -99,20 +99,19 @@ public class ParticipantEventController extends AbstractRoleEventController {
         ResourcePair rp = sr.getResource();
         // TODO: Need to tie shared resource adding to a displayId so we add it
         // to the correct editor/pane
-        for (AbstractEditor editor : CollaborationDataManager.getInstance()
-                .getActivelySharedEditors(session.getSessionId())) {
-            IDescriptor affectedDescriptor = editor.getActiveDisplayPane()
-                    .getDescriptor();
-            if (sr.isRemoveResource()) {
-                affectedDescriptor.getResourceList().remove(
-                        convertToLocalResourcePair(rp));
-            } else {
-                affectedDescriptor.getResourceList().add(
-                        convertToLocalResourcePair(rp));
-                affectedDescriptor.getResourceList().instantiateResources(
-                        affectedDescriptor, true);
-            }
-            break;
+        CollaborationEditor editor = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId())
+                .getCollaborationEditor();
+        IDescriptor affectedDescriptor = editor.getActiveDisplayPane()
+                .getDescriptor();
+        if (sr.isRemoveResource()) {
+            affectedDescriptor.getResourceList().remove(
+                    convertToLocalResourcePair(rp));
+        } else {
+            affectedDescriptor.getResourceList().add(
+                    convertToLocalResourcePair(rp));
+            affectedDescriptor.getResourceList().instantiateResources(
+                    affectedDescriptor, true);
         }
     }
 
@@ -162,15 +161,17 @@ public class ParticipantEventController extends AbstractRoleEventController {
             if (cmd.getUser().getFQName()
                     .equals(session.getUserID().getFQName())) {
                 // this cave should assume session leader control
-                InputUtil.enableSessionLeaderInput(CollaborationDataManager
-                        .getInstance().getEditor(session.getSessionId()));
+                InputUtil.enableSessionLeaderInput(SharedDisplaySessionMgr
+                        .getSessionContainer(session.getSessionId())
+                        .getCollaborationEditor());
             } else if (session.getCurrentSessionLeader().getFQName()
                     .equals(session.getUserID().getFQName())
                     && !session.getCurrentSessionLeader().getFQName()
                             .equals(cmd.getUser().getFQName())) {
                 // this cave should release session leader control
-                InputUtil.disableSessionLeaderInput(CollaborationDataManager
-                        .getInstance().getEditor(session.getSessionId()));
+                InputUtil.disableSessionLeaderInput(SharedDisplaySessionMgr
+                        .getSessionContainer(session.getSessionId())
+                        .getCollaborationEditor());
             }
         }
     }
