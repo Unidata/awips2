@@ -36,6 +36,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
@@ -100,6 +101,13 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public Image getColumnImage(Object element, int columnIndex) {
+        IVenueSession session = CollaborationDataManager.getInstance()
+                .getSession(sessionId);
+
+        if (session == null) {
+            return null;
+        }
+
         CollaborationUser user = (CollaborationUser) element;
         Image image = null;
         String key = user.getImageKey();
@@ -114,9 +122,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         }
 
         if (image != null) {
-            CollaborationDataManager.getInstance().getSession(sessionId);
-            ISharedDisplaySession sdSession = CollaborationDataManager
-                    .getInstance().getSession(sessionId)
+            ISharedDisplaySession sdSession = session
                     .spawnSharedDisplaySession();
             String userId = user.getId();
             String sessionLeaderId = CollaborationUtils.makeUserId(sdSession
