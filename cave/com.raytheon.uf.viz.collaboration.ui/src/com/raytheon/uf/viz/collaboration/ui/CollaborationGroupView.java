@@ -771,7 +771,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 CollaborationUser user = (CollaborationUser) node;
                                 builder.append("\nStatus: ");
                                 if (user.getType() == Type.UNAVAILABLE) {
-                                    builder.append("Off Line");
+                                    builder.append("Offline");
                                 } else {
                                     builder.append(user.getMode().getMode());
 
