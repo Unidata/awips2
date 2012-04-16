@@ -1288,15 +1288,15 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 + rosterChangeEvent.getEntry().getUser().getFQName());
         IRosterEntry rosterEntry = rosterChangeEvent.getEntry();
         String userId = CollaborationUtils.makeUserId(rosterEntry);
-        List<String> groups = new ArrayList<String>();
+        List<String> groupIds = new ArrayList<String>();
         for (IRosterGroup rosterGroup : rosterEntry.getGroups()) {
-            groups.add(rosterGroup.getName());
+            groupIds.add(rosterGroup.getName());
         }
         switch (rosterChangeEvent.getType()) {
         case ADD:
             // Should be a rare event after initial population.
             OrphanGroup orphanGroup = null;
-            if (groups.size() == 0) {
+            if (groupIds.size() == 0) {
                 // remove from all groups and add to Orphans.
                 for (CollaborationNode node : topLevel.getChildren()) {
                     if (node instanceof OrphanGroup) {
@@ -1318,7 +1318,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                         CollaborationGroup groupNode = (CollaborationGroup) node;
                         for (CollaborationNode child : groupNode.getChildren()) {
                             if (userId.equals(child.getId())) {
-                                if (!groups.contains(groupNode.getId())) {
+                                if (!groupIds.contains(groupNode.getId())) {
                                     groupNode.removeChild(child);
                                     usersTreeViewer.refresh(groupNode);
                                     break;
@@ -1343,13 +1343,13 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                         if (group instanceof OrphanGroup) {
                             orphanGroup = (OrphanGroup) group;
                         }
-                        boolean addUser = groups.contains(group.getId());
+                        boolean addUser = groupIds.contains(group.getId());
                         for (CollaborationNode child : group.getChildren()) {
                             if (userId.equals(child.getId())) {
-                                if (groups.contains(group.getId())) {
+                                if (addUser) {
                                     // User already in the group no need to
                                     // add.
-                                    groups.remove(group.getId());
+                                    groupIds.remove(group.getId());
                                     addUser = false;
                                 } else {
                                     // User no longer in this group.
@@ -1361,7 +1361,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                         }
                         if (addUser) {
                             group.addChild(new CollaborationUser(userId));
-                            groups.remove(group.getClass());
+                            groupIds.remove(group.getId());
                         }
                     }
                 }
@@ -1375,10 +1375,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
                 // groups now contains new groups. See if they are on the
                 // display list.
-                if (groups.size() > 0) {
+                if (groupIds.size() > 0) {
                     CollaborationDataManager manager = CollaborationDataManager
                             .getInstance();
-                    for (String groupId : groups) {
+                    for (String groupId : groupIds) {
                         if (manager.displayGroup(groupId)) {
                             CollaborationGroup groupNode = new CollaborationGroup(
                                     groupId);
