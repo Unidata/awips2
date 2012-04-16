@@ -172,7 +172,10 @@ public class EditorSetup {
         desc.getResourceList().instantiateResources(desc, true);
         SharedEditorIndicatorRsc rsc = (SharedEditorIndicatorRsc) rp
                 .getResource();
-        rsc.setSubject(((IVenueSession) session).getSubject());
+        rsc.setRoomName(((IVenueSession) session).getVenue().getInfo()
+                .getVenueDescription());
+        rsc.setSubject(((IVenueSession) session).getVenue().getInfo()
+                .getVenueSubject());
 
         // TODO we need to track editors associated with a session
 
