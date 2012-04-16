@@ -230,6 +230,8 @@ public class RosterManager implements IRosterManager {
 
                     newRoster.populateGroup(newGroup, group.getEntries());
                     newRoster.addGroup(newGroup);
+                } else {
+                    System.out.println("RosterManager.toLocalRoster " + o.getClass().getName());
                 }
             }
         }
@@ -244,4 +246,10 @@ public class RosterManager implements IRosterManager {
         return sessionManager;
     }
 
+    
+    private void printRoster(IRoster roster) {
+        
+    }
+    
+    
 }
