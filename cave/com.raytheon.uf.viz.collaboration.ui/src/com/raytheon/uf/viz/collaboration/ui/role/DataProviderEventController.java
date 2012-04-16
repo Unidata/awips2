@@ -32,7 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
@@ -124,9 +124,10 @@ public class DataProviderEventController extends AbstractRoleEventController {
 
     @Subscribe
     public void sessionLeaderInput(InputEvent event) {
-        // TODO should we handle more than 1?
-        AbstractEditor editor = CollaborationDataManager.getInstance()
-                .getActivelySharedEditors(session.getSessionId()).get(0);
+        // TODO needs to be based on the editor that is both shared and active
+        AbstractEditor editor = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId()).getSharedEditors()
+                .get(0);
         IDisplayPane pane = editor.getDisplayPanes()[0];
         Event swtEvent = new Event();
 
@@ -206,8 +207,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
     public void startup() {
         super.startup();
         super.activateTelestrator();
-        for (IDisplayPaneContainer container : CollaborationDataManager
-                .getInstance().getActivelySharedEditors(session.getSessionId())) {
+        for (IDisplayPaneContainer container : SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId()).getSharedEditors()) {
             // Replace pane resources that will be shared with
             // CollaborationWrapperResource objects
             for (IDisplayPane pane : container.getDisplayPanes()) {
