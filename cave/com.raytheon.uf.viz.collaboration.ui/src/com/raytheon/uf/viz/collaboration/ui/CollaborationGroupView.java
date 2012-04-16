@@ -747,7 +747,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 new GridData(SWT.FILL, SWT.FILL, true, true));
 
         TreeColumn column = new TreeColumn(usersTreeViewer.getTree(), SWT.NONE);
-        column.setWidth(200);
+        column.setWidth(200); // any width would work
 
         usersTreeViewer.setContentProvider(new UsersTreeContentProvider());
         usersTreeViewer.setLabelProvider(new UsersTreeLabelProvider());
@@ -775,11 +775,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 } else {
                                     builder.append(user.getMode().getMode());
 
-                                    builder.append("\n");
                                     // builder.append("Type: ").append(user.getType())
                                     // .append("\n");
                                     String message = user.getStatusMessage();
                                     if (message != null && message.length() > 0) {
+                                        builder.append("\n");
                                         builder.append("Message: \"").append(
                                                 user.getStatusMessage() + "\"");
                                     }
@@ -1135,6 +1135,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         usersTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
             @Override
             public void doubleClick(DoubleClickEvent event) {
+                System.out.println("Double click");
                 TreeSelection selection = (TreeSelection) event.getSelection();
                 CollaborationNode node = (CollaborationNode) selection
                         .getFirstElement();
@@ -1144,10 +1145,13 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     // createJoinCollaboration();
                     // }
                 } else if (node instanceof CollaborationUser) {
-                    String loginUserId = CollaborationDataManager.getInstance()
-                            .getLoginId();
-                    if (loginUserId.equals(node.getId()) == false) {
-                        createP2PChat(node.getId());
+                    CollaborationUser user = (CollaborationUser) node;
+                    if (user.getType() == Type.AVAILABLE) {
+                        String loginUserId = CollaborationDataManager
+                                .getInstance().getLoginId();
+                        if (loginUserId.equals(node.getId()) == false) {
+                            createP2PChat(node.getId());
+                        }
                     }
                 }
             }
