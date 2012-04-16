@@ -203,7 +203,7 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
     public IMesh buildMesh(IGraphicsTarget target, VizRadarRecord radarRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                radarRecord, (IMapDescriptor) descriptor);
+                radarRecord, descriptor.getGridGeometry());
     }
 
 	@Override
