@@ -27,6 +27,8 @@ import org.eclipse.jface.action.IMenuManager;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
+import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -74,25 +76,22 @@ public class CollaborationResource extends
     /** Internal rendering event object router */
     private EventBus renderingRouter;
 
-    private CollaborationRenderingHandler renderingHandler;
+    private CollaborationRenderingDataManager dataManager;
 
     private BeginFrameEvent latestBeginFrameEvent;
 
-    protected CollaborationResource(CollaborationResourceData resourceData,
+    public CollaborationResource(CollaborationResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         dataChangeEvents = new LinkedList<AbstractRemoteGraphicsEvent>();
         currentRenderables = new LinkedList<IRenderEvent>();
         activeRenderables = new LinkedList<IRenderEvent>();
-        renderingRouter = new EventBus();
-        renderingHandler = new CollaborationRenderingHandler();
-        renderingRouter.register(renderingHandler);
     }
 
     @Override
     protected void disposeInternal() {
-        renderingHandler.dispose();
-        renderingRouter.unregister(renderingHandler);
+        dataManager.dispose();
+        renderingRouter = null;
     }
 
     @Override
@@ -109,7 +108,7 @@ public class CollaborationResource extends
             dataChangeEvents.clear();
         }
 
-        renderingHandler.beginRender(target, paintProps);
+        dataManager.beginRender(target, paintProps);
 
         // Handle begin frame
         if (latestBeginFrameEvent != null) {
@@ -127,7 +126,12 @@ public class CollaborationResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        // Nothing to do
+        renderingRouter = new EventBus();
+        dataManager = new CollaborationRenderingDataManager();
+        for (CollaborationRenderingHandler handler : CollaborationRenderingDataManager
+                .createRenderingHandlers(dataManager)) {
+            renderingRouter.register(handler);
+        }
     }
 
     @Subscribe
