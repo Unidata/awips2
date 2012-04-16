@@ -227,9 +227,12 @@ public class PathDrawingTool extends AbstractDrawingTool {
 
         editor.unregisterMouseHandler(getMouseHandler());
         // change the cursor back
-        Cursor cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_ARROW);
-        Display.getCurrent().getActiveShell().setCursor(cursor);
-        cursor.dispose();
+        if (Display.getCurrent() != null
+                && Display.getCurrent().getActiveShell() != null) {
+            Cursor cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_ARROW);
+            Display.getCurrent().getActiveShell().setCursor(cursor);
+            cursor.dispose();
+        }
         theDrawingLayer = null;
     }
 }

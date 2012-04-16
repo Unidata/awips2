@@ -48,6 +48,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 public class SharedEditorIndicatorRsc extends
         AbstractVizResource<GenericResourceData, IDescriptor> {
 
+    protected String roomName;
+
     protected String subject;
 
     public SharedEditorIndicatorRsc(GenericResourceData resourceData,
@@ -75,7 +77,15 @@ public class SharedEditorIndicatorRsc extends
     }
 
     public String getName() {
-        return "Sharing with " + subject;
+        String text = "Sharing with " + roomName;
+        if (!"".equals(subject)) {
+            text += " (" + subject + ")";
+        }
+        return text;
+    }
+
+    public void setRoomName(String name) {
+        this.roomName = name;
     }
 
     public void setSubject(String subject) {
