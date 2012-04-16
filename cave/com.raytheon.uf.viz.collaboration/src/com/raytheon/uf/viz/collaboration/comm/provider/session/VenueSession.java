@@ -801,5 +801,4 @@ public class VenueSession extends BaseSession implements IVenueSession,
         }
         return message;
     }
-
 }
