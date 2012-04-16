@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +35,14 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 
 /**
- * TODO Add Description
+ * Generate the Participant's label and icon image.
  * 
  * <pre>
  * 
@@ -60,9 +61,9 @@ import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 public class ParticipantsLabelProvider implements ITableColorProvider,
         ITableFontProvider, ITableLabelProvider {
 
-    private static int COLOR_DATA_PROVIDER = SWT.COLOR_GREEN;
+    private static int COLOR_SESSION_LEADER = SWT.COLOR_GREEN;
 
-    private static int COLOR_SESSION_LEADER = SWT.COLOR_RED;
+    private static int COLOR_DATA_PROVIDER = SWT.COLOR_RED;
 
     private List<ILabelProviderListener> listeners;
 
@@ -89,8 +90,6 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public boolean isLabelProperty(Object element, String property) {
-        // TODO Auto-generated method stub
-        System.out.println("isLabelProperty");
         return false;
     }
 
@@ -113,12 +112,27 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
                 }
             }
         }
-        // TODO Determine user's role and then test getModifier.
+
         if (image != null) {
-            ParticipantRole[] types = new ParticipantRole[] {
-                    ParticipantRole.SESSION_LEADER,
-                    ParticipantRole.DATA_PROVIDER };
-            image = getModifier(types, user);
+            CollaborationDataManager.getInstance().getSession(sessionId);
+            ISharedDisplaySession sdSession = CollaborationDataManager
+                    .getInstance().getSession(sessionId)
+                    .spawnSharedDisplaySession();
+            String userId = user.getId();
+            String sessionLeaderId = CollaborationUtils.makeUserId(sdSession
+                    .getCurrentSessionLeader());
+            String dataProviderId = CollaborationUtils.makeUserId(sdSession
+                    .getCurrentDataProvider());
+            List<ParticipantRole> roleList = new ArrayList<ParticipantRole>();
+            if (userId.equals(sessionLeaderId)) {
+                roleList.add(ParticipantRole.SESSION_LEADER);
+            }
+            if (userId.equals(dataProviderId)) {
+                roleList.add(ParticipantRole.DATA_PROVIDER);
+            }
+            if (roleList.size() > 0) {
+                image = getModifier(roleList, user);
+            }
         }
         return image;
     }
@@ -126,27 +140,21 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     @Override
     public String getColumnText(Object element, int columnIndex) {
         CollaborationUser user = (CollaborationUser) element;
-        // RoleType[] roles = user.getRoles(sessionId);
         return user.getText();
     }
 
     @Override
     public Font getFont(Object element, int columnIndex) {
-        // System.out.println("getFont");
         return null;
     }
 
     @Override
     public Color getForeground(Object element, int columnIndex) {
-        // CollaborationUser user = (CollaborationUser) element;
-        // System.out.println("getForeground");
         return null;
     }
 
     @Override
     public Color getBackground(Object element, int columnIndex) {
-        // System.out.println("getBackground");
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -165,17 +173,26 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         return sessionId;
     }
 
-    private Image getModifier(ParticipantRole[] types, CollaborationUser user) {
+    /**
+     * Modify image image to indicate Session Leader and/or DataProvider.
+     * 
+     * @param roles
+     *            - non-empty list indicate the role(s)
+     * @param user
+     *            -
+     * @return image - modified with indicator(s)
+     */
+    private Image getModifier(List<ParticipantRole> roles,
+            CollaborationUser user) {
         String key = user.getImageKey();
         StringBuilder modKey = new StringBuilder(key);
-        List<ParticipantRole> t = Arrays.asList(types);
         int roleCnt = 0;
-        if (t.contains(ParticipantRole.SESSION_LEADER)) {
+        if (roles.contains(ParticipantRole.SESSION_LEADER)) {
             ++roleCnt;
             modKey.append(":")
                     .append(ParticipantRole.SESSION_LEADER.toString());
         }
-        if (t.contains(ParticipantRole.DATA_PROVIDER)) {
+        if (roles.contains(ParticipantRole.DATA_PROVIDER)) {
             ++roleCnt;
             modKey.append(":").append(ParticipantRole.DATA_PROVIDER.toString());
         }
@@ -184,30 +201,26 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         if (image == null) {
             image = CollaborationUtils.getNodeImage(user);
             // original image is 16x16
-            if (roleCnt > 0) {
-                GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
-                System.err.println("Creating icon: " + modKey.toString());
-                int topColor = -1;
-                int bottomColor = -1;
-                if (roleCnt == 1) {
-                    if (t.contains(ParticipantRole.SESSION_LEADER)) {
-                        topColor = COLOR_SESSION_LEADER;
-                        bottomColor = COLOR_SESSION_LEADER;
-                    } else {
-                        topColor = COLOR_DATA_PROVIDER;
-                        bottomColor = COLOR_DATA_PROVIDER;
-                    }
+            GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
+            int topColor = -1;
+            int bottomColor = -1;
+            if (roleCnt == 1) {
+                if (roles.contains(ParticipantRole.SESSION_LEADER)) {
+                    topColor = COLOR_SESSION_LEADER;
+                    bottomColor = COLOR_SESSION_LEADER;
                 } else {
                     topColor = COLOR_DATA_PROVIDER;
-                    bottomColor = COLOR_SESSION_LEADER;
+                    bottomColor = COLOR_DATA_PROVIDER;
                 }
-                gc.setBackground(Display.getCurrent().getSystemColor(topColor));
-                gc.fillRectangle(0, 0, 16, 8);
-                gc.setBackground(Display.getCurrent().getSystemColor(
-                        bottomColor));
-                gc.fillRectangle(0, 8, 8, 8);
-                gc.dispose();
+            } else {
+                topColor = COLOR_SESSION_LEADER;
+                bottomColor = COLOR_DATA_PROVIDER;
             }
+            gc.setBackground(Display.getCurrent().getSystemColor(topColor));
+            gc.fillRectangle(0, 0, 16, 8);
+            gc.setBackground(Display.getCurrent().getSystemColor(bottomColor));
+            gc.fillRectangle(0, 8, 8, 8);
+            gc.dispose();
             image.getImageData();
             imageMap.put(modKey.toString(), image);
         }
