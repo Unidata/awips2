@@ -79,7 +79,7 @@ public class AccountManager implements IAccountManager {
             IPresence presence = new Presence(IPresence.Mode.AVAILABLE,
                     subscribedType, null);
             try {
-                sendPresence(presence);
+                sendPresence(fromID, presence);
             } catch (CollaborationException e) {
                 e.printStackTrace();
             }
@@ -277,4 +277,27 @@ public class AccountManager implements IAccountManager {
         }
     }
 
+    /**
+     * 
+     * 
+     * @param userPresence
+     * @throws CollaborationException
+     */
+    public void sendPresence(ID toId, IPresence userPresence)
+            throws CollaborationException {
+
+        IRosterManager manager = presenceAdapter.getRosterManager();
+        IPresenceSender sender = manager.getPresenceSender();
+
+        try {
+            sender.sendPresenceUpdate(toId,
+                    Presence.convertPresence(userPresence));
+            sessionManager.setPresence(userPresence);
+        } catch (ECFException e) {
+            throw new CollaborationException("Could not send presence");
+        }
+    }
+    
+    
+    
 }
