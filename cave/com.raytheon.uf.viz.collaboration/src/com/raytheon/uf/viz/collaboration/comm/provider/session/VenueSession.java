@@ -536,7 +536,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
             venueManager = getConnectionPresenceAdapter().getChatRoomManager();
             if (venueManager != null) {
                 venueInfo = venueManager.getChatRoomInfo(venueName);
-                subject = venueInfo.getSubject();
+                subject = venueInfo.getDescription();
                 if (venueInfo != null) {
                     errorStatus = completeVenueConnection(venueInfo);
                 } else {
