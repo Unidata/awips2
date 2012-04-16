@@ -40,8 +40,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -62,6 +60,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
@@ -70,14 +69,10 @@ import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
-import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
-import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.ui.VizWorkbenchManager;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * A single class that contains all data information.
@@ -132,10 +127,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
      */
     Map<String, IVenueSession> sessionsMap;
 
-    private Multimap<String, IRoleEventController> roleEventControllersMap;
-
-    Map<String, CollaborationEditor> editorsMap;
-
     private EventBus eventBus;
 
     public static CollaborationDataManager getInstance() {
@@ -168,8 +159,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         groupsSet = new HashSet<DataGroup>();
         usersMap = new HashMap<String, DataUser>();
         sessionsMap = new HashMap<String, IVenueSession>();
-        roleEventControllersMap = HashMultimap.create();
-        editorsMap = new HashMap<String, CollaborationEditor>();
         eventBus = new EventBus();
     }
 
@@ -283,12 +272,10 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
 
     public void editorCreated(ISharedDisplaySession session,
             CollaborationEditor editor) {
-        editorsMap.put(session.getSessionId(), editor);
+        SessionContainer container = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId());
+        container.setCollaborationEditor(editor);
         editor.setTabTitle(((IVenueSession) session).getSubject());
-    }
-
-    public CollaborationEditor getEditor(String sessionId) {
-        return editorsMap.get(sessionId);
     }
 
     /**
@@ -426,7 +413,10 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     }
 
     public void closeEditor(String sessionId) {
-        CollaborationEditor editor = editorsMap.remove(sessionId);
+        SessionContainer container = SharedDisplaySessionMgr
+                .getSessionContainer(sessionId);
+        container.getRoleEventController().shutdown();
+        CollaborationEditor editor = container.getCollaborationEditor();
         if (editor != null) {
             IWorkbenchPage page = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow().getActivePage();
@@ -440,19 +430,12 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             }
         }
 
-        Collection<IRoleEventController> controller = roleEventControllersMap
-                .removeAll(sessionId);
-        if (controller != null) {
-            for (IRoleEventController cont : controller) {
-                cont.shutdown();
-            }
-        }
     }
 
     public void editorBringToTop(String sessionId) {
         if (linkCollaboration) {
-            CollaborationEditor editor = CollaborationDataManager.getInstance()
-                    .getEditor(sessionId);
+            CollaborationEditor editor = SharedDisplaySessionMgr
+                    .getSessionContainer(sessionId).getCollaborationEditor();
             if (editor != null) {
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                         .getActivePage().bringToTop(editor);
@@ -462,8 +445,10 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
 
     public String getSessionId(CollaborationEditor editor) {
         String sessionId = null;
-        for (String key : editorsMap.keySet()) {
-            if (editor == editorsMap.get(key)) {
+        for (String key : SharedDisplaySessionMgr.getActiveSessionIds()) {
+            SessionContainer container = SharedDisplaySessionMgr
+                    .getSessionContainer(key);
+            if (editor == container.getCollaborationEditor()) {
                 sessionId = key;
                 break;
             }
@@ -519,14 +504,11 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             ISharedDisplaySession displaySession = session
                     .spawnSharedDisplaySession();
             sessionsMap.put(sessionId, session);
-            DataProviderEventController dpec = new DataProviderEventController(
-                    displaySession);
-            dpec.startup();
-            roleEventControllersMap.put(sessionId, dpec);
-            // TODO set displaySession's data provider and session leader.
+            SharedDisplaySessionMgr.joinSession(displaySession,
+                    ParticipantRole.DATA_PROVIDER);
+
         }
-        // TODO Start CAVE editor associated with this session and make sure the
-        // user is data provider and session leader.
+
         return sessionId;
     }
 
@@ -587,10 +569,9 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     sessionsMap.put(sessionId, session);
                     ISharedDisplaySession displaySession = session
                             .spawnSharedDisplaySession();
-                    ParticipantEventController pec = new ParticipantEventController(
-                            displaySession);
-                    pec.startup();
-                    roleEventControllersMap.put(sessionId, pec);
+                    SharedDisplaySessionMgr.joinSession(displaySession,
+                            ParticipantRole.PARTICIPANT);
+
                     PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
@@ -787,7 +768,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                 ParticipantEventController pec = new ParticipantEventController(
                         displaySession);
                 pec.startup();
-                roleEventControllersMap.put(sessionId, pec);
+                // TODO this is broken and should be removed
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
@@ -798,20 +779,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         return result;
     }
 
-    public Collection<IRoleEventController> getEventControllers(String sessionId) {
-        return roleEventControllersMap.get(sessionId);
-    }
-
-    public List<AbstractEditor> getActivelySharedEditors(String sessionId) {
-        List<AbstractEditor> list = new ArrayList<AbstractEditor>();
-
-        // TODO actually keep track of a list and return that
-        // list should be empty if you're not the data provider
-        list.add((AbstractEditor) VizWorkbenchManager.getInstance()
-                .getActiveEditor());
-        return list;
-    }
-
     public void registerEventHandler(Object handler) {
         eventBus.register(handler);
     }
@@ -819,4 +786,5 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     public void unRegisterEventHandler(Object handler) {
         eventBus.unregister(handler);
     }
+
 }
