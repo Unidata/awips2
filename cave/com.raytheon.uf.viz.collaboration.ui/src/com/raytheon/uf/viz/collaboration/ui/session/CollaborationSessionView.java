@@ -152,6 +152,7 @@ public class CollaborationSessionView extends SessionView {
         VenueParticipant vp = new VenueParticipant(Tools.parseName(fqname),
                 Tools.parseHost(fqname));
         trc.setUser(vp);
+        session.setCurrentSessionLeader(vp);
         trc.setRole(ParticipantRole.SESSION_LEADER);
         try {
             session.sendObjectToVenue(trc);
@@ -174,7 +175,7 @@ public class CollaborationSessionView extends SessionView {
         boolean isSessionLeader = Tools.parseName(user.getId()).equals(
                 session.getCurrentSessionLeader().getName());
         boolean isDataProvider = Tools.parseName(user.getId()).equals(
-                session.getCurrentSessionLeader().getName());
+                session.getCurrentDataProvider().getName());
         if (isSessionLeader || isDataProvider) {
             builder.append("-- Roles --");
             if (isSessionLeader) {
