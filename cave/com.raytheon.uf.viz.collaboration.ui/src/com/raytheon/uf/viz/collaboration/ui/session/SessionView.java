@@ -384,8 +384,7 @@ public class SessionView extends AbstractSessionView {
         StringBuilder builder = new StringBuilder();
         builder.append("Status : ").append(user.getMode().getMode())
                 .append("\n");
-        builder.append("Message : \"").append(user.getStatusMessage())
-                .append("\"\n");
+        builder.append("Message : \"").append(user.getStatusMessage());
         return builder.toString();
     }
 
