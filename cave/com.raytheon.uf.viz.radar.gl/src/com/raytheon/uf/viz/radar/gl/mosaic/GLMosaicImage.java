@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.radar.gl.mosaic;
 
 import com.raytheon.uf.viz.core.DrawableImage;
-import com.raytheon.viz.core.gl.images.AbstractGLImage;
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.images.GLDelegateImage;
 import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicImage;
 
@@ -42,8 +44,8 @@ import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicI
  * @version 1.0
  */
 
-public class GLMosaicImage extends GLDelegateImage<AbstractGLImage> implements
-        IMosaicImage {
+public class GLMosaicImage extends GLDelegateImage<GLColormappedImage>
+        implements IMosaicImage {
 
     private DrawableImage[] images;
 
@@ -51,14 +53,18 @@ public class GLMosaicImage extends GLDelegateImage<AbstractGLImage> implements
 
     private int[] bounds;
 
+    private IExtent extent;
+
     /**
      * @param target
      * @param image
      * @param extensionClass
      */
-    public GLMosaicImage(AbstractGLImage image, int[] bounds) {
+    public GLMosaicImage(GLColormappedImage image, int[] bounds,
+            IExtent imageExtent) {
         super(image, GLRadarMosaicImageExtension.class);
         this.bounds = bounds;
+        this.extent = imageExtent;
     }
 
     /*
@@ -104,4 +110,56 @@ public class GLMosaicImage extends GLDelegateImage<AbstractGLImage> implements
         this.images = images;
         repaint = true;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicImage
+     * #setImageExtent(com.raytheon.uf.viz.core.IExtent)
+     */
+    @Override
+    public void setImageExtent(IExtent imageExtent) {
+        this.extent = imageExtent;
+    }
+
+    public IExtent getImageExtent() {
+        return extent;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IColormappedImage#getColorMapParameters
+     * ()
+     */
+    @Override
+    public ColorMapParameters getColorMapParameters() {
+        return image.getColorMapParameters();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IColormappedImage#setColorMapParameters
+     * (com.raytheon.uf.viz.core.drawables.ColorMapParameters)
+     */
+    @Override
+    public void setColorMapParameters(ColorMapParameters params) {
+        image.setColorMapParameters(params);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getValue(int,
+     * int)
+     */
+    @Override
+    public double getValue(int x, int y) {
+        return image.getValue(x, y);
+    }
+
 }
