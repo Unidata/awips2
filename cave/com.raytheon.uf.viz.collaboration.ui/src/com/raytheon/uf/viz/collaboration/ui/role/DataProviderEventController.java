@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -104,10 +105,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
     @Subscribe
     public void roleTransferred(TransferRoleCommand cmd) {
         if (cmd.getRole() == ParticipantRole.SESSION_LEADER) {
-            System.out.println("Current session's username: "
-                    + session.getUserID().getFQName());
-            System.out.println("Command received username: "
-                    + cmd.getUser().getFQName());
+            session.setCurrentSessionLeader(cmd.getUser());
             if (cmd.getUser().getFQName()
                     .equals(session.getUserID().getFQName())) {
                 // this cave should assume session leader control
@@ -125,11 +123,12 @@ public class DataProviderEventController extends AbstractRoleEventController {
     @Subscribe
     public void sessionLeaderInput(InputEvent event) {
         // TODO needs to be based on the editor that is both shared and active
-        AbstractEditor editor = SharedDisplaySessionMgr
+        final AbstractEditor editor = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId()).getSharedEditors()
                 .get(0);
         IDisplayPane pane = editor.getDisplayPanes()[0];
-        Event swtEvent = new Event();
+        final Event swtEvent = new Event();
+        swtEvent.display = editor.getActiveDisplayPane().getDisplay();
 
         // translate event type
         switch (event.getType()) {
@@ -170,7 +169,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
         case MOUSE_WHEEL:
         case DOUBLE_CLICK:
             double[] screen = pane.gridToScreen(new double[] { event.getX(),
-                    event.getY() });
+                    event.getY(), 0.0 });
             swtEvent.x = (int) Math.round(screen[0]);
             swtEvent.y = (int) Math.round(screen[1]);
             break;
@@ -193,7 +192,13 @@ public class DataProviderEventController extends AbstractRoleEventController {
             break;
         }
 
-        editor.getMouseManager().handleEvent(swtEvent);
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                editor.getMouseManager().handleEvent(swtEvent);
+            }
+        });
     }
 
     /*
