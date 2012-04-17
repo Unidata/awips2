@@ -4,6 +4,7 @@ import java.nio.Buffer;
 
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -61,8 +62,9 @@ public interface IOffscreenRenderingExtension extends
      * @return
      * @throws VizException
      */
-    public IImage constructOffscreenImage(Class<? extends Buffer> dataType,
-            int[] dimensions) throws VizException;
+    public IColormappedImage constructOffscreenImage(
+            Class<? extends Buffer> dataType, int[] dimensions)
+            throws VizException;
 
     /**
      * Construct an offscreen image for given Buffer type and size, applying
@@ -74,7 +76,7 @@ public interface IOffscreenRenderingExtension extends
      * @return
      * @throws VizException
      */
-    public IImage constructOffscreenImage(Class<? extends Buffer> dataType,
-            int[] dimensions, ColorMapParameters parameters)
-            throws VizException;
+    public IColormappedImage constructOffscreenImage(
+            Class<? extends Buffer> dataType, int[] dimensions,
+            ColorMapParameters parameters) throws VizException;
 }

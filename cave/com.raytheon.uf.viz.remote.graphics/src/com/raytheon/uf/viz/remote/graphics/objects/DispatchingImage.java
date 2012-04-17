@@ -84,7 +84,9 @@ public class DispatchingImage extends AbstractDispatchingImage<IImage> {
             Class<? extends IImagingExtension> extension,
             DispatchingRenderedImageCallback callback, Dispatcher dispatcher) {
         super(targetObject, extension, dispatcher);
-        callback.image = this;
+        if (callback != null) {
+            callback.image = this;
+        }
     }
 
 }
