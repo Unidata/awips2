@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
@@ -65,16 +64,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  */
 
 public interface ISharedDisplaySession extends IEventPublisher {
-
-    /**
-     * Send a single initialization object to a participant who has joined an
-     * in-progress collaboration session.
-     * 
-     * @param participant
-     * @param initData
-     */
-    void sendInitData(IQualifiedID participant, IInitData initData)
-            throws CollaborationException;
 
     /**
      * 
@@ -127,6 +116,10 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * @return
      */
     public IVenueParticipant getCurrentSessionLeader();
+
+    public void setCurrentDataProvider(IVenueParticipant participant);
+
+    public void setCurrentSessionLeader(IVenueParticipant participant);
 
     /**
      * 

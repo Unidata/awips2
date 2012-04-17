@@ -28,12 +28,9 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
@@ -61,10 +58,6 @@ import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 
 public class ParticipantsLabelProvider implements ITableColorProvider,
         ITableFontProvider, ITableLabelProvider {
-
-    private static int COLOR_SESSION_LEADER = SWT.COLOR_GREEN;
-
-    private static int COLOR_DATA_PROVIDER = SWT.COLOR_RED;
 
     private List<ILabelProviderListener> listeners;
 
@@ -207,26 +200,6 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         if (image == null) {
             image = CollaborationUtils.getNodeImage(user);
             // original image is 16x16
-            GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
-            int topColor = -1;
-            int bottomColor = -1;
-            if (roleCnt == 1) {
-                if (roles.contains(ParticipantRole.SESSION_LEADER)) {
-                    topColor = COLOR_SESSION_LEADER;
-                    bottomColor = COLOR_SESSION_LEADER;
-                } else {
-                    topColor = COLOR_DATA_PROVIDER;
-                    bottomColor = COLOR_DATA_PROVIDER;
-                }
-            } else {
-                topColor = COLOR_SESSION_LEADER;
-                bottomColor = COLOR_DATA_PROVIDER;
-            }
-            gc.setBackground(Display.getCurrent().getSystemColor(topColor));
-            gc.fillRectangle(0, 0, 16, 8);
-            gc.setBackground(Display.getCurrent().getSystemColor(bottomColor));
-            gc.fillRectangle(0, 8, 8, 8);
-            gc.dispose();
             image.getImageData();
             imageMap.put(modKey.toString(), image);
         }

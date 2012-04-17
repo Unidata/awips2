@@ -154,10 +154,7 @@ public class ParticipantEventController extends AbstractRoleEventController {
     @Subscribe
     public void roleTransferred(TransferRoleCommand cmd) {
         if (cmd.getRole() == ParticipantRole.SESSION_LEADER) {
-            System.out.println("Current session's username: "
-                    + session.getUserID().getFQName());
-            System.out.println("Command received username: "
-                    + cmd.getUser().getFQName());
+            session.setCurrentSessionLeader(cmd.getUser());
             if (cmd.getUser().getFQName()
                     .equals(session.getUserID().getFQName())) {
                 // this cave should assume session leader control
