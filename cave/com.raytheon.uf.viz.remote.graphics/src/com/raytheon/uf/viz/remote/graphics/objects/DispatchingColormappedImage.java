@@ -19,15 +19,13 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.objects;
 
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
+import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.IColorMapParametersListener;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
-import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
-import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
-import com.raytheon.uf.viz.remote.graphics.extensions.DispatchColormappedImageExtension;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 
 /**
  * Dispatching colormapped image object created from graphics image and forwards
@@ -47,58 +45,24 @@ import com.raytheon.uf.viz.remote.graphics.extensions.DispatchColormappedImageEx
  * @version 1.0
  */
 
-public class DispatchingColormappedImage extends
-        AbstractDispatchingColormappedImage<IColormappedImage> implements
+public class DispatchingColormappedImage<T extends IColormappedImage> extends
+        AbstractDispatchingImage<T> implements IColorMapParametersListener,
         IColormappedImage {
 
-    public static class DispatchingColormappedCallback implements
-            IColorMapDataRetrievalCallback {
-
-        private IColorMapDataRetrievalCallback callback;
-
-        private DispatchingColormappedImage image;
-
-        public DispatchingColormappedCallback(
-                IColorMapDataRetrievalCallback callback) {
-            this.callback = callback;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback#
-         * getColorMapData()
-         */
-        @Override
-        public ColorMapData getColorMapData() throws VizException {
-            ColorMapData data = callback.getColorMapData();
-            ColorMapDataEvent event = RemoteGraphicsEventFactory.createEvent(
-                    ColorMapDataEvent.class, image);
-            event.setColorMapData(data);
-            image.dispatch(event);
-            return data;
-        }
-    }
+    private IColorMap colorMap;
 
     /**
      * @param targetObject
+     * @param extensionClass
      * @param dispatcher
      */
-    public DispatchingColormappedImage(IColormappedImage targetObject,
-            DispatchingColormappedCallback callback, Dispatcher dispatcher) {
-        super(targetObject, DispatchColormappedImageExtension.class,
-                dispatcher, targetObject.getColorMapParameters());
-        callback.image = this;
-        ColorMapParameters parameters = targetObject.getColorMapParameters();
-
-        // Send creation event
-        CreateColormappedImageEvent creation = RemoteGraphicsEventFactory
-                .createEvent(CreateColormappedImageEvent.class, this);
+    public DispatchingColormappedImage(T targetObject,
+            Class<? extends IImagingExtension> extensionClass,
+            Dispatcher dispatcher, ColorMapParameters parameters) {
+        super(targetObject, extensionClass, dispatcher);
         if (parameters != null) {
-            creation.setColorMapParameters(createColorMapParametersUpdateEvent(parameters));
+            parameters.addListener(this);
         }
-
-        dispatch(creation);
     }
 
     /*
@@ -130,7 +94,7 @@ public class DispatchingColormappedImage extends
             wrappedObject.setColorMapParameters(params);
             if (params != null) {
                 params.addListener(this);
-                dispatch(createColorMapParametersUpdateEvent(params));
+                dispatch(createColorMapParametersUpdateEvent(this));
             }
         }
     }
@@ -144,6 +108,54 @@ public class DispatchingColormappedImage extends
     @Override
     public double getValue(int x, int y) {
         return wrappedObject.getValue(x, y);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColorMapParametersListener#
+     * colorMapChanged()
+     */
+    @Override
+    public void colorMapChanged() {
+        ColorMapParameters parameters = getColorMapParameters();
+        if (parameters != null) {
+            dispatch(createColorMapParametersUpdateEvent(this));
+        }
+    }
+
+    public static UpdateColorMapParametersEvent createColorMapParametersUpdateEvent(
+            DispatchingColormappedImage<?> image) {
+        ColorMapParameters parameters = image.getColorMapParameters();
+        UpdateColorMapParametersEvent event = UpdateColorMapParametersEvent
+                .createEvent(image, parameters);
+        if (parameters.getColorMap() == image.colorMap
+                && image.colorMap != null) {
+            // Same colormap, discard cm data
+            event.setRed(null);
+            event.setBlue(null);
+            event.setGreen(null);
+            event.setAlpha(null);
+        } else {
+            image.colorMap = parameters.getColorMap();
+        }
+        return event;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage#
+     * dispose()
+     */
+    @Override
+    public void dispose() {
+        super.dispose();
+        ColorMapParameters params = getColorMapParameters();
+        if (params != null) {
+            params.removeListener(this);
+        }
     }
 
 }
