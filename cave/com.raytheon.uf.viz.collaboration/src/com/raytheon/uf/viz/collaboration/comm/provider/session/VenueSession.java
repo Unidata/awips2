@@ -48,7 +48,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
@@ -330,30 +329,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     /**
      * 
-     * @param participant
-     * @param event
-     * @throws CollaborationException
-     */
-    @Override
-    public void sendEvent(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
-            IDisplayEvent event) throws CollaborationException {
-
-        PeerToPeerChat session = null;
-        session = getP2PSession();
-        if (session != null) {
-            String message = Tools.marshallData(event);
-            if (message != null) {
-
-                TextMessage msg = new TextMessage(participant, message);
-                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
-                session.sendPeerToPeer(msg);
-            }
-        }
-    }
-
-    /**
-     * 
      * @param event
      * @throws CollaborationException
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendEvent(com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent)
@@ -362,22 +337,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     public void sendEvent(IDisplayEvent event) throws CollaborationException {
         if (event != null) {
             String message = Tools.marshallData(event);
-            if (message != null) {
-                sendTextMessage(message);
-            }
-        }
-    }
-
-    /**
-     * @param renderable
-     * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendRenderableObject(com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable)
-     */
-    @Override
-    public void sendRenderableObject(IRenderable renderable)
-            throws CollaborationException {
-        if (renderable != null) {
-            String message = Tools.marshallData(renderable);
             if (message != null) {
                 sendTextMessage(message);
             }
