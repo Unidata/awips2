@@ -168,8 +168,8 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
         program.setUniform("mosaicTexture", 1);
 
         // pass in width and height
-        program.setUniform("height", (paintProps.getCanvasBounds().height));
-        program.setUniform("width", (paintProps.getCanvasBounds().width));
+        program.setUniform("height", writeToImage.getHeight());
+        program.setUniform("width", writeToImage.getWidth());
     }
 
 }
