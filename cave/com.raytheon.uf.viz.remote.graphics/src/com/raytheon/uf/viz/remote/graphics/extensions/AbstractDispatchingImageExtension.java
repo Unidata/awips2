@@ -19,23 +19,14 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.extensions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.raytheon.uf.viz.core.DrawableImage;
-import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
-import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
-import com.raytheon.uf.viz.remote.graphics.objects.DispatchingMesh;
 
 /**
  * TODO Add Description
@@ -79,49 +70,13 @@ public abstract class AbstractDispatchingImageExtension extends
     @Override
     public boolean drawRasters(PaintProperties paintProps,
             DrawableImage... images) throws VizException {
-        // All of these images are ready for actual rendering (status == LOADED)
-        List<DrawableImage> targeted = new ArrayList<DrawableImage>(
-                images.length);
-        PaintImageEvent[] imageEvents = new PaintImageEvent[images.length];
-
-        for (int i = 0; i < images.length; ++i) {
-            DrawableImage di = images[i];
-            AbstractDispatchingImage<?> dispatchingImage = (AbstractDispatchingImage<?>) di
-                    .getImage();
-
-            // If image parameters have been modified, update
-            dispatchingImage.updateState();
-
-            IImage targetImage = dispatchingImage.getWrappedObject();
-            PixelCoverage coverage = di.getCoverage();
-            PixelCoverage targetCoverage = new PixelCoverage(coverage.getUl(),
-                    coverage.getUr(), coverage.getLr(), coverage.getLl());
-
-            PaintImageEvent paintEvent = RemoteGraphicsEventFactory
-                    .createEvent(PaintImageEvent.class, dispatchingImage);
-            paintEvent.setPixelCoverage(coverage);
-
-            IMesh mesh = coverage.getMesh();
-            IMesh targetMesh = null;
-            if (mesh != null) {
-                DispatchingMesh dmesh = (DispatchingMesh) mesh;
-                targetMesh = dmesh.getWrappedObject();
-                paintEvent.setMeshId(dmesh.getObjectId());
-                targetCoverage.setMesh(targetMesh);
-            }
-
-            targeted.add(new DrawableImage(targetImage, targetCoverage, di
-                    .getMode()));
-
-            imageEvents[i] = paintEvent;
-        }
-
         PaintImagesEvent bulkRender = RemoteGraphicsEventFactory.createEvent(
                 PaintImagesEvent.class, target);
-        bulkRender.setImageEvents(imageEvents);
+        bulkRender.setImageEvents(PaintImagesEvent.toPaintEvents(images));
+        DrawableImage[] targeted = PaintImagesEvent.extractTargetImages(images);
         bulkRender.setAlpha(paintProps.getAlpha());
         boolean rval = target.getWrappedObject().drawRasters(paintProps,
-                targeted.toArray(new DrawableImage[targeted.size()]));
+                targeted);
         target.dispatch(bulkRender);
         return rval;
     }

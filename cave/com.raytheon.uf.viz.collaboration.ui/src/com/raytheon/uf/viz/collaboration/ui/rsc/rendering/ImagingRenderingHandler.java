@@ -72,6 +72,24 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
         PaintProperties paintProps = getPaintProperties();
         IGraphicsTarget target = getTarget();
         PaintImageEvent[] events = event.getImageEvents();
+        DrawableImage[] images = toDrawableImages(events, dataManager);
+        if (images.length > 0) {
+            PaintProperties imageProps = new PaintProperties(paintProps);
+            imageProps.setAlpha(event.getAlpha());
+            target.drawRasters(imageProps, images);
+        }
+    }
+
+    /**
+     * Converts PaintImageEvent[] into DrawableImage[] by looking up image and
+     * mesh objects from dataManager
+     * 
+     * @param events
+     * @param dataManager
+     * @return
+     */
+    public static DrawableImage[] toDrawableImages(PaintImageEvent[] events,
+            CollaborationRenderingDataManager dataManager) {
         List<DrawableImage> images = new ArrayList<DrawableImage>(events.length);
         for (PaintImageEvent pie : events) {
             IImage image = dataManager.getRenderableObject(pie.getObjectId(),
@@ -89,12 +107,7 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
                 // TODO: Log?
             }
         }
-        if (images.size() > 0) {
-            PaintProperties imageProps = new PaintProperties(paintProps);
-            imageProps.setAlpha(event.getAlpha());
-            target.drawRasters(imageProps,
-                    images.toArray(new DrawableImage[images.size()]));
-        }
+        return images.toArray(new DrawableImage[images.size()]);
     }
 
     @Subscribe
