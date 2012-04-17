@@ -32,9 +32,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -61,9 +59,9 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     private List<ILabelProviderListener> listeners;
 
-    private String sessionId = null;
+    protected String sessionId = null;
 
-    private Map<String, Image> imageMap;
+    protected Map<String, Image> imageMap;
 
     public ParticipantsLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
@@ -114,25 +112,6 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
             }
         }
 
-        if (image != null) {
-            ISharedDisplaySession sdSession = session
-                    .spawnSharedDisplaySession();
-            String userId = user.getId();
-            String sessionLeaderId = CollaborationUtils.makeUserId(sdSession
-                    .getCurrentSessionLeader());
-            String dataProviderId = CollaborationUtils.makeUserId(sdSession
-                    .getCurrentDataProvider());
-            List<ParticipantRole> roleList = new ArrayList<ParticipantRole>();
-            if (userId.equals(sessionLeaderId)) {
-                roleList.add(ParticipantRole.SESSION_LEADER);
-            }
-            if (userId.equals(dataProviderId)) {
-                roleList.add(ParticipantRole.DATA_PROVIDER);
-            }
-            if (roleList.size() > 0) {
-                image = getModifier(roleList, user);
-            }
-        }
         return image;
     }
 
@@ -170,39 +149,5 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
      */
     public String getSessionId() {
         return sessionId;
-    }
-
-    /**
-     * Modify image image to indicate Session Leader and/or DataProvider.
-     * 
-     * @param roles
-     *            - non-empty list indicate the role(s)
-     * @param user
-     *            -
-     * @return image - modified with indicator(s)
-     */
-    private Image getModifier(List<ParticipantRole> roles,
-            CollaborationUser user) {
-        String key = user.getImageKey();
-        StringBuilder modKey = new StringBuilder(key);
-        int roleCnt = 0;
-        if (roles.contains(ParticipantRole.SESSION_LEADER)) {
-            ++roleCnt;
-            modKey.append(":")
-                    .append(ParticipantRole.SESSION_LEADER.toString());
-        }
-        if (roles.contains(ParticipantRole.DATA_PROVIDER)) {
-            ++roleCnt;
-            modKey.append(":").append(ParticipantRole.DATA_PROVIDER.toString());
-        }
-        Image image = imageMap.get(modKey.toString());
-
-        if (image == null) {
-            image = CollaborationUtils.getNodeImage(user);
-            // original image is 16x16
-            image.getImageData();
-            imageMap.put(modKey.toString(), image);
-        }
-        return image;
     }
 }

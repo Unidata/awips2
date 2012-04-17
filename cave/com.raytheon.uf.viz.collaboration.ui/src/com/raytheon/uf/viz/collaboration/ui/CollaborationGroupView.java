@@ -625,22 +625,23 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             } else {
                 createTextOnlyView(result);
             }
+
+            try {
+                if (result.isInviteUsers()) {
+                    IVenueSession session = CollaborationDataManager
+                            .getInstance().getSession(result.getSessionId());
+                    List<String> usersList = new ArrayList<String>();
+                    for (CollaborationUser user : getSelectedUsers()) {
+                        usersList.add(user.getId());
+                    }
+                    String b = result.getInviteMessage();
+                    session.sendInvitation(usersList, b);
+                }
+            } catch (Exception e) {
+                statusHandler.error("Error sending invitation", e);
+            }
         }
 
-        try {
-            if (result.isInviteUsers()) {
-                IVenueSession session = CollaborationDataManager.getInstance()
-                        .getSession(result.getSessionId());
-                List<String> usersList = new ArrayList<String>();
-                for (CollaborationUser user : getSelectedUsers()) {
-                    usersList.add(user.getId());
-                }
-                String b = result.getInviteMessage();
-                session.sendInvitation(usersList, b);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void createCollaborationView(CreateSessionData result) {
