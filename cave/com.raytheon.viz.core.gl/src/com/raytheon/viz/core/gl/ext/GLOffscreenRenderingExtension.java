@@ -23,6 +23,7 @@ import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
 import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
+import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.internal.GLView2D;
 import com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension;
 
@@ -163,7 +164,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
      * constructOffscreenImage(java.lang.Class, java.awt.Rectangle)
      */
     @Override
-    public AbstractGLImage constructOffscreenImage(
+    public GLColormappedImage constructOffscreenImage(
             Class<? extends Buffer> dataType, int[] dimensions)
             throws VizException {
         return constructOffscreenImage(dataType, dimensions, null);
@@ -176,7 +177,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
      * constructOffscreenImage(java.lang.Class, java.awt.Rectangle)
      */
     @Override
-    public AbstractGLImage constructOffscreenImage(
+    public GLColormappedImage constructOffscreenImage(
             Class<? extends Buffer> dataType, final int[] dimensions,
             ColorMapParameters parameters) throws VizException {
         int width = dimensions[0];
@@ -193,7 +194,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         }
 
         if (imageBuffer != null) {
-            AbstractGLImage image = null;
+            GLColormappedImage image = null;
             final Buffer buffer = imageBuffer;
             GLColormappedImageExtension cmapExt = target
                     .getExtension(GLColormappedImageExtension.class);

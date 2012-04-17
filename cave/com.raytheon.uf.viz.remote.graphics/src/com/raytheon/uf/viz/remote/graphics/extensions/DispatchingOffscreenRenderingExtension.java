@@ -23,6 +23,7 @@ import java.nio.Buffer;
 
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
@@ -34,7 +35,8 @@ import com.raytheon.uf.viz.remote.graphics.events.offscreen.CreateOffscreenImage
 import com.raytheon.uf.viz.remote.graphics.events.offscreen.RenderOffscreenEvent;
 import com.raytheon.uf.viz.remote.graphics.events.offscreen.RenderOnscreenEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
-import com.raytheon.uf.viz.remote.graphics.objects.DispatchingOffscreenImage;
+import com.raytheon.uf.viz.remote.graphics.objects.DispatchingColormappedImage;
+import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage;
 
 /**
  * Offscreen rendering extension that creates remote images for offscreen
@@ -127,8 +129,9 @@ public class DispatchingOffscreenRenderingExtension extends
      * constructOffscreenImage(java.lang.Class, int[])
      */
     @Override
-    public IImage constructOffscreenImage(Class<? extends Buffer> dataType,
-            int[] dimensions) throws VizException {
+    public IColormappedImage constructOffscreenImage(
+            Class<? extends Buffer> dataType, int[] dimensions)
+            throws VizException {
         return constructOffscreenImage(dataType, dimensions, null);
     }
 
@@ -140,21 +143,30 @@ public class DispatchingOffscreenRenderingExtension extends
      * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
      */
     @Override
-    public IImage constructOffscreenImage(Class<? extends Buffer> dataType,
-            int[] dimensions, ColorMapParameters parameters)
-            throws VizException {
-        IImage offscreenImage = target.getWrappedObject()
+    public IColormappedImage constructOffscreenImage(
+            Class<? extends Buffer> dataType, int[] dimensions,
+            ColorMapParameters parameters) throws VizException {
+        IColormappedImage offscreenImage = target.getWrappedObject()
                 .getExtension(IOffscreenRenderingExtension.class)
                 .constructOffscreenImage(dataType, dimensions, parameters);
-        return createOffscreenImage(offscreenImage, dataType, dimensions,
-                parameters);
+        return (IColormappedImage) createOffscreenImage(offscreenImage,
+                dataType, dimensions, parameters);
     }
 
-    private DispatchingOffscreenImage createOffscreenImage(IImage wrapped,
+    private IImage createOffscreenImage(IImage wrapped,
             Class<? extends Buffer> dataType, int[] dimensions,
             ColorMapParameters parameters) {
-        DispatchingOffscreenImage wrapper = new DispatchingOffscreenImage(
-                wrapped, target.getDispatcher(), parameters);
+        AbstractDispatchingImage<?> wrapper = null;
+        if (dataType == null) {
+            wrapper = new DispatchingImage(wrapped,
+                    DispatchingImagingExtension.class, null,
+                    target.getDispatcher());
+        } else {
+            wrapper = new DispatchingColormappedImage<IColormappedImage>(
+                    (IColormappedImage) wrapped,
+                    DispatchColormappedImageExtension.class,
+                    target.getDispatcher(), parameters);
+        }
         // Send event of offscreen image creation
         CreateOffscreenImageEvent event = RemoteGraphicsEventFactory
                 .createEvent(CreateOffscreenImageEvent.class, wrapper);
