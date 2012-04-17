@@ -48,7 +48,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
@@ -332,32 +331,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     /**
      * 
      * @param participant
-     * @param initData
-     * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendInitData(com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID,
-     *      com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData)
-     */
-    @Override
-    public void sendInitData(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
-            IInitData initData) throws CollaborationException {
-
-        PeerToPeerChat session = getP2PSession();
-        if (session != null) {
-            String message = Tools.marshallData(initData);
-            if (message != null) {
-
-                TextMessage msg = new TextMessage(participant, message);
-                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
-
-                session.sendPeerToPeer(msg);
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param participant
      * @param event
      * @throws CollaborationException
      */
@@ -473,6 +446,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
                 && !this.getUserID().equals(this.getCurrentSessionLeader())) {
             result = false;
         }
+        System.out
+                .println(this.getUserID() + " hasRole " + role + " " + result);
         return result;
     }
 
@@ -503,21 +478,13 @@ public class VenueSession extends BaseSession implements IVenueSession,
         }
     }
 
-    // ***************************
-    // Internal methods
-    // ***************************
-
-    /**
-     * 
-     */
-    protected void setCurrentSessionLeader(IVenueParticipant id) {
+    @Override
+    public void setCurrentSessionLeader(IVenueParticipant id) {
         sessionLeader = id;
     }
 
-    /**
-     * 
-     */
-    protected void setCurrentDataProvider(IVenueParticipant id) {
+    @Override
+    public void setCurrentDataProvider(IVenueParticipant id) {
         dataProvider = id;
     }
 
@@ -582,6 +549,9 @@ public class VenueSession extends BaseSession implements IVenueSession,
                 errorStatus = Errors.CANNOT_CONNECT; // is this correct?
             }
         } catch (Exception e) {
+            // TODO this is bad, we assume it's a bad venue name but it might
+            // not be
+            // and we'd give a poor error message
             System.out.println(String.format("createVenue(%s)", venueName));
             e.printStackTrace();
             errorStatus = Errors.BAD_NAME;
