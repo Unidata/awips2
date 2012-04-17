@@ -24,8 +24,10 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingColormappedImage;
-import com.raytheon.uf.viz.remote.graphics.objects.DispatchingColormappedImage.DispatchingColormappedCallback;
 
 /**
  * TODO Add Description
@@ -46,6 +48,35 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingColormappedImage.D
 
 public class DispatchColormappedImageExtension extends
         AbstractDispatchingImageExtension implements IColormappedImageExtension {
+
+    public class DispatchingColormappedCallback implements
+            IColorMapDataRetrievalCallback {
+
+        private IColorMapDataRetrievalCallback callback;
+
+        private DispatchingColormappedImage<?> image;
+
+        public DispatchingColormappedCallback(
+                IColorMapDataRetrievalCallback callback) {
+            this.callback = callback;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback#
+         * getColorMapData()
+         */
+        @Override
+        public ColorMapData getColorMapData() throws VizException {
+            ColorMapData data = callback.getColorMapData();
+            ColorMapDataEvent event = RemoteGraphicsEventFactory.createEvent(
+                    ColorMapDataEvent.class, image);
+            event.setColorMapData(data);
+            image.dispatch(event);
+            return data;
+        }
+    }
 
     /*
      * (non-Javadoc)
@@ -73,8 +104,22 @@ public class DispatchColormappedImageExtension extends
                 dataCallback);
         IColormappedImage actualImage = targetExt.initializeRaster(wrapper,
                 colorMapParameters);
-        return new DispatchingColormappedImage(actualImage, wrapper,
-                target.getDispatcher());
+        DispatchingColormappedImage<IColormappedImage> image = new DispatchingColormappedImage<IColormappedImage>(
+                actualImage, DispatchColormappedImageExtension.class,
+                target.getDispatcher(), colorMapParameters);
+        wrapper.image = image;
+
+        // Send creation event
+        CreateColormappedImageEvent creation = RemoteGraphicsEventFactory
+                .createEvent(CreateColormappedImageEvent.class, image);
+        if (colorMapParameters != null) {
+            creation.setColorMapParameters(DispatchingColormappedImage
+                    .createColorMapParametersUpdateEvent(image));
+        }
+        target.dispatch(creation);
+
+        // Return image
+        return image;
     }
 
 }
