@@ -21,8 +21,15 @@ package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.PixelCoverage;
+import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
+import com.raytheon.uf.viz.remote.graphics.objects.DispatchingMesh;
 
 /**
  * TODO Add Description
@@ -80,4 +87,69 @@ public class PaintImagesEvent extends AbstractRemoteGraphicsEvent implements
         this.alpha = alpha;
     }
 
+    /**
+     * @param images
+     *            the images to set
+     */
+    public static PaintImageEvent[] toPaintEvents(DrawableImage[] images) {
+        PaintImageEvent[] imageEvents = new PaintImageEvent[images.length];
+
+        for (int i = 0; i < images.length; ++i) {
+            DrawableImage di = images[i];
+            AbstractDispatchingImage<?> dispatchingImage = (AbstractDispatchingImage<?>) di
+                    .getImage();
+
+            // If image parameters have been modified, update
+            dispatchingImage.updateState();
+
+            PixelCoverage coverage = di.getCoverage();
+            PixelCoverage targetCoverage = new PixelCoverage(coverage.getUl(),
+                    coverage.getUr(), coverage.getLr(), coverage.getLl());
+
+            PaintImageEvent paintEvent = RemoteGraphicsEventFactory
+                    .createEvent(PaintImageEvent.class, dispatchingImage);
+            paintEvent.setPixelCoverage(coverage);
+
+            IMesh mesh = coverage.getMesh();
+            IMesh targetMesh = null;
+            if (mesh != null) {
+                DispatchingMesh dmesh = (DispatchingMesh) mesh;
+                targetMesh = dmesh.getWrappedObject();
+                paintEvent.setMeshId(dmesh.getObjectId());
+                targetCoverage.setMesh(targetMesh);
+            }
+
+            imageEvents[i] = paintEvent;
+        }
+        return imageEvents;
+    }
+
+    /**
+     * @param images
+     *            the images to set
+     */
+    public static DrawableImage[] extractTargetImages(DrawableImage[] images) {
+        DrawableImage[] targeted = new DrawableImage[images.length];
+
+        for (int i = 0; i < images.length; ++i) {
+            DrawableImage di = images[i];
+            AbstractDispatchingImage<?> dispatchingImage = (AbstractDispatchingImage<?>) di
+                    .getImage();
+
+            IImage targetImage = dispatchingImage.getWrappedObject();
+            PixelCoverage coverage = di.getCoverage();
+            PixelCoverage targetCoverage = new PixelCoverage(coverage.getUl(),
+                    coverage.getUr(), coverage.getLr(), coverage.getLl());
+
+            IMesh mesh = coverage.getMesh();
+            if (mesh != null) {
+                DispatchingMesh dmesh = (DispatchingMesh) mesh;
+                targetCoverage.setMesh(dmesh.getWrappedObject());
+            }
+
+            targeted[i] = new DrawableImage(targetImage, targetCoverage,
+                    di.getMode());
+        }
+        return targeted;
+    }
 }
