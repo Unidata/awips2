@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.collaboration.ui.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
-Export-Package: com.raytheon.uf.viz.collaboration.ui
+Export-Package: com.raytheon.uf.viz.collaboration.ui,
+ com.raytheon.uf.viz.collaboration.ui.rsc.rendering
 Require-Bundle: com.raytheon.viz.ui,
  org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -15,7 +16,6 @@ Require-Bundle: com.raytheon.viz.ui,
  org.eclipse.ecf;bundle-version="3.1.0",
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
- com.google.guava;bundle-version="1.0.0",
  com.raytheon.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.viz.drawing;bundle-version="1.0.0",
  com.raytheon.uf.viz.remote.graphics;bundle-version="1.0.0"
