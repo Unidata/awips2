@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 
 /**
@@ -48,7 +47,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class SharedResource implements ISerializableObject, IInitData {
+public class SharedResource implements ISerializableObject {
 
     @XmlAttribute
     private boolean removeResource = false;
