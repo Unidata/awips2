@@ -26,7 +26,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent.EventType;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -64,9 +63,9 @@ public class EventForwardingInputHandler implements IInputHandler {
         this.displayPane = displayPane;
     }
 
-    private void sendEvent(IDisplayEvent event) {
+    private void sendEvent(InputEvent event) {
         try {
-            session.sendEvent(session.getCurrentDataProvider(), event);
+            session.sendObjectToPeer(session.getCurrentDataProvider(), event);
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM, "Error sending input event",
                     e);
