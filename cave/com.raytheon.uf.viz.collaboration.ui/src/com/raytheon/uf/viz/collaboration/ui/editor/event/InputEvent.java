@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.ui.editor.event;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 
 /**
  * An input event that holds necessary information to recreate the event on a
@@ -42,7 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
  */
 
 @DynamicSerialize
-public class InputEvent implements IDisplayEvent {
+public class InputEvent {
 
     public enum EventType {
         MOUSE_DOWN, MOUSE_DOWN_MOVE, MOUSE_UP, MOUSE_HOVER, MOUSE_MOVE, DOUBLE_CLICK, MOUSE_WHEEL, KEY_UP, KEY_DOWN
