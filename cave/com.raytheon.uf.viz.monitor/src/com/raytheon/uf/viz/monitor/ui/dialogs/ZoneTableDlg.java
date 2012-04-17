@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
 import com.raytheon.uf.viz.monitor.trendplot.TrendPlotDlg;
 import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.uf.viz.monitor.util.ObUtil;
 
 /**
  * Abstrct Zone table dialog that is the foundation for all Zone dialogs.
@@ -760,7 +761,7 @@ public abstract class ZoneTableDlg extends Dialog implements IMonitorListener,
                 HodographDlg hodographDlg = new HodographDlg(shell,
                         varName.name(), station, "METAR");
 
-                hodographDlg.setCurrentTime(Calendar.getInstance());
+                hodographDlg.setCurrentTime(ObUtil.getTimeNow()); //Calendar.getInstance());
                 if (thresholds[0] == Float.NaN || thresholds[1] == Float.NaN
                         || thresholds[2] == Float.NaN
                         || thresholds[3] == Float.NaN) {
