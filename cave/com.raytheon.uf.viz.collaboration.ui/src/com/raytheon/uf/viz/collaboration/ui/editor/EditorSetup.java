@@ -162,6 +162,16 @@ public class EditorSetup {
                     "Cannot share a CollaborationEditor");
         }
 
+        addIndicator(editor, session);
+
+        // TODO this method should be called by the ShareEditorAction
+
+        // TODO should max's target injection be over here too?
+
+    }
+
+    private static void addIndicator(AbstractEditor editor,
+            ISharedDisplaySession session) {
         IDescriptor desc = editor.getActiveDisplayPane().getRenderableDisplay()
                 .getDescriptor();
         GenericResourceData grd = new GenericResourceData(
@@ -176,13 +186,6 @@ public class EditorSetup {
                 .getVenueDescription());
         rsc.setSubject(((IVenueSession) session).getVenue().getInfo()
                 .getVenueSubject());
-
-        // TODO we need to track editors associated with a session
-
-        // TODO this method should be called by the ShareEditorAction
-
-        // TODO should max's target injection be over here too?
-
     }
 
 }
