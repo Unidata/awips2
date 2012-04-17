@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
@@ -71,15 +70,6 @@ public interface ISharedDisplaySession extends IEventPublisher {
      */
     void sendEvent(IDisplayEvent event) throws CollaborationException;
 
-    void sendEvent(IQualifiedID participant, IDisplayEvent event)
-            throws CollaborationException;
-
-    /**
-     * 
-     */
-    void sendRenderableObject(IRenderable renderable)
-            throws CollaborationException;
-
     /**
      * Sends the object to the other collaborators on the session. The object
      * must be serializable and once received by the others, will be posted to
@@ -126,26 +116,26 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * @param role
      * @return
      */
-    boolean hasRole(ParticipantRole role);
+    public boolean hasRole(ParticipantRole role);
 
     /**
      * 
      * @return
      */
-    IQualifiedID getUserID();
+    public IQualifiedID getUserID();
 
     /**
      * Gets the connection status of the session.
      * 
      * @return The connection status.
      */
-    boolean isConnected();
+    public boolean isConnected();
 
     /**
      * Get the session identifier.
      * 
      * @return The session identifier.
      */
-    String getSessionId();
+    public String getSessionId();
 
 }
