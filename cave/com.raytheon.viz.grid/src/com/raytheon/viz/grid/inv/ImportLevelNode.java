@@ -31,7 +31,6 @@ import java.util.TreeSet;
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -149,8 +148,7 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -160,8 +158,7 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
         // then see what is available in the imported source, use time
         // interpolation to verify what data can be achieved
         NavigableSet<DataTime> sourceDataTimes = new TreeSet<DataTime>(
-                sourceNode.timeQuery(originalRequest, latestOnly, cache,
-                        latestOnlyCache));
+                sourceNode.timeQuery(latestOnly, cache, latestOnlyCache));
         GridModel sourceModel = GribModelLookup.getInstance().getModelByName(
                 sourceNodeModelName);
         long sourceDt = 0;

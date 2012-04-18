@@ -73,9 +73,6 @@ public class ColorMapCapability extends AbstractCapability implements
     public void setColorMapParameters(ColorMapParameters colorMapParameters,
             boolean notify) {
         if (this.colorMapParameters != colorMapParameters) {
-            if (this.colorMapParameters != null) {
-                this.colorMapParameters.removeListener(this);
-            }
             this.colorMapParameters = colorMapParameters;
             if (notify) {
                 capabilityChanged();
@@ -83,7 +80,7 @@ public class ColorMapCapability extends AbstractCapability implements
         }
 
         if (this.colorMapParameters != null) {
-            this.colorMapParameters.addListener(this);
+            this.colorMapParameters.setListener(this);
         }
     }
 

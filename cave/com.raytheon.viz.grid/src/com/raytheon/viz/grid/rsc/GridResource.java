@@ -130,6 +130,7 @@ import com.vividsolutions.jts.io.WKTReader;
  *    ------------ ----------  ----------- --------------------------
  *    Feb 28, 2007             chammack    Initial Creation.
  *    02/12/09                 njensen     Refactored to new rsc architecture
+ *    04/03/2012   14774/14775 D. Friedman Fixed tiling and lockup problem
  * 
  * </pre>
  * 
@@ -407,7 +408,7 @@ public class GridResource extends
                 for (int j = 0; j < tiles[0].length; j++) {
                     ImageTile tile = tiles[i][j];
                     if (tile != null
-                            && tile.contains(envelopeCoordinates[0],
+                            && tile.envelope.contains(envelopeCoordinates[0],
                                     envelopeCoordinates[1])) {
                         int coordX = (int) (imageCoordinates[0]);
                         int coordY = (int) (imageCoordinates[1]);
@@ -722,7 +723,7 @@ public class GridResource extends
             }
         }
         GridMemoryBasedTileSet mbts = new GridMemoryBasedTileSet(
-                record.getDataURI(), "Data", numLevels, 32, gridGeometry2D,
+                record.getDataURI(), "Data", numLevels, 512, gridGeometry2D,
                 this, conversion, PixelInCell.CELL_CORNER, record, viewType);
         return mbts;
     }
