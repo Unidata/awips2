@@ -540,7 +540,7 @@ public class DbMapResource extends
         if (shadedShape != null) {
             shadedShape.dispose();
         }
-        lastExtent = null;
+
         super.disposeInternal();
     }
 

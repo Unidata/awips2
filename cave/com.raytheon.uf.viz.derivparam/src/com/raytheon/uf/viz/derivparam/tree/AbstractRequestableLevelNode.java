@@ -205,8 +205,7 @@ public abstract class AbstractRequestableLevelNode extends LevelNode {
     protected abstract List<AbstractRequestableData> processDataQueryResults(
             DbQueryResponse queryResponse) throws VizException;
 
-    public Set<DataTime> timeQuery(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    public Set<DataTime> timeQuery(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -216,16 +215,15 @@ public abstract class AbstractRequestableLevelNode extends LevelNode {
             return latestOnlyCache.get(this);
         }
 
-        Set<DataTime> results = timeQueryInternal(originalRequest, latestOnly,
-                cache, latestOnlyCache);
+        Set<DataTime> results = timeQueryInternal(latestOnly, cache,
+                latestOnlyCache);
         if (cache != null && !latestOnly) {
             cache.put(this, results);
         }
         return results;
     }
 
-    public TimeQueryRequest getTimeQuery(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    public TimeQueryRequest getTimeQuery(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -235,7 +233,7 @@ public abstract class AbstractRequestableLevelNode extends LevelNode {
             return null;
         }
 
-        return getTimeQueryInternal(originalRequest, latestOnly, cache);
+        return getTimeQueryInternal(latestOnly, cache);
     }
 
     public void setTimeQueryResults(boolean latestOnly,
@@ -388,14 +386,13 @@ public abstract class AbstractRequestableLevelNode extends LevelNode {
         return rval;
     }
 
-    protected abstract Set<DataTime> timeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
+    protected abstract Set<DataTime> timeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException;
 
     protected abstract TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
+            boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
             throws VizException;
 
@@ -411,9 +408,8 @@ public abstract class AbstractRequestableLevelNode extends LevelNode {
             Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
             throws VizException;
 
-    protected Set<DataTime> timeQuery(TimeQueryRequest originalRequest,
-            boolean latestOnly) throws VizException {
-        return timeQuery(originalRequest, latestOnly,
+    protected Set<DataTime> timeQuery(boolean latestOnly) throws VizException {
+        return timeQuery(latestOnly,
                 new HashMap<AbstractRequestableLevelNode, Set<DataTime>>(),
                 new HashMap<AbstractRequestableLevelNode, Set<DataTime>>());
     }
