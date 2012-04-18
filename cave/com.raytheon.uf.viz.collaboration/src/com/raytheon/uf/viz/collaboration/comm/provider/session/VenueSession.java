@@ -51,7 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -262,7 +262,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
                 .getChatRoomManager().getInvitationSender();
         if (sender != null) {
-            SharedDisplayInvite invite = new SharedDisplayInvite();
+            VenueInvite invite = new VenueInvite();
             invite.setDataProvider(this.getCurrentDataProvider());
             invite.setSessionLeader(this.getCurrentSessionLeader());
             invite.setMessage(body);
