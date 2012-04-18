@@ -60,7 +60,7 @@ public class GLUnsignedShortDataFormat extends GLShortDataFormat {
      * int, com.raytheon.viz.core.gl.dataformat.GLColorMapData)
      */
     @Override
-    public Number getValue(int x, int y, GLColorMapData data) {
+    public Short getValue(int x, int y, GLColorMapData data) {
         if (!(data.getData() instanceof ShortBuffer)) {
             throw new IllegalArgumentException(
                     "Expecting data to contain a ShortBuffer but instead it is a "
@@ -69,7 +69,7 @@ public class GLUnsignedShortDataFormat extends GLShortDataFormat {
         int width = getAlignedWidth(data.getDimensionSize(0));
         int index = y * width + x;
         ShortBuffer buffer = (ShortBuffer) data.getData();
-        return (buffer.get(index) & 0xFFFF);
+        return buffer.get(index);
     }
 
 }

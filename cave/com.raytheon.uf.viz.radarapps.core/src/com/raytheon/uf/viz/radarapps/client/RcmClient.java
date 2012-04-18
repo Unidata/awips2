@@ -61,6 +61,7 @@ import com.raytheon.rcm.mqsrvr.ReqObj;
 import com.raytheon.rcm.rmr.RmrEvent;
 import com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.preferences.JMSPreferences;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 // TODO: use of queueSession outside synchronized(stateLock) could cause
@@ -237,7 +238,8 @@ public class RcmClient implements MessageListener, ExceptionListener {
             topicConn.setExceptionListener(this);
             topicSession = topicConn.createTopicSession(false,
                     Session.AUTO_ACKNOWLEDGE);
-            topic = topicSession.createTopic("RadarEvents");
+            topic = topicSession.createTopic(JMSPreferences
+                    .getPolicyString("RadarEvents"));
 
             queueConn.start();
             topicConn.start();

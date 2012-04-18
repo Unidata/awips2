@@ -274,6 +274,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                      for queued WarnGen and fixed autosave.
  * 11Nov2011   11552        rferrel     Product no longer needs to be a RESEND in order to be sent.
  * 14Nov2011   11203        rferrel     Header included when exporting a file while in edit mode.
+ * 08Mar2012   14553        mhuang      Add blank line between product header and body.
  * </pre>
  * 
  * @author lvenable
@@ -4388,7 +4389,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             return;
         }
 
-        String body = textEditor.getText();
+        String body = textEditor.getText();        
         if (result) {
             removeOptionalFields();
 
@@ -4405,6 +4406,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 String product = TextDisplayModel.getInstance().getProduct(
                         token);
+                // DR_14553: Add blank line between product header and body
+                String[] results = product.split("\n");
+                String wmoHead = results[0];
+                String awipsId = results[1];
+                String header = wmoHead + "\n" + awipsId + "\n\n";
+                product = header.concat(body);
                 OUPRequest req = new OUPRequest();
                 OfficialUserProduct oup = new OfficialUserProduct();
                 prod = getStdTextProduct();

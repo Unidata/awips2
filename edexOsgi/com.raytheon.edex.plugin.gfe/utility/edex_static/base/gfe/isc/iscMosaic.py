@@ -151,7 +151,11 @@ class WECache(object):
             self._inv.insert(index, tr)   
             history = ArrayList()
             for h in hist:
-                history.add(GridDataHistory(h))
+                #strip out grid history to allow for publishing correctly
+                #when merging Fcst/Official out of A1 
+                hh = GridDataHistory(h)
+                hh.setPublishTime(None)
+                history.add(hh)
             if gridType == 'SCALAR':
                 self._we.setItemScalar(timeRange, grid.astype(numpy.float32), history)
             elif gridType == 'VECTOR':
