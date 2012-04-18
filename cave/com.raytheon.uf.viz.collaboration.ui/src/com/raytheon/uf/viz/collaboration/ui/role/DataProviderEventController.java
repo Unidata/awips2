@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
+import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
@@ -76,6 +77,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataProviderEventController.class);
+
+    private ResourceWrapperListener wrappingListener;
 
     public DataProviderEventController(ISharedDisplaySession session) {
         super(session);
@@ -212,6 +215,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
     public void startup() {
         super.startup();
         super.activateTelestrator();
+        wrappingListener = new ResourceWrapperListener();
         for (IDisplayPaneContainer container : SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId()).getSharedEditors()) {
             // Replace pane resources that will be shared with
@@ -221,25 +225,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
                 for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                     wrapResourcePair(rp);
                 }
-                list.addPreAddListener(new AddListener() {
-                    @Override
-                    public void notifyAdd(ResourcePair rp) throws VizException {
-                        if (wrapResourcePair(rp)) {
-                            // Send event to venue to load
-                            sendSharedResource(rp, false);
-                        }
-                    }
-                });
-                list.addPostRemoveListener(new RemoveListener() {
-                    @Override
-                    public void notifyRemove(ResourcePair rp)
-                            throws VizException {
-                        if (rp.getResource() instanceof CollaborationWrapperResource) {
-                            // Send event to venue to unload
-                            sendSharedResource(rp, true);
-                        }
-                    }
-                });
+                list.addPreAddListener(wrappingListener);
+                list.addPostRemoveListener(wrappingListener);
             }
 
             // Inject remote graphics functionality in container
@@ -323,6 +310,17 @@ public class DataProviderEventController extends AbstractRoleEventController {
         return false;
     }
 
+    private void unwrapResourcePair(ResourcePair rp) {
+        if (rp.getResource() instanceof CollaborationWrapperResource) {
+            rp.setResource(((CollaborationWrapperResource) rp.getResource())
+                    .getWrappedResource());
+        }
+        if (rp.getResourceData() instanceof CollaborationWrapperResourceData) {
+            rp.setResourceData(((CollaborationWrapperResourceData) rp
+                    .getResourceData()).getWrappedResourceData());
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -334,7 +332,41 @@ public class DataProviderEventController extends AbstractRoleEventController {
     public void shutdown() {
         super.shutdown();
         super.deactivateTelestrator();
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId());
+        if (sc != null) {
+            for (IDisplayPaneContainer container : sc.getSharedEditors()) {
+                for (IDisplayPane pane : container.getDisplayPanes()) {
+                    ResourceList list = pane.getDescriptor().getResourceList();
+                    for (ResourcePair rp : list) {
+                        unwrapResourcePair(rp);
+                    }
+                    list.removePreAddListener(wrappingListener);
+                    list.removePostRemoveListener(wrappingListener);
+                }
+                DispatchingGraphicsFactory
+                        .extractRemoteFunctionality(container);
+            }
+        }
         // TODO should remove the SharedEditorIndiciatorRsc
     }
 
+    private class ResourceWrapperListener implements AddListener,
+            RemoveListener {
+        @Override
+        public void notifyAdd(ResourcePair rp) throws VizException {
+            if (wrapResourcePair(rp)) {
+                // Send event to venue to load
+                sendSharedResource(rp, false);
+            }
+        }
+
+        @Override
+        public void notifyRemove(ResourcePair rp) throws VizException {
+            if (rp.getResource() instanceof CollaborationWrapperResource) {
+                // Send event to venue to unload
+                sendSharedResource(rp, true);
+            }
+        }
+    }
 }
