@@ -26,9 +26,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolItem;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
@@ -119,8 +119,8 @@ public class CollaborationPathToolbar extends PathToolbar {
         if (resource.getResourceData() instanceof CollaborationPathDrawingResourceData) {
             String sessionId = ((CollaborationPathDrawingResourceData) resource
                     .getResourceData()).getSessionId();
-            IVenueSession session = CollaborationDataManager.getInstance()
-                    .getSession(sessionId);
+            ISharedDisplaySession session = SharedDisplaySessionMgr
+                    .getSessionContainer(sessionId).getSession();
             if (session != null
                     && !session.hasRole(ParticipantRole.SESSION_LEADER)
                     && leaderOnly != null) {
