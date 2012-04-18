@@ -452,7 +452,8 @@ class Procedure (SmartScript.SmartScript):
                           " locked by another user."
                     self.statusBarMsg(msg, "S")
                     continue
-                gustGrid[windTooHigh] = windGrid
+
+                gustGrid = where(windTooHigh, windGrid, gustGrid)
                 self.createGrid(MODEL, "WindGust", "SCALAR", gustGrid, tr)
                 gustDict[tr] = gustGrid   # update the gustDict
 

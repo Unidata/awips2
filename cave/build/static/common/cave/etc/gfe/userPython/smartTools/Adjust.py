@@ -66,7 +66,7 @@ VariableList=[]
 VariableList.append(("Value:",1,"numeric"))
 VariableList.append(("Action:","Add","radio",["Add","Subtract","Multiply","Divide"]))
 VariableList.append(("Elevation:","None","radio",["None","Mountain","Valley","Specific"]))
-VariableList.append(("Vectors:","Magnitude","radio",["Both","Magnitude","Direction"]))
+VariableList.append(("Vectors:","Magnitude","radio",["Magnitude","Direction"]))
 VariableList.append(("Edge:","Flat","radio",["Flat","Edge","Taper"]))
 VariableList.append(("Edge Width:",5,"scale",[1,30],1))
 VariableList.append(("Specific Elevation:",5000,"numeric"))
@@ -76,7 +76,7 @@ class Tool (SmartScript.SmartScript):
         SmartScript.SmartScript.__init__(self, dbss)
     def preProcessTool(self):
         self.savemode=self.getVectorEditMode()
-        self.setVectorEditMode("Both")
+        self.setVectorEditMode("Magnitude")
     def postProcessTool(self):
         self.setVectorEditMode(self.savemode)
     def preProcessGrid(self,Topo,editArea,varDict):
@@ -167,7 +167,7 @@ class Tool (SmartScript.SmartScript):
         else:
            mag=variableElement[0]
            dir=variableElement[1]
-           if ((vect=="Magnitude")or(vect=="Both")):
+           if (vect=="Magnitude"):
               if (action=="Add"):
                  newmag=mag+(self.deltagrid*deltavalue)
               elif (action=="Subtract"):

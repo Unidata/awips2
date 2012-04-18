@@ -116,8 +116,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -146,8 +145,7 @@ public class GribRequestableLevelNode extends AbstractRequestableLevelNode {
      * getTimeQueryInternal(boolean, java.util.Map)
      */
     @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
+    protected TimeQueryRequest getTimeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
             throws VizException {
         Set<DataTime> resultsSet = GribTimeCache.getInstance().getTimes(this);
