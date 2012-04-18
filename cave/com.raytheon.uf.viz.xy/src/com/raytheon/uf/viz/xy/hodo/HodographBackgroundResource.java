@@ -112,9 +112,9 @@ public class HodographBackgroundResource extends
         label.horizontalAlignment = HorizontalAlignment.CENTER;
         label.textStyle = TextStyle.BLANKED;
         double[] center = descriptor
-                .polarToPixel(new double[] { 20, direction });
+                .worldToPixel(new double[] { 20, direction });
         double[] point = descriptor
-                .polarToPixel(new double[] { 400, direction });
+                .worldToPixel(new double[] { 400, direction });
         LineSegment line = new LineSegment(center[0], center[1], point[0],
                 point[1]);
         LineSegment bottom = new LineSegment(extent.getMinX(),
@@ -161,14 +161,14 @@ public class HodographBackgroundResource extends
                 DrawableLine circle = new DrawableLine();
                 circle.basics.color = GREY;
                 for (int dir = 0; dir <= 36; dir += 1) {
-                    double[] screen = descriptor.polarToPixel(new double[] {
+                    double[] screen = descriptor.worldToPixel(new double[] {
                             mag, dir * 10 });
                     circle.addPoint(screen[0], screen[1]);
                 }
                 lineList.add(circle);
                 DrawableString label = new DrawableString(String.valueOf(mag),
                         GREY);
-                double[] screen = descriptor.polarToPixel(new double[] { mag,
+                double[] screen = descriptor.worldToPixel(new double[] { mag,
                         225 });
                 label.setCoordinates(screen[0], screen[1]);
                 label.textStyle = TextStyle.BLANKED;
@@ -176,9 +176,9 @@ public class HodographBackgroundResource extends
             }
             // Add the lines
             for (int dir = 0; dir <= 8; dir += 1) {
-                double[] screen1 = descriptor.polarToPixel(new double[] { 0,
+                double[] screen1 = descriptor.worldToPixel(new double[] { 0,
                         dir * 45 });
-                double[] screen2 = descriptor.polarToPixel(new double[] { 500,
+                double[] screen2 = descriptor.worldToPixel(new double[] { 500,
                         dir * 45 });
                 DrawableLine line = new DrawableLine();
                 line.basics.color = GREY;

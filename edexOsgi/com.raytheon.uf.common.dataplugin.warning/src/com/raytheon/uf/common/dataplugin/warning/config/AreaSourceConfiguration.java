@@ -12,6 +12,23 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
 
+/**
+ * AreaSourceConfiguration
+ * 
+ * <pre>
+ * 
+ *    SOFTWARE HISTORY
+ *   
+ *    Date         Ticket#     Engineer    Description
+ *    ------------ ----------  ----------- --------------------------
+ *    Mar 29, 2012 #14691      Qinglu Lin  Added feAreaField and its getter and setter, etc. 
+ * 
+ * </pre>
+ * 
+ * @author 
+ * @version 1
+ */
+
 @XmlAccessorType(XmlAccessType.NONE)
 public class AreaSourceConfiguration {
     @XmlAccessorType(XmlAccessType.NONE)
@@ -30,6 +47,9 @@ public class AreaSourceConfiguration {
 
     @XmlElement
     private String areaField;
+
+    @XmlElement
+    private String feAreaField;
 
     @XmlElement
     private String fipsField;
@@ -74,6 +94,7 @@ public class AreaSourceConfiguration {
         setVariable("areas");
         setAreaField(areaConfig.getAreaField());
         setAreaNotationField(areaConfig.getAreaNotationField());
+        setFeAreaField(areaConfig.getFeAreaField());
         setAreaNotationTranslationFile(areaConfig
                 .getAreaNotationTranslationFile());
         setFipsField(areaConfig.getFipsField());
@@ -90,6 +111,7 @@ public class AreaSourceConfiguration {
     public AreaConfiguration getAreaConfig() {
         AreaConfiguration areaConfig = new AreaConfiguration();
         areaConfig.setAreaField(areaField);
+        areaConfig.setFeAreaField(feAreaField);
         areaConfig.setAreaNotationField(areaNotationField);
         areaConfig.setAreaNotationTranslationFile(areaNotationTranslationFile);
         areaConfig.setFipsField(fipsField);
@@ -119,8 +141,16 @@ public class AreaSourceConfiguration {
         return areaField;
     }
 
+    public String getFeAreaField() {
+        return feAreaField;
+    }
+
     public void setAreaField(String areaField) {
         this.areaField = areaField;
+    }
+
+    public void setFeAreaField(String feAreaField) {
+        this.feAreaField = feAreaField;
     }
 
     public String getFipsField() {

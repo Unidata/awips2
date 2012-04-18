@@ -29,6 +29,7 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/08/11     9696        gzhou       Initial Creation
+ * 03/27/12		11342		Xiaochuan	Update getStringData() to return string &
  *
  * </pre>
  *
@@ -119,16 +120,19 @@ string PointDataServerRequest::getParameterUnit(const string& parameter) {
 	return "MISSING";
 }
 
-string PointDataServerRequest::getStringData(const string& parameter,
+const string & PointDataServerRequest::getStringData(const string& parameter,
 		int offset) {
+
+	static const string MISS = "MISSING";
+
 	if (position.find(parameter) != position.end()) {
 		if (lookup[parameter] != STRING) {
-			return "MISSING";
+			return MISS;
 		}
 		int pos = position[parameter];
 		return pdtc.stringData.at(pos).stringData.at(offset);
 	}
-	return "MISSING";
+	return MISS;
 }
 
 int32_t PointDataServerRequest::getIntData(const string& parameter, int offset) {
