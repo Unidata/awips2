@@ -683,35 +683,37 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
     }
 
+    @Deprecated
     private void createJoinCollaboration() {
-        IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
-                .getSelection();
-        Object[] nodes = selection.toArray();
-        for (Object node : nodes) {
-            if (node instanceof SessionGroup) {
-                SessionGroup sg = (SessionGroup) node;
-                // System.out.println("Join: " + sg.getId());
-                CollaborationDataManager manager = CollaborationDataManager
-                        .getInstance();
-                String sessionId = manager.joinCollaborationSession(
-                        sg.getText(), sg.getId());
-                sg.setId(sessionId);
-                try {
-                    IViewPart part = PlatformUI
-                            .getWorkbench()
-                            .getActiveWorkbenchWindow()
-                            .getActivePage()
-                            .showView(CollaborationSessionView.ID, sessionId,
-                                    IWorkbenchPage.VIEW_ACTIVATE);
-                } catch (PartInitException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to open collaboation sesson", e);
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.ERROR, "Unexpected excepton",
-                            e);
-                }
-            }
-        }
+        // IStructuredSelection selection = (IStructuredSelection)
+        // usersTreeViewer
+        // .getSelection();
+        // Object[] nodes = selection.toArray();
+        // for (Object node : nodes) {
+        // if (node instanceof SessionGroup) {
+        // SessionGroup sg = (SessionGroup) node;
+        // // System.out.println("Join: " + sg.getId());
+        // CollaborationDataManager manager = CollaborationDataManager
+        // .getInstance();
+        // String sessionId = manager.joinCollaborationSession(
+        // sg.getText(), sg.getId());
+        // sg.setId(sessionId);
+        // try {
+        // IViewPart part = PlatformUI
+        // .getWorkbench()
+        // .getActiveWorkbenchWindow()
+        // .getActivePage()
+        // .showView(CollaborationSessionView.ID, sessionId,
+        // IWorkbenchPage.VIEW_ACTIVATE);
+        // } catch (PartInitException e) {
+        // statusHandler.handle(Priority.PROBLEM,
+        // "Unable to open collaboation sesson", e);
+        // } catch (Exception e) {
+        // statusHandler.handle(Priority.ERROR, "Unexpected excepton",
+        // e);
+        // }
+        // }
+        // }
     }
 
     /**
