@@ -75,7 +75,7 @@ public interface ISession extends IEventPublisher {
      * 
      * @return
      */
-    IQualifiedID getUserID();
+    public IQualifiedID getUserID();
 
     /**
      * Gets the connection status of the session.
