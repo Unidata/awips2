@@ -186,6 +186,7 @@ public class EditorSetup {
                 .getVenueDescription());
         rsc.setSubject(((IVenueSession) session).getVenue().getInfo()
                 .getVenueSubject());
+        rsc.setSession(session);
     }
 
 }
