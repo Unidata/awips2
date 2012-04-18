@@ -89,22 +89,35 @@ public interface ISharedDisplaySession extends IEventPublisher {
             throws CollaborationException;
 
     /**
+     * Returns the current Data Provider for the session
      * 
      * @return
      */
     public IVenueParticipant getCurrentDataProvider();
 
     /**
+     * Returns the current Session Leader for the session
      * 
      * @return
      */
     public IVenueParticipant getCurrentSessionLeader();
 
+    /**
+     * Sets the current Data Provider for the session
+     * 
+     * @param participant
+     */
     public void setCurrentDataProvider(IVenueParticipant participant);
 
+    /**
+     * Sets the current Session Leader for the session
+     * 
+     * @param participant
+     */
     public void setCurrentSessionLeader(IVenueParticipant participant);
 
     /**
+     * Checks if the currently logged in user has the role on this session
      * 
      * @param role
      * @return
