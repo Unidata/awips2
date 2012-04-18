@@ -23,7 +23,6 @@ import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
  * 
@@ -72,13 +71,6 @@ public interface IVenueSession extends ISession, IEventPublisher {
      * @return Information about a venue
      */
     IVenue getVenue();
-
-    /**
-     * 
-     * @param role
-     * @return
-     */
-    boolean hasRole(ParticipantRole role);
 
     /**
      * Send a Collaboration message.
