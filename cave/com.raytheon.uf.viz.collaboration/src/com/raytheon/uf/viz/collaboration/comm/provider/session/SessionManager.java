@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
@@ -114,10 +115,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 public class SessionManager implements IEventPublisher {
 
-    private enum SessionType {
-        SESSION_P2P, SESSION_CHAT_ONLY, SESSION_COLLABORATION;
-    }
-
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SessionManager.class);
 
@@ -153,6 +150,7 @@ public class SessionManager implements IEventPublisher {
 
     // Debug -- event viewer ----------------
     private IRosterEventSubscriber rosterEventHandler = null;
+
     // Debug -- event viewer ----------------
 
     /**
@@ -210,8 +208,7 @@ public class SessionManager implements IEventPublisher {
         rosterEventHandler = new RosterEventHandler();
         eventBus.register(rosterEventHandler);
         // Debug -- event viewer ----------------
-        
-        
+
         sessions = new HashMap<String, ISession>();
 
         try {
@@ -376,17 +373,15 @@ public class SessionManager implements IEventPublisher {
         if (rosterEventSubscriber != null) {
             eventBus.unregister(rosterEventSubscriber);
         }
-        if(container != null) {
-            
+        if (container != null) {
+
             chatInstance = null;
             // Get rid of the account and roster managers
             container.dispose();
             container = null;
         }
     }
-    
-    
-    
+
     /**
      *  
      */
@@ -419,13 +414,14 @@ public class SessionManager implements IEventPublisher {
         return chatInstance;
     }
 
-    public IVenueSession joinCollaborationVenue(IVenueInvitationEvent invitation)
-            throws CollaborationException {
-        VenueSession session = null;
+    public ISharedDisplaySession joinCollaborationVenue(
+            IVenueInvitationEvent invitation) throws CollaborationException {
+        SharedDisplaySession session = null;
         try {
             String venueName = invitation.getRoomId().getName();
             String sessionId = invitation.getInvite().getSessionId();
-            session = new VenueSession(container, eventBus, this, sessionId);
+            session = new SharedDisplaySession(container, eventBus, this,
+                    sessionId);
             if (session != null) {
                 session.joinVenue(venueName);
 
@@ -441,7 +437,8 @@ public class SessionManager implements IEventPublisher {
                 sessions.put(session.getSessionId(), session);
             }
         } catch (Exception e) {
-
+            // TODO fix
+            e.printStackTrace();
         }
         return session;
     }
@@ -464,7 +461,8 @@ public class SessionManager implements IEventPublisher {
             }
 
         } catch (Exception e) {
-
+            // TODO
+            e.printStackTrace();
         }
         return session;
     }
@@ -475,12 +473,12 @@ public class SessionManager implements IEventPublisher {
      * @return
      * @throws CollaborationException
      */
-    public IVenueSession createCollaborationVenue(String venueName,
+    public ISharedDisplaySession createCollaborationVenue(String venueName,
             String subject) throws CollaborationException {
-        VenueSession session = null;
+        SharedDisplaySession session = null;
         int errorStatus = -1;
         try {
-            session = new VenueSession(container, eventBus, this);
+            session = new SharedDisplaySession(container, eventBus, this);
             if (session != null) {
                 errorStatus = session.createVenue(venueName, subject);
                 if (errorStatus == Errors.NO_ERROR) {
@@ -497,6 +495,7 @@ public class SessionManager implements IEventPublisher {
                 }
             }
         } catch (Exception e) {
+            // TODO
             e.printStackTrace();
         } finally {
             if (errorStatus != Errors.NO_ERROR) {
