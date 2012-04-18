@@ -44,7 +44,6 @@ import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
@@ -52,7 +51,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
@@ -96,8 +94,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * @see com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage
  */
 
-public class VenueSession extends BaseSession implements IVenueSession,
-        ISharedDisplaySession {
+public class VenueSession extends BaseSession implements IVenueSession {
 
     private static final String SEND_CMD = "[[COMMAND";
 
@@ -114,10 +111,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     private IChatRoomParticipantListener participantListener = null;
 
     private IQualifiedID userID = null;
-
-    private IVenueParticipant sessionLeader = null;
-
-    private IVenueParticipant dataProvider = null;
 
     private String subject;
 
@@ -244,12 +237,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
                 .getChatRoomManager().getInvitationSender();
         if (sender != null) {
-            VenueInvite invite = new VenueInvite();
-            invite.setDataProvider(this.getCurrentDataProvider());
-            invite.setSessionLeader(this.getCurrentSessionLeader());
-            invite.setMessage(body);
-            invite.setSessionId(this.sessionId);
-            invite.setSubject(this.getSubject());
+            VenueInvite invite = buildInvite(body);
             String msgBody = Tools.marshallData(invite);
 
             ID roomId = venueInfo.getConnectedID();
@@ -299,81 +287,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
         return sessionId;
     }
 
-    // ***************************
-    // ISharedDisplaySession
-    // ***************************
-
-    @Override
-    public void sendObjectToVenue(Object obj) throws CollaborationException {
-        if (obj != null) {
-            String message = Tools.marshallData(obj);
-            if (message != null) {
-                sendMessageToVenue(message);
-            }
-        }
-    }
-
-    @Override
-    public void sendObjectToPeer(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
-            Object obj) throws CollaborationException {
-        PeerToPeerChat session = getP2PSession();
-        if (session != null) {
-            String message = Tools.marshallData(obj);
-            if (message != null) {
-
-                TextMessage msg = new TextMessage(participant, message);
-                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
-
-                session.sendPeerToPeer(msg);
-            }
-        }
-    }
-
-    /**
-     * Get the identification of the user who is the DataProvider.
-     * 
-     * @return The DataProvider user identification.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentDataProvider()
-     */
-    @Override
-    public IVenueParticipant getCurrentDataProvider() {
-        return dataProvider;
-    }
-
-    /**
-     * Get the identification of the user who is the Session Leader.
-     * 
-     * @return The Session Leader user identification.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentSessionLeader()
-     */
-    @Override
-    public IVenueParticipant getCurrentSessionLeader() {
-        return sessionLeader;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#hasRole(com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole)
-     */
-    @Override
-    public boolean hasRole(ParticipantRole role) {
-        boolean result = true;
-        if (role.equals(ParticipantRole.DATA_PROVIDER)
-                && !this.getUserID().equals(this.getCurrentDataProvider())) {
-            result = false;
-        } else if (role.equals(ParticipantRole.SESSION_LEADER)
-                && !this.getUserID().equals(this.getCurrentSessionLeader())) {
-            result = false;
-        }
-        System.out
-                .println(this.getUserID() + " hasRole " + role + " " + result);
-        return result;
-    }
-
-    // ***************************
-    // ISharedDisplaySession
-    // ***************************
-
     public void sendChatMessage(String message) throws CollaborationException {
         this.sendMessageToVenue(message);
     }
@@ -394,16 +307,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
                 throw new CollaborationException("Error sending text messge", e);
             }
         }
-    }
-
-    @Override
-    public void setCurrentSessionLeader(IVenueParticipant id) {
-        sessionLeader = id;
-    }
-
-    @Override
-    public void setCurrentDataProvider(IVenueParticipant id) {
-        dataProvider = id;
     }
 
     protected void setUserId(IVenueParticipant id) {
@@ -431,6 +334,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
             }
         } catch (Exception e) {
+            // TODO fix
             System.out.println(String.format("joinVenue(%s)", venueName));
             e.printStackTrace();
         }
@@ -639,5 +543,13 @@ public class VenueSession extends BaseSession implements IVenueSession,
             message.setFrom(id);
         }
         return message;
+    }
+
+    protected VenueInvite buildInvite(String msg) {
+        VenueInvite invite = new VenueInvite();
+        invite.setMessage(msg);
+        invite.setSessionId(this.sessionId);
+        invite.setSubject(this.getSubject());
+        return invite;
     }
 }
