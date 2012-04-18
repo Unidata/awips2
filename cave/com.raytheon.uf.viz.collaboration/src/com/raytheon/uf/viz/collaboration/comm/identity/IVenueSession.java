@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import java.util.List;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 
 /**
@@ -55,7 +54,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
  * @version 1.0
  */
 
-public interface IVenueSession extends ISession, IEventPublisher {
+public interface IVenueSession extends ISession {
 
     /**
      * Returns information about a venue.
