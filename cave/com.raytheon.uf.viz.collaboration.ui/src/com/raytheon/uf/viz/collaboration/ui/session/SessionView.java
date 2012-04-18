@@ -415,7 +415,7 @@ public class SessionView extends AbstractSessionView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                session.sendTextMessage(message);
+                session.sendChatMessage(message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
