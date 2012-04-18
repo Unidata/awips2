@@ -177,7 +177,7 @@ public class CollaborationSessionView extends SessionView {
         boolean isDataProvider = Tools.parseName(user.getId()).equals(
                 session.getCurrentDataProvider().getName());
         if (isSessionLeader || isDataProvider) {
-            builder.append("-- Roles --");
+            builder.append("\n-- Roles --");
             if (isSessionLeader) {
                 builder.append("\nSession Leader");
             }
