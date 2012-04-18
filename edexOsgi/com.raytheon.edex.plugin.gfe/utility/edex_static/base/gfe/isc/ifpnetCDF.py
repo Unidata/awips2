@@ -525,14 +525,13 @@ def storeLatLonGrids(client, file, databaseID, maskGrid, krunch, clipArea):
     
     latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
 
-    # recast the arrays for compatibility with netCDF
-    lonGrid = numpy.flipud(latLonGrid[0])
-    latGrid = numpy.flipud(latLonGrid[1])
-
-
     # clip them
-    latGrid = clipToExtrema(latGrid, clipArea)
-    lonGrid = clipToExtrema(lonGrid, clipArea)
+    lonGrid = clipToExtrema(latLonGrid[0], clipArea)
+    latGrid = clipToExtrema(latLonGrid[1], clipArea)
+
+    # recast the arrays for compatibility with netCDF
+    lonGrid = numpy.flipud(lonGrid)
+    latGrid = numpy.flipud(latGrid)
 
     # clipped size
     clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
@@ -620,6 +619,7 @@ def storeTopoGrid(client, file, databaseID, maskGrid, clipArea):
     # Get the topo grid
     topoGrid = TopoDatabaseManager.getTopoDatabase(DatabaseID(databaseID).getSiteId()).getTopo().__numpy__[0]
     topoGrid = clipToExtrema(topoGrid, clipArea)
+    topoGrid = numpy.flipud(topoGrid)
 
     # clipped size
     clipGridSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
