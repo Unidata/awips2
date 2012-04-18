@@ -68,7 +68,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
-import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
@@ -437,32 +436,8 @@ public class SessionManager implements IEventPublisher {
                 sessions.put(session.getSessionId(), session);
             }
         } catch (Exception e) {
-            // TODO fix
-            e.printStackTrace();
-        }
-        return session;
-    }
-
-    /**
-     * 
-     * @param venueName
-     * @return
-     * @throws CollaborationException
-     */
-    @Deprecated
-    public IVenueSession joinCollaborationVenue(String venueName)
-            throws CollaborationException {
-        VenueSession session = null;
-        try {
-            session = new VenueSession(container, eventBus, this);
-            if (session != null) {
-                session.joinVenue(venueName);
-                sessions.put(session.getSessionId(), session);
-            }
-
-        } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
+            throw new CollaborationException("Error joining venue "
+                    + invitation.getRoomId().getName(), e);
         }
         return session;
     }
@@ -476,47 +451,25 @@ public class SessionManager implements IEventPublisher {
     public ISharedDisplaySession createCollaborationVenue(String venueName,
             String subject) throws CollaborationException {
         SharedDisplaySession session = null;
-        int errorStatus = -1;
         try {
             session = new SharedDisplaySession(container, eventBus, this);
-            if (session != null) {
-                errorStatus = session.createVenue(venueName, subject);
-                if (errorStatus == Errors.NO_ERROR) {
-                    String name = Tools.parseName(account);
-                    String host = Tools.parseHost(account);
 
-                    IVenueParticipant me = new VenueParticipant(name, host);
+            session.createVenue(venueName, subject);
+            String name = Tools.parseName(account);
+            String host = Tools.parseHost(account);
 
-                    session.setCurrentSessionLeader(me);
-                    session.setCurrentDataProvider(me);
-                    session.setUserId(me);
+            IVenueParticipant me = new VenueParticipant(name, host);
 
-                    sessions.put(session.getSessionId(), session);
-                }
-            }
+            session.setCurrentSessionLeader(me);
+            session.setCurrentDataProvider(me);
+            session.setUserId(me);
+
+            sessions.put(session.getSessionId(), session);
+            return session;
         } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
-        } finally {
-            if (errorStatus != Errors.NO_ERROR) {
-                // TODO handle this in a more generic way
-                String message = null;
-                switch (errorStatus) {
-                case Errors.BAD_NAME:
-                    message = "Badly formed session name.";
-                    break;
-                case Errors.VENUE_EXISTS:
-                    message = "Session name already in use.";
-                    break;
-                case Errors.CANNOT_CONNECT:
-                    message = "Unable to connect.";
-                default:
-                    message = "Unknown problem creating session";
-                }
-                throw new CollaborationException(message);
-            }
+            throw new CollaborationException(
+                    "Error creating collaboration venue " + venueName, e);
         }
-        return session;
     }
 
     /**
@@ -567,7 +520,7 @@ public class SessionManager implements IEventPublisher {
      * 
      * @param session
      */
-    void removeSession(ISession session) {
+    protected void removeSession(ISession session) {
         sessions.remove(session);
     }
 
@@ -688,7 +641,7 @@ public class SessionManager implements IEventPublisher {
     /**
      * 
      */
-    ISession getSession(String sessionId) {
+    protected ISession getSession(String sessionId) {
         return sessions.get(sessionId);
     }
 
