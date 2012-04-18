@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
@@ -93,8 +93,8 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
         public boolean handleMouseDown(int anX, int aY, int button) {
             boolean allowDraw = ((CollaborationDrawingLayer) theDrawingLayer)
                     .isAllowDraw();
-            boolean isSessionLeader = CollaborationDataManager.getInstance()
-                    .getSession(session)
+            boolean isSessionLeader = SharedDisplaySessionMgr
+                    .getSessionContainer(session).getSession()
                     .hasRole(ParticipantRole.SESSION_LEADER);
             if (allowDraw && !isSessionLeader) {
                 return false;
@@ -112,8 +112,8 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
         public boolean handleMouseDownMove(int x, int y, int button) {
             boolean allowDraw = ((CollaborationDrawingLayer) theDrawingLayer)
                     .isAllowDraw();
-            boolean isSessionLeader = CollaborationDataManager.getInstance()
-                    .getSession(session)
+            boolean isSessionLeader = SharedDisplaySessionMgr
+                    .getSessionContainer(session).getSession()
                     .hasRole(ParticipantRole.SESSION_LEADER);
             if (allowDraw && !isSessionLeader) {
                 return false;
@@ -131,8 +131,8 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
         public boolean handleMouseUp(int anX, int aY, int button) {
             boolean allowDraw = ((CollaborationDrawingLayer) theDrawingLayer)
                     .isAllowDraw();
-            boolean isSessionLeader = CollaborationDataManager.getInstance()
-                    .getSession(session)
+            boolean isSessionLeader = SharedDisplaySessionMgr
+                    .getSessionContainer(session).getSession()
                     .hasRole(ParticipantRole.SESSION_LEADER);
             if (allowDraw && !isSessionLeader) {
                 return false;
