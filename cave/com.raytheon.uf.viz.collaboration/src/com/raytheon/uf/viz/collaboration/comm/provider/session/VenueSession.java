@@ -41,6 +41,8 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomParticipantListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -52,7 +54,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
-import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
@@ -96,6 +97,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 public class VenueSession extends BaseSession implements IVenueSession {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VenueSession.class);
+
     private static final String SEND_CMD = "[[COMMAND";
 
     private static final String SEND_TXT = "[[TEXT]]";
@@ -119,7 +123,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    VenueSession(IContainer container, EventBus externalBus,
+    protected VenueSession(IContainer container, EventBus externalBus,
             SessionManager manager, String sessionId)
             throws CollaborationException {
         super(container, externalBus, manager, sessionId);
@@ -130,7 +134,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    VenueSession(IContainer container, EventBus externalBus,
+    protected VenueSession(IContainer container, EventBus externalBus,
             SessionManager manager) throws CollaborationException {
         super(container, externalBus, manager);
     }
@@ -239,17 +243,14 @@ public class VenueSession extends BaseSession implements IVenueSession {
         if (sender != null) {
             VenueInvite invite = buildInvite(body);
             String msgBody = Tools.marshallData(invite);
-
             ID roomId = venueInfo.getConnectedID();
-
             ID userId = IDFactory.getDefault().createID(
                     getConnectionNamespace(), id);
 
             try {
                 sender.sendInvitation(roomId, userId, subject, msgBody);
             } catch (ECFException e) {
-                // TODO fix
-                e.printStackTrace();
+                throw new CollaborationException("Error sending invitation", e);
             }
         }
     }
@@ -278,15 +279,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
         }
     }
 
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getSessionId()
-     */
     @Override
-    public String getSessionId() {
-        return sessionId;
-    }
-
     public void sendChatMessage(String message) throws CollaborationException {
         this.sendMessageToVenue(message);
     }
@@ -304,7 +297,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     sender.sendMessage(SEND_TXT + message);
                 }
             } catch (ECFException e) {
-                throw new CollaborationException("Error sending text messge", e);
+                throw new CollaborationException("Error sending messge", e);
             }
         }
     }
@@ -313,12 +306,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
         this.userID = id;
     }
 
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#joinVenue(java.lang.String)
-     */
-    int joinVenue(String venueName) {
-        int errorStatus = -1;
+    protected void joinVenue(String venueName) throws CollaborationException {
         try {
             // Create chat room container from manager
             venueManager = getConnectionPresenceAdapter().getChatRoomManager();
@@ -326,30 +314,25 @@ public class VenueSession extends BaseSession implements IVenueSession {
                 venueInfo = venueManager.getChatRoomInfo(venueName);
                 subject = venueInfo.getDescription();
                 if (venueInfo != null) {
-                    errorStatus = completeVenueConnection(venueInfo);
-                } else {
-                    // Could not join venue.
+                    completeVenueConnection(venueInfo);
                 }
-            } else {
-
             }
         } catch (Exception e) {
-            // TODO fix
-            System.out.println(String.format("joinVenue(%s)", venueName));
-            e.printStackTrace();
+            throw new CollaborationException(
+                    "Error joining venue " + venueName, e);
         }
-        return errorStatus;
     }
 
     /**
      * 
      * @param venueName
+     * @throws CollaborationException
      * @throws Exception
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#createVenue(java.lang.String,
      *      java.lang.String)
      */
-    int createVenue(String venueName, String subject) {
-        int errorStatus = -1;
+    protected void createVenue(String venueName, String subject)
+            throws CollaborationException {
         try {
             this.subject = subject;
             // Create chat room container from manager
@@ -363,31 +346,22 @@ public class VenueSession extends BaseSession implements IVenueSession {
                         props.put(Tools.VENUE_SUBJECT_PROP, subject);
                     }
                     venueInfo = venueManager.createChatRoom(venueName, props);
-                    errorStatus = completeVenueConnection(venueInfo);
-                } else {
-                    errorStatus = Errors.VENUE_EXISTS;
+                    completeVenueConnection(venueInfo);
                 }
-            } else {
-                errorStatus = Errors.CANNOT_CONNECT; // is this correct?
             }
         } catch (Exception e) {
-            // TODO this is bad, we assume it's a bad venue name but it might
-            // not be
-            // and we'd give a poor error message
-            System.out.println(String.format("createVenue(%s)", venueName));
-            e.printStackTrace();
-            errorStatus = Errors.BAD_NAME;
+            throw new CollaborationException("Error creating venue "
+                    + venueName, e);
         }
-        return errorStatus;
     }
 
     /**
      * 
      * @return
+     * @throws CollaborationException
      */
-    private int completeVenueConnection(IChatRoomInfo venueInfo) {
-        int errorStatus = Errors.NO_ERROR;
-
+    private void completeVenueConnection(IChatRoomInfo venueInfo)
+            throws CollaborationException {
         if (venueInfo != null) {
             try {
                 venueContainer = venueInfo.createChatRoomContainer();
@@ -453,10 +427,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
                 }
             } catch (Exception e) {
-                errorStatus = -1;
+                throw new CollaborationException(
+                        "Error completing connection to venue", e);
             }
         }
-        return errorStatus;
     }
 
     /**
@@ -513,8 +487,9 @@ public class VenueSession extends BaseSession implements IVenueSession {
                             getEventPublisher().post(o);
                         }
                     } catch (CollaborationException ce) {
-                        // TODO : more robust!!
-                        ce.printStackTrace();
+                        statusHandler.error(
+                                "Error deserializing received message on venue "
+                                        + venueInfo.getName(), ce);
                     }
                 }
             }
