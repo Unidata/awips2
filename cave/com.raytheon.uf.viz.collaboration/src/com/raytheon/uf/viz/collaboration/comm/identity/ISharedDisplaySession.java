@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
@@ -61,7 +60,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  * @version 1.0
  */
 
-public interface ISharedDisplaySession extends IEventPublisher {
+public interface ISharedDisplaySession extends IVenueSession {
 
     /**
      * Sends the object to the other collaborators on the session. The object
@@ -123,12 +122,6 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * @return
      */
     public boolean hasRole(ParticipantRole role);
-
-    /**
-     * 
-     * @return
-     */
-    public IQualifiedID getUserID();
 
     /**
      * Gets the connection status of the session.
