@@ -23,7 +23,6 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 
 /**
  * Event for when a new user enters and a color is added
@@ -43,7 +42,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
  */
 
 @DynamicSerialize
-public class ColorChangeEvent implements IDisplayEvent {
+public class ColorChangeEvent {
     @DynamicSerializeElement
     private String userName;
 
