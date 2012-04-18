@@ -62,7 +62,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscri
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -731,9 +731,9 @@ public class SessionManager implements IEventPublisher {
                             IChatID invitor = new RosterId(id.getName(),
                                     id.getHost(), id.getResource());
 
-                            SharedDisplayInvite received;
+                            VenueInvite received;
                             try {
-                                received = (SharedDisplayInvite) Tools
+                                received = (VenueInvite) Tools
                                         .unMarshallData(body);
 
                                 if (subject == null) {
