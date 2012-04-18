@@ -503,8 +503,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         sessionId = session.getSessionId();
         // TODO throw an exception if unable to make connection?
         if (session.isConnected()) {
-            ISharedDisplaySession displaySession = session
-                    .spawnSharedDisplaySession();
+            ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
             sessionsMap.put(sessionId, session);
             SharedDisplaySessionMgr.joinSession(displaySession,
                     ParticipantRole.DATA_PROVIDER);
@@ -577,8 +576,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     String sessionId = session.getSessionId();
                     sessionsMap.put(sessionId, session);
                     if (sharedDisplay) {
-                        ISharedDisplaySession displaySession = session
-                                .spawnSharedDisplaySession();
+                        ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                         SharedDisplaySessionMgr.joinSession(displaySession,
                                 ParticipantRole.PARTICIPANT);
 
@@ -785,13 +783,12 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             try {
                 session = getSessionManager().joinCollaborationVenue(venueName);
                 result = session.getSessionId();
-                ISharedDisplaySession displaySession = session
-                        .spawnSharedDisplaySession();
+                ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                 sessionsMap.put(result, session);
                 ParticipantEventController pec = new ParticipantEventController(
                         displaySession);
                 pec.startup();
-                // TODO this is broken and should be removed
+                // TODO this method is broken and should be removed
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.

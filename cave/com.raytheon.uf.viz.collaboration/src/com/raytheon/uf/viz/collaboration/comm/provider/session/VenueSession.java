@@ -30,7 +30,6 @@ import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IIMMessageEvent;
 import org.eclipse.ecf.presence.IIMMessageListener;
-import org.eclipse.ecf.presence.IPresenceSender;
 import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationSender;
@@ -51,8 +50,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
@@ -156,17 +153,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     }
 
     /**
-     * Return this session as an ISharedDisplaySession if it is supported. If
-     * the interface is not supported the method must return a null reference.
-     * 
-     * @return
-     */
-    @Override
-    public ISharedDisplaySession spawnSharedDisplaySession() {
-        return this;
-    }
-
-    /**
      * Close this session. Closing clears all listeners and disposes of the
      * container. No errors for attempting to close an already closed session.
      * 
@@ -248,16 +234,13 @@ public class VenueSession extends BaseSession implements IVenueSession,
      *            The intended subject of the venue conversation.
      * @param body
      *            Any text that the user may wish to include.
-     * @return
      * @throws CollaborationException
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendInvitation(java.lang.String,
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public int sendInvitation(String id, String body)
+    public void sendInvitation(String id, String body)
             throws CollaborationException {
-        // Assume success
-        int status = Errors.NO_ERROR;
         IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
                 .getChatRoomManager().getInvitationSender();
         if (sender != null) {
@@ -277,10 +260,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
             try {
                 sender.sendInvitation(roomId, userId, subject, msgBody);
             } catch (ECFException e) {
+                // TODO fix
                 e.printStackTrace();
             }
         }
-        return status;
     }
 
     /**
@@ -294,23 +277,17 @@ public class VenueSession extends BaseSession implements IVenueSession,
      *            The intended subject of the venue conversation.
      * @param body
      *            Any text that the user may wish to include.
-     * @return
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendInvitation(java.lang.String,
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public int sendInvitation(List<String> ids, String body)
+    public void sendInvitation(List<String> ids, String body)
             throws CollaborationException {
-        // Assume success
-        int status = Errors.NO_ERROR;
         if (ids != null) {
             for (String id : ids) {
                 sendInvitation(id, body);
             }
-        } else {
-            status = -1;
         }
-        return status;
     }
 
     /**
@@ -331,7 +308,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (obj != null) {
             String message = Tools.marshallData(obj);
             if (message != null) {
-                sendTextMessage(message);
+                sendMessageToVenue(message);
             }
         }
     }
@@ -397,13 +374,12 @@ public class VenueSession extends BaseSession implements IVenueSession,
     // ISharedDisplaySession
     // ***************************
 
-    /**
-     * @param message
-     *            A message to send.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendTextMessage(java.lang.String)
-     */
-    @Override
-    public void sendTextMessage(String message) throws CollaborationException {
+    public void sendChatMessage(String message) throws CollaborationException {
+        this.sendMessageToVenue(message);
+    }
+
+    protected void sendMessageToVenue(String message)
+            throws CollaborationException {
         // Assume success
         if ((venueContainer != null) && (message != null)) {
             IChatRoomMessageSender sender = venueContainer
@@ -498,56 +474,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
             e.printStackTrace();
             errorStatus = Errors.BAD_NAME;
         }
-        // TODO :
-        // sendSubscription(subject);
         return errorStatus;
-    }
-
-    private void sendSubscription(final String name) {
-
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("Sending subscribe message.");
-
-                    boolean remove = "remove".equals(name);
-
-                    String[] groups = { "group2", };
-
-                    // String [] groups = new String [];
-
-                    IRosterManager r = getSessionManager().getRosterManager();
-                    if (remove) {
-                        IChatID id = new RosterId("pkorman",
-                                "awipscm.omaha.us.ray.com", null);
-                        r.sendRosterRemove(id);
-                    } else {
-
-                        r.sendRosterAdd("pkorman@awipscm.omaha.us.ray.com",
-                                "Paul", groups);
-                    }
-                    if ("subscribe".equals(name)) {
-                        IPresenceSender sender = getConnectionPresenceAdapter()
-                                .getRosterManager().getPresenceSender();
-                        org.eclipse.ecf.presence.IPresence presence = new org.eclipse.ecf.presence.Presence(
-                                org.eclipse.ecf.presence.IPresence.Type.SUBSCRIBE);
-
-                        sender.sendPresenceUpdate(
-                                createID("pkorman@awipscm.omaha.us.ray.com"),
-                                presence);
-                    }
-
-                    System.out.println("Subscribe message sent.");
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
-        System.out.println("The subscribe test has started.");
     }
 
     /**
