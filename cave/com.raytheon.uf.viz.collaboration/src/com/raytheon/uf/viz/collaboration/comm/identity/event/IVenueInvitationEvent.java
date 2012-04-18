@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
@@ -58,5 +58,5 @@ public interface IVenueInvitationEvent {
      */
     String getSubject();
 
-    public SharedDisplayInvite getInvite();
+    public VenueInvite getInvite();
 }
