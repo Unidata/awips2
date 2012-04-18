@@ -218,7 +218,7 @@ public class CollaborationSessionView extends SessionView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                ((IVenueSession) session).sendTextMessage(message);
+                ((IVenueSession) session).sendChatMessage(message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
