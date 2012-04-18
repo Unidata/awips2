@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.ui.role;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
@@ -29,13 +30,17 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
+import com.raytheon.uf.viz.collaboration.ui.editor.ReprojectEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 
 /**
@@ -92,6 +97,34 @@ public class ParticipantEventController extends AbstractRoleEventController {
             }
         });
         super.activateTelestrator(); // TODO should this be elsewhere?
+    }
+
+    @Subscribe
+    public void reprojectEditor(final ReprojectEditor event) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                CollaborationEditor editor = SharedDisplaySessionMgr
+                        .getSessionContainer(session.getSessionId())
+                        .getCollaborationEditor();
+                for (IDisplayPane pane : editor.getDisplayPanes()) {
+                    IDescriptor desc = pane.getDescriptor();
+                    if (desc instanceof AbstractDescriptor) {
+                        try {
+                            ((AbstractDescriptor) desc).setGridGeometry(event
+                                    .getTargetGeometry());
+                        } catch (VizException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error reprojecting collaboration display: "
+                                            + e.getLocalizedMessage(), e);
+                        }
+                    }
+                    pane.setZoomLevel(1.0);
+                    pane.scaleToClientArea();
+                    pane.refresh();
+                }
+            }
+        });
     }
 
     @Subscribe
