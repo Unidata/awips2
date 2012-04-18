@@ -19,6 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.editor.ReprojectEditor;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -52,6 +59,8 @@ public class SharedEditorIndicatorRsc extends
 
     protected String subject;
 
+    protected ISharedDisplaySession session;
+
     public SharedEditorIndicatorRsc(GenericResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -59,21 +68,39 @@ public class SharedEditorIndicatorRsc extends
 
     @Override
     protected void disposeInternal() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        // TODO Auto-generated method stub
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
+     * referencing.crs.CoordinateReferenceSystem)
+     */
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        ReprojectEditor event = new ReprojectEditor();
+        event.setTargetGeometry(descriptor.getGridGeometry());
+        try {
+            session.sendObjectToVenue(event);
+        } catch (CollaborationException e) {
+            Activator.statusHandler.handle(
+                    Priority.PROBLEM,
+                    "Error sending reprojection event: "
+                            + e.getLocalizedMessage(), e);
+        }
     }
 
     public String getName() {
@@ -90,6 +117,10 @@ public class SharedEditorIndicatorRsc extends
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public void setSession(ISharedDisplaySession session) {
+        this.session = session;
     }
 
 }
