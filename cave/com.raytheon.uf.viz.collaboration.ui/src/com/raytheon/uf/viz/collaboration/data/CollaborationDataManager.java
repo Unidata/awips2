@@ -72,6 +72,7 @@ import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
+import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -550,7 +551,14 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                         | SWT.OK | SWT.CANCEL);
                 box.setText("Invitation");
                 StringBuilder sb = new StringBuilder();
-                sb.append("You are invited to a collaboration.\n");
+                boolean sharedDisplay = invitation.getInvite()
+                        .isSharedDisplayVenue();
+                sb.append("You are invited to a ");
+                if (sharedDisplay) {
+                    sb.append("collaboration session.\n");
+                } else {
+                    sb.append("chat room.\n");
+                }
                 sb.append("Inviter: ").append(inviter.getName()).append("\n");
                 sb.append("Room: ").append(room.getName()).append("\n");
                 sb.append("Subject: ").append(invitation.getSubject());
@@ -568,17 +576,26 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                             .joinCollaborationVenue(invitation);
                     String sessionId = session.getSessionId();
                     sessionsMap.put(sessionId, session);
-                    ISharedDisplaySession displaySession = session
-                            .spawnSharedDisplaySession();
-                    SharedDisplaySessionMgr.joinSession(displaySession,
-                            ParticipantRole.PARTICIPANT);
+                    if (sharedDisplay) {
+                        ISharedDisplaySession displaySession = session
+                                .spawnSharedDisplaySession();
+                        SharedDisplaySessionMgr.joinSession(displaySession,
+                                ParticipantRole.PARTICIPANT);
 
-                    PlatformUI
-                            .getWorkbench()
-                            .getActiveWorkbenchWindow()
-                            .getActivePage()
-                            .showView(CollaborationSessionView.ID, sessionId,
-                                    IWorkbenchPage.VIEW_ACTIVATE);
+                        PlatformUI
+                                .getWorkbench()
+                                .getActiveWorkbenchWindow()
+                                .getActivePage()
+                                .showView(CollaborationSessionView.ID,
+                                        sessionId, IWorkbenchPage.VIEW_ACTIVATE);
+                    } else {
+                        PlatformUI
+                                .getWorkbench()
+                                .getActiveWorkbenchWindow()
+                                .getActivePage()
+                                .showView(SessionView.ID, sessionId,
+                                        IWorkbenchPage.VIEW_ACTIVATE);
+                    }
                 } catch (CollaborationException e) {
                     // TODO Auto-generated catch block. Please revise as
                     // appropriate.
