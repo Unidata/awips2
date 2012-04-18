@@ -2,7 +2,9 @@
 <!-- Customized by Phil Kurimski WFO DTX 07-14-2011 
          Modified  Evan Bookbinder       09-16-2011 OB11.0.8-8
          Modified  Phil Kurimski         09-23-2011  OB 11.0.8-8 
-         Modified  Phil Kurimski         01-26-2012  OB 12.1.1-1 -->
+         Modified  Phil Kurimski         01-26-2012  OB 12.1.1-1 
+                   Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.       
+-->
 
 <warngenConfig>
 
@@ -300,6 +302,7 @@
   <!--  <areaField>NAME</areaField> -->
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
   <!--  <fipsField>STATE_ZONE</fipsField> -->

@@ -19,13 +19,10 @@
  **/
 package com.raytheon.viz.core.gl.internal.ext;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.coverage.grid.GridGeometry2D;
-
 import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.internal.GLMesh2DStrips;
@@ -54,28 +51,12 @@ public class GLMapMeshExtension extends GraphicsExtension<IGLTarget> implements
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.core.map.IMapMeshExtension#constructMesh(org.geotools
-     * .coverage.grid.GridGeometry2D,
-     * org.geotools.coverage.grid.GeneralGridGeometry)
+     * com.raytheon.uf.viz.core.map.IMapMeshExtension#constructMesh(com.raytheon
+     * .uf.viz.core.map.IMapDescriptor)
      */
     @Override
-    public IMesh constructMesh(GridGeometry2D imageGeometry,
-            GeneralGridGeometry targetGeometry) throws VizException {
-        return new GLMesh2DStrips(imageGeometry, targetGeometry);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.map.IMapMeshExtension#constructMesh(org.geotools
-     * .coverage.grid.GridGeometry2D,
-     * com.raytheon.uf.viz.core.drawables.IDescriptor)
-     */
-    @Override
-    public IMesh constructMesh(GridGeometry2D imageGeometry,
-            IDescriptor targetDescriptor) throws VizException {
-        return constructMesh(imageGeometry, targetDescriptor.getGridGeometry());
+    public IMesh constructMesh(IMapDescriptor descriptor) throws VizException {
+        return new GLMesh2DStrips(descriptor);
     }
 
     /*
@@ -86,7 +67,7 @@ public class GLMapMeshExtension extends GraphicsExtension<IGLTarget> implements
      */
     @Override
     public int getCompatibilityValue(IGLTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE;
+        return Compatibilty.TARGET_COMPATIBLE.value;
     }
 
 }
