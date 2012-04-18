@@ -36,7 +36,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
@@ -417,12 +416,13 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         sendGenericEvent(event);
     }
 
-    private void sendGenericEvent(IDisplayEvent event) {
+    private void sendGenericEvent(CollaborationDrawingEvent event) {
         Map<String, IVenueSession> sessions = CollaborationDataManager
                 .getInstance().getSessions();
         for (String str : sessions.keySet()) {
             try {
-                ((ISharedDisplaySession) sessions.get(str)).sendEvent(event);
+                ((ISharedDisplaySession) sessions.get(str))
+                        .sendObjectToVenue(event);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.ERROR, "Unable to send event", e);
             }

@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
@@ -63,12 +62,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  */
 
 public interface ISharedDisplaySession extends IEventPublisher {
-
-    /**
-     * 
-     * @param event
-     */
-    void sendEvent(IDisplayEvent event) throws CollaborationException;
 
     /**
      * Sends the object to the other collaborators on the session. The object
