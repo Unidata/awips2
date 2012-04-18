@@ -47,7 +47,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
@@ -326,22 +325,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     // ***************************
     // ISharedDisplaySession
     // ***************************
-
-    /**
-     * 
-     * @param event
-     * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendEvent(com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent)
-     */
-    @Override
-    public void sendEvent(IDisplayEvent event) throws CollaborationException {
-        if (event != null) {
-            String message = Tools.marshallData(event);
-            if (message != null) {
-                sendTextMessage(message);
-            }
-        }
-    }
 
     @Override
     public void sendObjectToVenue(Object obj) throws CollaborationException {

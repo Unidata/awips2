@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.ui.telestrator.event;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.ShapeContainer;
 import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 
@@ -43,8 +42,7 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
  */
 
 @DynamicSerialize
-public class CollaborationDrawingEvent extends DrawingEvent implements
-        IDisplayEvent {
+public class CollaborationDrawingEvent extends DrawingEvent {
 
     public static enum CollaborationEventType {
         DRAW, ERASE, REDO, UNDO, CLEAR, DISABLE;
