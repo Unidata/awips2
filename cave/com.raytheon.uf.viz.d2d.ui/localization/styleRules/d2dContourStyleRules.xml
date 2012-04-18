@@ -37,6 +37,28 @@
     </contourLabeling>
   </contourStyle>
 </styleRule>
+
+<!--
+  * GH, GHxSM, zAGL
+  dam | 0.1 | 0.0 | 4 | i4 |   |..|8000F0FF| | 0 | 50
+-->
+<!--  geopotential height (GH) rules for HRRR-East -->
+<styleRule>
+  <paramLevelMatches>
+	<parameter>GH</parameter>
+	<parameter>GHxSM</parameter>
+	<parameter>zAGL</parameter>
+	<creatingEntity>HRRR-East</creatingEntity>
+	<creatingEntity>HRRR-West</creatingEntity>	  
+  </paramLevelMatches>
+  <contourStyle>
+    <displayUnits>ft</displayUnits>
+    <contourLabeling labelSpacing="4" labelFormat="#">
+      <increment>5000</increment>
+    </contourLabeling>
+  </contourStyle>
+</styleRule>
+
 <!--
   * GH, GHxSM, Topo, Surface
   m  | 1.0 | 0.0 | 4 | i4 |   |..|8000F0FF| | 12 |   1 100 200 300 500 700 1000 1500 2000 2500 3000 3500
@@ -345,7 +367,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
   <contourStyle>
      <displayUnits>F</displayUnits>
      <range scale="LINEAR">
-       <minValue>-40</minValue>
+       <minValue>-100</minValue>
        <maxValue>115</maxValue>
      </range>
      <contourLabeling>
@@ -962,7 +984,7 @@ PVU |1e5| 0.0 | 4 | | |..|8000F0FF| |16| \
      <parameter>MpV</parameter>
   </paramLevelMatches>
   <contourStyle>
-  	 <displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
+  	 <displayUnits label="PVU">K/hPa/s</displayUnits>
      <contourLabeling labelSpacing="4">
      <values>-1 -.5 -.1 0 1 1.5 2 3 4 5 6 8 10 12 15 20</values>
      </contourLabeling>

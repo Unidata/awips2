@@ -28,6 +28,8 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -67,6 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
  * Jan 6, 2008  1802        askripsk    Connect to DB.
+ * Mar 29,2012  14463       wkwock      Fix max # of char for remark text box to 255
+ *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
  * 
  * </pre>
  * 
@@ -293,6 +297,15 @@ public class RiverGageDlg extends CaveSWTDialog implements
         NO_DATA_AVAILABLE, DATA_AVAILABLE
     }
 
+    /**
+     * text from the remark text box
+     */
+    private String currentRemarkText=null;
+    
+    /**
+     * maximum number of character allowed in the remark text box
+     */
+    private final int MAX_REMARK_CHAR=255;
     /**
      * Constructor.
      * 
@@ -612,7 +625,24 @@ public class RiverGageDlg extends CaveSWTDialog implements
         remarksTF = new Text(remarksGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         remarksTF.setLayoutData(gd);
         remarksTF.setFont(controlFont);
-        remarksTF.setTextLimit(255);
+        remarksTF.setTextLimit(MAX_REMARK_CHAR);
+        
+        /*Note: use this method to control number of character in remarkTF
+         * because a bug in the Text class. 
+         * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004*/
+        currentRemarkText=remarksTF.getText();
+        ModifyListener listener = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (remarksTF.getText().length()>MAX_REMARK_CHAR){
+        			remarksTF.setText(currentRemarkText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentRemarkText=remarksTF.getText();
+        	}
+        };
+
+        remarksTF.addModifyListener(listener);
     }
 
     /**
