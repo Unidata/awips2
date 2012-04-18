@@ -130,11 +130,4 @@ public interface ISharedDisplaySession extends IVenueSession {
      */
     public boolean isConnected();
 
-    /**
-     * Get the session identifier.
-     * 
-     * @return The session identifier.
-     */
-    public String getSessionId();
-
 }
