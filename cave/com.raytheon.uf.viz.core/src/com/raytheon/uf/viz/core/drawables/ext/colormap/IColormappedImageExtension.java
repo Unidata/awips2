@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.core.drawables.ext.colormap;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
-import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
+import com.raytheon.uf.viz.core.drawables.IImage;
 
 /**
  * Extension for creating {@link IColormappedImage} objects
@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
  * @version 1.0
  */
 
-public interface IColormappedImageExtension extends IImagingExtension {
+public interface IColormappedImageExtension {
 
     /**
      * Initializes an IColormappedImage given the dataCallback and colormap
@@ -51,7 +51,6 @@ public interface IColormappedImageExtension extends IImagingExtension {
      * @param colorMapParameters
      * @return
      */
-    public IColormappedImage initializeRaster(
-            IColorMapDataRetrievalCallback dataCallback,
+    public IImage initializeRaster(IColorMapDataRetrievalCallback dataCallback,
             ColorMapParameters colorMapParameters);
 }

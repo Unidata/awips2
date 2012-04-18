@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.viz.core.rsc.hdf5.MeshCalculatorJob;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
@@ -321,21 +322,71 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
     		tiltRecord.tile = new ImageTile();
         }
 
-    	tiltRecord.tile.coverage = buildCoverage(target, tiltRecord);
-        if (tiltRecord.tile.coverage.getMesh() == null) {
-            tiltRecord.tile.coverage.setMesh(buildMesh(target, tiltRecord));
+    	if (tiltRecord.tile.coverage == null) {
+    		tiltRecord.tile.coverage = buildCoverage(target, tiltRecord);
+    	}
+
+        try {
+            RadarRecord record = populatedRecord;
+
+            // Attempt to create envelope, adapted from AbstractTileSet
+            double maxExtent = RadarUtil.calculateExtent(record);
+            GridGeometry2D geom = RadarUtil.constructGridGeometry(
+                    record.getCRS(), maxExtent,
+                    Math.max(record.getNumBins(), record.getNumRadials()));
+
+            MathTransform mt = geom.getGridToCRS(PixelInCell.CELL_CORNER);
+
+            double[] ul = new double[3];
+            double[] lr = new double[3];
+            double[] in = new double[2];
+            in[0] = 0;
+            in[1] = 0;
+            mt.transform(in, 0, ul, 0, 1);
+            in[0] = record.getNumRadials();
+            in[1] = record.getNumBins();
+            mt.transform(in, 0, lr, 0, 1);
+
+            tiltRecord.tile.envelope = new ReferencedEnvelope(ul[0], lr[0], ul[1], lr[1],
+                    record.getCRS());
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, 
+                    "Error constructing extent", e);
         }
-        
-        Rectangle rect = new Rectangle(0, 0, populatedRecord.getNumBins(),
-                populatedRecord.getNumRadials());
+
+        tiltRecord.tile.rect = new Rectangle(0, 0,
+        		populatedRecord.getNumBins(), populatedRecord.getNumRadials());
+
+
+        if (tiltRecord.tile.coverage.getMesh() == null) {
+        	IMesh mesh = buildMesh(target, tiltRecord);
+
+        if (mesh != null) {
+            try {
+                MeshCalculatorJob.getInstance().requestLoad(
+                        this,
+                        mesh,
+                        tiltRecord.tile,
+                        CRS.findMathTransform(populatedRecord.getCRS(),
+                                DefaultGeographicCRS.WGS84));
+            } catch (FactoryException e) {
+                statusHandler.handle(
+                        Priority.PROBLEM,
+                        "Error finding math transform to lat/lon for radar record",
+                        e);
+            }
+        }
+        }
 
         tiltRecord.image = target.initializeRaster(CMDataPreparerManager
-                .getDataPreparer(BufferUtil.wrapDirect(
-                        toImageData(tiltRecord.params, populatedRecord),
-                        new Rectangle(0, 0, populatedRecord.getNumBins(),
-                                populatedRecord.getNumRadials())), rect,
-                        new int[] { rect.width, rect.height }),
-                tiltRecord.params);
+        		.getDataPreparer(BufferUtil.wrapDirect(
+        				toImageData(tiltRecord.params, populatedRecord),
+        				new Rectangle(0, 0, populatedRecord.getNumBins(),
+        						populatedRecord.getNumRadials())),
+        						tiltRecord.tile.rect, new int[] {
+        			tiltRecord.tile.rect.width,
+        			tiltRecord.tile.rect.height }),
+        			tiltRecord.params);
 
     }
 

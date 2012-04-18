@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2011            rjpeter     Initial creation
+ * Mar 08, 2012   194   njensen   Improved logging
  * 
  * </pre>
  * 
@@ -160,10 +161,11 @@ public class JmsPooledConsumer {
         if (close) {
             if (consumer != null) {
                 try {
+                    statusHandler.info("Closing consumer " + consumer); // njensen
                     consumer.close();
                 } catch (Throwable e) {
                     statusHandler.handle(Priority.INFO,
-                            "Failed to close producer", e);
+                            "Failed to close consumer " + consumer, e);
                 }
                 consumer = null;
             }
