@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -66,6 +68,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 11, 2010   5518      lbousaidi	fixed filter options to reflect 
  * 										changes in crest data list display
  * Nov 18, 2010   6981      lbousaidi   fixed Ok button and prelim problem
+ * Mar 29,2012  14463       wkwock      Fix max # of char for remark text box to 255
+ *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
+ * 
  * 
  * </pre>
  * 
@@ -208,6 +213,17 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
      * int that's keeps track of DB mode 0 = none 1 = new 2 = delete
      */
     private int function = 0;
+
+    /**
+     * text from the remark text box
+     */
+    private String currentRemarkText=null;
+    
+    /**
+     * maximum number of character allowed in the remark text box
+     */
+    private final int MAX_REMARK_CHAR=80;
+    /**
 
     /**
      * Constructor.
@@ -509,7 +525,24 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         gd.horizontalSpan = 4;
         remarksTF = new Text(selectedGroup, SWT.BORDER | SWT.WRAP);
         remarksTF.setLayoutData(gd);
-        remarksTF.setTextLimit(80);
+        remarksTF.setTextLimit(MAX_REMARK_CHAR);
+
+        /*Note: use this method to control number of character in remarkTF
+         * because a bug in the Text class. 
+         * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004*/
+        currentRemarkText=remarksTF.getText();
+        ModifyListener listener = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (remarksTF.getText().length()>MAX_REMARK_CHAR){
+        			remarksTF.setText(currentRemarkText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentRemarkText=remarksTF.getText();
+        	}
+        };
+
+        remarksTF.addModifyListener(listener);
     }
 
     /**

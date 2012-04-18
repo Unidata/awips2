@@ -73,6 +73,7 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 22, 2008				randerso	Initial creation
+ * Mar 27, 2012				mli			add isOpened()
  * 
  * </pre>
  * 
@@ -578,4 +579,8 @@ public abstract class AbstractVizPerspectiveManager implements
             }
         }
     }
+    
+    public boolean isOpened() {
+		return opened;
+	}
 }

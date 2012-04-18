@@ -29,7 +29,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
@@ -134,8 +133,8 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
     }
 
     @Override
-    public String inspect(DataTime dataTime, Map<String, String> dataMap) {
-        StringBuilder sb = new StringBuilder(super.inspect(dataTime, dataMap));
+    public String inspect(Map<String, String> dataMap) {
+        StringBuilder sb = new StringBuilder(super.inspect(dataMap));
 
         if (dataMap != null && dataMap.containsKey(EAV_VALUE)) {
             sb.append(" ").append(dataMap.get(EAV_VALUE));
@@ -144,8 +143,8 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
     }
 
     @Override
-    public Map<String, String> interrogate(DataTime dataTime, Coordinate latLon) {
-        Map<String, String> dataMap = super.interrogate(dataTime, latLon);
+    public Map<String, String> interrogate(Coordinate latLon) {
+        Map<String, String> dataMap = super.interrogate(latLon);
 
         // add EAV values to dataMap, if necessary
         if (hasCapability(EAVCapability.class)) {

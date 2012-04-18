@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.viz.core.rsc.BestResResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
-import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.IRadarMosaicRenderer;
+import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicRendererFactoryExtension.IRadarMosaicRenderer;
 import com.raytheon.viz.radar.util.DataUtilities;
 
 /**
