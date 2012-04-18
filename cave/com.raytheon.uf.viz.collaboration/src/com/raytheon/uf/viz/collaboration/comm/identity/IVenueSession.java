@@ -58,27 +58,19 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 public interface IVenueSession extends ISession, IEventPublisher {
 
     /**
-     * Return this session as an ISharedDisplaySession if it is supported. If
-     * the interface is not supported the method must return a null reference.
-     * 
-     * @return
-     */
-    ISharedDisplaySession spawnSharedDisplaySession();
-
-    /**
      * Returns information about a venue.
      * 
      * @return Information about a venue
      */
-    IVenue getVenue();
+    public IVenue getVenue();
 
     /**
-     * Send a Collaboration message.
+     * Send a chat message.
      * 
      * @param message
      *            The message to send.
      */
-    void sendTextMessage(String message) throws CollaborationException;
+    public void sendChatMessage(String message) throws CollaborationException;
 
     /**
      * Send an invitation from this venue to another user.
@@ -89,11 +81,11 @@ public interface IVenueSession extends ISession, IEventPublisher {
      *            The intended subject of the venue conversation.
      * @return
      */
-    public int sendInvitation(String id, String body)
+    public void sendInvitation(String id, String body)
             throws CollaborationException;
 
     /**
-     * Send an invitation from this venue to one or more users.
+     * Send an invitation from this venue to a list of users.
      * 
      * @param ids
      *            A list of target users for this invitation.
@@ -101,7 +93,7 @@ public interface IVenueSession extends ISession, IEventPublisher {
      *            Any text that the user may wish to include.
      * @return
      */
-    public int sendInvitation(List<String> ids, String body)
+    public void sendInvitation(List<String> ids, String body)
             throws CollaborationException;
 
 }
