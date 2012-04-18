@@ -69,7 +69,6 @@ import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
-import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
@@ -772,31 +771,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                 eventBus.post(rosterChangeEvent);
             }
         });
-    }
-
-    @Deprecated
-    public String joinCollaborationSession(String venueName, String sessionId) {
-        String result = sessionId;
-        if (sessionsMap.get(sessionId) == null) {
-
-            IVenueSession session = null;
-            try {
-                session = getSessionManager().joinCollaborationVenue(venueName);
-                result = session.getSessionId();
-                ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
-                sessionsMap.put(result, session);
-                ParticipantEventController pec = new ParticipantEventController(
-                        displaySession);
-                pec.startup();
-                // TODO this method is broken and should be removed
-            } catch (CollaborationException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-        }
-        return result;
     }
 
     public void registerEventHandler(Object handler) {
