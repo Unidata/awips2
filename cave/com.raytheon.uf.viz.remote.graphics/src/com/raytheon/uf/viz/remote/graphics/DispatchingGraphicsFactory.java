@@ -162,20 +162,42 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
             // Wrap the graphics adapter in dispatching one
             display.setGraphicsAdapter(new DispatchingGraphicsFactory(display
                     .getGraphicsAdapter(), dispatcher));
-
-            // Force resetting of the pane's display
-            pane.setRenderableDisplay(null);
-            pane.setRenderableDisplay(display);
-
-            display.setup(pane.getTarget());
-
-            for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
-                if (rp.getResource() != null) {
-                    rp.getResource().recycle();
-                }
-            }
-            pane.refresh();
+            refreshPane(pane);
         }
     }
 
+    /**
+     * Removes remote graphics functionality from a display pane container
+     * 
+     * @param container
+     */
+    public static void extractRemoteFunctionality(
+            IDisplayPaneContainer container) {
+        for (IDisplayPane pane : container.getDisplayPanes()) {
+            IRenderableDisplay display = pane.getRenderableDisplay();
+            AbstractGraphicsFactoryAdapter adapter = display
+                    .getGraphicsAdapter();
+            if (adapter instanceof DispatchingGraphicsFactory) {
+                AbstractGraphicsFactoryAdapter wrapped = ((DispatchingGraphicsFactory) adapter).delegate;
+                display.setGraphicsAdapter(wrapped);
+                refreshPane(pane);
+            }
+        }
+    }
+
+    private static void refreshPane(IDisplayPane pane) {
+        IRenderableDisplay display = pane.getRenderableDisplay();
+        // Force resetting of the pane's display
+        pane.setRenderableDisplay(null);
+        pane.setRenderableDisplay(display);
+
+        display.setup(pane.getTarget());
+
+        for (ResourcePair rp : display.getDescriptor().getResourceList()) {
+            if (rp.getResource() != null) {
+                rp.getResource().recycle();
+            }
+        }
+        pane.refresh();
+    }
 }
