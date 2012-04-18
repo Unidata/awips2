@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
@@ -48,7 +48,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
 
     private String subject;
 
-    private SharedDisplayInvite invite;
+    private VenueInvite invite;
 
     /**
      * 
@@ -58,7 +58,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
      * @param body
      */
     public VenueInvitationEvent(IQualifiedID venueId, IQualifiedID invitor,
-            String subject, SharedDisplayInvite invite) {
+            String subject, VenueInvite invite) {
         this.venueId = venueId;
         this.invitor = invitor;
         this.subject = subject;
@@ -91,7 +91,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
         return subject;
     }
 
-    public SharedDisplayInvite getInvite() {
+    public VenueInvite getInvite() {
         return invite;
     }
 
