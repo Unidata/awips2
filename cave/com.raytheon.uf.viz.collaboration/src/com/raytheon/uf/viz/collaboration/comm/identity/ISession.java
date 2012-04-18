@@ -69,7 +69,7 @@ public interface ISession extends IEventPublisher {
      * Close and clean up this session. After a close, isConnected must return
      * false.
      */
-    void close();
+    public void close();
 
     /**
      * 
@@ -82,12 +82,12 @@ public interface ISession extends IEventPublisher {
      * 
      * @return The connection status.
      */
-    boolean isConnected();
+    public boolean isConnected();
 
     /**
      * Get the session identifier.
      * 
      * @return The session identifier.
      */
-    String getSessionId();
+    public String getSessionId();
 }
