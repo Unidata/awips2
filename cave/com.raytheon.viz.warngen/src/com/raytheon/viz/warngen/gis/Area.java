@@ -64,6 +64,11 @@ import com.vividsolutions.jts.geom.Geometry;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Nov 15, 2007 #601        chammack    Initial Creation.
+ *    Mar 28, 2012 #14691      Qinglu lin  Created AffectedAreas' partOfParentRegion based on 
+ *                                         FE_AREA stored in GeospatialData's attributes map, 
+ *                                         instead of calculating them.
+ *    Apr 11, 2012 #14691      Qinglu lin  Extra code were added to handle marine warnings as
+ *                                         MarineZones shapefiles have no FE_AREA.
  * 
  * </pre>
  * 
@@ -166,8 +171,7 @@ public class Area {
         List<String> uniqueFips = new ArrayList<String>();
         List<AffectedAreas> areas = new ArrayList<AffectedAreas>();
         for (GeospatialData regionFeature : countyMap.values()) {
-            Geometry regionGeom = regionFeature.geometry;
-            Geometry parentGeom = regionFeature.parent.geometry;
+        	Geometry regionGeom = regionFeature.geometry;
             AffectedAreas area = new AffectedAreas();
             area.name = regionFeature.attributes.get(areaField).toString();
             area.fips = regionFeature.attributes.get(fipsField).toString();
@@ -222,10 +226,64 @@ public class Area {
             if (parentRegion != null) {
                 area.parentRegion = String.valueOf(parentRegion.attributes
                         .get(parentAreaField));
-
-                area.partOfParentRegion = GisUtil.asStringList(GisUtil
-                        .calculatePortion(parentGeom, regionGeom.getCentroid()
-                                .getCoordinate()));
+                String feArea = (String)regionFeature.attributes.get("FE_AREA"); 
+                final List<String> partList = new ArrayList<String>(); 
+                if (feArea == null) {
+                	// Marine warnings
+                	partList.add("");
+                } else {
+                	if (feArea.equals("pa"))
+                		partList.add("PA");
+                	else if(feArea.equals("mi"))
+                		partList.add("MI");
+                	else if(feArea.equals("pd"))
+                		partList.add("PD");
+                	else if(feArea.equals("up"))
+                		partList.add("UP");
+                	else if(feArea.equals("bb"))
+                		partList.add("BB");
+                	else if(feArea.equals("er"))
+                		partList.add("ER");
+                	else if(feArea.equals("sr"))
+                		partList.add("SR");
+                	else if(feArea.equals("wu"))
+                		partList.add("WU");
+                	else if(feArea.equals("ds"))
+                		partList.add("DS");
+                	else if(feArea.equals("ne"))
+                		partList.add("NE");
+                	else if(feArea.equals("nw"))
+                		partList.add("NW");
+                	else if(feArea.equals("se"))
+                		partList.add("SE");
+                	else if(feArea.equals("sw"))
+                		partList.add("SW");
+                	else {
+                		for (int i=0; i<feArea.length(); i++) {
+                			char c = feArea.charAt(i);
+                			switch (c) {
+                			case 'c':
+                				partList.add("CENTRAL");
+                				break;
+                			case 'w':
+                				partList.add("WEST");
+                				break;
+                			case 'n':
+                				partList.add("NORTH");
+                				break;
+                			case 'e':
+                				partList.add("EAST");
+                				break;
+                			case 's':
+                				partList.add("SOUTH");
+                				break;
+                			default:
+                				break;
+                			}
+                		}
+                	}
+                }
+                area.partOfParentRegion = partList;
             }
 
             // Search against point matches

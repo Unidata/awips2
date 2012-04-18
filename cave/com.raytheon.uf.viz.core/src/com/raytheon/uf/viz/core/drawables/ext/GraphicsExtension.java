@@ -40,22 +40,15 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
  */
 public abstract class GraphicsExtension<T extends IGraphicsTarget> {
 
-    /**
-     * Interface that other interfaces should extend if they want to be used as
-     * a graphics extension
-     */
-    public static interface IGraphicsExtensionInterface {
+    public static enum Compatibilty {
+        INCOMPATIBLE(-1), GENERIC(0), TARGET_COMPATIBLE(1000), ENHANCED_TARGET_COMPATIBLE(
+                2000);
 
-    }
+        public int value;
 
-    public static class Compatibilty {
-        public static final int INCOMPATIBLE = -1;
-
-        public static final int GENERIC = 0;
-
-        public static final int TARGET_COMPATIBLE = 1000;
-
-        public static final int ENHANCED_TARGET_COMPATIBLE = 2000;
+        private Compatibilty(int value) {
+            this.value = value;
+        }
     }
 
     protected T target;
@@ -76,19 +69,12 @@ public abstract class GraphicsExtension<T extends IGraphicsTarget> {
     public final int setTarget(IGraphicsTarget target) {
         try {
             this.target = (T) target;
-            return getCompatibilityValue(this.target);
         } catch (ClassCastException e) {
-            this.target = null;
-            return Compatibilty.INCOMPATIBLE;
+            return Compatibilty.INCOMPATIBLE.value;
         }
+        return getCompatibilityValue(this.target);
     }
 
-    /**
-     * Get the target compability value.
-     * 
-     * @param target
-     * @return
-     */
     public abstract int getCompatibilityValue(T target);
 
     /**

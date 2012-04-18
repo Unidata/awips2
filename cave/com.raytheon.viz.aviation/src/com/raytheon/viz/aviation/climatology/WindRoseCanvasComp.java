@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Composite;
  * 28 FEB 2008  938        lvenable    Initial creation.
  * 18 JUN 2008  1119       lvenable    Updated to draw the Wind Rose diagram.
  * 19 AUG 2008  1454       lvenable    Fix saving wind rose image.
+ * 09 MAR 2012  14530      zhao        Revised wind rose plot to match AWIPS-1
  * 
  * </pre>
  * 
@@ -90,7 +91,7 @@ public class WindRoseCanvasComp extends Composite {
     /**
      * Maximum circle radius of the Wind Rose.
      */
-    private int maxCircleRaduis = 275;
+    private int maxCircleRadius = 275;
 
     /**
      * Legend color rectangle width.
@@ -158,14 +159,24 @@ public class WindRoseCanvasComp extends Composite {
     private String windRoseHeader = "";
 
     /**
+     * number of wind directions on the wind rose diagram
+     */
+    private int numWindDirections = 0;
+    
+    /**
+     * radius of calm wind circle on the wind rose diagram
+     */
+    private double calmRingPercent = 0.0;
+    
+    /**
+     * radius of variable wind on the wind rose diagram
+     */
+    private double variableRingPercent = 0.0;
+    
+    /**
      * Maximum percent of the outer Wind Rose ring.
      */
     private double maxRingPercent = 0.0;
-
-    /**
-     * Percent increase for each display ring on the Wind Rose diagram.
-     */
-    private double percentInc = 0.0;
 
     /**
      * Number of pixels to draw for each Wind Rose unit (wind direction/knot).
@@ -288,35 +299,34 @@ public class WindRoseCanvasComp extends Composite {
         // ----------------------------------------
         // Draw the Wind Rose circles
         // ----------------------------------------
+        
         gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-
-        // Calculate the number of pixels that will be between each
-        // display ring.
-        int circlePix = Math.round(275 / 5);
-
-        // Setup the format for the percent label for the display rings.
+        
         String format = "%d%%";
-        String percentLbl;
+        String percentLbl = "";
         int fontAveWidth = gc.getFontMetrics().getAverageCharWidth();
-
-        // Loop through and draw the display rings.
-        for (int i = 1; i < 6; i++) {
-            int radius = circlePix * i;
-            gc.drawOval(centerX - radius, circleCenterY - radius, radius * 2,
-                    radius * 2);
-        }
-
-        // Loop through and draw the display rings. We have to draw the percent
-        // label string separately because the GC will draw line from the
-        // drawString
-        // to the drawOval. This must be a bug...
-        for (int i = 1; i < 6; i++) {
-            int radius = circlePix * i;
-
-            percentLbl = String.format(format, Math.round(i * percentInc));
-            gc.drawText(percentLbl, centerX
-                    - (percentLbl.length() * fontAveWidth / 2), circleCenterY
-                    + radius + 3, true);
+       
+        double ringPercent = 0.02; // start with 2%
+        int radiusPix = 0; 
+        
+        for (;;) {
+        	
+        	radiusPix = (int) Math.round( pixPerUnit * Math.sqrt( ringPercent + variableRingPercent*variableRingPercent ) );
+        	if ( radiusPix >= maxCircleRadius ) {
+        		break;
+        	}
+        	gc.drawOval(centerX - radiusPix, circleCenterY - radiusPix, radiusPix * 2, radiusPix * 2);
+        	
+        	percentLbl = String.format(format, Math.round(ringPercent*100));
+            gc.drawText(percentLbl, centerX - (percentLbl.length() * fontAveWidth / 2), circleCenterY + radiusPix + 3, true);
+            
+            if ( ringPercent < 0.09 ) {
+            	ringPercent += 0.02; 
+            } else if ( ringPercent < 0.29 ) {
+            	ringPercent += 0.05;
+            } else {
+            	ringPercent += 0.1;
+            }
         }
 
         // -------------------------------
@@ -493,7 +503,7 @@ public class WindRoseCanvasComp extends Composite {
             // Get an array of calculate pixel values that will be used to
             // draw the current wind direction.
             int[] windDirPixels = getWindDirPixelValues(dataArray[i]);
-
+            
             // Loop through the array of pixels for each knot range for
             // the current wind direction. We are looping from the outer
             // most range to the inner most range. This allows us to draw
@@ -538,11 +548,18 @@ public class WindRoseCanvasComp extends Composite {
 
                 // Determine how many wind directions will be drawn on the
                 // Wind Rose diagram.
+                /**
+                 * DR14530:
+                 * Angle of wind direction is measured clockwise with North (12 o'clock) = 0 degree, 
+                 * whereas, angle in GC.fillAra() and GC.drawArc() is measured counter-clockwise, 
+                 * with East (3 o'clock) = 0 degree
+                 * [zhao, 3/2/2012]
+                 */
                 if (directions == 8) {
                     // Draw a filled arc for the current knot range.
                     gc.fillArc(centerX - windDirPixels[j], circleCenterY
                             - windDirPixels[j], windDirPixels[j] * 2,
-                            windDirPixels[j] * 2, 90 + (i * 45) - 21, 42);
+                            windDirPixels[j] * 2, 90 - (i * 45) - 21, 42);
 
                     // Set the foreground color to black.
                     gc.setForeground(parent.getDisplay().getSystemColor(
@@ -551,14 +568,15 @@ public class WindRoseCanvasComp extends Composite {
                     // Draw a black arc line on the filled arc.
                     gc.drawArc(centerX - windDirPixels[j], circleCenterY
                             - windDirPixels[j], windDirPixels[j] * 2,
-                            windDirPixels[j] * 2, 90 + (i * 45) - 21, 42);
+                            windDirPixels[j] * 2, 90 - (i * 45) - 21, 42);
+                    
                 } else if (directions == 16) {
                     int degree = (int) Math.round(i * 22.5);
 
                     // Draw a filled arc for the current knot range.
                     gc.fillArc(centerX - windDirPixels[j], circleCenterY
                             - windDirPixels[j], windDirPixels[j] * 2,
-                            windDirPixels[j] * 2, 90 + degree - 10, 20);
+                            windDirPixels[j] * 2, 90 - degree - 10, 20);
 
                     // Set the foreground color to black.
                     gc.setForeground(parent.getDisplay().getSystemColor(
@@ -567,12 +585,12 @@ public class WindRoseCanvasComp extends Composite {
                     // Draw a black arc line on the filled arc.
                     gc.drawArc(centerX - windDirPixels[j], circleCenterY
                             - windDirPixels[j], windDirPixels[j] * 2,
-                            windDirPixels[j] * 2, 90 + degree - 10, 20);
+                            windDirPixels[j] * 2, 90 - degree - 10, 20);
                 } else {
                     // Draw a filled arc for the current knot range.
                     gc.fillArc(centerX - windDirPixels[j], circleCenterY
                             - windDirPixels[j], windDirPixels[j] * 2,
-                            windDirPixels[j] * 2, 90 + (i * 10) - 4, 8);
+                            windDirPixels[j] * 2, 90 - (i * 10) - 4, 8);
 
                     // Set the foreground color to black.
                     gc.setForeground(parent.getDisplay().getSystemColor(
@@ -581,7 +599,7 @@ public class WindRoseCanvasComp extends Composite {
                     // Draw a black arc line on the filled arc.
                     gc.drawArc(centerX - windDirPixels[j], circleCenterY
                             - windDirPixels[j], windDirPixels[j] * 2,
-                            windDirPixels[j] * 2, 90 + (i * 10) - 4, 8);
+                            windDirPixels[j] * 2, 90 - (i * 10) - 4, 8);
                 }
             }
 
@@ -597,10 +615,10 @@ public class WindRoseCanvasComp extends Composite {
                 // wind direction 'pie slice'.
                 int x = (int) Math.round(centerX
                         + (outerRadius * Math.cos(Math
-                                .toRadians(90 + (i * 45) - 21))));
+                                .toRadians(90 - (i * 45) - 21))));
                 int y = (int) Math.round(circleCenterY
                         - (outerRadius * Math.sin(Math
-                                .toRadians(90 + (i * 45) - 21))));
+                                .toRadians(90 - (i * 45) - 21))));
 
                 // Draw the edge of the lowest angle.
                 gc.drawLine(centerX, circleCenterY, x, y);
@@ -609,10 +627,10 @@ public class WindRoseCanvasComp extends Composite {
                 // wind direction 'pie slice'.
                 x = (int) Math.round(centerX
                         + (outerRadius * Math.cos(Math
-                                .toRadians(90 + (i * 45) - 21 + 42))));
+                                .toRadians(90 - (i * 45) - 21 + 42))));
                 y = (int) Math.round(circleCenterY
                         - (outerRadius * Math.sin(Math
-                                .toRadians(90 + (i * 45) - 21 + 42))));
+                                .toRadians(90 - (i * 45) - 21 + 42))));
 
                 // Draw the edge of the highest angle.
                 gc.drawLine(centerX, circleCenterY, x, y);
@@ -628,10 +646,10 @@ public class WindRoseCanvasComp extends Composite {
                 // wind direction 'pie slice'.
                 int x = (int) Math.round(centerX
                         + (outerRadius * Math.cos(Math
-                                .toRadians(90 + degree - 10))));
+                                .toRadians(90 - degree - 10))));
                 int y = (int) Math.round(circleCenterY
                         - (outerRadius * Math.sin(Math
-                                .toRadians(90 + degree - 10))));
+                                .toRadians(90 - degree - 10))));
 
                 // Draw the edge of the lowest angle.
                 gc.drawLine(centerX, circleCenterY, x, y);
@@ -640,10 +658,10 @@ public class WindRoseCanvasComp extends Composite {
                 // wind direction 'pie slice'.
                 x = (int) Math.round(centerX
                         + (outerRadius * Math.cos(Math
-                                .toRadians(90 + degree - 10 + 20))));
+                                .toRadians(90 - degree - 10 + 20))));
                 y = (int) Math.round(circleCenterY
                         - (outerRadius * Math.sin(Math
-                                .toRadians(90 + degree - 10 + 20))));
+                                .toRadians(90 - degree - 10 + 20))));
 
                 // Draw the edge of the highest angle.
                 gc.drawLine(centerX, circleCenterY, x, y);
@@ -656,10 +674,10 @@ public class WindRoseCanvasComp extends Composite {
                 // wind direction 'pie slice'.
                 int x = (int) Math.round(centerX
                         + (outerRadius * Math.cos(Math
-                                .toRadians(90 + (i * 10) - 4))));
+                                .toRadians(90 - (i * 10) - 4))));
                 int y = (int) Math.round(circleCenterY
                         - (outerRadius * Math.sin(Math
-                                .toRadians(90 + (i * 10) - 4))));
+                                .toRadians(90 - (i * 10) - 4))));
 
                 // Draw the edge of the lowest angle.
                 gc.drawLine(centerX, circleCenterY, x, y);
@@ -668,10 +686,10 @@ public class WindRoseCanvasComp extends Composite {
                 // wind direction 'pie slice'.
                 x = (int) Math.round(centerX
                         + (outerRadius * Math.cos(Math
-                                .toRadians(90 + (i * 10) - 4 + 8))));
+                                .toRadians(90 - (i * 10) - 4 + 8))));
                 y = (int) Math.round(circleCenterY
                         - (outerRadius * Math.sin(Math
-                                .toRadians(90 + (i * 10) - 4 + 8))));
+                                .toRadians(90 - (i * 10) - 4 + 8))));
 
                 // Draw the edge of the highest angle.
                 gc.drawLine(centerX, circleCenterY, x, y);
@@ -687,8 +705,7 @@ public class WindRoseCanvasComp extends Composite {
         gc.setBackground(tmpColor);
 
         int variablePix = (int) Math
-                .round((windRoseDataMgr.getCalmAverage() + windRoseDataMgr
-                        .getVariableAverage()) * pixPerUnit);
+                .round(variableRingPercent * pixPerUnit);
         gc.fillOval(centerX - variablePix, circleCenterY - variablePix,
                 variablePix * 2, variablePix * 2);
 
@@ -705,8 +722,7 @@ public class WindRoseCanvasComp extends Composite {
                 windRoseConfigData.getCalmRgb());
         gc.setBackground(tmpColor);
 
-        int calmPix = (int) Math.round(windRoseDataMgr.getCalmAverage()
-                * pixPerUnit);
+        int calmPix = (int) Math.round( calmRingPercent * pixPerUnit);
         gc.fillOval(centerX - calmPix, circleCenterY - calmPix, calmPix * 2,
                 calmPix * 2);
 
@@ -737,29 +753,7 @@ public class WindRoseCanvasComp extends Composite {
         // Get the Calm and Variable averages for all wind directions.
         double calmAve = windRoseDataMgr.getCalmAverage();
         double variableAve = windRoseDataMgr.getVariableAverage();
-
-        // Calculate the percent for this wind direction. The percent will be
-        // used
-        // determine how far out to draw the knot range.
-        double maxWindDirPercent = ((knotsData[windRoseDataMgr.knotsTotalIndex]
-                + calmAve + variableAve) / (windRoseDataMgr
-                .getTotalWindDirCount()));
-
-        // Calculate the percentage of this wind direction compared to the
-        // maximum
-        // percent of the maximum display ring.
-        // For example: Max = 30% Total for this wind direction = 25%
-        // The wind direction % total will be: 83.3333%
-        double windDirPercentTotal = maxWindDirPercent / maxRingPercent;
-
-        // Calculate how many total pixels from the center of the Wind Rose
-        // will be drawn for this wind direction.
-        double maxWindDirPixels = maxCircleRaduis * windDirPercentTotal;
-
-        // Calculate the number of pixel will be drawn for each unit for this
-        // wind direction.
-        pixPerUnit = maxWindDirPixels
-                / (knotsData[windRoseDataMgr.knotsTotalIndex] + calmAve + variableAve);
+        double totalWindValue = windRoseDataMgr.getTotalWindDirCount();
 
         // Loop and fill the pixel array.
         for (int i = 0; i < pixelVals.length; i++) {
@@ -767,7 +761,8 @@ public class WindRoseCanvasComp extends Composite {
             for (int j = 1; j <= i + 1; j++) {
                 sum += knotsData[j];
             }
-            pixelVals[i] = (int) Math.round((calmAve + variableAve + sum)
+            
+            pixelVals[i] = (int) Math.round( Math.sqrt( (calmAve + variableAve + sum)/totalWindValue )
                     * pixPerUnit);
         }
 
@@ -779,8 +774,15 @@ public class WindRoseCanvasComp extends Composite {
      * diagram (percent of the outer ring).
      */
     private void calcPercentData() {
-        double highestPercent = windRoseDataMgr
-                .getLargestWindDirectionPercent() * 100;
+    	numWindDirections = windRoseDataMgr.getNumOfWindDirections();
+    	double totalValue = windRoseDataMgr.getTotalWindDirCount();
+    	double calmValue = windRoseDataMgr.getCalmValue();
+    	double variableValue = windRoseDataMgr.getVariableValue();
+    	calmRingPercent = Math.sqrt(calmValue/totalValue/numWindDirections);
+    	variableRingPercent = Math.sqrt((calmValue+variableValue)/totalValue/numWindDirections);
+    	
+        double highestPercent = Math.sqrt(windRoseDataMgr
+                .getLargestWindDirectionPercent()) * 100;
 
         if (highestPercent <= 5) {
             // Calculate max percent to nearest 2%
@@ -790,9 +792,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 1;
-            // Rings every 2%
         } else if (highestPercent <= 10) {
             // Calculate max percent to nearest 2%
             for (int x = 0; x <= 10; x += 2) {
@@ -801,9 +800,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 2;
-            // Rings every 2%
         } else if (highestPercent <= 15) {
             // Calculate max percent to nearest 2%
             for (int x = 0; x <= 15; x += 3) {
@@ -812,9 +808,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 3;
-            // Rings every 3%
         } else if (highestPercent <= 20) {
             // Calculate max percent to nearest 2%
             for (int x = 0; x <= 20; x += 4) {
@@ -823,9 +816,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 4;
-            // Rings every 4%
         } else if (highestPercent <= 25) {
             // Calculate max percent to nearest 5%
             for (int x = 0; x <= 25; x += 5) {
@@ -834,9 +824,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 5;
-            // Rings every 5%
         } else if (highestPercent <= 30) {
             // Calculate max percent to nearest 5%
             for (int x = 0; x <= 30; x += 6) {
@@ -845,9 +832,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 6;
-            // Rings every 6%
         } else if (highestPercent <= 35) {
             // Calculate max percent to nearest 5%
             for (int x = 0; x <= 35; x += 7) {
@@ -856,9 +840,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 7;
-            // Rings every 6%
         } else if (highestPercent <= 40) {
             // Calculate max percent to nearest 5%
             for (int x = 0; x <= 40; x += 8) {
@@ -867,9 +848,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 8;
-            // Rings every 8%
         } else if (highestPercent <= 50) {
             // Calculate max percent to nearest 10%
             for (int x = 0; x <= 50; x += 10) {
@@ -878,9 +856,6 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 10;
-            // Rings every 10%
         } else if (highestPercent <= 100) {
             // Calculate max percent to nearest 20%
             for (int x = 0; x <= 100; x += 20) {
@@ -889,10 +864,9 @@ public class WindRoseCanvasComp extends Composite {
                     break;
                 }
             }
-
-            percentInc = 20;
-            // Rings every 20%
         }
+        
+        pixPerUnit = maxCircleRadius / maxRingPercent;
     }
 
     /**
