@@ -42,7 +42,7 @@ import com.raytheon.viz.mpe.core.MPEDataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2009            snaples     Initial creation
- * 
+ * April , 2012  8672      lbousaidi  fixed the reading of the PRISM data.
  * </pre>
  * 
  * @author snaples
@@ -85,7 +85,7 @@ public class MeanMonthlyPrecip {
         Unit<?> dataUnit = Unit.ONE;
 
         displayUnit = NonSI.INCH;
-        dataUnit = SI.MILLIMETER;
+        dataUnit = NonSI.INCH;
         cmc.setDisplayUnit(displayUnit);
         cmc.setDataUnit(dataUnit);
 
@@ -135,16 +135,21 @@ public class MeanMonthlyPrecip {
                 return false;
             }
             pdata = xmfile.getData();
-            // for (int i = MaxY - 1; i >= 0; i--) {
-            for (int i = 0; i < MaxY; ++i) {
+            short temp=0;
+            for (int i = MaxY - 1; i >= 0; i--) {
                 if (pdata.length == 0) {
                     System.out.println("Error reading " + pfile);
                     return false;
                 }
-
+                
                 for (int j = 0; j < MaxX; j++) {
+
+                    temp = pdata[i * MaxX + j];
+                    pdata[i * MaxX + j ]=pdata[i + MaxX * (MaxY  - 1)];
+                    pdata[i + MaxX *(MaxY -1)] =temp;
+	
                     float f = 0;
-                    short s = pdata[i * MaxX + j];
+                    short s= pdata[j + MaxX * (MaxY - i -1)];                    
                     if (s < 0) {
                         if (s == -9999 || s == -999 || s == -99 || (s == -9)) {
                             f = s;

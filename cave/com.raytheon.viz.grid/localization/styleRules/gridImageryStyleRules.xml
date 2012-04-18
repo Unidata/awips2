@@ -39,7 +39,29 @@
             </colorbarLabeling>
        </imageStyle>
     </styleRule>
-    
+
+	<!--
+		* GH, GHxSM, Topo, zAGL
+		km  | 0.001 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
+	for HRRR-East  -->
+	<styleRule>
+		<paramLevelMatches>
+		   <parameter>GH</parameter>
+		   <parameter>GHxSM</parameter>
+		   <parameter>zAGL</parameter>
+		   <creatingEntity>HRRR-East</creatingEntity>
+		   <creatingEntity>HRRR-West</creatingEntity>
+		</paramLevelMatches>
+		<imageStyle>
+			<displayUnits>ft</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<range scale="SURFACE">
+				<minValue>0</minValue>
+				<maxValue>4000</maxValue>
+			</range>
+		</imageStyle>
+	</styleRule>   
+	    
 	<!--
 		* GH, GHxSM, Topo, zAGL
 		km  | 0.001 | 0.0 | 0 | 1 | | | 29 | -1 | 0.1
@@ -299,7 +321,7 @@
 		<imageStyle>
 			<displayUnits>F</displayUnits>
 			<range scale="LINEAR">
-				<minValue>-40</minValue>
+				<minValue>-100</minValue>
 				<maxValue>115</maxValue>
 			</range>
 			<defaultColormap>Grid/gridded data</defaultColormap>
@@ -325,8 +347,8 @@
 		<imageStyle>
 			<displayUnits>C</displayUnits>
 			<range levelScale="LOG">
-				<minValue>-40</minValue>
-				<minValue2>-45</minValue2>
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
 				<maxValue>45</maxValue>
 				<maxValue2>5</maxValue2>
 			</range>
@@ -353,8 +375,8 @@
 		<imageStyle>
 			<displayUnits>C</displayUnits>
 			<range levelScale="LOG">
-				<minValue>-45</minValue>
-				<minValue2>-70</minValue2>
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
 				<maxValue>5</maxValue>
 				<maxValue2>-35</maxValue2>
 			</range>
@@ -381,8 +403,8 @@
 		<imageStyle>
 			<displayUnits>C</displayUnits>
 			<range levelScale="LOG">
-				<minValue>-70</minValue>
-				<minValue2>-90</minValue2>
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
 				<maxValue>-35</maxValue>
 				<maxValue2>-40</maxValue2>
 			</range>
@@ -434,8 +456,8 @@
 		<imageStyle>
 			<displayUnits>C</displayUnits>
 			<range levelScale="LOG">
-				<minValue>-60</minValue>
-				<minValue2>-60</minValue2>
+				<minValue>-100</minValue>
+				<minValue2>-100</minValue2>
 				<maxValue>35</maxValue>
 				<maxValue2>5</maxValue2>
 			</range>
@@ -461,7 +483,7 @@
 		<imageStyle>
 			<displayUnits>C</displayUnits>
 			<range levelScale="LOG">
-				<minValue>-60</minValue>
+				<minValue>-100</minValue>
 				<minValue2>-100</minValue2>
 				<maxValue>5</maxValue>
 				<maxValue2>-40</maxValue2>
@@ -1697,7 +1719,7 @@
 			<parameter>MpV</parameter>
 		</paramLevelMatches>
 		<imageStyle>
-			<displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
+			<displayUnits label="PVU">K/hPa/s</displayUnits>
 			<range scale="LOG" mirror="true" adaptive="true" />
 			<defaultColormap>Grid/gridded data</defaultColormap>
 		</imageStyle>

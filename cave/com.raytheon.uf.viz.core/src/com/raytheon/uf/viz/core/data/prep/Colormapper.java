@@ -77,6 +77,8 @@ public class Colormapper {
         boolean log = parameters.isLogarithmic();
         double logFactor = parameters.getLogFactor();
         boolean mirror = parameters.isMirror();
+        double naturalMin = parameters.getDataMin();
+        double naturalMax = parameters.getDataMax();
         double cmapMin = parameters.getColorMapMin();
         double cmapMax = parameters.getColorMapMax();
         int colorMapSz = parameters.getColorMap().getSize();

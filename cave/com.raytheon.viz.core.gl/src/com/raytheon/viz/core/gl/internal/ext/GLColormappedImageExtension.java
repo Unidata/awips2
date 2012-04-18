@@ -19,23 +19,19 @@
  **/
 package com.raytheon.viz.core.gl.internal.ext;
 
-import java.nio.ByteBuffer;
-
-import javax.media.opengl.GL;
-
-import com.raytheon.uf.viz.core.PixelCoverage;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
-import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
-import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
-import com.raytheon.viz.core.gl.images.AbstractGLImage;
+import com.raytheon.viz.core.gl.GLCapabilities;
+import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
-import com.raytheon.viz.core.gl.objects.GLTextureObject;
+import com.raytheon.viz.core.gl.internal.GLTarget;
 
 /**
  * GL {@link IColormappedImageExtension} implementation, creates
@@ -55,12 +51,11 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
  * @version 1.0
  */
 
-public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
+public class GLColormappedImageExtension extends GraphicsExtension<IGLTarget>
         implements IColormappedImageExtension {
 
-    private static class GLColormappedImageExtensionData {
-        public GLColormappedImage alphaMaskTexture;
-    }
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GLColormappedImageExtension.class);
 
     /*
      * (non-Javadoc)
@@ -71,165 +66,33 @@ public class GLColormappedImageExtension extends AbstractGLSLImagingExtension
      * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
      */
     @Override
-    public GLColormappedImage initializeRaster(
+    public IColormappedImage initializeRaster(
             IColorMapDataRetrievalCallback dataCallback,
             ColorMapParameters colorMapParameters) {
-        return new GLColormappedImage(dataCallback, colorMapParameters,
-                GLColormappedImageExtension.class);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#preImageRender
-     * (com.raytheon.uf.viz.core.drawables.PaintProperties,
-     * com.raytheon.viz.core.gl.images.AbstractGLImage)
-     */
-    @Override
-    public Object preImageRender(PaintProperties paintProps,
-            AbstractGLImage image, PixelCoverage coverage) throws VizException {
-        GLColormappedImageExtensionData data = null;
-        if (image instanceof GLColormappedImage) {
-            data = new GLColormappedImageExtensionData();
-            GL gl = target.getGl();
-            GLColormappedImage glImage = (GLColormappedImage) image;
-            // First see if the colormap has been loaded
-            ColorMapParameters usedColorMapParameters = ((IColormappedImage) glImage)
-                    .getColorMapParameters();
-            if (usedColorMapParameters == null
-                    || usedColorMapParameters.getColorMap() == null) {
-                return null;
-            }
-
-            if (usedColorMapParameters.isUseMask()) {
-                final byte[] mask = usedColorMapParameters.getAlphaMask();
-                data.alphaMaskTexture = initializeRaster(
-                        new IColorMapDataRetrievalCallback() {
-                            @Override
-                            public ColorMapData getColorMapData()
-                                    throws VizException {
-                                return new ColorMapData(ByteBuffer.wrap(mask),
-                                        new int[] { mask.length, 1 });
-                            }
-                        }, usedColorMapParameters);
-                data.alphaMaskTexture.stage();
-                data.alphaMaskTexture.target(target);
-            }
-
-            // Get and stage colormap texture
-            GLTextureObject cmapTexture = target
-                    .getColorMapTexture(usedColorMapParameters);
-
-            if (data.alphaMaskTexture != null) {
-                gl.glActiveTexture(GL.GL_TEXTURE2);
-                gl.glBindTexture(data.alphaMaskTexture.getTextureStorageType(),
-                        data.alphaMaskTexture.getTextureid());
-            }
-
-            gl.glActiveTexture(GL.GL_TEXTURE1);
-            cmapTexture.bind(gl, GL.GL_TEXTURE_1D);
-
-            if (glImage.isInterpolated()) {
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
-                        GL.GL_LINEAR);
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
-                        GL.GL_LINEAR);
-            } else {
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
-                        GL.GL_NEAREST);
-                gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
-                        GL.GL_NEAREST);
-            }
+        GLColormappedImage image = new GLColormappedImage(dataCallback,
+                colorMapParameters, target);
+        try {
+            image.stageTexture();
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, "Error staging texture", e);
         }
-        return data;
+        return image;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#postImageRender
-     * (com.raytheon.uf.viz.core.drawables.PaintProperties,
-     * com.raytheon.viz.core.gl.images.AbstractGLImage, java.lang.Object)
+     * @see com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension#
+     * getCompatibilityValue(com.raytheon.uf.viz.core.IGraphicsTarget)
      */
     @Override
-    public void postImageRender(PaintProperties paintProps,
-            AbstractGLImage image, Object data) throws VizException {
-        GLColormappedImageExtensionData imageData = (GLColormappedImageExtensionData) data;
-        GL gl = target.getGl();
-        if (imageData.alphaMaskTexture != null) {
-            gl.glActiveTexture(GL.GL_TEXTURE2);
-            gl.glBindTexture(
-                    imageData.alphaMaskTexture.getTextureStorageType(), 0);
-
-            imageData.alphaMaskTexture.dispose();
+    public int getCompatibilityValue(IGLTarget target) {
+        if (GLCapabilities.getInstance(target.getGl()).cardSupportsShaders
+                && GLTarget.FORCE_NO_SHADER == false) {
+            return Compatibilty.ENHANCED_TARGET_COMPATIBLE.value;
+        } else {
+            return Compatibilty.INCOMPATIBLE.value;
         }
-
-        gl.glActiveTexture(GL.GL_TEXTURE1);
-        gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#getShaderProgramName
-     * ()
-     */
-    @Override
-    public String getShaderProgramName() {
-        return "colormapRaster";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#loadShaderData
-     * (com.raytheon.viz.core.gl.glsl.GLShaderProgram,
-     * com.raytheon.uf.viz.core.drawables.IImage,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
-    @Override
-    public void loadShaderData(GLShaderProgram program, IImage iimage,
-            PaintProperties paintProps) throws VizException {
-        // Get image as AbstractGLImage
-        GLColormappedImage image = null;
-        if (iimage instanceof GLColormappedImage == false) {
-            throw new VizException(
-                    "Cannot apply glsl colormap raster shader to non gl colormap image");
-        }
-        image = (GLColormappedImage) iimage;
-
-        GLColormappedImage colormappedImg = (GLColormappedImage) image;
-        ColorMapParameters colorMapParameters = colormappedImg
-                .getColorMapParameters();
-
-        program.setUniform("colorMapSz", colorMapParameters.getColorMap()
-                .getSize());
-        int textureType = ((GLColormappedImage) image).getTextureType();
-        program.setUniform("isFloat", textureType == GL.GL_FLOAT
-                || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
-        program.setUniform("logarithmic",
-                colorMapParameters.isLogarithmic() ? 1 : 0);
-        program.setUniform("logFactor", colorMapParameters.getLogFactor());
-        program.setUniform("mirror", colorMapParameters.isMirror() ? 1 : 0);
-
-        program.setUniform("applyMask", colorMapParameters.isUseMask() ? 1 : 0);
-
-        program.setUniform("naturalMin", colorMapParameters.getDataMin());
-        program.setUniform("naturalMax", colorMapParameters.getDataMax());
-        program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
-        program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
-
-        program.setUniform("alphaMask", 2);
-        program.setUniform("colorMap", 1);
-        program.setUniform("rawText", 0);
-
-        program.setUniform("brightness", image.getBrightness());
-        program.setUniform("contrast", image.getContrast());
-        program.setUniform("alpha", paintProps.getAlpha());
     }
 
 }
