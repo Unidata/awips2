@@ -63,9 +63,6 @@ public class RosterItem implements IRosterItem {
     //
     private IRosterItem parent = null;
 
-    //
-    private IRoster roster = null;
-
     /**
      * 
      * @param name
@@ -75,7 +72,6 @@ public class RosterItem implements IRosterItem {
     public RosterItem(String name, IRosterItem parent, IRoster roster) {
         this.name = name;
         this.parent = parent;
-        this.roster = roster;
     }
 
     /**
@@ -125,23 +121,6 @@ public class RosterItem implements IRosterItem {
     @Override
     public IRosterItem getParent() {
         return parent;
-    }
-
-    /**
-     * 
-     * @param roster
-     */
-    public void setRoster(IRoster roster) {
-        this.roster = roster;
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem#getRoster()
-     */
-    @Override
-    public IRoster getRoster() {
-        return null;
     }
 
     /**

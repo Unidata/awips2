@@ -51,15 +51,12 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
 
     private Map<IQualifiedID, IRosterEntry> entries = null;
 
-    private Map<IRosterGroup, IRosterGroup> groups = null;
-
     /**
      * 
      */
     public RosterGroup(String name, IRosterItem parent, IRoster roster) {
         super(name, parent, roster);
         entries = new HashMap<IQualifiedID, IRosterEntry>();
-        groups = new HashMap<IRosterGroup, IRosterGroup>();
     }
 
     /**
@@ -97,12 +94,4 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
         return entries.remove(entry.getUser());
     }
 
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup#getGroups()
-     */
-    @Override
-    public Collection<IRosterGroup> getGroups() {
-        return groups.values();
-    }
 }

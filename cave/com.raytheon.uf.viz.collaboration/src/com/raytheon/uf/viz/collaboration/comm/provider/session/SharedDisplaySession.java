@@ -25,13 +25,13 @@ import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * A session that shares editors.
  * 
  * <pre>
  * 
@@ -55,12 +55,12 @@ public class SharedDisplaySession extends VenueSession implements
     private UserId dataProvider = null;
 
     public SharedDisplaySession(IContainer container, EventBus externalBus,
-            SessionManager manager) throws CollaborationException {
+            CollaborationConnection manager) throws CollaborationException {
         super(container, externalBus, manager);
     }
 
     public SharedDisplaySession(IContainer container, EventBus externalBus,
-            SessionManager manager, String sessionId)
+            CollaborationConnection manager, String sessionId)
             throws CollaborationException {
         super(container, externalBus, manager, sessionId);
     }
@@ -115,15 +115,15 @@ public class SharedDisplaySession extends VenueSession implements
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#hasRole(com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#hasRole(com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole)
      */
     @Override
-    public boolean hasRole(ParticipantRole role) {
+    public boolean hasRole(SharedDisplayRole role) {
         boolean result = true;
-        if (role.equals(ParticipantRole.DATA_PROVIDER)
+        if (role.equals(SharedDisplayRole.DATA_PROVIDER)
                 && !this.getUserID().equals(this.getCurrentDataProvider())) {
             result = false;
-        } else if (role.equals(ParticipantRole.SESSION_LEADER)
+        } else if (role.equals(SharedDisplayRole.SESSION_LEADER)
                 && !this.getUserID().equals(this.getCurrentSessionLeader())) {
             result = false;
         }
