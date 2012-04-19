@@ -69,7 +69,7 @@ public abstract class BaseSession implements ISession {
     private Namespace connectionNamespace = null;
 
     // The session manager that created this session.
-    private SessionManager sessionManager;
+    private CollaborationConnection sessionManager;
 
     /**
      * 
@@ -78,7 +78,7 @@ public abstract class BaseSession implements ISession {
      * @param manager
      */
     protected BaseSession(IContainer container, EventBus externalBus,
-            SessionManager manager) throws CollaborationException {
+            CollaborationConnection manager) throws CollaborationException {
         this(container, externalBus, manager, UUID.randomUUID().toString());
     }
 
@@ -90,7 +90,7 @@ public abstract class BaseSession implements ISession {
      * @param sessionId
      */
     protected BaseSession(IContainer container, EventBus externalBus,
-            SessionManager manager, String sessionId)
+            CollaborationConnection manager, String sessionId)
             throws CollaborationException {
         // Set the session identifier.
         this.sessionId = sessionId;
@@ -161,7 +161,7 @@ public abstract class BaseSession implements ISession {
      * 
      * @return
      */
-    SessionManager getSessionManager() {
+    CollaborationConnection getSessionManager() {
         return sessionManager;
     }
 

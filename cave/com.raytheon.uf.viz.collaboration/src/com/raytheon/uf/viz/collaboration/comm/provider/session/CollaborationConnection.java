@@ -101,6 +101,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Apr 18, 2012            njensen      Major cleanup
  * 
  * </pre>
  * 
@@ -109,10 +110,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent
  */
 
-public class SessionManager implements IEventPublisher {
+public class CollaborationConnection implements IEventPublisher {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SessionManager.class);
+            .getHandler(CollaborationConnection.class);
 
     private static final String PROVIDER = "ecf.xmpp.smack";
 
@@ -154,7 +155,7 @@ public class SessionManager implements IEventPublisher {
      * @throws ContainerCreateException
      * 
      */
-    public SessionManager(String account, String password)
+    public CollaborationConnection(String account, String password)
             throws CollaborationException {
         this(account, password, (IRosterEventSubscriber) null);
     }
@@ -170,7 +171,7 @@ public class SessionManager implements IEventPublisher {
      * @throws ContainerCreateException
      * 
      */
-    public SessionManager(String account, String password,
+    public CollaborationConnection(String account, String password,
             IPresence initialPresence) throws Exception {
         this(account, password, (IRosterEventSubscriber) null);
         if (accountManager != null) {
@@ -192,7 +193,7 @@ public class SessionManager implements IEventPublisher {
      *            A roster event subscriber.
      * @throws CollaborationException
      */
-    public SessionManager(String account, String password,
+    public CollaborationConnection(String account, String password,
             IRosterEventSubscriber rosterEventSubscriber)
             throws CollaborationException {
         eventBus = new EventBus();
@@ -484,9 +485,9 @@ public class SessionManager implements IEventPublisher {
                 session.joinVenue(venueName);
                 sessions.put(session.getSessionId(), session);
             }
-
         } catch (Exception e) {
-
+            throw new CollaborationException(
+                    "Error joining venue " + venueName, e);
         }
         return session;
     }
@@ -506,9 +507,9 @@ public class SessionManager implements IEventPublisher {
                 session.createVenue(venueName, subject);
                 sessions.put(session.getSessionId(), session);
             }
-
         } catch (Exception e) {
-
+            throw new CollaborationException("Error creating venue "
+                    + venueName, e);
         }
         return session;
     }
@@ -542,11 +543,7 @@ public class SessionManager implements IEventPublisher {
                         info.add(vi);
                     }
                 }
-            } else {
-                // Could not create venueManager
             }
-        } else {
-            // not currently connected
         }
 
         return info;
@@ -578,8 +575,6 @@ public class SessionManager implements IEventPublisher {
 
                         if (rosterManager != null) {
                             ((RosterManager) rosterManager).updateEntry(id, p);
-                        } else {
-                            // No rosterManager - nothing to do
                         }
                     }
                 });
@@ -644,8 +639,7 @@ public class SessionManager implements IEventPublisher {
 
     private void setupP2PComm(IPresenceContainerAdapter presenceAdapter) {
         if (isConnected() && (presenceAdapter != null)) {
-            PeerToPeerCommHelper helper = new PeerToPeerCommHelper(this,
-                    presenceAdapter);
+            PeerToPeerCommHelper helper = new PeerToPeerCommHelper(this);
             presenceAdapter.getChatManager().addMessageListener(helper);
         }
     }
