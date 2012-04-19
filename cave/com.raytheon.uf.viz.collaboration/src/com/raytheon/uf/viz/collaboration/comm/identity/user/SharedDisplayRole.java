@@ -36,6 +36,6 @@ package com.raytheon.uf.viz.collaboration.comm.identity.user;
  * @version 1.0	
  */
 
-public enum ParticipantRole {
+public enum SharedDisplayRole {
     DATA_PROVIDER, SESSION_LEADER, PARTICIPANT;
 }
