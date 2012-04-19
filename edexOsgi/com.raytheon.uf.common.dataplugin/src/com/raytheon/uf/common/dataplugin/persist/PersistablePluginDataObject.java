@@ -115,6 +115,5 @@ public abstract class PersistablePluginDataObject extends PluginDataObject
         }
 
         return c.getTime();
-        return c.getTime();
     }
 }
