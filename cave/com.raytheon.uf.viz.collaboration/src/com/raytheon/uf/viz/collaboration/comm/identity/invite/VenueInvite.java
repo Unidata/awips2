@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.identity.invite;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * An invite message for inviting another user to a venue.
@@ -50,12 +49,6 @@ public class VenueInvite {
     private String message;
 
     @DynamicSerializeElement
-    private UserId sessionLeader;
-
-    @DynamicSerializeElement
-    private UserId dataProvider;
-
-    @DynamicSerializeElement
     private String sessionId;
 
     public String getSubject() {
@@ -74,22 +67,6 @@ public class VenueInvite {
         this.message = message;
     }
 
-    public UserId getSessionLeader() {
-        return sessionLeader;
-    }
-
-    public void setSessionLeader(UserId sessionLeader) {
-        this.sessionLeader = sessionLeader;
-    }
-
-    public UserId getDataProvider() {
-        return dataProvider;
-    }
-
-    public void setDataProvider(UserId dataProvider) {
-        this.dataProvider = dataProvider;
-    }
-
     public String getSessionId() {
         return sessionId;
     }
@@ -97,9 +74,4 @@ public class VenueInvite {
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
-
-    public boolean isSharedDisplayVenue() {
-        return (sessionLeader != null && dataProvider != null);
-    }
-
 }
