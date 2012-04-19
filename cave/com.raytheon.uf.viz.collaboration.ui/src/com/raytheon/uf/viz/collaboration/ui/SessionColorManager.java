@@ -44,29 +44,19 @@ import com.raytheon.viz.core.ColorUtil;
  * @version 1.0
  */
 
-// TODO make so this supports multiple sessions
 public class SessionColorManager {
 
     private Map<UserId, RGB> colors;
 
-    private static SessionColorManager colorManager = null;
-
     private static RGB[] rgbPresets = null;
-
-    public static SessionColorManager getColorManager() {
-        if (colorManager == null) {
-            colorManager = new SessionColorManager();
-            rgbPresets = ColorUtil.getResourceColorPresets();
-        }
-        return colorManager;
-    }
 
     /**
      * 
      */
-    private SessionColorManager() {
+    public SessionColorManager() {
         if (colors == null) {
             colors = new HashMap<UserId, RGB>();
+            rgbPresets = ColorUtil.getResourceColorPresets();
         }
     }
 
@@ -77,26 +67,8 @@ public class SessionColorManager {
         return colors;
     }
 
-    /**
-     * @param colors
-     *            the colors to set
-     */
-    public void setColors(Map<UserId, RGB> colors) {
-        this.colors = colors;
-    }
-
-    /**
-     * Add a user with a new color value
-     * 
-     * @param user
-     */
-    public RGB addUser(UserId user) {
-        int count = colors.size();
-        if (rgbPresets.length <= colors.size()) {
-            count = rgbPresets.length % colors.size();
-        }
-        colors.put(user, rgbPresets[count]);
-        return rgbPresets[count];
+    public void setColors(Map<UserId, RGB> map) {
+        colors = map;
     }
 
     public RGB getColorFromUser(UserId user) {
@@ -104,6 +76,19 @@ public class SessionColorManager {
             addUser(user);
         }
         return colors.get(user);
+    }
+
+    /**
+     * Add a user with a new color value
+     * 
+     * @param user
+     */
+    public void addUser(UserId user) {
+        int count = colors.size();
+        if (rgbPresets.length <= count) {
+            count = rgbPresets.length % colors.size();
+        }
+        colors.put(user, rgbPresets[count]);
     }
 
     public void clearColors() {
