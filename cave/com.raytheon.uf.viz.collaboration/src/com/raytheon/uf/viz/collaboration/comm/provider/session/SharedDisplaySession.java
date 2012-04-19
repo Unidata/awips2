@@ -25,10 +25,10 @@ import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -50,9 +50,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 public class SharedDisplaySession extends VenueSession implements
         ISharedDisplaySession {
 
-    private IVenueParticipant sessionLeader = null;
+    private UserId sessionLeader = null;
 
-    private IVenueParticipant dataProvider = null;
+    private UserId dataProvider = null;
 
     public SharedDisplaySession(IContainer container, EventBus externalBus,
             SessionManager manager) throws CollaborationException {
@@ -99,7 +99,7 @@ public class SharedDisplaySession extends VenueSession implements
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentDataProvider()
      */
     @Override
-    public IVenueParticipant getCurrentDataProvider() {
+    public UserId getCurrentDataProvider() {
         return dataProvider;
     }
 
@@ -110,7 +110,7 @@ public class SharedDisplaySession extends VenueSession implements
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentSessionLeader()
      */
     @Override
-    public IVenueParticipant getCurrentSessionLeader() {
+    public UserId getCurrentSessionLeader() {
         return sessionLeader;
     }
 
@@ -131,12 +131,12 @@ public class SharedDisplaySession extends VenueSession implements
     }
 
     @Override
-    public void setCurrentSessionLeader(IVenueParticipant id) {
+    public void setCurrentSessionLeader(UserId id) {
         sessionLeader = id;
     }
 
     @Override
-    public void setCurrentDataProvider(IVenueParticipant id) {
+    public void setCurrentDataProvider(UserId id) {
         dataProvider = id;
     }
 

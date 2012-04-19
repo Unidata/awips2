@@ -28,10 +28,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
-import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
@@ -85,7 +85,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
     }
 
     @Subscribe
-    public void participantChanged(VenueParticipantEvent event) {
+    public void participantChanged(IVenueParticipantEvent event) {
         if (event.getEventType().equals(ParticipantEventType.ARRIVED)) {
             // TODO this seems to trigger when you create the room, in which
             // case you don't need to send it for yourself
@@ -95,8 +95,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
                     .getActiveEditorAs(AbstractEditor.class);
             SharedEditorData se = EditorSetup.extractSharedEditorData(editor);
             try {
-                session.sendObjectToPeer(event.getParticipant()
-                        .getQualifiedId(), se);
+                session.sendObjectToPeer(event.getParticipant(), se);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error sending initialization data to new participant "

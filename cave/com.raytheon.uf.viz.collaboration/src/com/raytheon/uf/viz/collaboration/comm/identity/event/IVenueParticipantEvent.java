@@ -20,23 +20,23 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IVenueParticipantEvent {
@@ -46,13 +46,13 @@ public interface IVenueParticipantEvent {
      * @return
      */
     ParticipantEventType getEventType();
-    
+
     /**
      * 
      * @return
      */
-    IVenueParticipant getParticipant();
-    
+    UserId getParticipant();
+
     /**
      * 
      * @return
