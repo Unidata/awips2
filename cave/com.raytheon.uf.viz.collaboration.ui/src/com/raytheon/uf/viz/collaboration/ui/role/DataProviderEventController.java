@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.event.CollaborationDispatcher;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -48,7 +49,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
 import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
@@ -233,19 +233,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
                     new DispatcherFactory() {
                         @Override
                         public Dispatcher createNewDispatcher() {
-                            Dispatcher dispatcher = new Dispatcher() {
-                                @Override
-                                public void dispatch(
-                                        AbstractRemoteGraphicsEvent eventObject) {
-                                    try {
-                                        session.sendObjectToVenue(eventObject);
-                                    } catch (CollaborationException e) {
-                                        statusHandler.handle(Priority.PROBLEM,
-                                                e.getLocalizedMessage(), e);
-                                    }
-                                }
-                            };
-                            return dispatcher;
+                            return new CollaborationDispatcher(session);
                         }
                     });
             try {
