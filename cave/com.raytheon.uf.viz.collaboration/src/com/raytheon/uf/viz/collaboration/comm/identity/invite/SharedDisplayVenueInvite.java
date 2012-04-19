@@ -17,18 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.comm.identity.invite;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.viz.core.ColorUtil;
 
 /**
- * 
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -36,7 +35,7 @@ import com.raytheon.viz.core.ColorUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 3, 2012            mnash     Initial creation
+ * Apr 19, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -44,30 +43,31 @@ import com.raytheon.viz.core.ColorUtil;
  * @version 1.0
  */
 
-// TODO make so this supports multiple sessions
-public class SessionColorManager {
+public class SharedDisplayVenueInvite extends VenueInvite {
 
+    @DynamicSerializeElement
+    private UserId sessionLeader;
+
+    @DynamicSerializeElement
+    private UserId dataProvider;
+
+    @DynamicSerializeElement
     private Map<UserId, RGB> colors;
 
-    private static SessionColorManager colorManager = null;
-
-    private static RGB[] rgbPresets = null;
-
-    public static SessionColorManager getColorManager() {
-        if (colorManager == null) {
-            colorManager = new SessionColorManager();
-            rgbPresets = ColorUtil.getResourceColorPresets();
-        }
-        return colorManager;
+    public UserId getSessionLeader() {
+        return sessionLeader;
     }
 
-    /**
-     * 
-     */
-    private SessionColorManager() {
-        if (colors == null) {
-            colors = new HashMap<UserId, RGB>();
-        }
+    public void setSessionLeader(UserId sessionLeader) {
+        this.sessionLeader = sessionLeader;
+    }
+
+    public UserId getDataProvider() {
+        return dataProvider;
+    }
+
+    public void setDataProvider(UserId dataProvider) {
+        this.dataProvider = dataProvider;
     }
 
     /**
@@ -83,30 +83,5 @@ public class SessionColorManager {
      */
     public void setColors(Map<UserId, RGB> colors) {
         this.colors = colors;
-    }
-
-    /**
-     * Add a user with a new color value
-     * 
-     * @param user
-     */
-    public RGB addUser(UserId user) {
-        int count = colors.size();
-        if (rgbPresets.length <= colors.size()) {
-            count = rgbPresets.length % colors.size();
-        }
-        colors.put(user, rgbPresets[count]);
-        return rgbPresets[count];
-    }
-
-    public RGB getColorFromUser(UserId user) {
-        if (colors.get(user) == null) {
-            addUser(user);
-        }
-        return colors.get(user);
-    }
-
-    public void clearColors() {
-        colors.clear();
     }
 }
