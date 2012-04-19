@@ -17,16 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.drawables.ext;
+package com.raytheon.uf.viz.collaboration.ui.role.event;
 
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
-import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 
 /**
- * Extension for creating images that should be mapped to a single color
+ * Interface for defining an object that can retrieve and store a single object.
+ * Implementing objects need to be serializable so they can be sent over to
+ * participants and retrieve their data
  * 
  * <pre>
  * 
@@ -34,32 +34,20 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 15, 2011            mschenke     Initial creation
+ * Apr 19, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
+@DynamicSerialize
+public abstract class PersistedObjectEvent {
 
-public interface ISingleColorImageExtension extends IImagingExtension {
+    public abstract void store(AbstractRemoteGraphicsEvent event)
+            throws CollaborationException;
 
-    public static interface ISingleColorImage extends IImage {
-
-        public void setColor(RGB color);
-
-    }
-
-    /**
-     * Construct an ISingleColorImage image that maps the image passed into to
-     * the single color value
-     * 
-     * @param image
-     * @param color
-     * @return
-     * @throws VizException
-     */
-    public ISingleColorImage constructImage(IRenderedImageCallback callback,
-            RGB color);
+    public abstract AbstractRemoteGraphicsEvent retrieve()
+            throws CollaborationException;
 
 }
