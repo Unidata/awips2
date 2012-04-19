@@ -19,12 +19,12 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.extensions;
 
-import java.awt.image.RenderedImage;
-
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage.DispatchingRenderedImageCallback;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingSingleColorImage;
 
 /**
@@ -55,14 +55,16 @@ public class DispatchingSingleColorImageExtension extends
      * org.eclipse.swt.graphics.RGB)
      */
     @Override
-    public ISingleColorImage constructImage(RenderedImage image, RGB color) {
+    public ISingleColorImage constructImage(IRenderedImageCallback callback,
+            RGB color) {
         try {
+            DispatchingRenderedImageCallback wrapper = new DispatchingRenderedImageCallback(
+                    callback);
             return new DispatchingSingleColorImage(target.getWrappedObject()
                     .getExtension(ISingleColorImageExtension.class)
-                    .constructImage(image, color),
-                    DispatchColormappedImageExtension.class,
-                    target.getDispatcher(), color,
-                    new RenderedImage[] { image });
+                    .constructImage(wrapper, color),
+                    DispatchingSingleColorImageExtension.class,
+                    target.getDispatcher(), color, wrapper);
         } catch (VizException e) {
             throw new RuntimeException(
                     "Error constring dispatching single color image", e);
