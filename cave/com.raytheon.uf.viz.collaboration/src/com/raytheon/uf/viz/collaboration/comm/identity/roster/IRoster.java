@@ -22,104 +22,117 @@ package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 import java.util.Collection;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * The Roster provides a structure to maintain user contacts. These
- * contacts may be organized into groups beneath the Roster. A single
- * user contact may be associated with more than a single group. As
- * of this time nesting is not allowed, that is groups may not contain
- * groups.
+ * The Roster provides a structure to maintain user contacts. These contacts may
+ * be organized into groups beneath the Roster. A single user contact may be
+ * associated with more than a single group. As of this time nesting is not
+ * allowed, that is groups may not contain groups.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IRoster {
 
     /**
      * Add an entry directly to the roster.
+     * 
      * @param item
      */
     void addRosterEntry(IRosterEntry entry);
 
     /**
      * Add this user to the roster.
+     * 
      * @param user
      * @param nickName
      * @param groups
      */
-    void addRosterEntry(IQualifiedID user, String nickName, String [] groups);
+    void addRosterEntry(IQualifiedID user, String nickName, String[] groups);
 
     /**
      * Request that the specified entry be modified in the roster.
-     * @param entry The entry to modify. This entry will contain the modifications
-     * to apply.
+     * 
+     * @param entry
+     *            The entry to modify. This entry will contain the modifications
+     *            to apply.
      * @return The modified roster entry.
      */
     IRosterEntry modifyRosterEntry(IRosterEntry entry);
-    
+
     /**
      * Request that the user be removed from the roster.
-     * @param user The identification of the user to be removed.
+     * 
+     * @param user
+     *            The identification of the user to be removed.
      */
     void removeFromRoster(ID user);
-   
+
     /**
      * Get all entries associated with this roster.
+     * 
      * @return A Collection of entries belonging to this Roster.
      */
     Collection<IRosterEntry> getEntries();
-    
+
     /**
-     * Add a group to the roster. This method adds to the roster
-     * level groups only.
-     * @param group A group to add. 
+     * Add a group to the roster. This method adds to the roster level groups
+     * only.
+     * 
+     * @param group
+     *            A group to add.
      */
     void addGroup(IRosterGroup group);
 
     /**
      * Removes a group from the roster level groups.
-     * @param groupName Name of the group to remove.
+     * 
+     * @param groupName
+     *            Name of the group to remove.
      */
     void removeGroup(String groupName);
-    
+
     /**
      * Get all groups associated with this roster.
+     * 
      * @return A Collection of groups belonging to this Roster.
      */
     Collection<IRosterGroup> getGroups();
-    
+
     /**
      * 
      * @return
      */
-    IChatID getUser();
-    
+    UserId getUser();
+
     /**
      * Does this roster support nested groups?
+     * 
      * @return This roster supports nested groups.
      */
     boolean supportsNestedGroups();
-    
+
     /**
      * Signifies whether this roster associated with a chat room.
+     * 
      * @return Is this roster associated with a chat room.
      */
     boolean isRoomRoster();
-   
+
     /**
      * 
      * @param account
@@ -133,6 +146,6 @@ public interface IRoster {
      * 
      * @param userId
      */
-    void sendRosterRemove(IChatID userId) throws CollaborationException;
+    void sendRosterRemove(UserId userId) throws CollaborationException;
 
 }

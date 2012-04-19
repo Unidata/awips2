@@ -32,11 +32,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -62,7 +61,7 @@ public class RosterManager implements IRosterManager {
     private IRoster roster;
 
     private org.eclipse.ecf.presence.roster.IRoster baseRoster;
-    
+
     private SessionManager sessionManager;
 
     /**
@@ -72,7 +71,7 @@ public class RosterManager implements IRosterManager {
     public RosterManager(SessionManager manager) {
         sessionManager = manager;
         updateRoster();
-     }
+    }
 
     /**
      * 
@@ -85,10 +84,11 @@ public class RosterManager implements IRosterManager {
     }
 
     private void updateRoster() {
-        baseRoster = sessionManager.getPresenceContainerAdapter().getRosterManager().getRoster();
+        baseRoster = sessionManager.getPresenceContainerAdapter()
+                .getRosterManager().getRoster();
         roster = toLocalRoster(baseRoster);
     }
-    
+
     /**
      * 
      * @param listener
@@ -149,13 +149,13 @@ public class RosterManager implements IRosterManager {
      * @param userId
      */
     @Override
-    public void sendRosterRemove(IChatID userId) throws CollaborationException {
+    public void sendRosterRemove(UserId userId) throws CollaborationException {
 
         IPresenceContainerAdapter adapter = baseRoster
                 .getPresenceContainerAdapter();
         org.eclipse.ecf.presence.roster.IRosterManager manager = adapter
                 .getRosterManager();
-        
+
         IRosterSubscriptionSender sender = manager
                 .getRosterSubscriptionSender();
 
@@ -174,16 +174,16 @@ public class RosterManager implements IRosterManager {
      * @param fromId
      * @param presence
      */
-    public void updateEntry(IChatID fromId, IPresence presence) {
+    public void updateEntry(UserId fromId, IPresence presence) {
         RosterEntry re = new RosterEntry(fromId);
         re.setPresence(presence);
 
         IRosterEntry modified = roster.modifyRosterEntry(re);
-        if(modified != null) {
+        if (modified != null) {
             sessionManager.getEventPublisher().post(re);
         }
     }
-    
+
     /**
      * 
      * @param fromId
@@ -191,11 +191,11 @@ public class RosterManager implements IRosterManager {
      */
     public void updateEntry(IRosterEntry entry) {
         IRosterEntry modified = roster.modifyRosterEntry(entry);
-        if(modified != null) {
+        if (modified != null) {
             sessionManager.getEventPublisher().post(entry);
         }
     }
-    
+
     /**
      * 
      * @param roster
@@ -205,7 +205,7 @@ public class RosterManager implements IRosterManager {
         Roster newRoster = null;
 
         if (roster != null) {
-            IChatID id = IDConverter.convertFrom(roster.getUser());
+            UserId id = IDConverter.convertFrom(roster.getUser());
             newRoster = new Roster(id, this);
 
             @SuppressWarnings("rawtypes")
@@ -214,7 +214,7 @@ public class RosterManager implements IRosterManager {
                 if (o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
                     org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
 
-                    id = RosterId.convertFrom(entry.getUser());
+                    id = IDConverter.convertFrom(entry.getUser());
                     RosterEntry re = new RosterEntry(id);
                     if (!newRoster.getEntries().contains(re)) {
                         IPresence p = Presence.convertPresence(entry
@@ -231,7 +231,8 @@ public class RosterManager implements IRosterManager {
                     newRoster.populateGroup(newGroup, group.getEntries());
                     newRoster.addGroup(newGroup);
                 } else {
-                    System.out.println("RosterManager.toLocalRoster " + o.getClass().getName());
+                    System.out.println("RosterManager.toLocalRoster "
+                            + o.getClass().getName());
                 }
             }
         }
@@ -246,10 +247,8 @@ public class RosterManager implements IRosterManager {
         return sessionManager;
     }
 
-    
     private void printRoster(IRoster roster) {
-        
+
     }
-    
-    
+
 }

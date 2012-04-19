@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO
@@ -88,6 +88,6 @@ public interface IRosterManager {
      * 
      * @param userId
      */
-    void sendRosterRemove(IChatID userId) throws CollaborationException;
+    void sendRosterRemove(UserId userId) throws CollaborationException;
 
 }
