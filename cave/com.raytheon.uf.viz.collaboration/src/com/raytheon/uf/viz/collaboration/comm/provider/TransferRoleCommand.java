@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -45,16 +45,16 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 public class TransferRoleCommand {
 
     @DynamicSerializeElement
-    private ParticipantRole role;
+    private SharedDisplayRole role;
 
     @DynamicSerializeElement
     private UserId user;
 
-    public ParticipantRole getRole() {
+    public SharedDisplayRole getRole() {
         return role;
     }
 
-    public void setRole(ParticipantRole role) {
+    public void setRole(SharedDisplayRole role) {
         this.role = role;
     }
 

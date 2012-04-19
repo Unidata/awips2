@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
@@ -34,7 +34,8 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * TODO Add Description
+ * Tracks all of the active sessions that are SharedDisplaySessions. Provides
+ * SessionContainers that contain the data related to those sessions.
  * 
  * <pre>
  * 
@@ -63,7 +64,7 @@ public class SharedDisplaySessionMgr {
     }
 
     protected static void joinSession(ISharedDisplaySession session,
-            ParticipantRole initialRole) {
+            SharedDisplayRole initialRole) {
         SessionContainer container = new SessionContainer();
         container.setSessionId(session.getSessionId());
         container.setSession(session);
