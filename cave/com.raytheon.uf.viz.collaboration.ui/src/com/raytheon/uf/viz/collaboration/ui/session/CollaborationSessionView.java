@@ -44,7 +44,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 
@@ -149,8 +149,7 @@ public class CollaborationSessionView extends SessionView {
         // TODO need to send invite/request for transfer, and then if successful
         // deactivate the local ones since we won't receive the message
         TransferRoleCommand trc = new TransferRoleCommand();
-        VenueParticipant vp = new VenueParticipant(Tools.parseName(fqname),
-                Tools.parseHost(fqname));
+        UserId vp = new UserId(Tools.parseName(fqname), Tools.parseHost(fqname));
         trc.setUser(vp);
         session.setCurrentSessionLeader(vp);
         trc.setRole(ParticipantRole.SESSION_LEADER);
