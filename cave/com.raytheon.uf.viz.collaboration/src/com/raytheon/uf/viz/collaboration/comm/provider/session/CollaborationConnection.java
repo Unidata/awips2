@@ -427,11 +427,13 @@ public class CollaborationConnection implements IEventPublisher {
                 String host = Tools.parseHost(account);
                 UserId me = new UserId(name, host);
                 session.setUserId(me);
-                if (invitation instanceof SharedDisplayVenueInvite) {
-                    SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation;
+                if (invitation.getInvite() instanceof SharedDisplayVenueInvite) {
+                    SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation
+                            .getInvite();
                     session.setCurrentDataProvider(invite.getDataProvider());
                     session.setCurrentSessionLeader(invite.getSessionLeader());
                 }
+
                 sessions.put(session.getSessionId(), session);
             }
         } catch (Exception e) {
