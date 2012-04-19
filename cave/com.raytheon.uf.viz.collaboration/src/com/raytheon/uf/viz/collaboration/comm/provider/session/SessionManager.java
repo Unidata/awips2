@@ -65,9 +65,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
@@ -76,9 +74,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * 
@@ -125,7 +122,7 @@ public class SessionManager implements IEventPublisher {
 
     private String password;
 
-    private IChatID user;
+    private UserId user;
 
     private IPresence userPresence;
 
@@ -245,7 +242,7 @@ public class SessionManager implements IEventPublisher {
             String name = Tools.parseName(id.getName());
             String host = Tools.parseHost(id.getName());
             String resource = Tools.parseResource(id.getName());
-            user = new RosterId(name, host, resource);
+            user = new UserId(name, host, resource);
         }
 
         setupAccountManager();
@@ -261,7 +258,7 @@ public class SessionManager implements IEventPublisher {
      * @return
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#getUser()
      */
-    public IChatID getUser() {
+    public UserId getUser() {
         return user;
     }
 
@@ -426,7 +423,7 @@ public class SessionManager implements IEventPublisher {
 
                 String name = Tools.parseName(account);
                 String host = Tools.parseHost(account);
-                IVenueParticipant me = new VenueParticipant(name, host);
+                UserId me = new UserId(name, host);
                 session.setUserId(me);
                 session.setCurrentDataProvider(invitation.getInvite()
                         .getDataProvider());
@@ -458,7 +455,7 @@ public class SessionManager implements IEventPublisher {
             String name = Tools.parseName(account);
             String host = Tools.parseHost(account);
 
-            IVenueParticipant me = new VenueParticipant(name, host);
+            UserId me = new UserId(name, host);
 
             session.setCurrentSessionLeader(me);
             session.setCurrentDataProvider(me);
@@ -577,7 +574,7 @@ public class SessionManager implements IEventPublisher {
                         String host = Tools.parseHost(fromId.getName());
                         String resource = Tools.parseResource(fromId.getName());
 
-                        IChatID id = new RosterId(name, host, resource);
+                        UserId id = new UserId(name, host, resource);
 
                         if (rosterManager != null) {
                             ((RosterManager) rosterManager).updateEntry(id, p);
@@ -680,7 +677,7 @@ public class SessionManager implements IEventPublisher {
                         if (venueId != null) {
                             IQualifiedID id = IDConverter.convertFrom(from);
 
-                            IChatID invitor = new RosterId(id.getName(),
+                            UserId invitor = new UserId(id.getName(),
                                     id.getHost(), id.getResource());
 
                             VenueInvite received;

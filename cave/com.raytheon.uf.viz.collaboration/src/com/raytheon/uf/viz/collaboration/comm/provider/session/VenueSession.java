@@ -52,7 +52,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -60,8 +59,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * 
@@ -191,11 +190,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             venue = new Venue();
             ID[] ids = venueContainer.getChatRoomParticipants();
             for (ID id : ids) {
-                String fullName = id.getName();
-                IVenueParticipant vp = new VenueParticipant();
-                vp.setName(Tools.parseName(fullName));
-                vp.setHost(Tools.parseHost(fullName));
-                vp.setResource(Tools.parseResource(fullName));
+                UserId vp = IDConverter.convertFrom(id);
                 venue.addParticipant(vp);
             }
             venue.setInfo(InfoAdapter.createVenueInfo(venueInfo));
@@ -302,7 +297,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
         }
     }
 
-    protected void setUserId(IVenueParticipant id) {
+    protected void setUserId(UserId id) {
         this.userID = id;
     }
 
@@ -383,11 +378,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     public void handlePresenceUpdated(ID fromID,
                             org.eclipse.ecf.presence.IPresence presence) {
 
-                        IVenueParticipant vp = new VenueParticipant();
-                        String fullName = fromID.getName();
-                        vp.setName(Tools.parseName(fullName));
-                        vp.setHost(Tools.parseHost(fullName));
-                        vp.setResource(Tools.parseResource(fullName));
+                        UserId vp = IDConverter.convertFrom(fromID);
                         IPresence p = Presence.convertPresence(presence);
                         IVenueParticipantEvent event = null;
                         if (IPresence.Type.AVAILABLE.equals(p.getType())) {
@@ -514,7 +505,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     .getFromID();
             XMPPRoomID rID = (XMPPRoomID) msg.getChatRoomID();
 
-            IQualifiedID id = new RosterId(cID.getUsername(), rID.getHostname());
+            IQualifiedID id = new UserId(cID.getUsername(), rID.getHostname());
             message.setFrom(id);
         }
         return message;

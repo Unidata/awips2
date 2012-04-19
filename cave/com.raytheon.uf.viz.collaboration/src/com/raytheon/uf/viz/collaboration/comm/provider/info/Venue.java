@@ -25,7 +25,7 @@ import java.util.Map;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -48,13 +48,13 @@ public class Venue implements IVenue {
 
     private IVenueInfo info;
 
-    private Map<String, IVenueParticipant> participants;
+    private Map<String, UserId> participants;
 
     /**
      * 
      */
     public Venue() {
-        participants = new HashMap<String, IVenueParticipant>();
+        participants = new HashMap<String, UserId>();
     }
 
     /**
@@ -78,7 +78,7 @@ public class Venue implements IVenue {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getParticipants()
      */
     @Override
-    public Collection<IVenueParticipant> getParticipants() {
+    public Collection<UserId> getParticipants() {
         return participants.values();
     }
 
@@ -87,7 +87,7 @@ public class Venue implements IVenue {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#addParticipant(com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant)
      */
     @Override
-    public void addParticipant(IVenueParticipant participant) {
+    public void addParticipant(UserId participant) {
         participants.put(participant.getName(), participant);
     }
 
@@ -96,7 +96,7 @@ public class Venue implements IVenue {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#removeParticipant(com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant)
      */
     @Override
-    public void removeParticipant(IVenueParticipant participant) {
+    public void removeParticipant(UserId participant) {
         participants.remove(participant).getName();
     }
 
