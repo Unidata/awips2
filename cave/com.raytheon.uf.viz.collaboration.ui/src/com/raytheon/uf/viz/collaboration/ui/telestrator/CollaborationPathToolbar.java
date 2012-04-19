@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolItem;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
@@ -122,7 +122,7 @@ public class CollaborationPathToolbar extends PathToolbar {
             ISharedDisplaySession session = SharedDisplaySessionMgr
                     .getSessionContainer(sessionId).getSession();
             if (session != null
-                    && !session.hasRole(ParticipantRole.SESSION_LEADER)
+                    && !session.hasRole(SharedDisplayRole.SESSION_LEADER)
                     && leaderOnly != null) {
                 leaderOnly.setEnabled(false);
             }

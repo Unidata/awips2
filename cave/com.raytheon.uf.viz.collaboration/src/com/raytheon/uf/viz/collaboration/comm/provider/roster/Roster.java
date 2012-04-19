@@ -124,11 +124,6 @@ public class Roster extends RosterItem implements IRoster {
         if (re == null) {
             // put in the internal entries first.
             internalEntries.put(entry.getUser(), entry);
-
-            for (IRosterGroup g : entry.getGroups()) {
-                RosterGroup rg = (RosterGroup) g;
-                rg.setRoster(this);
-            }
         }
     }
 
