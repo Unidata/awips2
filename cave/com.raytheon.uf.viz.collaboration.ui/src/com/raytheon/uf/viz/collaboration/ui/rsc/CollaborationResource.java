@@ -27,12 +27,17 @@ import org.eclipse.jface.action.IMenuManager;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.role.event.PersistedObjectEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
@@ -63,6 +68,8 @@ import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
 public class CollaborationResource extends
         AbstractVizResource<CollaborationResourceData, IDescriptor> implements
         IContextMenuProvider {
+
+    private static JobPool retrievePool = new JobPool("Retriever", 4, true);
 
     /** List of objects rendered in paint */
     private List<IRenderEvent> currentRenderables;
@@ -132,6 +139,21 @@ public class CollaborationResource extends
                 .createRenderingHandlers(dataManager)) {
             renderingRouter.register(handler);
         }
+    }
+
+    @Subscribe
+    public void persitableArrived(final PersistedObjectEvent event) {
+        retrievePool.schedule(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    renderableArrived(event.retrieve());
+                } catch (CollaborationException e) {
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+        });
     }
 
     @Subscribe
