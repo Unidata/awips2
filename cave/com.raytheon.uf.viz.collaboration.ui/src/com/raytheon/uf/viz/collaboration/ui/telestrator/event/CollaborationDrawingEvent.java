@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.ui.telestrator.event;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.ShapeContainer;
 import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 
@@ -52,7 +53,7 @@ public class CollaborationDrawingEvent extends DrawingEvent {
     private ShapeContainer container;
 
     @DynamicSerializeElement
-    private String userName;
+    private UserId userName;
 
     @DynamicSerializeElement
     private CollaborationEventType type;
@@ -82,7 +83,7 @@ public class CollaborationDrawingEvent extends DrawingEvent {
     /**
      * @return the userName
      */
-    public String getUserName() {
+    public UserId getUserName() {
         return userName;
     }
 
@@ -90,7 +91,7 @@ public class CollaborationDrawingEvent extends DrawingEvent {
      * @param userName
      *            the userName to set
      */
-    public void setUserName(String userName) {
+    public void setUserName(UserId userName) {
         this.userName = userName;
     }
 

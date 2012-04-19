@@ -21,7 +21,9 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -34,12 +36,15 @@ import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -72,6 +77,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.VizApp;
 
@@ -115,6 +121,10 @@ public class SessionView extends AbstractSessionView {
 
     protected Action chatAction;
 
+    protected Map<UserId, RGB> colors;
+
+    protected Map<RGB, Color> mappedColors;
+
     public SessionView() {
         super();
     }
@@ -124,6 +134,11 @@ public class SessionView extends AbstractSessionView {
         super.createPartControl(parent);
         createActions();
         createContextMenu();
+        SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
+                .getEventPublisher().register(this);
+        colors = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager().getColors();
+        mappedColors = new HashMap<RGB, Color>();
     }
 
     @Override
@@ -396,6 +411,18 @@ public class SessionView extends AbstractSessionView {
         disposeArrow(highlightedRightArrow);
         disposeArrow(downArrow);
         disposeArrow(rightArrow);
+
+        if (mappedColors != null) {
+            for (Color col : mappedColors.values()) {
+                col.dispose();
+            }
+            mappedColors.clear();
+        }
+        if (colors != null) {
+            colors.clear();
+        }
+        SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager().clearColors();
         super.dispose();
     }
 
@@ -424,6 +451,33 @@ public class SessionView extends AbstractSessionView {
                         e);
             }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * styleAndAppendText(java.lang.StringBuilder, int, java.lang.String,
+     * java.lang.String, java.util.List)
+     */
+    @Override
+    protected void styleAndAppendText(StringBuilder sb, int offset,
+            String name, String fqName, List<StyleRange> ranges) {
+        int index = fqName.indexOf("/");
+        RGB rgb = colors.get(fqName.substring(0, index));
+        if (mappedColors.get(rgb) == null) {
+            Color col = new Color(Display.getCurrent(), rgb);
+            mappedColors.put(rgb, col);
+        }
+        StyleRange range = new StyleRange(messagesText.getCharCount() + offset,
+                name.length() + 1, mappedColors.get(rgb), null, SWT.BOLD);
+        messagesText.append(sb.toString());
+        messagesText.setStyleRange(range);
+        for (StyleRange newRange : ranges) {
+            messagesText.setStyleRange(newRange);
+        }
+        messagesText.setTopIndex(messagesText.getLineCount() - 1);
+
     }
 
     public String getRoom() {
@@ -502,10 +556,10 @@ public class SessionView extends AbstractSessionView {
             boolean down, boolean fill) {
         gc.setAntialias(SWT.ON);
         // "Erase" the canvas by filling it in with a rectangle.
-        gc.setBackground(Display.getCurrent().getSystemColor(
+        gc.setBackground(Display.getDefault().getSystemColor(
                 SWT.COLOR_WIDGET_BACKGROUND));
         gc.fillRectangle(0, 0, imgWidth, imgHeight);
-        gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+        gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
         int[] polyArray = null;
         if (down) {
             polyArray = new int[] { 2, 3, 5, 6, 8, 3 };
