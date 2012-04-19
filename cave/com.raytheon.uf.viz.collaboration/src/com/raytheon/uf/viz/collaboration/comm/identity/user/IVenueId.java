@@ -23,27 +23,21 @@ package com.raytheon.uf.viz.collaboration.comm.identity.user;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IVenueId extends IQualifiedID {
-    
+
     String getVenueName();
-    
-    
-    String getDomain();
-    
-    
-    
 
 }
