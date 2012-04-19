@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
  * TODO Add Description
@@ -56,7 +57,7 @@ public interface IPeerToPeer extends ISession, IEventPublisher {
      * @param message
      *            The message to send.
      */
-    void sendPeerToPeer(String to, String message)
+    void sendPeerToPeer(IQualifiedID to, String message)
             throws CollaborationException;
 
 }
