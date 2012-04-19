@@ -21,24 +21,24 @@ package com.raytheon.uf.viz.collaboration.comm.identity.info;
 
 import java.util.Collection;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * Provides information about a venue. In addition implementations will
- * act as a target for participant updates such as 
+ * Provides information about a venue. In addition implementations will act as a
+ * target for participant updates such as
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IVenue {
@@ -48,29 +48,29 @@ public interface IVenue {
      * @return
      */
     IVenueInfo getInfo();
-    
-    /**
-     * 
-     * @return
-     */
-    void setInfo(IVenueInfo info);
-    
-    /**
-     * 
-     * @return
-     */
-    Collection<IVenueParticipant> getParticipants();
-    
-    /**
-     * 
-     * @return
-     */
-    void addParticipant(IVenueParticipant participant);
 
     /**
      * 
      * @return
      */
-    void removeParticipant(IVenueParticipant participant);
-    
+    void setInfo(IVenueInfo info);
+
+    /**
+     * 
+     * @return
+     */
+    Collection<UserId> getParticipants();
+
+    /**
+     * 
+     * @return
+     */
+    void addParticipant(UserId participant);
+
+    /**
+     * 
+     * @return
+     */
+    void removeParticipant(UserId participant);
+
 }
