@@ -24,15 +24,13 @@ import org.eclipse.ecf.core.IContainer;
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * A session that shares editors.
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -116,7 +114,7 @@ public class SharedDisplaySession extends VenueSession implements
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#hasRole(com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#hasRole(com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole)
      */
     @Override
     public boolean hasRole(SharedDisplayRole role) {
@@ -139,16 +137,5 @@ public class SharedDisplaySession extends VenueSession implements
     @Override
     public void setCurrentDataProvider(UserId id) {
         dataProvider = id;
-    }
-
-    @Override
-    protected VenueInvite buildInvite(String msg) {
-        SharedDisplayVenueInvite invite = new SharedDisplayVenueInvite();
-        invite.setMessage(msg);
-        invite.setSessionId(this.sessionId);
-        invite.setSubject(this.getSubject());
-        invite.setDataProvider(this.getCurrentDataProvider());
-        invite.setSessionLeader(this.getCurrentSessionLeader());
-        return invite;
     }
 }
