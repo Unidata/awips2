@@ -19,13 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import java.util.Collection;
 import java.util.Map;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IPresenceListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
-
 
 /**
  * TODO Add Description
@@ -35,8 +31,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionRespo
  * 
  * <ul>
  * EventBus subscription events.
- * <li>ISubscriptionResponseEvent : This event is posted when a subscription request has
- * been responded to.</li>
+ * <li>ISubscriptionResponseEvent : This event is posted when a subscription
+ * request has been responded to.</li>
  * </ul>
  * 
  * 
@@ -73,16 +69,16 @@ public interface IAccountManager {
     boolean getAutoSubscriptionMode();
 
     /**
-     *  
+     * 
      * @param responder
      */
     void setSubscriptionRequestResponder(ISubscriptionResponder responder);
-    
+
     /**
      * Removes the current subscription request responder.
      */
     void removeSubscriptionRequestResponder();
-    
+
     /**
      * 
      * @param name
@@ -90,34 +86,40 @@ public interface IAccountManager {
      * @param attributes
      * @throws CollaborationException
      */
-    void createAccount(String name, char [] password, Map<String, String> attributes) throws CollaborationException;
-    
+    void createAccount(String name, char[] password,
+            Map<String, String> attributes) throws CollaborationException;
+
     /**
-     * Allows the user to change their account password. If the server does
-     * not allow this operation an exception will be thrown.
+     * Allows the user to change their account password. If the server does not
+     * allow this operation an exception will be thrown.
+     * 
      * @param password
      * @throws CollaborationException
      */
-    void changePassword(char [] password) throws CollaborationException;
-    
+    void changePassword(char[] password) throws CollaborationException;
+
     /**
      * Allows the user to delete this account on the server. An exception will
-     * be thrown if the account deletion fails. If the account is currently 
+     * be thrown if the account deletion fails. If the account is currently
      * connected, it and any associated objects will be closed followed by the
      * account deletion.
+     * 
      * @throws CollaborationException
      */
     void deleteAccount() throws CollaborationException;
-    
+
     /**
      * Can an account be created on the server.
+     * 
      * @return Can an account be created on the server?
-     * @throws CollaborationException The query failed.
+     * @throws CollaborationException
+     *             The query failed.
      */
     boolean canCreateAccount() throws CollaborationException;
-    
+
     /**
      * Allow the user to send presence information to the transport provider.
+     * 
      * @param presence
      * @return Return status information.
      * @throws CollaborationException
