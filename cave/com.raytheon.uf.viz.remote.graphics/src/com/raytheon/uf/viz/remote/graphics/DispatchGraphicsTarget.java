@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension;
@@ -171,10 +172,14 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         DispatchingRenderedImageCallback wrappedCallback = new DispatchingRenderedImageCallback(
                 imageCallback);
         // Create image from wrapped target and return DispatchingImage
-        return new DispatchingImage(
+        DispatchingImage image = new DispatchingImage(
                 wrappedObject.initializeRaster(wrappedCallback),
                 DispatchingImagingExtension.class, wrappedCallback,
                 getDispatcher());
+        // Send creation event
+        dispatch(RemoteGraphicsEventFactory.createEvent(
+                CreateIImageEvent.class, image));
+        return image;
     }
 
     /**
