@@ -19,22 +19,21 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
-
 /**
  * 
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IRosterItem {
@@ -44,16 +43,11 @@ public interface IRosterItem {
      * @return
      */
     String getName();
-    
+
     /**
      * 
      * @return
      */
     IRosterItem getParent();
-    
-    /**
-     * Get a reference to the roster containing this item.
-     * @return The containing roster.
-     */
-    IRoster getRoster();
+
 }
