@@ -64,6 +64,7 @@ public class CollaborationPathDrawingResourceData extends
             IDescriptor descriptor) throws VizException {
         CollaborationDrawingLayer layer = new CollaborationDrawingLayer(this,
                 loadProperties);
+        layer.setSessionId(sessionId);
         return layer;
     }
 

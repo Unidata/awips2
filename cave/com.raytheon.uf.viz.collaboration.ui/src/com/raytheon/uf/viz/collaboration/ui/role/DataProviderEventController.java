@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.role;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
 
 import com.google.common.eventbus.Subscribe;
@@ -34,6 +35,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
@@ -94,13 +97,24 @@ public class DataProviderEventController extends AbstractRoleEventController {
             AbstractEditor editor = EditorUtil
                     .getActiveEditorAs(AbstractEditor.class);
             SharedEditorData se = EditorSetup.extractSharedEditorData(editor);
+
+            // new color for each user
+            SessionColorManager manager = SharedDisplaySessionMgr
+                    .getSessionContainer(session.getSessionId())
+                    .getColorManager();
+            RGB color = manager.getColorFromUser(event.getParticipant());
+
+            ColorChangeEvent cce = new ColorChangeEvent(event.getParticipant(),
+                    color);
             try {
+                session.sendObjectToVenue(cce);
                 session.sendObjectToPeer(event.getParticipant(), se);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error sending initialization data to new participant "
                                 + event.getParticipant().getName(), e);
             }
+
         }
     }
 
@@ -213,6 +227,10 @@ public class DataProviderEventController extends AbstractRoleEventController {
     @Override
     public void startup() {
         super.startup();
+
+        SessionColorManager manager = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId()).getColorManager();
+        manager.addUser(session.getCurrentDataProvider());
         super.activateTelestrator();
         wrappingListener = new ResourceWrapperListener();
         for (IDisplayPaneContainer container : SharedDisplaySessionMgr
