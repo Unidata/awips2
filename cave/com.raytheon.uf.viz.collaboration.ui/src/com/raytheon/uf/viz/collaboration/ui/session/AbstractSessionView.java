@@ -46,6 +46,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -86,7 +87,7 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     private StyledText composeText;
 
-    protected Map<String, Color> colors;
+    protected Map<UserId, Color> colors;
 
     // protected Action chatAction;
 
@@ -102,10 +103,10 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
-        colors = new HashMap<String, Color>();
-        Map<String, RGB> rgbs = SessionColorManager.getColorManager()
+        colors = new HashMap<UserId, Color>();
+        Map<UserId, RGB> rgbs = SessionColorManager.getColorManager()
                 .getColors();
-        for (String user : rgbs.keySet()) {
+        for (UserId user : rgbs.keySet()) {
             colors.put(user, new Color(Display.getCurrent(), rgbs.get(user)));
         }
     }
