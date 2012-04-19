@@ -19,13 +19,10 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.objects;
 
-import java.awt.image.RenderedImage;
-
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingleColorImage;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateSingleColorImage;
@@ -61,23 +58,12 @@ public class DispatchingSingleColorImage extends DispatchingImage implements
     public DispatchingSingleColorImage(ISingleColorImage targetObject,
             Class<? extends IImagingExtension> extensionClass,
             Dispatcher dispatcher, RGB startingColor,
-            final RenderedImage[] renderedImage) {
-        super(targetObject, extensionClass,
-                new DispatchingRenderedImageCallback(null) {
-                    @Override
-                    public RenderedImage getImage() throws VizException {
-                        RenderedImage image = renderedImage[0];
-                        if (image != null) {
-                            renderedImage[0] = null;
-                        }
-                        return image;
-                    }
-                }, dispatcher);
+            DispatchingRenderedImageCallback callback) {
+        super(targetObject, extensionClass, callback, dispatcher);
         color = startingColor;
         CreateSingleColorImage event = RemoteGraphicsEventFactory.createEvent(
                 CreateSingleColorImage.class, this);
         event.setColor(color);
-        event.setRenderedImage(renderedImage[0]);
         dispatch(event);
     }
 
