@@ -37,6 +37,7 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
@@ -622,15 +623,17 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
 
             @Override
             public void run() {
-                String id = message.getFrom().getFQName();
+                IQualifiedID peer = message.getFrom();
                 for (IViewReference ref : PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage()
                         .getViewReferences()) {
-                    if (id.equals(ref.getSecondaryId())) {
-                        PeerToPeerView p2pView = (PeerToPeerView) ref
-                                .getView(false);
-                        p2pView.appendMessage(message);
-                        return;
+                    IWorkbenchPart part = ref.getPart(false);
+                    if (part != null && part instanceof PeerToPeerView) {
+                        PeerToPeerView p2pView = (PeerToPeerView) part;
+                        if (p2pView.getPeer().equals(peer)) {
+                            p2pView.appendMessage(message);
+                            return;
+                        }
                     }
                 }
                 try {
@@ -638,14 +641,13 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
                             .getActivePage()
-                            .showView(PeerToPeerView.ID, id,
+                            .showView(PeerToPeerView.ID, peer.getFQName(),
                                     IWorkbenchPage.VIEW_ACTIVATE);
+                    p2pView.setPeer(peer);
                     p2pView.appendMessage(message);
                 } catch (PartInitException e) {
-                    // TODO Auto-generated catch block. Please revise as
-                    // appropriate.
                     statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                            "Error opening peer to peer view", e);
                 }
             }
         });
