@@ -59,11 +59,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
@@ -99,7 +99,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     /**
      * The connection to the server.
      */
-    private SessionManager sessionManager;
+    private CollaborationConnection sessionManager;
 
     String loginId;
 
@@ -284,7 +284,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
      * 
      * @return sessionManager or null if unable to get connection.
      */
-    synchronized public SessionManager getSessionManager() {
+    synchronized public CollaborationConnection getSessionManager() {
         // Get user's server account information and make connection.
         if (isConnected() == false) {
             VizApp.runSync(new Runnable() {
@@ -492,7 +492,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
      */
     public String createCollaborationSession(String venue, String subject)
             throws CollaborationException {
-        SessionManager sessionManager = getSessionManager();
+        CollaborationConnection sessionManager = getSessionManager();
         IVenueSession session = null;
         String sessionId = null;
         // try {
@@ -505,7 +505,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
             sessionsMap.put(sessionId, session);
             SharedDisplaySessionMgr.joinSession(displaySession,
-                    ParticipantRole.DATA_PROVIDER);
+                    SharedDisplayRole.DATA_PROVIDER);
 
         }
 
@@ -514,7 +514,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
 
     public String createTextOnlySession(String venueName, String subject)
             throws CollaborationException {
-        SessionManager sessionManager = getSessionManager();
+        CollaborationConnection sessionManager = getSessionManager();
         IVenueSession session = null;
         String sessionId = null;
         session = sessionManager.createTextOnlyVenue(venueName, subject);
@@ -577,7 +577,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     if (sharedDisplay) {
                         ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                         SharedDisplaySessionMgr.joinSession(displaySession,
-                                ParticipantRole.PARTICIPANT);
+                                SharedDisplayRole.PARTICIPANT);
 
                         PlatformUI
                                 .getWorkbench()

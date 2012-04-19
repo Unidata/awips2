@@ -25,7 +25,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -62,12 +62,12 @@ public class SharedDisplayParticipantsLabelProvider extends
                     .getCurrentSessionLeader());
             String dataProviderId = CollaborationUtils.makeUserId(sdSession
                     .getCurrentDataProvider());
-            List<ParticipantRole> roleList = new ArrayList<ParticipantRole>();
+            List<SharedDisplayRole> roleList = new ArrayList<SharedDisplayRole>();
             if (userId.equals(sessionLeaderId)) {
-                roleList.add(ParticipantRole.SESSION_LEADER);
+                roleList.add(SharedDisplayRole.SESSION_LEADER);
             }
             if (userId.equals(dataProviderId)) {
-                roleList.add(ParticipantRole.DATA_PROVIDER);
+                roleList.add(SharedDisplayRole.DATA_PROVIDER);
             }
             if (roleList.size() > 0) {
                 image = getModifier(roleList, user);
@@ -86,19 +86,19 @@ public class SharedDisplayParticipantsLabelProvider extends
      *            -
      * @return image - modified with indicator(s)
      */
-    private Image getModifier(List<ParticipantRole> roles,
+    private Image getModifier(List<SharedDisplayRole> roles,
             CollaborationUser user) {
         String key = user.getImageKey();
         StringBuilder modKey = new StringBuilder(key);
         int roleCnt = 0;
-        if (roles.contains(ParticipantRole.SESSION_LEADER)) {
+        if (roles.contains(SharedDisplayRole.SESSION_LEADER)) {
             ++roleCnt;
             modKey.append(":")
-                    .append(ParticipantRole.SESSION_LEADER.toString());
+                    .append(SharedDisplayRole.SESSION_LEADER.toString());
         }
-        if (roles.contains(ParticipantRole.DATA_PROVIDER)) {
+        if (roles.contains(SharedDisplayRole.DATA_PROVIDER)) {
             ++roleCnt;
-            modKey.append(":").append(ParticipantRole.DATA_PROVIDER.toString());
+            modKey.append(":").append(SharedDisplayRole.DATA_PROVIDER.toString());
         }
         Image image = imageMap.get(modKey.toString());
 
