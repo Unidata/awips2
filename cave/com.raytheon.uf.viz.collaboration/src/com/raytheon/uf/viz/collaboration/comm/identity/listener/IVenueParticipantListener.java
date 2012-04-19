@@ -20,51 +20,58 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.listener;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 6, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IVenueParticipantListener {
 
     /**
      * A participant has arrived in the venue.
-     * @param participant The participant who has arrived.
+     * 
+     * @param participant
+     *            The participant who has arrived.
      */
-    public void handleArrived(IVenueParticipant participant);
+    public void handleArrived(UserId participant);
 
     /**
      * A participant has has updated their information.
-     * @param participant The participant whose information has been updated.
+     * 
+     * @param participant
+     *            The participant whose information has been updated.
      */
-    public void handleUpdated(IVenueParticipant participant);
+    public void handleUpdated(UserId participant);
 
     /**
      * A participant has departed this venue.
-     * @param participant The participant who has departed.
+     * 
+     * @param participant
+     *            The participant who has departed.
      */
-    public void handleDeparted(IVenueParticipant participant);
+    public void handleDeparted(UserId participant);
 
     /**
      * Presence information about the participant who has arrived, updated, or
      * departed the venue.
+     * 
      * @param fromID
      * @param presence
      */
-    public void handlePresenceUpdated(IVenueParticipant fromID, IPresence presence);
+    public void handlePresenceUpdated(UserId fromID, IPresence presence);
 
 }
