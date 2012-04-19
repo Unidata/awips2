@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscri
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -426,11 +427,11 @@ public class CollaborationConnection implements IEventPublisher {
                 String host = Tools.parseHost(account);
                 UserId me = new UserId(name, host);
                 session.setUserId(me);
-                session.setCurrentDataProvider(invitation.getInvite()
-                        .getDataProvider());
-                session.setCurrentSessionLeader(invitation.getInvite()
-                        .getSessionLeader());
-
+                if (invitation instanceof SharedDisplayVenueInvite) {
+                    SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation;
+                    session.setCurrentDataProvider(invite.getDataProvider());
+                    session.setCurrentSessionLeader(invite.getSessionLeader());
+                }
                 sessions.put(session.getSessionId(), session);
             }
         } catch (Exception e) {
