@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -121,7 +121,7 @@ public interface ISharedDisplaySession extends IVenueSession {
      * @param role
      * @return
      */
-    public boolean hasRole(ParticipantRole role);
+    public boolean hasRole(SharedDisplayRole role);
 
     /**
      * Gets the connection status of the session.

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -95,7 +95,7 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
                     .isAllowDraw();
             boolean isSessionLeader = SharedDisplaySessionMgr
                     .getSessionContainer(session).getSession()
-                    .hasRole(ParticipantRole.SESSION_LEADER);
+                    .hasRole(SharedDisplayRole.SESSION_LEADER);
             if (allowDraw && !isSessionLeader) {
                 return false;
             }
@@ -114,7 +114,7 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
                     .isAllowDraw();
             boolean isSessionLeader = SharedDisplaySessionMgr
                     .getSessionContainer(session).getSession()
-                    .hasRole(ParticipantRole.SESSION_LEADER);
+                    .hasRole(SharedDisplayRole.SESSION_LEADER);
             if (allowDraw && !isSessionLeader) {
                 return false;
             }
@@ -133,7 +133,7 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
                     .isAllowDraw();
             boolean isSessionLeader = SharedDisplaySessionMgr
                     .getSessionContainer(session).getSession()
-                    .hasRole(ParticipantRole.SESSION_LEADER);
+                    .hasRole(SharedDisplayRole.SESSION_LEADER);
             if (allowDraw && !isSessionLeader) {
                 return false;
             }

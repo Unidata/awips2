@@ -25,31 +25,29 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class VenueId implements IVenueId {
 
     private String host;
-    
+
     private String resource;
-    
+
     private String venueName;
-    
+
     private String name;
-    
-    private String domain;
-    
+
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHost(java.lang.String)
      */
@@ -113,14 +111,6 @@ public class VenueId implements IVenueId {
     @Override
     public String getVenueName() {
         return venueName;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId#getDomain()
-     */
-    @Override
-    public String getDomain() {
-        return null;
     }
 
 }

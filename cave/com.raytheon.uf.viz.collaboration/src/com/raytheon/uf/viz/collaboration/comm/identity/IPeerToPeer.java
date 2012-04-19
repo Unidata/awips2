@@ -25,33 +25,38 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IPeerToPeer extends ISession, IEventPublisher {
 
     /**
-     * Send a Text message. Note that the recipient of the message is
-     * included as an attribute of the message.
+     * Send a Text message. Note that the recipient of the message is included
+     * as an attribute of the message.
+     * 
      * @param message
      */
-    int sendPeerToPeer(IMessage message);
+    void sendPeerToPeer(IMessage message) throws CollaborationException;
 
     /**
      * Send a Text message to a specific receiver.
-     * @param to The intended receiver.
-     * @param message The message to send.
+     * 
+     * @param to
+     *            The intended receiver.
+     * @param message
+     *            The message to send.
      */
-    int sendPeerToPeer(String to, String message);
+    void sendPeerToPeer(String to, String message)
+            throws CollaborationException;
 
 }
