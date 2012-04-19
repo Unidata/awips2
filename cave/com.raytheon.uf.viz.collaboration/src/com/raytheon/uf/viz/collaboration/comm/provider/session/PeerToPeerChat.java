@@ -34,7 +34,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
-import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 
 /**
  * 
@@ -48,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Apr 18, 2012            njensen      Cleanup
  * 
  * </pre>
  * 
@@ -66,19 +66,18 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      * @param manager
      */
     PeerToPeerChat(IContainer container, EventBus externalBus,
-            SessionManager manager) throws CollaborationException {
+            CollaborationConnection manager) throws CollaborationException {
         super(container, externalBus, manager);
         chatSender = getConnectionPresenceAdapter().getChatManager()
                 .getChatMessageSender();
     }
 
     /**
+     * @throws CollaborationException
      * 
      */
     @Override
-    public int sendPeerToPeer(IMessage message) {
-        // Assume success
-        int status = Errors.NO_ERROR;
+    public void sendPeerToPeer(IMessage message) throws CollaborationException {
         if (chatSender != null) {
             ID toID = createID(message.getTo().getFQName());
             String subject = message.getSubject();
@@ -95,11 +94,11 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
                 chatSender.sendChatMessage(toID, null, IChatMessage.Type.CHAT,
                         subject, body, props);
             } catch (ECFException e) {
-                System.out.println("Error sending message");
-                e.printStackTrace();
+                throw new CollaborationException(
+                        "Error sending message to peer "
+                                + message.getTo().getName(), e);
             }
         }
-        return status;
     }
 
     /**
@@ -109,20 +108,18 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      *            The recipient of the message.
      * @param message
      *            The body of the message to send.
+     * @throws CollaborationException
      */
     @Override
-    public int sendPeerToPeer(String to, String message) {
-        // Assume success
-        int status = Errors.NO_ERROR;
+    public void sendPeerToPeer(String to, String message)
+            throws CollaborationException {
         ID toID = createID(to);
         try {
             chatSender.sendChatMessage(toID, message);
         } catch (ECFException e) {
-            System.out.println("Error sending message");
-            e.printStackTrace();
+            throw new CollaborationException("Error sending message to peer "
+                    + to, e);
         }
-
-        return status;
     }
 
     /**
