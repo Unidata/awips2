@@ -82,8 +82,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
@@ -274,7 +276,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         peerToPeerChatAction = new Action("Chat") {
             @Override
             public void run() {
-                createP2PChat(getId());
+                createP2PChat(IDConverter.convertFrom(getId()));
             }
         };
         peerToPeerChatAction.setImageDescriptor(IconUtil.getImageDescriptor(
@@ -722,15 +724,15 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      * 
      * @param user
      */
-    private void createP2PChat(String user) {
-        System.err.println("createPrivateChat with " + user);
+    private void createP2PChat(IQualifiedID peer) {
         try {
-            PlatformUI
+            PeerToPeerView p2pView = (PeerToPeerView) PlatformUI
                     .getWorkbench()
                     .getActiveWorkbenchWindow()
                     .getActivePage()
-                    .showView(PeerToPeerView.ID, user,
+                    .showView(PeerToPeerView.ID, peer.getFQName(),
                             IWorkbenchPage.VIEW_ACTIVATE);
+            p2pView.setPeer(peer);
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to open chat", e);
         }
@@ -1153,7 +1155,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                         String loginUserId = CollaborationDataManager
                                 .getInstance().getLoginId();
                         if (loginUserId.equals(node.getId()) == false) {
-                            createP2PChat(node.getId());
+                            createP2PChat(IDConverter.convertFrom(node.getId()));
                         }
                     }
                 }
