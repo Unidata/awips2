@@ -19,13 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
-import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingTool;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
 import com.raytheon.uf.viz.core.VizApp;
@@ -75,19 +69,6 @@ public abstract class AbstractRoleEventController implements
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                try {
-                    // assign a color that everyone will receive
-                    String user = CollaborationDataManager.getInstance()
-                            .getLoginId();
-                    RGB color = SessionColorManager.getColorManager()
-                            .getColorFromUser(user);
-                    System.out.println("color for " + user + " is : "
-                            + color.toString());
-                    ColorChangeEvent cce = new ColorChangeEvent(user, color);
-                    session.sendObjectToVenue(cce);
-                } catch (CollaborationException e) {
-                    e.printStackTrace();
-                }
                 // activate the drawing tool by default for the session leader
                 tool = new CollaborationPathDrawingTool();
                 ((CollaborationPathDrawingTool) tool).setSession(session
