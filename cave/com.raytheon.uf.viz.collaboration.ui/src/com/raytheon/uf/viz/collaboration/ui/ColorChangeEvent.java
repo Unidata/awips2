@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Event for when a new user enters and a color is added
@@ -44,7 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class ColorChangeEvent {
     @DynamicSerializeElement
-    private String userName;
+    private UserId userName;
 
     @DynamicSerializeElement
     private Integer red;
@@ -59,7 +60,7 @@ public class ColorChangeEvent {
 
     }
 
-    public ColorChangeEvent(String user, RGB color) {
+    public ColorChangeEvent(UserId user, RGB color) {
         this.userName = user;
         if (color != null) {
             red = color.red;
@@ -72,14 +73,14 @@ public class ColorChangeEvent {
      * @param userName
      *            the userName to set
      */
-    public void setUserName(String userName) {
+    public void setUserName(UserId userName) {
         this.userName = userName;
     }
 
     /**
      * @return the userName
      */
-    public String getUserName() {
+    public UserId getUserName() {
         return userName;
     }
 
