@@ -30,6 +30,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 
 /**
@@ -57,6 +58,8 @@ public class PeerToPeerView extends AbstractSessionView {
     public static final String ID = "com.raytheon.uf.viz.collaboration.PeerToPeerView";
 
     protected IMessageListener messageListener;
+
+    private IQualifiedID peer;
 
     public PeerToPeerView() {
         super();
@@ -157,7 +160,6 @@ public class PeerToPeerView extends AbstractSessionView {
      * ()
      */
     public void sendMessage() {
-        String toUser = getViewSite().getSecondaryId();
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
@@ -165,7 +167,7 @@ public class PeerToPeerView extends AbstractSessionView {
                         .getInstance();
                 IPeerToPeer p2p = (IPeerToPeer) manager.getSessionManager()
                         .getPeerToPeerSession();
-                p2p.sendPeerToPeer(toUser, message);
+                p2p.sendPeerToPeer(peer, message);
                 appendMessage(manager.getLoginId(), null,
                         System.currentTimeMillis(), message);
             } catch (CollaborationException e) {
@@ -190,5 +192,13 @@ public class PeerToPeerView extends AbstractSessionView {
     @Override
     protected String getSessionName() {
         return getViewSite().getSecondaryId();
+    }
+
+    public void setPeer(IQualifiedID peer) {
+        this.peer = peer;
+    }
+
+    public IQualifiedID getPeer() {
+        return peer;
     }
 }
