@@ -34,7 +34,6 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -48,7 +47,6 @@ import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
@@ -87,8 +85,6 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     private StyledText composeText;
 
-    protected Map<UserId, Color> colors;
-
     // protected Action chatAction;
 
     protected abstract String getSessionImageName();
@@ -103,12 +99,6 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
-        colors = new HashMap<UserId, Color>();
-        Map<UserId, RGB> rgbs = SessionColorManager.getColorManager()
-                .getColors();
-        for (UserId user : rgbs.keySet()) {
-            colors.put(user, new Color(Display.getCurrent(), rgbs.get(user)));
-        }
     }
 
     private void initComponents(Composite parent) {
@@ -273,17 +263,13 @@ public abstract class AbstractSessionView extends ViewPart implements
             }
         }
 
-        StyleRange range = new StyleRange(messagesText.getCharCount() + offset,
-                name.length() + 1, colors.get(fqName), null, SWT.BOLD);
-        messagesText.append(sb.toString());
-        messagesText.setStyleRange(range);
-        for (StyleRange newRange : ranges) {
-            messagesText.setStyleRange(newRange);
-        }
-        messagesText.setTopIndex(messagesText.getLineCount() - 1);
+        styleAndAppendText(sb, offset, name, fqName, ranges);
         // room for other fun things here, such as sounds and such
         executeSightsSounds();
     }
+
+    protected abstract void styleAndAppendText(StringBuilder sb, int offset,
+            String name, String fqName, List<StyleRange> ranges);
 
     /**
      * Find keys words in body of message starting at offset. /**
@@ -339,10 +325,6 @@ public abstract class AbstractSessionView extends ViewPart implements
             getViewSite().getWorkbenchWindow().getPartService()
                     .removePartListener(this);
         }
-        for (Color color : colors.values()) {
-            color.dispose();
-        }
-        SessionColorManager.getColorManager().clearColors();
     }
 
     /*
