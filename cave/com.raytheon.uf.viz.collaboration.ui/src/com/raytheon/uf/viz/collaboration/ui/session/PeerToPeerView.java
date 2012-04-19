@@ -20,9 +20,15 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  * further licensing information.
  **/
 
+import java.util.List;
+
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -57,12 +63,18 @@ public class PeerToPeerView extends AbstractSessionView {
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.PeerToPeerView";
 
+    private static Color userColor = null;
+
+    private static Color chatterColor = null;
+
     protected IMessageListener messageListener;
 
     private IQualifiedID peer;
 
     public PeerToPeerView() {
         super();
+        userColor = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
+        chatterColor = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
     }
 
     /*
@@ -178,6 +190,27 @@ public class PeerToPeerView extends AbstractSessionView {
             }
         }
     }
+
+    protected void styleAndAppendText(StringBuilder sb, int offset,
+            String name, String fqName, List<StyleRange> ranges) {
+        Color color = null;
+        if (!fqName.equals(CollaborationDataManager.getInstance().getLoginId())) {
+            color = userColor;
+        } else {
+            color = chatterColor;
+        }
+        StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
+                color, null, SWT.NORMAL);
+        ranges.add(range);
+        range = new StyleRange(messagesText.getCharCount() + offset,
+                name.length() + 1, color, null, SWT.BOLD);
+        ranges.add(range);
+        messagesText.append(sb.toString());
+        for (StyleRange newRange : ranges) {
+            messagesText.setStyleRange(newRange);
+        }
+        messagesText.setTopIndex(messagesText.getLineCount() - 1);
+    };
 
     protected String getSessionImageName() {
         return PEER_TO_PEER_IMAGE_NAME;

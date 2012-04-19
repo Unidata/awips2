@@ -232,12 +232,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public void sendInvitation(String id, String body)
+    public void sendInvitation(String id, VenueInvite invite)
             throws CollaborationException {
         IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
                 .getChatRoomManager().getInvitationSender();
         if (sender != null) {
-            VenueInvite invite = buildInvite(body);
             String msgBody = Tools.marshallData(invite);
             ID roomId = venueInfo.getConnectedID();
             ID userId = IDFactory.getDefault().createID(
@@ -266,11 +265,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public void sendInvitation(List<String> ids, String body)
+    public void sendInvitation(List<String> ids, VenueInvite invite)
             throws CollaborationException {
         if (ids != null) {
             for (String id : ids) {
-                sendInvitation(id, body);
+                sendInvitation(id, invite);
             }
         }
     }
@@ -509,13 +508,5 @@ public class VenueSession extends BaseSession implements IVenueSession {
             message.setFrom(id);
         }
         return message;
-    }
-
-    protected VenueInvite buildInvite(String msg) {
-        VenueInvite invite = new VenueInvite();
-        invite.setMessage(msg);
-        invite.setSessionId(this.sessionId);
-        invite.setSubject(this.getSubject());
-        return invite;
     }
 }
