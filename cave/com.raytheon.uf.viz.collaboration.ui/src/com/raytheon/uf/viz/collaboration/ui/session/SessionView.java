@@ -142,6 +142,8 @@ public class SessionView extends AbstractSessionView {
                     CollaborationConnection sessionManager = CollaborationDataManager
                             .getInstance().getSessionManager();
                     ISession session = sessionManager.getPeerToPeerSession();
+                    // TODO this doesn't seem right to use the session's
+                    // sessionId
                     PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
