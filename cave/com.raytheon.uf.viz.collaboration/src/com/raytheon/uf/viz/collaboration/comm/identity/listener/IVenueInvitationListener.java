@@ -19,25 +19,24 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.listener;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 13, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IVenueInvitationListener {
@@ -49,5 +48,6 @@ public interface IVenueInvitationListener {
      * @param subject
      * @param body
      */
-    void handleInvitation(IQualifiedID roomId, IChatID from, String subject, String body);
+    void handleInvitation(IQualifiedID roomId, UserId from, String subject,
+            String body);
 }

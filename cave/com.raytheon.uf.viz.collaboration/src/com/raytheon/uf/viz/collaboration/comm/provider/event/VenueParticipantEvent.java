@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider.event;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -45,18 +45,18 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
 
     private final ParticipantEventType eventType;
 
-    private final IVenueParticipant participant;
+    private final UserId participant;
 
     private IPresence presence;
 
-    public VenueParticipantEvent(IVenueParticipant participant,
+    public VenueParticipantEvent(UserId participant,
             ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
     }
 
-    public VenueParticipantEvent(IVenueParticipant participant,
-            IPresence presence, ParticipantEventType eventType) {
+    public VenueParticipantEvent(UserId participant, IPresence presence,
+            ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
         this.presence = presence;
@@ -74,7 +74,7 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent#getParticipant()
      */
     @Override
-    public IVenueParticipant getParticipant() {
+    public UserId getParticipant() {
         return participant;
     }
 
