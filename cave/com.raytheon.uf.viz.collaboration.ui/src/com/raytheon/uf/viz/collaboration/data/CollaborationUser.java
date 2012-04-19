@@ -2,7 +2,7 @@ package com.raytheon.uf.viz.collaboration.data;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -44,7 +44,7 @@ public class CollaborationUser extends CollaborationNode {
 
     String session;
 
-    IChatID iChatID;
+    UserId iChatID;
 
     public CollaborationUser(String id) {
         super(id);
