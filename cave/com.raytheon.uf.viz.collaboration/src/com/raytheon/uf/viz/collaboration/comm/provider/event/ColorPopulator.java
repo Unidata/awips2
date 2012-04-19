@@ -17,7 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.comm.provider.event;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -26,7 +31,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * Event for when a new user enters and a color is added
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -34,7 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 11, 2012            mnash     Initial creation
+ * Apr 19, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -43,73 +48,63 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  */
 
 @DynamicSerialize
-public class ColorChangeEvent {
+public class ColorPopulator {
     @DynamicSerializeElement
-    private UserId userName;
+    private List<UserId> userName;
 
     @DynamicSerializeElement
-    private Integer red;
+    private List<Integer> red;
 
     @DynamicSerializeElement
-    private Integer green;
+    private List<Integer> green;
 
     @DynamicSerializeElement
-    private Integer blue;
+    private List<Integer> blue;
 
-    public ColorChangeEvent() {
+    public ColorPopulator() {
     }
 
-    public ColorChangeEvent(UserId user, RGB color) {
-        this.userName = user;
-        if (color != null) {
-            red = color.red;
-            green = color.green;
-            blue = color.blue;
+    public ColorPopulator(Map<UserId, RGB> rgbs) {
+        userName = new ArrayList<UserId>();
+        red = new ArrayList<Integer>();
+        green = new ArrayList<Integer>();
+        blue = new ArrayList<Integer>();
+        for (UserId key : rgbs.keySet()) {
+            userName.add(key);
+            red.add(rgbs.get(key).red);
+            green.add(rgbs.get(key).green);
+            blue.add(rgbs.get(key).blue);
         }
+    }
+
+    public Map<UserId, RGB> getColors() {
+        Map<UserId, RGB> colors = new HashMap<UserId, RGB>();
+        for (int i = 0; i < userName.size(); i++) {
+            colors.put(userName.get(i),
+                    new RGB(red.get(i), green.get(i), blue.get(i)));
+        }
+        return colors;
+    }
+
+    /**
+     * @return the userName
+     */
+    public List<UserId> getUserName() {
+        return userName;
     }
 
     /**
      * @param userName
      *            the userName to set
      */
-    public void setUserName(UserId userName) {
+    public void setUserName(List<UserId> userName) {
         this.userName = userName;
-    }
-
-    /**
-     * @return the userName
-     */
-    public UserId getUserName() {
-        return userName;
-    }
-
-    /**
-     * @param color
-     *            the color to set
-     */
-    public void setColor(RGB color) {
-        if (color != null) {
-            red = color.red;
-            green = color.green;
-            blue = color.blue;
-        }
-    }
-
-    /**
-     * @return the color
-     */
-    public RGB getColor() {
-        RGB color = null;
-        if (red != null && green != null && blue != null) {
-            color = new RGB(red, green, blue);
-        }
-        return color;
     }
 
     /**
      * @return the red
      */
-    public Integer getRed() {
+    public List<Integer> getRed() {
         return red;
     }
 
@@ -117,14 +112,14 @@ public class ColorChangeEvent {
      * @param red
      *            the red to set
      */
-    public void setRed(Integer red) {
+    public void setRed(List<Integer> red) {
         this.red = red;
     }
 
     /**
      * @return the green
      */
-    public Integer getGreen() {
+    public List<Integer> getGreen() {
         return green;
     }
 
@@ -132,14 +127,14 @@ public class ColorChangeEvent {
      * @param green
      *            the green to set
      */
-    public void setGreen(Integer green) {
+    public void setGreen(List<Integer> green) {
         this.green = green;
     }
 
     /**
      * @return the blue
      */
-    public Integer getBlue() {
+    public List<Integer> getBlue() {
         return blue;
     }
 
@@ -147,7 +142,7 @@ public class ColorChangeEvent {
      * @param blue
      *            the blue to set
      */
-    public void setBlue(Integer blue) {
+    public void setBlue(List<Integer> blue) {
         this.blue = blue;
     }
 }
