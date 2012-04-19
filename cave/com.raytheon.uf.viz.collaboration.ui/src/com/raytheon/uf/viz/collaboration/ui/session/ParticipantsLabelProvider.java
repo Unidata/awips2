@@ -28,13 +28,17 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 
 /**
@@ -63,6 +67,8 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     protected Map<String, Image> imageMap;
 
+    protected Map<String, Color> colors;
+
     public ParticipantsLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
         imageMap = new HashMap<String, Image>();
@@ -77,6 +83,12 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     public void dispose() {
         for (String key : imageMap.keySet()) {
             imageMap.get(key).dispose();
+        }
+
+        if (colors != null) {
+            for (Color col : colors.values()) {
+                col.dispose();
+            }
         }
     }
 
@@ -128,7 +140,20 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public Color getForeground(Object element, int columnIndex) {
-        return null;
+        if (colors == null) {
+            colors = new HashMap<String, Color>();
+        }
+        String id = ((CollaborationUser) element).getId();
+        RGB color = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager().getColors().get(id);
+
+        // add to map so we can dispose
+        if (color == null) {
+            colors.put(id, Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+        } else {
+            colors.put(id, new Color(Display.getCurrent(), color));
+        }
+        return colors.get(id);
     }
 
     @Override
