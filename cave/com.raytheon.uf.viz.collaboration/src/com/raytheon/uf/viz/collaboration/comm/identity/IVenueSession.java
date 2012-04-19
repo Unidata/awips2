@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 
 /**
  * 
@@ -80,7 +81,7 @@ public interface IVenueSession extends ISession {
      *            The intended subject of the venue conversation.
      * @return
      */
-    public void sendInvitation(String id, String body)
+    public void sendInvitation(String id, VenueInvite invite)
             throws CollaborationException;
 
     /**
@@ -92,7 +93,7 @@ public interface IVenueSession extends ISession {
      *            Any text that the user may wish to include.
      * @return
      */
-    public void sendInvitation(List<String> ids, String body)
+    public void sendInvitation(List<String> ids, VenueInvite invite)
             throws CollaborationException;
 
 }

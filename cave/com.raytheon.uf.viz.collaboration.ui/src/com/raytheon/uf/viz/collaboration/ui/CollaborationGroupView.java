@@ -76,9 +76,12 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
@@ -93,6 +96,7 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.OrphanGroup;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
@@ -253,8 +257,15 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 System.out.println("subject: "
                         + session.getVenue().getInfo().getVenueSubject());
                 try {
-                    session.sendInvitation(ids, session.getVenue().getInfo()
-                            .getVenueSubject());
+                    VenueInvite invite = null;
+                    if (session instanceof ISharedDisplaySession) {
+                        invite = buildDisplayInvite(sessionId, session
+                                .getVenue().getInfo().getVenueSubject(), "");
+                    } else {
+                        invite = buildInvite(sessionId, session.getVenue()
+                                .getInfo().getVenueSubject(), "");
+                    }
+                    session.sendInvitation(ids, invite);
                 } catch (CollaborationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error sending invitiation", e);
@@ -637,13 +648,47 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                         usersList.add(user.getId());
                     }
                     String b = result.getInviteMessage();
-                    session.sendInvitation(usersList, b);
+
+                    VenueInvite invite = null;
+                    if (session instanceof ISharedDisplaySession) {
+                        invite = buildDisplayInvite(session.getSessionId(),
+                                result.getSubject(), b);
+                    } else {
+                        invite = buildInvite(session.getSessionId(),
+                                result.getSubject(), b);
+                    }
+                    session.sendInvitation(usersList, invite);
                 }
             } catch (Exception e) {
                 statusHandler.error("Error sending invitation", e);
             }
         }
+    }
 
+    private VenueInvite buildInvite(String sessionId, String subject,
+            String body) {
+        VenueInvite invite = new VenueInvite();
+        invite.setMessage(body);
+        invite.setSessionId(sessionId);
+        invite.setSubject(subject);
+        return invite;
+    }
+
+    private VenueInvite buildDisplayInvite(String sessionId, String subject,
+            String msg) {
+        SharedDisplayVenueInvite invite = new SharedDisplayVenueInvite();
+        invite.setMessage(msg);
+        invite.setSessionId(sessionId);
+        invite.setSubject(subject);
+        invite.setColors(SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager().getColors());
+        invite.setDataProvider(SharedDisplaySessionMgr
+                .getSessionContainer(sessionId).getSession()
+                .getCurrentDataProvider());
+        invite.setSessionLeader(SharedDisplaySessionMgr
+                .getSessionContainer(sessionId).getSession()
+                .getCurrentSessionLeader());
+        return invite;
     }
 
     private void createCollaborationView(CreateSessionData result) {
