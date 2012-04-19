@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.tcs.util.Util;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * TODO Add Description
@@ -49,6 +49,8 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2010            jsanchez     Initial creation
+ * Apr 19, 2012  #457      dgilling     Use TimeTools.findDataTime()
+ *                                      to calculate times.
  * 
  * </pre>
  * 
@@ -114,14 +116,13 @@ public class TCMData extends TCSDataAdapter {
         super(pdd, dao, pluginName);
     }
 
+    @Override
     public List<TropicalCycloneSummary> findReports(byte[] message) {
         boolean isExtraTropical = false;
         boolean isLocation = false;
         String time;
         String type = null;
         Matcher m;
-        Calendar calendar = Calendar
-                .getInstance(TimeZone.getTimeZone(TIMEZONE));
         Radius radius = new Radius();
         TropicalCycloneSummary storm = new TropicalCycloneSummary();
         ArrayList<TropicalCycloneSummary> stormList = new ArrayList<TropicalCycloneSummary>();
@@ -252,13 +253,8 @@ public class TCMData extends TCSDataAdapter {
             if (m.find()) {
                 time = m.group(2) + "." + m.group(4);
 
-                calendar = Calendar.getInstance(TimeZone.getTimeZone(TIMEZONE));
-                calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(m.group(4)));
-                calendar.set(Calendar.MINUTE, Integer.parseInt(m.group(5)));
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-                calendar.set(Calendar.DAY_OF_MONTH,
-                        Integer.parseInt(m.group(2)));
+                Calendar calendar = TimeTools.findDataTime(
+                        m.group(2) + m.group(4) + m.group(5), headers);
                 DataTime fcastTime = new DataTime(calendar);
                 if (refTime == null) {
                     refTime = new DataTime(fcastTime.getRefTimeAsCalendar());
