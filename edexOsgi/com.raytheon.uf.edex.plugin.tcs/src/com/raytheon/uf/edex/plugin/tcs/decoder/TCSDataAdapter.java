@@ -48,6 +48,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2009            jsanchez     Initial creation
+ * Apr 19, 2012  #457      dgilling     Create headers field so 
+ *                                      subclasses can use TimeTools
+ *                                      for time calculations.
  * 
  * </pre>
  * 
@@ -76,6 +79,8 @@ public abstract class TCSDataAdapter implements TCSConstants {
 
     protected List<TropicalCycloneSummary> reports;
 
+    protected Headers headers;
+
     public TCSDataAdapter(PointDataDescription pdd,
             TropicalCycloneSummaryDao dao, String pluginName) {
         this.pointDataDescription = pdd;
@@ -87,6 +92,7 @@ public abstract class TCSDataAdapter implements TCSConstants {
     public void setData(byte[] message, String traceId, Headers headers) {
         currentReport = -1;
         this.traceId = traceId;
+        this.headers = headers;
         wmoHeader = new WMOHeader(message, headers);
         if (wmoHeader != null) {
             reports = findReports(message);
