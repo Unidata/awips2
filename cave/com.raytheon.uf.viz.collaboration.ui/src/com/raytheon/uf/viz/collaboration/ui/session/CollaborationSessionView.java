@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -93,7 +93,7 @@ public class CollaborationSessionView extends SessionView {
                 if (menu == null || menu.isDisposed()) {
                     menu = new Menu(parent);
                 }
-                if (session.hasRole(ParticipantRole.SESSION_LEADER)) {
+                if (session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
                     Action leaderAction = new Action("Session Leader") {
                         public void run() {
                             IStructuredSelection selection = (IStructuredSelection) usersTable
@@ -108,7 +108,7 @@ public class CollaborationSessionView extends SessionView {
                     leaderItem.fill(menu, -1);
                 }
 
-                if (session.hasRole(ParticipantRole.DATA_PROVIDER)) {
+                if (session.hasRole(SharedDisplayRole.DATA_PROVIDER)) {
                     Action dataProviderAction = new Action("Data Provider") {
                         public void run() {
                             IStructuredSelection selection = (IStructuredSelection) usersTable
@@ -152,7 +152,7 @@ public class CollaborationSessionView extends SessionView {
         UserId vp = new UserId(Tools.parseName(fqname), Tools.parseHost(fqname));
         trc.setUser(vp);
         session.setCurrentSessionLeader(vp);
-        trc.setRole(ParticipantRole.SESSION_LEADER);
+        trc.setRole(SharedDisplayRole.SESSION_LEADER);
         try {
             session.sendObjectToVenue(trc);
         } catch (CollaborationException e) {
@@ -236,8 +236,8 @@ public class CollaborationSessionView extends SessionView {
     @Override
     protected void fillContextMenu(IMenuManager manager) {
         super.fillContextMenu(manager);
-        if (session.hasRole(ParticipantRole.DATA_PROVIDER)
-                || session.hasRole(ParticipantRole.SESSION_LEADER)) {
+        if (session.hasRole(SharedDisplayRole.DATA_PROVIDER)
+                || session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
             IStructuredSelection selection = (IStructuredSelection) usersTable
                     .getSelection();
             CollaborationUser selectedUser = (CollaborationUser) selection
