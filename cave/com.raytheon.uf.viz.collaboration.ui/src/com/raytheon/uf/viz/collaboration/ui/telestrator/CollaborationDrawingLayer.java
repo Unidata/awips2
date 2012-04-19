@@ -36,6 +36,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
@@ -86,7 +87,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
 
     private Multimap<String, ShapeContainer> deletedCollaboratorShapes;
 
-    private Map<String, RGB> colors;
+    private Map<UserId, RGB> colors;
 
     private IWireframeShape tempRemoteShape = null;
 
@@ -447,7 +448,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         // }
     }
 
-    public void addColor(String userName, RGB color) {
+    public void addColor(UserId userName, RGB color) {
         colors.put(userName, color);
     }
 

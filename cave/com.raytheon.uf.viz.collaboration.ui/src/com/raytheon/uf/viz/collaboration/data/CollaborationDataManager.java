@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
@@ -550,8 +551,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                         | SWT.OK | SWT.CANCEL);
                 box.setText("Invitation");
                 StringBuilder sb = new StringBuilder();
-                boolean sharedDisplay = invitation.getInvite()
-                        .isSharedDisplayVenue();
+                boolean sharedDisplay = invitation.getInvite() instanceof SharedDisplayVenueInvite;
                 sb.append("You are invited to a ");
                 if (sharedDisplay) {
                     sb.append("collaboration session.\n");
@@ -576,6 +576,13 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     String sessionId = session.getSessionId();
                     sessionsMap.put(sessionId, session);
                     if (sharedDisplay) {
+                        SharedDisplaySessionMgr
+                                .getSessionContainer(sessionId)
+                                .getColorManager()
+                                .setColors(
+                                        ((SharedDisplayVenueInvite) invitation
+                                                .getInvite()).getColors());
+
                         ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                         SharedDisplaySessionMgr.joinSession(displaySession,
                                 SharedDisplayRole.PARTICIPANT);
