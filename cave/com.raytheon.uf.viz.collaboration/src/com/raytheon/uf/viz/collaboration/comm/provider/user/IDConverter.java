@@ -65,4 +65,9 @@ public class IDConverter {
         return rosterId;
     }
 
+    public static UserId convertFrom(String fqName) {
+        return new UserId(Tools.parseName(fqName), Tools.parseHost(fqName),
+                Tools.parseResource(fqName));
+    }
+
 }
