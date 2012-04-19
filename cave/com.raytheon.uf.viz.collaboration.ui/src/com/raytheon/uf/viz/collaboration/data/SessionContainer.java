@@ -124,14 +124,9 @@ public class SessionContainer {
      * @return the colorManager
      */
     public SessionColorManager getColorManager() {
+        if (colorManager == null) {
+            colorManager = new SessionColorManager();
+        }
         return colorManager;
-    }
-
-    /**
-     * @param colorManager
-     *            the colorManager to set
-     */
-    public void setColorManager(SessionColorManager colorManager) {
-        this.colorManager = colorManager;
     }
 }
