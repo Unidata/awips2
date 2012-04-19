@@ -29,9 +29,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
@@ -97,7 +96,7 @@ public class CollaborationUtils {
      * @return userId
      */
     public static String makeUserId(IRosterEntry rosterEntry) {
-        IChatID chatId = rosterEntry.getUser();
+        UserId chatId = rosterEntry.getUser();
         String userId = chatId.getName() + Tools.NAME_DELIM + chatId.getHost();
         return userId;
     }
@@ -109,7 +108,7 @@ public class CollaborationUtils {
      * @param participant
      * @return userId
      */
-    public static String makeUserId(IVenueParticipant participant) {
+    public static String makeUserId(UserId participant) {
         StringBuilder sb = new StringBuilder(participant.getName());
         sb.append(Tools.NAME_DELIM);
         int start = sb.length();

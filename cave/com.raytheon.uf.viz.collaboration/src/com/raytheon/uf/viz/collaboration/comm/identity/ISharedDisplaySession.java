@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * 
@@ -92,28 +92,28 @@ public interface ISharedDisplaySession extends IVenueSession {
      * 
      * @return
      */
-    public IVenueParticipant getCurrentDataProvider();
+    public UserId getCurrentDataProvider();
 
     /**
      * Returns the current Session Leader for the session
      * 
      * @return
      */
-    public IVenueParticipant getCurrentSessionLeader();
+    public UserId getCurrentSessionLeader();
 
     /**
      * Sets the current Data Provider for the session
      * 
      * @param participant
      */
-    public void setCurrentDataProvider(IVenueParticipant participant);
+    public void setCurrentDataProvider(UserId participant);
 
     /**
      * Sets the current Session Leader for the session
      * 
      * @param participant
      */
-    public void setCurrentSessionLeader(IVenueParticipant participant);
+    public void setCurrentSessionLeader(UserId participant);
 
     /**
      * Checks if the currently logged in user has the role on this session

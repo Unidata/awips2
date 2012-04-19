@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
@@ -47,7 +45,7 @@ public class IDConverter {
      * @param user
      * @return
      */
-    public static IQualifiedID convertFrom(org.eclipse.ecf.core.identity.ID id) {
+    public static UserId convertFrom(org.eclipse.ecf.core.identity.ID id) {
         String name = Tools.parseName(id.getName());
         String host = Tools.parseHost(id.getName());
         String rsc = Tools.parseResource(id.getName());
@@ -59,11 +57,11 @@ public class IDConverter {
      * @param user
      * @return
      */
-    public static IChatID convertFrom(org.eclipse.ecf.core.user.IUser user) {
+    public static UserId convertFrom(org.eclipse.ecf.core.user.IUser user) {
         String name = Tools.parseName(user.getID().getName());
         String host = Tools.parseHost(user.getID().getName());
-        RosterId rosterId = new RosterId(name, host);
-        rosterId.setNickname(user.getNickname());
+        UserId rosterId = new UserId(name, host);
+        rosterId.setAlias(user.getNickname());
         return rosterId;
     }
 
