@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.data;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -54,6 +55,8 @@ public class SessionContainer {
 
     /** subscribes to events related to the session based on role **/
     private IRoleEventController roleEventController;
+
+    private SessionColorManager colorManager;
 
     /**
      * the editor associated with a session, only valid if not fulfilling the
@@ -117,4 +120,18 @@ public class SessionContainer {
         this.sessionId = sessionId;
     }
 
+    /**
+     * @return the colorManager
+     */
+    public SessionColorManager getColorManager() {
+        return colorManager;
+    }
+
+    /**
+     * @param colorManager
+     *            the colorManager to set
+     */
+    public void setColorManager(SessionColorManager colorManager) {
+        this.colorManager = colorManager;
+    }
 }
