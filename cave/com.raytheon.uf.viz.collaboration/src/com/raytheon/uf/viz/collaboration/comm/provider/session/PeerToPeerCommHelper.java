@@ -36,7 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Listens for peer to peer messages and routes them appropriately.
  * 
  * <pre>
  * 
