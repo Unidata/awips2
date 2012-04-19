@@ -67,9 +67,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -355,8 +355,7 @@ public class SessionView extends AbstractSessionView {
 
         List<CollaborationUser> users = new ArrayList<CollaborationUser>();
         if (session != null) {
-            for (IVenueParticipant participant : session.getVenue()
-                    .getParticipants()) {
+            for (UserId participant : session.getVenue().getParticipants()) {
 
                 String userId = CollaborationUtils.makeUserId(participant);
                 CollaborationUser user = new CollaborationUser(userId,
@@ -562,7 +561,7 @@ public class SessionView extends AbstractSessionView {
             throws Exception {
         System.out.println("++ ParticipantHander type " + event.getEventType());
         final ParticipantEventType type = event.getEventType();
-        final IVenueParticipant participant = event.getParticipant();
+        final UserId participant = event.getParticipant();
         final IPresence presence = event.getPresence();
         VizApp.runAsync(new Runnable() {
 
@@ -591,7 +590,7 @@ public class SessionView extends AbstractSessionView {
     }
 
     @SuppressWarnings("unchecked")
-    private void participantArrived(IVenueParticipant participant) {
+    private void participantArrived(UserId participant) {
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
         String name = participant.getFQName();
@@ -608,7 +607,7 @@ public class SessionView extends AbstractSessionView {
     }
 
     @SuppressWarnings("unchecked")
-    private void participantDeparted(IVenueParticipant participant) {
+    private void participantDeparted(UserId participant) {
         System.out.println("++++ handle departed here: "
                 + participant.getName() + ", " + participant.getFQName());
         String userId = CollaborationUtils.makeUserId(participant);
@@ -628,7 +627,7 @@ public class SessionView extends AbstractSessionView {
      * @param presence
      */
     @SuppressWarnings("unchecked")
-    private void participantPresenceUpdated(IVenueParticipant participant,
+    private void participantPresenceUpdated(UserId participant,
             IPresence presence) {
         // Ignore the presence's mode/type. May not be the same as the user's.
         // TODO Keep as a place holder for now since it may be needed to set
