@@ -68,7 +68,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
@@ -139,7 +139,7 @@ public class SessionView extends AbstractSessionView {
             @Override
             public void run() {
                 try {
-                    SessionManager sessionManager = CollaborationDataManager
+                    CollaborationConnection sessionManager = CollaborationDataManager
                             .getInstance().getSessionManager();
                     ISession session = sessionManager.getPeerToPeerSession();
                     PlatformUI

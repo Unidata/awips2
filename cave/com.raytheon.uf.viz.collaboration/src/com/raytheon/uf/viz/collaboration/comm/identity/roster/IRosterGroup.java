@@ -25,35 +25,27 @@ import java.util.Collection;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IRosterGroup extends IRosterItem {
 
     /**
-     * Collection of entries belonging to this group. This method must
-     * always return a not null collection with zero or more entries.
+     * Collection of entries belonging to this group. This method must always
+     * return a not null collection with zero or more entries.
+     * 
      * @return Entries belonging to this group.
      */
-    Collection<IRosterEntry> getEntries(); 
-    
-    /**
-     * Collection of nested groups belonging to this group. This method must
-     * return a null reference if nested groups are not allowed. If nested
-     * groups are allowed the method must return a not null collection with
-     * zero or more entries.
-     * @return Groups belonging to this group.
-     */
-    Collection<IRosterGroup> getGroups(); 
-    
+    Collection<IRosterEntry> getEntries();
+
 }
