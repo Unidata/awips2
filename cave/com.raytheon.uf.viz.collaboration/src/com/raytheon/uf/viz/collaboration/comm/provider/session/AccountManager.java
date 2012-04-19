@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * TODO Add Description
@@ -102,13 +101,14 @@ public class AccountManager implements IAccountManager {
 
     private ISubscriptionResponder responder;
 
-    private SessionManager sessionManager = null;
+    private CollaborationConnection sessionManager = null;
 
     /**
      * 
      * @param adapter
      */
-    AccountManager(IPresenceContainerAdapter adapter, SessionManager manager) {
+    AccountManager(IPresenceContainerAdapter adapter,
+            CollaborationConnection manager) {
         sessionManager = manager;
         presenceAdapter = adapter;
         presenceAdapter.getRosterManager().addRosterSubscriptionListener(
@@ -246,7 +246,8 @@ public class AccountManager implements IAccountManager {
                     try {
                         manager.createAccount(name, new String(password), map);
                     } catch (ECFException e) {
-                        throw new CollaborationException("Could not create account ");
+                        throw new CollaborationException(
+                                "Could not create account ");
                     }
                 }
                 // all done so clear the password.
@@ -297,7 +298,5 @@ public class AccountManager implements IAccountManager {
             throw new CollaborationException("Could not send presence");
         }
     }
-    
-    
-    
+
 }

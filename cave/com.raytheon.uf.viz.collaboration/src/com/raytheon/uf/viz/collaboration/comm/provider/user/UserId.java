@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Apr 18, 2012            njensen      Major refactor
  * 
  * </pre>
  * 
@@ -171,11 +172,19 @@ public class UserId implements IQualifiedID {
         return sb.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    @Override
+    public String toString() {
+        return this.getFQName();
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -187,18 +196,13 @@ public class UserId implements IQualifiedID {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof UserId))
             return false;
         UserId other = (UserId) obj;
         if (host == null) {
@@ -217,19 +221,6 @@ public class UserId implements IQualifiedID {
         } else if (!resource.equals(other.resource))
             return false;
         return true;
-    }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    @Override
-    public String toString() {
-        return this.getFQName();
     }
 
 }

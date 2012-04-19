@@ -84,6 +84,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Apr 17, 2012            njensen      Major refactor
  * 
  * </pre>
  * 
@@ -123,7 +124,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param eventBus
      */
     protected VenueSession(IContainer container, EventBus externalBus,
-            SessionManager manager, String sessionId)
+            CollaborationConnection manager, String sessionId)
             throws CollaborationException {
         super(container, externalBus, manager, sessionId);
     }
@@ -134,7 +135,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param eventBus
      */
     protected VenueSession(IContainer container, EventBus externalBus,
-            SessionManager manager) throws CollaborationException {
+            CollaborationConnection manager) throws CollaborationException {
         super(container, externalBus, manager);
     }
 
@@ -441,7 +442,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
             ID from = message.getFromID();
 
             String name = Tools.parseName(from.getName());
-            String host = Tools.parseHost(from.getName());
 
             String account = getSessionManager().getAccount();
             String aName = Tools.parseName(account);
