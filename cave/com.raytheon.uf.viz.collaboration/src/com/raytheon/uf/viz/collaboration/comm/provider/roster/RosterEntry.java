@@ -28,10 +28,9 @@ import org.eclipse.ecf.core.identity.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -53,7 +52,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 public class RosterEntry extends RosterItem implements IRosterEntry,
         IMutableRosterEntry {
 
-    private IChatID userId = null;
+    private UserId userId = null;
 
     private IPresence presence = null;
 
@@ -63,7 +62,7 @@ public class RosterEntry extends RosterItem implements IRosterEntry,
      * 
      * @param id
      */
-    public RosterEntry(IChatID id) {
+    public RosterEntry(UserId id) {
         userId = id;
         setName(id.getFQName());
         groups = new HashMap<IRosterGroup, IRosterGroup>();
@@ -73,7 +72,7 @@ public class RosterEntry extends RosterItem implements IRosterEntry,
      * 
      */
     @Override
-    public IChatID getUser() {
+    public UserId getUser() {
         return userId;
     }
 
@@ -152,15 +151,16 @@ public class RosterEntry extends RosterItem implements IRosterEntry,
      * @param entry
      * @return
      */
-    public static IRosterEntry convertEntry(org.eclipse.ecf.presence.roster.IRosterEntry entry) {
+    public static IRosterEntry convertEntry(
+            org.eclipse.ecf.presence.roster.IRosterEntry entry) {
         RosterEntry rosterEntry = null;
-        if(entry != null) {
+        if (entry != null) {
             ID id = entry.getUser().getID();
-            
+
             String name = Tools.parseName(id.getName());
             String host = Tools.parseHost(id.getName());
             String resource = Tools.parseResource(id.getName());
-            IChatID rosterId = new RosterId(name, host, resource);
+            UserId rosterId = new UserId(name, host, resource);
 
             rosterEntry = new RosterEntry(rosterId);
             IPresence p = Presence.convertPresence(entry.getPresence());
@@ -168,94 +168,14 @@ public class RosterEntry extends RosterItem implements IRosterEntry,
 
             // Now check the groups
             @SuppressWarnings("unchecked")
-            Collection<org.eclipse.ecf.presence.roster.IRosterGroup> inGroups = entry.getGroups();
-            for(org.eclipse.ecf.presence.roster.IRosterGroup g : inGroups) {
-                RosterGroup group = new RosterGroup(g.getName(), null,null);
+            Collection<org.eclipse.ecf.presence.roster.IRosterGroup> inGroups = entry
+                    .getGroups();
+            for (org.eclipse.ecf.presence.roster.IRosterGroup g : inGroups) {
+                RosterGroup group = new RosterGroup(g.getName(), null, null);
                 rosterEntry.addGroup(group);
             }
         }
         return rosterEntry;
-    }
-    
-    
-    public static final void main(String[] args) {
-
-        IChatID id = new IChatID() {
-
-            private String name = null;
-
-            private String nickName = null;
-
-            private String host = null;
-
-            private String resource = null;
-
-            @Override
-            public void setName(String userName) {
-                name = userName;
-            }
-
-            @Override
-            public String getName() {
-                return name;
-            }
-
-            @Override
-            public void setNickname(String nickname) {
-                nickName = nickname;
-            }
-
-            @Override
-            public String getNickname() {
-                return nickName;
-
-            }
-
-            @Override
-            public void setHost(String hostName) {
-                host = hostName;
-            }
-
-            @Override
-            public String getHost() {
-                return host;
-            }
-
-            @Override
-            public String getResource() {
-                return resource;
-            }
-
-            @Override
-            public void setResource(String resource) {
-                this.resource = resource;
-            }
-
-            @Override
-            public String getFQName() {
-                StringBuilder sb = new StringBuilder(name);
-                sb.append("@");
-                sb.append(host);
-                if (resource != null) {
-                    sb.append("/");
-                    sb.append(resource);
-                }
-
-                return sb.toString();
-            }
-
-        };
-
-        id.setName("fred");
-        id.setHost("awipscm.omaha.us.ray.com");
-        id.setResource("smack");
-
-        IMutableRosterEntry entry = new RosterEntry(id);
-        entry.setPresence(new Presence());
-
-        IRosterEntry en = entry;
-
-        System.out.println(id.getFQName());
     }
 
 }
