@@ -55,7 +55,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.DataUser;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -110,7 +110,7 @@ public class LoginDialog extends CaveSWTDialog {
 
     private IRosterEventSubscriber rosterEventSubscriber;
 
-    private SessionManager sessionManager;
+    private CollaborationConnection sessionManager;
 
     public LoginDialog(Shell parentShell,
             IRosterEventSubscriber rosterEventSubscriber) {
@@ -378,7 +378,7 @@ public class LoginDialog extends CaveSWTDialog {
                         // .getSelectionIndex()], messageTF
                         // .getText().trim());
                         try {
-                            sessionManager = new SessionManager(loginData
+                            sessionManager = new CollaborationConnection(loginData
                                     .getAccount(), loginData.getPassword(),
                                     rosterEventSubscriber);
                             DataUser dUser = CollaborationDataManager
@@ -495,7 +495,7 @@ public class LoginDialog extends CaveSWTDialog {
     /**
      * @return the sessionManager
      */
-    public SessionManager getSessionManager() {
+    public CollaborationConnection getSessionManager() {
         return sessionManager;
     }
 }

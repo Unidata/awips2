@@ -19,73 +19,73 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.info;
 
-import java.util.Collection;
-
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IVenueInfo {
-    
+
     /**
      * 
      * @return
      */
     String getVenueDescription();
-    
+
     /**
      * Get a long name for venue
+     * 
      * @return
      */
     String getVenueName();
-    
+
     /**
      * 
      * @return
      */
     String getVenueSubject();
-    
+
     /**
      * 
      * @return
      */
     String getVenueID();
-    
+
     /**
-     * Get a count of the current number of room participants 
-     * @return Count of the current number of room participants 
+     * Get a count of the current number of room participants
+     * 
+     * @return Count of the current number of room participants
      */
     int getParticipantCount();
-    
+
     /**
      * 
      * @return
      */
     boolean isModerated();
-    
+
     /**
      * 
      * @return
      */
     boolean isPersistent();
-    
+
     /**
      * 
      * @return
      */
     boolean requiresPassword();
-   
+
 }

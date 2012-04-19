@@ -83,7 +83,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
@@ -438,7 +438,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         Object result = dialog.getReturnValue();
         if (result != null) {
             char[] password = result.toString().toCharArray();
-            SessionManager sessionManager = CollaborationDataManager
+            CollaborationConnection sessionManager = CollaborationDataManager
                     .getInstance().getSessionManager();
             try {
                 sessionManager.getAccountManager().changePassword(password);
@@ -605,7 +605,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     private void createSession() {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-        SessionManager sessionManager = manager.getSessionManager();
+        CollaborationConnection sessionManager = manager.getSessionManager();
         if (sessionManager == null) {
             System.err.println("Unable to get session manager");
             return;
@@ -917,7 +917,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     protected void populateTree() {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-        SessionManager sessionManager = manager.getSessionManager();
+        CollaborationConnection sessionManager = manager.getSessionManager();
         topLevel.removeChildren();
         if (sessionManager == null) {
             usersTreeViewer.getTree().setEnabled(false);

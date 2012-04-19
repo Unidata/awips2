@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.eclipse.ecf.presence.IIMMessageEvent;
 import org.eclipse.ecf.presence.IIMMessageListener;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.im.IChatMessage;
 import org.eclipse.ecf.presence.im.IChatMessageEvent;
 
@@ -55,18 +54,14 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 public class PeerToPeerCommHelper implements IIMMessageListener {
 
-    private SessionManager manager;
-
-    private IPresenceContainerAdapter presenceAdapter;
+    private CollaborationConnection manager;
 
     /**
      * 
      * @param manager
      * @param presenceAdapter
      */
-    PeerToPeerCommHelper(SessionManager manager,
-            IPresenceContainerAdapter presenceAdapter) {
-        this.presenceAdapter = presenceAdapter;
+    PeerToPeerCommHelper(CollaborationConnection manager) {
         this.manager = manager;
     }
 

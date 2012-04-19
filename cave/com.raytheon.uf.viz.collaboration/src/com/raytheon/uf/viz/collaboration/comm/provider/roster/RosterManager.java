@@ -33,7 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
@@ -56,19 +56,17 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 public class RosterManager implements IRosterManager {
 
-    private String owner;
-
     private IRoster roster;
 
     private org.eclipse.ecf.presence.roster.IRoster baseRoster;
 
-    private SessionManager sessionManager;
+    private CollaborationConnection sessionManager;
 
     /**
      * 
      * @param roster
      */
-    public RosterManager(SessionManager manager) {
+    public RosterManager(CollaborationConnection manager) {
         sessionManager = manager;
         updateRoster();
     }
@@ -243,12 +241,8 @@ public class RosterManager implements IRosterManager {
      * 
      * @return
      */
-    public SessionManager getSessionManager() {
+    public CollaborationConnection getSessionManager() {
         return sessionManager;
-    }
-
-    private void printRoster(IRoster roster) {
-
     }
 
 }

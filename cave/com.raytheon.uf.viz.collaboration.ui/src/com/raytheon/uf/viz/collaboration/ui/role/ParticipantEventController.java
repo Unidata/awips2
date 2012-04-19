@@ -24,7 +24,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
@@ -186,7 +186,7 @@ public class ParticipantEventController extends AbstractRoleEventController {
 
     @Subscribe
     public void roleTransferred(TransferRoleCommand cmd) {
-        if (cmd.getRole() == ParticipantRole.SESSION_LEADER) {
+        if (cmd.getRole() == SharedDisplayRole.SESSION_LEADER) {
             session.setCurrentSessionLeader(cmd.getUser());
             if (cmd.getUser().getFQName()
                     .equals(session.getUserID().getFQName())) {
