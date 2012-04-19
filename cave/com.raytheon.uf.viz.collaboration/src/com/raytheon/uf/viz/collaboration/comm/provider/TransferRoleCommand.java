@@ -21,8 +21,8 @@ package com.raytheon.uf.viz.collaboration.comm.provider;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * A command to transfer a role to a different user on the session.
@@ -48,7 +48,7 @@ public class TransferRoleCommand {
     private ParticipantRole role;
 
     @DynamicSerializeElement
-    private IVenueParticipant user;
+    private UserId user;
 
     public ParticipantRole getRole() {
         return role;
@@ -58,11 +58,11 @@ public class TransferRoleCommand {
         this.role = role;
     }
 
-    public IVenueParticipant getUser() {
+    public UserId getUser() {
         return user;
     }
 
-    public void setUser(IVenueParticipant user) {
+    public void setUser(UserId user) {
         this.user = user;
     }
 

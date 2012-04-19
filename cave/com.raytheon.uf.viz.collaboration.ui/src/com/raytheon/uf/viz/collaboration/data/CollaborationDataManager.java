@@ -58,13 +58,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEve
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
@@ -658,7 +658,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         presence.setStatusMessage(loginData.getModeMessage());
         try {
             sessionManager.getAccountManager().sendPresence(presence);
-            IChatID id = sessionManager.getUser();
+            UserId id = sessionManager.getUser();
             RosterEntry rosterEntry = new RosterEntry(id);
             rosterEntry.setPresence(presence);
             handleModifiedPresence(rosterEntry);
