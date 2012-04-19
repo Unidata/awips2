@@ -19,10 +19,7 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
-import java.awt.image.RenderedImage;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * TODO Add Description
@@ -43,36 +40,4 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class CreateSingleColorImage extends UpdateSingleColorImage {
 
-    @DynamicSerializeElement
-    private RenderedImageWrapper wrapper = new RenderedImageWrapper();
-
-    /**
-     * @return the wrapper
-     */
-    public RenderedImageWrapper getWrapper() {
-        return wrapper;
-    }
-
-    /**
-     * @param wrapper
-     *            the wrapper to set
-     */
-    public void setWrapper(RenderedImageWrapper wrapper) {
-        this.wrapper = wrapper;
-    }
-
-    /**
-     * @return the renderedImage
-     */
-    public RenderedImage getRenderedImage() {
-        return wrapper.getWrappedImage();
-    }
-
-    /**
-     * @param renderedImage
-     *            the renderedImage to set
-     */
-    public void setRenderedImage(RenderedImage renderedImage) {
-        wrapper.setWrappedImage(renderedImage);
-    }
 }
