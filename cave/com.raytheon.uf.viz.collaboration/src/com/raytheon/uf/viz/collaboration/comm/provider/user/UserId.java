@@ -42,6 +42,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 @DynamicSerialize
 public class UserId implements IQualifiedID {
 
+    private static final String CONF_ID = "conference.";
+
     @DynamicSerializeElement
     protected String name;
 
@@ -51,9 +53,9 @@ public class UserId implements IQualifiedID {
     @DynamicSerializeElement
     protected String resource;
 
-    /**
-     * 
-     */
+    @DynamicSerializeElement
+    protected String alias;
+
     public UserId() {
 
     }
@@ -64,9 +66,7 @@ public class UserId implements IQualifiedID {
      * @param hostName
      */
     public UserId(String userName, String hostName) {
-        this.name = userName;
-        this.host = hostName;
-        resource = null;
+        this(userName, hostName, null);
     }
 
     /**
@@ -75,10 +75,16 @@ public class UserId implements IQualifiedID {
      * @param hostName
      * @param resourceName
      */
-    public UserId(String userName, String hostName, String resourceName) {
+    public UserId(String userName, String hostName, String resource) {
+        this(userName, hostName, resource, null);
+    }
+
+    public UserId(String userName, String hostName, String resource,
+            String alias) {
         this.name = userName;
         this.host = hostName;
-        resource = resourceName;
+        this.resource = resource;
+        this.alias = alias;
     }
 
     /**
@@ -148,7 +154,11 @@ public class UserId implements IQualifiedID {
     public String getFQName() {
         StringBuilder sb = new StringBuilder(name);
         sb.append("@");
-        sb.append(host);
+        String hostname = host;
+        if (hostname.startsWith(CONF_ID)) {
+            hostname = hostname.substring(CONF_ID.length());
+        }
+        sb.append(hostname);
         sb.append("/");
         if (resource != null) {
             sb.append(resource);
@@ -157,6 +167,7 @@ public class UserId implements IQualifiedID {
             // requiring a resource for peerToPeer to go through
             sb.append("resource");
         }
+        System.out.println(sb.toString());
         return sb.toString();
     }
 
@@ -206,6 +217,19 @@ public class UserId implements IQualifiedID {
         } else if (!resource.equals(other.resource))
             return false;
         return true;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    @Override
+    public String toString() {
+        return this.getFQName();
     }
 
 }

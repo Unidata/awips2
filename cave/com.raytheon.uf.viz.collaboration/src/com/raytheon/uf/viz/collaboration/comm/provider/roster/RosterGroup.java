@@ -28,7 +28,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -71,7 +71,7 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
         IRosterEntry re = entries.get(entry.getUser());
         if (re == null) {
             IQualifiedID user = entry.getUser();
-            RosterId id = new RosterId(user.getName(), user.getHost(), null,
+            UserId id = new UserId(user.getName(), user.getHost(),
                     user.getResource());
 
             re = new RosterEntry(id);
