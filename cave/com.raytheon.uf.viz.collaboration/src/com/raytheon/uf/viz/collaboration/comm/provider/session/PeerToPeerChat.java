@@ -34,6 +34,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 
 /**
  * 
@@ -111,15 +113,10 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      * @throws CollaborationException
      */
     @Override
-    public void sendPeerToPeer(String to, String message)
+    public void sendPeerToPeer(IQualifiedID to, String message)
             throws CollaborationException {
-        ID toID = createID(to);
-        try {
-            chatSender.sendChatMessage(toID, message);
-        } catch (ECFException e) {
-            throw new CollaborationException("Error sending message to peer "
-                    + to, e);
-        }
+        TextMessage msg = new TextMessage(to, message);
+        this.sendPeerToPeer(msg);
     }
 
     /**
