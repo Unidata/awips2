@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc.rendering;
 
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -40,9 +42,11 @@ import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateSingleColorImage;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.RenderedImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateSingleColorImage;
 import com.raytheon.uf.viz.remote.graphics.events.mesh.CreateMeshEvent;
@@ -124,6 +128,48 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     @Subscribe
     public void disposeImage(IImage image) {
         image.dispose();
+    }
+
+    // ================== RenderedImage events ==================
+
+    public class RenderedImageDataCallback implements IRenderedImageCallback {
+        private RenderedImage image;
+
+        @Override
+        public RenderedImage getImage() throws VizException {
+            RenderedImage rval = image;
+            if (image != null) {
+                image = null;
+            }
+            return rval;
+        }
+
+        public void setData(RenderedImage image) {
+            this.image = image;
+        }
+    }
+
+    @Subscribe
+    public void createImage(CreateIImageEvent event) {
+        IGraphicsTarget target = getTarget();
+        RenderedImageDataCallback callback = new RenderedImageDataCallback();
+        IImage image = target.initializeRaster(callback);
+        dataManager.putRenderableObject(event.getObjectId(), new Object[] {
+                image, callback });
+    }
+
+    @Subscribe
+    public void disposeCallback(RenderedImageDataCallback callback) {
+        callback.setData(null);
+    }
+
+    @Subscribe
+    public void handleRenderedImage(RenderedImageEvent event) {
+        RenderedImageDataCallback callback = dataManager.getRenderableObject(
+                event.getObjectId(), RenderedImageDataCallback.class);
+        if (callback != null) {
+            callback.setData(event.getRenderedImage());
+        }
     }
 
     // ================== IColormappedImage events ==================
@@ -221,11 +267,13 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     public void createSingleColorImage(CreateSingleColorImage event)
             throws VizException {
         IGraphicsTarget target = getTarget();
+        RenderedImageDataCallback callback = new RenderedImageDataCallback();
         int imageId = event.getObjectId();
         ISingleColorImage image = target.getExtension(
-                ISingleColorImageExtension.class).constructImage(
-                event.getRenderedImage(), event.getColor());
-        dataManager.putRenderableObject(imageId, image);
+                ISingleColorImageExtension.class).constructImage(callback,
+                event.getColor());
+        dataManager.putRenderableObject(imageId,
+                new Object[] { image, callback });
     }
 
     @Subscribe
