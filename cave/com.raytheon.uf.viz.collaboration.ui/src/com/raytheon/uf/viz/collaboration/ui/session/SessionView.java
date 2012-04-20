@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -121,7 +122,7 @@ public class SessionView extends AbstractSessionView {
 
     protected Action chatAction;
 
-    protected Map<UserId, RGB> colors;
+    protected SessionColorManager manager;
 
     protected Map<RGB, Color> mappedColors;
 
@@ -136,8 +137,8 @@ public class SessionView extends AbstractSessionView {
         createContextMenu();
         SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
                 .getEventPublisher().register(this);
-        colors = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getColorManager().getColors();
+        manager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager();
         mappedColors = new HashMap<RGB, Color>();
     }
 
@@ -418,9 +419,6 @@ public class SessionView extends AbstractSessionView {
             }
             mappedColors.clear();
         }
-        if (colors != null) {
-            colors.clear();
-        }
         SharedDisplaySessionMgr.getSessionContainer(sessionId)
                 .getColorManager().clearColors();
         super.dispose();
@@ -462,10 +460,12 @@ public class SessionView extends AbstractSessionView {
      */
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, String fqName, List<StyleRange> ranges) {
-        int index = fqName.indexOf("/");
-        RGB rgb = colors.get(fqName.substring(0, index));
+            String name, UserId userId, List<StyleRange> ranges) {
+        RGB rgb = manager.getColorFromUser(userId);
         if (mappedColors.get(rgb) == null) {
+            if (rgb == null) {
+                rgb = new RGB(0, 0, 0);
+            }
             Color col = new Color(Display.getCurrent(), rgb);
             mappedColors.put(rgb, col);
         }
