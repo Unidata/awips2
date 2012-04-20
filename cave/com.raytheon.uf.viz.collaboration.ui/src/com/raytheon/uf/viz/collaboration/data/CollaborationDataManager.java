@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
@@ -507,7 +508,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
             sessionsMap.put(sessionId, session);
             SharedDisplaySessionMgr.joinSession(displaySession,
-                    SharedDisplayRole.DATA_PROVIDER);
+                    SharedDisplayRole.DATA_PROVIDER, null);
 
         }
 
@@ -576,16 +577,12 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     String sessionId = session.getSessionId();
                     sessionsMap.put(sessionId, session);
                     if (sharedDisplay) {
-                        SharedDisplaySessionMgr
-                                .getSessionContainer(sessionId)
-                                .getColorManager()
-                                .setColors(
-                                        ((SharedDisplayVenueInvite) invitation
-                                                .getInvite()).getColors());
-
                         ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
+                        SessionColorManager man = new SessionColorManager();
+                        man.setColors(((SharedDisplayVenueInvite) invitation
+                                .getInvite()).getRGBColors());
                         SharedDisplaySessionMgr.joinSession(displaySession,
-                                SharedDisplayRole.PARTICIPANT);
+                                SharedDisplayRole.PARTICIPANT, man);
 
                         PlatformUI
                                 .getWorkbench()
