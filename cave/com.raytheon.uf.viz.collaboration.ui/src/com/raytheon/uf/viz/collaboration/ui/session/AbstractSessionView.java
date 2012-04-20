@@ -215,14 +215,14 @@ public abstract class AbstractSessionView extends ViewPart implements
      * @param message
      */
     public void appendMessage(IMessage message) {
-        String fqName = message.getFrom().getFQName();
+        UserId userId = (UserId) message.getFrom();
         String name = message.getFrom().getName();
         long timestamp = message.getTimeStamp();
         String body = message.getBody();
-        appendMessage(fqName, name, timestamp, body);
+        appendMessage(userId, name, timestamp, body);
     }
 
-    public void appendMessage(String fqName, String name, long timestamp,
+    public void appendMessage(UserId userId, String name, long timestamp,
             String body) {
         IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite()
                 .getAdapter(IWorkbenchSiteProgressService.class);
@@ -231,7 +231,8 @@ public abstract class AbstractSessionView extends ViewPart implements
         // String fqName = message.getFrom().getFQName();
         // String name = message.getFrom().getName();
         if (name == null) {
-            name = fqName.substring(0, fqName.indexOf("@"));
+            name = userId.getFQName().substring(0,
+                    userId.getFQName().indexOf("@"));
         }
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(timestamp);
@@ -263,13 +264,13 @@ public abstract class AbstractSessionView extends ViewPart implements
             }
         }
 
-        styleAndAppendText(sb, offset, name, fqName, ranges);
+        styleAndAppendText(sb, offset, name, userId, ranges);
         // room for other fun things here, such as sounds and such
         executeSightsSounds();
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, String fqName, List<StyleRange> ranges);
+            String name, UserId userId, List<StyleRange> ranges);
 
     /**
      * Find keys words in body of message starting at offset. /**
