@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 
 /**
@@ -180,7 +181,7 @@ public class PeerToPeerView extends AbstractSessionView {
                 IPeerToPeer p2p = (IPeerToPeer) manager.getSessionManager()
                         .getPeerToPeerSession();
                 p2p.sendPeerToPeer(peer, message);
-                appendMessage(manager.getLoginId(), null,
+                appendMessage((UserId) peer, manager.getLoginId(),
                         System.currentTimeMillis(), message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
@@ -192,9 +193,10 @@ public class PeerToPeerView extends AbstractSessionView {
     }
 
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, String fqName, List<StyleRange> ranges) {
+            String name, UserId userId, List<StyleRange> ranges) {
         Color color = null;
-        if (!fqName.equals(CollaborationDataManager.getInstance().getLoginId())) {
+        if (!userId.getFQName().equals(
+                CollaborationDataManager.getInstance().getLoginId())) {
             color = userColor;
         } else {
             color = chatterColor;
