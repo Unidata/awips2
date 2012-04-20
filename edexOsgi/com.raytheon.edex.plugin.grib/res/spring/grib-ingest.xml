@@ -8,8 +8,10 @@
 	<bean id="gribTableLookup" class="com.raytheon.edex.util.grib.GribTableLookup"
 		factory-method="getInstance" depends-on="gribRegistered" />
 
-	<bean id="gribNotifyTransform"
-		class="com.raytheon.edex.plugin.grib.notify.GribNotifyTransform" />
+	<bean id="gribNotifyQueue"
+		class="com.raytheon.edex.plugin.grib.notify.GribNotifyQueue">
+		<property name="destinationUri" value="jms-generic:queue:gribNotification"/>
+    </bean>
 
 	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
@@ -65,9 +67,10 @@
 					<bean ref="persist" method="persist" />
 					<bean ref="index" method="index" />
 					<bean ref="processUtil" method="log" />
+					<bean ref="persist" method="removeRawData" />
 					<multicast parallelProcessing="false">
 						<to uri="directvm:gribIngestAlert"/>
-						<to uri="vm:gribNotification"/>
+						<to uri="directvm:gribNotification"/>
 						<to uri="vm:staticTopoGenerator"/>
 					</multicast>
 				</pipeline>
@@ -88,10 +91,8 @@
 		</route>
 
 		<route id="gribNotification">
-			<from uri="vm:gribNotification?concurrentConsumers=2" />
-			<bean ref="gribNotifyTransform" method="transformToMessages" />
-			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-generic:queue:gribNotification" />
+			<from uri="directvm:gribNotification"/>
+			<bean ref="gribNotifyQueue" method="addRecords"/>
 		</route>
 
 		<route id="gribStaticTopoGen">
