@@ -129,4 +129,12 @@ public class SessionContainer {
         }
         return colorManager;
     }
+
+    /**
+     * @param colorManager
+     *            the colorManager to set
+     */
+    public void setColorManager(SessionColorManager colorManager) {
+        this.colorManager = colorManager;
+    }
 }
