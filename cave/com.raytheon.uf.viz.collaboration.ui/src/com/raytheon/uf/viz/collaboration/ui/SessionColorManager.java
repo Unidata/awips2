@@ -91,6 +91,10 @@ public class SessionColorManager {
         colors.put(user, rgbPresets[count]);
     }
 
+    public void addColor(UserId id, RGB color) {
+        colors.put(id, color);
+    }
+
     public void clearColors() {
         colors.clear();
     }

@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.swt.graphics.RGB;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
@@ -64,7 +67,7 @@ public class SharedDisplaySessionMgr {
     }
 
     protected static void joinSession(ISharedDisplaySession session,
-            SharedDisplayRole initialRole) {
+            SharedDisplayRole initialRole, Map<UserId, RGB> colors) {
         SessionContainer container = new SessionContainer();
         container.setSessionId(session.getSessionId());
         container.setSession(session);
@@ -92,6 +95,9 @@ public class SharedDisplaySessionMgr {
                     "ParticipantRole must be DataProvider or Participant for initialization");
         }
         container.setRoleEventController(rec);
+        if (colors != null) {
+            container.getColorManager().setColors(colors);
+        }
         sharedDisplaySessionMap.put(session.getSessionId(), container);
 
         rec.startup();
