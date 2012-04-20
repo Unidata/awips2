@@ -243,7 +243,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     getConnectionNamespace(), id);
 
             try {
-                sender.sendInvitation(roomId, userId, subject, msgBody);
+                sender.sendInvitation(roomId, userId, invite.getSubject(),
+                        msgBody);
             } catch (ECFException e) {
                 throw new CollaborationException("Error sending invitation", e);
             }
