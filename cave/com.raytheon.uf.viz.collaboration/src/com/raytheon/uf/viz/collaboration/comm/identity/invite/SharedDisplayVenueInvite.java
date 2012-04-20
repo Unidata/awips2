@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.invite;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
@@ -43,6 +45,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * @version 1.0
  */
 
+@DynamicSerialize
 public class SharedDisplayVenueInvite extends VenueInvite {
 
     @DynamicSerializeElement
@@ -52,7 +55,7 @@ public class SharedDisplayVenueInvite extends VenueInvite {
     private UserId dataProvider;
 
     @DynamicSerializeElement
-    private Map<UserId, RGB> colors;
+    private ColorPopulator colors;
 
     public UserId getSessionLeader() {
         return sessionLeader;
@@ -73,7 +76,7 @@ public class SharedDisplayVenueInvite extends VenueInvite {
     /**
      * @return the colors
      */
-    public Map<UserId, RGB> getColors() {
+    public ColorPopulator getColors() {
         return colors;
     }
 
@@ -81,7 +84,22 @@ public class SharedDisplayVenueInvite extends VenueInvite {
      * @param colors
      *            the colors to set
      */
-    public void setColors(Map<UserId, RGB> colors) {
+    public void setColors(ColorPopulator colors) {
         this.colors = colors;
+    }
+
+    public Map<UserId, RGB> getRGBColors() {
+        Map<UserId, RGB> map = new HashMap<UserId, RGB>();
+        for (int i = 0; i < colors.getUserName().size(); i++) {
+            RGB rgb = new RGB(colors.getRed().get(i), colors.getGreen().get(i),
+                    colors.getBlue().get(i));
+            map.put(colors.getUserName().get(i), rgb);
+        }
+        return map;
+    }
+
+    public void setRGBColors(Map<UserId, RGB> colors) {
+        ColorPopulator pop = new ColorPopulator(colors);
+        this.colors = pop;
     }
 }

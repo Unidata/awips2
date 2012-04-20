@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -38,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
@@ -89,7 +89,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
 
     private String sessionId;
 
-    private Map<UserId, RGB> colors;
+    private SessionColorManager colorManager;
 
     private IWireframeShape tempRemoteShape = null;
 
@@ -132,11 +132,11 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         this.deletedCollaboratorShapes = LinkedHashMultimap.create();
         this.deletedCollaboratorShapes = Multimaps
                 .synchronizedMultimap(this.deletedCollaboratorShapes);
-        colors = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getColorManager().getColors();
+        colorManager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager();
         LoginData data = CollaborationDataManager.getInstance().getLoginData();
         UserId id = new UserId(data.getUser(), data.getServer());
-        color = colors.get(id);
+        color = colorManager.getColors().get(id);
     }
 
     /*
@@ -164,7 +164,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             for (UserId userName : collaboratorShapes.keySet()) {
                 for (ShapeContainer sh : collaboratorShapes.get(userName)) {
                     if (sh != null) {
-                        color = colors.get(userName);
+                        color = colorManager.getColors().get(userName);
                         if (color == null) {
                             color = new RGB(255, 0, 0);
                         }
@@ -179,11 +179,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
 
     @Subscribe
     public void setColorEvent(ColorChangeEvent event) {
-        if (CollaborationDataManager.getInstance().getLoginId()
-                .equals(event.getUserName())) {
-            this.color = event.getColor();
-        }
-        colors.put(event.getUserName(), event.getColor());
+        this.color = event.getColor();
+        colorManager.addUser(event.getUserName());
         issueRefresh();
     }
 
@@ -299,9 +296,18 @@ public class CollaborationDrawingLayer extends DrawingLayer {
      * @param userName
      */
     private void clearSelfShapes(UserId userName) {
-        for (ShapeContainer cont : collaboratorShapes.get(userName)) {
-            cont.getShape().dispose();
+        // TODO, fix this
+        for (UserId cont : collaboratorShapes.keySet()) {
+            if (cont.getFQName().equals(userName.getFQName())) {
+                for (ShapeContainer shape : collaboratorShapes.get(cont)) {
+                    shape.getShape().dispose();
+                }
+                collaboratorShapes.removeAll(cont);
+            }
         }
+        // for (ShapeContainer cont : collaboratorShapes.get(userName)) {
+        // cont.getShape().dispose();
+        // }
         collaboratorShapes.removeAll(userName);
     }
 
@@ -423,8 +429,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         super.reset();
         CollaborationDrawingEvent event = new CollaborationDrawingEvent();
         event.setType(CollaborationEventType.CLEAR);
-        // TODO, fix
-        // event.setUserName(CollaborationDataManager.getInstance().getLoginId());
+        LoginData data = CollaborationDataManager.getInstance().getLoginData();
+        UserId userId = new UserId(data.getUser(), data.getServer());
+        event.setUserName(userId);
         sendGenericEvent(event);
     }
 
@@ -453,10 +460,6 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         // deletedCollaboratorShapes.
         // collaboratorShapes.remove(geom, color);
         // }
-    }
-
-    public void addColor(UserId userName, RGB color) {
-        colors.put(userName, color);
     }
 
     /**
