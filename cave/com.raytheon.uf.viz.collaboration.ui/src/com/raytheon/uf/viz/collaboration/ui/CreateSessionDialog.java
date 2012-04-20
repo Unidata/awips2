@@ -117,10 +117,12 @@ public class CreateSessionDialog extends CaveSWTDialog {
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
         gd.horizontalSpan = 2;
         publicCollaboration.setLayoutData(gd);
+        publicCollaboration.setSelection(true);
         publicCollaboration.setText("Create Collaboration");
 
         if (showInvite) {
             inviteUsers = new Button(body, SWT.CHECK);
+            inviteUsers.setSelection(true);
             gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
             gd.horizontalSpan = 2;
             inviteUsers.setLayoutData(gd);
@@ -134,7 +136,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
             inviteLabel.setText("Message: ");
             inviteLabel.setToolTipText("Message to send to invited users");
             inviteMessageTF = new StyledText(body, SWT.BORDER | SWT.MULTI
-                    | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
+                    | SWT.WRAP | SWT.V_SCROLL);
             inviteMessageTF.setLayoutData(new GridData(GridData.FILL_BOTH));
             inviteMessageTF.pack();
             inviteMessageTF.setToolTipText("Message to send to invited users");
@@ -158,8 +160,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
 
                 }
             });
-            inviteLabel.setVisible(false);
-            inviteMessageTF.setVisible(false);
+            inviteLabel.setVisible(true);
+            inviteMessageTF.setVisible(true);
         }
         return body;
     }
