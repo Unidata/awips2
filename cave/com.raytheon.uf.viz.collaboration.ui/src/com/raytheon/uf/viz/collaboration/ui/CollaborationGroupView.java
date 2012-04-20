@@ -680,8 +680,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         invite.setMessage(msg);
         invite.setSessionId(sessionId);
         invite.setSubject(subject);
-        invite.setColors(SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getColorManager().getColors());
+        invite.setRGBColors(SharedDisplaySessionMgr
+                .getSessionContainer(sessionId).getColorManager().getColors());
         invite.setDataProvider(SharedDisplaySessionMgr
                 .getSessionContainer(sessionId).getSession()
                 .getCurrentDataProvider());
