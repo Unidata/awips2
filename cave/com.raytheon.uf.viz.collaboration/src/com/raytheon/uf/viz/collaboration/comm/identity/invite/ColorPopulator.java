@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider.event;
+package com.raytheon.uf.viz.collaboration.comm.identity.invite;
 
 import java.util.ArrayList;
 import java.util.HashMap;
