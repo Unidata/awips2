@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  org.jivesoftware.smack;bundle-version="3.1.100",
- org.eclipse.swt;bundle-version="3.6.2"
+ org.eclipse.swt;bundle-version="3.6.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.collaboration,
