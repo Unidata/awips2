@@ -43,6 +43,7 @@ import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.collaboration.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -284,6 +285,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
             throws CollaborationException {
         // Assume success
         if ((venueContainer != null) && (message != null)) {
+            Activator.getDefault().getNetworkStats()
+                    .log(Activator.VENUE, message.length(), 0);
             IChatRoomMessageSender sender = venueContainer
                     .getChatRoomMessageSender();
             try {
@@ -408,7 +411,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
                             if (messageEvent instanceof IChatRoomMessageEvent) {
                                 IChatRoomMessage m = ((IChatRoomMessageEvent) messageEvent)
                                         .getChatRoomMessage();
-
+                                Activator
+                                        .getDefault()
+                                        .getNetworkStats()
+                                        .log(Activator.VENUE, 0,
+                                                m.getMessage().length());
                                 if (accept(m)) {
                                     distributeMessage(convertMessage(m));
                                 }

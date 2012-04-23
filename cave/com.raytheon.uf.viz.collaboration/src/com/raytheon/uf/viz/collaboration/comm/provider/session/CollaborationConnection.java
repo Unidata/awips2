@@ -203,8 +203,8 @@ public class CollaborationConnection implements IEventPublisher {
             eventBus.register(rosterEventSubscriber);
         }
         // Debug -- event viewer ----------------
-        rosterEventHandler = new RosterEventHandler();
-        eventBus.register(rosterEventHandler);
+        // rosterEventHandler = new RosterEventHandler();
+        // eventBus.register(rosterEventHandler);
         // Debug -- event viewer ----------------
 
         sessions = new HashMap<String, ISession>();
@@ -217,10 +217,9 @@ public class CollaborationConnection implements IEventPublisher {
 
                     @Override
                     public void handleEvent(IContainerEvent event) {
-
+                        // TODO?
                         System.out.println("ContainerEvent.Type = "
                                 + event.getClass().getName());
-
                     }
                 });
             }
