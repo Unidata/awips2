@@ -62,10 +62,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 
 public abstract class Tools {
 
-    public static final String PROP_DATA_PROVIDER = "DATA_PROVIDER";
-
-    public static final String PROP_SESSION_LEADER = "SESSION_LEADER";
-
     public static final String TAG_INVITE = "[[INVITEID#";
 
     public static final String TAG_INVITE_ID = TAG_INVITE + "%s]]%s";
@@ -107,8 +103,10 @@ public abstract class Tools {
 
     public static CompressionType COMPRESSION_TYPE = CompressionType.ZLIB;
 
+    private static boolean log_compression = false;
+
     private enum CompressionType {
-        ZLIB, GZIP, SNAPPY;
+        ZLIB, GZIP;
 
         public byte toByte() {
             return (byte) ordinal();
@@ -430,7 +428,8 @@ public abstract class Tools {
                 break;
             }
             case NONE: {
-                break;
+                throw new CollaborationException("Serialization of "
+                        + data.getClass().getName() + " not supported");
             }
             case ISNULL: {
                 break;
@@ -524,10 +523,12 @@ public abstract class Tools {
             compressionStrm.flush();
             compressionStrm.close();
             byte[] result = out.toByteArray();
-            System.out.println(cType + " Compression time(milliseconds) "
-                    + (System.currentTimeMillis() - start) / 1000F
-                    + " to compress " + bytes.length + " bytes to "
-                    + result.length + " bytes.");
+            if (log_compression) {
+                System.out.println(cType + " Compression time(milliseconds) "
+                        + (System.currentTimeMillis() - start) / 1000F
+                        + " to compress " + bytes.length + " bytes to "
+                        + result.length + " bytes.");
+            }
             return result;
         } catch (IOException e) {
             throw new CollaborationException("Unable to compress data.", e);
@@ -536,13 +537,17 @@ public abstract class Tools {
 
     private static OutputStream createCompressionOutputStream(OutputStream out)
             throws IOException {
+        OutputStream stream = null;
         switch (COMPRESSION_TYPE) {
         case GZIP:
-            return new GZIPOutputStream(out);
+            stream = new GZIPOutputStream(out);
+            break;
         case ZLIB:
         default:
-            return new DeflaterOutputStream(out);
+            stream = new DeflaterOutputStream(out);
+            break;
         }
+        return stream;
     }
 
     private static byte[] uncompress(byte[] bytes)
@@ -574,10 +579,13 @@ public abstract class Tools {
             }
             dest.close();
             byte[] resultBuffer = out.toByteArray();
-            System.out.println(cType + " Uncompression time(milliseconds): "
-                    + ((System.currentTimeMillis() - start) / 1000F)
-                    + " to uncompress " + bytes.length + " bytes to "
-                    + resultBuffer.length + " bytes.");
+            if (log_compression) {
+                System.out.println(cType
+                        + " Uncompression time(milliseconds): "
+                        + ((System.currentTimeMillis() - start) / 1000F)
+                        + " to uncompress " + bytes.length + " bytes to "
+                        + resultBuffer.length + " bytes.");
+            }
             return resultBuffer;
         } catch (IOException e) {
             throw new CollaborationException("Unable to uncompress data.", e);
@@ -586,13 +594,17 @@ public abstract class Tools {
 
     private static InputStream createCompressionInputStream(
             CompressionType cType, InputStream in) throws IOException {
+        InputStream stream = null;
         switch (cType) {
         case GZIP:
-            return new GZIPInputStream(in);
+            stream = new GZIPInputStream(in);
+            break;
         case ZLIB:
         default:
-            return new InflaterInputStream(in);
+            stream = new InflaterInputStream(in);
+            break;
         }
+        return stream;
     }
 
 }
