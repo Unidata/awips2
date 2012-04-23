@@ -232,10 +232,6 @@ public class SessionView extends AbstractSessionView {
 
     @Subscribe
     public void handleModifiedPresence(IRosterEntry rosterEntry) {
-        System.out.println("session view roster entry for:"
-                + rosterEntry.getUser().getFQName() + " "
-                + rosterEntry.getPresence().getMode() + "/"
-                + rosterEntry.getPresence().getType());
         usersTable.refresh();
     }
 
@@ -615,7 +611,6 @@ public class SessionView extends AbstractSessionView {
     @Subscribe
     public void participantHandler(IVenueParticipantEvent event)
             throws Exception {
-        System.out.println("++ ParticipantHander type " + event.getEventType());
         final ParticipantEventType type = event.getEventType();
         final UserId participant = event.getParticipant();
         final IPresence presence = event.getPresence();
@@ -634,9 +629,7 @@ public class SessionView extends AbstractSessionView {
                     participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
-                    System.out.println("---- handle update here: "
-                            + participant.getName() + ", "
-                            + participant.getFQName());
+                    // TODO ?
                     break;
                 default:
                     System.err.println("Unknown Event type");
@@ -664,8 +657,6 @@ public class SessionView extends AbstractSessionView {
 
     @SuppressWarnings("unchecked")
     private void participantDeparted(UserId participant) {
-        System.out.println("++++ handle departed here: "
-                + participant.getName() + ", " + participant.getFQName());
         String userId = CollaborationUtils.makeUserId(participant);
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
@@ -692,7 +683,5 @@ public class SessionView extends AbstractSessionView {
                 .getInput();
         String name = participant.getFQName();
         String userId = CollaborationUtils.makeUserId(participant);
-        System.out.println("++++ handle presence's role updated here name: "
-                + name + ", userId: " + userId);
     }
 }
