@@ -82,10 +82,8 @@ public class SharedDisplaySession extends VenueSession implements
         if (session != null) {
             String message = Tools.marshallData(obj);
             if (message != null) {
-
                 TextMessage msg = new TextMessage(participant, message);
                 msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
-
                 session.sendPeerToPeer(msg);
             }
         }

@@ -22,6 +22,9 @@ package com.raytheon.uf.viz.collaboration;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import com.raytheon.uf.common.comm.NetworkStatistics;
+import com.raytheon.uf.viz.core.jobs.StatsJob;
+
 /**
  * TODO Add Description
  * 
@@ -40,9 +43,20 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator implements BundleActivator {
 
-    private static BundleContext context;
+    public static final String PEER_TO_PEER = "PeerToPeerMsg";
 
-    static BundleContext getContext() {
+    public static final String VENUE = "VenueMsg";
+
+    private static Activator plugin;
+
+    private BundleContext context;
+
+    private NetworkStatistics networkStats = new NetworkStatistics();
+
+    private StatsJob statsJob = new StatsJob("XMPP Network Statistics",
+            networkStats);
+
+    public BundleContext getContext() {
         return context;
     }
 
@@ -50,14 +64,26 @@ public class Activator implements BundleActivator {
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
     public void start(BundleContext bundleContext) throws Exception {
-        Activator.context = bundleContext;
+        this.context = bundleContext;
+        plugin = this;
+        statsJob.schedule();
     }
 
     /**
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
     public void stop(BundleContext bundleContext) throws Exception {
-        Activator.context = null;
+        plugin = null;
+        context = null;
+        statsJob.shutdown();
+    }
+
+    public NetworkStatistics getNetworkStats() {
+        return networkStats;
+    }
+
+    public static Activator getDefault() {
+        return plugin;
     }
 
 }
