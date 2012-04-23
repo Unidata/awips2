@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.thinclient;
+package com.raytheon.uf.viz.core.jobs;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -46,7 +46,7 @@ import com.raytheon.uf.common.comm.NetworkStatistics.NetworkTraffic;
 
 public class StatsJob extends Job {
 
-    private NetworkStatistics stats = NetworkStatistics.getInstance();
+    private NetworkStatistics stats;
 
     private long lastSent = 0, lastReceived = 0, lastRequestCount = 0;
 
@@ -57,9 +57,10 @@ public class StatsJob extends Job {
     /**
      * @param name
      */
-    public StatsJob() {
-        super("Network Statistics Job");
+    public StatsJob(String name, NetworkStatistics stats) {
+        super(name);
         setSystem(true);
+        this.stats = stats;
     }
 
     /*
@@ -81,14 +82,14 @@ public class StatsJob extends Job {
                     - lastRequestCount;
 
             System.out.println("Last minute sent " + requestCountInLastMinute
-                    + " http requests for a total of "
-                    + (sentInLastMinute / 1000) + " kB sent and "
-                    + (receivedInLastMinute / 1000) + " kB received");
+                    + " messages for a total of " + (sentInLastMinute / 1000)
+                    + " kB sent and " + (receivedInLastMinute / 1000)
+                    + " kB received");
             lastSent = total.getBytesSent();
             lastReceived = total.getBytesReceived();
             lastRequestCount = total.getRequestCount();
             System.out.println("Total sent " + total.getRequestCount()
-                    + " http requests for a total of " + (lastSent / 1000)
+                    + " messages for a total of " + (lastSent / 1000)
                     + " kB sent and " + (lastReceived / 1000) + " kB received");
             NetworkTraffic[] mapped = stats.getMappedTrafficStats();
             for (NetworkTraffic nt : mapped) {
