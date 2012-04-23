@@ -89,7 +89,7 @@ public class HttpClient {
 
     private ThreadSafeClientConnManager connManager = null;
 
-    private NetworkStatistics stats = NetworkStatistics.getInstance();
+    private NetworkStatistics stats = new NetworkStatistics();
 
     private HttpClient() {
         connManager = new ThreadSafeClientConnManager();
@@ -631,6 +631,15 @@ public class HttpClient {
      */
     public void setRetryCount(int retryCount) {
         this.retryCount = retryCount;
+    }
+
+    /**
+     * Gets the network statistics for http traffic.
+     * 
+     * @return
+     */
+    public NetworkStatistics getStats() {
+        return stats;
     }
 
     /**
