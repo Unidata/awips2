@@ -109,7 +109,7 @@ public class NetworkStatistics {
             String sentString = toString(bytesSent), receivedString = toString(bytesReceived);
 
             return "Network Traffic Stats for '" + identifier + "' : "
-                    + requestCount + " requests, sent " + sentString
+                    + requestCount + " messages, sent " + sentString
                     + ", received " + receivedString;
         }
 
@@ -134,17 +134,11 @@ public class NetworkStatistics {
         }
     }
 
-    private static final NetworkStatistics instance = new NetworkStatistics();
-
     private NetworkTraffic totalTraffic = new NetworkTraffic(null);
 
     private Map<String, NetworkTraffic> mappedTraffic = new LinkedHashMap<String, NetworkTraffic>();
 
-    public static NetworkStatistics getInstance() {
-        return instance;
-    }
-
-    private NetworkStatistics() {
+    public NetworkStatistics() {
 
     }
 
@@ -185,6 +179,7 @@ public class NetworkStatistics {
         traffic.addBytesSent(bytesSent);
         traffic.addBytesReceived(bytesReceived);
         traffic.incrementRequestCount();
+        this.log(bytesSent, bytesReceived);
     }
 
     /**
