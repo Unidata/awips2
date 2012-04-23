@@ -30,6 +30,7 @@ import org.eclipse.ecf.presence.im.IChatMessage;
 import org.eclipse.ecf.presence.im.IChatMessageSender;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.viz.collaboration.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
@@ -93,6 +94,11 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
                 }
             }
             try {
+                Activator
+                        .getDefault()
+                        .getNetworkStats()
+                        .log(Activator.PEER_TO_PEER,
+                                message.getBody().length(), 0);
                 chatSender.sendChatMessage(toID, null, IChatMessage.Type.CHAT,
                         subject, body, props);
             } catch (ECFException e) {

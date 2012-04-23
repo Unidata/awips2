@@ -26,6 +26,10 @@ import org.eclipse.ecf.presence.IIMMessageListener;
 import org.eclipse.ecf.presence.im.IChatMessage;
 import org.eclipse.ecf.presence.im.IChatMessageEvent;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
@@ -54,6 +58,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 public class PeerToPeerCommHelper implements IIMMessageListener {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PeerToPeerCommHelper.class);
+
     private CollaborationConnection manager;
 
     /**
@@ -61,7 +68,7 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
      * @param manager
      * @param presenceAdapter
      */
-    PeerToPeerCommHelper(CollaborationConnection manager) {
+    protected PeerToPeerCommHelper(CollaborationConnection manager) {
         this.manager = manager;
     }
 
@@ -70,18 +77,16 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
      */
     @Override
     public void handleMessageEvent(IIMMessageEvent messageEvent) {
-
         if (messageEvent instanceof IChatMessageEvent) {
             IChatMessageEvent event = (IChatMessageEvent) messageEvent;
-            System.out.println("  message event.body "
-                    + event.getChatMessage().getBody());
 
             IChatMessage msg = event.getChatMessage();
             String body = msg.getBody();
+            Activator.getDefault().getNetworkStats()
+                    .log(Activator.PEER_TO_PEER, 0, body.length());
             if (body != null) {
                 if (body.startsWith(Tools.CMD_PREAMBLE)) {
                     routeData(msg);
-
                 } else {
                     // anything else pass to the normal text
                     routeMessage(msg);
@@ -99,7 +104,8 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         try {
             object = Tools.unMarshallData(message.getBody());
         } catch (CollaborationException e) {
-            System.out.println("Error unmarshalling PeerToPeer data");
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error unmarshalling PeerToPeer data", e);
         }
         if (object != null) {
             String sessionId = (String) message.getProperties().get(
@@ -112,8 +118,8 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
                 if (session != null) {
                     session.getEventPublisher().post(object);
                 } else {
-                    System.out.println("ERROR: Unknown sessionid [" + sessionId
-                            + "]");
+                    statusHandler.handle(Priority.PROBLEM,
+                            "ERROR: Unknown sessionid [" + sessionId + "]");
                 }
             }
             manager.getEventPublisher().post(object);

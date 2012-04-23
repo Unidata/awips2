@@ -683,16 +683,8 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     @Subscribe
     public void handleModifiedPresence(IRosterEntry entry) {
         final IRosterEntry rosterEntry = entry;
-        System.out.println("CollaborationDataManager.handleModifiedPresence: "
-                + rosterEntry.getUser().getFQName() + "  mode "
-                + rosterEntry.getPresence().getMode() + "/"
-                + rosterEntry.getPresence().getType() + ": \""
-                + rosterEntry.getPresence().getStatusMessage() + "\"  groups "
-                + rosterEntry.getGroups());
         String userId = CollaborationUtils.makeUserId(rosterEntry);
         DataUser user = usersMap.get(userId);
-        System.out.println("\tuserId: " + userId + " DataUser: " + user);
-        System.out.println(usersMap.keySet());
         if (user != null) {
             user.setPresence(rosterEntry.getPresence());
             // Assumes only UI updates will be registered.
