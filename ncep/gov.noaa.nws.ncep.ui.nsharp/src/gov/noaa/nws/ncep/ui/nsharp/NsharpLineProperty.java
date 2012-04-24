@@ -53,13 +53,12 @@ public class NsharpLineProperty implements ISerializableObject{
 		lineStyle = LineStyle.SOLID;
 	}
 	
-	//public String getLineName() {
-	//	return lineName;
-	//}
-
-	//public void setLineName(String lineName) {
-	//	this.lineName = lineName;
-	//}
+	public NsharpLineProperty(LineStyle lineStyle, int lineWidth, RGB lineColor) {
+		super();
+		this.lineStyle = lineStyle;
+		this.lineWidth = lineWidth;
+		this.lineColor = lineColor;
+	}
 
 	public LineStyle getLineStyle() {
 		return lineStyle;

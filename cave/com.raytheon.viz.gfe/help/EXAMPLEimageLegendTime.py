@@ -6,7 +6,7 @@
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
+# an export license or other authorization. 
 # 
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340

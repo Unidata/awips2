@@ -61,6 +61,8 @@ import com.raytheon.uf.edex.dissemination.transmitted.TransmittedProductList;
 public class OUPHandler implements IRequestHandler<OUPRequest> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(OUPHandler.class);
+    
+    private OUPAckManager ackManager;
 
     @Override
     public OUPResponse handleRequest(OUPRequest request) throws Exception {
@@ -91,9 +93,11 @@ public class OUPHandler implements IRequestHandler<OUPRequest> {
                     args.put("oup", oup);
                     args.put("afosID", header.getProductId());
                     args.put("resp", resp);
+                    args.put("ackMgr", ackManager);
                     resp.setAttempted(true);
                     py.execute("process", args);
                 } catch (JepException e) {
+                	resp.setMessage("Error executing handleOUP python");
                     statusHandler.handle(Priority.SIGNIFICANT,
                             "Error executing handleOUP python", e);
                 } finally {
@@ -157,5 +161,13 @@ public class OUPHandler implements IRequestHandler<OUPRequest> {
         }
         return python;
     }
+
+	public OUPAckManager getAckManager() {
+		return ackManager;
+	}
+
+	public void setAckManager(OUPAckManager ackManager) {
+		this.ackManager = ackManager;
+	}
 
 }

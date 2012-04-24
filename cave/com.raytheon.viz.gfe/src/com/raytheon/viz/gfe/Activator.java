@@ -21,8 +21,6 @@ package com.raytheon.viz.gfe;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -33,8 +31,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.dialogs.GFEConfigDialog;
 import com.raytheon.viz.gfe.procedures.ProcedureJob;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
-import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -103,49 +99,30 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
      */
     @Override
     public PythonPreferenceStore getPreferenceStore() {
+        synchronized (this) {
+            if (pythonPrefs == null) {
+                if (cfgDlg == null) {
+                    cfgDlg = new GFEConfigDialog(
+                            new Shell(Display.getDefault()));
+                }
+                cfgDlg.setBlockOnOpen(true);
+                cfgDlg.open();
+                String config = cfgDlg.getConfig();
+
+                // this is necessary because we sometimes get in here
+                // recursively and only want to do this once
+                if (pythonPrefs == null) {
+                    pythonPrefs = new PythonPreferenceStore(config);
+                    statusHandler.handle(Priority.EVENTA,
+                            "GFE started with configuration: " + config);
+                }
+            }
+        }
+
         return pythonPrefs;
     }
 
-    
     public void setPreferenceStore(PythonPreferenceStore prefs) {
         this.pythonPrefs = prefs;
     }
-    
-    public void createInitPreferenceStore() {
-    	/*
-    	 * Check if GFE perspective is opened
-    	 */
-    	IWorkbenchWindow window = PlatformUI.getWorkbench()
-    		.getActiveWorkbenchWindow();
-
-    	VizPerspectiveListener listener = VizPerspectiveListener
-    		.getInstance(window);
-    	
-    	if (listener != null) {
-    		AbstractVizPerspectiveManager manager = listener
-    			.getPerspectiveManager("com.raytheon.viz.ui.GFEPerspective");
-    		
-    		if (manager == null || !manager.isOpened()) {
-    			pythonPrefs = null;
-    		}	
-    	}	
-
-    	/*
-    	 * If GFE is not opened, pop up the config dialog.
-    	 */
-    	synchronized (this) {
-    		if (pythonPrefs == null) {
-    			cfgDlg = new GFEConfigDialog(
-    					new Shell(Display.getDefault()));
-    			cfgDlg.setBlockOnOpen(true);
-    			cfgDlg.open();
-    			String config = cfgDlg.getConfig();
-
-    			pythonPrefs = new PythonPreferenceStore(config);
-    			statusHandler.handle(Priority.EVENTA,
-    					"GFE started with configuration: " + config);
-    		} 
-    	}
-    }
-    
 }

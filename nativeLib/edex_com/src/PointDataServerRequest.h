@@ -29,7 +29,6 @@
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/08/11     9696        gzhou       Initial Creation
- * 03/27/12		11342		Xiaochuan	Update getStringData() to return string &
  *
  * </pre>
  *
@@ -89,7 +88,7 @@ public:
 	int requestData(const string& station);
 	string getParameterUnit(const string& parameter);
 	int getParameterType(const string& parameter);
-	const string & getStringData(const string& parameter, int offset);
+	string getStringData(const string& parameter, int offset);
 	int32_t getIntData(const string& parameter, int offset);
 	int64_t getLongData(const string& parameter, int offset);
 	float getFloatData(const string& parameter, int offset);
