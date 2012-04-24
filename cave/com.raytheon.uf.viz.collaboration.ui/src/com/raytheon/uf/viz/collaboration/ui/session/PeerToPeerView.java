@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.List;
 
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
@@ -89,71 +88,6 @@ public class PeerToPeerView extends AbstractSessionView {
         sashForm.setWeights(new int[] { 20, 5 });
     }
 
-    protected void createActions() {
-        // TODO create peer-to-peer chat action here
-        // chatAction = new Action("Chat") {
-        // @Override
-        // public void run() {
-        // try {
-        // CollaborationDataManager dataManager = CollaborationDataManager
-        // .getInstance();
-        // CollaborationUser user = (CollaborationUser) ((IStructuredSelection)
-        // usersTable
-        // .getSelection()).getFirstElement();
-        // String session = dataManager.createCollaborationSession(
-        // user.getId(), "Chatting...");
-        // PlatformUI
-        // .getWorkbench()
-        // .getActiveWorkbenchWindow()
-        // .getActivePage()
-        // .showView(CollaborationSessionView.ID, session,
-        // IWorkbenchPage.VIEW_ACTIVATE);
-        // // }
-        // } catch (PartInitException e) {
-        // statusHandler.handle(Priority.PROBLEM,
-        // "Unable to open chat", e);
-        // }
-        // }
-        // };
-    }
-
-    // /**
-    // *
-    // */
-    // private void createContextMenu() {
-    // MenuManager menuManager = new MenuManager();
-    // menuManager.setRemoveAllWhenShown(true);
-    // menuManager.addMenuListener(new IMenuListener() {
-    // /*
-    // * (non-Javadoc)
-    // *
-    // * @see
-    // * org.eclipse.jface.action.IMenuListener#menuAboutToShow(org.eclipse
-    // * .jface.action.IMenuManager)
-    // */
-    // @Override
-    // public void menuAboutToShow(IMenuManager manager) {
-    // fillContextMenu(manager);
-    // }
-    // });
-    // // Menu menu = menuManager.createContextMenu(usersTable.getControl());
-    // // usersTable.getControl().setMenu(menu);
-    // // PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-    // // .getActivePart().getSite()
-    // // .registerContextMenu(menuManager, usersTable);
-    // // usersTable.getTable().setMenu(menu);
-    // }
-
-    protected void fillContextMenu(IMenuManager manager) {
-        // IStructuredSelection selection = (IStructuredSelection) usersTable
-        // .getSelection();
-        // do something here!
-        // Object ob = selection.getFirstElement();
-        // System.out.println(ob.toString());
-        // manager.add(chatAction);
-        // manager.add(new Separator());
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -178,16 +112,14 @@ public class PeerToPeerView extends AbstractSessionView {
             try {
                 CollaborationDataManager manager = CollaborationDataManager
                         .getInstance();
-                IPeerToPeer p2p = (IPeerToPeer) manager.getSessionManager()
-                        .getPeerToPeerSession();
+                IPeerToPeer p2p = (IPeerToPeer) manager
+                        .getCollaborationConnection().getPeerToPeerSession();
                 p2p.sendPeerToPeer(peer, message);
-                appendMessage((UserId) peer, manager.getLoginId(),
-                        System.currentTimeMillis(), message);
+                appendMessage(manager.getLoginId(), System.currentTimeMillis(),
+                        message);
             } catch (CollaborationException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to send message to " + peer.getName(), e);
             }
         }
     }
@@ -195,11 +127,10 @@ public class PeerToPeerView extends AbstractSessionView {
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, UserId userId, List<StyleRange> ranges) {
         Color color = null;
-        if (!userId.getFQName().equals(
-                CollaborationDataManager.getInstance().getLoginId())) {
-            color = userColor;
-        } else {
+        if (!userId.equals(CollaborationDataManager.getInstance().getLoginId())) {
             color = chatterColor;
+        } else {
+            color = userColor;
         }
         StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
                 color, null, SWT.NORMAL);

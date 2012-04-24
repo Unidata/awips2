@@ -35,9 +35,9 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 
@@ -111,13 +111,13 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
             return null;
         }
 
-        CollaborationUser user = (CollaborationUser) element;
+        IRosterEntry user = (IRosterEntry) element;
         Image image = null;
-        String key = user.getImageKey();
+        String key = user.getPresence().getMode().toString();
         if (key != null) {
             image = imageMap.get(key);
             if (image == null) {
-                image = CollaborationUtils.getNodeImage(user);
+                image = CollaborationUtils.getNodeImage(key);
                 if (image != null) {
                     imageMap.put(key, image);
                 }
@@ -129,8 +129,8 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public String getColumnText(Object element, int columnIndex) {
-        CollaborationUser user = (CollaborationUser) element;
-        return user.getText();
+        IRosterEntry user = (IRosterEntry) element;
+        return user.getName();
     }
 
     @Override
@@ -143,20 +143,9 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         if (colors == null) {
             colors = new HashMap<UserId, Color>();
         }
-        // String host = ((CollaborationUser) element).
-        String id = ((CollaborationUser) element).getId();
-        String[] uid = null;
-        if (id != null) {
-            uid = ((CollaborationUser) element).getId().split("@");
-        }
-        UserId userId = new UserId(uid[0], uid[1]);
+        UserId userId = ((IRosterEntry) element).getUser();
         RGB color = SharedDisplaySessionMgr.getSessionContainer(sessionId)
                 .getColorManager().getColors().get(userId);
-        if (color == null) {
-            userId.setHost("conference." + uid[1]);
-            color = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                    .getColorManager().getColors().get(userId);
-        }
 
         // add to map so we can dispose
         if (color == null) {

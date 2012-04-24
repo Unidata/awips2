@@ -120,7 +120,7 @@ public class CollaborationConnection implements IEventPublisher {
 
     private Map<String, ISession> sessions;
 
-    private String account;
+    private UserId account;
 
     private String password;
 
@@ -156,7 +156,7 @@ public class CollaborationConnection implements IEventPublisher {
      * @throws ContainerCreateException
      * 
      */
-    public CollaborationConnection(String account, String password)
+    public CollaborationConnection(UserId account, String password)
             throws CollaborationException {
         this(account, password, (IRosterEventSubscriber) null);
     }
@@ -172,7 +172,7 @@ public class CollaborationConnection implements IEventPublisher {
      * @throws ContainerCreateException
      * 
      */
-    public CollaborationConnection(String account, String password,
+    public CollaborationConnection(UserId account, String password,
             IPresence initialPresence) throws Exception {
         this(account, password, (IRosterEventSubscriber) null);
         if (accountManager != null) {
@@ -194,7 +194,7 @@ public class CollaborationConnection implements IEventPublisher {
      *            A roster event subscriber.
      * @throws CollaborationException
      */
-    public CollaborationConnection(String account, String password,
+    public CollaborationConnection(UserId account, String password,
             IRosterEventSubscriber rosterEventSubscriber)
             throws CollaborationException {
         eventBus = new EventBus();
@@ -315,7 +315,7 @@ public class CollaborationConnection implements IEventPublisher {
      * 
      * @return The account string.
      */
-    public String getAccount() {
+    public UserId getAccount() {
         return account;
     }
 
@@ -422,10 +422,7 @@ public class CollaborationConnection implements IEventPublisher {
             if (session != null) {
                 session.joinVenue(venueName);
 
-                String name = Tools.parseName(account);
-                String host = Tools.parseHost(account);
-                UserId me = new UserId(name, host);
-                session.setUserId(me);
+                session.setUserId(account);
                 if (invitation.getInvite() instanceof SharedDisplayVenueInvite) {
                     SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation
                             .getInvite();
@@ -455,14 +452,9 @@ public class CollaborationConnection implements IEventPublisher {
             session = new SharedDisplaySession(container, eventBus, this);
 
             session.createVenue(venueName, subject);
-            String name = Tools.parseName(account);
-            String host = Tools.parseHost(account);
-
-            UserId me = new UserId(name, host);
-
-            session.setCurrentSessionLeader(me);
-            session.setCurrentDataProvider(me);
-            session.setUserId(me);
+            session.setCurrentSessionLeader(account);
+            session.setCurrentDataProvider(account);
+            session.setUserId(account);
 
             sessions.put(session.getSessionId(), session);
             return session;
@@ -741,11 +733,12 @@ public class CollaborationConnection implements IEventPublisher {
      * @param name
      * @return
      */
-    public ID createID(String name) throws CollaborationException {
+    public ID createID(UserId name) throws CollaborationException {
         ID id = null;
         try {
             if (connectionNamespace != null) {
-                id = IDFactory.getDefault().createID(connectionNamespace, name);
+                id = IDFactory.getDefault().createID(connectionNamespace,
+                        name.getFQName());
             }
         } catch (IDCreateException idce) {
             throw new CollaborationException("Could not create id");
