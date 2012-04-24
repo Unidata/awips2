@@ -3,14 +3,37 @@
  * First code: 05/2010.
  *
  */
+#ifndef _WIN32
 #include "gui.h"
+#endif
 #include "sharp95.h"
 #include "Sndglib/profile.h"
 #include "Sndglib/setsndg.h"
 #include "Sndglib/sndglib.h"
-
+/*
+ * In Cave: parameters are defined dynamically in  "populateSndgDataStatic()" in this file. Its index are defined
+ * as followings.
+ */
 #define NPARM 7 /* Assume always using 7 parameters "PRES;HGHT;TEMP;DWPT;DRCT;SPED;OMEG".*/
 #define NLEVEL 150 /* assume max sounding layers 150 */
+#define PPRESS 0
+#define PHGHT  1
+#define PTEMP 2
+#define PDEW  3
+#define PWDIR 4
+#define PWSPED 5
+#define POMEG  6
+//Chin's NOTE: AWC Nsharp source code parameters definitions are different from BigNsharp
+/* They defined as,
+ * sndg[numlvl][0] = omega
+ * sndg[numlvl][1] = pressure
+ * sndg[numlvl][2] = height
+ * sndg[numlvl][3] = temperature
+ * sndg[numlvl][4] = dew point
+ * sndg[numlvl][5] = wind direction
+ * sndg[numlvl][6] = wind speed
+ * Therefore, when porting AWC Nsharp code, make sure convert to right parameters in CAVE.
+ */
 //this is copy from sndg_parms..but adding typedef for our implementation
 typedef struct Sndg_parms
 {
@@ -32,6 +55,24 @@ typedef struct stormSlinkyStr
 	int color[200];
 } StormSlinkyStr;
 
+/* cloud amount definition for FM algorithm */
+#define OVC 1
+#define BKN 2
+#define SCT 3
+#define FEW 4
+#define MAX_CLOUD_LAYER 20
+typedef struct  cloudInfoStr
+{
+	/* FM: Fred Mosher's Algorithm */
+	int sizeFM;
+	float preStartFM[MAX_CLOUD_LAYER];
+	float preEndFM[MAX_CLOUD_LAYER];
+	int   cloudTypeFM[MAX_CLOUD_LAYER];
+	/* CE: Chernykh and Eskridge Algorithm */
+	int sizeCE;
+	float preStartCE[MAX_CLOUD_LAYER];
+	float preEndCE[MAX_CLOUD_LAYER];
+}CloudInfoStr;
 
 struct Sounding staticSounding;
 
@@ -61,13 +102,13 @@ void initStaticGlobalsMem(){
 
 	}
 	new->parms = (char **) &parmsPtr;
-	strcpy(&parms[0][0], "PRES");
-	strcpy(&parms[1][0], "HGHT");
-	strcpy(&parms[2][0], "TEMP");
-	strcpy(&parms[3][0], "DWPT");
-	strcpy(&parms[4][0], "DRCT");
-	strcpy(&parms[5][0], "SPED");
-	strcpy(&parms[6][0], "OMEG");
+	strcpy(&parms[PPRESS][0], "PRES");
+	strcpy(&parms[PHGHT][0], "HGHT");
+	strcpy(&parms[PTEMP][0], "TEMP");
+	strcpy(&parms[PDEW][0], "DWPT");
+	strcpy(&parms[PWDIR][0], "DRCT");
+	strcpy(&parms[PWSPED][0], "SPED");
+	strcpy(&parms[POMEG][0], "OMEG");
 	new->nparms = NPARM;
 	for(j=0;j<NLEVEL;j++) {
 		new->parms[j] = (char **)&parms[j][0];
@@ -122,20 +163,20 @@ int  populateSndgDataStatic(CaveSndgParms snDataArray[], int arraySize, int data
 	/* Populate data*/
 	for (i=0;i<minArraySize;i++)
 	{
-		s->data[i][0]     = snDataArray[i].pres;
-		s->origdata[i][0] = snDataArray[i].pres;
-		s->data[i][1]     = snDataArray[i].hght;
-		s->origdata[i][1] = snDataArray[i].hght;
-		s->data[i][2]     = snDataArray[i].temp;
-		s->origdata[i][2] = snDataArray[i].temp;
-		s->data[i][3]     = snDataArray[i].dwpt;
-		s->origdata[i][3] = snDataArray[i].dwpt;
-		s->data[i][4]     = snDataArray[i].drct;
-		s->origdata[i][4] = snDataArray[i].drct;
-		s->data[i][5]     = snDataArray[i].sped;
-		s->origdata[i][5] = snDataArray[i].sped;
-		s->data[i][6]     = snDataArray[i].omega;
-		s->origdata[i][6] = snDataArray[i].omega;
+		s->data[i][PPRESS]     = snDataArray[i].pres;
+		s->origdata[i][PPRESS] = snDataArray[i].pres;
+		s->data[i][PHGHT]     = snDataArray[i].hght;
+		s->origdata[i][PHGHT] = snDataArray[i].hght;
+		s->data[i][PTEMP]     = snDataArray[i].temp;
+		s->origdata[i][PTEMP] = snDataArray[i].temp;
+		s->data[i][PDEW]     = snDataArray[i].dwpt;
+		s->origdata[i][PDEW] = snDataArray[i].dwpt;
+		s->data[i][PWDIR]     = snDataArray[i].drct;
+		s->origdata[i][PWDIR] = snDataArray[i].drct;
+		s->data[i][PWSPED]     = snDataArray[i].sped;
+		s->origdata[i][PWSPED] = snDataArray[i].sped;
+		s->data[i][POMEG]     = snDataArray[i].omega;
+		s->origdata[i][POMEG] = snDataArray[i].omega;
 
 	}
 
@@ -181,13 +222,13 @@ int  populateSndgData(CaveSndgParms snDataArray[], int arraySize, int datatype) 
 	strcpy(parms, "PRES;HGHT;TEMP;DWPT;DRCT;SPED;OMEG");
     for (i=0;i<arraySize;i++)
     {
-    	snd[i][0]= snDataArray[i].pres;
-    	snd[i][1]= snDataArray[i].hght;
-    	snd[i][2]= snDataArray[i].temp;
-    	snd[i][3]= snDataArray[i].dwpt;
-    	snd[i][4]= snDataArray[i].drct;
-    	snd[i][5]= snDataArray[i].sped;
-    	snd[i][6]= snDataArray[i].omega; //copy it anyway
+    	snd[i][PPRESS]= snDataArray[i].pres;
+    	snd[i][PHGHT]= snDataArray[i].hght;
+    	snd[i][PTEMP]= snDataArray[i].temp;
+    	snd[i][PDEW]= snDataArray[i].dwpt;
+    	snd[i][PWDIR]= snDataArray[i].drct;
+    	snd[i][PWSPED]= snDataArray[i].sped;
+    	snd[i][POMEG]= snDataArray[i].omega; //copy it anyway
 
     }
 
@@ -1063,3 +1104,188 @@ float cave_criticalAngel(){
 		printf("\nCRITICAL ANGLE = %0.1f\n", ca);*/
 	return ca;
 }
+
+float F1(float x) {
+	if (x >= -10)
+		return 1.0;
+	else
+		return (-.1*(x+70)+7);
+}
+
+float F2(float x) {
+	if (x>=0)
+		return 2.0;
+	else if (x>=-10 && x<0)
+		return (-.025*(x+10)+2.5);
+	else
+		return(-.125*(x+70)+10.0);
+}
+
+float F3(float x) {
+	if (x>=0)
+		return 3.0;
+	else if (x>=-10 && x<0)
+		return(-0.1*(x+10)+4.0);
+	else
+		return(-0.15*(x+50)+10.0);
+}
+
+
+int getCloudAmount(float temp,float dd) {
+	if (dd<F1(temp))
+		return 1;
+	else if (dd<F2(temp))
+		return 2;
+	else if (dd<F3(temp))
+		return 3;
+	else
+		return 4;
+}
+void draw_Clouds( struct  cloudInfoStr *cloudStr )
+	/*****************************************************************/
+	/* DRAW_CLOUDS                                                   */
+	/* LARRY J. HINSON AWC/KCMO                                      */
+	/* Chin: ported from "AWC nsharp" and  modified for CAVE         */
+	/* Note: sndg parameter index is changed to be in line with BigNsharp
+	 * implementation.
+	 */
+	/*****************************************************************/
+	{
+		int startflag,s1,s2,s3,i,spsub,epsub;
+		float T1,T2,T3,dz,d2T,R1,R2,R3,d2R,startpres,endpres,x1,x2,y,t2,p2;
+		float Tavg,DDavg,DD;
+		float dd1,dd2,dd3,d2x;
+		int cloudAmt,top,basefound;
+		float d2xparam=0.0000;
+		float Taccum=0.0;
+		float DDaccum=0.0;
+		float TCount=0.0;
+		startflag=0;
+
+
+		cloudStr->sizeFM=0;
+		cloudStr->sizeCE=0;
+		for (i=1;i<numlvl-2/*chin was -1*/;i++) {
+			s1=i-1;
+			s2=i;
+			s3=i+1;
+			if (sndg[s1][PTEMP]>-900.0 && sndg[s2][PTEMP] > -900.0 && sndg[s3][PTEMP]>-900) {
+				T1=sndg[s1][PTEMP];
+				T2=sndg[s2][PTEMP];
+				T3=sndg[s3][PTEMP];
+				dz=sndg[s3][PHGHT]-sndg[s1][PHGHT];
+				if (dz==0) dz=1;
+				d2T=(T3-2*T2+T1)/(dz*dz);
+				R1=100*mixratio(sndg[s1][PPRESS],sndg[s1][PDEW])/mixratio(sndg[s1][PPRESS],sndg[s1][PTEMP]);
+				R2=100*mixratio(sndg[s2][PPRESS],sndg[s2][PDEW])/mixratio(sndg[s2][PPRESS],sndg[s2][PTEMP]);
+				R3=100*mixratio(sndg[s3][PPRESS],sndg[s3][PDEW])/mixratio(sndg[s3][PPRESS],sndg[s3][PTEMP]);
+				d2R=(R3-2*R2+R1)/(dz*dz);
+				if (d2T>=0 && d2R<=0 && !startflag) {
+					startflag=1;
+					startpres=sndg[s2][PPRESS];
+					spsub=s2;
+
+				}
+				else if ( !(d2T>=0 && d2R<=0) && startflag) {
+					startflag=0;
+					endpres=sndg[s2][PPRESS];
+					epsub=s2;
+					Tavg=Taccum/TCount;
+					DDavg=DDaccum/TCount;
+					cloudAmt=getCloudAmount(Tavg,DDavg);
+					Taccum=0.0;
+					DDaccum=0.0;
+					TCount=0;
+
+					if (cloudAmt != FEW && cloudStr->sizeFM <MAX_CLOUD_LAYER) {
+						cloudStr->preStartFM[cloudStr->sizeFM]= startpres;
+						cloudStr->preEndFM[cloudStr->sizeFM]= endpres;
+						cloudStr->cloudTypeFM[cloudStr->sizeFM] = cloudAmt;
+						cloudStr->sizeFM++;
+					}
+				}
+
+				if ((d2T>=0 && d2R<=0) && startflag) {
+					Taccum+=sndg[s2][PTEMP];
+					DD=sndg[s2][PTEMP]-sndg[s2][PDEW];
+					DDaccum+=DD;
+					TCount++;
+				}
+			}
+		}
+		top=0;
+		for (i=numlvl-2/* was -1*/;i>0; i--) {
+			basefound=0;
+			s1=i-1;
+			s2=i;
+			s3=i+1;
+			if (sndg[s1][PTEMP]>-900.0 && sndg[s2][PTEMP] > -900.0 && sndg[s3][PTEMP]>-900) {
+
+				if (! top) {
+					dd1=sndg[s1][PTEMP]-sndg[s1][PDEW];
+					dd2=sndg[s2][PTEMP]-sndg[s2][PDEW];
+					dd3=sndg[s3][PTEMP]-sndg[s3][PDEW];
+					dz=(sndg[s3][PHGHT]-sndg[s1][PHGHT])/2.0;
+					if (dz==0) dz=1;
+					d2x=(dd3-2*dd2+dd1)/(dz*dz);
+					if (d2x>0 && dd2<4.5) {
+						top=-1;
+						endpres=sndg[s2][PPRESS];
+						epsub=s2;
+						/* Now work downward till you get moistening with height */
+						/* Do this until you reach lowest level of this condition */
+						;
+						while(i>1 && ! basefound) {
+							i--;
+							s1=i-1;
+							s2=i;
+							s3=i+1;
+							if (sndg[s1][PTEMP]>-900.0 && sndg[s2][PTEMP] > -900.0 && sndg[s3][PTEMP]>-900) {
+								dd1=sndg[s1][PTEMP]-sndg[s1][PDEW];
+								dd2=sndg[s2][PTEMP]-sndg[s2][PDEW];
+								dd3=sndg[s3][PTEMP]-sndg[s3][PDEW];
+								dz=(sndg[s3][PHGHT]-sndg[s1][PHGHT])/2.0;
+								if (dz==0) dz=1;
+								d2x=(dd3-2*dd2+dd1)/(dz*dz);
+								if (d2x < -d2xparam) {
+									while ((d2x < -d2xparam  && dd2<4.5) && i>1) {
+										i--;
+										s1=i-1;
+										s2=i;
+										s3=i+1;
+										if (sndg[s1][PTEMP]>-900.0 && sndg[s2][PTEMP] > -900.0 && sndg[s3][PTEMP]>-900) {
+											dd1=sndg[s1][PTEMP]-sndg[s1][PDEW];
+											dd2=sndg[s2][PTEMP]-sndg[s2][PDEW];
+											dd3=sndg[s3][PTEMP]-sndg[s3][PDEW];
+											dz=(sndg[s3][PHGHT]-sndg[s1][PHGHT])/2.0;
+											if (dz==0) dz=1;
+											d2x=(dd3-2*dd2+dd1)/(dz*dz);
+										}
+									}
+									/* Lowest level of drying found...compute LCL from s1*/
+									drylift(sndg[s1][PPRESS],sndg[s1][PTEMP],sndg[s1][PDEW],&p2,&t2);
+									startpres=p2;
+									if (startpres<endpres) {
+										startpres=sndg[s1][PPRESS];
+									}
+									spsub=s1;
+									top=0;
+									basefound=-1;
+									if (cloudStr->sizeCE <MAX_CLOUD_LAYER) {
+										cloudStr->preStartCE[cloudStr->sizeCE]= startpres;
+										cloudStr->preEndCE[cloudStr->sizeCE]= endpres;
+										cloudStr->sizeCE++;
+									}
+									//setcolor(2);
+									//XFillRectangle(XtDisplay(draw_reg), canvas, gc,50,pres_to_pix(endpres),
+									//		90-50,pres_to_pix(startpres)-pres_to_pix(endpres));
+
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+

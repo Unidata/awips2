@@ -32,6 +32,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  *  11/03/2011             sgurung     Use TafPlotInfoRetriever()
  *  11/16/2011             sgurung     Override populateFrame()
  *  12/05/2011             sgurung     Modify populateFrame() to fix a bug (calculateProgDisc being called multiple times)
+ *  02/12/2012     #555    sgurung     Removed method populateFrame()
  * </pre>
  * 
  * @author ghull
@@ -78,20 +79,5 @@ public class TafPlotResource extends PlotResource2 {
         
         //processNewRscDataList();
 	}
-	
-	@Override
-	protected void populateFrame( FrameData frameData ) throws VizException {
-		if (!frameData.isStationMapEmpty() && frameData.getProgDiscDone()==false) {
-			// frameData already populated but progressive disclosure hasn't been run 			
-			frameData.calculateProgDisc();	
-			frameData.setProgDiscDone(true);
-		} else {		
-			if (!frameData.isPopulated()) {
-				// when area is changed 
-				frameData.populateFrame();
-				frameData.setProgDiscDone(false);
-			}			
-		}
-    }
-	
+		
 }

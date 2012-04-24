@@ -18,6 +18,11 @@ package gov.noaa.nws.ncep.viz.common.ui;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+//import java.awt.event.KeyAdapter;
+
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyAdapter;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -40,7 +45,7 @@ import org.eclipse.swt.widgets.Text;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2010            lvenable     Initial creation
- * 
+ * 2/13/2012    #682       Q.Zhou       Make "Enter" default to OK
  * </pre>
  * 
  * @author lvenable
@@ -92,6 +97,7 @@ public class UserEntryDialog extends Dialog {
                 display.sleep();
             }
         }
+        
 
         return inputText;
     }
@@ -125,6 +131,15 @@ public class UserEntryDialog extends Dialog {
             inputTF.setSelection(0,inputText.length());
             inputTF.setFocus();
         }
+        
+        inputTF.addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {            	
+            	if (SWT.CR == e.keyCode) {
+            		inputText = inputTF.getText().trim();
+            		shell.dispose();
+            	}            	
+             }
+        });
     }
 
     private void createBottomButtons() {

@@ -61,8 +61,9 @@
 		<checkbox label="LYR" checked="false"/>
 	</hazard>
 	<hazard name="MT_OBSC" snapshot="yellow" smear="violet" outlook="cyan" other="yellow" category="SIERRA">
-		<text type="input" width="100" height="18" label="Top/Bottom" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-		<popup label="MTNS OBSC BY">
+<!--  		<text type="input" width="100" height="18" label="Top/Bottom" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
+-->		
+       <popup label="MTNS OBSC BY">
 			<checkbox label="CLDS"/>
 			<checkbox label="PCPN"/>
 			<checkbox label="BR"/>
@@ -74,15 +75,15 @@
 	</hazard>
 	<hazard name="ICE" snapshot="green" smear="violet" outlook="cyan" other="green" category="ZULU">
 		<fzlText width="100" height="18" label="FZL Top/Bottom" scrollable="false" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-		<dropdown label="Type">
+<!--  		<dropdown label="Type">
 			<value>RIME/MXD ICGICIP</value>
 			<value>RIME ICGIC</value>
 			<value>CLR ICGIP</value>
-		</dropdown>
+		</dropdown> -->
 	</hazard>
 	<hazard name="TURB" snapshot="blue" smear="blue" outlook="blue" other="blue" category="TANGO">
 		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-		<dropdown label="DUE TO">
+<!--		<dropdown label="DUE TO">
 			<value></value>
 			<value>STG LOW LVL WNDS</value>
 			<value>UPR TROF AND WIND SHEAR ASSOC WITH JTST</value>
@@ -93,11 +94,11 @@
 			<value>WIND SHEAR ASSOC WITH JTST</value>
 			<value>MTN WAVE ACT</value>
 			<value>WIND SHEAR ASSOC WITH JTST AND MTN WAVE ACT</value>
-		</dropdown>
+		</dropdown> -->
 	</hazard>
 	<hazard name="TURB-HI" snapshot="pink" smear="violet" outlook="cyan" other="pink" category="TANGO">
 		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-		<dropdown label="DUE TO">
+<!--  		<dropdown label="DUE TO">
 			<value></value>
 			<value>STG LOW LVL WNDS</value>
 			<value>UPR TROF AND WIND SHEAR ASSOC WITH JTST</value>
@@ -108,11 +109,11 @@
 			<value>WIND SHEAR ASSOC WITH JTST</value>
 			<value>MTN WAVE ACT</value>
 			<value>WIND SHEAR ASSOC WITH JTST AND MTN WAVE ACT</value>
-		</dropdown>
+		</dropdown> -->
 	</hazard>
 	<hazard name="TURB-LO" snapshot="lightBlue" smear="violet" outlook="cyan" other="lightBlue" category="TANGO">
 		<text type="input" width="100" height="18" label="Top/Bottom" required="true" scrollable="false" editable="true" characterType="digitsAndSlash" characterLimit="7" padWithZeros="3"/>
-		<dropdown label="DUE TO">
+<!-- 		<dropdown label="DUE TO">
 			<value></value>
 			<value>STG LOW LVL WNDS</value>
 			<value>UPR TROF AND WIND SHEAR ASSOC WITH JTST</value>
@@ -123,12 +124,12 @@
 			<value>WIND SHEAR ASSOC WITH JTST</value>
 			<value>MTN WAVE ACT</value>
 			<value>WIND SHEAR ASSOC WITH JTST AND MTN WAVE ACT</value>
-		</dropdown>
+		</dropdown> -->
 	</hazard>
 	<hazard name="SFC_WND" snapshot="orange" smear="violet" outlook="cyan" other="orange" category="TANGO">
 		<dropdown label="Speed">
 			<value>30KT</value>
-			<value>20KT</value>
+<!--		<value>20KT</value> -->
 		</dropdown>
 	</hazard>
 	<hazard name="SIGWX" snapshot="green" smear="green" outlook="green" other="green" format="false" category="NONE"/>
@@ -179,13 +180,13 @@
 		4 types: snapshot, smear, outlook, and other. Hazard + type define the color. All the attributes are required .
 		example: "3 Z" will be displayed as "3 17Z" in the "Fcst Hr" dropdown box if cycle is set to 14.  
 	-->
-	<fcstHr name="0-6" type="smear" linewidth="3"/>
+<!--	<fcstHr name="0-6" type="smear" linewidth="3"/>-->
 	<fcstHr name="0 Z" type="snapshot" linewidth="2"/>
 	<fcstHr name="3 Z" type="snapshot" linewidth="2"/>
 	<fcstHr name="6 Z" type="snapshot" linewidth="2"/>
 	<fcstHr name="9 Z" type="snapshot" linewidth="2"/>
 	<fcstHr name="12 Z" type="snapshot" linewidth="2"/>
-	<fcstHr name="0-0" type="smear" linewidth="3"/>
+<!--	<fcstHr name="0-0" type="smear" linewidth="3"/>
 	<fcstHr name="3-3" type="smear" linewidth="3"/>
 	<fcstHr name="6-6" type="smear" linewidth="3"/>
 	<fcstHr name="9-9" type="outlook" linewidth="4"/>
@@ -194,7 +195,7 @@
 	<fcstHr name="3-6" type="smear" linewidth="3"/>
 	<fcstHr name="6-9" type="outlook" linewidth="4"/>
 	<fcstHr name="6-12" type="outlook" linewidth="4"/>
-	<fcstHr name="9-12" type="outlook" linewidth="4"/>
+	<fcstHr name="9-12" type="outlook" linewidth="4"/> -->
 	<fcstHr name="Other" type="other" linewidth="2"/>
 
 	<!--

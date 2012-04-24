@@ -86,7 +86,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * 10/01/10       #307     Greg Hull    implement processRecords and change to 
  *                                      process WarnData as the IRscDataObj
  * 07/28/11       #450     Greg Hull    NcPathManager    
- * 08/31/11		  #456	   Gang Zhang	AWW fix	                                 
+ * 08/31/11		  #456	   Gang Zhang	AWW fix	   
+ * 02/16/2012     #555     S. Gurung    Added call to setAllFramesAsPopulated() in queryRecords().                               
  * 
  * </pre>
  * 
@@ -405,7 +406,9 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 	 */
 	@Override
 	public void queryRecords() throws VizException {
-
+		// this method is almost similar to its super class's queryRecords(), may need to be modified later
+		// to use the super class's version for the common part
+		
 		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
 				resourceData.getMetadataMap());
 
@@ -432,6 +435,7 @@ public class WarnResource extends AbstractNatlCntrsResource< WarnResourceData, I
 			}
 		} 
 		countyResult.populateMap();
+		setAllFramesAsPopulated();
 	}
 
 	/**
