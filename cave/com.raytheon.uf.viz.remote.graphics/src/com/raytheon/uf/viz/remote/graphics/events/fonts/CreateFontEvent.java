@@ -23,6 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
  * Event for creating a font object
@@ -41,7 +42,8 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class CreateFontEvent extends AbstractDispatchingObjectEvent {
+public class CreateFontEvent extends AbstractDispatchingObjectEvent implements
+        ICreationEvent {
 
     @DynamicSerializeElement
     private byte[] fontData;

@@ -26,6 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
  * Event to create a new wireframe shape object
@@ -44,7 +45,8 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent {
+public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent
+        implements ICreationEvent {
 
     @DynamicSerializeElement
     private GeneralGridGeometry gridGeometry;

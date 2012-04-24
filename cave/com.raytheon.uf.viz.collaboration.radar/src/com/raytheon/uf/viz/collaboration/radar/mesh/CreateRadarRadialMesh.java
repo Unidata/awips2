@@ -25,6 +25,7 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
  * Event class used to specify the creation of a radar radial mesh
@@ -43,7 +44,8 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class CreateRadarRadialMesh extends AbstractDispatchingObjectEvent {
+public class CreateRadarRadialMesh extends AbstractDispatchingObjectEvent
+        implements ICreationEvent {
 
     @DynamicSerializeElement
     private Integer numBins;

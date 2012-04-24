@@ -30,7 +30,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.role.event.PersistedObjectEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.event.IPersistedEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -69,7 +69,7 @@ public class CollaborationResource extends
         AbstractVizResource<CollaborationResourceData, IDescriptor> implements
         IContextMenuProvider {
 
-    private static JobPool retrievePool = new JobPool("Retriever", 4, true);
+    private static JobPool retrievePool = new JobPool("Retriever", 1, true);
 
     /** List of objects rendered in paint */
     private List<IRenderEvent> currentRenderables;
@@ -134,7 +134,8 @@ public class CollaborationResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         renderingRouter = new EventBus();
-        dataManager = new CollaborationRenderingDataManager();
+        dataManager = new CollaborationRenderingDataManager(
+                resourceData.getSession());
         for (CollaborationRenderingHandler handler : CollaborationRenderingDataManager
                 .createRenderingHandlers(dataManager)) {
             renderingRouter.register(handler);
@@ -142,12 +143,12 @@ public class CollaborationResource extends
     }
 
     @Subscribe
-    public void persitableArrived(final PersistedObjectEvent event) {
+    public void persitableArrived(final IPersistedEvent event) {
         retrievePool.schedule(new Runnable() {
             @Override
             public void run() {
                 try {
-                    renderableArrived(event.retrieve());
+                    renderableArrived(dataManager.retrieveEvent(event));
                 } catch (CollaborationException e) {
                     Activator.statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
