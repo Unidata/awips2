@@ -23,12 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,8 +35,6 @@ import java.util.TimeZone;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
-import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
-import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -93,9 +89,15 @@ public class DatabaseArchiver implements IPluginArchiver {
 
     private static final int CLUSTER_LOCK_TIMEOUT = 60000;
 
+    private final Map<String, IPluginArchiveFileNameFormatter> pluginArchiveFormatters;
+
     public DatabaseArchiver() {
         DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        pluginArchiveFormatters = new HashMap<String, IPluginArchiveFileNameFormatter>();
+        pluginArchiveFormatters.put("default",
+                new DefaultPluginArchiveFileNameFormatter());
     }
 
     @Override
@@ -157,9 +159,16 @@ public class DatabaseArchiver implements IPluginArchiver {
             Calendar endTime = determineEndTime(startTime, runTime);
             Map<String, List<PersistableDataObject>> pdoMap = new HashMap<String, List<PersistableDataObject>>();
 
+            IPluginArchiveFileNameFormatter archiveFormatter = pluginArchiveFormatters
+                    .get(pluginName);
+            if (archiveFormatter == null) {
+                archiveFormatter = pluginArchiveFormatters.get("default");
+            }
+
             while (startTime != null && endTime != null) {
-                Map<String, List<PersistableDataObject>> pdosToSave = getPdosByFile(
-                        pluginName, dao, pdoMap, startTime, endTime);
+                Map<String, List<PersistableDataObject>> pdosToSave = archiveFormatter
+                        .getPdosByFile(pluginName, dao, pdoMap, startTime,
+                                endTime);
 
                 if (pdosToSave != null && !pdosToSave.isEmpty()) {
                     savePdoMap(pluginName, archivePath, pdosToSave);
@@ -258,98 +267,6 @@ public class DatabaseArchiver implements IPluginArchiver {
         return true;
     }
 
-    /**
-     * 
-     * @param pdoMap
-     *            The current pdos by file. This map will be merged with pdos,
-     *            if a key was not referenced by pdos it will be removed and
-     *            returned in the returned map for storage.
-     * @param pdos
-     *            The pdos to sort by file
-     * @return The pdos to save to disk. If sortPdosByFiles did not store any
-     *         entries from pdos into a file listed in currentPdoMap then that
-     *         entry will be returned in a new map and removed from
-     *         currentPdoMap.
-     */
-    protected Map<String, List<PersistableDataObject>> getPdosByFile(
-            String pluginName, PluginDao dao,
-            Map<String, List<PersistableDataObject>> pdoMap,
-            Calendar startTime, Calendar endTime)
-            throws DataAccessLayerException {
-        List<PersistableDataObject> pdos = dao.getRecordsToArchive(startTime,
-                endTime);
-
-        Set<String> newFileEntries = new HashSet<String>();
-        if (pdos != null && !pdos.isEmpty()) {
-            if (pdos.get(0) instanceof IPersistable) {
-                IHDFFilePathProvider pathProvider = dao.pathProvider;
-
-                for (PersistableDataObject pdo : pdos) {
-                    IPersistable persistable = (IPersistable) pdo;
-                    String path = pathProvider.getHDFPath(pluginName,
-                            persistable)
-                            + File.separator
-                            + pathProvider.getHDFFileName(pluginName,
-                                    persistable);
-                    newFileEntries.add(path);
-                    List<PersistableDataObject> list = pdoMap.get(path);
-                    if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
-                        pdoMap.put(path, list);
-                    }
-                    list.add(pdo);
-                }
-            } else {
-                // order files by refTime hours
-                for (PersistableDataObject pdo : pdos) {
-                    String timeString = null;
-                    if (pdo instanceof PluginDataObject) {
-                        PluginDataObject pluginDataObj = (PluginDataObject) pdo;
-                        Date time = pluginDataObj.getDataTime()
-                                .getRefTimeAsCalendar().getTime();
-
-                        synchronized (DefaultPathProvider.fileNameFormat) {
-                            timeString = DefaultPathProvider.fileNameFormat
-                                    .format(time);
-                        }
-                    } else {
-                        // no refTime to use bounded insert query bounds
-                        Date time = startTime.getTime();
-
-                        synchronized (DefaultPathProvider.fileNameFormat) {
-                            timeString = DefaultPathProvider.fileNameFormat
-                                    .format(time);
-                        }
-                    }
-
-                    String path = pluginName + timeString;
-                    newFileEntries.add(path);
-                    List<PersistableDataObject> list = pdoMap.get(path);
-                    if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
-                        pdoMap.put(path, list);
-                    }
-                    list.add(pdo);
-                }
-
-            }
-        }
-
-        Iterator<String> iter = pdoMap.keySet().iterator();
-        Map<String, List<PersistableDataObject>> pdosToSave = new HashMap<String, List<PersistableDataObject>>(
-                pdoMap.size() - newFileEntries.size());
-
-        while (iter.hasNext()) {
-            String key = iter.next();
-            if (!newFileEntries.contains(key)) {
-                pdosToSave.put(key, pdoMap.get(key));
-                iter.remove();
-            }
-        }
-
-        return pdosToSave;
-    }
-
     protected void savePdoMap(String pluginName, String archivePath,
             Map<String, List<PersistableDataObject>> pdoMap)
             throws SerializationException, IOException {
@@ -422,8 +339,7 @@ public class DatabaseArchiver implements IPluginArchiver {
             // startTime has never been set lookup earliest start time
             Date minInsert = dao.getMinInsertTime("");
             if (minInsert != null) {
-                startTime = Calendar.getInstance();
-                startTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+                startTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 startTime.setTimeInMillis(minInsert.getTime());
             } else {
                 // if no data for plugin in db, set startTime to runTime
@@ -432,13 +348,13 @@ public class DatabaseArchiver implements IPluginArchiver {
         }
 
         // earliest time based on default retention
-        long earliestTime = System.currentTimeMillis()
-                - (conf.getHoursToKeep() * 60 * 60 * 1000);
-        if (startTime.getTimeInMillis() < earliestTime) {
-            startTime.setTimeInMillis(earliestTime);
-        }
+        Calendar earliestTime = Calendar.getInstance(TimeZone
+                .getTimeZone("GMT"));
+        earliestTime
+                .add(Calendar.HOUR, (-1 * conf.getHoursToKeep().intValue()));
 
-        return startTime;
+        return (startTime.compareTo(earliestTime) < 0) ? earliestTime
+                : startTime;
     }
 
     /**
@@ -466,5 +382,18 @@ public class DatabaseArchiver implements IPluginArchiver {
         }
 
         return endTime;
+    }
+
+    public Object registerPluginArchiveFormatter(String pluginName,
+            IPluginArchiveFileNameFormatter archiveFormatter) {
+        if (!pluginArchiveFormatters.containsKey(pluginName)) {
+            pluginArchiveFormatters.put(pluginName, archiveFormatter);
+        } else {
+            statusHandler
+                    .warn("Plugin archive formatter already registered for: "
+                            + pluginName);
+        }
+
+        return this;
     }
 }
