@@ -231,7 +231,6 @@ public class Roster extends RosterItem implements IRoster {
                 // so update with the presence.
                 RosterEntry ret = (RosterEntry) re;
                 ret.setPresence(entry.getPresence());
-            } else {
             }
         } else {
             // nothing to do. And this shouldn't happen!
@@ -257,9 +256,9 @@ public class Roster extends RosterItem implements IRoster {
      * @param groups
      */
     @Override
-    public void sendRosterAdd(String account, String nickName, String[] groups)
+    public void sendRosterAdd(UserId account, String[] groups)
             throws CollaborationException {
-        rosterManager.sendRosterAdd(account, nickName, groups);
+        rosterManager.sendRosterAdd(account, groups);
     }
 
     /**
@@ -340,5 +339,4 @@ public class Roster extends RosterItem implements IRoster {
         System.out
                 .println("##########################################################################");
     }
-
 }

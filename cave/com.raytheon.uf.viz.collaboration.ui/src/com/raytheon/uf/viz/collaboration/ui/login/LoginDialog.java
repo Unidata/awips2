@@ -56,8 +56,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.DataUser;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -378,18 +376,12 @@ public class LoginDialog extends CaveSWTDialog {
                         // .getSelectionIndex()], messageTF
                         // .getText().trim());
                         try {
-                            sessionManager = new CollaborationConnection(loginData
-                                    .getAccount(), loginData.getPassword(),
+                            sessionManager = new CollaborationConnection(
+                                    loginData.getAccount(), loginData
+                                            .getPassword(),
                                     rosterEventSubscriber);
-                            DataUser dUser = CollaborationDataManager
-                                    .getInstance().getUser(
-                                            loginData.getAccount());
-                            // // TODO set mode and message here.
-                            // dUser.setMode(loginData.getMode());
-                            // dUser.type = Type.AVAILABLE;
-                            // dUser.statusMessage = loginData.getModeMessage();
                             setReturnValue(loginData);
-                            LoginDialog.this.getShell().dispose();
+                            close();
                         } catch (Exception e) {
                             if (focusField == null) {
                                 focusField = passwordTF;
