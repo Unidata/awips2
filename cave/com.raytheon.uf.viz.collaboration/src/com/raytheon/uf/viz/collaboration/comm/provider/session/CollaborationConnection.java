@@ -399,7 +399,6 @@ public class CollaborationConnection implements IEventPublisher {
             if (session != null) {
                 session.joinVenue(venueName);
 
-                session.setUserId(account);
                 if (invitation.getInvite() instanceof SharedDisplayVenueInvite) {
                     SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation
                             .getInvite();
@@ -431,7 +430,6 @@ public class CollaborationConnection implements IEventPublisher {
             session.createVenue(venueName, subject);
             session.setCurrentSessionLeader(account);
             session.setCurrentDataProvider(account);
-            session.setUserId(account);
 
             sessions.put(session.getSessionId(), session);
             return session;
