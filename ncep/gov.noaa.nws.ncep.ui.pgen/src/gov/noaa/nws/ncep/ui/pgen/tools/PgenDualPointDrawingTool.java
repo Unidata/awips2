@@ -16,6 +16,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.ArcAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
@@ -31,6 +32,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.*;
  * 04/09		103			B. Yin		Extends from AbstractPgenTool
  * 05/09        #42         S. Gilbert  Added pgenType and pgenCategory
  * 05/09		79			B. Yin		Extends from AbstractPgenDrawingTool 
+ * 02/12		?			J. Wu   	Ensure starting angle is smaller than ending angle
  *
  * </pre>
  * 
@@ -106,22 +108,24 @@ public class PgenDualPointDrawingTool extends AbstractPgenDrawingTool {
        		    }
         		else {
         			
+        			if ( !validArcAngle() ) points.clear();
+        			
         			if ( points.size() > 1 ) points.remove( 1 );
         			points.add( 1, loc );
-       		       
-            		// create a new DrawableElement.    
-            		elem = def.create( DrawableType.ARC, (IAttribute)attrDlg,
-            				pgenCategory, pgenType, points, drawingLayer.getActiveLayer() );
 
-            		// add the product to PGEN resource
-            		drawingLayer.addElement( elem );
+        			// create a new DrawableElement.    
+        			elem = def.create( DrawableType.ARC, (IAttribute)attrDlg,
+        					pgenCategory, pgenType, points, drawingLayer.getActiveLayer() );
 
-            		drawingLayer.removeGhostLine();
-            		points.clear();
+        			// add the product to PGEN resource
+        			drawingLayer.addElement( elem );
 
-            		mapEditor.refresh();
-            		AttrSettings.getInstance().setSettings((DrawableElement)elem);
+        			drawingLayer.removeGhostLine();
+        			points.clear();
 
+        			mapEditor.refresh();
+        			AttrSettings.getInstance().setSettings((DrawableElement)elem);
+            		
         		}
       		
                 return true;
@@ -176,6 +180,8 @@ public class PgenDualPointDrawingTool extends AbstractPgenDrawingTool {
         	// create the ghost element and put it in the drawing layer
            	AbstractDrawableComponent ghost = null;
            	
+           	if ( !validArcAngle() ) points.clear();
+           	
             if ( points != null && points.size() >= 1) {
                 
             	ghost = def.create( DrawableType.ARC, (IAttribute)attrDlg,
@@ -196,6 +202,7 @@ public class PgenDualPointDrawingTool extends AbstractPgenDrawingTool {
            	
             }
             
+            
         	return false;
         	
         }
@@ -203,6 +210,25 @@ public class PgenDualPointDrawingTool extends AbstractPgenDrawingTool {
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
 			return true;
+		}
+		
+		
+		/*
+		 * Check if the given starting angle is less than the ending angle
+		 */
+		private boolean validArcAngle() {
+			
+			boolean isValid = false;
+			
+			if ( attrDlg != null ) {
+           		
+           		double sa = ((ArcAttrDlg)attrDlg).getStartAngle();
+           		double ea = ((ArcAttrDlg)attrDlg).getEndAngle();
+           		
+           		if ( sa < ea )  isValid = true;			 
+			}
+			
+		    return isValid;
 		}
 
     }

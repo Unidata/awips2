@@ -19,55 +19,27 @@
  ******************************************************************************************/
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
-import java.awt.image.BufferedImage;
 import java.nio.FloatBuffer;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-//import com.raytheon.viz.core.contours.Activator;
-//import gov.noaa.nws.ncep.viz.common.ui.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.rsc.ncgrid.Activator;
-import gov.noaa.nws.ncep.viz.rsc.ncgrid.contours.ContourSupport.ContourGroup;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-
-import com.raytheon.viz.pointdata.PointWindDisplay;
-import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -96,20 +68,18 @@ public class GridPointValueDisplay implements IRenderable {
     private final int[] gridDims;
 
     private RGB color;
-    
+
     private FloatBuffer displayValues;
-    
+
     private IFont font;
 
-    
-    public GridPointValueDisplay(FloatBuffer values, RGB color, IMapDescriptor descriptor, ISpatialObject gridLocation) {
+    public GridPointValueDisplay(FloatBuffer values, RGB color,
+            IMapDescriptor descriptor, ISpatialObject gridLocation) {
 
         this.displayValues = values;
         this.descriptor = descriptor;
         this.gridGeometryOfGrid = MapUtil.getGridGeometry(gridLocation);
-        this.gridDims = new int[] {
-        		gridLocation.getNx(),
-        		gridLocation.getNy() };
+        this.gridDims = new int[] { gridLocation.getNx(), gridLocation.getNy() };
         this.color = color;
     }
 
@@ -123,64 +93,68 @@ public class GridPointValueDisplay implements IRenderable {
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        
-    	if (paintProps.isZooming()) {
-    		return;
-    	}
-    	font = target.initializeFont("Monospace", 
-    			10, new IFont.Style[] { IFont.Style.BOLD });
 
+        if (paintProps.isZooming()) {
+            return;
+        }
+        font = target.initializeFont("Monospace", 10,
+                new IFont.Style[] { IFont.Style.BOLD });
 
-    	IExtent screenExtentInPixels = paintProps.getView().getExtent();
+        IExtent screenExtentInPixels = paintProps.getView().getExtent();
 
-    	double ratio = screenExtentInPixels.getWidth()
-    				   / paintProps.getCanvasBounds().width;
-    	int interval0 = (int) (10 * ratio / (Math.min(2.0, 1.0/*paintProps.getDensity()*/)));
-//    	int interv = (int) ((interval0 + 15) / 15.0);
-    	int interv = (int) Math.log(interval0);
-    	if (interv < 0 ) interv = 0;
-    	if (interv > 5) interv = 5;
-    	interval0 = 1;
-    	
-    	for (int i = 0; i < gridDims[0]; i += interv + 1) {	
+        double ratio = screenExtentInPixels.getWidth()
+                / paintProps.getCanvasBounds().width;
+        int interval0 = (int) (10 * ratio / (Math.min(2.0, 1.0/*
+                                                               * paintProps.
+                                                               * getDensity()
+                                                               */)));
+        // int interv = (int) ((interval0 + 15) / 15.0);
+        int interv = (int) Math.log(interval0);
+        if (interv < 0)
+            interv = 0;
+        if (interv > 5)
+            interv = 5;
+        interval0 = 1;
 
-    		for ( int j = 0; j < gridDims[1]; j += interv + 1) {
+        for (int i = 0; i < gridDims[0]; i += interv + 1) {
 
-    			ReferencedCoordinate c = new ReferencedCoordinate(
-    					new Coordinate(i, j),
-    					this.gridGeometryOfGrid, Type.GRID_CENTER);
+            for (int j = 0; j < gridDims[1]; j += interv + 1) {
 
-    			/*
-    			 * check map area
-    			 */
-    			 try {
-    				 double[] d = this.descriptor.worldToPixel(new double[]{
-    						 (double)c.asLatLon().x, (double)c.asLatLon().y	
-    				 });
+                ReferencedCoordinate c = new ReferencedCoordinate(
+                        new Coordinate(i, j), this.gridGeometryOfGrid,
+                        Type.GRID_CENTER);
 
-    				 if (!screenExtentInPixels.contains(d)) {
-    					 continue;
-    				 }
+                /*
+                 * check map area
+                 */
+                try {
+                    double[] d = this.descriptor.worldToPixel(new double[] {
+                            (double) c.asLatLon().x, (double) c.asLatLon().y });
 
-    				 /*
-    				  * Plot grid point values
-    				  */
-    				 String text = getValueString(i, j);
+                    if (d == null || !screenExtentInPixels.contains(d)) {
+                        continue;
+                    }
 
-    				 target.drawString(font, text, d[0], d[1], 0.0, TextStyle.NORMAL,
-    						 color, HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE,
-    						 0.0);
-    			 } catch (TransformException e) {
-    				 // TODO Auto-generated catch block
-    				 e.printStackTrace();
-    			 } catch (FactoryException e) {
-    				 // TODO Auto-generated catch block
-    				 e.printStackTrace();
-    			 }
-    		}
-    	}
+                    /*
+                     * Plot grid point values
+                     */
+                    String text = getValueString(i, j);
+
+                    target.drawString(font, text, d[0], d[1], 0.0,
+                            TextStyle.NORMAL, color,
+                            HorizontalAlignment.CENTER,
+                            VerticalAlignment.MIDDLE, 0.0);
+                } catch (TransformException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (FactoryException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
     }
-    
+
     private String getValueString(int x, int y) {
         if (x >= this.gridDims[0] || y >= this.gridDims[1] || x < 0 || y < 0) {
             return null;
@@ -192,12 +166,12 @@ public class GridPointValueDisplay implements IRenderable {
         if (Float.isNaN(value)) {
             return null;
         }
-        
-        return String.valueOf((int)value);
+
+        return String.valueOf((int) value);
     }
-    
+
     public void dispose() {
-       
+
         if (font != null) {
             font.dispose();
         }

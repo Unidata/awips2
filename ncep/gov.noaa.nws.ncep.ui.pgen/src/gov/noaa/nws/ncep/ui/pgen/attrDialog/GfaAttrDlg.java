@@ -19,8 +19,8 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaInfo;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
@@ -61,6 +61,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/11        #?          J. Wu       Add linkage between GFA hazard type 
  *                                      and GAIRMET layer names.
  * 12/11		#?			B. Yin		Set voxText
+ * 02/12		#662		J. Wu		update verification of "other" text.
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo.
  *
  * </pre>
  * 
@@ -314,11 +316,13 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	private void createBottomPanel() {
 		
 		if(fcstHrCbo.getText().indexOf('Z') > -1 || 
-				("Other".equalsIgnoreCase(fcstHrCbo.getText()) && !otherText.getText().contains("-")) ){
-			// snapshot or other
-			bottomGroup.dispose();
+				("Other".equalsIgnoreCase(fcstHrCbo.getText()) && !otherText.getText().contains("-")) ) {
+			if ( bottomGroup != null && !bottomGroup.isDisposed() ) {
+				bottomGroup.dispose();
+			}
 			return;
 		} 
+		
 		bottomGroup = new Group(top, SWT.BORDER); 
 		GridData gridData = new GridData(GridData.BEGINNING, SWT.NONE, true, false, 2, 1);
 	    bottomGroup.setLayoutData(gridData);
@@ -921,6 +925,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	 * @see gov.noaa.nws.ncep.ui.pgen.attrDialog.LineAttrDlg#getLineWidth()
 	 */
 	public float getLineWidth() {
+
+/*
 		String xPath = null;
 		if(getGfaFcstHr().indexOf("-") == -1) {
 			xPath = FCSTHR_XPATH + "[@type='snapshot']";
@@ -933,6 +939,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		} catch (Exception e){
 			return 2.0F;
 		}
+*/
+		return GfaInfo.getLineWidth( getGfaFcstHr() );
 	}
 
 	/*
@@ -967,7 +975,6 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			
 			if (fcstHrCbo != null) {
 				String str = attr.getGfaFcstHr();
-
 				if(nvl(str).indexOf("-") == -1 && !nvl(str).isEmpty()) { // no dash, it is a snapshot
 					try {
 						int i = Integer.parseInt(str); // snapshot hour
@@ -987,7 +994,9 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 					if(str.contains("Z")) {
 						str = str.split(" ")[0];
 					}
-					if(!otherText.getText().equals(str)) otherText.setText(str);
+					if(!otherText.getText().equals(str)) {
+						otherText.setText(str);
+					}
 					otherTextLastUsed = str;
 				}
 				
@@ -1329,7 +1338,6 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			otherText.dispose();
 		}
 		if("Other".equalsIgnoreCase(fcstHrCbo.getText())){
-
 			emptyLabel = new Label(panelComboGroup, SWT.NONE);
 			otherText = new Text(panelComboGroup, SWT.BORDER);
 			otherText.addVerifyListener(new VerifyListenerOtherText());
@@ -1602,7 +1610,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			
 			String s = ((Text) e.widget).getText();
 			s = s.substring(0, e.start) + e.text + s.substring(e.end);
-			
+
 			e.doit = s.matches(TIME);
 			e.doit |= s.matches("(" + TIME + ")-");
 			e.doit |= s.matches("(" + TIME + ")-(" + TIME + ")");
@@ -1618,8 +1626,9 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 					String[] t0 = t[0].split(":");
 					String[] t1 = t[1].split(":");
 					if(t0[1].isEmpty() || t1[1].isEmpty()) break check;
-					if(Integer.parseInt(t0[0]) > Integer.parseInt(t1[0]) 
-							|| Integer.parseInt(t1[0]) > 6) {
+										
+					if ( Integer.parseInt(t0[0]) > Integer.parseInt(t1[0] ) &&  
+						 Integer.parseInt(t1[0]) != 1 ) {
 						// 4:30-2:15
 						// 4>2
 						e.doit = false;
@@ -1627,6 +1636,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 					}
 				}
 			}
+			
+			
 			if(!e.doit) return;
 			
 			// update color 
@@ -1898,23 +1909,23 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	 */
 	public void setVorText( Gfa gfa ){
 		ArrayList<Coordinate> pts = gfa.getPoints();
-		pts = SigmetInfo.getSnapWithStation(pts,SigmetInfo.VOR_STATION_LIST,10,16, false) ;
+		pts = SnapUtil.getSnapWithStation(pts,SnapUtil.VOR_STATION_LIST,10,16, false) ;
 		Coordinate[] a = new Coordinate[pts.size()];
 		a = pts.toArray(a);
 		String s = "";
 		if ( gfa.getGfaHazard().equalsIgnoreCase("FZLVL")){
 			if ( gfa.isClosedLine() ){
-				s = SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
+				s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
 			}
 			else {
-				s = SigmetInfo.getVORText(a, "-", "Line", -1, true, false, true );
+				s = SnapUtil.getVORText(a, "-", "Line", -1, true, false, true );
 			}
 		}
 		else if ( gfa.getGfaHazard().equalsIgnoreCase("LLWS")){
-			s = SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
+			s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
 		}
 		else {
-			s = SigmetInfo.getVORText(a, " TO ", "Area", -1, true, false, true );
+			s = SnapUtil.getVORText(a, " TO ", "Area", -1, true, false, true );
 		}
 		textVOR.setText(s);
 	}

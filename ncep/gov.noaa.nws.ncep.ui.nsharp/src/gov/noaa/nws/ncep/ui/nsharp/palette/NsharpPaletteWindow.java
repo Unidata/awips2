@@ -19,10 +19,12 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.palette;
 
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.maprsc.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.menu.NsharpLoadDialog;
 import gov.noaa.nws.ncep.ui.nsharp.menu.NsharpUnloadDialog;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpBackgroundResource;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
@@ -31,11 +33,16 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+//import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
@@ -49,28 +56,42 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+//import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.viz.ui.UiUtil;
 
+
 public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
 DisposeListener, IPartListener{
 	private MessageBox mb ;
-	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,  compareBtn, graphEditBtn;
+	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,dataEditBtn,  compareBtn, graphEditBtn,graphModeBtnSkew, graphModeBtnIcing,graphModeBtnTurb;
 	private Shell shell;
 	private boolean overlayIsOn=false, compareIsOn=false;
 	protected boolean interpolateIsOn=false, editGraphOn=false;
 	private static String INTP_OFF = "  Interp(off)    ";
 	private static String INTP_ON = "  Interp(on)     ";
 	private static String COMP_OFF= "Compare(off)";
-	private static String COMP_ON= "Compare(on)  ";
-	private static String OVLY_OFF= "Ovrlay2(off)";
-	private static String OVLY_ON= "Ovrlay2(on)";
+	private static String COMP_ON=  "Compare(on)  ";
+	private static String OVLY_OFF= "Ovrlay2(off)  ";
+	private static String OVLY_ON=  "Ovrlay2(on)   ";
 	protected static String EDIT_GRAPH_OFF= "EditGraph(off)";
 	protected static String EDIT_GRAPH_ON= "EditGraph(on) ";
 	private IWorkbenchPage page;
 	private NsharpPrintHandle printHandle; 
-
+	private Font newFont ;
+	private boolean isEditorVisible=true;
+	private static NsharpPaletteWindow instance;
+	private static int currentGraphMode= NsharpConstants.GRAPH_SKEWT;
+	
+	public static NsharpPaletteWindow getInstance() {
+		return instance;
+	}
+	public static int getCurrentGraphMode() {
+		return currentGraphMode;
+	}
+	private Color colorGrey = new Color(Display.getDefault(), 211,211,211);
+	private Color colorButtonOriginalBg;
 
 	public void setAndOpenMb(String msg) {
 		if (mb != null) {
@@ -85,16 +106,14 @@ DisposeListener, IPartListener{
 	}
 	public NsharpPaletteWindow() {
 		super();
-		//nsharpPaletteWindow = this;
+		instance = this;
 		//System.out.println("NsharpPaletteWindow condtructed!!");
 		printHandle = NsharpPrintHandle.getPrintHandle();
 		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
 
 		mb = new MessageBox(shell, SWT.ICON_WARNING
 				| SWT.OK );
-
 		mb.setMessage( "Data is not loaded yet!");
-
 	}
 
 	/**
@@ -115,6 +134,7 @@ DisposeListener, IPartListener{
 		page = site.getPage();
 		page.addPartListener(this);
 
+		NsharpMapResource.registerMouseHandler();
 		//Chin : to fix Ticket#11034::::
 		//get several control information back from SkewT resource, in the case that
 		//NsharpPaletteWindow view was disposed and re-constructed while SkewT resource is not.
@@ -133,38 +153,45 @@ DisposeListener, IPartListener{
 	 * Disposes resource.  invoked by the workbench
 	 */
 	public void dispose() {
-		super.dispose();
-		//System.out.println("NsharpPaletteWindow disposed!!");
-		NCMapEditor editor = NsharpMapResource.getMapEditor();
-		if(editor!=null){
-			for ( IRenderableDisplay display : UiUtil.getDisplaysFromContainer(editor) ) {
-				//System.out.println("display " + display.toString());
-				for ( ResourcePair rp : display.getDescriptor().getResourceList() ) {
-					if ( rp.getResource() instanceof NsharpMapResource ) {
-						NsharpMapResource rsc = (NsharpMapResource)rp.getResource();
-						rsc.unload();
-						display.getDescriptor().getResourceList().removePreRemoveListener(rsc);
+		//System.out.println("NsharpPaletteWindow dispose() called!! isEditorVisible="+ isEditorVisible);
+		if ( ! isEditorVisible ) {
+			NsharpMapResource.unregisterMouseHandler();
+			return;
+		}
+		else {
+			super.dispose();
+			currentGraphMode= NsharpConstants.GRAPH_SKEWT;
+			isEditorVisible = false;
+			NCMapEditor editor = NsharpMapResource.getMapEditor();
+			if(editor!=null){
+				for ( IRenderableDisplay display : UiUtil.getDisplaysFromContainer(editor) ) {
+					//System.out.println("display " + display.toString());
+					for ( ResourcePair rp : display.getDescriptor().getResourceList() ) {
+						if ( rp.getResource() instanceof NsharpMapResource ) {
+							NsharpMapResource rsc = (NsharpMapResource)rp.getResource();
+							rsc.unload();
+							display.getDescriptor().getResourceList().removePreRemoveListener(rsc);
 
+						}
 					}
-					//System.out.println("rp "+ rp.getResource().getName());
-
 				}
 			}
-		}
-		//nsharpPaletteWindow = null;
+			if(newFont!= null){
+				newFont.dispose();
+				newFont=null;
+			}		/*
+			 * remove the workbench part listener
+			 */
+			page.removePartListener(this);
 
+			try{
+				if(NsharpLoadDialog.getAccess()!= null){        
+					NsharpLoadDialog.getAccess().close();
+				}
+			}catch (Exception e) {
 
-		/*
-		 * remove the workbench part listener
-		 */
-		page.removePartListener(this);
-
-		try{
-			if(NsharpLoadDialog.getAccess()!= null){        
-				NsharpLoadDialog.getAccess().close();
 			}
-		}catch (Exception e) {
-
+			instance= null;
 		}
 	}
 	protected boolean checkLoadedData() {
@@ -199,8 +226,16 @@ DisposeListener, IPartListener{
 		Group textModeGp = new Group(parent,SWT.SHADOW_OUT);
 		textModeGp.setLayout( new RowLayout(SWT.HORIZONTAL) );
 		textModeGp.setLayoutData( new GridData(GridData.FILL_HORIZONTAL) );
-
+		Font font = textModeGp.getFont();
+		FontData[] fontData = font.getFontData();
+		for (int i = 0; i < fontData.length; i++) {
+			fontData[i].setHeight(7);				
+			//fontData[i].setName("courier");
+		}
+		newFont = new Font(font.getDevice(), fontData);
+		
 		loadBtn = new Button(textModeGp, SWT.PUSH);
+		loadBtn.setFont(newFont);
 		loadBtn.setText("      Load        ");
 		loadBtn.setEnabled( true );
 		//loadBtn.setSize(btnWidth,pushbtnHeight);
@@ -218,6 +253,7 @@ DisposeListener, IPartListener{
 		} );
 
 		unloadBtn = new Button(textModeGp, SWT.PUSH);
+		unloadBtn.setFont(newFont);
 		unloadBtn.setText("   UnLoad       ");
 		unloadBtn.setEnabled( true );
 		//loadBtn.setSize(btnWidth,pushbtnHeight);
@@ -238,6 +274,7 @@ DisposeListener, IPartListener{
 		} );
 		// Push buttons for SAVE
 		Button saveBtn = new Button(textModeGp, SWT.PUSH);
+		saveBtn.setFont(newFont);
 		saveBtn.setText("      Save        ");
 		saveBtn.setEnabled( true );
 		//saveBtn.setSize(btnWidth,pushbtnHeight);
@@ -254,24 +291,26 @@ DisposeListener, IPartListener{
 
 		// Push buttons for CONFIGURE
 		Button cfgBtn = new Button(textModeGp, SWT.PUSH);
+		cfgBtn.setFont(newFont);
 		cfgBtn.setText("  Configure    ");
 		cfgBtn.setEnabled(true);
 		//cfgBtn.setSize(btnWidth,pushbtnHeight);
 		cfgBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
-				if(checkLoadedData()) {
-					NsharpGraphConfigDialog dia = NsharpGraphConfigDialog.getInstance(shell);
-
+				//CHin, new develop if(checkLoadedData()) {
+					//NsharpGraphConfigDialog dia = NsharpGraphConfigDialog.getInstance(shell);
+					NsharpConfigDialog dia = NsharpConfigDialog.getInstance(shell);
 					if ( dia != null ) {
 						dia.open();
 					}
-				} 
+				//} 
 
 			}          		            	 	
 		} );
 
 		Button resetBtn = new Button(textModeGp, SWT.PUSH);
+		resetBtn.setFont(newFont);
 		resetBtn.setText("     Reset        ");
 		resetBtn.setEnabled( true );
 		resetBtn.addListener( SWT.MouseUp, new Listener() {
@@ -288,7 +327,10 @@ DisposeListener, IPartListener{
 				interpolateIsOn = false;
 				interpBtn.setText(INTP_OFF);
 				editGraphOn = false;
+				graphModeBtnIcing.setEnabled(true);
+				graphModeBtnTurb.setEnabled(true);
 				graphEditBtn.setText(EDIT_GRAPH_OFF);
+				currentGraphMode= NsharpConstants.GRAPH_SKEWT;
 				NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
 				if(editor != null){
 					//note: resetRsc will reset currentPage, overlay, compare, interpolate flag in Resource
@@ -308,6 +350,7 @@ DisposeListener, IPartListener{
 		} );
 
 		Button parcelBtn = new Button(textModeGp, SWT.PUSH);
+		parcelBtn.setFont(newFont);
 		parcelBtn.setText("     Parcel       ");
 		parcelBtn.setEnabled( true );
 		//parcelBtn.setSize(btnWidth,pushbtnHeight);
@@ -328,6 +371,7 @@ DisposeListener, IPartListener{
 
 		// Push buttons for NEXT PAGE info
 		Button nextpageBtn = new Button(textModeGp, SWT.PUSH);
+		nextpageBtn.setFont(newFont);
 		nextpageBtn.setText("  Next Data    ");
 		nextpageBtn.setEnabled(true);
 		nextpageBtn.addListener( SWT.MouseUp, new Listener() {
@@ -349,7 +393,8 @@ DisposeListener, IPartListener{
 		
 		// Push buttons for NEXT INSET PAGE info
 		Button nextInsetBtn = new Button(textModeGp, SWT.PUSH);
-		nextInsetBtn.setText("  Next Inset   ");
+		nextInsetBtn.setFont(newFont);
+		nextInsetBtn.setText("  Next Inset    ");
 		nextInsetBtn.setEnabled(true);
 		nextInsetBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {
@@ -371,7 +416,7 @@ DisposeListener, IPartListener{
 		
 		// Push buttons for interpolate
 		interpBtn = new Button(textModeGp, SWT.PUSH);
-		
+		interpBtn.setFont(newFont);
 		interpBtn.setEnabled( true );		
 		if(interpolateIsOn) {
 			interpBtn.setText(INTP_ON);
@@ -416,6 +461,7 @@ DisposeListener, IPartListener{
 		
 		// Push buttons for OVERLAY info
 		overlayBtn = new Button(textModeGp, SWT.PUSH);	
+		overlayBtn.setFont(newFont);
 		if(overlayIsOn){
 			overlayBtn.setText(OVLY_ON);
 			overlayBtn.setEnabled( true );
@@ -455,7 +501,7 @@ DisposeListener, IPartListener{
 		} );
 		// Push buttons for OVERLAY info
 		compareBtn = new Button(textModeGp, SWT.PUSH);
-		
+		compareBtn.setFont(newFont);
 		if(compareIsOn){
 			compareBtn.setText(COMP_ON);
 			compareBtn.setEnabled( true );
@@ -498,7 +544,8 @@ DisposeListener, IPartListener{
 				}
 			}          		            	 	
 		} );
-		Button dataEditBtn = new Button(textModeGp, SWT.PUSH);
+		dataEditBtn = new Button(textModeGp, SWT.PUSH);
+		dataEditBtn.setFont(newFont);
 		dataEditBtn.setText("   Edit  Data    ");
 		dataEditBtn.setEnabled( true );
 		dataEditBtn.addListener( SWT.MouseUp, new Listener() {
@@ -514,6 +561,7 @@ DisposeListener, IPartListener{
 		} ); 
 
 		graphEditBtn = new Button(textModeGp, SWT.PUSH);
+		graphEditBtn.setFont(newFont);
 		graphEditBtn.setEnabled( true );		
 		if(editGraphOn) {
 			graphEditBtn.setText(EDIT_GRAPH_ON);
@@ -527,10 +575,16 @@ DisposeListener, IPartListener{
 					if(editGraphOn){
 						editGraphOn=false;
 						graphEditBtn.setText(EDIT_GRAPH_OFF);
+						graphModeBtnIcing.setEnabled(true);
+						graphModeBtnTurb.setEnabled(true);
+						
 					}
 					else{
 						editGraphOn= true;
 						graphEditBtn.setText(EDIT_GRAPH_ON);
+						graphModeBtnIcing.setEnabled(false);
+						graphModeBtnTurb.setEnabled(false);
+						
 					}
 					NsharpSkewTResource rsc = getSkewTRsc();
 					if(rsc!= null) 
@@ -560,6 +614,7 @@ DisposeListener, IPartListener{
 		
 		// Push buttons for show text info
 		Button showtextBtn = new Button(textModeGp, SWT.PUSH);
+		showtextBtn.setFont(newFont);
 		showtextBtn.setText("  Show  Text   ");
 		showtextBtn.setEnabled( true );
 		showtextBtn.addListener( SWT.MouseUp, new Listener() {
@@ -572,10 +627,94 @@ DisposeListener, IPartListener{
 				}
 			}          		            	 	
 		} );
-
+		Group graphModeGp = new Group(textModeGp,SWT.SHADOW_ETCHED_IN);
+		graphModeGp.setLayout(new RowLayout(SWT.HORIZONTAL) );//new GridLayout( 2, false ) );
+		
+		// Push buttons for graphMode
+		graphModeBtnSkew = new Button(graphModeGp, SWT.PUSH );
+		graphModeBtnSkew.setFont(newFont);
+		graphModeBtnSkew.setText("S");
+		graphModeBtnSkew.setEnabled( true );
+		colorButtonOriginalBg= graphModeBtnSkew.getBackground();
+		rsc = getSkewTRsc();
+		if(rsc!= null ){
+			currentGraphMode = rsc.getCurrentGraphMode();
+		}
+		graphModeBtnSkew.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				currentGraphMode= NsharpConstants.GRAPH_SKEWT;
+				graphModeBtnSkew.setBackground(colorGrey);
+				graphModeBtnTurb.setBackground(colorButtonOriginalBg);
+				graphModeBtnIcing.setBackground(colorButtonOriginalBg);
+				graphEditBtn.setEnabled(true);
+				dataEditBtn.setEnabled(true);
+				NsharpSkewTResource rsc = getSkewTRsc();
+				if(rsc!= null && rsc.getDescriptor()!=null) {
+					NsharpBackgroundResource bkRsc = rsc.getDescriptor().getSkewTBkGResource();
+					if(bkRsc!=null){
+						rsc.setCurrentGraphMode(currentGraphMode);
+						bkRsc.setCurrentGraphMode(currentGraphMode);
+					}
+				}
+			}          		            	 	
+		} );
+		graphModeBtnTurb = new Button(graphModeGp, SWT.PUSH);
+		graphModeBtnTurb.setFont(newFont);
+		graphModeBtnTurb.setText("T");
+		graphModeBtnTurb.setEnabled( true );
+		graphModeBtnTurb.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				currentGraphMode= NsharpConstants.GRAPH_TURB;
+				graphModeBtnTurb.setBackground(colorGrey);
+				graphModeBtnSkew.setBackground(colorButtonOriginalBg);
+				graphModeBtnIcing.setBackground(colorButtonOriginalBg);
+				graphEditBtn.setEnabled(false);
+				dataEditBtn.setEnabled(false);
+				NsharpSkewTResource rsc = getSkewTRsc();
+				if(rsc!= null && rsc.getDescriptor()!=null) {
+					NsharpBackgroundResource bkRsc = rsc.getDescriptor().getSkewTBkGResource();
+					if(bkRsc!=null){
+						rsc.setCurrentGraphMode(currentGraphMode);
+						bkRsc.setCurrentGraphMode(currentGraphMode);
+					}
+				}
+			}          		            	 	
+		} );
+		graphModeBtnIcing = new Button(graphModeGp, SWT.PUSH);
+		graphModeBtnIcing.setFont(newFont);
+		graphModeBtnIcing.setText("I");
+		graphModeBtnIcing.setEnabled( true );
+		graphModeBtnIcing.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				currentGraphMode= NsharpConstants.GRAPH_ICING;
+				graphModeBtnIcing.setBackground(colorGrey);
+				graphModeBtnSkew.setBackground(colorButtonOriginalBg);
+				graphModeBtnTurb.setBackground(colorButtonOriginalBg);
+				graphEditBtn.setEnabled(false);
+				dataEditBtn.setEnabled(false);
+				NsharpSkewTResource rsc = getSkewTRsc();
+				if(rsc!= null && rsc.getDescriptor()!=null) {
+					NsharpBackgroundResource bkRsc = rsc.getDescriptor().getSkewTBkGResource();
+					if(bkRsc!=null){
+						rsc.setCurrentGraphMode(currentGraphMode);
+						bkRsc.setCurrentGraphMode(currentGraphMode);
+					}
+				}
+			}          		            	 	
+		} );
+		if(currentGraphMode== NsharpConstants.GRAPH_SKEWT){
+			graphModeBtnSkew.setBackground(colorGrey);
+		}
+		else if(currentGraphMode== NsharpConstants.GRAPH_TURB){
+			graphModeBtnTurb.setBackground(colorGrey);
+		}
+		else if(currentGraphMode== NsharpConstants.GRAPH_ICING){
+			graphModeBtnIcing.setBackground(colorGrey);
+		}
 
 		// Push buttons for Print
 		Button printBtn = new Button(textModeGp, SWT.PUSH);
+		printBtn.setFont(newFont);
 		printBtn.setText("      Print         ");
 		printBtn.setEnabled( true );
 		printBtn.addListener( SWT.MouseUp, new Listener() {
@@ -590,6 +729,12 @@ DisposeListener, IPartListener{
 
 	}
 
+	public boolean isEditorVisible() {
+		return isEditorVisible;
+	}
+	public void setEditorVisible(boolean isEditorVisible) {
+		this.isEditorVisible = isEditorVisible;
+	}
 	/**
 	 * Invoked by the workbench, this method sets up the SWT controls for the nsharp palette
 	 */
