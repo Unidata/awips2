@@ -88,7 +88,9 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 06/07/11       #445       Xilin Guo      Data Manager Performance Improvements
  * 07/11/11                 Greg Hull       Back out changes for #416.
  * 08/04/11      #450       Greg Hull       SpfsManager
- *  
+ * 02/15/2012    #627        Archana        Updated the call to addRbd() to accept 
+ *                                          a NCMapEditor object as one of the arguments
+ *                                          Removed the call to setNcEditor()   
  * </pre>
  * 
  * @author ghull
@@ -531,9 +533,9 @@ public class LoadRbdControl extends Composite {
    		    	StructuredSelection sel_rbds = (StructuredSelection)rbd_lviewer.getSelection();                  		    	
    				RbdBundle rbdSel = (RbdBundle)sel_rbds.getFirstElement();
 
-   				if( rbdSel != null ) {// sanity check
-   					rbdSel.setGeoSyncedPanes( geo_sync_panes.getSelection() );
-   				}
+//   				if( rbdSel != null ) {// sanity check
+//   					rbdSel.setGeoSyncedPanes( geo_sync_panes.getSelection() );
+//   				}
 
    				// TODO ; if enabling then loop thru the panes and check if
    				// any of the panes have a different Area and if so prompt the
@@ -838,7 +840,7 @@ public class LoadRbdControl extends Composite {
 					//			newEditor.selectPane( newEditor.getDisplayPanes()[0], true );
 				}
 
-				rbdBndl.setNcEditor( newEditor );
+//				rbdBndl.setNcEditor( newEditor );
 				
 				// in the case where all rbds are selected initially and the user loads without 
 				// selecting the timeline, we need to load the default timeline based on the dflt
@@ -846,7 +848,7 @@ public class LoadRbdControl extends Composite {
 
 				//			rbdBndl.getTimeMatcher().loadTimes();
 
-				rbdLoader.addRBD( rbdBndl );
+				rbdLoader.addRBD( rbdBndl, newEditor );
 				
     		} catch (VizException e) {
             	MessageBox mb = new MessageBox( NmapUiUtils.getCaveShell(), SWT.OK);

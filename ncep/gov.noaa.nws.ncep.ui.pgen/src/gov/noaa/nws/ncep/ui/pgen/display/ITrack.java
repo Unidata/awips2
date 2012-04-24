@@ -8,6 +8,8 @@
 package gov.noaa.nws.ncep.ui.pgen.display;
 
 import java.awt.Color;
+import java.util.Calendar;
+
 import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
 
 /**
@@ -104,5 +106,19 @@ public interface ITrack extends ILine{
 	 * @return font size
 	 */
 	public float getFontSize();
-    
-}
+	
+	public Calendar getFirstTimeCalendar();
+	public Calendar getSecondTimeCalendar();
+	public boolean isSetTimeButtonSelected();
+	public int getExtraDrawingPointNumber();
+	public FontStyle getStyle();
+	public String getSkipFactorText();
+	public int getFontNameComboSelectedIndex();
+	public int getFontSizeComboSelectedIndex();
+	public int getFontStyleComboSelectedIndex();
+	public int getUnitComboSelectedIndex();
+	public int getRoundComboSelectedIndex();
+	public int getRoundDirComboSelectedIndex();
+	public String getIntervalTimeString();
+
+	}

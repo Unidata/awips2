@@ -112,8 +112,14 @@ public class ProductNameDialog extends ProductDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 420,  pt.y + 200 );
+
+    	if ( shellLocation == null ) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 420,  pt.y + 200 );
+		} else {
+			shell.setLocation(shellLocation);
+		}
+
     }
     
 
@@ -329,7 +335,7 @@ public class ProductNameDialog extends ProductDialog {
         acceptBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {                           	
             	updateProduct();            	
-            	shell.dispose();
+            	close();
             }
         });
         
@@ -339,7 +345,7 @@ public class ProductNameDialog extends ProductDialog {
         cancelBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
             	prdManageDlg.setOpenPrdNameDlg( false );
-            	shell.dispose();
+            	close();
             }
         });
            

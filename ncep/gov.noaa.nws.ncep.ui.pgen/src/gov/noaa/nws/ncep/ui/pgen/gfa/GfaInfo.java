@@ -7,12 +7,12 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,6 +29,8 @@ import org.eclipse.swt.graphics.RGB;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 07/10		#223		M.Laryukhin	Initial creation
+ * 02/12		#662		J. Wu		Adjust forecast hour with color/line width
+ * 02/12		#672		J. Wu		Add FA area specific state list
  * 
  * </pre>
  * 
@@ -49,6 +51,13 @@ public class GfaInfo {
 	
 	public static final String AIRMET_ELEMENT_XPATH = "/airmetcycle/element";
 	
+	public static final String GFA_SNAPSHOT = "snapshot";
+	public static final String GFA_SMEAR = "smear";
+	public static final String GFA_OUTLOOK = "outlook";
+
+	public static final int GFA_SMEAR_LINEWIDTH = 3;
+	public static final int GFA_OUTLOOK_LINEWIDTH = 4;
+	public static final int GFA_OTHER_LINEWIDTH = 2;
 	
 
 	/**
@@ -71,6 +80,11 @@ public class GfaInfo {
 		SIERRA, TANGO, ZULU, NONE;
 	}
 
+	/**
+	 * State orders in each FA area.
+	 */
+	private static HashMap<String, ArrayList<String> > stateOrderByArea;
+	
 	/**
 	 * Getter for the document. 
 	 * 
@@ -174,8 +188,10 @@ public class GfaInfo {
 		
 		String xPath = HAZARD_XPATH + "[@name='" + hazard + "']";
 		List<Node> hazardNodes = selectNodes(xPath);
+		
 		xPath = FCSTHR_XPATH + "[@name='" + fcstHr + "']";
 		List<Node> fcsthrNodes = selectNodes(xPath);
+				
 		if (fcsthrNodes.size() != 1) {
 			try{
 				if(fcstHr.indexOf("-") == -1) { // snapshot
@@ -194,11 +210,29 @@ public class GfaInfo {
 			}
 			fcsthrNodes = selectNodes(xPath);
 		}
-		if (hazardNodes.size() != 1 || fcsthrNodes.size() != 1) {
-			throw new IllegalArgumentException("pelase check hazard name and fcstHr");
+		
+		String gfaType = GFA_SNAPSHOT;
+		if ( fcsthrNodes.size() != 1 ) {  //hard-coded
+			if ( fcstHr.indexOf("-") >= 0 ) {
+				String second= fcstHr.split("-")[1];
+				String hour = second.split(":")[0];
+				if(Integer.parseInt(hour) <=6) {
+					gfaType = GFA_SMEAR;
+				} else {
+					gfaType = GFA_OUTLOOK;
+				}
+			}			
 		}
-		String type = fcsthrNodes.get(0).valueOf("@type"); // "snapshot" or "smear"
-		String colorStr = hazardNodes.get(0).valueOf("@" + type);
+		else {
+			gfaType = fcsthrNodes.get(0).valueOf("@type"); // from table
+		}
+		
+		if (hazardNodes.size() != 1 ) {
+			throw new IllegalArgumentException("Please check hazard name");
+		}
+		
+		String colorStr = hazardNodes.get(0).valueOf("@" + gfaType );
+		
 		RGB rgb = definedColors.get(colorStr);
 		Color color = new Color(rgb.red, rgb.green, rgb.blue);
 		return new Color[]{color, color};
@@ -213,15 +247,25 @@ public class GfaInfo {
 	public static int getLineWidth(String fcstHr) {
 		String xPath = FCSTHR_XPATH + "[@name='" + fcstHr + "']";
 		List<Node> fcsthrNodes = selectNodes(xPath);
-		if (fcsthrNodes.size() != 1) {
-			xPath = FCSTHR_XPATH + "[@name='Other']";
-			fcsthrNodes = selectNodes(xPath);
+		
+		int lineWidth = GFA_OTHER_LINEWIDTH;
+		if ( fcsthrNodes.size() > 0 ) {
+			lineWidth = Integer.parseInt( fcsthrNodes.get(0).valueOf("@linewidth") );
 		}
-		if (fcsthrNodes.size() != 1) {
-			throw new IllegalArgumentException("pelase check hazard name and fcstHr");
+		else {
+			if ( fcstHr.indexOf("-") >= 0 ) {
+				String second= fcstHr.split("-")[1];
+				String hour = second.split(":")[0];
+				if( Integer.parseInt(hour) <= 6 ) {
+					lineWidth = GFA_SMEAR_LINEWIDTH;
+				} else {
+					lineWidth = GFA_OUTLOOK_LINEWIDTH;
+				} 
+			}			
+			
 		}
-		String linewidth = fcsthrNodes.get(0).valueOf("@linewidth");
-		return Integer.parseInt(linewidth);
+
+		return lineWidth;
 	}
 	
 	public static boolean isFormat(String hazard){
@@ -232,7 +276,7 @@ public class GfaInfo {
 		String xPath = HAZARD_XPATH + "[@name='" + hazard + "']";
 		List<Node> hazardNodes = selectNodes(xPath);
 		if (hazardNodes.size() != 1) {
-			throw new IllegalArgumentException("pelase check hazard name and fcstHr");
+			throw new IllegalArgumentException("Please check hazard name");
 		}
 		String format = hazardNodes.get(0).valueOf("@format");
 		return !"false".equals(format);
@@ -262,6 +306,66 @@ public class GfaInfo {
 		Node n = nodes.get(0);
 		String rationStr = n.getStringValue();
 		return Double.parseDouble(rationStr);
+	}
+
+    /**
+     * Return the fixed ordered state list in each FA area.
+     */
+	public static HashMap<String, ArrayList<String> > getStateOrderByArea() {
+		
+		if ( stateOrderByArea == null ) {
+			stateOrderByArea = new HashMap<String, ArrayList<String> >();
+			ArrayList<String>  bos = new ArrayList<String>();
+			String[] bosStr = new String[]{"ME","NH","VT","MA","RI","CT","NY",
+                                           "LO","PA","NJ","OH","LE","WV","MD",
+                                           "DC", "DE", "VA", "CSTL WTRS"};
+			for ( String st : bosStr ) {
+				bos.add( st );
+			}
+			stateOrderByArea.put( "BOS", bos);
+			
+			ArrayList<String>  mia = new ArrayList<String>();
+			String[] miaStr = new String[]{"NC", "SC", "GA", "FL" , "CSTL WTRS"};
+			for ( String st : miaStr ) {
+				mia.add( st );
+			}
+			stateOrderByArea.put( "MIA", mia );
+
+			ArrayList<String>  chi = new ArrayList<String>();
+			String[] chiStr = new String[]{"ND", "SD", "NE", "KS", "MN", "IA", 
+                                           "MO", "WI", "LM", "LS", "MI", "LH", 
+                                           "IL", "IN", "KY"};
+			for ( String st : chiStr ) {
+				chi.add( st );
+			}
+			stateOrderByArea.put( "CHI", chi );
+
+			ArrayList<String>  dfw = new ArrayList<String>();
+			String[] dfwStr = new String[]{"OK", "TX", "AR", "TN", "LA", "MS", 
+                                           "AL", "CSTL WTRS"};
+			for ( String st : dfwStr ) {
+				dfw.add( st );
+			}
+			stateOrderByArea.put( "DFW", dfw );
+			
+			ArrayList<String>  slc = new ArrayList<String>();
+			String[] slcStr = new String[]{"ID", "MT", "WY", "NV", "UT", "CO", 
+                                           "AZ", "NM"} ;
+			for ( String st : slcStr ) {
+				slc.add( st );
+			}
+			stateOrderByArea.put( "SLC", slc );
+			
+			ArrayList<String>  sfo = new ArrayList<String>();
+			String[] sfoStr = new String[]{"WA", "OR", "CA", "CSTL WTRS"};
+			for ( String st : sfoStr ) {
+				sfo.add( st );
+			}
+			stateOrderByArea.put( "SFO", mia );
+			
+		}
+		
+		return stateOrderByArea;
 	}
 	
 }

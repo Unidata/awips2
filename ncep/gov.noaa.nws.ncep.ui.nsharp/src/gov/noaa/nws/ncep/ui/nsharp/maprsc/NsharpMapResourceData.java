@@ -29,7 +29,7 @@ public class NsharpMapResourceData extends AbstractResourceData {
 
 	private MarkerState 	markerState = MarkerState.MARKER_ONLY;
 	private MarkerType  	markerType = MarkerType.DIAMOND;
-	private Float       	markerSize = 2f;
+	private Float       	markerSize = 1f;
 	private Integer     	markerWidth = 2;
 	private MarkerTextSize 	markerTextSize = MarkerTextSize.MEDIUM;
 	private String 			mapName = "NSHARP";
