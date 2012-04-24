@@ -118,7 +118,7 @@ public class AviationTextUtility implements IAviationObserver {
         tmpProd.setXxxid("TAF");
         tmpProd.setHdrtime(currentDate);
         tmpProd.setBbbid("NOR");
-        tmpProd.setCreatetime(System.currentTimeMillis());
+        tmpProd.setRefTime(System.currentTimeMillis());
         tmpProd.setProduct(currentHeader + "\n" + tmpStr);
 
         RequestConstraint rcRow;
