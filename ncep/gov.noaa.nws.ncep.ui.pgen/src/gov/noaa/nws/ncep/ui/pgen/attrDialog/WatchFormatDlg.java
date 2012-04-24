@@ -45,7 +45,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/10		#159		B. Yin   	Initial Creation.
- *
+ * 03/06/11     #707        Q.Zhou      Changed FORECASTER text to combo. Load from forecaster.xml.
+ * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
  * </pre>
  * 
  * @author	B. Yin
@@ -87,7 +88,8 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	private Text   watchNumber;
 	
 	//forecaster name
-	private Text   forecaster;
+	private Combo   forecasterCombo;
+	private static String FORECASTERS[] = null;
 	
 	//expiration date and time
 	private DateTime validDate;
@@ -138,6 +140,9 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE );
 		
 		this.setWbDlg(wbDlg);
+		
+		WatchCoordDlg.readForecasterTbl();
+		FORECASTERS = WatchCoordDlg.getForecasters();
 	}
 	
 	/**
@@ -395,7 +400,10 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		//Create forecaster list
 		Label forecasterLbl = new Label(top, SWT.LEFT);
 		forecasterLbl.setText("Forecaster:");
-		forecaster = new Text(top, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );		
+		forecasterCombo = new Combo(top, SWT.DROP_DOWN );
+		for ( String str : FORECASTERS ){
+        	forecasterCombo.add(str);
+        }
 				
 		AttrDlg.addSeparator(top);
 
@@ -496,7 +504,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 					msgDlg = new WatchFormatMsgDlg(WatchFormatDlg.this.getParentShell(),
 							WatchFormatDlg.this);
 					msgDlg.setBlockOnOpen(false);
-					msgDlg.setMessage(wb.convert2Text());
+					//msgDlg.setMessage(wb.convert2Text());
 					msgDlg.open();
 				}
 			}
@@ -526,7 +534,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 			showErr = true;
 			err += "\tTime zone is not selected.\n";
 		}
-		if (forecaster.getText().isEmpty()){
+		if (forecasterCombo.getText().isEmpty()){
 			showErr = true;
 			err += "\tForecaster is not selected.";
 		}
@@ -684,7 +692,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		wb.setIssueFlag(1);
 		wb.setWatchType(getWatchType());
 		wb.setWatchNumber(Integer.valueOf(watchNumber.getText()));
-		wb.setForecaster(forecaster.getText());
+		wb.setForecaster(forecasterCombo.getText());
 		wb.setEndPointAnc(String.format("%1$s - %2$s", wb.getRelative(wb.getPoints().get(0),wb.getAnchors()[0]),
 				wb.getRelative(wb.getPoints().get(4), wb.getAnchors()[1])));
 		wb.setEndPointVor(String.format("%1$s - %2$s", wb.getRelative(wb.getPoints().get(0),wb.getNearestVor(wb.getPoints().get(0))),
@@ -745,7 +753,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		cText.setText(String.valueOf(wb.getContWatch()));
 		
 		if ( wb.getForecaster() != null )
-			forecaster.setText(wb.getForecaster());
+			forecasterCombo.setText(wb.getForecaster());
 	}
 
 	/**

@@ -1,4 +1,28 @@
 # Product Discipline 0: Meteorological products, Parameter Category 19: Physical atmospheric properties
+0:0:Visibility:m:VIS
+1:1:Albedo:%:ALBDO
+2:2:Thunderstorm Probability:%:TSTM
+3:3:Mixed Layer Depth:m:MIXHT
+4:4:Volcanic Ash:See Table 4.206:VOLASH
+5:5:Icing Top:m:ICIT
+6:6:Icing Base:m:ICIB
+7:7:Icing:See Table 4.207:ICI
+8:8:Turbulence Top:m:TURBT
+9:9:Turbulence Base:m:TURBB
+10:10:Turbulence:See Table 4.208:TURB
+11:11:Turbulent Kinetic Energy:J kg-1:TKE
+12:12:Planetary Boundary Layer Regime:See Table 4.209:PBLREG
+13:13:Contrail Intensity:See Table 4.210:CONTI
+14:14:Contrail Engine Type:See Table 4.211:CONTET
+15:15:Contrail Top:m:CONTT
+16:16:Contrail Base:m:CONTB
+17:17:Maximum Snow Albedo*:%:MXSALB
+18:18:Snow-Free Albedo:%:SNFALB
+19:19:Snow Albedo:%:SALBD
+20:20:Icing:%:ICIP
+21:21:In-Cloud Turbulence:%:CTP
+22:22:Clear Air Turbulence (CAT):%:CAT
+23:23:Supercooled Large Droplet (SLD) Probabilitysee note 1:%:SLDP
 #192-254 Reserved for local use
 192:192:Maximum Snow Albedo:%:MXSALB
 193:193:Snow-Free Albedo:%:SNFALB

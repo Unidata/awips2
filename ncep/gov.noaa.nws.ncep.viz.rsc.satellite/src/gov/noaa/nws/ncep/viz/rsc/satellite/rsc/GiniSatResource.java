@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
 
+import org.eclipse.jface.action.IMenuManager;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
@@ -92,5 +93,12 @@ public class GiniSatResource extends AbstractSatelliteResource
 	public GridGeometry2D createNativeGeometry(PluginDataObject pdo) {
 		return null;   //can't do
 	}
+
+	@Override
+	public void resourceChanged(ChangeType type, Object object) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }
