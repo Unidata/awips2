@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.text.db;
 
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
@@ -36,6 +37,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -92,7 +94,14 @@ public abstract class StdTextProduct extends PersistableDataObject implements
     @Column(nullable = false)
     @DynamicSerializeElement
     @XmlAttribute
-    private Long createtime;
+    private Long refTime;
+
+    /** The timestamp denoting when this record was inserted into the database */
+    @Column(columnDefinition = "timestamp without time zone", nullable = false)
+    @Index(name = "insertTimeIndex")
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Calendar insertTime;
 
     /** persistent field */
     @Column(nullable = false)
@@ -131,7 +140,7 @@ public abstract class StdTextProduct extends PersistableDataObject implements
         setProdId(new StdTextProductId(wmoid, site, cccid, nnnid, xxxid,
                 hdrtime));
         setProduct(product);
-        setCreatetime(createtime);
+        setRefTime(createtime);
         setBbbid(bbbid);
     }
 
@@ -152,7 +161,7 @@ public abstract class StdTextProduct extends PersistableDataObject implements
      */
     public StdTextProduct(StdTextProduct aProductToCopy) {
         this(aProductToCopy.getProdId(), aProductToCopy.getBbbid(),
-                aProductToCopy.getCreatetime(), aProductToCopy.getProduct());
+                aProductToCopy.getRefTime(), aProductToCopy.getProduct());
     }
 
     public String getBbbid() {
@@ -163,12 +172,20 @@ public abstract class StdTextProduct extends PersistableDataObject implements
         this.bbbid = bbbid;
     }
 
-    public Long getCreatetime() {
-        return this.createtime;
+    public Long getRefTime() {
+        return this.refTime;
     }
 
-    public void setCreatetime(Long createtime) {
-        this.createtime = createtime;
+    public void setRefTime(Long refTime) {
+        this.refTime = refTime;
+    }
+
+    public void setInsertTime(Calendar insertTime) {
+        this.insertTime = insertTime;
+    }
+
+    public Calendar getInsertTime() {
+        return insertTime;
     }
 
     public String getProduct() {
@@ -299,8 +316,7 @@ public abstract class StdTextProduct extends PersistableDataObject implements
         final int prime = 31;
         int result = 1;
         result = prime * result + ((bbbid == null) ? 0 : bbbid.hashCode());
-        result = prime * result
-                + ((createtime == null) ? 0 : createtime.hashCode());
+        result = prime * result + ((refTime == null) ? 0 : refTime.hashCode());
         result = prime * result + ((prodId == null) ? 0 : prodId.hashCode());
         result = prime * result + ((product == null) ? 0 : product.hashCode());
         return result;
@@ -308,33 +324,44 @@ public abstract class StdTextProduct extends PersistableDataObject implements
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         StdTextProduct other = (StdTextProduct) obj;
         if (bbbid == null) {
-            if (other.bbbid != null)
+            if (other.bbbid != null) {
                 return false;
-        } else if (!bbbid.equals(other.bbbid))
+            }
+        } else if (!bbbid.equals(other.bbbid)) {
             return false;
-        if (createtime == null) {
-            if (other.createtime != null)
+        }
+        if (refTime == null) {
+            if (other.refTime != null) {
                 return false;
-        } else if (!createtime.equals(other.createtime))
+            }
+        } else if (!refTime.equals(other.refTime)) {
             return false;
+        }
         if (prodId == null) {
-            if (other.prodId != null)
+            if (other.prodId != null) {
                 return false;
-        } else if (!prodId.equals(other.prodId))
+            }
+        } else if (!prodId.equals(other.prodId)) {
             return false;
+        }
         if (product == null) {
-            if (other.product != null)
+            if (other.product != null) {
                 return false;
-        } else if (!product.equals(other.product))
+            }
+        } else if (!product.equals(other.product)) {
             return false;
+        }
         return true;
     }
 
