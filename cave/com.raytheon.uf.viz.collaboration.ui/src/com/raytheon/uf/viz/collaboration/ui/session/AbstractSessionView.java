@@ -85,13 +85,9 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     private StyledText composeText;
 
-    // protected Action chatAction;
-
     protected abstract String getSessionImageName();
 
     protected abstract String getSessionName();
-
-    // protected abstract void populateSashForm(SashForm sashForm);
 
     public abstract void sendMessage();
 
@@ -142,7 +138,6 @@ public abstract class AbstractSessionView extends ViewPart implements
         Composite messagesComp = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout(1, false);
         messagesComp.setLayout(layout);
-        // TODO, wrap label in view
         setMessageLabel(messagesComp);
         messagesText = new StyledText(messagesComp, SWT.MULTI | SWT.WRAP
                 | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
@@ -216,23 +211,21 @@ public abstract class AbstractSessionView extends ViewPart implements
      */
     public void appendMessage(IMessage message) {
         UserId userId = (UserId) message.getFrom();
-        String name = message.getFrom().getName();
         long timestamp = message.getTimeStamp();
         String body = message.getBody();
-        appendMessage(userId, name, timestamp, body);
+        appendMessage(userId, timestamp, body);
     }
 
-    public void appendMessage(UserId userId, String name, long timestamp,
-            String body) {
+    public void appendMessage(UserId userId, long timestamp, String body) {
         IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite()
                 .getAdapter(IWorkbenchSiteProgressService.class);
         service.warnOfContentChange();
 
-        // String fqName = message.getFrom().getFQName();
-        // String name = message.getFrom().getName();
-        if (name == null) {
-            name = userId.getFQName().substring(0,
-                    userId.getFQName().indexOf("@"));
+        String name = null;
+        if (userId.getAlias() == null || userId.getAlias().isEmpty()) {
+            name = userId.getName();
+        } else {
+            name = userId.getAlias();
         }
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(timestamp);
