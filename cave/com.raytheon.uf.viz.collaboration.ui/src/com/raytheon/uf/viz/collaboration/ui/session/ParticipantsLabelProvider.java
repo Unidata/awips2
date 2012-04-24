@@ -24,22 +24,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.ITableColorProvider;
-import org.eclipse.jface.viewers.ITableFontProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 
 /**
  * Generate the Participant's label and icon image.
@@ -58,8 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
  * @version 1.0
  */
 
-public class ParticipantsLabelProvider implements ITableColorProvider,
-        ITableFontProvider, ITableLabelProvider {
+public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     private List<ILabelProviderListener> listeners;
 
@@ -68,6 +68,8 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     protected Map<String, Image> imageMap;
 
     protected Map<UserId, Color> colors;
+
+    private SessionColorManager manager;
 
     public ParticipantsLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
@@ -103,7 +105,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     }
 
     @Override
-    public Image getColumnImage(Object element, int columnIndex) {
+    public Image getImage(Object element) {
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
 
@@ -128,24 +130,27 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     }
 
     @Override
-    public String getColumnText(Object element, int columnIndex) {
+    public String getText(Object element) {
         IRosterEntry user = (IRosterEntry) element;
-        return user.getName();
+        if (user.getUser().getAlias() != null
+                && !user.getUser().getAlias().isEmpty()) {
+            return user.getUser().getAlias();
+        }
+        return user.getUser().getName();
     }
 
     @Override
-    public Font getFont(Object element, int columnIndex) {
+    public Font getFont(Object element) {
         return null;
     }
 
     @Override
-    public Color getForeground(Object element, int columnIndex) {
+    public Color getForeground(Object element) {
         if (colors == null) {
             colors = new HashMap<UserId, Color>();
         }
         UserId userId = ((IRosterEntry) element).getUser();
-        RGB color = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getColorManager().getColors().get(userId);
+        RGB color = manager.getColorFromUser(userId);
 
         // add to map so we can dispose
         if (color == null) {
@@ -157,7 +162,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     }
 
     @Override
-    public Color getBackground(Object element, int columnIndex) {
+    public Color getBackground(Object element) {
         return null;
     }
 
@@ -174,5 +179,75 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
      */
     public String getSessionId() {
         return sessionId;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.viewers.CellLabelProvider#getToolTipText(java.lang.
+     * Object)
+     */
+    @Override
+    public String getToolTipText(Object element) {
+        IRosterEntry entry = (IRosterEntry) element;
+        return buildParticipantTooltip(entry);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.viewers.CellLabelProvider#getToolTipStyle(java.lang
+     * .Object)
+     */
+    @Override
+    public int getToolTipStyle(Object object) {
+        return SWT.SHADOW_OUT;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.viewers.CellLabelProvider#getToolTipShift(java.lang
+     * .Object)
+     */
+    @Override
+    public Point getToolTipShift(Object object) {
+        return new Point(5, 5);
+    }
+
+    protected String buildParticipantTooltip(IRosterEntry user) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Status : ")
+                .append(user.getPresence().getMode().getMode()).append("\n");
+        builder.append("Message : \"")
+                .append(user.getPresence().getStatusMessage()).append("\"");
+        IVenueSession session = CollaborationDataManager.getInstance()
+                .getSession(sessionId);
+        if (session instanceof SharedDisplaySession) {
+            boolean isSessionLeader = user.getUser().equals(
+                    ((SharedDisplaySession) session).getCurrentSessionLeader());
+            boolean isDataProvider = user.getUser().equals(
+                    ((SharedDisplaySession) session).getCurrentDataProvider());
+            if (isSessionLeader || isDataProvider) {
+                if (isSessionLeader) {
+                    builder.append("\nSession Leader");
+                }
+                if (isDataProvider) {
+                    builder.append("\nData Provider");
+                }
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
+     * @param manager
+     *            the manager to set
+     */
+    public void setManager(SessionColorManager manager) {
+        this.manager = manager;
     }
 }
