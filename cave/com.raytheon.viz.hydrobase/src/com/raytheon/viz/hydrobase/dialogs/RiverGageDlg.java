@@ -57,7 +57,6 @@ import com.raytheon.viz.hydrocommon.datamanager.DataTrashCanDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
-import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -71,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 6, 2008  1802        askripsk    Connect to DB.
  * Mar 29,2012  14463       wkwock      Fix max # of char for remark text box to 255
  *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
+ * Apr 16,2012  14797       wkwock      Change lat/lon from hour minute sec to decimal.
  * 
  * </pre>
  * 
@@ -453,11 +453,11 @@ public class RiverGageDlg extends CaveSWTDialog implements
         latLonLbl.setText("Lat/Lon:");
         latLonLbl.setLayoutData(gd);
 
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(120, SWT.DEFAULT);
         latitudeTF = new Text(leftComp, SWT.BORDER);
         latitudeTF.setLayoutData(gd);
 
-        gd = new GridData(100, SWT.DEFAULT);
+        gd = new GridData(120, SWT.DEFAULT);
         gd.horizontalSpan = 2;
         longitudeTF = new Text(leftComp, SWT.BORDER);
         longitudeTF.setLayoutData(gd);
@@ -933,14 +933,12 @@ public class RiverGageDlg extends CaveSWTDialog implements
 
             // Lat/Lon
             latitudeTF
-                    .setText((riverGageData.getLatitude() != HydroConstants.MISSING_VALUE) ? GeoUtil
-                            .getInstance().cvt_latlon_from_double(
-                                    riverGageData.getLatitude())
+                    .setText((riverGageData.getLatitude() != HydroConstants.MISSING_VALUE) ? 
+                            String.valueOf(riverGageData.getLatitude())
                             : "");
             longitudeTF
-                    .setText((riverGageData.getLongitude() != HydroConstants.MISSING_VALUE) ? GeoUtil
-                            .getInstance().cvt_latlon_from_double(
-                                    riverGageData.getLongitude())
+                    .setText((riverGageData.getLongitude() != HydroConstants.MISSING_VALUE) ?
+                    		String.valueOf(riverGageData.getLongitude())
                             : "");
 
             // Drainage Area
@@ -1157,7 +1155,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
             boolean invalidLat = false;
 
             try {
-                lat = GeoUtil.getInstance().cvt_spaced_format(latTxt, 0);
+            	lat = Double.valueOf(latTxt);
             } catch (Exception e) {
                 invalidLat = true;
             }
@@ -1181,7 +1179,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
             boolean invalidLon = false;
 
             try {
-                lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
+            	lon=Double.valueOf(lonTxt);
             } catch (Exception e) {
                 invalidLon = true;
                 e.printStackTrace();
