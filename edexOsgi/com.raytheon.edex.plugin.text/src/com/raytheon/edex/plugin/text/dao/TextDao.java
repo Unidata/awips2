@@ -78,32 +78,33 @@ public class TextDao extends DefaultPluginDao {
             throws DataAccessLayerException {
         StdTextProductDao dao = new StdTextProductDao(true);
         DatabaseQuery dbQuery = new DatabaseQuery(dao.getDaoClass());
-        dbQuery.addQueryParam("createtime", insertStartTime.getTimeInMillis(),
+        dbQuery.addQueryParam("insertTime", insertStartTime,
                 QueryOperand.GREATERTHANEQUALS);
-        dbQuery.addQueryParam("createtime", insertEndTime.getTimeInMillis(),
+        dbQuery.addQueryParam("insertTime", insertEndTime,
                 QueryOperand.LESSTHAN);
-        dbQuery.addOrder("createtime", true);
+        dbQuery.addOrder("insertTime", true);
 
-        return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
+        return (List<PersistableDataObject>) dao.queryByCriteria(dbQuery);
     }
 
     @Override
     public Date getMinInsertTime(String productKey)
             throws DataAccessLayerException {
-        DatabaseQuery query = new DatabaseQuery(this.daoClass);
+        StdTextProductDao dao = new StdTextProductDao(true);
+        DatabaseQuery query = new DatabaseQuery(dao.getDaoClass());
         List<String[]> keys = this.getProductKeyParameters(productKey);
         for (String[] key : keys) {
             query.addQueryParam(key[0], key[1]);
         }
-        query.addReturnedField("createime");
-        query.addOrder("createtime", true);
+        query.addReturnedField("insertTime");
+        query.addOrder("insertTime", true);
         query.setMaxResults(1);
         @SuppressWarnings("unchecked")
-        List<Long> result = (List<Long>) this.queryByCriteria(query);
+        List<Calendar> result = (List<Calendar>) dao.queryByCriteria(query);
         if (result.isEmpty()) {
             return null;
         } else {
-            return new Date(result.get(0));
+            return result.get(0).getTime();
         }
     }
 }
