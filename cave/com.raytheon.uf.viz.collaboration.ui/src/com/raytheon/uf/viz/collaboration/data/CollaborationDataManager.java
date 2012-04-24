@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
@@ -63,14 +64,12 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
-import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -102,11 +101,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     /**
      * The connection to the server.
      */
-    private CollaborationConnection sessionManager;
-
-    private UserId loginId;
-
-    private LoginData loginData;
+    private CollaborationConnection connection;
 
     Shell shell;
 
@@ -139,21 +134,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         return instance;
     }
 
-    public LoginData getLoginData() {
-        return loginData;
-    }
-
-    /**
-     * Converts the venu's Id into a string that usable for a view's secondary
-     * ID. This is the used as the key in the session Map.
-     * 
-     * @param venueId
-     * @return sessionId
-     */
-    public String venueIdToSessionId(String venueId) {
-        return venueId.replace(':', ';');
-    }
-
     /**
      * Private constructor to for singleton class.
      */
@@ -166,7 +146,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     }
 
     private void populateGroups() {
-        IRoster roster = sessionManager.getRosterManager().getRoster();
+        IRoster roster = connection.getRosterManager().getRoster();
 
         for (IRosterGroup rosterGroup : roster.getGroups()) {
             groups.add(rosterGroup);
@@ -179,6 +159,9 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         for (IRosterEntry rosterEntry : roster.getEntries()) {
             usersMap.put(rosterEntry.getUser(), rosterEntry);
         }
+
+        usersMap.put(connection.getUser(),
+                new RosterEntry(connection.getUser()));
     }
 
     /**
@@ -219,10 +202,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         return display;
     }
 
-    public UserId getLoginId() {
-        return loginId;
-    }
-
     public void setLinkCollaboration(boolean state) {
         this.linkCollaboration = state;
     }
@@ -258,21 +237,20 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     }
                     LoginDialog dlg = new LoginDialog(shell,
                             CollaborationDataManager.this);
-                    loginData = null;
-                    loginData = (LoginData) dlg.open();
+                    CollaborationConnection newConn = null;
+                    newConn = (CollaborationConnection) dlg.open();
                     dlg.close();
-                    if (loginData != null) {
-                        sessionManager = dlg.getSessionManager();
-                        loginId = loginData.getAccount();
+                    if (newConn != null) {
+                        connection = newConn;
                     }
                 }
             });
 
             if (isConnected()) {
                 // Register handlers and events for the new sessionManager.
-                sessionManager.registerEventHandler(this);
+                connection.registerEventHandler(this);
                 try {
-                    ISession p2pSession = sessionManager.getPeerToPeerSession();
+                    ISession p2pSession = connection.getPeerToPeerSession();
                     p2pSession.registerEventHandler(this);
                 } catch (CollaborationException e) {
                     // TODO Auto-generated catch block. Please revise as
@@ -290,9 +268,9 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
 
                     @Override
                     public void postShutdown(IWorkbench workbench) {
-                        if (sessionManager != null) {
+                        if (connection != null) {
                             try {
-                                ISession p2pSession = sessionManager
+                                ISession p2pSession = connection
                                         .getPeerToPeerSession();
                                 p2pSession.unRegisterEventHandler(this);
                             } catch (CollaborationException e) {
@@ -301,32 +279,25 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                                 statusHandler.handle(Priority.PROBLEM,
                                         e.getLocalizedMessage(), e);
                             }
-                            sessionManager.unRegisterEventHandler(this);
-                            sessionManager.closeManager();
-                            sessionManager = null;
+                            connection.unRegisterEventHandler(this);
+                            connection.closeManager();
+                            connection = null;
                         }
                     }
                 };
                 PlatformUI.getWorkbench().addWorkbenchListener(wbListener);
-                IPresence presence = sessionManager.getPresence();
-                if (sessionManager.getPresence() == null) {
-                    presence = new Presence();
-                    presence.setProperty("dummy", "dummy");
-                    sessionManager.setPresence(presence);
-                }
-                fireModifiedPresence();
                 populateGroups();
             }
         }
 
-        return sessionManager;
+        return connection;
     }
 
     synchronized public void closeManager() {
-        if (sessionManager != null) {
+        if (connection != null) {
             // The close unRegisters the event handler
-            sessionManager.closeManager();
-            sessionManager = null;
+            connection.closeManager();
+            connection = null;
         }
         if (wbListener != null) {
             PlatformUI.getWorkbench().removeWorkbenchListener(wbListener);
@@ -487,7 +458,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     }
 
     public boolean isConnected() {
-        return sessionManager != null && sessionManager.isConnected();
+        return connection != null && connection.isConnected();
     }
 
     @Subscribe
@@ -530,7 +501,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     return;
                 }
                 try {
-                    IVenueSession session = sessionManager
+                    IVenueSession session = connection
                             .joinCollaborationVenue(invitation);
                     String sessionId = session.getSessionId();
                     sessionsMap.put(sessionId, session);
@@ -615,14 +586,18 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         });
     }
 
-    public void fireModifiedPresence() {
-        IPresence presence = sessionManager.getPresence();
-        presence.setMode(loginData.getMode());
+    public void fireModifiedPresence(Mode mode, String msg) {
+        IPresence presence = connection.getPresence();
+        if (mode != null) {
+            presence.setMode(mode);
+        }
         presence.setType(Type.AVAILABLE);
-        presence.setStatusMessage(loginData.getModeMessage());
+        if (msg != null) {
+            presence.setStatusMessage(msg);
+        }
         try {
-            sessionManager.getAccountManager().sendPresence(presence);
-            UserId id = sessionManager.getUser();
+            connection.getAccountManager().sendPresence(presence);
+            UserId id = connection.getUser();
             RosterEntry rosterEntry = new RosterEntry(id);
             rosterEntry.setPresence(presence);
             handleModifiedPresence(rosterEntry);
