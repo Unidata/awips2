@@ -56,6 +56,7 @@ public class IdftRecord extends PluginDataObject{
 	/** Report type */
 	@Column(length=32)
 	@XmlElement
+    @DataURI(position = 4)
 	@DynamicSerializeElement
 	private String reportType;
 	

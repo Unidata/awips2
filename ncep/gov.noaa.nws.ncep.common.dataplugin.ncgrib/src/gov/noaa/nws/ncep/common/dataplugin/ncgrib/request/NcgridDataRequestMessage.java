@@ -36,6 +36,7 @@ import com.raytheon.uf.common.time.DataTime;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 12, 2010            brockwoo     Initial creation
+ * 3/2012				   T. Lee		Changed perturbation number to String
  * 
  * </pre>
  * 
@@ -69,7 +70,7 @@ public class NcgridDataRequestMessage implements IServerRequest {
     private String parameterAbbreviation;
 
     @DynamicSerializeElement
-    private int pert = -999;
+    private String pert = "";
 
     @DynamicSerializeElement
     private int version = -999;
@@ -130,11 +131,11 @@ public class NcgridDataRequestMessage implements IServerRequest {
         this.parameterAbbreviation = parameterAbbreviation;
     }
 
-    public int getPert() {
+    public String getPert() {
         return pert;
     }
 
-    public void setPert(int pert) {
+    public void setPert(String pert) {
         this.pert = pert;
     }
 

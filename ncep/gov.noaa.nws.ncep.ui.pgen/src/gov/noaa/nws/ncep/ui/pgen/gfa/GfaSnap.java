@@ -18,7 +18,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.SnapVOR;
+import gov.noaa.nws.ncep.viz.common.SnapUtil.SnapVOR;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *
  * 10/11					J. Wu		Do not add "usedPts" check when snapping a whole
  * 										polygon (snapOneRound).
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 
  * </pre>
  * 

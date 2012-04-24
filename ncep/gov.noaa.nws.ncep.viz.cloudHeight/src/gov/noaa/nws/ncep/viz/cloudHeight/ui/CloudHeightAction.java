@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.raytheon.viz.ui.input.InputAdapter;
@@ -32,6 +33,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/30/09					Greg Hull		Created
  * 09/27/09      #169	    Greg Hull     AbstractNCModalMapTool
  * 03/07/11     migration   Greg Hull     use Raytheons ISelectedPanesChangedListener
+ * 03/01/12     524/TTR11   B. Hebbard    Various changes to allow mutual operation of
+ *                                        'Take Control' button with other Modal Tools
  * 
  * </pre>
  * 
@@ -70,71 +73,72 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
      */
     @Override
     protected void activateTool() {
+
+		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		if( cldHghtDlg == null ) {
+			cldHghtDlg = CloudHeightDialog.getInstance(shell, this);
+		}
     	
     	mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
-    	
     	mapEditor.addSelectedPaneChangedListener( paneChangeListener );
-
     	
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-
-        if( cldHghtDlg == null ) {
-        	cldHghtDlg = new CloudHeightDialog( shell, "Cloud Height");
-        }
+    	/*
+         * Register mouse handler. 
+         */
+		if( mouseHndlr == null ) {
+			mouseHndlr = new MouseHandler();
+		}
+		if (mapEditor != null) {
+			mapEditor.registerMouseHandler( this.mouseHndlr );
+		}
 
         NCDisplayPane[] seldPanes = (NCDisplayPane[]) mapEditor.getSelectedPanes();
-        
         if( seldPanes.length > 1 ) {
         	System.out.println("Cloud Height will only work on one selected pane.");
+        	//? return;
         }
         
-        try {
-        	cldHghtProcessor = new CloudHeightProcesser( seldPanes[0], cldHghtDlg );
-        	satResource = cldHghtProcessor.getSatResource();
-
-        	// if the dialog is already open then reset it with 
-        	//
-        	if( cldHghtDlg.isOpen() ) {         	 
-        		mapEditor.registerMouseHandler( this.mouseHndlr );
-        		return;
-        	}
-
-        	if( !cldHghtDlg.isOpen() ) {
-
-        		if( mouseHndlr == null ) {
-        			mouseHndlr = new MouseHandler();
-        		}
-        		mapEditor.registerMouseHandler( this.mouseHndlr );
-
-        		if ( satResource != null )
-        			cldHghtDlg.open();
-        		else
-        			issueAlert();
-        		
-        		cldHghtDlg = null;
-
-        		//deactivateTool();
-        		AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getCurrentPerspectiveManager();
-        		if (mgr != null) {
-        			mgr.getToolManager().deselectModalTool(this);
-        		}
-        		
-        	}
-        } catch( Exception ex ) {
-        	System.out.println("Exception from CloudHeightDialog: "+ex.getMessage() );
-    		MessageDialog errDlg = new MessageDialog( 
+    	try {
+			cldHghtProcessor = new CloudHeightProcesser( seldPanes[0], cldHghtDlg );
+		} catch (VizException e) {
+        	System.out.println("Exception from CloudHeightProcessor: "+e.getMessage() );
+    		MessageDialog errDlg = new MessageDialog(
     				NmapUiUtils.getCaveShell(), 
-    				"Error Starting Cloud Height:\n"+ex.getMessage(), null, 
+    				"Error Starting Cloud Height (Processor):\n"+e.getMessage(), null, 
     				"\n",
 			MessageDialog.ERROR, new String[]{"OK"}, 0);
+			errDlg.open();
+			return;
+		}
+
+		satResource = cldHghtProcessor.getSatResource();
+		if ( satResource == null ) {
+			issueAlert();
+			return;
+		}
+		
+		/*
+		 * Pop up Cloud Height result window (if not already open)
+		 */
+		try {
+			if( !cldHghtDlg.isOpen() ) {
+				cldHghtDlg.open();
+			}
+		} catch( Exception ex ) {
+			System.out.println("Exception from CloudHeightDialog: "+ex.getMessage() );
+			MessageDialog errDlg = new MessageDialog( 
+					NmapUiUtils.getCaveShell(), 
+					"Error Starting Cloud Height (Dialog):\n"+ex.getMessage(), null, 
+					"\n",
+					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();			
-        }
-        finally {
-        	cldHghtDlg = null;
-        }
-        cldHghtProcessor = null;
-        
-		return;
+		}
+		
+		/*
+		 * Note that CloudHeightDialog.open() will, after the dialog is closed,
+		 * call ModalToolManager.deselectModalTool(...) to shut things down, which
+		 * in turn eventually calls back to deactivateTool() here.
+		 */
     }
     
     private void issueAlert() {
@@ -163,7 +167,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
      * @see com.raytheon.viz.ui.tools.AbstractModalTool#deactivateTool()
      */
     @Override
-    public void deactivateTool() {        
+    public void deactivateTool() {
     	if( mapEditor != null ) {
     		
     		mapEditor.removeSelectedPaneChangedListener( paneChangeListener );
@@ -175,14 +179,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
     		
     	if( cldHghtProcessor != null ) {
     		cldHghtProcessor.close();
-    	}
-    	
-        //  close the Cloud Height dialog
-        if ( cldHghtDlg != null ) {
-        	cldHghtDlg.close();
-        	cldHghtDlg = null;
-        }
-        
+    	}        
     }
     
     public class MouseHandler extends InputAdapter {
@@ -227,4 +224,8 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
     	}
 
     }   
+
+	public String getCommandId() {
+		return commandId;
+	}
 }
