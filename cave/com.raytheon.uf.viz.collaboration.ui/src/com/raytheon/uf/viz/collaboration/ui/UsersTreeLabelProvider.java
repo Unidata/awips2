@@ -35,9 +35,13 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
-import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
-import com.raytheon.uf.viz.collaboration.data.SessionGroup;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 
 /**
  * TODO Add Description
@@ -78,11 +82,13 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
         for (String key : imageMap.keySet()) {
             imageMap.get(key).dispose();
         }
+        if (boldFont != null && !boldFont.isDisposed()) {
+            boldFont.dispose();
+        }
     }
 
     @Override
     public boolean isLabelProperty(Object element, String property) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -96,30 +102,55 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
         if (Activator.getDefault() == null) {
             return null;
         }
-        Image image = null;
-        if (element instanceof CollaborationNode) {
-            CollaborationNode node = (CollaborationNode) element;
-            String key = node.getImageKey();
-            if (key != null) {
-                image = imageMap.get(key);
-                if (image == null) {
-                    image = CollaborationUtils.getNodeImage(node);
-                    if (image != null) {
-                        imageMap.put(key, image);
-                    }
-                }
+        String key = "";
+        if (element instanceof UserId) {
+            String mode = CollaborationDataManager.getInstance()
+                    .getCollaborationConnection().getPresence().getMode()
+                    .toString();
+            key = mode;
+        } else if (element instanceof IRosterEntry) {
+            IRosterEntry entry = (IRosterEntry) element;
+            if (entry.getPresence().getType() == Type.AVAILABLE) {
+                key = entry.getPresence().getMode().toString();
+            } else {
+                key = "contact_disabled";
             }
+        } else if (element instanceof IRosterGroup) {
+            key = "group";
+        } else if (element instanceof IVenueSession) {
+            // key = "session_group";
+        } else if (element instanceof SessionGroupContainer) {
+            key = "session_group";
         }
-        return image;
+
+        if (imageMap.get(key) == null && !key.equals("")) {
+            imageMap.put(key, CollaborationUtils.getNodeImage(key));
+        }
+
+        return imageMap.get(key);
     }
 
     @Override
     public String getColumnText(Object element, int index) {
-        CollaborationNode elem = (CollaborationNode) element;
-        if (elem.getText() == null) {
-            return elem.getId();
+        if (element instanceof IRosterEntry) {
+            IRosterEntry entry = (IRosterEntry) element;
+            if (entry.getUser().getAlias() == null) {
+                return entry.getUser().getName();
+            } else {
+                return entry.getUser().getAlias();
+            }
+        } else if (element instanceof IRosterGroup) {
+            return ((IRosterGroup) element).getName();
+        } else if (element instanceof SessionGroupContainer) {
+            return "Active Sessions";
+        } else if (element instanceof UserId) {
+            return ((UserId) element).getName() + " - "
+                    + ((UserId) element).getHost();
+        } else if (element instanceof IVenueSession) {
+            return ((IVenueSession) element).getVenue().getInfo()
+                    .getVenueDescription();
         }
-        return elem.getText();
+        return null;
     }
 
     /*
@@ -157,20 +188,16 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
      */
     @Override
     public Font getFont(Object element, int columnIndex) {
-        if (element instanceof CollaborationGroup) {
-            if (element instanceof SessionGroup
-                    && !((SessionGroup) element).isSessionRoot()) {
-                // for this case do nothing, as it is not the top level of
-                // session groups
-            } else {
-                if (boldFont == null) {
-                    Font currFont = Display.getCurrent().getSystemFont();
-                    boldFont = new Font(Display.getCurrent(),
-                            currFont.toString(),
-                            currFont.getFontData()[0].getHeight(), SWT.BOLD);
-                }
-                return boldFont;
+        if (element instanceof IRosterGroup
+                || element instanceof SessionGroupContainer) {
+            // for this case do nothing, as it is not the top level of
+            // session groups
+            if (boldFont == null) {
+                Font currFont = Display.getCurrent().getSystemFont();
+                boldFont = new Font(Display.getCurrent(), currFont.toString(),
+                        currFont.getFontData()[0].getHeight(), SWT.BOLD);
             }
+            return boldFont;
         }
         return null;
     }
