@@ -19,14 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role.event;
 
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
- * Interface for defining an object that can retrieve and store a single object.
- * Implementing objects need to be serializable so they can be sent over to
- * participants and retrieve their data
+ * Interface for retrieving IPersistedEvents and constructing an object from id
+ * based on previous events
  * 
  * <pre>
  * 
@@ -34,20 +32,20 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 19, 2012            mschenke     Initial creation
+ * Apr 20, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@DynamicSerialize
-public abstract class PersistedObjectEvent {
 
-    public abstract void store(AbstractRemoteGraphicsEvent event)
+public interface IObjectEventRetrieval {
+
+    public AbstractDispatchingObjectEvent retrieveEvent(IPersistedEvent event)
             throws CollaborationException;
 
-    public abstract AbstractRemoteGraphicsEvent retrieve()
+    public AbstractDispatchingObjectEvent[] retrieveObjectEvents(int objectId)
             throws CollaborationException;
 
 }

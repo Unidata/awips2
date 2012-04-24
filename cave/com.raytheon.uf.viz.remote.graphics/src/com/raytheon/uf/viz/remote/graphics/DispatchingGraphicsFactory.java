@@ -154,15 +154,19 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
 
     public static void injectRemoteFunctionality(
             IDisplayPaneContainer container, DispatcherFactory factory) {
-        for (IDisplayPane pane : container.getDisplayPanes()) {
-            Dispatcher dispatcher = factory.createNewDispatcher();
-
-            // Wrap view in dispatching view
-            IRenderableDisplay display = pane.getRenderableDisplay();
-            // Wrap the graphics adapter in dispatching one
-            display.setGraphicsAdapter(new DispatchingGraphicsFactory(display
-                    .getGraphicsAdapter(), dispatcher));
-            refreshPane(pane);
+        try {
+            for (IDisplayPane pane : container.getDisplayPanes()) {
+                Dispatcher dispatcher = factory.createNewDispatcher();
+                // Wrap view in dispatching view
+                IRenderableDisplay display = pane.getRenderableDisplay();
+                // Wrap the graphics adapter in dispatching one
+                display.setGraphicsAdapter(new DispatchingGraphicsFactory(
+                        display.getGraphicsAdapter(), dispatcher));
+                refreshPane(pane);
+            }
+        } catch (InstantiationException e) {
+            extractRemoteFunctionality(container);
+            throw new RuntimeException(e);
         }
     }
 
