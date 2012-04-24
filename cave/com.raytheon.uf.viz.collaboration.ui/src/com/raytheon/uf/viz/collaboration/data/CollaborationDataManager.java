@@ -160,8 +160,9 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             usersMap.put(rosterEntry.getUser(), rosterEntry);
         }
 
-        usersMap.put(connection.getUser(),
-                new RosterEntry(connection.getUser()));
+        RosterEntry me = new RosterEntry(connection.getUser());
+        me.setPresence(connection.getPresence());
+        usersMap.put(me.getUser(), me);
     }
 
     /**
