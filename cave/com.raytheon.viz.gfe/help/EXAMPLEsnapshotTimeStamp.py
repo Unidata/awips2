@@ -25,7 +25,7 @@ import gfeConfig
 
 
 # Defines T and Sky as the weather elements to be display
-Png_parms = ['T_SFC:_Official -1', 'Sky_SFC:_Official -1']]
+Png_parms = ['T_SFC:_Official -1', 'Sky_SFC:_Official -1']
 
 
 Png_snapshotTime = 1

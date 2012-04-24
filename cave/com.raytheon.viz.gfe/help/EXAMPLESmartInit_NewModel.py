@@ -43,6 +43,4 @@ class GWWForecaster(Forecaster):
 def main():
     GWWForecaster().run()
 
-if __name__ == "__main__":
-    main()
 

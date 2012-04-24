@@ -27,4 +27,8 @@
 <framesPerSecondPreference>25</framesPerSecondPreference>
 <tileBoundaries>false</tileBoundaries>
 <fontMagnification>1.0</fontMagnification>
+<qpid>
+	<max_count>1000</max_count>
+	<policy_type>ring</policy_type>
+</qpid>
 </configuration>

@@ -5,12 +5,13 @@
  content="text/html; charset=iso-8859-1">
   <meta name="GENERATOR"
  content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+ <title>iscMosaic - User's Guide</title>
 </head>
 <body alink="#ff0000" bgcolor="#ffffff" link="#0000ee" text="#000000"
  vlink="#551a8b">
 <h1>
 iscMosaic User's Guide</h1>
-March 1, 2009<br>
+January 6, 2012<br>
 <p>
 </p>
 <h2><a name="TableofContents"></a>Table of Contents</h2>
@@ -132,12 +133,12 @@ The following command line switches are supported by iscMosaic:
     <tr>
       <td>-h hostname</td>
       <td>YES&nbsp; (See Note)</td>
-      <td>Identifies the hostname upon which the ifpServer is running.</td>
+      <td>Identifies the hostname upon which EDEX is running.</td>
     </tr>
     <tr>
       <td>-r rpcport</td>
       <td>YES (See Note)</td>
-      <td>Identifies the RPC port number upon which the ifpServer is
+      <td>Identifies the RPC port number upon which EDEX is
 processing
 requests.</td>
     </tr>
@@ -263,7 +264,7 @@ netCDF file is used to determine the area mask.&nbsp; For example, if
 the
 netCDF file site id field is "CYS", then the program will attempt to
 get
-the edit area called "ISC_CYS" from the ifpServer and then only merge
+the edit area called "ISC_CYS" from EDEX and then only merge
 those
 grid points.&nbsp; If the -n switch is present, then the area mask will
 be ignored and all grid points in the input netCDF will be merged into
@@ -284,7 +285,7 @@ netCDF file is used to determine the area mask.&nbsp; For example, if
 the
 netCDF file site id field is "CYS", then the program will attempt to
 get
-the edit area called "ISC_CYS" from the ifpServer and then only merge
+the edit area called "ISC_CYS" from EDEX and then only merge
 those
 grid points.&nbsp; The -a switch identifies the name of the edit area
 used
@@ -293,9 +294,9 @@ for masking.</td>
     <tr>
       <td>-w message</td>
       <td>NO</td>
-      <td>Warn/Alert all clients connected to the ifpServer that data
+      <td>Warn/Alert all clients connected to EDEX that data
 has been
-processed.&nbsp; This produces a message on the GFE status bar
+processed.&nbsp; This produces a message on the AlertViz
 indicating
 that "message" occurred.&nbsp; The site identifier, number of grids,
 valid
@@ -339,7 +340,7 @@ for routine use of ifpnetCDF.</td>
       <td>Grid Delay. Specifies the delay between processing of grids.
 Defaults
 to 0.25 seconds. The delay is used to lessen the effect of ISC traffic
-on the loading of the ifpServer, and hence affects the GFE performance.
+on the loading of EDEX, and hence affects the GFE performance.
 The value
 is in seconds, and can be fractional. To eliminate the delay, use the
 -D 0
@@ -350,9 +351,9 @@ switch. </td>
       </td>
       <td style="vertical-align: top;">NO<br>
       </td>
-      <td style="vertical-align: top;">Use the office type from the
-ifpServer.&nbsp; Incoming weather elements will be renamed if the data
-is from a different office type than your own.&nbsp;&nbsp; For example,
+      <td style="vertical-align: top;">Use the office type from EDEX.
+      Incoming weather elements will be renamed if the data
+is from a different office type than your own. For example,
 receiving QPF data from an RFC at a WFO will have QPF stored as QPFrfc.<br>
       </td>
     </tr>
@@ -362,7 +363,7 @@ receiving QPF data from an RFC at a WFO will have QPF stored as QPFrfc.<br>
       <td style="vertical-align: top;">NO<br>
       </td>
       <td style="vertical-align: top;">Enables the "ISC Sending" for
-this process.&nbsp;&nbsp; Depending upon how the ifpServer ISC
+this process.&nbsp;&nbsp; Depending upon how the EDEX ISC
 configuration is set, different behaviors may be observed.&nbsp; If
 "Send ISC On Save" is set, then the Fcst grids will be sent upon
 saving.&nbsp; If "Send ISC On Save" is not set, then the user must
@@ -376,16 +377,16 @@ Grids capability.<br>
       <td style="vertical-align: top;">NO<br>
       </td>
       <td style="vertical-align: top;">Enables the "translate" mode for
-WEATHER and DISCRETE data.&nbsp;&nbsp; If incoming data is not
-considered valid per the ifpServer definition, then the data keys will
-be translated to simplier keys that is understood by the
-ifpServer.&nbsp; See <a href="#translationRules">translation rules</a>
+WEATHER and DISCRETE data. If incoming data is not
+considered valid per EDEX definition, then the data keys will
+be translated to simpler keys that is understood by EDEX.
+See <a href="#translationRules">translation rules</a>
 for more details.<br>
       </td>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note: The -h serverhost, -r rpcport, and -d
+<font color="#3366ff"><b>Note:</b> The -h serverhost, -r rpcport, and -d
 outputDatabaseID
 are predefined based on your installation configration of
 GFESuite.&nbsp;
@@ -685,11 +686,11 @@ for this purpose:
   <tbody>
     <tr>
       <td>-h hostname</td>
-      <td>Hostname upon which the ifpServer is running</td>
+      <td>Hostname upon which EDEX is running</td>
     </tr>
     <tr>
       <td>-r portNumber</td>
-      <td>RPC port number upon which the ifpServer is handling requests</td>
+      <td>RPC port number upon which EDEX is handling requests</td>
     </tr>
     <tr>
       <td>-d databaseOutputID</td>
@@ -737,40 +738,40 @@ file format documentation</a>.
 <hr width="100%">
 <h2><a name="translationRules"></a>Translation Rules</h2>
 When the -T switch is specified and incoming data does not conform to
-"known values" by the ifpServer definition, iscMosaic will attempt to
-translate the data into "known values".&nbsp;&nbsp;&nbsp; The iscMosaic
-log file will indicate which values were translated.&nbsp;&nbsp; If the
+"known values" by the EDEX definition, iscMosaic will attempt to
+translate the data into "known values". The iscMosaic
+log file will indicate which values were translated. If the
 -w switch is present, then similar information will be sent to the GFEs
 as alert (orange) messages on the ISC status bar.<br>
 <br>
 <h3>Discrete Data</h3>
 <ol>
   <li>If "overlapping" data is input (as denoted by the key^key
-format), and the ifpServer is not configured for this weather element
+format), and EDEX is not configured for this weather element
 to have overlapping data, then only the first key is
 used.&nbsp;&nbsp;&nbsp; For example, "FW.A^SV.A" will translate into
 "FW.A".</li>
   <li>If data containing aux data fields is input and the field length
-exceeds the ifpServer configuration, then the aux data field will be
-dropped.&nbsp;&nbsp; For example, if the aux data field is configured
+exceeds EDEX configuration, then the aux data field will be
+dropped. For example, if the aux data field is configured
 to be a maximum of 4 characters and "FW.A:12345" is input, it will be
 translated into "FW.A".</li>
   <li>If data containing an unknown key is input, then the data will be
-translated into the first defined value in the ifpServer.&nbsp;&nbsp;
+translated into the first defined value in EDEX.&nbsp;&nbsp;
 For many configurations including Hazards, this value is
-"&lt;None&gt;".&nbsp;&nbsp; For example, if "XY.Z" is input, it will be
+"&lt;None&gt;". For example, if "XY.Z" is input, it will be
 translated into "&lt;None&gt;".<br>
   </li>
 </ol>
 <h3>Weather Data</h3>
 <ol>
   <li>If an unknown visibility is input, then the visibility will be
-translated into the first configured visibility element in the
-ifpServer, which is normally &lt;NoVis&gt;.&nbsp;&nbsp; For example,
+translated into the first configured visibility element in
+EDEX, which is normally &lt;NoVis&gt;.&nbsp;&nbsp; For example,
 "Sct:RW:-:52M:" will translate into "Sct:RW:-:&lt;NoVis&gt;".</li>
   <li>If an unknown type is input, then the type and all associated
-fields will be translated into the first configured type element in the
-ifpServer, which is normally &lt;NoWx&gt;.&nbsp;&nbsp; For example,
+fields will be translated into the first configured type element in
+EDEX, which is normally &lt;NoWx&gt;. For example,
 "Sct:ZZZ:+:&lt;NoVis&gt;:" will translate into
 "&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:".</li>
   <li>If an unknown coverage is input, then the coverage will be

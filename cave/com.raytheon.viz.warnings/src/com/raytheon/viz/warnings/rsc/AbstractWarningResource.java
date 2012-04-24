@@ -67,6 +67,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * May 3, 2011            jsanchez     Initial creation
  * Aug 5, 2011            njensen       Refactored maps
  * Aug 22, 2011  10631   njensen  Major refactor
+ * 2012-04-16   DR 14866   D. Friedman Fix sampling error
  * 
  * </pre>
  * 
@@ -351,8 +352,11 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
         }
         // check if we are in the last frame
         boolean lastFrame = false;
-        int frameIdx = this.descriptor.getFramesInfo().getFrameIndex();
-        DataTime[] frameTimes = this.descriptor.getFramesInfo().getFrameTimes();
+        FramesInfo framesInfo = this.descriptor.getFramesInfo();
+        int frameIdx = framesInfo.getFrameIndex();
+        DataTime[] frameTimes = framesInfo.getFrameTimes();
+        if (frameIdx < 0 || frameIdx >= frameTimes.length)
+        	return "NO DATA";
         DataTime time = frameTimes[frameIdx];
 
         TimeRange framePeriod = null;

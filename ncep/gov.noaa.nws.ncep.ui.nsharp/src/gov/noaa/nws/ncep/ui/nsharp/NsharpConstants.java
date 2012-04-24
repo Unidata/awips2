@@ -28,10 +28,11 @@ import javax.measure.unit.SI;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import com.raytheon.uf.common.sounding.WxMath;
+import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 
 public class NsharpConstants {
     public static Rectangle NSHARP_SkewTRectangle = new Rectangle(0, 0, 3200, 1850);
+    public static Rectangle NSHARP_HodoRectangle = new Rectangle(0, 0, 100, 100);
     public static final int DEFAULT_CANVAS_HEIGHT=700;
     public static final int DEFAULT_CANVAS_WIDTH=1100;
     //public static double TEMPERATURE_MIN = -115.0;
@@ -411,4 +412,33 @@ public class NsharpConstants {
 	public static int LINE_ICING_EPI=20;
 	public static int LINE_TURBULENCE_LN = 21;
 	public static int LINE_TURBULENCE_WS = 22;
+	
+	//defaultLineProperty should be listed in sync with lineNameArray for each line
+	public static NsharpLineProperty[] defaultLineProperty = 
+	{
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_red ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_green ),
+		new NsharpLineProperty(LineStyle.SHORT_DASHED, 1,color_white ),
+		new NsharpLineProperty(LineStyle.SHORT_DASHED, 2,color_red ),
+		new NsharpLineProperty(LineStyle.SOLID, 1,wetBulbColor ),
+		new NsharpLineProperty(LineStyle.SOLID, 1,color_yellow ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_red ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_green ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_red ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_green ),
+		new NsharpLineProperty(LineStyle.SOLID, 2, new RGB (155, 0, 220) ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (30, 144, 255)  ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (255, 215, 0) ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (0, 255, 255) ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (139, 71, 38) ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (139, 0, 139) ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (0, 139, 0) ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (144, 238, 144) ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_green ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_red ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_magenta ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,color_magenta ),
+		new NsharpLineProperty(LineStyle.SOLID, 2,new RGB (255, 174, 185)  )
+		
+	};
 }
