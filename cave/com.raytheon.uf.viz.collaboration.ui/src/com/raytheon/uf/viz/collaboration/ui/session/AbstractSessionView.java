@@ -97,7 +97,7 @@ public abstract class AbstractSessionView extends ViewPart implements
         imageMap = new HashMap<String, Image>();
     }
 
-    private void initComponents(Composite parent) {
+    protected void initComponents(Composite parent) {
         Composite sashComp = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout(1, false);
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
