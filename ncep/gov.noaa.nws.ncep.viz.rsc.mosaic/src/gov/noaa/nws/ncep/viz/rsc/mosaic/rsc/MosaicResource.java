@@ -47,8 +47,10 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
 import com.raytheon.viz.core.units.PiecewisePixel;
@@ -294,6 +296,12 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 
 		try {
 			if (tileSet != null) {
+	        	ImagingCapability imgCap = new ImagingCapability();
+	        	imgCap.setBrightness(radarRscData.getBrightness());
+	        	imgCap.setContrast(radarRscData.getContrast());
+	        	imgCap.setAlpha(radarRscData.getAlpha());
+	        	paintProps.setAlpha(radarRscData.getAlpha());
+	        	radarRscData.fireChangeListeners(ChangeType.CAPABILITY, imgCap);				
 				colorMapParameters = getCapability(ColorMapCapability.class)
 				            .getColorMapParameters();
 				//TODO:  Suggest making the following more resilient to errors -- handle case where
@@ -546,7 +554,39 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 
 	@Override
 	public void resourceChanged(ChangeType type, Object object) {
-		
+        if ( type != null && type == ChangeType.CAPABILITY ){
+        	if (object instanceof ImagingCapability ){
+        		ImagingCapability imgCap = getCapability(ImagingCapability.class);
+           		ImagingCapability newImgCap = ( ImagingCapability ) object;
+        		imgCap.setBrightness(newImgCap.getBrightness(), false);
+        		imgCap.setContrast(newImgCap.getContrast(), false);
+        		imgCap.setAlpha(newImgCap.getAlpha(), false);
+                radarRscData.setAlpha(  imgCap.getAlpha()  );
+                radarRscData.setBrightness(  imgCap.getBrightness() );
+                radarRscData.setContrast(  imgCap.getContrast() );
+        		issueRefresh();
+        		
+        		
+        	}
+        	else if (object instanceof ColorMapCapability ){
+        		
+        		ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
+        		ColorMapCapability newColorMapCap = (ColorMapCapability) object;
+        		colorMapCap.setColorMapParameters(newColorMapCap.getColorMapParameters(), false);
+        		ColorMap theColorMap = ( ColorMap ) colorMapCap.getColorMapParameters().getColorMap();
+        		String colorMapName = colorMapCap.getColorMapParameters().getColorMapName();
+        		radarRscData.setColorMapName( colorMapName );
+        	    radarRscData.getRscAttrSet().setAttrValue( "colorMapName", colorMapName );
+        	    ColorBarFromColormap cBar = radarRscData.getColorBar();
+        	    cBar.setColorMap( theColorMap );
+        	    radarRscData.getRscAttrSet().setAttrValue( "colorBar", cBar );
+        	    radarRscData.setIsEdited( true );
+        		issueRefresh();
+
+        	}
+
+        }
+
 	}
 
     // the colorBar and/or the colormap may have changed so update the 
@@ -556,7 +596,7 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 	public void resourceAttrsModified() {
 		// update the colorbarPainter with a possibly new colorbar
     	ColorBarFromColormap colorBar = radarRscData.getColorBar();
-
+//		ColorBarFromColormap colorBar = (ColorBarFromColormap) radarRscData.getRscAttrSet().getRscAttr("colorBar").getAttrValue();
     	cbarResource.setColorBar( colorBar );
 		    	    	
     	ColorMapParameters cmapParams = getCapability(ColorMapCapability.class).getColorMapParameters();

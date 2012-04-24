@@ -28,6 +28,7 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
  * 11/15/2010   301         C. Chen     fix a index out of bound bug
  * 12/2010		301			T. Lee/NCEP	Re-factored for BUFRUA
  * 5/10/2011    301         C. Chen     added rhToDewpoint(), tempToVapr()
+ * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
  * </pre>
  * 
  * @author T. Lee
@@ -93,9 +94,9 @@ public class MergeSounding {
 		if ( ttaa.size() > 0 ) {
 			Collections.sort(ttaa, new reverseSortByPressure());
             //System.out.println("TTAA sounding: ");
-			for ( NcSoundingLayer soundLy : ttaa ){
-			   System.out.print(soundLy.getPressure() + " , ");
-	        }
+			//for ( NcSoundingLayer soundLy : ttaa ){
+			//   System.out.print(soundLy.getPressure() + " , ");
+	        //}
 	//System.out.println();
 			if (level.toUpperCase().equalsIgnoreCase("MAN")) {
 				return ttaa;
@@ -116,27 +117,27 @@ public class MergeSounding {
 		if ( ttbb.size() > 0) {
 			Collections.sort(ttbb, new reverseSortByPressure());
             //System.out.println("TTBB sounding: ");
-			for ( NcSoundingLayer soundLy : ttbb ){
-			   System.out.print(soundLy.getPressure() + " , ");
-	        }
+			//for ( NcSoundingLayer soundLy : ttbb ){
+			//   System.out.print(soundLy.getPressure() + " , ");
+	        //}
 	//System.out.println();
 		}
 
 		if ( ttcc.size() > 0) {
 			Collections.sort(ttcc, new reverseSortByPressure());
             //System.out.println("TTCC sounding: ");
-			for ( NcSoundingLayer soundLy : ttcc ){
-			   System.out.print(soundLy.getPressure() + " , ");
-	        }
+			////for ( NcSoundingLayer soundLy : ttcc ){
+			//   System.out.print(soundLy.getPressure() + " , ");
+	        //}
 	//System.out.println();
 		}
 
 		if ( ttdd.size() > 0) {
 			Collections.sort(ttdd, new reverseSortByPressure());
             //System.out.println("TTDD sounding: ");
-			for ( NcSoundingLayer soundLy : ttdd ){
-			   System.out.print(soundLy.getPressure() + " , ");
-	        }
+			//for ( NcSoundingLayer soundLy : ttdd ){
+			//   System.out.print(soundLy.getPressure() + " , ");
+	        //}
 	//System.out.println();
 		}
 		
@@ -144,16 +145,16 @@ public class MergeSounding {
 			if (checkWindData(ppaa)) {
 				Collections.sort(ppaa, new MergeSounding.sortByHeight());
 	            //System.out.println("TTAA sounding: ");
-				for ( NcSoundingLayer soundLy : ttaa ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ttaa ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		        //}
 		//System.out.println();
 			} else {
 				Collections.sort(ppaa, new MergeSounding.reverseSortByPressure());
 	            //System.out.println("TTAA sounding: ");
-				for ( NcSoundingLayer soundLy : ttaa ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ttaa ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		        //}
 		//System.out.println();
 			}
 		} 
@@ -163,16 +164,16 @@ public class MergeSounding {
 			if (checkWindData(ppcc)) {
 				Collections.sort(ppcc, new MergeSounding.sortByHeight());
 	            //System.out.println("PPCC sounding: ");
-				for ( NcSoundingLayer soundLy : ppcc ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ppcc ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		       // }
 		//System.out.println();
 			} else {
 				Collections.sort(ppcc, new MergeSounding.reverseSortByPressure());
 	            //System.out.println("PPCC sounding: ");
-				for ( NcSoundingLayer soundLy : ppcc ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ppcc ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		        //}
 		//System.out.println();
 			}
 		} 	
@@ -181,16 +182,16 @@ public class MergeSounding {
 			if (checkWindData(ppbb)) {
 				Collections.sort(ppbb, new MergeSounding.sortByHeight());
 	            //System.out.println("PPBB sounding: ");
-				for ( NcSoundingLayer soundLy : ppbb ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ppbb ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		        //}
 		//System.out.println();
 			} else {
 				Collections.sort(ppbb, new MergeSounding.reverseSortByPressure());
 	            //System.out.println("PPBB sounding: ");
-				for ( NcSoundingLayer soundLy : ppbb ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ppbb ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		        //}
 		//System.out.println();
 			}
 		} 
@@ -200,16 +201,16 @@ public class MergeSounding {
 			if (checkWindData(ppdd)) {
 				Collections.sort(ppdd, new MergeSounding.sortByHeight());
 	            //System.out.println("PPDD sounding: ");
-				for ( NcSoundingLayer soundLy : ppdd ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ppdd ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		        //}
 		//System.out.println();
 			} else {
 				Collections.sort(ppdd, new MergeSounding.reverseSortByPressure());
 	            //System.out.println("PPDD sounding: ");
-				for ( NcSoundingLayer soundLy : ppdd ){
-				   System.out.print(soundLy.getPressure() + " , ");
-		        }
+				//for ( NcSoundingLayer soundLy : ppdd ){
+				//   System.out.print(soundLy.getPressure() + " , ");
+		        //}
 		//System.out.println();
 			}
 

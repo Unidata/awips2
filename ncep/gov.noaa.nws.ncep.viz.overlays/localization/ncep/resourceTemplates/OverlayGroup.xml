@@ -46,7 +46,7 @@
               </properties>
               <resourceData xsi:type="NC-dbOverlayResourceData">
                 <table>mapdata.canada</table>
-                <labelField>name</labelField>
+                <labelField>name_en</labelField>
                 <mapName>Canada</mapName>
               </resourceData>
             </resource>

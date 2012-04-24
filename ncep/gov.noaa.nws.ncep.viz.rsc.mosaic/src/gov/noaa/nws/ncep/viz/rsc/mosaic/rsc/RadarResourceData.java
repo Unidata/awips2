@@ -83,8 +83,41 @@ public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData 
 
 	@XmlElement
     private ColorBarFromColormap colorBar;
+	
+	@XmlElement
+	private Float alpha;
 
-    private static RadarInfo rdrInfo = null;
+	@XmlElement
+	private Float brightness;
+	
+	@XmlElement
+	private Float contrast;
+
+    public Float getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(Float alpha) {
+		this.alpha = alpha;
+	}
+
+	public Float getBrightness() {
+		return brightness;
+	}
+
+	public void setBrightness(Float brightness) {
+		this.brightness = brightness;
+	}
+
+	public Float getContrast() {
+		return contrast;
+	}
+
+	public void setContrast(Float contrast) {
+		this.contrast = contrast;
+	}
+
+	private static RadarInfo rdrInfo = null;
     
     // The legend w/o the time prefix
     private String legendStr = null; 

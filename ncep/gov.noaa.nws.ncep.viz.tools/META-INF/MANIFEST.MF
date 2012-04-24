@@ -36,7 +36,6 @@ Export-Package: gov.noaa.nws.ncep.viz.tools,
  gov.noaa.nws.ncep.viz.tools.frame,
  gov.noaa.nws.ncep.viz.tools.imageProperties,
  gov.noaa.nws.ncep.viz.tools.loopManagement,
- gov.noaa.nws.ncep.viz.tools.pgenFileName,
  gov.noaa.nws.ncep.viz.tools.predefinedArea
 Eclipse-RegisterBuddy: org.apache.log4j
 Bundle-ClassPath: .

@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
@@ -47,6 +48,16 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
 	enum SatelliteType {
 		GINI, MCIDAS
 	}
+	
+	@XmlElement
+	private Float alpha;
+
+	@XmlElement
+	private Float brightness;
+	
+	@XmlElement
+	private Float contrast;
+	
 	@XmlElement
     private String colorMapName;
 	
@@ -60,6 +71,8 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
 	private String displayUnitStr;
 	
 	private Unit<?> displayUnit;
+	
+	private AbstractVizResource<?, ?> satRsc = null;
 	
     public SatelliteResourceData() {
         super();
@@ -97,10 +110,12 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
 //            records[i] = (SatelliteRecord) objects[i];
 //        }
     	if( satelliteType == SatelliteType.GINI ) {
-            return new GiniSatResource(this, loadProperties);
+    		satRsc = new GiniSatResource(this, loadProperties); 
+            return satRsc;
     	}
     	else if( satelliteType == SatelliteType.MCIDAS ) {
-            return new McidasSatResource(this, loadProperties);
+    		satRsc = new McidasSatResource(this, loadProperties);
+    		return satRsc;
     	}
     	else {
     		System.out.println("Unrecognized satellite type: "+satelliteType.toString() );
@@ -108,6 +123,11 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
     	}
     
     }
+
+	public AbstractVizResource<?, ?> getResource() {
+		return satRsc;
+	}
+
 
 	public Unit<?> getDisplayUnit() {
 		if( displayUnit == null ) {
@@ -151,7 +171,37 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
 		this.colorBar = cBar;
 	}
 	
-    @Override
+    public Float getAlpha() {
+		return alpha;
+	}
+
+
+	public void setAlpha(Float alpha) {
+		this.alpha = alpha;
+	}
+
+
+	public Float getBrightness() {
+		return brightness;
+	}
+
+
+	public void setBrightness(Float brightness) {
+		this.brightness = brightness;
+	}
+
+
+	public Float getContrast() {
+		return contrast;
+	}
+
+
+	public void setContrast(Float contrast) {
+		this.contrast = contrast;
+	}
+
+
+	@Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
             return false;
@@ -183,7 +233,30 @@ public class SatelliteResourceData extends AbstractNatlCntrsRequestableResourceD
         if( this.satelliteType != other.satelliteType ) {
         	return false;
         }
-
+        
+        if ( (this.alpha != null && other.alpha == null)
+        		|| (this.alpha == null && other.alpha != null)
+        		|| (this.alpha != null && this.alpha.equals(other.alpha) == false)){
+        	return false;
+        	
+	    }
+        	
+        if ( (this.brightness != null && other.brightness == null)
+        		|| (this.brightness == null && other.brightness != null)
+        		|| (this.brightness != null && this.brightness.equals(other.brightness) == false)){
+        	return false;
+        	
+	    }
+        
+        if ( (this.contrast != null && other.contrast == null)
+        		|| (this.contrast == null && other.contrast != null)
+        		|| (this.contrast != null && this.contrast.equals(other.contrast) == false)){
+        	return false;
+        	
+	    }
+        
+        
         return true;
     }
+
 }

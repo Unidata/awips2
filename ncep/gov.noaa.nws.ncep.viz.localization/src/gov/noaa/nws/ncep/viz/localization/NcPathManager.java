@@ -1,7 +1,6 @@
 package gov.noaa.nws.ncep.viz.localization;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +13,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 
 /**
@@ -30,6 +27,8 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * 07/22/11       #450      Greg Hull    Created
  * 12/16/11	      #579      J. Zeng      Add PGENXMLOverlay path
  * 12/19/11                 Q.Zhou       Added PGEN_FILTER_HOUR
+ * 03/06/11       #707      Q.Zhou       Added PGEN_FORECASTER
+ * 03/15/2012     #621      S. Gurung    Added LOCKED_CMAP_TBL
  * </pre>
  * 
  * @author ghull 
@@ -71,6 +70,7 @@ public class NcPathManager {
 	    public static final String LOGOS_TBL     = NCEP_ROOT + "Logos" + File.separator + "logos.tbl";
 		public static final String LOOP_SPEEDS_TBL= NCEP_ROOT + "LoopControls"+
 															File.separator+"loopSpeeds.tbl";
+		public static final String LOCKED_CMAP_TBL = NcPathConstants.COLORMAPS_DIR + File.separator + "lockedColorMaps.tbl";
 		public static final String CURSOR_REFS_TBL= CURSORS_DIR + File.separator + "cursorref_tbl.xml";
 
 		public static final String CLOUD_HEIGHT_SOUNDING_MODELS = 
@@ -138,9 +138,13 @@ public class NcPathManager {
 	    public static final String PGEN_CONTOURS_INFO   = PGEN_ROOT + "contoursInfo.xml";
 	    public static final String PGEN_G2G_GRPHGD      = PGEN_ROOT + "grphgd.tbl";	    
 	    public static final String PGEN_FILTER_HOUR     = PGEN_ROOT + "filterHour.xml";
+	    public static final String PGEN_FORECASTER      = PGEN_ROOT + "forecasters.xml";
 	    
 	    public static final String NSHARP_NLIST_FILE    = NCEP_ROOT + "nsharp"+File.separator+"nlist.txt";
-	    public static final String NSHARP_SUP_FILE      = NCEP_ROOT + "nsharp"+File.separator+"sup.txt";
+	    public static final String NSHARP_SUP_FILE      = NCEP_ROOT + "nsharp"+File.separator+"sup.txt";    
+		//nsharp configuration
+		public static final String NSHARP_CONFIG        = NCEP_ROOT + "nsharp"+ File.separator+"nsharpConfig.xml";
+
 	}
 	
 	public static synchronized NcPathManager getInstance() {
@@ -195,9 +199,10 @@ public class NcPathManager {
     		
     		if( !lFileMap.containsKey( lName ) ||
     			(lFileMap.get( lName ).getContext().getLocalizationLevel().compareTo( lLvl ) < 0)  ) { 
-    			  
+    			//System.out.println("listFiles "+lFile.getFile().getAbsolutePath());
     			lFileMap.put( lFile.getName(), lFile );
     		}
+    		
     	}
     	
     	return lFileMap;

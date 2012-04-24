@@ -1,3 +1,5 @@
 gov.noaa.nws.ncep.edex.util.ncgrib.NcgridLevels
 gov.noaa.nws.ncep.edex.util.ncgrib.Ncgrib1TableMap
 gov.noaa.nws.ncep.edex.util.ncgrib.NccompositeModel
+gov.noaa.nws.ncep.edex.util.grib1vcrd.Grib1Vcrd
+gov.noaa.nws.ncep.edex.util.grib1vcrd.Grib1VcrdList
