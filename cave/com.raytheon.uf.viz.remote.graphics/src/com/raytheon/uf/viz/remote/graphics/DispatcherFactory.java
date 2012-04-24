@@ -44,6 +44,6 @@ public interface DispatcherFactory {
      * 
      * @return
      */
-    public Dispatcher createNewDispatcher();
+    public Dispatcher createNewDispatcher() throws InstantiationException;
 
 }

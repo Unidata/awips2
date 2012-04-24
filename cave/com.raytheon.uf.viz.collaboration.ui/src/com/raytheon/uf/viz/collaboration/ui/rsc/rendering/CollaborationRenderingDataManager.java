@@ -36,9 +36,15 @@ import org.eclipse.core.runtime.Platform;
 
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.role.event.CollaborationObjectEventStorage;
+import com.raytheon.uf.viz.collaboration.ui.role.event.IObjectEventRetrieval;
+import com.raytheon.uf.viz.collaboration.ui.role.event.IPersistedEvent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
  * Collaboration rendering data manager, manages render data and render handlers
@@ -57,7 +63,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
  * @version 1.0
  */
 
-public class CollaborationRenderingDataManager {
+public class CollaborationRenderingDataManager implements IObjectEventRetrieval {
 
     private static final String RENDERING_EXTENSION = "com.raytheon.uf.viz.collaboration.ui.renderingExtension";
 
@@ -88,8 +94,12 @@ public class CollaborationRenderingDataManager {
 
     private EventBus disposerRouter;
 
-    public CollaborationRenderingDataManager() {
+    private IObjectEventRetrieval retrieval;
+
+    public CollaborationRenderingDataManager(ISharedDisplaySession session) {
         this.disposerRouter = new EventBus();
+        this.retrieval = CollaborationObjectEventStorage
+                .createRetrievalObject(session);
     }
 
     /**
@@ -187,6 +197,33 @@ public class CollaborationRenderingDataManager {
         for (Object toDispose : objects) {
             disposerRouter.post(toDispose);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.role.event.IObjectEventRetrieval
+     * #retrieveEvent
+     * (com.raytheon.uf.viz.collaboration.ui.role.event.IPersistedEvent)
+     */
+    @Override
+    public AbstractDispatchingObjectEvent retrieveEvent(IPersistedEvent event)
+            throws CollaborationException {
+        return retrieval.retrieveEvent(event);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.role.event.IObjectEventRetrieval
+     * #retrieveObjectEvents(int)
+     */
+    @Override
+    public AbstractDispatchingObjectEvent[] retrieveObjectEvents(int objectId)
+            throws CollaborationException {
+        return retrieval.retrieveObjectEvents(objectId);
     }
 
     /**

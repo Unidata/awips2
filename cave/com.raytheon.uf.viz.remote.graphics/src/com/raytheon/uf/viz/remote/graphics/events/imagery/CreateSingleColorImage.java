@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
  * TODO Add Description
@@ -38,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * @version 1.0
  */
 @DynamicSerialize
-public class CreateSingleColorImage extends UpdateSingleColorImage {
+public class CreateSingleColorImage extends UpdateSingleColorImage implements
+        ICreationEvent {
 
 }
