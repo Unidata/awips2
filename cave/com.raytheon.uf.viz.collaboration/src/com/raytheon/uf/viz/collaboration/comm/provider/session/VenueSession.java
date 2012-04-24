@@ -115,8 +115,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
     private IChatRoomParticipantListener participantListener = null;
 
-    private IQualifiedID userID = null;
-
     private String subject;
 
     /**
@@ -138,16 +136,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
     protected VenueSession(IContainer container, EventBus externalBus,
             CollaborationConnection manager) throws CollaborationException {
         super(container, externalBus, manager);
-    }
-
-    /**
-     * Get the identification of the owner of this session.
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getUserID()
-     */
-    @Override
-    public IQualifiedID getUserID() {
-        return userID;
     }
 
     /**
@@ -299,10 +287,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
                 throw new CollaborationException("Error sending messge", e);
             }
         }
-    }
-
-    protected void setUserId(UserId id) {
-        this.userID = id;
     }
 
     protected void joinVenue(String venueName) throws CollaborationException {
