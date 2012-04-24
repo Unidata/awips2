@@ -26,6 +26,8 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
 /**
@@ -47,13 +49,20 @@ import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
 public class CollaborationDispatcher extends Dispatcher {
 
-    private static JobPool persistPool = new JobPool("Persister", 4, true);
+    private static JobPool persistPool = new JobPool("Persister", 1, true);
 
     private ISharedDisplaySession session;
 
-    public CollaborationDispatcher(ISharedDisplaySession session) {
+    private IObjectEventPersistance persistance;
+
+    public CollaborationDispatcher(ISharedDisplaySession session)
+            throws CollaborationException {
         this.session = session;
+        this.persistance = CollaborationObjectEventStorage
+                .createPersistanceObject(session);
     }
+
+    private static final boolean PERSISTENCE = false;
 
     /*
      * (non-Javadoc)
@@ -63,22 +72,32 @@ public class CollaborationDispatcher extends Dispatcher {
      * uf.viz.remote.graphics.AbstractRemoteGraphicsEvent)
      */
     @Override
-    public void dispatch(final AbstractRemoteGraphicsEvent eventObject) {
-        if (eventObject instanceof IRenderEvent == false) {
-            final PersistedObjectEvent persist = HttpPersistedObjectEvent
-                    .createNewObject(session.getSessionId());
+    public void dispatch(AbstractRemoteGraphicsEvent eventObject) {
+        // Set PERSISTENCE to true if testing persisting capabilities
+        if (PERSISTENCE
+                && eventObject instanceof AbstractDispatchingObjectEvent
+                && eventObject instanceof IRenderEvent == false) {
+            final AbstractDispatchingObjectEvent toPersist = (AbstractDispatchingObjectEvent) eventObject;
             persistPool.schedule(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        persist.store(eventObject);
-                        send(persist);
+                        IPersistedEvent event = persistance
+                                .persistEvent(toPersist);
+                        // Creation events are sent immediately to avoid false
+                        // negatives
+                        if (toPersist instanceof ICreationEvent == false) {
+                            send(event);
+                        }
                     } catch (CollaborationException e) {
                         Activator.statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
                     }
                 }
             });
+            if (eventObject instanceof ICreationEvent) {
+                send(eventObject);
+            }
         } else {
             send(eventObject);
         }
@@ -87,6 +106,15 @@ public class CollaborationDispatcher extends Dispatcher {
     private void send(Object obj) {
         try {
             session.sendObjectToVenue(obj);
+        } catch (CollaborationException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
+    }
+
+    public void dispose() {
+        try {
+            persistance.dispose();
         } catch (CollaborationException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);

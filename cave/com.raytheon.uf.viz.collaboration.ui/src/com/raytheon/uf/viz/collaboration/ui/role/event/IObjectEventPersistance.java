@@ -17,15 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.colormap;
+package com.raytheon.uf.viz.collaboration.ui.role.event;
 
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
-import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
- * TODO Add Description
+ * Interface for persisting remote object events
  * 
  * <pre>
  * 
@@ -33,34 +31,18 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            mschenke     Initial creation
+ * Apr 20, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@DynamicSerialize
-public class CreateColormappedImageEvent extends AbstractDispatchingObjectEvent
-        implements ICreationEvent {
 
-    @DynamicSerializeElement
-    private UpdateColorMapParametersEvent colorMapParameters;
+public interface IObjectEventPersistance {
 
-    /**
-     * @return the colorMapParameters
-     */
-    public UpdateColorMapParametersEvent getColorMapParameters() {
-        return colorMapParameters;
-    }
+    public IPersistedEvent persistEvent(AbstractDispatchingObjectEvent event)
+            throws CollaborationException;
 
-    /**
-     * @param colorMapParameters
-     *            the colorMapParameters to set
-     */
-    public void setColorMapParameters(
-            UpdateColorMapParametersEvent colorMapParameters) {
-        this.colorMapParameters = colorMapParameters;
-    }
-
+    public void dispose() throws CollaborationException;
 }
