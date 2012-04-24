@@ -1,44 +1,18 @@
 <html>
-<title>GFESuite Documentation - </title>
+<title>Smart Script Class - Sounding Methods</title>
 <body>
 
 <h1><a name="Sounding"></a>Sounding Methods</h1>
 <a href="#makeNumericSounding">makeNumericSounding
 (numeric only)</a>
 <br>
-<a href="#interpolateValues">interpolateValues</a>
-<br>
-<a href="#linear">linear</a>
-<br>
-<a href="#extrapolate">extrapolate</a>
-<br>
-<a href="#interpolateScalarValues">interpolateScalarValues</a>
-<br>
-<a href="#interpolateVectorValues">interpolateVectorValues</a>
-<br>
-<a href="#getLevels">getLevels</a>
-<br>
-<a href="#getSoundingValue">getSoundingValue
-(point-based
-only)</a>
-<br>
-<a href="#getValueFromSounding">getValueFromSounding
-(point-based only)</a>
-<br>
-<a href="#makeSounding">makeSounding (point-based
-only)</a>
-<br>
 <a href="#getNumericMeanValue">getNumericMeanValue
 (numeric only)</a>
-<br>
-<a href="#getMeanValue">getMeanValue (point-based
-only)</a>
 <br>
 
 <hr width="100%">
 
-<h2>
-<a name="makeNumericSounding"></a>makeNumericSounding (numeric only)</h2>
+<h2><a name="makeNumericSounding"></a>makeNumericSounding (numeric only)</h2>
 def makeNumericSounding(self, model, element, levels, timeRange,
 noDataError=1,
 mostRecentModel=0):
@@ -74,211 +48,12 @@ the given levels
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # valueCube of values for the given
 levels
-<h2><a name="interpolateValues"></a>interpolateValues</h2>
-def interpolateValues(self, height, (h1, v1), (h2, v2)):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Interpolate between the height and
-values
-<h2><a name="linear"></a>linear</h2>
-def linear(self, xmin, xmax, ymin, ymax, we):
-<h2><a name="extrapolate"></a>extrapolate</h2>
-def extrapolate(self, height, (h1, v1),(h2, v2)):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Extrapolate from the height and values
-<h2><a name="interpolateScalarValues"></a>interpolateScalarValues</h2>
-def interpolateScalarValues(self, height, (h1, v1), (h2, v2)):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Interpolate between the height and
-values
-<h2><a name="interpolateVectorValues"></a>interpolateVectorValues</h2>
-def interpolateVectorValues(self, height, (h1, v1), (h2, v2)):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Interpolate between the height and
-values
-<h2><a name="getLevels"></a>getLevels</h2>
-def getLevels(self, level1, level2, noDataError=1):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a list of levels between and
-including level1 and level2
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Will do ascending or descending
-depending
-on order of arguments
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # levels = self.getLevels("MB900",
-"MB500")
-# descending
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # levels = self.getLevels("MB600",
-"MB1000")
-# ascending
-<h2><a name="getSoundingValue"></a>getSoundingValue (point-based only)</h2>
-def getSoundingValue(self, model, element, levels, x, y, timeRange,
-height,
-method=None, noDataError=1, mostRecentModel=0):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a sounding for the given model,
-element, and levels at
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the x,y coordinates for the given
-timeRange.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Then get the value of the sounding
-for the given height.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Use the given method for calculating
-a value between two heights
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # in the sounding.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The levels MUST be increasing in
-height.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Height needs to be in the same units
-as the sounding.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The default method if None is
-specified,
-is "interpolateValues"
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # topo_M = convertFtToM(Topo)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # levels =
-["MB850","MB800","MB750","MB700","MB650","MB600"]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # surfaceRH =
-self.getSoundingValue(model,
-"rh", levels, x, y,
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # GridTimeRange, topo_M)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Arguments:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The "levels" argument is a Python
-list of levels INCREASING
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # in height.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The other argument descriptions are
-the same as for
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "getValue" (see above)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Find bounding levels (lowerLevel and
-upperLevel)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # for the given height
-<h2><a name="makeSounding"></a>makeSounding (point-based only)</h2>
-def makeSounding(self, model, element, levels, x, y, timeRange,
-noDataError=1,
-mostRecentModel=0):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a sounding for the given model,
-element, and levels
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # levels =
-["MB850","MB800","MB750","MB700","MB650","MB600"]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # sounding = self.makeSounding(model,
-"rh", levels, x, y,
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Arguments:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The "levels" argument is a Python
-list of levels INCREASING
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # in height.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The other argument descriptions are
-the same as for
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "getValue" (see above)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This method returns a tuple of height,
-value tuples.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # In general, you will not need to
-access
-the sounding directly,
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # but will simply pass it to the
-"getValueFromSounding"
-method
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # (see below)
-<h2><a name="getValueFromSounding"></a>getValueFromSounding
-(point-based only)</h2>
-def getValueFromSounding(self, sounding, height, method=None):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the value of the sounding for
-the given
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # height. Use the given method for
-calculating
-a value
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # between two heights in the sounding.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The default method if None is
-specified,
-is "interpolateValues"
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # levels =
-["MB850","MB800","MB750","MB700","MB650","MB600"]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # sounding = self.makeSounding(model,
-"rh", levels, x, y,
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # topo_M = convertFtToM(Topo)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # surfaceRH =
-self.getValueFromSounding(sounding,
-topo_M)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Height needs to be in the same units
-as the sounding
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The sounding is assumed to be
-increasing
-in height
 <h2><a name="getNumericMeanValue"></a>getNumericMeanValue (numeric only)</h2>
 def getNumericMeanValue(self, model, element, levels, timeRange,
 noDataError=1):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a numeric array of mean values
 for the given element between and including
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the given levels
-<h2><a name="getMeanValue"></a>getMeanValue (point-based only)</h2>
-def getMeanValue(self, model, element, levels, x, y, timeRange,
-noDataError=1):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get a mean value for the given element
-between and including
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the given levels
 

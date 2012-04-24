@@ -12,18 +12,14 @@
 <center>
 <h1><a name="TextProductCreationUser"></a>Text Product Creation User
 Guide</h1></center><p>
-
-
-
 &nbsp; <a href="#Time_Display_Formats">Time Display Formats</a> 
 <hr>
-
 <h2 class="2Heading"> <a name="Time_Display_Formats"></a>Time Display
 Formats</h2>
 The display format for the time period in text or period labels for
 Simple Tabular products may be specified in the product Definition as
 "timePeriodFormat" or "periodLabelFormat",
-respectively.&nbsp;&nbsp;&nbsp; Also, Smart Text products have access
+respectively. Also, Smart Text products have access
 to
 various TimeDescriptor methods such as "getCurrentTime" which use the
 same "formatting entries" shown below. The general form is a tuple
@@ -31,13 +27,11 @@ containing the following:
 <p>(LTorZulu, durationFormat, startFormat, endFormat) </p>
 <p>&nbsp; If LTorZulu is set to "LT", the time period will be reported
 in local time instead of GMT. By setting a format string to "", that
-value is not output.&nbsp; The formatting entries consist of a keyword
-prefixed with an '%'.&nbsp; The software will substitute the
-appropriate
-value in place of the %keyword in the format string.&nbsp; To add extra
+value is not output. The formatting entries consist of a keyword
+prefixed with an '%'. The software will substitute the appropriate
+value in place of the %keyword in the format string. To add extra
 characters, such as spaces or some text (e.g., "to"), simply add those
-characters to the format.&nbsp;&nbsp;&nbsp; For example, this
-timePeriodFormat: </p>
+characters to the format. For example, this timePeriodFormat: </p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "timePeriodFormat": ("LT", "%H hours
 ", "%a %b %d, %Y %I:%M %p", " to %a %b %d, %Y %I:%M %p %Z"), </p>
 <p>will yield a time period display such as: </p>
@@ -130,7 +124,7 @@ year
 [01,53].&nbsp;
 If the week containing January <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-1st has four or more days in the new&nbsp; year, then it is considered
+1st has four or more days in the new year, then it is considered
 week 1; otherwise, it is week 53 of the previous year, and the next
 week
 is week 1. <br>
@@ -163,4 +157,4 @@ characters if no time zone exists). <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 %%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The percent (%) character.
 <br>
-&nbsp; </p>
+</p>
