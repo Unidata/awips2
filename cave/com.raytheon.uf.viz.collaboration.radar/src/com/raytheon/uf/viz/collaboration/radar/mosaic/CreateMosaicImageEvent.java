@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.radar.mosaic;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 
 /**
@@ -41,7 +42,8 @@ import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParamet
  * @version 1.0
  */
 @DynamicSerialize
-public class CreateMosaicImageEvent extends AbstractDispatchingObjectEvent {
+public class CreateMosaicImageEvent extends AbstractDispatchingObjectEvent
+        implements ICreationEvent {
 
     @DynamicSerializeElement
     private int[] bounds;
