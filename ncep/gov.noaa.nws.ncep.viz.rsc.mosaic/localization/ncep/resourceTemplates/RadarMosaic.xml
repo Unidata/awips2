@@ -4,6 +4,10 @@
           <loadProperties loadWithoutData="false">
              <capabilities>
                <capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+              <capability xsi:type="colorMapCapability">
+<!-- a temp colormap name since this will be set from the colorBar -->
+                 <colorMapParameters colorMapName="colorMapName"/>
+              </capability>               
              </capabilities>
            </loadProperties>
            <properties isSystemResource="false"
@@ -17,6 +21,9 @@
             <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
             <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
             <legendColor>${legend_color}</legendColor>
+            <alpha>${alpha}</alpha>
+            <brightness>${brightness}</brightness>
+            <contrast>${contrast}</contrast>
             <colorMapName>${colorMapName}</colorMapName>
             ${colorBar}
             <metadataMap>

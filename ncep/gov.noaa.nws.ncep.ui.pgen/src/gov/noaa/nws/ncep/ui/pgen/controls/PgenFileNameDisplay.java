@@ -3,9 +3,9 @@
  * Date Created (December 2011)
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
- 
  */
-package gov.noaa.nws.ncep.viz.tools.pgenFileName;
+
+package gov.noaa.nws.ncep.ui.pgen.controls;
 
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Shell;
  *    Date       Ticket#	 Engineer	    Description
  * -----------------------------------------------------------
  * 12/2011                   J. Wu      	Initial creation
+ * 03/2012                   J. Wu      	Moved here from ncep.viz.tools
  *                                       
  * </pre>
  * 
