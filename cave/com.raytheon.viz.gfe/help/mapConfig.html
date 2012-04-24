@@ -6,24 +6,21 @@
   <meta
  content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
  name="GENERATOR">
-  <meta content="Mark Mathewson" name="Author">
+  <meta content="" name="Author">
   <title>Map Background Configuration</title>
 </head>
 <body bgcolor="#ffffff">
 <center>
-<h1 class="3Heading"><a name="maps.py"></a>Maps.py - Map Background
-Configuration</h1>
+<h1 class="3Heading"><a name="maps.py"></a>Map Background Configuration</h1>
 </center>
-<center>January 18, 2006<br>
+<center>April 2, 2012<br>
 </center>
 <h2><a name="Organization"></a><b>Organization</b></h2>
-<a href="#Maps.pyFormat">Maps.py Format</a>
+<a href="#Maps.pyFormat">Format</a>
 <blockquote><a href="#SiteInformation">Site Information</a> <br>
   <a href="#ShapefileNames">Shapefile Names</a> <br>
   <a href="#MapDefinitions">Map Definitions</a> <br>
-  <a href="#PuttingitallTogetherwiththemaplist">Putting it all together
-with the maps list</a> <br>
-  <a href="#ImportinglocalMaps">Importing localMaps</a></blockquote>
+</blockquote>
 <a href="#AWIPSstandardnames">AWIPS standard names</a>
 <br>
 <a href="#ShapefileDescription">Shapefile Description</a>
@@ -32,82 +29,64 @@ with the maps list</a> <br>
   <a href="#Attributes">Attributes</a></blockquote>
 <hr width="100%">
 <h2><a name="Overview"></a>Overview</h2>
-The Maps.py file defines the attributes of each map.&nbsp; The server
+The Maps.java file defines the attributes of each map. The server
 when
-started looks through the list of maps as defined in the Maps.py file
+started looks through the list of maps as defined in the Maps.java file
 and
-generates maps.&nbsp; These maps may be retrieved through the server
-protocol.&nbsp;
+generates maps. These maps may be retrieved through the server
+protocol.
 The map data available through the protocol includes polygons, points,
-and arcs.&nbsp; The information contains the geographical data and the
+and arcs. The information contains the geographical data and the
 set of attributes that define the shape.
-<p>The map generation software uses shapefiles as the input.&nbsp;
+<p>The map generation software uses shapefiles as the input.
 These
 shapefiles are filtered by domain (based on the site) and
-attributes.&nbsp;
-There are different attributes available for each shapefile.&nbsp;
+attributes.
+There are different attributes available for each shapefile.
 Refer
 to the AWIPS Map Background
 Database provided by the National Weather Service for details on the
 available shapefiles and the attributes contained within each
-shapefile.&nbsp;
+shapefile.
 This information will be needed in order to tailor a map to your site.
 </p>
-<p>The Maps.py file also is used to define and automatically generate
+<p>The Maps.java file also is used to define and automatically generate
 edit
-areas based on the shapefile polygons.&nbsp; The user can select which
+areas based on the shapefile polygons. The user can select which
 polygons will be converted into edit areas and which edit area groups
 they
 will be assigned.
 </p>
-<p><b><font color="#ff0000">This information is provided for you to
-help
-you understand the format of Maps.py.&nbsp; You should NEVER change the
-original Maps.py since your changes will be overwritten with the next
-upgrade.&nbsp;
-See the <a
- href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
-configuration overview</a> for information on how to make changes that
-are supported to the map backgrounds.</font></b>
-</p>
-<p><b><font color="#ff0000">To override changes in Maps.py, use the <a
+<p><b><font color="#ff0000">In AWIPS1 you could override changes in Maps.py, using the <a
  href="localMapsConfig.html">localMaps.py</a>
-technique. To override the default map filenames, i.e., source
-filenames
-for the shapefiles, use the <a href="localMapFiles.html">localMapFiles.py</a>
-technique.</font></b>
+technique. In AWIPS2, this is slated for implementation under DR9441. To override 
+the default map filenames, i.e., source filenames
+for the shapefiles, use step 3 of the <a href="MapFiles.html">Map Files</a> method instead of the
+AWIPS1 <a href="localMapFiles.html">localMapFiles.py</a> method.</font></b>
 </p>
-<p><b><font color="#ff0000">To update shapefiles, refer to the <a
- href="MapFiles.html">MapFiles</a>
-documentation, specifically the section on <a
- href="MapFiles.html#Updating">Updating
-Shapefiles</a>.<br>
-</font></b></p>
-<p><b><font color="#ff0000"><br>
+<p><b><font color="#ff0000">To update shapefiles, refer to the <a href="MapFiles.html">MapFiles</a>
+documentation, specifically the section on <a href="MapFiles.html#Updating">Updating Shapefiles</a>.
 </font></b></p>
 Software releases after Jan 1, 2006 separate the map shapefile from the
-CORE GFE.&nbsp;&nbsp; In some applications, such as AWIPS, the map
+CORE GFE. In some applications, such as AWIPS, the map
 shapefile configuration becomes the responsibility of the site since
 the map shapefiles will no longer be shipped with the GFE
-software.&nbsp;&nbsp; A separate install is available for non-AWIPS
-purposes and is posted with the software releases.&nbsp;&nbsp; If the
+software. A separate install is available for non-AWIPS
+purposes and is posted with the software releases. If the
 associated Map Shapefile install is not installed at your site, then
 sites will be responsible for:<br>
 <ul>
-  <li>creating an etc/SITE/localMapFiles.py that contains the map
-filenames for the baselined maps.<br>
+  <li>creating the maps bundles that contain the map filenames for the baselined maps.<br>
   </li>
-  <li>Downloading updated shapefiles from either GSD or from the NOAA1
-web server.<br>
+  <li>Downloading updated shapefiles from either GSD or from the NOAA1 web server.<br>
   </li>
 </ul>
 <p></p>
 <hr width="100%">
-<h2><a name="Maps.pyFormat"></a><b>Maps.py Format</b></h2>
+<h2><a name="Maps.pyFormat"></a><b>Format</b></h2>
 <h3>
 <a name="SiteInformation"></a><b>Site Information</b></h3>
-Maps.py inputs the <a href="siteConfig.html">siteConfig</a> file which
-provides the site identifier, map directory, and the <a
+EDEX reads in the site identifier, map directory, and the <a
  href="serverConfig.html#GridDomainConfiguration">site's
 specific grid domains</a>. Several variables are computed:
 <ul>
@@ -116,617 +95,10 @@ specific grid domains</a>. Several variables are computed:
 generation
 routines</li>
 </ul>
-<p><br>
-<tt>CWA = siteConfig.GFESUITE_SITEID</tt>
-<br>
-<tt>MAPDIR = siteConfig.GFESUITE_DATDIR + "/maps/"</tt>
-<br>
-&nbsp;
-</p>
 <h3><a name="ShapefileNames"></a>Shapefile Names</h3>
-The names of the shapefiles are contained in <a href="MapFiles.html">MapFiles.py</a>
-and overridden in <a href="localMapFiles.html">localMapFiles.py</a>.&nbsp;
-The section in Maps.py imports these files.
-<p><tt>#-----------------------------------</tt>
-<br>
-<tt># DO NOT CHANGE THE FOLLOWING SECTION</tt>
-<br>
-<tt>#------------------------------------</tt>
-<br>
-<tt># Filename Translations</tt>
-<br>
-<tt>from MapFiles import *</tt>
-<br>
-<tt>try:</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; from localMapFiles import *</tt>
-<br>
-<tt>except ImportError:</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; pass</tt>
-<br>
-&nbsp;
-</p>
+The names of the shapefiles are referenced in the <a href="MapFiles.html">maps database</a>.
 <h3><a name="MapDefinitions"></a><b>Map Definitions</b></h3>
-The map definition section defines each map that is desired.&nbsp;
-Only a small portion of the Maps.py is shown here. Numerous examples
-with
-differing
-capabilities are shown.
-<h4><b>Basic Map</b></h4>
-This definition is for a basic map, with no filtering of attributes and
-no automatic creation of edit areas. The Shapefile object is created in
-the first line. The name of the shapefile (ZoneMapName) is assigned to
-using the filename in the second line.&nbsp; The name of the map is
-defined
-in the third line.&nbsp; All polygons in the shapefile will be used to
-create the name of the map.&nbsp; The name of the map is the name of
-the
-CWA, e.g., BOI, appended with _zones, such as BOI_zones.
-<br>
-&nbsp;
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-</p>
-<h4><a name="FilteredMap"></a><b>Filtered Map</b></h4>
-This definition is for a filtered map with no automatic creation of
-edit
-areas.&nbsp; The filter line performs the filtering.&nbsp; The basic
-format
-of this line is as follows:
-<p>&nbsp;&nbsp;&nbsp;&nbsp; <tt>pythonMapName.filter(lambda x :
-x['ATTRIBUTENAME']
-= AttributeValue)</tt>
-</p>
-<p>where ATTRIBUTENAME is one of the <a href="#Attributes">attributes</a>
-in the shapefile, and AttributeValue is the value that must match in
-the
-shapefile for this shape to be kept in the map. Attributes for the NWS
-shapefiles can be obtained from the AWIPS Map Catalog <a
- href="http://www.nws.noaa.gov/geodata/">AWIPS
-Map Background Database</a>.
-</p>
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.filter(lambda x : x['CWA'] == CWA)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-</p>
-<p>The "lambda" function is a shortcut method of writing a function,
-the
-code snippet below performs the identical function:
-</p>
-<p><tt>def cwaZoneFilt(x):</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; return x['CWA'] == CWA</tt>
-</p>
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.filter(cwaZoneFilt)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-<br>
-&nbsp;
-</p>
-<p>Since this is all Python code, there is another technique you can
-use
-to write a filter function which is complex.&nbsp; Here is an example
-of
-writing a filter function for the cities map background to only include
-a specific set of cities:
-</p>
-<p><tt>mycities = ['Akron', 'Denver', 'Boulder']</tt>
-<br>
-<tt>map9 = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>map9.filename('cities')</tt>
-<br>
-<tt>map9.filter(lambda x : x['NAME'] in mycities)</tt>
-<br>
-<tt>map9.name = 'MyCities'</tt>
-<br>
-&nbsp;
-</p>
-<p>An alternative method of the above city filter is shown below:
-</p>
-<p><tt>def map2Filt(x):</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; zcities = ['Akron', 'Denver', 'Boulder']</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; return x['NAME'] in zcities</tt>
-</p>
-<p><tt>Ycounties = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>Ycounties.filename('cities')</tt>
-<br>
-<tt>Ycounties.filter(map2Filt)</tt>
-<br>
-<tt>Ycounties.name = 'Map2'</tt>
-</p>
-<p>Complex filters can also be generated in any of the above
-formats.&nbsp;
-For example, here is a filter that pulls certain counties (Summit,
-Sandusy,
-Huron, and Medina) out of a shapefile for a particular state (Ohio) and
-cwa (Cleveland):
-</p>
-<p><tt>def exampleFilt(x):</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; myCounties = ['Summit', 'Sandusky', 'Huron',
-'Medina']</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; return x['COUNTYNAME'] in myCounties and x['ST']
-== "OH" and x['CWA'] = 'CLE'</tt>
-</p>
-<p><tt>OHcounties = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>OHcounties.filename(CountyMapName)</tt>
-<br>
-<tt>OHcounties.filter(exampleFilt)</tt>
-<br>
-<tt>OHcounties.name = 'ExampleOHCounties'</tt>
-</p>
-<p>Here is another complex filter, for a cities map, that uses the
-population
-filter, but excludes certain cities.
-</p>
-<p><tt>excludedCities&nbsp; =&nbsp; ['Clinton', 'Pearl', 'Brandon',
-'Ridgeland']</tt>
-<br>
-<tt>cities&nbsp; =&nbsp; ShapeFile(MAPDIR)</tt>
-<br>
-<tt>cities.filename('cities')</tt>
-<br>
-<tt>cities.filter(lambda x,y=excludedCities: float(x['POP_1990']) &gt;
-10000
-and&nbsp; x['NAME'] not in y)</tt>
-<br>
-<tt>cities.name = "JanCities"</tt>
-<br>
-&nbsp;
-<br>
-Note that the POP_1990 attribute is really a string value, and that the
-float() function converts it to a number.&nbsp; All attributes in the
-shapefiles are considered to be strings.&nbsp; If you want to do number
-comparisons, then you need to promote the attribute to a number using
-the float() function.<br>
-</p>
-<h4>Filtered Map with Automatically Generated Edit Areas</h4>
-The ifpServer can automatically generate edit areas based on the
-information in the shapefiles. The user specifies the "editAreaName" in
-the Maps.py or localMaps.py files, and the ifpServer uses that
-information to determine the name of each edit area.&nbsp;&nbsp; There
-are three forms to the editAreaName line as shown:<br>
-<br>
-<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
- cellspacing="2">
-  <tbody>
-    <tr>
-      <td style="vertical-align: top;">mapVariable.editAreaName =
-"string"<br>
-      </td>
-      <td style="vertical-align: top;">Single String Format<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">mapVariable.editAreaName =
-["string1", "string2", "string3"]<br>
-      </td>
-      <td style="vertical-align: top;">List of Strings Format<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">mapVariable.editAreaName =
-functionName<br>
-      </td>
-      <td style="vertical-align: top;">Function Format<br>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<br>
-<h5>Single String Format</h5>
-This definition is for a filtered map with automatic generation of edit
-areas.&nbsp; All of the generated areas will go into the Misc. edit
-area
-group. In the example below, the name of each generated edit area is
-obtained
-from the attribute 'ZONE' in the field editAreaName. The program looks
-up the value for the attribute ZONE in the shapefile for each polygon
-and
-creates an edit area with that name.&nbsp; The example below uses the
-simple
-format for the editAreaName, in which only one attribute is specified.
-<br>
-&nbsp;
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.filter(lambda x : x['CWA'] == CWA)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-<br>
-<tt>CWAzones.editAreaName = 'ZONE'</tt>
-</p>
-<p>Examples of the names of the edit areas generated from the above
-snippet
-is shown in the following table:
-<br>
-&nbsp;
-<table nosave="" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td>Zone value from shapefile</td>
-      <td>State (not used in this example)</td>
-      <td>Name of Edit Area</td>
-    </tr>
-    <tr>
-      <td>034</td>
-      <td>CO</td>
-      <td>ZONE034</td>
-    </tr>
-    <tr>
-      <td>041</td>
-      <td>CO</td>
-      <td>ZONE041</td>
-    </tr>
-    <tr>
-      <td>041</td>
-      <td>NE</td>
-      <td>ZONE041</td>
-    </tr>
-  </tbody>
-</table>
-</p>
-<p>Note that if a CWA covers more than one state, this simple form of
-generating
-edit area names will not work.&nbsp; The "NE" example above illustrates
-that the same edit area name was generated even though the zones were
-from
-different states.&nbsp; Also note that the naming of the edit area
-includes
-the name "ZONE" only because the value of the zone value begins with a
-number. <br>
-</p>
-<p><span style="font-weight: bold; color: rgb(255, 0, 0);">NOTE:
-Changing the default set of edit area names as supplied in the baseline
-may render your text formatters and VTEC inoperable.&nbsp; The text
-formatters and VTEC assume standard UGC-named edit areas, such as
-COZ023 and UTC013.</span><br>
-</p>
-<h5>List of Strings Format</h5>
-<p>The more complex form of the editAreaName involves using
-a Python list.&nbsp; The naming of&nbsp; an edit area is determined by
-using more than one attribute.&nbsp; This example uses the more complex
-form for the editAreaName, in which two attributes are specified.
-</p>
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.filter(lambda x : x['CWA'] == CWA)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-<br>
-<tt>CWAzones.editAreaName = ['STATE','ZONE']</tt>
-</p>
-<p>Examples of the names of the edit areas generated from the above
-snippet
-is shown in the following table:
-<br>
-&nbsp;
-<table nosave="" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td>Zone value from shapefile</td>
-      <td>State (not used in this example)</td>
-      <td>Name of Edit Area</td>
-    </tr>
-    <tr>
-      <td>034</td>
-      <td>CO</td>
-      <td>CO_034</td>
-    </tr>
-    <tr>
-      <td>041</td>
-      <td>CO</td>
-      <td>CO_041</td>
-    </tr>
-    <tr>
-      <td>041</td>
-      <td>NE</td>
-      <td>NE_041</td>
-    </tr>
-  </tbody>
-</table>
-</p>
-<p>The edit area name is determined from the value of the STATE
-attribute,
-followed by an underscore character, and then the value of the ZONE
-attribute.
-</p>
-<p>Here is the software algorithm for naming of edit areas:
-</p>
-<ul>
-  <li>the value for each of the attributes is extracted from the
-shapefiles.&nbsp;
-All spaces and non-alphanumeric characters are removed from the
-value.&nbsp;
-Example: "Washington Meadows" would be changed to "WashingtonMeadows"</li>
-  <li>if any of the values end up with an empty string, then the edit
-area is
-not generated.</li>
-  <li>the values are put together with an underscore separator for each
-of
-the
-attributes.&nbsp; Example: Attribute STATE has a value of "CO",
-Attribute
-ZONE has a value of "034". Result is CO_034.</li>
-  <li>if the leading character of the result begins with a number, then
-the
-name
-of the first attribute is prefixed to the string.&nbsp; Example: If the
-preceeding string was 034 and its attribute was ZONE, then the
-resulting
-edit area name becomes ZONE034.</li>
-</ul>
-The ordering of the list of attributes can change the naming as shown
-in
-the following table, which assumes ZONE=034, STATE=CO, WFO=BOU,
-NAME=Summit
-County/Mosquito Range/Indian Peaks:
-<br>
-&nbsp;
-<table nosave="" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td>editAreaName string</td>
-      <td>Name of Edit Area</td>
-    </tr>
-    <tr>
-      <td>'ZONE'</td>
-      <td>ZONE034</td>
-    </tr>
-    <tr>
-      <td>['ZONE','STATE']</td>
-      <td>ZONE034_CO</td>
-    </tr>
-    <tr>
-      <td>['STATE','ZONE']</td>
-      <td>CO_034</td>
-    </tr>
-    <tr>
-      <td>['WFO','NAME']</td>
-      <td>BOU_SummitCountyMosquitoRangeIndianPeaks</td>
-    </tr>
-    <tr>
-      <td>['ZONE','NAME','STATE']</td>
-      <td>ZONE034_SummitCountyMosquitoRangeIndianPeaks_CO</td>
-    </tr>
-  </tbody>
-</table>
-<p>Note that specification of an attribute that doesn't exist will
-simply
-use the name in the string.&nbsp; For example, if you are creating edit
-areas and you want them of the form ISC_xxx, where xxx is the WFO
-identifier.&nbsp;
-The editAreaName string would be the following:
-<br>
-ISCareas.editAreaName = ['ISC', 'WFO'] <br>
-</p>
-<p><span style="font-weight: bold; color: rgb(255, 0, 0);">NOTE:
-Changing
-the default set of edit area names as supplied in the baseline may
-render your text formatters and VTEC inoperable.&nbsp; The text
-formatters
-and VTEC assume standard UGC-named edit areas, such as COZ023 and
-UTC013.</span>
-</p>
-<h5>Function Format<br>
-</h5>
-Occasionally there is a need to calculate a special edit area name and
-the single or list of strings methods are not sufficient.&nbsp; The
-function format requires the user to name a function and then define a
-function.&nbsp; The function has one argument, which receives a
-dictionary of attribute names and their values.&nbsp;&nbsp; The return
-value of the function is a string which becomes the edit area name.<br>
-<br>
-For example, lets say that we want edit area names based on the county
-FIPS code.&nbsp; The desired format is stateCfips, such as COC013, for
-Colorado County #13.&nbsp; The county shapefile has a 'STATE'
-attribute, such as "CO", and it has a 'FIPS' attribute, such as 08013
-for Colorado County #13.&nbsp;&nbsp; Using the list of strings format,
-['STATE', 'C', 'FIPS'], you would end up with CO_C_08013, when we
-really want COC013. <br>
-<br>
-This is how the code would be implemented:<br>
-<br>
-<p><tt>def cwaEAN(atts):<br>
-&nbsp;&nbsp;&nbsp; fips = atts['FIPS'][-3:]&nbsp; #take just the last
-three characters from the FIPS code<br>
-&nbsp;&nbsp;&nbsp; s = atts['STATE'] + "C" + fips&nbsp; #assemble the
-name<br>
-&nbsp;&nbsp;&nbsp; return s&nbsp;&nbsp;&nbsp; #return the complete edit
-area name<br>
-<br>
-CWAcounties = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAcounties.filename(CountyMapName)</tt>
-<br>
-<tt>CWAcounties.filter(lambda x : x['CWA'] == CWA)</tt>
-<br>
-<tt>CWAcounties.name = CWA + '_counties'</tt>
-<br>
-<tt>CWAcounties.editAreaName = cwaEAN</tt>
-</p>
-The "atts" dictionary looks simlilar to the following:<br>
-{'COUNTYNAME': 'Delta', 'LON': -86.909679999999994, 'TIME_ZONE': 'E',
-'FE_AREA': 'sr', 'LAT': 45.82085, 'STATE': 'MI', 'FIPS': '26041', 'CWA':<br>
-'MQT', 'recnum': 9}<br>
-<br>
-and the final string is:&nbsp; MIC041<br>
-<br>
-<p>&nbsp;
-</p>
-<h4>Filtered Map with Automatically Generated Edit Areas with group
-definition</h4>
-This is identical to the Filtered Map with Automatically Generated Edit
-Areas case except that the user has specified a group name.&nbsp; All
-of
-the generated edit areas will be placed in the edit area group called
-'Zones'.
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.filter(lambda x : x['CWA'] == CWA)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-<br>
-<tt>CWAzones.editAreaName = ['STATE','ZONE']</tt>
-<br>
-<tt>CWAzones.groupName = 'Zones'</tt>
-<br>
-&nbsp;
-</p>
-<h4>Basic Map with Automatically Generated Edit Areas</h4>
-An example of a basic map with automatically generated edit areas:
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-<br>
-<tt>CWAzones.editAreaName = ['STATE','ZONE']</tt>
-<br>
-&nbsp;
-</p>
-<h4>Basic Map with Automatically Generated Edit Areas with group
-definition</h4>
-An example of a basic map with automatically generated edit areas with
-group definition:
-<p><tt>CWAzones = ShapeFile(MAPDIR)</tt>
-<br>
-<tt>CWAzones.filename(ZoneMapName)</tt>
-<br>
-<tt>CWAzones.name = CWA + '_zones'</tt>
-<br>
-<tt>CWAzones.editAreaName = 'ZONE'</tt>
-<br>
-<tt>CWAzones.groupName = 'Zones'</tt>
-<br>
-&nbsp;
-</p>
-<h4><a name="ExpandedMaps"></a>Expanded Maps</h4>
-Maps are automatically clipped by the latitude/longitude domain that is
-derived from the <a href="serverConfig.html#GridDomainConfiguration">site
-information in serverConfig.py</a>.&nbsp; If none of the map polygons
-overlap
-this lat/lon domain, then the polygon will not be part of the map by
-default.&nbsp;
-The expandDomain attribute for any map defined in Maps.py will expand
-the
-latitude/longitude domain by that specified.&nbsp; The user can control
-the expansion factor in each of the four compass directions.
-<p>The format of the expandDomain tuple is shown below:
-</p>
-<p><tt>mapName.expandDomain = (northExpand, eastExpand, southExpand,
-westExpand)</tt>
-</p>
-<p>For example, to expand the map domain 2 degrees to the north, 3
-degrees
-to the east, no expansion to the south, and 1 1/2 degrees to the west,
-for the Counties map, the following line would be used.
-</p>
-<p><tt>Counties.expandDomain = (2, 3, 0, 1.5)</tt>
-</p>
-<p>Note that expanding the maps will result in map backgrounds that are
-larger.&nbsp; This translates into slower load times for maps in the
-GFE.
-<br>
-&nbsp;
-</p>
-<h4><a name="Precision"></a>Precision</h4>
-The ifpServer will throw out vertex points of polyline and polygon maps
-which are closer togeather than needed for the GFE. Since opinions
-differ
-on how close points are before they are not needed, a ShapeFile can be
-assigned an optional attribute to define this. The attribute is called
-precision and is an integer or None assigned like so:
-<p><tt>CWAzones.precision = 3</tt>
-</p>
-<p>The server will then round all values in the data to this number of
-decimal places. Adjacent duplicate values will then be removed. This
-helps
-reduce the amount of data contained in the maps making them faster to
-display.
-</p>
-<p>By default all polygon and polyline maps will be rounded to a
-precision
-of 2. The above example overrides this to 3. If a site wishes to do no
-rounding then precision can be set to None and this data reduction will
-be skipped entirely.
-</p>
-<p>In summary, precision can be set to an integer greater than or equal
-to zero or None. The best way to change this value is in your
-localMaps.py
-file. The above example could be placed into localMaps.py to change the
-precision of the CWAzones map to 3.
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-</p>
-<h2><a name="PuttingitallTogetherwiththemaplist"></a>Putting it all
-Together
-with the map list</h2>
-In order for the system to recognize the list of defined maps, they
-must
-be put all together in a list.&nbsp; The list MUST be called
-maps.&nbsp;
-This example list, shows that there are three maps defined.&nbsp; The
-entries
-within the list are the Python variable names (name to the left of the
-equal sign on the ShapeFile line).
-<p><tt>maps = [ CWAcounties, Counties, CWAzones ]</tt>
-<br>
-&nbsp;
-</p>
-<h2><a name="ImportinglocalMaps"></a>Importing localMaps</h2>
-The final section of the Maps.py file is the software that checks for a
-localMaps configuration and uses it if it exists.&nbsp; Do not change
-this
-section of the file.
-<p><tt>#-----------------------------------</tt>
-<br>
-<tt># DO NOT CHANGE THE FOLLOWING SECTION</tt>
-<br>
-<tt>#------------------------------------</tt>
-<br>
-<tt># import the local maps file</tt>
-<br>
-<tt>try:</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; import localMaps</tt>
-<br>
-<tt>except:</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; pass</tt>
-<br>
-&nbsp;
-<br>
-&nbsp;
-</p>
+The map definition section defines each map that is desired.
 <h2>
 <hr width="100%"><a name="AWIPSstandardnames"></a>AWIPS standard names</h2>
 The AWIPS standard names table shows a sample filename, as loaded from
@@ -934,16 +306,9 @@ width,dec - field type specifications:
 <br>
 Description - brief statement of field usage.
 <br>
-&nbsp;
+<hr width="100%">
+<div class="Body"><a href="#Overview">Back To Top</a>
 <br>
-&nbsp;
-<br>
-&nbsp;
-<p></p>
-<hr width="100%"><br>
-&nbsp;
-<div class="Body"><tt>&nbsp;<a href="#Overview">Back To Top</a></tt>
-<br>
-<tt>&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></tt></div>
+<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
 </body>
 </html>

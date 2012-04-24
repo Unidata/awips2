@@ -17,7 +17,7 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-# Example ifpIMAGE configuration file.
+# Example ifpIMAGE configuration file. 
 
 # Must always import from gfeConfig (or your site configuration)
 from gfeConfig import *
