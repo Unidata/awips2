@@ -20,6 +20,7 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,6 +77,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
@@ -98,8 +100,7 @@ import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
-import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
-import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -350,7 +351,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         changeStatusAction = new Action("Change Status",
                 Action.AS_DROP_DOWN_MENU) {
             public void run() {
-                changeStatus(getId());
+                Activator.getDefault().getPreferenceStore()
+                        .setValue(CollabPrefConstants.P_STATUS, this.getId());
+                changeStatus();
             };
         };
         changeStatusAction.setEnabled(false);
@@ -433,24 +436,15 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         ChangeStatusDialog dialog = new ChangeStatusDialog(Display.getCurrent()
                 .getActiveShell());
         dialog.open();
-
-        LoginData loginData = (LoginData) dialog.getReturnValue();
-        if (loginData != null) {
-            CollaborationDataManager.getInstance().fireModifiedPresence();
-        }
+        changeStatus();
     }
 
-    private void changeStatus(String status) {
-        CollaborationDataManager manager = CollaborationDataManager
-                .getInstance();
-        LoginData loginData = manager.getLoginData();
-        int index = Integer.parseInt(status);
-        IPresence.Mode mode = CollaborationUtils.statusModes[index];
-        if (mode != loginData.getMode()) {
-            loginData.setMode(mode);
-            manager.fireModifiedPresence();
-            LoginDialog.saveUserLoginData(loginData);
-        }
+    private void changeStatus() {
+        Mode mode = Mode.valueOf(Activator.getDefault().getPreferenceStore()
+                .getString(CollabPrefConstants.P_STATUS));
+        String msg = Activator.getDefault().getPreferenceStore()
+                .getString(CollabPrefConstants.P_MESSAGE);
+        CollaborationDataManager.getInstance().fireModifiedPresence(mode, msg);
     }
 
     /**
@@ -488,6 +482,12 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                             .getActivePage().hideEditor(ref);
                 }
+            }
+            try {
+                Activator.getDefault().getPreferenceStore().save();
+            } catch (IOException e) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to save preferences", e);
             }
             CollaborationDataManager.getInstance().closeManager();
         }
@@ -543,7 +543,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     changeStatusAction.run();
                 };
             };
-            action.setId(Integer.toString(index));
+            action.setId(mode.toString());
             ActionContributionItem item = new ActionContributionItem(action);
             action.setImageDescriptor(IconUtil.getImageDescriptor(Activator
                     .getDefault().getBundle(), mode.name().toLowerCase()
@@ -934,7 +934,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         // make the first thing to show up in the list, which happens to be the
         // user's name and gives the user options to modify status and other
         // things
-        UserId user = manager.getLoginId();
+        UserId user = manager.getCollaborationConnection().getUser();
         topLevel.addObject(user);
 
         activeSessionGroup = new SessionGroupContainer();
@@ -1124,8 +1124,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     IRosterEntry user = (IRosterEntry) node;
                     if (user.getPresence().getType() == Type.AVAILABLE) {
                         UserId loginUserId = CollaborationDataManager
-                                .getInstance().getLoginId();
-                        if (loginUserId.equals(user) == false) {
+                                .getInstance().getCollaborationConnection()
+                                .getUser();
+                        if (!loginUserId.equals(user)) {
                             createP2PChat(user.getUser());
                         }
                     }
