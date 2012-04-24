@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -72,7 +73,7 @@ public class ChangePasswordDialog extends CaveSWTDialog {
     private Control createDialogArea(Composite parent) {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-        String user = manager.getLoginId();
+        UserId user = manager.getLoginId();
         Composite body = new Composite(parent, SWT.NONE);
         body.setLayout(new GridLayout(2, false));
         // body.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
@@ -83,7 +84,7 @@ public class ChangePasswordDialog extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.horizontalSpan = 2;
         userLabel.setLayoutData(gd);
-        userLabel.setText(user);
+        userLabel.setText(user.getFQName());
 
         label = new Label(body, SWT.NONE);
         label.setText("New Password: ");

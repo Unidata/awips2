@@ -36,8 +36,6 @@ package com.raytheon.uf.viz.collaboration.data;
  * @version 1.0
  */
 
-public class LoginUser extends CollaborationUser {
-    public LoginUser(String id) {
-        super(id);
-    }
+public class SessionGroupContainer extends CollaborationGroupContainer {
+
 }

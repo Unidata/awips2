@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -94,8 +95,8 @@ public class LoginData implements ISerializableObject {
         return modeMessage;
     }
 
-    public String getAccount() {
-        return user + "@" + server;
+    public UserId getAccount() {
+        return new UserId(user, server);
     }
 
     public void setUser(String user) {
