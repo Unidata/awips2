@@ -233,7 +233,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public void sendInvitation(String id, VenueInvite invite)
+    public void sendInvitation(UserId id, VenueInvite invite)
             throws CollaborationException {
         IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
                 .getChatRoomManager().getInvitationSender();
@@ -241,7 +241,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             String msgBody = Tools.marshallData(invite);
             ID roomId = venueInfo.getConnectedID();
             ID userId = IDFactory.getDefault().createID(
-                    getConnectionNamespace(), id);
+                    getConnectionNamespace(), id.getFQName());
 
             try {
                 sender.sendInvitation(roomId, userId, invite.getSubject(),
@@ -267,10 +267,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public void sendInvitation(List<String> ids, VenueInvite invite)
+    public void sendInvitation(List<UserId> ids, VenueInvite invite)
             throws CollaborationException {
         if (ids != null) {
-            for (String id : ids) {
+            for (UserId id : ids) {
                 sendInvitation(id, invite);
             }
         }
@@ -450,8 +450,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             String name = Tools.parseName(from.getName());
 
-            String account = getSessionManager().getAccount();
-            String aName = Tools.parseName(account);
+            UserId account = getSessionManager().getAccount();
+            String aName = account.getFQName();
             if (aName.equals(name)) {
                 acceptMessage = false;
             }
