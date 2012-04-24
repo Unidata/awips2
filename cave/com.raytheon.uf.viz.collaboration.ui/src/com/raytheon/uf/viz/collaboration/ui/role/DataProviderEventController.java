@@ -19,9 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
+import org.hibernate.InstantiationException;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -82,6 +86,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
             .getHandler(DataProviderEventController.class);
 
     private ResourceWrapperListener wrappingListener;
+
+    private List<CollaborationDispatcher> dispatchers = new LinkedList<CollaborationDispatcher>();
 
     public DataProviderEventController(ISharedDisplaySession session) {
         super(session);
@@ -250,8 +256,18 @@ public class DataProviderEventController extends AbstractRoleEventController {
             DispatchingGraphicsFactory.injectRemoteFunctionality(container,
                     new DispatcherFactory() {
                         @Override
-                        public Dispatcher createNewDispatcher() {
-                            return new CollaborationDispatcher(session);
+                        public Dispatcher createNewDispatcher()
+                                throws InstantiationException {
+                            try {
+                                CollaborationDispatcher dispatcher = new CollaborationDispatcher(
+                                        session);
+                                dispatchers.add(dispatcher);
+                                return dispatcher;
+                            } catch (CollaborationException e) {
+                                throw new InstantiationException(
+                                        "Error creation collaboration dispatcher",
+                                        CollaborationDispatcher.class, e);
+                            }
                         }
                     });
             try {
@@ -352,6 +368,10 @@ public class DataProviderEventController extends AbstractRoleEventController {
                 DispatchingGraphicsFactory
                         .extractRemoteFunctionality(container);
             }
+        }
+
+        for (CollaborationDispatcher dispatcher : dispatchers) {
+            dispatcher.dispose();
         }
         // TODO should remove the SharedEditorIndiciatorRsc
     }
