@@ -510,7 +510,7 @@ public abstract class Tools {
         return unMarshalledData;
     }
 
-    private static byte[] compress(byte[] bytes) throws CollaborationException {
+    public static byte[] compress(byte[] bytes) throws CollaborationException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
         CompressionType cType = COMPRESSION_TYPE;
 
@@ -550,8 +550,7 @@ public abstract class Tools {
         return stream;
     }
 
-    private static byte[] uncompress(byte[] bytes)
-            throws CollaborationException {
+    public static byte[] uncompress(byte[] bytes) throws CollaborationException {
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
