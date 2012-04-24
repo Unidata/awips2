@@ -6,7 +6,7 @@ import gov.noaa.nws.ncep.gempak.parameters.marshaller.garea.GraphicsAreaCoordina
 import gov.noaa.nws.ncep.viz.common.ui.DisplayViewLowerLeftAndUpperRightLongLatValues;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 22, 2011                B. Hebbard  Comment out validateParameters() call from
  *                                         handleProjectionSelection(), to prevent pre-
  *                                         mature complaints about null Double values
+ * 03/2012			  		   J. Wu       Remove dependency on NCMapDescriptor
  * 
  * </pre>
  * 
@@ -1751,15 +1752,15 @@ public class CreateCustomProjectionDialog extends CaveJFACEDialog {
             CoordinateReferenceSystem crs = MapUtil.constructProjection(name,
                     parameters);
 
-            GeneralGridGeometry newMapGeom = NCMapDescriptor.createGridGeometry(crs, ll, ur);
+            GeneralGridGeometry newMapGeom = MapDescriptor.createGridGeometry(crs, ll, ur);
 
             AbstractEditor editor = (AbstractEditor) EditorUtil.getActiveEditor();
 
             for (IDisplayPane pane : editor.getDisplayPanes()) {
                 // reset the display to fully zoomed extent
 
-            	NCMapDescriptor oldDescriptor = (NCMapDescriptor) pane
-              .getRenderableDisplay().getDescriptor();
+            	MapDescriptor oldDescriptor = (MapDescriptor) pane
+                                .getRenderableDisplay().getDescriptor();
             	oldDescriptor.setGridGeometry(newMapGeom);
 
                 // reset the display to fully zoomed extent

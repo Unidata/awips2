@@ -42,6 +42,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;attribute name="type" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="width" type="{http://www.w3.org/2001/XMLSchema}double" />
  *       &lt;attribute name="editableAttrArea" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="editableAttrIssueOffice" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="editableAttrStatus" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="editableAttrId" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="editableAttrSeqNum" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -108,6 +109,8 @@ public class Sigmet {
     protected Double width;
     @XmlAttribute
     protected String editableAttrArea;
+    @XmlAttribute
+    protected String editableAttrIssueOffice;
     @XmlAttribute
     protected String editableAttrStatus;
     @XmlAttribute
@@ -479,6 +482,30 @@ public class Sigmet {
      */
     public void setEditableAttrArea(String value) {
         this.editableAttrArea = value;
+    }
+
+    /**
+     * Gets the value of the editableAttrIssueOffice property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getEditableAttrIssueOffice() {
+        return editableAttrIssueOffice;
+    }
+
+    /**
+     * Sets the value of the editableAttrIssueOffice property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setEditableAttrIssueOffice(String value) {
+        this.editableAttrIssueOffice = value;
     }
 
     /**

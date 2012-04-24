@@ -9,8 +9,8 @@
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.elements.County;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -852,6 +852,11 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		stBtns.clear();
 		if ( fmtDlg != null ) fmtDlg.close();
 		WatchCoordDlg.getInstance(WatchInfoDlg.this.getParentShell(),wbDlg).close();
+		if ( wbDlg != null) {
+			wbDlg.getWbTool().resetMouseHandler();
+			wbDlg.enableDspBtn(true);
+		}
+		
 		return super.close();
 	}
 	
