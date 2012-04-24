@@ -147,39 +147,9 @@ public class CollaborationConnection implements IEventPublisher {
     private IRosterEventSubscriber rosterEventSubscriber = null;
 
     // Debug -- event viewer ----------------
-    private IRosterEventSubscriber rosterEventHandler = null;
+    // private IRosterEventSubscriber rosterEventHandler = null;
 
     // Debug -- event viewer ----------------
-
-    /**
-     * @throws CollaborationException
-     * @throws ContainerCreateException
-     * 
-     */
-    public CollaborationConnection(UserId account, String password)
-            throws CollaborationException {
-        this(account, password, (IRosterEventSubscriber) null);
-    }
-
-    /**
-     * 
-     * @param account
-     *            The account name to connect to.
-     * @param password
-     *            The password to use for connection.
-     * @param initialPresence
-     *            The initial presence for the account name.
-     * @throws ContainerCreateException
-     * 
-     */
-    public CollaborationConnection(UserId account, String password,
-            IPresence initialPresence) throws Exception {
-        this(account, password, (IRosterEventSubscriber) null);
-        if (accountManager != null) {
-            userPresence = initialPresence;
-            accountManager.sendPresence(initialPresence);
-        }
-    }
 
     /**
      * 
@@ -192,11 +162,13 @@ public class CollaborationConnection implements IEventPublisher {
      *            The password to use for connection.
      * @param rosterEventSubscriber
      *            A roster event subscriber.
+     * @param initialPresence
+     *            the initial presence
      * @throws CollaborationException
      */
     public CollaborationConnection(UserId account, String password,
-            IRosterEventSubscriber rosterEventSubscriber)
-            throws CollaborationException {
+            IRosterEventSubscriber rosterEventSubscriber,
+            IPresence initialPresence) throws CollaborationException {
         eventBus = new EventBus();
         if (rosterEventSubscriber != null) {
             this.rosterEventSubscriber = rosterEventSubscriber;
@@ -252,6 +224,11 @@ public class CollaborationConnection implements IEventPublisher {
         setupInternalVenueInvitationListener();
         setupP2PComm(presenceAdapter);
         getPeerToPeerSession();
+
+        if (accountManager != null && initialPresence != null) {
+            userPresence = initialPresence;
+            accountManager.sendPresence(initialPresence);
+        }
 
     }
 
