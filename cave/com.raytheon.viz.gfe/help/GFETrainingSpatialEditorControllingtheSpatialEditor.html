@@ -65,18 +65,18 @@ weather element is displayed as an image and which is currently
 editable.
 We discuss each state below.</div>
 
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 <b>Not Displayed</b> - Weather elements that are not currently visible
 in the Spatial Editor are displayed in gray. If no grid occurs at the
 Spatial
 editor time, the legend date and time are replaced by "&lt;No Grid&gt;".</div>
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 <b>Displayed as a Graphic</b> - Weather elements that are currently
 displayed as a graphic (contours) are indicated by a legend whose color
 matches that of the graphic.</div>
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 <b>Displayed as an Image</b> - If a weather element is displayed as
 an image in the spatial editor, its corresponding legend is white in
@@ -87,20 +87,20 @@ display a particular weather element as an image, any element
 previously
 displayed as an image will be displayed as a graphic.</div>
 
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 <b>Editable</b> - Any time a weather element is editable, the
 characters
-"(edit)" appear immediately to the left of the legend.</div>
-<div class="Body">In addition to its color, the legend text tells you
+"(edit)" appear immediately to the left of the legend.
+In addition to its color, the legend text tells you
 much
 about the grid(s) currently displayed in the Spatial Editor. Below we
 list
 an example and explain each part.</div>
-<div class="header">&nbsp;
+<div class="header">
 <br>
 <b>(edit) T Fcst (BOU) 1H Fri 12Z 02-Jun-00</b></div>
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 <b>(edit)</b> - This weather element is the editable weather element.
 When edit operations are executed, the element is modified.</div>
@@ -111,13 +111,13 @@ it refers to Temperature.</div>
 <div class="Body"><b>SFC Fcst</b> - The name of the database. In this
 case
 it is the forecast database. Other choice may include: NAM, MRF, AVN,
-NGM,
-and LAPS.&nbsp; For D2D grids, the name may include the level as well
+GFS,
+and LAPS. For D2D grids, the name may include the level as well
 (e.g.,
 500mb).</div>
 <div class="Body"><b>(BOU)</b> - WFO over which this grid is valid.
 <br>
-<b>(F)</b> - units of this weather element. In this case degress F.</div>
+<b>(F)</b> - units of this weather element. In this case degrees F.</div>
 
 <div class="Body"><b>1H</b> - Number of hours this grid is valid. In
 this
@@ -133,13 +133,12 @@ Although
 Topography is a persistent grid, it will not contain the "Persistent"
 label.
 <br>
-&nbsp;
 </p>
 
 <h1><a name="LegendPop-upMenu"></a>Legend Pop-up Menu</h1>
 Much like the D2D display system, the GFE Spatial Editor Legends
 provide
-many option for controlling the display.&nbsp;&nbsp; To display the
+many option for controlling the display. To display the
 pop-up
 menu, move the cursor over any legend and press MB3. The options
 available
@@ -158,7 +157,7 @@ grid, fragmenting it, assigning values, and copy/paste operations.
  href="Button3Popups.html#Legend">Button
 3 Popups Reference Guide</a> .
 <br>
-&nbsp;</p>
+</p>
 </div>
 <h3 class="2Heading">
 <a name="TogglingtheLegends"></a>Toggling the Legends</h3>
@@ -186,22 +185,21 @@ them again select <b>Legends-&gt;Show All Weather Elements</b> from
 the MB3
 pop-up over the Spatial Editor display.</div>
 
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
-The map background graphics may be toggled on and off as well.&nbsp;
-By default, map background graphic legends are not displayed.&nbsp; You
+The map background graphics may be toggled on and off as well.
+By default, map background graphic legends are not displayed. You
 can display them by pressing MB3 over the Spatial Editor display and
 selecting
 <b>Legends-&gt;Show
 Map</b>.&nbsp; Note that either the Weather Element legends or the Map
 Background legends may be displayed at any given time, but not both.
 <p>There are several other options available when toggling the
-legends.&nbsp;
+legends.
 You can choose to just display the Fcst weather elements, or just the
 active
 weather element.
 <br>
-&nbsp;
 
 </p>
 <p><a name="MapBackgroundOptions"></a><b><font size="+1">Map Background
@@ -209,17 +207,17 @@ Options</font></b>
 </p>
 <p>Once you toggle the map legends so that they are displayed you may
 change
-the map color or unload the map via a MB3 pop-up menu.&nbsp; To access
+the map color or unload the map via a MB3 pop-up menu. To access
 these options, move the cursor over one of the map legends and press
 and
-hold MB3.&nbsp; Options available include changing the graphic color,
+hold MB3. Options available include changing the graphic color,
 line
-width, style, and unloading the map background.&nbsp; More information
+width, style, and unloading the map background. More information
 is available on the legend pop-ups in the <a
  href="Button3Popups.html#Legend">Button
 3 Popups Reference Guide</a> .
 <br>
-&nbsp;</p>
+</p>
 </div>
 
 <h3 class="2Heading">
@@ -231,9 +229,8 @@ very much like the AWIPS. The table below describes functions
 implemented
 by the legends (in the normal Grid display mode).</div>
 <br>
-&nbsp;
 <table border="1">
-  <caption>&nbsp;</caption> <tbody>
+  <tbody>
     <tr>
       <th>
       <div class="CellHeading">Action</div>
@@ -393,20 +390,22 @@ of the data and map backgrounds. Repeat the last exercise and select
 the
 highest value in the list to zoom out to full view.</div>
 <div class="Body">
-<h1><a name="AshortcutforZooming"></a><b>A shortcut for Zooming</b></h1>
+<h3 class="2Heading"><a name="AshortcutforZooming"></a>A shortcut for Zooming</h3>
+<!--TRAC DR 7132-->
 Another, faster way to zoom the Spatial Editor display is to press the
-SHIFT key on the keyboard and click MB2 to zoom in and MB1 to zoom out.
+SHIFT key on the keyboard and click MB2 to zoom in. In AWIPS1 MB1 was used 
+to zoom out.  In AWIPS2 for now you have to roll MB2 in to zoom out.
 Zooming in always uses the clicked point as the new center of the
-display.
+display. Panning has to be activated for zooming capabilities to work.
 <h3 class="2Heading"><a name="PanningtheSpatialDisplay"></a>Panning the
 Spatial Display</h3>
-Panning the display works similarly. While holding down the SHIFT key,
-MB1 or MB2 drags will pan the display in the same direction, just like
-the D2D display. Note that if you move the cursor outside the Spatial
+Panning the display works similarly. Rolling
+MB2 in or out will pan the display in the same direction, just like.
+Note that if you move the cursor outside the Spatial
 Editor
 display area, the pan operation stops. To continue panning, you will
 need
-to reposition the cursor, press SHIFT, and drag MB1 or MB2 again.</div>
+to reposition the cursor, and roll MB2 again.</div>
 <h3 class="2Heading">
 <a name="Topography"></a>Topography</h3>
 

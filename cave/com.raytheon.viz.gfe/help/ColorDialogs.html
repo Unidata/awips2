@@ -21,11 +21,11 @@ for the GFE.
 <h2><a name="ColorDialog"></a><a name="ColorChooser"></a>Color Chooser
 Dialog</h2>
 <p><br>
-The Color Chooser Dialog is involked from the GFE when you depress
-MB3 over&nbsp; the&nbsp; graphic contour label in the spatial editor.
+The Color Chooser Dialog is invoked from the GFE when you depress
+MB3 over the graphic contour label in the spatial editor.
 When
-you MB3 graphic contour label,&nbsp; select the following sequence from
-the pop-up menus: 'Change Graphic Color to' -&gt; 'Choose Color' .<b><font
+you MB3 graphic contour label, select the following sequence from
+the pop-up menus: 'Change Color' -&gt; 'Choose Color'.<b><font
  size="+1"></font></b>
 </p>
 <center>
@@ -34,45 +34,45 @@ Chooser
 Dialog</font></b></p>
 </center>
 <center>
-<h1><img src="images/ColorChooser.gif" height="273" width="384"></h1>
+<h1><img src="images/ColorChooser.jpg"></h1>
 </center>
 <p><br>
-The Color Chooser Dialog&nbsp; can be used to change a&nbsp;
-single-colored
+The Color Chooser Dialog can be used to change a single-colored
 graphical feature (i.e., a contour).
 </p>
-<p>The Color Chooser Dialog consists of Hue, Saturation and Brightness
-slider bars, a color wheel, a color swatch to indicate the old or
-current
-color, a color swatch to reflect the selected color , an "OK" button
-and
-a "Cancel" button.&nbsp; The 'OLD' color swatch indicates the current
-contour
-color until the 'OK' or 'Cancel' button is selected.
+<p>The Color Chooser Dialog consists of Hue, Saturation and Value (same as Brightness)
+entry fields, a color wheel, a color swatch to indicate the old or
+current color (bottom left corner), a color swatch to reflect the selected color, an "OK" button
+and a "Cancel" button. The old color swatch (left) indicates the current
+contour color until the 'OK' or 'Cancel' button is selected.</p>  
 </p>
-<p>If you MB1 over the color wheel to the desired color , the circle
+<p>If you MB1 over the color wheel to the desired color, the circle
 marker
-is updated to the cursor location.&nbsp; The selected color is echoed
+is updated to the cursor location. The selected color is echoed
 in
 the 'NEW' color swatch and the Hue, Saturation and Brightness sliders
 move
-to the appropriate values corresponding to your selected color.&nbsp;
-If
-you want to change your graphical-feature, aka contour, to the new
+to the appropriate values corresponding to your selected color.</p>
+<p>For advanced users, in A2,
+an option to select color values numerically is also available as entry fields to the right
+of the Hue/Saturation/Value entry fields and Color Name entry field that accepts color
+names in hex.  Also new in A2, the user now has the option of 
+selecting the general color family from the Palette row of colors along the bottom of the 
+dialog display. Lastly, the pipette icon allows the user to set the color by sampling it from
+anywhere on the screen.</p>
+<p>If you want to change your graphical-feature, a.k.a. contour, to the new
 color,
-select the 'OK' button.&nbsp; Otherwise the 'Cancel' button dismisses
+select the 'OK' button. Otherwise the 'Cancel' button dismisses
 the
 Color Chooser without change to your graphical contour.
 </p>
 <p>A new color can also be selected using the Hue, Saturation or
-Brightness
-sliders.
+Value entry fields.
 </p>
 <p>The various components of the ColorChooser are shown in the
 following
 table:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -80,88 +80,121 @@ table:
       <td><b>Description</b></td>
     </tr>
     <tr>
-      <td>Hue Slider</td>
-      <td>Using MB1 or MB2, the Hue slider can be moved from 0 to 359
-degrees.&nbsp;
-When the Hue slider is moved, the circle marker on the color wheel will
-correspond to the Hue slider in the counter-clockwise
-direction.&nbsp;&nbsp;
-Simultaneously, the new color will be indicated in the 'NEW' color
+      <td>Hue Entry Field</td>
+      <td>Using MB1 or MB2, the Hue up/down arrows can be moved from 0 to 360
+degrees.  Alternately, the new value can be manually typed into the field followed by Return.
+When the Hue value is modified, the circle marker on the color wheel will
+correspond to the Hue value in.
+Simultaneously, the new color will be indicated in the new color
 swatch.</td>
     </tr>
     <tr>
-      <td>Saturation Slider</td>
-      <td>Using MB1 or MB2, the Saturation slider can be moved from 0
-to 100
-percent.&nbsp; When the Saturation slider is moved, the circle marker
-on
-the color wheel will move along the radius indicating the appropriate
-color
-with 0 percent saturation representing white.&nbsp;
-Simultaneously,&nbsp;
-the new color will be indicated in the 'NEW' color swatch.</td>
+      <td>Saturation Entry Field</td>
+      <td>Using MB1 or MB2, the Saturation up/down arrows can be moved from 0
+to 100 percent. Alternately, the new value can be manually typed into the field followed
+by Return. When the Saturation value is modified, the circle marker on
+the color wheel will move along the radius indicating the appropriate color
+with 0 percent saturation representing white.
+Simultaneously, the new color will be indicated in the new color swatch.</td>
     </tr>
     <tr>
-      <td>Brightness Slider</td>
-      <td>Using MB1 or MB2, the Brightness slider can be moved from 0
-to 100
-percent.&nbsp; When the Brightness slider is moved, the color wheel and
-the 'NEW" color swatch reflects the brightness selection with 0 percent
-brightness representing black.&nbsp; Please note that there may be a
-short
-delay in updating the color wheel.</td>
+      <td>Value Entry Field</td>
+      <td>Using MB1 or MB2, the Brightness up/down arrows can be moved from 0
+to 100 percent. Alternately, the new value can be manually typed into the field followed
+by Return.  When the Brightness value is modified, the color wheel and
+the new color swatch reflects the brightness selection with 0 percent
+brightness representing black. Please note that there may be a
+short delay in updating the color wheel.</td>
+    </tr>
+    <tr>
+      <td>Red</td>
+      <td>Represents numeric value for the amount of red within the color.
+      Can be either manually
+      typed in, or selected using MB1 or MB2 to move up/down arrows.  The color wheel
+      and the new swatch will be modified simultaneously.  Accepts values between 0 and
+      255.</td>
+    </tr>
+    <tr>
+      <td>Green</td>
+      <td>Represents numeric value for the amount of green within the color.
+      Can be either manually
+      typed in, or selected using MB1 or MB2 to move up/down arrows.  The color wheel
+      and the new swatch will be modified simultaneously.  Accepts values between 0 and
+      255.</td>
+    </tr>
+    <tr>
+      <td>Blue</td>
+      <td>Represents numeric value for the amount of blue within the color.
+      Can be either manually
+      typed in, or selected using MB1 or MB2 to move up/down arrows.  The color wheel
+      and the new swatch will be modified simultaneously.  Accepts values between 0 and
+      255.</td>
+    </tr>
+    <tr>
+      <td>Color Name</td>
+      <td>Represents the hex value for the selected the color.
+      This field is typed in manually and must be a valid color value.
+      The color wheel
+      and the new swatch will be modified simultaneously.</td>
+    </tr>
+    <tr>
+      <td>Palette</td>
+      <td>Allows the selection of the color family, i.e. shade.
+      MB1 on the selected swatch to select the shade.
+      The color wheel
+      and the new swatch will be modified simultaneously.</td>
+    </tr>
+    <tr>
+      <td>Pipette Icon</td>
+      <td>Allows color sampling from the screen.
+      MB1 on the pipette icon, then anywhere on the screen to select the color.
+      The color wheel
+      and the new swatch will be modified simultaneously.</td>
     </tr>
     <tr>
       <td>ColorWheel</td>
       <td>Contains a small circle showing the current value specified
 by the
-sliders.&nbsp; The color wheel will dim and brighten as the Brightness
+sliders. The color wheel will dim and brighten as the Brightness
 slider is changed.</td>
     </tr>
     <tr>
       <td>OLD Swatch</td>
-      <td>The previous color (currrent color when the dialog is first
+      <td>The previous color (current color when the dialog is first
 presented)
 is shown.</td>
     </tr>
     <tr>
-      <td>NEW&nbsp;Swatch</td>
+      <td>NEW Swatch</td>
       <td>The new chosen color is shown.</td>
     </tr>
   </tbody>
 </table>
 <br>
-&nbsp;
 </p>
 <p></p>
 <hr width="100%">
 <h2><a name="ColorTableEditorDialog"></a><a name="ColorTableEditor"></a>ColorTableEditorDialog</h2>
-The ColorTableEditor Dialog is involked from the GFE when you MB3 over
-the 'E' toolbar button, color bar spectrum or an image label. If you
-MB3
-over the 'E' toolbar button, select the following sequence from the
+The ColorTableEditor Dialog is invoked from the GFE when you MB3 over 
+the color bar spectrum. Select the following sequence from the
 pop-up
-menus: 'PickUp Value...'-&gt;MB3 on the vertical spectrum-&gt; 'Edit
-Color Table...'.&nbsp;
-If you MB3 over the color bar spectrum or an image label, select the
-following
-sequence from the pop-up menus: 'Change Color Table to'-&gt;'Edit Color
-Table'.
-<p>The ColorTableEditor is used for Scalar and Vector data types.&nbsp;
+menus: 'Change Color Table to'-&gt;'Edit Color
+Table'. The dialog
+can also be opened by clicking MB3 on the contour map of an element
+and selecting Edit Colors...
+<p>The ColorTableEditor is used for Scalar and Vector data types.
 There is no editor currently available for the Weather data type; the
 Weather
 data type is configured through the <a href="gfeConfig_WECol.html">gfe
-configuration file weather color table definitions</a>.&nbsp; The
+configuration file weather color table definitions</a>. The
 ColorTableEditor
 for Discrete data types use the same data source as Scalar/Vector, but
-its operations are different.&nbsp; Generally it is a good idea to
+its operations are different. Generally it is a good idea to
 separate
 out color tables for Scalar and Vector, from color tables for Discrete.
 <br>
-&nbsp;
 </p>
 <h3>Scalar/Vector Color Table Editing</h3>
-&nbsp;
 <p><br>
 </p>
 <center>
@@ -169,93 +202,82 @@ out color tables for Scalar and Vector, from color tables for Discrete.
 Dialog (Scalar/Vector)</font></b></p>
 </center>
 <center>
-<h1><img src="images/ColorTableEditor.jpg" height="425" width="533"></h1>
+<h1><img src="images/ColorTableEditor.jpg"></h1>
 </center>
 The Color Table Editor Dialog can be used to create a new color
 spectrum
 for a multi-colored graphical feature (i.e., an image).
 <p>The Color Table Editor contains a <a href="#ColorChooser">Color
-Chooser</a>&nbsp;
-(without the color swatch area labeled 'OLD').&nbsp; A color spectrum
+Chooser</a>
+(without the old color swatch area). A color spectrum
 appears
-in the middle section of the dialog.&nbsp; The text label contains the
-selected weather product name and units.&nbsp; The left and right
+in the middle section of the dialog. The left and right
 triangular
 pointers are labeled with minimum and maximum numerical values
 corresponding
-to the weather product.&nbsp; Entry labels are located on either side
-of
-the spectrum.&nbsp; The current left and right pointer values are
-echoed
-in the entry fields.&nbsp; The '&gt;&gt;' and '&lt;&lt;' buttons enable
+to the weather product. The '&gt;&gt;' and '&lt;&lt;' buttons enable
 the user
 to move the pointers in an increment defined by the two entry
-fields.&nbsp;
+fields.
+The top row of the dialog allows the user to select RGB or HSB color model.
 The bottom half of the dialog contains several buttons that control the
-operations performed on the spectrum:&nbsp; 'Fill', 'RGB Interpolate',
-'HSB Interpolate', 'Fade -&gt;', 'Dim -&gt;', '&lt;- Fade', '&lt;-Dim',
-'Undo',
-'Revert', 'Apply', 'Save...', 'Delete...' and 'Dismiss' buttons.
+operations performed on the spectrum: 'Interpolate', 'Undo',
+'Revert', 'Save...', 'Delete...' and 'Office Save As' buttons.
+The 'Fill' and 'Set' buttons appear to the right of the top and bottom
+spectrum selection areas. Please note in AWIPS2 any changes are applied
+automatically.  The user has to exit and re-enter GFE should they accidentally
+exit the color chooser without reverting. 
 </p>
-<p>After a color is selected using MB2 (i.e., MB2 somewhere within the
-spectrum) or the&nbsp; <a href="#ColorChooser">Color Chooser</a>
-,&nbsp;
-it is reflected&nbsp; in the rectangular color swatch.&nbsp; To modify
-the spectrum with the selected color,&nbsp; MB1 over either the left or
-right pointer.&nbsp; The triangular area will assume the color of the
+<p>After a color is selected using MB1 (i.e., MB1 somewhere within the
+spectrum) or the <a href="#ColorChooser">Color Chooser</a>,
+it is reflected in the rectangular color swatch. To modify
+the spectrum with the selected color, MB1 over either the left or
+right pointer. The triangular area will assume the color of the
 color
-swatch.&nbsp; With the MB1, the left or right pointer can be moved to
+swatch. With the MB1, the left or right pointer can be moved to
 the
 desired weather product value.
 </p>
 <blockquote><a name="Exercise1"></a><b><i><font size="+1">Exercise 1</font></i></b>
-  <p>1.&nbsp; Make Temperature an image on the GFE. </p>
-  <p>2.&nbsp; From the color bar, MB3-&gt;'Edit Color Table...' </p>
-  <p>3.&nbsp; Select a color using the <a href="#ColorChooser">Color
+  <p>1. Make Temperature an image on the GFE. </p>
+  <p>2. From the color bar, MB3-&gt;Change Color Table To...'-&gt;Edit Color Table...' </p>
+  <p>3. Select a color using the <a href="#ColorChooser">Color
 Chooser</a>
-portion of the Color Table Editor. </p>
-  <p>4.&nbsp;&nbsp; MB1 over the left pointer and move the pointer to
+portion of the Color Table Editor.</p>
+  <p>4. MB1 over the left pointer and move the pointer to
 50
-degrees Fahrenheit.&nbsp; The left triangular pointer will assume the
+degrees Fahrenheit. The left triangular pointer will assume the
 color
 of the selected color and the color swatch will assume the new color. </p>
-  <p>5.&nbsp; Type 40 in the left entry field and 'Enter'.&nbsp; The
-left
-triangular pointer will move to the 40 degree F location of the
-spectrum. </p>
-  <p>6.&nbsp; MB1 over the right pointer and&nbsp; move the pointer to
+  <p>5. Slide the top arrow to 40 degree F location of the
+spectrum.</p>
+  <p>6. MB1 over the right pointer and move the pointer to
 50
-degrees Fahrenheit.&nbsp; The right pointer will now assume the color
+degrees Fahrenheit. The right pointer will now assume the color
 of
 the color swatch. </p>
-  <p>7.&nbsp; Select the '&gt;&gt;' button.&nbsp; The left and right
+  <p>7. Select the '&gt;' button. The left and right
 pointers will
-advance 10 degrees F to the right. </p>
-  <p>8.&nbsp; Select the '&lt;&lt;' button.&nbsp; The right and left
+advance 1 degree F to the right. </p>
+  <p>8. Select the '&lt;' button. The right and left
 pointers
-will decrease 10 degrees F to the left. </p>
-  <p>9.&nbsp; Type 90 in the right entry field and 'Enter'.&nbsp; The
-right
-triangular pointer will move to the 90 degree F location of the
-spectrum. </p>
-  <p>10.&nbsp; MB2 over the desired color on the spectrum.&nbsp; The
+will decrease 1 degree F to the left. </p>
+  <p>9. MB1 over the desired color on the spectrum. The
 color
 chosen will be reflected in the color swatch. </p>
-  <p>11.&nbsp; MB1 on the right pointer.&nbsp; The right pointer will
+  <p>10. MB1 on the right pointer. The right pointer will
 now
 assume the color in the color swatch.</p>
 </blockquote>
-After completing&nbsp; Exercise 1<i>,&nbsp;</i>&nbsp; you can modify
+After completing Exercise 1, you can modify
 the
 selected portion of the spectrum (eq., area between 40 and 90 degrees
 Fahrenheit)
-with the buttons located on the bottom half of the dialog: 'Fill', 'RGB
-Interpolate', 'HSB Interpolate', 'Fade -&gt;', 'Dim -&gt;', '&lt;-
-Fade', '&lt;-Dim',
-'Undo', 'Revert', 'Apply', 'Save...', 'Delete...' or 'Dismiss'.
+with the buttons located on the top half, bottom half, and right of the dialog: 'Fill',
+'Set', 'Interpolate',
+'Undo', 'Revert', 'Save...', 'Delete...' or 'Office Save As...'.
 <p>The various controls are described in the following table:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -268,40 +290,36 @@ Fade', '&lt;-Dim',
 spectrum.</td>
     </tr>
     <tr>
-      <td>RGB&nbsp;Interpolate and HSB&nbsp;Interpolate</td>
+    <tr>
+      <td>Set</td>
+      <td>The 'Set' button, will set the selected value of the
+spectrum.</td>
+    </tr>
+    <tr>
+      <td>Interpolate</td>
       <td>You can linearly interpolate the area selected between the
 pointers
-with one of two linear interpolation methods:&nbsp; Red-Green-Blue
+with one of two linear interpolation methods: Red-Green-Blue
 interpolation
 (i.e., 'RGB Interpolation' button) or Hue-Saturation-Brightness
 interpolation
 (i.e., 'HSB Interpolation' button).
-      <p>The 'HSB Interpolate' will 'linearly' interpolate along the
+      <p>The HSB interpolation will 'linearly' interpolate along the
 shortest
-angle of the colorwheel indicated by the colors of the pointers.&nbsp;
-The 'RGB Interpolate' will linearly interpolate along&nbsp; the 0-255
+angle of the color wheel indicated by the colors of the pointers.
+The RGB interpolation will linearly interpolate along the 0-255
 color
 intensity scale of red, green and blue between the colors of the
 pointers.</p>
       </td>
     </tr>
     <tr>
-      <td>Fade-&gt; and &lt;-Fade</td>
-      <td>The 'Fade -&gt;' button will linearly interpolate from the
-left pointer
-color to white.&nbsp; The '&lt;- Fade' button will linearly interpolate
-from the right pointer button to white.</td>
-    </tr>
-    <tr>
-      <td>Dim-&gt;&nbsp;and &lt;-Dim</td>
-      <td>The 'Dim -&gt;' button will linearly interpolate from the
-left pointer
-color to black.&nbsp; The '&lt;- Dim' button will linearly interpolate
-from the right pointer button to black.</td>
-    </tr>
-    <tr>
       <td>Undo</td>
       <td>The 'Undo' button will restore the previous spectrum.</td>
+    </tr>
+    <tr>
+      <td>Redo</td>
+      <td>The 'Redo' button will restore the previously undone spectrum.</td>
     </tr>
     <tr>
       <td>Revert</td>
@@ -310,43 +328,39 @@ which the
 Color Table Editor Dialog started.</td>
     </tr>
     <tr>
-      <td>Apply</td>
-      <td>When you 'Apply' the spectrum to a weather element the first
-time,
-a temporary color table is created with the name of Transient <i>X, </i>where
-      <i>X</i>
-is a number.&nbsp; This temporary color table will exist for the
-lifetime
-of the GFE.&nbsp; You can edit the same color table later if you
-wish.&nbsp;
-When you'Apply' the spectrum to the weather element during subsequent
-sessions,
-the same Transient color table is used.</td>
+      <td>Save</td>
+      <td>'Save' saves the changes to the currently loaded color table.</td>
     </tr>
     <tr>
-      <td>Save...</td>
-      <td>'Save' brings up a dialog from which the user may enter a
+      <td>Save As...</td>
+      <td>'Save As' brings up a dialog from which the user may enter a
 name of a
-color table.&nbsp; The color table is stored under this name and the
+color table. The color table is stored under this name and the
 Transient
-color table in use is removed.&nbsp; 'Save' has an implicit
-'Apply'.&nbsp;
-You cannot save a Transient color table to the ifpServer.</td>
+color table in use is removed. 'Save' has an implicit
+'Apply'.
+You cannot save a Transient color table to EDEX.</td>
+    </tr>
+    <tr>
+      <td>Office Save As...</td>
+      <td>'Office Save As' brings up a dialog from which the user may enter a
+name of a
+color table specifically for the office currently loaded.</td>
     </tr>
     <tr>
       <td>Delete...</td>
       <td>You can 'Delete' an existing color table and it doesn't need
 to be
-the one that is displayed.&nbsp; A dialog will be displayed showing a
+the one that is displayed. A dialog will be displayed showing a
 list
-of names.&nbsp; Highlight or type in an identifier and enter
-'Okay'.&nbsp;
+of names. Highlight or type in an identifier and enter
+'Okay'.
 You can delete Transient color tables that exist in you GFE and other
 color
-tables that are stored on the server.&nbsp; <font color="#ff0000">CAUTION:&nbsp;
+tables that are stored on the server. <font color="#ff0000">CAUTION:&nbsp;
 If you delete a spectrum that is being used by another user, their
 spectrum
-will revert to the default spectrum.&nbsp; Please consider carefully
+will revert to the default spectrum. Please consider carefully
 before
 using the 'Delete' button.</font></td>
     </tr>
@@ -355,65 +369,56 @@ using the 'Delete' button.</font></td>
 </p>
 <blockquote><b><i><font size="+1">Exercise 2</font></i></b>
   <p>1.&nbsp; Do <i><a href="#Exercise1">Exercise 1</a>.</i> </p>
-  <p>2.&nbsp; Select 'HSB Interpolate'.&nbsp; The selected area of the
+  <p>2.&nbsp; Select the HSB color model, then click 'Interpolate'. The selected area of the
 spectrum
-will be linearly interpolated along the HSB color scheme. </p>
-  <p>3.&nbsp; Select 'RGB Interpolate'.&nbsp; The selected area of the
+will be linearly interpolated along the HSB color scheme.</p>
+  <p>3.&nbsp; Select the RGB color model, then click 'Interpolate'. The selected area of the
 spectrum
 will be linearly interpolated along the RGB color scheme. </p>
-  <p>4.&nbsp; Select 'Undo'.&nbsp; The selected area of the spectrum
+  <p>4.&nbsp; Select 'Undo'. The selected area of the spectrum
 will
-be restored to the HSB interpolation. </p>
-  <p>5.&nbsp; Select 'Fill'.&nbsp; The selected area of the spectrum
+be restored to the pre-interpolation state. </p>
+  <p>5.&nbsp; Select 'Fill'. The selected area of the spectrum
 will
 be filled with the color in the color swatch. </p>
-  <p>6.&nbsp; Select 'Undo'.&nbsp; The selected area of the spectrum
+  <p>6.&nbsp; Select 'Undo'. The selected area of the spectrum
 will
-be restored to RGB interpolation. </p>
-  <p>7.&nbsp; Select 'Fade -&gt;'.&nbsp; The selected area of the
+be restored to previous spectrum. </p>
+  <p>7.&nbsp; Select 'Set'. The selected area of the
 spectrum will
-fade from the left pointer color to white (right pointer). </p>
-  <p>8.&nbsp; Select 'Undo'.&nbsp; The selected area of the spectrum
+be set to the color you selected. </p>
+  <p>8.&nbsp; Select 'Undo'. The selected area of the spectrum
 will
-be restored to RGB interpolation. </p>
-  <p>9.&nbsp; Select '&lt;-Fade'.&nbsp; The selected area of the
-spectrum
-will fade from the right pointer to white (left pointer). </p>
-  <p>10.&nbsp; Repeat steps 6 - 9 for 'Dim -&gt;' and '&lt;- Dim' and
-notice
-the respective area dimming to black at both pointer locations. </p>
-  <p>11.&nbsp; Select 'Revert'.&nbsp; The original spectrum that you
+be restored.</p>
+  <p>9.&nbsp; Select 'Revert'. The original spectrum that you
 began
 with is restored. </p>
-  <p>12.&nbsp; Select 'RGB Interpolate'.&nbsp; The selected area of the
+  <p>10.&nbsp; Select the RGB color model and click 'Interpolate'. The selected area of the
 spectrum
-will again be linearly interpolated along the RGB color scheme. </p>
-  <p>13.&nbsp; Select 'Apply'.&nbsp; The new spectrum will be applied
-to
-the graphic and the color bar will reflect the new spectrum. </p>
-  <p>14.&nbsp; Select 'Save...'.&nbsp;&nbsp;&nbsp; The 'Save Color
+will again be linearly interpolated along the RGB color scheme.</p>
+  <p>12.&nbsp; Select 'Save'. The new spectrum will be saved to the currently
+  loaded color map.</p>
+  <p>13.&nbsp; Select 'Save As...'. The 'Save Color
 Table'
 dialog is brought up and you are prompted for a name (i.e., identifier)
 for the spectrum that you've just created. </p>
-  <p>15&nbsp; Select 'OK'.&nbsp; The new spectrum is now saved. </p>
-  <p>16.&nbsp; Select 'Delete'.&nbsp;&nbsp; The 'Delete Color Table'
+  <p>14.&nbsp; Select 'OK'. The new spectrum is now saved. </p>
+  <p>15.&nbsp; Select 'Delete'. The 'Delete Color Table'
 dialog
 allows you to highlight the spectrum to be deleted or type in the
-identifier. <font color="#ff0000">CAUTION:&nbsp;
+identifier. <font color="#ff0000">CAUTION:
 If you delete a spectrum that is being used by another user, their
 spectrum
-will revert to the default spectrum.&nbsp; Please consider carefully
+will revert to the default spectrum. Please consider carefully
 before
 using the 'Delete' button..</font> </p>
-  <p>17.&nbsp; Select 'Dismiss'.&nbsp; The 'Dismiss' button cancels the
-Color
-Table Editor dialog. <br>
-&nbsp; <br>
-&nbsp;</p>
+  <p>16.&nbsp; Click the X mark in the top right corner. The dialog will 
+  exit, however all changes are applied automatically.<br>
+<br>
+</p>
 </blockquote>
 <h3>
 Discrete Color Table Editing</h3>
-&nbsp;
 <p><br>
 </p>
 <center>
@@ -422,49 +427,42 @@ Discrete Color Table Editing</h3>
 Dialog (Discrete)</font></b></p>
 </center>
 <center>
-<h1><img src="images/DialogColorTableDiscrete.jpg" nosave=""
- style="height: 402px; width: 414px;" title=""
+<h1><img src="images/DialogColorTableDiscrete.jpg" nosave="" title=""
  alt="DialogDiscreteColorTable"></h1>
 </center>
 The Discrete Color Table Editor Dialog can be used to create a new
 color
 spectrum for a multi-colored graphical feature (i.e., an image).
 <p>The Discrete ColorTable Editor contains a <a href="#ColorChooser">Color
-Chooser</a>&nbsp; (without the color swatch area labeled 'OLD').&nbsp;
-A color spectrum appears in the middle section of the dialog.&nbsp; The
-text label contains the selected weather product name and units.&nbsp;
-Many of the buttons on the Color Table Editor for Scalar/Vector are not
-available on the Discrete Color Table Editor. The controls that are
-available
-include:&nbsp;'Undo', 'Revert', 'Apply', 'Save...', 'Delete...' and
-'Dismiss'
-buttons.
+Chooser</a> (without the old color swatch area).
+A color spectrum appears in the middle section of the dialog. The
+text label contains the selected weather product name and units.
+In AWIPS2 all of the buttons on the Color Table Editor for Scalar/Vector are
+available on the Discrete Color Table Editor.
 </p>
-<p>After a color is selected using MB2 click (i.e., MB2 somewhere
+<p>After a color is selected using MB1 click (i.e., MB1 somewhere
 within
-the spectrum) or the&nbsp; <a href="#ColorChooser">Color Chooser</a>
-,&nbsp;
-it is reflected&nbsp; in the rectangular color swatch.&nbsp; To modify
-the spectrum with the selected color,&nbsp; MB1 click over the desired
+the spectrum) or the <a href="#ColorChooser">Color Chooser</a>,
+it is reflected in the rectangular color swatch. To modify
+the spectrum with the selected color, MB1 click over the desired
 discrete key. When you move the mouse over a "block" in the spectrum,
 the value of that "block", i.e., the discrete key, will be
-displayed.&nbsp; <br>
+displayed.<br>
 </p>
 <p>Note that Discrete color tables and Scalar color tables should not
-be shared.&nbsp; Discrete color tables that are saved to the ifpServer
+be shared. Discrete color tables that are saved to EDEX
 contain exactly the same number of entries as the possible entries in
-the defined Discrete key.&nbsp; For example, the KeyTest element in the
-picture above contains exactly 3 colors.&nbsp; If you reuse that color
+the defined Discrete key. For example, if a KeyTest element
+contains exactly 3 colors and you reuse that color
 spectrum for a scalar/vector weather element, then there will only be
 three colors in that color table.<br>
 </p>
 <p>If a discrete color table has
 been saved to disk, then the definition for the discrete weather
 element is expanded, then the new entries will be assigned to "black"
-until the color table editor is used to define these colors.&nbsp; The
+until the color table editor is used to define these colors. The
 original colors for the original set of discrete keys will remain
-assigned. <br>
-&nbsp;
+assigned.<br>
 </p>
 </body>
 </html>
