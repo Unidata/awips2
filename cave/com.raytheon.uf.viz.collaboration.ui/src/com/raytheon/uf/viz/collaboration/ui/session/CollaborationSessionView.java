@@ -41,12 +41,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 
 /**
  * TODO Add Description
@@ -98,9 +97,9 @@ public class CollaborationSessionView extends SessionView {
                         public void run() {
                             IStructuredSelection selection = (IStructuredSelection) usersTable
                                     .getSelection();
-                            CollaborationUser selectedUser = (CollaborationUser) selection
+                            IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
-                            switchLeader(selectedUser.getId());
+                            switchLeader(selectedUser.getUser());
                         };
                     };
                     ActionContributionItem leaderItem = new ActionContributionItem(
@@ -113,9 +112,9 @@ public class CollaborationSessionView extends SessionView {
                         public void run() {
                             IStructuredSelection selection = (IStructuredSelection) usersTable
                                     .getSelection();
-                            CollaborationUser selectedUser = (CollaborationUser) selection
+                            IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
-                            switchDataProvider(selectedUser.getId());
+                            switchDataProvider(selectedUser.getUser());
                         };
                     };
                     ActionContributionItem dataProviderItem = new ActionContributionItem(
@@ -138,20 +137,20 @@ public class CollaborationSessionView extends SessionView {
         switchToAction.setMenuCreator(creator);
     }
 
-    private void switchDataProvider(String fqname) {
-        System.out.println("Send switchDataProvider request. " + fqname);
+    private void switchDataProvider(UserId userId) {
+        System.out.println("Send switchDataProvider request. "
+                + userId.getFQName());
         // TODO need to send invite/request for transfer, and then if successful
         // deactivate the local ones since we won't receive the message
     }
 
-    private void switchLeader(String fqname) {
-        System.out.println("Send switchLeader request. " + fqname);
+    private void switchLeader(UserId userId) {
+        System.out.println("Send switchLeader request. " + userId.getFQName());
         // TODO need to send invite/request for transfer, and then if successful
         // deactivate the local ones since we won't receive the message
         TransferRoleCommand trc = new TransferRoleCommand();
-        UserId vp = new UserId(Tools.parseName(fqname), Tools.parseHost(fqname));
-        trc.setUser(vp);
-        session.setCurrentSessionLeader(vp);
+        trc.setUser(userId);
+        session.setCurrentSessionLeader(userId);
         trc.setRole(SharedDisplayRole.SESSION_LEADER);
         try {
             session.sendObjectToVenue(trc);
@@ -167,14 +166,14 @@ public class CollaborationSessionView extends SessionView {
     }
 
     @Override
-    protected String buildParticipantTooltip(CollaborationUser user) {
+    protected String buildParticipantTooltip(IRosterEntry user) {
         StringBuilder builder = new StringBuilder(
                 super.buildParticipantTooltip(user));
         // TODO these should be smarter ifs
-        boolean isSessionLeader = Tools.parseName(user.getId()).equals(
-                session.getCurrentSessionLeader().getName());
-        boolean isDataProvider = Tools.parseName(user.getId()).equals(
-                session.getCurrentDataProvider().getName());
+        boolean isSessionLeader = user.getUser().equals(
+                session.getCurrentSessionLeader());
+        boolean isDataProvider = user.getUser().equals(
+                session.getCurrentDataProvider());
         if (isSessionLeader || isDataProvider) {
             builder.append("\n-- Roles --");
             if (isSessionLeader) {
@@ -219,9 +218,8 @@ public class CollaborationSessionView extends SessionView {
             try {
                 ((IVenueSession) session).sendChatMessage(message);
             } catch (CollaborationException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                e.printStackTrace();
+                statusHandler.handle(Priority.ERROR,
+                        "Unable to send chat message", e);
             }
         }
     }
@@ -240,10 +238,9 @@ public class CollaborationSessionView extends SessionView {
                 || session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
             IStructuredSelection selection = (IStructuredSelection) usersTable
                     .getSelection();
-            CollaborationUser selectedUser = (CollaborationUser) selection
+            IRosterEntry selectedUser = (IRosterEntry) selection
                     .getFirstElement();
-            String selectedUserName = Tools.parseName(selectedUser.getId());
-            if (!selectedUserName.equals(session.getUserID().getName())) {
+            if (!selectedUser.getUser().equals(session.getUserID())) {
                 manager.add(switchToAction);
             }
         }

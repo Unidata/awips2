@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.roster;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
@@ -31,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -127,7 +130,7 @@ public class RosterManager implements IRosterManager {
      * @param groups
      */
     @Override
-    public void sendRosterAdd(String account, String nickName, String[] groups)
+    public void sendRosterAdd(UserId account, String[] groups)
             throws CollaborationException {
         org.eclipse.ecf.presence.roster.IRosterManager manager = baseRoster
                 .getPresenceContainerAdapter().getRosterManager();
@@ -136,7 +139,8 @@ public class RosterManager implements IRosterManager {
                 .getRosterSubscriptionSender();
 
         try {
-            sender.sendRosterAdd(account, nickName, groups);
+            sender.sendRosterAdd(account.getFQName(), account.getAlias(),
+                    groups);
         } catch (ECFException e) {
             throw new CollaborationException();
         }
@@ -157,7 +161,7 @@ public class RosterManager implements IRosterManager {
         IRosterSubscriptionSender sender = manager
                 .getRosterSubscriptionSender();
 
-        ID id = sessionManager.createID(userId.getFQName());
+        ID id = sessionManager.createID(userId);
         try {
             sender.sendRosterRemove(id);
         } catch (ECFException e) {
@@ -189,6 +193,22 @@ public class RosterManager implements IRosterManager {
      */
     public void updateEntry(IRosterEntry entry) {
         IRosterEntry modified = roster.modifyRosterEntry(entry);
+        IPresenceContainerAdapter adapter = baseRoster
+                .getPresenceContainerAdapter();
+        org.eclipse.ecf.presence.roster.IRosterManager manager = adapter
+                .getRosterManager();
+        List<String> groups = new ArrayList<String>();
+        for (IRosterGroup grp : entry.getGroups()) {
+            groups.add(grp.getName());
+        }
+        try {
+            manager.getRosterSubscriptionSender().sendRosterAdd(
+                    entry.getUser().getFQName(), entry.getUser().getAlias(),
+                    groups.toArray(new String[0]));
+        } catch (ECFException e) {
+            // TODO handle better
+            e.printStackTrace();
+        }
         if (modified != null) {
             sessionManager.getEventPublisher().post(entry);
         }
