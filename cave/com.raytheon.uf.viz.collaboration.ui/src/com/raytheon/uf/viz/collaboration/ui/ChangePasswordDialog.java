@@ -73,7 +73,7 @@ public class ChangePasswordDialog extends CaveSWTDialog {
     private Control createDialogArea(Composite parent) {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-        UserId user = manager.getLoginId();
+        UserId user = manager.getCollaborationConnection().getUser();
         Composite body = new Composite(parent, SWT.NONE);
         body.setLayout(new GridLayout(2, false));
         // body.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL

@@ -58,21 +58,6 @@ public class CollaborationUtils {
     private static final String PREFIX_CONFERENCE = "conference.";
 
     /**
-     * Get the statusModes' index for desired mode.
-     * 
-     * @param mode
-     * @return index - the mode's index or -1 if not in statusModes
-     */
-    public static int statusModesIndex(IPresence.Mode mode) {
-        for (int index = 0; index < statusModes.length; ++index) {
-            if (mode.equals(statusModes[index])) {
-                return index;
-            }
-        }
-        return -1;
-    }
-
-    /**
      * Get an image associated with the node.
      * 
      * @param node
