@@ -38,7 +38,6 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
-import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -89,6 +88,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
 
     private String sessionId;
 
+    private UserId userId;
+
     private SessionColorManager colorManager;
 
     private IWireframeShape tempRemoteShape = null;
@@ -109,6 +110,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         for (String str : mgr.getSessions().keySet()) {
             mgr.getSession(str).registerEventHandler(this);
         }
+        userId = mgr.getCollaborationConnection().getUser();
+        ;
     }
 
     /*
@@ -134,9 +137,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                 .synchronizedMultimap(this.deletedCollaboratorShapes);
         colorManager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
                 .getColorManager();
-        LoginData data = CollaborationDataManager.getInstance().getLoginData();
-        UserId id = new UserId(data.getUser(), data.getServer());
-        color = colorManager.getColors().get(id);
+        color = colorManager.getColors().get(userId);
     }
 
     /*
@@ -367,8 +368,6 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         super.undoAdd();
         CollaborationDrawingEvent event = new CollaborationDrawingEvent();
         event.setType(CollaborationEventType.UNDO);
-        LoginData data = CollaborationDataManager.getInstance().getLoginData();
-        UserId userId = new UserId(data.getUser(), data.getServer());
         event.setUserName(userId);
         sendGenericEvent(event);
     }
@@ -383,8 +382,6 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         super.redoAdd();
         CollaborationDrawingEvent event = new CollaborationDrawingEvent();
         event.setType(CollaborationEventType.REDO);
-        LoginData data = CollaborationDataManager.getInstance().getLoginData();
-        UserId userId = new UserId(data.getUser(), data.getServer());
         event.setUserName(userId);
         sendGenericEvent(event);
     }
@@ -401,8 +398,6 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         CollaborationDrawingEvent eObject = new CollaborationDrawingEvent();
         eObject.setType(CollaborationEventType.ERASE);
         eObject.setContainer(container);
-        LoginData data = CollaborationDataManager.getInstance().getLoginData();
-        UserId userId = new UserId(data.getUser(), data.getServer());
         eObject.setUserName(userId);
         sendGenericEvent(eObject);
     }
@@ -413,8 +408,6 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         CollaborationDrawingEvent tObject = new CollaborationDrawingEvent();
         tObject.setType(CollaborationEventType.DRAW);
         tObject.setContainer(container);
-        LoginData data = CollaborationDataManager.getInstance().getLoginData();
-        UserId userId = new UserId(data.getUser(), data.getServer());
         tObject.setUserName(userId);
         sendGenericEvent(tObject);
     }
@@ -429,8 +422,6 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         super.reset();
         CollaborationDrawingEvent event = new CollaborationDrawingEvent();
         event.setType(CollaborationEventType.CLEAR);
-        LoginData data = CollaborationDataManager.getInstance().getLoginData();
-        UserId userId = new UserId(data.getUser(), data.getServer());
         event.setUserName(userId);
         sendGenericEvent(event);
     }
