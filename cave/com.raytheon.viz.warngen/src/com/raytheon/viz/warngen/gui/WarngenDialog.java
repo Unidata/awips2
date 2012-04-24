@@ -112,6 +112,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Apr 27, 2011 #9250       bkowal      getStyle and getName are now used to
  *                                       get the style and name associated with
  *                                       a FontData object.
+ *  Apr 16, 2012 #14515      Qinglu Lin  Added return at the beginning of changeTemplate() 
+ *                                       if the newly selected product is same as current one.
  * 
  * </pre>
  * 
@@ -1366,6 +1368,11 @@ public class WarngenDialog extends CaveSWTDialog implements
      *            - The button that has been clicked
      */
     private void changeTemplate(String templateName) {
+    	
+        //DR 14515
+        if (templateName.equals(warngenLayer.getTemplateName()))
+        	return;
+        
         String lastAreaSource = warngenLayer.getConfiguration()
                 .getGeospatialConfig().getAreaSource();
 
