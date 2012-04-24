@@ -167,7 +167,7 @@ public class RadarTextProductUtil {
                 textProd.setCccid(afosId.getCcc());
                 textProd.setNnnid(afosId.getNnn());
                 textProd.setXxxid(afosId.getXxx());
-                textProd.setCreatetime(System.currentTimeMillis());
+                textProd.setRefTime(System.currentTimeMillis());
                 textProd.setProduct(text);
                 EDEXUtil.getMessageProducer().sendAsync(textEndpoint, textProd);
             }
