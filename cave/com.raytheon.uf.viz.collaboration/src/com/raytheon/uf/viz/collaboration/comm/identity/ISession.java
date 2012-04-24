@@ -39,7 +39,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -75,7 +75,7 @@ public interface ISession extends IEventPublisher {
      * 
      * @return
      */
-    public IQualifiedID getUserID();
+    public UserId getUserID();
 
     /**
      * Gets the connection status of the session.

@@ -34,7 +34,7 @@ import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * TODO Add Description
@@ -69,7 +69,7 @@ public abstract class BaseSession implements ISession {
     private Namespace connectionNamespace = null;
 
     // The session manager that created this session.
-    private CollaborationConnection sessionManager;
+    private CollaborationConnection connection;
 
     /**
      * 
@@ -97,7 +97,7 @@ public abstract class BaseSession implements ISession {
         managerEventBus = externalBus;
         eventBus = new EventBus();
         connectionContainer = container;
-        sessionManager = manager;
+        connection = manager;
         eventSubscribers = new HashMap<Object, Object>();
         setup();
     }
@@ -122,7 +122,7 @@ public abstract class BaseSession implements ISession {
      * @throws CollaborationException
      */
     PeerToPeerChat getP2PSession() throws CollaborationException {
-        return (PeerToPeerChat) sessionManager.getPeerToPeerSession();
+        return (PeerToPeerChat) connection.getPeerToPeerSession();
     }
 
     /**
@@ -162,7 +162,7 @@ public abstract class BaseSession implements ISession {
      * @return
      */
     CollaborationConnection getSessionManager() {
-        return sessionManager;
+        return connection;
     }
 
     /**
@@ -186,8 +186,8 @@ public abstract class BaseSession implements ISession {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getUserID()
      */
     @Override
-    public IQualifiedID getUserID() {
-        return null;
+    public UserId getUserID() {
+        return connection.getUser();
     }
 
     /**
@@ -213,7 +213,7 @@ public abstract class BaseSession implements ISession {
         // for(Object o : eventSubscribers.values()) {
         // managerEventBus.unregister(o);
         // }
-        sessionManager.removeSession(this);
+        connection.removeSession(this);
     }
 
     /**
