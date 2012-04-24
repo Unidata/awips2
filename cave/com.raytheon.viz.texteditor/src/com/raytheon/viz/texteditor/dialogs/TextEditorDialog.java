@@ -4605,7 +4605,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 updateTextEditor(body.toString());
             }
             storedProduct.setHdrtime(currentDate);
-            storedProduct.setCreatetime(System.currentTimeMillis());
+            storedProduct.setRefTime(System.currentTimeMillis());
             if (productText.contains(AFOSParser.DRAFT_PIL)) {
                 int start = productText.indexOf(AFOSParser.DRAFT_PIL);
                 productText = productText.replace(productText.substring(start,
@@ -4777,7 +4777,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         request.setBbbid(product.getBbbid());
         request.setCccid(product.getCccid());
-        request.setCreatetime(product.getCreatetime());
+        request.setCreatetime(product.getRefTime());
         request.setDataCrc(product.getDataCrc());
         request.setHdrtime(product.getHdrtime());
         request.setNnnid(product.getNnnid());
@@ -4785,7 +4785,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         request.setWmoid(product.getWmoid());
         request.setSite(product.getSite());
         request.setXxxid(product.getXxxid());
-        request.setCreatetime(product.getCreatetime());
+        request.setCreatetime(product.getRefTime());
         CAVEMode mode = CAVEMode.getMode();
         boolean result = (CAVEMode.OPERATIONAL.equals(mode)
                 || CAVEMode.TEST.equals(mode) ? true : false);
