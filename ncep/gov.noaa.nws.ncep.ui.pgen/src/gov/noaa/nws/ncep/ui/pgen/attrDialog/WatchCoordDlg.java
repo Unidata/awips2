@@ -8,8 +8,14 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenToolUtils;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -17,6 +23,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -41,6 +50,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/10		#159		B. Yin   	Initial Creation.
+ * 03/06/11     #707        Q.Zhou      Changed FORECASTER text to combo. Load from forecaster.xml.
+ * 03/12		$703		B. Yin		Generate product text from style sheet
  *
  * </pre>
  * 
@@ -74,7 +85,10 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 	private Button stormBtn;
 	
 	//forecaster name
-	private Text   forecasterText;
+	private Combo   forecasterCombo;
+	private static Document forecasterTbl = null;
+	private static String FORECASTERS[] = null;
+	private static String FORECASTER_XPATH = "/forecasters/forecaster";
 	
 	//expiration date and time
 	private DateTime validDate;
@@ -94,6 +108,8 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 	
 	//WFO check boxes
 	private List<Button> wfoBtns;
+	
+	private String dirPath;
 
 	/**
 	 * Protected constructor
@@ -107,6 +123,9 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		this.wbDlg = wbDlg;
 		wfoBtns = new ArrayList<Button>();
 		
+		forecasterTbl = readForecasterTbl();
+		FORECASTERS = getForecasters();
+        
 	}
 	
 	/**
@@ -219,8 +238,12 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		//Create forecaster list
 		Label forecasterLbl = new Label(panel1, SWT.LEFT);
 		forecasterLbl.setText("Forecaster:");
-		forecasterText = new Text(panel1, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
-
+		
+		forecasterCombo = new Combo(panel1, SWT.DROP_DOWN );		
+        for ( String str : FORECASTERS ){
+        	forecasterCombo.add(str);
+        }
+        
 		//Create replace watch number text
 		Label replaceLbl = new Label(panel1, SWT.LEFT);
 		replaceLbl.setText("Replace Watch#:");
@@ -323,7 +346,7 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 			confirmDlg.open();
 			
 		}
-		else if (forecasterText.getText().isEmpty()){
+		else if (forecasterCombo.getText().isEmpty()){
 			String msg = "Please type in forecaster name!";
 
 			MessageDialog confirmDlg = new MessageDialog( 
@@ -333,6 +356,15 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 			confirmDlg.open();
 		}
 		else {
+			String pdName = wbDlg.drawingLayer.getActiveProduct().getType();
+			ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
+			if ( pt != null ) pdName = pt.getType();
+		
+			String pd1 = pdName.replaceAll(" ", "_");
+				
+			dirPath = PgenUtil.getPgenOprDirectory() + 
+								File.separator + pd1 +  File.separator + "prod" +
+							File.separator + "text" + File.separator;
 			openWCCDlg();
 		}
 	}
@@ -403,7 +435,7 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		wccText += "\nPassword:     -     ";
 		wccText += "\n\nIF PASSWORD IS NOT AVAILABLE, CONTACT SPC LEAD FORECASTER.";
 		wccText += "\n\nATTN..." + wfoList + "...WNAW...WNAR";
-		wccText += "\n\n" + forecasterText.getText();
+		wccText += "\n\n" + forecasterCombo.getText();
 		
 		
 		String msg = wccText + "\n\n------------------------------------\n";
@@ -422,6 +454,7 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		wccDlg.setMessage(PgenToolUtils.wrapWatchText(wccText, LINE_LEN));
 		wccDlg.setWCCLaunchText( wccLaunch);
 		wccDlg.setBlockOnOpen(true);
+		wccDlg.setOutputPath(dirPath);
 		wccDlg.open();
 			
 		if (wccDlg.getReturnCode() == MessageDialog.OK){
@@ -459,9 +492,44 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		wclDlg.setWCLFileNmae("KWNSWCL"+idCombo.getText());
 		wclDlg.setMessage(msg);
 		wclDlg.setBlockOnOpen(true);
+		wclDlg.setOutputPath(dirPath);
 		wclDlg.open();
 		
 	}
 	
+	public static Document readForecasterTbl() {
+		
+		if (FORECASTERS == null) {
+			try {
+				String forecasterFile = NcPathManager.getInstance().getStaticFile(
+						   NcPathConstants.PGEN_FORECASTER ).getAbsolutePath();
+
+				SAXReader reader = new SAXReader();
+				forecasterTbl = reader.read(forecasterFile);
+			} catch (Exception e) {
+				e.printStackTrace();				
+			}
+		}
+		
+		return forecasterTbl;
+	}
+	
+	public static String[] getForecasters() {
+		if (forecasterTbl == null)
+			FORECASTERS = new String[] {"BALDWIN", "BIRCH", "EVANS", "GALLINA"};
+		else {
+			List<String> list = new ArrayList<String>();		
+			List<Node> nodes = forecasterTbl.selectNodes(FORECASTER_XPATH);
+		
+			for (Node node : nodes) {
+				list.add( node.valueOf("@name").toString());
+			}
+		
+			FORECASTERS = new String[list.size()];
+			FORECASTERS = list.toArray(FORECASTERS);
+		}
+		
+		return FORECASTERS;
+	}
 }
 
