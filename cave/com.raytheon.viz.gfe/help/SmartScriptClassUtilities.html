@@ -1,5 +1,5 @@
 <html>
-<title>GFESuite Documentation - </title>
+<title>Smart Script Class - Utilities</title>
 <body>
 
 <h1><a name="Util"></a>Utilities</h1>
@@ -13,10 +13,6 @@
 <a href="#createTimeRange">createTimeRange</a>
 <br>
 <a href="#getSamplePoints">getSamplePoints</a>
-<br>
-<a href="#_timeRangeStr">_timeRangeStr</a>
-<br>
-<a href="#fformat">fformat</a>
 <br>
 <a href="#dayTime">dayTime</a>
 <br>
@@ -38,6 +34,8 @@
 <br>
 <a href="#getLatLon">getLatLon</a>
 <br>
+<a href="#getLatLonGrids">getLatLonGrids</a>
+<br>
 <a href="#getGridCell">getGridCell</a>
 <br>
 <a href="#getGrid2DBit">getGrid2DBit</a>
@@ -52,11 +50,15 @@
 <br>
 <a href="#getParm">getParm</a>
 <br>
+<a href="#getParmByExpr">getParmByExpr</a>
+<br>
 <a href="#cacheElements">cacheElements</a>
 <br>
 <a href="#unCacheElements">unCacheElements</a>
 <br>
 <a href="#loadWEGroup">loadWEGroup</a>
+<br>
+<a href="#unloadWE">unloadWE</a>
 <br>
 <a href="#saveElements">saveElements</a>
 <br>
@@ -70,19 +72,18 @@
 <br>
 <a href="#setVectorEditMode">setVectorEditMode</a>
 <br>
+<a href="#getConfigItem">getConfigItem</a>
+<br>
 <a href="#esat">esat</a>
 <!-- Leave this comment for formatting purposes -->
 <hr width="100%">
-
-
-
 
 
 <h2>
 <a name="findDatabase"></a>findDatabase</h2>
 def findDatabase(self, databaseName, version=0):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return an AFPS.DatabaseID object.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a database id.
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # databaseName can have the appended
 type. E.g. "NAM" or "D2D_NAM"
@@ -100,7 +101,7 @@ self.findDatabase("NAM",0)
 <h2><a name="getDatabase"></a>getDatabase</h2>
 def getDatabase(self, databaseString):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return an AFPS.DatabaseID object.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a database id.
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # databaseString is the result of a
 VariableList entry of type
@@ -109,7 +110,7 @@ VariableList entry of type
 <h2><a name="getTimeRange"></a>getTimeRange</h2>
 def getTimeRange(self, timeRangeName):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns an AFPS.TimeRange object given
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns TimeRange given
 a time range name
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # as defined in the GFE
@@ -120,7 +121,7 @@ a time range name
 <h2><a name="createTimeRange"></a>createTimeRange</h2>
 def createTimeRange(self, startHour, endHour, mode="LT", dbID=None):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns an AFPS.TimeRange object given
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns TimeRange given
 by:
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # startHour, endHour
@@ -176,19 +177,8 @@ points
 will be
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # those currently displayed on the GFE
-<h2><a name="_timeRangeStr"></a>_timeRangeStr</h2>
-def _timeRangeStr(self, tr):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns given time range in format:
-"%Y%m%d_%H%M"
-<h2><a name="fformat"></a>fformat</h2>
-def fformat(self, value, roundVal):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a string for the floating point
-value
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # truncated to the resolution given
-by roundVal
+
+
 <h2><a name="dayTime"></a>dayTime</h2>
 def dayTime(self, timeRange, startHour=6, endHour=18):
 <br>
@@ -208,19 +198,19 @@ def determineTimeShift(self):
 <h2><a name="getEditArea"></a>getEditArea</h2>
 def getEditArea(self, editAreaName):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns an AFPS.ReferenceData object
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a ReferenceData object
 given an edit area name
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # as defined in the GFE
 <h2><a name="saveEditArea"></a>saveEditArea</h2>
 def saveEditArea(self, editAreaName, refData):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Saves the AFPS.ReferenceData object
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Saves the ReferenceData object
 with the given name
 <h2><a name="setActiveEditArea"></a>setActiveEditArea</h2>
 def setActiveEditArea(self, area):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set the AFPS.ReferenceData area to
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set the ReferenceData area to
 be the active one in the GFE
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Note: This will not take effect until
@@ -270,7 +260,7 @@ element
 <h2><a name="getGridCellSwath"></a>getGridCellSwath</h2>
 def getGridCellSwath(self, editArea, cells):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns an AFPS.ReferenceData swath
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a ReferenceData swath
 of the given
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # number of cells around the given an
@@ -281,9 +271,22 @@ edit area.
 def getLatLon(self, x, y):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the latitude/longitude values
-for the given grid point coords = AFPS.CC2Dint(x,y) cc2D =
-self.__gridLoc.latLonCenter(coords)
-return cc2D.y, cc2D.x
+for the given grid point<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; coords = Coordinate(float(x), float(y))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cc2D = self.getGridLoc().latLonCenter(coords)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return cc2D.y, cc2D.x
+
+
+<h2><a name="getLatLonGrids"></a>getLatLonGrids</h2>
+def getLatLonGrids(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the latitude/longitude grids<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gridLoc = self.getGridLoc()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; latLonGrid = gridLoc.getLatLonGrid().__numpy__[0];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  gridLoc.getNx().intValue()), order='F')<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return latLonGrid[1], latLonGrid[0]
+
 <h2><a name="getGridCell"></a>getGridCell</h2>
 def getGridCell(self, lat, lon):
 <br>
@@ -373,20 +376,30 @@ def getParm(self, model, element, level, timeRange=None, mostRecent=0):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns the parm object for the given
 model, element, and level
+
+<h2><a name="getParmByExpr"></a>getParmByExpr</h2>
+def getParmByExpr(self, exprName):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns the parm object for the given expression
 <h2><a name="cacheElements"></a>cacheElements</h2>
 def cacheElements(self, elementNames):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set these elements to be cached
-self.__parmMgr.addCachedParmList(elementNames)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This routine is deprecated - caching is controlled by the system.
 <h2><a name="unCacheElements"></a>unCacheElements</h2>
 def unCacheElements(self, elementNames):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set these elements to be un-cached
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This routine is deprecated<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Users may still call this method<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # to delete temporary parms in the parm manager.
 <h2><a name="loadWEGroup"></a>loadWEGroup</h2>
 def loadWEGroup(self, groupName):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Load the given weather element group
 into the GFE
+<h2><a name="unloadWE"></a>unloadWE</h2>
+def unloadWE(self, model, element, level, mostRecent=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Unload the given weather element from GFE
 <h2><a name="saveElements"></a>saveElements</h2>
 def saveElements(self, elementList):
 <br>
@@ -459,5 +472,10 @@ only"
 only"
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; "Both"
+<h2><a name="getConfigItem"></a>getConfigItem</h2>
+def getConfigItem(elf, itemName, default=None):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the configuration file value for "itemName"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # If not found, return the default given
 <h2><a name="esat"></a>esat</h2>
 def esat(self, temp):
