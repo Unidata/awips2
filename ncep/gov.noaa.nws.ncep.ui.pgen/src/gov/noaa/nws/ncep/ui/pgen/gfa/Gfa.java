@@ -12,8 +12,8 @@ import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 04/2011		#?			B. Yin		Re-factor IAttribute
  * 05/2011					J. Wu		Added reduce-able flags.
  * 01/2012					J. Wu		Avoid null pointer in copy().
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 
  * </pre>
  * 
@@ -802,7 +803,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 			if(canBeSnapped(p)) {
 				List<Coordinate> tempList = new ArrayList<Coordinate>();
 				tempList.add(p);
-				tempList = SigmetInfo.getSnapWithStation(tempList,SigmetInfo.VOR_STATION_LIST,10,16, false);
+				tempList = SnapUtil.getSnapWithStation(tempList,SnapUtil.VOR_STATION_LIST,10,16, false);
 				Coordinate c = tempList.get(0);
 				p.setCoordinate(c); // update the coordinate
 			}

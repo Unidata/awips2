@@ -52,7 +52,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------	----------	-----------	--------------------------
  * 09/10		#304		B. Yin   	Initial Creation.
  * 11/10		#?			B. Yin		Use MidLevelCloudText as cloud labels
- *
+ * 03/12        #697        Q. Zhou     Fixed line arrow head size for ccf, cloud & turb
  * </pre>
  * 
  * @author	B. Yin
@@ -396,7 +396,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     				arrowColors = dlg.getColors();
     			}
     			
-    			Line arrowLn = new Line(null, arrowColors, 1.0F, 1.5,
+    			Line arrowLn = new Line(null, arrowColors, 1.0F, 1.0,
     					false, false, locs, 0, FillPattern.SOLID, "Lines", "POINTED_ARROW");
 
     			lbl.addArrow( arrowLn );
@@ -451,7 +451,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 			
 			locs.add(((gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp)ll).getAreaLine().getCentroid());//ln.getCentroid());	
 			
-			Line arrowLn = new Line(null, new Color[]{Color.WHITE}, 2.0F, 1.5,
+			Line arrowLn = new Line(null, new Color[]{Color.WHITE}, 2.0F, 1.0,
 					false, false, locs, 0, FillPattern.FILL_PATTERN_2, "Lines", "POINTED_ARROW");	
 			lbl.addArrow(arrowLn);
 		}

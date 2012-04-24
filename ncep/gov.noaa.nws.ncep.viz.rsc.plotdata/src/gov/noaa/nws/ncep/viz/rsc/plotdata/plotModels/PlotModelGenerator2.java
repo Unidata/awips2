@@ -122,7 +122,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/01/2011   #482       ghull       move S2N to PlotParameterDefn
  * 11/01/2011   #482       ghull       move array lookup to setMetParamFromPDV
  * 11/15/2011              bhebbard    ensure metParm units valid after query return
- *
+ * 02/21/2012              Chin Chen    Modified plotUpperAirData() for performance improvement
  * </pre>
  * 
  * @author brockwoo
@@ -676,9 +676,12 @@ public class PlotModelGenerator2 extends Job {
 
             long beginTime = 0;
             long endTime   = Long.MAX_VALUE;
-            ArrayList<Coordinate> latLonCoords = new ArrayList<Coordinate>( stationQueue.size() );
+            Date refTime=null;
+            //ArrayList<Coordinate> latLonCoords = new ArrayList<Coordinate>( stationQueue.size() );
             Map<String, PlotInfo> plotMap = new HashMap<String, PlotInfo>();
-
+            
+            List<String> stnIdLst = new ArrayList<String>( stationQueue.size() );
+            List<Long> rangeTimeLst = new ArrayList<Long>( stationQueue.size() );
             // get the start and end time for the query. And get a list of
             // coordinates for the query.
             for( PlotInfo stnInfo : stationQueue ) {
@@ -687,15 +690,23 @@ public class PlotModelGenerator2 extends Job {
                 		formatLatLonKey(stnInfo.latitude, stnInfo.longitude ), stnInfo );
                 stationQuery.add( stnInfo );
                 
+                refTime = stnInfo.dataTime.getRefTime();
                 long stnTime = stnInfo.dataTime.getValidTime().getTimeInMillis();                
                 beginTime = ( beginTime < stnTime ? stnTime : beginTime );
                 endTime   = ( endTime   > stnTime ? stnTime : endTime );
 
-                DataTime fcstTime = null; // for forecast model plotResources
-                // Can query by lat/lon or stnNum or stnId.
-                // String[] stnIds = new String[stationQuery.size()];
-                //                 
-                latLonCoords.add( new Coordinate( stnInfo.longitude, stnInfo.latitude ) );
+               
+                                //                 
+                //latLonCoords.add( new Coordinate( stnInfo.longitude, stnInfo.latitude ) );
+                //System.out.println("PlotModelGenerator2.plotUpperAirData(): lat = "+stnInfo.latitude+ " lon="+
+                //		stnInfo.longitude);
+                //chin use station id instead of lat/lon for query
+                String stnId = new String(stnInfo.stationId);
+                stnIdLst.add(stnId);
+                if(rangeTimeLst.contains(stnTime) == false){
+                	rangeTimeLst.add(stnTime);
+                	//System.out.println("PlotModelGenerator2.plotUpperAirData(): add rangeTime="+stnInfo.dataTime.getValidTime().getTime().toString());
+                }
             }
 
             // TODO if this is an UpperAir FcstPlotResource then we will need to 
@@ -707,7 +718,10 @@ public class PlotModelGenerator2 extends Job {
             	System.out.println("Error creating NcSoundingQuery2: "+e1.getMessage() );
             	return Status.CANCEL_STATUS;
 			}
-    		sndingQuery.setLatLonConstraints( latLonCoords );
+			//chin sndingQuery.setLatLonConstraints( latLonCoords );
+    		sndingQuery.setStationIdConstraints(stnIdLst);
+    		sndingQuery.setRangeTimeList(rangeTimeLst);
+    		sndingQuery.setRefTimeConstraint(refTime);
     		sndingQuery.setTimeRangeConstraint( 
     				   new TimeRange( beginTime, endTime ) );
     		
@@ -720,7 +734,10 @@ public class PlotModelGenerator2 extends Job {
     			sndingQuery.setModelName(
     					constraintMap.get("reportType" ).getConstraintValue() );
     		}
-    		NcSoundingCube sndingCube = sndingQuery.query();
+    		//long t004 = System.currentTimeMillis();
+			NcSoundingCube sndingCube = sndingQuery.query();
+    		//long t005 = System.currentTimeMillis();
+			//System.out.println("plotUpperAirData sndingQuery query  took "+(t005-t004)+" ms");
     		
     		//
     		//TODO -- This shouldn't be necessary, given Amount.getUnit() should now heal itself

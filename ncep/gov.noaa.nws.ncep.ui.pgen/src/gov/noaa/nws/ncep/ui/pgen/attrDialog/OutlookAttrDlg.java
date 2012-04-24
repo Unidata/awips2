@@ -76,6 +76,8 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
  * 07/11        #450        G. Hull     NcPathManager
  * 01/12        #582        Q. Zhou     Added NHC line/label group. Added flagLabel and flagAction and enable function. 
  *                                      Fixed enable problem when dialog returns. 
+ * 03/12        #599        Q. Zhou     Fixed selecting a outlook. need to enable btns from outlookType table.
+ * 										Fixed label text combo width.
  * </pre>
  * 
  * @author	B. Yin
@@ -198,7 +200,6 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	private String contourCint = "10/0/100";
 
 	private boolean needFromLine = false;
-	private static StationTable sfstnTbl;
 
 	private boolean showGrid = true;
 	private boolean flagLabel = true;
@@ -408,7 +409,9 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 
 		//Group for text label and symbol label
 		Group lblGrp = new Group(panel1, SWT.NONE);
-		lblGrp.setLayout(new GridLayout(1,false));
+		GridLayout layout1 = new GridLayout(1,  false);
+	    layout1.marginWidth = 10;
+	    lblGrp.setLayout(layout1);
 		
 		//text-label check box
 		Composite txtComp = new Composite( lblGrp, SWT.NONE);
@@ -417,6 +420,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		txtComp.setLayout(txtLayout);
 		
 		txtBtn = new Button(txtComp, SWT.CHECK);
+		txtBtn.setLayoutData(new GridData(50, SWT.DEFAULT));
 		txtBtn.setText("Text");
 		txtBtn.setEnabled(flagLabel);
 		txtBtn.setSelection(true);
@@ -432,6 +436,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		
 		//text-label drop-down menu
 		txtCombo = new Combo( txtComp, SWT.DROP_DOWN | SWT.READ_ONLY );
+		txtCombo.setLayoutData(new GridData(100, SWT.DEFAULT));
+		
 		txtCombo.addSelectionListener(new SelectionAdapter(){
 			
 			@Override
@@ -1293,7 +1299,10 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	private List<String> getOutlookTypes() {
 
 		List<String> otlkType = new ArrayList<String>();
-
+		Document doc = readOutlookTbl();
+		if (doc == null)
+			return otlkType;
+		
 		List<Node> nodes = readOutlookTbl().selectNodes(OTLK_XPATH);
 		for (Node node : nodes) {
 			otlkType.add(node.valueOf("@name"));
@@ -1426,7 +1435,26 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 			txtCombo.select(idx);
 			prevLbl = lbl;
 		}
-		this.setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
+		
+		String grpType = outlookCombo.getText();
+		this.setDefaultLineAttr( grpType + txtCombo.getText());
+		
+		//disable some fields such as "Make Grid" for some outlooks
+		 showGrid = showMakeGrid(grpType);
+		 flagLabel = showLabel(grpType);
+		 flagAction = showAction(grpType);
+		 
+		infoBtn.setEnabled(showGrid); 
+		makeGridBtn.setEnabled( showGrid);			 
+		lblBtn.setEnabled(flagLabel);
+		txtBtn.setEnabled(flagLabel);
+		symbolBtn.setEnabled(flagLabel);
+		lnColorBtn.setEnabled(flagLabel);
+		addLineBtn.setEnabled(flagAction);
+		delLineBtn.setEnabled(flagAction);
+		setContBtn.setEnabled(flagAction);
+		showContBtn.setEnabled(flagAction);
+		fmtBtn.setEnabled(flagAction);	
 	}
 	
 	/**
@@ -1796,20 +1824,5 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		return needFromLine;
 	}
 	
-	/**
-	 * Return the anchor table
-	 * @return
-	 */
-	public static StationTable getSfstnTbl(){
-		
-		if ( sfstnTbl == null ){
-			
-			sfstnTbl = new StationTable(
-					NcPathManager.getInstance().getStaticFile(
-	            			NcPathConstants.SFSTNS_TBL ).getAbsolutePath());
 
-		}
-		
-		return sfstnTbl;
-	}
 }
