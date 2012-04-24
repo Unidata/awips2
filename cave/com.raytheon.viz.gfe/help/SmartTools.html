@@ -38,10 +38,10 @@ Edit Actions are operators that can modify many grids in a single
 operation,
 thus potentially saving you time. The GFE has two kinds of Edit
 Actions:
-<blockquote><li>Smart Tools:&nbsp; bits of code which perform
+<blockquote><li>Smart Tools: bits of code which perform
 operations on a
 grid-by-grid
-basis.&nbsp; Smart Tools are written in a language called, Python.</li>
+basis. Smart Tools are written in a language called, Python.</li>
   <li>Procedures: bits of code which can perform operations on many
 grids and
 may call Smart Tools and other useful commands which can create,
@@ -54,7 +54,6 @@ be careful. It's easy to unintentionally modify grids, too. The next
 section
 describes how you control which grids get modified.
 <br>
-&nbsp;
 <div class="Body">Before you actually execute an Edit Action you must
 first
 indicate the grids that you wish to modify. There are two ways to
@@ -79,18 +78,14 @@ that grid should start with the word "(edit)".</div>
   <ol>
     <ol>
       <li>Make any grid you choose editable by moving the cursor over
-that grid
-in
+that grid in
 the Grid Manager pressing MB1. Alternatively, you can MB2 click on the
 Spatial Editor label that corresponds to that grid.</li>
       <li>In the Spatial Editor, pick the Select Points tool and create
-an edit
-area
-on the display.</li>
+an edit area on the display.</li>
       <li>On the button bar, MB1-click on the button that looks like
 the icon to
-the right. A list dialog will appear<img align="right" width="48"
- height="40" src="images/SmartTools-2.gif">
+the right. A list dialog will appear<img align="right" src="images/editAction.jpg">
 looking similar the figure below containing items such as SetValue,
 AdjustValue_Up,
 AdjustValue_Down, and Smooth.</li>
@@ -107,28 +102,26 @@ data using different edit actions.</li>
   </ol>
 </ol>
 </div>
-<img width="243" height="286" src="images/DialogEditAction.jpg">
-<div class="Body">&nbsp;
+<img src="images/DialogEditAction.jpg">
+<div class="Body">
 <br>
 Once you have selected an edit area, you can execute any of these Smart
-Tools in any order.&nbsp; (Sometimes the Edit Actions Dialog appears in
+Tools in any order. (Sometimes the Edit Actions Dialog appears in
 an inconvenient location such as on top of the data you wish to edit.
 The
-Edit Actions Dialog is easily moved by holding down the ALT key,
-pressing
+Edit Actions Dialog is easily moved by pressing
 MB1 on the menu and dragging the menu to a more desirable location.
 Moving
 the cursor over the title bar of this menu and MB1 dragging will move
 this
-dialog as well.)</div>
+dialog as well.)</div><br>
 <div class="Body">When a grid is "Editable", the Smart Tools that apply
-to it will appear in the Edit Actions Dialog.&nbsp; If no grid is
+to it will appear in the Edit Actions Dialog. If no grid is
 editable,
 all tools will appear. However, to execute a tool, the Weather Element
-to be modified by it, MUST be "Editable".&nbsp; The tools that apply to
+to be modified by it, MUST be "Editable". The tools that apply to
 the "Editable" Weather Element also appear and can be executed from the
-MB3 pop-up menu over the Spatial Editor.&nbsp;&nbsp; In addition,
-keyboard
+MB3 pop-up menu over the Spatial Editor. In addition, keyboard
 shortcuts can be set up for Smart Tools and Procedures (<a
  href="gfeConfig_StartUp.html#KeyboardShortcuts">see
 gfeConfig Keyboard Shortcuts</a>).</div>
@@ -168,15 +161,13 @@ you chose.</li>
   </ol>
 </blockquote>
 </div>
-<div class="Body">Examine all of the grids that you modifed until you
-convince
-yourself that you did modify all the grids that you intended.
+<div class="Body">Examine all of the grids that you modified until you
+convince yourself that you did modify all the grids that you intended.
 <p>Procedures may also depend upon the Spatial Editor time and Selected
-Time Range.&nbsp; However, they have the capability of internally
-defining
+Time Range. However, they have the capability of internally defining
 the grids and time range upon which they operate.</p>
 </div>
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 In summary, the Grid Manager's selected time range is used to indicate
 which grids will be modified by a Smart Tool. If no selected time range
@@ -185,7 +176,7 @@ Tool is the best way to know which grids will be edited before the
 operation
 is executed. If you decide NOT to perform the edit, simply move the
 mouse
-off the Smart Tool before releasing MB1.</div>
+off the Smart Tool before releasing MB1.</div><br>
 <div class="Body">The list of Smart Tools may include items that are
 defined
 at the local site. These Smart Tools can use previously defined fields
@@ -198,7 +189,7 @@ Edit Action Warnings</h4>
 performing
 Edit Actions: Empty Edit Area Warning and Time Range Warning. These can
 both be turned on or off from the Main Menu or from the Warning itself.</div>
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 The Time Range Warning cautions you that multiple grids will be
 modified
@@ -213,13 +204,5 @@ not
 checked, so one can also perform Assign_Value repeatedly and change the
 pickup value in between without getting a warning message.
 <br>
-&nbsp;
-
-
-
-
-
-
-
 </body>
 </html>
