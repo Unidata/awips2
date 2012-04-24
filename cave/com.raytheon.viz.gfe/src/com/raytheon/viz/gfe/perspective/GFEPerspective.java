@@ -37,6 +37,7 @@ import com.raytheon.viz.gfe.Activator;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
+ * 3/21/12	    12469		mli			Init PreferenceStore
  * 
  * </pre>
  * 
@@ -56,6 +57,7 @@ public class GFEPerspective implements IPerspectiveFactory {
      * .IPageLayout)
      */
     public void createInitialLayout(IPageLayout layout) {
+    	Activator.getDefault().createInitPreferenceStore();
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
 
         // Get the editor area.

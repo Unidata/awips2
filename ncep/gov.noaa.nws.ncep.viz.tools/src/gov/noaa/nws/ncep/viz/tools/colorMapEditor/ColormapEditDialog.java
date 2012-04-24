@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.tools.colorMapEditor;
 
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
+import gov.noaa.nws.ncep.viz.common.LockedColorMaps;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.io.File;
@@ -48,6 +49,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Jul 24, 2007            njensen     Hooked into backend.
  * Apr 10, 2010   #259     ghull       Copied and modified from Raytheon
  * July 18 2011   #450     ghull       use NcPathManager
+ * Feb 10 2012    #686     sgurung     Added fix for java.lang.IndexOutOfBoundsException while updating colormaps
+ * March 15 2012  #621     sgurung     Check for locked colormaps
  * 
  * </pre>
  * 
@@ -147,6 +150,8 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
     
     private  Combo selCmapCombo;
     
+    private LockedColorMaps lockedCmaps;
+    
     /**
      * Constructor.
      * 
@@ -196,7 +201,10 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
     private void setup() {
         // Set the shell layout to a Grid layout.
         shell.setLayout(new GridLayout(1, false));
-
+        
+        // Read lockedColorMaps.tbl to get the list of locked color maps
+        lockedCmaps = ColorMapUtil.readLockedColorMapFile();
+        
         availColorMaps = new ArrayList<String>();
         availColorMapCats = ColorMapUtil.getColorMapCategories();
         
@@ -220,18 +228,18 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
         createSliderData();
 
         // Initialize the components.
-        initComponents();
-
+        initComponents();        
+        
         // Pack the components.
         shell.pack();
     }
     
     private boolean initColorMap( ) {
 		try {
-			colorMap = (ColorMap) ColorMapUtil.loadColorMap( seldCmapCat, seldCmapName );
+			colorMap = (ColorMap) ColorMapUtil.loadColorMap( seldCmapCat, seldCmapName, lockedCmaps != null && lockedCmaps.isLocked(seldCmapName));
 			cmapParams.setColorMap(colorMap);
 			cmapParams.setColorMapMin(0);
-			cmapParams.setColorMapMax(colorMap.getSize());
+			cmapParams.setColorMapMax(colorMap.getSize()-1);
 			return true;
 		} catch (VizException e) {
 			System.out.println("Error Loading colorMap "+seldCmapCat+File.separator+seldCmapName);
@@ -491,7 +499,20 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
 //                int sepIndx = seldCmapName.indexOf(File.separator);
 //                String cmapCat = seldCmapName.substring(0,seldCmapName.indexOf(File.separator));
 //                String cmapName = seldCmapName.substring( seldCmapName.indexOf(File.separator));
-                if( ColorMapUtil.colorMapExists( seldCmapCat, seldCmapName ) ) {
+                if (lockedCmaps != null && lockedCmaps.isLocked(seldCmapName)) {
+                	MessageDialog confirmDlg = new MessageDialog( 
+                			NmapUiUtils.getCaveShell(), 
+                			"Save Colormap", null, 
+                			"Colormap " +seldCmapCat+File.separator +seldCmapName + 
+                			" already exists and is locked.\n\n" +
+                			"You cannot overwrite it.",
+                			MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+                	confirmDlg.open();
+                	colorBar.undoColorBar();
+                    updateColorMap();
+                	return;
+                }                
+                else if( ColorMapUtil.colorMapExists( seldCmapCat, seldCmapName ) ) {
                 	MessageDialog confirmDlg = new MessageDialog( 
                 			NmapUiUtils.getCaveShell(), 
                 			"Save Colormap", null, 
@@ -724,13 +745,13 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
      * Updates the color map currently displayed
      */
     private void updateColorMap() {
-        if (colorMap == null) {
+        //if (colorMap == null) {
             colorMap = ColorUtil.buildColorMap(colorBar.getCurrentColors(),
                     null);
-        } else {
+       /* } else {
             colorMap = ColorUtil.updateColorMap(colorBar.getCurrentColors(),
                     colorMap);
-        }
+        }*/
         cmapParams.setColorMap(colorMap);
         cmapParams.setColorMapName(null);
         ((AbstractEditor) EditorUtil.getActiveEditor()).refresh();
@@ -792,4 +813,5 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
     		msgDlg.open();
     	}
     }
+   
 }
