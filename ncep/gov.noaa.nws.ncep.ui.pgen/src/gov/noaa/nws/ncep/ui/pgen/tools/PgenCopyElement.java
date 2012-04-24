@@ -23,8 +23,9 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
+import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 
 /**
  * Implements a modal map tool for the PGEN copy element function.
@@ -41,6 +42,10 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
  * 										of the whole Contours. 
  * 02/11					J. Wu		Move Gfa text box with the polygon.										 
  * 02/11			?		B. Yin		Made it work for Outlooks
+ * 02/12					J. Wu		Make the new copy as the newly-selected.
+ * 02/12            597     S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 02/12                    S. Gurung   Moved isSnapADC() and getNumOfCompassPts() to SigmeInfo.		
+ * 								 
  * </pre>
  * 
  * @author	B. Yin
@@ -272,29 +277,34 @@ public class PgenCopyElement extends AbstractPgenTool {
         		
         		if ( ghostEl instanceof WatchBox ){
         			if (PgenWatchBoxModifyTool.resnapWatchBox(mapEditor, (WatchBox)ghostEl, (WatchBox)ghostEl))
-        				drawingLayer.addElement( ghostEl );
+        				{ drawingLayer.addElement( ghostEl );
+    				      drawingLayer.setSelected( ghostEl );
+        				}
         		}
         		else if ( parent.getName().equalsIgnoreCase("Contours") ) {
         			copyContoursComponent( parent );
         		}
         		else if ( parent instanceof Outlook ){
         			((Outlook) parent).add(ghostEl);
+    				drawingLayer.setSelected( ghostEl );
         		}
         		else {
         			if ( SigmetInfo.isSnapADC(ghostEl)){
-        				java.util.ArrayList<Coordinate> list = SigmetInfo.getSnapWithStation(
+        				java.util.ArrayList<Coordinate> list = SnapUtil.getSnapWithStation(
         						ghostEl.getPoints(), 
-        						SigmetInfo.VOR_STATION_LIST, 
+        						SnapUtil.VOR_STATION_LIST, 
         						10, 
         						SigmetInfo.getNumOfCompassPts(ghostEl));
         				
         				AbstractDrawableComponent ghostElCp = ghostEl.copy();
         				((DrawableElement)ghostElCp).setPoints(list);
         				drawingLayer.addElement(ghostElCp);
-        			}
+	    				drawingLayer.setSelected( ghostElCp );
+	    			}
         			else {
         				drawingLayer.addElement( ghostEl );
-        			}
+	    				drawingLayer.setSelected( ghostEl );
+       			    }
         		}
         		
         		drawingLayer.removeGhostLine();
@@ -318,6 +328,7 @@ public class PgenCopyElement extends AbstractPgenTool {
         	 */
         	Contours newContours = new Contours();
 	        Iterator<AbstractDrawableComponent> iterator = ((Contours)adc).getComponentIterator();
+	        
 	        while ( iterator.hasNext() ) {    				        					        					        	
 	        	
 	        	AbstractDrawableComponent oldAdc = iterator.next();	        	
@@ -333,7 +344,7 @@ public class PgenCopyElement extends AbstractPgenTool {
 			        dup.setParent( newContours );
 			        newContours.add( dup );
 
-			        drawingLayer.setSelected( newAdc );
+			        drawingLayer.setSelected( dup );
 			            
 	        	}
 	        	
