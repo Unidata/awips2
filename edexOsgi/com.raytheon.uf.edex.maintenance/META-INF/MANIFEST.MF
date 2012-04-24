@@ -23,3 +23,4 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.edex.database.plugin,
  com.raytheon.uf.edex.pointdata,
  org.springframework.orm.hibernate3.support
+Export-Package: com.raytheon.uf.edex.maintenance.archive
