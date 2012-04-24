@@ -7,7 +7,7 @@
 </head>
 <body>
 <h1 style="text-align: center;">GHG Monitor User's Guide</h1>
-<div style="text-align: center;">May 25, 2006<br>
+<div style="text-align: center;">March 8, 2012<br>
 </div>
 <br>
 <br>
@@ -15,16 +15,16 @@ The GHG Monitor is used to monitor hazards in effect. It consists of
 a spreadsheet showing various information about each hazard, a map
 showing the spatial location of each hazard, a text displaying showing
 the contents of some of the products, and an alert system to inform
-forecasters when products are about to expire.&nbsp;&nbsp;
+forecasters when products are about to expire.
 The user can define various display filters to just show the
-information desired, and can save configurations for later use.&nbsp;
+information desired, and can save configurations for later use.
 The GHG Monitor may be launched either from the command line directly,
 or from the Products menu on the GFE.<br>
 <br>
 The GHG Monitor is based off the <a href="VTEC.html">VTEC Active Table</a>,
 which is created by
 the VTEC Decoder. The active table is used by the GFE formatters to
-determine changes in state of VTEC actions and events.&nbsp; Currently
+determine changes in state of VTEC actions and events. Currently
 the GHG Monitor can only monitor products that are VTEC-enabled.<br>
 <br>
 The GHG Monitor is the basis for the GHG Administrative Editor, which
@@ -50,7 +50,7 @@ allows an administrator to view and edit the VTEC active table.<br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="CommandLine"></a>Command Line and Starting GHGMonitor</h2>
 GHGMonitor may be started through the GFE main menu Products -&gt; GHG
-Monitor entry, or directly from the command line.&nbsp; If started
+Monitor entry, or directly from the command line. If started
 through the GFE, then the <a href="GFEStartup.html#special">GFE
 startup mode</a> will be sent through to the GHGMonitor, e.g., if the
 GFE is started in PRACTICE mode, then the GHG Monitor will start in
@@ -60,9 +60,7 @@ The command line for GHGMonitor is:<br>
 <br>
 ghgMonitor <tt>[-h hostname] [-p portNumber] [-u userName] [-t
 activeTableName]</tt> <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -73,15 +71,15 @@ activeTableName]</tt> <br>
     <tr>
       <td>-h hostname</td>
       <td>YES</td>
-      <td>Identifies the hostname upon which the ifpServer is
-running.&nbsp;
+      <td>Identifies the hostname upon which EDEX is
+running.
 During installation, this value is automatically set, but may be
 overridden.</td>
     </tr>
     <tr>
       <td>-p portNumber</td>
       <td>YES</td>
-      <td>Identifies the RPC portnumber upon which the ifpServer is
+      <td>Identifies the RPC port number upon which EDEX is
 running.
 During installation, this value is automatically set, but may be
 overridden.</td>
@@ -89,11 +87,11 @@ overridden.</td>
     <tr>
       <td>-u username</td>
       <td>YES</td>
-      <td>Specifies the user id to be used for the GFE session.&nbsp;
+      <td>Specifies the user id to be used for the GFE session.
 This affects
 the availability of GHG monitor configuration data. See the <a
  href="baseSiteUserConcept.html">base,
-site, and user configuration guide</a> for details.&nbsp;&nbsp; The
+site, and user configuration guide</a> for details. The
 default, if not specified, is the Linux login account name.<br>
       </td>
     </tr>
@@ -103,8 +101,8 @@ default, if not specified, is the Linux login account name.<br>
       <td style="vertical-align: top;">YES<br>
       </td>
       <td style="vertical-align: top;">Identifies the name of the
-active table to monitor.&nbsp; "" or "active" refers to the normal
-active table.&nbsp; "PRACTICE" refers to the practice active table,
+active table to monitor. "" or "active" refers to the normal
+active table. "PRACTICE" refers to the practice active table,
 which is used while in GFE PRACTICE mode.<br>
       </td>
     </tr>
@@ -123,7 +121,7 @@ text area, spreadsheet area, and status bar:<br>
 <br>
 <h3>Main Menu Bar</h3>
 The Main Menu Bar contains common commands used to configure the GHG
-Monitor.&nbsp;&nbsp; Most of the control of the GHG Monitor is
+Monitor. Most of the control of the GHG Monitor is
 performed through the Main Menu Bar entries, with the exception of
 spreadsheet and map "selections".<br>
 <h3><span style="font-weight: bold;">Display Selector</span></h3>
@@ -184,9 +182,8 @@ what hazard the Map selection is showing, as well as Test products.<br>
 <br>
 <h3>Status Bar</h3>
 The Status Bar consists of the status field, an indicator showing the
-name of the current display filter, and the current time
-depiction.&nbsp; The status field works just like the <a
- href="StatusBar.html">Status Bar in the GFE</a>. <br>
+name of the current display filter. The status field works just like 
+the Status Bar in the GFE.<br>
 <br>
 <h3>Additional Features</h3>
 The GHG Monitor may be resized.&nbsp;&nbsp; In addition, the size of
@@ -196,7 +193,7 @@ of the monitor.<br>
 <br>
 Since there may be a large amount of data in the spreadsheet and text
 display, scroll bars are provided to scroll around in order to view the
-entire spreadsheet.&nbsp;&nbsp; The map display may also be zoomed and
+entire spreadsheet. The map display may also be zoomed and
 roamed to show additional detail.<br>
 <br>
 The current configuration may be "saved", and subsequent restarts of
@@ -206,33 +203,33 @@ the GHG Monitor will use the saved configuration.<br>
 <h2><a name="HowToUse"></a>How To Use</h2>
 Once the GHG Monitor is started, it will read the VTEC active table and
 based on its filtering setup, will display a set of
-hazards.&nbsp;&nbsp; The user can determine the geographical extent of
+hazards. The user can determine the geographical extent of
 any of these hazards simply be clicking on a cell in the
-Spreadsheet.&nbsp; The Map will then identify the affected
-zones.&nbsp;&nbsp; Selecting the Text display will show the captured
-text for that hazard.&nbsp; The user may bring up the display filter
+Spreadsheet. The Map will then identify the affected
+zones. Selecting the Text display will show the captured
+text for that hazard. The user may bring up the display filter
 dialog to change the hazards that are displayed, and may use the
 "Columns" pull-down menu to add or remove details about each
-hazard.&nbsp;&nbsp; As the product purge time approaches, the GHG
+hazard. As the product purge time approaches, the GHG
 Monitor alert system will alert the forecaster up to three times.&nbsp;
 The alerts consist of highlighting the rows of the spreadsheet based on
-the alert level, as well as displaying a "banner" message.&nbsp; The
+the alert level, as well as displaying a "banner" message. The
 user may click on a zone in the Map display and all hazards that are
 occurring in that zone will be highlighted in the spreadsheet.<br>
 <br>
 The GHG Monitor will automatically update as the hazard state changes
-with the arrival of new products.&nbsp; During the update period, the
+with the arrival of new products. During the update period, the
 watch cursor will be displayed.<br>
 <br>
-All of the menus may be torn-away.&nbsp; The Display Filter Dialog is
-non-modal and may be displayed continuously as changes are made.&nbsp;
+All of the menus may be torn-away. The Display Filter Dialog is
+non-modal and may be displayed continuously as changes are made.
 The Alert Filter Dialog and other dialogs are modal and thus the user
 must respond to the dialog prior to other operations.<br>
 <br>
 The initial state of the GHG Monitor is either the default
-configuration, or the previously saved configuration.&nbsp; Users can
+configuration, or the previously saved configuration. Users can
 configure the GHG Monitor to their tastes, and then save the
-configuration.&nbsp; Each time the GHG Monitor is started (for that
+configuration. Each time the GHG Monitor is started (for that
 user), the saved configuration will be restored.<br>
 <br>
 <hr style="width: 100%; height: 2px;">
@@ -248,7 +245,7 @@ as exit the GHG Monitor.<br>
       <td style="vertical-align: top;">Save Configuration<br>
       </td>
       <td style="vertical-align: top;">The current configuration is
-saved to the ifpServer.&nbsp; See the <a href="#Configuration">configuration
+saved to EDEX. See the <a href="#Configuration">configuration
 section</a> for details on what is saved.<br>
       </td>
     </tr>
@@ -256,7 +253,7 @@ section</a> for details on what is saved.<br>
       <td style="vertical-align: top;">Load Configuration<br>
       </td>
       <td style="vertical-align: top;">The saved configuration is read
-from the ifpServer.&nbsp; The changes are made immediately to the GHG
+from EDEX. The changes are made immediately to the GHG
 Monitor. See the <a href="GHGMonitor.html#Configuration">configuration
 section</a> for details on what is retrieved. <br>
       </td>
@@ -265,7 +262,7 @@ section</a> for details on what is retrieved. <br>
       <td style="vertical-align: top;">Default Configuration<br>
       </td>
       <td style="vertical-align: top;">The default configuration
-provided by FSL is loaded.&nbsp; The changes are made immediately to
+provided by Raytheon is loaded. The changes are made immediately to
 the GHG Monitor. See the <a href="GHGMonitor.html#Configuration">configuration
 section</a> for details on what is restored.</td>
     </tr>
@@ -777,18 +774,18 @@ involves selection of a zone on the map display.<br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="MapDisplayAndControl"></a>Map Display and Control</h2>
 The Map Display is used to graphically depict the geographical extent
-of a hazard.&nbsp; The map background type is automatically chosen
-based on the set of zones that contain a hazard.&nbsp; The software
+of a hazard. The map background type is automatically chosen
+based on the set of zones that contain a hazard. The software
 will automatically choose the FIPS, Public, Fire Weather, or Marine map
-backgrounds.&nbsp;&nbsp; You can also manually choose a map background
+backgrounds. You can also manually choose a map background
 from the <a href="#MapMenu">Map</a> menu; however, the only useful
 purpose of manually chosing a map is to next select a zone to query its
 hazards.<br>
 <br>
-The map is drawn using shapefile data available from the ifpServer.
+The map is drawn using shapefile data available from EDEX.
 Zones that are your responsibility are drawn with yellow outlines and
 zones that belong to another WFO are drawn with black outlines.&nbsp;
-The background color of the zone is dark gray.&nbsp;&nbsp; If a user
+The background color of the zone is dark gray. If a user
 selects a hazard on the Spreadsheet, the corresponding zones will be
 highlighted using a blue fill color, as shown in the following image:<br>
 <br>
@@ -796,14 +793,14 @@ highlighted using a blue fill color, as shown in the following image:<br>
  src="images/GHGMonitor9.png" style="width: 502px; height: 318px;"><br>
 <div style="text-align: left;"><br>
 The <a href="#MapMenu">Map</a> menu may be used to zoom in on the map
-background and the scroll bars are used to scroll around the map.&nbsp;
+background and the scroll bars are used to scroll around the map.
 Resizing the window larger will simply show more of the map until the
-entire map is shown, then it enlarges the map.&nbsp; Resizing the
-window smaller will show smaller and smaller sections of the map.&nbsp;
+entire map is shown, then it enlarges the map. Resizing the
+window smaller will show smaller and smaller sections of the map.
 You can restore the "No Zoom" by using the <a href="#MapMenu">Map</a>
-menu.&nbsp; The menu also provides a toggle to turn on/off the zone
+menu. The menu also provides a toggle to turn on/off the zone
 labels. Examples of the zoomed map with and without labels is shown
-below.&nbsp; Note the spreadsheet display shows the Expired alert for
+below. Note the spreadsheet display shows the Expired alert for
 the FA.A hazard, but the zones appearing in the map belong to the SN.Y
 beginning at 02z 08-Jan-05:<br>
 </div>
@@ -867,7 +864,7 @@ identified by the selected rows in the spreadsheet.<br>
 <br>
 Depending upon your <a href="#DisplayFilter">Display Filter</a>
 settings, additional records may be added to the spreadsheet when
-clicking on the map.&nbsp;&nbsp; The display filter also is used to
+clicking on the map. The display filter also is used to
 determine whether clicking on a map zone will include records that are
 already expired or are old events.<br>
 </div>
@@ -878,16 +875,16 @@ already expired or are old events.<br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="TextDisplay"></a>Text Display</h2>
 The Text Display is used in conjunction with Map and Spreadsheet
-selections.&nbsp;&nbsp; If the user clicks on a spreadsheet row, or
+selections. If the user clicks on a spreadsheet row, or
 clicks on a map zone, the appropriate hazards are highlighted in the
-spreadsheet.&nbsp; At the same time, the text display will show the
-overview text and segment text relating to those hazards.&nbsp;&nbsp;
+spreadsheet. At the same time, the text display will show the
+overview text and segment text relating to those hazards.
 Scroll bars on the text display permit the user to see the entire set
-of text.&nbsp; Not all products are supported with captured text.<br>
+of text. Not all products are supported with captured text.<br>
 <br>
-Only segmented products have overview text.&nbsp; Overview text is
+Only segmented products have overview text. Overview text is
 defined as the text between the MND header and the first UGC
-line.&nbsp; Segment text is defined as the text within each segment
+line. Segment text is defined as the text within each segment
 between the end of the UGC/Date block and the $$ segment ending
 characters.<br>
 <br>
@@ -896,24 +893,24 @@ characters.<br>
 </div>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="DisplayFIlter"></a>Display Filter</h2>
-The Display Filter is a very important aspect to the GHG Monitor.&nbsp;
+The Display Filter is a very important aspect to the GHG Monitor.
 Depending upon the display filter settings, you may end up with just a
-few entries, or hundreds of entries on the spreadsheet.&nbsp; A default
+few entries, or hundreds of entries on the spreadsheet. A default
 display filter is provided with the software and the user can always
 select the default filter from the <a href="#FilterMenu">Filter</a>
-menu.&nbsp; The Display Filter Dialog is used to define the filter and
+menu. The Display Filter Dialog is used to define the filter and
 it is also accessed from the <a href="#FilterMenu">Filter</a>
-menu.&nbsp; The filtering technique consists of four steps:<br>
+menu. The filtering technique consists of four steps:<br>
 <ul>
   <li>the raw records are read from the VTEC active table.&nbsp; These
 records are organized by hazard and zone, thus a WS.W occupying 10
 zones would take 10 records.</li>
   <li>the records are consolidated based on the filter
-options.&nbsp;&nbsp; Options such as "Combine GeoIDs" will take
+options. Options such as "Combine GeoIDs" will take
 identical hazards (same start time, ending time, phen/sig, product pil)
 that are occurring in different zones and combines them into one record.</li>
   <li>the remaining records are passed through the display
-filter.&nbsp; Depending upon the current filter settings, filters out
+filter. Depending upon the current filter settings, filters out
 records that are old (i.e., old events), filters out records that
 belong to another WFO, filters out records based on product pil, or
 phen/sig. <br>
@@ -928,26 +925,26 @@ and then displayed in the spreadsheet.</li>
     <tr>
       <td style="vertical-align: top;">This is the GHG Monitor Filter
 Dialog.&nbsp; The upper section consists of the listbox
-options.&nbsp;&nbsp; Selecting items from the listbox will change the
-filtering.&nbsp;&nbsp; If a particular column/listbox contains no
+options. Selecting items from the listbox will change the
+filtering. If a particular column/listbox contains no
 highlighted sections, it is intrepreted as if all of the sections were
-highlighted.&nbsp; In the example, only the CON, EXA, EXB, EXT, and NEW
+highlighted. In the example, only the CON, EXA, EXB, EXT, and NEW
 actions will be shown in the spreadsheet; all other records will be
-filtered out.&nbsp; All Phen/Sig and Pils will be shown since no
-entries are highlighted in those two listboxes.&nbsp;&nbsp; Buttons at
+filtered out. All Phen/Sig and Pils will be shown since no
+entries are highlighted in those two listboxes. Buttons at
 the bottom of each listbox allow quick selection and deselection of all
 entries.<br>
       <br>
 The "Show Current Hazards Only" button will filter the displayed set of
 entries in the listbox based on those records actually found and is a
-quick way to get an overview summary of all hazards.&nbsp;&nbsp;
+quick way to get an overview summary of all hazards.
 "Current Hazards" are considered those hazards found in the VTEC active
 table AND those hazards whose ending time or purge time has not yet
 passed.<br>
       <br>
 The "Show Advanced Columns" is intended for advanced users to examine
 other hazard aspects, such as filtering by geographical id (e.g.,
-zone), segment number, and ETN number.&nbsp; The regular user will not
+zone), segment number, and ETN number. The regular user will not
 need this capability, but it is useful for diagnostics.<br>
       <br>
 The Record Consolidation section and the Filter Override section
@@ -960,15 +957,15 @@ Spreadsheet.<br>
     </tr>
   </tbody>
 </table>
-&nbsp;<br>
-The Record Consolidation section contains four options.&nbsp; For
+<br>
+The Record Consolidation section contains four options. For
 normal use, these options should always be turned on which will
-minimize the number of records shown in the spreadsheet.&nbsp;&nbsp;
+minimize the number of records shown in the spreadsheet.
 Like events will be combined based on the state of the record
-consolidation values.&nbsp; Records that have a different event
+consolidation values. Records that have a different event
 starting or ending time, phen/sig (hazard), originating office WFO,
 event tracking number, product pil, or issuance time will NEVER be
-combined.&nbsp; The same hazard is identified by the same starting and
+combined. The same hazard is identified by the same starting and
 ending time, the same issuance time, same product pil, originating
 office, event tracking number, and hazard type (phen/sig).<br>
 <br>
@@ -988,7 +985,7 @@ office, event tracking number, and hazard type (phen/sig).<br>
       </td>
       <td style="vertical-align: top;">This option attempts to combine
 all records with the same hazard that differ only by their location
-(e.g., zone).&nbsp;&nbsp; <br>
+(e.g., zone).<br>
       </td>
       <td style="vertical-align: top;">YES<br>
       </td>
@@ -1008,7 +1005,7 @@ segments.<br>
       </td>
       <td style="vertical-align: top;">This option attempts to combine
 all records with the same hazard that have different purge times (due
-to different segments).&nbsp;&nbsp; The purge time reflected in the
+to different segments). The purge time reflected in the
 spreadsheet will be the "soonest" or "earliest" of the different purge
 times.<br>
       </td>
@@ -1020,11 +1017,11 @@ times.<br>
       </td>
       <td style="vertical-align: top;">This option attempts to combin
 all records with the same hazard that may have different action
-codes.&nbsp; When combining action codes, only codes within the same
-group will be combined.&nbsp; For example, CON, EXA, EXB, EXT, NEW all
-reflect active hazards and those action codes may be combined.&nbsp;
+codes. When combining action codes, only codes within the same
+group will be combined. For example, CON, EXA, EXB, EXT, NEW all
+reflect active hazards and those action codes may be combined.
 records with CAN, UPG, EXP reflect hazards no longer present and those
-action codes may be combined.&nbsp; You cannot combine records with a
+action codes may be combined. You cannot combine records with a
 CON and CAN since they belong in two different action groups.<br>
       </td>
       <td style="vertical-align: top;">YES<br>
@@ -1053,9 +1050,9 @@ spreadsheet that normally would be filtered out:<br>
       </td>
       <td style="vertical-align: top;">With this option turned off,
 alerts that have been filtered out will not be shown in the
-spreadsheet, although alerts will still occur.&nbsp; With this option
+spreadsheet, although alerts will still occur. With this option
 turned on, alert records that are filtered out will be automatically
-added to the spreadsheet and highlighted.&nbsp;&nbsp; For example, if
+added to the spreadsheet and highlighted. For example, if
 this option is on and the display filter has WS.W (Winter Storm
 Warning) turned off, and a WSW product is about to expire, then a WS.W
 record will appear in the spreadsheet anyway.<br>
@@ -1069,17 +1066,17 @@ record will appear in the spreadsheet anyway.<br>
       <td style="vertical-align: top;">With this option turned off,
 selections made on the map background will only highlight those records
 already displayed in the spreadsheet that match the
-geography.&nbsp;&nbsp; With the option turned off, the display filter
+geography. With the option turned off, the display filter
 is bypassed when a selection is made on the map background and
 additional records that reflect hazards in that zone will be added to
-the spreadsheet listing.&nbsp;&nbsp; For example, if this option is on
+the spreadsheet listing. For example, if this option is on
 and the display filter has WS.W turned off, there will be no hazard
-records shown in the spreadsheet containing WS.W.&nbsp; If the user
+records shown in the spreadsheet containing WS.W. If the user
 clicks on a zone that has a WS.W, then the WS.W hazard record for that
-zone will be automatically added to the spreadsheet.&nbsp; Note that
+zone will be automatically added to the spreadsheet. Note that
 "Include Past Events" affects the records in the spreadsheet for the
-"map selections".&nbsp; If set, then any records with the zone selected
-will be added to the spreadsheet.&nbsp; If not set, then only records
+"map selections". If set, then any records with the zone selected
+will be added to the spreadsheet. If not set, then only records
 that are currently in effect (i.e., ending time of the hazard has not
 passed) that contain ongoing actions (NEW, CON, EXA, EXB, EXT) will be
 shown.<br>
@@ -1092,8 +1089,17 @@ shown.<br>
       </td>
       <td style="vertical-align: top;">With this option turned off,
 hazard entries in the spreadsheet will not contain any hazard records
-that are in the "past".&nbsp; "Past" is defined as records that have an
+that are in the "past". "Past" is defined as records that have an
 event ending time earlier than the present time.<br>
+      </td>
+      <td style="vertical-align: top;">NO<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Include OrgPil Events<br>
+      </td>
+      <td style="vertical-align: top;">With this option turned off,
+hazard entries in the spreadsheet will not contain any OrgPil hazard records.<br>
       </td>
       <td style="vertical-align: top;">NO<br>
       </td>
@@ -1107,10 +1113,10 @@ event ending time earlier than the present time.<br>
     <tr>
       <td style="vertical-align: top;">The "Show Advanced Columns"
 option on the Filter Dialog will add the GeoID, ETN, and Seg
-columns.&nbsp; Normally a user does not filter on these columns, but it
+columns. Normally a user does not filter on these columns, but it
 is useful for diagnostic purposes.<br>
       <br>
-The ETN, and Seg columns always show the list of&nbsp; ETN and segments
+The ETN, and Seg columns always show the list of ETN and segments
 that are contained within the VTEC active table and are updated as new
 records arrive.<br>
       </td>
@@ -1121,8 +1127,8 @@ records arrive.<br>
     <tr>
       <td style="vertical-align: top;">If the "Show Current Hazards
 Only" option is enabled, then the listboxes will change to show just
-those entries that have been found in the VTEC active table.&nbsp; In
-this case, only the CON and NEW actions were found.&nbsp; The GeoID
+those entries that have been found in the VTEC active table. In
+this case, only the CON and NEW actions were found. The GeoID
 column shows just those zones containing current hazards.<br>
       <br>
 Remember that filters are set when you turn on "Show Current Hazards
@@ -1136,30 +1142,27 @@ Only" and future events may be filtered out.<br>
 </table>
 <br>
 The Display Filter offers many choices on filtering which events are to
-be seen on the GHG Monitor's spreadsheet.&nbsp; At any time, the user
+be seen on the GHG Monitor's spreadsheet. At any time, the user
 can save the current state of the filter as a named filter.&nbsp;&nbsp;
 Named filters may be loaded, saved, and deleted from the <a
- href="#FilterMenu%5C">Filter</a> menu.&nbsp; There is an indicator on
+ href="#FilterMenu%5C">Filter</a> menu. There is an indicator on
 the status bar showing the name of the current filter that is in
 effect.&nbsp; The indicator shows "&lt;Default&gt;" when the default
 filter is chosen and "&lt;Initial&gt;" when the initial display filter
 is loaded.<br>
 <br>
 Named Display Filters are saved and loaded with the overall GHG
-Configuration.&nbsp; The GHG Configuration may be saved and loaded from
+Configuration. The GHG Configuration may be saved and loaded from
 the <a href="#FileMenu">File</a> menu.<br>
 <br>
 Changes in the Display Filter will deselect any Map or Spreadsheet
 selections that may be present.<br>
 <br>
-NOTE: Some displayed "Pil"s may not match the actual product pil.&nbsp;
-This
-occurs for hazards that are issued with one PIL and updated/cancelled
-using another PIL.&nbsp; Examples are the Tornado Warning (TO.W) which
-is
-issued in the TOR product and updated/cancelled in the SVS
-product.&nbsp;
-The monitor will show TOR for the updates and cancels.&nbsp; The
+NOTE: Some displayed "Pil"s may not match the actual product pil.
+This occurs for hazards that are issued with one PIL and updated/cancelled
+using another PIL. Examples are the Tornado Warning (TO.W) which
+is issued in the TOR product and updated/cancelled in the SVS
+product. The monitor will show TOR for the updates and cancels. The
 VTECPartners VTEC_MAPPED_PILS entry defines this relationship.
 <h3><br>
 </h3>
@@ -1168,9 +1171,9 @@ VTECPartners VTEC_MAPPED_PILS entry defines this relationship.
 <h2><a name="AlertFilter"></a>Alert Characteristics</h2>
 One of the primary purposes of the GHG Monitor is to remind forecasters
 that products are about to expire and updates/replacements are
-necessary.&nbsp; The GHG Monitor offers three types of alerts: Alert1,
-Alert2, and Expired alerts.&nbsp; The characteristics of these alerts
-are set by the GHG Monitor Alert Dialog.&nbsp;&nbsp; When an alert is
+necessary. The GHG Monitor offers three types of alerts: Alert1,
+Alert2, and Expired alerts. The characteristics of these alerts
+are set by the GHG Monitor Alert Dialog. When an alert is
 "fired", an alert banner (if desired) is displayed and the affected
 hazards in the Spreadsheet are highlighted, as shown:<br>
 <br>
@@ -1187,18 +1190,18 @@ hazards in the Spreadsheet are highlighted, as shown:<br>
 The Alert Dialog is accessed from the <a
  href="GHGMonitor.html#AlertMenu">Alert</a> menu.&nbsp; Through the
 "Enable Alert1", "Enable Alert2", and "Enabled Expired" checkbuttons,
-the user can turn on or off the alerts.&nbsp; Each of these alert types
-also has a "Show Banner" checkbutton.&nbsp; If enabled, then a banner
-alert will be displayed when the alert is fired.&nbsp; If disabled,
+the user can turn on or off the alerts. Each of these alert types
+also has a "Show Banner" checkbutton. If enabled, then a banner
+alert will be displayed when the alert is fired. If disabled,
 then only the spreadsheet will be highlighted.<br>
       <br>
 The Display Filter "Include Alerts" checkbutton needs to be enabled in
-order to see all alerts.&nbsp; Without that checkbutton enabled, it is
+order to see all alerts. Without that checkbutton enabled, it is
 possible that the forecaster may have filtered out the hazards causing
 the alerts.<br>
       <br>
 The scales are used to define the number of minutes prior to the
-product purge time (expire time) that the alert will trigger.&nbsp; The
+product purge time (expire time) that the alert will trigger. The
 "Expired" alert type does not permit adjustment of the scale and is
 always fixed at 0 minutes.<br>
       </td>
@@ -1212,21 +1215,21 @@ always fixed at 0 minutes.<br>
 </table>
 <br>
 The "Alert for My WFO Only" checkbutton limits alerts to only my
-WFO.&nbsp; If cleared, then you will receive alerts for products
-generated by other WFOs.&nbsp;&nbsp; The "Alert for TEST Products"
+WFO. If cleared, then you will receive alerts for products
+generated by other WFOs. The "Alert for TEST Products"
 indicates whether alerts will be issued for products in the VTEC Test
 mode. <br>
 <br>
 The three listboxes define the Actions, Phen.Sig, and Pil for the
-alerts.&nbsp; This allows the user to only alert on certain events.<br>
+alerts. This allows the user to only alert on certain events.<br>
 <br>
 Alert criteria is checked once each minute to determine if there are
-new events that require alerting.&nbsp; Once an alert has been
+new events that require alerting. Once an alert has been
 triggered for a particular event, the entry in the spreadsheet will be
-changed to that alert color.&nbsp; If a banner alert was requested, the
-banner alert is displayed.&nbsp;&nbsp; The spreadsheet alert will
+changed to that alert color. If a banner alert was requested, the
+banner alert is displayed. The spreadsheet alert will
 continue until either a different alert type is displayed, or until
-that record is removed from the spreadsheet.&nbsp; Records are removed
+that record is removed from the spreadsheet. Records are removed
 from the spreadsheet either manually using the Display Filter, or by
 new events that supercede the previous event.<br>
 <br>
@@ -1244,17 +1247,15 @@ font sizes, colors, and identifying Test products.<br>
   <tbody>
     <tr>
       <td style="vertical-align: top;">Selecting Appearance -&gt;
-Font... will bring up the GHG Monitor Font&nbsp;
-Choice Dialog.&nbsp;&nbsp; Five choices of font sizes, with the current
+Font... will bring up the GHG Monitor Font
+Choice Dialog. Five choices of font sizes, with the current
 font size
-are shown.&nbsp; The user selects the new font, and selects Apply Font.</td>
+are shown. The user selects the new font, and selects Apply Font.</td>
       <td style="vertical-align: top;"><img alt=""
  src="images/GHGMonitor17.png" style="width: 490px; height: 252px;"></td>
     </tr>
   </tbody>
 </table>
-<br>
-<br>
 <br>
 <table style="width: 100%; text-align: left;" border="1" cellpadding="2"
  cellspacing="2">
@@ -1279,23 +1280,22 @@ the largest available font:<br>
 </table>
 <br>
 To make the font size persistent, be sure to save your configuration
-under the <a href="#FileMenu">File</a> menu.&nbsp; Refer to the <a
+under the <a href="#FileMenu">File</a> menu. Refer to the <a
  href="#Configuration">Saving and Loading Configuration</a> section
 for more details.<br>
 <br>
 <h3>Colors</h3>
 The spreadsheet and alert colors may be configured by the user from the
-Appearance-&gt;Colors menu entry.&nbsp; The GHG Monitor Color Choice
+Appearance-&gt;Colors menu entry. The GHG Monitor Color Choice
 Dialog will be displayed allowing the user to configure seven different
-color schemes.&nbsp; For each scheme there is a Text Color (foreground)
-and a Background Color.&nbsp; The user chooses the Color Scheme to
+color schemes. For each scheme there is a Text Color (foreground)
+and a Background Color. The user chooses the Color Scheme to
 modify, then uses the two color choosers to set the color, then uses
-"Apply Colors" to make the change.&nbsp; Refer to the <a
+"Apply Colors" to make the change. Refer to the <a
  href="ColorDialogs.html#ColorChooser">Color Chooser Dialog</a> on how
 to use the color wheel and hue, saturation, and brightness sliders.<br>
 <br>
-<img alt="" src="images/GHGMonitor20.png"
- style="width: 928px; height: 369px;"><br>
+<img alt="" src="images/GHGMonitor20.png"><br>
 <br>
 The various color schemes and their use are:<br>
 <table style="width: 100%; text-align: left;" border="1" cellpadding="2"
@@ -1328,7 +1328,7 @@ Spreadsheet and the Alert banner messages when the product has expired.<br>
       <td style="vertical-align: top;">Map Selections<br>
       </td>
       <td style="vertical-align: top;">The Map Selection color is shown
-in the Spreadsheet and on selected zones in the Map Display.&nbsp; A
+in the Spreadsheet and on selected zones in the Map Display. A
 Map Selection is made when the user has clicked upon a zone in the map
 background.<br>
       </td>
@@ -1355,7 +1355,7 @@ cell/row.<br>
       </td>
       <td style="vertical-align: top;">Test product are displayed in a
 different color in the Spreadsheet to indicate to the user that this is
-a TEST product and not an operational product.&nbsp; The special
+a TEST product and not an operational product. The special
 appearance of the test products may be disabled using the "Identify
 Test Products" option.<br>
       </td>
@@ -1365,14 +1365,14 @@ Test Products" option.<br>
 <br>
 <br>
 To make the colors persistent, be sure to save your configuration under
-the <a href="GHGMonitor.html#FileMenu">File</a> menu.&nbsp; Refer to
+the <a href="GHGMonitor.html#FileMenu">File</a> menu. Refer to
 the <a href="GHGMonitor.html#Configuration">Saving and Loading
 Configuration</a> section for more details.<br>
 <br>
 <br>
 <h3>Identify Test Products</h3>
 The "Identify Test Products" allow the user to highlight Test products
-in the Spreadsheet.&nbsp;&nbsp; Test products are determined solely by
+in the Spreadsheet. Test products are determined solely by
 their VTEC mode. <br>
 <br>
 <hr style="width: 100%; height: 2px;">
@@ -1381,7 +1381,7 @@ The menus provide the capability to Save the current configuration,
 Load the saved configuration, and Load the Default Configuration. The
 configuration uses the <a href="baseSiteUserConcept.html">GFESuite
 BASE, SITE, User concept</a>, but the user does not have a choice of
-names for the configuration file.&nbsp; There is exactly 1
+names for the configuration file. There is exactly 1
 configuration that can be saved for the monitor (per person).<br>
 <br>
 Upon GHG Monitor startup, the previously saved configuration, if
@@ -1401,8 +1401,8 @@ alert types, banner display flags for the three alert types.<br>
 selection criteria, and include flags. The consolidation flags select
 combining GeoIDs, segments, purge times, and actions. The selection of
 product pils, originating office identifiers, hazard (phen/sig), and
-action codes.&nbsp; The advanced filtering of segments, etns, and
-geographical zones is saved if defined.&nbsp; The include flags of map
+action codes. The advanced filtering of segments, etns, and
+geographical zones is saved if defined. The include flags of map
 selections, alerts, past events, and original pil events are included.<br>
   </li>
   <li>Named Filter and their display filter characteristics<br>
@@ -1416,10 +1416,5 @@ is performed.<br>
   <li>Identify Test Events mode<br>
   </li>
 </ul>
-<hr style="width: 100%; height: 2px;">
-<h2><br>
-</h2>
-<br>
-<br>
 </body>
 </html>

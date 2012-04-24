@@ -1212,8 +1212,6 @@
 			levelTwoValue="0" />
 		<DatabaseLevel levelName="BL" levelOneValue="180"
 			levelTwoValue="0" />
-		<DatabaseLevel levelName="MB" levelOneValue="50"
-			levelTwoValue="100" />
 		<DatabaseLevel levelName="FHAG" levelOneValue="0"
 			levelTwoValue="30" />
 	</Level>
