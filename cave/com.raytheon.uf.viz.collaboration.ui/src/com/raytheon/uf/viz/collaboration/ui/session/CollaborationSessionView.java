@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 
 /**
  * TODO Add Description
@@ -74,6 +75,20 @@ public class CollaborationSessionView extends SessionView {
     private Action switchToAction;
 
     private ISharedDisplaySession session;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#createPartControl
+     * (org.eclipse.swt.widgets.Composite)
+     */
+    @Override
+    public void createPartControl(Composite parent) {
+        super.createPartControl(parent);
+        SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
+                .getEventPublisher().register(this);
+    }
 
     protected void createActions() {
         super.createActions();
@@ -137,6 +152,19 @@ public class CollaborationSessionView extends SessionView {
         switchToAction.setMenuCreator(creator);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#initColorManager
+     * ()
+     */
+    @Override
+    protected void initColorManager() {
+        manager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager();
+    }
+
     private void switchDataProvider(UserId userId) {
         System.out.println("Send switchDataProvider request. "
                 + userId.getFQName());
@@ -163,28 +191,6 @@ public class CollaborationSessionView extends SessionView {
     @Override
     protected String getSessionImageName() {
         return COLLABORATION_SESSION_IMAGE_NAME;
-    }
-
-    @Override
-    protected String buildParticipantTooltip(IRosterEntry user) {
-        StringBuilder builder = new StringBuilder(
-                super.buildParticipantTooltip(user));
-        // TODO these should be smarter ifs
-        boolean isSessionLeader = user.getUser().equals(
-                session.getCurrentSessionLeader());
-        boolean isDataProvider = user.getUser().equals(
-                session.getCurrentDataProvider());
-        if (isSessionLeader || isDataProvider) {
-            builder.append("\n-- Roles --");
-            if (isSessionLeader) {
-                builder.append("\nSession Leader");
-            }
-            if (isDataProvider) {
-                builder.append("\nData Provider");
-            }
-        }
-
-        return builder.toString();
     }
 
     @Override
