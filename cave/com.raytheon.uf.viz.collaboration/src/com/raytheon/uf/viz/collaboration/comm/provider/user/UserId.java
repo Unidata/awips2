@@ -83,7 +83,7 @@ public class UserId implements IQualifiedID {
     public UserId(String userName, String hostName, String resource,
             String alias) {
         this.name = userName;
-        this.host = hostName;
+        setHost(hostName);
         this.resource = resource;
         this.alias = alias;
     }
@@ -112,8 +112,11 @@ public class UserId implements IQualifiedID {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHostName(java.lang.String)
      */
     @Override
-    public void setHost(String hostName) {
-        host = hostName;
+    public void setHost(String hostname) {
+        if (hostname.startsWith(CONF_ID)) {
+            hostname = hostname.substring(CONF_ID.length());
+        }
+        host = hostname;
     }
 
     /**
@@ -155,11 +158,7 @@ public class UserId implements IQualifiedID {
     public String getFQName() {
         StringBuilder sb = new StringBuilder(name);
         sb.append("@");
-        String hostname = host;
-        if (hostname.startsWith(CONF_ID)) {
-            hostname = hostname.substring(CONF_ID.length());
-        }
-        sb.append(hostname);
+        sb.append(host);
         sb.append("/");
         if (resource != null) {
             sb.append(resource);
