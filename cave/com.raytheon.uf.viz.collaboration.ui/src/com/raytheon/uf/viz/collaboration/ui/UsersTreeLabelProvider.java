@@ -147,6 +147,9 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
             return ((UserId) element).getName() + " - "
                     + ((UserId) element).getHost();
         } else if (element instanceof IVenueSession) {
+            if (((IVenueSession) element).getVenue() == null) {
+                return null;
+            }
             return ((IVenueSession) element).getVenue().getInfo()
                     .getVenueDescription();
         }
