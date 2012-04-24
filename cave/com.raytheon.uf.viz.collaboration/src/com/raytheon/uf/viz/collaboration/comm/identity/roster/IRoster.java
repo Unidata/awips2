@@ -139,7 +139,7 @@ public interface IRoster {
      * @param nickName
      * @param groups
      */
-    void sendRosterAdd(String account, String nickName, String[] groups)
+    void sendRosterAdd(UserId account, String[] groups)
             throws CollaborationException;
 
     /**

@@ -325,7 +325,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
             err = "Name contains invalid characters.";
         } else {
             Collection<IVenueInfo> info = CollaborationDataManager
-                    .getInstance().getSessionManager().getVenueInfo();
+                    .getInstance().getCollaborationConnection().getVenueInfo();
             for (IVenueInfo i : info) {
                 if (name.equals(i.getVenueName())) {
                     err = "Session already exists. Pick a different name.";
