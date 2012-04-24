@@ -95,7 +95,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2009            lvenable     Initial creation
- * 
+ * Apr 16, 2012 DR 14511   gzhang		No use GUI thread for Graph data
  * </pre>
  * 
  * @author lvenable
@@ -1608,9 +1608,19 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
      */
     private void fireGraphDataEvent(final String pfaf,
             final boolean differentPfaf, final Date ffmpDate) {
-
+    	if((pfaf==null) || pfaf.isEmpty()){ resetCursor(); return; }
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
+        //DR 14511: GUI thread should not be used for Graph Data retrieval
+        FFMPGraphData fgd = null; 
+        try{
+        	fgd = resource.getGraphData(pfaf);
+        }catch (VizException e) { 
+        	shell.setCursor(null); 
+        	statusHandler.handle(Priority.PROBLEM,"Graph Data request failed ", e);
+        }
+        final FFMPGraphData fgd2 = fgd;        
+        if(fgd2 == null) { resetCursor(); return; }
         // This needs to be in sync
         Display.getDefault().asyncExec(new Runnable() {
             @Override
@@ -1622,9 +1632,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                     return;
                 }
                 try {
-                    setGraphData(resource.getGraphData(pfaf), pfaf,
+                    setGraphData(/*resource.getGraphData(pfaf)*/fgd2, pfaf,
                             differentPfaf, ffmpDate);
-                } catch (VizException e) {
+                } catch (/*Viz*/Exception e) {
                     shell.setCursor(null);
                     statusHandler.handle(Priority.PROBLEM,
                             "Graph Data request failed in resource", e);

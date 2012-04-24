@@ -83,12 +83,11 @@ public class NsharpLineConfigDialog extends Dialog {
 	private ColorMatrixSelector cms;
 	public static NsharpConfigStore setDefaultLineConfig(NsharpConfigStore cs){
 		HashMap<String, NsharpLineProperty> linePropertyMap = cs.getLinePropertyMap();
+		int i =0;
 		for(String lnName: NsharpConstants.lineNameArray){
-			NsharpLineProperty lp = new NsharpLineProperty();
-			lp.setLineStyle(LineStyle.SOLID);
-			lp.setLineWidth(1);
-			lp.setLineColor(new RGB(255,0,0));
+			NsharpLineProperty lp = NsharpConstants.defaultLineProperty[i];
 			linePropertyMap.put(lnName, lp);
+			i++;
 		}
 		return cs;
 	}
