@@ -9,11 +9,9 @@ package gov.noaa.nws.ncep.ui.pgen.elements;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetCommAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
+import gov.noaa.nws.ncep.ui.pgen.display.ITrack;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Cloud;
@@ -23,7 +21,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.ConvSigmet;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.*;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 
@@ -61,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/10		#223		M.Laryukhin	Gfa added. 
  * 09/10		#304		B. Yin		Added LabeledLine
  * 09/11		?			B. Yin		Added TCM
+ * 03/12        #625        S. Gurung   Make Line and Line(Med) thicker for CCFP_SIGMET
  *
  * </pre>
  * 
@@ -148,9 +146,11 @@ public class DrawableElementFactory {
  
 		case TRACK: 
 			de = new Track(); 
-			TrackAttrDlg trackAttrDlg = (TrackAttrDlg)attr; 
 			Track track = (Track) de; 
-			track.initializeTrackByTrackAttrDlgAndLocationList(trackAttrDlg, locations); 
+			
+			if ( attr instanceof ITrack ){
+				track.initializeTrackByTrackAttrDlgAndLocationList((ITrack)attr, locations);
+			}
 
 			break;
 
@@ -175,9 +175,10 @@ public class DrawableElementFactory {
 			de = new Sigmet();
 			Sigmet sgm = (Sigmet)de;
 			sgm.setLinePoints(locations);
-			SigmetAttrDlg sDlg = (SigmetAttrDlg)attr;
-			sgm.setType(sDlg.getLineType());
-			sgm.setWidth(sDlg.getWidth());// SOL of line ???			
+			if ( attr instanceof ISigmet ){
+				sgm.setType(((ISigmet)attr).getLineType());
+				sgm.setWidth(((ISigmet)attr).getWidth());// SOL of line ???
+			}
 			break;
 			
 		case CONV_SIGMET:
@@ -185,16 +186,14 @@ public class DrawableElementFactory {
 			ConvSigmet csgm = (ConvSigmet)de;
 			csgm.setLinePoints(locations);
 			
-			if(pgenType.equals("CCFP_SIGMET")){
-				gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg csDlg = 
-					(gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg)attr;
-				csDlg.copyEditableAttrToAbstractSigmet(csgm);				
+			if(pgenType.equals("CCFP_SIGMET") && attr instanceof ICcfp){
+				
+				((ICcfp)attr).copyEditableAttrToAbstractSigmet(csgm);				
 				break;
 			}
 			
-			SigmetCommAttrDlg csDlg = (SigmetCommAttrDlg)attr;
-			csgm.setType(csDlg.getLineType());
-			csgm.setWidth(csDlg.getWidth());// SOL of line ???			
+			csgm.setType(((ISigmet)attr).getLineType());
+			csgm.setWidth(((ISigmet)attr).getWidth());// SOL of line ???			
 			break;
 		
 		case VAA:
@@ -207,10 +206,11 @@ public class DrawableElementFactory {
 			de = new VolcanoAshCloud();			
 			VolcanoAshCloud vCloud = (VolcanoAshCloud)de;			
 			vCloud.setLinePoints(locations);
-			VaaCloudDlg vacDlg = (VaaCloudDlg)attr;
-			vCloud.setType(vacDlg.getLineType() );
-			vCloud.setWidth(vacDlg.getWidth());	
-			vCloud.setEditableAttrFreeText(vacDlg.getFhrFlDirSpdTxt());			
+			if ( attr instanceof IVaaCloud ){
+				vCloud.setType(((IVaaCloud)attr).getLineType() );
+				vCloud.setWidth(((IVaaCloud)attr).getWidth());	
+				vCloud.setEditableAttrFreeText(((IVaaCloud)attr).getFhrFlDirSpdTxt());		
+			}
 			break;			
 			
 		case GFA:
@@ -407,15 +407,21 @@ public class DrawableElementFactory {
 				ll.setParent(parent);
 			}
 		}else if("CCFP_SIGMET".equalsIgnoreCase(pgentype)){
-			CcfpAttrDlg ccdlg = (CcfpAttrDlg)attrDlg;
 			
-			Sigmet sig = new Sigmet(); 
-			sig.setType(ccdlg.getCcfpLineType());
+			Sigmet sig = new Sigmet();
+			
+			if ( attrDlg instanceof ICcfp ){
+				sig.setType(((ICcfp)attrDlg).getCcfpLineType());
 
-			ln.setPgenType(ccdlg.getCcfpLineType());//"LINE_SOLID"); 
-			ln.setClosed(ccdlg.isAreaType());//true);//TODO: to be modified according line type: Area, Line, or Line(Med)
-			ln.setFilled(ccdlg.isAreaType());
-						
+				ln.setPgenType(((ICcfp)attrDlg).getCcfpLineType());//"LINE_SOLID"); 
+				ln.setClosed(((ICcfp)attrDlg).isAreaType());//true);//TODO: to be modified according line type: Area, Line, or Line(Med)
+				ln.setFilled(((ICcfp)attrDlg).isAreaType());
+				if (!((ICcfp)attrDlg).isAreaType())
+					ln.setLineWidth(3.0f);
+				else
+					ln.setLineWidth(2.0f);	
+			}
+			
 			if ( ll == null || !(ll instanceof Ccfp)){
 				ll = new Ccfp( "CCFP_SIGMET" );
 				ll.setPgenCategory(pgenCat);

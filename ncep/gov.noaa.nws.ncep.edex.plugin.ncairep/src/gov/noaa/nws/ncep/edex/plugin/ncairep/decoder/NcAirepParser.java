@@ -46,6 +46,7 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * 10/04/2011    286       Q.Zhou        Removed wmoHeader parameter. Modified splitLatLon() to solve 3606S 15942E
  * 10/17/2011    286       Q.Zhou        Added WX_COND_WORDS and checking.
  * 11/01/2011    286       Q.Zhou        Added month and year to decodetime
+ * 02/15/2012              Q.Zhou        Added in decodeHazard() to ice type for possible icing type input
  * </pre>
  */
 public class NcAirepParser
@@ -846,13 +847,39 @@ public class NcAirepParser
         	if ( !theElements.get(iIc).toString().equalsIgnoreCase("RM") 
             		&& !theElements.get(iIc).toString().equalsIgnoreCase("SK")) { //didn't see, in case...
         		
-        		iceInten = theElements.get(iIc).toString();
-        		if (WX_COND_WORDS.get(iceInten) != null)
-        			iceInten = WX_COND_WORDS.get(iceInten);
-        		// handle iceInten number value
-        		iceInten = checkIceNumAirep(iceInten);
+        		String temp = theElements.get(iIc).toString();
+        		if (WX_COND_WORDS.get(temp) != null)
+        			temp = WX_COND_WORDS.get(temp);
+        			
+        		if (temp.startsWith("RIM") || temp.startsWith("CL") || temp.startsWith("MX")) 
+        			iceType = temp;
+        		else
+        			iceInten = temp;
+        		
+        		iIc++;         		
         	}
         }      	
+        
+        if (iIc !=0 && iIc < size) {
+        	
+        	if ( !theElements.get(iIc).toString().equalsIgnoreCase("RM") 
+            		&& !theElements.get(iIc).toString().equalsIgnoreCase("SK")) { //didn't see, in case...
+        		
+        		String temp = theElements.get(iIc).toString();
+        		if (WX_COND_WORDS.get(temp) != null)
+        			temp = WX_COND_WORDS.get(temp);
+        			
+        		if (temp.startsWith("RIM") || temp.startsWith("CL") || temp.startsWith("MX")) 
+        			iceType = temp;
+        		
+        		iIc++; 
+        	}
+        }
+        
+
+		// handle iceInten number value
+        if (iIc !=0 && iceInten != null) 
+        	iceInten = checkIceNumAirep(iceInten);
         
         // Airep: handle iceInten with "-". e.g. LGT-MOD => LGTMOD
         if (iIc !=0 ) {

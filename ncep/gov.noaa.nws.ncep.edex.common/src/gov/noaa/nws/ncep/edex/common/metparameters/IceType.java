@@ -29,6 +29,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 	private static final long serialVersionUID = 5545342242369880295L;
 
 	public IceType(){
-	           super( UNIT );
-          }
+	    super( UNIT );
+	    setValueIsString();  
+	}
   }

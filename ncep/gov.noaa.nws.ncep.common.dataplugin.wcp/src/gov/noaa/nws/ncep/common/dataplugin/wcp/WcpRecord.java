@@ -56,14 +56,13 @@ public class WcpRecord extends PluginDataObject{
 	/** Report type */
 	@Column(length=32)
 	@DynamicSerializeElement
+	@DataURI(position = 2)
 	private String reportType;
 	
-	//@DataURI(position = 1)
 	@Column
     @DynamicSerializeElement
 	private Calendar issueTime;
 
-	//@DataURI(position = 2)
 	@DataURI(position = 1)
 	@Column(length = 8)
 	@DynamicSerializeElement

@@ -8,19 +8,15 @@
 
 package gov.noaa.nws.ncep.ui.pgen.sigmet;
 
-import java.util.Iterator;
-
-import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.Text;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Label;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+
+import java.util.Iterator;
 
 /**
  * Element class for CCFP
@@ -96,8 +92,9 @@ public class Ccfp  extends LabeledLine {
 	}
 	
 	public void setAttributes(IAttribute attrDlg){
-		CcfpAttrDlg cad = (CcfpAttrDlg)attrDlg;
-		cad.copyEditableAttrToAbstractSigmet2(sigmet, this);
+		if ( attrDlg instanceof ICcfp ){
+			((ICcfp)attrDlg).copyEditableAttrToAbstractSigmet2(sigmet, this);
+		}
 		
 //		StringBuilder sb = new StringBuilder("CCFP_SIGMET");	
 //		

@@ -37,7 +37,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *                                     add constructor
  * 09/19/2011				mgamazaychikov	Made changes associated with removal of DatatypeTable class
  * 12/22/2011               G Hull     Updated getGdFile()
- *           
+ * 12/06/2012   #538        Q. Zhou    Added skip and filter areas and implements. 
+ * 03/28/2012               X. Guo     Don't need to convert gdfile toUppercase          
  * </pre>
  * 
  * @author mli
@@ -66,6 +67,11 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 	@XmlElement
 	protected String gdpfun;
 	
+	@XmlElement
+	protected String skip;
+	
+	@XmlElement
+	protected String filter;  
 	
 	@XmlElement
 	protected String scale="0";
@@ -185,6 +191,24 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
             return false;
         }
         
+        if (this.skip != null && other.skip == null) {
+            return false;
+        } else if (this.skip == null && other.skip != null) {
+            return false;
+        } else if (this.skip != null
+                && this.skip.equals(other.skip) == false) {
+            return false;
+        }
+        
+        if (this.filter != null && other.filter == null) {
+            return false;
+        } else if (this.filter == null && other.filter != null) {
+            return false;
+        } else if (this.filter != null
+                && this.filter.equals(other.filter) == false) {
+            return false;
+        }
+        
         if (this.scale != null && other.scale == null) {
             return false;
         } else if (this.scale == null && other.scale != null) {
@@ -287,7 +311,7 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 	}
 
 	public void setGdfile(String gdfile) {
-		this.gdfile = gdfile.toUpperCase();
+		this.gdfile = gdfile;
 	}
 
 	public String getGvcord() {
@@ -313,6 +337,22 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 
 	public void setGdpfun(String gdpfun) {
 		this.gdpfun = gdpfun;
+	}
+
+	public String getSkip() {
+		return skip;
+	}
+
+	public void setSkip(String skip) {
+		this.skip = skip;
+	}
+
+	public String getFilter() {
+		return filter;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
 	}
 
 	public String getScale() {
