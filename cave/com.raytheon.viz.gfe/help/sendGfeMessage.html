@@ -11,20 +11,20 @@
 <body alink="#ff0000" bgcolor="#ffffff" link="#0000ee" text="#000000"
  vlink="#551a8b">
 <h1>sendGfeMessage User's Guide</h1>
-May 14, 2004<br>
+January 4, 2012<br>
 <hr width="100%">
 <br>
-The sendGfeMessage program is part of the GFESuite software.&nbsp;
+The sendGfeMessage program is part of the GFESuite software.
 It takes a message specified on the command line and broadcasts it to
-all connected clients through the ifpServer.&nbsp; The message, when
-received by the GFE, is displayed on the status bar.<br>
+all connected clients through EDEX. The message, when
+received by the GFE, is displayed in AlertViz.<br>
 <hr width="100%">
 <h2>Running the program</h2>
 <h3>
 Command Line Switches</h3>
 The command line syntax is:
 <br>
-<p><b><tt>sendGfeMessage -h hostname -p rpcport [-r] [-s] [-u] [-c
+<p><b><tt>sendGfeMessage -h hostname -p rpcport [-r] [-s] [-u] [-a] [-c
 class] -m message</tt></b>
 </p>
 <p>&nbsp;
@@ -39,12 +39,12 @@ class] -m message</tt></b>
     <tr>
       <td>-h</td>
       <td>Mandatory (see Note)</td>
-      <td>Host name upon which the ifpServer is running</td>
+      <td>Host name upon which EDEX is running</td>
     </tr>
     <tr>
       <td>-p</td>
       <td>Mandatory (see Note)</td>
-      <td>RPC port upon which the ifpServer is running</td>
+      <td>RPC port upon which EDEX is running</td>
     </tr>
     <tr>
       <td style="vertical-align: top;">-r<br>
@@ -68,7 +68,7 @@ class] -m message</tt></b>
       </td>
       <td style="vertical-align: top;">Optional<br>
       </td>
-      <td style="vertical-align: top;">Send as an urgent message.&nbsp;
+      <td style="vertical-align: top;">Send as an urgent message.
 Urgent messages in the GFE will display a red banner.<br>
       </td>
     </tr>
@@ -78,7 +78,7 @@ Urgent messages in the GFE will display a red banner.<br>
       <td style="vertical-align: top;">Optional<br>
       </td>
       <td style="vertical-align: top;">Send as an alert message.&nbsp;
-Alert messages in the GFE only appear in the status bar.<br>
+Alert messages in the GFE only appear in AlertViz.<br>
       </td>
     </tr>
     <tr>
@@ -87,8 +87,8 @@ Alert messages in the GFE only appear in the status bar.<br>
       <td style="vertical-align: top;">Optional<br>
       </td>
       <td style="vertical-align: top;">Message class, used by GFE to
-determine whether message should appear in the left or right status
-bar.&nbsp; Default is "GFE", which appears in the left status bar.<br>
+determine whether message should appear in the left or right AlertViz
+bar. Default is "GFE", which appears in the left AlertViz bar.<br>
       </td>
     </tr>
     <tr>
@@ -101,16 +101,11 @@ bar.&nbsp; Default is "GFE", which appears in the left status bar.<br>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note:&nbsp;The -h and -p switches are predefined
-when running in an installed GFESuite environment.&nbsp; They are
-defined
-to the values specified when installing the software.&nbsp; If you wish
-to connect to a different ifpServer, then the switches will need to be
-specified.</font>
-<font color="#3366ff">&nbsp; If environment variables ${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -p switches.<br>
+<font color="#3366ff"><b>Note:</b> The -h and -p switches are predefined
+when running in an installed GFESuite environment. They are
+defined to the values specified when installing the software. If you wish
+to connect to a different EDEX, then the switches will need to be
+specified.<br>
 </font></p>
 <p><font color="#3366ff"><span style="color: rgb(0, 0, 0);">The Message
 Classes that the GFE currently uses are shown in the following table:</span></font></p>
@@ -168,23 +163,12 @@ server to alert forecasters to NDFD issues on missing grids, etc.<br>
 <p><font color="#3366ff"><span style="color: rgb(0, 0, 0);"><br>
 </span></font></p>
 <hr width="100%">
-<h3>Sample Output</h3>
+<h3>Example Input</h3>
 <tt></tt>
 <p style="font-weight: bold; font-family: monospace;">sendGfeMessage -r
 -c GFE -m "test from sendGfeMessage"</p>
-<p><tt>19:04:50.709 SendGfeMessage.py 69 EVENT:&nbsp; SendUserMessage
-starting<br>
-19:04:50.722 Client.C 161 EVENT: Establishing connection to server on
-polaris:98000000 ver=20030321<br>
-19:04:50.740 Client.C 181 EVENT: Connection complete to server on
-polaris<br>
-19:04:50.754 SendGfeMessage.py 60 EVENT:&nbsp; sending: test from
-sendGfeMessage&nbsp; type= 0&nbsp; class= GFE<br>
-19:04:50.763 SendGfeMessage.py 69 EVENT:&nbsp; SendUserMessage finished</tt><br>
-<tt></tt>&nbsp;
-</p>
 <p></p>
 <hr width="100%"><br>
-<a href="GFESuite.html">Return to Table of Contents</a>
+<a href="GFESuite.html">Return to TOC</a>
 </body>
 </html>

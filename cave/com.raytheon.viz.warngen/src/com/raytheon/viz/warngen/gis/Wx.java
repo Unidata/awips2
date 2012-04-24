@@ -90,6 +90,9 @@ import com.vividsolutions.jts.geom.Point;
  *    Nov 1, 2007             chammack    Initial Creation.
  *    Mar 01, 2012 DR13596    Qinglu Lin  Call GisUtil.restoreAlaskaLon() 
  *                                        in getClosestPoints().
+ *    Apr 18, 2012 DR14733    Qinglu Lin  David's fix is used, which creates another
+ *                                        ClosestPoint object in the for loop 
+ *                                        that loops over availablePoints.
  * 
  * </pre>
  * 
@@ -781,34 +784,34 @@ public class Wx {
 
                 double distance = localDistanceGeom.distance(localPt);
                 if (distance <= thresholdInMeters) {
-                    // Set the distances
-                    cp.distance = distance;
-                    cp.roundedDistance = (int) metersToDistance
-                            .convert(distance);
-
                     // check map of currently added points for closer point with
                     // the same name
                     ClosestPoint existingPt = nameMap.get(cp.name);
-                    if (existingPt == null || cp.distance < existingPt.distance) {
+                    if (existingPt == null || distance < existingPt.distance) {
+                        // Set the distances
+                    	ClosestPoint cp2 = new ClosestPoint(cp);
+                    	cp2.distance = distance;
+                        cp2.roundedDistance = (int) metersToDistance
+                                .convert(distance);
                         // No point by name or we are better at this location
                         if (existingPt != null) {
                             // There was an existing point, remove it
                             pts.remove(existingPt);
                         }
                         GeodeticCalculator gc = new GeodeticCalculator();
-                        gc.setStartingGeographicPoint(cp.point.x, cp.point.y);
+                        gc.setStartingGeographicPoint(cp2.point.x, cp2.point.y);
                         Coordinate cen = distanceGeom.getCentroid()
                                 .getCoordinate();
                         cen = GisUtil.restoreAlaskaLon(cen);
                         gc.setDestinationGeographicPoint(cen.x, cen.y);
-                        cp.azimuth = gc.getAzimuth();
-                        cp.oppositeAzimuth = ClosestPoint
-                                .adjustAngle(cp.azimuth + 180);
-                        cp.roundedAzimuth = GeoUtil.roundAzimuth(cp.azimuth);
-                        cp.oppositeRoundedAzimuth = ClosestPoint
-                                .adjustAngle(cp.roundedAzimuth + 180);
-                        nameMap.put(cp.name, cp);
-                        pts.add(cp);
+                        cp2.azimuth = gc.getAzimuth();
+                        cp2.oppositeAzimuth = ClosestPoint
+                                .adjustAngle(cp2.azimuth + 180);
+                        cp2.roundedAzimuth = GeoUtil.roundAzimuth(cp2.azimuth);
+                        cp2.oppositeRoundedAzimuth = ClosestPoint
+                                .adjustAngle(cp2.roundedAzimuth + 180);
+                        nameMap.put(cp2.name, cp2);
+                        pts.add(cp2);
                     }
                 }
             }

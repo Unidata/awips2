@@ -9,7 +9,7 @@
 # an export license or other authorization.
 # 
 # Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
+# Contractor Address:     6825 Pine Street, Suite 340 
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
