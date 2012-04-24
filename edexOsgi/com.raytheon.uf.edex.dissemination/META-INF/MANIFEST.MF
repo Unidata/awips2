@@ -17,7 +17,8 @@ Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
- com.raytheon.uf.edex.database.purge
+ com.raytheon.uf.edex.database.purge,
+ org.apache.camel
 Require-Bundle: org.jep;bundle-version="1.0.0",
  com.raytheon.edex.plugin.text,
  com.raytheon.uf.common.site;bundle-version="1.12.1174",

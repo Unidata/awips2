@@ -1,5 +1,5 @@
 <html>
-<title>GFESuite Documentation - </title>
+<title>Smart Script Class - Error Handling</title>
 <body>
 <h1><a name="Error"></a>Error Handling</h1>
 <br>
@@ -21,8 +21,8 @@
 <a name="abort"></a>abort</h2>
 def abort(self, info):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This call will send the info to the
-GFE status bar,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This call will send the info to
+AlertViz,
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # put up a dialog with the given info,
 and abort the
@@ -47,10 +47,10 @@ an error message
 <h2><a name="errorReturn"></a>errorReturn</h2>
 def errorReturn(self, noDataError, message):
 <h2><a name="statusBarMsg"></a>statusBarMsg</h2>
-def statusBarMsg(self, message, status):
+def statusBarMsg(self, message, status, category="GFE"):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Sends the text message to the GFE
-status bar with the
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Sends the text message to AlertViz
+with the
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # given status code: "R" (regular),
 "S" (significant), or "U" (urgent)
