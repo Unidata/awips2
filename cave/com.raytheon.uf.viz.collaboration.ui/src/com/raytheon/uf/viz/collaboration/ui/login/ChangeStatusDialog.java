@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.ui.login;
  **/
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,8 +36,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -120,14 +123,13 @@ public class ChangeStatusDialog extends CaveSWTDialog {
     @Override
     protected void preOpened() {
         super.preOpened();
-        LoginData loginData = CollaborationDataManager.getInstance()
-                .getLoginData();
-        userLabel.setText(loginData.getAccount().getFQName());
-        statusCombo.select(CollaborationUtils.statusModesIndex(loginData
-                .getMode()));
-        statusCombo.select(CollaborationUtils.statusModesIndex(loginData
-                .getMode()));
-        messageTF.setText(loginData.getModeMessage());
+        IPreferenceStore prefStore = Activator.getDefault()
+                .getPreferenceStore();
+        userLabel.setText(prefStore.getString(CollabPrefConstants.P_USERNAME)
+                + "@" + prefStore.getString(CollabPrefConstants.P_SERVER));
+        statusCombo.select(statusCombo.indexOf(prefStore
+                .getString(CollabPrefConstants.P_STATUS)));
+        messageTF.setText(prefStore.getString(CollabPrefConstants.P_MESSAGE));
         messageTF.selectAll();
         statusCombo.setFocus();
     }
@@ -179,26 +181,15 @@ public class ChangeStatusDialog extends CaveSWTDialog {
                 if (val != IDialogConstants.OK_ID) {
                     setReturnValue(null);
                 } else {
-                    LoginData loginData = CollaborationDataManager
-                            .getInstance().getLoginData();
-                    boolean modified = false;
-                    IPresence.Mode mode = CollaborationUtils.statusModes[statusCombo
-                            .getSelectionIndex()];
-                    if (mode != loginData.getMode()) {
-                        modified = true;
-                    }
+                    IPresence.Mode mode = Mode.valueOf(statusCombo
+                            .getItem(statusCombo.getSelectionIndex()));
                     String modeMessage = messageTF.getText().trim();
-                    if (modeMessage.equals(loginData.getModeMessage()) == false) {
-                        modified = true;
-                    }
-                    if (modified) {
-                        loginData.setMode(mode);
-                        loginData.setModeMessage(modeMessage);
-                        LoginDialog.saveUserLoginData(loginData);
-                        setReturnValue(loginData);
-                    } else {
-                        setReturnValue(null);
-                    }
+                    IPreferenceStore prefStore = Activator.getDefault()
+                            .getPreferenceStore();
+                    prefStore.setValue(CollabPrefConstants.P_STATUS,
+                            mode.toString());
+                    prefStore.setValue(CollabPrefConstants.P_MESSAGE,
+                            modeMessage);
                 }
                 ChangeStatusDialog.this.getShell().dispose();
             }
