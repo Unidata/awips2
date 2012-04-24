@@ -13,15 +13,18 @@ public class ColorBarViewer extends ColorBar {
 
 	public ColorBarViewer(Composite parent, IColorBarAction callback,
 			String[] sliderText, ColorMapParameters cmapParam) {
-		super(parent, callback, cmapParam, true);
+		super(parent, callback, cmapParam, false);
 	}
 	
 	// TODO:   Not Migrated...
 	public void setNewColorMap( String[] sliderText, ArrayList<ColorData> newColors ) {
 		
-//		setSliderText( sliderText );
-//		setStartingColors( newColors );
-		
+		//setSliderText( sliderText );
+		setStartingColors( newColors );		
 		revertColorBar();
 	}
+	
+	protected void setStartingColors(ArrayList<ColorData> newColors) {
+        startingColors = new ArrayList<ColorData>(newColors);
+    }
 }

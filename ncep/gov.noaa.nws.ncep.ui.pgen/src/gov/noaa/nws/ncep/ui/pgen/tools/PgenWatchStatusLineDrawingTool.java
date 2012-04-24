@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 03/10					B. Yin   	Initial Creation.
  * 04/11		#?			B. Yin		Re-factor IAttribute
- * 
+ * 03/12        #697        Q. Zhou     Fixed line arrow head size for watch
  * </pre>
  * 
  * @author	B. Yin
@@ -174,7 +174,7 @@ public class PgenWatchStatusLineDrawingTool extends AbstractPgenDrawingTool{
 
 					// create a status line    
 					Line statusLine =  new Line(null, attrDlg.getColors(), attrDlg.getLineWidth(),
-							1.7,false, false, points, ((ILine)attrDlg).getSmoothFactor(),FillPattern.SOLID,
+							1.0, false, false, points, ((ILine)attrDlg).getSmoothFactor(),FillPattern.SOLID,
 							"Lines","POINTED_ARROW");
 
 					// add the line to watch DECollection
@@ -214,7 +214,7 @@ public class PgenWatchStatusLineDrawingTool extends AbstractPgenDrawingTool{
 			if ( loc == null ) return false;
 
 			// create the ghost element and put it in the drawing layer
-			Line ghostLine =  new Line(null, attrDlg.getColors(),attrDlg.getLineWidth(),3.0,false,
+			Line ghostLine =  new Line(null, attrDlg.getColors(),attrDlg.getLineWidth(),1.0,false,
 					false, points, ((ILine)attrDlg).getSmoothFactor(),FillPattern.SOLID,"Lines","POINTED_ARROW");
 
 			if ( points != null && points.size() >= 1) {

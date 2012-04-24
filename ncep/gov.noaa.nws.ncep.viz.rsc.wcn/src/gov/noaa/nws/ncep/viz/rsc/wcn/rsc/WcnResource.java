@@ -78,7 +78,8 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * 10/01/10       #307     Greg Hull    implement processRecords and change to 
  *                                      process WcnData as the IRscDataObj
  * 01/10/11					Uma Josyula	 Made changes to preprocess update and event date
- * 07/28/11       #450      Greg Hull    NcPathManager                                     
+ * 07/28/11       #450      Greg Hull    NcPathManager    
+ * 02/16/2012     #555      S. Gurung    Added call to setAllFramesAsPopulated() in queryRecords().                                  
  * 
  * </pre>
  * 
@@ -982,6 +983,8 @@ gu.add((MultiPolygon)countyGeo.clone());	gw.add(countyGeo);
     
 	@Override
 	public void queryRecords() throws VizException {
+		// this method is almost similar to its super class's queryRecords(), may need to be modified later
+		// to use the super class's version for the common part
 		
 		HashMap<String, com.raytheon.uf.common.dataquery.requests.RequestConstraint> queryList = 
 			new HashMap<String, com.raytheon.uf.common.dataquery.requests.RequestConstraint>(resourceData.getMetadataMap());
@@ -1010,7 +1013,8 @@ gu.add((MultiPolygon)countyGeo.clone());	gw.add(countyGeo);
 			}
 		}
 		
-		queryResult.populateMap();
+		queryResult.populateMap();		   
+    	setAllFramesAsPopulated();
 	}
 
 	public void setMarineZonesFips(Set<AwwFips> awwFipsSet , WcnRscDataObj wrdo){
