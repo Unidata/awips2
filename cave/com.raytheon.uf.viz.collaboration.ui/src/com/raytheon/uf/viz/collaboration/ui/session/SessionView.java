@@ -29,10 +29,12 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
@@ -43,7 +45,6 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,7 +52,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
@@ -70,10 +70,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.core.VizApp;
 
@@ -130,11 +130,19 @@ public class SessionView extends AbstractSessionView {
         super.createPartControl(parent);
         createActions();
         createContextMenu();
-        SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
-                .getEventPublisher().register(this);
-        manager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getColorManager();
         mappedColors = new HashMap<RGB, Color>();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * initComponents(org.eclipse.swt.widgets.Composite)
+     */
+    @Override
+    protected void initComponents(Composite parent) {
+        initColorManager();
+        super.initComponents(parent);
     }
 
     @Override
@@ -153,8 +161,6 @@ public class SessionView extends AbstractSessionView {
                     CollaborationConnection sessionManager = CollaborationDataManager
                             .getInstance().getCollaborationConnection();
                     ISession session = sessionManager.getPeerToPeerSession();
-                    // TODO this doesn't seem right to use the session's
-                    // sessionId
                     PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
@@ -166,8 +172,6 @@ public class SessionView extends AbstractSessionView {
                     statusHandler.handle(Priority.PROBLEM,
                             "Unable to open chat", e);
                 } catch (CollaborationException e) {
-                    // TODO Auto-generated catch block. Please revise as
-                    // appropriate.
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
@@ -238,9 +242,10 @@ public class SessionView extends AbstractSessionView {
     @Override
     protected void createListeners() {
         super.createListeners();
-        // if (session != null) {
-        // session.registerEventHandler(this);
-        // }
+    }
+
+    protected void initColorManager() {
+        manager = new SessionColorManager();
     }
 
     protected void createUsersComp(final Composite parent) {
@@ -336,6 +341,7 @@ public class SessionView extends AbstractSessionView {
         ParticipantsContentProvider contentProvider = new ParticipantsContentProvider();
         ParticipantsLabelProvider labelProvider = new ParticipantsLabelProvider();
         labelProvider.setSessionId(sessionId);
+        labelProvider.setManager(manager);
         usersTable.setContentProvider(contentProvider);
 
         usersTable.setLabelProvider(labelProvider);
@@ -348,32 +354,30 @@ public class SessionView extends AbstractSessionView {
             }
         });
 
-        usersTable.getTable().addMouseTrackListener(new MouseTrackAdapter() {
-            @Override
-            public void mouseHover(MouseEvent e) {
-                TableItem item = usersTable.getTable().getItem(
-                        new Point(e.x, e.y));
-                if (item != null) {
-                    IRosterEntry user = (IRosterEntry) item.getData();
-                    usersTable.getTable().setToolTipText(
-                            buildParticipantTooltip(user));
-                } else {
-                    usersTable.getTable().setToolTipText("");
-                }
-            }
-        });
-
+        ColumnViewerToolTipSupport.enableFor(usersTable, ToolTip.RECREATE);
         List<IRosterEntry> users = new ArrayList<IRosterEntry>();
         if (session != null) {
             for (UserId participant : session.getVenue().getParticipants()) {
                 CollaborationDataManager manager = CollaborationDataManager
                         .getInstance();
                 IRosterEntry entry = manager.getUsersMap().get(participant);
-                if (entry != null) {
+                // if it is yourself, add it
+                if (participant.equals(manager.getCollaborationConnection()
+                        .getAccount())) {
+                    RosterEntry rEntry = new RosterEntry(participant);
+                    rEntry.setPresence(CollaborationDataManager.getInstance()
+                            .getCollaborationConnection().getPresence());
+                    users.add(rEntry);
+                } else if (entry != null) {
                     users.add(manager.getUsersMap().get(participant));
                 }
             }
         } else {
+            // session was null, why this would happen we don't know but this
+            // will somewhat gracefully let the user know a problem occurred and
+            // will not let them do anything in this view
+            statusHandler.handle(Priority.PROBLEM,
+                    "Session was null, which means a major problem occurred");
             participantsLabel.setEnabled(false);
             participantsLabel.setForeground(Display.getCurrent()
                     .getSystemColor(SWT.COLOR_DARK_GRAY));
@@ -381,15 +385,6 @@ public class SessionView extends AbstractSessionView {
         }
         usersTable.setInput(users);
         ((GridData) usersComp.getLayoutData()).exclude = true;
-    }
-
-    protected String buildParticipantTooltip(IRosterEntry user) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Status : ")
-                .append(user.getPresence().getMode().getMode()).append("\n");
-        builder.append("Message : \"").append(
-                user.getPresence().getStatusMessage());
-        return builder.toString();
     }
 
     @Override
@@ -406,8 +401,9 @@ public class SessionView extends AbstractSessionView {
             }
             mappedColors.clear();
         }
-        SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getColorManager().clearColors();
+        if (manager != null) {
+            manager.clearColors();
+        }
         super.dispose();
     }
 
@@ -456,10 +452,13 @@ public class SessionView extends AbstractSessionView {
             Color col = new Color(Display.getCurrent(), rgb);
             mappedColors.put(rgb, col);
         }
-        StyleRange range = new StyleRange(messagesText.getCharCount() + offset,
+        StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
+                mappedColors.get(rgb), null, SWT.NORMAL);
+        ranges.add(range);
+        range = new StyleRange(messagesText.getCharCount() + offset,
                 name.length() + 1, mappedColors.get(rgb), null, SWT.BOLD);
+        ranges.add(range);
         messagesText.append(sb.toString());
-        messagesText.setStyleRange(range);
         for (StyleRange newRange : ranges) {
             messagesText.setStyleRange(newRange);
         }

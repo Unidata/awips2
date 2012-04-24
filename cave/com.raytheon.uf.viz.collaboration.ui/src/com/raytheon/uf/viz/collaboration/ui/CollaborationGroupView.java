@@ -263,7 +263,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         inviteAction
                 .setToolTipText("Invite selected user(s) to join a session.");
 
-        joinAction = new Action("Join Session") {
+        joinAction = new Action("Open Session") {
             @Override
             public void run() {
                 // TODO, maybe need to switch tab to the session here?, or is
@@ -1178,7 +1178,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             String sessionId = sessionView.getViewSite().getSecondaryId();
             for (Object node : activeSessionGroup.getObjects()) {
                 IVenueSession group = (IVenueSession) node;
-                if (sessionId.equals(group.getVenue().getInfo().getVenueID())) {
+                if (group.getVenue() == null
+                        || sessionId.equals(group.getVenue().getInfo()
+                                .getVenueID())) {
                     activeSessionGroup.removeObject(node);
                     usersTreeViewer.refresh(activeSessionGroup);
                     break;

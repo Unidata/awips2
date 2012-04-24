@@ -23,6 +23,7 @@ package com.raytheon.uf.viz.collaboration.ui;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -78,9 +79,14 @@ public class UsersTreeViewerSorter extends ViewerSorter {
         } else if (e1 instanceof IRosterGroup) {
             return 1;
         }
-
-        // Either both are groups or both are users.
-        return ((IRosterItem) e1).getName().compareTo(
-                ((IRosterItem) e2).getName());
+        if (e1 instanceof IRosterItem && e2 instanceof IRosterItem) {
+            // Either both are groups or both are users.
+            return ((IRosterItem) e1).getName().compareTo(
+                    ((IRosterItem) e2).getName());
+        } else if (e1 instanceof IVenueSession && e2 instanceof IVenueSession) {
+            return ((IVenueSession) e1).getVenue().toString()
+                    .compareTo(((IVenueSession) e2).getVenue().toString());
+        }
+        return 0;
     }
 }
