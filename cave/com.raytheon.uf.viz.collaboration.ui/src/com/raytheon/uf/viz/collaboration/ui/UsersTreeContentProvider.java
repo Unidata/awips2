@@ -23,7 +23,9 @@ package com.raytheon.uf.viz.collaboration.ui;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
+import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 
 /**
  * TODO Add Description
@@ -42,12 +44,6 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
  * @version 1.0
  */
 public class UsersTreeContentProvider implements ITreeContentProvider {
-    // UsersTree rootNode;
-    //
-    // public UsersTreeContentProvider(UsersTree rootNode) {
-    // this.rootNode = rootNode;
-    // }
-
     /*
      * (non-Javadoc)
      * 
@@ -80,19 +76,22 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
      */
     @Override
     public Object[] getElements(Object inputElement) {
-        // if (rootNode != null) {
-        // if (rootNode.getChildren() != null) {
-        // return rootNode.getChildren().toArray();
-        // }
-        // }
-        // return new Object[0];
-        CollaborationGroup group = (CollaborationGroup) inputElement;
-        if (group.getChildren() != null) {
-            return group.getChildren().toArray();
+        if (inputElement instanceof IRosterGroup) {
+            IRosterGroup group = (IRosterGroup) inputElement;
+            if (group.getEntries() != null) {
+                return group.getEntries().toArray();
+            } else {
+                return new Object[0];
+            }
+        } else if (inputElement instanceof SessionGroupContainer) {
+            SessionGroupContainer group = (SessionGroupContainer) inputElement;
+            return group.getObjects().toArray();
+        } else if (inputElement instanceof CollaborationGroupContainer) {
+            CollaborationGroupContainer cont = (CollaborationGroupContainer) inputElement;
+            return cont.getObjects().toArray();
         } else {
             return new Object[0];
         }
-
     }
 
     /*
@@ -104,18 +103,16 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
      */
     @Override
     public Object[] getChildren(Object parentElement) {
-        // if (parentElement instanceof UsersTree) {
-        // UsersTree parent = (UsersTree) parentElement;
-        // List<UsersTree> children = parent.getChildren();
-        // if (children != null) {
-        // return children.toArray();
-        // } else {
-        // return new Object[0];
-        // }
-        // }
-        // return null;
-        CollaborationGroup group = (CollaborationGroup) parentElement;
-        return group.getChildren().toArray();
+        // the only things that can have children are the sessions item or the
+        // groups items
+        if (parentElement instanceof SessionGroupContainer) {
+            SessionGroupContainer cont = (SessionGroupContainer) parentElement;
+            return cont.getObjects().toArray();
+        } else if (parentElement instanceof IRosterGroup) {
+            IRosterGroup group = (IRosterGroup) parentElement;
+            return group.getEntries().toArray();
+        }
+        return null;
     }
 
     /*
@@ -140,25 +137,22 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
      */
     @Override
     public boolean hasChildren(Object element) {
-        // if (element instanceof UsersTree) {
-        // UsersTree elem = (UsersTree) element;
-        // return elem.hasChildren();
-        // }
-        // return false;
-        if (element instanceof CollaborationGroup) {
-            CollaborationGroup group = (CollaborationGroup) element;
-            if (group.getChildren().size() <= 0) {
+        if (element instanceof IRosterGroup) {
+            IRosterGroup group = (IRosterGroup) element;
+            if (group.getEntries().size() <= 0) {
                 return false;
             } else {
                 return true;
+            }
+        } else if (element instanceof SessionGroupContainer) {
+            SessionGroupContainer cont = (SessionGroupContainer) element;
+            if (cont.getObjects() != null && cont.getObjects().size() > 0) {
+                return true;
+            } else {
+                return false;
             }
         } else {
             return false;
         }
     }
-
-    // public Object findItem(String text) {
-    // UsersTree item = rootNode.findChildByText(text);
-    // return item;
-    // }
 }
