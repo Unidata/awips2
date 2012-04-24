@@ -308,14 +308,14 @@ public final class TextDisplayModel {
      * Getter/Accessor of Create Time.
      */
     public long getCreateTime(String token) {
-        return getStdTextProduct(token, true).getCreatetime();
+        return getStdTextProduct(token, true).getRefTime();
     }
 
     /**
      * Setter/Mutator of Create Time.
      */
     public void setCreateTime(String token, long ct) {
-        getStdTextProduct(token, true).setCreatetime(ct);
+        getStdTextProduct(token, true).setRefTime(ct);
     }
 
     /**
@@ -472,7 +472,7 @@ public final class TextDisplayModel {
         tmpProduct.setXxxid(xxxid);
         tmpProduct.setHdrtime(hdrtime);
         tmpProduct.setBbbid(bbbid);
-        tmpProduct.setCreatetime(createtime);
+        tmpProduct.setRefTime(createtime);
         tmpProduct.setProduct(product);
         stdTxtProd.put(token, tmpProduct);
     }
