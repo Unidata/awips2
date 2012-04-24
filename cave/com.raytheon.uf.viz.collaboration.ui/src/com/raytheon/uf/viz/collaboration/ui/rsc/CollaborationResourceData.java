@@ -19,10 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
@@ -43,6 +45,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  */
 
 public class CollaborationResourceData extends AbstractResourceData {
+
+    private ISharedDisplaySession session;
 
     /*
      * (non-Javadoc)
@@ -67,21 +71,48 @@ public class CollaborationResourceData extends AbstractResourceData {
      */
     @Override
     public void update(Object updateData) {
-        // TODO Auto-generated method stub
-
+        fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#equals(java.lang.Object
-     * )
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return 31;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
-        // TODO Auto-generated method stub
-        return false;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return true;
+    }
+
+    /**
+     * @return the session
+     */
+    public ISharedDisplaySession getSession() {
+        return session;
+    }
+
+    /**
+     * @param session
+     *            the session to set
+     */
+    public void setSession(ISharedDisplaySession session) {
+        this.session = session;
     }
 
 }

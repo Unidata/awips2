@@ -25,6 +25,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
  * TODO Add Description
@@ -43,7 +44,8 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class CreateMeshEvent extends AbstractDispatchingObjectEvent {
+public class CreateMeshEvent extends AbstractDispatchingObjectEvent implements
+        ICreationEvent {
 
     @DynamicSerializeElement
     private GridGeometry2D imageGeometry;

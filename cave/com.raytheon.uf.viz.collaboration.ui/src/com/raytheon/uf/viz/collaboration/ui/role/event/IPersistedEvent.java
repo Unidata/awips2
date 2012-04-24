@@ -17,14 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.imagery;
-
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
-import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
+package com.raytheon.uf.viz.collaboration.ui.role.event;
 
 /**
- * Event for creating an IImage object
+ * Interface for distinguishing events that are persisted and should be
+ * retrieved
  * 
  * <pre>
  * 
@@ -32,15 +29,14 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 19, 2012            mschenke     Initial creation
+ * Apr 20, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@DynamicSerialize
-public class CreateIImageEvent extends AbstractDispatchingObjectEvent implements
-        ICreationEvent {
+
+public interface IPersistedEvent {
 
 }
