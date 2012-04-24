@@ -1,6 +1,6 @@
 /**
  * 
- * gov.noaa.nws.ncep.viz.ui.locator.resource.SurfaceStationPointData
+ * gov.noaa.nws.ncep.ui.nsharp.SurfaceStationPointData
  * 
  * This java class performs the surface station locator functions.
  * This code has been developed by the SIB for use in the AWIPS2 system.

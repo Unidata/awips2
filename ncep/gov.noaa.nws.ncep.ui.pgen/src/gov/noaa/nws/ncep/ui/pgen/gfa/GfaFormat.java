@@ -450,6 +450,11 @@ public class GfaFormat {
 				return -1;
 			}
 		}
+		
+		public ArrayList<Gfa> getOriginal() {
+			return original;
+		}
+
 	}
 
 	/**

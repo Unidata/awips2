@@ -7,17 +7,19 @@
  */
 
 
-package gov.noaa.nws.ncep.ui.pgen.elements;
+package gov.noaa.nws.ncep.ui.pgen.maps;
 
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.io.ParseException;
@@ -34,6 +36,9 @@ import com.vividsolutions.jts.operation.valid.TopologyValidationError;
  * ------------	----------	-----------	--------------------------
  * 05/10		#159		B. Yin   	Initial Creation.
  * 04/11		?			B. Yin		Read from Raytheon's tables
+ * 01/12		?			B. Yin		Read county maps with lowest resolution.
+ * 										Fix invalid geometry problems. 
+ * 03/12					B. Yin		Moved from elements package
  *
  * </pre>
  * 
@@ -112,8 +117,8 @@ public class County {
 			List<Object[]> zones;
 
 			String queryStnTbl = "Select station_number, station_id, state, country FROM stns.mzcntys";
-			String queryCntyBnds = "Select AsBinary(the_geom), countyname, state, fe_area, cwa, fips, lat, lon FROM mapdata.county";
-			String queryZoneBnds = "Select AsBinary(the_geom), id, name, wfo, fips, lat, lon FROM mapdata.marinezones";
+			String queryCntyBnds = "Select AsBinary(the_geom_0_064), countyname, state, fe_area, cwa, fips, lat, lon FROM mapdata.county";
+			String queryZoneBnds = "Select AsBinary(the_geom_0_064), id, name, wfo, fips, lat, lon FROM mapdata.marinezones";
 
 			try {
 				bnds = NcDirectDbQuery.executeQuery(
@@ -160,20 +165,25 @@ public class County {
 								// center location missing in database 
 							}
 
+							cntyGeo = removeSmallShells(cntyGeo, 0.001);
+
 							String cntyUgc = "";
 							String cntyCountry = "";
 							boolean mZone = false;
 							String znName = "";
 
 							//test for invalid county shapes
-							int ii = 0;
 							if ( !cntyGeo.isValid() ){
 								IsValidOp vld = new IsValidOp(cntyGeo);
 								TopologyValidationError err = vld.getValidationError();
-								ii++;
-
-								System.out.println("invalid county geo: " + err.getErrorType() +
-										" " + cntyName + " " + cntyFips + " " + ii );
+			//					ii++;
+			//					System.out.println("invalid county geo: " + err.getErrorType() + err.getCoordinate() + err.getMessage() + 
+			//							" " + cntyName + " " + cntyFips + " " + ii );
+								
+								if ( err.getErrorType() == 7 ) cntyGeo = fixNestedShells(cntyGeo);
+								//if ( err.getErrorType() == 5 ) cntyGeo = removeSmallShells(cntyGeo, 1e-3);
+								if ( err.getErrorType() == 3 ) cntyGeo = fixNestedHoles(cntyGeo);
+								if ( err.getErrorType() == 2 ) cntyGeo = fixHoleOutOfShell(cntyGeo);
 
 							}
 
@@ -238,6 +248,7 @@ public class County {
 								loc.y = ((Number)zn[5]).doubleValue();
 							}
 							catch ( Exception e ){
+								e.printStackTrace();
 								// center location missing in database 
 							}
 
@@ -246,15 +257,20 @@ public class County {
 							if ( zn[4] != null ) fips = ((Integer)zn[4]).toString();
 							else fips = "00000";
 
+							zoneGeo = removeSmallShells(zoneGeo, 0.001);
+
 							//test for invalid county shapes
-							int ii = 0;
+							//int ii = 0;
 							if ( !zoneGeo.isValid() ){
 								IsValidOp vld = new IsValidOp(zoneGeo);
 								TopologyValidationError err = vld.getValidationError();
-								ii++;
-
-								System.out.println("invalid zone geo: " + err.getErrorType() +
-										" " + znName + " " + fips + " " + ii );
+				//				ii++;
+				//				System.out.println("invalid zone geo: " + err.getErrorType() + err.getMessage() + 
+				//						" " + znName + " " + fips + " " + ii );
+								
+								if ( err.getErrorType() == 7 ) zoneGeo = fixNestedShells(zoneGeo);
+								if ( err.getErrorType() == 3 ) zoneGeo = fixNestedHoles(zoneGeo);
+								if ( err.getErrorType() == 2 ) zoneGeo = fixHoleOutOfShell(zoneGeo);
 
 							}
 
@@ -278,6 +294,7 @@ public class County {
 				e.printStackTrace();
 			}
 			countyLoaded = true;
+			
 		}
 		return allCounties;
 	}
@@ -388,7 +405,7 @@ public class County {
      * @return
      */
     static public List<County> getCountiesInGeometry(Geometry geo ){
-    	
+
     	List<County> rtv = new ArrayList<County>();
 
 		for ( int ii = 0; ii < geo.getNumGeometries(); ii++ ){
@@ -405,13 +422,166 @@ public class County {
 	    			}
 	    			catch (TopologyException te){
  //Calcasieu   					rtv.add(county);
+	    				te.printStackTrace();
 	    				continue;
 	    			}
 
 			}
 		}
-			
     	return rtv;
     }
     
+    //error type 7
+    /**
+     * Removes small shells in the main shell(largest shell)
+     */
+    private static Geometry fixNestedShells( Geometry geo ){
+    	
+    	if ( geo instanceof MultiPolygon ){
+
+    		ArrayList<Polygon> polyList = new ArrayList<Polygon>();
+    		for ( int ii = 0; ii < geo.getNumGeometries(); ii++ ){
+        		boolean nested = false;
+            	for ( int jj = 0; jj < geo.getNumGeometries(); jj++ ){
+            		if ( geo.getGeometryN(jj).contains(geo.getGeometryN(ii))){
+            			nested = true;
+            			break;
+            		}
+            	}
+            	if ( !nested ) polyList.add((Polygon)geo.getGeometryN(ii) );
+        	}
+    		
+    		MultiPolygon mpoly = geo.getFactory().createMultiPolygon( polyList.toArray( new Polygon[polyList.size()]) );
+    		
+    		return mpoly;
+    	}
+    	else {
+    		return geo;
+    	}
+    	
+    }
+    
+    //error type 2
+    /**
+     * Removes holes that are out of the polygon.
+     */
+    private static Geometry fixHoleOutOfShell( Geometry geo ){
+    	
+    	if ( geo instanceof MultiPolygon ){
+    		GeometryFactory gf = geo.getFactory();
+    		ArrayList<Polygon> polyList = new ArrayList<Polygon>();
+
+    		//loop through polygons
+    		for ( int ii = 0; ii < geo.getNumGeometries(); ii++ ){
+    			
+    			if ( geo.getGeometryN(ii) instanceof Polygon  ){
+    				Polygon poly = (Polygon)geo.getGeometryN(ii);
+
+    				polyList.add( gf.createPolygon(gf.createLinearRing(poly.getExteriorRing().getCoordinates()), new LinearRing[]{}));
+    			
+    			}
+        	}
+    		
+    		MultiPolygon mpoly = gf.createMultiPolygon( polyList.toArray( new Polygon[polyList.size()]) );
+
+    		if (!mpoly.isValid() )     		{
+    			IsValidOp vld = new IsValidOp(mpoly);
+    			TopologyValidationError err = vld.getValidationError();
+
+				if ( err.getErrorType() == 7 ) fixNestedShells(mpoly);
+
+    		}
+    		return mpoly;
+    	}
+    	else {
+    		return geo;
+    	}
+    	
+    }  
+    
+    //error type 3
+    /**
+     * Removes holes in holes.
+     */
+    private static Geometry fixNestedHoles( Geometry geo ){
+    	
+    	if ( geo instanceof MultiPolygon ){
+    		GeometryFactory gf = geo.getFactory();
+    		ArrayList<Polygon> polyList = new ArrayList<Polygon>();
+
+    		
+    		//loop through polygons
+    		for ( int ii = 0; ii < geo.getNumGeometries(); ii++ ){
+    			
+    			if ( geo.getGeometryN(ii) instanceof Polygon  ){
+    				Polygon poly = (Polygon)geo.getGeometryN(ii);
+    	    		ArrayList<LinearRing> holeList = new ArrayList<LinearRing>();
+
+    				for ( int jj = 0; jj < poly.getNumInteriorRing(); jj++ ){
+						boolean nested = false;
+
+    					Polygon hole1 = gf.createPolygon(gf.createLinearRing(poly.getInteriorRingN(jj).getCoordinates()), new LinearRing[]{});
+    					for ( int kk = 0; kk < poly.getNumInteriorRing(); kk++ ){
+        					Polygon hole2 = gf.createPolygon(gf.createLinearRing(poly.getInteriorRingN(kk).getCoordinates()), new LinearRing[]{});
+
+    						if ( hole2.contains(hole1)){
+    							nested = true;
+    							break;
+    						}
+    						
+        				}
+    	            	if ( !nested ) holeList.add( gf.createLinearRing(poly.getInteriorRingN(jj).getCoordinates()) );
+
+    				}
+
+    				polyList.add( gf.createPolygon(gf.createLinearRing(poly.getExteriorRing().getCoordinates()), holeList.toArray( new LinearRing[holeList.size()])));
+    			}
+        	}
+    		
+    		MultiPolygon mpoly = gf.createMultiPolygon( polyList.toArray( new Polygon[polyList.size()]) );
+    		
+    		if (!mpoly.isValid() ){     		
+    		     		
+    			IsValidOp vld = new IsValidOp(mpoly);
+    			TopologyValidationError err = vld.getValidationError();
+
+				if ( err.getErrorType() == 7 ) fixNestedShells(mpoly);
+
+    		}
+    		return mpoly;
+    	}
+    	else {
+    		return geo;
+    	}
+    	
+    }
+    
+    //error type 5: all of the self-intersection errors are caused by small shells
+    /**
+     * Removes small shells in a polygon
+     * geo  - the working polygon
+     * area - threshold. Polygons with area less than this value will be removed. 
+     */
+    private static 	Geometry removeSmallShells( Geometry geo, double area ){
+
+    	if ( geo instanceof MultiPolygon ){
+    		ArrayList<Polygon> polyList = new ArrayList<Polygon>();
+
+    		MultiPolygon	mp = (MultiPolygon)geo;
+    		for ( int ii = 0; ii < mp.getNumGeometries(); ii++ ){
+    			Polygon poly = (Polygon)mp.getGeometryN(ii);
+
+    			if ( poly.getArea() > area ){
+    				polyList.add(poly);
+    			}
+
+    		}
+    		MultiPolygon mpoly = geo.getFactory().createMultiPolygon( polyList.toArray( new Polygon[polyList.size()]) );
+    		
+    		return mpoly;
+    	}
+    	else {
+    		return geo;
+    	}
+    }
 }

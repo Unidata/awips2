@@ -17,6 +17,7 @@ package gov.noaa.nws.ncep.edex.common.sounding;
  * 12/16/2010   362         Chin Chen    add support of BUFRUA observed sounding and PFC (NAM and GFS) model sounding data
  * 09/14/2011   457         S. Gurung     Renamed ObsSndType.H5UAIR to ObsSndType.NCUAIR
  *10/06/2011    465         Archana        Added a list of NcSoundingLayer2 objects to the sounding profile
+ * 02/15/2012               Chin Chen      added fcsTime to support pfc sounding query
  * </pre>
  * 
  * @author Chin Chen
@@ -74,9 +75,9 @@ public class NcSoundingProfile implements ISerializableObject{
     //@DynamicSerializeElement
     //private String stationId;
     @DynamicSerializeElement
-    private float	stationLatitude;
+    private double	stationLatitude;
     @DynamicSerializeElement
-    private float	stationLongitude;
+    private double	stationLongitude;
     @DynamicSerializeElement
     private float sfcPress;
     
@@ -85,6 +86,9 @@ public class NcSoundingProfile implements ISerializableObject{
 
     @DynamicSerializeElement
     private int stationNum;
+    
+    @DynamicSerializeElement
+    private long fcsTime;
 
     @DynamicSerializeElement
     private NcSoundingCube.QueryStatus rtnStatus = NcSoundingCube.QueryStatus.OK;
@@ -112,6 +116,15 @@ public class NcSoundingProfile implements ISerializableObject{
 
 	public void setStationNum(int stnNum) {
 		this.stationNum = stnNum;
+	}
+
+	
+	public long getFcsTime() {
+		return fcsTime;
+	}
+
+	public void setFcsTime(long fcsTime) {
+		this.fcsTime = fcsTime;
 	}
 
 	public List<NcSoundingLayer> getSoundingLyLst() {
@@ -145,19 +158,19 @@ public class NcSoundingProfile implements ISerializableObject{
 	}
 
 
-	public float getStationLatitude() {
+	public double getStationLatitude() {
 		return stationLatitude;
 	}
 
-	public void setStationLatitude(float stationLatitude) {
+	public void setStationLatitude(double stationLatitude) {
 		this.stationLatitude = stationLatitude;
 	}
 
-	public float getStationLongitude() {
+	public double getStationLongitude() {
 		return stationLongitude;
 	}
 
-	public void setStationLongitude(float stationLongitude) {
+	public void setStationLongitude(double stationLongitude) {
 		this.stationLongitude = stationLongitude;
 	}
 
