@@ -25,8 +25,9 @@ import java.util.List;
 import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 
@@ -56,12 +57,10 @@ public class SharedDisplayParticipantsLabelProvider extends
         if (image != null) {
             ISharedDisplaySession sdSession = SharedDisplaySessionMgr
                     .getSessionContainer(sessionId).getSession();
-            CollaborationUser user = (CollaborationUser) element;
-            String userId = user.getId();
-            String sessionLeaderId = CollaborationUtils.makeUserId(sdSession
-                    .getCurrentSessionLeader());
-            String dataProviderId = CollaborationUtils.makeUserId(sdSession
-                    .getCurrentDataProvider());
+            IRosterEntry user = (IRosterEntry) element;
+            UserId userId = user.getUser();
+            UserId sessionLeaderId = sdSession.getCurrentSessionLeader();
+            UserId dataProviderId = sdSession.getCurrentDataProvider();
             List<SharedDisplayRole> roleList = new ArrayList<SharedDisplayRole>();
             if (userId.equals(sessionLeaderId)) {
                 roleList.add(SharedDisplayRole.SESSION_LEADER);
@@ -86,24 +85,25 @@ public class SharedDisplayParticipantsLabelProvider extends
      *            -
      * @return image - modified with indicator(s)
      */
-    private Image getModifier(List<SharedDisplayRole> roles,
-            CollaborationUser user) {
-        String key = user.getImageKey();
+    private Image getModifier(List<SharedDisplayRole> roles, IRosterEntry user) {
+        // String key = user.getImageKey();
+        String key = "";
         StringBuilder modKey = new StringBuilder(key);
         int roleCnt = 0;
         if (roles.contains(SharedDisplayRole.SESSION_LEADER)) {
             ++roleCnt;
-            modKey.append(":")
-                    .append(SharedDisplayRole.SESSION_LEADER.toString());
+            modKey.append(":").append(
+                    SharedDisplayRole.SESSION_LEADER.toString());
         }
         if (roles.contains(SharedDisplayRole.DATA_PROVIDER)) {
             ++roleCnt;
-            modKey.append(":").append(SharedDisplayRole.DATA_PROVIDER.toString());
+            modKey.append(":").append(
+                    SharedDisplayRole.DATA_PROVIDER.toString());
         }
         Image image = imageMap.get(modKey.toString());
 
         if (image == null) {
-            image = CollaborationUtils.getNodeImage(user);
+            image = CollaborationUtils.getNodeImage(key);
             // original image is 16x16
             image.getImageData();
             imageMap.put(modKey.toString(), image);

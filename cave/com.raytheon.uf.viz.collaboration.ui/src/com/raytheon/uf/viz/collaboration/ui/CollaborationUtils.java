@@ -28,10 +28,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
@@ -82,44 +78,9 @@ public class CollaborationUtils {
      * @param node
      * @return image
      */
-    public static Image getNodeImage(CollaborationNode node) {
-        String name = node.getImageKey().toLowerCase() + ".gif";
+    public static Image getNodeImage(String name) {
         return IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
-                name).createImage();
-    }
-
-    /**
-     * Make userId of the form username@site; using the information in the
-     * Roster Entry.
-     * 
-     * @param rosterEntry
-     * @return userId
-     */
-    public static String makeUserId(IRosterEntry rosterEntry) {
-        UserId chatId = rosterEntry.getUser();
-        String userId = chatId.getName() + Tools.NAME_DELIM + chatId.getHost();
-        return userId;
-    }
-
-    /**
-     * Make userId of the form username@site; using the information in the Venue
-     * Participant.
-     * 
-     * @param participant
-     * @return userId
-     */
-    public static String makeUserId(UserId participant) {
-        StringBuilder sb = new StringBuilder(participant.getName());
-        sb.append(Tools.NAME_DELIM);
-        int start = sb.length();
-
-        String host = participant.getHost();
-
-        sb.append(host);
-        if (host.startsWith(PREFIX_CONFERENCE)) {
-            sb.replace(start, start + PREFIX_CONFERENCE.length(), "");
-        }
-        return sb.toString();
+                name.toLowerCase() + ".gif").createImage();
     }
 
     public static void sendChatMessage(List<String> ids, String message) {
