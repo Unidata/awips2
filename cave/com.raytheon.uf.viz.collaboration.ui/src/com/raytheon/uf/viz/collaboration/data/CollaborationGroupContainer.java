@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * TODO Add Description
  * 
@@ -28,7 +31,7 @@ package com.raytheon.uf.viz.collaboration.data;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 22, 2012            mnash     Initial creation
+ * Apr 23, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -36,64 +39,40 @@ package com.raytheon.uf.viz.collaboration.data;
  * @version 1.0
  */
 
-public class CollaborationNode implements Comparable<CollaborationNode> {
-
-    private String text;
-
-    private boolean local;
-
-    String id;
-
-    public CollaborationNode(String id) {
-        super();
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getImageKey() {
-        return null;
-    }
+public class CollaborationGroupContainer {
+    private List<Object> objects;
 
     /**
-     * @return the name
-     */
-    public String getText() {
-        return text;
-    }
-
-    /**
-     * @param name
-     *            the name to set
-     */
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    /**
-     * @return the buddy
-     */
-    public boolean isLocal() {
-        return local;
-    }
-
-    /**
-     * @param buddy
-     *            the buddy to set
-     */
-    public void setLocal(boolean local) {
-        this.local = local;
-    }
-
-    /*
-     * (non-Javadoc)
      * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    @Override
-    public int compareTo(CollaborationNode o) {
-        return id.compareTo(o.id);
+    public CollaborationGroupContainer() {
+        objects = new ArrayList<Object>();
+    }
+
+    /**
+     * @param objects
+     *            the objects to set
+     */
+    public void setObjects(List<Object> objects) {
+        this.objects = objects;
+    }
+
+    /**
+     * @return the objects
+     */
+    public List<Object> getObjects() {
+        return objects;
+    }
+
+    public void addObject(Object o) {
+        objects.add(o);
+    }
+
+    public void removeObject(Object o) {
+        objects.remove(o);
+    }
+
+    public void clear() {
+        objects.clear();
     }
 }

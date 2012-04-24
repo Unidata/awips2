@@ -23,11 +23,10 @@ package com.raytheon.uf.viz.collaboration.ui;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
-import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
-import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
-import com.raytheon.uf.viz.collaboration.data.LoginUser;
-import com.raytheon.uf.viz.collaboration.data.OrphanGroup;
-import com.raytheon.uf.viz.collaboration.data.SessionGroup;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 
 /**
  * TODO Add Description
@@ -54,40 +53,34 @@ public class UsersTreeViewerSorter extends ViewerSorter {
         }
 
         // Make login user top node
-        if (e1 instanceof LoginUser) {
+        if (e1 instanceof UserId) {
             return -1;
         }
-        if (e2 instanceof LoginUser) {
+
+        if (e2 instanceof UserId) {
             return 1;
         }
 
         // session group before all other types but login user.
-        if (e1 instanceof SessionGroup) {
-            if ((e2 instanceof SessionGroup) == false) {
+        if (e1 instanceof SessionGroupContainer) {
+            if ((e2 instanceof SessionGroupContainer) == false) {
                 return -1;
             }
-        } else if (e2 instanceof SessionGroup) {
+        } else if (e2 instanceof SessionGroupContainer) {
             return 1;
-        }
-
-        // OrpahGroup always at the bottom
-        if (e1 instanceof OrphanGroup) {
-            return 1;
-        }
-        if (e2 instanceof OrphanGroup) {
-            return -1;
         }
 
         // Groups before users.
-        if (e1 instanceof CollaborationGroup) {
-            if (!(e2 instanceof CollaborationGroup)) {
+        if (e1 instanceof IRosterGroup) {
+            if (!(e2 instanceof IRosterGroup)) {
                 return -1;
             }
-        } else if (e1 instanceof CollaborationGroup) {
+        } else if (e1 instanceof IRosterGroup) {
             return 1;
         }
 
         // Either both are groups or both are users.
-        return ((CollaborationNode) e1).compareTo((CollaborationNode) e2);
+        return ((IRosterItem) e1).getName().compareTo(
+                ((IRosterItem) e2).getName());
     }
 }

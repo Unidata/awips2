@@ -122,7 +122,7 @@ public class ChangeStatusDialog extends CaveSWTDialog {
         super.preOpened();
         LoginData loginData = CollaborationDataManager.getInstance()
                 .getLoginData();
-        userLabel.setText(loginData.getAccount());
+        userLabel.setText(loginData.getAccount().getFQName());
         statusCombo.select(CollaborationUtils.statusModesIndex(loginData
                 .getMode()));
         statusCombo.select(CollaborationUtils.statusModesIndex(loginData
