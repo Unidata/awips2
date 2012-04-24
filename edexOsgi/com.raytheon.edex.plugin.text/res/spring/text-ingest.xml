@@ -40,6 +40,14 @@
 		<property name="corePoolSize" value="2" />
 		<property name="maxPoolSize" value="2" />
 	</bean>
+	
+	<!-- Special handler for text plugin archives that bases filenames off 
+	     creation time-->
+    <bean id="textArchiveNamer" class="com.raytheon.edex.plugin.text.maintenance.archiver.TextArchiveFileNameFormatter" />
+	<bean factory-bean="databaseArchiver" factory-method="registerPluginArchiveFormatter" depends-on="databaseArchiver">
+		<constructor-arg value="text" />
+		<constructor-arg ref="textArchiveNamer" />
+	</bean>
 
 
 	<camelContext id="text-camel"
