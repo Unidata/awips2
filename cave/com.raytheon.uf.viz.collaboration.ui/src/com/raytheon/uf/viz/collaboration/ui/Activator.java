@@ -20,7 +20,10 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -48,10 +51,12 @@ public class Activator extends AbstractUIPlugin {
             .getHandler(Activator.class);
 
     // The plug-in ID
-    public static final String PLUGIN_ID = "com.raytheon.uf.viz.collaboration"; //$NON-NLS-1$
+    public static final String PLUGIN_ID = "com.raytheon.uf.viz.collaboration.ui"; //$NON-NLS-1$
 
     // The shared instance
     private static Activator plugin;
+
+    private ScopedPreferenceStore prefs;
 
     /**
      * The constructor
@@ -80,6 +85,7 @@ public class Activator extends AbstractUIPlugin {
      */
     public void stop(BundleContext context) throws Exception {
         plugin = null;
+        this.prefs.save();
         super.stop(context);
     }
 
@@ -90,6 +96,15 @@ public class Activator extends AbstractUIPlugin {
      */
     public static Activator getDefault() {
         return plugin;
+    }
+
+    @Override
+    public IPersistentPreferenceStore getPreferenceStore() {
+        if (prefs == null) {
+            prefs = new ScopedPreferenceStore(new InstanceScope(), PLUGIN_ID);
+        }
+
+        return prefs;
     }
 
 }

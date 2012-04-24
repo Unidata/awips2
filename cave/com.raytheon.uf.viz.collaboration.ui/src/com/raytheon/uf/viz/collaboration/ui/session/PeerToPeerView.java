@@ -115,8 +115,8 @@ public class PeerToPeerView extends AbstractSessionView {
                 IPeerToPeer p2p = (IPeerToPeer) manager
                         .getCollaborationConnection().getPeerToPeerSession();
                 p2p.sendPeerToPeer(peer, message);
-                appendMessage(manager.getLoginId(), System.currentTimeMillis(),
-                        message);
+                appendMessage(manager.getCollaborationConnection().getUser(),
+                        System.currentTimeMillis(), message);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to send message to " + peer.getName(), e);
@@ -127,7 +127,8 @@ public class PeerToPeerView extends AbstractSessionView {
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, UserId userId, List<StyleRange> ranges) {
         Color color = null;
-        if (!userId.equals(CollaborationDataManager.getInstance().getLoginId())) {
+        if (!userId.equals(CollaborationDataManager.getInstance()
+                .getCollaborationConnection().getUser())) {
             color = chatterColor;
         } else {
             color = userColor;

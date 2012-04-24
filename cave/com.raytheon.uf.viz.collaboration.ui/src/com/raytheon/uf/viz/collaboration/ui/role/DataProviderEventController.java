@@ -95,11 +95,12 @@ public class DataProviderEventController extends AbstractRoleEventController {
 
     @Subscribe
     public void participantChanged(IVenueParticipantEvent event) {
-        if (event.getEventType().equals(ParticipantEventType.ARRIVED)) {
-            // TODO this seems to trigger when you create the room, in which
-            // case you don't need to send it for yourself
-            // TODO instead of going to active editor, should get ones
-            // specifically shared with this session
+        if (event.getEventType().equals(ParticipantEventType.ARRIVED)
+                && !event.getParticipant().equals(session.getUserID())) {
+            // TODO send over the one that is currently active, not the one
+            SharedDisplaySessionMgr
+                    .getSessionContainer(this.session.getSessionId())
+                    .getSharedEditors().get(0);
             AbstractEditor editor = EditorUtil
                     .getActiveEditorAs(AbstractEditor.class);
             SharedEditorData se = EditorSetup.extractSharedEditorData(editor);
