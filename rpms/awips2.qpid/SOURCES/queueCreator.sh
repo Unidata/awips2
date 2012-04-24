@@ -36,11 +36,19 @@ do
 done
 
 #define 24 Meg persistence queues for ingest
-QUEUES=('vaa' 'textlightning' 'tcs' 'tcg' 'taf' 'svrwx' 'sfcobs' 'redbook' 'recco' 'q2' 'profiler' 'poessounding' 'pirep' 'lsr' 'loctables' 'ldadprofiler' 'ldadmesonet' 'ldadhydro' 'goessounding' 'dhr' 'cwa' 'ccfp' 'bufrua' 'bufrssmi' 'bufrsigwx' 'bufrquikscat' 'bufrncwf' 'bufrmthdw' 'bufrmos' 'bufrhdw' 'bufrascat' 'binlightning' 'airmet' 'airep' 'acars' 'Warning' 'ShefStaged' 'Satellite')
+QUEUES=('vaa' 'textlightning' 'tcs' 'tcg' 'taf' 'svrwx' 'sfcobs' 'redbook' 'recco' 'q2' 'profiler' 'poessounding' 'pirep' 'lsr' 'loctables' 'ldadprofiler' 'ldadmesonet' 'ldadhydro' 'goessounding' 'cwa' 'ccfp' 'bufrua' 'bufrssmi' 'bufrsigwx' 'bufrquikscat' 'bufrncwf' 'bufrmthdw' 'bufrmos' 'bufrhdw' 'bufrascat' 'binlightning' 'airmet' 'airep' 'acars' 'Warning' 'ShefStaged' 'Satellite')
 for queue in ${QUEUES[*]};
 do
    echo "Creating queue Ingest.$queue"
    qpid-config add queue Ingest.$queue --durable --file-count 16 --file-size 24
+done
+
+#define 24 Meg persistence queues for HPE ingest
+QUEUES=('Ingest.dhr' 'dhrProcess')
+for queue in ${QUEUES[*]};
+do
+   echo "Creating queue $queue"
+   qpid-config add queue $queue --durable --file-count 16 --file-size 24
 done
 
 

@@ -3,7 +3,7 @@
 <body>
 <h1 align=center>
 <a NAME="WorkingwithWeatherData"></a>Working with Weather Data</h1>
-<br><p>&nbsp;&nbsp; <a href="#ThegetIndexMethod--CreatingWeatherData">The
+<br><p><a href="#ThegetIndexMethod--CreatingWeatherData">The
 getIndex method -- Creating Weather Data</a><!-- Leave this comment for formatting purposes -->
 &nbsp;&nbsp; <br><a href="#ThewxValuesMethod--ExaminingWeatherData">The
 wxValue methods -- Examining Weather Data</a><!-- Leave this comment for formatting purposes -->
@@ -56,8 +56,6 @@ wxValues)
 paired components as a tuple
 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
 (wxValues, keys)
-<p>To see how the "getIndex" method is used in a Smart Tool, examine the
-Convective_SmartTool in the examples/smartTools directory.
 <h2 align=center>
 <a NAME="ThewxValuesMethod--ExaminingWeatherData"></a>The wxMask Method
 -- Examining Weather Data</h2>
@@ -98,9 +96,6 @@ the weather has a coverage of "Chc"
 5 where the weather has type of "L"
 <br>&nbsp;&nbsp;&nbsp;&nbsp; PoP = where(self.wxMask(wxTuple, ":L:"),&nbsp;
 5,&nbsp; PoP)
-<p>To see how the "wxValues" method is used in a Smart Tool, examine the
-PoP_From_Wx tool in the example/smartTools directory.
-<br>&nbsp;
 <h2 align=center>
 <a NAME="WorkingwithDiscreteData"></a>Working with Discrete Data</h2>
 Working with Discrete-type elements in Numerical Python tools requires

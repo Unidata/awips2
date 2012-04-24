@@ -9,7 +9,7 @@
 <div style="text-align: center;">
 <h1>PlotSPCWatches</h1>
 <h2>Procedure for adding SPC Watches into your Hazards Grid</h2>
-August 30, 2005<br>
+March 9, 2012<br>
 <br>
 <div style="text-align: left;"><br>
 <a href="#methodology">Methodology</a><br>
@@ -26,8 +26,6 @@ procedure, the Hazards grid cannot be separated into temporary grids as
 done by <a href="SeparateHazards.html">SeparateHazards</a>. If it is
 separated, use the&nbsp;<a href="MergeHazards.html">MergeHazards</a>
 tool to recombine the temporary grids.<br>
-<br>
-<br>
 <br>
 When a WOU arrives from SPC, it is decoded internally, and a
 notification appears on all GFEs.<br>
@@ -68,17 +66,17 @@ Launcher.</a><big style="color: rgb(51, 51, 255);"><big><big><big><small><small>
 <h2><big><big style="color: rgb(51, 51, 255);"><a name="howitworks"></a></big></big>How
 It Works</h2>
 The PlotSPCWatches procedure analyzes the <a href="VTEC.html">VTEC
-active table</a> and filters records.&nbsp; <br>
+active table</a> and filters records.<br>
 <ul>
   <li>Records currently valid (not ones from the past) from the WOU and
 WCN products are separated into those originating from SPC (with action
 codes of NEW CON EXT EXA and EXB), and those from non-SPC (all actions
 including EXP and CAN). <br>
   </li>
-  <li>Records are then compared.&nbsp; Records are eliminated from the
-SPC list that are also in the non-SPC list.&nbsp; Comparisons are based
+  <li>Records are then compared. Records are eliminated from the
+SPC list that are also in the non-SPC list. Comparisons are based
 on the Event Tracking Number, Geographical Zone, Phen and
-Sig.&nbsp;&nbsp; After this step, the SPC list should only have records
+Sig. After this step, the SPC list should only have records
 that contain the NEW watch.</li>
   <li>Records containing EXP and CAN codes are now eliminated from the
 non-SPC list.</li>
@@ -89,14 +87,9 @@ eliminated. <br>
 then the calculated watches are added to the Hazards grid.</li>
 </ul>
 Note: The PlotSPCWatches tool only plots events that are compatible
-with the current GFE mode.&nbsp; If the GFE mode is operational, then
-only "X", "O", and "E" WOU/WCN events will be considered.&nbsp; If the
+with the current GFE mode. If the GFE mode is operational, then
+only "X", "O", and "E" WOU/WCN events will be considered. If the
 GFE mode is "TEST", then only "T" WOU/WCN events will be considered.<br>
 <br>
-<h2><big style="color: rgb(51, 51, 255);"><br>
-<big><big><big><small><small><span style="color: rgb(0, 0, 0);"></span></small></small></big></big></big></big></h2>
-<big style="color: rgb(51, 51, 255);"><big><big><big><small><small><span
- style="color: rgb(0, 0, 0);"><small><br>
-</small></span></small></small></big></big></big></big>
 </body>
 </html>

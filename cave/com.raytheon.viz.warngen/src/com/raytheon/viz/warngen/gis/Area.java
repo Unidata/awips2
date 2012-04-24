@@ -69,6 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                         instead of calculating them.
  *    Apr 11, 2012 #14691      Qinglu lin  Extra code were added to handle marine warnings as
  *                                         MarineZones shapefiles have no FE_AREA.
+ *    Apr 13, 2012 #14691      Qinglu lin  Added code for two more fe_area: er and nr.
  * 
  * </pre>
  * 
@@ -244,8 +245,12 @@ public class Area {
                 		partList.add("BB");
                 	else if(feArea.equals("er"))
                 		partList.add("ER");
+                	else if(feArea.equals("eu"))
+                		partList.add("EU");
                 	else if(feArea.equals("sr"))
                 		partList.add("SR");
+                	else if(feArea.equals("nr"))
+                		partList.add("NR");
                 	else if(feArea.equals("wu"))
                 		partList.add("WU");
                 	else if(feArea.equals("ds"))

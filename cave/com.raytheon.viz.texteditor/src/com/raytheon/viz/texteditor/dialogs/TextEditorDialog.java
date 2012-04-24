@@ -4388,16 +4388,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!Boolean.TRUE.equals(wgcd.getReturnValue())) {
             return;
         }
-
-        String body = textEditor.getText();        
+        
+        // DR14553 (make upper case in product)
+        String body = textEditor.getText().toUpperCase();        
         if (result) {
             removeOptionalFields();
 
             try {
                 /* update the vtec string in the message */
+                // DR14553 (make upper case in product)
                 if (!resend) {
                     body = VtecUtil.getVtec(
-                            removeSoftReturns(textEditor.getText()), true);
+                            removeSoftReturns(textEditor.getText().toUpperCase()), true);
                 }
                 updateTextEditor(body);
                 if ((inEditMode || resend) && saveEditedProduct(false, resend)) {
@@ -4406,12 +4408,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 String product = TextDisplayModel.getInstance().getProduct(
                         token);
-                // DR_14553: Add blank line between product header and body
-                String[] results = product.split("\n");
-                String wmoHead = results[0];
-                String awipsId = results[1];
-                String header = wmoHead + "\n" + awipsId + "\n\n";
-                product = header.concat(body);
                 OUPRequest req = new OUPRequest();
                 OfficialUserProduct oup = new OfficialUserProduct();
                 prod = getStdTextProduct();
@@ -4627,6 +4623,27 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     + statusBarLabel.getText().substring(startIndex);
         }
 
+        // DR_14553: Add blank line between product header and body if it
+        // does not exist in curren product
+        String[] results = productText.split("\n");
+        int numLines = results.length;
+        String wmoHead = results[0];
+        String awipsId = results[1];
+        String thirdLine = results[2].trim();
+        char[] charLine = thirdLine.toCharArray();
+        int thirdLineSize = charLine.length;
+        String body = "";
+        String line = "";
+        if (thirdLineSize != 0) {	
+        	String header = wmoHead + "\n" + awipsId + "\n\n";
+        	body = header;
+        	for (int i = 2; i< numLines; ++i) {
+        		line = results[i];
+        		line += "\n";
+        		body = body.concat(line); 
+        	}
+        	productText = body;
+        }
         storedProduct.setProduct(productText.trim());
 
         /*

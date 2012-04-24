@@ -12,12 +12,11 @@
  alink="#ff0000">
 <h1>
 ifpBreakAllLocks User's Guide</h1>
-August 1, 2003
+January 4, 2012
 <hr width="100%"><br>
-The ifpBreakAllLocks program is part of the GFESuite software.&nbsp;
+The ifpBreakAllLocks program is part of the GFESuite software.
 It can be used to break all the locks on all the Weather Elements in
-the identified
-ifpServer.
+the identified GFE.
 <font color="#ff0000">WARNING: This operation may result in the loss of
 data so the program should be used with caution.</font>
 <br>
@@ -26,11 +25,9 @@ data so the program should be used with caution.</font>
 <h3>
 Command Line Switches</h3>
 The command line syntax is:
-<p><b><tt>ifpBreakAllLocks -h hostname -p rpcPortNumber [-a] [-d
+<p><b><tt>ifpBreakAllLocks -h hostname -p rpcPortNumber -s siteID [-a] [-d
 databaseID] </tt></b><br>
-&nbsp;
 <br>
-&nbsp;
 <table border="1" width="100%">
   <tbody>
     <tr>
@@ -41,12 +38,17 @@ databaseID] </tt></b><br>
     <tr>
       <td>-h</td>
       <td>Mandatory (see Note)</td>
-      <td>Host name upon which the ifpServer is running</td>
+      <td>Host name upon which EDEX is running</td>
     </tr>
     <tr>
       <td>-p</td>
       <td>Mandatory (see Note)</td>
-      <td>RPC port upon which the ifpServer is running</td>
+      <td>RPC port upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-s</td>
+      <td>Mandatory</td>
+      <td>Site id for which GFE is running</td>
     </tr>
     <tr>
       <td style="vertical-align: top;">-a<br>
@@ -54,7 +56,7 @@ databaseID] </tt></b><br>
       <td style="vertical-align: top;">Optional<br>
       </td>
       <td style="vertical-align: top;">Specifies that all databases
-will have their locks removed.&nbsp; Either the -a or -d switch is
+will have their locks removed. Either the -a or -d switch is
 required.<br>
       </td>
     </tr>
@@ -64,64 +66,29 @@ required.<br>
       <td style="vertical-align: top;">Optional<br>
       </td>
       <td style="vertical-align: top;">Specifies the database that will
-have the locks removed.&nbsp; There may be more than one -d switch
-present.&nbsp; Either the -a or -d switch is required.<br>
+have the locks removed. There may be more than one -d switch
+present. Either the -a or -d switch is required.<br>
       </td>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note:&nbsp;The -h and -p switches are predefined
-when running in an installed GFESuite environment.&nbsp; They are
-defined
-to the values specified when installing the software.&nbsp; If you wish
-to connect to a different ifpServer, then the switches will need to be
-specified.</font><font color="#3366ff">&nbsp; If environment variables
-${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -p switches. Either the -a or -d switch is
-required.</font>
+<font color="#3366ff"><b>Note:</b> The -h and -p switches are predefined
+when running in an installed GFESuite environment. They are defined
+to the values specified when installing the software. If you wish
+to connect to a different EDEX, then the switches will need to be
+specified.</font>
 </p>
 <hr width="100%">
 <h3>Sample Output</h3>
 <tt></tt>
 <p><br>
-<tt>13:14:01.220 BreakAllLocks.py 37 EVENT:&nbsp; Break All Locks
-starting</tt>
+<tt>17:01:04 ifpBreakAllLocks.py INFO:  Break All Locks starting<br>
+17:01:12 ifpBreakAllLocks.py INFO:  No locks found<br>
+17:01:12 ifpBreakAllLocks.py INFO:  Break All Locks Finished</tt>
 <br>
-<tt>13:14:01.234 Client.C 146 EVENT: Establishing connection to server
-on polaris:98000000 ver=20020314</tt>
-<br>
-<tt>13:14:01.251 Client.C 162 EVENT: Connection complete to server
-on polaris</tt>
-<br>
-<tt>13:14:04.140 BreakAllLocks.py 20 EVENT:&nbsp; Lock:&nbsp;
-T_SFC:BOU_GRID__Fcst_00000000_0000
-(Mar 30 02 08:00:00 GMT, Mar 30 02 09:00:00 GMT)
-mark@camper.fsl.noaa.gov:gfe:7781:0</tt>
-<br>
-<tt>13:14:04.148 BreakAllLocks.py 20 EVENT:&nbsp; Lock:&nbsp;
-T_SFC:BOU_GRID__Fcst_00000000_0000
-(Mar 30 02 17:00:00 GMT, Mar 30 02 18:00:00 GMT)
-mark@camper.fsl.noaa.gov:gfe:7781:0</tt>
-<br>
-<tt>13:14:04.152 BreakAllLocks.py 20 EVENT:&nbsp; Lock:&nbsp;
-T_SFC:BOU_GRID__Fcst_00000000_0000
-(Mar 31 02 02:00:00 GMT, Mar 31 02 03:00:00 GMT)
-mark@camper.fsl.noaa.gov:gfe:7781:0</tt>
-<br>
-<tt>13:14:04.156 BreakAllLocks.py 20 EVENT:&nbsp; Lock:&nbsp;
-T_SFC:BOU_GRID__Fcst_00000000_0000
-(Mar 31 02 13:00:00 GMT, Mar 31 02 14:00:00 GMT)
-mark@camper.fsl.noaa.gov:gfe:7781:0</tt>
-<br>
-<tt>13:14:05.810 BreakAllLocks.py 37 EVENT:&nbsp; Break All Locks
-Finished</tt>
-<br>
-<tt></tt>&nbsp;
 </p>
 <p></p>
 <hr width="100%"><br>
-<a href="GFESuite.html">Return to Table of Contents</a>
+<a href="GFESuite.html">Return to TOC</a>
 </body>
 </html>
