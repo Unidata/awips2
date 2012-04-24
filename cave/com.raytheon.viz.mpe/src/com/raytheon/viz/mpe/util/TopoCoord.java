@@ -36,9 +36,12 @@ import com.raytheon.viz.mpe.util.MapPrecipGagesGrid.Topo;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 25, 2009            snaples     Initial creation
+ * Date         Ticket#    Engineer    	Description
+ * ------------ ---------- ----------- 	--------------------------
+ * Feb 25, 2009            snaples     	Initial creation
+ * Apr 16, 2012			   mgamazaychik	DR9602 - made changes how maxi and maxj are 
+ *									   	calculated to make the code consistent 
+ *										with A1
  * 
  * </pre>
  * 
@@ -118,10 +121,11 @@ public class TopoCoord {
                      * Determine the total number of longitude increments (in
                      * minutes) and the total number of latitude increments.
                      */
-                    maxi = (int) Math.ceil((total_lon / Float
-                            .parseFloat(tokens[5])));
-                    maxj = (int) Math.ceil((total_lat / Float
-                            .parseFloat(tokens[4])));
+                    /*
+                     * DR9602 - made changes to make the code consistent with A1
+                     */
+                    maxi = (int) Math.ceil((total_lon / delta_lon));
+                    maxj = (int) Math.ceil((total_lat / delta_lat));
 
                     /*
                      * Assign the latitude and longitude information read from

@@ -55,13 +55,13 @@ Using procedures you can:</p>
 <h3 class="3Heading">
 <a name="ExecuteSS"></a>Executing Procedures</h3>
 <div class="Body">Procedures can be set up to appear under various menu
-items on the GFE Main Menu.&nbsp; Keep in mind that you can make a
+items on the GFE Main Menu. Keep in mind that you can make a
 procedure
 that can take several minutes to complete, particularly if it includes
 a lot of interpolation.</div>
 <div class="Step-First">
 <ol>
-  <li>Try executing the QPF_SnowAmt Procedure which appears under&nbsp;
+  <li>Try executing the QPF_SnowAmt Procedure which appears under
 Main
 Menu --&gt; Edit and runs the QPF_SmartTool followed by the
 SnowAmt_SmartTool.</li>
@@ -80,17 +80,17 @@ possibility
 would be to run the Assign_Value tool followed by the Smooth tool.</div>
 <div class="Step-First">
 <ol>
-  <li>Choose Main Menu--&gt;Populate--&gt;Define Procedures. From the
+  <li>Choose Main Menu--&gt;GFE--&gt;Define Procedures. From the
 MB3
-Pop-up in
-the Procedures Window, choose New....</li>
+Pop-up on
+the Procedures folder, choose New....</li>
   <li>Enter a Name for your Procedure.</li>
   <li>Select OK. A Python Editor window will appear with the Procedure
 template.</li>
   <li>The MenuItems list defines the GFE menu item(s) under which the
 Procedure
 is to appear. Possible items are: Populate, Edit, Consistency,
-Verify, and Hazards.&nbsp;
+Verify, and Hazards.
 Set up the MenuItems list, perhaps listing "Edit" as the item under
 which
 you want your procedure to appear.</li>
@@ -114,9 +114,8 @@ procedure is run. Procedures can be simple or extremely powerful
 because
 of the availability of the Smart Script Class library. (<a
  href="SmartScriptClass.html">See
-the section describing this library</a> )
-<p><a href="#AnswerProc1">Click here for Answer to Exercise Procedure-1.</a>
-</p>
+the section describing this library</a>)
+<p><a href="SmartToolsExerciseAnswers.html#AnswerProc1">Answer to Procedure Exercise 1</a></p>
 <h3 class="3Heading"><a name="ExProc2"></a>Exercise Procedure-2 --
 Using the SmartScript Library
 from a Procedure</h3>
@@ -124,10 +123,10 @@ from a Procedure</h3>
 "procedure-type"
 commands which allow you to copy data from models, create grids from
 scratch
-and perform interpolattion,&nbsp; as well as methods for calling Smart
-Tools.&nbsp; In this exercise, we'll create a Procedure to call some of
+and perform interpolation, as well as methods for calling Smart
+Tools. In this exercise, we'll create a Procedure to call some of
 these commands.
-<blockquote><li>Study the SmartScript Libary commands:&nbsp; <a
+<blockquote><li>Study the SmartScript Libary commands: <a
  href="SmartScriptClass.html#copyCmd">copyCmd</a>, <a
  href="SmartScriptClass.html#createFromScratchCmd">createFromScratchCmd</a>,
     <a href="SmartScriptClass.html#getDatabase">getDatabase</a>,
@@ -153,29 +152,28 @@ hours),</li>
     <li>Create 1-hour T grids every 3 hours over the new time range,</li>
     <li>Run the Smart Tool from Exercise SmartScript-4 over the new
 time range,
-interpolating for missing data by setting the&nbsp; <a
+interpolating for missing data by setting the <a
  href="GFEMainMenu.html#MissingDataMode">Missing
-Data Mode</a>.&nbsp; Pass the varDict from the Procedure to the Smart
+Data Mode</a>. Pass the varDict from the Procedure to the Smart
 Tool
 in the "callSmartTool" command so that the VariableList dialog does not
 appear twice. For this to work, make sure that the VariableList model
 field
 has the same name as that in the Smart Tool.</li>
   </ul>
-  <li>Run and test your Procedure to make sure it works.&nbsp;&nbsp;
+  <li>Run and test your Procedure to make sure it works.
 Note
 that
 the Procedure could take some time to execute since the Smart Tool is
 being
-called over a time range of grids.&nbsp; You can notice the progress of
-execution in the <a href="StatusBar.html#ProgressBar">Progress Bar</a>.
-Also, if you are running the GFE from a terminal window, you will see
-status
-messages appear in the window.</li>
+called over a time range of grids. You can notice the progress of
+execution in the progress bar at the bottom right of the display.
+Also, if you are running the GFE from a terminal window with a -console
+argument, you will see status messages appear in the window.</li>
+<p><a href="SmartToolsExerciseAnswers.html#AnswerProc2">Answer to Procedure Exercise 2</a></p>
 </blockquote>
-<a href="#AnswerProc2">Click here for Answer to Exercise Procedure-2.</a></div>
 </div>
-<div class="Body">&nbsp;</div>
+</div>
 </div>
 <h3 class="3Heading">
 <a name="ExProc3"></a>Exercise Procedure-3 -- Running Procedures in the
@@ -189,12 +187,13 @@ command.</li>
   <li>Run your the procedure of Exercise Procedure-1 from the command
 line
 using
-the "runProcedure" command.&nbsp; Note you will need to specify an edit
-area and a time range.&nbsp; Also, since you will be running the
+the "runProcedure" command. Note you will need to specify an edit
+area and a time range. Also, since you will be running the
 Procedure
-outside the context of the GFE,&nbsp; you will have to reference
+outside the context of the GFE, you will have to reference
 specific
 weather elements instead of "variableElement" in your ToolList.</li>
+<p><a href="SmartToolsExerciseAnswers.html#AnswerProc3">Answer to Procedure Exercise 3</a></p>
 </blockquote>
-<a href="#AnswerProc3">Click here for Answer to Exercise Procedure-3.</a></div>
+</div>
 </div>
