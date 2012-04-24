@@ -20,6 +20,9 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
+
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -35,9 +38,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.opengis.referencing.operation.MathTransform;
-
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -70,7 +70,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class MercatorNcgridCoverage extends NcgridCoverage {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(MercatorNcgridCoverage.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MercatorNcgridCoverage.class);
 
     private static final long serialVersionUID = 3140441023975157052L;
 
@@ -179,7 +180,18 @@ public class MercatorNcgridCoverage extends NcgridCoverage {
         crs = MapUtil.constructMercator(majorAxis, minorAxis, latin, meridian);
         crsWKT = crs.toWKT();
         try {
-            geometry = MapUtil.createGeometry(la1, lo1, la2, lo2);
+            // geometry = MapUtil.createGeometry(la1, lo1, la2, lo2);
+            Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
+            if (spacingUnitObj.isCompatible(SI.METRE)) {
+                UnitConverter converter = spacingUnitObj
+                        .getConverterTo(SI.METRE);
+                geometry = MapUtil.createGeometry(crs, la1, lo1,
+                        converter.convert(dx), converter.convert(dy), nx, ny);
+            } else {
+                throw new GribException("Unable to convert " + spacingUnit
+                        + " to meters while creating geometry!");
+            }
+
         } catch (Exception e) {
             throw new GribException("Error creating geometry", e);
         }
@@ -192,9 +204,10 @@ public class MercatorNcgridCoverage extends NcgridCoverage {
         String nameAndDescription = "Unknown Mercator " + nx + " X " + ny + " "
                 + Math.round(dx) + " " + spacingUnit + " "
                 + getProjectionType() + " grid";
-        String nameModel_gridid = "" + nx + ny + Integer.toString((int) (la1+la2+lo1+lo2));
+        String nameModel_gridid = "" + nx + ny
+                + Integer.toString((int) (la1 + la2 + lo1 + lo2));
         this.setName(nameModel_gridid);
-        //this.setName(nameAndDescription);
+        // this.setName(nameAndDescription);
         this.setDescription(nameAndDescription);
     }
 
@@ -257,7 +270,8 @@ public class MercatorNcgridCoverage extends NcgridCoverage {
                 }
                 rval.setId(rval.hashCode());
             } else {
-                statusHandler.handle(Priority.PROBLEM,
+                statusHandler.handle(
+                        Priority.PROBLEM,
                         "Error creating sub grid definition ["
                                 + subGrid.getModelName()
                                 + "], units are not compatible with meter ["

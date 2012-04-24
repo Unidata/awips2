@@ -97,7 +97,7 @@ public class NctextuiMouseHandler extends InputHandlerDefaultImpl {
      */
     @Override
     public boolean handleMouseUp(int x, int y, int button) {
-    	//System.out.println("mouse up");
+    	//System.out.println("NctextuiMouseHandler mouse up");
     	
     	// button 1 is left mouse button
     	if (button == 1 ){

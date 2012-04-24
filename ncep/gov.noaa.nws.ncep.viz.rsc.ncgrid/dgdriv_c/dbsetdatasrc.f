@@ -23,7 +23,7 @@ C************************************************************************
         INCLUDE         'dbcmn.cmn'
 C*
         CHARACTER*(*)   afile
-        CHARACTER       carr1(25)*20, carr2(5)*25
+        CHARACTER       carr1(25)*50, carr2(6)*25,ens*120
         CHARACTER       message*720, funcnm*20, loglevel*6
 C*
 C------------------------------------------------------------------------
@@ -67,7 +67,7 @@ c                   ELSE
 c                       dbmodel= carr1(num)(:ipos-2)
 c                   END IF
 
-                   CALL ST_CLST ( carr1(num), '_', ' ', 5, carr2,
+                   CALL ST_CLST ( carr1(num), '_', ' ', 6, carr2,
      +                            num2, ier )
                    IF ( num2 .eq. 2 ) THEN
 C
@@ -87,11 +87,34 @@ C
                       dbmodel= carr2(1)(:icarr2)
                       CALL ST_LSTR ( carr2(3), icarr2, ier )
                       CALL DB_SETENSMBRS ( carr2(3)(:icarr2), ier )
+                      CALL ST_LSTR ( carr2(4), icarr2, ier )
+                      CALL DB_SETNAVTIME ( carr2(4)(:icarr2),ier )
                       message = "DB_SETDATASRC set dbmodel=" // dbmodel
      +                       // " set ens member =" // carr2(3)(:icarr2)
+     +                       // " set nav time=" // carr2(4)(:icarr2)
                       CALL ST_NULL ( message,  message,  lenq, ier )
                       CALL DB_MSGCAVE ( funcnm, loglevel, message, ier )
-                    ELSE
+                    ELSE IF ( num2 .gt. 4 ) THEN
+                        CALL ST_LSTR ( carr2(1), icarr2, ier )
+                        dbmodel= carr2(1)(:icarr2)
+                        CALL ST_LSTR ( carr2(3), icarr2, ier )
+                        ens = carr2(3)(:icarr2)
+                        
+                        DO ii = 4 , num2 - 1
+                            CALL ST_LSTR ( carr2(ii), icarr2, ier )
+                            CALL ST_LSTR ( ens,lenq, ier )
+                            ens = ens(1:lenq)//'_'//carr2(ii)(:icarr2)
+                        ENDDO
+                        CALL DB_SETENSMBRS ( ens, ier )
+                      CALL ST_LSTR ( carr2(num2), icarr2, ier )
+                      CALL DB_SETNAVTIME ( carr2(num2)(:icarr2),ier )
+                      message = "DB_SETDATASRC set dbmodel=" // dbmodel
+     +                       // " set ens member =" // ens
+     +                       // " set nav time=" // carr2(num2)(:icarr2)
+                      CALL ST_NULL ( message,  message,  lenq, ier )
+                      CALL DB_MSGCAVE ( funcnm, loglevel, message, ier )
+
+                    ELSE  
 C
 C*                   TODO - improve the error handling
 C

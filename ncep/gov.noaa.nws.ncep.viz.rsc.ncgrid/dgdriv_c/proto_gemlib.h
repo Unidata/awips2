@@ -188,7 +188,7 @@ void db_getQueryText    ( char *queryType, char *queryText, int *iret );
 void db_getduri         ( char *queryType, char *source, char *model, char *dattim,
                           char *vcord, char *parm, char *evtname, int *level, int *level2, char *dataURI,
                           int *lDataURI, int *iret );
-void db_getgnav         ( char *model, char *eventName, char *gridNav, int *lGridNav, int *iret );
+void db_getgnav         ( char *model, char *eventName, char *navTime,char *gridNav, int *lGridNav, int *iret );
 void db_gtimgrid        ( char *gridTimes, int *lGridTimes, int *iret );
 void db_getRData        ( char *dbHost, char *fileName, float *rdata, int *nword,
                           int *iret );

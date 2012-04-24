@@ -23,14 +23,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Event;
 
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.legend.ILegendDecorator;
@@ -39,9 +38,13 @@ import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
-import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
+import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
+import com.raytheon.viz.ui.cmenu.EnableDisableAction;
+import com.raytheon.viz.ui.cmenu.MoveDownAction;
+import com.raytheon.viz.ui.cmenu.MoveUpAction;
+import com.raytheon.viz.ui.cmenu.RemoveResourceAction;
 
 /**
  * Legend decorator for Natl Cntrs
@@ -53,34 +56,20 @@ import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
  * 04/01/2010     #259     Greg Hull    Initial Creation
  * 07/13/2001     #446     Q. Zhou      Added implements IInputHandler
  * 										Added mouse handlers, initInternal, toggleVisibility. See D2DLegendResource
+ * 02/06/2011              S. Gurung    Separated/moved input handler code to class NCLegendHandler
+ * 02/29/2011     651      Archana      Added the overridden method fillContextMenu()										
  * </pre>
  * 
  * @author ghull
  * @version 1.0
  */
-/**
- * TODO Add Description
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 17, 2010            mschenke     Initial creation
- * 
- * </pre>
- * 
- * @author mschenke
- * @version 1.0
- */
 
 public class NCLegendResource extends
-        AbstractLegendResource<GenericResourceData> implements IInputHandler, ILegendDecorator {
+        AbstractLegendResource<GenericResourceData> implements ILegendDecorator {
 
-	ResourcePair mouseDownRsc = null;
-	
-    /**
+	private IInputHandler legendHandler = new NCLegendHandler(this);
+	 
+	 /**
      * @param resourceData
      * @param loadProperties
      */
@@ -184,8 +173,8 @@ public class NCLegendResource extends
         IDisplayPaneContainer rc = getResourceContainer();
         if (rc == null) 
         	return;
-        
-        rc.registerMouseHandler(this);
+       
+        rc.registerMouseHandler(legendHandler,InputPriority.SYSTEM_RESOURCE);
     }
     
     @Override
@@ -196,113 +185,68 @@ public class NCLegendResource extends
         if (rc == null) 
         	return;
         
-        rc.unregisterMouseHandler(this);
+        rc.unregisterMouseHandler(legendHandler);
 	}
-
-	@Override
-    public boolean handleMouseDown(int x, int y, int mouseButton) {
-        
-    	if (mouseButton ==1) {
-    		//IDisplayPaneContainer editor = getResourceContainer();
-            //if (prefManager.handleClick(HIDE_RESOURCE_PREF, mouseButton)) {
-    		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
-    		if( editor != null &&  editor instanceof NCMapEditor ) {
-    			IDisplayPane activePane = editor.getActiveDisplayPane();
-    			IRenderableDisplay display = editor.getActiveDisplayPane()
-                    .getRenderableDisplay();
-    			mouseDownRsc = checkLabelSpace(display.getDescriptor(),
-                    activePane.getTarget(), x, y);
-    		}
-    	}
-        return false;
-    }
     
-    @Override
-    public boolean handleMouseUp(int x, int y, int mouseButton) {
-    	if (mouseButton ==1) {
-    		NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); //AbstractEditor
+   @Override
+   protected ResourcePair checkLabelSpace(IDescriptor descriptor,
+           IGraphicsTarget target, double x, double y) {
+       // NOTE: Overridden so legend handlers can call
+       return super.checkLabelSpace(descriptor, target, x, y);
+   }
+
+   @Override
+ protected void fillContextMenu(IMenuManager menuManager,
+		ResourcePair selectedResource) {
+
+   	MoveUpAction upAction = new MoveUpAction();
+	MoveDownAction downAction = new MoveDownAction();
+	EnableDisableAction enableDisableAction = new EnableDisableAction();
+	RemoveResourceAction rrAction = new RemoveResourceAction();
+	NCMapEditor container = NmapUiUtils.getActiveNatlCntrsEditor();
+
+    upAction.setContainer(container);
+	upAction.setSelectedRsc(selectedResource);
+	downAction.setContainer(container);
+	downAction.setSelectedRsc(selectedResource);
+	enableDisableAction.setContainer(container);
+	enableDisableAction.setSelectedRsc(selectedResource);
+	rrAction.setContainer(container);
+	rrAction.setSelectedRsc(selectedResource);
+	
+    AbstractVizResource<?,?> thisResource = selectedResource.getResource();
+    //Cyclic dependancy work-around..
+	Object editRscAttrsAction =  null;
+    Method[] arrayOfMethods = thisResource.getClass().getMethods();
+    for ( Method m : arrayOfMethods ){
+    	if ( m.getName().compareTo("resourceAttrsModified") == 0){
+    		try {
+				editRscAttrsAction =  Class.forName("gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction").newInstance();
+				( ( AbstractRightClickAction ) editRscAttrsAction ).setContainer(container);
+				( ( AbstractRightClickAction ) editRscAttrsAction ).setSelectedRsc(selectedResource);
+				break;
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     		
-    		if( editor != null &&  editor instanceof NCMapEditor ) {
-    			IDisplayPane activePane = editor.getActiveDisplayPane();
-    			IRenderableDisplay display = editor.getActiveDisplayPane()
-                    .getRenderableDisplay();
-    			ResourcePair rsc = checkLabelSpace(display.getDescriptor(),
-                    activePane.getTarget(), x, y);
-
-    			if (rsc != null && rsc == mouseDownRsc) {
-    				mouseDownRsc = null;
-    				toggleVisibility(rsc);
-    				editor.refresh();
-    				
-    				return true;
-    			}
-    		}     
     	}
-        return false;
-  	
     }
+
+    if ( editRscAttrsAction != null )
+    	menuManager.add( ( IAction )editRscAttrsAction);
     
-    @Override
-    public boolean handleDoubleClick(int x, int y, int mouseButton) {
-        return false;
-    }
-    @Override
-    public boolean handleMouseDownMove(int x, int y, int mouseButton) {       
-    	return (mouseDownRsc != null);
-    }
-    public boolean handleMouseHover(int x, int y) {
-    	 return false;
-    }
-    public  boolean handleMouseMove(int x, int y) {
-    	 return false;
-    }
-    public  boolean handleMouseWheel(Event event, int x, int y) {
-    	 return false;
-    }
-    public  boolean handleMouseExit(Event event) {
-    	 return false;
-    }
-    public  boolean handleMouseEnter(Event event) {
-    	 return false;
-    }
-    public  boolean handleKeyDown(int keyCode) {
-    	 return false;
-    }
-    public  boolean handleKeyUp(int keyCode) {
-    	 return false;
-    }
-    
-    private void toggleVisibility(ResourcePair rp) {
-        AbstractVizResource<?, ?> rsc = rp.getResource();
-        if (rsc != null) {
-            if (rsc.hasCapability(BlendedCapability.class)) {
-                ResourcePair parentRsc = rsc.getCapability(
-                        BlendedCapability.class).getBlendableResource();
-                ResourceList children = parentRsc.getResource()
-                        .getCapability(BlendableCapability.class)
-                        .getResourceList();
-                if (parentRsc.getProperties().isVisible() == false) {
-                    parentRsc.getProperties().setVisible(true);
-                    for (ResourcePair child : children) {
-                        child.getProperties().setVisible(true);
-                    }
-                } else {
-                    // topmost resource is visible, toggle us and other rsc
-                    if (rp.getProperties().isVisible() == false) {
-                        rp.getProperties().setVisible(true);
-                        parentRsc
-                                .getResource()
-                                .getCapability(BlendableCapability.class)
-                                .setAlphaStep(BlendableCapability.BLEND_MAX / 2);
-                    } else {
-                        parentRsc.getResource()
-                                .getCapability(BlendableCapability.class)
-                                .toggle(rp);
-                    }
-                }
-                return;
-            }
-        }
-        rp.getProperties().setVisible(!rp.getProperties().isVisible());
-    }
+	menuManager.add(upAction);
+	menuManager.add(downAction);
+	menuManager.add(enableDisableAction);
+	menuManager.add(rrAction);
+	
+ }
+
 }

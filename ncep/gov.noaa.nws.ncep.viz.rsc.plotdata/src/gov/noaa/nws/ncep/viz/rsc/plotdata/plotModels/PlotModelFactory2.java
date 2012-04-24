@@ -24,13 +24,10 @@ import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
 import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLatitude;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
-import gov.noaa.nws.ncep.edex.common.metparameters.WindDirection;
-import gov.noaa.nws.ncep.edex.common.metparameters.WindSpeed;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefns;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModelElement;
 
@@ -93,8 +90,8 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  *                                     want to use. Specify symbolFont explicitly instead of setting from class.
  * 07/29/2011     #450     ghull       NcPathManager; pass PlotParameterDefns instead of the PlotParameterDefnsMngr
  * 11/11/2011              ghull       fix for wind barbs
- *
- * 
+ * 01/19/2012     #539     qzhou       Fixed southern hemisphere wind barbs
+ * 02/27/2012     #694     qzhou       Fixed center symbol positions not overlap
  * </pre>
  * 
  * @author BRock97
@@ -147,6 +144,8 @@ public class PlotModelFactory2 {
 		return plotModel;
 	}
 
+    double[] stationLoc = {0,0};
+    
     public class PlotElement {    
         private DisplayMode displayMode = DisplayMode.NULL;
 
@@ -513,7 +512,7 @@ public class PlotModelFactory2 {
                 					+";font-family:"+fontFamily+";";
                 } 
                 else if( prmDefn.getPlotMode().equals("table" ) ){
-                	style = style + "stroke: "+color
+                	style = style + "fill: none; "+"stroke: "+color
                 			+";stroke-width:"+pme.getSymbolSize()+"px"
                 				+";font-size:"+pme.getSymbolSize()+"em"
                 					+";font-family:"+fontFamily+";";
@@ -704,7 +703,7 @@ public class PlotModelFactory2 {
     public synchronized BufferedImage getStationPlot( 
     		HashMap<String,AbstractMetParameter> metParams ) {
     	
-    	double[] stationLoc = {0,0};
+    	//double[] stationLoc = {0,0};
 
     	if( !metParams.containsKey( StationLatitude.class.getSimpleName() ) ||
     			!metParams.containsKey( StationLongitude.class.getSimpleName() ) ) {
@@ -927,8 +926,13 @@ public class PlotModelFactory2 {
         } 
         else if( cWindSpeed >= cWindSpeedThresh ) {
         	int iWindSpeed = this.windNormalizer(cWindSpeed);
-        	element.winds.barbElement.setAttribute("transform", "rotate("
-        			+ dWindDir + ",0,0)");
+        	if (stationLoc[1] < 0) 
+
+        		element.winds.barbElement.setAttribute("transform", "rotate("
+            			+ (dWindDir) + ",0,0) matrix(-1, 0, 0, 1, 0, 0)");
+        	else
+        		element.winds.barbElement.setAttribute("transform", "rotate(" + dWindDir + ",0,0)");
+
         	element.winds.barbNode.setNodeValue( Integer.toString(iWindSpeed) );
         } 
 
@@ -964,9 +968,14 @@ public class PlotModelFactory2 {
         
         if (element.winds.arrowElement != null) {
             if (dDir != -9999.0 && cMag != -9999.0) {
-                element.winds.arrowElement.setAttribute("transform", "rotate("
-                        + dDir + ",0,0)");
-                element.winds.arrowNode.setNodeValue("arrow");
+            	if (stationLoc[1] < 0) 
+        		element.winds.barbElement.setAttribute("transform", "rotate("
+            			+ (dDir) + ",0,0) matrix(-1, 0, 0, 1, 0, 0)");
+        	else
+        		element.winds.barbElement.setAttribute("transform", "rotate(" + dDir + ",0,0)");
+            			
+            element.winds.arrowNode.setNodeValue("arrow");
+            
             } else {
                 element.winds.arrowElement.removeAttribute("transform");
                 element.winds.arrowNode.setNodeValue(" ");

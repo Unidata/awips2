@@ -19,6 +19,9 @@
             <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
             <legendColor>${legend_color}</legendColor>
             <colorMapName>${colorMapName}</colorMapName>
+            <alpha>${alpha}</alpha>
+            <brightness>${brightness}</brightness>
+            <contrast>${contrast}</contrast>            
             ${colorBar}
             <metadataMap>
               <mapping key="pluginName">
