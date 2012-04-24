@@ -23,10 +23,8 @@ import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
-import javax.media.jai.remote.SerializableRenderedImage;
+import javax.imageio.ImageIO;
 
 import com.raytheon.uf.common.serialization.IDeserializationContext;
 import com.raytheon.uf.common.serialization.ISerializationContext;
@@ -71,15 +69,10 @@ public class RenderedImageWrapper {
         public void serialize(ISerializationContext serializer,
                 RenderedImageWrapper object) throws SerializationException {
             RenderedImage image = object.getWrappedImage();
-            if (image instanceof SerializableRenderedImage == false) {
-                image = new SerializableRenderedImage(image);
-            }
             // serialize rendered image into bytes
             try {
                 ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(bytes);
-                oos.writeObject(image);
-                oos.close();
+                ImageIO.write(image, "png", bytes);
                 serializer.writeBinary(bytes.toByteArray());
             } catch (IOException e) {
                 throw new SerializationException(
@@ -102,10 +95,8 @@ public class RenderedImageWrapper {
             byte[] data = deserializer.readBinary();
             // deserialize bytes into rendered image
             try {
-                ObjectInputStream oin = new ObjectInputStream(
-                        new ByteArrayInputStream(data));
-                wrapper.setWrappedImage((RenderedImage) oin.readObject());
-                oin.close();
+                wrapper.setWrappedImage(ImageIO.read(new ByteArrayInputStream(
+                        data)));
             } catch (Exception e) {
                 throw new SerializationException(
                         "Error deserializing rendered image: "
