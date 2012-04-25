@@ -19,10 +19,14 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.annotation.XmlElement;
 
 import org.eclipse.ecf.core.ContainerConnectException;
 import org.eclipse.ecf.core.ContainerCreateException;
@@ -48,6 +52,14 @@ import org.eclipse.ecf.presence.roster.IRosterListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -76,6 +88,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserIdAlias;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 
 /**
@@ -145,6 +158,9 @@ public class CollaborationConnection implements IEventPublisher {
     private EventBus eventBus;
 
     private IRosterEventSubscriber rosterEventSubscriber = null;
+
+    @XmlElement
+    private List<UserIdAlias> aliases;
 
     // Debug -- event viewer ----------------
     // private IRosterEventSubscriber rosterEventHandler = null;
@@ -217,6 +233,8 @@ public class CollaborationConnection implements IEventPublisher {
             String resource = Tools.parseResource(id.getName());
             user = new UserId(name, host, resource);
         }
+
+        readAliases();
 
         setupAccountManager();
 
@@ -360,6 +378,7 @@ public class CollaborationConnection implements IEventPublisher {
      *  
      */
     public void closeManager() {
+        persistAliases();
         if (container != null) {
             // Close any created sessions.
             for (ISession session : sessions.values()) {
@@ -721,4 +740,61 @@ public class CollaborationConnection implements IEventPublisher {
         return id;
     }
 
+    /**
+     * @return the nicknames
+     */
+    public String getAlias(UserId user) {
+        for (UserIdAlias alias : aliases) {
+            if (alias.getId().equals(user)) {
+                return alias.getAlias();
+            }
+        }
+        return null;
+    }
+
+    public void addAlias(UserId user, String name) {
+        UserIdAlias alias = new UserIdAlias();
+        alias.setAlias(name);
+        alias.setId(user);
+        aliases.add(alias);
+    }
+
+    private void persistAliases() {
+        LocalizationContext context = new LocalizationContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER,
+                "collaboration");
+        LocalizationFile file = PathManagerFactory.getPathManager()
+                .getLocalizationFile(context, "collaborationAliases.xml");
+        try {
+            SerializationUtil.jaxbMarshalToXmlFile(aliases, file.getFile()
+                    .getAbsolutePath());
+            file.save();
+        } catch (SerializationException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to persist aliases",
+                    e);
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void readAliases() {
+        LocalizationContext context = new LocalizationContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER,
+                "collaboration");
+        File file = PathManagerFactory.getPathManager().getFile(context,
+                "collaborationAliases.xml");
+        try {
+            if (file.exists()) {
+                aliases = (List<UserIdAlias>) SerializationUtil
+                        .jaxbUnmarshalFromXmlFile(file);
+            }
+        } catch (SerializationException e) {
+            aliases = null;
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to retrieve aliases", e);
+        }
+        if (aliases == null) {
+            aliases = new ArrayList<UserIdAlias>();
+        }
+    }
 }

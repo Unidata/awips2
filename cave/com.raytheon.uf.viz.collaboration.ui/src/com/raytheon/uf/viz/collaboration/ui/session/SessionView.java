@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
@@ -142,6 +143,8 @@ public class SessionView extends AbstractSessionView {
     @Override
     protected void initComponents(Composite parent) {
         initColorManager();
+        CollaborationDataManager.getInstance().getCollaborationConnection()
+                .getEventPublisher().register(this);
         super.initComponents(parent);
     }
 
@@ -231,6 +234,18 @@ public class SessionView extends AbstractSessionView {
 
     @Subscribe
     public void handleModifiedPresence(IRosterEntry rosterEntry) {
+        usersTable.refresh();
+    }
+
+    @Subscribe
+    public void updateUserAlias(UserId id) {
+        List<IRosterEntry> entries = (List<IRosterEntry>) usersTable.getInput();
+        for (IRosterEntry entry : entries) {
+            if (entry.getUser().getFQName().equals(id.getFQName())) {
+                ((RosterItem) entry).setName(id.getAlias());
+                break;
+            }
+        }
         usersTable.refresh();
     }
 
@@ -643,7 +658,8 @@ public class SessionView extends AbstractSessionView {
                 + participant.getName() + ", " + participant.getFQName());
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
         for (int i = 0; i < users.size(); ++i) {
-            if (participant.equals(users.get(i).getUser())) {
+            if (users.get(i) == null
+                    || participant.equals(users.get(i).getUser())) {
                 users.remove(i);
                 usersTable.refresh();
                 break;
