@@ -32,61 +32,63 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
 public class RosterEventHandler implements IRosterEventSubscriber {
 
-    
     @Subscribe
     public void eventHandler(IRosterChangeEvent event) {
-        
-        StringBuilder sb = new StringBuilder("-------------------------------------------------------\n");
+
+        StringBuilder sb = new StringBuilder(
+                "-------------------------------------------------------\n");
         sb.append("RosterEventHandler.eventHandler(");
-        switch(event.getType()) {
-        
-        case ADD : {
+        switch (event.getType()) {
+
+        case ADD: {
             sb.append("ADD)");
             break;
         }
-        case MODIFY : {
+        case MODIFY: {
             sb.append("MODIFY)");
             break;
         }
-        case DELETE : {
+        case DELETE: {
             sb.append("DELETE)");
             break;
         }
-        case PRESENCE : {
+        case PRESENCE: {
             sb.append("PRESENCE)");
             break;
         }
         }
-        System.out.println(sb.toString());
-        printRosterEntry(event.getEntry());
+        // System.out.println(sb.toString());
+        // printRosterEntry(event.getEntry());
     }
-    
+
     private void printRosterEntry(IRosterEntry entry) {
-        // System.out.println("handleRosterEntryAdd " + System.currentTimeMillis());
+        // System.out.println("handleRosterEntryAdd " +
+        // System.currentTimeMillis());
         System.out.println("    user   : " + entry.getUser().getFQName());
         Collection<IRosterGroup> groups = entry.getGroups();
-        for(IRosterGroup group : groups) {
+        for (IRosterGroup group : groups) {
             System.out.println("     " + group.getName());
         }
         IPresence presence = entry.getPresence();
-        if(presence != null) {
-            System.out.println("    pres   : " + presence.getType() + " : " + presence.getMode());
+        if (presence != null) {
+            System.out.println("    pres   : " + presence.getType() + " : "
+                    + presence.getMode());
         }
     }
-    
+
 }
