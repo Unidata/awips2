@@ -188,4 +188,52 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
         }
         return color;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RenderWireframeShapeEvent other = (RenderWireframeShapeEvent) obj;
+        if (alpha == null) {
+            if (other.alpha != null)
+                return false;
+        } else if (!alpha.equals(other.alpha))
+            return false;
+        if (blue == null) {
+            if (other.blue != null)
+                return false;
+        } else if (!blue.equals(other.blue))
+            return false;
+        if (fontId == null) {
+            if (other.fontId != null)
+                return false;
+        } else if (!fontId.equals(other.fontId))
+            return false;
+        if (green == null) {
+            if (other.green != null)
+                return false;
+        } else if (!green.equals(other.green))
+            return false;
+        if (lineStyle != other.lineStyle)
+            return false;
+        if (Float.floatToIntBits(lineWidth) != Float
+                .floatToIntBits(other.lineWidth))
+            return false;
+        if (red == null) {
+            if (other.red != null)
+                return false;
+        } else if (!red.equals(other.red))
+            return false;
+        return true;
+    }
+
 }
