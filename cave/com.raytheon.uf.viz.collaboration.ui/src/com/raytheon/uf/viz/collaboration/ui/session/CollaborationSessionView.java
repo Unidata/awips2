@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchPart;
 
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,6 +48,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * TODO Add Description
@@ -115,6 +117,7 @@ public class CollaborationSessionView extends SessionView {
                             IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
                             switchLeader(selectedUser.getUser());
+                            usersTable.refresh();
                         };
                     };
                     ActionContributionItem leaderItem = new ActionContributionItem(
@@ -130,6 +133,7 @@ public class CollaborationSessionView extends SessionView {
                             IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
                             switchDataProvider(selectedUser.getUser());
+                            usersTable.refresh();
                         };
                     };
                     ActionContributionItem dataProviderItem = new ActionContributionItem(
@@ -186,6 +190,16 @@ public class CollaborationSessionView extends SessionView {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to send message to transfer role", e);
         }
+    }
+
+    @Subscribe
+    public void refreshAfterTransfer(TransferRoleCommand command) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                usersTable.refresh();
+            }
+        });
     }
 
     @Override
