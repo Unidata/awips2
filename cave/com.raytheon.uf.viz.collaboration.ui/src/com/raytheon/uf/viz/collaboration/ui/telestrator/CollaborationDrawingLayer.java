@@ -138,6 +138,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         colorManager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
                 .getColorManager();
         color = colorManager.getColors().get(userId);
+        getCapability(ColorableCapability.class).setColor(color);
     }
 
     /*
@@ -165,11 +166,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             for (UserId userName : collaboratorShapes.keySet()) {
                 for (ShapeContainer sh : collaboratorShapes.get(userName)) {
                     if (sh != null) {
-                        color = colorManager.getColors().get(userName);
-                        if (color == null) {
-                            color = new RGB(255, 0, 0);
-                        }
-                        target.drawWireframeShape(sh.getShape(), color,
+                        RGB col = colorManager.getColors().get(userName);
+                        target.drawWireframeShape(sh.getShape(), col,
                                 outline.getOutlineWidth(),
                                 outline.getLineStyle());
                     }
@@ -181,7 +179,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Subscribe
     public void setColorEvent(ColorChangeEvent event) {
         this.color = event.getColor();
-        colorManager.addUser(event.getUserName());
+        colorManager.getColorFromUser(event.getUserName());
         issueRefresh();
     }
 
