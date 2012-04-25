@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
+import java.util.Arrays;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -152,4 +154,26 @@ public class PaintImagesEvent extends AbstractRemoteGraphicsEvent implements
         }
         return targeted;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PaintImagesEvent other = (PaintImagesEvent) obj;
+        if (Float.floatToIntBits(alpha) != Float.floatToIntBits(other.alpha))
+            return false;
+        if (!Arrays.equals(imageEvents, other.imageEvents))
+            return false;
+        return true;
+    }
+
 }
