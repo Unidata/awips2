@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.role.event;
+package com.raytheon.uf.viz.collaboration.ui.role.dataprovider;
 
 import java.net.URI;
 
@@ -37,6 +37,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
@@ -61,6 +64,10 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 public class CollaborationObjectEventStorage implements
         IObjectEventPersistance, IObjectEventRetrieval {
 
+    private static final String SESSION_DATA_URL_FORMAT_STRING = "http://%s:%d/session_data/";
+
+    private static final int SESSION_DATA_PORT = 80;
+
     private volatile long EVENT_ID_COUNTER = 0;
 
     public static IObjectEventPersistance createPersistanceObject(
@@ -78,8 +85,7 @@ public class CollaborationObjectEventStorage implements
 
     private ISharedDisplaySession session;
 
-    // TODO: Get Collaboration server to build URL
-    private String baseUrl = "http://edexproxy:9582/collab/";
+    private String sessionDataURL;
 
     private HttpClient client;
 
@@ -89,9 +95,18 @@ public class CollaborationObjectEventStorage implements
     }
 
     private void setupStorage() throws CollaborationException {
-        createFolder(session.getSessionId());
-        // Successful creation of session folder, add to base url
-        baseUrl += session.getSessionId() + "/";
+        String collaborationServer = Activator.getDefault()
+                .getPreferenceStore().getString(CollabPrefConstants.P_SERVER);
+        if (collaborationServer != null) {
+            sessionDataURL = String.format(SESSION_DATA_URL_FORMAT_STRING,
+                    collaborationServer, SESSION_DATA_PORT);
+            createFolder(session.getSessionId());
+            // Successful creation of session folder, add to base url
+            sessionDataURL += session.getSessionId() + "/";
+        } else {
+            throw new CollaborationException(
+                    "Could not retrieve collaboration server from preferences");
+        }
     }
 
     /*
@@ -108,7 +123,8 @@ public class CollaborationObjectEventStorage implements
         if (event instanceof ICreationEvent) {
             createFolder(String.valueOf(event.getObjectId()));
         } else if (event instanceof DisposeObjectEvent) {
-            deleteResource(URI.create(baseUrl + event.getObjectId() + "/"));
+            deleteResource(URI.create(sessionDataURL + event.getObjectId()
+                    + "/"));
             CollaborationWrappedEvent wrapped = new CollaborationWrappedEvent();
             wrapped.setEvent(event);
             return wrapped;
@@ -116,9 +132,10 @@ public class CollaborationObjectEventStorage implements
 
         try {
             CollaborationHttpPersistedEvent wrapped = new CollaborationHttpPersistedEvent();
-            String eventObjectURL = baseUrl + event.getObjectId() + "/"
+            String eventObjectURL = sessionDataURL + event.getObjectId() + "/"
                     + (++EVENT_ID_COUNTER) + ".obj";
             HttpPut put = new HttpPut(eventObjectURL);
+
             put.setEntity(new ByteArrayEntity(Tools.compress(SerializationUtil
                     .transformToThrift(event))));
             HttpClientResponse response = executeRequest(put);
@@ -146,7 +163,7 @@ public class CollaborationObjectEventStorage implements
      */
     @Override
     public void dispose() throws CollaborationException {
-        deleteResource(URI.create(baseUrl));
+        deleteResource(URI.create(sessionDataURL));
     }
 
     /*
@@ -208,7 +225,7 @@ public class CollaborationObjectEventStorage implements
                 return "MKCOL";
             }
         };
-        mkcol.setURI(URI.create(baseUrl + folderPath));
+        mkcol.setURI(URI.create(sessionDataURL + folderPath));
         HttpClientResponse rsp = executeRequest(mkcol);
         if (rsp.code != 201) {
             throw new CollaborationException("Folder creation failed for "
@@ -218,8 +235,10 @@ public class CollaborationObjectEventStorage implements
 
     private void deleteResource(URI uri) throws CollaborationException {
         HttpClientResponse rsp = executeRequest(new HttpDelete(uri));
-        // Valid DELETE return codes are 200, 202, and 204
-        if (rsp.code != 200 && rsp.code != 202 && rsp.code != 204) {
+        // Valid DELETE return codes are 200, 202, and 204, 404 means resource
+        // has already been deleted
+        if (rsp.code != 200 && rsp.code != 202 && rsp.code != 204
+                && rsp.code != 404) {
             throw new CollaborationException("Folder creation failed for "
                     + uri + ": " + new String(rsp.data));
         }

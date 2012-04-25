@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.role.event;
+package com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event;
 
 /**
  * Interface for distinguishing events that are persisted and should be
