@@ -106,32 +106,14 @@ public class NetworkStatistics {
          */
         @Override
         public String toString() {
-            String sentString = toString(bytesSent), receivedString = toString(bytesReceived);
+            String sentString = NetworkStatistics.toString(bytesSent), receivedString = NetworkStatistics
+                    .toString(bytesReceived);
 
             return "Network Traffic Stats for '" + identifier + "' : "
                     + requestCount + " messages, sent " + sentString
                     + ", received " + receivedString;
         }
 
-        private static final long[] divisions = new long[] { 1, 1024,
-                1024 * 1024, 1024 * 1024 * 1024 };
-
-        private static final String[] units = new String[] { "B", "kB", "MB",
-                "GB" };
-
-        private String toString(long amount) {
-            String unit = units[units.length - 1];
-            long divideBy = divisions[divisions.length - 1];
-            for (int i = 0; i < divisions.length - 1; ++i) {
-                if (amount < divisions[i + 1]) {
-                    divideBy = divisions[i];
-                    unit = units[i];
-                    break;
-                }
-            }
-
-            return ((amount / divideBy) + unit);
-        }
     }
 
     private NetworkTraffic totalTraffic = new NetworkTraffic(null);
@@ -207,5 +189,24 @@ public class NetworkStatistics {
             traffic[i] = traffic[i].clone();
         }
         return traffic;
+    }
+
+    private static final long[] divisions = new long[] { 1, 1024, 1024 * 1024,
+            1024 * 1024 * 1024 };
+
+    private static final String[] units = new String[] { "B", "kB", "MB", "GB" };
+
+    public static String toString(long amount) {
+        String unit = units[units.length - 1];
+        long divideBy = divisions[divisions.length - 1];
+        for (int i = 0; i < divisions.length - 1; ++i) {
+            if (amount < divisions[i + 1]) {
+                divideBy = divisions[i];
+                unit = units[i];
+                break;
+            }
+        }
+
+        return ((amount / divideBy) + unit);
     }
 }
