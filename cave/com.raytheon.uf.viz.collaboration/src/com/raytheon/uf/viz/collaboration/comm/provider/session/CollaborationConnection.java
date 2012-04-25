@@ -234,7 +234,7 @@ public class CollaborationConnection implements IEventPublisher {
             user = new UserId(name, host, resource);
         }
 
-        readAliases();
+        // readAliases();
 
         setupAccountManager();
 
@@ -378,7 +378,7 @@ public class CollaborationConnection implements IEventPublisher {
      *  
      */
     public void closeManager() {
-        persistAliases();
+        // persistAliases();
         if (container != null) {
             // Close any created sessions.
             for (ISession session : sessions.values()) {
