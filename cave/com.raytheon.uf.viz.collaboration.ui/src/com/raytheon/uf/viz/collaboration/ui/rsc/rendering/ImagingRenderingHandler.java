@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
@@ -41,6 +42,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateSingleColorImage;
@@ -70,6 +72,8 @@ import com.raytheon.uf.viz.remote.graphics.events.mesh.ReprojectMeshEvent;
  */
 
 public class ImagingRenderingHandler extends CollaborationRenderingHandler {
+
+    private Object colorMapLock = new Object();
 
     @Subscribe
     public void renderImages(PaintImagesEvent event) throws VizException {
@@ -188,16 +192,55 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
         IGraphicsTarget target = getTarget();
         int imageId = event.getObjectId();
         IColorMapDataRetrievalCallback callback = new ColorMapDataCallback();
-        UpdateColorMapParametersEvent cmapEvent = event.getColorMapParameters();
+        UpdateColorMapParametersEvent cmapParamEvent = event
+                .getColorMapParameters();
         ColorMapParameters params = null;
-        if (cmapEvent != null) {
-            params = cmapEvent.asColorMapParameters();
+        if (cmapParamEvent != null) {
+            params = cmapParamEvent.getColorMapParameters();
+            if (event.getColorMap() != null && params != null) {
+                params.setColorMap(event.getColorMap().getColorMap());
+            }
         }
         IColormappedImage image = target.getExtension(
                 IColormappedImageExtension.class).initializeRaster(callback,
                 params);
         dataManager.putRenderableObject(imageId,
                 new Object[] { image, callback });
+    }
+
+    @Subscribe
+    public void updateColorMapParameters(UpdateColorMapParametersEvent event) {
+        IColormappedImage image = dataManager.getRenderableObject(
+                event.getObjectId(), IColormappedImage.class);
+        if (image != null) {
+            ColorMapParameters newParams = event.getColorMapParameters();
+            synchronized (colorMapLock) {
+                ColorMapParameters params = image.getColorMapParameters();
+                if (params != null && newParams != null) {
+                    newParams.setColorMap(params.getColorMap());
+                }
+                image.setColorMapParameters(newParams);
+            }
+        }
+    }
+
+    @Subscribe
+    public void updateColorMap(UpdateColorMapEvent event) {
+        IColormappedImage image = dataManager.getRenderableObject(
+                event.getObjectId(), IColormappedImage.class);
+        if (image != null) {
+            IColorMap colorMap = event.getColorMap();
+            synchronized (colorMapLock) {
+                ColorMapParameters params = image.getColorMapParameters();
+                if (params == null && colorMap != null) {
+                    params = new ColorMapParameters();
+                    params.setColorMap(colorMap);
+                    image.setColorMapParameters(params);
+                } else if (params != null) {
+                    params.setColorMap(colorMap);
+                }
+            }
+        }
     }
 
     @Subscribe
