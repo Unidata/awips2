@@ -212,12 +212,8 @@ public class SessionView extends AbstractSessionView {
     protected void fillContextMenu(IMenuManager manager) {
         IStructuredSelection selection = (IStructuredSelection) usersTable
                 .getSelection();
-        // do something here!
+        // TODO do something here!
         Object ob = selection.getFirstElement();
-        System.out.println(ob.toString());
-        // super.fillContextMenu(manager);
-        // manager.add(chatAction);
-        // manager.add(new Separator());
     }
 
     @Subscribe
@@ -659,8 +655,6 @@ public class SessionView extends AbstractSessionView {
 
     @SuppressWarnings("unchecked")
     private void participantDeparted(UserId participant) {
-        System.out.println("++++ handle departed here: "
-                + participant.getName() + ", " + participant.getFQName());
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
         for (int i = 0; i < users.size(); ++i) {
             if (users.get(i) == null
