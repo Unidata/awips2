@@ -64,7 +64,7 @@ public class OffscreenRenderingHandler extends CollaborationRenderingHandler {
                 if (event.getColorMapParamters() != null) {
                     offscreenImage = ext.constructOffscreenImage(bufferType,
                             dims, event.getColorMapParamters()
-                                    .asColorMapParameters());
+                                    .getColorMapParameters());
                 } else {
                     offscreenImage = ext.constructOffscreenImage(bufferType,
                             dims);

@@ -68,8 +68,6 @@ public class CollaborationObjectEventStorage implements
 
     private static final int SESSION_DATA_PORT = 80;
 
-    private volatile long EVENT_ID_COUNTER = 0;
-
     public static IObjectEventPersistance createPersistanceObject(
             ISharedDisplaySession session) throws CollaborationException {
         CollaborationObjectEventStorage persistance = new CollaborationObjectEventStorage(
@@ -133,13 +131,13 @@ public class CollaborationObjectEventStorage implements
         try {
             CollaborationHttpPersistedEvent wrapped = new CollaborationHttpPersistedEvent();
             String eventObjectURL = sessionDataURL + event.getObjectId() + "/"
-                    + (++EVENT_ID_COUNTER) + ".obj";
+                    + event.getClass().getName() + ".obj";
             HttpPut put = new HttpPut(eventObjectURL);
 
             put.setEntity(new ByteArrayEntity(Tools.compress(SerializationUtil
                     .transformToThrift(event))));
             HttpClientResponse response = executeRequest(put);
-            if (response.code != 201) {
+            if (isSuccess(response.code) == false) {
                 throw new CollaborationException(
                         "Error uploading event object to server @ "
                                 + eventObjectURL + " : "
@@ -182,7 +180,7 @@ public class CollaborationObjectEventStorage implements
                     .getResourceURL();
             HttpGet get = new HttpGet(objectURL);
             HttpClientResponse response = executeRequest(get);
-            if (response.code == 200) {
+            if (isSuccess(response.code)) {
                 try {
                     return (AbstractDispatchingObjectEvent) SerializationUtil
                             .transformFromThrift(Tools
@@ -227,7 +225,7 @@ public class CollaborationObjectEventStorage implements
         };
         mkcol.setURI(URI.create(sessionDataURL + folderPath));
         HttpClientResponse rsp = executeRequest(mkcol);
-        if (rsp.code != 201) {
+        if (isSuccess(rsp.code) == false) {
             throw new CollaborationException("Folder creation failed for "
                     + folderPath + ": " + new String(rsp.data));
         }
@@ -235,10 +233,8 @@ public class CollaborationObjectEventStorage implements
 
     private void deleteResource(URI uri) throws CollaborationException {
         HttpClientResponse rsp = executeRequest(new HttpDelete(uri));
-        // Valid DELETE return codes are 200, 202, and 204, 404 means resource
-        // has already been deleted
-        if (rsp.code != 200 && rsp.code != 202 && rsp.code != 204
-                && rsp.code != 404) {
+        // If request was success or resource doesn't exist, we are good
+        if (isSuccess(rsp.code) == false && isNotExists(rsp.code) == false) {
             throw new CollaborationException("Folder creation failed for "
                     + uri + ": " + new String(rsp.data));
         }
@@ -251,6 +247,14 @@ public class CollaborationObjectEventStorage implements
         } catch (Exception e) {
             throw new CollaborationException(e);
         }
+    }
+
+    private boolean isSuccess(int code) {
+        return code >= 200 && code < 300;
+    }
+
+    private boolean isNotExists(int code) {
+        return code == 404 || code == 410;
     }
 
     @DynamicSerialize
