@@ -23,6 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 
 /**
@@ -53,6 +54,9 @@ public class CreateMosaicImageEvent extends AbstractDispatchingObjectEvent
 
     @DynamicSerializeElement
     private UpdateColorMapParametersEvent colorMapParameters;
+
+    @DynamicSerializeElement
+    private UpdateColorMapEvent colorMap;
 
     /**
      * @return the bounds
@@ -98,6 +102,21 @@ public class CreateMosaicImageEvent extends AbstractDispatchingObjectEvent
     public void setColorMapParameters(
             UpdateColorMapParametersEvent colorMapParameters) {
         this.colorMapParameters = colorMapParameters;
+    }
+
+    /**
+     * @return the colorMap
+     */
+    public UpdateColorMapEvent getColorMap() {
+        return colorMap;
+    }
+
+    /**
+     * @param colorMap
+     *            the colorMap to set
+     */
+    public void setColorMap(UpdateColorMapEvent colorMap) {
+        this.colorMap = colorMap;
     }
 
 }
