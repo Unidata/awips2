@@ -30,7 +30,8 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.role.event.IPersistedEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -139,6 +140,24 @@ public class CollaborationResource extends
         for (CollaborationRenderingHandler handler : CollaborationRenderingDataManager
                 .createRenderingHandlers(dataManager)) {
             renderingRouter.register(handler);
+        }
+    }
+
+    @Subscribe
+    public void renderFrameEvent(RenderFrameEvent event) {
+        List<IRenderEvent> eventList = event.getRenderEvents();
+        if (eventList == null) {
+            // Check for previous event list
+            event = dataManager.getRenderableObject(event.getObjectId(),
+                    RenderFrameEvent.class);
+        } else {
+            dataManager.putRenderableObject(event.getObjectId(), event);
+        }
+        if (event != null) {
+            for (IRenderEvent re : event.getRenderEvents()) {
+                // TODO: Unsafe casting, figure better way
+                renderableArrived((AbstractRemoteGraphicsEvent) re);
+            }
         }
     }
 

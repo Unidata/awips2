@@ -19,12 +19,15 @@
  **/
 package com.raytheon.uf.viz.collaboration.radar.mosaic;
 
+import java.util.Arrays;
+
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingColormappedImage;
 import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicImage;
@@ -50,6 +53,8 @@ import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicI
 public class DispatchingMosaicImage extends
         DispatchingColormappedImage<IMosaicImage> implements IMosaicImage {
 
+    private PaintImageEvent[] imagesToMosaic;
+
     /**
      * @param targetObject
      * @param extensionClass
@@ -70,12 +75,17 @@ public class DispatchingMosaicImage extends
      */
     @Override
     public void setImagesToMosaic(DrawableImage... images) {
-        UpdateImagesToMosaic event = RemoteGraphicsEventFactory.createEvent(
-                UpdateImagesToMosaic.class, this);
-        event.setImagesToMosaic(PaintImagesEvent.toPaintEvents(images));
-        wrappedObject.setImagesToMosaic(PaintImagesEvent
-                .extractTargetImages(images));
-        dispatch(event);
+        PaintImageEvent[] imagesToMosaic = PaintImagesEvent
+                .toPaintEvents(images);
+        if (Arrays.equals(imagesToMosaic, this.imagesToMosaic) == false) {
+            this.imagesToMosaic = imagesToMosaic;
+            UpdateImagesToMosaic event = RemoteGraphicsEventFactory
+                    .createEvent(UpdateImagesToMosaic.class, this);
+            event.setImagesToMosaic(imagesToMosaic);
+            wrappedObject.setImagesToMosaic(PaintImagesEvent
+                    .extractTargetImages(images));
+            dispatch(event);
+        }
     }
 
     /*
