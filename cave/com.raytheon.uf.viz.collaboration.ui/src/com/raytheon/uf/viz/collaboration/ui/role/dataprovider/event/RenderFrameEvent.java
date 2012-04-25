@@ -17,13 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event;
 
-import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
 /**
  * TODO Add Description
@@ -34,7 +36,7 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            mschenke     Initial creation
+ * Apr 24, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -42,43 +44,28 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class BeginFrameEvent extends AbstractRemoteGraphicsEvent implements
-        IRenderEvent {
+public class RenderFrameEvent extends AbstractDispatchingObjectEvent {
 
     @DynamicSerializeElement
-    private double extentFactor;
-
-    @DynamicSerializeElement
-    private double[] extentCenter;
+    private List<IRenderEvent> renderEvents = new LinkedList<IRenderEvent>();
 
     /**
-     * @return the extentFactor
+     * @return the renderEvents
      */
-    public double getExtentFactor() {
-        return extentFactor;
+    public List<IRenderEvent> getRenderEvents() {
+        return renderEvents;
     }
 
     /**
-     * @param extentFactor
-     *            the extentFactor to set
+     * @param renderEvents
+     *            the renderEvents to set
      */
-    public void setExtentFactor(double extentFactor) {
-        this.extentFactor = extentFactor;
+    public void setRenderEvents(List<IRenderEvent> renderEvents) {
+        this.renderEvents = renderEvents;
     }
 
-    /**
-     * @return the extentCenter
-     */
-    public double[] getExtentCenter() {
-        return extentCenter;
-    }
-
-    /**
-     * @param extentCenter
-     *            the extentCenter to set
-     */
-    public void setExtentCenter(double[] extentCenter) {
-        this.extentCenter = extentCenter;
+    public void addEvent(IRenderEvent event) {
+        renderEvents.add(event);
     }
 
     /*
@@ -94,11 +81,11 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsEvent implements
             return false;
         if (getClass() != obj.getClass())
             return false;
-        BeginFrameEvent other = (BeginFrameEvent) obj;
-        if (!Arrays.equals(extentCenter, other.extentCenter))
-            return false;
-        if (Double.doubleToLongBits(extentFactor) != Double
-                .doubleToLongBits(other.extentFactor))
+        RenderFrameEvent other = (RenderFrameEvent) obj;
+        if (renderEvents == null) {
+            if (other.renderEvents != null)
+                return false;
+        } else if (!renderEvents.equals(other.renderEvents))
             return false;
         return true;
     }

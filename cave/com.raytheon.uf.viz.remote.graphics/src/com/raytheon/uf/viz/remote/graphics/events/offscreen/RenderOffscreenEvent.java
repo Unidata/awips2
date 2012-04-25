@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.offscreen;
 
+import java.util.Arrays;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.IExtent;
@@ -84,6 +86,25 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
             this.extent = new double[] { extent.getMinX(), extent.getMaxX(),
                     extent.getMinY(), extent.getMaxY() };
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RenderOffscreenEvent other = (RenderOffscreenEvent) obj;
+        if (!Arrays.equals(extent, other.extent))
+            return false;
+        return true;
     }
 
 }
