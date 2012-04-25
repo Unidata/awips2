@@ -28,9 +28,8 @@ import com.raytheon.uf.viz.remote.graphics.events.wireframe.AllocatePointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.SimpleWireframeShapeEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.UpdateWireframeShapeEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeData;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeData.Label;
+import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent.Label;
 
 /**
  * Handles render events for wireframe shapes
@@ -86,15 +85,15 @@ public class WireframeShapeRenderingHandler extends
     }
 
     @Subscribe
-    public void updateWireframeShapeData(UpdateWireframeShapeEvent event) {
+    public void wireframeShapeDataArrived(WireframeShapeDataEvent event) {
         IWireframeShape shape = dataManager.getRenderableObject(
                 event.getObjectId(), IWireframeShape.class);
         if (shape != null) {
-            WireframeShapeData data = event.getWireframeData();
-            for (Label label : data.getLabels()) {
+            shape.reset();
+            for (Label label : event.getLabels()) {
                 shape.addLabel(label.getText(), label.getPoint());
             }
-            for (double[][] coords : data.getCoordinates()) {
+            for (double[][] coords : event.getCoordinates()) {
                 shape.addLineSegment(coords);
             }
         }
