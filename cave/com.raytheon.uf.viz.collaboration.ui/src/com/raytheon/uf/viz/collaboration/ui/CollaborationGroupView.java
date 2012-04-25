@@ -225,7 +225,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         inviteAction = new Action("Invite...") {
             @Override
             public void run() {
-                System.out.println("Invite... to join session" + getId());
                 String sessionId = getId();
                 IVenueSession session = CollaborationDataManager.getInstance()
                         .getSession(sessionId);

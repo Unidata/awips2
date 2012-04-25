@@ -208,7 +208,7 @@ public class Roster extends RosterItem implements IRoster {
             }
             internalEntries.put(entry.getUser(), entry);
 
-            listRoster();
+            // listRoster();
         }
     }
 
