@@ -82,15 +82,18 @@ public class StatsJob extends Job {
                     - lastRequestCount;
 
             System.out.println("Last minute sent " + requestCountInLastMinute
-                    + " messages for a total of " + (sentInLastMinute / 1000)
-                    + " kB sent and " + (receivedInLastMinute / 1000)
-                    + " kB received");
+                    + " messages for a total of "
+                    + NetworkStatistics.toString(sentInLastMinute)
+                    + " sent and "
+                    + NetworkStatistics.toString(receivedInLastMinute)
+                    + " received");
             lastSent = total.getBytesSent();
             lastReceived = total.getBytesReceived();
             lastRequestCount = total.getRequestCount();
             System.out.println("Total sent " + total.getRequestCount()
-                    + " messages for a total of " + (lastSent / 1000)
-                    + " kB sent and " + (lastReceived / 1000) + " kB received");
+                    + " messages for a total of "
+                    + NetworkStatistics.toString(lastSent) + " sent and "
+                    + NetworkStatistics.toString(lastReceived) + " received");
             NetworkTraffic[] mapped = stats.getMappedTrafficStats();
             for (NetworkTraffic nt : mapped) {
                 System.out.println(nt);
