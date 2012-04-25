@@ -31,7 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
-import com.raytheon.uf.viz.collaboration.ui.rsc.SharedEditorIndicatorRsc;
+import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRsc;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -175,12 +175,12 @@ public class EditorSetup {
         IDescriptor desc = editor.getActiveDisplayPane().getRenderableDisplay()
                 .getDescriptor();
         GenericResourceData grd = new GenericResourceData(
-                SharedEditorIndicatorRsc.class);
+                DataProviderRsc.class);
         ResourcePair rp = new ResourcePair();
         rp.setResourceData(grd);
         desc.getResourceList().add(rp);
         desc.getResourceList().instantiateResources(desc, true);
-        SharedEditorIndicatorRsc rsc = (SharedEditorIndicatorRsc) rp
+        DataProviderRsc rsc = (DataProviderRsc) rp
                 .getResource();
         rsc.setRoomName(((IVenueSession) session).getVenue().getInfo()
                 .getVenueDescription());
