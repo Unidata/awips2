@@ -74,6 +74,10 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     private Font boldFont;
 
+    private Font underlinedFont;
+
+    private Font combinedFont;
+
     public ParticipantsLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
         imageMap = new HashMap<String, Image>();
@@ -94,6 +98,16 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
             for (Color col : colors.values()) {
                 col.dispose();
             }
+        }
+
+        if (boldFont != null && !boldFont.isDisposed()) {
+            boldFont.dispose();
+        }
+        if (underlinedFont != null && !underlinedFont.isDisposed()) {
+            underlinedFont.dispose();
+        }
+        if (combinedFont != null && !combinedFont.isDisposed()) {
+            combinedFont.dispose();
         }
     }
 
@@ -194,11 +208,42 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     @Override
     public Font getFont(Object element) {
-        if (boldFont == null) {
-            Font currFont = Display.getCurrent().getSystemFont();
-            boldFont = new Font(Display.getCurrent(), currFont.toString(),
-                    currFont.getFontData()[0].getHeight(), SWT.BOLD);
+        IRosterEntry user = (IRosterEntry) element;
+        IVenueSession session = CollaborationDataManager.getInstance()
+                .getSession(sessionId);
+        if (session instanceof SharedDisplaySession) {
+            boolean isSessionLeader = user.getUser().equals(
+                    ((SharedDisplaySession) session).getCurrentSessionLeader());
+            boolean isDataProvider = user.getUser().equals(
+                    ((SharedDisplaySession) session).getCurrentDataProvider());
+            if (isSessionLeader && isDataProvider) {
+                Font currFont = Display.getCurrent().getSystemFont();
+                if (combinedFont == null) {
+                    combinedFont = new Font(Display.getCurrent(),
+                            currFont.toString(),
+                            currFont.getFontData()[0].getHeight(), SWT.BOLD
+                                    | SWT.ITALIC);
+                }
+                return combinedFont;
+            } else if (isSessionLeader) {
+                if (boldFont == null) {
+                    Font currFont = Display.getCurrent().getSystemFont();
+                    boldFont = new Font(Display.getCurrent(),
+                            currFont.toString(),
+                            currFont.getFontData()[0].getHeight(), SWT.BOLD);
+                }
+                return boldFont;
+            } else if (isDataProvider) {
+                if (underlinedFont == null) {
+                    Font currFont = Display.getCurrent().getSystemFont();
+                    underlinedFont = new Font(Display.getCurrent(),
+                            currFont.toString(),
+                            currFont.getFontData()[0].getHeight(), SWT.ITALIC);
+                }
+                return underlinedFont;
+            }
         }
+
         return boldFont;
     }
 
