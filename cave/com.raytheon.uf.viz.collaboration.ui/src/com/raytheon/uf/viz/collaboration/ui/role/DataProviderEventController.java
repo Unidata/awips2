@@ -45,7 +45,7 @@ import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
-import com.raytheon.uf.viz.collaboration.ui.role.event.CollaborationDispatcher;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.CollaborationDispatcher;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.core.IDisplayPane;
