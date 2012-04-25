@@ -43,4 +43,20 @@ import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 public class RenderOnscreenEvent extends AbstractRemoteGraphicsEvent implements
         IRenderEvent {
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return true;
+    }
+
 }

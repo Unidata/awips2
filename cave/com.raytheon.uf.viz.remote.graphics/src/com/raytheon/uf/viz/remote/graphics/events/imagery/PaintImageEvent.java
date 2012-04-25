@@ -142,4 +142,48 @@ public class PaintImageEvent extends AbstractDispatchingObjectEvent implements
         this.ur = coverage.getUr();
         this.ul = coverage.getUl();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PaintImageEvent other = (PaintImageEvent) obj;
+        if (meshId == other.meshId && meshId != -1) {
+            // If meshes are set, compare them only
+            return true;
+        } else if (meshId == other.meshId) {
+            // Compare extents if no meshes set (-1)
+            if (ll == null) {
+                if (other.ll != null)
+                    return false;
+            } else if (!ll.equals(other.ll))
+                return false;
+            if (lr == null) {
+                if (other.lr != null)
+                    return false;
+            } else if (!lr.equals(other.lr))
+                return false;
+            if (ul == null) {
+                if (other.ul != null)
+                    return false;
+            } else if (!ul.equals(other.ul))
+                return false;
+            if (ur == null) {
+                if (other.ur != null)
+                    return false;
+            } else if (!ur.equals(other.ur))
+                return false;
+        }
+        return true;
+    }
+
 }

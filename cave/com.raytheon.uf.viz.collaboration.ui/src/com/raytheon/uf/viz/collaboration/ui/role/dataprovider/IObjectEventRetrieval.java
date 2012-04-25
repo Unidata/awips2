@@ -17,13 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.role.event;
+package com.raytheon.uf.viz.collaboration.ui.role.dataprovider;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
- * Interface for persisting remote object events
+ * Interface for retrieving IPersistedEvents and constructing an object from id
+ * based on previous events
  * 
  * <pre>
  * 
@@ -39,10 +41,12 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 
-public interface IObjectEventPersistance {
+public interface IObjectEventRetrieval {
 
-    public IPersistedEvent persistEvent(AbstractDispatchingObjectEvent event)
+    public AbstractDispatchingObjectEvent retrieveEvent(IPersistedEvent event)
             throws CollaborationException;
 
-    public void dispose() throws CollaborationException;
+    public AbstractDispatchingObjectEvent[] retrieveObjectEvents(int objectId)
+            throws CollaborationException;
+
 }
