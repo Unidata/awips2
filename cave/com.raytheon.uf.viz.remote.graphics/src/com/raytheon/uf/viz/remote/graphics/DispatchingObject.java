@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.remote.graphics;
 
-
 /**
  * TODO Add Description
  * 
@@ -45,7 +44,7 @@ public class DispatchingObject<T> {
 
     protected T wrappedObject;
 
-    protected DispatchingObject(T targetObject, Dispatcher dispatcher) {
+    public DispatchingObject(T targetObject, Dispatcher dispatcher) {
         this.wrappedObject = targetObject;
         this.dispatcher = dispatcher;
         objectId = dispatcher.newObjectId();

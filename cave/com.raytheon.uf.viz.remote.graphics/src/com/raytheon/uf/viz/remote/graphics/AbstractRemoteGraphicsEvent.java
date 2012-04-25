@@ -39,7 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class AbstractRemoteGraphicsEvent {
+public abstract class AbstractRemoteGraphicsEvent {
 
     @DynamicSerializeElement
     private int displayId;

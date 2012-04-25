@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.remote.graphics.events;
 /**
  * Interface for objects that events for actually rendering an object. These
  * types of events can be skipped over unlike data events which are required to
- * execute at some point
+ * execute at some point.  Render events must implements equals
  * 
  * <pre>
  * 
@@ -39,5 +39,8 @@ package com.raytheon.uf.viz.remote.graphics.events;
  */
 
 public interface IRenderEvent {
+
+    @Override
+    public abstract boolean equals(Object obj);
 
 }
