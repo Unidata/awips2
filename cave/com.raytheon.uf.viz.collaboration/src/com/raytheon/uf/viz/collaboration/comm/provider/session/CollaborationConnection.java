@@ -790,8 +790,8 @@ public class CollaborationConnection implements IEventPublisher {
             }
         } catch (SerializationException e) {
             aliases = null;
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve aliases", e);
+            statusHandler
+                    .handle(Priority.WARN, "Unable to retrieve aliases", e);
         }
         if (aliases == null) {
             aliases = new ArrayList<UserIdAlias>();
