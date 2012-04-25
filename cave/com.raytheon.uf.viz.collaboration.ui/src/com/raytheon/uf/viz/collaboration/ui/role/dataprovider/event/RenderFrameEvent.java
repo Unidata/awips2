@@ -77,6 +77,8 @@ public class RenderFrameEvent extends AbstractDispatchingObjectEvent {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
+        if (!super.equals(obj))
+            return false;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
