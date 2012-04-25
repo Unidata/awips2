@@ -84,6 +84,10 @@ public class UsersTreeViewerSorter extends ViewerSorter {
             return ((IRosterItem) e1).getName().compareTo(
                     ((IRosterItem) e2).getName());
         } else if (e1 instanceof IVenueSession && e2 instanceof IVenueSession) {
+            if (((IVenueSession) e1).getVenue() == null
+                    || ((IVenueSession) e1).getVenue() == null) {
+                return 0;
+            }
             return ((IVenueSession) e1).getVenue().toString()
                     .compareTo(((IVenueSession) e2).getVenue().toString());
         }

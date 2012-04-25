@@ -139,6 +139,7 @@ public class DrawingLayer extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         this.paintProps = paintProps;
+        this.color = getCapability(ColorableCapability.class).getColor();
         if (tempWireframeShape == null || needsRefresh) {
             tempWireframeShape = target.createWireframeShape(true,
                     getDescriptor());
