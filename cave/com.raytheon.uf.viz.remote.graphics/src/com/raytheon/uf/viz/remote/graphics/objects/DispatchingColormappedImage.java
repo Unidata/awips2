@@ -25,6 +25,7 @@ import com.raytheon.uf.viz.core.drawables.IColorMapParametersListener;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 
 /**
@@ -94,7 +95,7 @@ public class DispatchingColormappedImage<T extends IColormappedImage> extends
             wrappedObject.setColorMapParameters(params);
             if (params != null) {
                 params.addListener(this);
-                dispatch(createColorMapParametersUpdateEvent(this));
+                updateColorMapParameters();
             }
         }
     }
@@ -120,26 +121,17 @@ public class DispatchingColormappedImage<T extends IColormappedImage> extends
     public void colorMapChanged() {
         ColorMapParameters parameters = getColorMapParameters();
         if (parameters != null) {
-            dispatch(createColorMapParametersUpdateEvent(this));
+            updateColorMapParameters();
         }
     }
 
-    public static UpdateColorMapParametersEvent createColorMapParametersUpdateEvent(
-            DispatchingColormappedImage<?> image) {
-        ColorMapParameters parameters = image.getColorMapParameters();
-        UpdateColorMapParametersEvent event = UpdateColorMapParametersEvent
-                .createEvent(image, parameters);
-        if (parameters.getColorMap() == image.colorMap
-                && image.colorMap != null) {
-            // Same colormap, discard cm data
-            event.setRed(null);
-            event.setBlue(null);
-            event.setGreen(null);
-            event.setAlpha(null);
-        } else {
-            image.colorMap = parameters.getColorMap();
+    public void updateColorMapParameters() {
+        ColorMapParameters parameters = getColorMapParameters();
+        dispatch(UpdateColorMapParametersEvent.createEvent(this, parameters));
+        if (parameters.getColorMap() != colorMap) {
+            colorMap = parameters.getColorMap();
+            dispatch(UpdateColorMapEvent.createEvent(this, colorMap));
         }
-        return event;
     }
 
     /*
