@@ -27,10 +27,13 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingColormappedImage;
 
 /**
- * TODO Add Description
+ * IColormappedImageExtension that is responsible for creating and dispatching
+ * events for IColormappedImages
  * 
  * <pre>
  * 
@@ -113,13 +116,14 @@ public class DispatchColormappedImageExtension extends
         CreateColormappedImageEvent creation = RemoteGraphicsEventFactory
                 .createEvent(CreateColormappedImageEvent.class, image);
         if (colorMapParameters != null) {
-            creation.setColorMapParameters(DispatchingColormappedImage
-                    .createColorMapParametersUpdateEvent(image));
+            creation.setColorMapParameters(UpdateColorMapParametersEvent
+                    .createEvent(image, colorMapParameters));
+            creation.setColorMap(UpdateColorMapEvent.createEvent(image,
+                    colorMapParameters.getColorMap()));
         }
         target.dispatch(creation);
 
         // Return image
         return image;
     }
-
 }
