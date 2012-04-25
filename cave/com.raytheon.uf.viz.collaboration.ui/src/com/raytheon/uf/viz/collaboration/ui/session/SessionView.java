@@ -234,7 +234,12 @@ public class SessionView extends AbstractSessionView {
 
     @Subscribe
     public void handleModifiedPresence(IRosterEntry rosterEntry) {
-        usersTable.refresh();
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                usersTable.refresh();
+            }
+        });
     }
 
     @Subscribe
