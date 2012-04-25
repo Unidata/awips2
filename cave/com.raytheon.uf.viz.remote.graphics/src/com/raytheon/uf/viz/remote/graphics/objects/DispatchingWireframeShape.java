@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.objects;
 
+import java.util.ArrayList;
+
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.operation.MathTransform;
@@ -35,8 +37,8 @@ import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.AllocatePointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.SimpleWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.SimpleWireframeShapeEvent.EventAction;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.UpdateWireframeShapeEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeData;
+import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent.Label;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -62,7 +64,7 @@ public class DispatchingWireframeShape extends
 
     private MathTransform worldToTargetGrid;
 
-    private WireframeShapeData shapeData;
+    private WireframeShapeDataEvent updateEvent;
 
     private boolean dirty = true;
 
@@ -73,7 +75,7 @@ public class DispatchingWireframeShape extends
     public DispatchingWireframeShape(IWireframeShape targetObject,
             Dispatcher dispatcher, GeneralGridGeometry targetGeometry) {
         super(targetObject, dispatcher);
-        this.shapeData = new WireframeShapeData();
+        this.updateEvent = createNewUpdateEvent();
         MathTransform worldToCRS = AbstractDescriptor
                 .getWorldToCRSTransform(targetGeometry);
         if (worldToCRS != null) {
@@ -97,22 +99,31 @@ public class DispatchingWireframeShape extends
     public void compile() {
         wrappedObject.compile();
         // flush data
-        updateState();
+        flushState();
+        // Event if original shape was mutable, once compiled we should not
+        // accept more data
+        updateEvent = null;
         // Send compile event
         sendSimpleEvent(EventAction.COMPILE);
     }
 
     /**
-     * 
+     * Flush the new data for the wireframe shape
      */
-    public void updateState() {
+    public void flushState() {
         if (dirty) {
-            if (shapeData != null) {
-                UpdateWireframeShapeEvent event = RemoteGraphicsEventFactory
-                        .createEvent(UpdateWireframeShapeEvent.class, this);
-                event.setWireframeData(shapeData);
-                shapeData = new WireframeShapeData();
-                dispatch(event);
+            if (updateEvent != null) {
+                WireframeShapeDataEvent toSend = updateEvent;
+                if (wrappedObject.isMutable()) {
+                    toSend = createNewUpdateEvent();
+                    toSend.setCoordinates(new ArrayList<double[][]>(updateEvent
+                            .getCoordinates()));
+                    toSend.setLabels(new ArrayList<Label>(updateEvent
+                            .getLabels()));
+                } else {
+                    updateEvent = null;
+                }
+                dispatch(toSend);
             }
             dirty = false;
         }
@@ -163,8 +174,8 @@ public class DispatchingWireframeShape extends
      */
     public void addLineSegment(double[][] screenCoordinates) {
         wrappedObject.addLineSegment(screenCoordinates);
-        if (shapeData != null) {
-            shapeData.addCoordinates(screenCoordinates);
+        if (updateEvent != null) {
+            updateEvent.addCoordinates(screenCoordinates);
             dirty = true;
         }
     }
@@ -185,8 +196,8 @@ public class DispatchingWireframeShape extends
      */
     public void addLabel(String label, double[] screenCoordinate) {
         wrappedObject.addLabel(label, screenCoordinate);
-        if (shapeData != null) {
-            shapeData.addLabel(label, screenCoordinate);
+        if (updateEvent != null) {
+            updateEvent.addLabel(label, screenCoordinate);
             dirty = true;
         }
     }
@@ -200,7 +211,7 @@ public class DispatchingWireframeShape extends
         // Send dispose event
         dispatch(RemoteGraphicsEventFactory.createEvent(
                 DisposeObjectEvent.class, this));
-        shapeData = null;
+        updateEvent = null;
     }
 
     /**
@@ -211,8 +222,8 @@ public class DispatchingWireframeShape extends
         wrappedObject.clearLabels();
         // Send clear labels event
         sendSimpleEvent(EventAction.CLEAR_LABELS);
-        if (shapeData != null) {
-            shapeData.getLabels().clear();
+        if (updateEvent != null) {
+            updateEvent.getLabels().clear();
         }
     }
 
@@ -234,10 +245,15 @@ public class DispatchingWireframeShape extends
      * @see com.raytheon.uf.viz.core.drawables.IShape#reset()
      */
     public void reset() {
+        // TODO: Reset will not currently work if shape was disposed
         wrappedObject.reset();
         // Send reset event
         sendSimpleEvent(EventAction.RESET);
-        shapeData = new WireframeShapeData();
+        updateEvent = createNewUpdateEvent();
     }
 
+    private WireframeShapeDataEvent createNewUpdateEvent() {
+        return RemoteGraphicsEventFactory.createEvent(
+                WireframeShapeDataEvent.class, this);
+    }
 }

@@ -29,7 +29,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeData.WireframeShapeDataAdapter;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent.WireframeShapeDataAdapter;
 
 /**
  * Wireframe shape data event which contains coordinates and labels to add to
@@ -50,10 +51,10 @@ import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeData.W
  */
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = WireframeShapeDataAdapter.class)
-public class WireframeShapeData {
+public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
 
     public static class WireframeShapeDataAdapter implements
-            ISerializationTypeAdapter<WireframeShapeData> {
+            ISerializationTypeAdapter<WireframeShapeDataEvent> {
         /*
          * (non-Javadoc)
          * 
@@ -64,7 +65,9 @@ public class WireframeShapeData {
          */
         @Override
         public void serialize(ISerializationContext serializer,
-                WireframeShapeData object) throws SerializationException {
+                WireframeShapeDataEvent object) throws SerializationException {
+            serializer.writeI32(object.getDisplayId());
+            serializer.writeI32(object.getObjectId());
             serializer.writeI32(object.labels.size());
             for (Label l : object.labels) {
                 serializer.writeString(l.getText());
@@ -87,10 +90,12 @@ public class WireframeShapeData {
          * (com.raytheon.uf.common.serialization.IDeserializationContext)
          */
         @Override
-        public WireframeShapeData deserialize(
+        public WireframeShapeDataEvent deserialize(
                 IDeserializationContext deserializer)
                 throws SerializationException {
-            WireframeShapeData data = new WireframeShapeData();
+            WireframeShapeDataEvent data = new WireframeShapeDataEvent();
+            data.setDisplayId(deserializer.readI32());
+            data.setObjectId(deserializer.readI32());
             int size = deserializer.readI32();
             for (int i = 0; i < size; ++i) {
                 data.addLabel(deserializer.readString(),

@@ -47,6 +47,9 @@ public class CreateColormappedImageEvent extends AbstractDispatchingObjectEvent
     @DynamicSerializeElement
     private UpdateColorMapParametersEvent colorMapParameters;
 
+    @DynamicSerializeElement
+    private UpdateColorMapEvent colorMap;
+
     /**
      * @return the colorMapParameters
      */
@@ -61,6 +64,21 @@ public class CreateColormappedImageEvent extends AbstractDispatchingObjectEvent
     public void setColorMapParameters(
             UpdateColorMapParametersEvent colorMapParameters) {
         this.colorMapParameters = colorMapParameters;
+    }
+
+    /**
+     * @return the colorMap
+     */
+    public UpdateColorMapEvent getColorMap() {
+        return colorMap;
+    }
+
+    /**
+     * @param colorMap
+     *            the colorMap to set
+     */
+    public void setColorMap(UpdateColorMapEvent colorMap) {
+        this.colorMap = colorMap;
     }
 
 }

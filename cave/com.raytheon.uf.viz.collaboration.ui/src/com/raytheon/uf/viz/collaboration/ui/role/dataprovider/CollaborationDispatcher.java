@@ -103,18 +103,7 @@ public class CollaborationDispatcher extends Dispatcher {
                     byte[] data = Tools.compress(SerializationUtil
                             .transformToThrift(eventObject));
                     if (data.length > IMMEDIATE_SEND_SIZE) {
-                        System.err.println("Object: "
-                                + eventObject.getClass().getSimpleName()
-                                + " is too large to send immediately, size is "
-                                + data.length + " bytes");
                         immediateSend = false;
-                    } else {
-                        System.out
-                                .println("Object: "
-                                        + eventObject.getClass()
-                                                .getSimpleName()
-                                        + " is small enough to send immediately, size is "
-                                        + data.length + " bytes");
                     }
                 } catch (Exception e) {
                     Activator.statusHandler.handle(Priority.PROBLEM,
