@@ -30,6 +30,7 @@ import org.apache.http.entity.ByteArrayEntity;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.comm.HttpClient.HttpClientResponse;
+import com.raytheon.uf.common.comm.NetworkStatistics;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -67,6 +68,9 @@ public class CollaborationObjectEventStorage implements
     private static final String SESSION_DATA_URL_FORMAT_STRING = "http://%s:%d/session_data/";
 
     private static final int SESSION_DATA_PORT = 80;
+
+    private static NetworkStatistics stats = com.raytheon.uf.viz.collaboration.Activator
+            .getDefault().getNetworkStats();
 
     public static IObjectEventPersistance createPersistanceObject(
             ISharedDisplaySession session) throws CollaborationException {
@@ -134,8 +138,10 @@ public class CollaborationObjectEventStorage implements
                     + event.getClass().getName() + ".obj";
             HttpPut put = new HttpPut(eventObjectURL);
 
-            put.setEntity(new ByteArrayEntity(Tools.compress(SerializationUtil
-                    .transformToThrift(event))));
+            byte[] toPersist = Tools.compress(SerializationUtil
+                    .transformToThrift(event));
+            stats.log(event.getClass().getSimpleName(), toPersist.length, 0);
+            put.setEntity(new ByteArrayEntity(toPersist));
             HttpClientResponse response = executeRequest(put);
             if (isSuccess(response.code) == false) {
                 throw new CollaborationException(
@@ -182,6 +188,8 @@ public class CollaborationObjectEventStorage implements
             HttpClientResponse response = executeRequest(get);
             if (isSuccess(response.code)) {
                 try {
+                    stats.log(event.getClass().getSimpleName(), 0,
+                            response.data.length);
                     return (AbstractDispatchingObjectEvent) SerializationUtil
                             .transformFromThrift(Tools
                                     .uncompress(response.data));
