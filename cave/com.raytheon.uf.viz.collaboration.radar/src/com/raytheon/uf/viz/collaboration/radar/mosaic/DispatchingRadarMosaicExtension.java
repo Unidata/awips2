@@ -23,6 +23,8 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 import com.raytheon.uf.viz.remote.graphics.extensions.AbstractDispatchingImageExtension;
 import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension;
 
@@ -62,14 +64,16 @@ public class DispatchingRadarMosaicExtension extends
                 .getExtension(IRadarMosaicImageExtension.class)
                 .initializeRaster(imageBounds, imageExtent, params),
                 DispatchingRadarMosaicExtension.class, target.getDispatcher(),
-                params);
+                params, imageExtent);
         // Send creation event
         CreateMosaicImageEvent creation = RemoteGraphicsEventFactory
                 .createEvent(CreateMosaicImageEvent.class, image);
         creation.setBounds(imageBounds);
         if (params != null) {
-            creation.setColorMapParameters(DispatchingMosaicImage
-                    .createColorMapParametersUpdateEvent(image));
+            creation.setColorMapParameters(UpdateColorMapParametersEvent
+                    .createEvent(image, params));
+            creation.setColorMap(UpdateColorMapEvent.createEvent(image,
+                    params.getColorMap()));
         }
         if (imageExtent != null) {
             UpdateMosaicExtent extentUpdate = RemoteGraphicsEventFactory
