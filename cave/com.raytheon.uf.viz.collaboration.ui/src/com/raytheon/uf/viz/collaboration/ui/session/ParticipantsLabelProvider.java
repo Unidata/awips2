@@ -30,6 +30,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -70,6 +71,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
     protected Map<UserId, Color> colors;
 
     private SessionColorManager manager;
+
+    private Font boldFont;
 
     public ParticipantsLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
@@ -125,8 +128,57 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
                 }
             }
         }
+        return getImageModifier(session, element, image);
+    }
 
+    private Image getImageModifier(IVenueSession session, Object element,
+            Image image) {
+        if (session instanceof SharedDisplaySession) {
+            boolean isSessionLeader = ((IRosterEntry) element).getUser()
+                    .equals(((SharedDisplaySession) session)
+                            .getCurrentSessionLeader());
+            boolean isDataProvider = ((IRosterEntry) element).getUser().equals(
+                    ((SharedDisplaySession) session).getCurrentDataProvider());
+            if (isSessionLeader) {
+                drawSessionLeader(image);
+            }
+            if (isDataProvider) {
+                drawDataProvider(image);
+            }
+        }
         return image;
+    }
+
+    private void drawSessionLeader(Image image) {
+        // TODO draw session leader here
+        // image = new Image(Display.getCurrent(), image.getBounds());
+        ImageData data = image.getImageData();
+        int whitePixel = data.palette.getPixel(new RGB(0, 255, 255));
+        int redPixel = data.palette.getPixel(new RGB(255, 0, 0));
+        data.transparentPixel = whitePixel;
+        for (int i = 0; i < data.data.length; i++) {
+            if (data.data[i] == -1) {
+                data.data[i] = (byte) redPixel;
+            }
+        }
+        image = new Image(Display.getCurrent(), data);
+        // for (int i = 0; i < data.data.length; i++) {
+        // if (data.data[i] == -1) {
+        // data.data[i] = 0;
+        // }
+        // }
+        // image = new Image(Display.getCurrent(), data);
+        // GC gc = new GC(image);
+        // Rectangle rect = image.getBounds();
+        // image.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+        // // gc.drawImage(image, 0, 0);
+        // gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+        // gc.fillRectangle(5, 5, rect.width - 3, rect.height - 3);
+        // gc.dispose();
+    }
+
+    private void drawDataProvider(Image image) {
+        // TODO draw data provider here
     }
 
     @Override
@@ -136,18 +188,18 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
                 && !user.getUser().getAlias().isEmpty()) {
             return user.getUser().getAlias();
         }
-        // TODO, XXX, FIXME? do we need this, it is REALLY good for debugging
         String name = user.getUser().getName();
-        if (CollaborationDataManager.getInstance().getCollaborationConnection()
-                .getAccount().equals(user.getUser())) {
-            name += " (YOU)";
-        }
         return name;
     }
 
     @Override
     public Font getFont(Object element) {
-        return null;
+        if (boldFont == null) {
+            Font currFont = Display.getCurrent().getSystemFont();
+            boldFont = new Font(Display.getCurrent(), currFont.toString(),
+                    currFont.getFontData()[0].getHeight(), SWT.BOLD);
+        }
+        return boldFont;
     }
 
     @Override
