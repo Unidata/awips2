@@ -19,17 +19,15 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.colormap;
 
-import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
 
 /**
- * TODO Add Description
+ * Event for updating the ColorMapParameters on an IColormappedImage
  * 
  * <pre>
  * 
@@ -50,18 +48,6 @@ public class UpdateColorMapParametersEvent extends
 
     @DynamicSerializeElement
     private byte[] alphaMask;
-
-    @DynamicSerializeElement
-    private float[] red;
-
-    @DynamicSerializeElement
-    private float[] blue;
-
-    @DynamicSerializeElement
-    private float[] green;
-
-    @DynamicSerializeElement
-    private float[] alpha;
 
     @DynamicSerializeElement
     private float colorMapMax;
@@ -100,66 +86,6 @@ public class UpdateColorMapParametersEvent extends
      */
     public void setAlphaMask(byte[] alphaMask) {
         this.alphaMask = alphaMask;
-    }
-
-    /**
-     * @return the red
-     */
-    public float[] getRed() {
-        return red;
-    }
-
-    /**
-     * @param red
-     *            the red to set
-     */
-    public void setRed(float[] red) {
-        this.red = red;
-    }
-
-    /**
-     * @return the blue
-     */
-    public float[] getBlue() {
-        return blue;
-    }
-
-    /**
-     * @param blue
-     *            the blue to set
-     */
-    public void setBlue(float[] blue) {
-        this.blue = blue;
-    }
-
-    /**
-     * @return the green
-     */
-    public float[] getGreen() {
-        return green;
-    }
-
-    /**
-     * @param green
-     *            the green to set
-     */
-    public void setGreen(float[] green) {
-        this.green = green;
-    }
-
-    /**
-     * @return the alpha
-     */
-    public float[] getAlpha() {
-        return alpha;
-    }
-
-    /**
-     * @param alpha
-     *            the alpha to set
-     */
-    public void setAlpha(float[] alpha) {
-        this.alpha = alpha;
     }
 
     /**
@@ -283,11 +209,30 @@ public class UpdateColorMapParametersEvent extends
     }
 
     /**
+     * Set the ColorMapParameters for the event
+     * 
+     * @param parameters
+     */
+    public void setColorMapParameters(ColorMapParameters parameters) {
+        if (parameters != null) {
+            setAlphaMask(parameters.getAlphaMask());
+            setColorMapMin(parameters.getColorMapMin());
+            setColorMapMax(parameters.getColorMapMax());
+            setDataMin(parameters.getDataMin());
+            setDataMax(parameters.getDataMax());
+            setLogarithmic(parameters.isLogarithmic());
+            setLogFactor(parameters.getLogFactor());
+            setMirror(parameters.isMirror());
+            setUseMask(parameters.isUseMask());
+        }
+    }
+
+    /**
      * Get the update colormap parameters event as ColorMapParameters object
      * 
      * @return
      */
-    public ColorMapParameters asColorMapParameters() {
+    public ColorMapParameters getColorMapParameters() {
         ColorMapParameters params = new ColorMapParameters();
         params.setAlphaMask(getAlphaMask());
         params.setColorMapMin(getColorMapMin());
@@ -298,33 +243,19 @@ public class UpdateColorMapParametersEvent extends
         params.setLogFactor(getLogFactor());
         params.setMirror(isMirror());
         params.setUseMask(isUseMask());
-        if (red != null && green != null && blue != null && alpha != null) {
-            params.setColorMap(new ColorMap("" + getObjectId(), red, green,
-                    blue, alpha));
-        }
         return params;
     }
 
+    /**
+     * @param wrapper
+     * @param parameters
+     * @return
+     */
     public static UpdateColorMapParametersEvent createEvent(
-            DispatchingObject<?> creator, ColorMapParameters parameters) {
+            AbstractDispatchingImage<?> wrapper, ColorMapParameters parameters) {
         UpdateColorMapParametersEvent event = RemoteGraphicsEventFactory
-                .createEvent(UpdateColorMapParametersEvent.class, creator);
-        event.setAlphaMask(parameters.getAlphaMask());
-        IColorMap cmap = parameters.getColorMap();
-        if (cmap != null) {
-            event.setRed(cmap.getRed());
-            event.setBlue(cmap.getBlue());
-            event.setGreen(cmap.getGreen());
-            event.setAlpha(cmap.getAlpha());
-        }
-        event.setColorMapMin(parameters.getColorMapMin());
-        event.setColorMapMax(parameters.getColorMapMax());
-        event.setDataMin(parameters.getDataMin());
-        event.setDataMax(parameters.getDataMax());
-        event.setLogarithmic(parameters.isLogarithmic());
-        event.setLogFactor(parameters.getLogFactor());
-        event.setMirror(parameters.isMirror());
-        event.setUseMask(parameters.isUseMask());
+                .createEvent(UpdateColorMapParametersEvent.class, wrapper);
+        event.setColorMapParameters(parameters);
         return event;
     }
 
