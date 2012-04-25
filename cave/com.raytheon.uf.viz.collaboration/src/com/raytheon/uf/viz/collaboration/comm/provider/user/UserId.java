@@ -167,7 +167,7 @@ public class UserId implements IQualifiedID {
             // requiring a resource for peerToPeer to go through
             sb.append("resource");
         }
-        System.out.println(sb.toString());
+        // System.out.println(sb.toString());
         return sb.toString();
     }
 
