@@ -55,6 +55,8 @@ public class DispatchingMosaicImage extends
 
     private PaintImageEvent[] imagesToMosaic;
 
+    private IExtent imageExtent;
+
     /**
      * @param targetObject
      * @param extensionClass
@@ -62,8 +64,10 @@ public class DispatchingMosaicImage extends
      */
     public DispatchingMosaicImage(IMosaicImage targetObject,
             Class<? extends IImagingExtension> extensionClass,
-            Dispatcher dispatcher, ColorMapParameters parameters) {
+            Dispatcher dispatcher, ColorMapParameters parameters,
+            IExtent imageExtent) {
         super(targetObject, extensionClass, dispatcher, parameters);
+        this.imageExtent = imageExtent;
     }
 
     /*
@@ -75,6 +79,8 @@ public class DispatchingMosaicImage extends
      */
     @Override
     public void setImagesToMosaic(DrawableImage... images) {
+        wrappedObject.setImagesToMosaic(PaintImagesEvent
+                .extractTargetImages(images));
         PaintImageEvent[] imagesToMosaic = PaintImagesEvent
                 .toPaintEvents(images);
         if (Arrays.equals(imagesToMosaic, this.imagesToMosaic) == false) {
@@ -82,8 +88,6 @@ public class DispatchingMosaicImage extends
             UpdateImagesToMosaic event = RemoteGraphicsEventFactory
                     .createEvent(UpdateImagesToMosaic.class, this);
             event.setImagesToMosaic(imagesToMosaic);
-            wrappedObject.setImagesToMosaic(PaintImagesEvent
-                    .extractTargetImages(images));
             dispatch(event);
         }
     }
@@ -98,10 +102,13 @@ public class DispatchingMosaicImage extends
     @Override
     public void setImageExtent(IExtent imageExtent) {
         wrappedObject.setImageExtent(imageExtent);
-        UpdateMosaicExtent extentUpdate = RemoteGraphicsEventFactory
-                .createEvent(UpdateMosaicExtent.class, this);
-        extentUpdate.setIExtent(imageExtent);
-        dispatch(extentUpdate);
+        if (imageExtent.equals(this.imageExtent) == false) {
+            this.imageExtent = imageExtent;
+            UpdateMosaicExtent extentUpdate = RemoteGraphicsEventFactory
+                    .createEvent(UpdateMosaicExtent.class, this);
+            extentUpdate.setIExtent(imageExtent);
+            dispatch(extentUpdate);
+        }
     }
 
 }
