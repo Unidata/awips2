@@ -97,7 +97,7 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
             return false;

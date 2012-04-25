@@ -489,7 +489,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     private void sendDrawWireframeShapeEvent(DispatchingWireframeShape shape,
             RGB color, float lineWidth, LineStyle lineStyle, IFont font,
             Float alpha) {
-        shape.updateState();
+        shape.flushState();
         RenderWireframeShapeEvent event = RemoteGraphicsEventFactory
                 .createEvent(RenderWireframeShapeEvent.class, shape);
         event.setColor(color);

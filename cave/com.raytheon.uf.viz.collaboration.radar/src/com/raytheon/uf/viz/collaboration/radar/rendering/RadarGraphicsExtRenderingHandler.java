@@ -76,7 +76,10 @@ public class RadarGraphicsExtRenderingHandler extends
             imageExtent = event.getExtent().getIExtent();
         }
         if (event.getColorMapParameters() != null) {
-            parameters = event.getColorMapParameters().asColorMapParameters();
+            parameters = event.getColorMapParameters().getColorMapParameters();
+            if (event.getColorMap() != null && parameters != null) {
+                parameters.setColorMap(event.getColorMap().getColorMap());
+            }
         }
         dataManager.putRenderableObject(
                 imageId,
