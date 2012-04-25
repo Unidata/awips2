@@ -138,7 +138,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         colorManager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
                 .getColorManager();
         color = colorManager.getColors().get(userId);
-        getCapability(ColorableCapability.class).setColor(color);
+        if (color != null) {
+            getCapability(ColorableCapability.class).setColor(color);
+        }
     }
 
     /*
@@ -192,6 +194,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         case DISABLE:
             allowDraw = !allowDraw;
             getEventBus().post(event);
+            break;
         case UNDO:
             UserId userName = event.getUserName();
             Collection<ShapeContainer> container = collaboratorShapes
@@ -387,6 +390,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     public void sendDisableOthers() {
         CollaborationDrawingEvent event = new CollaborationDrawingEvent();
         event.setType(CollaborationEventType.DISABLE);
+        event.setUserName(userId);
         sendGenericEvent(event);
     }
 
