@@ -77,10 +77,6 @@ public class DrawingLayer extends
 
     protected LayerState state;
 
-    // protected boolean erase = false;
-    //
-    // private boolean draw = true;
-
     protected PaintProperties paintProps = null;
 
     private boolean needsRefresh = false;
@@ -280,8 +276,6 @@ public class DrawingLayer extends
                             descriptor);
                     drawTempLinePrimitive(lString, eraseWireframeShape);
                     this.wireframeShapes.put(lString, eraseWireframeShape);
-                } else {
-                    // do nothing
                 }
             }
             tempGeometries.clear();
