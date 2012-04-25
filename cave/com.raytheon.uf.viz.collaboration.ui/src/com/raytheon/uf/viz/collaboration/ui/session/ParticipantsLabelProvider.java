@@ -136,7 +136,13 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
                 && !user.getUser().getAlias().isEmpty()) {
             return user.getUser().getAlias();
         }
-        return user.getUser().getName();
+        // TODO, XXX, FIXME? do we need this, it is REALLY good for debugging
+        String name = user.getUser().getName();
+        if (CollaborationDataManager.getInstance().getCollaborationConnection()
+                .getAccount().equals(user.getUser())) {
+            name += " (YOU)";
+        }
+        return name;
     }
 
     @Override
