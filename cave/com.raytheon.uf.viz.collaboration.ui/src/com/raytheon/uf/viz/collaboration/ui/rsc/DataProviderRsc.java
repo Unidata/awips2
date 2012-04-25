@@ -35,8 +35,9 @@ import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
- * A resource for displaying to the user that they are currently sharing this
- * editor with a particular session.
+ * A resource that is added to an editor that the Data Provider is sharing. It
+ * captures some events and also displays to the Data Provider that the editor
+ * is currently shared.
  * 
  * <pre>
  * 
@@ -52,7 +53,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * @version 1.0
  */
 
-public class SharedEditorIndicatorRsc extends
+public class DataProviderRsc extends
         AbstractVizResource<GenericResourceData, IDescriptor> {
 
     protected String roomName;
@@ -61,7 +62,7 @@ public class SharedEditorIndicatorRsc extends
 
     protected ISharedDisplaySession session;
 
-    public SharedEditorIndicatorRsc(GenericResourceData resourceData,
+    public DataProviderRsc(GenericResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
     }
