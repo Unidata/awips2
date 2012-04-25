@@ -465,10 +465,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     @Subscribe
     public void handleInvitationEvent(IVenueInvitationEvent event) {
         final IVenueInvitationEvent invitation = event;
-        System.out.println("==== handleInvitationEvent sessionId: "
-                + invitation.getInvite().getSessionId());
-        System.out.println("==== handleInvitationEvent inviter: "
-                + invitation.getInviter());
         VizApp.runSync(new Runnable() {
 
             @Override
@@ -551,8 +547,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     @Subscribe
     public void peer2peerMessage(ITextMessageEvent messageEvent) {
         final TextMessage message = messageEvent.getMessage();
-        // System.out.println("p2pMsg from: " + message.getFrom().getFQName());
-        // System.out.println("p2pMsgt body: " + message.getBody());
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -642,11 +636,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         // TODO update the event's user groups here for the desired type
         IRosterEntry rosterEntry = rosterChangeEvent.getEntry();
         IPresence presence = rosterChangeEvent.getEntry().getPresence();
-        if (presence != null) {
-            System.out.println("\t" + presence.getMode() + "/"
-                    + presence.getType() + ": \"" + presence.getStatusMessage()
-                    + "\"");
-        }
         Collection<IRosterGroup> userGroups = rosterEntry.getGroups();
         switch (rosterChangeEvent.getType()) {
         case ADD:
