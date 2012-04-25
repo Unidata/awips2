@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
@@ -97,8 +98,12 @@ public class CollaborationPathToolbar extends PathToolbar {
             public void run() {
                 if (event instanceof CollaborationDrawingEvent) {
                     CollaborationDrawingEvent cde = (CollaborationDrawingEvent) event;
-                    if (cde.getType() == CollaborationEventType.DISABLE) {
-                        disableAll();
+                    if (!cde.getUserName().equals(
+                            CollaborationDataManager.getInstance()
+                                    .getCollaborationConnection().getAccount())) {
+                        if (cde.getType() == CollaborationEventType.DISABLE) {
+                            disableAll();
+                        }
                     }
                 }
                 CollaborationPathToolbar.super.handleMessage(event);

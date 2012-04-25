@@ -341,7 +341,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         };
         changeStatusMessageAction.setEnabled(false);
 
-        changePasswordAction = new Action("Change password...") {
+        changePasswordAction = new Action("Change Password...") {
             public void run() {
                 changePassword();
             };
@@ -522,9 +522,19 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
              */
             @Override
             public void focusLost(FocusEvent e) {
-                entry.getUser().setAlias(treeEditor.getItem().getText());
-                // TODO, persist this back to the xmpp server so that the alias
-                // is used next time you login
+                List<String> groups = new ArrayList<String>();
+                for (IRosterGroup grp : entry.getGroups()) {
+                    groups.add(grp.getName());
+                }
+
+                CollaborationDataManager
+                        .getInstance()
+                        .getCollaborationConnection()
+                        .addAlias(entry.getUser(),
+                                treeEditor.getItem().getText());
+                CollaborationDataManager.getInstance()
+                        .getCollaborationConnection().getEventPublisher()
+                        .post(entry.getUser());
             }
         });
         newEditor.selectAll();
@@ -893,9 +903,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 manager.add(new Separator());
                 manager.add(createSessionAction);
             }
-            manager.add(aliasAction);
+            // manager.add(aliasAction);
         } else if (o instanceof IRosterGroup) {
-            IRosterGroup group = (IRosterGroup) o;
             manager.add(createSessionAction);
         }
     }
