@@ -504,6 +504,8 @@ public class SessionView extends AbstractSessionView {
             session.unRegisterEventHandler(this);
             CollaborationDataManager.getInstance().unRegisterEventHandler(this);
             CollaborationDataManager.getInstance().closeSession(sessionId);
+            CollaborationDataManager.getInstance().getCollaborationConnection()
+                    .getEventPublisher().unregister(this);
         }
     }
 
