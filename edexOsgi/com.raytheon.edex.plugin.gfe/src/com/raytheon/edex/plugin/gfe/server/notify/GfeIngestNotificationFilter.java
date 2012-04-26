@@ -54,6 +54,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.DBInvChangeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GfeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
+import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -180,12 +181,17 @@ public class GfeIngestNotificationFilter {
                 }
 
                 for (ParmID parmId : gridInv.keySet()) {
-                    Map<TimeRange, List<GridDataHistory>> hist;
+                    Map<TimeRange, List<GridDataHistory>> hist = new HashMap<TimeRange, List<GridDataHistory>>();
                     try {
                         List<TimeRange> trs = gridInv.get(parmId);
                         Collections.sort(trs);
-                        hist = GridParmManager.getDb(parmId.getDbId())
-                                .getGridHistory(parmId, trs).getPayload();
+                        for (TimeRange time : trs) {
+                            List<GridDataHistory> histList = new ArrayList<GridDataHistory>();
+                            histList.add(new GridDataHistory(
+                                    GridDataHistory.OriginType.INITIALIZED,
+                                    parmId, time, null, (WsId) null));
+                            hist.put(time, histList);
+                        }
                         guns.add(new GridUpdateNotification(parmId,
                                 new TimeRange(trs.get(0).getStart(), trs.get(
                                         trs.size() - 1).getEnd()), hist, null,
