@@ -219,6 +219,13 @@ public class SessionView extends AbstractSessionView {
     @Subscribe
     public void handleMessage(IMessage message) {
         final IMessage msg = message;
+        // so not to have delay, going to handle messages from yourself
+        // separately
+        if (message.getFrom().equals(
+                CollaborationDataManager.getInstance()
+                        .getCollaborationConnection().getAccount())) {
+            return;
+        }
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -233,7 +240,9 @@ public class SessionView extends AbstractSessionView {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                usersTable.refresh();
+                if (!usersTable.getTable().isDisposed()) {
+                    usersTable.refresh();
+                }
             }
         });
     }
@@ -440,6 +449,9 @@ public class SessionView extends AbstractSessionView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
+                UserId id = CollaborationDataManager.getInstance()
+                        .getCollaborationConnection().getAccount();
+                appendMessage(id, System.currentTimeMillis(), message);
                 session.sendChatMessage(message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
@@ -502,10 +514,12 @@ public class SessionView extends AbstractSessionView {
         super.partClosed(part);
         if (this == part) {
             session.unRegisterEventHandler(this);
-            CollaborationDataManager.getInstance().unRegisterEventHandler(this);
-            CollaborationDataManager.getInstance().closeSession(sessionId);
-            CollaborationDataManager.getInstance().getCollaborationConnection()
-                    .getEventPublisher().unregister(this);
+            CollaborationDataManager mgr = CollaborationDataManager
+                    .getInstance();
+            mgr.unRegisterEventHandler(this);
+            mgr.closeSession(sessionId);
+            mgr.getCollaborationConnection().getEventPublisher()
+                    .unregister(this);
         }
     }
 
