@@ -178,6 +178,18 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
     }
 
     /**
+     * Disposes all renderable data for the object
+     * 
+     * @param objectId
+     */
+    public void dispose(int objectId) {
+        Object[] objects = renderableObjectMap.remove(objectId);
+        if (objects != null) {
+            dispose(objects);
+        }
+    }
+
+    /**
      * Dispose all renderable object data
      */
     public void dispose() {
