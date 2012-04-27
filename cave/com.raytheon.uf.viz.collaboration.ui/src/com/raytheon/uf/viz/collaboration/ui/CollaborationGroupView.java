@@ -213,14 +213,14 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 Action.AS_CHECK_BOX) {
             @Override
             public void run() {
-                CollaborationDataManager.getInstance().setLinkCollaboration(
-                        isChecked());
+                // TODO store to preferences
             }
         };
         linkToEditorAction.setImageDescriptor(IconUtil.getImageDescriptor(
                 bundle, "link_to_editor.gif"));
-        linkToEditorAction.setChecked(CollaborationDataManager.getInstance()
-                .getLinkCollaboration());
+        // TODO pull from prefs
+        // linkToEditorAction.setChecked(CollaborationDataManager.getInstance()
+        // .getLinkCollaboration());
 
         inviteAction = new Action("Invite...") {
             @Override
@@ -1145,8 +1145,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     @Override
     public void dispose() {
-        // TODO Auto-generated method stub
-        System.out.println("Disposing: " + getClass().getName());
         super.dispose();
     }
 
@@ -1158,8 +1156,32 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      */
     @Override
     public void partActivated(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-
+        if (linkToEditorAction.isChecked()) {
+            IWorkbenchPage page = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage();
+            if (part instanceof CollaborationEditor) {
+                String sessionId = ((CollaborationEditor) part).getSessionId();
+                for (IViewReference ref : page.getViewReferences()) {
+                    if (ref.getPart(false) instanceof CollaborationSessionView) {
+                        CollaborationSessionView view = (CollaborationSessionView) ref
+                                .getPart(false);
+                        if (view.getSessionId().equals(sessionId)) {
+                            page.bringToTop(view);
+                            break;
+                        }
+                    }
+                }
+            } else if (part instanceof CollaborationSessionView) {
+                String sessionId = ((CollaborationSessionView) part)
+                        .getSessionId();
+                CollaborationEditor editor = SharedDisplaySessionMgr
+                        .getSessionContainer(sessionId)
+                        .getCollaborationEditor();
+                if (editor != null) {
+                    page.bringToTop(editor);
+                }
+            }
+        }
     }
 
     /*
@@ -1223,8 +1245,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         if (part instanceof SessionView) {
             SessionView sessionView = (SessionView) part;
             String sessionId = sessionView.getViewSite().getSecondaryId();
-            activeSessionGroup.addObject(CollaborationDataManager.getInstance()
-                    .getSession(sessionId));
+            IVenueSession session = CollaborationDataManager.getInstance()
+                    .getSession(sessionId);
+            activeSessionGroup.addObject(session);
+            session.registerEventHandler(sessionView);
+            CollaborationDataManager.getInstance().registerEventHandler(this);
             usersTreeViewer.refresh(activeSessionGroup);
         } else if (part == this) {
             CollaborationDataManager.getInstance().registerEventHandler(this);

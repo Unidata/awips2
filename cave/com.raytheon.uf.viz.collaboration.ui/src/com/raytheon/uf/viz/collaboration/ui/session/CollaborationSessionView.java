@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.IWorkbenchPart;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -294,47 +293,7 @@ public class CollaborationSessionView extends SessionView {
                 .getInstance().getSession(this.sessionId);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
-     * partActivated(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partActivated(IWorkbenchPart part) {
-        super.partActivated(part);
-        if (this == part) {
-            CollaborationDataManager.getInstance().editorBringToTop(sessionId);
-        }
-    }
-
-    @Override
-    public void partBroughtToTop(IWorkbenchPart part) {
-        super.partBroughtToTop(part);
-    }
-
-    @Override
-    public void partDeactivated(IWorkbenchPart part) {
-        super.partDeactivated(part);
-    }
-
-    @Override
-    public void partOpened(IWorkbenchPart part) {
-        super.partOpened(part);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#partClosed(org
-     * .eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partClosed(IWorkbenchPart part) {
-        super.partClosed(part);
-        if (part == this) {
-            CollaborationDataManager.getInstance().closeEditor(sessionId);
-        }
+    public String getSessionId() {
+        return session.getSessionId();
     }
 }
