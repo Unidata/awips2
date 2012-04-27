@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.editor.event;
+package com.raytheon.uf.viz.collaboration.display.editor.input;
 
 import java.util.Collections;
 import java.util.LinkedList;
