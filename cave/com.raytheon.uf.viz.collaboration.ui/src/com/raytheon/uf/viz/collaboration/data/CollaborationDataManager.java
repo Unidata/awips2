@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.data;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +30,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
@@ -61,7 +58,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenue
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -160,44 +156,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         RosterEntry me = new RosterEntry(connection.getUser());
         me.setPresence(connection.getPresence());
         usersMap.put(me.getUser(), me);
-    }
-
-    /**
-     * Get a sorted list of groups
-     * 
-     * @param allGroups
-     *            - When true all groups otherwise the groups selected for
-     *            display.
-     * @return groups
-     */
-    public List<IRosterItem> getGroups(boolean allGroups) {
-        List<IRosterItem> result = new ArrayList<IRosterItem>();
-        if (allGroups) {
-            for (IRosterGroup dataGroup : groups) {
-                result.add(dataGroup);
-            }
-        }
-        return result;
-    }
-
-    public List<IRosterEntry> getUsersInGroup(IRosterItem groupId) {
-        List<IRosterEntry> userList = new ArrayList<IRosterEntry>();
-        for (UserId userId : usersMap.keySet()) {
-            IRosterEntry user = usersMap.get(userId);
-            for (IRosterGroup group : user.getGroups()) {
-                if (groupId.equals(group)) {
-                    userList.add(user);
-                    break;
-                }
-            }
-        }
-        return userList;
-    }
-
-    public boolean displayGroup(String groupId) {
-        boolean display = true;
-        // TODO maybe need to make this displayGroup function do something
-        return display;
     }
 
     public void editorCreated(ISharedDisplaySession session,
@@ -333,39 +291,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             sessionsMap.remove(sessionId);
             session.close();
         }
-    }
-
-    public void closeEditor(String sessionId) {
-        SessionContainer container = SharedDisplaySessionMgr
-                .getSessionContainer(sessionId);
-        container.getRoleEventController().shutdown();
-        CollaborationEditor editor = container.getCollaborationEditor();
-        if (editor != null) {
-            IWorkbenchPage page = PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage();
-            if (page != null) {
-                for (IEditorReference ref : page.getEditorReferences()) {
-                    if (editor == ref.getEditor(false)) {
-                        PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                                .getActivePage().hideEditor(ref);
-                    }
-                }
-            }
-        }
-
-    }
-
-    public String getSessionId(CollaborationEditor editor) {
-        String sessionId = null;
-        for (String key : SharedDisplaySessionMgr.getActiveSessionIds()) {
-            SessionContainer container = SharedDisplaySessionMgr
-                    .getSessionContainer(key);
-            if (editor == container.getCollaborationEditor()) {
-                sessionId = key;
-                break;
-            }
-        }
-        return sessionId;
     }
 
     /**
