@@ -17,9 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.editor;
+package com.raytheon.uf.viz.collaboration.display.editor;
 
-import com.raytheon.uf.viz.collaboration.ui.editor.event.CollaborationInputHandler;
+import com.raytheon.uf.viz.collaboration.display.editor.input.CollaborationInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -46,7 +46,7 @@ import com.raytheon.viz.ui.panes.PaneManager;
 
 public class CollaborationEditor extends AbstractEditor {
 
-    public static final String EDITOR_ID = "com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor";
+    public static final String EDITOR_ID = "com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor";
 
     private String sessionId;
 
