@@ -82,6 +82,8 @@ public class ParticipantEventController extends AbstractRoleEventController {
             @Override
             public void run() {
                 CollaborationEditor editor = EditorSetup.createEditor(se);
+                editor.setSessionId(ParticipantEventController.this.session
+                        .getSessionId());
                 if (se.getLocalResources() != null) {
                     IDescriptor descriptor = editor.getActiveDisplayPane()
                             .getDescriptor();
