@@ -112,11 +112,11 @@ public class PeerToPeerView extends AbstractSessionView {
             try {
                 CollaborationDataManager manager = CollaborationDataManager
                         .getInstance();
+                appendMessage(manager.getCollaborationConnection().getUser(),
+                        System.currentTimeMillis(), message);
                 IPeerToPeer p2p = (IPeerToPeer) manager
                         .getCollaborationConnection().getPeerToPeerSession();
                 p2p.sendPeerToPeer(peer, message);
-                appendMessage(manager.getCollaborationConnection().getUser(),
-                        System.currentTimeMillis(), message);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to send message to " + peer.getName(), e);
