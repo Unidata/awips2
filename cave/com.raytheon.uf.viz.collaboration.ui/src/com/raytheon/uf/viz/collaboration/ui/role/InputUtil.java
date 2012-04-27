@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui.role;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.display.editor.input.CollaborationInputHandler;
@@ -124,10 +123,8 @@ public class InputUtil {
      */
     public static void enableSessionLeaderInput(CollaborationEditor editor) {
         IDisplayPane pane = editor.getActiveDisplayPane();
-        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
-                .getInstance().getSession(
-                        CollaborationDataManager.getInstance().getSessionId(
-                                editor));
+        ISharedDisplaySession session = SharedDisplaySessionMgr
+                .getSessionContainer(editor.getSessionId()).getSession();
         CollaborationInputHandler handler = getCollaborationInputHandler(editor);
         EventForwardingInputHandler mouseHandler = new EventForwardingInputHandler(
                 session, pane);
