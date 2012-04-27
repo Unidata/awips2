@@ -22,8 +22,8 @@ package com.raytheon.uf.viz.collaboration.data;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
-import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
