@@ -44,7 +44,8 @@ import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class RenderFrameEvent extends AbstractDispatchingObjectEvent {
+public class RenderFrameEvent extends AbstractDispatchingObjectEvent implements
+        IRenderFrameEvent {
 
     @DynamicSerializeElement
     private List<IRenderEvent> renderEvents = new LinkedList<IRenderEvent>();
@@ -62,34 +63,6 @@ public class RenderFrameEvent extends AbstractDispatchingObjectEvent {
      */
     public void setRenderEvents(List<IRenderEvent> renderEvents) {
         this.renderEvents = renderEvents;
-    }
-
-    public void addEvent(IRenderEvent event) {
-        renderEvents.add(event);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        RenderFrameEvent other = (RenderFrameEvent) obj;
-        if (renderEvents == null) {
-            if (other.renderEvents != null)
-                return false;
-        } else if (!renderEvents.equals(other.renderEvents))
-            return false;
-        return true;
     }
 
 }

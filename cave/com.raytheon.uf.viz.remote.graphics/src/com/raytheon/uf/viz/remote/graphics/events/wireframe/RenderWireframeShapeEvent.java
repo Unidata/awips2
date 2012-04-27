@@ -68,6 +68,38 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
     @DynamicSerializeElement
     private Float alpha;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public IRenderEvent createDiffObject(IRenderEvent event) {
+        return event;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        RenderWireframeShapeEvent event = (RenderWireframeShapeEvent) diffEvent;
+        this.setObjectId(event.getObjectId());
+        this.alpha = event.alpha;
+        this.red = event.red;
+        this.green = event.green;
+        this.blue = event.blue;
+        this.fontId = event.fontId;
+        this.lineStyle = event.lineStyle;
+        this.lineWidth = event.lineWidth;
+    }
+
     /**
      * @return the red
      */
