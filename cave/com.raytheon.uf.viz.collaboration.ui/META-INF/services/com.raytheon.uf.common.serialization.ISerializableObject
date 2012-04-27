@@ -1,6 +1,4 @@
-com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData
 com.raytheon.uf.viz.collaboration.ui.editor.SharedResource
-com.raytheon.uf.viz.collaboration.ui.editor.ReprojectEditor
 com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData
 com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData
 com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingResourceData
