@@ -84,6 +84,32 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsEvent implements
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public IRenderEvent createDiffObject(IRenderEvent event) {
+        return event;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        BeginFrameEvent event = (BeginFrameEvent) diffEvent;
+        this.extentCenter = event.extentCenter;
+        this.extentFactor = event.extentFactor;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
