@@ -118,8 +118,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
 
     Set<IRosterGroup> groups;
 
-    private boolean linkCollaboration;
-
     /**
      * Mapping for all active chat sessions.
      */
@@ -138,7 +136,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
      * Private constructor to for singleton class.
      */
     private CollaborationDataManager() {
-        linkCollaboration = false;
         groups = new HashSet<IRosterGroup>();
         usersMap = new HashMap<UserId, IRosterEntry>();
         sessionsMap = new HashMap<String, IVenueSession>();
@@ -201,14 +198,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         boolean display = true;
         // TODO maybe need to make this displayGroup function do something
         return display;
-    }
-
-    public void setLinkCollaboration(boolean state) {
-        this.linkCollaboration = state;
-    }
-
-    public boolean getLinkCollaboration() {
-        return linkCollaboration;
     }
 
     public void editorCreated(ISharedDisplaySession session,
@@ -366,17 +355,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
 
     }
 
-    public void editorBringToTop(String sessionId) {
-        if (linkCollaboration) {
-            CollaborationEditor editor = SharedDisplaySessionMgr
-                    .getSessionContainer(sessionId).getCollaborationEditor();
-            if (editor != null) {
-                PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                        .getActivePage().bringToTop(editor);
-            }
-        }
-    }
-
     public String getSessionId(CollaborationEditor editor) {
         String sessionId = null;
         for (String key : SharedDisplaySessionMgr.getActiveSessionIds()) {
@@ -388,29 +366,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             }
         }
         return sessionId;
-    }
-
-    /**
-     * Bring the view associated with the sessionId to the top.
-     * 
-     * @param sessionId
-     */
-    public void viewBringToTop(String sessionId) {
-        if (linkCollaboration) {
-            for (IViewReference ref : PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage()
-                    .getViewReferences()) {
-                if (sessionId.equals(ref.getSecondaryId())) {
-                    try {
-                        PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                                .getActivePage().bringToTop(ref.getView(false));
-                    } catch (NullPointerException ex) {
-                        // Ignore happens during creation of view/editor.
-                    }
-                    break;
-                }
-            }
-        }
     }
 
     /**
