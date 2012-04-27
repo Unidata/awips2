@@ -141,16 +141,6 @@
       </menuContribution>
    </extension>
    <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor"
-            default="true"
-            id="com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor"
-            icon="icons/messages.gif"
-            name="Map">
-      </editor>
-   </extension>
-   <extension
          point="com.raytheon.viz.ui.editorMenuAddition">
       <editorMenuAddition
             class="com.raytheon.uf.viz.collaboration.ui.actions.ShareEditorAction"
