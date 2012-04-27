@@ -39,8 +39,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
@@ -69,8 +67,7 @@ import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
  * @version 1.0
  */
 
-public abstract class AbstractSessionView extends ViewPart implements
-        IPartListener {
+public abstract class AbstractSessionView extends ViewPart {
     private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
     /**
@@ -116,7 +113,6 @@ public abstract class AbstractSessionView extends ViewPart implements
         sashForm.setBackground(sashColor);
         sashForm.setSashWidth(SASH_WIDTH);
 
-        createListeners();
         populateSashForm(sashForm);
     }
 
@@ -129,11 +125,6 @@ public abstract class AbstractSessionView extends ViewPart implements
     protected void populateSashForm(SashForm sashForm) {
         createMessagesComp(sashForm);
         createComposeComp(sashForm);
-    }
-
-    protected void createListeners() {
-        getViewSite().getWorkbenchWindow().getPartService()
-                .addPartListener(this);
     }
 
     private void createMessagesComp(Composite parent) {
@@ -292,68 +283,6 @@ public abstract class AbstractSessionView extends ViewPart implements
      */
     protected void executeSightsSounds() {
         // placeholder for future things
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partActivated(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.IWorkbenchPart
-     * )
-     */
-    @Override
-    public void partBroughtToTop(IWorkbenchPart part) {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partClosed(IWorkbenchPart part) {
-        if (this == part) {
-            getViewSite().getWorkbenchWindow().getPartService()
-                    .removePartListener(this);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.IWorkbenchPart
-     * )
-     */
-    @Override
-    public void partDeactivated(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partOpened(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partOpened(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-
     }
 
     /*
