@@ -17,12 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
 /**
- * Interface for objects that events for actually rendering an object. These
- * types of events can be skipped over unlike data events which are required to
- * execute at some point. Render events must implements equals
+ * Event to update an existing RenderFrame
  * 
  * <pre>
  * 
@@ -30,20 +31,18 @@ package com.raytheon.uf.viz.remote.graphics.events;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 9, 2012            mschenke     Initial creation
+ * Apr 25, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
+@DynamicSerialize
+public class UpdateRenderFrameEvent extends RenderFrameEvent {
 
-public interface IRenderEvent {
+    public void addEvent(IRenderEvent event) {
+        getRenderEvents().add(event);
+    }
 
-    @Override
-    public abstract boolean equals(Object obj);
-
-    public abstract IRenderEvent createDiffObject(IRenderEvent event);
-
-    public abstract void applyDiffObject(IRenderEvent diffEvent);
 }
