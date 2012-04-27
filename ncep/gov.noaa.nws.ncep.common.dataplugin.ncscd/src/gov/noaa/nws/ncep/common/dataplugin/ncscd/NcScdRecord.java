@@ -26,9 +26,8 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncscd;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;  
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -49,46 +48,48 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name = "ncscd", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-
-public class NcScdRecord extends PluginDataObject implements ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+public class NcScdRecord extends PluginDataObject implements ISpatialEnabled,
+		IDecoderGettable, IPointData, IPersistable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final Unit<Temperature> TDXC_UNIT = SI.CELSIUS;
-	
+
 	public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
-	
+
 	/** Report type */
-    @XmlElement
-    @DynamicSerializeElement
-    @Column
-    @DataURI(position = 1)
+	@XmlElement
+	@DynamicSerializeElement
+	@Column
+	@DataURI(position = 1)
 	private String reportType;
 
-    @Embedded
-    @DataURI(position = 2, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
+	@Embedded
+	@DataURI(position = 2, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
 
 	/** Bulletin correction */
-	@Column(length=8)
-	@DataURI(position=3)
+	@Column(length = 8)
+	@DataURI(position = 3)
 	@XmlElement
 	@DynamicSerializeElement
 	private String corIndicator;
@@ -101,7 +102,7 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled, ID
 
 	/** Bulletin issuance time */
 	@Column
-	@DataURI(position=4)
+	@DataURI(position = 4)
 	@XmlElement
 	@DynamicSerializeElement
 	private Calendar issueTime;
@@ -190,7 +191,9 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled, ID
 	@DynamicSerializeElement
 	private int CFRT;
 
-	/** Fraction of celestial dome covered by low or mid cloud from WMO Code 2700 */
+	/**
+	 * Fraction of celestial dome covered by low or mid cloud from WMO Code 2700
+	 */
 	@Transient
 	@XmlElement
 	@DynamicSerializeElement
@@ -213,15 +216,16 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled, ID
 	@XmlElement
 	@DynamicSerializeElement
 	private String report;
-	
+
 	@Embedded
-	private PointDataView pdv;
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
 	/**
 	 * Default constructor
 	 * 
 	 */
-	public NcScdRecord(){
+	public NcScdRecord() {
 		this.location = null;
 		this.issueTime = null;
 		this.corIndicator = "REG";
@@ -245,190 +249,209 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled, ID
 		this.suspectTimeFlag = "false";
 		this.report = "";
 	}
-	
+
 	/**
 	 * Constructs a SCD record from a dataURI
 	 * 
-	 * @param uri	The dataURI
+	 * @param uri
+	 *            The dataURI
 	 */
 	public NcScdRecord(String uri) {
 		super(uri);
 	}
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-    
-    public String getReportType() {
-        return reportType;
-    }
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return null;
+	}
 
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
-    
-    public String getStationId() {
-        return location.getStationId();
-    }
+	public String getReportType() {
+		return reportType;
+	}
 
-    @Override
-    public SurfaceObsLocation getSpatialObject() {
-        return location;
-    }
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
 
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	public String getStationId() {
+		return location.getStationId();
+	}
 
-	public void setLocation( SurfaceObsLocation obsLoc ){
+	@Override
+	public SurfaceObsLocation getSpatialObject() {
+		return location;
+	}
+
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
+
+	public void setLocation(SurfaceObsLocation obsLoc) {
 		this.location = obsLoc;
 	}
-	
-    public double getLatitude() {
-        return location.getLatitude();
-    }
 
-    public double getLongitude() {
-        return location.getLongitude();
-    }
+	public double getLatitude() {
+		return location.getLatitude();
+	}
 
-    public Integer getElevation() {
-        return location.getElevation();
-    }
+	public double getLongitude() {
+		return location.getLongitude();
+	}
 
-	public Calendar getIssueTime(){
+	public Integer getElevation() {
+		return location.getElevation();
+	}
+
+	public Calendar getIssueTime() {
 		return issueTime;
 	}
 
-	public void setIssueTime(Calendar issueTime){
-		this.issueTime=issueTime;
+	public void setIssueTime(Calendar issueTime) {
+		this.issueTime = issueTime;
 	}
-	public String getCorIndicator(){
+
+	public String getCorIndicator() {
 		return corIndicator;
 	}
 
-	public void setCorIndicator(String corIndicator){
-		this.corIndicator=corIndicator;
+	public void setCorIndicator(String corIndicator) {
+		this.corIndicator = corIndicator;
 	}
-	public Calendar getObsTime(){
+
+	public Calendar getObsTime() {
 		return obsTime;
 	}
 
-	public void setObsTime(Calendar obsTime){
-		this.obsTime=obsTime;
+	public void setObsTime(Calendar obsTime) {
+		this.obsTime = obsTime;
 	}
-	public float getTDXC(){
+
+	public float getTDXC() {
 		return TDXC;
 	}
 
-	public void setTDXC(float TDXC){
-		this.TDXC=TDXC;
+	public void setTDXC(float TDXC) {
+		this.TDXC = TDXC;
 	}
-	public float getTDNC(){
+
+	public float getTDNC() {
 		return TDNC;
 	}
 
-	public void setTDNC(float TDNC){
-		this.TDNC=TDNC;
+	public void setTDNC(float TDNC) {
+		this.TDNC = TDNC;
 	}
-	public float getP06I(){
+
+	public float getP06I() {
 		return P06I;
 	}
 
-	public void setP06I(float P06I){
-		this.P06I=P06I;
+	public void setP06I(float P06I) {
+		this.P06I = P06I;
 	}
-	public float getP24I(){
+
+	public float getP24I() {
 		return P24I;
 	}
 
-	public void setP24I(float P24I){
-		this.P24I=P24I;
+	public void setP24I(float P24I) {
+		this.P24I = P24I;
 	}
-	public String getWTHR(){
+
+	public String getWTHR() {
 		return WTHR;
 	}
 
-	public void setWTHR(String WTHR){
-		this.WTHR=WTHR;
+	public void setWTHR(String WTHR) {
+		this.WTHR = WTHR;
 	}
-	public float getSNOW(){
+
+	public float getSNOW() {
 		return SNOW;
 	}
 
-	public void setSNOW(float SNOW){
-		this.SNOW=SNOW;
+	public void setSNOW(float SNOW) {
+		this.SNOW = SNOW;
 	}
-	public float getSNEW(){
+
+	public float getSNEW() {
 		return SNEW;
 	}
 
-	public void setSNEW(float SNEW){
-		this.SNEW=SNEW;
+	public void setSNEW(float SNEW) {
+		this.SNEW = SNEW;
 	}
-	public float getS24I(){
+
+	public float getS24I() {
 		return S24I;
 	}
 
-	public void setS24I(float S24I){
-		this.S24I=S24I;
+	public void setS24I(float S24I) {
+		this.S24I = S24I;
 	}
-	public float getWEQS(){
+
+	public float getWEQS() {
 		return WEQS;
 	}
 
-	public void setWEQS(float WEQS){
-		this.WEQS=WEQS;
+	public void setWEQS(float WEQS) {
+		this.WEQS = WEQS;
 	}
-	public int getMSUN(){
+
+	public int getMSUN() {
 		return MSUN;
 	}
 
-	public void setMSUN(int MSUN){
-		this.MSUN=MSUN;
+	public void setMSUN(int MSUN) {
+		this.MSUN = MSUN;
 	}
-	public int getCTYL(){
+
+	public int getCTYL() {
 		return CTYL;
 	}
 
-	public void setCTYL(int CTYL){
-		this.CTYL=CTYL;
+	public void setCTYL(int CTYL) {
+		this.CTYL = CTYL;
 	}
-	public int getCTYM(){
+
+	public int getCTYM() {
 		return CTYM;
 	}
 
-	public void setCTYM(int CTYM){
-		this.CTYM=CTYM;
+	public void setCTYM(int CTYM) {
+		this.CTYM = CTYM;
 	}
-	public int getCTYH(){
+
+	public int getCTYH() {
 		return CTYH;
 	}
 
-	public void setCTYH(int CTYH){
-		this.CTYH=CTYH;
+	public void setCTYH(int CTYH) {
+		this.CTYH = CTYH;
 	}
-	public int getCFRT(){
+
+	public int getCFRT() {
 		return CFRT;
 	}
 
-	public void setCFRT(int CFRT){
-		this.CFRT=CFRT;
+	public void setCFRT(int CFRT) {
+		this.CFRT = CFRT;
 	}
-	public int getCFRL(){
+
+	public int getCFRL() {
 		return CFRL;
 	}
 
-	public void setCFRL(int CFRL){
-		this.CFRL=CFRL;
+	public void setCFRL(int CFRL) {
+		this.CFRL = CFRL;
 	}
-	public int getCBAS(){
+
+	public int getCBAS() {
 		return CBAS;
 	}
 
-	public void setCBAS(int CBAS){
-		this.CBAS=CBAS;
+	public void setCBAS(int CBAS) {
+		this.CBAS = CBAS;
 	}
 
 	public String getReport() {
@@ -438,7 +461,7 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled, ID
 	public void setReport(String report) {
 		this.report = report;
 	}
-	
+
 	public String getSuspectTimeFlag() {
 		return suspectTimeFlag;
 	}
@@ -471,29 +494,29 @@ public class NcScdRecord extends PluginDataObject implements ISpatialEnabled, ID
 	}
 
 	@Override
-	public void setHdfFileId(Integer hdfFileId) {		
+	public void setHdfFileId(Integer hdfFileId) {
 	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
-     */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
+	 */
 	@Override
 	public PointDataView getPointDataView() {
-		return this.pdv;
+		return this.pointDataView;
 	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
-     * .uf.common.pointdata.PointDataView)
-     */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
+	 * .uf.common.pointdata.PointDataView)
+	 */
 	@Override
-	public void setPointDataView(PointDataView pdv) {
-		this.pdv = pdv;		
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
 	}
 
 	@Override
