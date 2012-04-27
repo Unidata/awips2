@@ -21,22 +21,12 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncpafm;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncpafm.NcPafmUgc;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -45,23 +35,19 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.time.DataTime;
 
 /**
- * NcPafmRecord is the Data Access component for PAFM Point/Area Forecast Matrices data.
- * This contains getters and setters for the main table "ncpafm".
+ * NcPafmRecord is the Data Access component for PAFM Point/Area Forecast
+ * Matrices data. This contains getters and setters for the main table "ncpafm".
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  * 
@@ -88,177 +74,183 @@ import com.raytheon.uf.common.time.DataTime;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+public class NcPafmRecord extends PersistablePluginDataObject implements
+// TODO: Make absolutely sure these are NO LONGER required... ISpatialEnabled,
+// IDecoderGettable,
+		IPointData, IPersistable {
 
-public class NcPafmRecord extends PluginDataObject implements
-//TODO:  Make absolutely sure these are NO LONGER required... ISpatialEnabled, IDecoderGettable,
-	IPointData, IPersistable{
-	
 	private static final long serialVersionUID = 1L;
-	
+
 	/** Report type */
-	@Column(length=32)
+	@Column(length = 32)
 	@XmlElement
 	@DynamicSerializeElement
 	private String reportType;
-	
+
 	// WMO header
 	@DataURI(position = 4)
-	@Column(length=32)
+	@Column(length = 32)
 	@XmlElement
 	@DynamicSerializeElement
 	private String wmoHeader;
-	
+
 	// The issue office where the report from
-	@Column(length=32)
-	@DataURI(position=1)
+	@Column(length = 32)
+	@DataURI(position = 1)
 	@XmlElement
 	@DynamicSerializeElement
 	private String issueOffice;
-			
+
 	@Column
 	@DataURI(position = 2)
-    @DynamicSerializeElement
+	@DynamicSerializeElement
 	@XmlElement
 	private Calendar issueTime;
 
 	// The stationId here is the FIPS code and not the issuing office
-    @Embedded
-    @DataURI(position = 3, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
+	@Embedded
+	@DataURI(position = 3, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
 
 	@Column(length = 8)
 	@DynamicSerializeElement
 	@XmlElement
 	private String designatorBBB;
-	
+
 	// The mndTime
-	@Column(length=72)
+	@Column(length = 72)
 	@XmlElement
 	@DynamicSerializeElement
 	private String mndTime;
-	
+
 	/** Matrix type */
 	@DataURI(position = 5)
-	@Column(length=32)
+	@Column(length = 32)
 	@XmlElement
 	@DynamicSerializeElement
-	private String matrixType;	
+	private String matrixType;
 
 	// The universal geographic code
-	@Column(length=640)
-    @XmlElement
-    @DynamicSerializeElement
+	@Column(length = 640)
+	@XmlElement
+	@DynamicSerializeElement
 	private String ugc;
-	
+
 	// The product purge time
 	@XmlElement
 	@DynamicSerializeElement
 	private Calendar prodPurgeTime;
-	
+
 	// Text information for this segment
-	//@Column(length=12000)
-    //@XmlElement
-    //@DynamicSerializeElement
+	// @Column(length=12000)
+	// @XmlElement
+	// @DynamicSerializeElement
 	private String segment;
-	 
-//	// The county FIPS : this is the stationId in the SurfaceObsLocation
-//	@Column(length=16)
-//    @XmlElement
-//    @DynamicSerializeElement
-//	private String fips;
-	
-    // The group of parameter values associated with the above combination.
-    @Transient
+
+	// // The county FIPS : this is the stationId in the SurfaceObsLocation
+	// @Column(length=16)
+	// @XmlElement
+	// @DynamicSerializeElement
+	// private String fips;
+
+	// The group of parameter values associated with the above combination.
+	@Transient
 	private NcPafmParameters pafmParms;
 
-    // The PointDataView representation of data associated with this PDO
-    // to be persisted as HDF5
-	@Embedded 
-	private PointDataView pdv;
-	
-	private Integer hdfFileId;
+	// The PointDataView representation of data associated with this PDO
+	// to be persisted as HDF5
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
 	/**
-     * Default Constructor
-     */
-    public NcPafmRecord() {
+	 * Default Constructor
+	 */
+	public NcPafmRecord() {
 		this.location = null;
-    	this.issueOffice=null;
-    	this.reportType="PAFM";
-    	this.matrixType=" ";
-    	this.issueTime=null;
-    	this.wmoHeader=null;
-    	this.designatorBBB=" ";
-    	this.mndTime=null;
-    }
+		this.issueOffice = null;
+		this.reportType = "PAFM";
+		this.matrixType = " ";
+		this.issueTime = null;
+		this.wmoHeader = null;
+		this.designatorBBB = " ";
+		this.mndTime = null;
+	}
 
-    /**
-     * Constructs a pafm record from a dataURI
-     * 
-     * @param uri
-     *            The dataURI
-     */
-    public NcPafmRecord(String uri) {
-        super(uri);
-    }
-    
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    public String getReportType() {
-    	return reportType;
-    }
-    public void setReportType(String reportType) {
-    	this.reportType = reportType;
-    }
-    
-    public String getMatrixType() {
-    	return matrixType;
-    }
-    public void setMatrixType(String matrixType) {
-    	this.matrixType = matrixType;
-    }
+	/**
+	 * Constructs a pafm record from a dataURI
+	 * 
+	 * @param uri
+	 *            The dataURI
+	 */
+	public NcPafmRecord(String uri) {
+		super(uri);
+	}
 
-	public String getWmoHeader(){
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getReportType() {
+		return reportType;
+	}
+
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
+
+	public String getMatrixType() {
+		return matrixType;
+	}
+
+	public void setMatrixType(String matrixType) {
+		this.matrixType = matrixType;
+	}
+
+	public String getWmoHeader() {
 		return wmoHeader;
 	}
-	public void setWmoHeader(String wmoHeader){
-		this.wmoHeader=wmoHeader;
+
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
 	}
-	  
+
 	public String getIssueOffice() {
 		return issueOffice;
 	}
+
 	public void setIssueOffice(String issueOffice) {
 		this.issueOffice = issueOffice;
 	}
 
-	public Calendar getIssueTime(){
+	public Calendar getIssueTime() {
 		return issueTime;
 	}
-	public void setIssueTime(Calendar issueTime){
-		this.issueTime=issueTime;
+
+	public void setIssueTime(Calendar issueTime) {
+		this.issueTime = issueTime;
 	}
-	
-	public String getDesignatorBBB(){
+
+	public String getDesignatorBBB() {
 		return designatorBBB;
 	}
-	public void setDesignatorBBB(String designatorBBB){
-		this.designatorBBB=designatorBBB;
+
+	public void setDesignatorBBB(String designatorBBB) {
+		this.designatorBBB = designatorBBB;
 	}
 
 	public String getMndTime() {
 		return mndTime;
 	}
+
 	public void setMndTime(String mndTime) {
 		this.mndTime = mndTime;
 	}
-	
+
 	/**
 	 * @return the ugc
 	 */
@@ -267,7 +259,8 @@ public class NcPafmRecord extends PluginDataObject implements
 	}
 
 	/**
-	 * @param ugc to set
+	 * @param ugc
+	 *            to set
 	 */
 	public void setUgc(String ugc) {
 		this.ugc = ugc;
@@ -279,8 +272,10 @@ public class NcPafmRecord extends PluginDataObject implements
 	public Calendar getProdPurgeTime() {
 		return prodPurgeTime;
 	}
+
 	/**
-	 * @param prodPurgeTime to set
+	 * @param prodPurgeTime
+	 *            to set
 	 */
 	public void setProdPurgeTime(Calendar prodPurgeTime) {
 		this.prodPurgeTime = prodPurgeTime;
@@ -292,116 +287,107 @@ public class NcPafmRecord extends PluginDataObject implements
 	public String getSegment() {
 		return segment;
 	}
+
 	/**
-	 * @param segment to set
+	 * @param segment
+	 *            to set
 	 */
 	public void setSegment(String segment) {
 		this.segment = segment;
 	}
-	
-//	public String getFips() {
-//		return fips;
-//	}
 
-    public String getStationId() {
-        return location.getStationId();
-    }
+	// public String getFips() {
+	// return fips;
+	// }
 
-// if this needs to be an ISpatialObject
-//    @Override
-//    public SurfaceObsLocation getSpatialObject() {
-//        return location;
-//    }
+	public String getStationId() {
+		return location.getStationId();
+	}
 
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	// if this needs to be an ISpatialObject
+	// @Override
+	// public SurfaceObsLocation getSpatialObject() {
+	// return location;
+	// }
 
-	public void setLocation( SurfaceObsLocation obsLoc ){
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
+
+	public void setLocation(SurfaceObsLocation obsLoc) {
 		this.location = obsLoc;
 	}
-	
-    public double getLatitude() {
-        return location.getLatitude();
-    }
 
-    public double getLongitude() {
-        return location.getLongitude();
-    }
+	public double getLatitude() {
+		return location.getLatitude();
+	}
 
-    public Integer getElevation() {
-        return location.getElevation();
-    }
+	public double getLongitude() {
+		return location.getLongitude();
+	}
 
-//	public void setFips(String fips) {
-//		this.fips = fips;
-//	}
-		
-	   /**
-		 * @return the set of Parameters
-		 */
-	   public NcPafmParameters getPafmParms() {
-	           return pafmParms;
-	   }
+	public Integer getElevation() {
+		return location.getElevation();
+	}
 
-	   /**
-		 * @param pafmParameters-the set of Parmameters to set
-		 */
-	   public void setPafmParms(NcPafmParameters pafmParams) {
-	           this.pafmParms = pafmParams;
-	   }
-		
-	    /*
-	     * (non-Javadoc)
-	     * 
-	     * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
-	     */
-	    @Override
-	    public PointDataView getPointDataView() {
-	        return this.pdv;
-	    }
-
-	    /*
-	     * (non-Javadoc)
-	     * 
-	     * @see
-	     * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
-	     * .uf.common.pointdata.PointDataView)
-	     */
-	    @Override
-	    public void setPointDataView(PointDataView pdv) {
-	        this.pdv = pdv;
-	    }
-
-	    @Override
-	    public Integer getHdfFileId() {
-	        return null;
-	    }
-
-	    @Override
-	    public Date getPersistenceTime() {
-//	        return this.dataTime.getRefTime();
-	    	return null;
-	    }
-
-	    @Override
-
-	    public void setHdfFileId(Integer hdfFileId) {
-	    	this.hdfFileId = hdfFileId;
-	    }
-
-		@Override
-		public void setPersistenceTime(Date persistTime) {
-			// TODO Auto-generated method stub
-			
-		}
+	// public void setFips(String fips) {
+	// this.fips = fips;
+	// }
 
 	/**
-	 * Override existing set method to modify any
-	 * classes that use the dataURI as a foreign key
-     */
-    public void setIdentifier(Object dataURI){
-		 this.identifier = dataURI;
-    }
-    
+	 * @return the set of Parameters
+	 */
+	public NcPafmParameters getPafmParms() {
+		return pafmParms;
+	}
+
+	/**
+	 * @param pafmParameters
+	 *            -the set of Parmameters to set
+	 */
+	public void setPafmParms(NcPafmParameters pafmParams) {
+		this.pafmParms = pafmParams;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
+	 */
+	@Override
+	public PointDataView getPointDataView() {
+		return this.pointDataView;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
+	 * .uf.common.pointdata.PointDataView)
+	 */
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
+
+	@Override
+	public Integer getHdfFileId() {
+		return null;
+	}
+
+	@Override
+	public Date getPersistenceTime() {
+		// return this.dataTime.getRefTime();
+		return null;
+	}
+
+	/**
+	 * Override existing set method to modify any classes that use the dataURI
+	 * as a foreign key
+	 */
+	public void setIdentifier(Object dataURI) {
+		this.identifier = dataURI;
+	}
+
 }
