@@ -61,6 +61,60 @@ public class PaintImageEvent extends AbstractDispatchingObjectEvent implements
     @DynamicSerializeElement
     private Coordinate ll;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public PaintImageEvent createDiffObject(IRenderEvent event) {
+        PaintImageEvent diff = (PaintImageEvent) event;
+        PaintImageEvent diffEvent = new PaintImageEvent();
+        diffEvent.setObjectId(diff.getObjectId());
+        diffEvent.meshId = diff.meshId;
+        if (ll != null && ll.equals(diff.ll) == false) {
+            diffEvent.ll = diff.ll;
+        }
+        if (ul != null && ul.equals(diff.ul) == false) {
+            diffEvent.ul = diff.ul;
+        }
+        if (lr != null && lr.equals(diff.lr) == false) {
+            diffEvent.lr = diff.lr;
+        }
+        if (ur != null && ur.equals(diff.ur) == false) {
+            diffEvent.ur = diff.ur;
+        }
+        return diffEvent;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        PaintImageEvent event = (PaintImageEvent) diffEvent;
+        setObjectId(event.getObjectId());
+        meshId = event.meshId;
+        if (event.ll != null) {
+            ll = event.ll;
+        }
+        if (event.lr != null) {
+            lr = event.lr;
+        }
+        if (event.ul != null) {
+            ul = event.ul;
+        }
+        if (event.ur != null) {
+            ur = event.ur;
+        }
+    }
+
     /**
      * @return the meshId
      */
