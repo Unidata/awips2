@@ -98,7 +98,7 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
-import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
