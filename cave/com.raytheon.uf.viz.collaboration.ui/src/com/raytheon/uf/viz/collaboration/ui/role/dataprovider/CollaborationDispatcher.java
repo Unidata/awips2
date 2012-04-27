@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role.dataprovider;
 
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
@@ -28,17 +30,17 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
-import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IRenderFrameEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrame;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameNeededEvent;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
-import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
-import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 
 /**
  * Dispatches graphics objects to participants in the collaboration session
@@ -61,25 +63,41 @@ public class CollaborationDispatcher extends Dispatcher {
 
     private static JobPool persistPool = new JobPool("Persister", 1, true);
 
-    private static final boolean PERSISTENCE = true;
-
     private static final int IMMEDIATE_SEND_SIZE = 1024;
+
+    private static final int MAX_PREV_FRAMES = 10;
 
     private ISharedDisplaySession session;
 
     private IObjectEventPersistance persistance;
 
-    private DispatchingObject<?> frameObject;
+    private Deque<RenderFrame> previousFrames = new ArrayDeque<RenderFrame>();
 
-    private RenderFrameEvent previousFrame;
-
-    private RenderFrameEvent currentFrame;
+    private RenderFrame currentFrame;
 
     public CollaborationDispatcher(ISharedDisplaySession session)
             throws CollaborationException {
         this.session = session;
         this.persistance = CollaborationObjectEventStorage
                 .createPersistanceObject(session);
+        session.registerEventHandler(this);
+    }
+
+    @Subscribe
+    public void handleNeedsRenderFrameEvent(RenderFrameNeededEvent event) {
+        synchronized (previousFrames) {
+            RenderFrame needed = null;
+            for (RenderFrame prevFrame : previousFrames) {
+                if (prevFrame.getObjectId() == event.getObjectId()) {
+                    needed = prevFrame;
+                }
+            }
+            if (needed != null) {
+                // Remove and dispose to reset frame
+                previousFrames.remove(needed);
+                needed.dispose();
+            }
+        }
     }
 
     /*
@@ -91,9 +109,12 @@ public class CollaborationDispatcher extends Dispatcher {
      */
     @Override
     public void dispatch(AbstractRemoteGraphicsEvent eventObject) {
+        if (eventObject instanceof IRenderFrameEvent) {
+            send(eventObject);
+            return;
+        }
         // Set PERSISTENCE to true if testing persisting capabilities
-        if (PERSISTENCE
-                && eventObject instanceof AbstractDispatchingObjectEvent
+        if (eventObject instanceof AbstractDispatchingObjectEvent
                 && eventObject instanceof IRenderEvent == false) {
             boolean immediateSend = true;
             if (eventObject instanceof ICreationEvent == false) {
@@ -135,38 +156,60 @@ public class CollaborationDispatcher extends Dispatcher {
             }
         } else if (eventObject instanceof IRenderEvent) {
             if (eventObject instanceof BeginFrameEvent && currentFrame == null) {
-                frameObject = new DispatchingObject<Object>(null, this);
-                currentFrame = RemoteGraphicsEventFactory.createEvent(
-                        RenderFrameEvent.class, frameObject);
+                currentFrame = new RenderFrame(this);
             }
 
             currentFrame.addEvent((IRenderEvent) eventObject);
             if (eventObject instanceof EndFrameEvent) {
-                if (currentFrame.equals(previousFrame)) {
-                    // No change in render, send event to render
-                    send(createRenderFrameEvent());
-                    currentFrame.getRenderEvents().clear();
-                } else {
-                    // New info, send current frame with new render events as
-                    // new object to avoid unwanted data pointer manipulation
-                    RenderFrameEvent frameEvent = RemoteGraphicsEventFactory
-                            .createEvent(RenderFrameEvent.class, frameObject);
-                    frameEvent.setRenderEvents(new ArrayList<IRenderEvent>(
-                            currentFrame.getRenderEvents()));
-                    send(frameEvent);
-                    previousFrame = currentFrame;
-                    currentFrame = createRenderFrameEvent();
+                synchronized (previousFrames) {
+                    // End frame, do some smart rendering
+                    RenderFrame mergeWith = null;
+                    for (RenderFrame prevFrame : previousFrames) {
+                        // Try and find a previous frame with same number of
+                        // frames
+                        if (prevFrame.size() == currentFrame.size()) {
+                            mergeWith = prevFrame;
+                            break;
+                        }
+                    }
+
+                    boolean merged = false;
+                    if (mergeWith != null) {
+                        // Move merge frame to front of queue
+                        previousFrames.remove(mergeWith);
+                        previousFrames.addFirst(mergeWith);
+
+                        if (mergeWith.merge(currentFrame)) {
+                            // Mark successfull merge
+                            merged = true;
+                            // Reset current frame
+                            currentFrame.clear();
+                        }
+                    }
+
+                    if (!merged) {
+                        // Send full frame if no merge happened
+                        if (mergeWith != null) {
+                            // Notify we tried to merge but failed
+                            Activator.statusHandler.handle(Priority.PROBLEM,
+                                    "Attempted merge did not succeed");
+                        }
+
+                        // Send current frame
+                        currentFrame.sendFrame();
+                        if (previousFrames.size() == MAX_PREV_FRAMES) {
+                            // Too many frames, remove and dispose last
+                            previousFrames.removeLast().dispose();
+                        }
+                        previousFrames.addFirst(currentFrame);
+                        currentFrame = new RenderFrame(this);
+                    }
                 }
             }
         } else {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     "Unable to handle event type: " + eventObject);
         }
-    }
-
-    private RenderFrameEvent createRenderFrameEvent() {
-        return RemoteGraphicsEventFactory.createEvent(RenderFrameEvent.class,
-                frameObject);
     }
 
     private void send(Object obj) {
@@ -185,5 +228,10 @@ public class CollaborationDispatcher extends Dispatcher {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
         }
+        for (RenderFrame frame : previousFrames) {
+            frame.dispose();
+        }
+        previousFrames.clear();
+        session.unRegisterEventHandler(this);
     }
 }
