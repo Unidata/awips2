@@ -46,8 +46,10 @@ import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
 
 /**
  * This performs most of the work for creating a View for a peer-to-peer or
@@ -221,15 +223,21 @@ public abstract class AbstractSessionView extends ViewPart implements
                 .getAdapter(IWorkbenchSiteProgressService.class);
         service.warnOfContentChange();
 
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timestamp);
+        String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
+
+        if (!CollaborationDataManager.getInstance()
+                .getCollaborationConnection().getAccount().equals(userId)) {
+            createNotifier(userId, time, body);
+        }
+
         String name = null;
         if (userId.getAlias() == null || userId.getAlias().isEmpty()) {
             name = userId.getName();
         } else {
             name = userId.getAlias();
         }
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(timestamp);
-        String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
         StringBuilder sb = new StringBuilder();
         if (messagesText.getCharCount() != 0) {
             sb.append("\n");
@@ -380,4 +388,8 @@ public abstract class AbstractSessionView extends ViewPart implements
         composeText.setFocus();
     }
 
+    private void createNotifier(UserId id, String time, String body) {
+        String titleText = "(" + time + ") " + id.getName();
+        PopupNotifier.notify(titleText, body);
+    }
 }
