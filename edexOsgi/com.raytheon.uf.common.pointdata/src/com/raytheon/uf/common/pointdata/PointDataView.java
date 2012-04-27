@@ -30,6 +30,8 @@ import com.raytheon.uf.common.pointdata.elements.FloatPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.IntPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.LongPointDataObject;
 import com.raytheon.uf.common.pointdata.elements.StringPointDataObject;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Convenience class that provides a view of the data for a single observation
@@ -47,279 +49,298 @@ import com.raytheon.uf.common.pointdata.elements.StringPointDataObject;
  * @version 1.0
  */
 @Embeddable
+@DynamicSerialize
 public class PointDataView {
 
-    public static enum Mode {
-        APPEND, READ
-    };
+	public static enum Mode {
+		APPEND, READ
+	};
 
-    @Column(name = "idx")
-    int curIdx;
+	@Column(name = "idx")
+	@DynamicSerializeElement
+	int curIdx;
 
-    transient int curIdx2d;
+	transient int curIdx2d;
 
-    @Transient
-    Mode mode;
+	@Transient
+	Mode mode;
 
-    @Transient
-    PointDataContainer container;
+	@Transient
+	PointDataContainer container;
 
-    public Number getNumber(String parameter) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
-        return p.getNumber(getIndex(p));
-    }
+	public Number getNumber(String parameter) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
+		return p.getNumber(getIndex(p));
+	}
 
-    public Number[] getNumberAllLevels(String parameter) {
+	public Number[] getNumberAllLevels(String parameter) {
 
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
-        Number[] lvl = new Number[p.getDescription().getDimensionAsInt()];
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
+		Number[] lvl = new Number[p.getDescription().getDimensionAsInt()];
 
-        if (p.getDimensions() != 2) {
-            throw new IllegalArgumentException("Parameter " + parameter
-                    + " is not two-dimensional");
-        }
+		if (p.getDimensions() != 2) {
+			throw new IllegalArgumentException("Parameter " + parameter
+					+ " is not two-dimensional");
+		}
 
-        for (int i = 0; i < lvl.length; i++) {
-            lvl[i] = p.getNumber(getIndex(p) + i);
-        }
+		for (int i = 0; i < lvl.length; i++) {
+			lvl[i] = p.getNumber(getIndex(p) + i);
+		}
 
-        return lvl;
-    }
+		return lvl;
+	}
 
-    public String[] getStringAllLevels(String parameter) {
+	public String[] getStringAllLevels(String parameter) {
 
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
-        String[] lvl = new String[p.getDescription().getDimensionAsInt()];
-        if (p.getDimensions() != 2) {
-            throw new IllegalArgumentException("Parameter " + parameter
-                    + " is not two-dimensional");
-        }
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
+		String[] lvl = new String[p.getDescription().getDimensionAsInt()];
+		if (p.getDimensions() != 2) {
+			throw new IllegalArgumentException("Parameter " + parameter
+					+ " is not two-dimensional");
+		}
 
-        for (int i = 0; i < lvl.length; i++) {
-            lvl[i] = ((StringPointDataObject) p).getString(getIndex(p) + i);
-        }
+		for (int i = 0; i < lvl.length; i++) {
+			lvl[i] = ((StringPointDataObject) p).getString(getIndex(p) + i);
+		}
 
-        return lvl;
-    }
+		return lvl;
+	}
 
-    public Unit<?> getUnit(String parameter) {
-        return getParamSafe(parameter).getDescription().getUnitObject();
-    }
+	public Unit<?> getUnit(String parameter) {
+		return getParamSafe(parameter).getDescription().getUnitObject();
+	}
 
-    protected AbstractPointDataObject<?> getParamSafe(String parameter) {
-        AbstractPointDataObject<?> p = container.pointDataTypes.get(parameter);
-        if (p == null)
-            throw new IllegalArgumentException("Parameter not present: "
-                    + parameter);
+	protected AbstractPointDataObject<?> getParamSafe(String parameter) {
+		AbstractPointDataObject<?> p = container.pointDataTypes.get(parameter);
+		if (p == null)
+			throw new IllegalArgumentException("Parameter not present: "
+					+ parameter);
 
-        return p;
-    }
+		return p;
+	}
 
-    public int getDimensions(String parameter) {
-        int dimensions = -1;
-        // return getParamSafe(parameter).getDescription().getNumDims();
-        AbstractPointDataObject<?> p = container.pointDataTypes.get(parameter);
-        if (p != null) {
-            dimensions = p.getDimensions();
-        }
-        return dimensions;
-    }
+	public int getDimensions(String parameter) {
+		int dimensions = -1;
+		// return getParamSafe(parameter).getDescription().getNumDims();
+		AbstractPointDataObject<?> p = container.pointDataTypes.get(parameter);
+		if (p != null) {
+			dimensions = p.getDimensions();
+		}
+		return dimensions;
+	}
 
-    public int getInt(String parameter) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public int getInt(String parameter) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof IntPointDataObject)) {
-            throw new IllegalArgumentException(
-                    "Parameter "
-                            + parameter
-                            + " is not natively an int type.  Use getNumber(), getString() or another primitive type");
-        }
-        return ((IntPointDataObject) p).getInt(getIndex(p));
-    }
+		if (!(p instanceof IntPointDataObject)) {
+			throw new IllegalArgumentException(
+					"Parameter "
+							+ parameter
+							+ " is not natively an int type.  Use getNumber(), getString() or another primitive type");
+		}
+		return ((IntPointDataObject) p).getInt(getIndex(p));
+	}
 
-    public int[] getIntAllLevels(String parameter) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public int[] getIntAllLevels(String parameter) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof IntPointDataObject)) {
-            throw new IllegalArgumentException(
-                    "Parameter "
-                            + parameter
-                            + " is not natively an int type.  Use getNumber(), getString() or another primitive type");
-        } else if (p.getDimensions() != 2) {
-            throw new IllegalArgumentException("Parameter " + parameter
-                    + " is not two-dimensional");
-        }
+		if (!(p instanceof IntPointDataObject)) {
+			throw new IllegalArgumentException(
+					"Parameter "
+							+ parameter
+							+ " is not natively an int type.  Use getNumber(), getString() or another primitive type");
+		} else if (p.getDimensions() != 2) {
+			throw new IllegalArgumentException("Parameter " + parameter
+					+ " is not two-dimensional");
+		}
 
-        int[] lvl = new int[p.getDescription().getDimensionAsInt()];
-        IntPointDataObject ipdo = (IntPointDataObject) p;
-        for (int i = 0; i < lvl.length; i++) {
-            lvl[i] = ipdo.getInt(getIndex(p) + i);
-        }
-        return lvl;
-    }
+		int[] lvl = new int[p.getDescription().getDimensionAsInt()];
+		IntPointDataObject ipdo = (IntPointDataObject) p;
+		for (int i = 0; i < lvl.length; i++) {
+			lvl[i] = ipdo.getInt(getIndex(p) + i);
+		}
+		return lvl;
+	}
 
-    public void setInt(String parameter, int val) {
-        setInt(parameter, val, 0);
-    }
+	public void setInt(String parameter, int val) {
+		setInt(parameter, val, 0);
+	}
 
-    public void setInt(String parameter, int val, int level) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public void setInt(String parameter, int val, int level) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof IntPointDataObject)) {
-            p.setNumber(getIndex(p) + level, val);
-        } else {
-            if (level == 0) {
-                ((IntPointDataObject) p).setInt(getIndex(p), val);
-            } else if (level >= p.getDescription().getDimensionAsInt()) {
-                throw new IllegalArgumentException("Level  " + level
-                        + " exceeds maxLevel size "
-                        + p.getDescription().getDimensionAsInt());
-            } else if (p.getDimensions() != 2) {
-                throw new IllegalArgumentException(
-                        "Data is not two dimensional");
-            } else {
-                ((IntPointDataObject) p).setInt(getIndex(p) + level, val);
-            }
-        }
-    }
+		if (!(p instanceof IntPointDataObject)) {
+			p.setNumber(getIndex(p) + level, val);
+		} else {
+			if (level == 0) {
+				((IntPointDataObject) p).setInt(getIndex(p), val);
+			} else if (level >= p.getDescription().getDimensionAsInt()) {
+				throw new IllegalArgumentException("Level  " + level
+						+ " exceeds maxLevel size "
+						+ p.getDescription().getDimensionAsInt());
+			} else if (p.getDimensions() != 2) {
+				throw new IllegalArgumentException(
+						"Data is not two dimensional");
+			} else {
+				((IntPointDataObject) p).setInt(getIndex(p) + level, val);
+			}
+		}
+	}
 
-    public float getFloat(String parameter) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public float getFloat(String parameter) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof FloatPointDataObject)) {
-            throw new IllegalArgumentException(
-                    "Parameter "
-                            + parameter
-                            + " is not natively a float type.  Use getNumber(), getString() or another primitive type");
-        }
-        return ((FloatPointDataObject) p).getFloat(getIndex(p));
-    }
+		if (!(p instanceof FloatPointDataObject)) {
+			throw new IllegalArgumentException(
+					"Parameter "
+							+ parameter
+							+ " is not natively a float type.  Use getNumber(), getString() or another primitive type");
+		}
+		return ((FloatPointDataObject) p).getFloat(getIndex(p));
+	}
 
-    public void setFloat(String parameter, float val) {
-        setFloat(parameter, val, 0);
-    }
+	public void setFloat(String parameter, float val) {
+		setFloat(parameter, val, 0);
+	}
 
-    public void setFloat(String parameter, float val, int level) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public void setFloat(String parameter, float val, int level) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof FloatPointDataObject)) {
-            p.setNumber(getIndex(p) + level, val);
-        } else {
-            if (level == 0) {
-                ((FloatPointDataObject) p).setFloat(getIndex(p), val);
-            } else if (level >= p.getDescription().getDimensionAsInt()) {
-                throw new IllegalArgumentException("Level  " + level
-                        + " exceeds maxLevel size "
-                        + p.getDescription().getDimensionAsInt());
-            } else if (p.getDimensions() != 2) {
-                throw new IllegalArgumentException(
-                        "Data is not two dimensional");
-            } else {
-                ((FloatPointDataObject) p).setFloat(getIndex(p) + level, val);
-            }
-        }
-    }
+		if (!(p instanceof FloatPointDataObject)) {
+			p.setNumber(getIndex(p) + level, val);
+		} else {
+			if (level == 0) {
+				((FloatPointDataObject) p).setFloat(getIndex(p), val);
+			} else if (level >= p.getDescription().getDimensionAsInt()) {
+				throw new IllegalArgumentException("Level  " + level
+						+ " exceeds maxLevel size "
+						+ p.getDescription().getDimensionAsInt());
+			} else if (p.getDimensions() != 2) {
+				throw new IllegalArgumentException(
+						"Data is not two dimensional");
+			} else {
+				((FloatPointDataObject) p).setFloat(getIndex(p) + level, val);
+			}
+		}
+	}
 
-    public long getLong(String parameter) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public long getLong(String parameter) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof LongPointDataObject)) {
-            throw new IllegalArgumentException(
-                    "Parameter "
-                            + parameter
-                            + " is not natively a long type.  Use getNumber(), getString() or another primitive type");
-        }
-        return ((LongPointDataObject) p).getLong(getIndex(p));
-    }
+		if (!(p instanceof LongPointDataObject)) {
+			throw new IllegalArgumentException(
+					"Parameter "
+							+ parameter
+							+ " is not natively a long type.  Use getNumber(), getString() or another primitive type");
+		}
+		return ((LongPointDataObject) p).getLong(getIndex(p));
+	}
 
-    public void setLong(String parameter, long val) {
-        setLong(parameter, val, 0);
-    }
+	public void setLong(String parameter, long val) {
+		setLong(parameter, val, 0);
+	}
 
-    public void setLong(String parameter, long val, int level) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public void setLong(String parameter, long val, int level) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof LongPointDataObject)) {
-            p.setNumber(getIndex(p) + level, val);
-        } else {
-            if (level == 0) {
-                ((LongPointDataObject) p).setLong(getIndex(p), val);
-            } else if (level >= p.getDescription().getDimensionAsInt()) {
-                throw new IllegalArgumentException("Level  " + level
-                        + " exceeds maxLevel size "
-                        + p.getDescription().getDimensionAsInt());
-            } else if (p.getDimensions() != 2) {
-                throw new IllegalArgumentException(
-                        "Data is not two dimensional");
-            } else {
-                ((LongPointDataObject) p).setLong(getIndex(p) + level, val);
-            }
-        }
-    }
+		if (!(p instanceof LongPointDataObject)) {
+			p.setNumber(getIndex(p) + level, val);
+		} else {
+			if (level == 0) {
+				((LongPointDataObject) p).setLong(getIndex(p), val);
+			} else if (level >= p.getDescription().getDimensionAsInt()) {
+				throw new IllegalArgumentException("Level  " + level
+						+ " exceeds maxLevel size "
+						+ p.getDescription().getDimensionAsInt());
+			} else if (p.getDimensions() != 2) {
+				throw new IllegalArgumentException(
+						"Data is not two dimensional");
+			} else {
+				((LongPointDataObject) p).setLong(getIndex(p) + level, val);
+			}
+		}
+	}
 
-    public void setString(String parameter, String val) {
-        setString(parameter, val, 0);
-    }
+	public void setString(String parameter, String val) {
+		setString(parameter, val, 0);
+	}
 
-    public void setString(String parameter, String val, int level) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public void setString(String parameter, String val, int level) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof StringPointDataObject)) {
-            throw new IllegalArgumentException("Parameter is not a string type");
-        } else {
-            if (level == 0) {
-                ((StringPointDataObject) p).setString(getIndex(p), val);
-            } else if (level >= p.getDescription().getDimensionAsInt()) {
-                throw new IllegalArgumentException("Level  " + level
-                        + " exceeds maxLevel size "
-                        + p.getDescription().getDimensionAsInt());
-            } else if (p.getDimensions() != 2) {
-                throw new IllegalArgumentException(
-                        "Data is not two dimensional");
-            } else {
-                ((StringPointDataObject) p).setString(getIndex(p) + level, val);
-            }
-        }
-    }
+		if (!(p instanceof StringPointDataObject)) {
+			throw new IllegalArgumentException("Parameter is not a string type");
+		} else {
+			if (level == 0) {
+				((StringPointDataObject) p).setString(getIndex(p), val);
+			} else if (level >= p.getDescription().getDimensionAsInt()) {
+				throw new IllegalArgumentException("Level  " + level
+						+ " exceeds maxLevel size "
+						+ p.getDescription().getDimensionAsInt());
+			} else if (p.getDimensions() != 2) {
+				throw new IllegalArgumentException(
+						"Data is not two dimensional");
+			} else {
+				((StringPointDataObject) p).setString(getIndex(p) + level, val);
+			}
+		}
+	}
 
-    public String getString(String parameter) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
+	public String getString(String parameter) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
 
-        if (!(p instanceof StringPointDataObject)) {
-            throw new IllegalArgumentException("Parameter is not a string type");
-        } else {
-            return ((StringPointDataObject) p).getString(getIndex(p));
-        }
-    }
+		if (!(p instanceof StringPointDataObject)) {
+			throw new IllegalArgumentException("Parameter is not a string type");
+		} else {
+			return ((StringPointDataObject) p).getString(getIndex(p));
+		}
+	}
 
-    public PointDataContainer getContainer() {
-        return this.container;
-    }
+	public PointDataContainer getContainer() {
+		return this.container;
+	}
 
-    public Type getType(String parameter) {
-        AbstractPointDataObject<?> p = getParamSafe(parameter);
-        if (p instanceof StringPointDataObject)
-            return Type.STRING;
-        else if (p instanceof IntPointDataObject)
-            return Type.INT;
-        else if (p instanceof LongPointDataObject)
-            return Type.LONG;
-        else if (p instanceof FloatPointDataObject)
-            return Type.FLOAT;
+	public Type getType(String parameter) {
+		AbstractPointDataObject<?> p = getParamSafe(parameter);
+		if (p instanceof StringPointDataObject)
+			return Type.STRING;
+		else if (p instanceof IntPointDataObject)
+			return Type.INT;
+		else if (p instanceof LongPointDataObject)
+			return Type.LONG;
+		else if (p instanceof FloatPointDataObject)
+			return Type.FLOAT;
 
-        return null;
-    }
+		return null;
+	}
 
-    private int getIndex(AbstractPointDataObject<?> p) {
-        if (p.getDimensions() == 1)
-            return this.curIdx;
-        else {
-            this.curIdx2d = this.curIdx
-                    * p.getDescription().getDimensionAsInt();
-        }
+	private int getIndex(AbstractPointDataObject<?> p) {
+		if (p.getDimensions() == 1)
+			return this.curIdx;
+		else {
+			this.curIdx2d = this.curIdx
+					* p.getDescription().getDimensionAsInt();
+		}
 
-        return this.curIdx2d;
+		return this.curIdx2d;
 
-    }
+	}
 
+	/**
+	 * Do not call directly. Required for serialization.
+	 * 
+	 * @return
+	 */
+	public int getCurIdx() {
+		return curIdx;
+	}
+
+	/**
+	 * Do not call directly. Required for serialization.
+	 * 
+	 * @param curIdx
+	 */
+	public void setCurIdx(int curIdx) {
+		this.curIdx = curIdx;
+	}
 }
