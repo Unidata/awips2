@@ -60,138 +60,138 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao.LevelRequest;
  */
 
 public class PointDataHandler implements
-        IRequestHandler<PointDataRequestMessage> {
+		IRequestHandler<PointDataRequestMessage> {
 
-    private static Map<RequestConstraint.ConstraintType, QueryOperand> operandMap = new HashMap<ConstraintType, QueryOperand>();
-    static {
-        operandMap.put(ConstraintType.IN, QueryOperand.IN);
-        operandMap.put(ConstraintType.EQUALS, QueryOperand.EQUALS);
-        operandMap.put(ConstraintType.LESS_THAN, QueryOperand.LESSTHAN);
-        operandMap.put(ConstraintType.LESS_THAN_EQUALS,
-                QueryOperand.LESSTHANEQUALS);
-        operandMap.put(ConstraintType.GREATER_THAN, QueryOperand.GREATERTHAN);
-        operandMap.put(ConstraintType.GREATER_THAN_EQUALS,
-                QueryOperand.GREATERTHANEQUALS);
+	private static Map<RequestConstraint.ConstraintType, QueryOperand> operandMap = new HashMap<ConstraintType, QueryOperand>();
+	static {
+		operandMap.put(ConstraintType.IN, QueryOperand.IN);
+		operandMap.put(ConstraintType.EQUALS, QueryOperand.EQUALS);
+		operandMap.put(ConstraintType.LESS_THAN, QueryOperand.LESSTHAN);
+		operandMap.put(ConstraintType.LESS_THAN_EQUALS,
+				QueryOperand.LESSTHANEQUALS);
+		operandMap.put(ConstraintType.GREATER_THAN, QueryOperand.GREATERTHAN);
+		operandMap.put(ConstraintType.GREATER_THAN_EQUALS,
+				QueryOperand.GREATERTHANEQUALS);
 
-    }
+	}
 
-    @Override
-    public Object handleRequest(PointDataRequestMessage request)
-            throws Exception {
+	@Override
+	public Object handleRequest(PointDataRequestMessage request)
+			throws Exception {
 
-        long t0 = System.currentTimeMillis();
-        try {
-            if (request == null) {
-                throw new IllegalArgumentException("Null request");
-            }
-            String plugin = request.getPluginName();
+		long t0 = System.currentTimeMillis();
+		try {
+			if (request == null) {
+				throw new IllegalArgumentException("Null request");
+			}
+			String plugin = request.getPluginName();
 
-            if (plugin == null) {
-                throw new IllegalArgumentException("Plugin name null");
-            }
+			if (plugin == null) {
+				throw new IllegalArgumentException("Plugin name null");
+			}
 
-            PluginDao pd = PluginFactory.getInstance().getPluginDao(plugin);
-            if (!(pd instanceof PointDataPluginDao<?>)) {
-                throw new PluginException(plugin
-                        + " DAO is not a point data DAO");
-            }
+			PluginDao pd = PluginFactory.getInstance().getPluginDao(plugin);
+			if (!(pd instanceof PointDataPluginDao<?>)) {
+				throw new PluginException(plugin
+						+ " DAO is not a point data DAO");
+			}
 
-            PointDataPluginDao<?> ppd = (PointDataPluginDao<?>) pd;
+			PointDataPluginDao<?> ppd = (PointDataPluginDao<?>) pd;
 
-            PointDataRequestMessageConstraint[] constraints = request
-                    .getConstraints();
+			PointDataRequestMessageConstraint[] constraints = request
+					.getConstraints();
 
-            Class<? extends PluginDataObject> pdo = PluginFactory.getInstance()
-                    .getPluginRecordClass(plugin);
+			Class<? extends PluginDataObject> pdo = PluginFactory.getInstance()
+					.getPluginRecordClass(plugin);
 
-            DatabaseQuery dq = new DatabaseQuery(pdo);
+			DatabaseQuery dq = new DatabaseQuery(pdo);
 
-            for (PointDataRequestMessageConstraint c : constraints) {
-                ConstraintType ct = ConstraintType.values()[c
-                        .getConstraintType()];
-                QueryOperand qo = operandMap.get(ct);
-                if (qo != null) {
-                    dq.addQueryParam(c.getParameter(), c.getValue(), qo);
-                }
-            }
+			for (PointDataRequestMessageConstraint c : constraints) {
+				ConstraintType ct = ConstraintType.values()[c
+						.getConstraintType()];
+				QueryOperand qo = operandMap.get(ct);
+				if (qo != null) {
+					dq.addQueryParam(c.getParameter(), c.getValue(), qo);
+				}
+			}
 
-            String[] fnameKeys = ppd.getKeysRequiredForFileName();
-            dq.addReturnedField("pdv.curIdx", pdo.getName());
-            dq.addReturnedField("id", pdo.getName());
+			String[] fnameKeys = ppd.getKeysRequiredForFileName();
+			dq.addReturnedField("pointDataView.curIdx", pdo.getName());
+			dq.addReturnedField("id", pdo.getName());
 
-            for (String fnameKey : fnameKeys) {
-                dq.addReturnedField(fnameKey, pdo.getName());
-            }
-            List<?> results = null;
-            try {
-                results = pd.queryByCriteria(dq);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw e;
-            }
+			for (String fnameKey : fnameKeys) {
+				dq.addReturnedField(fnameKey, pdo.getName());
+			}
+			List<?> results = null;
+			try {
+				results = pd.queryByCriteria(dq);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw e;
+			}
 
-            Map<String, List<Integer[]>> fnameMap = new HashMap<String, List<Integer[]>>(
-                    64);
+			Map<String, List<Integer[]>> fnameMap = new HashMap<String, List<Integer[]>>(
+					64);
 
-            Map<String, Object> workingMap = new HashMap<String, Object>();
-            for (Object o : results) {
-                Object[] oArr = (Object[]) o;
-                workingMap.clear();
-                for (int i = 0; i < fnameKeys.length; i++) {
-                    workingMap.put(fnameKeys[i], oArr[i + 2]);
-                }
+			Map<String, Object> workingMap = new HashMap<String, Object>();
+			for (Object o : results) {
+				Object[] oArr = (Object[]) o;
+				workingMap.clear();
+				for (int i = 0; i < fnameKeys.length; i++) {
+					workingMap.put(fnameKeys[i], oArr[i + 2]);
+				}
 
-                String fileName = ppd.getPointDataFileName(workingMap);
-                List<Integer[]> ints = fnameMap.get(fileName);
-                if (ints == null) {
-                    ints = new ArrayList<Integer[]>(500);
-                    fnameMap.put(fileName, ints);
-                }
-                ints.add(new Integer[] { (Integer) oArr[0], (Integer) oArr[1] });
-            }
+				String fileName = ppd.getPointDataFileName(workingMap);
+				List<Integer[]> ints = fnameMap.get(fileName);
+				if (ints == null) {
+					ints = new ArrayList<Integer[]>(500);
+					fnameMap.put(fileName, ints);
+				}
+				ints.add(new Integer[] { (Integer) oArr[0], (Integer) oArr[1] });
+			}
 
-            List<PointDataContainer> containers = new ArrayList<PointDataContainer>();
+			List<PointDataContainer> containers = new ArrayList<PointDataContainer>();
 
-            if (fnameMap.size() == 0) {
-                return new PointDataThriftContainer();
-            }
+			if (fnameMap.size() == 0) {
+				return new PointDataThriftContainer();
+			}
 
-            Set<String> attribSet = new HashSet<String>(Arrays.asList(request
-                    .getParameters()));
+			Set<String> attribSet = new HashSet<String>(Arrays.asList(request
+					.getParameters()));
 
-            for (String file : fnameMap.keySet()) {
-                List<Integer[]> intList = fnameMap.get(file);
-                int[] intArr = new int[intList.size()];
-                int[] idArr = new int[intList.size()];
-                for (int i = 0; i < intArr.length; i++) {
-                    intArr[i] = intList.get(i)[0];
-                    idArr[i] = intList.get(i)[1];
-                }
+			for (String file : fnameMap.keySet()) {
+				List<Integer[]> intList = fnameMap.get(file);
+				int[] intArr = new int[intList.size()];
+				int[] idArr = new int[intList.size()];
+				for (int i = 0; i < intArr.length; i++) {
+					intArr[i] = intList.get(i)[0];
+					idArr[i] = intList.get(i)[1];
+				}
 
-                long tGPD = System.currentTimeMillis();
-                PointDataContainer pdc = ppd.getPointData(new File(file),
-                        intArr, idArr,
-                        attribSet.toArray(new String[attribSet.size()]),
-                        LevelRequest.ALL);
-                System.out.println("getPointData took: "
-                        + (System.currentTimeMillis() - tGPD));
+				long tGPD = System.currentTimeMillis();
+				PointDataContainer pdc = ppd.getPointData(new File(file),
+						intArr, idArr,
+						attribSet.toArray(new String[attribSet.size()]),
+						LevelRequest.ALL);
+				System.out.println("getPointData took: "
+						+ (System.currentTimeMillis() - tGPD));
 
-                containers.add(pdc);
-            }
+				containers.add(pdc);
+			}
 
-            if (containers.size() == 0)
-                return new PointDataThriftContainer();
+			if (containers.size() == 0)
+				return new PointDataThriftContainer();
 
-            PointDataContainer c0 = containers.get(0);
+			PointDataContainer c0 = containers.get(0);
 
-            for (int i = 1; i < containers.size(); i++) {
-                c0.combine(containers.get(i));
-            }
+			for (int i = 1; i < containers.size(); i++) {
+				c0.combine(containers.get(i));
+			}
 
-            return PointDataThriftContainer.from(c0);
-        } finally {
-            System.out.println("Total Query took: "
-                    + (System.currentTimeMillis() - t0));
-        }
-    }
+			return PointDataThriftContainer.from(c0);
+		} finally {
+			System.out.println("Total Query took: "
+					+ (System.currentTimeMillis() - t0));
+		}
+	}
 }
