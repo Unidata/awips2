@@ -39,10 +39,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
-import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.CollaborationDispatcher;
@@ -272,8 +272,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
                         }
                     });
             try {
-                EditorSetup.shareEditor(this.session.getSessionId(),
-                        (AbstractEditor) container);
+                EditorSetup.shareEditor(session, (AbstractEditor) container);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
