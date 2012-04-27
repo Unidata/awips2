@@ -53,7 +53,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
@@ -259,16 +258,6 @@ public class SessionView extends AbstractSessionView {
         usersTable.refresh();
     }
 
-    /**
-     * Ties the view to a session.
-     * 
-     * @param sessionId
-     */
-    @Override
-    protected void createListeners() {
-        super.createListeners();
-    }
-
     protected void initColorManager() {
         manager = new SessionColorManager();
     }
@@ -429,6 +418,14 @@ public class SessionView extends AbstractSessionView {
         if (manager != null) {
             manager.clearColors();
         }
+
+        // clean up event handlers
+        session.unRegisterEventHandler(this);
+        CollaborationDataManager mgr = CollaborationDataManager.getInstance();
+        // mgr.unRegisterEventHandler(this);
+        mgr.closeSession(sessionId);
+        mgr.getCollaborationConnection().getEventPublisher().unregister(this);
+
         super.dispose();
     }
 
@@ -500,44 +497,6 @@ public class SessionView extends AbstractSessionView {
 
     protected String getSessionImageName() {
         return SESSION_IMAGE_NAME;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#partClosed
-     * (org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partClosed(IWorkbenchPart part) {
-        super.partClosed(part);
-        if (this == part) {
-            session.unRegisterEventHandler(this);
-            CollaborationDataManager mgr = CollaborationDataManager
-                    .getInstance();
-            mgr.unRegisterEventHandler(this);
-            mgr.closeSession(sessionId);
-            mgr.getCollaborationConnection().getEventPublisher()
-                    .unregister(this);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#partOpened
-     * (org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partOpened(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-        super.partOpened(part);
-        if (this == part) {
-            session.registerEventHandler(this);
-            CollaborationDataManager.getInstance().registerEventHandler(this);
-        }
     }
 
     private void createArrows() {
