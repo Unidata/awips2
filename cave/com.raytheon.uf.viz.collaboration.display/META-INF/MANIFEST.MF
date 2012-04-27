@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Display
+Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.display
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.raytheon.uf.viz.collaboration.display.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
