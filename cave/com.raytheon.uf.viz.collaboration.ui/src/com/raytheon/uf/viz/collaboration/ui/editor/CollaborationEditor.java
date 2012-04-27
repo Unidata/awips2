@@ -19,11 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.editor;
 
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbenchPart;
-
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.CollaborationInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
@@ -49,90 +44,17 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * @version 1.0
  */
 
-public class CollaborationEditor extends AbstractEditor implements
-        IPartListener {
+public class CollaborationEditor extends AbstractEditor {
 
     public static final String EDITOR_ID = "com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor";
+
+    private String sessionId;
 
     private CollaborationInputHandler inputHandler = new CollaborationInputHandler();
 
     @Override
     protected PaneManager getNewPaneManager() {
         return new PaneManager();
-    }
-
-    @Override
-    public void createPartControl(Composite parent) {
-        super.createPartControl(parent);
-        getEditorSite().getWorkbenchWindow().getPartService()
-                .addPartListener(this);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partActivated(IWorkbenchPart part) {
-        if (this == part) {
-            CollaborationDataManager manager = CollaborationDataManager
-                    .getInstance();
-            String sessionId = manager.getSessionId(this);
-            manager.viewBringToTop(sessionId);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.IWorkbenchPart
-     * )
-     */
-    @Override
-    public void partBroughtToTop(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partClosed(IWorkbenchPart part) {
-        if (this == part) {
-            getEditorSite().getWorkbenchWindow().getPartService()
-                    .removePartListener(this);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.IWorkbenchPart
-     * )
-     */
-    @Override
-    public void partDeactivated(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partOpened(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partOpened(IWorkbenchPart part) {
-
     }
 
     @Override
@@ -148,6 +70,14 @@ public class CollaborationEditor extends AbstractEditor implements
     @Override
     public void unregisterMouseHandler(IInputHandler handler) {
         inputHandler.unregisterInputHandler(handler);
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
 }
