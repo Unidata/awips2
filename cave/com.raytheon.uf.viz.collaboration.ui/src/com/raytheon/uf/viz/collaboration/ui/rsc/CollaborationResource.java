@@ -19,8 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
@@ -29,9 +32,14 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.FrameDisposed;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IRenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameNeededEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.UpdateRenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -87,6 +95,8 @@ public class CollaborationResource extends
     private CollaborationRenderingDataManager dataManager;
 
     private BeginFrameEvent latestBeginFrameEvent;
+
+    private Set<Integer> waitingOnFrames = new HashSet<Integer>();
 
     public CollaborationResource(CollaborationResourceData resourceData,
             LoadProperties loadProperties) {
@@ -144,21 +154,78 @@ public class CollaborationResource extends
     }
 
     @Subscribe
-    public void renderFrameEvent(RenderFrameEvent event) {
-        List<IRenderEvent> eventList = event.getRenderEvents();
-        if (eventList == null) {
-            // Check for previous event list
-            event = dataManager.getRenderableObject(event.getObjectId(),
-                    RenderFrameEvent.class);
+    public void updateRenderFrameEvent(UpdateRenderFrameEvent event) {
+        int objectId = event.getObjectId();
+        RenderFrameEvent frame = dataManager.getRenderableObject(objectId,
+                RenderFrameEvent.class);
+        if (frame == null) {
+            if (waitingOnFrames.contains(objectId) == false) {
+                RenderFrameNeededEvent needEvent = new RenderFrameNeededEvent();
+                needEvent.setDisplayId(event.getDisplayId());
+                needEvent.setObjectId(objectId);
+                ISharedDisplaySession session = resourceData.getSession();
+                try {
+                    session.sendObjectToPeer(session.getCurrentDataProvider(),
+                            needEvent);
+                    waitingOnFrames.add(objectId);
+                } catch (CollaborationException e) {
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            "Error sending message to data provider", e);
+                }
+            }
         } else {
-            dataManager.putRenderableObject(event.getObjectId(), event);
+            // We have the frame, apply update
+            RenderFrameEvent updated = null;
+            if (event.getRenderEvents().size() > 0) {
+                updated = new RenderFrameEvent();
+                updated.setDisplayId(frame.getDisplayId());
+                updated.setObjectId(objectId);
+                List<IRenderEvent> events = new LinkedList<IRenderEvent>();
+                Iterator<IRenderEvent> currIter = frame.getRenderEvents()
+                        .iterator();
+                Iterator<IRenderEvent> updateIter = event.getRenderEvents()
+                        .iterator();
+                while (currIter.hasNext() && updateIter.hasNext()) {
+                    IRenderEvent curr = currIter.next();
+                    IRenderEvent update = updateIter.next();
+                    IRenderEvent toUse = null;
+                    if (update != null) {
+                        if (update.getClass().equals(curr.getClass())) {
+                            curr.applyDiffObject(update);
+                            toUse = curr;
+                        } else {
+                            toUse = update;
+                        }
+                    } else {
+                        toUse = curr;
+                    }
+                    events.add(toUse);
+                }
+                updated.setRenderEvents(events);
+            } else {
+                updated = frame;
+            }
+            // Render updated data
+            renderFrameEvent(updated);
         }
-        if (event != null) {
+    }
+
+    @Subscribe
+    public void renderFrameEvent(RenderFrameEvent event) {
+        if (event instanceof UpdateRenderFrameEvent == false) {
+            // Not an update event, new frame
+            int objectId = event.getObjectId();
             for (IRenderEvent re : event.getRenderEvents()) {
-                // TODO: Unsafe casting, figure better way
                 renderableArrived((AbstractRemoteGraphicsEvent) re);
             }
+            dataManager.putRenderableObject(objectId, event);
         }
+    }
+
+    @Subscribe
+    public void disposeRenderFrame(FrameDisposed event) {
+        waitingOnFrames.remove(event.getObjectId());
+        dataManager.dispose(event.getObjectId());
     }
 
     @Subscribe
@@ -178,6 +245,10 @@ public class CollaborationResource extends
 
     @Subscribe
     public void renderableArrived(AbstractRemoteGraphicsEvent event) {
+        if (event instanceof IRenderFrameEvent) {
+            // Skip IRenderFrameEvents, not applicable here
+            return;
+        }
         if (event instanceof IRenderEvent) {
             // Render based event
             if (event instanceof BeginFrameEvent) {
