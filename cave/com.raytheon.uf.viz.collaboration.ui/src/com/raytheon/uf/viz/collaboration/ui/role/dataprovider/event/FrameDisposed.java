@@ -17,12 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 
 /**
- * Interface for objects that events for actually rendering an object. These
- * types of events can be skipped over unlike data events which are required to
- * execute at some point. Render events must implements equals
+ * Special dispose event for RenderFrame objects
  * 
  * <pre>
  * 
@@ -30,20 +31,15 @@ package com.raytheon.uf.viz.remote.graphics.events;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 9, 2012            mschenke     Initial creation
+ * Apr 27, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
+@DynamicSerialize
+public class FrameDisposed extends DisposeObjectEvent implements
+        IRenderFrameEvent {
 
-public interface IRenderEvent {
-
-    @Override
-    public abstract boolean equals(Object obj);
-
-    public abstract IRenderEvent createDiffObject(IRenderEvent event);
-
-    public abstract void applyDiffObject(IRenderEvent diffEvent);
 }

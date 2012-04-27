@@ -52,6 +52,32 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
     @DynamicSerializeElement
     private double[] extent;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public IRenderEvent createDiffObject(IRenderEvent event) {
+        return event;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        RenderOffscreenEvent event = (RenderOffscreenEvent) diffEvent;
+        this.setObjectId(event.getObjectId());
+        this.extent = event.extent;
+    }
+
     /**
      * @return the extent
      */
