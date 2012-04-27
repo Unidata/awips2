@@ -21,7 +21,8 @@ Require-Bundle: com.raytheon.viz.ui,
  com.raytheon.uf.viz.remote.graphics;bundle-version="1.0.0",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.viz.notification;bundle-version="1.0.0"
+ com.raytheon.uf.viz.notification;bundle-version="1.0.0",
+ com.raytheon.uf.viz.collaboration.display;bundle-version="1.0.0"
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.viz.core.maps.display,
  com.raytheon.uf.viz.core.maps.rsc,

@@ -29,7 +29,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRsc;
 import com.raytheon.uf.viz.core.IExtent;
@@ -144,16 +145,14 @@ public class EditorSetup {
      * Initializes the resources necessary to share the editor with others
      * connected to the collaboration session.
      * 
-     * @param sessionId
-     *            the id of the session to share the editor with
+     * @param session
+     *            the session to share the editor with
      * @param editor
      *            the editor to share
      * @throws CollaborationException
      */
-    public static void shareEditor(String sessionId, AbstractEditor editor)
-            throws CollaborationException {
-        ISharedDisplaySession session = (ISharedDisplaySession) CollaborationDataManager
-                .getInstance().getSession(sessionId);
+    public static void shareEditor(ISharedDisplaySession session,
+            AbstractEditor editor) throws CollaborationException {
         if (!session.getUserID().equals(session.getCurrentDataProvider())) {
             throw new CollaborationException(
                     "Incorrect role to share an editor");
@@ -174,14 +173,12 @@ public class EditorSetup {
             ISharedDisplaySession session) {
         IDescriptor desc = editor.getActiveDisplayPane().getRenderableDisplay()
                 .getDescriptor();
-        GenericResourceData grd = new GenericResourceData(
-                DataProviderRsc.class);
+        GenericResourceData grd = new GenericResourceData(DataProviderRsc.class);
         ResourcePair rp = new ResourcePair();
         rp.setResourceData(grd);
         desc.getResourceList().add(rp);
         desc.getResourceList().instantiateResources(desc, true);
-        DataProviderRsc rsc = (DataProviderRsc) rp
-                .getResource();
+        DataProviderRsc rsc = (DataProviderRsc) rp.getResource();
         rsc.setRoomName(((IVenueSession) session).getVenue().getInfo()
                 .getVenueDescription());
         rsc.setSubject(((IVenueSession) session).getVenue().getInfo()
