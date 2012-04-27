@@ -17,12 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event;
 
 /**
- * Interface for objects that events for actually rendering an object. These
- * types of events can be skipped over unlike data events which are required to
- * execute at some point. Render events must implements equals
+ * Special interface for distinguishing IRenderFrameEvents from other render
+ * events
  * 
  * <pre>
  * 
@@ -30,7 +29,7 @@ package com.raytheon.uf.viz.remote.graphics.events;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 9, 2012            mschenke     Initial creation
+ * Apr 27, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -38,12 +37,6 @@ package com.raytheon.uf.viz.remote.graphics.events;
  * @version 1.0
  */
 
-public interface IRenderEvent {
+public interface IRenderFrameEvent {
 
-    @Override
-    public abstract boolean equals(Object obj);
-
-    public abstract IRenderEvent createDiffObject(IRenderEvent event);
-
-    public abstract void applyDiffObject(IRenderEvent diffEvent);
 }

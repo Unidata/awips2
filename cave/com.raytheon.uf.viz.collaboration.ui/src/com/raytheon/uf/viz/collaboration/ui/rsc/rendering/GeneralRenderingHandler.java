@@ -52,11 +52,7 @@ public class GeneralRenderingHandler extends CollaborationRenderingHandler {
      */
     @Subscribe
     public void disposeRenderable(DisposeObjectEvent event) {
-        Object[] toDispose = dataManager.getRenderableObject(
-                event.getObjectId(), Object[].class);
-        if (toDispose != null) {
-            dataManager.dispose(toDispose);
-        }
+        dataManager.dispose(event.getObjectId());
     }
 
     /**
