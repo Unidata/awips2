@@ -22,32 +22,28 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncuair;
 
-import java.util.Date;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
@@ -55,269 +51,254 @@ import com.vividsolutions.jts.geom.Geometry;
 @Entity
 @Table(name = "ncuair", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @DynamicSerialize
-public class NcUairRecord extends PluginDataObject implements ISpatialEnabled, 
-		IDecoderGettable, IPointData, IPersistable {
+public class NcUairRecord extends PersistablePluginDataObject implements
+		ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
 
 	private static final long serialVersionUID = 1L;
 	public static final String PLUGIN_NAME = "ncuair";
-    
-    // Time of the UTC
-    @DataURI(position = 4)
-    @Column
-    
-    @DynamicSerializeElement
-    private int UTC;
 
-    // The observation report type.
-    @DataURI(position = 1)
-    @Column
-    
-    @DynamicSerializeElement
-    private String reportType;
-    
-    // Issue time for the bulletin
-    @Column
-    
-    @DynamicSerializeElement
-    private Calendar issueTime;
+	// Time of the UTC
+	@DataURI(position = 4)
+	@Column
+	@DynamicSerializeElement
+	private int UTC;
 
-    // Observation time for the bulletin
-    @Column
-    
-    @DynamicSerializeElement
-    private Calendar obsTime;
-    
-    // Synoptic time for the bulletin
-    // Time of the observation to the nearest hour.
-    @Column
-    
-    @DynamicSerializeElement
-    private Calendar synopticTime;
-    
-    // Type of data such as TTAA/BB/CC/DD or PP...
-    @DataURI(position = 3)
-    @Column
-    
-    @DynamicSerializeElement
-    private String dataType;
-    
-    // Correction indicator from wmo header
-    @DataURI(position = 5)
-    @Column
-    
-    @DynamicSerializeElement
-    private String corr;
-   
-    // Text of the WMO header
-    @Column
-    
-    @DynamicSerializeElement
-    private String wmoHeader;
+	// The observation report type.
+	@DataURI(position = 1)
+	@Column
+	@DynamicSerializeElement
+	private String reportType;
 
-    // Station number
-    //@DataURI(position = 2)
-    @Column
-    
-    @DynamicSerializeElement
-    private String stnum;
+	// Issue time for the bulletin
+	@Column
+	@DynamicSerializeElement
+	private Calendar issueTime;
 
-    @Embedded
-    @DataURI(position = 2, embedded = true)
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
+	// Observation time for the bulletin
+	@Column
+	@DynamicSerializeElement
+	private Calendar obsTime;
 
-    // Yes if report is a NIL.
-    @Column
-    
-    @DynamicSerializeElement
-    private Boolean nil;
+	// Synoptic time for the bulletin
+	// Time of the observation to the nearest hour.
+	@Column
+	@DynamicSerializeElement
+	private Calendar synopticTime;
 
-    // bulletin message
-    @Transient
-    
-    @DynamicSerializeElement
-    private String bullMessage;
-    
-    /** 
-	 * Uair observation levels  
+	// Type of data such as TTAA/BB/CC/DD or PP...
+	@DataURI(position = 3)
+	@Column
+	@DynamicSerializeElement
+	private String dataType;
+
+	// Correction indicator from wmo header
+	@DataURI(position = 5)
+	@Column
+	@DynamicSerializeElement
+	private String corr;
+
+	// Text of the WMO header
+	@Column
+	@DynamicSerializeElement
+	private String wmoHeader;
+
+	// Station number
+	// @DataURI(position = 2)
+	@Column
+	@DynamicSerializeElement
+	private String stnum;
+
+	@Embedded
+	@DataURI(position = 2, embedded = true)
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
+
+	// Yes if report is a NIL.
+	@Column
+	@DynamicSerializeElement
+	private Boolean nil;
+
+	// bulletin message
+	@Transient
+	@DynamicSerializeElement
+	private String bullMessage;
+
+	/**
+	 * Uair observation levels
 	 */
 	@DynamicSerializeElement
-	
 	@Transient
 	private Set<NcUairObsLevels> obsLevels = new HashSet<NcUairObsLevels>();
 
-	/** 
-	 * Uair tropopause data 
+	/**
+	 * Uair tropopause data
 	 */
 	@DynamicSerializeElement
-	
 	@Transient
 	private Set<NcUairTropopause> tropopause = new HashSet<NcUairTropopause>();
 
-	/** 
-	 * Uair maxwind data 
+	/**
+	 * Uair maxwind data
 	 */
 	@DynamicSerializeElement
-	
 	@Transient
 	private Set<NcUairMaxWind> maxwind = new HashSet<NcUairMaxWind>();
 
-	/** 
-	 * Uair lifted index data 
+	/**
+	 * Uair lifted index data
 	 */
 	@DynamicSerializeElement
-	
 	@Transient
 	private Set<NcUairLiftedIndex> liftedindex = new HashSet<NcUairLiftedIndex>();
-	
-	@Embedded 
-	private PointDataView pdv;
-	private Integer hdfFileId;
 
-    /**
-     * Empty constructor.
-     */
-    public NcUairRecord() {
-    	this.nil=false;
-    	this.stnum="";
-    	this.wmoHeader="";
-    	//this.stid="";
-    	this.corr="";
-    	this.dataType="";
-    }
-    
-    /**
-     * Constructor for DataURI construction through base class. This is used by
-     * the notification service.
-     * 
-     * @param uri
-     *            A data uri applicable to this class.
-     * @param tableDef
-     *            The table definitions for this class.
-     */
-    public NcUairRecord(String uri) {
-        super(uri);
-        if (location != null) {
-            String staId = location.getStationId();
-            location.setStationId("null".equals(staId) ? null : staId);
-        }
-    }
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    /**
-     * @return the wmoHeader
-     */
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	/**
+	 * Empty constructor.
+	 */
+	public NcUairRecord() {
+		this.nil = false;
+		this.stnum = "";
+		this.wmoHeader = "";
+		// this.stid="";
+		this.corr = "";
+		this.dataType = "";
+	}
 
-    /**
-     * @param wmoHeader
-     *            the wmoHeader to set
-     */
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	/**
+	 * Constructor for DataURI construction through base class. This is used by
+	 * the notification service.
+	 * 
+	 * @param uri
+	 *            A data uri applicable to this class.
+	 * @param tableDef
+	 *            The table definitions for this class.
+	 */
+	public NcUairRecord(String uri) {
+		super(uri);
+		if (location != null) {
+			String staId = location.getStationId();
+			location.setStationId("null".equals(staId) ? null : staId);
+		}
+	}
 
-    /**
-     * Get the report correction indicator.
-     * 
-     * @return The corr
-     */
-    public String getCorr() {
-        return corr;
-    }
+	/**
+	 * @return the wmoHeader
+	 */
+	public String getWmoHeader() {
+		return wmoHeader;
+	}
 
-    /**
-     * Set the report correction indicator.
-     * 
-     * @param corr
-     *            The corr.
-     */
-    public void setCorr(String corr) {
-        this.corr = corr;
-    }
+	/**
+	 * @param wmoHeader
+	 *            the wmoHeader to set
+	 */
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
+	}
 
-    /**
-     * Get the observation report type.
-     * 
-     * @return the reportType
-     */
-    public String getReportType() {
-        return reportType;
-    }
+	/**
+	 * Get the report correction indicator.
+	 * 
+	 * @return The corr
+	 */
+	public String getCorr() {
+		return corr;
+	}
 
-    /**
-     * Set the observation report type.
-     * 
-     * @param reportType
-     *            the reportType to set
-     */
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
+	/**
+	 * Set the report correction indicator.
+	 * 
+	 * @param corr
+	 *            The corr.
+	 */
+	public void setCorr(String corr) {
+		this.corr = corr;
+	}
 
-    public String getStnum() {
+	/**
+	 * Get the observation report type.
+	 * 
+	 * @return the reportType
+	 */
+	public String getReportType() {
+		return reportType;
+	}
+
+	/**
+	 * Set the observation report type.
+	 * 
+	 * @param reportType
+	 *            the reportType to set
+	 */
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
+
+	public String getStnum() {
 		return stnum;
 	}
 
 	public void setStnum(String stnum) {
 		this.stnum = stnum;
 	}
-	
-    /* Get this observation's geometry.
-     * 
-     * @return The geometry for this observation.
-     */
-    public Geometry getGeometry() {
-        return location.getGeometry();
-    }
 
-    /**
-     * Get the geometry latitude.
-     * 
-     * @return The geometry latitude.
-     */
-    public double getLatitude() {
-        return location.getLatitude();
-    }
+	/*
+	 * Get this observation's geometry.
+	 * 
+	 * @return The geometry for this observation.
+	 */
+	public Geometry getGeometry() {
+		return location.getGeometry();
+	}
 
-    /**
-     * Get the geometry longitude.
-     * 
-     * @return The geometry longitude.
-     */
-    public double getLongitude() {
-        return location.getLongitude();
-    }
+	/**
+	 * Get the geometry latitude.
+	 * 
+	 * @return The geometry latitude.
+	 */
+	public double getLatitude() {
+		return location.getLatitude();
+	}
 
-    /**
-     * Get the station identifier for this observation.
-     * 
-     * @return the stationId
-     */
-    public String getStationId() {
-        return location.getStationId();
-    }
+	/**
+	 * Get the geometry longitude.
+	 * 
+	 * @return The geometry longitude.
+	 */
+	public double getLongitude() {
+		return location.getLongitude();
+	}
 
-    /**
-     * Get the elevation, in meters, of the observing platform or location.
-     * 
-     * @return The observation elevation, in meters.
-     */
-    public Integer getElevation() {
-        return location.getElevation();
-    }
+	/**
+	 * Get the station identifier for this observation.
+	 * 
+	 * @return the stationId
+	 */
+	public String getStationId() {
+		return location.getStationId();
+	}
 
-    /**
-     * Get whether the location for this observation is defined.
-     * 
-     * @return Is this location defined.
-     */
-    public Boolean getLocationDefined() {
-        return location.getLocationDefined();
-    }
+	/**
+	 * Get the elevation, in meters, of the observing platform or location.
+	 * 
+	 * @return The observation elevation, in meters.
+	 */
+	public Integer getElevation() {
+		return location.getElevation();
+	}
 
+	/**
+	 * Get whether the location for this observation is defined.
+	 * 
+	 * @return Is this location defined.
+	 */
+	public Boolean getLocationDefined() {
+		return location.getLocationDefined();
+	}
 
 	public Calendar getObsTime() {
 		return obsTime;
@@ -380,7 +361,7 @@ public class NcUairRecord extends PluginDataObject implements ISpatialEnabled,
 		// TODO Auto-generated method stub
 		return null;
 	}
-    
+
 	/**
 	 * @return the set of uair observation levels
 	 */
@@ -389,18 +370,20 @@ public class NcUairRecord extends PluginDataObject implements ISpatialEnabled,
 	}
 
 	/**
-	 * @param uair observation levels to set
+	 * @param uair
+	 *            observation levels to set
 	 */
 	public void setObsLevels(Set<NcUairObsLevels> uairLevel) {
 		this.obsLevels = uairLevel;
 	}
 
 	/**
-	 * @param add uair observation levels to set
+	 * @param add
+	 *            uair observation levels to set
 	 */
-	public void addObsLevels(NcUairObsLevels plevel){
+	public void addObsLevels(NcUairObsLevels plevel) {
 		obsLevels.add(plevel);
-		//plevel.setParentID(this);
+		// plevel.setParentID(this);
 	}
 
 	/**
@@ -411,18 +394,20 @@ public class NcUairRecord extends PluginDataObject implements ISpatialEnabled,
 	}
 
 	/**
-	 * @param uair observation levels to set
+	 * @param uair
+	 *            observation levels to set
 	 */
 	public void setTropopause(Set<NcUairTropopause> trop) {
 		this.tropopause = trop;
 	}
 
 	/**
-	 * @param add uair observation levels to set
+	 * @param add
+	 *            uair observation levels to set
 	 */
-	public void addTropopause(NcUairTropopause trop){
+	public void addTropopause(NcUairTropopause trop) {
 		tropopause.add(trop);
-		//trop.setParentID(this);
+		// trop.setParentID(this);
 	}
 
 	/**
@@ -433,18 +418,20 @@ public class NcUairRecord extends PluginDataObject implements ISpatialEnabled,
 	}
 
 	/**
-	 * @param uair maximum wind to set
+	 * @param uair
+	 *            maximum wind to set
 	 */
 	public void setMaxWind(Set<NcUairMaxWind> mwind) {
 		this.maxwind = mwind;
 	}
 
 	/**
-	 * @param add uair maximum wind to set
+	 * @param add
+	 *            uair maximum wind to set
 	 */
-	public void addMaxWind(NcUairMaxWind mwind){
+	public void addMaxWind(NcUairMaxWind mwind) {
 		maxwind.add(mwind);
-		//mwind.setParentID(this);
+		// mwind.setParentID(this);
 	}
 
 	/**
@@ -455,93 +442,86 @@ public class NcUairRecord extends PluginDataObject implements ISpatialEnabled,
 	}
 
 	/**
-	 * @param uair lifted index to set
+	 * @param uair
+	 *            lifted index to set
 	 */
 	public void setLiftedIndex(Set<NcUairLiftedIndex> li) {
 		this.liftedindex = li;
 	}
 
 	/**
-	 * @param add uair lifted index to set
+	 * @param add
+	 *            uair lifted index to set
 	 */
-	public void addLiftedIndex(NcUairLiftedIndex li){
+	public void addLiftedIndex(NcUairLiftedIndex li) {
 		liftedindex.add(li);
-		//li.setParentID(this);
+		// li.setParentID(this);
 	}
 
 	/**
-	 * Override existing set method to modify any
-	 * classes that use the dataURI as a foreign key
+	 * Override existing set method to modify any classes that use the dataURI
+	 * as a foreign key
 	 */
 	@Override
-	public void setIdentifier(Object dataURI)
-	{
+	public void setIdentifier(Object dataURI) {
 
 		this.identifier = dataURI;
 
-		
-
 	}
-	
-	 @Override
-    public SurfaceObsLocation getSpatialObject() {
-        return location;
-    }
 
-    public SurfaceObsLocation getLocation() {
-        if (location == null) {
-            location = new SurfaceObsLocation();
-        }
-        return location;
-    }
+	@Override
+	public SurfaceObsLocation getSpatialObject() {
+		return location;
+	}
 
-    public void setLocation(SurfaceObsLocation location) {
-        this.location = location;
-    }
-	
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
-     */
-    @Override
-    public PointDataView getPointDataView() {
-        return this.pdv;
-    }
+	public SurfaceObsLocation getLocation() {
+		if (location == null) {
+			location = new SurfaceObsLocation();
+		}
+		return location;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
-     * .uf.common.pointdata.PointDataView)
-     */
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	public void setLocation(SurfaceObsLocation location) {
+		this.location = location;
+	}
 
-    @Override
-    public Integer getHdfFileId() {
-        return null;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
+	 */
+	@Override
+	public PointDataView getPointDataView() {
+		return this.pointDataView;
+	}
 
-    @Override
-    public Date getPersistenceTime() {
-//        return this.dataTime.getRefTime();
-    	return null;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
+	 * .uf.common.pointdata.PointDataView)
+	 */
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 
-    @Override
+	@Override
+	public Integer getHdfFileId() {
+		return null;
+	}
 
-    public void setHdfFileId(Integer hdfFileId) {
-    	this.hdfFileId = hdfFileId;
-    }
+	@Override
+	public Date getPersistenceTime() {
+		// return this.dataTime.getRefTime();
+		return null;
+	}
 
 	@Override
 	public void setPersistenceTime(Date persistTime) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
