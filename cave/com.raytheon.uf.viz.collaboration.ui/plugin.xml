@@ -180,4 +180,11 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer class="com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefInitializer"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationPreferencePage"
+            id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"
+            name="Collaboration"/>
+   </extension>
 </plugin>
