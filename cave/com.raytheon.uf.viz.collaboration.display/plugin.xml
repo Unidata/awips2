@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+      <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor"
+            default="true"
+            id="com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor"
+            icon="icons/messages.gif"
+            name="Map">
+      </editor>
+   </extension>   
+
+</plugin>
