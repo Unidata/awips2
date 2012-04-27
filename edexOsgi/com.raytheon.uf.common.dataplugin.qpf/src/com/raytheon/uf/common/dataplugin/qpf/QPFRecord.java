@@ -60,6 +60,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 2/24/09      2027        D. Hladky   Initial release
+ * 4/27/12      #562        dgilling    Rename getters/setters to 
+ *                                      match Java conventions.
  * 
  * </pre>
  * 
@@ -335,7 +337,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @param ew_velocity
      */
-    public void setEWVelocity(Float ewvelocity) {
+    public void setEwvelocity(Float ewvelocity) {
         this.ewvelocity = ewvelocity;
     }
 
@@ -344,7 +346,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @return
      */
-    public Float getEWVelocity() {
+    public Float getEwvelocity() {
         return ewvelocity;
     }
 
@@ -353,7 +355,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @param ns_velocity
      */
-    public void setNSVelocity(Float nsvelocity) {
+    public void setNsvelocity(Float nsvelocity) {
         this.nsvelocity = nsvelocity;
     }
 
@@ -362,7 +364,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @return
      */
-    public Float getNSVelocity() {
+    public Float getNsvelocity() {
         return nsvelocity;
     }
 
@@ -371,7 +373,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @param avg_spd
      */
-    public void setAVGSpd(Float avgspd) {
+    public void setAvgspd(Float avgspd) {
         this.avgspd = avgspd;
     }
 
@@ -380,7 +382,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @return
      */
-    public Float getAVGSpd() {
+    public Float getAvgspd() {
         return avgspd;
     }
 
@@ -389,7 +391,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @param avg_dir
      */
-    public void setAVGDir(Float avgdir) {
+    public void setAvgdir(Float avgdir) {
         this.avgdir = avgdir;
     }
 
@@ -398,7 +400,7 @@ public class QPFRecord extends ServerSpecificPersistablePluginDataObject
      * 
      * @return
      */
-    public Float getAVGDir() {
+    public Float getAvgdir() {
         return avgdir;
     }
 
