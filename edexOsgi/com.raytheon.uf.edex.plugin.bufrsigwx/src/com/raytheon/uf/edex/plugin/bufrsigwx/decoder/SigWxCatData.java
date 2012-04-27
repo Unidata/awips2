@@ -37,127 +37,129 @@ import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
  * 
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 14, 2009            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
 public class SigWxCatData extends SigWxDataAdapter {
-    private Log logger = LogFactory.getLog(getClass());
+	private Log logger = LogFactory.getLog(getClass());
 
-    SigWxType wxType;
-    
-    /**
-     * 
-     * @param container
-     */
-    public SigWxCatData(PointDataDescription pdd, PointDataPluginDao<SigWxData> dao, String pluginName) {
-        super(pdd,dao,pluginName);
-    }
+	SigWxType wxType;
 
-    /**
-     * 
-     * @param pointData
-     * @param locPoint
-     * @param dataPoint
-     * @param index
-     */
-    List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList) {
-        List<SigWxData> sList = new ArrayList<SigWxData>();
+	/**
+	 * 
+	 * @param container
+	 */
+	public SigWxCatData(PointDataDescription pdd,
+			PointDataPluginDao<SigWxData> dao, String pluginName) {
+		super(pdd, dao, pluginName);
+	}
 
-        if(sigWx != null) {
-            IBUFRDataPacket p1 = dataList.get(15);
-            List<IBUFRDataPacket> tropList = getPacketSubList(p1);
-            if(tropList != null) {
-                int key = 0;
-                for(IBUFRDataPacket pp : tropList) {
-                    SigWxData front = getReport(pp, sigWx);
-                    if(front != null) {
-                        front.setKey(key++);
-                        sList.add(front);
-                    }
-                }
-            }
-        }
-        
-        return sList;
-    }
-    
-    /**
-     * 
-     * @param packet
-     * @param sigWx
-     * @return
-     */
-    private SigWxData getReport(IBUFRDataPacket packet, SigWxData sigWx) {
-        SigWxData currWx = null;                
-        if (packet != null) {
-            // get a copy
-            List<IBUFRDataPacket> sList = getPacketSubList(packet);
+	/**
+	 * 
+	 * @param pointData
+	 * @param locPoint
+	 * @param dataPoint
+	 * @param index
+	 */
+	List<SigWxData> getSigWxData(SigWxData sigWx, List<IBUFRDataPacket> dataList) {
+		List<SigWxData> sList = new ArrayList<SigWxData>();
 
-            currWx = sigWx.copyObs();
+		if (sigWx != null) {
+			IBUFRDataPacket p1 = dataList.get(15);
+			List<IBUFRDataPacket> tropList = getPacketSubList(p1);
+			if (tropList != null) {
+				int key = 0;
+				for (IBUFRDataPacket pp : tropList) {
+					SigWxData front = getReport(pp, sigWx);
+					if (front != null) {
+						front.setKey(key++);
+						sList.add(front);
+					}
+				}
+			}
+		}
 
-            PointDataContainer container = getContainer(currWx, 1);
-            if (container != null) {
-                PointDataView view = container.append();
+		return sList;
+	}
 
-                long vt = currWx.getDataTime().getValidTime().getTimeInMillis();
-                view.setLong("validTime", vt);
+	/**
+	 * 
+	 * @param packet
+	 * @param sigWx
+	 * @return
+	 */
+	private SigWxData getReport(IBUFRDataPacket packet, SigWxData sigWx) {
+		SigWxData currWx = null;
+		if (packet != null) {
+			// get a copy
+			List<IBUFRDataPacket> sList = getPacketSubList(packet);
 
-                view.setFloat("baseHgt", currWx.getBaseHeight().floatValue());
-                view.setFloat("topHgt", currWx.getTopHeight().floatValue());
-                
-                setViewData("catBase", view, sList.get(2));
-                setViewData("catTop", view, sList.get(3));
-                setViewData("degreeOfTurb", view, sList.get(5));
-                
-                
-                // pickup the CAT boundary
+			currWx = sigWx.copyObs();
 
-                int numOfPoints = 0;
-                try {
+			PointDataContainer container = getContainer(currWx, 1);
+			if (container != null) {
+				PointDataView view = container.append();
 
-                    List<IBUFRDataPacket> dList = getPacketSubList(sList.get(4));
-                    for (IBUFRDataPacket p : dList) {
-                        List<IBUFRDataPacket> jetData = getPacketSubList(p);
+				long vt = currWx.getDataTime().getValidTime().getTimeInMillis();
+				view.setLong("validTime", vt);
 
-                        setViewData("latitude", view, jetData.get(0), numOfPoints);
-                        setViewData("longitude", view, jetData.get(1), numOfPoints);
-                        numOfPoints++;
-                    }
-                } catch (IllegalArgumentException e) {
-                    logger.error("Frontal data truncated at " + numOfPoints + " features");
-                }
-                view.setInt("numOfPoints", numOfPoints);
-                currWx.setPdv(view);
-            }
-        }
-        return currWx;
-    }
+				view.setFloat("baseHgt", currWx.getBaseHeight().floatValue());
+				view.setFloat("topHgt", currWx.getTopHeight().floatValue());
 
-    /**
-     * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
-     */
-    @Override
-    SigWxType getType() {
-        return wxType;
-    }
-    
-    /**
-     * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
-     */
-    @Override
-    void setType(SigWxType type) {
-        wxType = type;
-    }
-    
+				setViewData("catBase", view, sList.get(2));
+				setViewData("catTop", view, sList.get(3));
+				setViewData("degreeOfTurb", view, sList.get(5));
+
+				// pickup the CAT boundary
+
+				int numOfPoints = 0;
+				try {
+
+					List<IBUFRDataPacket> dList = getPacketSubList(sList.get(4));
+					for (IBUFRDataPacket p : dList) {
+						List<IBUFRDataPacket> jetData = getPacketSubList(p);
+
+						setViewData("latitude", view, jetData.get(0),
+								numOfPoints);
+						setViewData("longitude", view, jetData.get(1),
+								numOfPoints);
+						numOfPoints++;
+					}
+				} catch (IllegalArgumentException e) {
+					logger.error("Frontal data truncated at " + numOfPoints
+							+ " features");
+				}
+				view.setInt("numOfPoints", numOfPoints);
+				currWx.setPointDataView(view);
+			}
+		}
+		return currWx;
+	}
+
+	/**
+	 * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
+	 */
+	@Override
+	SigWxType getType() {
+		return wxType;
+	}
+
+	/**
+	 * @see com.raytheon.uf.edex.plugin.bufrsigwx.decoder.SigWxDataAdapter#getType()
+	 */
+	@Override
+	void setType(SigWxType type) {
+		wxType = type;
+	}
+
 }
-
