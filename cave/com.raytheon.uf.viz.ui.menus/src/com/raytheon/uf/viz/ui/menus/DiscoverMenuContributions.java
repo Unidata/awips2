@@ -54,7 +54,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.ui.menus.xml.IncludeMenuItem;
 
@@ -76,6 +75,9 @@ import com.raytheon.uf.viz.ui.menus.xml.IncludeMenuItem;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 12, 2009            chammack     Initial creation
+ * Apr 27, 2012   #562     dgilling     Ensure call to MenuCreationJob
+ *                                      uses proper method to retrieve
+ *                                      localized site.
  * 
  * </pre>
  * 
@@ -105,13 +107,13 @@ public class DiscoverMenuContributions {
 
     public static synchronized void discoverContributions(
             final String[] menuArray, boolean scheduleJob) {
-        if (ran)
+        if (ran) {
             return;
+        }
 
         if (scheduleJob) {
             MenuCreationJob job = new MenuCreationJob(LocalizationManager
-                    .getInstance().getLocalizationStore()
-                    .getString(LocalizationConstants.P_LOCALIZATION_SITE_NAME));
+                    .getInstance().getSite());
 
             job.schedule();
             try {
