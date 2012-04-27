@@ -59,6 +59,65 @@ public class PaintImagesEvent extends AbstractRemoteGraphicsEvent implements
     @DynamicSerializeElement
     private PaintImageEvent[] imageEvents;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public PaintImagesEvent createDiffObject(IRenderEvent event) {
+        PaintImagesEvent diff = (PaintImagesEvent) event;
+        PaintImagesEvent diffEvent = new PaintImagesEvent();
+        diffEvent.alpha = diff.alpha;
+        if (diff.imageEvents != null) {
+            if (imageEvents != null
+                    && diff.imageEvents.length == imageEvents.length) {
+                diffEvent.imageEvents = new PaintImageEvent[diff.imageEvents.length];
+                for (int i = 0; i < imageEvents.length; ++i) {
+                    PaintImageEvent paintEvent = imageEvents[i];
+                    PaintImageEvent diffPaintEvent = diff.imageEvents[i];
+                    if (paintEvent.equals(diffPaintEvent) == false) {
+                        diffEvent.imageEvents[i] = paintEvent
+                                .createDiffObject(diffPaintEvent);
+                    }
+                }
+            } else {
+                diffEvent.imageEvents = diff.imageEvents;
+            }
+        }
+        return diffEvent;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     */
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        PaintImagesEvent event = (PaintImagesEvent) diffEvent;
+        PaintImageEvent[] diffImageEvents = event.imageEvents;
+        alpha = event.alpha;
+        if (diffImageEvents == null) {
+            imageEvents = null;
+        } else if (imageEvents == null) {
+            imageEvents = event.imageEvents;
+        } else if (imageEvents.length != diffImageEvents.length) {
+            imageEvents = event.imageEvents;
+        } else {
+            for (int i = 0; i < imageEvents.length; ++i) {
+                PaintImageEvent diffPaintEvent = diffImageEvents[i];
+                if (diffPaintEvent != null) {
+                    imageEvents[i].applyDiffObject(diffPaintEvent);
+                }
+            }
+        }
+    }
+
     /**
      * @return the imageEvents
      */
