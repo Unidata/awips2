@@ -30,7 +30,6 @@ import org.eclipse.ecf.presence.roster.IRosterSubscriptionSender;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
@@ -85,42 +84,19 @@ public class RosterManager implements IRosterManager {
     }
 
     private void updateRoster() {
+        // TODO better handling of this
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block. Please revise as appropriate.
+            e.printStackTrace();
+        }
         baseRoster = sessionManager.getPresenceContainerAdapter()
                 .getRosterManager().getRoster();
+        System.out.println(System.currentTimeMillis()
+                + " RosterManager Initialization got "
+                + baseRoster.getItems().size() + " roster items");
         roster = toLocalRoster(baseRoster);
-    }
-
-    /**
-     * 
-     * @param listener
-     * @return
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager#addRosterListener(com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener)
-     */
-    @Override
-    public IRosterListener addRosterListener(IRosterListener listener) {
-        return null;
-    }
-
-    /**
-     * 
-     * @return Collection of Roster Listeners.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager#getRosterListeners()
-     */
-    @Override
-    public Collection<IRosterListener> getRosterListeners() {
-        return null;
-    }
-
-    /**
-     * 
-     * @param listener
-     *            A listener to remove.
-     * @return The listener that was removed.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager#removeRosterListener(com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener)
-     */
-    @Override
-    public IRosterListener removeRosterListener(IRosterListener listener) {
-        return null;
     }
 
     /**
@@ -255,14 +231,6 @@ public class RosterManager implements IRosterManager {
             }
         }
         return newRoster;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public CollaborationConnection getSessionManager() {
-        return sessionManager;
     }
 
 }

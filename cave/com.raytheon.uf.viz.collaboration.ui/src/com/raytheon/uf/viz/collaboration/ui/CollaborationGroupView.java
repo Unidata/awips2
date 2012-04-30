@@ -105,6 +105,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.drawing.PathToolbar;
 
@@ -1217,7 +1218,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 }
             }
         } else if (part == this) {
-            CollaborationDataManager.getInstance().unRegisterEventHandler(this);
+            CollaborationConnection connection = CollaborationDataManager
+                    .getInstance().getCollaborationConnection();
+            if (connection != null) {
+                connection.unRegisterEventHandler(this);
+            }
             getViewSite().getWorkbenchWindow().getPartService()
                     .removePartListener(this);
         }
@@ -1249,10 +1254,13 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     .getSession(sessionId);
             activeSessionGroup.addObject(session);
             session.registerEventHandler(sessionView);
-            CollaborationDataManager.getInstance().registerEventHandler(this);
             usersTreeViewer.refresh(activeSessionGroup);
         } else if (part == this) {
-            CollaborationDataManager.getInstance().registerEventHandler(this);
+            CollaborationConnection connection = CollaborationDataManager
+                    .getInstance().getCollaborationConnection();
+            if (connection != null) {
+                connection.registerEventHandler(this);
+            }
             populateTree();
             usersTreeViewer.refresh();
         }
@@ -1264,7 +1272,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      * @param rosterEntry
      */
     @Subscribe
-    public void handleModifiedPresence(IRosterEntry rosterEntry) {
+    public void handleModifiedPresence(final IRosterEntry rosterEntry) {
         // Only need to update the usersTreeViewer.
         System.out.println("group view roster entry for:"
                 + rosterEntry.getUser().getName() + "@"
@@ -1272,10 +1280,17 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 + rosterEntry.getPresence().getMode() + "/"
                 + rosterEntry.getPresence().getType());
 
-        for (IRosterGroup group : rosterEntry.getGroups()) {
-            refreshUser(rosterEntry.getUser(), group);
-        }
-        usersTreeViewer.refresh(topLevel, true);
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                for (IRosterGroup group : rosterEntry.getGroups()) {
+                    refreshUser(rosterEntry.getUser(), group);
+                }
+                usersTreeViewer.refresh(topLevel, true);
+            }
+
+        });
     }
 
     private void refreshUser(UserId userId, IRosterGroup group) {
@@ -1294,9 +1309,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     public void handleRosterChangeEvent(IRosterChangeEvent rosterChangeEvent) {
         // Assume the CollaborationDataManager has updated the back end.
         // Only need to update the usersTreeView.
-        System.out.println("CollaborationGroupView rosterChangeEvent<"
-                + rosterChangeEvent.getType() + ">: "
-                + rosterChangeEvent.getEntry().getUser().getFQName());
+        // System.out.println("CollaborationGroupView rosterChangeEvent<"
+        // + rosterChangeEvent.getType() + ">: "
+        // + rosterChangeEvent.getEntry().getUser().getFQName());
         IRosterEntry rosterEntry = rosterChangeEvent.getEntry();
         UserId userId = rosterEntry.getUser();
         List<String> groupIds = new ArrayList<String>();
