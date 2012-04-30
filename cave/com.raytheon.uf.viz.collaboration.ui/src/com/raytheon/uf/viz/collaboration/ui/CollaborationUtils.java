@@ -93,6 +93,28 @@ public class CollaborationUtils {
     }
 
     public static void readAliases() {
+        UserId[] ids = getIds();
+        IRoster roster = CollaborationDataManager.getInstance()
+                .getCollaborationConnection().getRosterManager().getRoster();
+        List<IRosterEntry> entries = new ArrayList<IRosterEntry>();
+        for (IRosterEntry entry : roster.getEntries()) {
+            entries.add(entry);
+        }
+        for (IRosterGroup group : roster.getGroups()) {
+            for (IRosterEntry entry : group.getEntries()) {
+                entries.add(entry);
+            }
+        }
+        for (IRosterEntry entry : entries) {
+            for (UserId id : ids) {
+                if (id.equals(entry.getUser())) {
+                    entry.getUser().setAlias(id.getAlias());
+                }
+            }
+        }
+    }
+
+    public static UserId[] getIds() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
@@ -101,34 +123,12 @@ public class CollaborationUtils {
                         context,
                         "collaboration" + File.separator
                                 + "collaborationAliases.xml");
-        try {
-            if (file.exists()) {
-                UserIdWrapper ids = (UserIdWrapper) JAXB.unmarshal(
-                        file.getFile(), UserIdWrapper.class);
-                IRoster roster = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getRosterManager()
-                        .getRoster();
-                List<IRosterEntry> entries = new ArrayList<IRosterEntry>();
-                for (IRosterEntry entry : roster.getEntries()) {
-                    entries.add(entry);
-                }
-                for (IRosterGroup group : roster.getGroups()) {
-                    for (IRosterEntry entry : group.getEntries()) {
-                        entries.add(entry);
-                    }
-                }
-                for (IRosterEntry entry : entries) {
-                    for (UserId id : ids.getUserIds()) {
-                        if (id.equals(entry.getUser())) {
-                            entry.getUser().setAlias(id.getAlias());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.WARN, "Unable to retrieve aliases", e);
+        if (file.exists()) {
+            UserIdWrapper ids = (UserIdWrapper) JAXB.unmarshal(file.getFile(),
+                    UserIdWrapper.class);
+            return ids.getUserIds();
         }
+        return null;
     }
 
     public static void addAlias() {
