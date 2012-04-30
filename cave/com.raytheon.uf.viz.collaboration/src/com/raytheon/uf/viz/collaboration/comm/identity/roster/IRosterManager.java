@@ -19,10 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
-import java.util.Collection;
-
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -50,30 +47,6 @@ public interface IRosterManager {
      * @return The Roster.
      */
     IRoster getRoster();
-
-    /**
-     * 
-     * @param listener
-     *            A roster listener to add to the manager.
-     * @return The listener that was added.
-     */
-    IRosterListener addRosterListener(IRosterListener listener);
-
-    /**
-     * Return a collection of all roster listeners for the manager.
-     * 
-     * @return
-     */
-    Collection<IRosterListener> getRosterListeners();
-
-    /**
-     * Removes a roster listener from the manager.
-     * 
-     * @param listener
-     *            The listener to remove.
-     * @return Was the removal successful.
-     */
-    IRosterListener removeRosterListener(IRosterListener listener);
 
     /**
      * 
