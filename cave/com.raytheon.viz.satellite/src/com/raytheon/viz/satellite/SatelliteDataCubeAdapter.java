@@ -465,6 +465,7 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
         List<TimeQueryRequest> baseRequests = new ArrayList<TimeQueryRequest>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
+        	request.setSimDate(SimulatedTime.getSystemTime().getTime());
             if (!request.getQueryTerms().containsKey("DERIVED")) {
                 baseRequests.add(request);
             } else {

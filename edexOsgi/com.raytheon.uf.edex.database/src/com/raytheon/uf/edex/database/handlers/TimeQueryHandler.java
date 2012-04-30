@@ -112,6 +112,17 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
                     request.isMaxQuery());
             times = runQuery(dao, query);
         }
+        
+        // second check for some complex plugin requests that get by the simDate check in the query
+        ArrayList<DataTime> removes = new ArrayList<DataTime>();
+        for (DataTime time: times) {
+        	if (time.getRefTime().after(request.getSimDate())) {
+        		removes.add(time);
+        	}
+        }
+        if (removes.size() > 0) {
+        	times.removeAll(removes);
+        }
 
         return times;
     }
