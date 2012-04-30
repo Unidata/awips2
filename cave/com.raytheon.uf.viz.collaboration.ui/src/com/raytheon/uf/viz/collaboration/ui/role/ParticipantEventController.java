@@ -26,7 +26,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.display.editor.ReprojectEditor;
@@ -94,8 +93,7 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 }
                 initializeResources(editor.getActiveDisplayPane()
                         .getDescriptor());
-                CollaborationDataManager.getInstance().editorCreated(session,
-                        editor);
+                SharedDisplaySessionMgr.editorCreated(session, editor);
             }
         });
         super.activateTelestrator(); // TODO should this be elsewhere?
