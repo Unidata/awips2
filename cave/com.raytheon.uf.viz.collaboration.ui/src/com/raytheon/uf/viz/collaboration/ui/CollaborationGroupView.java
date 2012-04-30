@@ -42,18 +42,22 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
@@ -504,44 +508,106 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         TreeSelection selection = (TreeSelection) usersTreeViewer
                 .getSelection();
         final IRosterEntry entry = (IRosterEntry) selection.getFirstElement();
+        final Composite comp = new Composite(usersTreeViewer.getTree(),
+                SWT.NONE);
+        comp.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
+        final Text text = new Text(comp, SWT.NONE);
 
-        Text newEditor = new Text(usersTreeViewer.getTree(), SWT.NONE);
-        newEditor.addModifyListener(new ModifyListener() {
+        text.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 Text text = (Text) treeEditor.getEditor();
                 treeEditor.getItem().setText(text.getText());
             }
         });
-        newEditor.addFocusListener(new FocusAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.FocusAdapter#focusLost(org.eclipse.swt
-             * .events.FocusEvent)
-             */
-            @Override
-            public void focusLost(FocusEvent e) {
-                List<String> groups = new ArrayList<String>();
-                for (IRosterGroup grp : entry.getGroups()) {
-                    groups.add(grp.getName());
-                }
 
-                CollaborationDataManager
-                        .getInstance()
-                        .getCollaborationConnection()
-                        .addAlias(entry.getUser(),
-                                treeEditor.getItem().getText());
-                CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getEventPublisher()
-                        .post(entry.getUser());
+        text.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+                    entry.getUser().setAlias(treeEditor.getItem().getText());
+                    CollaborationUtils.addAlias();
+                    CollaborationDataManager.getInstance()
+                            .getCollaborationConnection().getEventPublisher()
+                            .post(entry.getUser());
+                }
             }
         });
-        newEditor.selectAll();
-        newEditor.setFocus();
-        treeEditor.setEditor(newEditor, usersTreeViewer.getTree()
-                .getSelection()[0]);
 
+        final TreeItem[] lastItem = new TreeItem[1];
+        // usersTreeViewer.getTree().addListener(SWT.Selection, new Listener() {
+        // public void handleEvent(Event event) {
+        // final TreeItem item = (TreeItem) event.item;
+        // if (item != null && item == lastItem[0]) {
+        final TreeItem item = usersTreeViewer.getTree().getSelection()[0];
+        boolean showBorder = true;
+        final Composite composite = new Composite(usersTreeViewer.getTree(),
+                SWT.NONE);
+        if (showBorder)
+            composite.setBackground(Display.getCurrent().getSystemColor(
+                    SWT.COLOR_BLACK));
+        final Text modText = new Text(composite, SWT.NONE);
+        final int inset = showBorder ? 1 : 0;
+        composite.addListener(SWT.Resize, new Listener() {
+            public void handleEvent(Event e) {
+                Rectangle rect = composite.getClientArea();
+                modText.setBounds(rect.x + inset, rect.y + inset, rect.width
+                        - inset * 2, rect.height - inset * 2);
+            }
+        });
+        Listener textListener = new Listener() {
+            public void handleEvent(final Event e) {
+                switch (e.type) {
+                case SWT.KeyUp:
+                    if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+                        // do nothing, want to go on to the focus out
+                    } else {
+                        break;
+                    }
+                case SWT.FocusOut:
+                    item.setText(modText.getText());
+                    composite.dispose();
+                    entry.getUser().setAlias(treeEditor.getItem().getText());
+                    CollaborationUtils.addAlias();
+                    CollaborationDataManager.getInstance()
+                            .getCollaborationConnection().getEventPublisher()
+                            .post(entry.getUser());
+                    break;
+                case SWT.Verify:
+                    String newText = modText.getText();
+                    String leftText = newText.substring(0, e.start);
+                    String rightText = newText.substring(e.end,
+                            newText.length());
+                    GC gc = new GC(modText);
+                    Point size = gc.textExtent(leftText + e.text + rightText);
+                    gc.dispose();
+                    size = modText.computeSize(size.x, SWT.DEFAULT);
+                    treeEditor.horizontalAlignment = SWT.LEFT;
+                    Rectangle itemRect = item.getBounds(),
+                    rect = usersTreeViewer.getTree().getClientArea();
+                    treeEditor.minimumWidth = Math.max(size.x, itemRect.width)
+                            + inset * 2;
+                    int left = itemRect.x,
+                    right = rect.x + rect.width;
+                    treeEditor.minimumWidth = Math.min(treeEditor.minimumWidth,
+                            right - left);
+                    treeEditor.minimumHeight = size.y + inset * 2;
+                    treeEditor.layout();
+                    break;
+                }
+            }
+        };
+
+        modText.addListener(SWT.KeyUp, textListener);
+        modText.addListener(SWT.Verify, textListener);
+        modText.addListener(SWT.FocusOut, textListener);
+        treeEditor.setEditor(composite, item);
+        modText.setText(item.getText());
+        modText.selectAll();
+        modText.setFocus();
+        // }
+        lastItem[0] = item;
+        // }
+        // });
     }
 
     private void fillStatusMenu(Menu menu) {
@@ -732,11 +798,18 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      */
     private void createP2PChat(IQualifiedID peer) {
         try {
+            String name = "";
+            UserId id = (UserId) peer;
+            if (id.getAlias() != null && !id.getAlias().isEmpty()) {
+                name = id.getAlias();
+            } else {
+                name = id.getName();
+            }
             PeerToPeerView p2pView = (PeerToPeerView) PlatformUI
                     .getWorkbench()
                     .getActiveWorkbenchWindow()
                     .getActivePage()
-                    .showView(PeerToPeerView.ID, peer.getFQName(),
+                    .showView(PeerToPeerView.ID, name,
                             IWorkbenchPage.VIEW_ACTIVATE);
             p2pView.setPeer(peer);
         } catch (PartInitException e) {
@@ -903,7 +976,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 manager.add(new Separator());
                 manager.add(createSessionAction);
             }
-            // manager.add(aliasAction);
+            manager.add(aliasAction);
         } else if (o instanceof IRosterGroup) {
             manager.add(createSessionAction);
         }
@@ -1000,6 +1073,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 .getRosterManager().getRoster().getGroups()) {
             topLevel.addObject(node);
         }
+
+        CollaborationUtils.readAliases();
         for (IRosterEntry node : manager.getCollaborationConnection()
                 .getRosterManager().getRoster().getEntries()) {
             topLevel.addObject(node);
