@@ -111,7 +111,6 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             mgr.getSession(str).registerEventHandler(this);
         }
         userId = mgr.getCollaborationConnection().getUser();
-        ;
     }
 
     /*
