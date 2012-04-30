@@ -71,7 +71,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
@@ -86,6 +85,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEven
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserIdAlias;
@@ -157,15 +157,10 @@ public class CollaborationConnection implements IEventPublisher {
 
     private EventBus eventBus;
 
-    private IRosterEventSubscriber rosterEventSubscriber = null;
+    private ContactsManager contactsMgr;
 
     @XmlElement
     private List<UserIdAlias> aliases;
-
-    // Debug -- event viewer ----------------
-    // private IRosterEventSubscriber rosterEventHandler = null;
-
-    // Debug -- event viewer ----------------
 
     /**
      * 
@@ -183,18 +178,8 @@ public class CollaborationConnection implements IEventPublisher {
      * @throws CollaborationException
      */
     public CollaborationConnection(UserId account, String password,
-            IRosterEventSubscriber rosterEventSubscriber,
             IPresence initialPresence) throws CollaborationException {
         eventBus = new EventBus();
-        if (rosterEventSubscriber != null) {
-            this.rosterEventSubscriber = rosterEventSubscriber;
-            eventBus.register(rosterEventSubscriber);
-        }
-        // Debug -- event viewer ----------------
-        // rosterEventHandler = new RosterEventHandler();
-        // eventBus.register(rosterEventHandler);
-        // Debug -- event viewer ----------------
-
         sessions = new HashMap<String, ISession>();
 
         try {
@@ -235,7 +220,6 @@ public class CollaborationConnection implements IEventPublisher {
         }
 
         // readAliases();
-
         setupAccountManager();
 
         setupInternalConnectionListeners();
@@ -248,6 +232,8 @@ public class CollaborationConnection implements IEventPublisher {
             accountManager.sendPresence(initialPresence);
         }
 
+        contactsMgr = new ContactsManager(this);
+        this.getEventPublisher().register(contactsMgr);
     }
 
     /**
@@ -362,13 +348,11 @@ public class CollaborationConnection implements IEventPublisher {
     }
 
     private void closeInternals() {
-        if (rosterEventSubscriber != null) {
-            eventBus.unregister(rosterEventSubscriber);
-        }
         if (container != null) {
 
             chatInstance = null;
             // Get rid of the account and roster managers
+            container.disconnect();
             container.dispose();
             container = null;
         }
@@ -576,6 +560,8 @@ public class CollaborationConnection implements IEventPublisher {
                                 .convertEntry(entry);
                         IRosterChangeEvent event = new RosterChangeEvent(
                                 RosterChangeType.ADD, re);
+                        System.out.println("Connection rosterEntryAdd "
+                                + entry.getUser());
                         eventBus.post(event);
                     }
 
@@ -592,14 +578,11 @@ public class CollaborationConnection implements IEventPublisher {
                             IRosterGroup rg = (IRosterGroup) item;
                             System.out.println("Roster update RosterGroup "
                                     + rg.getName());
-                            // System.out.println("         entries "
-                            // + rg.getEntries());
-                            // System.out.println("         name " +
-                            // rg.getName());
                         } else if (item instanceof IRoster) {
                             IRoster r = (IRoster) item;
-                            System.out.println("Roster update Roster "
-                                    + r.getName());
+                            System.out
+                                    .println("Connection Roster update Roster "
+                                            + r.getItems().size() + " items");
                         }
                     }
 
@@ -720,6 +703,10 @@ public class CollaborationConnection implements IEventPublisher {
     @Override
     public EventBus getEventPublisher() {
         return eventBus;
+    }
+
+    public ContactsManager getContactsManager() {
+        return contactsMgr;
     }
 
     /**
