@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
 
@@ -84,6 +85,8 @@ public abstract class AbstractSessionView extends ViewPart {
 
     private StyledText composeText;
 
+    private UserId[] userIds = null;
+
     protected abstract String getSessionImageName();
 
     protected abstract String getSessionName();
@@ -94,6 +97,7 @@ public abstract class AbstractSessionView extends ViewPart {
 
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
+        userIds = CollaborationUtils.getIds();
     }
 
     protected void initComponents(Composite parent) {
@@ -225,12 +229,14 @@ public abstract class AbstractSessionView extends ViewPart {
             createNotifier(userId, time, body);
         }
 
-        String name = null;
-        if (userId.getAlias() == null || userId.getAlias().isEmpty()) {
-            name = userId.getName();
-        } else {
-            name = userId.getAlias();
+        String name = userId.getName();
+        for (UserId id : userIds) {
+            if (id.equals(userId)) {
+                name = id.getAlias();
+                break;
+            }
         }
+
         StringBuilder sb = new StringBuilder();
         if (messagesText.getCharCount() != 0) {
             sb.append("\n");
@@ -320,7 +326,26 @@ public abstract class AbstractSessionView extends ViewPart {
     }
 
     private void createNotifier(UserId id, String time, String body) {
-        String titleText = "(" + time + ") " + id.getName();
+        String text = id.getName();
+        if (id.getAlias() != null && !id.getAlias().isEmpty()) {
+            text = id.getAlias();
+        }
+        String titleText = "(" + time + ") " + text;
         PopupNotifier.notify(titleText, body);
+    }
+
+    /**
+     * @return the userIds
+     */
+    public UserId[] getUserIds() {
+        return userIds;
+    }
+
+    /**
+     * @param userIds
+     *            the userIds to set
+     */
+    public void setUserIds(UserId[] userIds) {
+        this.userIds = userIds;
     }
 }
