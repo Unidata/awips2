@@ -371,19 +371,18 @@ public class SessionView extends AbstractSessionView {
         ColumnViewerToolTipSupport.enableFor(usersTable, ToolTip.RECREATE);
         List<IRosterEntry> users = new ArrayList<IRosterEntry>();
         if (session != null) {
+            Map<UserId, IRosterEntry> usersMap = session.getConnection()
+                    .getContactsManager().getUsersMap();
             for (UserId participant : session.getVenue().getParticipants()) {
-                CollaborationDataManager manager = CollaborationDataManager
-                        .getInstance();
-                IRosterEntry entry = manager.getUsersMap().get(participant);
+                IRosterEntry entry = usersMap.get(participant);
                 // if it is yourself, add it
-                if (participant.equals(manager.getCollaborationConnection()
-                        .getAccount())) {
+                if (participant.equals(session.getUserID())) {
                     RosterEntry rEntry = new RosterEntry(participant);
                     rEntry.setPresence(CollaborationDataManager.getInstance()
                             .getCollaborationConnection().getPresence());
                     users.add(rEntry);
                 } else if (entry != null) {
-                    users.add(manager.getUsersMap().get(participant));
+                    users.add(usersMap.get(participant));
                 }
             }
         } else {
@@ -422,7 +421,6 @@ public class SessionView extends AbstractSessionView {
         // clean up event handlers
         session.unRegisterEventHandler(this);
         CollaborationDataManager mgr = CollaborationDataManager.getInstance();
-        // mgr.unRegisterEventHandler(this);
         mgr.closeSession(sessionId);
         mgr.getCollaborationConnection().getEventPublisher().unregister(this);
 
@@ -622,7 +620,7 @@ public class SessionView extends AbstractSessionView {
     @SuppressWarnings("unchecked")
     private void participantArrived(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
-        IRosterEntry user = CollaborationDataManager.getInstance()
+        IRosterEntry user = session.getConnection().getContactsManager()
                 .getUsersMap().get(participant);
         users.add(user);
         usersTable.refresh();
