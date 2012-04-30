@@ -146,7 +146,7 @@ public class PathDrawingTool extends AbstractDrawingTool {
             GeometryFactory gf = new GeometryFactory();
             LineString ls = gf.createLineString(new Coordinate[] { p1, p2 });
 
-            ls = theDrawingLayer.convertPixels(ls);
+            ls = theDrawingLayer.convertPixels(ls, false);
             if (theDrawingLayer.getState() == LayerState.ERASING) {
                 theDrawingLayer.addTempEraseLine(ls);
             } else {
@@ -183,7 +183,7 @@ public class PathDrawingTool extends AbstractDrawingTool {
             GeometryFactory gf = new GeometryFactory();
             if (coords.length > 1) {
                 LineString ls = gf.createLineString(coords);
-                ls = theDrawingLayer.convertPixels(ls);
+                ls = theDrawingLayer.convertPixels(ls, false);
                 if (theDrawingLayer.getState() == LayerState.DRAWING
                         || theDrawingLayer.getState() == LayerState.ERASING) {
                     theDrawingLayer.finalizeLine(ls, null);
