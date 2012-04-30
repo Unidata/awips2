@@ -20,6 +20,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -128,60 +129,68 @@ public class RadarUpdater implements IAlertObserver {
             return;
         }
         Set<String> datauris = new HashSet<String>();
-        for (AlertMessage alertMessage : alertMessages) {
-            String icao = alertMessage.decodedAlert
-                    .get(RadarAdapter.ICAO_QUERY).toString();
-            if (icao == null
-                    || !icao.equalsIgnoreCase(configuredRadar.getRdaId())) {
-                continue;
-            }
-            globalTimes = null;
-            Object obj = alertMessage.decodedAlert
-                    .get(RadarAdapter.PRODUCT_CODE_QUERY);
-            if (obj == null || !(obj instanceof Integer)) {
-                continue;
-            }
-            Integer productCode = (Integer) obj;
-            String paramAbbrev = RadarProductCodeMapping.getInstance()
-                    .getParameterAbbrev(productCode);
-            if (paramAbbrev == null) {
-                continue;
-            }
-            obj = alertMessage.decodedAlert.get("dataTime");
-            if (obj == null || !(obj instanceof DataTime)) {
-                continue;
-            }
-            DataTime time = (DataTime) obj;
-            obj = alertMessage.decodedAlert.get(RadarAdapter.TILT_QUERY);
-            if (obj == null || !(obj instanceof Double)) {
-                continue;
-            }
-            Double elevationAngle = (Double) obj;
-            cache.remove(new CacheKey(productCode, elevationAngle));
-            Level level = null;
-            try {
-                level = LevelFactory.getInstance().getLevel(
-                        RadarAdapter.CUBE_MASTER_LEVEL_NAME, elevationAngle);
-            } catch (CommunicationException e1) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e1.getLocalizedMessage(), e1);
-            }
-            GribRecord fakeRec = new GribRecord();
-            fakeRec.setPluginName("grib");
-            fakeRec.setDataTime(time);
-            GribModel modelInfo = new GribModel();
-            modelInfo.setModelName(RadarAdapter.RADAR_SOURCE);
-            modelInfo.setParameterAbbreviation(paramAbbrev);
-            modelInfo.setLevel(level);
-            modelInfo.setTypeEnsemble(null);
-            fakeRec.setModelInfo(modelInfo);
-            try {
-                fakeRec.constructDataURI();
-                datauris.add(fakeRec.getDataURI());
-            } catch (PluginException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to generate updates for derived product", e);
-            }
+		for (AlertMessage alertMessage : alertMessages) {
+			DataTime dataTime = (DataTime) alertMessage.decodedAlert
+					.get("dataTime");
+			if (dataTime.getRefTime().before(
+					SimulatedTime.getSystemTime().getTime())) {
+				String icao = alertMessage.decodedAlert.get(
+						RadarAdapter.ICAO_QUERY).toString();
+				if (icao == null
+						|| !icao.equalsIgnoreCase(configuredRadar.getRdaId())) {
+					continue;
+				}
+				globalTimes = null;
+				Object obj = alertMessage.decodedAlert
+						.get(RadarAdapter.PRODUCT_CODE_QUERY);
+				if (obj == null || !(obj instanceof Integer)) {
+					continue;
+				}
+				Integer productCode = (Integer) obj;
+				String paramAbbrev = RadarProductCodeMapping.getInstance()
+						.getParameterAbbrev(productCode);
+				if (paramAbbrev == null) {
+					continue;
+				}
+				obj = alertMessage.decodedAlert.get("dataTime");
+				if (obj == null || !(obj instanceof DataTime)) {
+					continue;
+				}
+				DataTime time = (DataTime) obj;
+				obj = alertMessage.decodedAlert.get(RadarAdapter.TILT_QUERY);
+				if (obj == null || !(obj instanceof Double)) {
+					continue;
+				}
+				Double elevationAngle = (Double) obj;
+				cache.remove(new CacheKey(productCode, elevationAngle));
+				Level level = null;
+				try {
+					level = LevelFactory.getInstance()
+							.getLevel(RadarAdapter.CUBE_MASTER_LEVEL_NAME,
+									elevationAngle);
+				} catch (CommunicationException e1) {
+					statusHandler.handle(Priority.PROBLEM,
+							e1.getLocalizedMessage(), e1);
+				}
+				GribRecord fakeRec = new GribRecord();
+				fakeRec.setPluginName("grib");
+				fakeRec.setDataTime(time);
+				GribModel modelInfo = new GribModel();
+				modelInfo.setModelName(RadarAdapter.RADAR_SOURCE);
+				modelInfo.setParameterAbbreviation(paramAbbrev);
+				modelInfo.setLevel(level);
+				modelInfo.setTypeEnsemble(null);
+				fakeRec.setModelInfo(modelInfo);
+				try {
+					fakeRec.constructDataURI();
+					datauris.add(fakeRec.getDataURI());
+				} catch (PluginException e) {
+					statusHandler
+							.handle(Priority.PROBLEM,
+									"Unable to generate updates for derived product",
+									e);
+				}
+			} 
         }
         ProductAlertObserver.processDerivedAlerts(datauris);
     }
