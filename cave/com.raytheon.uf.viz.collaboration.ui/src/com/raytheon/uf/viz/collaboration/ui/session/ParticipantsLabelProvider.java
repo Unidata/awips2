@@ -81,6 +81,7 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
     public ParticipantsLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
         imageMap = new HashMap<String, Image>();
+        CollaborationUtils.readAliases();
     }
 
     @Override
@@ -202,8 +203,7 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
                 && !user.getUser().getAlias().isEmpty()) {
             return user.getUser().getAlias();
         }
-        String name = user.getUser().getName();
-        return name;
+        return user.getUser().getName();
     }
 
     @Override
@@ -323,6 +323,11 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     protected String buildParticipantTooltip(IRosterEntry user) {
         StringBuilder builder = new StringBuilder();
+        if (user.getUser().getAlias() != null
+                && !user.getUser().getAlias().isEmpty()) {
+            builder.append("Name : ").append(user.getUser().getName())
+                    .append("\n");
+        }
         builder.append("Status : ")
                 .append(user.getPresence().getMode().getMode()).append("\n");
         builder.append("Message : \"")

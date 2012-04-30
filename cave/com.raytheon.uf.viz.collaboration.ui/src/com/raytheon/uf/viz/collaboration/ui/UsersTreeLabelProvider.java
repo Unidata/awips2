@@ -134,7 +134,8 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
     public String getColumnText(Object element, int index) {
         if (element instanceof IRosterEntry) {
             IRosterEntry entry = (IRosterEntry) element;
-            if (entry.getUser().getAlias() == null) {
+            if (entry.getUser().getAlias() == null
+                    || entry.getUser().getAlias().isEmpty()) {
                 return entry.getUser().getName();
             } else {
                 return entry.getUser().getAlias();
