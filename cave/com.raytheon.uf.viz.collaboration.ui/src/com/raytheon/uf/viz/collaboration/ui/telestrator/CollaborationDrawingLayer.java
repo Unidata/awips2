@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
@@ -153,15 +154,18 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        OutlineCapability outline = getCapability(OutlineCapability.class);
         getCapability(ColorableCapability.class).setSuppressingMenuItems(true);
-        getCapability(OutlineCapability.class).setSuppressingMenuItems(true);
+        outline.setSuppressingMenuItems(true);
+        outline.setOutlineWidth(4);
+        ImagingCapability imaging = getCapability(ImagingCapability.class);
+        imaging.setSuppressingMenuItems(true);
         if (target instanceof DispatchGraphicsTarget) {
             // Ensure we paint to our own target only
             target = ((DispatchGraphicsTarget) target).getWrappedObject();
         }
         super.paintInternal(target, paintProps);
 
-        OutlineCapability outline = getCapability(OutlineCapability.class);
         // paint the shapes that come over from others
         synchronized (collaboratorShapes) {
             for (UserId userName : collaboratorShapes.keySet()) {
@@ -170,7 +174,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                         RGB col = colorManager.getColors().get(userName);
                         target.drawWireframeShape(sh.getShape(), col,
                                 outline.getOutlineWidth(),
-                                outline.getLineStyle());
+                                outline.getLineStyle(), imaging.getAlpha());
                     }
                 }
             }
