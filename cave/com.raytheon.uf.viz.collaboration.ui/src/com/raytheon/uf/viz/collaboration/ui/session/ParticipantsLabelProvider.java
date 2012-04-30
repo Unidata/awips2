@@ -78,10 +78,12 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     private Font combinedFont;
 
+    private UserId[] userIds;
+
     public ParticipantsLabelProvider() {
         listeners = new ArrayList<ILabelProviderListener>();
         imageMap = new HashMap<String, Image>();
-        CollaborationUtils.readAliases();
+        userIds = CollaborationUtils.getIds();
     }
 
     @Override
@@ -199,11 +201,14 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
     @Override
     public String getText(Object element) {
         IRosterEntry user = (IRosterEntry) element;
-        if (user.getUser().getAlias() != null
-                && !user.getUser().getAlias().isEmpty()) {
-            return user.getUser().getAlias();
+        String name = user.getUser().getName();
+        for (UserId id : userIds) {
+            if (id.equals(user.getUser())) {
+                name = id.getAlias();
+                break;
+            }
         }
-        return user.getUser().getName();
+        return name;
     }
 
     @Override
