@@ -33,6 +33,8 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.RecordFactory;
@@ -105,100 +107,106 @@ public class AutoUpdater implements IAlertObserver {
     public AutoUpdater() {
     }
 
-    @Override
-    public void alertArrived(Collection<AlertMessage> alertMessages) {
-        Set<IDescriptor> displayList = new HashSet<IDescriptor>();
-        Map<AbstractRequestableResourceData, List<Object>> pdoSendMap = new IdentityHashMap<AbstractRequestableResourceData, List<Object>>();
-        int errors = 0;
+	@Override
+	public void alertArrived(Collection<AlertMessage> alertMessages) {
+		Set<IDescriptor> displayList = new HashSet<IDescriptor>();
+		Map<AbstractRequestableResourceData, List<Object>> pdoSendMap = new IdentityHashMap<AbstractRequestableResourceData, List<Object>>();
+		int errors = 0;
 
-        for (AlertMessage message : alertMessages) {
-            Map<String, Object> attribs = message.decodedAlert;
-            try {
-                // System.out.println("extract took: " + (tZ1 - tZ0));
-                java.util.List<AbstractVizResource<?, ?>> rscList = DataUpdateTree
-                        .getInstance().searchTree(attribs);
-                // System.out.println("AutoUpdater found: " + rscList);
+		for (AlertMessage message : alertMessages) {
+			Map<String, Object> attribs = message.decodedAlert;
+			DataTime dataTime = (DataTime) attribs.get("dataTime");
+			if (dataTime.getRefTime().before(
+					SimulatedTime.getSystemTime().getTime())) {
+				try {
+					// System.out.println("extract took: " + (tZ1 - tZ0));
+					java.util.List<AbstractVizResource<?, ?>> rscList = DataUpdateTree
+							.getInstance().searchTree(attribs);
+					// System.out.println("AutoUpdater found: " + rscList);
 
-                if (rscList != null && rscList.size() > 0) {
+					if (rscList != null && rscList.size() > 0) {
 
-                    for (AbstractVizResource<?, ?> r1 : rscList) {
-                        IDescriptor md = r1.getDescriptor();
-                        AbstractResourceData resourceData = r1
-                                .getResourceData();
-                        if (!(resourceData instanceof AbstractRequestableResourceData)
-                                || resourceData.isFrozen())
-                            continue;
+						for (AbstractVizResource<?, ?> r1 : rscList) {
+							IDescriptor md = r1.getDescriptor();
+							AbstractResourceData resourceData = r1
+									.getResourceData();
+							if (!(resourceData instanceof AbstractRequestableResourceData)
+									|| resourceData.isFrozen())
+								continue;
 
-                        AbstractRequestableResourceData reqResourceData = (AbstractRequestableResourceData) resourceData;
-                        AbstractAlertMessageParser parserToUse = null;
-                        if ((parserToUse = reqResourceData.getAlertParser()) == null) {
-                            parserToUse = defaultParser;
-                        }
-                        Object objectToSend = parserToUse.parseAlertMessage(
-                                message, reqResourceData);
+							AbstractRequestableResourceData reqResourceData = (AbstractRequestableResourceData) resourceData;
+							AbstractAlertMessageParser parserToUse = null;
+							if ((parserToUse = reqResourceData.getAlertParser()) == null) {
+								parserToUse = defaultParser;
+							}
+							Object objectToSend = parserToUse
+									.parseAlertMessage(message, reqResourceData);
 
-                        if (objectToSend != null) {
-                            if (md.getTimeMatcher() != null) {
-                                md.getTimeMatcher().redoTimeMatching(r1);
-                            }
-                            displayList.add(md);
+							if (objectToSend != null) {
+								if (md.getTimeMatcher() != null) {
+									md.getTimeMatcher().redoTimeMatching(r1);
+								}
+								displayList.add(md);
 
-                            List<Object> list = pdoSendMap.get(reqResourceData);
-                            if (list == null) {
-                                list = new ArrayList<Object>();
-                                pdoSendMap.put(reqResourceData, list);
-                            }
-                            list.add(objectToSend);
+								List<Object> list = pdoSendMap
+										.get(reqResourceData);
+								if (list == null) {
+									list = new ArrayList<Object>();
+									pdoSendMap.put(reqResourceData, list);
+								}
+								list.add(objectToSend);
 
-                            if (list.size() > 100) {
-                                // update with objects
-                                Class<?> componentType = list.get(0).getClass();
-                                reqResourceData.update(list
-                                        .toArray((Object[]) Array.newInstance(
-                                                componentType, list.size())));
-                                list.clear();
-                            }
-                        }
+								if (list.size() > 100) {
+									// update with objects
+									Class<?> componentType = list.get(0)
+											.getClass();
+									reqResourceData.update(list
+											.toArray((Object[]) Array
+													.newInstance(componentType,
+															list.size())));
+									list.clear();
+								}
+							}
 
-                    }
+						}
 
-                }
+					}
 
-            } catch (final Throwable e) {
-                if (errors < MAX_ERRORS) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error performing autoupdate", e);
-                }
-                errors++;
-            }
+				} catch (final Throwable e) {
+					if (errors < MAX_ERRORS) {
+						statusHandler.handle(Priority.PROBLEM,
+								"Error performing autoupdate", e);
+					}
+					errors++;
+				}
+			} 
 
-        }
+			for (AbstractRequestableResourceData arrd : pdoSendMap.keySet()) {
+				List<Object> pdos = pdoSendMap.get(arrd);
+				if (pdos == null || pdos.size() < 1) {
+					continue;
+				}
+				Class<?> componentType = pdos.get(0).getClass();
+				arrd.update(pdos.toArray((Object[]) Array.newInstance(
+						componentType, pdos.size())));
+			}
 
-        for (AbstractRequestableResourceData arrd : pdoSendMap.keySet()) {
-            List<Object> pdos = pdoSendMap.get(arrd);
-            if (pdos == null || pdos.size() < 1) {
-                continue;
-            }
-            Class<?> componentType = pdos.get(0).getClass();
-            arrd.update(pdos.toArray((Object[]) Array.newInstance(
-                    componentType, pdos.size())));
-        }
+			List<IDescriptor> refreshedDescriptors = new ArrayList<IDescriptor>();
+			// Now do redo time matching, and refresh displays
+			for (IDescriptor disp : displayList) {
+				if (disp != null && disp.getRenderableDisplay() != null) {
+					IDisplayPaneContainer container = disp
+							.getRenderableDisplay().getContainer();
+					for (IDisplayPane pane : container.getDisplayPanes()) {
+						IDescriptor desc = pane.getDescriptor();
 
-        List<IDescriptor> refreshedDescriptors = new ArrayList<IDescriptor>();
-        // Now do redo time matching, and refresh displays
-        for (IDescriptor disp : displayList) {
-            if (disp != null && disp.getRenderableDisplay() != null) {
-                IDisplayPaneContainer container = disp.getRenderableDisplay()
-                        .getContainer();
-                for (IDisplayPane pane : container.getDisplayPanes()) {
-                    IDescriptor desc = pane.getDescriptor();
-
-                    if (refreshedDescriptors.contains(desc)) {
-                        continue;
-                    }
-                    TimeMatchingJob.scheduleTimeMatch(desc);
-                }
-            }
-        }
-    }
+						if (refreshedDescriptors.contains(desc)) {
+							continue;
+						}
+						TimeMatchingJob.scheduleTimeMatch(desc);
+					}
+				}
+			}
+		}
+	} 
 }
