@@ -68,7 +68,6 @@ public abstract class BaseSession implements ISession {
 
     private Namespace connectionNamespace = null;
 
-    // The session manager that created this session.
     private CollaborationConnection connection;
 
     /**
@@ -261,6 +260,11 @@ public abstract class BaseSession implements ISession {
     @Override
     public EventBus getEventPublisher() {
         return eventBus;
+    }
+
+    @Override
+    public CollaborationConnection getConnection() {
+        return connection;
     }
 
 }
