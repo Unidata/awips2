@@ -24,7 +24,6 @@ import java.util.Collection;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 
@@ -45,7 +44,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
  * @version 1.0
  */
 
-public class RosterEventHandler implements IRosterEventSubscriber {
+public class RosterEventHandler {
 
     @Subscribe
     public void eventHandler(IRosterChangeEvent event) {
