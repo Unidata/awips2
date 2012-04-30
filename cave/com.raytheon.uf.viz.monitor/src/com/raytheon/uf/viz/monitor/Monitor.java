@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
@@ -67,14 +69,18 @@ public abstract class Monitor implements IMonitor, IMonitorThresholdListener,
     private ArrayList<IMonitorListener> monitorListeners = new ArrayList<IMonitorListener>();
 
     @Override
-    public void alertArrived(Collection<AlertMessage> alertMessages) {
-        // knock down messages we don't want
-        for (AlertMessage msg : alertMessages) {
-            if (filterProductMessage(msg)) {
-                processProductMessage(msg);
-            }
-        }
-    }
+	public void alertArrived(Collection<AlertMessage> alertMessages) {
+		// knock down messages we don't want
+		for (AlertMessage msg : alertMessages) {
+			DataTime dataTime = (DataTime) msg.decodedAlert.get("dataTime");
+			if (dataTime.getRefTime().before(
+					SimulatedTime.getSystemTime().getTime())) {
+				if (filterProductMessage(msg)) {
+					processProductMessage(msg);
+				}
+			}
+		}
+	}
 
     @Override
     public void notificationArrived(NotificationMessage[] notifyMessages) {
