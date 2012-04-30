@@ -46,7 +46,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -94,17 +93,13 @@ public class LoginDialog extends CaveSWTDialog {
 
     private Control[] withServerList;
 
-    private IRosterEventSubscriber rosterEventSubscriber;
-
     private CollaborationConnection sessionManager;
 
     private IPersistentPreferenceStore prefStore;
 
-    public LoginDialog(Shell parentShell,
-            IRosterEventSubscriber rosterEventSubscriber) {
+    public LoginDialog(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM);
         setText("Collaboration Server Login");
-        this.rosterEventSubscriber = rosterEventSubscriber;
         this.prefStore = Activator.getDefault().getPreferenceStore();
     }
 
@@ -356,7 +351,7 @@ public class LoginDialog extends CaveSWTDialog {
                         try {
                             sessionManager = new CollaborationConnection(
                                     new UserId(user, server), password,
-                                    rosterEventSubscriber, initialPres);
+                                    initialPres);
                             setReturnValue(sessionManager);
                             close();
                         } catch (Exception e) {
