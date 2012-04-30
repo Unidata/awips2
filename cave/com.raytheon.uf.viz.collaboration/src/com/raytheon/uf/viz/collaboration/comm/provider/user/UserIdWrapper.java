@@ -19,11 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * TODO Add Description
@@ -34,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 25, 2012            mnash     Initial creation
+ * Apr 30, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -42,42 +39,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @version 1.0
  */
 
-@XmlRootElement(name = "user")
-@XmlAccessorType(XmlAccessType.NONE)
-public class UserIdAlias {
-    @XmlAttribute
-    private UserId id;
-
-    @XmlElement
-    private String alias;
+@DynamicSerialize
+public class UserIdWrapper {
+    @DynamicSerializeElement
+    private UserId[] userIds;
 
     /**
-     * @return the id
+     * @param userIds
+     *            the userIds to set
      */
-    public UserId getId() {
-        return id;
+    public void setUserIds(UserId[] userIds) {
+        this.userIds = userIds;
     }
 
     /**
-     * @param id
-     *            the id to set
+     * @return the userIds
      */
-    public void setId(UserId id) {
-        this.id = id;
-    }
-
-    /**
-     * @return the alias
-     */
-    public String getAlias() {
-        return alias;
-    }
-
-    /**
-     * @param alias
-     *            the alias to set
-     */
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public UserId[] getUserIds() {
+        return userIds;
     }
 }

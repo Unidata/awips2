@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -41,6 +43,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * @version 1.0
  */
 @DynamicSerialize
+@XmlRootElement(name = "userId")
 public class UserId implements IQualifiedID {
 
     private static final String CONF_ID = "conference.";
