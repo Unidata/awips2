@@ -19,15 +19,39 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.xml.bind.JAXB;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.swt.graphics.Image;
 
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserIdWrapper;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
@@ -66,6 +90,96 @@ public class CollaborationUtils {
     public static Image getNodeImage(String name) {
         return IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
                 name.toLowerCase() + ".gif").createImage();
+    }
+
+    public static void readAliases() {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationFile file = PathManagerFactory.getPathManager()
+                .getLocalizationFile(
+                        context,
+                        "collaboration" + File.separator
+                                + "collaborationAliases.xml");
+        try {
+            if (file.exists()) {
+                UserIdWrapper ids = (UserIdWrapper) JAXB.unmarshal(
+                        file.getFile(), UserIdWrapper.class);
+                IRoster roster = CollaborationDataManager.getInstance()
+                        .getCollaborationConnection().getRosterManager()
+                        .getRoster();
+                List<IRosterEntry> entries = new ArrayList<IRosterEntry>();
+                for (IRosterEntry entry : roster.getEntries()) {
+                    entries.add(entry);
+                }
+                for (IRosterGroup group : roster.getGroups()) {
+                    for (IRosterEntry entry : group.getEntries()) {
+                        entries.add(entry);
+                    }
+                }
+                for (IRosterEntry entry : entries) {
+                    for (UserId id : ids.getUserIds()) {
+                        if (id.equals(entry.getUser())) {
+                            entry.getUser().setAlias(id.getAlias());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.WARN, "Unable to retrieve aliases", e);
+        }
+    }
+
+    public static void addAlias() {
+        Job job = new Job("Saving aliases to file") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                IPathManager pm = PathManagerFactory.getPathManager();
+                LocalizationContext context = pm.getContext(
+                        LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationFile file = pm.getLocalizationFile(context,
+                        "collaboration" + File.separator
+                                + "collaborationAliases.xml");
+                IRoster roster = CollaborationDataManager.getInstance()
+                        .getCollaborationConnection().getRosterManager()
+                        .getRoster();
+                Set<UserId> ids = new HashSet<UserId>();
+
+                // get the entries that are alone
+                for (IRosterEntry entry : roster.getEntries()) {
+                    if (entry.getUser().getAlias() != null
+                            && !entry.getUser().getAlias().isEmpty()) {
+                        ids.add(entry.getUser());
+                    }
+                }
+
+                // get the entries that are in groups
+                for (IRosterGroup group : roster.getGroups()) {
+                    for (IRosterEntry entry : group.getEntries()) {
+                        if (entry.getUser().getAlias() != null
+                                && !entry.getUser().getAlias().isEmpty()) {
+                            ids.add(entry.getUser());
+                        }
+                    }
+                }
+
+                // a wrapper for JAXB
+                UserIdWrapper wrapper = new UserIdWrapper();
+                wrapper.setUserIds(ids.toArray(new UserId[0]));
+                try {
+                    JAXB.marshal(wrapper, file.getFile());
+                    file.save();
+                    return Status.OK_STATUS;
+                } catch (LocalizationOpFailedException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                    return Status.CANCEL_STATUS;
+                }
+            }
+        };
+        job.schedule();
     }
 
     public static void sendChatMessage(List<String> ids, String message) {

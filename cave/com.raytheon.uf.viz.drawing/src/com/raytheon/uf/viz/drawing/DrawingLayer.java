@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -194,13 +195,19 @@ public class DrawingLayer extends
      * @param i
      * @return
      */
-    public LineString convertPixels(LineString line) {
+    public LineString convertPixels(LineString line, boolean pixelToWorld) {
         int pts = line.getNumPoints();
         GeometryFactory factory = new GeometryFactory();
         List<Coordinate> coords = new ArrayList<Coordinate>();
         for (int i = 0; i < pts; i++) {
-            double[] point = this.descriptor.worldToPixel(new double[] {
-                    line.getPointN(i).getX(), line.getPointN(i).getY() });
+            double[] point = null;
+            if (pixelToWorld) {
+                point = this.descriptor.pixelToWorld(new double[] {
+                        line.getPointN(i).getX(), line.getPointN(i).getY() });
+            } else {
+                point = this.descriptor.worldToPixel(new double[] {
+                        line.getPointN(i).getX(), line.getPointN(i).getY() });
+            }
             coords.add(new Coordinate(point[0], point[1]));
         }
         return factory.createLineString(coords.toArray(new Coordinate[0]));
@@ -388,24 +395,31 @@ public class DrawingLayer extends
     public void setState(LayerState state) {
         this.state = state;
     }
-    // /*
-    // * (non-Javadoc)
-    // *
-    // * @see
-    // * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-    // * referencing.crs.CoordinateReferenceSystem)
-    // */
-    // @Override
-    // public void project(CoordinateReferenceSystem crs) throws VizException {
-    // super.project(crs);
-    // for (Geometry geom : wireframeShapes.keySet()) {
-    // IWireframeShape shape = target.createWireframeShape(true,
-    // getDescriptor());
-    // for (int i = 0; i < geom.getNumGeometries(); i++) {
-    // Geometry ls = convertPixels((LineString) geom.getGeometryN(i));
-    // drawTempLinePrimitive(ls, shape);
-    // }
-    // wireframeShapes.put(geom, shape);
-    // }
-    // }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
+     * referencing.crs.CoordinateReferenceSystem)
+     */
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        GeometryFactory factory = new GeometryFactory();
+        Map<Geometry, IWireframeShape> shapes = new HashMap<Geometry, IWireframeShape>();
+        shapes.putAll(wireframeShapes);
+        for (Geometry geom : shapes.keySet()) {
+            IWireframeShape shape = target.createWireframeShape(true,
+                    getDescriptor());
+            Coordinate[] newCoords = new Coordinate[geom.getCoordinates().length];
+            for (int i = 0; i < geom.getNumGeometries(); i++) {
+                Geometry ls = convertPixels((LineString) geom.getGeometryN(i),
+                        true);
+                drawTempLinePrimitive((LineString) ls, shape);
+            }
+
+            // wireframeShapes.remove(geom);
+            // wireframeShapes.put(line, shape);
+        }
+    }
 }
