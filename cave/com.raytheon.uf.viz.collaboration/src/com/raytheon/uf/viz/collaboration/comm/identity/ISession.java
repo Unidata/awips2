@@ -39,6 +39,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -90,4 +91,6 @@ public interface ISession extends IEventPublisher {
      * @return The session identifier.
      */
     public String getSessionId();
+
+    public CollaborationConnection getConnection();
 }
