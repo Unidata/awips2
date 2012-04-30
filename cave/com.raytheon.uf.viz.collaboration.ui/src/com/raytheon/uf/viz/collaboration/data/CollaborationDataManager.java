@@ -19,11 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.data;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
@@ -50,14 +47,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterEventSubscriber;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -88,7 +80,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * @author rferrel
  * @version 1.0
  */
-public class CollaborationDataManager implements IRosterEventSubscriber {
+public class CollaborationDataManager {
     private static CollaborationDataManager instance;
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -108,13 +100,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
     private IWorkbenchListener wbListener;
 
     /**
-     * User information such as sessions and groups user is in.
-     */
-    Map<UserId, IRosterEntry> usersMap;
-
-    Set<IRosterGroup> groups;
-
-    /**
      * Mapping for all active chat sessions.
      */
     Map<String, IVenueSession> sessionsMap;
@@ -132,30 +117,8 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
      * Private constructor to for singleton class.
      */
     private CollaborationDataManager() {
-        groups = new HashSet<IRosterGroup>();
-        usersMap = new HashMap<UserId, IRosterEntry>();
         sessionsMap = new HashMap<String, IVenueSession>();
         eventBus = new EventBus();
-    }
-
-    private void populateGroups() {
-        IRoster roster = connection.getRosterManager().getRoster();
-
-        for (IRosterGroup rosterGroup : roster.getGroups()) {
-            groups.add(rosterGroup);
-            for (IRosterEntry rosterEntry : rosterGroup.getEntries()) {
-                usersMap.put(rosterEntry.getUser(), rosterEntry);
-            }
-        }
-
-        // Orphan users not in any group.
-        for (IRosterEntry rosterEntry : roster.getEntries()) {
-            usersMap.put(rosterEntry.getUser(), rosterEntry);
-        }
-
-        RosterEntry me = new RosterEntry(connection.getUser());
-        me.setPresence(connection.getPresence());
-        usersMap.put(me.getUser(), me);
     }
 
     public void editorCreated(ISharedDisplaySession session,
@@ -183,8 +146,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     if (shell == null) {
                         return;
                     }
-                    LoginDialog dlg = new LoginDialog(shell,
-                            CollaborationDataManager.this);
+                    LoginDialog dlg = new LoginDialog(shell);
                     CollaborationConnection newConn = null;
                     newConn = (CollaborationConnection) dlg.open();
                     dlg.close();
@@ -234,7 +196,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
                     }
                 };
                 PlatformUI.getWorkbench().addWorkbenchListener(wbListener);
-                populateGroups();
             }
         }
 
@@ -475,7 +436,7 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
             UserId id = connection.getUser();
             RosterEntry rosterEntry = new RosterEntry(id);
             rosterEntry.setPresence(presence);
-            handleModifiedPresence(rosterEntry);
+            connection.getEventPublisher().post(rosterEntry);
         } catch (CollaborationException e) {
             // TODO Auto-generated catch block. Please revise as
             // appropriate.
@@ -483,104 +444,6 @@ public class CollaborationDataManager implements IRosterEventSubscriber {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    /**
-     * @param entry
-     */
-    @Subscribe
-    public void handleModifiedPresence(IRosterEntry entry) {
-        final IRosterEntry rosterEntry = entry;
-        IRosterEntry user = usersMap.get(entry.getUser());
-        if (user != null) {
-            // Assumes only UI updates will be registered.
-            VizApp.runAsync(new Runnable() {
-
-                @Override
-                public void run() {
-                    eventBus.post(rosterEntry);
-                }
-            });
-        }
-    }
-
-    /**
-     * This updates the Data Manager's information then informs and UI of the
-     * change.
-     * 
-     * @param event
-     */
-    @Subscribe
-    public void handleRosterChangeEvent(IRosterChangeEvent event) {
-        final IRosterChangeEvent rosterChangeEvent = event;
-        // TODO update the event's user groups here for the desired type
-        IRosterEntry rosterEntry = rosterChangeEvent.getEntry();
-        IPresence presence = rosterChangeEvent.getEntry().getPresence();
-        Collection<IRosterGroup> userGroups = rosterEntry.getGroups();
-        switch (rosterChangeEvent.getType()) {
-        case ADD:
-            for (IRosterGroup group : userGroups) {
-                boolean matched = false;
-                for (IRosterGroup dGroup : groups) {
-                    if (dGroup.getName().equals(group.getName())) {
-                        dGroup = group;
-                        matched = true;
-                        break;
-                    }
-                }
-                if (!matched) {
-                    groups.add(group);
-                }
-            }
-            break;
-        case DELETE:
-            // Assume user no longer exists and remove.
-            usersMap.remove(rosterEntry);
-            break;
-        case MODIFY:
-            // Assume only the presence needs to be updated.
-            if (presence == null) {
-                // Nothing to do don't bother doing eventBus post.
-                return;
-            }
-            for (UserId id : usersMap.keySet()) {
-                if (rosterEntry.getUser().equals(id)) {
-                    usersMap.put(id, rosterEntry);
-                    break;
-                }
-            }
-            break;
-        case PRESENCE:
-            break;
-        default:
-            statusHandler.handle(Priority.PROBLEM, "Unhandled type: "
-                    + rosterChangeEvent.getType());
-            return;
-
-        }
-
-        // Assume only UI updates are registered.
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                eventBus.post(rosterChangeEvent);
-            }
-        });
-    }
-
-    /**
-     * @return the usersMap
-     */
-    public Map<UserId, IRosterEntry> getUsersMap() {
-        return usersMap;
-    }
-
-    public void registerEventHandler(Object handler) {
-        eventBus.register(handler);
-    }
-
-    public void unRegisterEventHandler(Object handler) {
-        eventBus.unregister(handler);
     }
 
 }
