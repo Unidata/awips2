@@ -35,7 +35,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -56,7 +55,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
@@ -104,8 +102,6 @@ public class CollaborationDataManager {
      */
     Map<String, IVenueSession> sessionsMap;
 
-    private EventBus eventBus;
-
     public static CollaborationDataManager getInstance() {
         if (instance == null) {
             instance = new CollaborationDataManager();
@@ -118,16 +114,6 @@ public class CollaborationDataManager {
      */
     private CollaborationDataManager() {
         sessionsMap = new HashMap<String, IVenueSession>();
-        eventBus = new EventBus();
-    }
-
-    public void editorCreated(ISharedDisplaySession session,
-            CollaborationEditor editor) {
-        SessionContainer container = SharedDisplaySessionMgr
-                .getSessionContainer(session.getSessionId());
-        container.setCollaborationEditor(editor);
-        editor.setTabTitle(((IVenueSession) session).getVenue().getInfo()
-                .getVenueDescription());
     }
 
     /**
