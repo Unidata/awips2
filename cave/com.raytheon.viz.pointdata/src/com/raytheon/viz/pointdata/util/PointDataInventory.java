@@ -31,6 +31,8 @@ import com.raytheon.uf.common.pointdata.GetPointDataTreeRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -101,25 +103,30 @@ public class PointDataInventory extends AbstractPointDataInventory implements
     }
 
     @Override
-    public void alertArrived(Collection<AlertMessage> alertMessages) {
-        for (AlertMessage message : alertMessages) {
-            String pluginName = message.decodedAlert.get(PLUGIN_NAME)
-                    .toString();
-            String source = pluginName;
-            String typeKey = getTypeKey(pluginName);
-            if (!PLUGIN_NAME.equals(typeKey)) {
-                source += message.decodedAlert.get(typeKey).toString();
-            }
+	public void alertArrived(Collection<AlertMessage> alertMessages) {
+		for (AlertMessage message : alertMessages) {
+			DataTime dataTime = (DataTime) message.decodedAlert.get("dataTime");
+			if (dataTime.getRefTime().before(
+					SimulatedTime.getSystemTime().getTime())) {
+				String pluginName = message.decodedAlert.get(PLUGIN_NAME)
+						.toString();
+				String source = pluginName;
+				String typeKey = getTypeKey(pluginName);
+				if (!PLUGIN_NAME.equals(typeKey)) {
+					source += message.decodedAlert.get(typeKey).toString();
+				}
 
-            if (getAllSources() != null && !getAllSources().contains(source)) {
-                try {
-                    initTree(derParLibrary);
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-            }
-        }
-    }
+				if (getAllSources() != null
+						&& !getAllSources().contains(source)) {
+					try {
+						initTree(derParLibrary);
+					} catch (VizException e) {
+						statusHandler.handle(Priority.PROBLEM,
+								e.getLocalizedMessage(), e);
+					}
+				}
+			} 
+		}
+	}
 
 }
