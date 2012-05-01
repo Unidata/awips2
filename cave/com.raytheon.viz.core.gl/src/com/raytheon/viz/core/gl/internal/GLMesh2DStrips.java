@@ -21,17 +21,17 @@ package com.raytheon.viz.core.gl.internal;
 
 import javax.media.opengl.GL;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
-import com.raytheon.viz.core.gl.Activator;
 import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * 
@@ -51,10 +51,11 @@ import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
  */
 public class GLMesh2DStrips extends AbstractGLMesh {
 
-    public GLMesh2DStrips(GridGeometry2D imageGeometry,
-            GeneralGridGeometry targetGeometry) throws VizException {
-        super(GL.GL_TRIANGLE_STRIP);
-        initialize(imageGeometry, targetGeometry);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GLMesh2DStrips.class);
+
+    public GLMesh2DStrips(IMapDescriptor descriptor) {
+        super(GL.GL_TRIANGLE_STRIP, descriptor);
     }
 
     /*
@@ -66,21 +67,19 @@ public class GLMesh2DStrips extends AbstractGLMesh {
      * org.opengis.referencing.operation.MathTransform)
      */
     @Override
-    public double[][][] generateWorldCoords(GridGeometry2D imageGeometry,
-            MathTransform mt) throws TransformException {
-        ReferencedEnvelope envelope = new ReferencedEnvelope(
-                imageGeometry.getEnvelope());
-        double worldMinX = envelope.getMinX();
-        double worldMinY = envelope.getMinY();
-        double worldWidth = envelope.getWidth();
-        double worldHeight = envelope.getHeight();
+    public double[][][] generateWorldCoords(ImageTile tile, MathTransform mt)
+            throws TransformException {
+        double worldMinX = tile.envelope.getMinX();
+        double worldMinY = tile.envelope.getMinY();
+        double worldWidth = tile.envelope.getWidth();
+        double worldHeight = tile.envelope.getHeight();
 
         // get dx and dy for texture points
 
         double dXWorld = worldWidth / (key.horizontalDivisions);
-        double dYWorld = worldHeight / (key.verticalDivisions);
+        double dYWorld = worldHeight / (key.verticalDivisions - 1);
 
-        double[][][] worldCoordinates = new double[key.horizontalDivisions][2 * (key.verticalDivisions + 1)][2];
+        double[][][] worldCoordinates = new double[key.horizontalDivisions][2 * key.verticalDivisions][2];
 
         int width = worldCoordinates.length;
         int height = worldCoordinates[0].length;
@@ -137,74 +136,68 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         return worldCoordinates;
     }
 
-    private static final int MIN_HORZ_DIVS = 1;
-
-    private static final int MIN_VERT_DIVS = 1;
-
     @Override
-    protected SharedCoordinateKey generateKey(GridGeometry2D imageGeometry,
-            MathTransform mt) {
-        int width = imageGeometry.getGridRange().getSpan(0);
-        int height = imageGeometry.getGridRange().getSpan(1);
+    protected SharedCoordinateKey generateKey(ImageTile tile, MathTransform mt) {
         try {
-            int maxHorzDiv = Math.max(width / 4, MIN_HORZ_DIVS);
-            int maxVertDiv = Math.max(height / 4, MIN_VERT_DIVS);
-
-            ReferencedEnvelope envelope = new ReferencedEnvelope(
-                    imageGeometry.getEnvelope());
+            int maxHorzDiv = tile.rect.width / 4;
+            int maxVertDiv = tile.rect.height / 4;
+            Envelope envelope = tile.envelope;
             double[] tl = { envelope.getMinX(), envelope.getMaxY() };
             double[] tr = { envelope.getMaxX(), envelope.getMaxY() };
             double[] bl = { envelope.getMinX(), envelope.getMinY() };
             double[] br = { envelope.getMaxX(), envelope.getMinY() };
-
-            int horzDiv = MIN_HORZ_DIVS;
-            if (maxHorzDiv > MIN_HORZ_DIVS) {
-                // start off estimating the number of horzintal divisions by
-                // using only the top and bottom.
-                int horzDivTop = getNumDivisions(tl, null, tr, null,
-                        maxHorzDiv, mt);
-                int horzDivBot = getNumDivisions(bl, null, br, null,
-                        maxHorzDiv, mt);
-                horzDiv = Math.max(horzDivTop, horzDivBot);
-            }
+            // start off estimating the number of horzintal divisions by using
+            // only the top and bottom.
+            int horzDivTop = 1 + getNumDivisions(tl, null, tr, null,
+                    maxHorzDiv, mt);
+            int horzDivBot = 1 + getNumDivisions(bl, null, br, null,
+                    maxHorzDiv, mt);
+            int horzDiv = Math.max(horzDivTop, horzDivBot);
             // Next get the number of vertical divisions by finding the maximum
             // needed in every horizontal row.
-            int vertDiv = MIN_VERT_DIVS;
-            if (maxVertDiv > MIN_VERT_DIVS) {
-                for (int i = 1; i <= horzDiv; i++) {
-                    double topX = tl[0] + (tr[0] - tl[0]) * i / horzDiv;
-                    double topY = tl[1] + (tr[1] - tl[1]) * i / horzDiv;
-                    double botX = bl[0] + (br[0] - bl[0]) * i / horzDiv;
-                    double botY = bl[1] + (br[1] - bl[1]) * i / horzDiv;
-                    double[] top = { topX, topY };
-                    double[] bot = { botX, botY };
-                    int vertDivTest = getNumDivisions(top, null, bot, null,
-                            maxVertDiv, mt);
-                    vertDiv = Math.max(vertDiv, vertDivTest);
+            int vertDiv = 2;
+            for (int i = 1; i <= horzDiv; i++) {
+                double topX = tl[0] + (tr[0] - tl[0]) * i / horzDiv;
+                double topY = tl[1] + (tr[1] - tl[1]) * i / horzDiv;
+                double botX = bl[0] + (br[0] - bl[0]) * i / horzDiv;
+                double botY = bl[1] + (br[1] - bl[1]) * i / horzDiv;
+                double[] top = { topX, topY };
+                double[] bot = { botX, botY };
+                int vertDivTest = 1 + getNumDivisions(top, null, bot, null,
+                        maxVertDiv, mt);
+                vertDiv = Math.max(vertDiv, vertDivTest);
+                if (vertDiv >= maxVertDiv) {
+                    vertDiv = maxVertDiv;
+                    break;
                 }
             }
-
             // Now fill in the actual number of horzontal divisions incase
             // distortion increases towards the middle.
-            for (int i = MIN_VERT_DIVS; i < vertDiv; i++) {
+            for (int i = 2; i < vertDiv; i++) {
                 double leftX = bl[0] + (tl[0] - bl[0]) * i / vertDiv;
                 double leftY = bl[1] + (tl[1] - bl[1]) * i / vertDiv;
                 double rightX = br[0] + (tr[0] - br[0]) * i / vertDiv;
                 double rightY = br[1] + (tr[1] - br[1]) * i / vertDiv;
                 double[] left = { leftX, leftY };
                 double[] right = { rightX, rightY };
-                int horzDivTest = getNumDivisions(left, null, right, null,
+                int horzDivTest = 1 + getNumDivisions(left, null, right, null,
                         maxHorzDiv, mt);
                 horzDiv = Math.max(horzDiv, horzDivTest);
+                if (horzDiv >= maxHorzDiv) {
+                    horzDiv = maxHorzDiv;
+                    break;
+                }
             }
-
+            horzDiv = Math.max(2, horzDiv);
+            vertDiv = Math.max(2, vertDiv);
             return new SharedCoordinateKey(vertDiv, horzDiv);
         } catch (Exception e) {
-            Activator.statusHandler
+            statusHandler
                     .handle(Priority.PROBLEM,
                             "Error calculating divisions needed for image, defaulting to dims/4",
                             e);
-            return new SharedCoordinateKey(height / 4, width / 4);
+            return new SharedCoordinateKey(tile.rect.height / 4,
+                    tile.rect.width / 4);
         }
 
     }
@@ -217,12 +210,12 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         if (r1 == null) {
             r1 = new double[p1.length];
             mt.transform(p1, 0, r1, 0, 1);
-            r1 = worldToPixel(r1);
+            r1 = descriptor.worldToPixel(r1);
         }
         if (r3 == null) {
             r3 = new double[p3.length];
             mt.transform(p3, 0, r3, 0, 1);
-            r3 = worldToPixel(r3);
+            r3 = descriptor.worldToPixel(r3);
         }
         if (r1 == null || r3 == null) {
             // if the image has some points outside the valid range of the
@@ -233,7 +226,7 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         double[] p2 = { (p1[0] + p3[0]) / 2, (p1[1] + p3[1]) / 2 };
         double[] r2 = new double[p2.length];
         mt.transform(p2, 0, r2, 0, 1);
-        r2 = worldToPixel(r2);
+        r2 = descriptor.worldToPixel(r2);
         double[] interp2 = { (r1[0] + r3[0]) / 2, (r1[1] + r3[1]) / 2 };
         double dX = r2[0] - interp2[0];
         double dY = r2[1] - interp2[1];
