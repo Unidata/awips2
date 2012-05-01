@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.remote.graphics.events;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 
 /**
  * TODO Add Description
