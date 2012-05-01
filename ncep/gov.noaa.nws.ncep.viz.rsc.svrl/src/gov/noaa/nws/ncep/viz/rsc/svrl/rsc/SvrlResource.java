@@ -11,7 +11,8 @@ package gov.noaa.nws.ncep.viz.rsc.svrl.rsc;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 27 May 2010           Uma Josyula  Initial creation.
- * 01/10/11				Uma Josyula	 Made changes to preprocess update and event date 
+ * 01/10/11				Uma Josyula	 Made changes to preprocess update and event date  
+ * 02/16/2012   555        S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords().
  * </pre>
  * 
  * @author ujosyula 
@@ -626,7 +627,9 @@ drawCountyOutline2(svrlData,target,color,symbolWidth,lineStyle,paintProps);//T45
 	
 	@Override
 	public void queryRecords() throws VizException {
-
+		// this method is almost similar to its super class's queryRecords(), may need to be modified later
+		// to use the super class's version for the common part
+		
 		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
 				resourceData.getMetadataMap());
 
@@ -652,6 +655,7 @@ drawCountyOutline2(svrlData,target,color,symbolWidth,lineStyle,paintProps);//T45
 		}
 		
 		scqr.populateMap();
+		setAllFramesAsPopulated();
 	}
 	
 	

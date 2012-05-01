@@ -59,7 +59,7 @@ public class GLRadialMeshExtension extends GraphicsExtension<IGLTarget>
             throws VizException {
         String format = radarData.getFormat();
         if ("Radial".equals(format)) {
-            return RadarRadialMesh.getMesh(radarData, descriptor);
+            return RadarRadialMeshCache.getMesh(radarData, descriptor);
         } else {
             throw new VizException(
                     "Cannot construct radial meshes for non radial RadarRecords");
@@ -74,6 +74,6 @@ public class GLRadialMeshExtension extends GraphicsExtension<IGLTarget>
      */
     @Override
     public int getCompatibilityValue(IGLTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE;
+        return Compatibilty.TARGET_COMPATIBLE.value;
     }
 }

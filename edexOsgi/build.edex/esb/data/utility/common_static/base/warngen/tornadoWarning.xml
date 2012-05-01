@@ -40,7 +40,7 @@
  <enableRestart>true</enableRestart>
 
  <!-- Enable/disables the system to lock text based on various patterns -->
- <autoLockText>false</autoLockText>
+ <autoLockText>true</autoLockText>
  
  <!-- durations: the list of possible durations of the warning -->
  <defaultDuration>30</defaultDuration>

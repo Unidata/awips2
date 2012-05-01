@@ -1,4 +1,7 @@
 #define GLOBAL
+#ifdef _WIN32
+#include <stdio.h>
+#endif
 #include "sharp95.h"
 
 void write_scheme_file(char st[80])

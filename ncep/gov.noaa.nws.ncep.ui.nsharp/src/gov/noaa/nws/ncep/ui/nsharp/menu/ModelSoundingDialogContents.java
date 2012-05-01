@@ -21,6 +21,7 @@ package gov.noaa.nws.ncep.ui.nsharp.menu;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingModel;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTimeLines;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -69,6 +71,8 @@ public class ModelSoundingDialogContents {
 	private Text locationText;
 	private Label locationLbl;
 	private boolean timeLimit = false;
+	private NsharpLoadDialog ldDia;
+	private Font newFont;
 	private List<String> selectedFileList = new ArrayList<String>(); 
 	private List<String> selectedTimeList = new ArrayList<String>(); 
 	//private NcSoundingProfile.MdlSndType currentSndType = NcSoundingProfile.MdlSndType.NONE;
@@ -78,9 +82,13 @@ public class ModelSoundingDialogContents {
 	private final String GOOD_STN_STR = " A good input looked like this:\n GAI or gai";
 	String gribDecoderName = NcSoundingQuery.NCGRIB_PLUGIN_NAME;
 	private String selectedModel=null;	
+	private DBType currentDb = DBType.NCGRIB;
 	
 	public enum LocationType {
 		LATLON, STATION
+	}
+	public enum DBType {
+		GRIB, NCGRIB
 	}
 	private LocationType currentLocType=LocationType.LATLON;
 
@@ -95,11 +103,14 @@ public class ModelSoundingDialogContents {
 	
 	public ModelSoundingDialogContents (Composite parent) {
 		this.parent = parent;
+		ldDia = NsharpLoadDialog.getAccess();
+		newFont = ldDia.getNewFont();
 		if( VizPerspectiveListener.getCurrentPerspectiveManager()!= null){
 			if(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId().equals(NmapCommon.NatlCntrsPerspectiveID))
 				gribDecoderName = NcSoundingQuery.NCGRIB_PLUGIN_NAME;
 			else
 				gribDecoderName = NcSoundingQuery.GRIB_PLUGIN_NAME;
+			
 			
 			//for testing
 			//gribDecoderName = NcSoundingQuery.GRIB_PLUGIN_NAME;
@@ -115,6 +126,7 @@ public class ModelSoundingDialogContents {
 		//query using NcSoundingQuery class to query
 		NcSoundingTimeLines timeLines = NcSoundingQuery.mdlSoundingTimeLineQuery(selectedModel, gribDecoderName);
 		if(timeLines!= null && timeLines.getTimeLines() != null){
+			ldDia.startWaitCursor();
 			for(Object timeLine : timeLines.getTimeLines()){
 				Timestamp reftime = (Timestamp)timeLine;
 				if(reftime != null){
@@ -128,6 +140,7 @@ public class ModelSoundingDialogContents {
 				}
 				
 			}
+			ldDia.stopWaitCursor();
 		}
 		else
 			System.out.println("SQL: query return null");	
@@ -139,9 +152,13 @@ public class ModelSoundingDialogContents {
     		sndTimeList.removeAll();
     	if(timeLineToFileMap!=null)
     		timeLineToFileMap.clear();
+    	int nameLen= Math.min(4, selectedModel.length());
+    	String modelName= selectedModel.substring(0,nameLen);
 		//query using NcSoundingQuery to query
+    	ldDia.startWaitCursor();
     	for(int i=0; i<  selectedFlLst.size(); i++){	
 			String fl = selectedFlLst.get(i);
+			long reftimeMs= NcSoundingQuery.convertRefTimeStr(fl);
 			NcSoundingTimeLines timeLines = NcSoundingQuery.mdlSoundingRangeTimeLineQuery(selectedModel, fl, gribDecoderName);
 			if(timeLines != null && timeLines.getTimeLines().length >0) {
 				for(Object obj : timeLines.getTimeLines()){
@@ -150,8 +167,9 @@ public class ModelSoundingDialogContents {
 						//need to format rangestart to GMT time string.  Timestamp.toString produce a local time Not GMT time
 						Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 						cal.setTimeInMillis(rangestart.getTime());
-						
-						String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
+						long vHour = (cal.getTimeInMillis()- reftimeMs)/3600000;
+						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tHV%2$03d %3$s",  cal, vHour,modelName);
+						//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
 						if(sndTimeList.indexOf(gmtTimeStr) != -1){
 							// this indicate that gmtTimeStr is laready in the sndTimeList, then we dont need to add it to list again.
 							continue;
@@ -173,16 +191,22 @@ public class ModelSoundingDialogContents {
 				}
 			}
     	}
-		
+    	ldDia.stopWaitCursor();
 	}
     
     private void queryAndLoadData(boolean stnQuery) {
     	soundingLysLstMap.clear();
+    	ldDia.startWaitCursor();
+    	//Chin Note: Since NcGrib/Grib HDF5 data file is created based on a forecast time line, we can not query 
+    	// more than one time line at one time as Edex server just could not support such query at one shot.
+    	//This is not the case of PFC sounding (modelsounding db). It has all time lines of one forecast report
+    	// saved in one file. Therefore, PFC query is much faster.
     	for(String timeLine: selectedTimeList){
     		// avail file, ie. its refTime
     		String selectedFileStr = timeLineToFileMap.get(timeLine); 
+    		String rangeStartStr = NcSoundingQuery.convertSoundTimeDispStringToRangeStartTimeFormat(timeLine);
     		float[][] latLon = {{lat, lon}};
-    		NcSoundingCube cube = NcSoundingQuery.mdlSoundingQueryByLatLon(selectedFileStr+":00:00",timeLine, latLon, gribDecoderName,selectedModel, false, "-1");
+    		NcSoundingCube cube = NcSoundingQuery.mdlSoundingQueryByLatLon(selectedFileStr+":00:00",rangeStartStr, latLon, gribDecoderName,selectedModel, false, "-1");
     		if(cube != null && cube.getRtnStatus()== NcSoundingCube.QueryStatus.OK){
     			//System.out.println("mdlSoundingQueryByLatLon returnd ok");
         		
@@ -240,7 +264,7 @@ public class ModelSoundingDialogContents {
     			//return;
     		}
     	}
-        
+    	ldDia.stopWaitCursor();
     	NsharpSkewTDisplay renderableDisplay;
     	NsharpSkewTEditor skewtEdt = NsharpSkewTEditor.createOrOpenSkewTEditor();
     	renderableDisplay = (NsharpSkewTDisplay) skewtEdt.getActiveDisplayPane().getRenderableDisplay();
@@ -253,7 +277,7 @@ public class ModelSoundingDialogContents {
     	stnInfo.setLongitude(lon);
     	skewRsc.addRsc(soundingLysLstMap, stnInfo);
 		skewRsc.setSoundingType(selectedModel);
-		
+		NsharpSkewTEditor.bringSkewTEditorToTop();
     }
     private void createModelTypeList(){
     	if(modelTypeList!=null)
@@ -262,27 +286,48 @@ public class ModelSoundingDialogContents {
     		sndTimeList.removeAll();
     	if(availableFileList!=null)
     		availableFileList.removeAll();
-    	Object[] mdlNames = NcSoundingQuery.soundingModelNameQuery(gribDecoderName);
+    	ldDia.startWaitCursor();
+    	NcSoundingModel mdlNames = NcSoundingQuery.soundingModelNameQuery(gribDecoderName);
+		//System.out.println("return from NcSoundingQuery ");
+		if(mdlNames != null)
+			for(String MdlStr: mdlNames.getMdlList()){
+			//System.out.println("model name:"+MdlStr);
+				modelTypeList.add(MdlStr);
+			}
+		ldDia.stopWaitCursor();
+    }
+    /*
+    private void createModelTypeListOld(){
+    	if(modelTypeList!=null)
+    		modelTypeList.removeAll();
+    	if(sndTimeList!=null)
+    		sndTimeList.removeAll();
+    	if(availableFileList!=null)
+    		availableFileList.removeAll();
+    	ldDia.startWaitCursor();
+    	Object[] mdlNames = NcSoundingQuery.soundingModelNameQueryOld(gribDecoderName);
 		//System.out.println("return from NcSoundingQuery ");
 		if(mdlNames != null)
 			for(Object MdlStr: mdlNames){
 			//System.out.println("model name:"+MdlStr);
 				modelTypeList.add((String)MdlStr);
 			}
-    }
+		ldDia.stopWaitCursor();
+    }*/
 	public void createMdlDialogContents(){
+		selectedFileList.clear();
 		topGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		topGp.setLayout( new GridLayout( 2, false ) );
-		NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
-		ldDia.setShellSize(true);
+		
 		ldDia.createSndTypeList(topGp);
 		
 		modelTypeGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
 		modelTypeGp.setText("Model Type");
-
+		modelTypeGp.setFont(newFont);
 		modelTypeList = new org.eclipse.swt.widgets.List(modelTypeGp, SWT.BORDER  | SWT.MULTI| SWT.V_SCROLL  );
-		modelTypeList.setBounds(modelTypeGp.getBounds().x, modelTypeGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.filelistHeight );
+		modelTypeList.setBounds(modelTypeGp.getBounds().x, modelTypeGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.listHeight );
 		//query to get and add available sounding models from DB
+		modelTypeList.setFont(newFont);
 		createModelTypeList();
 		/*
 		Object[] mdlNames = NcSoundingQuery.soundingModelNameQuery(gribDecoderName);
@@ -304,33 +349,54 @@ public class ModelSoundingDialogContents {
 		} );
 		Group gribGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
 		gribGp.setText("Database");
+		gribGp.setFont(newFont);
 		gribGp.setLayout( new GridLayout( 2, false ) );
 		Button ncgribBtn = new Button(gribGp, SWT.RADIO | SWT.BORDER);
 		ncgribBtn.setText("NCGrib");
 		ncgribBtn.setEnabled( true );
-		ncgribBtn.setSelection(true);
+		if(currentDb == DBType.NCGRIB)
+			ncgribBtn.setSelection(true);
+		ncgribBtn.setFont(newFont);
 		ncgribBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				gribDecoderName = NcSoundingQuery.NCGRIB_PLUGIN_NAME;
 				//query to get and add available sounding models from DB
+				currentDb = DBType.NCGRIB;
 				createModelTypeList();
 			}          		            	 	
 		} );  
 		Button gribBtn = new Button(gribGp, SWT.RADIO | SWT.BORDER);
 		gribBtn.setText("Grib");
+		gribBtn.setFont(newFont);
 		gribBtn.setEnabled( true );
+		if(currentDb == DBType.GRIB)
+			gribBtn.setSelection(true);
 		gribBtn.setBounds(modelTypeGp.getBounds().x+ NsharpConstants.btnGapX, ncgribBtn.getBounds().y + ncgribBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
 		gribBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				gribDecoderName = NcSoundingQuery.GRIB_PLUGIN_NAME;
 				//query to get and add available sounding models from DB
+				currentDb = DBType.GRIB;
 				createModelTypeList();
+				
 			}          		            	 	
 		} );  
-		
-		timeBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
+		/*
+		Button ncgribTestBtn = new Button(gribGp, SWT.RADIO | SWT.BORDER);
+		ncgribTestBtn.setText("NCGribTest");
+		ncgribTestBtn.setEnabled( true );
+		ncgribTestBtn.setSelection(false);
+		ncgribTestBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				gribDecoderName = NcSoundingQuery.NCGRIB_PLUGIN_NAME;
+				//query to get and add available sounding models from DB
+				createModelTypeListOld();
+			}          		            	 	
+		} );  */
+		timeBtn = new Button(topGp, SWT.CHECK | SWT.BORDER);
 		timeBtn.setText("00Z and 12Z only");
 		timeBtn.setEnabled( true );
+		timeBtn.setFont(newFont);
 		//timeBtn.setBounds(modelTypeGp.getBounds().x+ NsharpConstants.btnGapX, modelTypeGp.getBounds().y + modelTypeGp.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
 
 		timeBtn.addListener( SWT.MouseUp, new Listener() {
@@ -348,17 +414,19 @@ public class ModelSoundingDialogContents {
 			}          		            	 	
 		} );  
 		
-		bottomGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
-		bottomGp.setLayout( new GridLayout( 2, false ) );
+		//bottomGp = new Group(topGp,SWT.SHADOW_ETCHED_IN);
+		//bottomGp.setLayout( new GridLayout( 2, false ) );
 		
-		availableFileGp = new Group(bottomGp,SWT.SHADOW_ETCHED_IN);
+		availableFileGp = new Group(topGp,SWT.SHADOW_ETCHED_IN);
 		availableFileGp.setText("Available Grid files:");
+		availableFileGp.setFont(newFont);
 		availableFileList = new org.eclipse.swt.widgets.List(availableFileGp, SWT.BORDER  | SWT.MULTI| SWT.V_SCROLL  );
-		availableFileList.setBounds(availableFileGp.getBounds().x, availableFileGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.filelistHeight );
+		availableFileList.setBounds(availableFileGp.getBounds().x, availableFileGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.listHeight*32/5 );
+		availableFileList.setFont(newFont);
 		//create a selection listener to handle user's selection on list		
 		availableFileList.addListener ( SWT.Selection, new Listener () {
 			private String selectedFile=null;	
-			
+
 			public void handleEvent (Event e) {   			
 				if (availableFileList.getSelectionCount() > 0 ) {
 					selectedFileList.clear();
@@ -373,11 +441,13 @@ public class ModelSoundingDialogContents {
 		} );
 		
 		 //create Sounding Times widget list 
-		sndTimeListGp = new Group(bottomGp,SWT.SHADOW_ETCHED_IN);
+		sndTimeListGp = new Group(topGp,SWT.SHADOW_ETCHED_IN);
 		sndTimeListGp.setText("Sounding Times:");
+		sndTimeListGp.setFont(newFont);
 		sndTimeList = new org.eclipse.swt.widgets.List(sndTimeListGp, SWT.BORDER  | SWT.MULTI| SWT.V_SCROLL  );
 		sndTimeList.removeAll();
-		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight );
+		sndTimeList.setFont(newFont);
+		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight *32/5);
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
 			private String selectedSndTime=null;
     		public void handleEvent (Event e) {   			
@@ -394,14 +464,14 @@ public class ModelSoundingDialogContents {
     		}
     	});
 		locationMainGp= new Group(parent,SWT.SHADOW_ETCHED_IN);
-		locationMainGp.setLayout( new GridLayout( 2, false ) );
+		locationMainGp.setLayout( new GridLayout( 5, false ) );
 		locationMainGp.setText("Location");
-		//latlonBtn.setBounds(x, y, width, height);
-		//locationTypeGp = new Group(locationMainGp,SWT.SHADOW_ETCHED_IN);
+		locationMainGp.setFont(newFont);
 		latlonBtn = new Button(locationMainGp, SWT.RADIO | SWT.BORDER);
-		latlonBtn.setText("Lat/Lon         ");
+		latlonBtn.setText("Lat/Lon");
+		latlonBtn.setFont(newFont);
 		latlonBtn.setEnabled(true);
-		//latlonBtn.setBounds(locationMainGp.getBounds().x+ NsharpConstants.btnGapX, locationMainGp.getBounds().y + NsharpConstants.labelGap, bottomGp.getBounds().width/2, NsharpConstants.btnHeight);
+		//latlonBtn.setBounds(locationMainGp.getBounds().x+ NsharpConstants.btnGapX, locationMainGp.getBounds().y + NsharpConstants.labelGap, 10, NsharpConstants.btnHeight);
 		latlonBtn.setSelection(true);
 		latlonBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
@@ -410,9 +480,9 @@ public class ModelSoundingDialogContents {
 			}          		            	 	
 		} ); 
 		stationBtn = new Button(locationMainGp, SWT.RADIO | SWT.BORDER);
-		stationBtn.setText("Station          ");
+		stationBtn.setText("Station");
 		stationBtn.setEnabled(true);
-		//stationBtn.setBounds(locationMainGp.getBounds().x+latlonBtn.getBounds().width+ NsharpConstants.btnGapX, latlonBtn.getBounds().y, bottomGp.getBounds().width/2,NsharpConstants.btnHeight);
+		stationBtn.setFont(newFont);
 		stationBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				currentLocType = LocationType.STATION;
@@ -423,11 +493,13 @@ public class ModelSoundingDialogContents {
 		locationLbl = new Label(locationMainGp, SWT.NONE | SWT.BORDER);
 		//locationLbl.setBounds(latlonBtn.getBounds().x, latlonBtn.getBounds().y + latlonBtn.getBounds().height+ NsharpConstants.btnGapY, bottomGp.getBounds().width/2,NsharpConstants.btnHeight);
 		locationLbl.setText("Location:");
+		locationLbl.setFont(newFont);
 		locationText = new Text(locationMainGp, SWT.BORDER | SWT.SINGLE);
 		GridData data1 = new GridData (SWT.FILL,SWT.FILL, true, true);
 		locationText.setLayoutData (data1);
 		//locationText.setBounds(stationBtn.getBounds().x, locationLbl.getBounds().y,450,NsharpConstants.btnHeight);
 		locationText.setTextLimit(15);
+		locationText.setFont(newFont);
 		locationText.addListener (SWT.Verify, new Listener () {
 			public void handleEvent (Event e) {
 				String userInputStr = e.text;
@@ -453,6 +525,7 @@ public class ModelSoundingDialogContents {
 		
 		loadBtn = new Button(locationMainGp, SWT.PUSH);
 		loadBtn.setText("Load ");
+		loadBtn.setFont(newFont);
 		loadBtn.setEnabled( true );
 		loadBtn.setBounds(locationMainGp.getBounds().x+ NsharpConstants.btnGapX, locationLbl.getBounds().y + locationLbl.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);	
 		loadBtn.addListener( SWT.MouseUp, new Listener() {
@@ -524,6 +597,21 @@ public class ModelSoundingDialogContents {
 				}
 			}          		            	 	
 		} );  
+		/*newTabBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
+		newTabBtn.setText("new skewT editor");
+		newTabBtn.setEnabled( true );
+		//newTabBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
+		newTabBtn.setFont(newFont);
+		newTabBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				if(newTabBtn.getSelection())
+					newtab = true;
+				else
+					newtab = false;
+				
+			}          		            	 	
+		} );  
+		 */
 	}
 	
 	public void cleanup(){
@@ -562,18 +650,15 @@ public class ModelSoundingDialogContents {
 			modelTypeGp.dispose();
 			modelTypeGp = null;
 		}
+		if(timeBtn != null){
+		timeBtn.removeListener(SWT.MouseUp, timeBtn.getListeners(SWT.MouseUp)[0]);
+		timeBtn.dispose();
+		timeBtn = null;
+		}
+	
 		NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
 		ldDia.cleanSndTypeList();
-		if(topGp!= null){
-			topGp.dispose();
-			topGp = null;
-		}
 		
-		if(timeBtn != null){
-			timeBtn.removeListener(SWT.MouseUp, timeBtn.getListeners(SWT.MouseUp)[0]);
-			timeBtn.dispose();
-			timeBtn = null;
-		}
 		
 		
 		
@@ -600,6 +685,11 @@ public class ModelSoundingDialogContents {
 			bottomGp.dispose();
 			bottomGp = null;
 		}
+		if(topGp!= null){
+			topGp.dispose();
+			topGp = null;
+		}
+
 		if(loadBtn != null){
 			loadBtn.removeListener(SWT.MouseUp, loadBtn.getListeners(SWT.MouseUp)[0]);
 			loadBtn.dispose();
@@ -629,5 +719,11 @@ public class ModelSoundingDialogContents {
 			locationMainGp.dispose();
 			locationMainGp = null;
 		}
+		/*if(newTabBtn != null){
+			newTabBtn.removeListener(SWT.MouseUp, newTabBtn.getListeners(SWT.MouseUp)[0]);
+			newTabBtn.dispose();
+			newTabBtn = null;
+		}*/
+
 	}
 }

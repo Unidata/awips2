@@ -17,6 +17,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.ceil;
 import static java.lang.Math.floor;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaFormat.FcstHrListPair;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 04/11					J. Wu		Move MT_OBSC loading to GfaClip and 
  * 										pre-load it when PGEN is activated.
  * 07/11					J. Wu		Remove smears with empty state list.
+ * 03/12	    #601		J. Wu		Fixed conditional wording for "contgByd".
  * 
  * </pre>
  * 
@@ -200,7 +202,7 @@ public class GfaRules {
 	 * @param clipped
 	 * @param originalSS
 	 */
-	private static void setWording(ArrayList<Gfa> clipped, ArrayList<Gfa> originalSS) {
+	private static void setWording(ArrayList<Gfa> clipped, ArrayList<Gfa> originalSS ) {
         
 		ArrayList<Gfa>	checkStates= new ArrayList<Gfa>();
 		for ( Gfa smear : clipped ) {
@@ -224,7 +226,7 @@ public class GfaRules {
 			/* see corresponding method af_getSSAttr in the legacy code 
 			 * /nawips/gempak/source/textlib/airmet/afutils.c *
 			 * /
-			
+						
 		    /*
 		     *  Find the type of each snapshot and assign to SNAPSHOT_TYPE attribute.
 		     *  
@@ -250,7 +252,7 @@ public class GfaRules {
 
 			// <FROM CONDS ENDG> wording.
 			wording.fromCondsEndg = fromCondsEndg( smear, originalSS );
-			
+						
 			int[] olkSeq = findOtlkSeq(originalSS);
 			
 			// GEN_OLK wording
@@ -263,9 +265,9 @@ public class GfaRules {
 			// OTLK CONDS CONTG BYD wording
 			// since "smear" element can be either Smear or Outlook, we need an if statement
 			if (smear.isAirmet()) { // not for outlooks
-				wording.condsContg = contgBydWording( originalSS, olkSeq );
+				wording.condsContg = contgBydWording( originalSS, olkSeq, smear );
 			}
-
+			
 			// OTLK CONDS DVLPG wording
 			if ("YES".equalsIgnoreCase(wording.genOlk)) {
 				wording.otlkCondsDvlpg = otlkDvlpgWording( originalSS, olkSeq );
@@ -452,7 +454,7 @@ public class GfaRules {
 			ArrayList<Gfa> otkl = first.getAttribute("OTLK_LIST", ArrayList.class); 
 			if (otkl == null || otkl.isEmpty()) return;
 			smearP = findTheSmear(smearP, outlooks);
-			//			smearP = GfaClip.gfaToPolygon((Gfa)otkl.get(0).getAttribute("AIRMETS"));
+			//smearP = GfaClip.gfaToPolygon((Gfa)otkl.get(0).getAttribute("AIRMETS"));
 			for(Gfa g: otkl) {
 				if(g == originalSS.get(0)) continue;
 				assignSnapshotType(smearP, g);
@@ -771,10 +773,12 @@ public class GfaRules {
 		for(int i=0; i<3; i++) {
 			olkSeq[i] = -1;
 		}
+		
 		for(int ii=0; ii< originalSS.size(); ii++) {
 			String fcstHr = originalSS.get(ii).getGfaFcstHr();
 			int[] hm = Gfa.getHourMinInt(nvl(fcstHr));
 			if (hm[1] != 0) continue;
+
 			if (hm[0] == startHour) {
 				olkSeq[0] = ii;
 			} else if (hm[0] == (startHour + 3)) {
@@ -896,7 +900,7 @@ public class GfaRules {
 				// 
 				// the formula from tt 8.106 takes precedence over the earlier one 
 				// 
-				// ratio = (Outlook Area â Intersect Area)/ State Area
+				// ratio = (Outlook Area - Intersect Area)/ State Area
 				// 
 				Geometry a = airmetP.intersection(stateP);
 				Geometry o = outlookP.intersection(stateP);
@@ -926,11 +930,12 @@ public class GfaRules {
 	/**
 	 * OTLK CONDS CONTG BYD wording
 	 * 
-	 * @param originalSS
+	 * @param origSS
 	 * @param olkSeq
+	 * @param smr
 	 * @return
 	 */
-	private static String contgBydWording(ArrayList<Gfa> originalSS, int[] olkSeq) {
+	private static String contgBydWording(ArrayList<Gfa> origSS, int[] olkSeqIn, Gfa smr ) {
 	    
 	    /*
 	     * Wording Rules:
@@ -959,7 +964,7 @@ public class GfaRules {
 		
 	    // Proceed only if the 06 ss exists as an "X_SNAPSHOTS"
 		boolean ss06Exists = false;
-		for (Gfa g : originalSS) {
+		for (Gfa g : origSS) {
 			int[] hm = Gfa.getHourMinInt(g.getGfaFcstHr());
 			if (hm[0] == 6 && hm[1] == 0 && g.getAttribute(SNAPSHOT_TYPE) == SnapshotType.X) {
 				ss06Exists = true;
@@ -967,6 +972,12 @@ public class GfaRules {
 			}
 		}
 		if (!ss06Exists) return "";
+        
+		// Make a copy, since we need to adjust it here.
+		int[] olkSeq = new int[ olkSeqIn.length ];
+		for ( int ii = 0; ii < olkSeqIn.length; ii++ ) {
+			olkSeq[ ii ] = olkSeqIn[ ii ];
+		}
 
 		String wording = "";
 		int lastSS;
@@ -976,9 +987,13 @@ public class GfaRules {
 			lastSS = 1;
 		else
 			lastSS = 0; 
-
+        
+		ArrayList<Gfa> originalSS = new ArrayList<Gfa>(); 
+		originalSS.addAll( origSS );
+		
 		boolean isX = originalSS.get(olkSeq[lastSS]).getAttribute(SNAPSHOT_TYPE) == SnapshotType.X;
 		ArrayList<Gfa> otlkList = originalSS.get(olkSeq[lastSS]).getAttribute("OTLK_LIST", ArrayList.class);
+
 		// now test if OTLK_LIST list has 
 		if(lastSS == 0 && otlkList != null) {
 			for(Gfa g: otlkList) {
@@ -988,9 +1003,63 @@ public class GfaRules {
 				}
 			}
 		}
+        
+        /*
+         *  Find the types of outlook snapshots embedded in the airmet and adjust the 
+         *  type of outlook snapshots
+         */		
+		boolean adjEmbedOtlk = false;
+		ArrayList<Gfa> embedOtlks = originalSS.get(olkSeq[lastSS]).getAttribute( "OUTLOOKS", ArrayList.class);		
+		if ( embedOtlks != null && embedOtlks.size() > 0 ) {
+			
+			/*
+			 * Find the outlook originated from the same snapshots and clipped to
+			 * the same region
+			 */
+			Gfa otlkInSameRegion = null;
+			for ( Gfa gg : embedOtlks ) {
+				if ( gg.getAttribute( "FA_REGION").equals( smr.getAttribute( "FA_REGION") ) ) {
+					otlkInSameRegion = gg;
+					break;
+				}
+			}
+			
+			//Adjust the type
+			FcstHrListPair p = embedOtlks.get(0).getAttribute( "PAIR", FcstHrListPair.class );
+			for ( Gfa gg : p.getOriginal() ) {
+				if ( !originalSS.contains( gg ) ) {
+					Gfa  temp = gg.copy();
+					temp.addAttribute( SNAPSHOT_TYPE, SnapshotType.O );
+					
+					if ( otlkInSameRegion != null ) {
+					    Polygon otlkPoly = GfaClip.getInstance().gfaToPolygonInGrid( otlkInSameRegion );
+					    assignSnapshotType( otlkPoly, temp );
+					}
 
+					originalSS.add( temp );
+				}
+			}
+						
+			adjEmbedOtlk = true;
+		}
 		
-		if (isX) {
+		if ( adjEmbedOtlk ) {
+			olkSeq = findOtlkSeq( originalSS );
+			if (olkSeq[2] >= 0)
+				lastSS = 2;
+			else if (olkSeq[1] >= 0)
+				lastSS = 1;
+			else
+				lastSS = 0; 
+			
+			isX = originalSS.get( olkSeq[lastSS] ).getAttribute(SNAPSHOT_TYPE) == SnapshotType.X;
+		}
+ 		
+		/*
+		 * wording....
+		 */		
+		if ( isX ) {
+
 			String hourMinStr = originalSS.get(olkSeq[lastSS]).getGfaFcstHr();
 			int [] hm = Gfa.getHourMinInt(hourMinStr);
 			String lastXinOtlk= "";
@@ -998,14 +1067,16 @@ public class GfaRules {
 					&& otlkList.get(otlkList.size() -1).getAttribute(SNAPSHOT_TYPE) == SnapshotType.X) {
 				lastXinOtlk = otlkList.get(otlkList.size()-1).getGfaFcstHr();
 			}
+			
 			if(hm[0] == 12 || "12".equals(lastXinOtlk)) {
 				wording = "CONDS CONTG BYD +06Z THRU +12Z";
 			} else if (hm[0] == 9 || "9".equals(lastXinOtlk)) {
 				wording = "CONDS CONTG BYD +06Z ENDG +09-+12Z";
-			} else if (hm[0] == 6) {
+			} else if (hm[0] == 6 ) {
 				wording = "CONDS CONTG BYD +06Z ENDG +06-+09Z";
 			}
-		} else {
+		} 
+		else {
 			int firstO = lastSS;
 			int firstX = -1;
 

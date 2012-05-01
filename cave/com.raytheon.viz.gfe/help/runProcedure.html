@@ -6,17 +6,17 @@
   <meta name="Author" content="Tracy Hansen">
   <meta name="GENERATOR"
  content="Mozilla/4.61 [en] (WinNT; I) [Netscape]">
-  <title>ifpBreakAllLocks</title>
+  <title>runProcedure</title>
 </head>
 <body>
 <h1>
 runProcedure User's Guide</h1>
 <br>
-May 14, 2004<br>
+January 4, 2012<br>
 <hr style="width: 100%; height: 2px;"><br>
 <font color="#000000">The runProcedure program is part of the
 GFESuite software which allows the user to run a Procedure from the
-command line.&nbsp;
+command line.
 </font><br>
 <hr width="100%">
 <h2>Running the program</h2>
@@ -33,9 +33,7 @@ timeRange] <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [-m mutableModel] [-z drtTime][-V varDict]<br>
 </tt></b>
-&nbsp;
 <br>
-&nbsp;
 <table border="1" width="100%">
   <tbody>
     <tr>
@@ -59,12 +57,12 @@ instructions on creating Procedures.</td>
     </tr>
     <tr>
       <td>-h</td>
-      <td>Optional. Host name upon which the ifpServer is running.
+      <td>Optional. Host name upon which EDEX is running.
 Default is taken from the siteConfig file.</td>
     </tr>
     <tr>
       <td>-p</td>
-      <td>Optional. RPC port upon which the ifpServer is running.
+      <td>Optional. RPC port upon which EDEX is running.
 Default is taken from the siteConfig file. </td>
     </tr>
     <tr>
@@ -110,17 +108,16 @@ the form of type_model or type_model_time, such as "_Fcst" or
     <tr>
       <td style="vertical-align: top;">-z<br>
       </td>
-      <td style="vertical-align: top;">The procedure may be run in the <a
- href="gfeConfig_Misc.html#DisplacedRealTimeOffset">Displaced
-Real Time Mode</a>.&nbsp; <br>
+      <td style="vertical-align: top;">The procedure may be run in the Displaced
+Real Time Mode.
       </td>
     </tr>
     <tr>
       <td style="vertical-align: top;">-V&nbsp; <br>
       </td>
       <td style="vertical-align: top;">&nbsp;Use this option to provide
-a run-time VariableList instead of displaying the user dialog.<br>
-The varDict must be in the form of a Python dictionary string, e.g.<br>
+a run-time VariableList instead of displaying the user dialog.
+The varDict must be in the form of a Python dictionary string, e.g.:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 -V&nbsp; '{"Input Variable":"variable value", "Another variable": 25}'<br>
       </td>
@@ -131,8 +128,8 @@ The varDict must be in the form of a Python dictionary string, e.g.<br>
 <p></p>
 <hr width="100%"><br>
 Sample Command Line
-<p><tt>./runProcedure -n QPF_SnowAmt -u hansen -h pollux -p 98000000 -c
-gfeConfig -a BoulderCounty -t Today </tt>
+<p><tt>./runProcedure -n QPF_SnowAmt -u jsmith -h dx3-oax -p 9581 -c
+gfeConfig -a SomeCounty -t Today </tt>
 <br>
 </p>
 </body>

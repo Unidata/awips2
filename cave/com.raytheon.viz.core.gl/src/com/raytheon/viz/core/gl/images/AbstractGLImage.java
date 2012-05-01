@@ -24,12 +24,10 @@ import javax.media.opengl.glu.GLU;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.GLContextBridge;
 import com.raytheon.viz.core.gl.objects.GLFrameBufferObject;
 import com.raytheon.viz.core.gl.objects.GLRenderBuffer;
-import com.sun.opengl.util.texture.TextureCoords;
 
 /**
  * 
@@ -71,10 +69,7 @@ public abstract class AbstractGLImage implements IImage {
     // Used for offscreen rendering
     private GLRenderBuffer rbuf;
 
-    private Class<? extends IImagingExtension> extensionClass;
-
-    protected AbstractGLImage(Class<? extends IImagingExtension> extensionClass) {
-        this.extensionClass = extensionClass;
+    protected AbstractGLImage() {
     }
 
     /**
@@ -222,75 +217,11 @@ public abstract class AbstractGLImage implements IImage {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IImage#getExtensionClass()
-     */
-    @Override
-    public Class<? extends IImagingExtension> getExtensionClass() {
-        return extensionClass;
-    }
-
-    /**
-     * Binds the texture. Default implementation takes the textureId and binds
-     * to GL_TEXTURE0. Use bind(int) for more control
-     * 
-     * @return
-     */
-    public boolean bind(GL gl) {
-        return bind(gl, GL.GL_TEXTURE0);
-    }
-
-    public boolean bind(GL gl, int texture) {
-        int texId = getTextureid();
-        if (texId > 0) {
-            int textureType = getTextureStorageType();
-            gl.glActiveTexture(texture);
-            gl.glBindTexture(textureType, texId);
-
-            // Apply interpolation
-            if (isInterpolated()) {
-                gl.glTexParameteri(textureType, GL.GL_TEXTURE_MIN_FILTER,
-                        GL.GL_LINEAR);
-                gl.glTexParameteri(textureType, GL.GL_TEXTURE_MAG_FILTER,
-                        GL.GL_LINEAR);
-            } else {
-                gl.glTexParameteri(textureType, GL.GL_TEXTURE_MIN_FILTER,
-                        GL.GL_NEAREST);
-                gl.glTexParameteri(textureType, GL.GL_TEXTURE_MAG_FILTER,
-                        GL.GL_NEAREST);
-            }
-            return true;
-        }
-        return false;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IImage#stage()
-     */
-    @Override
-    public final void stage() throws VizException {
-        Status status = getStatus();
-        if (status != Status.LOADED && status != Status.STAGED) {
-            setStatus(Status.LOADING);
-            if (stageTexture()) {
-                setStatus(Status.STAGED);
-            } else {
-                setStatus(Status.FAILED);
-            }
-        }
-    }
-
-    public abstract TextureCoords getTextureCoords();
-
     public abstract int getTextureid();
 
     public abstract int getTextureStorageType();
 
-    public abstract boolean stageTexture() throws VizException;
+    public abstract void stageTexture() throws VizException;
 
     public abstract void loadTexture(GL gl) throws VizException;
 
