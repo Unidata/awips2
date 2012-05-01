@@ -28,17 +28,22 @@ import javax.media.opengl.GL;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.Activator;
 import com.raytheon.viz.core.gl.GLGeometryObject2D;
 import com.raytheon.viz.core.gl.GLGeometryObject2D.GLGeometryObjectData;
 import com.raytheon.viz.core.gl.IGLTarget;
@@ -69,7 +74,7 @@ public class GLWireframeShape2D implements IWireframeShape {
     /** list of labels to draw */
     private List<DrawableString> labels;
 
-    private IDescriptor descriptor;
+    private MathTransform worldToTargetGrid;
 
     private boolean compiled = false;
 
@@ -82,12 +87,22 @@ public class GLWireframeShape2D implements IWireframeShape {
                 GL.GL_VERTEX_ARRAY);
         geomData.mutable = mutable;
         geomData.worldExtent = new PixelExtent(gridGeometry.getGridRange());
-        initialize();
-    }
 
-    public GLWireframeShape2D(IDescriptor descriptor, boolean mutable) {
-        this(descriptor.getGridGeometry(), mutable);
-        this.descriptor = descriptor;
+        MathTransform worldToCRS = AbstractDescriptor
+                .getWorldToCRSTransform(gridGeometry);
+        if (worldToCRS != null) {
+            try {
+                MathTransform crsToGrid = gridGeometry.getGridToCRS().inverse();
+                worldToTargetGrid = new DefaultMathTransformFactory()
+                        .createConcatenatedTransform(worldToCRS, crsToGrid);
+            } catch (Exception e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        "Error getting transform from base crs to target grid",
+                        e);
+            }
+        }
+
+        initialize();
     }
 
     private void initialize() {
@@ -158,16 +173,23 @@ public class GLWireframeShape2D implements IWireframeShape {
      */
     @Override
     public void addLineSegment(Coordinate[] worldCoords) {
-        if (descriptor == null) {
-            throw new UnsupportedOperationException(
-                    "Cannot add coordinate line segment to a wireframe shape that does not have a MapDescriptor.");
-        }
-
         double screenCoords[][] = new double[worldCoords.length][];
         for (int i = 0; i < worldCoords.length; ++i) {
             Coordinate c = worldCoords[i];
-            screenCoords[i] = descriptor
-                    .worldToPixel(new double[] { c.x, c.y });
+            if (worldToTargetGrid != null) {
+                try {
+                    double[] out = new double[2];
+                    worldToTargetGrid.transform(new double[] { c.x, c.y }, 0,
+                            out, 0, 1);
+                    screenCoords[i] = out;
+                } catch (TransformException e) {
+                    // Ignore...
+                }
+            } else {
+                // Assume no conversion needed
+                screenCoords[i] = new double[] { c.x, c.y };
+            }
+
         }
         addLineSegment(screenCoords);
     }
