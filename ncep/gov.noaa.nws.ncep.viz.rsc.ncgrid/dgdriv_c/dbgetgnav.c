@@ -3,7 +3,7 @@
 #include "dbcmn.h"
 #include <sys/timeb.h>
 
-void db_getgnav (char *model, char *eventName, char *gridNav, int *lGridNav, int *iret )  
+void db_getgnav (char *model, char *eventName,char *navTime, char *gridNav, int *lGridNav, int *iret )  
 /************************************************************************
  *									*
  * db_getgnav               						*
@@ -32,7 +32,7 @@ void db_getgnav (char *model, char *eventName, char *gridNav, int *lGridNav, int
     *lGridNav = 0;
     gridNav[0] = '\0';
     diagMessage[0] = '\0';
-    sprintf (queryText, "%s|%s",model,eventName);
+    sprintf (queryText, "%s|%s|%s",model,eventName,navTime);
    /*
     * Execute the callback to get the navigation
     */

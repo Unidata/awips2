@@ -18,6 +18,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.AbstractSigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -74,6 +75,10 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 03/10		#223		M.Laryukhin	Refactored getVOR method to be used with gfa too.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 12/11		#526		B. Yin		Close dialog after saving text.
+ * 01/12		#597		S. Gurung	Removed Snapping for ConvSigmet
+ * 02/12        #597        S. Gurung   Removed snapping for NonConvSigmet. Moved snap functionalities to SnapUtil from SigmetInfo.
+ * 03/12        #611        S. Gurung   Fixed ability to change SIGMET type (from Area to Line/Isolated and back and forth)
+ *  
  * </pre>
  * 
  * @author	gzhang
@@ -91,7 +96,8 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 	public static final String AREA = "Area", LINE = "Line", ISOLATED = "Isolated";
 	public static final String LINE_SEPERATER = ":::";
 	
-	private String lineType = "";
+	private String lineType = AREA;
+	private String origLineType = lineType; 
 	private static final String WIDTH = "10.00";
 	private String width = WIDTH;
 	
@@ -236,9 +242,18 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 	}
 	
 	public void setLineType(String lType){
+		setOrigLineType(getLineType());
 		this.lineType = lType;
 	}
 	
+	public String getOrigLineType(){
+		return this.origLineType;
+	}
+	
+	public void setOrigLineType(String lType){
+		this.origLineType = lType;
+	}
+		
 	public String getSideOfLine(){
 		return this.sideOfLine;
 	}	
@@ -247,8 +262,8 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 		this.sideOfLine = lineSideString;
 	}
 	
-	public String getWidth(){	
-		return this.width;
+	public double getWidth(){	
+		return Double.parseDouble(this.width);
 	}
 	
 	public void setWidth(String widthString){
@@ -288,6 +303,10 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 	        else if("NCON_SIGMET".equals(this.pgenType)) this.getShell().setText("Non-convective SIGMET Edit");
 	        else if("AIRM_SIGMET".equals(this.pgenType)) this.getShell().setText("AIRMET Edit");
 	        else if("OUTL_SIGMET".equals(this.pgenType)) this.getShell().setText("Convective Outlook Edit");
+	        
+	        if("NCON_SIGMET".equals(this.pgenType) || "AIRM_SIGMET".equals(this.pgenType) || "OUTL_SIGMET".equals(this.pgenType)) {
+	        	SigmetCommAttrDlg.this.setLineType(AREA);
+	        }
 	        
 	        final Button btnArea = new Button(top,SWT.RADIO);	        
 	        btnArea.setSelection(true); //default 	  
@@ -370,7 +389,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 		    	   
 		    	   String[] MWO_ITEMS = SigmetInfo.AREA_MAP.get(SigmetInfo.getSigmetTypeString(pgenType));
 		    	   String[] ID_ITEMS  = SigmetInfo.ID_MAP.get(SigmetInfo.getSigmetTypeString(pgenType));
-		    	   	    	   
+		    	   	 
 		    	   Composite topSelect = (Composite) super.createDialogArea(parent);
 		    	   
 		    	   GridLayout mainLayout2 = new GridLayout(8,false);
@@ -428,9 +447,10 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 		        	});
 		        	
 			        final Button btnNew = new Button(top2,SWT.RADIO);
-			        btnNew.setSelection(true);	
+			        //btnNew.setSelection(true);	
 			        btnNew.setText("New(Prepend dir)");
 			        btnNew.setLayoutData(new GridData(SWT.LEFT,SWT.CENTER,true,false,2,1));
+			        btnNew.setEnabled(false);	
 			        
 			        final Button btnOld = new Button(top2,SWT.RADIO);
 			        btnOld.setText("Old(Postpend dir)");
@@ -440,7 +460,8 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 			        final Button btnVor = new Button(top2,SWT.RADIO);
 			        btnVor.setText("VOR");
 			        btnVor.setLayoutData(new GridData(SWT.LEFT,SWT.CENTER,true,false,4,1));
-			        btnVor.setEnabled(false);
+			        btnVor.setEnabled(true);
+			        btnVor.setSelection(true);	
 			        
 				        int style = SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.READ_ONLY;
 				       txtInfo = new Text( top2, style );
@@ -490,14 +511,17 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 	}
 	
     private String getVOR(Coordinate[] coors){
-    	boolean isSnapped = "NCON_SIGMET".equals(pgenType)||"CONV_SIGMET".equals(pgenType)||"OUTL_SIGMET".equals(pgenType);
+    	boolean isSnapped = false;//"NCON_SIGMET".equals(pgenType)||"OUTL_SIGMET".equals(pgenType)||"CONV_SIGMET".equals(pgenType);
 		String vorConnector = ("NCON_SIGMET".equals(pgenType)||"AIRM_SIGMET".equals(pgenType))? " TO " : "-";
 
-		if("OUTL_SIGMET".equals(pgenType)) {//20100824 outlook GUI NOT snapped but text is with 16 pts
+		/*if("OUTL_SIGMET".equals(pgenType)) {//20100824 outlook GUI NOT snapped but text is with 16 pts
 			ArrayList<Coordinate> p = SigmetInfo.getSnapWithStation(Arrays.asList(coors), SigmetInfo.VOR_STATION_LIST, 10, 16); 
-			return SigmetInfo.getVORText(p.toArray(new Coordinate[]{}), vorConnector, lineType, 6, isSnapped);
-		}    	
-		return SigmetInfo.getVORText(coors, vorConnector, lineType, 6, isSnapped);
+			return SigmetInfo.getVORText(p.toArray(new Coordinate[]{}), vorConnector, lineType, 6, true);
+		}  */  	
+		if("OUTL_SIGMET".equals(pgenType)) {
+			return SnapUtil.getVORText(coors, vorConnector, lineType, 6, isSnapped, true, false, "OUTL_SIGMET");
+		} 
+		return SnapUtil.getVORText(coors, vorConnector, lineType, 6, isSnapped);
     }
     
 	private void init(){
@@ -809,6 +833,10 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 					attrUpdate();
 					
 					copyEditableAttrToAbstractSigmet(newEl);
+					
+					// Change type and update From line
+					newEl = convertType(newEl);
+										
 					this.setAbstractSigmet(newEl);					
 					newList.add(newEl);
 				}
@@ -824,6 +852,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 		}
 		
 		if ( mapEditor != null ) 	mapEditor.refresh();
+		
 	}
 	
 	private void attrUpdate(){
@@ -1013,5 +1042,74 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public Sigmet convertType(Sigmet newEl) {
+		 
+		String origLineType = this.getOrigLineType(); 
+		String newLineType = this.getLineType();
+				
+		if (!newLineType.equals(origLineType)) {
+			
+			float p45 = 45.0F, p135 = 135.0F, p225 = 225.0F, p315 = 315.0F;
+			
+			ArrayList<Coordinate> ptsCopy = newEl.getPoints();
+			ArrayList<Coordinate> newPtsCopy = new ArrayList<Coordinate>();
+					
+			if (ISOLATED.equals(origLineType)) {    /* converting from a point (Isolated) */
+				
+				Coordinate centerCoor = ptsCopy.get(0);
+				
+				if (newLineType.startsWith(LINE)) { /* to a Line */	
+					 /*
+				     * 3 point diagonal with original point as middle point
+				     */
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(width), p315));
+					newPtsCopy.add(centerCoor);
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(width), p135));					
+				}
+				else {                              /* to an Area */	
+					/*
+				     * square centered around original point
+				     */
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(width), p45));
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(width), p135));		
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(width), p225));
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(width), p315));		
+				}			
 
+				newEl.setPoints(newPtsCopy);
+			}
+			else if (ISOLATED.equals(newLineType)) { /* converting to a point (Isolated) */
+				newPtsCopy.add(ptsCopy.get(0));	
+				newEl.setPoints(newPtsCopy);
+			}
+		}
+		
+		setSigmetFromLine(newEl);
+		return newEl;
+	}
+
+	public void setSigmetFromLine(gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement sigmet) {		
+		Coordinate[] coors = ((Sigmet)sigmet).getLinePoints();
+		
+		StringBuilder s = new StringBuilder(); 
+		s.append(this.getVOR(coors)); 
+		s.append(SigmetInfo.LINE_SEPERATER);    	
+		String fromLineText = s.append("VOR").toString();
+    	SigmetCommAttrDlg.this.setEditableAttrFromLine(fromLineText);
+    	
+		if(txtInfo != null && ! txtInfo.isDisposed() && s != null )			 
+			this.txtInfo.setText(s.toString());		
+	}
+
+	public void copyEditableAttrToSigmetAttrDlg(AbstractSigmet sig){
+		this.setEditableAttrArea(sig.getEditableAttrArea());
+		//sigDlg.setEditableAttrIssueOffice(this.getEditableAttrIssueOffice()); only intlSig need this
+		this.setEditableAttrFromLine(sig.getEditableAttrFromLine());
+		this.setEditableAttrId(sig.getEditableAttrId());
+		this.setEditableAttrSequence(sig.getEditableAttrSeqNum());
+		this.setLineType(sig.getType());
+		this.setWidth(""+(sig.getWidth()));
+	}	
+	
 }

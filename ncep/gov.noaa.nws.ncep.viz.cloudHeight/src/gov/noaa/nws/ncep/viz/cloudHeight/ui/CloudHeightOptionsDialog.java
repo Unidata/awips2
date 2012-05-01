@@ -40,10 +40,18 @@ import org.eclipse.swt.widgets.Text;
  * SOFTWARE HISTORY
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * 05/01/09		#106		Greg Hull		Initial creation
- * 06/01/11       #393     Archana            Added a spinner to select
- *                                                        the maximum time range for the 
- *                                                        station data.
+ * 05/01/09		#106        Greg Hull   Initial creation
+ * 06/01/11     #393        Archana     Added a spinner to select
+ *                                      the maximum time range for the 
+ *                                      station data.
+ * 02/16/12     #524        B. Hebbard  Resolve TODOs to change defaults for
+ *                                      sndDataSrc and useSinglePix (per legacy,
+ *                                      to STATION_DATA and false, respectively,
+ *                                      now that those modes are implemented)
+ * 03/01/12     #524        B. Hebbard  Rename "Close" button to "OK" and add
+ *                                      "Cancel" button (per legacy).
+ *                                      Add "hours" label to specify units for
+ *                                      max time range; other minor reformats.
  * </pre>
  * 
  * @author 
@@ -83,7 +91,7 @@ public class CloudHeightOptionsDialog extends Dialog {
     static private SoundingDataSourceType sndDataSrc = SoundingDataSourceType.STATION_DATA;
     static private double maxDistance = 0; 
     static private ComputationalMethod compMethod = ComputationalMethod.STANDARD;
-    static private boolean useSinglePix = true;
+    static private boolean useSinglePix = false;
     static private int  pixArea = 10; 
     static private PixelValueMethod pixValMethod = PixelValueMethod.MAX_VALUE;
     static private int  maxTimeIntervalForValidStationDataInHrs;     
@@ -141,7 +149,7 @@ public class CloudHeightOptionsDialog extends Dialog {
         stn_src_btn.setLayoutData( fd );
         
         stn_src_btn.addSelectionListener( new SoundingSourceListener() );
-        std_atm_src_btn.addSelectionListener( new SoundingSourceListener() );        
+        std_atm_src_btn.addSelectionListener( new SoundingSourceListener() );
         
         stn_dist_txt = new Text( snding_src_grp, SWT.SINGLE | SWT.BORDER );
         fd = new FormData( 60, 20 );
@@ -152,30 +160,30 @@ public class CloudHeightOptionsDialog extends Dialog {
         stn_dist_lbl = new Label( snding_src_grp, SWT.NONE );
         stn_dist_lbl.setText("Max Station Distance ("+sndDistUnits.toString()+") ");
         fd = new FormData( );
-        fd.bottom = new FormAttachment( stn_dist_txt, -2, SWT.TOP );
+        fd.bottom = new FormAttachment( stn_dist_txt, -4, SWT.TOP );
         fd.left  = new FormAttachment( stn_dist_txt, 0, SWT.LEFT );
         fd.right  = new FormAttachment( 100, -10 );
         stn_dist_lbl.setLayoutData( fd );
 
         spinnerLabel = new Label( snding_src_grp, SWT.NONE );
-        spinnerLabel.setText("Max Time Range for Station Data");
+        spinnerLabel.setText("Max Time Range for Stn Data ");
         fd = new FormData( );        
         fd.left  = new FormAttachment( stn_dist_txt, 0, SWT.LEFT );
         fd.top   = new FormAttachment( stn_dist_txt, 10, SWT.BOTTOM );
         spinnerLabel.setLayoutData(fd);
         
         Label spinnerRangeLabel1 = new Label(snding_src_grp, SWT.NONE );
-        spinnerRangeLabel1.setText(" _");
+        spinnerRangeLabel1.setText(" +");
         fd = new FormData( );
-        fd.top   = new FormAttachment( spinnerLabel, 12, SWT.BOTTOM );
+        fd.top   = new FormAttachment( spinnerLabel, 2, SWT.BOTTOM );
         fd.left  = new FormAttachment( stn_dist_txt, 0, SWT.LEFT );
         spinnerRangeLabel1.setLayoutData(fd);
  
         Label spinnerRangeLabel2 = new Label(snding_src_grp, SWT.NONE );
-        spinnerRangeLabel2.setText(" +");
+        spinnerRangeLabel2.setText(" _");
         fd = new FormData( );
-        fd.top   = new FormAttachment( spinnerRangeLabel1, 0, SWT.BOTTOM );
-        fd.left  = new FormAttachment( spinnerLabel, 0, SWT.LEFT );
+        fd.top   = new FormAttachment( spinnerRangeLabel1, -8, SWT.BOTTOM );
+        fd.left  = new FormAttachment( spinnerLabel, 2, SWT.LEFT );
         spinnerRangeLabel2.setLayoutData(fd);        
         
         spinner = new Spinner(snding_src_grp,  SWT.BORDER );
@@ -185,7 +193,7 @@ public class CloudHeightOptionsDialog extends Dialog {
         spinner.setIncrement(1);
         spinner.setSelection(maxTimeIntervalForValidStationDataInHrs);
         fd = new FormData( );
-        fd.top   = new FormAttachment( spinnerLabel, 16, SWT.BOTTOM );
+        fd.top   = new FormAttachment( spinnerLabel,  4, SWT.BOTTOM );
         fd.left  = new FormAttachment( spinnerLabel, 20, SWT.LEFT );
         spinner.setLayoutData(fd);
         
@@ -195,6 +203,13 @@ public class CloudHeightOptionsDialog extends Dialog {
             	maxTimeIntervalForValidStationDataInHrs = ( (Spinner) (e.widget)).getSelection();
 			}
 		});
+        
+        Label spinnerUnitsLabel = new Label( snding_src_grp, SWT.NONE );
+        spinnerUnitsLabel.setText("hours");
+        fd = new FormData();
+        fd.bottom = new FormAttachment( spinner, -4, SWT.BOTTOM );
+        fd.left  = new FormAttachment( spinner, 10, SWT.RIGHT );
+        spinnerUnitsLabel.setLayoutData( fd );
         
         comp_mthd_combo = new Combo( snding_src_grp, SWT.READ_ONLY );
         fd = new FormData( );
@@ -280,14 +295,14 @@ public class CloudHeightOptionsDialog extends Dialog {
         fd.bottom  = new FormAttachment( 100, -45 );
         sep_lbl.setLayoutData( fd );
 
-        Button close_btn = new Button( top_form, SWT.PUSH );
+        Button ok_btn = new Button( top_form, SWT.PUSH );
         fd = new FormData();
-        close_btn.setText("  Close  ");
+        ok_btn.setText("   OK   ");
         fd.top = new FormAttachment( sep_lbl, 10, SWT.BOTTOM );
         fd.right  = new FormAttachment( 100, -20 );
-        close_btn.setLayoutData( fd );
+        ok_btn.setLayoutData( fd );
 
-        close_btn.addSelectionListener(new SelectionAdapter() {
+        ok_btn.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
        			saveSeldOptions();	
        			shell.dispose();
@@ -296,9 +311,9 @@ public class CloudHeightOptionsDialog extends Dialog {
 
         Button dflts_btn = new Button( top_form, SWT.PUSH );
         fd = new FormData();
-        dflts_btn.setText("Reset Defaults");
-        fd.top = new FormAttachment( close_btn, 0, SWT.TOP );
-        fd.right  = new FormAttachment( close_btn, -20, SWT.LEFT );
+        dflts_btn.setText(" Reset Defaults ");
+        fd.top = new FormAttachment( ok_btn, 0, SWT.TOP );
+        fd.right  = new FormAttachment( ok_btn, -20, SWT.LEFT );
         dflts_btn.setLayoutData( fd );
 
         // how to pas the shell to the implicit SelectionListener?
@@ -308,6 +323,21 @@ public class CloudHeightOptionsDialog extends Dialog {
        			setWidgets();
        			cldHghtDlg.setUnitComboBoxes();
        	}});
+
+        Button cancel_btn = new Button( top_form, SWT.PUSH );
+        fd = new FormData();
+        cancel_btn.setText("  Cancel  ");
+        fd.top = new FormAttachment( sep_lbl, 10, SWT.BOTTOM );
+        //fd.right  = new FormAttachment( 100, -20 );
+        fd.right  = new FormAttachment( dflts_btn, -20, SWT.LEFT );
+        cancel_btn.setLayoutData( fd );
+
+        cancel_btn.addSelectionListener(new SelectionAdapter() {
+       		public void widgetSelected( SelectionEvent ev ) {
+       			// DON'T saveSeldOptions();	
+       			shell.dispose();
+       		}
+        });
         
         setWidgets();
     }
@@ -318,12 +348,10 @@ public class CloudHeightOptionsDialog extends Dialog {
 	    sndDistUnits = NonSI.NAUTICAL_MILE;
 	    tempUnits = SI.CELSIUS;
 	    heightUnits = NonSI.FOOT;
-	    // TODO : change this to STATION_DATA when it is implemented
-		sndDataSrc = SoundingDataSourceType.STANDARD_ATM;
+		sndDataSrc = SoundingDataSourceType.STATION_DATA;
 		maxDistance  = 540*1852.0; // 540 nm in meters
 		compMethod = ComputationalMethod.STANDARD;
-	    // TODO : change this to false when pixel area is implemented
-		useSinglePix = true;
+		useSinglePix = false;
 		pixArea = 10; 
 		pixValMethod = PixelValueMethod.MAX_VALUE;
 		maxTimeIntervalForValidStationDataInHrs = MAX_TIME_INTERVAL_FOR_VALID_STATION_DATA_IN_HOURS;
@@ -431,10 +459,10 @@ public class CloudHeightOptionsDialog extends Dialog {
     	pixArea = Integer.parseInt( pix_area_txt.getText() );
     	
     	if( pix_val_combo.getSelectionIndex() == 0 ) {
-    	   	pixValMethod = PixelValueMethod.MAX_VALUE;   		
+    	   	pixValMethod = PixelValueMethod.MAX_VALUE;
     	}
     	else if( pix_val_combo.getSelectionIndex() == 1 ) {
-    	   	pixValMethod = PixelValueMethod.MOST_FREQUENT;   		
+    	   	pixValMethod = PixelValueMethod.MOST_FREQUENT;
     	}
  	}
     

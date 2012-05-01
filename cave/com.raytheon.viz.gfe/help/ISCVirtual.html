@@ -5,16 +5,16 @@
 <!-- <hr width="100%"> -->
 <h2><a name="Virtual"></a>Virtual ISC Weather Elements</h2>
 The Show ISC capability simply compares one weather element against
-another.&nbsp; For certain elements, a virtual weather element is
+another. For certain elements, a virtual weather element is
 calculated and that is what is displayed against the Fcst
-database.&nbsp;&nbsp; For example, QPF is a rate-dependent weather
-element.&nbsp;&nbsp; It doesn't make sense to display your 12-hr QPF
+database. For example, QPF is a rate-dependent weather
+element. It doesn't make sense to display your 12-hr QPF
 Fcst grid against a 1-hr QPF ISC grid, since the time periods are not
-equal.&nbsp; Using the virtual weather element capability in the GFE, a
+equal. Using the virtual weather element capability in the GFE, a
 new weather element is calculated that will display your 12-hr QPF Fcst
 grid against a virtual 12-hr QPF ISC grid.&nbsp; The Virtual 12-hr QPF
 ISC grid was calculated from the multiple ISC grids in the
-database.&nbsp; For ISC, there are virtually calculated weather
+database. For ISC, there are virtually calculated weather
 elements for QPF, SnowAmt, MaxT, MinT, and PoP as shown in the
 following table:<br>
 <br>
@@ -32,7 +32,7 @@ Element<br>
       <td style="vertical-align: top;">QPF<br>
       </td>
       <td style="vertical-align: top;">The virtual ISC grid is always
-the same duration as the Fcst QPF grid.&nbsp;&nbsp; The Virtual ISC
+the same duration as the Fcst QPF grid. The Virtual ISC
 grid is the rate-summation of the ISC QPF grid.<br>
       </td>
     </tr>
@@ -40,7 +40,7 @@ grid is the rate-summation of the ISC QPF grid.<br>
       <td style="vertical-align: top;">SnowAmt<br>
       </td>
       <td style="vertical-align: top;">The virtual ISC grid is always
-the same duration as the Fcst SnowAmt grid.&nbsp; The Virtual ISC grid
+the same duration as the Fcst SnowAmt grid. The Virtual ISC grid
 is the rate-summation of the ISC SnowAmt grid.<br>
       </td>
     </tr>
@@ -48,9 +48,9 @@ is the rate-summation of the ISC SnowAmt grid.<br>
       <td style="vertical-align: top;">MaxT<br>
       </td>
       <td style="vertical-align: top;">The virtual ISC grid is always
-the same duration as the Fcst MaxT grid. It contains the maximum NaxT
+the same duration as the Fcst MaxT grid. It contains the maximum MaxT
 value gridpoint by gridpoint from the ISC MaxT grids valid over the
-same period.&nbsp; Normally there is only 1 MaxT grid, except in cases
+same period. Normally there is only 1 MaxT grid, except in cases
 where the office is in a different time zone or adjacent offices have
 configured their MaxT time constraints differently.<br>
       </td>
@@ -79,28 +79,28 @@ period.<br>
 </table>
 <br>
 The following illustration shows the purpose of the Virtual ISC weather
-elements.&nbsp; In the case on the left when the virtual weather
+elements. In the case on the left when the virtual weather
 element is not used, the forecaster will be comparing QPF from Fcst and
-ISC for different time periods.&nbsp;&nbsp; In the case on the right,
+ISC for different time periods. In the case on the right,
 the virtual ISC grid is calculated from the rates of all overlapping
-ISC QPF grids.&nbsp; The duration of the Virtual ISC grid is programmed
+ISC QPF grids. The duration of the Virtual ISC grid is programmed
 to exact match the duration of the Fcst grid.<br>
-<><img alt="" src="images/VirtualISC1.png"><br>
+<img alt="" src="images/VirtualISC1.png"><br>
 <br>
 The illustration below assumes a constant rain rate of 0.10"/hour over
-the entire ISC and Fcst grid.&nbsp;&nbsp; The Fcst grid duration is 7
-hours, thus that grid will show 0.70" of precipitation.&nbsp;&nbsp; The
+the entire ISC and Fcst grid. The Fcst grid duration is 7
+hours, thus that grid will show 0.70" of precipitation. The
 three ISC grids are 2 hours, 3 hours, and 4 hours in duration, and at a
 constant rain rate of 0.10"/hour contain 0.20", 0.30", and 0.40"
 respectively.<br>
 <br>
 The virtual QPF grid is programmed to match the duration of the Fcst
-grid, and thus it is 7 hours in length.&nbsp; The precipitation rate
+grid, and thus it is 7 hours in length. The precipitation rate
 for each overlapping ISC QPF grid is calculated and that portion of the
 time period that overlaps is summed into the virtual ISC grid.<br>
 <br>
 When the user enables "Show ISC Mode", they will be comparing the
-precipitation for the same duration as the Fcst grid.&nbsp; In this
+precipitation for the same duration as the Fcst grid. In this
 specific example, the Virtual ISC Grid will show 0.70" of precipitation
 due to the constant rain rate of 0.10".<br>
 <br>

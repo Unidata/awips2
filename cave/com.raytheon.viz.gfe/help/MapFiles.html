@@ -3,15 +3,15 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="GENERATOR" content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
-   <meta name="Author" content="Mark Mathewson">
+   <meta name="Author" content="Juliya Dynina">
    <title>Map Background Configuration</title>
 </head>
 <body bgcolor="#FFFFFF">
 
 <h1 CLASS="3Heading">
-<a NAME="Top"></a>MapFiles.py - Map Background Shapefile Naming File</h1>
+<a NAME="Top"></a>Map Files - Map Background Shapefile Handling</h1>
 
-<div CLASS="3Heading">September 13, 2002</div>
+<div CLASS="3Heading">March 29, 2012</div>
 
 <h1 CLASS="3Heading">
 
@@ -19,66 +19,63 @@
 <h2>
 <a NAME="Organization"></a>Organization</h2>
 <a href="#Overview">Overview</a>
-<br><a href="#Format">MapFiles.py Format</a>
 <br><a href="#Updating">Updating Map Shapefiles</a>
 <br>
 <hr WIDTH="100%">
 <h2>
 <a NAME="Overview"></a>Overview</h2>
-The MapFiles.py file defines the shapefile names for each of the main categories
-of shapefiles.&nbsp; It is imported by the <a href="mapConfig.html">Maps.py</a>
-file and can be overridden by the <a href="localMapFiles.html">localMapFiles.py</a>
-in order to provide easy shapefile upgrades. This document describes the
-format of the MapFiles.py file.
+AWIPS2 handles shapefiles differently than AWIPS1 did. The MapFiles.py file 
+is no longer used. Instead, a postgres <i>maps</i> database in conjunction with xml 
+configuration are now in use. Maps.py has been converted to Maps.java for
+shapefile access and processing.  Consequently, there is a change to how local
+maps are added to the system.  Also, currently the functionality that generates
+edit areas from site level shapefiles has not yet been implemented.  It is slated
+to be implemented as DR9441.
+<hr WIDTH="100%">
+<h2><a NAME="Updating"></a>Updating Map Shapefiles</h2>
+<p><ol>
+  <li>Any site level .shp, .shx and .dbf map files should be placed into the 
+  /awips2/edex/data/utility/edex_static/site/LLL/shapefiles/<i>table_name</i> directory
+  where <i>table_name</i> is unique.</li> 
+  <li>To import one shapefile at a time, execute the 
+  /awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh script with the following 
+  arguments: shapefile, scheme (mapdata), table (shapefile name), geometry simplification 
+  levels (not used for Point data), user, port, and awips root directory. For detailed 
+  instructions on how to do this, see the
+  <a href="https://collaborate.nws.noaa.gov/trac/siteconfig/wiki/HowToImportShapeFile">Importing 
+  Map Shapefiles into AWIPS2 using importShapeFile</a> web page.</li>
+  <li>Next, you will need to add bundle files procedures. To do this, access the Localization
+  perspective in CAVE and browsing to the Bundles-&gt;Maps folder. MB3 on the Maps folder and
+  create a new xml file which corresponds to the shapefile folder. Copy and modify the contents
+  from an existing file. 
+    <ul>
+      <li><b>Line and Polygon shapefiles</b> - in the resourceData element, change the value of the 
+      table element to the name of the database table (shapefile folder name), and the mapName 
+      to the label to show in the Map menu in CAVE. If labels are required in the new map, then edit 
+      the labelField in the Capability element. Otherwise, delete the capability element with type 
+      <i>labelableCapability</i>. The value for the labelField relates to a column in the database table 
+      with the same name. For example, the value CWA for the labelField refers to the values in the 
+      cwa column of the CWA table in the mapdata scheme.</li>
+      <li><b>Point shapefiles</b> - in the resourceData element, change the type attribute to 
+      <i>dbPointMapResourceData</i>, change the value of the table element to the name of the new database 
+      table name (shapefile filder name), and the mapName to the label to show in the Map menu in CAVE. If labels 
+      are required in the new map, then edit the labelField in the Capability element. Otherwise, 
+      delete the capability element with type <i>labelableCapability</i>. The value for the labelField 
+      relates to a column in the database table with the same name. For example, the value CWA for 
+      the labelField refers to the values in the cwa column of the CWA table in the mapdata scheme.</li>
+    </ul>
+  For more information on configuring the resource data options, the 
+  <a href="https://collaborate.nws.noaa.gov/trac/siteconfig/wiki/MapResourceDataConfigOptions">MapResourceDataConfigOptions</a> 
+  page provides more details on configuring the capabilities and resources for a map.
+  <li>Save to SITE level and restart CAVE.</li>
+</ol>
+</p>
 <p><b><font color="#FF0000">See the <a href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
 configuration overview</a> for information on how to make changes that
 are supported to the map backgrounds.</font></b>
-<p>
 <hr WIDTH="100%">
-
-<h2>
-<a NAME="Format"></a>MapFiles.py Format</h2>
-The format of the MapFiles.py is very simple.&nbsp; It simply contains
-a list of the map filenames and assigns them to variables.&nbsp; These
-variables are used throughout <a href="mapConfig.html">Maps.py</a> and
-<a href="localMapsConfig.html">localMaps.py</a>.&nbsp; Thus as the shapefiles
-are updated, the changes in the map background configuration is confined
-to just one file.
-<br>&nbsp;
-<p><tt># MapFiles.py</tt>
-<br><tt># Contains a listing of filenames used for map generation.</tt>
-<br><tt># NOTE: DO NOT EDIT THIS FILE, instead use the localMapFiles.py
-method</tt>
-<br><tt># of overriding this file.</tt><tt></tt>
-<p><tt># These are the translations (for convenience from name to shapefile
-name)</tt>
-<br><tt># These entries are used in Maps.py and localMaps.py.</tt>
-<br><tt>CountyMapName = 'c_30au02'</tt>
-<br><tt>ZoneMapName = 'z_30au02'</tt>
-<br><tt>CWAMapName = 'w_25ap02'</tt>
-<br><tt>MarineZonesMapName = 'mz10se02'</tt>
-<br><tt>StatesMapName = 's_24ja01'</tt>
-<br><tt>BasinsMapName = 'ba18jl02'</tt>
-<br><tt>FireWxZonesName = 'fz15au02'</tt>
-<br><tt>RFCMapName = 'rf19fe99'</tt>
-<br><tt>LakeMapName = 'lk17de98'</tt>
-<br><tt>HighSeaMapName = 'hz02oc01'</tt>
-<br><tt>CityMapName = 'web_city'</tt>
-<br><tt>HighwayMapName = 'ri11oc01'</tt>
-<br><tt>ISCMapName = 'cm14au02'</tt>
-<br><tt></tt>&nbsp;
-<br>&nbsp;
-<p>
-<hr WIDTH="100%">
-<h2>
-<a NAME="Updating"></a>Updating Map Shapefiles</h2>
-The procedure to update map shapefiles is described in the <a href="localMapFiles.html">localMapFiles.py</a>
-documentation.
-<p>
-<hr WIDTH="100%">
-<br>&nbsp;
+<br>
 <div CLASS="Body">&nbsp;<a href="#Top">Back To Top</a>
 <br>&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
-
 </body>
 </html>

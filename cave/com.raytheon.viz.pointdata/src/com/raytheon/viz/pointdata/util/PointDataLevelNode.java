@@ -120,8 +120,7 @@ public class PointDataLevelNode extends AbstractRequestableLevelNode {
     }
 
     @Override
-    protected TimeQueryRequest getTimeQueryInternal(
-            TimeQueryRequest originalRequest, boolean latestOnly,
+    protected TimeQueryRequest getTimeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
             throws VizException {
         throw new UnsupportedOperationException(
@@ -146,8 +145,7 @@ public class PointDataLevelNode extends AbstractRequestableLevelNode {
      * timeQueryInternal(boolean, java.util.Map)
      */
     @Override
-    protected Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    protected Set<DataTime> timeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {

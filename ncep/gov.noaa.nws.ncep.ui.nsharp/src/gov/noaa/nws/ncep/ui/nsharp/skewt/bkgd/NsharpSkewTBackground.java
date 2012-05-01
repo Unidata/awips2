@@ -22,7 +22,10 @@ package gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.signum;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpWxMath;
 import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpGraphConfigDialog;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
 
@@ -70,6 +73,8 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
     
 	private static final double Rd = 0.2870586d; 
 	private PixelExtent pe;
+	private NsharpGraphProperty graphConfigProperty;
+	private int tempOffset = 0;
     public NsharpSkewTBackground(NsharpSkewTDescriptor desc) {
         super();
 
@@ -84,6 +89,8 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
                 NsharpConstants.right, NsharpConstants.bottom);
         //System.out.println("NsharpSkewTBackground created");
         this.desc = desc;
+        NsharpConfigManager configMgr = NsharpConfigManager.getInstance();
+		graphConfigProperty = configMgr.retrieveNsharpConfigStoreFromFs().getGraphProperty();
     }
 
     
@@ -95,10 +102,10 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
     
     private static List<List<UAPoint>> getDryAdiabats(double startPressure,
             double stopPressure, double increment, double startTemp,
-            double endTemp, double tempOffset) {
+            double endTemp, double tempDist) {
         List<List<UAPoint>> dryAdiabats = new ArrayList<List<UAPoint>>();
 
-        for (double t = startTemp; t < 100; t += tempOffset) {
+        for (double t = startTemp; t < 100; t += tempDist) {
             dryAdiabats.add(dryAdiabats(1000, 100, /*20*/increment, t + 273.15));
         }
         return dryAdiabats;
@@ -140,14 +147,14 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
     			.iterator(); iterator.hasNext();) {
     		List<UAPoint> points = iterator.next();
     		UAPoint firstPoint = points.get(0);
-    		Coordinate startCoor = WxMath.getSkewTXY(firstPoint.pressure,
+    		Coordinate startCoor = NsharpWxMath.getSkewTXY(firstPoint.pressure,
     				NsharpConstants.kelvinToCelsius.convert(firstPoint.temperature));
     		//System.out.println("List size ="+points.size());
     		//System.out.println("First pt pre=" + firstPoint.pressure+ " temp="+ firstPoint.temperature);
     		for (Iterator<UAPoint> iter = points.iterator(); iter.hasNext();) {
     			UAPoint p = iter.next();
     			//System.out.println("pt pre=" + p.pressure+ " temp="+ p.temperature);
-    			Coordinate endCoor = WxMath.getSkewTXY(p.pressure,
+    			Coordinate endCoor = NsharpWxMath.getSkewTXY(p.pressure,
     					NsharpConstants.kelvinToCelsius.convert(p.temperature));
 
     			gc.drawLine((int)world.mapX(startCoor.x), (int)world.mapY(
@@ -166,8 +173,8 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
      */
     private void printTempLines(WGraphics world, GC gc) throws VizException {
     	for (int i = 70; i > -200; i -= 10) {
-    		Coordinate coorStart = WxMath.getSkewTXY(1050, i);
-    		Coordinate coorEnd = WxMath.getSkewTXY(100, i);
+    		Coordinate coorStart = NsharpWxMath.getSkewTXY(1050, i);
+    		Coordinate coorEnd = NsharpWxMath.getSkewTXY(100, i);
     		gc.drawLine((int)world.mapX(coorStart.x), (int)world.mapY(
     				coorStart.y), (int)world.mapX(coorEnd.x), (int)world
     				.mapY(coorEnd.y));
@@ -229,12 +236,13 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
     @Override
     public void initInternal(IGraphicsTarget target){
     	super.initInternal(target);
+    	
     	//temperature line shape
     	temperatureLineShape = target.createWireframeShape(false,desc );
     	temperatureLineShape.allocate(54);
     	for (int i = 70; i > -200; i -= 10) {
-    		Coordinate coorStart = WxMath.getSkewTXY(1050, i);
-    		Coordinate coorEnd = WxMath.getSkewTXY(100, i);
+    		Coordinate coorStart = NsharpWxMath.getSkewTXY(1050, i);
+    		Coordinate coorEnd = NsharpWxMath.getSkewTXY(100, i);
     		double [][] lines = {{world.mapX(coorStart.x), world.mapY(coorStart.y)},
     				{world.mapX(coorEnd.x), world.mapY(coorEnd.y)}};
     		temperatureLineShape.addLineSegment(lines);
@@ -248,11 +256,11 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
                 .iterator(); iterator.hasNext();) {
             List<UAPoint> points = iterator.next();
             UAPoint firstPoint = points.get(0);
-            Coordinate coor1 = WxMath.getSkewTXY(firstPoint.pressure,
+            Coordinate coor1 = NsharpWxMath.getSkewTXY(firstPoint.pressure,
             		NsharpConstants.kelvinToCelsius.convert(firstPoint.temperature));
             for (Iterator<UAPoint> iter = points.iterator(); iter.hasNext();) {
                 UAPoint p = iter.next();
-                Coordinate coor2 = WxMath.getSkewTXY(p.pressure,
+                Coordinate coor2 = NsharpWxMath.getSkewTXY(p.pressure,
                 		NsharpConstants.kelvinToCelsius.convert(p.temperature));
                 double [][] lines = {{world.mapX(coor1.x), world.mapY(coor1.y)},{world.mapX(coor2.x), world.mapY(coor2.y)}};
                 moistAdiabatsShape.addLineSegment(lines);
@@ -267,11 +275,11 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
         		.iterator(); iterator.hasNext();) {
         	List<UAPoint> points = iterator.next();
         	UAPoint firstPoint = points.get(0);
-        	Coordinate startCoor = WxMath.getSkewTXY(firstPoint.pressure,
+        	Coordinate startCoor = NsharpWxMath.getSkewTXY(firstPoint.pressure,
         			NsharpConstants.kelvinToCelsius.convert(firstPoint.temperature));
         	for (Iterator<UAPoint> iter = points.iterator(); iter.hasNext();) {
         		UAPoint p = iter.next();
-        		Coordinate endCoor = WxMath.getSkewTXY(p.pressure,
+        		Coordinate endCoor = NsharpWxMath.getSkewTXY(p.pressure,
         				NsharpConstants.kelvinToCelsius.convert(p.temperature));
         		double [][] lines = {{world.mapX(startCoor.x), world.mapY(
         				startCoor.y)},{world.mapX(endCoor.x),
@@ -288,8 +296,8 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
     	// get the location of the 850 pressure line...
     	mixRatioShape = target.createWireframeShape(false,desc );
     	mixRatioShape.allocate(12);
-    	Coordinate coorStart = WxMath.getSkewTXY(850, -50);
-        Coordinate coorEnd = WxMath.getSkewTXY(850, 50);
+    	Coordinate coorStart = NsharpWxMath.getSkewTXY(850, -50);
+        Coordinate coorEnd = NsharpWxMath.getSkewTXY(850, 50);
 
         double startX = world.mapX(coorStart.x);
         double startY = world.mapY(coorStart.y);
@@ -309,9 +317,9 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
                     .invMixingRatio(p1.pressure, ratio / 1000);
             p2.temperature = Equations
                     .invMixingRatio(p2.pressure, ratio / 1000);
-            Coordinate coor1 = WxMath.getSkewTXY(p1.pressure,
+            Coordinate coor1 = NsharpWxMath.getSkewTXY(p1.pressure,
                     p1.temperature - 273.15);
-            Coordinate coor2 = WxMath.getSkewTXY(p2.pressure,
+            Coordinate coor2 = NsharpWxMath.getSkewTXY(p2.pressure,
                     p2.temperature - 273.15);
             double [][] lines = {{world.mapX(coor1.x), world.mapY(coor1.y)},{world.mapX(coor2.x), world.mapY(coor2.y)}};
             mixRatioShape.addLineSegment(lines);
@@ -332,18 +340,21 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
         String s = "";
         presslinesNumbersShape = target.createWireframeShape(false,desc );
         presslinesNumbersShape.allocate(150);
+        //System.out.println("NsharpConstants.left="+NsharpConstants.left+"NsharpConstants.right"+NsharpConstants.right+" top="+NsharpConstants.top + " bot="+ NsharpConstants.bottom);
         for (int i = 0; i < NsharpConstants.PRESSURE_MAIN_LEVELS.length; i++) {
         	//we only care about pressure for this case, temp is no important  when calling getSkewTXY
-        	Coordinate coor = WxMath.getSkewTXY(NsharpConstants.PRESSURE_MAIN_LEVELS[i],0);
+        	Coordinate coor = NsharpWxMath.getSkewTXY(NsharpConstants.PRESSURE_MAIN_LEVELS[i],0);
 
         	double [][] lines = {{world.mapX(NsharpConstants.left), world.mapY(coor.y)},{world.mapX(NsharpConstants.right),
         		world.mapY(coor.y)}};
         	presslinesNumbersShape.addLineSegment(lines);
-
+        	//System.out.println("coor.x="+coor.x+"coor.y="+coor.y);
+        	//System.out.println("x1="+world.mapX(NsharpConstants.left)+"y1=" +world.mapY(coor.y)+"x2="+world.mapX(NsharpConstants.right)+"y2="+
+            //		world.mapY(coor.y));
         }
         for (int i = 0; i < NsharpConstants.PRESSURE_MARK_LEVELS.length; i++) {
         	//we only care about pressure for this case, temp is no important  when calling getSkewTXY
-        	Coordinate coor = WxMath.getSkewTXY(NsharpConstants.PRESSURE_MARK_LEVELS[i],0);
+        	Coordinate coor = NsharpWxMath.getSkewTXY(NsharpConstants.PRESSURE_MARK_LEVELS[i],0);
 
         	double [][] lines = {{world.mapX(NsharpConstants.left), world.mapY(coor.y)},{ world.mapX(NsharpConstants.left)+10,
         		world.mapY(coor.y)}};
@@ -352,7 +363,7 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
         for (int i = 0; i < NsharpConstants.PRESSURE_NUMBERING_LEVELS.length; i++) {
         	s = NsharpConstants.pressFormat.format(NsharpConstants.PRESSURE_NUMBERING_LEVELS[i]);
         	//we only care about pressure for this case, temp is no important  when calling getSkewTXY
-        	Coordinate coor = WxMath.getSkewTXY(NsharpConstants.PRESSURE_NUMBERING_LEVELS[i],0);
+        	Coordinate coor = NsharpWxMath.getSkewTXY(NsharpConstants.PRESSURE_NUMBERING_LEVELS[i],0);
 
         	double [] lblXy = {world.mapX(NsharpConstants.left)-30,world.mapY(coor.y)+5};
         	presslinesNumbersShape.addLabel(s, lblXy);
@@ -360,26 +371,33 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
         }
         presslinesNumbersShape.compile();
             
-        //temp number shape
-        tempNumbersShape = target.createWireframeShape(false,desc );
+        createTempNumberShape();
+    }
+    private void createTempNumberShape(){
+    	if(graphConfigProperty!=null){
+    		tempOffset = graphConfigProperty.getTempOffset();
+    		NsharpWxMath.setTempOffset(tempOffset);
+    	}
+    	//System.out.println("Skew temp offset="+tempOffset);
+    	if(tempNumbersShape!= null)
+    		tempNumbersShape.dispose();
+    	tempNumbersShape = target.createWireframeShape(false,desc );
         tempNumbersShape.allocate(2);
         //Chin: to fix the problem that wire frame shape need to have at least one 
     	//line. add a virtual line. 
     	double [][] lines = {{0,0},{0,
 			0}};
-    	//get temperature offset from /awips2/edex/data/utility/common_static/base/sounding/soundingPrefs.xml
-    	int tempOffset=(int) SoundingPrefs.getSoundingPrefs().getTemperatureOffset();
-    	//System.out.println("Skew temp offset="+tempOffset);
         tempNumbersShape.addLineSegment(lines);
+        //int lowTemp = 
 		for (int i = 50+tempOffset; i > -40+tempOffset; i -= 10) {
-            Coordinate coorS = WxMath.getSkewTXY(1050, i);
+            Coordinate coorS = NsharpWxMath.getSkewTXY(1050, i);
             double startX1 = world.mapX(coorS.x);
             double startY1 = world.mapY(coorS.y);
             double [] lblXy = {startX1,startY1+20};
             tempNumbersShape.addLabel(Integer.toString(i), lblXy);
         }
         for (int i = -30+tempOffset; i > -110+tempOffset; i -= 10) {
-            Coordinate coorEnd1 = WxMath.getSkewTXY(100, i);
+            Coordinate coorEnd1 = NsharpWxMath.getSkewTXY(100, i);
 
             //System.out.println("X = "+ startX + " Y = "+ startY);
             double endX1 = world.mapX(coorEnd1.x);
@@ -390,20 +408,18 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
         }
         tempNumbersShape.compile();
     }
-    
 
     @Override
     public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
 
         target.setupClippingPlane(pe);
-        NsharpGraphConfigDialog configD = NsharpGraphConfigDialog.getAccess();
-        if(configD != null ){
-        	if(configD.isMixratio() == true)
+        if(graphConfigProperty != null ){
+        	if(graphConfigProperty.isMixratio() == true)
         		target.drawWireframeShape(mixRatioShape, NsharpConstants.mixingRatioColor, 1, LineStyle.DASHED,smallFont);
-        	if(configD.isDryAdiabat() == true)
+        	if(graphConfigProperty.isDryAdiabat() == true)
         		target.drawWireframeShape(dryAdiabatsShape, NsharpConstants.dryAdiabatColor, 1, LineStyle.SOLID,smallFont);
-        	if(configD.isMoistAdiabat() == true)
+        	if(graphConfigProperty.isMoistAdiabat() == true)
         		target.drawWireframeShape(moistAdiabatsShape, NsharpConstants.moistAdiabatColor, 1, LineStyle.DOTTED,smallFont);
         }
         else{
@@ -438,4 +454,12 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
         return world;
     }
 
+
+
+	public void setGraphConfigProperty(NsharpGraphProperty graphConfigProperty) {
+		this.graphConfigProperty = graphConfigProperty;
+		createTempNumberShape();
+	}
+
+    
 }

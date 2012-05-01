@@ -23,18 +23,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -50,44 +43,16 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 public class GLProgramManager {
 
-    private static final String GLSL_FOLDER = "glsl";
-
-    private static final String GLSL_INCLUDE_FOLDER = GLSL_FOLDER
-            + IPathManager.SEPARATOR + "include";
-
-    private static final String GLSL_EXTENSION = ".glsl";
-
-    private static final String GLSL_HEADER_EXTENSION = ".glh";
-
-    private static final Pattern INCLUDE_PATTERN = Pattern
-            .compile("^#include\\s*<([a-zA-z0-9_]*)>.*");
-
     private static GLProgramManager instance;
-
-    private final Map<String, String> includeCode = new HashMap<String, String>();
 
     private final Map<String, String> programsCode = new HashMap<String, String>();
 
-    private final Map<String, File> headerFiles = new HashMap<String, File>();
+    private Map<String, File> fileMap = new HashMap<String, File>();
 
-    private final Map<String, File> includeFiles = new HashMap<String, File>();
-
-    private final Map<String, File> programFiles = new HashMap<String, File>();
-
-    private final IPathManager pm;
+    private Map<File, Long> modificationMap = new HashMap<File, Long>();
 
     private GLProgramManager() {
-        pm = PathManagerFactory.getPathManager();
 
-        // Lookup available main programs (will be in glsl directory)
-        LocalizationFile[] files = pm.listStaticFiles(GLSL_FOLDER,
-                new String[] { GLSL_EXTENSION }, false, true);
-        for (LocalizationFile file : files) {
-            File fileObj = file.getFile();
-            String name = fileObj.getName();
-            programFiles.put(name, fileObj);
-            programsCode.put(name, readProgramContents(fileObj));
-        }
     }
 
     public static GLProgramManager getInstance() {
@@ -98,151 +63,67 @@ public class GLProgramManager {
         return instance;
     }
 
-    /**
-     * Get program code for the program name specified, these files live in glsl
-     * directory in localization.
-     * 
-     * @param aProgramName
-     * @return
-     * @throws VizException
-     */
     public String getProgramCode(String aProgramName) throws VizException {
-        String fileName = aProgramName + GLSL_EXTENSION;
-        hasBeenModified(aProgramName);
-        return programsCode.get(fileName);
+        String program = programsCode.get(aProgramName);
+        String searchPath = "glsl" + File.separator + aProgramName + ".glsl";
+        if (hasBeenModified(searchPath, true) || program == null) {
+            File file = fileMap.get(searchPath);
+            modificationMap.put(file, file.lastModified());
+            try {
+                program = readFile(file);
+                programsCode.put(aProgramName, program);
+            } catch (IOException e) {
+                throw new VizException("Error loading program code for: "
+                        + aProgramName, e);
+            }
+        }
+
+        return program;
     }
 
-    /**
-     * Checks if program has been modified
-     * 
-     * @param programName
-     * @return
-     */
-    public boolean hasBeenModified(String programName) {
-        // TODO: Check file modification time and reload contents. Should also
-        // check modification times of files depends on and reload if any
-        // changes
+    public boolean hasBeenModified(String searchPath, boolean path) {
+        if (searchPath == null) {
+            return false;
+        }
+
+        if (!path) {
+            searchPath = "glsl" + File.separator + searchPath + ".glsl";
+        }
+
+        File file = fileMap.get(searchPath);
+        if (file == null) {
+            IPathManager pm = PathManagerFactory.getPathManager();
+            file = pm.getStaticFile(searchPath);
+            fileMap.put(searchPath, file);
+        }
+
+        if (file.exists() == false) {
+            return false;
+        }
+
+        Long lastMod = modificationMap.get(file);
+        if (lastMod == null || file.lastModified() > lastMod) {
+            return true;
+        }
         return false;
     }
 
-    /**
-     * Reads program contends for file, will recursively load all #includes as
-     * well
-     * 
-     * @param aFile
-     * @return
-     */
-    private String readProgramContents(File aFile) {
-        try {
-            StringBuffer buffer = new StringBuffer();
-
-            List<String> toInclude = new ArrayList<String>();
-            getIncludes(aFile, toInclude);
-
-            for (String include : toInclude) {
-                // look for header file first
-                File header = getIncludeFile(include, true);
-                if (header != null) {
-                    String name = header.getName();
-                    String contents = includeCode.get(name);
-                    if (contents == null) {
-                        contents = readFileContents(header);
-                        includeCode.put(name, contents);
-                    }
-                    buffer.append(contents);
-                }
-            }
-
-            for (String include : toInclude) {
-                // look for glsl files next
-                File header = getIncludeFile(include, false);
-                if (header != null) {
-                    String name = header.getName();
-                    String contents = includeCode.get(name);
-                    if (contents == null) {
-                        contents = readFileContents(header);
-                        includeCode.put(name, contents);
-                    }
-                    buffer.append(contents);
-                }
-            }
-
-            // Read program file contents
-            buffer.append(readFileContents(aFile));
-            return buffer.toString();
-        } catch (IOException e) {
-            UFStatus.getHandler().handle(Priority.PROBLEM,
-                    "Error reading glsl program code from file system", e);
-        }
-        return null;
-    }
-
-    /**
-     * Read file contents off file system
-     * 
-     * @param file
-     * @param includeCode
-     * @return
-     * @throws IOException
-     */
-    private String readFileContents(File file) throws IOException {
+    private String readFile(File aFile) throws IOException {
         StringBuffer buffer = new StringBuffer();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            Matcher match = INCLUDE_PATTERN.matcher(line);
-            if (match.find() == false) {
-                buffer.append(line).append("\n");
-            }
-        }
-
-        return buffer.toString();
-    }
-
-    private void getIncludes(File file, List<String> toInclude)
-            throws IOException {
-        List<String> newIncludes = new ArrayList<String>();
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            Matcher match = INCLUDE_PATTERN.matcher(line);
-            if (match.find()) {
-                String include = match.group(1);
-                if (toInclude.contains(include) == false
-                        && newIncludes.contains(include) == false) {
-                    newIncludes.add(include);
-                    toInclude.add(include);
-                }
-            }
+        FileReader fr = new FileReader(aFile);
+        BufferedReader reader = new BufferedReader(fr);
+        String line = "";
+        while (line != null) {
+            buffer.append(line);
+            buffer.append("\n");
+            line = reader.readLine();
         }
 
         reader.close();
+        fr.close();
 
-        // Recursively get all include files
-        for (String newInclude : newIncludes) {
-            getIncludes(getIncludeFile(newInclude, false), toInclude);
-        }
+        String text = buffer.toString();
+        return text;
     }
 
-    private File getIncludeFile(String name, boolean header) {
-        String fileName = name
-                + (header ? GLSL_HEADER_EXTENSION : GLSL_EXTENSION);
-
-        Map<String, File> toUse = null;
-        if (header) {
-            toUse = headerFiles;
-        } else {
-            toUse = includeFiles;
-        }
-
-        File file = toUse.get(name);
-        if (file == null) {
-            file = pm.getStaticFile(GLSL_INCLUDE_FOLDER
-                    + IPathManager.SEPARATOR + fileName);
-            toUse.put(name, file);
-        }
-
-        return file;
-    }
 }

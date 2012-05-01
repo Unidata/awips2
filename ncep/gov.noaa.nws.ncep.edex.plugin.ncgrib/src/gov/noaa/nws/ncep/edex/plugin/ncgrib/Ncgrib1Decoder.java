@@ -62,9 +62,9 @@ import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.MercatorNc
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.PolarStereoNcgridCoverage;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModel;
-import gov.noaa.nws.ncep.edex.util.grib2vcrd.Grib2VcrdTableLookup;
+import gov.noaa.nws.ncep.edex.util.grib1vcrd.Grib1Vcrd;
+import gov.noaa.nws.ncep.edex.util.grib1vcrd.Grib1VcrdTable;
 import gov.noaa.nws.ncep.edex.util.grib2vars.Grib2VarsTableLookup;
-import gov.noaa.nws.ncep.edex.util.grib2vcrd.Grib2Vcrd;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.comm.CommunicationException;
@@ -97,6 +97,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 3/11/10      4758        bphillip    Initial Creation
  * 9/08/10                  X. Guo      Add new column
  * 11/02/11                 X. Guo      Check octet size for isEnsmble()
+ * 3/2012					T. Lee		Changed perturbation number to String
  * 
  * </pre>
  * 
@@ -113,7 +114,7 @@ public class Ncgrib1Decoder extends AbstractDecoder {
     /** Set of Time range types for accumulations and averages */
     private static final Set<Integer> AVG_ACCUM_LIST = new HashSet<Integer>();
 
-    private String traceId = "";
+    //private String traceId = "";
 	private NcgribDao dao;
 	
 	private String fileName="";
@@ -126,8 +127,8 @@ public class Ncgrib1Decoder extends AbstractDecoder {
     private static final int[] fourtyTwo = new int[] { 1, 2, 1, 1, 2, 2, 3, 3,
         4, 4, 5, 5 };
 
-    private static final int[] perturbation = new int[] { 1, 2, 3, 4, 5, 6, 7,
-        8, 9, 10, 11, 12 };
+    private static final String[] perturbation = new String[] { "1", "2", "3", "4", "5", "6", "7",
+        "8", "9", "10", "11", "12" };
 
     static {
         AVG_ACCUM_LIST.add(3);
@@ -262,8 +263,7 @@ public class Ncgrib1Decoder extends AbstractDecoder {
  
         /*
          * Decodes the parameter information from the record. An attempt is
-         * first made to map the gribimport gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
- 1 parameter to the equivalent grib 2
+         * first made to map the grib 1 parameter to the equivalent grib 2
          * parameter. If this cannot be successfully executed, the grib 1
          * parameter will be used from the parameter tables contained in the
          * unidata decoder.
@@ -329,7 +329,7 @@ public class Ncgrib1Decoder extends AbstractDecoder {
             // rcg: added code to get perturbation
             int pos41 = pdsVars.getOctet(41);
             int pos42 = pdsVars.getOctet(42);
-            int pert = pdsVars.getID();
+            String pert = String.valueOf(pdsVars.getID());
             for (int i = 0; i < perturbation.length; i++) {
                 if (pos41 == fourtyOne[i] && pos42 == fourtyTwo[i]) {
                     pert = perturbation[i];
@@ -348,6 +348,11 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         createModelName(model);
 
         // Get the level information
+        float glevel1 = (float) pdsVars.getLevelValue1();
+        float glevel2 = (float) pdsVars.getLevelValue2();
+        if ( vcrdid == 117 ) {
+        	if ( glevel1 >= 32768 ) glevel1 = 32768 - glevel1;
+        }
         float[] levelMetadata = this.convertGrib1LevelInfo(pdsVars
                 .getLevelType1(), (float) pdsVars
                 .getLevelValue1(), pdsVars
@@ -356,6 +361,8 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         getLevelInfo(model, centerid, subcenterid, levelMetadata[0],
                 levelMetadata[1], levelMetadata[2], levelMetadata[3],
                 levelMetadata[4], levelMetadata[5]);
+        //int vcrd1 = (int)levelMetadata[0];
+        int vcrd2 = (int)levelMetadata[3];
 
         // Construct the DataTime
         GregorianCalendar refTime = new GregorianCalendar();
@@ -478,42 +485,40 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         retVal.setCategory(category);
         retVal.setParameterId(pid);
         retVal.setProcessedDataType(pdsVars.getGenProcessId());
-        retVal.setDecodedLevel1( (float)model.getLevel().getLevelonevalue());
-        retVal.setDecodedLevel2((float)model.getLevel().getLeveltwovalue());
+        retVal.setDecodedLevel1((float)pdsVars.getLevelValue1());
+        retVal.setDecodedLevel2((float)pdsVars.getLevelValue2());
         retVal.setVcrdId1(vcrdid);
         retVal.setVcrdId2(vcrdid);
         retVal.setGridVersion(1);
 
         String vcord = "NONE";
-        String scale = "";
-        //TODO need to change this call to read the GRIB1 version of the vcrd table 
-        //     instead of the GRIB2 version...
-        Grib2Vcrd grib2Vcrd = Grib2VcrdTableLookup.getGrib2VcrdByGrib1VcrdId (vcrdid);
-        if ( grib2Vcrd != null ) {
-        	vcord = grib2Vcrd.getGnam();
-        	scale = grib2Vcrd.getScale();
+
+        Grib1Vcrd grib1Vcrd = Grib1VcrdTable.getGrib1VcrdById(vcrdid);
+        if ( grib1Vcrd != null ) {
+
+        	vcord = grib1Vcrd.getGnam();
+        	double scale = Double.parseDouble( grib1Vcrd.getScale() );
+        	scale = Math.pow( 10., scale);
         	
-            float dscale = (float)Math.pow ( 10, Double.parseDouble(scale));
-            float glevel1 = retVal.getDecodedLevel1();
-            if (glevel1 != 0 && dscale != 1 ) {
-                retVal.setGlevel1(Math.round(glevel1 * dscale));
+            if (glevel1 != 0 && scale != 1 ) {
+                retVal.setGlevel1((int)Math.round(glevel1 * scale));
             }
             else {
                 retVal.setGlevel1(Math.round(glevel1));
             }
                 
-            float glevel2 = retVal.getDecodedLevel2();
-            if ( glevel2 == -999999. ) {
+            if ( vcrd2 == 255 ) {
                 retVal.setGlevel2(-9999);
             }
             else {
-                if (glevel2 != 0 && dscale != 1 ) {
-                    retVal.setGlevel2(Math.round(glevel2 * dscale));
+                if (glevel2 != 0 && scale != 1 ) {
+                    retVal.setGlevel2((int)Math.round(glevel2 * scale));
                 }
                 else {
                     retVal.setGlevel2( Math.round(glevel2) );
                 }
             }
+            
         }
         else {
           retVal.setGlevel1((int)model.getLevel().getLevelonevalue());
@@ -907,8 +912,9 @@ public class Ncgrib1Decoder extends AbstractDecoder {
 
         String gridid = model.getGridid();
         int process = model.getGenprocess();
+        String template = model.getTemplate();
         NcgridModel gridModel = NcgribModelLookup.getInstance().getModel(center,
-                subcenter, gridid, process);
+                subcenter, gridid, process, template, model);
         String name = null;
         if (gridModel == null) {
             name = "UnknownModel:" + String.valueOf(center) + ":"
@@ -1194,7 +1200,7 @@ public class Ncgrib1Decoder extends AbstractDecoder {
      *            The level two scale factor
      * @param value2
      *            The level two value
-     * @throws GribException 
+     * @throws GribException
      */
     private void getLevelInfo(NcgribModel model, int centerID, int subcenterID,
             float levelOneNumber, float scaleFactor1, float value1,
@@ -1249,12 +1255,13 @@ public class Ncgrib1Decoder extends AbstractDecoder {
             }
         }
         try {
-            Level level = LevelFactory.getInstance().getLevel(levelName,
-                    levelOneValue, levelTwoValue, levelUnit);
-            model.setLevel(level);
+        	Level level = LevelFactory.getInstance().getLevel(levelName,
+        	        levelOneValue, levelTwoValue, levelUnit);
+        	model.setLevel(level);
         } catch (CommunicationException e) {
             throw new GribException("Error loading level.", e);
         }
+
     }
 
     /**

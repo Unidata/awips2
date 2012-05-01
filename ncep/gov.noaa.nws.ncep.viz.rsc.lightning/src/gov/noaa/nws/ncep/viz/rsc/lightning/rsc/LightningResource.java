@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *  11/18/2010    #307     Greg Hull    newRscDataObjsList -> newRscDataObjsQueue
  *  04/22/2011    #439     Greg Hull    only query needed times, rm System.out, 
  *                                      show strike count in legend
+ *  02/16/2012    #555     S. Gurung    Added call to setAllFramesAsPopulated() in queryRecords()
  * 
  * </pre>
  * 
@@ -277,6 +278,8 @@ public class LightningResource extends AbstractNatlCntrsResource<LightningResour
 		}
 		
 		needsUpdate = true;
+		
+		setAllFramesAsPopulated();
     }
     
     

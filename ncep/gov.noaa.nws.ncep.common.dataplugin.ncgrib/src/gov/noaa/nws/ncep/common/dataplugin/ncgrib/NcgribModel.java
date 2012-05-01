@@ -63,7 +63,8 @@ import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModel;
  * 1/31/11                  M. Li		Add eventName for dynamic model name
  * 9/08/11                  X. Guo		Check file size to create hash code
  * 11/17/11                 X. Guo      Fixed hash generator problem
- * 
+ * 3/2012					T. Lee		Added grib file template 
+ *
  * </pre>
  * 
  * @author bphillip
@@ -109,9 +110,13 @@ public class NcgribModel extends PersistableDataObject {
     @XmlAttribute
     @DynamicSerializeElement
     private int genprocess;
+    
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String template;
 
     /** The backgenprocess number (currently gfs is 0)
-     * ???
      */
     @Column
     @XmlAttribute
@@ -173,7 +178,7 @@ public class NcgribModel extends PersistableDataObject {
     @XmlAttribute
     @DynamicSerializeElement
     @DataURI(position = 4)
-    private Integer perturbationNumber;
+    private String perturbationNumber;
 
     /** The number of forecasts in the ensemble */
     @Column
@@ -235,6 +240,7 @@ public class NcgribModel extends PersistableDataObject {
         this.backGenprocess = copy.backGenprocess;
         this.centerid = copy.centerid;
         this.genprocess = copy.genprocess;
+        this.template = copy.template;
         this.gridid = copy.gridid;
         this.gridNumber = copy.gridNumber;
         this.id = copy.id;
@@ -270,6 +276,8 @@ public class NcgribModel extends PersistableDataObject {
         .append("\n");
         buffer.append("    Generating Process: ").append(genprocess).append(
                 "\n");
+        buffer.append("    Grib File Template: ").append(template).append(
+        "\n");
         buffer.append("        Parameter Name: ").append(parameterName).append(
                 "\n");
         buffer.append("Parameter Abbreviation: ").append(parameterAbbreviation)
@@ -485,6 +493,25 @@ public class NcgribModel extends PersistableDataObject {
     }
 
     /**
+     * Sets the file template
+     * 
+     * @param fileTemplate
+     *            The fileTemplate
+     */
+    public void setTemplate(String template) {
+        this.template = template;
+    }
+
+    /**
+     * Gets the file template
+     * 
+     * @return The fileTemplate
+     */
+    public String getTemplate() {
+        return template;
+    }
+
+    /**
      * Sets the genproces
      * 
      * @param genprocess
@@ -493,7 +520,7 @@ public class NcgribModel extends PersistableDataObject {
     public void setGenprocess(int genprocess) {
         this.genprocess = genprocess;
     }
-
+    
     /**
      * Gets the parameter name
      * 
@@ -721,7 +748,7 @@ public class NcgribModel extends PersistableDataObject {
      * 
      * @return The perturbation number
      */
-    public Integer getPerturbationNumber() {
+    public String getPerturbationNumber() {
         return perturbationNumber;
     }
 
@@ -731,7 +758,7 @@ public class NcgribModel extends PersistableDataObject {
      * @param perturbationNumber
      *            The perturbation number
      */
-    public void setPerturbationNumber(Integer perturbationNumber) {
+    public void setPerturbationNumber(String perturbationNumber) {
         this.perturbationNumber = perturbationNumber;
     }
 
