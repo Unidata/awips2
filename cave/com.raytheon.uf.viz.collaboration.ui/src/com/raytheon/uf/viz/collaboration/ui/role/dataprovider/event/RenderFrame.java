@@ -26,8 +26,8 @@ import java.util.List;
 
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
 /**
  * RenderFrame object, tracks IRenderEvents and dispatches changes

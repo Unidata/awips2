@@ -25,8 +25,8 @@ import java.util.Set;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 
 /**
@@ -46,8 +46,7 @@ import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
  * @version 1.0
  */
 @DynamicSerialize
-public class DrawPointImagesEvent extends AbstractRemoteGraphicsEvent implements
-        IRenderEvent {
+public class DrawPointImagesEvent extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
     private float alpha = 1.0f;
@@ -94,11 +93,13 @@ public class DrawPointImagesEvent extends AbstractRemoteGraphicsEvent implements
     @Override
     public void applyDiffObject(IRenderEvent diffEvent) {
         DrawPointImagesEvent diffObject = (DrawPointImagesEvent) diffEvent;
-        if (diffObject.removals != null) {
-            images.removeAll(diffObject.removals);
-        }
-        if (diffObject.images != null) {
-            images.addAll(diffObject.images);
+        synchronized (images) {
+            if (diffObject.removals != null) {
+                images.removeAll(diffObject.removals);
+            }
+            if (diffObject.images != null) {
+                images.addAll(diffObject.images);
+            }
         }
         alpha = diffObject.getAlpha();
     }
@@ -108,6 +109,12 @@ public class DrawPointImagesEvent extends AbstractRemoteGraphicsEvent implements
             PointImageEvent event = new PointImageEvent();
             event.setPointImage(image);
             this.images.add(event);
+        }
+    }
+
+    public Set<PointImageEvent> getImagesCopy() {
+        synchronized (images) {
+            return new HashSet<PointImageEvent>(images);
         }
     }
 
@@ -154,6 +161,35 @@ public class DrawPointImagesEvent extends AbstractRemoteGraphicsEvent implements
      */
     public void setAlpha(float alpha) {
         this.alpha = alpha;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DrawPointImagesEvent other = (DrawPointImagesEvent) obj;
+        if (Float.floatToIntBits(alpha) != Float.floatToIntBits(other.alpha))
+            return false;
+        if (images == null) {
+            if (other.images != null)
+                return false;
+        } else if (!images.equals(other.images))
+            return false;
+        if (removals == null) {
+            if (other.removals != null)
+                return false;
+        } else if (!removals.equals(other.removals))
+            return false;
+        return true;
     }
 
 }
