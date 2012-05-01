@@ -26,7 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
 /**
  * Event notifying clients to render the image represented by the object id to
