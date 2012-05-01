@@ -8,7 +8,7 @@
 <body>
 <big style="font-weight: bold;"> </big>
 <h1 class="Title">MetLib User Guide</h1>
-April 8, 2004<br>
+January 10, 2012<br>
 <br>
 <h3 class="2Heading"> <a name="pgfId=1014058"></a>Contents</h3>
 <a href="#Introduction">Introduction</a><br>
@@ -19,18 +19,17 @@ April 8, 2004<br>
 <h2><a name="Introduction"></a>Introduction</h2>
 
 <hr width="100%">
-MetLib, short for Metorological Library, is a collection of Numerical
-Python methods that perform meteorological operations on gridded data.
+MetLib, short for Metorological Library, is a collection of Numpy
+methods that perform meteorological operations on gridded data.
 With these tools, forecasters can create derived weather elements such
 as vorticity, termperature advection, or moisture convergence from
 within the SmartTool framework. &nbsp;These methods should help
 forecasters more easily inject science into the process of weather
 forecasting with the Graphical Forecast Editor.<br>
 <br>
-As this is the first version of this library, much work remains.
-&nbsp;But the library does contain the basic building blocks from which
-very complex yet meteorological techniques can be developed. &nbsp;As
-the library is used in the field and new additions requested, the
+The library currently contains the basic building blocks from which
+very complex yet meteorological techniques can be developed. As
+the library is used in the field and new additions are requested, the
 library will continue to grow.<br>
 <br>
 <span style="font-weight: bold; color: rgb(255, 0, 0);">Currently the
@@ -50,6 +49,14 @@ neighboring grid point. &nbsp;This method is not meant to be used in a
 SmartTool, but is documented here for completeness. &nbsp;See below for
 methods that use the centeredDifference method&nbsp; to calculate
 derivatives.</small></big></p>
+<p style="font-weight: bold;"><big>forwardDifference(grid, axis)<br>
+</big></p>
+<p style="font-weight: bold;"><big><small style="font-weight: normal;">The
+forwardDifference method calculates forward difference derivative.</small></big></p>
+<p style="font-weight: bold;"><big>backwardDifference(grid, axis)<br>
+</big></p>
+<p style="font-weight: bold;"><big><small style="font-weight: normal;">The
+backwardDifference method calculates backward difference derivative.</small></big></p>
 <big style="font-weight: bold;">d_dx(grid)<br>
 <br>
 </big>The d_dx method calculates a partial derivative along the x axis.
@@ -86,12 +93,12 @@ millibars, then you should divide the result by 25 mb.<br>
 </big><big style="font-weight: bold;">d_dt(grid)<br>
 <br>
 </big>The d_dt method calculates a partial derivative along the time
-axis. &nbsp;For this method to work properly, you must specify a
+axis. For this method to work properly, you must specify a
 4-dimensional grid. &nbsp; If a grid of fewer than 4 dimensions is
 specified, an error will be reported. &nbsp;Note that for GFE grids the
 time dimension is outer loop dimension. In all cases, you will need to
 construct your own 4-dimensional grid before calling this method.
-&nbsp;Standard GFE methods only return 3-dimensional grids at best.<big
+Standard GFE methods only return 3-dimensional grids at best.<big
  style="font-weight: bold;"><br>
 <br>
 </big><big style="font-weight: bold;">gradient(scalarGrid)<br>

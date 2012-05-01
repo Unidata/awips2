@@ -408,6 +408,12 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     }
 
     @Override
+    public String recordKeyGenerator(PluginDataObject pdo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public void initInventory() {
         // TODO Auto-generated method stub
 

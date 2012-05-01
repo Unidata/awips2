@@ -134,13 +134,13 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * Resource to display FFMP data
- * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009 2521          dhladky     Initial creation
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
+ * 16 Apr.  2012 DR 14511      gzhang      Handling NullPointer in getGraphData()
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -3147,27 +3147,27 @@ public class FFMPResource extends
         Long dataId = null;
         FFMPVirtualGageBasinMetaData fvgbmd = null;
         FFMPBasin basin = null;
-
         // System.out.println("*************************************************");
-
-        try {
+        //DR 14511: handle null pointer exceptions
+        try {    
             basinPfaf = Long.parseLong(pfafString);
             dataId = basinPfaf;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {    
             // can't parse a string for VGB
-            fvgbmd = monitor.getTemplates(getSiteKey())
-                    .getVirtualGageBasinMetaData(getSiteKey(), pfafString);
+            fvgbmd = monitor.getTemplates(getSiteKey()).getVirtualGageBasinMetaData(getSiteKey(), pfafString);        
             basinPfaf = fvgbmd.getParentPfaf();
             dataId = fvgbmd.getLookupId();
-        }
-
-        FFMPBasinMetaData mBasin = monitor.getTemplates(getSiteKey()).getBasin(
-                getSiteKey(), basinPfaf); /*
+        }        
+        FFMPBasinMetaData mBasin = null;
+        try{
+        	mBasin = monitor.getTemplates(getSiteKey()).getBasin(getSiteKey(), basinPfaf);
+        }catch (Exception e){ return null;}
+                /*getSiteKey(), basinPfaf);*/ /*
                                            * TODO: mBasin is never used so it is
                                            * not clear if this should be
                                            * basinPfaf or dataId
                                            */
-
+        if(mBasin == null) return null;
         FFMPGraphData fgd = null;
         // VGB
         if (fvgbmd != null) {

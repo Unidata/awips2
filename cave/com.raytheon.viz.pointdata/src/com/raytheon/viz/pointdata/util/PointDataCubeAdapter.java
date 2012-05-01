@@ -320,6 +320,19 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#recordKeyGenerator
+     * (com.raytheon.uf.common.dataplugin.PluginDataObject)
+     */
+    @Override
+    public String recordKeyGenerator(PluginDataObject pdo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
             String dataset) throws VizDataCubeException {

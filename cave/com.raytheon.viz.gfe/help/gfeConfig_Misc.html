@@ -13,9 +13,9 @@
 <div style="text-align: center;"></div>
 <h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
 Misc. Configuration Items</h2>
-This section contains miscellenous configuration items that don't seem
+This section contains miscellaneous configuration items that don't seem
 to belong in any other category:<br>
-<div class="3Heading">&nbsp;
+<div class="3Heading">
 <table nosave="" border="1" cols="4" width="100%">
   <tbody>
     <tr>
@@ -30,13 +30,6 @@ to belong in any other category:<br>
       </td>
       <td>
       <center><b>Notes</b></center>
-      </td>
-    </tr>
-    <tr>
-      <td><a href="#DisplacedRealTimeOffset">Displaced Real Time Offset</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
       </td>
     </tr>
     <tr>
@@ -62,30 +55,7 @@ Algorithm</a></td>
       </td>
     </tr>
     <tr>
-      <td><a href="#OptionalPythonEditorConfigurationFile">Optional
-Python Editor
-Configuration</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
-      </td>
-    </tr>
-    <tr>
-      <td><a href="#NetworkTimeout">Network Timeout</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
-      </td>
-    </tr>
-    <tr>
-      <td><a href="#Purge">Product File and Log File Purge Thresholds</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
-      </td>
-    </tr>
-    <tr>
-      <td><a href="#helpBrowser">helpBrowser</a></td>
+      <td><a href="#Purge">Product File Purge Threshold</a></td>
       <td>YES</td>
       <td>NO</td>
       <td><br>
@@ -94,98 +64,7 @@ Configuration</a></td>
   </tbody>
 </table>
 </div>
-<blockquote> </blockquote>
 <hr style="width: 100%; height: 2px;">
-<h4><br>
-</h4>
-<h4><a name="DisplacedRealTimeOffset"></a><font size="+1">Displaced
-Real Time
-Offset</font></h4>
-The drt time offset is used to make the GFE (or other application such
-as runIFPText and runProcedure) run in displaced real time.
-Normally this value is not set, which
-means
-the GFE runs in real-time.&nbsp; Setting the value (either in a config
-file or via a command line argument) will run the GFE
-based
-on the start time indicated.&nbsp; This feature is normally only used
-to review archive
-cases and using canned data sets for training.&nbsp; The start time can
-be specified in several different ways: <br>
-<ul>
-  <li>As a
-string
-of "<i>yyyymmdd_hhmm</i>", where <i>yyyy</i> is the year, <i>mm</i>
-is
-the month, <i>dd</i> is the day, <i>hh</i> is the hour, and <i>mm</i>
-is
-the minutes. To start the GFE running as if the time was November 7,
-2000 at
-1505z,
-the string would be "200001107_1505".<br>
-    <b><tt><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; drtTimeOffset = "20001107_1505"</tt></b><br>
-  </li>
-</ul>
-<br>
-<ul>
-  <li>As a string S<i>yyyymmdd_hhmm</i> in which case, the starting
-time will be set to the most recent hour.&nbsp; This is intended for
-use in a classroom setting where several applications (perhaps started
-at different times within the same hour) need to be synchronized in
-time.&nbsp; <br>
-&nbsp;&nbsp;&nbsp; # NOTES about synchronizing:<br>
-&nbsp;&nbsp;&nbsp; # --With the S<i>yyyymmdd_hhmm </i>format
-(synchronizing on) the "current time" for all processes started within
-a given hour<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; will be the same. This guarantees that
-GFE's have the same current time, and ISC grid time stamps are
-&nbsp; <br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; synchronized and can be
-exchanged.&nbsp; Formatters launched from the GFE in this mode <br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; will be synchronized as well.<br>
-&nbsp;&nbsp;&nbsp; #&nbsp; &nbsp; &nbsp; --This does not solve the
-problem in the general case.<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For
-example, if someone starts the GFE at 12:59 and someone<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else
-starts it at 1:01, they will have different offsets and<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; current
-times.<br>
-&nbsp;&nbsp;&nbsp; # --With the <i>yyyymmdd_hhmm</i> format
-(synchronizing off), when the process starts, the current time <br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; matches the drtTime in the command
-line.&nbsp; However, with synchronizing<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; on, the current time will be offset by
-the fraction of the hour at<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; which the process was started.
-Examples:<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; Actual Starting
-time:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-20040617_1230<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;
-drtTime&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp; &nbsp; &nbsp;&nbsp; 20040616_0000<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; Synchronizing off:<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GFE
-Spatial Editor at StartUp: 20040616_0000<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; Synchronizing on:<br>
-&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GFE
-Spatial Editor at StartUp: 20040616_0030<br>
-&nbsp;<br>
-  </li>
-  <li>As a string <i>yyyymmdd_hhmm,</i><i>yyyymmdd_hhmm&nbsp; </i>in
-which case the offset from the current time will be the first time
-minus the second time.&nbsp; In other words the first time will be
-"equated" to the second time.&nbsp; So for example,&nbsp; if the
-drtTimeOffset is specified as&nbsp; <span style="font-style: italic;">20040101_0000,20040201_0000</span>&nbsp;
-then the offset will be approximately a month in the past.&nbsp; In a
-training situation, the first time should be the time of the use case
-data and the second time should be close to the current time.&nbsp;
-This method guarantees that all applications will be synchronized no
-matter when they were started.</li>
-</ul>
-<br>
 <h4><a name="GridManagerSortOrder"></a><font size="+1">Grid Manager
 Sort Order</font></h4>
 The Grid Manager Sort Order defines the order in which weather elements
@@ -232,59 +111,21 @@ of
 the automatic weather element save interval.&nbsp; The values can range
 from 0, to indicate Off, up to a reasonable value, such as 60, to save
 the grids automatically every hour.
-<p><b><tt>AutoSaveInterval = 30</tt></b> <br>
-&nbsp; </p>
-<h4><a name="OptionalPythonEditorConfigurationFile"></a><font size="+1">Optional
-Python Editor Configuration File</font></h4>
-This is the name of an optional config file for the python editor
-(idle)
-used by the GFE.&nbsp; If this item is defined and the file exists in
-the
-etc/SITE directory, then the editor will read it and override the
-default
-configuration.&nbsp; See the file etc/BASE/idleConfig.txt for
-information
-on what you can set.&nbsp; At this time you can not override the key
-bindings.
-But this should change in the near future.
-<p><b><tt>IDLECONF = "yourFile.txt"</tt></b></p>
-<p><b><tt><br>
-</tt></b> </p>
-<h4><a name="helpBrowser"></a><font size="+1">Online help browser</font></h4>
-Name of the web browser to use for online help. At this time, only
-netscape
-and mozilla are known to work.
-<p><b><tt>helpBrowser = "netscape"</tt></b> <br>
-&nbsp; </p>
-<h4><a name="NetworkTimeout"></a><font size="+1">Network Timeout</font></h4>
-The network timeout defines the amount of time to wait for any network
-transaction.&nbsp; The GFE could "freeze" for this length of time if
-the
-server is extremely busy.&nbsp; It is not recommended that you change
-this
-number. The network timeout for connecting
-to the ifpServer and for waiting for requests is specified in seconds.
-<p><b><tt>networkTimeout = 240<br>
-<br>
-</tt></b></p>
+<p><b><tt>AutoSaveInterval = 30</tt></b> <br></p>
 <h4>
-<a name="Purge"></a><font size="+1">Product Directory Purge and Log
-File Purge Thresholds</font></h4>
+<a name="Purge"></a><font size="+1">Product Directory Purge Threshold</font></h4>
 These entries define the number of
 hours to retain files within the
-product directories (.../products) before purging them, and the
+product directories before purging them, and the
 number of days of log files to retain before purging them.<br>
 <br>
 <b><tt>ProductPurgeHours = 6</tt></b>
-<b><tt><br>
-LogFilePurgeDays = 7<br>
 <br>
-</tt></b>
 <hr style="width: 100%; height: 2px;"><b><tt><br>
 </tt></b>
 <p></p>
 <div class="Body">
-<center><tt>&nbsp;<a href="GFESuite.html">Back To TOC</a></tt></center>
+<center><a href="GFESuite.html">Back To TOC</a></center>
 </div>
 </div>
 </body>

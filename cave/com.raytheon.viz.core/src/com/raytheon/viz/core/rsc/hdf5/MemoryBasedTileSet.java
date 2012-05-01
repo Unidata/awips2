@@ -172,8 +172,8 @@ public class MemoryBasedTileSet extends AbstractTileSet {
     protected IImage createTile(IGraphicsTarget target, int level, int i, int j)
             throws VizException {
         IDataPreparer preparer = CMDataPreparerManager.getDataPreparer(
-                loadedData[level], this.tileSet.getTile(level, i, j)
-                        .getRectangle(), dims[level]);
+                loadedData[level], this.tileSet.getTile(level, i, j).rect,
+                dims[level]);
         return target.initializeRaster(preparer,
                 rsc.getCapability(ColorMapCapability.class)
                         .getColorMapParameters());
