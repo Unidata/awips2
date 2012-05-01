@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events;
 
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 
 /**
