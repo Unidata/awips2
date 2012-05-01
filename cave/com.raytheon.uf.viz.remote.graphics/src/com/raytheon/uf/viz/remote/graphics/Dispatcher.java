@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.remote.graphics;
 
+import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
+
 /**
  * Abstract class that is responsible for dispatching remote graphics events
  * 

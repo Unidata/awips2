@@ -17,13 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics;
-
-import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
-
+package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
 /**
- * TODO Add Description
+ * Interface for objects that events for actually rendering an object. These
+ * types of events can be skipped over unlike data events which are required to
+ * execute at some point. Render events must implements equals
  * 
  * <pre>
  * 
@@ -31,7 +30,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 28, 2012            mschenke     Initial creation
+ * Apr 9, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -39,34 +38,12 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
  * @version 1.0
  */
 
-public class DispatchingObject<T> {
+public interface IRenderEvent {
 
-    private int objectId;
+    @Override
+    public abstract boolean equals(Object obj);
 
-    private Dispatcher dispatcher;
+    public abstract IRenderEvent createDiffObject(IRenderEvent event);
 
-    protected T wrappedObject;
-
-    public DispatchingObject(T targetObject, Dispatcher dispatcher) {
-        this.wrappedObject = targetObject;
-        this.dispatcher = dispatcher;
-        objectId = dispatcher.newObjectId();
-    }
-
-    public int getObjectId() {
-        return objectId;
-    }
-
-    public T getWrappedObject() {
-        return wrappedObject;
-    }
-
-    public Dispatcher getDispatcher() {
-        return dispatcher;
-    }
-
-    public void dispatch(AbstractRemoteGraphicsEvent eventObject) {
-        dispatcher.dispatch(eventObject);
-    }
-
+    public abstract void applyDiffObject(IRenderEvent diffEvent);
 }

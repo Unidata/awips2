@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.remote.graphics.events.offscreen;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
 /**
  * Event letting clients know they can render on screen
@@ -40,20 +40,7 @@ import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class RenderOnscreenEvent extends AbstractRemoteGraphicsEvent implements
-        IRenderEvent {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
-     */
-    @Override
-    public IRenderEvent createDiffObject(IRenderEvent event) {
-        return event;
-    }
+public class RenderOnscreenEvent extends AbstractRemoteGraphicsRenderEvent {
 
     /*
      * (non-Javadoc)

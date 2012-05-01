@@ -17,10 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics;
+package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * TODO Add Description
@@ -39,24 +38,34 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public abstract class AbstractRemoteGraphicsEvent {
+public class EndFrameEvent extends AbstractRemoteGraphicsRenderEvent {
 
-    @DynamicSerializeElement
-    private int displayId;
-
-    /**
-     * @return the displayId
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
      */
-    public int getDisplayId() {
-        return displayId;
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        // Nothing to do
     }
 
-    /**
-     * @param displayId
-     *            the displayId to set
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
      */
-    public void setDisplayId(int displayId) {
-        this.displayId = displayId;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return true;
     }
 
 }

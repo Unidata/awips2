@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.CollaborationObjectEventStorage;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.IObjectEventRetrieval;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
+import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
@@ -96,7 +97,11 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
 
     private IObjectEventRetrieval retrieval;
 
-    public CollaborationRenderingDataManager(ISharedDisplaySession session) {
+    private CollaborationResource resource;
+
+    public CollaborationRenderingDataManager(ISharedDisplaySession session,
+            CollaborationResource resource) {
+        this.resource = resource;
         this.disposerRouter = new EventBus();
         this.retrieval = CollaborationObjectEventStorage
                 .createRetrievalObject(session);
@@ -160,6 +165,11 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
      * @return
      */
     public <T> T getRenderableObject(int objectId, Class<T> objectType) {
+        return getRenderableObject(objectId, objectType, true);
+    }
+
+    public <T> T getRenderableObject(int objectId, Class<T> objectType,
+            boolean retrieve) {
         T obj = null;
         Object[] toCheck = renderableObjectMap.get(objectId);
         if (toCheck != null) {
@@ -172,6 +182,22 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
                         break;
                     }
                 }
+            }
+        } else if (retrieve) {
+            try {
+                resource.lockObject(objectId);
+                AbstractDispatchingObjectEvent[] events = retrieveObjectEvents(objectId);
+                for (AbstractDispatchingObjectEvent event : events) {
+                    resource.postObjectEvent(event);
+                }
+                return getRenderableObject(objectId, objectType, false);
+            } catch (CollaborationException e) {
+                Activator.statusHandler.handle(
+                        Priority.PROBLEM,
+                        "Error retrieving object events: "
+                                + e.getLocalizedMessage(), e);
+            } finally {
+                resource.unlockObject(objectId);
             }
         }
         return obj;
