@@ -128,7 +128,7 @@ public class CollaborationUtils {
                     UserIdWrapper.class);
             return ids.getUserIds();
         }
-        return null;
+        return new UserId[0];
     }
 
     public static void addAlias() {
