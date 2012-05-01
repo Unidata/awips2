@@ -25,18 +25,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.ITableColorProvider;
-import org.eclipse.jface.viewers.ITableFontProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -59,8 +58,7 @@ import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
  * @author rferrel
  * @version 1.0
  */
-public class UsersTreeLabelProvider implements ITableLabelProvider,
-        ITableFontProvider, ITableColorProvider {
+public class UsersTreeLabelProvider extends ColumnLabelProvider {
     private List<ILabelProviderListener> listeners;
 
     private Map<String, Image> imageMap;
@@ -73,32 +71,7 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
     }
 
     @Override
-    public void addListener(ILabelProviderListener listener) {
-        listeners.add(listener);
-    }
-
-    @Override
-    public void dispose() {
-        for (String key : imageMap.keySet()) {
-            imageMap.get(key).dispose();
-        }
-        if (boldFont != null && !boldFont.isDisposed()) {
-            boldFont.dispose();
-        }
-    }
-
-    @Override
-    public boolean isLabelProperty(Object element, String property) {
-        return false;
-    }
-
-    @Override
-    public void removeListener(ILabelProviderListener listener) {
-        listeners.remove(listener);
-    }
-
-    @Override
-    public Image getColumnImage(Object element, int index) {
+    public Image getImage(Object element) {
         if (Activator.getDefault() == null) {
             return null;
         }
@@ -131,7 +104,7 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
     }
 
     @Override
-    public String getColumnText(Object element, int index) {
+    public String getText(Object element) {
         if (element instanceof IRosterEntry) {
             IRosterEntry entry = (IRosterEntry) element;
             if (entry.getUser().getAlias() == null
@@ -157,41 +130,8 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.ITableColorProvider#getForeground(java.lang
-     * .Object, int)
-     */
     @Override
-    public Color getForeground(Object element, int columnIndex) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.ITableColorProvider#getBackground(java.lang
-     * .Object, int)
-     */
-    @Override
-    public Color getBackground(Object element, int columnIndex) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.ITableFontProvider#getFont(java.lang.Object,
-     * int)
-     */
-    @Override
-    public Font getFont(Object element, int columnIndex) {
+    public Font getFont(Object element) {
         if (element instanceof IRosterGroup
                 || element instanceof SessionGroupContainer) {
             // for this case do nothing, as it is not the top level of
@@ -204,5 +144,80 @@ public class UsersTreeLabelProvider implements ITableLabelProvider,
             return boldFont;
         }
         return null;
+    }
+
+    /**
+     * Gets the tooltip text on the tree that this is a label provider for
+     */
+    @Override
+    public String getToolTipText(Object element) {
+        StringBuilder builder = new StringBuilder();
+        if (element instanceof IRosterEntry) {
+            IRosterEntry user = (IRosterEntry) element;
+            builder.append("ID: ").append(user.getUser().getFQName());
+            builder.append("\nStatus: ");
+            if (user.getPresence().getType() == Type.UNAVAILABLE) {
+                builder.append("Offline");
+            } else {
+                builder.append(user.getPresence().getMode().getMode());
+
+                // builder.append("Type: ").append(user.getType())
+                // .append("\n");
+                String message = user.getPresence().getStatusMessage();
+                if (message != null && message.length() > 0) {
+                    builder.append("\n");
+                    builder.append("Message: \"").append(
+                            user.getPresence().getStatusMessage() + "\"");
+                }
+            }
+            return builder.toString();
+        }
+        // builds the tooltip text for the session group
+        // portion of the view
+        else if (element instanceof IVenueSession) {
+            IVenueSession sessGroup = (IVenueSession) element;
+            IVenueInfo info = sessGroup.getVenue().getInfo();
+            builder.append("ID: ").append(info.getVenueID());
+            builder.append("\nName: ").append(info.getVenueDescription())
+                    .append("\n");
+            builder.append("Subject: ").append(info.getVenueSubject())
+                    .append("\n");
+            builder.append("Participants: ").append(info.getParticipantCount());
+            return builder.toString();
+        } else {
+            return null;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.viewers.CellLabelProvider#getToolTipShift(java.lang
+     * .Object)
+     */
+    @Override
+    public Point getToolTipShift(Object object) {
+        return new Point(5, 5);
+    }
+
+    @Override
+    public void addListener(ILabelProviderListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(ILabelProviderListener listener) {
+        listeners.remove(listener);
+    }
+
+    @Override
+    public void dispose() {
+        for (String key : imageMap.keySet()) {
+            imageMap.get(key).dispose();
+        }
+        if (boldFont != null && !boldFont.isDisposed()) {
+            boldFont.dispose();
+        }
     }
 }
