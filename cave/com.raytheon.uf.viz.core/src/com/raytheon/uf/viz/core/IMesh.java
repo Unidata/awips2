@@ -19,14 +19,13 @@
  **/
 package com.raytheon.uf.viz.core;
 
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.drawables.IRenderable;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- * Base for any mesh 2D/3D, Quad/Triangle -- etc
+ * Base for any mesh 2D/3D, Quad/Triangle -- etc. See {@link PixelCoverage} /
+ * {@link DrawableImage}
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -40,27 +39,7 @@ import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
  * @version 1.0
  */
 
-public interface IMesh extends IRenderable {
-
-    /**
-     * Calculate all the mesh vertices and texture coordinates
-     * 
-     * @param pc
-     * @param tile
-     * @param toLatLon
-     *            translate the tile coordinates to lat/lon coords if the tile
-     *            envelope is not already
-     */
-    public abstract void calculateMesh(PixelCoverage pc, ImageTile tile,
-            MathTransform toLatLon);
-
-    /**
-     * Calculate all the mesh vertices and texture coordinates
-     * 
-     * @param pc
-     * @param gg
-     */
-    public void calculateMesh(PixelCoverage pc, GridGeometry2D gg);
+public interface IMesh {
 
     /**
      * Dispose of the mesh data
@@ -73,4 +52,12 @@ public interface IMesh extends IRenderable {
      * @param extent
      */
     public boolean intersects(IExtent extent);
+
+    /**
+     * Reprojects the mesh into the new target geometry
+     * 
+     * @param targetGeometry
+     */
+    public void reproject(GeneralGridGeometry targetGeometry)
+            throws VizException;
 }

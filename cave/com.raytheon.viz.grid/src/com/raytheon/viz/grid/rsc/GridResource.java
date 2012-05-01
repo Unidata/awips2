@@ -408,7 +408,7 @@ public class GridResource extends
                 for (int j = 0; j < tiles[0].length; j++) {
                     ImageTile tile = tiles[i][j];
                     if (tile != null
-                            && tile.envelope.contains(envelopeCoordinates[0],
+                            && tile.contains(envelopeCoordinates[0],
                                     envelopeCoordinates[1])) {
                         int coordX = (int) (imageCoordinates[0]);
                         int coordY = (int) (imageCoordinates[1]);

@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.core.drawables;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
@@ -116,7 +118,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
 
     }
 
-    protected IColorMapParametersListener listener;
+    protected Set<IColorMapParametersListener> listeners = new HashSet<IColorMapParametersListener>();
 
     /** Units of the colormap parameters (min/max) */
     protected Unit<?> displayUnit;
@@ -714,13 +716,19 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     private void notifyListener() {
-        if (listener != null) {
+        for (IColorMapParametersListener listener : listeners) {
             listener.colorMapChanged();
         }
     }
 
-    public void setListener(IColorMapParametersListener listener) {
-        this.listener = listener;
+    public void addListener(IColorMapParametersListener listener) {
+        if (listener != null) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(IColorMapParametersListener listener) {
+        listeners.remove(listener);
     }
 
     public void setAlphaMask(byte[] alphaMask) {
@@ -741,8 +749,8 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
 
     @Override
     public int hashCode() {
-        if (listener != null) {
-            return listener.hashCode();
+        if (listeners.size() > 0) {
+            return listeners.hashCode();
         } else if (colorMap != null) {
             return colorMap.hashCode();
         } else {
