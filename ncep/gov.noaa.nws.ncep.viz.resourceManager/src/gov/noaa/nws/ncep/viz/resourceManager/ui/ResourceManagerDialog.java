@@ -110,8 +110,8 @@ public class ResourceManagerDialog extends Dialog {
 
 		if( currEditor != null ) { 
 			RbdBundle rbdBndl = new RbdBundle();
-			rbdBndl.setNcEditor( currEditor );
-			rbdBndl.initFromEditor();
+//			rbdBndl.setNcEditor( currEditor );
+			rbdBndl.initFromEditor(currEditor);
 
 			rbd_mngr.initFromRbdBundle( rbdBndl );
 		}        

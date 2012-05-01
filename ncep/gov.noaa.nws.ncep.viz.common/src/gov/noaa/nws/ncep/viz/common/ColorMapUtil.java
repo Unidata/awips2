@@ -4,8 +4,8 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -22,7 +22,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 
 
@@ -40,7 +39,9 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
  * 03/14/2010                B. Hebbard	 add path separator btw tblDir and rsc (2 places);
  *                                       fix circular build dependency on MosaicResource	
  * 03/21/2010   259          G. Hull     load by category        
- * 07/15/2011   450          G. Hull     use new NcPathManager          
+ * 07/15/2011   450          G. Hull     use new NcPathManager 
+ * 03/15/2012   621          S. Gurung   Added methods to read lockedColorMaps.tbl;
+ * 										 load/check for locked colormaps.
  * 
  * </pre>
  * 
@@ -63,23 +64,38 @@ public class ColorMapUtil {
     public static IColorMap loadColorMap(String cat, String name) throws VizException {
     	String cmapCat = cat.substring(0,1)+cat.substring(1).toLowerCase();
     	
-        try {        	
-        	File f = NcPathManager.getInstance().getStaticFile(
-        			NcPathConstants.COLORMAPS_DIR + File.separator+ 
-        			                  cmapCat + File.separator+ name + ".cmap" );
-        	
-            if (f != null) {
-            	ColorMap cm = (ColorMap) SerializationUtil   
-                        .jaxbUnmarshalFromXmlFile(f.getAbsolutePath());
-
-                cm.setName(name);
-                return cm;
-            } else {
-                throw new VizException("Can't find colormap dude " + name);
-            }
-        } catch (SerializationException e) {
-            throw new VizException("Unable to parse colormap " + name, e);
-        }   
+    	// Read lockedColorMaps.tbl to get the list of locked color maps
+    	LockedColorMaps lockedCmaps = readLockedColorMapFile();
+    	if(lockedCmaps != null && lockedCmaps.isLocked(name)) {
+    		return loadLockedColorMap(cat, name);
+    	} 
+    	else {
+    	
+	        try {        	
+	        	File f = NcPathManager.getInstance().getStaticFile(
+	        			NcPathConstants.COLORMAPS_DIR + File.separator+ 
+	        			                  cmapCat + File.separator+ name + ".cmap" );
+	        	
+	            if (f != null) {
+	            	ColorMap cm = (ColorMap) SerializationUtil   
+	                        .jaxbUnmarshalFromXmlFile(f.getAbsolutePath());
+	
+	                cm.setName(name);
+	                return cm;
+	            } else {
+	                throw new VizException("Can't find colormap dude " + name);
+	            }
+	        } catch (SerializationException e) {
+	            throw new VizException("Unable to parse colormap " + name, e);
+	        }   
+    	}
+    }
+    
+    public static IColorMap loadColorMap(String cat, String name, boolean locked) throws VizException {
+    	if (locked)
+    		return loadLockedColorMap(cat, name);
+    	else
+    		return loadColorMap(cat, name);
     }
     
     // TODO Add logic for if the colormap is in the base/site level and provide appropriate confirmation msg
@@ -110,7 +126,7 @@ public class ColorMapUtil {
         NcPathManager pathMngr = NcPathManager.getInstance();
         
     	String cmapCat = cat.substring(0,1)+cat.substring(1).toLowerCase();
-  
+    	
         Set<LocalizationContext> searchContexts = new HashSet<LocalizationContext>();        
         searchContexts.addAll( 
         		Arrays.asList( pathMngr
@@ -217,4 +233,85 @@ public class ColorMapUtil {
 			throw new VizException(e);
 		}
     }
+    
+    /**
+     * 
+     * Return a pointer to the lockedColorMaps.tbl localization file
+     * 
+     * @return an absolute pointer on the filesystem to the file
+     */
+     public static File getLockedColorMapFile() {
+    	
+    	 Map<LocalizationLevel, LocalizationFile> files = PathManagerFactory
+				        .getPathManager().getTieredLocalizationFile(
+				                LocalizationType.CAVE_STATIC, NcPathConstants.LOCKED_CMAP_TBL);
+		
+        File locCmapFile = null;
+		
+        if (files != null) {
+			locCmapFile = files.get(LocalizationLevel.BASE).getFile();
+			if (files.containsKey(LocalizationLevel.SITE)) {
+				locCmapFile = files.get(LocalizationLevel.SITE).getFile();
+			}
+		}
+        
+		return locCmapFile;
+    }     
+
+     // Read lockedColorMaps.tbl localization file
+     public static LockedColorMaps readLockedColorMapFile() {
+ 		File locCmapFile = ColorMapUtil.getLockedColorMapFile();
+ 		
+ 		if ( locCmapFile == null || !locCmapFile.exists() ) {
+ 			return null;
+ 		}
+ 		
+ 		LockedColorMaps lockedCmaps = null;
+ 		try {
+ 			lockedCmaps = new LockedColorMaps(locCmapFile.getAbsolutePath());
+     		
+ 		} catch (FileNotFoundException e) {
+ 			e.printStackTrace();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		}
+		return lockedCmaps;
+     }
+          
+      /**
+       * Load a locked colormap by name
+       * 
+       * @param name
+       *            name of the colormap
+       * @return the colormap representation
+       * @throws VizException
+       */
+      public static IColorMap loadLockedColorMap(String cat, String name) throws VizException {
+      	   String cmapCat = cat.substring(0,1)+cat.substring(1).toLowerCase();
+      	
+          try {        	
+          	
+          	Map<LocalizationLevel, LocalizationFile> files = PathManagerFactory
+		        .getPathManager().getTieredLocalizationFile(
+		                LocalizationType.CAVE_STATIC, NcPathConstants.COLORMAPS_DIR + File.separator+ 
+		                  cmapCat + File.separator+ name + ".cmap");
+	
+          	File f = null;
+            
+          	if (files != null) {
+            	 	f = files.get(LocalizationLevel.BASE).getFile();
+           			if (files.containsKey(LocalizationLevel.SITE)) {
+           				f = files.get(LocalizationLevel.SITE).getFile();
+           			}
+           			ColorMap cm = (ColorMap) SerializationUtil.jaxbUnmarshalFromXmlFile(f.getAbsolutePath());
+           			cm.setName(name);
+           			return cm;            
+            } else {
+                  throw new VizException("Can't find colormap " + name);
+            }
+          } catch (SerializationException e) {
+              throw new VizException("Unable to parse colormap " + name, e);
+          }   
+      }
+    
 }

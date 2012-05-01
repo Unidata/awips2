@@ -28,6 +28,19 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 
+/**
+ * NcgridModel
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    	Engineer    Description
+ * ------------ ---------- 	----------- --------------------------
+ * 3/12						T. Lee		Initialized template
+ * </pre>
+ * 
+ * @author njensen
+ * @version 1.0
+ */
 @XmlAccessorType(XmlAccessType.NONE)
 public class NcgridModel implements ISerializableObject {
 
@@ -55,6 +68,9 @@ public class NcgridModel implements ISerializableObject {
     @XmlElement(name = "id")
     private ArrayList<Integer> process;
 
+    @XmlElement
+    private String template = "NONE";
+    
     @XmlElement
     private String alias;
 
@@ -110,6 +126,14 @@ public class NcgridModel implements ISerializableObject {
 
     public void setSubCenter(String subcenter) {
         this.subcenter = subcenter;
+    }
+    
+    public String getTemplate() {
+        return this.template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
     public void setAlias(String alias) {

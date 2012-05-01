@@ -76,8 +76,13 @@ public class LayeringNameDialog extends ProductDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 400,  pt.y + 380 );
+
+        if ( shellLocation == null) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 400,  pt.y + 380 );
+		} else {
+			shell.setLocation(shellLocation);
+		}
     }
     
 
@@ -108,7 +113,7 @@ public class LayeringNameDialog extends ProductDialog {
         acceptBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {                           	
             	updateName( nameText.getText() );            	
-            	shell.dispose();
+                close();
             }
         });
         
@@ -118,7 +123,7 @@ public class LayeringNameDialog extends ProductDialog {
         cancelBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
             	layeringDlg.setopenLayerNameDlg( false );
-            	shell.dispose();
+                close();
             }
         });
     

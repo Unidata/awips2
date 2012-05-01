@@ -20,10 +20,10 @@
 package com.raytheon.uf.viz.core.rsc;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -152,11 +152,11 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
     protected AbstractVizResource(T resourceData, LoadProperties loadProperties) {
         this.resourceData = resourceData;
         this.loadProperties = loadProperties;
-        refreshListeners = new CopyOnWriteArraySet<IRefreshListener>();
-        initListeners = new CopyOnWriteArraySet<IInitListener>();
-        paintListeners = new CopyOnWriteArraySet<IPaintListener>();
-        paintStatusListeners = new CopyOnWriteArraySet<IPaintStatusChangedListener>();
-        disposeListeners = new CopyOnWriteArraySet<IDisposeListener>();
+        refreshListeners = new HashSet<IRefreshListener>();
+        initListeners = new HashSet<IInitListener>();
+        paintListeners = new HashSet<IPaintListener>();
+        paintStatusListeners = new HashSet<IPaintStatusChangedListener>();
+        disposeListeners = new HashSet<IDisposeListener>();
 
         if (resourceData != null) {
             resourceData.addChangeListener(new IResourceDataChanged() {
@@ -717,7 +717,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      */
     public final void recycle() {
         if (status == ResourceStatus.INITIALIZED) {
-            disposeInternal();
+            dispose();
         }
         status = ResourceStatus.NEW;
         initJob = null;

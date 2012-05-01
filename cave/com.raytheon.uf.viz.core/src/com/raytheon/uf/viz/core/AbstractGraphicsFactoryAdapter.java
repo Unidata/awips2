@@ -133,4 +133,11 @@ public abstract class AbstractGraphicsFactoryAdapter {
     public abstract Canvas constrcutCanvas(Composite canvasComp)
             throws VizException;
 
+    /**
+     * Dispose of the canvas, it can be assumed the canvas is the same type
+     * created from constructCanvas
+     * 
+     * @param canvas
+     */
+    public abstract void disposeCanvas(Canvas canvas);
 }
