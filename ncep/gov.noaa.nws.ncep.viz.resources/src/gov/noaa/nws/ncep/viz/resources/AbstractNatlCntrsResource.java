@@ -24,6 +24,9 @@ import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
+import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -44,6 +47,10 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 30 Apr 2010     #276      Greg Hull    Abstract the dataObject instead of assuming PluginDataObject.
  * 05 Dec 2011               Shova Gurung Added progDiscDone to check if progressive disclosure is run 
  * 										  for frames that are already populated
+ * 16 Feb 2012     #555      Shova Gurung Remove progDiscDone. Add call to setAllFramesAsPopulated() in queryRecords().
+ * 										  Remove frameData.setPopulated(true) from processNewRscDataList().
+ * 20 Mar 2012     #700      B. Hebbard   In processNewRscDataList(), when new frame(s) are created by auto update,
+ *                                        set frame to LAST and issueRefresh() to force paint (per legacy; TTR 520).
  * 
  * </pre>
  * 
@@ -96,12 +103,8 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		
 		protected long startTimeMillis;
 		protected long endTimeMillis;
-		
-		// for frames that are already populated but progressive disclosure is not run 
-		private boolean progDiscDone; 
-	      
-
-		// set the frame start and end time based on: 
+	
+	 	// set the frame start and end time based on: 
 		//   - frame time (from dominant resource), 
 		//   - the frameInterval for this resource (may be different than the 
 		//        frame interval used to generate the timeline) and
@@ -254,17 +257,10 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		public boolean isPopulated() {
 			return populated;
 		}
-		public void setPopulated() {
-			populated = true;
+		public void setPopulated(boolean p) {
+			populated = p;
 		}
 		
-		public void setProgDiscDone(boolean progDisc) {
-			progDiscDone = progDisc;
-		}
-		
-		public boolean getProgDiscDone() {
-			return progDiscDone;
-		}
 	}
 
 	protected boolean initialized = false;
@@ -306,7 +302,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		newFrameTimesList = new ArrayList<DataTime>();
 		currFrameTime = null;
 
-		// if requestable add a resourceChanged listener that is called by raytheon's 
+		// if requestable add a resourceChanged listener that is called by Raytheon's 
 		// AbstractRequestableResource when update() is called.
 		if( resourceData instanceof AbstractNatlCntrsRequestableResourceData ) {
 			resourceData.addChangeListener(new IResourceDataChanged() {
@@ -476,10 +472,10 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 	// don't let derived classes override paintInternal. Override paintFrame()
 	public final void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
 			throws VizException {
+		
 		if( !newRscDataObjsQueue.isEmpty() ||
 			(!newFrameTimesList.isEmpty() &&
 			  getNCMapDescriptor().isAutoUpdate()) ) {
-			
 			processNewRscDataList();
 		}
 		
@@ -533,9 +529,8 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 				if( frameData != null ) {					
 					if( frameData.isRscDataObjInFrame( rscDataObj ) ) {
 						if( addRscDataToFrame( frameData, rscDataObj ) ) {
-							frameData.setPopulated();
-							frameData.setProgDiscDone(false);
-							foundFrame = true;												
+							//frameData.setPopulated(true);
+							foundFrame = true;
 						}
 						
 						if( frameData == frameDataMap.lastEntry().getValue() ) {
@@ -546,7 +541,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 			}
 			
 			// if not in any frames (or if in the last frame) and if updating and if this the data is 
-			//    newer than the latest frame then cach the data for auto update.
+			//    newer than the latest frame then cache the data for auto update.
 			//    NOTE: this will 'drop' (not cache) data from the initial query that doesn't match the  
 			//    selected timeline which means that if the user later enables auto-update, this data will  
 			//    not be loaded as part of the auto-update. This is by design but could be changed if the 
@@ -558,7 +553,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 			//    checking for the last frame here.) 
 			long dataTimeMs = getDataTimeMs(rscDataObj);//rscDataObj.getDataTime().getValidTime().getTime().getTime();
 
-			if( timeMatcher.isAutoUpdateable()) {					
+			if( timeMatcher.isAutoUpdateable()) {
 
 				if( (!foundFrame && autoUpdateReady && 
 						dataTimeMs > frameDataMap.firstKey()) 
@@ -597,6 +592,12 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 			// notify its resources (including this one) to create and update the frames
 			timeMatcher.updateTimeline( newFrameTimesList );
 			newFrameTimesList.clear();
+			// advance to the new last frame (per legacy; could change)...
+			descriptor.getFrameCoordinator().changeFrame(
+					IFrameCoordinator.FrameChangeOperation.LAST,
+					IFrameCoordinator.FrameChangeMode.TIME_ONLY);
+			// ...and make sure it gets painted
+			issueRefresh();
 		}
 		
 		return true;
@@ -608,12 +609,12 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		return frameData.updateFrameData(rscDataObj);
 	}
 
-	// allow this to be overridded if derived class needs to
+	// allow this to be overridden if derived class needs to
 	protected boolean preProcessFrameUpdate() {
 		return true;
 	}
 
-	// allow this to be overridded if derived class needs to
+	// allow this to be overridden if derived class needs to
 	protected boolean postProcessFrameUpdate() {
 		return true;
 	}
@@ -646,6 +647,8 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 				newRscDataObjsQueue.add(dataObject);
 			}
 		}
+
+		setAllFramesAsPopulated();
 	}
 
 	public boolean isDominantResource( ) {
@@ -702,9 +705,15 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
         return this.resourceData.toString();
     }
     
-    // added since WarnResource gets null pointers in processNewRscDataList()    
+    // added since WarnResource gets null pointers in processNewRscDataList()
 	protected long getDataTimeMs(IRscDataObject rscDataObj) {
 		return rscDataObj.getDataTime().getValidTime().getTime().getTime();
  
+	}
+	
+	protected void setAllFramesAsPopulated() {
+		for( AbstractFrameData frameData : frameDataMap.values() ) {
+			frameData.setPopulated(true);
+		}
 	}
 }

@@ -24,9 +24,8 @@ import javax.media.opengl.GL;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
-import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.sun.opengl.util.texture.TextureCoords;
+import com.raytheon.viz.core.gl.IGLTarget;
 
 /**
  * 
@@ -52,30 +51,24 @@ public class GLColormappedImage extends AbstractGLImage implements
     protected GLCMTextureData data;
 
     public GLColormappedImage(IColorMapDataRetrievalCallback dataCallback,
-            ColorMapParameters params,
-            Class<? extends IImagingExtension> extensionClass) {
-        super(extensionClass);
+            ColorMapParameters params, IGLTarget target) {
+        super();
         this.data = GLCMTextureData.getGlTextureId(dataCallback);
         this.colorMapParameters = params;
-        if (data.isLoaded()) {
-            setStatus(Status.LOADED);
-        } else if (data.isStaged()) {
-            setStatus(Status.STAGED);
-        }
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.gl.images.AbstractGLImage#stageTexture()
+     * @see com.raytheon.viz.core.gl.GLImage#stageTexture()
      */
     @Override
-    public boolean stageTexture() throws VizException {
-        if (data == null) {
-            throw new VizException(
-                    "Cannot stage texture, image has been disposed");
+    public void stageTexture() throws VizException {
+        if (data.stageTexture()) {
+            setStatus(Status.STAGED);
+        } else {
+            setStatus(Status.FAILED);
         }
-        return data.stageTexture();
     }
 
     /*
@@ -176,10 +169,8 @@ public class GLColormappedImage extends AbstractGLImage implements
 
     @Override
     public double getValue(int x, int y) {
-        double val = Double.NaN;
-        if (data != null) {
-            val = data.getValue(x, y);
-        }
+        double val = data.getValue(x, y, colorMapParameters.getDataMin(),
+                colorMapParameters.getDataMax());
         return val;
     }
 
@@ -231,11 +222,7 @@ public class GLColormappedImage extends AbstractGLImage implements
     @Override
     public Status getStatus() {
         Status status = super.getStatus();
-        if (data == null) {
-            if (status != Status.UNLOADED) {
-                setStatus(Status.UNLOADED);
-            }
-        } else if (data.isLoaded()) {
+        if (data.isLoaded()) {
             if (status != Status.LOADED) {
                 setStatus(Status.LOADED);
             }
@@ -253,16 +240,6 @@ public class GLColormappedImage extends AbstractGLImage implements
             setStatus(Status.UNLOADED);
         }
         return super.getStatus();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.images.AbstractGLImage#getTextureCoords()
-     */
-    @Override
-    public TextureCoords getTextureCoords() {
-        return new TextureCoords(0, 1, 1, 0);
     }
 
 }

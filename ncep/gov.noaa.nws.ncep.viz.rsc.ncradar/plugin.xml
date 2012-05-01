@@ -48,6 +48,21 @@
             attributeName="colorMapName"
             ncResourceName="LocalRadar">
       </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="alpha"
+            ncResourceName="LocalRadar">
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="brightness"
+            ncResourceName="LocalRadar">
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="contrast"
+            ncResourceName="LocalRadar">
+      </nc-resourceAttribute>      
    </extension>
 
 </plugin>

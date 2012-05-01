@@ -151,4 +151,17 @@ public class GLFactoryAdapter extends AbstractGraphicsFactoryAdapter {
         return canvas;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter#disposeCanvas
+     * (org.eclipse.swt.widgets.Canvas)
+     */
+    @Override
+    public void disposeCanvas(Canvas canvas) {
+        if (!canvas.isDisposed()) {
+            canvas.getParent().dispose();
+        }
+    }
 }

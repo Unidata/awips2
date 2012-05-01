@@ -24,12 +24,19 @@ import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -90,6 +97,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 05/11		  			J. Wu		  Added methods to setup/covert between lat/lon
  * 											and a custom coordinate.
  * 08/11		  			J. Wu		  Added getPgenOprDirectory()
+ * 03/12         #611       S. Gurung     Added computePoint()
+ * 03/12		 #704		B. Yin		  Move applyStylesheet() here from ProdType
  * 
  * </pre>
  * 
@@ -697,7 +706,7 @@ public class PgenUtil {
 	 * @return The String showing lat/lons in text string
 	 */	
 	public static final String getLatLonStringPrepend(Coordinate[] coors, boolean isLineTypeArea){
-    	String twoSpace = gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg.LINE_SEPERATER;
+    	String twoSpace = gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.LINE_SEPERATER;
     	StringBuilder result = new StringBuilder();
     	for(Coordinate coor : coors){  		
     		
@@ -721,7 +730,7 @@ public class PgenUtil {
 	 * @return The String showing lat/lons in text string
 	 */	
 	public static final String getLatLonStringPostpend(Coordinate[] coors, boolean isLineTypeArea){
-    	String twoSpace = gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg.LINE_SEPERATER;
+    	String twoSpace = gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.LINE_SEPERATER;
     	StringBuilder result = new StringBuilder();
     	for(Coordinate coor : coors){  		    		
     		
@@ -1379,4 +1388,196 @@ public class PgenUtil {
 		return parsedFile;
 	}
 
+	/**
+	 * This function computes the resulting coordinate (latitude/longitude point) 
+	 * based on the coordinate (latitude/longitude point) passed, a distance and a
+	 * direction.
+	 * 
+	 * @param coor coordinate of the point (lat/lon)
+	 * @param dist distance (nautical mile)
+	 * @param dir direction (degrees from N)	
+	 * @return newCoor coordinate of the new point created                                                                    
+	 */
+	public static Coordinate computePoint(Coordinate coor, float dist, float dir) {
+		final double PI = 3.14159265,
+					 HALFPI	= PI / 2.0,
+		 			 TWOPI = 2.0 * PI,	
+		 			 DTR = PI / 180.0,					// Degrees to Radians
+		 			 RTD = 180.0 / PI,                  // Radians to Degrees
+		 			 RADIUS = 6371200.0F,				// Earth radius
+		 			 NM2M =	1852.0F;
+		
+		/*
+		 *	Convert the input values to radians.
+		 */
+
+		double direction = (double) dir * DTR;
+		double lat = (double) coor.y * DTR;
+		double lon = (double) coor.x * DTR;
+		double distance = (double) dist * NM2M/ RADIUS;
+		
+		double dLat = Math.asin( Math.sin(lat) * Math.cos(distance) + Math.cos(lat) * Math.sin(distance) * Math.cos(direction));
+		double dLon, dLt, dLn;
+		
+		/*
+		 *	Make sure the longitude is between -180 and +180 degrees.
+		 */
+		lon = lon - (double)( (double)((int)(lon / TWOPI)) * TWOPI  );
+		if  ( lon < -PI )  lon = lon + TWOPI;
+		if  ( lon >  PI )  lon = lon - TWOPI;
+
+		/*
+		 *	Compute the delta longitude.  If the initial latitude is either
+		 *	pole, then use the original longitude, otherwise, compute
+		 *	the new longitude.
+		 */
+		if  ( (Math.abs(lat - 90.0F) < 0.000001) || (Math.abs(-lat - 90.0F) < 0.000001) )  {
+		    dLon = lon;
+		}
+		else {
+		    dLon = Math.atan2( Math.sin(direction) * Math.sin(distance) * Math.cos(lat), 
+		    		Math.cos(distance)-Math.sin(lat)*Math.sin(dLat));
+		    dLon = (lon+dLon + PI % TWOPI) - PI;	
+		}
+		
+		/*
+		 *	Make sure that latitude is between -90 and +90 degrees.
+		 *	Adjust the longitude, if necessary.
+		 */
+		dLt = dLat - (double)( (double)((int)(dLat/PI)) * PI );
+
+		if  ( dLt >  HALFPI )  {
+			dLt  =  PI - dLt;
+		    dLon = -dLon;
+		}
+		if  ( dLt < -HALFPI )  {
+		    dLt  = -PI - dLt;
+		    dLon = -dLon;
+		}
+		
+		/*
+		 *	Make sure the longitude is between -180 and +180 degrees.
+		 */
+		dLn = dLon - (double)( (double)((int)(dLon/TWOPI)) * TWOPI );
+		if  ( dLn < -PI )  dLn = dLn + TWOPI;
+		if  ( dLn >  PI )  dLn = dLn - TWOPI;
+
+		// Convert the new position to degrees and create coordinate based on new lat/lon
+		Coordinate newCoor = new Coordinate((float)(dLn * RTD), (float)(dLt * RTD));
+		return newCoor;
+	}
+	
+    /**
+     * Apply the style sheet on the DOMSource and generate text
+     * @param dSource
+     * @param xsltName
+     * @return
+     */
+    static public String applyStyleSheet(DOMSource dSource, String xsltName ){    	
+
+    	String ret = "";
+    	if ( xsltName != null && !xsltName.isEmpty() ){
+    		File xslt = new File( xsltName);
+    		if ( xslt.canRead() ){
+    			
+    			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+    			try{    	
+    				TransformerFactory tf = TransformerFactory.newInstance();
+    				StreamSource myStylesheetSrc = new StreamSource(xslt);       
+
+    				Transformer t = tf.newTransformer(myStylesheetSrc);
+
+    				t.transform(dSource, new StreamResult(baos)); 
+    				
+    				ret = new String(baos.toByteArray());
+    			}catch(Exception e){           
+    				System.out.println(e.getMessage());
+    			}     	
+    		}
+    	}
+
+        return ret;
+    }
+	
+	/**
+	 * Based on apache's WordUtils to wrap the long lines
+	 * of OBS/Fcst info
+	 * 
+	 * @param String str1: 		the line to be wrapped
+	 * @param int wrapLength:	the line's desired length
+	 * @param String newLineStr:the new line string 
+	 * @param boolean wrapLongWords:	if to wrapped long words
+	 * @return String: the wrapped String
+	 */
+	
+	public static String  wrap(String  str1, int wrapLength, String  newLineStr, boolean wrapLongWords) {
+        if (str1 == null) {
+            return "";
+        }
+        if (newLineStr == null) {
+            newLineStr = System.getProperty("line.separator");
+           
+        }
+        if (wrapLength < 1) {
+            wrapLength = 1;
+        }
+        int inputLineLength1 = str1.length();
+        int offset = 0;
+        StringBuffer  wrappedLine = new StringBuffer (inputLineLength1 + 32);
+        
+        String[] lines = str1.split(newLineStr);
+        
+        for(int i=0; i<lines.length; i++){
+        	offset = 0;
+        	int inputLineLength = lines[i].length();
+        	
+        	if(lines[i].length() < wrapLength){
+        		
+        		wrappedLine.append(lines[i]).append(newLineStr);
+        	
+        	}else{												
+        		String str = lines[i];
+		        while ((inputLineLength - offset) > wrapLength) {
+		            if (str.charAt(offset) == ' ') {
+		                offset++;
+		                continue;
+		            }
+		            int spaceToWrapAt = str.lastIndexOf(' ', wrapLength + offset);
+		
+		            if (spaceToWrapAt >= offset) {
+		                // normal case
+		            	wrappedLine.append(str.substring(offset, spaceToWrapAt));
+		                wrappedLine.append(newLineStr);
+		                offset = spaceToWrapAt + 1;
+		                
+		            } else {
+		                // really long word or URL
+		            	if (wrapLongWords) {
+		                    // wrap really long word one line at a time
+		            		wrappedLine.append(str.substring(offset, wrapLength + offset));
+		                    wrappedLine.append(newLineStr);
+		                    offset += wrapLength;
+		                } else {
+		                    // do not wrap really long word, just extend beyond limit
+		                	spaceToWrapAt = str.indexOf(' ', wrapLength + offset);
+		                    if (spaceToWrapAt >= 0) {
+		                        wrappedLine.append(str.substring(offset, spaceToWrapAt));
+		                        wrappedLine.append(newLineStr);
+		                        offset = spaceToWrapAt + 1;
+		                    } else {
+		                        wrappedLine.append(str.substring(offset));
+		                        offset = inputLineLength;
+		                    }
+		                }
+		            }
+		        }
+		
+		        // Whatever is left in line is short enough to just pass through
+		        wrappedLine.append(str.substring(offset)).append(newLineStr);
+        	}
+        }
+
+        return wrappedLine.toString();
+    }
 }

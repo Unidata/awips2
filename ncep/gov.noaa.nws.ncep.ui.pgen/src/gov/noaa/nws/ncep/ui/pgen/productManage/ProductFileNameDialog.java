@@ -95,8 +95,14 @@ public class ProductFileNameDialog extends ProductDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 475,  pt.y + 146 );
+        
+    	if ( shellLocation == null ) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 475,  pt.y + 146 );
+		} else {
+			shell.setLocation(shellLocation);
+		}
+
     }
 
     
@@ -179,7 +185,7 @@ public class ProductFileNameDialog extends ProductDialog {
 //           	    prdManageDlg.updateProductFileAttr( null, 
 //	                        outputFileTxt.getText() );
 
-           	    shell.dispose();
+           	    close();
             }
         });
         
@@ -188,7 +194,7 @@ public class ProductFileNameDialog extends ProductDialog {
         cancelBtn.setLayoutData( gd );
         cancelBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 

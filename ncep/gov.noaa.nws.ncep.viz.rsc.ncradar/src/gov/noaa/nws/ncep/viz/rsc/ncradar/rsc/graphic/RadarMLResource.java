@@ -22,6 +22,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.LinkedContourVectorPacket;
@@ -55,7 +56,9 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
@@ -64,6 +67,7 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.VizRadarRecord;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarResourceData;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarTileSet;
+import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -78,6 +82,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/16/2011   #541       S. Gurung   Initial creation
+ * 03/30/2012   #651       S. Gurung   Fixed NullPointerException bug in resourceChanged
  * 
  * </pre>
  * 
@@ -358,6 +363,40 @@ public class RadarMLResource extends RadarGraphicsResource {
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_UPDATE) {
             refresh = true;
+        }
+        else if ( type == ChangeType.CAPABILITY ){
+        	RadarResourceData radarRscData = ( RadarResourceData ) this.resourceData;
+        	if (object instanceof ImagingCapability ){
+        		ImagingCapability imgCap = getCapability(ImagingCapability.class);
+           		ImagingCapability newImgCap = ( ImagingCapability ) object;
+        		imgCap.setBrightness(newImgCap.getBrightness(), false);
+        		imgCap.setContrast(newImgCap.getContrast(), false);
+        		imgCap.setAlpha(newImgCap.getAlpha(), false);
+                radarRscData.setAlpha(  imgCap.getAlpha()  );
+                radarRscData.setBrightness(  imgCap.getBrightness() );
+                radarRscData.setContrast(  imgCap.getContrast() );
+	
+        	}
+        	else if (object instanceof ColorMapCapability ){
+        		
+        		ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
+        		ColorMapCapability newColorMapCap = (ColorMapCapability) object;
+        		if (newColorMapCap.getColorMapParameters() != null) {
+	        		colorMapCap.setColorMapParameters(newColorMapCap.getColorMapParameters(), false);
+	        		ColorMap theColorMap = ( ColorMap ) colorMapCap.getColorMapParameters().getColorMap();
+	        		String colorMapName = colorMapCap.getColorMapParameters().getColorMapName();
+	        		radarRscData.setColorMapName( colorMapName );
+	        	    radarRscData.getRscAttrSet().setAttrValue( "colorMapName", colorMapName );
+	        	    ColorBarFromColormap cBar = radarRscData.getColorBar();
+	        	    cBar.setColorMap( theColorMap );
+	        	    radarRscData.getRscAttrSet().setAttrValue( "colorBar", cBar );
+	        	    radarRscData.setIsEdited( true );
+        		}
+
+        	}
+        	
+        	issueRefresh();
+        	
         }
         super.resourceChanged(type, object);
     }

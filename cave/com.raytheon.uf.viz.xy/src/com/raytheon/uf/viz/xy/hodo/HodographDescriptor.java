@@ -19,9 +19,17 @@
  **/
 package com.raytheon.uf.viz.xy.hodo;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.geotools.coverage.grid.GeneralGridEnvelope;
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 
@@ -47,14 +55,33 @@ public class HodographDescriptor extends AbstractDescriptor {
     // The max distance of the hodograph
     private static final double MAX_RANGE = 140.0;
 
+    @XmlElement
+    @XmlJavaTypeAdapter(value = GridGeometryAdapter.class)
+    protected GeneralGridGeometry geometry;
+
     public HodographDescriptor(IExtent anExtent) {
-        super(createGridGeometry(anExtent, DefaultEngineeringCRS.CARTESIAN_2D));
+        super();
+        GeneralEnvelope envelope = new GeneralEnvelope(2);
+        envelope.setRange(0, anExtent.getMinX(), anExtent.getMaxX());
+        envelope.setRange(1, anExtent.getMinY(), anExtent.getMaxY());
+        envelope.setCoordinateReferenceSystem(DefaultEngineeringCRS.CARTESIAN_2D);
+        geometry = new GridGeometry2D(new GeneralGridEnvelope(
+                new int[] { 0, 0 }, new int[] { (int) anExtent.getWidth(),
+                        (int) anExtent.getHeight() }, false), envelope);
     }
 
-    // Separate functions for polar transformations until we can get it working
-    // in geotools framework
-    public double[] pixelToPolar(double[] pixel) {
-        GeneralGridGeometry geometry = getGridGeometry();
+    @Override
+    public CoordinateReferenceSystem getCRS() {
+        return null;
+    }
+
+    @Override
+    public GeneralGridGeometry getGridGeometry() {
+        return geometry;
+    }
+
+    @Override
+    public double[] pixelToWorld(double[] pixel) {
         double x = pixel[0];
         double y = pixel[1];
         int xRange = geometry.getGridRange().getSpan(0);
@@ -68,8 +95,8 @@ public class HodographDescriptor extends AbstractDescriptor {
         return new double[] { r, a, 0 };
     }
 
-    public double[] polarToPixel(double[] world) {
-        GeneralGridGeometry geometry = getGridGeometry();
+    @Override
+    public double[] worldToPixel(double[] world) {
         double r = world[0];
         double a = world[1];
         int xRange = geometry.getGridRange().getSpan(0);

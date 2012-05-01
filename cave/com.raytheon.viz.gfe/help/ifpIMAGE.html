@@ -11,7 +11,7 @@
 <body bgcolor="#ffffff">
 <h1 class="Title">
 The ifpIMAGE User's Guide</h1>
-<div class="Title">July 23, 2003<br>
+<div class="Title">January 4, 2012<br>
 </div>
 <div class="Title">
 <h2><a name="TableOfContents"></a>Table Of Contents</h2>
@@ -152,7 +152,7 @@ imagery.</li>
 </ul>
 <div class="Title"><img src="images/ifpIMAGEtop.png" nosave=""
  height="700" width="700"></div>
-<div class="Title">&nbsp;
+<div class="Title">
 <br>
 The configuration of the ifpIMAGE program is not done through command
 line switches.&nbsp; Instead it uses a GFE configuration file which is
@@ -164,31 +164,27 @@ can be used to specify the configuration file to be used,&nbsp; the <a
 name</a> (which defaults to SITE), and optionally the <a
  href="#ChangingtheDateString">base
 time</a>.
-<br>
-&nbsp;</div>
+<br><br>
+</div>
 <div class="Title">When the ifpIMAGE program is executed, the program
 reads
 the specified configuration file, sets up the GFE in background mode,
 loads
 the specified data and generates images.&nbsp; By default, images are
 generated
-for all available grids for the given parameters.&nbsp; Each output PNG
+for all available grids for the given parameters. Each output PNG
 is named with a unique timestamp to help sort out the many PNG
-images.&nbsp;&nbsp;
+images.
 In addition, an "info" file is generated for each PNG which contains
 descriptive
 information about the PNG.</div>
-<div class="Title">
-<hr width="100%"></div>
-
-<div class="Title">&nbsp;</div>
 <div class="Title">
 <hr width="100%"></div>
 <h2 class="Title">
 <a name="ConfiguringifpIMAGE"></a>Configuring ifpIMAGE</h2>
 <div class="Title">ifpIMAGE is configured through a&nbsp; <a
  href="gfeConfig.html">gfe
-configuration file</a>.&nbsp; These custom configuration files should
+configuration file</a>. These custom configuration files should
 be
 SITE-based, not USER-based since the ifpIMAGE is a product generation
 program
@@ -201,25 +197,21 @@ the BASE, SITE, and USER configuration capability can be found in the <a
 Site, and User Concept Guide</a>.
 <p><b><font color="#ff0000">NOTE: ifpIMAGE by default uses
 configuration
-files that are defined by the "SITE" user.&nbsp; If you log into the
-GFE
-as a user (not SITE), and then create a configuration file, then run
-the
+files that are defined for SITE. If you  create a configuration file
+at USER level, then run the
 ifpIMAGE program, the ifpIMAGE probably will not generate any
-images.&nbsp;
-This is caused by storing the configuration file as a user and not
+images.
+This is caused by storing the configuration file under USER and not
 SITE,
 and the ifpIMAGE program is looking for your configuration file in
-SITE.&nbsp;
+SITE.
 You can override this behavior using the -u switch to ifpIMAGE.</font></b>
 </p>
 <p>Creation of the ifpIMAGE configuration file is done through the GFE
-main menu item: <a
- href="GFEMainMenu.html#DefineConfigandifpIMAGEFiles...">GFE-&gt;Define
+main menu item: <a href="GFEMainMenu.html#DefineConfigandifpIMAGEFiles...">GFE-&gt;Define
 Config and ifpIMAGE Files menu entry</a>. Be sure to create/modify
 these
-files using the user login name of "SITE" to ensure that the custom
-configuration
+files at SITE level to ensure that the custom configuration
 files end up in the SITE directory.
 </p>
 </div>
@@ -227,7 +219,6 @@ files end up in the SITE directory.
 <h2><a name="RunningifpIMAGE"></a>Running ifpIMAGE</h2>
 The command line options for ifpIMAGE are:
 <br>
-&nbsp;
 <table border="1" width="100%" nosave="">
   <tbody>
     <tr>
@@ -300,18 +291,17 @@ time or 0000z.</td>
     </tr>
   </tbody>
 </table>
-<p><font color="#3366ff">Note: When running ifpIMAGE in a normally
+<p><font color="#3366ff"><b>Note:</b> When running ifpIMAGE in a normally
 configured
 system, the -h and -p switches are not needed since they will be
 brought
 in from your configured installation.&nbsp; The -o switch defaults to
 your
-release/products/IMAGE directory. If you want to connect to a different
-server than the configured ifpServer, then the -h and -p switches are
-needed.&nbsp;
+/awips2/cave/etc/gfe/products/IMAGE directory. If you want to connect to a different
+server than the configured EDEX, then the -h and -p switches are
+needed.
 If the default destination isn't correct for your purpose, then you
-will
-need to specify an -o switch.</font>&nbsp;<font color="#3366ff">&nbsp;
+will need to specify an -o switch.</font>&nbsp;<font color="#3366ff">&nbsp;
 If environment variables ${CDSHOST} or
 ${CDSPORT} are defined, then the default server and port will be
 determined from the environment variables, unless overridden with the
@@ -319,24 +309,20 @@ user specified -h and -p switches.</font>
 </p>
 <hr width="100%">
 <h2><a name="CanItestmyconfiguration"></a>Can I Test My Configuration?</h2>
-Yes.&nbsp; You can&nbsp; test&nbsp; your configuration by running the
-GFE
+Yes.&nbsp; You can test your configuration by running the GFE
 with the specified user and configuration filename.&nbsp; Then you can
 step frames or animate and the spatial editor will show you the
 expected
 results (e.g., colors and other appearance features).
 <p><b><font color="#ff0000">NOTE: ifpIMAGE by default uses
 configuration
-files that are defined by the "SITE" user.&nbsp; If you log into the
-GFE
-as a user (not SITE), and then create a configuration file, then run
-the
+files that are defined at SITE level. If you create a configuration file at USER level,
+then run the
 ifpIMAGE program, the ifpIMAGE probably will not generate any
-images.&nbsp;
-This is caused by storing the configuration file as a user and not
-SITE,
-and the ifpIMAGE program is looking for your configuration file in
-SITE.&nbsp;
+images.
+This is caused by storing the configuration file at USER level and not
+SITE, and the ifpIMAGE program is looking for your configuration file in
+SITE.
 You can override this behavior using the -u switch to ifpIMAGE.</font></b>
 <br>
 </p>
@@ -1949,9 +1935,8 @@ file:
 </p>
 <p></p>
 <hr width="100%">
-<p><a href="GFESuite.html">Back to Main Documentation Page</a>
+<p><a href="GFESuite.html">Back to TOC</a>
 <br>
-&nbsp;
 </p>
 </body>
 </html>

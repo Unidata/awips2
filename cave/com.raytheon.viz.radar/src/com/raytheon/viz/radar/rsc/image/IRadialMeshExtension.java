@@ -21,7 +21,6 @@ package com.raytheon.viz.radar.rsc.image;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 
@@ -42,7 +41,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * @version 1.0
  */
 
-public interface IRadialMeshExtension extends IGraphicsExtensionInterface {
+public interface IRadialMeshExtension {
 
     /**
      * Construct a mesh to be used for the radar record on the descriptor
