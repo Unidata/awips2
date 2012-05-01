@@ -158,6 +158,11 @@ public class PeerToPeerView extends AbstractSessionView {
      */
     @Override
     protected String getSessionName() {
+        for (UserId id : getUserIds()) {
+            if (id.equals(peer)) {
+                return id.getAlias();
+            }
+        }
         return getViewSite().getSecondaryId();
     }
 
