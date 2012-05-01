@@ -579,14 +579,14 @@ public class VarHeightResource extends
                 XYWindImageData windData = (XYWindImageData) data;
                 double dir = windData.getWindDir();
                 double speed = windData.getWindSpd();
-                double[] screen = hodoDescriptor.worldToPixel(new double[] {
+                double[] screen = hodoDescriptor.polarToPixel(new double[] {
                         speed, dir });
                 line.addPoint(screen[0], screen[1]);
             }
         }
         if (!line.points.isEmpty()) {
             double[] screen = hodoDescriptor
-                    .worldToPixel(new double[] { 0, 0 });
+                    .polarToPixel(new double[] { 0, 0 });
             line.addPoint(screen[0], screen[1]);
 
             target.drawLine(line);

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -121,7 +122,8 @@ public class PointAccumLevelNode extends AbstractDerivedLevelNode {
      * timeQueryInternal(boolean, java.util.Map)
      */
     @Override
-    protected Set<DataTime> timeQueryInternal(boolean latestOnly,
+    protected Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
+            boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
