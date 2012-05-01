@@ -8,20 +8,15 @@
 
 package gov.noaa.nws.ncep.ui.pgen.sigmet;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
-import java.awt.Color;
-import java.util.ArrayList;
-import java.lang.reflect.*;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.*;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
+import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 
-import org.apache.commons.beanutils.*;
+import java.awt.Color;
+import java.util.ArrayList;
+
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Element class for sigmet.
@@ -32,7 +27,7 @@ import org.apache.commons.beanutils.*;
  * ------------	----------	-----------	--------------------------
  * 09/09		160			Gang Zhang 	Initial Creation. 
  * 04/11		?			B. Yin		Re-factor IAttribute
- *
+ * 03/12        #676        Q. Zhou     Added Issue Office field.
  * </pre>
  * 
  * @author	gzhang
@@ -90,7 +85,8 @@ public class Sigmet extends AbstractSigmet{
 			String type, 
 			double width,
 		
-			String editableAttrArea,	
+			String editableAttrArea,
+			String editableAttrIssueOffice,
 			String editableAttrStatus,	
 			String editableAttrId,		
 			String editableAttrSeqNum,	
@@ -133,6 +129,7 @@ public class Sigmet extends AbstractSigmet{
 				width,
 				
 				editableAttrArea,
+				editableAttrIssueOffice,
 				editableAttrFromLine,
 				editableAttrId,	
 				editableAttrSeqNum	);
@@ -163,33 +160,7 @@ public class Sigmet extends AbstractSigmet{
 	}
 	
 	
-	
-	public void copyEditableAttrToSigmetAttrDlg(SigmetAttrDlg ba){
-    	ba.setLineType(this.getType());
-    	ba.setWidth(""+this.getWidth());//legacy properties
-    	
-        Field[] ff = this.getClass().getDeclaredFields();
-        for(Field f : ff){
-            try{               
-                if(f.getName().contains("editableAttr"))                   
-                    BeanUtils.copyProperty(ba, f.getName(), f.get(this));               
-            }catch(Exception e){    System.out.println( e.getMessage() );    }
-        }
-        
-        String lineType = this.getType();
-        if(lineType != null && lineType.contains(ba.LINE_SEPERATER)){
-        	ba.setSideOfLine(lineType.split(ba.LINE_SEPERATER)[1]);
-        }
-        
-        ba.setWidth(""+(this.getWidth()/PgenUtil.NM2M));//NM
-        ba.setLatLonFormatFlagAndText(this.getEditableAttrFromLine());
-        
-        //from AbstractSigmet: Class.getDeclaredFields() excludes inherited fields.
-        ba.setEditableAttrArea(this.getEditableAttrArea());
-        ba.setEditableAttrFromLine(this.getEditableAttrFromLine());
-        ba.setEditableAttrId(this.getEditableAttrId());
-        ba.setEditableAttrSeqNum(this.getEditableAttrSeqNum());
-    }
+
 	
 	@Override
 	public DrawableElement copy() {
@@ -231,6 +202,7 @@ public class Sigmet extends AbstractSigmet{
 		newSigmet.setWidth(this.getWidth());
 		
 		newSigmet.setEditableAttrArea(this.getEditableAttrArea());
+		newSigmet.setEditableAttrIssueOffice(this.getEditableAttrIssueOffice());
 		newSigmet.setEditableAttrFromLine(this.getEditableAttrFromLine());
 		newSigmet.setEditableAttrId(this.getEditableAttrId());
 		newSigmet.setEditableAttrSeqNum(this.getEditableAttrSeqNum());

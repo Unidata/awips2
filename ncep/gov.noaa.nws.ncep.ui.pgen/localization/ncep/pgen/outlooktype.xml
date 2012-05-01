@@ -37,7 +37,7 @@
 		<label text="6"/>
 	</otlktype>
 
-	<otlktype name="TROPICAL" prefix="" makegrid="false" flagLabel="true" flagAction="false">
+	<otlktype name="TROPICL" prefix="" makegrid="false" flagLabel="true" flagAction="false">
 		<label text="1"/>
 		<label text="2"/>
 		<label text="3"/>
@@ -50,6 +50,12 @@
 		<label text="10"/>
 	</otlktype>
 
+	<otlktype name="FLOOD" prefix="" makegrid="false" flagLabel="true" flagAction="false">
+		<label text="Likely"/>
+		<label text="Possible"/>
+		<label text="Imminent"/>
+	</otlktype>
+	
 	<otlktype name="HAILOTLK" prefix="hail">
 		<label text="5%"/>
 		<label text="10%"/>

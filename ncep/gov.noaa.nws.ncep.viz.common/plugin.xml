@@ -9,7 +9,7 @@
              name="Color Maps"
              recursive="true"
              value="ncep/ColorMaps"
-	         extensionFilter=".cmap">
+	         extensionFilter=".tbl,.cmap">
        </path>
     </extension>
 
