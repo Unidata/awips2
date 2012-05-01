@@ -139,7 +139,8 @@ public class GriddedImageDisplay2 extends AbstractTileSet {
         }
 
         // tile bounds
-        Rectangle rect = this.tileSet.getTileSet().get(level)[i][j].rect;
+        Rectangle rect = this.tileSet.getTileSet().get(level)[i][j]
+                .getRectangle();
         // total width
         int width = gridGeometry[level].getGridRange().getSpan(0);
         IImage image = null;
