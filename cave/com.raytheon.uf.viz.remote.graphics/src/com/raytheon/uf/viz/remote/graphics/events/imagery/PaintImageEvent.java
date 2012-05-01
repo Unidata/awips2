@@ -23,7 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

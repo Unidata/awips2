@@ -58,7 +58,7 @@ public class PointImageRenderingHandler extends CollaborationRenderingHandler {
         IGraphicsTarget target = getTarget();
         PaintProperties newProps = new PaintProperties(getPaintProperties());
         newProps.setAlpha(event.getAlpha());
-        Set<PointImageEvent> events = event.getImages();
+        Set<PointImageEvent> events = event.getImagesCopy();
         List<PointImage> images = new ArrayList<PointImage>(events.size());
         for (PointImageEvent pie : events) {
             IImage image = dataManager.getRenderableObject(pie.getImageId(),
