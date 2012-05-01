@@ -62,7 +62,8 @@ import com.raytheon.viz.ui.UiPlugin;
  * 04/29/11		  #416		 M. Gao      Created
  * 07/11/11                  Greg Hull   Get Displays instead of storing RscBundleDisplayMngr
  * 08/04/11      #450        Greg Hull   SpfsManager
- * 
+ * 02/15/2012     627        Archana    Removed the call to setNcEditor() and updated initFromEditor(0
+ *                                      to take an editor as one of the arguments  
  * </pre>
  * 
  * @author 
@@ -347,9 +348,9 @@ public class ManageMultiSPFControl extends Composite {
     	for( NCMapEditor display : displayList) {
     		RbdBundle rbd = new RbdBundle();
     		
-    		rbd.setNcEditor( display );
+ //   		rbd.setNcEditor( display );
     		
-    		rbd.initFromEditor();   
+    		rbd.initFromEditor( display );   
 
     		savedRbdName = rbd.getRbdName();
         	

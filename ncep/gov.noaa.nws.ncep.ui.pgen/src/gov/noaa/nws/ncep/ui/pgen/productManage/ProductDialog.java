@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
@@ -36,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 08/09  		#151		J. Wu		Initial creation. 
+ * 02/12  		#656		J. Wu		Retain the last location of the dialog. 
  * 
  * </pre>
  * 
@@ -65,6 +67,7 @@ public class ProductDialog extends Dialog {
     protected Product		currentProduct = null;
     protected Layer			currentLayer = null;                 
 	
+	protected Point shellLocation;
     
     /**
      * Constructor.
@@ -72,9 +75,7 @@ public class ProductDialog extends Dialog {
 	public ProductDialog( Shell parentShell ) {
 		
 		super( parentShell );
-				
-        //drawingLayer = PgenSession.getInstance().getPgenResource();
-        
+				        
 	}
 
 	/**
@@ -94,8 +95,8 @@ public class ProductDialog extends Dialog {
         
         // Create the main shell; 
     	Shell parent = this.getParent();
-        shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MODELESS );  
-       
+        shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MODELESS );
+
         // Set the title of the dialog.
         setTitle();
 		
@@ -156,8 +157,14 @@ public class ProductDialog extends Dialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x,  pt.y );
+        
+		if ( shellLocation == null) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x,  pt.y );	   	    
+		} else {
+			shell.setLocation(shellLocation);
+		}
+		
     }
      
     /**
@@ -197,9 +204,13 @@ public class ProductDialog extends Dialog {
      *  Close the dialog
      */
     public void close() {
-        if ( shell != null && !shell.isDisposed() ) {
-        	shell.dispose();
-        }
+        
+		if ( shell != null && !shell.isDisposed() ){
+			Rectangle bounds = shell.getBounds();
+			shellLocation = new Point(bounds.x, bounds.y);
+			shell.dispose();
+		}
+
     }  
     
     /**

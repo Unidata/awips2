@@ -31,6 +31,7 @@
 #    10/28/09                      njensen       Initial Creation.
 #    12/09/09        DR3778        M. Huang      Add acknowledgment handling
 #    09/05/11        DR9602        M. Huang      Fix acknowledgment handling error
+#    04/13/12        DR 10388      D. Friedman   Correct acknowledgment handling
 # 
 #
 
@@ -68,7 +69,8 @@ INGEST_DIR = dataDir + 'manual'
 INGEST_ROUTE = 'handleoupFilePush'
 SITE_ID = env.getEnvValue('SITENAME')
 
-def process(oup, afosID, resp):    
+def process(oup, afosID, resp, ackMgr = None):    
+    _Logger.info("handleOUP.py received " + str(oup.getFilename()))
     wmoTypeString = ""
     userDateTimeStamp = ""
     msg = ''
@@ -80,7 +82,7 @@ def process(oup, afosID, resp):
     # address
     address = oup.getAddress()
     if address == 'DEF' or address == 'ALL':
-        address = 'DEFAULTNCF'
+        address = 'DEFAULTNCF,NWWSUP'
     elif address is None:
         address = 'DEFAULTNCF,NWWSUP'
     
@@ -119,7 +121,7 @@ def process(oup, afosID, resp):
     #  Retrieve the contents of the product
     #----------
     contents = oup.getProductText()
-    productId = contents.split('\n')[0]
+    productId = contents.split('\n')[0].strip()
     
     #----------
     # Locally store OUP in text database and archive
@@ -138,6 +140,7 @@ def process(oup, afosID, resp):
             if MessageGenerator.getInstance().sendFileToIngest(awipsPathname, INGEST_ROUTE):
                msg = 'Product ' + awipsWanPil + ' successfully ingested and archived locally.\n'
                resp.setSendLocalSuccess(True)
+               _Logger.info(msg)
             else:
                msg = 'Product ' + awipsWanPil + ' failed to be ingested and archived.\n'
                resp.setMessage(msg)
@@ -161,7 +164,7 @@ def process(oup, afosID, resp):
         fos.flush()
         fos.close()
         
-            
+    messageIdToAcknowledge = None
     #----------
     # Check if product should be distributed over WAN via NCF
     #----------
@@ -169,6 +172,7 @@ def process(oup, afosID, resp):
     splitAddr = address.split(',')
     for addr in splitAddr:
         if addr != '000': # 000 is local only
+            _Logger.info("Addressee is " + addr)
             #----------
             # Check if product should be sent to the NWWS for uplink
             #----------
@@ -201,18 +205,45 @@ def process(oup, afosID, resp):
                         else:
                             code = "4"
                     sendResult = sendWANMsg(productId, awipsPathname, addr, code, userDateTimeStamp,
-                                  priority, wmoTypeString, source, resp, awipsWanPil, attachedFilename)
+                                  priority, wmoTypeString, source, resp, afosID, attachedFilename)
                     if not sendResult:
                         #failure of some kind so return
                         return
+                    # Copy this now as the values may change in another loop iteration
+                    if resp.getNeedAcknowledgment() and messageIdToAcknowledge is None:
+                        messageIdToAcknowledge = resp.getMessageId() 
                 else:
-                    _Logger.debug("Product is not authorized for distribution.")
-                    _Logger.debug("Not sending product to NCF.")
+                    _Logger.info("Product is not authorized for distribution.")
+                    _Logger.info("Not sending product to NCF.")
                     msg = "Warning: Product is not authorized for distribution.\n"
                     resp.setMessage(msg)
                     return
 
-            
+    if messageIdToAcknowledge:
+        resp.setNeedAcknowledgment(True)
+        resp.setMessageId(messageIdToAcknowledge)
+        if ackMgr != None:
+            _Logger.info("Waiting for acknowledgment of " + messageIdToAcknowledge)
+            ackMgr.waitAck(messageIdToAcknowledge, address, resp, 
+                           afosID + " " + userDateTimeStamp)
+            _Logger.info("Finished waiting for acknowledgment of %s: %s" %
+                         (messageIdToAcknowledge, resp.isAcknowledged() and 
+                          "ACK" or resp.getMessage()))
+            if not resp.isAcknowledged():
+                # Send ITO alarm
+                ito_err = None
+                try:
+                    ec = subprocess.call(['/opt/OV/bin/OpC/opcmsg', 'application=MHS', 'object=MHS',
+                                     'msg_text=%s (msgid %s)' % (resp.getMessage(), messageIdToAcknowledge),
+                                     'severity=Critical', 'msg_grp=AWIPS'])
+                    if ec != 0:
+                        ito_err = 'exit code = ' + str(ec)
+                except:
+                    ito_err = str(sys.exc_info()[1])
+                if ito_err is not None:
+                    _Logger.error("Error sending ITO alarm: " + ito_err)
+        else:
+            _Logger.error("Acknowledgment requirement, but ackMgr is None")
     
     _Logger.debug('Script done....')
     return
@@ -307,16 +338,16 @@ def isLegalWANProduct(myAwipsId, myAfosId, myWmoid, siteID):
             if not line.startswith('#'):
                 productId = line.strip()
                 if productId == myAwipdsId or productId == myAfosId or productId == myWmoId:
-                    _Logger.debug('Product found in WAN exclude list as ' + productId)
+                    _Logger.info('Product found in WAN exclude list as ' + productId)
                     wanExcludeFile.close()
                     return False
         # Otherwise, product did not appear on the exclude list and therefore,
         # product is meant for distribution
-        _Logger.debug(myAwipsId + ' is a legal WAN product.')
+        _Logger.info(myAwipsId + ' is a legal WAN product.')
         wanExcludeFile.close()
         return True        
     else:
-        _Logger.debug(filename + ' does not exist or is empty.  Sending ' +
+        _Logger.info(filename + ' does not exist or is empty.  Sending ' +
                       'product over WAN.' )
         return True
 
@@ -341,28 +372,20 @@ def isLegalWANProduct(myAwipsId, myAfosId, myWmoid, siteID):
 #------------------------------------------------------------------------------#
 def sendWANMsg(productId, prodPathName, receivingSite, handling,
                userDateTimeStamp, priority, wmoTypeString, source, resp, subject=None, attachedFilename=None):
-    _Logger.debug('sendWANMsg():')
-#    print 'SendWANMsg'
-#    print 'productId:', productId
-#    print 'prodPathName:', prodPathName
-#    print 'receivingSite:', receivingSite
-#    print 'handling:', handling
-#    print 'userDateTimeStamp:', userDateTimeStamp
-#    print 'wmoTypeString:', wmoTypeString
-#    print 'source:', source
+   # _Logger.debug('sendWANMsg():')
+    _Logger.info('sendWANMsg ' + str(prodPathName) + ' addr=' + str(receivingSite) + \
+                 ' code=' +str(handling) + ' source=' + str(source))
     
     try:
         code = int(handling)
     except:   
         code = int(ACTION_CODES[handling])    
-#    print 'code:', code 
     # set acknowledgment from receiver if message is high priority and is from TextWS
     # resp = OUPResponse()
             
         
     from com.raytheon.messaging.mhs import MhsMessage, MhsMessagePriority, MhsSubmitException
     mhsMsg = MhsMessage(code)
-#    print 'mhsMsg:', mhsMsg
 
     if subject:
         mhsMsg.setSubject(subject)            
@@ -385,133 +408,26 @@ def sendWANMsg(productId, prodPathName, receivingSite, handling,
         resp.setNeedAcknowledgment(True)
         mhsMsg.addAckAddressee(receivingSite)
         mhsMsg.setTimeoutTime(300)
-        p = subprocess.Popen(mhsMsg.send(), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
-        while True:
-            ret = p.poll()
-            if (ret is not None):
-                result = p.stdout.read()
-                break
-#        print 'result:', result
-        
-        # Returned result should be the messageId from MhsMessage  
-        messageId = result.strip()
-#        print 'Product messageId:', messageId
-        resp.setMessageId(messageId)
-        _Logger.debug('Send message ID is:' + messageId)
-        
-        # create ackFifo
-        env = PropertiesFactory.getInstance().getEnvProperties()
-        ackFifoDir = env.getEnvValue("MHS_DATA")
-        ackFifo = ackFifoDir + "/pipes/ackFifo"
-#        print 'ackFifo:', ackFifo
-        if not os.path.exists(ackFifo):
-            try: 
-                os.mkfifo(ackFifo, 0777)
-            except OSError, e:
-                _Logger.error("Can not create acknowledgment fifo for " + productId + ": %s" %e )                
-                resp.setAcknowledged(False)
-                return False
-            
-        # open ackFifo for read and write
-        ackFifo = open(ackFifo, 'r+')
-
-        # create non-ackFifo
-        nackfifo = False
-        nackFifoDir = env.getEnvValue("MHS_DATA")
-        nackFifo = nackFifoDir + "/pipes/nackFifo"
-#        print 'nackFifo:', nackFifo
-        if not os.path.exists(nackFifo):
-            try: 
-                os.mkfifo(nackFifo, 0777)
-            except OSError, e:
-                _Logger.error("Can not create non-acknowledgment fifo for " + productId + ": %s" %e )
-
-        # open ackFifo for read and write
-        nackFifo = open(nackFifo, 'r+')
-
-        # start timer for acknowledge response, expiration time is 5 minutes
-        acknowledged = False
-        resp.setAcknowledged(False)
-        if not acknowledged:
-            [po, pi, pe] = select.select([ackFifo], [], [], 300)
-            if po:
-                line = ackFifo.readline()
-            else: line = ""
-        
-            if line:               
-                # read ack message size in header
-                _Logger.debug('Ack message Header: ' + line)
-#                print 'Ack message Header:', line
-                msgSize = len(line.strip())
-#                print 'Ack msg size:', msgSize
-                _Logger.debug('Ack message size is:' + msgSize)
-                if msgSize > 0 and msgSize <= 8192:
-                    # read message id
-#                    print 'Ack message line:', line
-                    _Logger.debug('Ack message line is:' + line)
-                    tmp = line.strip()
-                    msgs = tmp.split(' ')
-                    msgId = msgs[1]
-#                    print 'Ack msgId:', msgId
-                    if msgId and msgId == messageId:
-                        _Logger.debug('Ack message ID is:' + msgId)
-#                        print 'Ack msg ID same as sending product ID'
-                        acknowledged = True
-                        resp.setAcknowledged(True)
-                        ackFifoRW.close()
-                        
-        # Acknowledgment timeout
-        if acknowledged:
-            _Logger.info("Received unimportant acknowledgment for " + messageId)
-#            print 'Received unimportant acknowledgment for', messageId
-        else: # rip through non-ackFifo pipe
-            [po, pi, pe] = select.select(nackFifo, [], [], 1)
-            if po:
-                line = nackFifoRW.readline()
-#                print 'Nack line:', line
-            else: line = ""
-        
-            if line:               
-                # read Non-ack message size in header
-                _Logger.debug('Non-ack message Header: ' + line)  
-#                print 'Non-ack msg hdr:', line                   
-                msgSize = len(line.strip())
-                _Logger.debug('Non-ack message size is:' + msgSize)
-                if msgSize > 0 and msgSize <= 8192:
-                    # read message
-#                    print 'Non-ack message line is:', line
-                    _Logger.debug('Non-ack message line is:' + line)
-                    tmp = line.strip()
-                    msgs = tmp.split(' ')
-                    msgId = msgs[1]
-#                    print 'Non-ack message Id:', msgId
-                    if msgId and msgId == messageId:
-                        _Logger.info("Received unimportant non-acknowledgment for " + messageId)               
-#                        print 'Received unimportant non-acknowledgment for', messageId                
-                        resp.setAcknowledged(False)
-                        nackFifoRW.close()
-                    else:
-                        resp.setAcknowledged(False)
-                else:
-                    resp.setAcknowledged(False)
-            else:
-                resp.setAcknowledged(False)                                   
     else:
         # No need to get acknowledgment from receiver
-#        print 'No need to get acknowledgment from receiver'
         resp.setNeedAcknowledgment(False)
         mhsMsg.addAddressee(receivingSite)
-        result = mhsMsg.send()       
-                    
+
+    _Logger.info("Calling mhsMsg.send()")
+    result = mhsMsg.send()
+    
     if not result:
         result = "Error sending product " + productId + " to " + receivingSite + ".  Check server logs for more detail.\n"
-#        print 'Error result:', result
+        _Logger.error(result)
         resp.setSendWANSuccess(False)
         resp.setMessage(result)
         return False
     else:
         resp.setSendWANSuccess(True)
-        _Logger.debug(result)
+        if resp.getNeedAcknowledgment():
+            resp.setMessageId(result)
+
+        _Logger.info("Successful send of " + str(result))
     return True
     
 
@@ -556,16 +472,16 @@ def isNWWSProduct(myAwipsId, myAfosId, myWmoId, siteID):
             if not line.startswith('#'): # skips comment lines
                 productId = line.strip()
                 if productId == myAwipdsId or productId == myAfosId or productId == myWmoId:
-                    _Logger.debug('Product found in NWWS exclude list as ' + productId)
+                    _Logger.info('Product found in NWWS exclude list as ' + productId)
                     nwwsExcludeFile.close()
                     return False
         # Otherwise, product did not appear on the exclude list and therefore,
         # product is meant for distribution
-        _Logger.debug(myAwipsId + ' is an NWWS product.')
+        _Logger.info(myAwipsId + ' is an NWWS product.')
         nwwsExcludeFile.close()
         return True        
     else:
-        _Logger.debug(filename + ' does not exist or is empty.  Sending ' +
+        _Logger.info(filename + ' does not exist or is empty.  Sending ' +
                       'product over NWWS uplink.' )
         return True
 

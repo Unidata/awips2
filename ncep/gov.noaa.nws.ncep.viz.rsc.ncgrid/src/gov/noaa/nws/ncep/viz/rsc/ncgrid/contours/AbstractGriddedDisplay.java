@@ -19,6 +19,8 @@
  **/
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData;
+
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -39,7 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.IRenderable;
+//import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -59,14 +61,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 03, 2010			   M. Li		Converted negative longitude
  * Dec 07, 2010			   M. Li		Modified wind plot algorithm
  * Nov 02, 2011            X. Guo       Added nx/ny parameters
- * 
+ * Feb 06, 2012  #538      Q. Zhou      Changed density to filter. Get filter from resource attribute
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
 
-public abstract class AbstractGriddedDisplay<T> implements IRenderable {
+public abstract class AbstractGriddedDisplay<T>  { //implements IRenderable
 
     private static final IUFStatusHandler statusHandler = UFStatus.getHandler(AbstractGriddedDisplay.class); 
     
@@ -86,7 +88,9 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
     protected RGB color;
 
-    protected double density = 1.0;
+    protected int skipx;
+    protected int skipy;
+    protected double filter;
 
     protected double magnification = 1.0;
 
@@ -130,11 +134,100 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
      * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
      * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
      */
-    @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps)
+   // @Override
+    public void paint(NcgridResourceData gridRscData, IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
     	
-    	boolean globalModel = isGlobalModel();
+    	boolean globalModel = isGlobalModel();    	
+    	
+    	/**
+         *  Get filter attribute
+         */
+    	String den = gridRscData.getFilter(); 
+    	String noFilter = "";
+    	if (den != null ){
+    		try {
+    			if (den.equalsIgnoreCase("YES") || den.equalsIgnoreCase("Y")) {
+    				filter = 1.0;
+    			}
+    			else if (den.equalsIgnoreCase("NO") || den.equalsIgnoreCase("N") || den.equalsIgnoreCase("")) {
+    				filter = 0.0;
+    				noFilter = "NO";
+    			}
+    			else {
+    				filter = Double.parseDouble(den);  
+    			}
+    			
+    			if (filter == 0)
+    				noFilter = "NO";
+    			if (filter <0.1)
+    				filter = 0.1;
+    		}
+    		catch (NumberFormatException e) {
+    			System.out.println("The filter is not a double number");
+    			filter = 1.0;
+    		}
+    	}
+    	else {
+    		filter = 1.0;
+    	}
+    	
+//        /**
+//         *  Get skip attribute
+//         */
+//        
+//    	String[] skip = null;
+//    	int skipx = 0;
+//    	int skipy = 0;
+//    	
+//    	String skipString = gridRscData.getSkip(); //now for positive skip
+//    	if (skipString != null && noFilter.equalsIgnoreCase("NO")) {
+//    		int ind = skipString.indexOf("/");
+//    		if (ind != -1) {
+//    			skipString = skipString.substring(ind +1);
+//    			
+//    			if (skipString.trim().startsWith("-"))  //temp fix for negative value
+//    				skipString = skipString.substring(1);
+//    			
+//    			skip = skipString.split(";");
+//    	    	
+//    	    	if (skip != null && skip.length !=0){
+//    	    		try {
+//    	    			skipx = Integer.parseInt(skip[0]);
+//    	    		}
+//    	    		catch (NumberFormatException e) {
+//    	    			System.out.println("The skip is not an interger");
+//    	    			skipx = 0;        		
+//    	    		}
+//    	    			
+//    	    		if (skip.length ==1 ) {
+//    	    			skipy = skipx;
+//    	    		}
+//    	    		if (skip.length >1 && skip[0] != skip[1]) {
+//    	    			try {
+//    	    				skipy = Integer.parseInt(skip[1]);
+//    	    			}
+//    	    			catch (NumberFormatException e) {
+//    	    				System.out.println("The skip is not an interger");    				
+//    	    				skipy = skipx;
+//    	    			}
+//    	    		}
+//    	    	}
+//    	    	else {
+//    	    		skipx = 0;
+//    	    		skipy = 0;
+//    	    	}
+//    		}
+//    		else {
+//    			skipx = 0;
+//    			skipy = 0;
+//    		}
+//    	}    	
+//    	else {
+//			skipx = 0;
+//			skipy = 0;
+//		}	
+//           
     	
     	for (int i = 0; i < (gridDims[0] * gridDims[1]); i++)
         	isPlotted[i] = false;
@@ -149,8 +242,9 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
         IExtent viewPixelExtent = paintProps.getView().getExtent();
         double ratio = viewPixelExtent.getWidth()
                 / paintProps.getCanvasBounds().width;
-        double interval = size * .75 * ratio / Math.min(2.0, density);
-        double halfInterval = interval / 2;
+                
+        //double interval = size * .75 * ratio / Math.min(2.0, filter);
+        double interval = size * .75 * ratio * filter;
 
         double adjSize = size * ratio * magnification;
 
@@ -259,8 +353,8 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
                     */
                     // If the real loc of this grid coordinate is close to the
                     // loc we wanted go with it
-                    if (Math.abs(plotLoc.y - j) < halfInterval
-                            && Math.abs(plotLoc.x - i) < halfInterval) {
+                    if (Math.abs(plotLoc.y - j) < (interval/2)
+                            && Math.abs(plotLoc.x - i) < (interval/2)) {
                         j = plotLoc.y;
                         thisRow.put(j, plotLoc.x);
                     } else {
@@ -294,14 +388,13 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
                                 paintImage((int)gridCell.x, (int)gridCell.y, pp, adjSize);
                             }
                         }
-                    }
-                    
+                    }   
                 }
-                
-            }
+            } //while               
         } catch (Exception e) {
             throw new VizException("Error occured during paint", e);
         }
+        
         if (calculationQueue.size() > 0) {
             if (this.calculationJob == null) {
                 this.calculationJob = new CalculationJob();
@@ -357,12 +450,12 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
     }
 
     /**
-     * @param density
-     *            the density to set
+     * @param filter
+     *            the filter to set.  Changed from density.
      */
-    public boolean setDensity(double density) {
-        if (this.density != density) {
-            this.density = density;
+    public boolean setFilter(double filter) {
+        if (this.filter != filter) {
+            this.filter = filter;
             return true;
         }
         return false;

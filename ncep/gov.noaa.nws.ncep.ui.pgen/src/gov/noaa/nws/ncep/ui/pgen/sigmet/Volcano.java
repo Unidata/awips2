@@ -11,7 +11,6 @@ package gov.noaa.nws.ncep.ui.pgen.sigmet;
 import java.awt.Color;
 import java.util.*;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
@@ -44,7 +43,7 @@ public class Volcano extends SinglePointElement implements ISigmet{
 	 * so one fields can store the two together. 
 	 * 
 	 */
-	public static final String WORD_SPLITTER = SigmetAttrDlg.LINE_SEPERATER;
+	public static final String WORD_SPLITTER = SigmetInfo.LINE_SEPERATER;
 	
 	Coordinate[] locs = null;
 	
@@ -439,6 +438,18 @@ public class Volcano extends SinglePointElement implements ISigmet{
 	public FillPattern getFillPattern() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getLineType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getWidth() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

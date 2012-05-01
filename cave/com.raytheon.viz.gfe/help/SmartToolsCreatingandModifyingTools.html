@@ -8,7 +8,6 @@
 <p><a href="#B3">Edit Action Button-3 Pop-Up Menu</a> <br>
 <a href="#CreatingNew">Creating A New Tool</a> <br>
 <a href="#Args">Description of Tool Arguments</a> <br>
-<a href="#Modify">Modifying A Tool</a> <br>
 <a href="#VarList">Description of VariableList</a> <br>
 <a href="#Add">Additional Smart Tool Methods</a> <br>
 <a href="#Exist">Creating a Smart Tool from an
@@ -39,29 +38,28 @@ tool, sets up information to be passed to it, and calls it to obtain
 revised
 grid values.</div>
 <br>
-&nbsp;
-<div class="Body"><img src="images/SmartTools-7.jpg" height="800"
- width="1200"></div>
+<div class="Body"><img src="images/SmartTools-7.jpg"></div>
 <p><br>
 In the following sections, we will see how to create and modify
 tools and procedures through the Edit Action Dialog. We will
 demonstrate
 the use of the Smart
-<br>
 Tool Framework and Smart Script Library through a set of exercises
-and tutorials.&nbsp;&nbsp; The following sections assume that you have
-knowledge of Python and its Numerical Python extension which are
+and tutorials. The following sections assume that you have
+knowledge of Python and its Numpy extension which are
 covered
 in the <a href="Python.html">GFESuite Python Tutorial and Programming
 Guidelines</a>.
 </p>
 <hr width="100%">
 <h3 class="2Heading"><a name="B3"></a>Edit Action Button 3 Pop-up Menu</h3>
-<div class="Body">Pressing MB3 over each of the Smart Tools listed in
-the
-Edit Actions Dialog opens a pop-up menu. This menu is described in the
-<a href="EditableListbox.html">Editable
-Listbox description.</a></div>
+<div class="Body">In AWIPS1, the Edit Actions dialog was used to access
+new tool creation functionality. Pressing MB3 over each of the Smart Tools 
+listed in the Edit Actions Dialog opens a pop-up menu. 
+This menu is described in the <a href="EditableListbox.html">Editable
+Listbox description.</a>  However, in AWIPS2, new tools are created via the 
+Localization Perspective.  This perspective will open when you select
+GFE -&gt; Define Smart Tools from the Menu bar.</div>
 <hr width="100%">
 <h3 class="2Heading"><a name="CreatingNew"></a>Creating a New Tool</h3>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Ex1">Exercise
@@ -81,9 +79,8 @@ current
 QPF value multiplied by 10.</div>
 <div class="Step-First">
 <ol>
-  <li>Select New... on the MB3 popup over the Smart Tools window. The
-New
-Tool
+  <li>Select New... on the MB3 popup over the Smart Tools folder. The
+New Tool
 Dialog appears into which you will enter:</li>
 </ol>
 <ul>
@@ -93,10 +90,7 @@ characters
 except an underline. Enter the name: SnowAmt_LearningTool.</li>
   <li class="Bullet-List">The Weather Element it modifies. Select
 SnowAmt.</li>
-  <li class="Bullet-List">Tool Type is set to "numeric."&nbsp; For
-information on point-based
-tools,
-see the <a href="#Point-based">Appendix .</a></li>
+  <li class="Bullet-List">Tool Type is set to "numeric."</li>
 </ul>
 <div class="Step">
 <ol start="2">
@@ -108,7 +102,7 @@ for your Tool.</li>
   <li class="Bullet-List">There are lines to specify that this is a
 "numeric" type tool and to
 import
-the Numeric library.</li>
+the numpy library.</li>
   <li class="Bullet-List">Another line specifies the
 WeatherElementEdited. This may be changed if
 you ever wish to modify the element edited by the tool.</li>
@@ -142,7 +136,7 @@ tool, you need only one argument (in addition to "self"): QPF.</li>
   <li>Remove the sample arguments from the "execute" definition, leave
 the
 "self"
-argument, and enter the argument, QPF in the parentheses.&nbsp; When
+argument, and enter the argument, QPF in the parentheses. When
 the
 tool executes, this argument will contain a Numeric Array representing
 the Fcst QPF grid.</li>
@@ -162,17 +156,16 @@ executing your tool, a dialog will appear to help you locate the
 problem.
 After successfully executing the tool, the QPF grid appears. Examine
 the
-data by sampling the QPF values and the SnowAmt values.&nbsp; If your
+data by sampling the QPF values and the SnowAmt values. If your
 results
 seem confusing, check to see that the QPF and SnowAmt grids are aligned
-in the Grid Manager.&nbsp; If not, you will be getting time averaged
+in the Grid Manager. If not, you will be getting time averaged
 QPF
 values over multiple grids.</li>
   <li class="Step">Close the Python Editor. Select File--&gt;Close.</li>
 </ol>
-<div class="Step"><a href="#AnswerNum1">Click here for Answer to
-Exercise
-Tool-1.</a></div>
+<div class="Step"><a href="SmartToolsExerciseAnswers.html#AnswerNum1">Click here for Answer to
+Exercise Tool-1.</a></div>
 <hr width="100%">
 <h3 class="3Heading"><a name="Args"></a>Description of Tool Arguments</h3>
 <div class="Body">Here is a complete description of the various
@@ -183,19 +176,16 @@ argument, simply list it between the parentheses in the method
 definition.
 For example:</div>
 <div class="Body">&nbsp;&nbsp;&nbsp; def execute(self, QPF, Topo,
-SnowAmt_DeltaValue,&nbsp;
+SnowAmt_DeltaValue,
 FzLevel, varDict):</div>
 <ul>
   <li class="Bulleted">&lt;weName&gt; -- the value for a given weather
-element. If you want to
-base
+element. If you want to base
 the new value for an element on its current one, you must include it in
-the argument list. You may also include other weather elements.&nbsp; A
+the argument list. You may also include other weather elements. A
 Numeric Array representing the grid values for the weather element is
-returned.
-Weather element values are as follows:</li>
+returned. Weather element values are as follows:</li>
   <br>
-&nbsp;
   <ul>
     <li>Scalar value: floating point values,</li>
     <li>Vector value: two-tuple of magnitude and direction numeric
@@ -203,7 +193,7 @@ arrays, for
 example:</li>
     <br>
 &nbsp;&nbsp; mag = Wind[0] <br>
-&nbsp;&nbsp; dir = Wind[1] <li>Weather value:&nbsp; A Wx argument
+&nbsp;&nbsp; dir = Wind[1] <li>Weather value: A Wx argument
 represents a 2-tuple:</li>
     <ul>
       <li>wxValues : numerical grid of byte values</li>
@@ -214,7 +204,7 @@ to the byte value in the wxValues grid.</li>
     </ul>
   </ul>
   <ul>
-See the&nbsp; section <a href="Python.html#WorkingwithWeatherData">Working
+See the section <a href="Python.html#WorkingwithWeatherData">Working
 with Weather Data in the GFESuite Python Tutorial</a> for more
 information.
   </ul>
@@ -235,19 +225,19 @@ gets MaxT from the March 29 12Z NAM12 run created by GFE
 initialization. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 MaxT_SFC_BOU_D2D_NAM12_Mar2912&nbsp;
-:&nbsp; gets MaxT from the March 29 12Z original NAM12 run from D2D. </p>
+:&nbsp; gets MaxT from the March 29 12Z original NAM12 run from D2D.</p>
   <p>If you omit the "modeltime", the most recent model run will be
 selected.
 For example: </p>
   <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaxT_SFC_BOU__NAM12&nbsp;
 :&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-gets MaxT from the most recent NAM run created by GFE initialization. <br>
+gets MaxT from the most recent NAM run created by GFE initialization.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaxT_SFC_BOU_D2D_NAM12
 :&nbsp;&nbsp;
-gets MaxT from the most recent original NAM12 run from D2D. <br>
+gets MaxT from the most recent original NAM12 run from D2D.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh_MB300_BOU_D2D_GFS40
 :&nbsp;&nbsp;&nbsp;
-gets rh from the most recent original GFS40 run from D2D. </p>
+gets rh from the most recent original GFS40 run from D2D.</p>
   <p>For a list of D2D elements and descriptions<a
  href="d2dWENames.html">
 click here.</a> </p>
@@ -274,12 +264,12 @@ encountered. </p>
 methods
 of accessing grids in your Smart Tool, see the section below on the <a
  href="#SSLib">Smart
-Script Class Library</a>.&nbsp; In this library you will find more
+Script Class Library</a>. In this library you will find more
 sophisticated
-processing.&nbsp; For example, if you are not satisfied with a
+processing. For example, if you are not satisfied with a
 time-weighted
 average of grids over a time range, you can get a sum, max/min or even
-the actual grid values themselves.&nbsp; Or, if you do not know ahead
+the actual grid values themselves. Or, if you do not know ahead
 of
 time which model you will want to access, you can create a call at
 execution
@@ -310,7 +300,6 @@ the given element</li>
 grid being modified.
 Example:</li>
   <br>
-&nbsp;
   <div class="Bulleted">def execute(self, GridTimeRange):</div>
 &nbsp;&nbsp;&nbsp; gridStartTime = GridTimeRange.startTime() <br>
 &nbsp;&nbsp;&nbsp; hour = gridStartTime.hour() <br>
@@ -325,139 +314,23 @@ basic methods: </p>
     <li>&nbsp;&nbsp;&nbsp; GridTimeRange.endTime()</li>
     <li>&nbsp;&nbsp;&nbsp; GridTimeRange.duration() # In seconds</li>
   </ul>
-  <p><br>
-The start and end times are AbsTime objects with the following methods:
+  <p>
+The start and end times are TimeRange objects.
   </p>
-  <ul>
-    <li>&nbsp;&nbsp;&nbsp; absTime.hour()</li>
-    <li>&nbsp;&nbsp;&nbsp; absTime.day()</li>
-    <li>&nbsp;&nbsp;&nbsp; absTime.month()</li>
-    <li>&nbsp;&nbsp;&nbsp; absTime.year()</li>
-  </ul>
-  <p><br>
+  <p>
 Here's an example of creating your own time range relative to the
 given GridTimeRange: </p>
   <p>def execute(self, GridTimeRange): <br>
-&nbsp;&nbsp; import AFPS <br>
+&nbsp;&nbsp; import TimeRange <br>
 &nbsp;&nbsp; start = GridTimeRange.startTime() <br>
 &nbsp;&nbsp; end = GridTimeRange.endTime() <br>
-&nbsp;&nbsp; timeRange2 = AFPS.TimeRange(start - 24 *3600, end - 24
+&nbsp;&nbsp; timeRange2 = TimeRange.TimeRange(start - 24 *3600, end - 24
 *3600) </p>
   <p>&nbsp;&nbsp; T0 = self.getGrids("Fcst", "T","SFC", timeRange2,
 noDataError=0) <br>
 &nbsp;&nbsp; if T0 is None: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.noData() <br>
-&nbsp; </p>
-  <li class="Bulleted">&lt;weName&gt;_MaxGrid -- a numeric array&nbsp;
-of maximum values for the
-element over the GridTimeRange</li>
-  <li class="Bulleted">&lt;weName&gt;_MinGrid -- a numeric array of
-minimum values for the
-elementover
-the GridTimeRange</li>
-  <li class="Bulleted">&lt;weName&gt;_SumGrid -- a numeric array of the
-sum of values for the
-element
-over the GridTimeRange</li>
-  <li class="Bulleted">varDict -- a dictionary of variables and values.
-The variables and
-values
-are defined in the VariableList (See below <a href="#VarList">VariableList
-    </a>section.)</li>
-  <li class="Bulleted">&lt;weName&gt;_GridInfo -- Information about the
-weather element grid
-including
-such things as the time range, the units, the max and min limits,
-identifying
-information, and grid location. For example:</li>
-  <br>
-&nbsp;
-  <div class="Bulleted">def execute(self, MaxT, MaxT_GridInfo):</div>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeRange =
-MaxT_GridInfo.gridTime()
-  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; The start and end
-times
-are of a class, "AbsTime" <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; which has many useful
-methods: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; startTime = timeRange.startTime() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; year = startTime.year() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; month = startTime.month() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; day = startTime.day() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; hour = startTime.hour() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minute = startTime.minute() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; textString = startTime.string() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endTime = timeRange.endTime() </p>
-  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; units = MaxT_GridInfo.units()
-  <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxLimit =
-MaxT_GridInfo.maxLimit() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minLimit =
-MaxT_GridInfo.minLimit() </p>
-  <p>If there are multiple corresponding grids, a list of gridInfo
-objects
-will be returned. <br>
-&nbsp; </p>
-  <li class="Bulleted">&lt;weName&gt;_GridHistory -- Information about
-the history of the weather
-element grid including such things as the time range, the units, the
-max
-and min limits, identifying information, and grid location. GridHistory
-is a list of update events for the grid.&nbsp; For example:</li>
-  <br>
-&nbsp;
-  <div class="Bulleted">def execute(self, PoP, PoP_GridHistory:</div>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "History",
-PoP_GridHistory <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for history in
-PoP_GridHistory: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print "\nHistory:" <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print " origin:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ",
-history.origin() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print " originParm:&nbsp;&nbsp;&nbsp;&nbsp; ", history.originParm() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print " originTimeRange:", history.originTimeRange() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print " timeModified:&nbsp;&nbsp; ", history.timeModified() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print " whoModified:&nbsp;&nbsp;&nbsp; ", history.whoModified() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print " updateTime:&nbsp;&nbsp;&nbsp;&nbsp; ", history.updateTime() <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print " publishTime:&nbsp;&nbsp;&nbsp; ", history.publishTime()
-  <p>Results: </p>
-  <p>&nbsp;&nbsp;&nbsp; History: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-origin:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-0 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-originParm:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-PoP_SFC:BOU_GRID__NAM40_20020326_1200 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; originTimeRange: (Mar
-28 02 07:00:00 GMT, Mar 28 02 10:00:00 GMT) <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-timeModified:&nbsp;&nbsp;&nbsp;
-Mar 27 02 23:48:43 GMT <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-whoModified:&nbsp;&nbsp;&nbsp;&nbsp;
-423250825:hansen:gfe:32577:0 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-updateTime:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Mar 26 02 17:45:17 GMT <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-publishTime:&nbsp;&nbsp;&nbsp;&nbsp;
-Jan 01 70 00:00:00 GMT </p>
-  <p>Origin is defined as follows: <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enum OriginType {INITIALIZED
-= 0, TIME_INTERPOLATED = 1,&nbsp; SCRATCH = 2, CALCULATED = 3, OTHER =
-4}; </p>
-  <p>If there are multiple corresponding grids, a list of gridHistory
-objects
-will be returned.</p>
-</ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.noData()<br>
+</p>
 <div class="Body">NOTE: Values supplied to the tool are initial values
 only i.e. the values of the variables at the beginning of Smart Tool
 execution.
@@ -465,21 +338,14 @@ Changes made by the Smart Tool will not be reflected in the values of
 the
 variables passed to the tool.</div>
 <hr width="100%">
-<h3 class="2Heading"><a name="Modify"></a>Modifying a Tool</h3>
-<p><a href="#Ex2">Exercise
-Tool-2 -- Modifying a Tool</a> <br>
-</p>
-<div class="Body">The following Exercise will show you how to modify an
-existing tool.</div>
-<hr width="100%">
 <h3 class="3Heading"><a name="Ex2"></a>Exercise Tool-2 -- Modifying a
 Tool</h3>
 <div class="Body">Modify your SnowAmt_LearningTool to base its new
-value&nbsp;
+value
 on temperature values. Use the following table:</div>
 <table border="1">
   <caption>
-  <h3 class="TableTitle">&nbsp;</h3>
+  <h3 class="TableTitle"></h3>
   </caption> <tbody>
     <tr>
       <th>
@@ -517,7 +383,7 @@ on temperature values. Use the following table:</div>
 </table>
 <div class="Step-First">
 <ol>
-  <li>Select Modify... on the MB3 popup over the SnowAmt_LearningTool.
+  <li>Select Open... on the MB3 popup over the SnowAmt_LearningTool at USER level (drill-down).
 This
 opens
 the Python Editor in which you can make changes.</li>
@@ -534,7 +400,7 @@ the GFE. The changes are effective as soon as you Save. Verify that the
 tool worked by Sampling the SnowAmt and QPF grid values.</li>
 </ol>
 </div>
-<div class="3Heading">&nbsp;<a href="#AnswerNum2">Click here for Answer
+<div class="3Heading"><a href="SmartToolsExerciseAnswers.html#AnswerNum2">Click here for Answer
 to Exercise Tool-2.</a></div>
 <hr width="100%">
 <h3 class="3Heading"><a name="VarList"></a>Description of VariableList</h3>
@@ -550,13 +416,12 @@ resides in the Python file for the Tool. (Make sure it appears before
 or
 after the Tool Class, not within it!) These variables will be solicited
 from the user prior to executing the Tool.</div>
-<div class="Body">&nbsp;</div>
 <div class="Body">For example, suppose we want to let the user set
 threshold
 values prior to executing our tool named MyTool. Then in the Python
 module
 for MyTool, we list:</div>
-<div class="Code">&nbsp;
+<div class="Code">
 <br>
 VariableList = [</div>
 <div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -623,55 +488,11 @@ height for the dialog must be given.&nbsp; For example:</li>
 ("", 500, "scrollbar")</div>
   <div class="Bulleted">will add a scrollbar to the dialog and set the
 dialog
-height to 500 pixels.&nbsp; Only one scrollbar entry is processed per
+height to 500 pixels. Only one scrollbar entry is processed per
 VariableList
 dialog.</div>
 </ul>
 <div class="Step-First">
-<ol>
-  <li>To see how these are used, we will examine the
-Convective_SmartTool
-which
-can be found in the examples/smartTools directory of your
-release.&nbsp;
-If does not appear in the Edit Actions Dialog when Wx is the active
-element,
-install it following the instructions in the section <a href="#Exist">Creating
-a Smart Tool from an Existing File.</a></li>
-  <li>Examine the VariableList to see how the variables are defined and
-accessed.</li>
-  <li>Notice that we have defined two radio button variables ("Edit
-Coverage
-or Uncertainty" and "Thunder Y/N") . We have defined the default values
-("Coverage" and "Y") for each one and then listed the possible values.</li>
-</ol>
-</div>
-<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-VariableList
-= [</div>
-<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("Edit Coverage or Uncertainty" , "Coverage", "radio",</div>
-<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-["Coverage","Uncertainty"]),</div>
-<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("Thunder Y/N" , "Y", "radio", ["Y","N"]),</div>
-<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-]</div>
-<ol start="4">
-  <li class="Step">Now examine how we access the variable value from
-the varDict. The name
-"Edit Coverage or Uncertainty" must match the above VariableList
-exactly.</li>
-</ol>
-<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-coverage = varDict["Edit Coverage or Uncertainty"]</div>
-<div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-thunder = varDict["Thunder Y/N"]</div>
-<ol start="5">
-  <li class="Step">Run the tool to see how the VariableList is
-displayed.</li>
-  <li class="Step">Close the Python Editor.</li>
-</ol>
 <hr width="100%">
 <h3 class="3Heading"><a name="Ex3"></a>Exercise Tool-3 -- Using
 VariableLists</h3>
@@ -684,7 +505,7 @@ Remember
 to include "varDict" in your argument list to get the value for the
 user's
 variable. You will also need to access the variable, Topo.
-<p><a href="#AnswerNum3">Click here for Answer to Exercise Tool-3.</a></p>
+<p><a href="SmartToolsExerciseAnswers.html#AnswerNum3">Click here for Answer to Exercise Tool-3.</a></p>
 </div>
 <hr width="100%">
 <h3 class="3Heading"><a name="VarList1"></a>Creating VariableLists
@@ -702,7 +523,7 @@ how this might be done:
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ScreenList = ["SCALAR"]
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from Numeric import *
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from numpy import *
 </p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; import ProcessVariableList
 <br>
@@ -806,8 +627,7 @@ after all
 grids are processed.</li>
 </ul>
 Additional methods, "preProcessGrid" and "postProcessGrid" are reserved
-for <a href="#Point-based">Point-based Tools</a>.&nbsp;&nbsp; Of
-course,
+for Point-based Tools. Of course,
 reserved methods will be called only if you supply them in your tool.
 They
 are included as comments in the Smart Tool template that appears when
@@ -820,10 +640,8 @@ methods will vary according to the logic of when they are called.
 You may write your own methods and call them from within others. The
 only
 tricky part is in using the funny "self" variable. Here's an example:
-<br>
-&nbsp;
+<br><br>
 <div class="Code">import SmartScript</div>
-<div class="Code">&nbsp;</div>
 <div class="Code">class Tool (SmartScript.SmartScript):</div>
 <div class="Code">&nbsp;&nbsp; def __init__(self, dbss):</div>
 <div class="Code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -873,7 +691,7 @@ the argument list.</li>
 <h4><a name="NamingConventions"></a>Naming Conventions</h4>
 To help distinguish the source of methods and variables, Smart Tools
 (and
-Procedures)&nbsp; follow these naming conventions:
+Procedures) follow these naming conventions:
 <blockquote><li>User-defined Smart Tool and Procedure methods and
 variables, which need
 to span multiple methods, are preceeded by an underscore: e.g
@@ -896,15 +714,15 @@ by giving your method or variable a duplicate name.
 <hr width="100%">
 <h3 class="2Heading"><a name="Exist"></a>Creating a Smart Tool from an
 Existing File</h3>
-<div class="Body">Suppose you have an existing smart tool&nbsp;
-file.&nbsp;&nbsp;
+<div class="Body">Suppose you have an existing smart tool
+file.
 You might receive a file from a repository, from a colleague, or find
 one
 in the examples directories of your release. How can you add it to your
 Edit Action Dialog?</div>
 <div class="Step-First">
 <ol>
-  <li>From the Edit Action Dialog Smart Tool Window,&nbsp; Select MB3
+  <li>From the Localization Perspective Smart Tool folder, Select MB3
 --&gt;
 New...</li>
   <li>Enter the name of the Tool and the weather element it modifies.</li>
@@ -940,7 +758,6 @@ SmartScript-8 -- Working with Weather and Discrete</a> <br>
 <a href="#SS-Ex9">Exercise
 SmartScript-9 -- Translating between Smart Initialization and Smart
 Tools</a>
-<p></p>
 <hr are="" automatically="" to="" smart="" tools="" and=""
  procedures.&nbsp="" for="" a="" list="" of="" methods="" available=""
  in="" smartscript="" class="" see="" the="" width="100%"><a
@@ -1011,13 +828,13 @@ edits
 QPF.&nbsp; Access both the current QPF value and the&nbsp; most
 recent&nbsp;
 D2D NAM12 tp (total precipitation) value directly using the "getGrids"
-method.&nbsp;
+method.
 If the current QPF value is zero, assign the tp value to it. Otherwise,
 return it as is.</li>
   <li>Run and test your tool to make sure it works.</li>
   </div>
 </ol>
-<a href="#AnswerSS1">Click here for Answer to Exercise SmartScript-1.</a>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS1">Click here for Answer to Exercise SmartScript-1.</a>
 <hr width="100%">
 <h2><a name="SS-Ex2"></a>Exercise SmartScript-2 -- Accessing Variable
 Grids
@@ -1039,42 +856,41 @@ from which to get the "tp" value.</li>
 </div>
 </div>
 </div>
-<a href="#AnswerSS2">Click here for Answer to Exercise SmartScript-2.</a>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS2">Click here for Answer to Exercise SmartScript-2.</a>
 <hr width="100%">
 <h2><a name="SS-Ex3"></a>Exercise SmartScript-3 -- Making and Accessing
 Soundings</h2>
-The SmartScript library allows you to make a sounding of Numerical
-Python
+The SmartScript library allows you to make a sounding of numpy
 grids. The method, "makeNumericSounding" returns two numerical "cubes"
 -- one cube for the gh height values for a given set of levels and one
 cube for the weather parameter values. In this exercise, we will create
-a sounding from model data&nbsp; and use Topo information to determine
-the surface temperature.&nbsp; You will use the "makeNumericSounding"
+a sounding from model data and use Topo information to determine
+the surface temperature. You will use the "makeNumericSounding"
 method
 to get gh and t numerical cubes. You will then have to "walk up" the
 cubes
 assigning values directly from the t weather parameter at ground
-height.&nbsp;
-For a more information, see&nbsp; <a
+height.
+For a more information, see <a
  href="Python.html#LookingUpAColumnofaCube">GFESuite
 Python Tutorial -- Looking Up the Columns of a Cube.</a>
 <ol>
   <li>In the SmartScript class, find the method, "<a
- href="SmartScriptClass.html#makeNumericSounding">makeNumericSounding</a>".&nbsp;
+ href="SmartScriptClass.html#makeNumericSounding">makeNumericSounding</a>".
 Read the documentation to learn how to call this method.</li>
   <li>Find the Unit Conversion methods section and examine the methods
 available.</li>
-  <li>Create a new smart tool which edits T.&nbsp;&nbsp; Allow the user
+  <li>Create a new smart tool which edits T. Allow the user
 to
 set
-the D2D model using a VariableList.&nbsp; Assign values from the
+the D2D model using a VariableList. Assign values from the
 sounding
-made from the D2D model grids using the Topo information.&nbsp; You
+made from the D2D model grids using the Topo information. You
 will
 have to convert Topo from feet to meters and temperature from K to F.</li>
   <li>Run and test your tool to make sure it works.</li>
 </ol>
-<a href="#AnswerSS3">Click here for Answer to Exercise SmartScript-3.</a></div>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS3">Click here for Answer to Exercise SmartScript-3.</a></div>
 </div>
 <hr width="100%">
 <h3 class="3Heading"><a name="SS-Ex4"></a>Exercise SmartScript-4 --
@@ -1084,34 +900,17 @@ Soundings</h3>
 logical
 statements, rewrite the tool from Exercise SmartScript-3 and simplify
 the
-"where" statement by using some logical statements.&nbsp; For more
+"where" statement by using some logical statements. For more
 information,
-see the discussion of Simple and Compound statements in&nbsp;&nbsp;<a
- href="Python.html#StyleSuggestions">
+see the discussion of Simple and Compound statements in 
+<a href="Python.html#StyleSuggestions">
 GFESuite Python Tutorial and Programming Guidelines -- Style
 Suggestions.</a>
-<p><a href="#AnswerSS4">Click here for Answer to Exercise SmartScript-4.</a></p>
-</div>
-<hr width="100%">
-<h3 class="3Heading"><a name="SS-Ex5"></a>Exercise SmartScript-5 --
-Making and Accessing
-Soundings</h3>
-<div class="Body">Suppose we want to use an interpolated (or
-extrapolated)
-value for the T value. You can use the SmartScript methods "<a
- href="SmartScriptClass.html#interpolateScalarValues">interpolateScalarValues</a>"
-and "<a href="SmartScriptClass.html#extrapolate">extrapolate</a>"
-within
-"where" statements to do this. In the case the first level, we will
-need
-to extrapolate instead of interpolate.&nbsp; Rewrite the tool from
-Exercise
-SmartScript-4 to handle this.
-<p><a href="#AnswerSS5">Click here for Answer to Exercise SmartScript-5.</a></p>
+<p><a href="SmartToolsExerciseAnswers.html#AnswerSS4">Click here for Answer to Exercise SmartScript-4.</a></p>
 </div>
 <hr width="100%">
 <div class="Body">
-<h3 class="3Heading"><a name="SS-Ex6"></a>Exercise SmartScript-6 --
+<h3 class="3Heading"><a name="SS-Ex5"></a>Exercise SmartScript-5 --
 Creating Elements "On-the-Fly"</h3>
 It is now possible to create "temporary" weather elements from a Smart
 Tool and add grids to them. These elements appear in the GridManager
@@ -1120,7 +919,6 @@ cannot be saved. So if you unload them or shut down the GFE, they are
 gone.
 They can be accessed by subsequent Smart Tools.
 <br>
-&nbsp;
 <div class="Body">Suppose we want to create a temporary RH element from
 T an Td. Look at the documentation for the SmartScript method, "<a
  href="SmartScriptClass.html#createGrid">createGrid.</a>"
@@ -1148,14 +946,14 @@ level. For example:
 <p>&nbsp;&nbsp;&nbsp;&nbsp; RH = self.getGrids("TempModel","TempRH",
 "SFC",GridTimeRange)
 </p>
-<p><a href="#AnswerSS6">Click here for Answer to Exercise SmartScript-6.</a>
+<p><a href="SmartToolsExerciseAnswers.html#AnswerSS5">Click here for Answer to Exercise SmartScript-5.</a>
 </p>
 <hr width="100%">
-<h3 class="3Heading"><a name="SS-Ex7"></a>Exercise SmartScript-7 --
+<h3 class="3Heading"><a name="SS-Ex6"></a>Exercise SmartScript-6 --
 Working with Weather/Discrete</h3>
 <div class="3Heading">Weather and Discrete are similar to each other.
 They
-both are represented as&nbsp; a 2-tuple:</div>
+both are represented as a 2-tuple:</div>
 <ul>
   <li>wxValues : numerical grid of byte values</li>
   <li>keys : list of "ugly strings" where the index of the ugly string
@@ -1170,10 +968,10 @@ For a complete description, see <a
  href="Python.html#WorkingwithWeatherData">Working
 with Weather Data in the GFESuite Python Tutorial</a> and <a
  href="Python.html#WorkingwithDiscreteData">Working
-with Discrete Data in the GFESuite Python Tutorial</a>.&nbsp;&nbsp; Two
+with Discrete Data in the GFESuite Python Tutorial</a>. Two
 particularily useful functions are getIndex() and wxMask() for Weather
 data, and getIndex() and discreteMask() for Discrete data.
-<p>Use the&nbsp; SmartScript method "getIndex" to assign weather values
+<p>Use the SmartScript method "getIndex" to assign weather values
 based on PoP according to the following criteria:
 </p>
 <blockquote><li>
@@ -1184,7 +982,7 @@ where PoP &lt; 15,&nbsp; assign
 "Sct:RW:m:&lt;NoVis&gt;:"</li>
   <li>where PoP &gt;= 55, assign "Wide:R:+:&lt;NoVis&gt;:"</li>
 </blockquote>
-<a href="#AnswerSS7">Click here for Answer to Exercise SmartScript-7.</a>
+<a href="SmartToolsExerciseAnswers.html#AnswerSS6">Click here for Answer to Exercise SmartScript-6.</a>
 <p>Here is an example of a Discrete smart tool that converts all
 gridpoints
 that have a value of &lt;None&gt;&nbsp;to "BL.W":
@@ -1221,7 +1019,7 @@ value</tt>
 </p>
 <hr width="100%">
 <div class="Body">
-<h3 class="3Heading"><a name="SS-Ex8"></a>Exercise SmartScript-8 --
+<h3 class="3Heading"><a name="SS-Ex7"></a>Exercise SmartScript-7 --
 Working with Weather/Discrete</h3>
 <div class="3Heading">Weather and Discrete are similar to each
 other.&nbsp;
@@ -1235,27 +1033,22 @@ assign 0</li>
   <li class="3Heading">where coverage is "Sct", assign 55</li>
   <li class="3Heading">where coverage is "Wide", assign 80</li>
 </blockquote>
-<div class="Body"><a href="#AnswerSS8">Click here for Answer to
+<div class="Body"><a href="SmartToolsExerciseAnswers.html#AnswerSS7">Click here for Answer to
 Exercise
-SmartScript-8.</a></div>
+SmartScript-7.</a></div>
 </div>
 </div>
 </div>
 <hr width="100%">
-<h3 class="3Heading"><a name="SS-Ex9"></a>Exercise SmartScript-9 --
+<h3 class="3Heading"><a name="SS-Ex8"></a>Exercise SmartScript-8 --
 Translating Between
 Smart
 Initialization and Smart Tools</h3>
-To see the correlation between Smart Initialization and Smart Tools,
-find
-the "calcFreeWind" method in "NAM12.py" and compare to
-examples/smartTools/FreeWind_Init.py.
-For the most part, the code is similar. However, the Smart Tool had to
-access the sounding cubes through the "getNumericSounding" method. It
-was
-also enhanced to extrapolate and interpolate, but the original Smart
-Initialization
-code (commented out) works as well. In general, when going between
+Overview of the correlation between Smart Initialization and Smart Tools.
+For the most part, the code is similar. However, the Smart Tools have
+access the sounding cubes through the "getNumericSounding" method. Smart Tools are
+also enhanced to extrapolate and interpolate, but the Smart
+Initialization code works as well. In general, when going between
 Smart
 Initialization and Smart Tools, follow these tips:
 <ul>

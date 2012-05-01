@@ -16,7 +16,7 @@
 a Different Area for Some Phrases</a><br>
 &nbsp;&nbsp;&nbsp; <a href="#RANGE_ADJUSTMENT_QUESTIONSANSWERS">Range
 Adjustment Questions/Answers</a><br>
-Using Lat/Lon Edit Areas in a Product<br>
+<a href="#LAT_LON">Using Lat/Lon Edit Areas in a Product</a><br>
 </p>
 <hr>
 <h2 style="text-align: left;"><a
@@ -74,8 +74,8 @@ node, elementInfoList, self.scalarConnector)<br>
 QUESTIONS/ANSWERS<br>
 </h2>
 <div style="text-align: left;">The following is a condensation of a
-listserver discussion involving <a href="#RANGEADJUSTMENT">Range
-Adjustment</a>:<br>
+listserver discussion involving Range
+Adjustment:<br>
 <br>
 <span style="font-weight: bold;">Kyle</span>: In our grids for today,
 we have no wind speeds greater than 13 knots, but our formatters went
@@ -389,8 +389,7 @@ what it was told to do, even if it wasn't what you expected/wanted.<br>
 If you want to look at the range code yourself, look at the
 applyRangeValues and applyBias methods in TextUtils.<br>
 <br>
-<h1><a name="Using_LatLon_Edit_Areas_in_a_Product"></a>Using Lat/Lon
-Edit Areas in a Product</h1>
+<h1><a name="LAT_LON"></a>Using Lat/Lon Edit Areas in a Product</h1>
 <span style="font-family: monospace;"></span><span
  style="font-weight: bold;">Question</span>: I would like to set up a
 varDict to allow the user to enter in a given latitude and longitude
@@ -401,26 +400,6 @@ area. <br>
 </span>
 <pre wrap="">1. Set up the VariableList so the suer can enter lat/lon values.  For<br>example:<br><br>VariableList = [<br>    (("forecast point latitude", "lat"), 20.0, "alphaNumeric"),<br>    (("forecast point longitude", "lon"), -160.0, "alphaNumeric"),<br>  ]<br><br>2. You can set the Definition["defaultEditAreas"] = [] since it will not<br>be used at all.<br><br>3. In your formatter "generateForecast" method, replace this:<br><br>        self._areaList = self.getAreaList(argDict)<br><br>with something this:<br><br>       self._areaList = self._getLatLonAreaList(argDict)<br><br>4. Finally, include the following method:<br><br>     def _getLatLonAreaList(self, argDict):<br><br>        area = self.createLatLonArea(float(self._lat), float(self._lon), 10)<br><br>        # OPTIONAL SET UP IF YOU WANT THIS AREA SAMPLED FOR HAZARDS<br>        # Save to server<br>        self.saveEditAreas([area])<br>        # Create Hazards Table for this area<br>        hazards = HazardsTable.HazardsTable(<br>                  argDict["ifpClient"], [[area.id().name()]], "FWS",<br>                  self.filterMethod, argDict["databaseID"],<br>                  self._fullStationID)<br>        argDict["hazards"] = hazards<br>        # Remove from server<br>        self.deleteEditAreas([area])<br><br>        return [(area, "areaName")]<br></pre>
 &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-</div>
-<div style="margin-left: 40px; text-align: left;">
-<div style="margin-left: 40px;"><br>
-</div>
-<br>
-</div>
-<br>
-<br>
 </center>
 </center>
 </body>

@@ -388,30 +388,31 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             prods = produceTextProduct(command);
         }
         
-        String inprod = null;
-        if (prods.size() == 1) {
-            inprod = prods.get(0).getProduct();
+		// Check incoming alarm product matching selected product from
+		// current Alarm Queue Window (DR_14624)
+        if (prods != null) {
+        	if (prods.size() == 1) {
+                String inprod = null;
+        		inprod = prods.get(0).getProduct();
+        		String[] prodLines = inprod.split("\n");
+        		String[] hdrFields = prodLines[0].split(" ");
+        		String wmoId = hdrFields[0];
+        		String site = hdrFields[1];
+        		String hdrTime = hdrFields[2];
+        		String hhmm = hdrTime.substring(2);
+        		String bbb = "";
+        		String awipsId = "";
+        
+        		// Use awips command to retrieve correct alarm product if it does
+        		// not match (DR_14624)
+        		if (!alarmHHMM.equals(hhmm)) {
+        			String hdrDate = hdrTime.substring(0,2);
+        			hdrTime = hdrDate.concat(alarmHHMM);
+        			prods = getAwipsTextProduct(awipsId, wmoId, site, hdrTime, bbb);
+        		}
+            }
         }
-        
-        // Check incoming alarm product matching selected product from
-        // current Alarm Queue Window (DR_14624)
-        String[] prodLines = inprod.split("\n");
-        String[] hdrFields = prodLines[0].split(" ");
-        String wmoId = hdrFields[0];
-        String site = hdrFields[1];
-        String hdrTime = hdrFields[2];
-        String hhmm = hdrTime.substring(2);
-        String bbb = "";
-        String awipsId = "";
-        
-        // Use awips command to retrieve correct alarm product if it does
-        // not match (DR_14624)
-        if (!alarmHHMM.equals(hhmm)) {
-        	String hdrDate = hdrTime.substring(0,2);
-        	hdrTime = hdrDate.concat(alarmHHMM);
-        	prods = getAwipsTextProduct(awipsId, wmoId, site, hdrTime, bbb);
-        }
-        
+
         if (alarmDisplayDlg == null) {
             alarmDisplayDlg = new AlarmDisplayWindow(shell, prods);
             alarmDisplayDlg.open();
