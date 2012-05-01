@@ -120,11 +120,8 @@ public class VizDisplayPane implements IDisplayPane {
 
     protected static final double ZOOM_ANIMATION_FACTOR = 2.0;
 
-    /** The canvas composite */
-    private final Composite canvasComp;
-
     /** The canvas */
-    private final Canvas canvas;
+    protected final Canvas canvas;
 
     /** The graphics target */
     protected IGraphicsTarget target;
@@ -199,17 +196,9 @@ public class VizDisplayPane implements IDisplayPane {
             Composite canvasComp, IRenderableDisplay display,
             boolean enableContextualMenus) throws VizException {
         this.container = container;
-        this.canvasComp = canvasComp;
-        this.canvasComp.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                VizDisplayPane.this.dispose();
-            }
-        });
 
         // create the graphics adapter
-        graphicsAdapter = GraphicsFactory.getGraphicsAdapter(display
-                .getDisplayType());
+        graphicsAdapter = getGraphicsAdapter(display);
         // create the canvas
         this.canvas = graphicsAdapter.constrcutCanvas(canvasComp);
         // set the renderable display
@@ -247,7 +236,7 @@ public class VizDisplayPane implements IDisplayPane {
             });
             Menu menu = menuMgr.createContextMenu(canvas);
             menu.setVisible(false);
-            canvasComp.setMenu(menu);
+            canvas.getParent().setMenu(menu);
         }
 
         // Register ourselves with the DrawCoordinatorJob
@@ -274,6 +263,15 @@ public class VizDisplayPane implements IDisplayPane {
             }
         });
 
+        canvas.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                VizDisplayPane.this.dispose();
+            }
+
+        });
+
         canvas.addListener(SWT.MouseMove, new Listener() {
             @Override
             public void handleEvent(Event event) {
@@ -296,8 +294,9 @@ public class VizDisplayPane implements IDisplayPane {
      * @param display
      * @return
      */
-    public AbstractGraphicsFactoryAdapter getGraphicsAdapter() {
-        return graphicsAdapter;
+    protected AbstractGraphicsFactoryAdapter getGraphicsAdapter(
+            IRenderableDisplay display) throws VizException {
+        return GraphicsFactory.getGraphicsAdapter(display.getDisplayType());
     }
 
     /**
@@ -404,9 +403,7 @@ public class VizDisplayPane implements IDisplayPane {
                         renderableDisplay, DisplayChangeType.REMOVE);
             }
 
-            if (canvas.isDisposed() == false) {
-                canvasComp.dispose();
-            }
+            graphicsAdapter.disposeCanvas(canvas);
         }
     }
 
@@ -943,7 +940,7 @@ public class VizDisplayPane implements IDisplayPane {
      */
     @Override
     public void setVisible(boolean visible) {
-        canvasComp.setVisible(visible);
+        canvas.getParent().setVisible(visible);
         canvas.setVisible(visible);
     }
 
@@ -966,7 +963,7 @@ public class VizDisplayPane implements IDisplayPane {
         lastClickX = lastMouseX = e.x;
         lastClickY = lastMouseY = e.y;
         if (prefManager.handleLongClick(CONTEXT_MENU_PREF, e.button)) {
-            canvasComp.getMenu().setVisible(false);
+            canvas.getParent().getMenu().setVisible(false);
             synchronized (menuLock) {
                 if (menuJob != null) {
                     menuJob.cancel();
@@ -979,7 +976,7 @@ public class VizDisplayPane implements IDisplayPane {
                         @Override
                         public void run() {
                             if (canvas.isDisposed() == false
-                                    && canvasComp.getMenu() != null) {
+                                    && canvas.getParent().getMenu() != null) {
                                 showMenu();
                             }
                         }
@@ -992,7 +989,7 @@ public class VizDisplayPane implements IDisplayPane {
             };
             menuJob.schedule(275);
         } else if (prefManager.handleClick(CONTEXT_MENU_PREF, e.button)) {
-            canvasComp.getMenu().setVisible(false);
+            canvas.getParent().getMenu().setVisible(false);
             showMenu();
         }
     }
@@ -1003,8 +1000,8 @@ public class VizDisplayPane implements IDisplayPane {
     protected void showMenu() {
         Point canvasLoc = canvas.getDisplay().map(canvas, null, lastClickX,
                 lastClickY);
-        canvasComp.getMenu().setLocation(canvasLoc);
-        canvasComp.getMenu().setVisible(true);
+        canvas.getParent().getMenu().setLocation(canvasLoc);
+        canvas.getParent().getMenu().setVisible(true);
     }
 
     /**

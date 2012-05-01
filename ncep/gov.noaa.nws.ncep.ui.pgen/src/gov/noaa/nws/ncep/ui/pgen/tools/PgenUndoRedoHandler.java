@@ -48,6 +48,8 @@ public class PgenUndoRedoHandler extends AbstractTool {
 		}
 		PgenUtil.refresh();
 		
+		//de-activate drawing tools 
+		PgenUtil.setSelectingMode();	
 		return null;
 	}
 

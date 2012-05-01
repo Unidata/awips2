@@ -11,17 +11,17 @@ import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
 import gov.noaa.nws.ncep.viz.tools.frame.FrameDataDisplay;
 import gov.noaa.nws.ncep.viz.tools.imageProperties.FadeDisplay;
-import gov.noaa.nws.ncep.viz.tools.pgenFileName.PgenFileNameDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
+
+import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.ContributionItem;
-import org.eclipse.swt.SWT;
 
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -33,7 +33,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -58,21 +57,25 @@ import gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerDialog;
  * 11/05/09     183         Q. Zhou     Added Fading scale
  * 11/13/09     180         G. Hull     NmapCommon.NatlCntrsPerspectiveID
  * 02/20/10     226         G. Hull     Use RbdBundle
- * 03/16/10   238, 239      Archana    Added FrameDataDisplay to the status bar.
- * 05/23/10   dr11 migration G. Hull   manage Cave's TimeDisplay 
+ * 03/16/10   238, 239      Archana     Added FrameDataDisplay to the status bar.
+ * 05/23/10   dr11 migration G. Hull    manage Cave's TimeDisplay 
  * 05/26/10                 G. Hull     Call NcSatelliteUnits
- * 08/27/10     #303        G. Hull    Set the editor name based on the default RBD name 
- * 09/23/10     #307        G. Hull    Load spf from the command line.
- * 10/20/10     #307        G. Hull    NcAutoUpdater
- * 03/22/11   r1g2-9        G. Hull    extend AbstractCAVEPerspectiveManager
- * 06/07/11     #445        X. Guo     Data Manager Performance Improvements
- *                                     Initialize Data resources
- * 07/28/2011    450        G. Hull    NcPathManager
- * 10/25/2011   #467        G. Hull    close the ResourceManager on deactivate/close
- * 10/26/2011               X. Guo     Init ncgrib inventory
- * 11/22/2011   #514        G. Hull    add an IVizEditorChangedListener to update the GUI when the editor changes
- * 12/13/2011               J. Wu      Added PGEN file name display
- * 
+ * 08/27/10     #303        G. Hull     Set the editor name based on the default RBD name 
+ * 09/23/10     #307        G. Hull     Load spf from the command line.
+ * 10/20/10     #307        G. Hull     NcAutoUpdater
+ * 03/22/11   r1g2-9        G. Hull     extend AbstractCAVEPerspectiveManager
+ * 06/07/11     #445        X. Guo      Data Manager Performance Improvements
+ *                                      Initialize Data resources
+ * 07/28/2011    450        G. Hull     NcPathManager
+ * 10/25/2011   #467        G. Hull     close the ResourceManager on deactivate/close
+ * 10/26/2011               X. Guo      Init ncgrib inventory
+ * 11/22/2011   #514        G. Hull     add an IVizEditorChangedListener to update the GUI when the editor changes
+ * 12/13/2011               J. Wu       Added PGEN file name display
+ * 02/06/2011               S. Gurung   Commented out code in handleKeyUp and handleKeyDown methods (See NCLegendHandler) 
+ * 02/15/2012   627        Archana      Updated the call to addRbd() to accept 
+ *                                      a NCMapEditor object as one of the arguments
+ *                                      Removed the call to setNcEditor() and updated initFromEditor()
+ *                                      to take an editor as one of the arguments      
  * </pre>
  * 
  * @author 
@@ -170,11 +173,11 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         for(  RbdBundle rbd: rbdsToLoad ) {
 
         	NCMapEditor editor = NmapUiUtils.createNatlCntrsEditor( rbd.getRbdName() );
-        	rbd.setNcEditor( editor );
+ //       	rbd.setNcEditor( editor );
 
         	ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+rbd.getRbdName() );
 
-        	rbdLoader.addRBD( rbd );
+        	rbdLoader.addRBD( rbd, editor );
         	VizApp.runAsync( rbdLoader );
         }
         
@@ -374,7 +377,7 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         	@Override
         	public boolean handleKeyDown(int keyCode) {
 
-        		if ( keyCode == SWT.SHIFT ) {
+        		/*if ( keyCode == SWT.SHIFT ) {
         			isShiftDown = true;
         			return false;
         		}
@@ -382,9 +385,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         		if ( (keyCode==SWT.ARROW_UP) || (keyCode==SWT.ARROW_DOWN) ) {
 
         			if ( isShiftDown ) {
-        				/*
-        				 * Make all resources visible
-        				 */
+        				// Make all resources visible
+        				 
         				ResourceList rl = editor.getActiveDisplayPane().getDescriptor().getResourceList();
         				for (int i=0; i < rl.size(); i++ ) {
         					rl.get(i).getProperties().setVisible(true);
@@ -398,9 +400,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         				int incr = 1;
         				if (keyCode==SWT.ARROW_DOWN) incr = -1;
 
-        				/*
-        				 * look for next non map layer resource
-        				 */
+        				// look for next non map layer resource
+        				
         				int search = currentRscIndex;
         				do {
         					search += incr;
@@ -412,9 +413,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         					}
         				} while ( search != currentRscIndex );
 
-        				/*
-        				 * turn off all non map layer resources
-        				 */
+        				// turn off all non map layer resources
+        				 
         				for (int i=0; i < rl.size(); i++ ) {
         					if ( rl.get(i).getProperties().isMapLayer() )
         						rl.get(i).getProperties().setVisible(true);
@@ -428,16 +428,15 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         			}
         			editor.refresh();
 
-        		}
-
+        		} */
         		return false;
         	}
         	
         	@Override
         	public boolean handleKeyUp(int keyCode) {
-        		if ( keyCode == SWT.SHIFT ) {
+        		/*if ( keyCode == SWT.SHIFT ) {
         			isShiftDown = false;
-        		}
+        		}*/
         		return false;
         	}
             

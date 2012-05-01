@@ -21,6 +21,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable.Amount;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -35,7 +36,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.rsc.hdf5.MeshCalculatorJob;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
 import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
 import com.raytheon.viz.radar.IRadarRecordMetadata;
@@ -149,8 +153,17 @@ public class RadarRadialResource  extends RadarImageResource<MapDescriptor> {
         super.project(crs);
         for (RadarTimeRecord rtr : radarRecords.values()) {
             if (rtr.tile != null && rtr.tile.coverage.getMesh() != null) {
-                rtr.tile.coverage.getMesh().reproject(
-                        descriptor.getGridGeometry());
+                try {
+                    MeshCalculatorJob.getInstance().requestLoad(
+                            this,
+                            rtr.tile.coverage.getMesh(),
+                            rtr.tile,
+                            CRS.findMathTransform(rtr.radarCacheObject.getMetadata().getCRS(),
+                                    DefaultGeographicCRS.WGS84));
+                } catch (FactoryException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error constructing transform for mesh", e);
+                }
             } else {
                 refreshDisplay = true;
             }
@@ -262,4 +275,41 @@ protected HashMap<String, RequestConstraint> queryList;//for legend DEG 2011-03-
 //		baseTile.resourceChanged(ChangeType.CAPABILITY, this.getCapability( ColorMapCapability.class));
 	}
 
+	@Override
+
+	public void resourceChanged(ChangeType type, Object object) {
+        if ( type != null && type == ChangeType.CAPABILITY ){
+        	if (object instanceof ImagingCapability ){
+        		ImagingCapability imgCap = getCapability(ImagingCapability.class);
+           		ImagingCapability newImgCap = ( ImagingCapability ) object;
+        		imgCap.setBrightness(newImgCap.getBrightness(), false);
+        		imgCap.setContrast(newImgCap.getContrast(), false);
+        		imgCap.setAlpha(newImgCap.getAlpha(), false);
+                radarRscData.setAlpha(  imgCap.getAlpha()  );
+                radarRscData.setBrightness(  imgCap.getBrightness() );
+                radarRscData.setContrast(  imgCap.getContrast() );
+        		issueRefresh();
+        		
+        		
+        	}
+        	else if (object instanceof ColorMapCapability ){
+        		
+        		ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
+        		ColorMapCapability newColorMapCap = (ColorMapCapability) object;
+        		colorMapCap.setColorMapParameters(newColorMapCap.getColorMapParameters(), false);
+        		ColorMap theColorMap = ( ColorMap ) colorMapCap.getColorMapParameters().getColorMap();
+        		String colorMapName = colorMapCap.getColorMapParameters().getColorMapName();
+        		radarRscData.setColorMapName( colorMapName );
+        	    radarRscData.getRscAttrSet().setAttrValue( "colorMapName", colorMapName );
+        	    ColorBarFromColormap cBar = radarRscData.getColorBar();
+        	    cBar.setColorMap( theColorMap );
+        	    radarRscData.getRscAttrSet().setAttrValue( "colorBar", cBar );
+        	    radarRscData.setIsEdited( true );
+        		issueRefresh();
+
+        	}
+
+        }
+
+	}
 }

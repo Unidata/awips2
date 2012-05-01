@@ -32,7 +32,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -57,6 +56,9 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 14, 2009            rjpeter     Initial creation
+ * Apr 11, 2012	DR14666	   porricel	   Modified getDataInternal to
+ *                                     use 0-30MB for derived boundary
+ *                                     layer
  * 
  * </pre>
  * 
@@ -150,8 +152,7 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -178,8 +179,8 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
         }
         for (DerivParamField field : fieldsKeys) {
             AbstractRequestableLevelNode node = fields.get(field);
-            Set<DataTime> queryDataTimes = node.timeQuery(originalRequest,
-                    false, cache, latestOnlyCache);
+            Set<DataTime> queryDataTimes = node.timeQuery(false, cache,
+                    latestOnlyCache);
             timeCache.put(field, queryDataTimes);
             if (queryDataTimes == TIME_AGNOSTIC) {
                 if (availableDataTimes == null) {
@@ -287,7 +288,7 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
         if (this.timeCache == null
                 || this.lastTimeQuery + TIME_QUERY_CACHE_TIME < System
                         .currentTimeMillis()) {
-            this.timeQuery(null, false);
+            this.timeQuery(false);
         }
 
         // keep a reference for scope of method
@@ -396,9 +397,12 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
             if (record.getRequest().getBaseParams().size() == method
                     .getFields().size()) {
                 modifyRequest(record);
+                // Define derived BL as 0-30MB
+                if (record.getLevel().getMasterLevel().getName().equals("BL") && record.getLevel().getLevelOneValueAsString().equals("0.0") &&
+                		!record.getLevel().getLevelTwoValueAsString().equals("30.0"))
+                	continue;
                 finalResponses.add(record);
             }
-
         }
         return finalResponses;
     }

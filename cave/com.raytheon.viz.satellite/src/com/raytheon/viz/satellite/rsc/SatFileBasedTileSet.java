@@ -128,7 +128,7 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
             int j = (Integer) key.getKey(2);
             ImageTile tile = this.tileSet.getTile(level, i, j);
             if (tile != null) {
-                Rectangle tileRect = tile.getRectangle();
+                Rectangle tileRect = tile.rect;
                 ByteBuffer tileData = ByteBuffer.allocate(tileRect.height
                         * tileRect.width);
 
@@ -147,7 +147,8 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
                 try {
                     IImage raster = target.getExtension(
                             IColormappedImageExtension.class).initializeRaster(
-                            new SatDataRetriever(pdo, level, tileRect,
+                            new SatDataRetriever(pdo, level,
+                                    this.tileSet.getTile(level, i, j).rect,
                                     signed, tileData), cmp);
                     if (raster != null) {
                         addImage(raster, level, i, j);
@@ -179,11 +180,10 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
         if (cmp != null && cmp.getDataUnit() instanceof GenericPixel) {
             signed = true;
         }
-        return target
-                .getExtension(IColormappedImageExtension.class)
+        return target.getExtension(IColormappedImageExtension.class)
                 .initializeRaster(
                         new SatDataRetriever(pdo, level, this.tileSet.getTile(
-                                level, i, j).getRectangle(), signed, null), cmp);
+                                level, i, j).rect, signed, null), cmp);
     }
 
     @Override
@@ -193,7 +193,7 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
         // joining adjacent requests.
         List<Rectangle> rectangles = new ArrayList<Rectangle>();
         for (Point p : tilesToCreate) {
-            rectangles.add(tileSet.getTile(lvl, p.x, p.y).getRectangle());
+            rectangles.add(tileSet.getTile(lvl, p.x, p.y).rect);
         }
         // Join together any adjacent rectangles
         for (int i = 0; i < rectangles.size(); i++) {
@@ -228,8 +228,7 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
             for (Point p : tilesToCreate) {
                 int i = p.x;
                 int j = p.y;
-                Rectangle tileRectangle = tileSet.getTileSet().get(lvl)[i][j]
-                        .getRectangle();
+                Rectangle tileRectangle = tileSet.getTileSet().get(lvl)[i][j].rect;
                 MultiKey key = new MultiKey(lvl, i, j);
                 if (bigRectangle.equals(tileRectangle)) {
                     // This tile is my big rectangle, schedule single tile

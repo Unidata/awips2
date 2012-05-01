@@ -171,19 +171,158 @@ used to make any cyclonic wind field.<br>
       </td>
       <td
  style="vertical-align: top; background-color: rgb(204, 102, 204);">Check
-MinT, MaxT, T and Td to ensure inter-element integrity.&nbsp; Checks T
+MinT, MaxT, T and Td to ensure inter-element integrity. Checks T
 against MinT and maxT and checks Td against T.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="ModelBlend.html">ModelBlend</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Combine model grids and forecast 
+ grids in simple averages, nudging toward a model solution, or in complex weighted averages 
+ or extrapolations.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="CopyFromModel.html">CopyFromModel</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Numeric tool that copies a 
+ grid from a specified model - only in the active edit area - and possibly time-shifting the 
+ model data.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="Adjust.html">Adjust</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Performs basic math functions 
+ like add, subtract, multiply and divide on a grid. Allows options related to elevation 
+ and edit areas. You can combine these options in a variety of ways.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="Enhanced_Wx.html">Enhanced_Wx</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">An enhancement to the original 
+ Wx_SmartTool. Both tools assign Wx based on the corresponding PoP grids, but Enhanced_Wx has
+ some additional functionality.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="LimitValues.html">LimitValues</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Clips grid values 
+ at limits that you specify.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="RemoveWx.html">RemoveWx</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Allows removal of
+ "pieces" of weather from complex combinations of weather.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="ERQCcheck.html">ERQCcheck</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Allows the user to cross 
+ check elements against one another to assure consistency. Where inconsistencies are found, 
+ the forecaster has the option to either just see where the inconsistencies are, or have 
+ one element or the other forced so that they are consistent. It also includes a routine 
+ that check for the existence of grids required for NDFD.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="Extrapolate.html">Extrapolate</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Allows to linearly 
+ extrapolate features in time.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="Align_Grids.html">Align_Grids</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Aligns the time breaks 
+ of selected weather elements to match the time breaks of the individual grids of a 
+ "source" element.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="Populate_SkyProcedure.html">Populate_SkyProcedure</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Populates the GFE Sky_Cover 
+ grids based on an algorithm that finds the maximum model-layer relative humidity (RH), 
+ and then applies an exponential relationship to convert RH to sky cover at each grid point.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="Collaborate_PoP_SnowAmt_QPF.html">Collaborate_PoP_SnowAmt_QPF</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Creates fixed 12-hour PoP 
+ (PoP12hr), 6-hour SnowAmt (SnowAmt6hr), and 6-hour QPF (QPF6hr) grids based on the values 
+ contained in the floating PoP, SnowAmt, and QPF grids. These new grids may then be used 
+ for the purposes of intersite coordination as well as web graphic generation.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="NDFD_QPF_Checks.html">NDFD_QPF_Checks</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Performs checks to ensure
+ the five NDFD QPF related parameter consistency requirements are met.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="CarSnowAmt.html">CarSnowAmt</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Uses upper level temperatures, 
+ vertical motion, and relative humidity to calculate a snowratio.<br>
       </td>
     </tr>
   </tbody>
 </table>
 <br>
 <hr width="100%">
-<p>&nbsp;<a href="GFESuite.html">Back To Top</a>
+<p><a href="GFESuite.html">Back To TOC</a>
 <br>
-&nbsp;
-<br>
-&nbsp;</p>
+</p>
 </div>
 </body>
 </html>

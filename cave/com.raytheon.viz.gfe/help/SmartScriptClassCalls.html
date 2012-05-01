@@ -1,5 +1,5 @@
 <html>
-<title>GFESuite Documentation - </title>
+<title>Smart Script Class - Calling Smart Tools and Procedures</title>
 <body>
 
 <h1><a name="Calls"></a>Calling Smart Tools and Procedures</h1>
@@ -17,8 +17,7 @@ Arguments</a>
 
 <h2>
 <a name="callArgs"></a>Calling Smart Tools and Procedures Arguments</h2>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ## editArea : must be of type
-AFPS.ReferenceData
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ## editArea : ReferenceData
 or None
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ##&nbsp;&nbsp;&nbsp;&nbsp; (See
@@ -33,8 +32,7 @@ active edit area from the GFE or from
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the
 editArea argument for runProcedure.
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ## timeRange: must be of type
-AFPS.TimeRange
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ## timeRange: TimeRange
 or None
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (See
@@ -111,8 +109,7 @@ be tested by the calling tool or script.
 def callSmartTool(self, toolName, elementName, editArea=None,
 timeRange=None,
 varDict=None, editValues=1, calcArea=0, calcGrid=0, passErrors=[],
-missingDataMode=AFPS.EditActionMsg.MD_DEFAULT,
-modal=1):
+missingDataMode="", modal=1):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # passErrors: a list of errors
 to ignore and pass back to the
@@ -172,4 +169,4 @@ self.noData()
 <h2><a name="callProcedure"></a>callProcedure</h2>
 def callProcedure(self, name, editArea=None, timeRange=None,
 varDict=None,
-missingDataMode=AFPS.EditActionMsg.MD_DEFAULT, modal=1):
+missingDataMode="Stop", modal=1):
