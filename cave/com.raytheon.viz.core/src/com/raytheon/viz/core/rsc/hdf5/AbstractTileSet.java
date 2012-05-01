@@ -51,9 +51,11 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
+import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizApp;
@@ -70,6 +72,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.viz.core.rsc.hdf5.MeshCalculatorJob;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -189,6 +192,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         this.tileSize = tileSize;
         this.rsc = rsc;
         this.cellOrientation = pixelOrientation;
+        graphicsAdapter = GraphicsFactory.getGraphicsAdapter(viewType);
         setup(levels, tileSize, gridGeometry);
     }
 
@@ -212,6 +216,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             this.rsc = rsc;
         }
         setSharedGeometryTileSet(sharedGeometryTileset);
+        disposed = false;
     }
 
     /**
@@ -256,6 +261,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
     protected void setup(int levels, int tileSize, GridGeometry2D gridGeometry)
             throws VizException {
+        disposed = false;
         this.levels = levels;
         try {
 
@@ -386,8 +392,15 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
                     if (generalEnv.intersects(generalMapEnv, true)) {
 
                         tiles[i][j] = new ImageTile();
-                        tiles[i][j].setGridGeometry(new Rectangle(startX,
-                                startY, effectiveWidth, effectiveHeight), env);
+
+                        tiles[i][j].rect = new Rectangle(startX, startY,
+                                effectiveWidth, effectiveHeight);
+
+                        tiles[i][j].envelope = env;
+                        tiles[i][j].elevation = this.elevation;
+                        // System.out.println(tiles[i][j].envelope.toString());
+                        tiles[i][j].rect.width = effectiveWidth;
+                        tiles[i][j].rect.height = effectiveHeight;
                     }
                 }
 
@@ -416,22 +429,24 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 ImageTile tile = tiles[i][j];
-                if (tile != null && tile.coverage != null
-                        && tile.coverage.intersects(extent)) {
-                    IImage image = imageMap.get(tile);
-                    if (image == null || image.getStatus() == Status.FAILED
-                            || image.getStatus() == Status.INVALID) {
+                if (tile != null && tile.occlude == false) {
+                    if (tile.coverage != null
+                            && tile.coverage.intersects(extent)) {
+                        IImage image = imageMap.get(tile);
+                        if (image == null || image.getStatus() == Status.FAILED
+                                || image.getStatus() == Status.INVALID) {
 
-                        try {
-                            if (!this.hasDataPreloaded(lvl)) {
-                                this.preloadDataObject(lvl);
+                            try {
+                                if (!this.hasDataPreloaded(lvl)) {
+                                    this.preloadDataObject(lvl);
+                                }
+                            } catch (StorageException e) {
+                                throw new VizException(
+                                        "Error reading data to draw: ", e);
                             }
-                        } catch (StorageException e) {
-                            throw new VizException(
-                                    "Error reading data to draw: ", e);
-                        }
 
-                        tilesToCreate.add(new Point(i, j));
+                            tilesToCreate.add(new Point(i, j));
+                        }
                     }
                 }
             }
@@ -492,13 +507,15 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 ImageTile tile = tiles[i][j];
-                if (tile != null
-                        && tile.coverage != null
-                        && tile.coverage.intersects(paintProps.getView()
-                                .getExtent())
-                        && tile.coverage.intersects(paintProps
-                                .getClippingPane())) {
-                    intersectedTiles.add(tile);
+                if (tile != null && tile.occlude == false) {
+
+                    if (tile.coverage != null
+                            && tile.coverage.intersects(paintProps.getView()
+                                    .getExtent())
+                            && tile.coverage.intersects(paintProps
+                                    .getClippingPane())) {
+                        intersectedTiles.add(tile);
+                    }
                 }
             }
         }
@@ -536,10 +553,11 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
                 needDrawLower = true;
 
                 if (tile.coverage != null && tile.coverage.getMesh() == null) {
-                    tile.coverage.setMesh(target.getExtension(
-                            IMapMeshExtension.class)
-                            .constructMesh(tile.imageGeometry,
-                                    mapDescriptor.getGridGeometry()));
+                    IMesh mesh = target.getExtension(IMapMeshExtension.class)
+                            .constructMesh(mapDescriptor);
+                    MeshCalculatorJob.getInstance().requestLoad(this, mesh,
+                            tile, this.localProjToLL);
+
                     target.setNeedsRefresh(true);
                 }
             }
@@ -677,7 +695,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
     }
 
     public void init(IGraphicsTarget target) throws VizException {
-        disposed = false;
         this.lastPaintedTarget = target;
 
         if (this.sharedGeometryTileSet == null) {
@@ -723,6 +740,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         this.originalGridGeometry = sharedGeometryTileset.originalGridGeometry;
         this.originalMathTransform = sharedGeometryTileset.originalMathTransform;
         this.cellOrientation = sharedGeometryTileset.cellOrientation;
+        this.graphicsAdapter = sharedGeometryTileset.graphicsAdapter;
     }
 
     public void reproject() throws VizException {
@@ -793,7 +811,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
                                 continue;
                             }
 
-                            ReferencedEnvelope envelope = tile.getEnvelope();
                             if (sharedGeometryTileSet != null
                                     && sharedGeometryTileSet.tileSet != tileSet) {
                                 ImageTile baseTile = sharedGeometryTileSet.tileSet
@@ -806,8 +823,9 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
                                 double[] ur = new double[2];
 
                                 try {
-                                    envelope = envelope.transform(
-                                            mapDescriptor.getCRS(), false);
+                                    ReferencedEnvelope envelope = ((ReferencedEnvelope) tile.envelope)
+                                            .transform(mapDescriptor.getCRS(),
+                                                    false);
                                     ll[0] = envelope.getMinX();
                                     ll[1] = envelope.getMinY();
 
@@ -860,9 +878,11 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
                                     tile.coverage = new PixelCoverage(ulc, urc,
                                             lrc, llc);
                                 }
-                            } else if (envelope != null) {
-                                tile.coverage = mapDescriptor
-                                        .worldToPixel(envelope);
+                            } else {
+                                if (tile.envelope != null) {
+                                    tile.coverage = mapDescriptor
+                                            .worldToPixel(tile.envelope);
+                                }
                             }
 
                         }
@@ -918,7 +938,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             for (int i = 0; i < tiles.length; i++) {
                 for (int j = 0; j < tiles[0].length; j++) {
                     ImageTile tile = tiles[i][j];
-                    if (tile != null && tile.contains(out[0], out[1])) {
+                    if (tile != null && tile.envelope.contains(out[0], out[1])) {
                         int coordX = (int) (outCoords[0]);
                         int coordY = (int) (outCoords[1]);
 

@@ -7,6 +7,19 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.elements;
 
+import gov.noaa.nws.ncep.edex.common.stationTables.Station;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
+import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
+import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
+import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
+import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
+import gov.noaa.nws.ncep.ui.pgen.file.Products;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
+import gov.noaa.nws.ncep.ui.pgen.maps.USState;
+import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
+
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
@@ -26,30 +39,12 @@ import javax.xml.transform.stream.StreamSource;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
 
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
-
-import gov.noaa.nws.ncep.edex.common.stationTables.Station;
-import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
-
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
-import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
-import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
-import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
-import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
-import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
-import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 /**
  * Implementation of Pgen  watch box element.
  * 
@@ -65,6 +60,7 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
  * 04/11		?			B. Yin		Use Geometry instead of MultiPolygon for county shapes
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 07/11        #450        G. Hull     NcPathManager
+ * 03/12		?			B. Yin		Added another county cluster table(permclust)
  * 
  * </pre>
  * 
@@ -78,11 +74,6 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 */
 	public final static float HALF_WIDTH = 60f;
 
-	private static StationTable anchorTbl;
-	private static StationTable vorTbl;
-	//cluster table
-    static private HashMap<String,String> clstTbl;
-    
 	//State names
 	private static HashMap<String, String> stateName;
 	
@@ -242,24 +233,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	public void setWatchBoxShape( String ws){
 		boxShape = WatchShape.valueOf(ws);
 	}
-	
-	/**
-	 * Return the anchor table
-	 * @return
-	 */
-	public static StationTable getAnchorTbl(){
-		
-		if ( anchorTbl == null ){
-			
-			anchorTbl = new StationTable(
-					NcPathManager.getInstance().getStaticFile( 
-							NcPathConstants.PGEN_SPC_ANCHOR_TBL).getAbsolutePath() );
 
-		}
-		
-		return anchorTbl;
-	}
-	
 	/**
 	 * Set the anchors for the watch box
 	 * @param anchor1
@@ -351,14 +325,8 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 * @return
 	 */
 	public Station getNearestVor(Coordinate loc ){
-		
-		if ( vorTbl == null ){
-			vorTbl = new StationTable(
-					NcPathManager.getInstance().getStaticFile( 
-							NcPathConstants.PGEN_SPC_ANCHOR_TBL).getAbsolutePath() );
-		}
-		
-		return vorTbl.getNearestStation(loc);
+
+		return StationTableUtil.getVorTbl().getNearestStation(loc);
 		
 	}
 
@@ -715,7 +683,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 				if ( !countyGeo.isValid() ) {
 					System.out.println( "Invalid county: " + cnty.getFips() );
 				}
-				gCollection.add(countyGeo);
+				gCollection.add(countyGeo.buffer(.04));
 			}
     			
 		}
@@ -1561,26 +1529,11 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	public static HashMap<String, String> getStateName(){
 		if (stateName == null ){
 			stateName = new HashMap<String, String>();
-			
-			List<Object[]> states = null;
-			String querySt = "Select state, name FROM mapdata.states";
+			List<USState> states = USState.getAllStates();
 
-			try {
-				 states = NcDirectDbQuery.executeQuery(
-						querySt, "maps", QueryLanguage.SQL);
-
-			}
-			catch (Exception e ){
-				System.out.println("Reading states table exception!");
-				e.printStackTrace();
-
-			}
-			
-			if ( states != null ){
-				for ( Object[] obj : states ){
-					if ( obj[0] != null && obj[1] != null ){
-						stateName.put((String)obj[0], (String)obj[1]);
-					}
+			if (  states != null ){
+				for ( USState st : states ){
+					stateName.put(st.getStateAbrv(), st.getName());
 				}
 			}
 				
@@ -1709,64 +1662,28 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		return ugcStr.concat(cntyStr);
 	}
 	  
-    /**
-     * Read the clustering tables.
-     */
-    private HashMap<String,String> getClstTbl(){
-    	
-    	if ( clstTbl == null ){
-
-    		clstTbl = new HashMap<String, String>();
-
-    		List<Object[]> rows1 = null;
-    		List<Object[]> rows2 = null;
-
-    		String queryWfo = "Select cntyfipscode FROM stns.countyclustwfo";
-    		String querySt = "Select cntycitifipscode FROM stns.countycluststate";
-
-    		try {
-    			rows1 = NcDirectDbQuery.executeQuery(
-    					queryWfo, "ncep", QueryLanguage.SQL);
-    			rows2 = NcDirectDbQuery.executeQuery(
-    					querySt, "ncep", QueryLanguage.SQL);
-
-    		}
-    		catch (Exception e ){
-    			System.out.println("Read clustering table exception!");
-    			e.printStackTrace();
-
-    		}
-
-    		if ( rows1 != null ){
-    			rows1.addAll(rows2);
-    			for ( Object[] obj : rows1){
-    				int index = 0;
-    				do {
-    					//	System.out.println(obj[0]);
-    					//	System.out.println(((String)obj[0]).substring(index, index+5));
-    					clstTbl.put(((String)obj[0]).substring(index, index+5), (String)obj[0]);
-    					index += 6;
-    				}while (index+5 <= ((String)obj[0]).length());
-    			}
-
-    		}
-    	}
-    	
-    	return clstTbl;
-    }
-    
+ 
     /**
      * Find counties in a clustering
      * @param fips
      * @return
      */
-    private List<String> findCntyInClst(String fips){
-    	List<String> rt = new ArrayList<String>();
-    	String value = getClstTbl().get(fips);
+    private List<String> findCntyInClst(String fips, List<String> rt){
+    	 if ( rt == null ) rt = new ArrayList<String>();
+    	String value = StationTableUtil.getClstTbl().get(fips);
     	if ( value != null ){
     		int index = 0;
     		do {
-				rt.add(value.substring(index, index+5));
+    			String cluster = value.substring(index, index+5);
+    			if ( cluster.equals(fips) && !rt.contains(cluster)){
+    				rt.add(cluster);
+    			}
+    			else {
+    				//recursive
+    				if ( !rt.contains(cluster) ){
+    					rt.addAll( findCntyInClst(cluster, rt));
+    				}
+    			}
 				index += 6;
 			}while (index+5 <= value.length());
     	}
@@ -1785,7 +1702,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
     	if ( county.getFips().isEmpty() || county.getFips().equalsIgnoreCase("00000")){
     		removeCounty( county);
     	}
-    	for ( String fips : findCntyInClst(county.getFips())){
+    	for ( String fips : findCntyInClst(county.getFips(), null)){
     		removeCounty(County.findCounty(fips));
     	}
     }  
@@ -1799,7 +1716,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
     		addCounty( county);
     	}
     	else {
-    		for ( String fips : findCntyInClst(county.getFips())){
+    		for ( String fips : findCntyInClst(county.getFips(), null)){
     			County cnty = County.findCounty(fips);
     			if (  cnty != null && !countyList.contains(cnty)) addCounty(cnty);
     		}

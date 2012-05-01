@@ -16,7 +16,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.*;
 
 /**
  * Base class for Intl Sigmet,Conv/non-Conv Sigmet, Airmet, and Outlook.
@@ -28,7 +27,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrDialog.*;
  * 12/09		160			Gang Zhang 	Initial Creation. 
  * 01/10		182			G. Zhang	Added ConvSigmet support
  * 04/11		?			B. Yin		Re-factor IAttribute
- *
+ * 03/12        #676        Q. Zhou     Added Issue Office field.
  * </pre>
  * 
  * @author	gzhang
@@ -42,6 +41,7 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 	private double width;
 	
 	private String editableAttrArea;	//MWO	
+	private String editableAttrIssueOffice;
 	private String editableAttrId;		//alfa,brave...
 	private String editableAttrSeqNum;	//1,2,...,300	
 	private String editableAttrFromLine;
@@ -67,6 +67,7 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 			double width,
 			
 			String editableAttrArea,
+			String editableAttrIssueOffice,
 			String editableAttrFromLine,
 			String editableAttrId,		
 			String editableAttrSeqNum	) {
@@ -78,6 +79,7 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 		this.width = width;
 		
 		this.editableAttrArea = editableAttrArea;
+		this.editableAttrIssueOffice = editableAttrIssueOffice;
 		this.editableAttrFromLine = editableAttrFromLine;
 		this.editableAttrId = editableAttrId;
 		this.editableAttrSeqNum = editableAttrSeqNum;
@@ -102,6 +104,10 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 		return type;
 	}
 	
+	public String getLineType(){
+		return getType();
+	}
+	
 	public void setType(String type) {
 		this.type = type;
 	}
@@ -109,6 +115,7 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 	public double getWidth() {
 		return width;
 	}
+
 	
 	public void setWidth(double width) {
 		this.width = width;
@@ -128,6 +135,14 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 	
 	public void setEditableAttrArea(String editableAttrArea) {
 		this.editableAttrArea = editableAttrArea;
+	}
+	
+	public String getEditableAttrIssueOffice() {
+		return editableAttrIssueOffice;
+	}
+	
+	public void setEditableAttrIssueOffice(String editableAttrIssueOffice) {
+		this.editableAttrIssueOffice = editableAttrIssueOffice;
 	}
 	
 	public String getEditableAttrId() {
@@ -153,15 +168,6 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 		this.editableAttrFromLine = editableAttrFromLine;
 	}
 
-	public void copyEditableAttrToSigmetAttrDlg(SigmetCommAttrDlg sigDlg){
-		sigDlg.setEditableAttrArea(this.getEditableAttrArea());
-		sigDlg.setEditableAttrFromLine(this.getEditableAttrFromLine());
-		sigDlg.setEditableAttrId(this.getEditableAttrId());
-		sigDlg.setEditableAttrSequence(this.getEditableAttrSeqNum());
-		sigDlg.setLineType(this.getType());
-		sigDlg.setWidth(""+(this.getWidth()/PgenUtil.NM2M));
-	}	
-	
 	public boolean isWithTopText(){
 		return getPgenType().equalsIgnoreCase("CONV_SIGMET") || getPgenType().equalsIgnoreCase("OUTL_SIGMET");		
 	}
@@ -189,7 +195,8 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 			return "";
 		}
 	}
-	
+
+/* never called	
 	public void update(SigmetCommAttrDlg dlg){
 		
 		super.update(dlg);
@@ -199,14 +206,14 @@ public abstract class AbstractSigmet extends Line implements ISigmet {
 		this.setEditableAttrSeqNum(dlg.getEditableAttrSequence());
 
 	}
-	
+*/	
 	/*
 	 * To be Overridden by VolcanoAshCloud Element
 	 */
 	
 	public String[] getDisplayTxt(){
 		
-		String[] ss = this.getType().split(SigmetAttrDlg.LINE_SEPERATER);
+		String[] ss = this.getType().split(SigmetInfo.LINE_SEPERATER);
 		
 		return 	ss.length > 2 
 			? new String[]{ss[1],ss[2]}	//with F00

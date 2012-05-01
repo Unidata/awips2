@@ -19,7 +19,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.SnapVOR;
+import gov.noaa.nws.ncep.viz.common.SnapUtil.SnapVOR;
 
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
@@ -69,6 +69,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 06/11					J. Wu		Temporarily hard-coded in fixStateBounds()
  * 										to fix known errors in ID/VT/FL/WA/OH
  * 07/11        #450        G. Hull     NcPathManager
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 
  * </pre>
  * 
@@ -469,10 +470,12 @@ public class GfaClip {
 				for (Object[] obj : result) {
 					//Throw out if either the key or the Geometry is null.
 				    if ( obj[0] == null || obj[1] == null) continue;
-					
 					Geometry g = wkbReader.read((byte[]) obj[1]);
 
 					if(!g.isValid()) {
+//						if ( sql.contains( GREATE_LAKE_BNDS_TABLE ) ) {
+//							System.out.println( "Get lakes found for key: " + obj[0] + " but is invalid!" );
+//						}
 //						logger.warn("Skipped an invalid shape file for " + obj[0] + ": " + sql + "");
 						continue;
 					}
@@ -834,6 +837,8 @@ public class GfaClip {
 
 							//Mark non-reduce-able points.
 							addReduceFlags( newElm, nonReduceable );
+							
+							newElm.addAttribute( "FA_REGION", new String(regionName) );
 
 							clippedList.add( newElm );
 						}
@@ -1950,13 +1955,11 @@ public class GfaClip {
 //	    }
         
 	    boolean isvalid = true;
-        System.out.println( "Total of state bounds = " + bndMap.keySet().size() );
+
 		StringBuilder ss = new StringBuilder();
         for ( String key : bndMap.keySet() ) {		    
 		       ss.append( key + " ");
-		}
-	    
-        System.out.println( "States are: " + ss );		
+		}	    	
 		
 	    StringBuilder as = new StringBuilder();
 		for ( String key : bndMap.keySet() ) {
