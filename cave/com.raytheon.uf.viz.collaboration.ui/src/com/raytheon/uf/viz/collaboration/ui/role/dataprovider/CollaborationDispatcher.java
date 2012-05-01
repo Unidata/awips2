@@ -34,13 +34,13 @@ import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IRenderFrame
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrame;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameNeededEvent;
 import com.raytheon.uf.viz.core.jobs.JobPool;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
-import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
-import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
 /**
  * Dispatches graphics objects to participants in the collaboration session
