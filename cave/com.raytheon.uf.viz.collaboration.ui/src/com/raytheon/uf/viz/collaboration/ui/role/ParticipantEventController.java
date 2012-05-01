@@ -26,6 +26,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
+import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.display.editor.ReprojectEditor;
@@ -80,9 +81,18 @@ public class ParticipantEventController extends AbstractRoleEventController {
 
             @Override
             public void run() {
+                // initialize and open editor
                 CollaborationEditor editor = EditorSetup.createEditor(se);
-                editor.setSessionId(ParticipantEventController.this.session
-                        .getSessionId());
+                String sessionId = ParticipantEventController.this.session
+                        .getSessionId();
+                editor.setSessionId(sessionId);
+                SessionContainer container = SharedDisplaySessionMgr
+                        .getSessionContainer(sessionId);
+                container.setCollaborationEditor(editor);
+                editor.setTabTitle(session.getVenue().getInfo()
+                        .getVenueDescription());
+
+                // initialize resources
                 if (se.getLocalResources() != null) {
                     IDescriptor descriptor = editor.getActiveDisplayPane()
                             .getDescriptor();
@@ -93,7 +103,6 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 }
                 initializeResources(editor.getActiveDisplayPane()
                         .getDescriptor());
-                SharedDisplaySessionMgr.editorCreated(session, editor);
             }
         });
         super.activateTelestrator(); // TODO should this be elsewhere?
