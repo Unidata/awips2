@@ -159,26 +159,26 @@ public class PopupNotifier {
             shell.setVisible(true);
 
             activeShells.add(shell);
-            startTimer();
+            startTimer(shell);
         }
     }
 
     /**
      * @wbp.parser.entryPoint
      */
-    private static void startTimer() {
+    private static void startTimer(final Shell currShell) {
         Timer timer = new Timer("Remove notification");
         TimerTask task = new TimerTask() {
 
             @Override
             public void run() {
                 try {
-                    if (shell == null || shell.isDisposed()) {
+                    if (currShell == null || currShell.isDisposed()) {
                         return;
                     }
                     VizApp.runAsync(new Runnable() {
                         public void run() {
-                            shell.dispose();
+                            currShell.dispose();
                         };
                     });
                 } catch (Exception e) {
