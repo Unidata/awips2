@@ -67,6 +67,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrDialog.TextAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackExtrapPointInfoDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.OutlookAttrDlg;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
@@ -99,6 +100,10 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
  *  02/10/2011                 Chin Chen   fixed null pointer exception issue                                                  
  * 02/11			?		B. Yin		Automatically add/del ]/[ for front labels
  * 04/11			?		B. Yin		Re-factor IAttribute
+ * 02/12          TTR456    Q.Zhou      Added parameters to setTrack()
+ * 02/12          #597      S. Gurung   Removed snapping for CONV_SIGMET and NCON_SIGMET.
+ * 										Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 02/12		 TTR 525	B. Yin		Mkae sure points don't move when selecting.
  * </pre>
  * 
  * @author	B. Yin
@@ -319,6 +324,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     public class PgenSelectHandler extends InputHandlerDefaultImpl {
  
     	private boolean preempt;
+    	
+    	private boolean dontMove = false; //flag to prevent moving when selecting
     	/**
     	 * Attribute dialog for displaying track points info
     	 */
@@ -372,6 +379,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 
         		// Return if an element or a point has been selected
         		if ( ptSelected || drawingLayer.getSelectedDE() != null ) {
+        			dontMove =false;
         			preempt = true;
         			return false;
         		}
@@ -461,7 +469,10 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         		    }
                 }
         		
-        		if ( elSelected != null ) drawingLayer.setSelected( elSelected );
+        		if ( elSelected != null ){
+        			drawingLayer.setSelected( elSelected );
+        			dontMove = true;
+        		}
 
                 if ( pgCategory != null ){
                	
@@ -611,6 +622,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
          */
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) { 
+        	
+        	if ( dontMove  && drawingLayer.getSelectedDE() != null) return true;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null ) return false;
@@ -872,16 +885,16 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     						drawingLayer.replaceElement(el, newEl);
     						
     						// Update the new Element with the new points
-    						if("CONV_SIGMET".equalsIgnoreCase(newEl.getPgenType() )
-    								||"NCON_SIGMET".equalsIgnoreCase(newEl.getPgenType())) {	
-    							newEl.setPoints( SigmetInfo.getSnapWithStation(ghostEl.getPoints(),SigmetInfo.VOR_STATION_LIST,10,8) );
-    						} else if("GFA".equalsIgnoreCase(newEl.getPgenType()) && ((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1) {
+    						/*if("CONV_SIGMET".equalsIgnoreCase(newEl.getPgenType() ) ||
+    								"NCON_SIGMET".equalsIgnoreCase(newEl.getPgenType())) {	
+    							newEl.setPoints( SnapUtil.getSnapWithStation(ghostEl.getPoints(),SnapUtil.VOR_STATION_LIST,10,8) );
+    						} else*/ if("GFA".equalsIgnoreCase(newEl.getPgenType()) && ((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1) {
     							ArrayList<Coordinate> points = ghostEl.getPoints();
     							int nearest = getNearestPtIndex(ghostEl, mapEditor.translateClick(x, y));
     							Coordinate toSnap = ghostEl.getPoints().get(nearest);
     							List<Coordinate> tempList = new ArrayList<Coordinate>();
     							tempList.add(toSnap);
-    							tempList = SigmetInfo.getSnapWithStation(tempList,SigmetInfo.VOR_STATION_LIST,10,16); 
+    							tempList = SnapUtil.getSnapWithStation(tempList,SnapUtil.VOR_STATION_LIST,10,16); 
     							Coordinate snapped = tempList.get(0);
     							// update the coordinate
     							points.get(nearest).setCoordinate(snapped);
@@ -1039,7 +1052,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
            	extrapPointInfoDlg.setBlockOnOpen( false );
            	extrapPointInfoDlg.open();
            	
-           	extrapPointInfoDlg.setTrack(trackObject);
+           	extrapPointInfoDlg.setTrack(trackObject, attrDlgObject.getUnitComboSelectedIndex(), 
+           		attrDlgObject.getRoundComboSelectedIndex(), attrDlgObject.getRoundDirComboSelectedIndex()); 
 
        		extrapPointInfoDlg.setBlockOnOpen( true );
 

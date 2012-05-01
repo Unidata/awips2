@@ -14,13 +14,17 @@ hpgl.h:1: parse error before `*'
 */
 
 #include "winter.h"
+#ifndef _WIN32
 #include "xwvideo.h"
 #include "save.h"
+#endif
 #include "globals_xw.h"
 #include "config.h"
 #include "textsave.h"
 #include "sndglib.h"
+#ifndef _WIN32
 #include "hpgl.h"
+#endif
 
 void write_scheme_file(char st[80]);
 void write_hail_file(char st[80]);

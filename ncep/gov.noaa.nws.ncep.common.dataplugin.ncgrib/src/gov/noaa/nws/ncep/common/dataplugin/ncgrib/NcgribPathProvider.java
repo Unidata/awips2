@@ -36,9 +36,10 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 4/24/09       1994        bphillip    Initial Creation
- * 1/12/12                   xguo        Create new HDF5 file name
- *                                       yyyy-MM-dd-HH-fhrs-ensNumber.h5
+ * 4/24/09       1994        bphillip   Initial Creation
+ * 1/12/12                   xguo       Create new HDF5 file name
+ *                                      yyyy-MM-dd-HH-fhrs-ensNumber.h5
+ * 3/2012					 T. Lee		changed pN to String
  * 
  * </pre>
  * 
@@ -109,13 +110,13 @@ public class NcgribPathProvider extends DefaultPathProvider {
         synchronized (gribHdf5FileNameFormat) {
             refTimeString = gribHdf5FileNameFormat.format(refTime);
         }
-        int pbNum = 0;
+        String pbNum = "0";
         if ( pdo.getModelInfo().getPerturbationNumber() != null){
         	pbNum = pdo.getModelInfo().getPerturbationNumber();
         }
         sb.append(refTimeString);
         sb.append(String.format("-%d", fhrs));
-        sb.append(String.format("-%d", pbNum));
+        sb.append(String.format("-%s", pbNum));
         sb.append(".h5");
         return sb.toString();
     }

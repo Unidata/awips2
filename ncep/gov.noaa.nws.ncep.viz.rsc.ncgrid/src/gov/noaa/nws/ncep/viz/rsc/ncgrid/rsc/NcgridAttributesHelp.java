@@ -8,7 +8,7 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Nov,22 2010  			 X. Guo     Initial creation for both Ensemble/Grid
- *
+ * 12/06/2012   #538         Q. Zhou    Added skip and filter areas and implements. 
  * 
  * @author xguo
  * @version 1
@@ -206,6 +206,64 @@ public class NcgridAttributesHelp {
      		
      
      	return text;
+    }
+    
+    public static String SkipToolTipText() {
+    	String text = "SKIP is a variable which determines the contour points or \n" +
+     "plot points to skip.  Input is entered as: \n" +
+        "skip_contour / skip_plot_x ; skip_plot_y \n" +
+
+     "The defaults for skip_contour and skip_plot are 0. \n" +
+
+     "Skip_contour thins the input grid before computing the \n" +
+     "contours to be drawn. \n" +
+
+     "Skip_plot_x and _y specify the points at which data is to be \n" +
+     "displayed.  If skip_plot_x is positive and skip_plot_y is not \n" +
+     "specified, skip_plot_y is set to skip_plot_x. \n" +
+
+     "If skip_plot_x is negative, the x plot locations on alternate \n" +
+     "rows are indented by half the skip_plot_x value.  In this case, \n" +
+     "the absolute value of skip_plot_x must be odd.  If not, the \n" +
+     "absolute value minus 1 is used.  If no value for skip_plot_y \n" +
+     "is specified, half the skip_plot_x value is used. \n\n" +
+
+     "Examples: \n" +
+
+        "SKIP    SKIP_CNTR       SKIP_PLOT_X     SKIP_PLOT_Y     STAGGER \n" +
+
+        "' '             0                0              0       	no \n" +
+        "2               2                0              0       	no \n" +
+        "-1              0                0              0       	no \n" +
+        "2;3             2                0              0       	no \n" +
+
+        "/3              0                3              3       	no \n" +
+        "/2;3            0                2              3       	no \n" +
+        "/;1             0                0              1       	no \n" +
+
+        "/-1             0                1              0       	yes \n" +
+        "/-3             0                3              1       	yes \n" +
+        "/-1;1           0                1              1       	yes \n\n" +
+
+     "Winds may be thinned by latitude by setting skip_plot_y to\n" +
+     "a negative value.  This feature is most useful when plotting\n" +
+     "winds on a cylindrical grid on a projection with converging \n" +
+     "meridians. In this case, ABS(skip_plot_y) determines how often\n" +
+     "rows are plotted.  The variable skip_plot_x is not used.\n";
+        return text;
+    }
+    
+    public static String FilterToolTipText() {
+    	String text = "FILTER is a logical variable or real number which controls the\n" +
+        "filtering of data in order to eliminate plotting of overlapping data.\n\n" +
+        "If FILTER is YES, the data will be filtered.\n" +
+        "If FILTER is NO, 0, or blank, all data will be plotted.\n" +
+        "If FILTER is set to a real number, the default filter will be \n" +
+        "scaled by that number.  FILTER = 1 corresponds to FILTER = YES.\n" +
+        "0 < FILTER < 1 allows some data overlap.  FILTER > 1 causes \n" +
+        "data to be more widely spaced. \n";
+     		
+        return text;
     }
     
     public static String ScaleToolTipText() {

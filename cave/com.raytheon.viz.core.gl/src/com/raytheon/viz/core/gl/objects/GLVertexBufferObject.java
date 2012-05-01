@@ -50,7 +50,7 @@ public class GLVertexBufferObject extends GLIdWrapper {
      * @param gl
      */
     public GLVertexBufferObject(Object parent) {
-        super(parent);
+        super();
     }
 
     /**

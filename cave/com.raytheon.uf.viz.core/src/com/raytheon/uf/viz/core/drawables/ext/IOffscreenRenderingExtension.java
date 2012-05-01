@@ -4,11 +4,9 @@ import java.nio.Buffer;
 
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 
-public interface IOffscreenRenderingExtension extends
-        IGraphicsExtensionInterface {
+public interface IOffscreenRenderingExtension {
     /**
      * All drawing between a call to renderOffscreen and the next call to
      * renderOnscreen will be drawn to offscreenImage rather than to the screen.

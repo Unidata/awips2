@@ -11,17 +11,16 @@
 <body style="background-color: rgb(255, 255, 255);">
 <div class="Body">
 <h1><a name="serverConfig.py"></a>serverConfig.py</h1>
-Sept 29, 2008<br>
+January 3, 2012<br>
 <br>
 &nbsp;
 <div class="Body"><a name="Overview"></a><!--Leave this comment in for formatting purposes-->The
 serverConfig.py file is
 one
-of several configuration files for the ifpServer (common database
-server).&nbsp;
+of several configuration files for GFE.
 The serverConfig.py file defines the general configuration of the
 databases
-and weather elements.&nbsp; The file is not intended to be
+and weather elements. The file is not intended to be
 field-edited,
 instead there is a <a href="localConfig.html">localConfig.py<!--Leave this comment in for formatting purposes--></a><!--Leave this comment in for formatting purposes-->&nbsp;
 and <a href="localWxConfig.html">localWxConfig.py<!--Leave this comment in for formatting purposes--></a>
@@ -119,23 +118,14 @@ fp.close()<br>
 <br>
 <tt>import siteConfig, LogStream, config</tt>
 </p>
-<p><tt>GFESUITE_SITEID = siteConfig.GFESUITE_SITEID</tt>
+<p><tt>GFESUITE_SITEID = siteConfig.GFESUITE_SITEID<br>
+GFESUITE_MHSID &nbsp;= siteConfig.GFESUITE_MHSID<br>
+GFESUITE_SERVER =  siteConfig.GFESUITE_SERVER<br>
+GFESUITE_HOME   &nbsp;&nbsp;= siteConfig.GFESUITE_HOME<br>
+GFESUITE_PORT   &nbsp;&nbsp;= int(siteConfig.GFESUITE_PORT)<br>
+GFESUITE_LOGDIR = siteConfig.GFESUITE_LOGDIR<br>
+GFESUITE_PRDDIR = siteConfig.GFESUITE_PRDDIR</tt>
 <br>
-<tt>GFESUITE_HOME&nbsp;&nbsp; = siteConfig.GFESUITE_HOME</tt>
-<br>
-<tt>GFESUITE_PORT&nbsp;&nbsp; = int(siteConfig.GFESUITE_PORT)</tt>
-<br>
-<tt>GFESUITE_DATDIR = siteConfig.GFESUITE_DATDIR</tt>
-<br>
-<tt>GFESUITE_LOGDIR = siteConfig.GFESUITE_LOGDIR</tt>
-<br>
-<tt>GFESUITE_PRDDIR = siteConfig.GFESUITE_PRDDIR</tt>
-<br>
-<tt>GFESUITE_SHPDIR = siteConfig.GFESUITE_SHPDIR</tt>
-<br>
-<tt>GFESUITE_TOPODIR = siteConfig.GFESUITE_TOPODIR</tt>
-<br>
-&nbsp;
 </p>
 <hr width="100%">
 <h3><a name="WeatherElementConfigurationSection"></a>Weather Element
@@ -380,12 +370,11 @@ Wind",</tt>
 TestKeys)</tt>
 </p>
 <h4><a name="ExtraWEPrecision"></a>ExtraWEPrecision</h4>
-Weather Elements are stored in their specified precision in the
-ifpServer,
+Weather Elements are stored in their specified precision in GFE,
 thus if you have the precision set to 0 for a weather element, it will
 effectively be stored as integers.&nbsp; Sometimes you might want
 additional
-precision available for certain weather elements in order to faciliate
+precision available for certain weather elements in order to facilitate
 computations on the data.&nbsp; For those cases, where you don't want
 to
 specify a higher precision (which affects labeling, sampling, ISC data
@@ -1323,100 +1312,55 @@ NO,&nbsp;&nbsp; NO,&nbsp; 2, 0)</tt><br>
 </p>
 <hr width="100%">
 <h3><a name="D2DModelFileDirectories"></a>D2D Model File Directories</h3>
-The ifpServer automatically scans the D2D model file directories and
-provides
+EDEX automatically scans the single pre-defined D2D model file directory and provides
 this data as additional grids for display, or for use in smart tools.
-The
-user can set the search path to include certain models.&nbsp; The
-search
-paths specified define the top of the tree -- all subdirectories are
-included.&nbsp;
-For example, simply specifying /data/fxa/Grid/SBN will get all files,
-but
-many of the directories will be bogus since the files will not
-necessarily
-be in a compatible netCDF format.<span style="font-family: monospace;"><br>
+The user can define which model directories correspond to which GFE
+model.<span style="font-family: monospace;"><br>
 </span>
-<pre><span style="font-family: monospace;"></span><br>    D2DDIRS = [('/data/fxa/Grid/SBN/netCDF/CONUS212/GFS', 'GFS40'),<br>               ('/data/fxa/Grid/SBN/netCDF/CONUS211/NAM', 'NAM80'),<br>               ('/data/fxa/Grid/SBN/netCDF/CONUS211/NGM', 'NGM80'),<br>               ('/data/fxa/Grid/SBN/netCDF/CONUS202/MRF', 'gfsLR'),<br>               ('/data/fxa/Grid/SBN/netCDF/CONUS211/RUC', 'RUC80'),<br>               ('/data/fxa/Grid/SBN/netCDF/CONUS212/MesoEta', 'NAM40'),<br>               ('/data/fxa/Grid/SBN/netCDF/CONUS215/MesoEta', 'NAM20'),<br>               '/data/fxa/Grid/FSL/netCDF/MSAS',<br>               ('/data/fxa/Grid/FSL/netCDF/LAPS_Grid/LAPS', 'LAPS'),<br>               '/data/fxa/Grid/SBN/netCDF/REG233/GWW',<br>               '/data/fxa/Grid/SBN/netCDF/GRID218/HPCQPF',<br>               '/data/fxa/Grid/SBN/netCDF/CONUS215/HPCdelta',<br>               '/data/fxa/Grid/SBN/netCDF/LATLON/GLERL',<br>               '/data/fxa/Grid/SBN/netCDF/GRID238/GWW',<br>               '/data/fxa/Grid/SBN/netCDF/CONUS226/TPCtcm',<br>               ('/data/fxa/Grid/SBN/netCDF/GRID218/Eta', 'NAM12')]<br></pre>
+<pre><span style="font-family: monospace;"></span><br>D2DMODELS = [('MRF204', 'gfsLR'),
+                 ('AVN225', 'GFS75'),
+                 'GWW233',
+                 'GlobalWave',
+                 ('TPCWindProb', 'TPCProb'),
+               ]</pre>
 <p>The actual syntax in the serverConfig.py file looks more complicated
-since it defines the D2DDirs based on the site identifier.&nbsp; OCONUS
+since it defines the D2DMODELS based on the site identifier.&nbsp; OCONUS
 sites use a different set of directories.
 </p>
 <p>Note that the above example has a mixture of tuples and
-strings.&nbsp; There is an alternative form of the D2DDIRS that is used
-when the
-netCDF
+strings. There is an alternative form of the D2DMODELS that is used
+when the hdf5
 model variable (which determines the name of the model as seen by
 GFESUITE)
 conflicts with another model of the same name. Each entry in the list
 of
-D2DDIRS can either be a string, such as above, which indicates the
+D2DMODELS can either be a string, such as above, which indicates the
 directory
-path, or it can be a tuple of ('directory path', 'modelName'). If the
+name, or it can be a tuple of ('directory name', 'modelName'). If the
 second
-form is used, then the model variable in the netCDF file is ignored and
+form is used, then the model variable in the hdf5 file is ignored and
 the given modelName is used instead.
 <br>
 </p>
 <hr style="width: 100%; height: 2px;">
 <h3><a name="SATDIRS"></a>D2D Satellite File Directories</h3>
-The ifpServer recognizes the D2D satellite data as a valid data
-set.&nbsp; The ifpServer will scan the listed set of D2D directories
-for satellite data for use in display, and smart initialization.&nbsp;
+GFE recognizes the D2D satellite data as a valid data
+set. EDEX will scan the listed set of D2D directories
+for satellite data for use in display, and smart initialization.
 Since the satellite data is organized differently than model data, the
 specification of the D2D satellite directories consist of the directory
 name, plus the name of the weather element contained within that
-directory.&nbsp; D2D stores one image (one wavelength) within each data
+directory. D2D stores one image (one wavelength) within each data
 file.<br>
 <br>
-The format of the entry is a list of tuples.&nbsp; The tuples are of
+The format of the entry is a list of tuples. The tuples are of
 length two and contain the D2D directory name and weather element name.<br>
 <br>
-<span style="font-family: monospace;">SATDIRS =
-[("/data/fxa/sat/SBN/netCDF/westCONUS/conus_vis", "visibleWest"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_i11", "ir11West"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_i12", "ir13West"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_i39", "ir39West"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_iwv", "waterVaporWest"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_vis", "visibleCentral"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_i11", "ir11Central"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_i12", "ir13Central"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_i39", "ir39Central"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_iwv", "waterVaporCentral"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_vis", "visibleEast"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_i11", "ir11East"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_i12", "ir13East"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_i39", "ir39East"),</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_iwv", "waterVaporEast")]</span><br>
-<br>
+<span style="font-family: monospace;">SATDATA = [("NESDIS/GOES-13(N)/East CONUS/Imager Visible", "visibleEast"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 11 micron IR", "ir11East"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 12 micron IR", "ir13East"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 3.9 micron IR", "ir39East"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("NESDIS/GOES-13(N)/East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]</span>
 <p><br>
 </p>
 <hr width="100%">
@@ -1442,7 +1386,7 @@ available databases in the Database Attributes should be greater to or
 equal to the number of databases specified in the D2D Model Database
 Version
 specification. This definition is also used for D2D Satellite Databases
-to determine the number of images that can be seen by the ifpServer.
+to determine the number of images that can be seen by GFE.
 <p>The format of the entry is:
 <br>
 <tt>#D2DDBVERSIONS = {</tt>
@@ -1467,11 +1411,10 @@ the number of NAM to 3:
 </p>
 <hr width="100%">
 <h3><a name="InitializationModules"></a>Initialization Modules</h3>
-The smart initialization technique of GFESuite is initiated from the
-ifpServer.&nbsp;
+The smart initialization technique of GFESuite is initiated from EDEX.
 The serverConfig.py file provides a mapping of D2D directories to
 initialization
-run modules.&nbsp; For example, here is the section in serverConfig.py:
+run modules. For example, here is the section in serverConfig.py:
 <p><tt>INITMODULES = {<br>
 &nbsp;&nbsp;&nbsp; "NAM40" : ["NAM40", "NAM20"],<br>
 &nbsp;&nbsp;&nbsp; "NAM80" : ["NAM80"],<br>
@@ -1491,7 +1434,7 @@ run modules.&nbsp; For example, here is the section in serverConfig.py:
 </tt></p>
 <p>This is standard Python syntax for a dictionary, with the keys on
 the
-left of the colon and the values as a list on the right side.&nbsp; For
+left of the colon and the values as a list on the right side. For
 example, the first line:
 </p>
 <p><tt>"NAM40" : ["NAM40", "NAM20"]</tt>
@@ -1501,7 +1444,7 @@ whenever
 changes occur in the NAM40 and NAM20 D2D databases.&nbsp; The "MesoNAM"
 NAM40/NAM20
 is more complicated than most models since it arrives in two completely
-separate netCDF files and resolution.&nbsp; The syntax for the "NAM12"
+separate hdf5 files and resolution.&nbsp; The syntax for the "NAM12"
 model
 is more straightforward:
 </p>
@@ -1509,7 +1452,7 @@ is more straightforward:
 </p>
 <p>which indicates that the NAM12 initialization module (named NAM12.py
 and
-found in the release/etc/BASE/smartInit) directory will be executed
+found in the /awips2/edex/data/utility/edex_static/base/smartinit) directory will be executed
 whenever the
 D2D NAM12 model changes.&nbsp; Remember that the initialization module
 is
@@ -1590,18 +1533,18 @@ feature of GFESuite:<br>
 Routing Table web service as a string.&nbsp; If None is specified, then
 the system will be unable to transmit or receive ISC data.</li>
   <li>REQUESTED_ISC_SITES - defines the sites, as a list, from which
-ISC data will be requested.&nbsp; If None is specified, then the
-ifpServer will automatically calculate the needed isc sites by
+ISC data will be requested.&nbsp; If None is specified, then EDEX
+will automatically calculate the needed isc sites by
 examining the list of ISC_xxx edit areas.&nbsp; <br>
   </li>
   <li>REQUEST_ISC - overall toggle to control the ingest of ISC
-data.&nbsp; If this flag is set to 0, then the ifpServer will not
+data.&nbsp; If this flag is set to 0, then EDEX will not
 register with the ISC Routing Table web server and no ISC data will be
-received.&nbsp; If this flag is 1, then the ifpServer reigsters with
+received.&nbsp; If this flag is 1, then EDEX reigsters with
 the web service for the data sets defined in REQUESTED_ISC_SITES.</li>
   <li>SEND_ISC_ON_SAVE - toggle to turn on the transmission of ISC data
 when grids are stored in the Fcst database.&nbsp; The list of sites to
-send is obtained from other ifpServer registrations with the ISC
+send is obtained from other EDEX registrations with the ISC
 Routing Table web service. Note that ISC grids will be sent only if
 the GFE is used to save the grids. For example, if iscMosaic is used
 to modify the Fcst database, those grids will not be sent via ISC at
@@ -1609,14 +1552,14 @@ the time of the save.<br>
   </li>
   <li>SEND_ISC_ON_PUBLISH - toggle to turn on the transmission of ISC
 data when grids are published in the Official database.&nbsp; The list
-of sites to send is obtained from other ifpServer registrations with
+of sites to send is obtained from other EDEX registrations with
 the ISC Routing Table web service.</li>
   <li>REQUESTED_ISC_PARMS - defines the weather elements desired to be
-received for ISC, as a list.&nbsp; If set to None, then the ifpServer
+received for ISC, as a list.&nbsp; If set to None, then EDEX
 will automatically set the list to be equivilant of all weather
 elements in your ISC database.&nbsp; To receive weather elements from
 an office that is the same type as yours (e.g., wfo to a wfo), then
-simply specify the weather element, such as T.&nbsp;&nbsp; To receive
+simply specify the weather element, such as T.&nbsp; To receive
 weather elements from an office that is of a different office type than
 yoursr (e.g., rfc to a wfo), then specify the weather element followed
 by the sending office type.&nbsp; For example, requesting QPF from an
@@ -1688,7 +1631,7 @@ Table</span><br style="font-family: monospace;">
  style="font-family: monospace;">
 <br style="font-family: monospace;">
 <span style="font-family: monospace;"># list of sites that from which
-you want ISC data (If None, ifpServer will</span><br
+you want ISC data (If None, EDEX will</span><br
  style="font-family: monospace;">
 <span style="font-family: monospace;"># automatically calculate the
 list.)</span><br style="font-family: monospace;">
@@ -1913,16 +1856,16 @@ configuration file.
 <br>
 <tt>#---------------------------------------------------------------------------</tt>
 <br>
-<tt>import ifpServerConfig</tt>
+<tt>from com.raytheon.edex.plugin.gfe.config import IFPServerConfig, SimpleServerConfig<br>
+IFPConfigServer = SimpleServerConfig()<br>
+IFPConfigServer.allowTopoBelowZero       = 1</tt>
 <br>
-&nbsp;
 </p>
 <h4><a name="ServerSettings"></a>Server Settings</h4>
 The Server Settings section consolidates the entries in the
 serverConfig.py
-and makes them available to the C++ portion of the ifpServer.&nbsp;
-Nothing
-should ever be changed in this section:
+and makes them available to the Java portion of GFE.
+Nothing should ever be changed in this section:
 <p><tt>#----------------------------------------------------------------------------</tt>
 <br>
 <tt># Server settings&nbsp;&nbsp;&nbsp;&nbsp; DO NOT CHANGE THESE
@@ -1930,12 +1873,8 @@ DEFINITIONS</tt>
 <br>
 <tt>#----------------------------------------------------------------------------</tt>
 <br>
-&nbsp;
-<br>
-&nbsp;
 </p>
 <hr width="100%"><br>
-&nbsp;
 <div class="Body">&nbsp;<a href="#Overview">Back To Top</a>
 <br>
 &nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>

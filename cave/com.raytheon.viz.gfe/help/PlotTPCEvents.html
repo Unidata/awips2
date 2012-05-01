@@ -9,7 +9,7 @@
 <h1 style="text-align: center;">PlotTPCEvents</h1>
 <div style="text-align: center;">
 <h2>Procedure to put the current tropical hazards into the Hazards grid</h2>
-May 2, 2006<br>
+March 9, 2012<br>
 <br>
 <div style="text-align: left;"><a href="#methodology">Methodology</a><br>
 <a href="#howitworks">How It Works</a><br>
@@ -17,7 +17,7 @@ May 2, 2006<br>
 NOTE: Due to policy changes (effective 2007 tropical season) in the TCV
 in that the TCV only covers
 coastal zones, the PlotTPCEvents now only clears and sets values in the
-Hazard grids for coastal zones.&nbsp;&nbsp; Values created by the
+Hazard grids for coastal zones. Values created by the
 forecaster in the marine zones will not be modified by the
 PlotTPCEvents procedure.&nbsp; No Event Tracking Numbers are set in the
 Hazards grid since ETNs for tropical events now follow WFO numbering.<br>
@@ -26,21 +26,19 @@ Hazards grid since ETNs for tropical events now follow WFO numbering.<br>
 </div>
 <br>
 </div>
-<br>
 The PlotTPCEvents procedure is used to automatically decode the
 Tropical Prediction Center TCV product, and plot the resulting data in
 the GFE Hazard Grid.
-To run this procedure,&nbsp; the Hazards grid cannot be separated into
+To run this procedure, the Hazards grid cannot be separated into
 temporary grids as done by <a href="SeparateHazards.html">SeparateHazards</a>.
 If it is separated,
-use the&nbsp;<a href="MergeHazards.html">MergeHazards</a>
+use the <a href="MergeHazards.html">MergeHazards</a>
 tool to recombine the temporary grids.<br>
 <br>
 When a TCV arrives from TPC, it is decoded internally, and a
-notification appears on all GFEs.<big style="color: rgb(51, 51, 255);"><big><big><big><small><small><span
- style="color: rgb(0, 0, 0);"><small><br>
-<br>
-&nbsp;<img style="width: 1009px; height: 118px;" alt="TPC Notification"
+notification appears on all GFEs.
+<br><br>
+<img style="width: 1009px; height: 118px;" alt="TPC Notification"
  src="images/TPCNotify.png"><br>
 <br>
 Next, the forecast will select <span
@@ -59,8 +57,7 @@ Hazards grid.<br>
 <br>
 If the latest TCV cancels an existing event, you will see the event
 removed. If the latest TCV replaces a portion of an existing event, the
-watch/warning will be
-overwritten in the grid. <br>
+watch/warning will be overwritten in the grid.<br>
 <br>
 If for some reason a cancellation VTEC code does not arrive for an
 existing tropical event, you may need to run </small></span></small></small></big></big></big></big><big
@@ -70,13 +67,13 @@ existing tropical event, you may need to run </small></span></small></small></bi
  href="SeparateHazards.html">SeparateHazards</a></small></small></small></big></big></big></big>,
 <big>delete the canceled hazard then run</big> <big
  style="color: rgb(51, 51, 255);"><big><big><big><small><small><span
- style="color: rgb(0, 0, 0);"><small><a href="MergeHazards.html">MergeHazards</a>
-. <br>
+ style="color: rgb(0, 0, 0);"><small><a href="MergeHazards.html">MergeHazards</a>.
+<br>
 <br>
 The TCV product and the PlotTCVEvents procedure only contain coastal
-zone events.&nbsp; The forecaster is responsible for adding the
+zone events. The forecaster is responsible for adding the
 appropriate marine tropical events and inland tropical events to the
-Hazards grid.&nbsp; PlotTCVEvents will only remove coastal zone events
+Hazards grid. PlotTCVEvents will only remove coastal zone events
 and not inland or marine events.<br>
 <br>
 </small></span></small></small></big></big></big></big>
@@ -84,7 +81,7 @@ and not inland or marine events.<br>
 <h2><big><big style="color: rgb(51, 51, 255);"><a name="howitworks"></a></big></big><span
  style="font-weight: bold;"></span>How It Works</h2>
 This procedure is based on the TCV product events that have been
-captured into the <a href="VTEC.html">VTEC Decoder</a>.&nbsp; The
+captured into the <a href="VTEC.html">VTEC Decoder</a>. The
 procedure performs the following steps:<br>
 <ul>
   <li>Reads the vtec active table.</li>
@@ -98,15 +95,14 @@ cancelled events (VTEC action is EXP, CAN).<br>
 </ul>
 Once the correct set of events have been determined,&nbsp; any existing
 tropical hazards in the Hazards grid that are found in the cancelled
-event list are removed.&nbsp; Then the
+event list are removed. Then the
 calculated events are added to the Hazards grid.<br>
 <br>
 Note: The PlotTPCEvents tool only plots events that are compatible
-with the current GFE mode.&nbsp; If the GFE mode is operational, then
+with the current GFE mode. If the GFE mode is operational, then
 only
 "X", "O", and "E" TCV events will be considered.&nbsp; If the GFE mode
 is "TEST", then only "T" TCV events will be considered.<br>
-<br>
 <br>
 </body>
 </html>
