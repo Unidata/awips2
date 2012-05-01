@@ -126,6 +126,9 @@ public class CollaborationUtils {
         if (file.exists()) {
             UserIdWrapper ids = (UserIdWrapper) JAXB.unmarshal(file.getFile(),
                     UserIdWrapper.class);
+            if (ids.getUserIds() == null) {
+                return new UserId[0];
+            }
             return ids.getUserIds();
         }
         return new UserId[0];
