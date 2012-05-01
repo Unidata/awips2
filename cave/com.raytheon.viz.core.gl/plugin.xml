@@ -20,8 +20,13 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id ="shader" name="shader" schema="schema/shader.exsd"/>
+         
    <extension point="com.raytheon.uf.viz.core.graphicsFactory">
     	<graphicsFactory id="default" type="2D" factoryClass="com.raytheon.viz.core.gl.GLFactoryAdapter"/>            
+   </extension>
+   <extension point="com.raytheon.viz.core.gl.shader">
+      	<shader programName="raster" loaderClass="com.raytheon.viz.core.gl.glsl.GLSLRasterProgramLoader"/>
    </extension>
       <extension
        point="com.raytheon.uf.viz.localization.localizationpath">
@@ -39,19 +44,13 @@
                class="com.raytheon.viz.core.gl.internal.ext.GLColormapShadedShapeExtension">
          </graphicsExtension>
          <graphicsExtension
-               class="com.raytheon.viz.core.gl.ext.GLOffscreenRenderingExtension">
+               class="com.raytheon.viz.core.gl.internal.ext.GLOffscreenRenderingExtension">
          </graphicsExtension>
          <graphicsExtension
                class="com.raytheon.viz.core.gl.internal.ext.GLMapMeshExtension">
          </graphicsExtension>
          <graphicsExtension
                class="com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension">
-         </graphicsExtension>
-         <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLSingleColorImageExtension">
-         </graphicsExtension>
-         <graphicsExtension
-               class="com.raytheon.viz.core.gl.internal.ext.GLDefaultImagingExtension">
          </graphicsExtension>
       </extension>
 </plugin>

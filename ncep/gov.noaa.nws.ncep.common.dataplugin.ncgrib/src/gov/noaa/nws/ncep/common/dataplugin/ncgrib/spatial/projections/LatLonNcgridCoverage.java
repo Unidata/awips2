@@ -20,6 +20,9 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
+
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -38,9 +41,6 @@ import org.geotools.referencing.datum.DefaultPrimeMeridian;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.opengis.referencing.operation.MathTransform;
-
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -74,7 +74,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class LatLonNcgridCoverage extends NcgridCoverage {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(LatLonNcgridCoverage.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LatLonNcgridCoverage.class);
 
     private static final long serialVersionUID = 8371251040172233074L;
 
@@ -155,14 +156,13 @@ public class LatLonNcgridCoverage extends NcgridCoverage {
 
     @Override
     public void initialize() throws GribException {
-    	double maxLon;
+        double maxLon;
         double minLat = MapUtil.correctLat(la1);
         double maxLat = MapUtil.correctLat(la2);
         double minLon = MapUtil.correctLon(lo1);
-        if ( lo2 >= 360.0) {
-        	maxLon = lo2;
-        }
-        else {
+        if (lo2 >= 360.0) {
+            maxLon = lo2;
+        } else {
             maxLon = MapUtil.correctLon(lo2);
         }
         if (maxLon < minLon) {
@@ -177,7 +177,10 @@ public class LatLonNcgridCoverage extends NcgridCoverage {
         }
         crsWKT = crs.toWKT();
         try {
-            geometry = MapUtil.createGeometry(minLat, minLon, maxLat, maxLon);
+            double xOffset = dx * 0.5;
+            double yOffset = dy * 0.5;
+            geometry = MapUtil.createGeometry(minLat + yOffset, minLon
+                    - xOffset, maxLat - yOffset, maxLon + xOffset);
         } catch (Exception e) {
             throw new GribException("Error creating geometry", e);
         }
@@ -187,13 +190,13 @@ public class LatLonNcgridCoverage extends NcgridCoverage {
     @Override
     public void generateName() {
 
-        String nameModel_gridid = "" + (int)(la1*10.) + (int) ((lo1 + la2+lo2)*100.);
-        String nameAndDescription = "Unknown LatLon " + nx + " X " + ny + " " 
-        		+ nameModel_gridid + " "
-                + getProjectionType() + " grid";
-        //System.out.println(" nameModel_gridid=" + nameModel_gridid);
+        String nameModel_gridid = "" + (int) (la1 * 10.)
+                + (int) ((lo1 + la2 + lo2) * 100.);
+        String nameAndDescription = "Unknown LatLon " + nx + " X " + ny + " "
+                + nameModel_gridid + " " + getProjectionType() + " grid";
+        // System.out.println(" nameModel_gridid=" + nameModel_gridid);
         this.setName(nameModel_gridid);
-        //this.setName(nameAndDescription);
+        // this.setName(nameAndDescription);
         this.setDescription(nameAndDescription);
 
     }
@@ -283,8 +286,8 @@ public class LatLonNcgridCoverage extends NcgridCoverage {
                     }
                     rval.setId(rval.hashCode());
                 } else {
-                    statusHandler.handle(
-                                    Priority.PROBLEM,
+                    statusHandler
+                            .handle(Priority.PROBLEM,
                                     "Error creating sub grid definition ["
                                             + subGrid.getModelName()
                                             + "], units are not compatible with meter ["

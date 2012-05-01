@@ -36,8 +36,8 @@ C
         INTEGER         intdtf (3), level (2)
         CHARACTER       dttim*20, qtype*8,garea*30,stinfo*25,
      +                  astnstr(4)*10, gdattm (2)*22, parm*14,
-     +                  vcord*5, src*21, datauri*254, amodel*21,
-     +                  anevent*20
+     +                  vcord*5, src*21, datauri*254, amodel*30,
+     +                  anevent*30
 c        CHARACTER       dbstn*4
         CHARACTER       message*720, funcnm*8, logdebug*6, logerror*6,
      +                  loginfo*6

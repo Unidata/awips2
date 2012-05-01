@@ -31,7 +31,6 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -271,8 +270,7 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
             Map<String, RequestConstraint> requestContraintsToFilter);
 
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -301,8 +299,8 @@ public abstract class AbstractCubeLevelNode extends AbstractDerivedLevelNode {
 
         results.addAll(mergedTimeQuery(merge(requests), latestOnly));
         for (AbstractRequestableLevelNode request : requests) {
-            results.addAll(request.timeQuery(originalRequest, latestOnly,
-                    cache, latestOnlyCache));
+            results.addAll(request
+                    .timeQuery(latestOnly, cache, latestOnlyCache));
         }
         return results;
     }

@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
@@ -180,7 +181,7 @@ public class RadarXsectXYResource extends RadarXYResource implements
      * com.raytheon.viz.radar.RadarTimeRecord.RadarTiltRecord)
      */
     @Override
-    public PixelCoverage buildCoverage(IGraphicsTarget target,
+    public PixelCoverage buildCoverage(IGraphicsTarget target, ImageTile tile,
             VizRadarRecord rec) throws VizException {
         int iStart = rec.getIstart();
         int jStart = rec.getJstart();

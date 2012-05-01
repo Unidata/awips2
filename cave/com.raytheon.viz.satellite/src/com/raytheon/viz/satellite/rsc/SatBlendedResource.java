@@ -149,10 +149,10 @@ public class SatBlendedResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (offscreenImage == null
-                || Arrays.equals(imageBounds,
-                        new int[] { paintProps.getCanvasBounds().width,
-                                paintProps.getCanvasBounds().height }) == false) {
+        if (Arrays.equals(
+                imageBounds,
+                new int[] { paintProps.getCanvasBounds().width,
+                        paintProps.getCanvasBounds().height }) == false) {
             disposeImage();
             initImage(target, paintProps);
         }

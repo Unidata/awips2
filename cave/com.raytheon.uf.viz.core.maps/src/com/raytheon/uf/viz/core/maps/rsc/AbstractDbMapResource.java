@@ -87,7 +87,6 @@ public abstract class AbstractDbMapResource<T extends AbstractDbMapResourceData,
 
         if (font != null) {
             font.dispose();
-            font = null;
         }
     }
 

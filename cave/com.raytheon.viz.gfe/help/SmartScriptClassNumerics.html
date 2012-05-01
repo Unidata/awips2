@@ -1,11 +1,13 @@
 <html>
-<title>GFESuite Documentation - </title>
+<title>Smart Script Class - Numerics</title>
 <body>
 <h1><a name="Numerics"></a>Numeric Library Methods</h1>
 <br>
 <a href="#getTopo">getTopo</a>
 <br>
-<a href="#wxMask">wxMask</a>
+<a href="#wxMask">wxMask/discreteMask</a>
+<br>
+<a href="#sortUglyStr">sortUglyStr</a>
 <br>
 <a href="#getIndex">getIndex</a>
 <br>
@@ -20,13 +22,12 @@
 <a href="#agradient">agradient</a>
 <br>
 <a href="#diff2">diff2</a>
+<br>
+<a href="#getGridShape">getGridShape</a>
 <!-- Leave this comment for formatting purposes -->
 <hr width="100%">
 
-
-
-<h2>
-<a name="getTopo"></a>getTopo</h2>
+<h2><a name="getTopo"></a>getTopo</h2>
 def getTopo(self):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the numeric topo grid
@@ -91,7 +92,6 @@ we want to treat the query as a literal
 Tool Training Guide -- Numerical Tools and Working with Weather Section</a>
 for more information.
 <br>
-&nbsp;
 <h2><a name="wxMask"></a>discreteMask</h2>
 def wxMask(self, wx, query, isreg=0):
 <br>
@@ -147,6 +147,15 @@ we want to treat the query as a literal
 = where(self.wxMask(wxTuple, "WintStmWRN") maximum(5, PoP), PoP)
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="sortUglyStr"></a>sortUglyStr</h2>
+def sortUglyStr(self, uglyStr):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Sort the subkeys of uglyStr alphabetically.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # @param uglyStr: A key with "^"s separating subkeys<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # @type uglyStr: string<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # @return: uglyStr with alpha sorted subkeys.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # @rtype: string<br>
 <h2><a name="getIndex"></a>getIndex</h2>
 def getIndex(self, uglyStr, keys):
 <br>
@@ -225,15 +234,15 @@ for more information.&nbsp;</novis></novis></novis></novis></novis></novis>
 <h2><a name="encodeEditArea"></a>encodeEditArea</h2>
 def encodeEditArea(self, editArea):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a Numeric Python mask for
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a numpy mask for
 the edit area
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "editArea" can be a named area or
-a referenceData object
+a ReferenceData object
 <h2><a name="decodeEditArea"></a>decodeEditArea</h2>
 def decodeEditArea(self, mask):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a refData object for the given
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a ReferenceData object for the given
 mask
 <h2><a name="getindicies"></a>getindicies</h2>
 def getindicies(self, o, l):
@@ -258,3 +267,11 @@ the derivative along the axis
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # specified. array edges are padded
 with adjacent values.
+
+<h2><a name="getGridShape"></a>getGridShape</h2>
+def getGridShape(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the grid shape from the GridLocation stored in the parm manager.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # @return: The number of data points in the X and Y directions.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # @rtype: 2-tuple of int<br>

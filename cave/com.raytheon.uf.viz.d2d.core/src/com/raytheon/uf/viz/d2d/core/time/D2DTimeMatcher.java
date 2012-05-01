@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
 
 /**
@@ -72,6 +73,7 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2009            chammack     Initial creation
+ * 2012-04-20   DR 14699   D. Friedman Work around race conditions
  * 
  * </pre>
  * 
@@ -122,6 +124,10 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
 
     private AbstractTimeMatchingConfigurationFactory configFactory;
 
+    // DR 14699 work arounds
+    private boolean needRetry;
+    private int nRetries;
+
     /**
      * Default Constructor.
      */
@@ -152,6 +158,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
     public void redoTimeMatching(IDescriptor descriptor) throws VizException {
 
         synchronized (this) {
+            needRetry = false;
+
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
                 if (tmDescriptor != null && tmDescriptor != descriptor) {
@@ -175,8 +183,11 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
             Iterator<ResourcePair> pairIterator = descriptor.getResourceList()
                     .listIterator();
             while (pairIterator.hasNext()) {
-                AbstractVizResource<?, ?> rsc = pairIterator.next()
+                ResourcePair rp = pairIterator.next();
+                AbstractVizResource<?, ?> rsc = rp
                         .getResource();
+                if (rsc == null && rp.getResourceData() instanceof AbstractRequestableResourceData)
+                    needRetry = true;
                 recursiveOverlay(descriptor, new FramesInfo(timeSteps, -1,
                         resourceTimeMap), rsc);
             }
@@ -193,6 +204,14 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
                     timeMatchUpdate(entry.getKey(), entry.getValue());
                 }
             }
+
+            if (needRetry) {
+            	if (nRetries < 200) {
+            	    ++nRetries;
+            	    TimeMatchingJob.scheduleTimeMatch(descriptor);
+            	}
+            } else
+            	nRetries = 0;
         }
     }
 
@@ -303,6 +322,8 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
         if (rsc instanceof IResourceGroup) {
             for (ResourcePair rp : ((IResourceGroup) rsc).getResourceList()) {
                 AbstractVizResource<?, ?> rsc1 = rp.getResource();
+                if (rsc1 == null && rp.getResourceData() instanceof AbstractRequestableResourceData)
+                	needRetry = true;
                 recursiveOverlay(descriptor, framesInfo, rsc1);
             }
         }
@@ -311,7 +332,9 @@ public class D2DTimeMatcher extends AbstractTimeMatcher implements
             TimeMatchingConfiguration config = getConfiguration(rsc
                     .getLoadProperties());
             DataTime[] timeSteps = getFrameTimes(descriptor, framesInfo);
-            if (Arrays.equals(timeSteps, config.getLastBaseTimes())) {
+            if (Arrays.equals(timeSteps, config.getLastBaseTimes()) &&
+            		config.getLastFrameTimes() != null &&
+            		config.getLastFrameTimes().length > 0) {
                 framesInfo.getTimeMap().put(rsc, config.getLastFrameTimes());
             } else {
                 config = config.clone();

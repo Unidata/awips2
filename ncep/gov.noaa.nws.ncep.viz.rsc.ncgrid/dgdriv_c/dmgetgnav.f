@@ -37,7 +37,7 @@ C
         REAL            rheadr (*)
 
         CHARACTER  navstr*256, gridnav(10)*60, proj*3,
-     +  amodel*21,anevent*20
+     +  amodel*30,anevent*30,nvtime*20
 C------------------------------------------------------------------------
         nword = 0
         sign = 1.
@@ -50,7 +50,10 @@ C------------------------------------------------------------------------
 c                 CALL ST_NULL ( evtname, evtname,   lstr, ier )
               CALL DB_GETEVTNAME ( anevent, ier )
               CALL ST_NULL ( anevent, anevent,   lstr, ier )
-              CALL DB_GETGNAV (amodel,anevent, navstr, lnavstr, iret )
+              CALL DB_GETNAVTIME ( nvtime,ier )
+               CALL ST_NULL ( nvtime,nvtime, lstr, ier )
+              CALL DB_GETGNAV (amodel,anevent,nvtime, navstr,
+     +                         lnavstr,iret)
 c              print *, "after DB_GETGNAV ", navstr, lnavstr
               IF ( iret .ne. 0 .or. lnavstr .eq. 0 ) THEN
                  iret = -7

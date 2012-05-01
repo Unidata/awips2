@@ -10,106 +10,30 @@
 <body bgcolor="#ffffff">
 <div class="Body">
 <h1><a name="siteConfig.py"></a>siteConfig.py</h1>
-May 14, 2004<br>
+January 3, 2012<br>
 <hr style="width: 100%; height: 2px;">&nbsp;
 <div class="Body"><a name="Overview"></a>The siteConfig.py file is one
-of three configuration files for the ifpServer (common database
-server).&nbsp;
+of three configuration files for GFE.
 The siteConfig.py file defines the site identifier, server hostname,
 server
-port number,&nbsp; and a series of directories that comprise the
+port number, and a series of directories that comprise the
 GFESuite
 software.</div>
 <p><br>
 <tt>import os, socket<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <br>
-GFESUITE_HOME = "/localhost/home/afps/release"<br>
-GFESUITE_SERVER = "polaris"<br>
-GFESUITE_PORT&nbsp;&nbsp; = '98000000'<br>
-GFESUITE_SITEID = 'BOU'<br>
-GFESUITE_LOGDIR = '/localhost/home/afps/release/data/logfiles'<br>
-GFESUITE_ETCDIR = '/localhost/home/afps/release/etc'<br>
-GFESUITE_DATDIR = '/localhost/home/afps/release/data'<br>
-GFESUITE_DOCDIR = '/localhost/home/afps/release/doc/onlinehelp'<br>
-GFESUITE_PRDDIR = '/localhost/home/afps/release/products'<br>
-GFESUITE_DFCDIR = '/localhost/home/afps/release/data/dfc'<br>
-GFESUITE_SHPDIR = '/localhost/home/afps/release/data/maps'<br>
-GFESUITE_TOPODIR = '/localhost/home/afps/release/data/topo'<br>
-GFESUITE_VTECDIR = '/localhost/home/afps/release/data/vtec'<br>
-#THIS FILE GENERATED AUTOMATICALLY DURING GFE INSTALL **</tt>
+GFESUITE_HOME = os.environ['EDEX_HOME']+"/../GFESuite"<br>
+GFESUITE_SERVER = "dx3"<br>
+GFESUITE_PORT  = '98000000'<br>
+GFESUITE_SITEID = 'OAX'<br>
+GFESUITE_PRDDIR = GFESUITE_HOME+"/products"<br>
+GFESUITE_MHSID  = 'OAX'<br>
+GFESUITE_LOGDIR = GFESUITE_HOME+"/logs/"+GFESUITE_SITEID</tt><br>
 </p>
 <p>&nbsp;
 </p>
-<p></p>
-<hr width="100%">
-<h1>site.sh</h1>
-There is also a site.sh file which is used by scripts to access the
-same
-information.&nbsp; Here is what the site.sh file looks like after it is
-generated:
-<p><span style="font-family: monospace;">#!/bin/sh</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">#THIS FILE GENERATED
-AUTOMATICALLY DURING GFE INSTALL **</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_HOME="/localhost/home/afps/release"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_SERVER="polaris"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_RPC_PORT="98000000"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_SITEID="BOU"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_LOGDIR="/localhost/home/afps/release/data/logfiles"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_ETCDIR="/localhost/home/afps/release/etc"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_DATDIR="/localhost/home/afps/release/data"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_DOCDIR="/localhost/home/afps/release/doc/onlinehelp"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_PRDDIR="/localhost/home/afps/release/products"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_DFCDIR="/localhost/home/afps/release/data/dfc"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_SHPDIR="/localhost/home/afps/release/data/maps"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">GFESUITE_VTECDIR="/localhost/home/afps/release/data/vtec"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">export
-LD_LIBRARY_PATH=$GFESUITE_HOME/etc/BASE</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">export PYTHONHOME=$GFESUITE_HOME</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">export
-TCL_LIBRARY="$GFESUITE_ETCDIR/TclTk/tcl"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">export
-TK_LIBRARY="$GFESUITE_ETCDIR/TclTk/tk"</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">export
-PATH=$GFESUITE_HOME/bin:$GFESUITE_HOME/bin/run:$PATH</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">export
-PYTHONPATH="$GFESUITE_ETCDIR/SITE:$GFESUITE_ETCDIR/BASE:$GFESUITE_ETCDIR/BASE/lib-dynload:$GFESUITE_ETCDIR/BASE/gfe.zip:$GFESUITE_ETCDIR/BASE/pylib.zip:$GFESUITE_OTHERPYTHONPATH"</span><br
- style="font-family: monospace;">
-<br style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;
-</span><br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-</p>
-<p></p>
 <hr width="100%"></div>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a>
 </body>
 </html>

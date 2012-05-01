@@ -31,22 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeneralDerivedCRS;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
-
-import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -54,7 +39,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -126,19 +110,6 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
 
     /** The frame coordination object */
     protected IFrameCoordinator frameCoordinator;
-
-    private MathTransform worldToPixel;
-
-    private MathTransform pixelToWorld;
-
-    /** The spatial grid for the descriptor */
-    private GeneralGridGeometry gridGeometry;
-
-    public AbstractDescriptor(GeneralGridGeometry gridGeometry) {
-        this();
-        this.gridGeometry = gridGeometry;
-        init();
-    }
 
     /**
      * Constructor
@@ -225,8 +196,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     protected void preAddListener(ResourcePair rp)
             throws WrongProjectionException {
 
-        AbstractVizResource<?, AbstractDescriptor> resource = (AbstractVizResource<?, AbstractDescriptor>) rp
-                .getResource();
+        AbstractVizResource resource = rp.getResource();
 
         resource.setDescriptor(this);
 
@@ -684,119 +654,6 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
         return frameCoordinator;
     }
 
-    private void init() {
-        GeneralGridGeometry gridGeometry = getGridGeometry();
-        MathTransform worldToCRS = getWorldToCRSTransform(gridGeometry);
-        if (worldToCRS != null) {
-            try {
-                MathTransform crsToPixel = gridGeometry.getGridToCRS(
-                        PixelInCell.CELL_CENTER).inverse();
-                worldToPixel = new DefaultMathTransformFactory()
-                        .createConcatenatedTransform(worldToCRS, crsToPixel);
-                pixelToWorld = worldToPixel.inverse();
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error setting up Math Transforms,"
-                                + " this descriptor may not work properly", e);
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IDescriptor#getCRS()
-     */
-    @Override
-    public final CoordinateReferenceSystem getCRS() {
-        if (gridGeometry != null && gridGeometry.getEnvelope() != null) {
-            return gridGeometry.getEnvelope().getCoordinateReferenceSystem();
-        } else {
-            return null;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IDescriptor#getGridGeometry()
-     */
-    @Override
-    @XmlElement
-    @XmlJavaTypeAdapter(value = GridGeometryAdapter.class)
-    public final GeneralGridGeometry getGridGeometry() {
-        return gridGeometry;
-    }
-
-    /**
-     * Set the grid geometry
-     * 
-     * @param gridGeometry
-     *            the gridGeometry to set
-     * @throws VizException
-     */
-    public void setGridGeometry(GeneralGridGeometry gridGeometry)
-            throws VizException {
-        this.gridGeometry = gridGeometry;
-        init();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IDescriptor#pixelToWorld(double[])
-     */
-    @Override
-    public final double[] pixelToWorld(double[] pixel) {
-        double[] output = new double[3];
-        double[] wpixel = pixel;
-
-        if (pixel.length == 2) {
-            wpixel = new double[] { pixel[0], pixel[1], 0 };
-        }
-
-        if (pixelToWorld != null) {
-            try {
-                pixelToWorld.transform(wpixel, 0, output, 0, 1);
-            } catch (TransformException e) {
-                e.printStackTrace();
-                return null;
-            }
-        } else {
-            System.arraycopy(wpixel, 0, output, 0, wpixel.length);
-        }
-
-        return output;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IDescriptor#worldToPixel(double[])
-     */
-    @Override
-    public final double[] worldToPixel(double[] world) {
-        double[] output = new double[3];
-        double[] input = world;
-        if (world.length == 2) {
-            input = new double[] { world[0], world[1], 0 };
-        }
-
-        if (worldToPixel != null) {
-            try {
-                worldToPixel.transform(input, 0, output, 0, 1);
-            } catch (TransformException e) {
-                return null;
-            }
-        } else {
-            System.arraycopy(input, 0, output, 0, input.length);
-        }
-
-        return output;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -826,40 +683,4 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
         getFrameCoordinator().changeFrame(loopProperties);
     }
 
-    protected static GeneralGridGeometry createGridGeometry(IExtent extent,
-            CoordinateReferenceSystem crs) {
-        GeneralEnvelope envelope = new GeneralEnvelope(2);
-        envelope.setRange(0, extent.getMinX(), extent.getMaxX());
-        envelope.setRange(1, extent.getMinY(), extent.getMaxY());
-        envelope.setCoordinateReferenceSystem(crs);
-        return new GridGeometry2D(
-                new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] {
-                        (int) extent.getWidth(), (int) extent.getHeight() },
-                        false), envelope);
-    }
-
-    /**
-     * Get the world to CRS transform used for {@link #worldToPixel(double[])}
-     * and {@link #pixelToWorld(double[])}
-     * 
-     * @param gridGeometry
-     * @return The world to gridGeometry CRS transform or null if there is none
-     */
-    public static MathTransform getWorldToCRSTransform(
-            GeneralGridGeometry gridGeometry) {
-        CoordinateReferenceSystem crs = gridGeometry.getEnvelope()
-                .getCoordinateReferenceSystem();
-        if (crs instanceof GeneralDerivedCRS) {
-            GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
-            CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
-            try {
-                return CRS.findMathTransform(worldCRS, crs);
-            } catch (FactoryException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error setting up Math Transforms,"
-                                + " this descriptor may not work properly", e);
-            }
-        }
-        return null;
-    }
 }

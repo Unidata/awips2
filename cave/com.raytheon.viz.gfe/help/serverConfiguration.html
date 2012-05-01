@@ -11,7 +11,7 @@
 <body bgcolor="#ffffff">
 <h1 class="3Heading">
 Server Configuration Information</h1>
-<div class="3Heading">July 23, 2004<br>
+<div class="3Heading">January 3, 2012<br>
 </div>
 <div class="3Heading">
 <br>
@@ -32,10 +32,10 @@ Modification Options</a>
 <hr width="100%"></div>
 <h2 class="3Heading">
 <a name="Overview"></a>Overview</h2>
-<div class="3Heading">The ifpServer uses several configuration files:</div>
+<div class="3Heading">GFE uses several configuration files:</div>
 <ul>
   <li class="3Heading">
-    <a href="siteConfig.html">siteConfig.py and site.sh</a> - Defines
+    <a href="siteConfig.html">siteConfig.py</a> - Defines
 directory
 and site variables</li>
   <li class="3Heading">
@@ -51,21 +51,13 @@ serverConfig.py
 the weather
 definition in serverConfig.py (Site-level file)</li>
   <li class="3Heading">
-    <a href="mapConfig.html">Maps.py</a> - Defines the map backgrounds,
+    <a href="mapConfig.html">Maps.java</a> - Defines the map backgrounds,
 and
 automatically generated edit areas that are available.</li>
   <li class="3Heading">
-    <a href="localMapsConfig.html">localMaps.py</a> - Overrides for the
-Maps.py
-file (Site-level file).</li>
-  <li class="3Heading">
-    <a href="MapFiles.html">MapFiles.py</a> - Defines the shapefile
+    <a href="MapFiles.html">Map Files - overview</a> - Defines the shapefile
 names used
 in the map generation.</li>
-  <li class="3Heading">
-    <a href="localMapFiles.html">localMapFiles.py</a> - Overrides for
-the MapFiles.py
-entries (Site-level file).</li>
   <li class="3Heading"><a href="VTECPartners.html">VTECPartners.py</a>
 - Defines the VTEC coordination and filtering by site.</li>
   <li class="3Heading"><a href="localVTECPartners.html">localVTECPartners.py</a>
@@ -80,7 +72,7 @@ shipped with the system.<br>
 </div>
 <div class="3Heading">There are several different options a site has
 for
-making modifications to these files.&nbsp; <b><font color="#ff0000">At
+making modifications to these files. <b><font color="#ff0000">At
 no time should the files that are sent with the software release or
 install
 be modified since these will be overwritten with the next upgrade.</font></b>&nbsp;
@@ -133,9 +125,8 @@ to identify the server network information</li>
   <li class="3Heading">to identify the site identifier</li>
 </ul>
 <br>
-<>The <a href="VTECPartners.html">VTECPartners.py</a> file
+The <a href="VTECPartners.html">VTECPartners.py</a> file
 is used:<br>
-</>
 <ul>
   <li>to configure the site filtering for the Merge VTEC and VTEC
 Decoder processes</li>
@@ -151,55 +142,6 @@ is used:<br>
   <li>to override the entries in <a href="VTECPartners.html">VTECPartners.py</a>.<br>
   </li>
 </ul>
-<ul>
-</ul>
-<div class="3Heading">The <a href="localMapFiles.html">localMapFiles.py</a>
-and <a href="localMapsConfig.html">localMaps.py</a> files are optional
-and are
-only used to override the standard map definitions shipped with the
-system.&nbsp;
-There are several different options a site has for making modifications
-to these files.&nbsp; <b><font color="#ff0000">At no time should the
-files
-that are sent with the software release or install be modified since
-these
-will be overwritten with the next upgrade.</font></b>&nbsp; See the
-section
-on <a href="#LocationofFiles">file locations</a> for information on
-where
-the configuration files should be located.</div>
-The <a href="mapConfig.html">Maps.py</a> file is used to define:</div>
-<ul>
-  <li class="3Heading">
-the available set of map backgrounds and</li>
-  <div class="3Heading">the automatically generated set of edit areas
-from
-the map backgrounds.</div>
-</ul>
-<div class="3Heading">The <a href="MapFiles.html">MapFiles.py</a> file
-is used to define:</div>
-<ul>
-  <li class="3Heading">
-the shapefile filenames associated with the shapefiles used to generate
-the map backgrounds</li>
-</ul>
-<div class="3Heading">The <a href="localMapsConfig.html">localMaps.py</a>
-file is used:</div>
-</div>
-</div>
-<ul>
-  <li class="3Heading">
-to add, remove, or redefine items in the Maps.py file for site use.</li>
-</ul>
-<div class="3Heading">The <a href="localMapFiles.html">localMapFiles.py</a>
-file is used:</div>
-<ul>
-  <li class="3Heading">
-to override the shapefile filename definitions for all maps. This is
-the
-file modified when you are manually upgrading to new versions of
-shapefiles.</li>
-</ul>
 <div class="3Heading">
 <hr width="100%"></div>
 <h2 class="3Heading">
@@ -212,7 +154,7 @@ no changes from installed files, complete override of map backgrounds
 and
 partial orerride of map backgrounds.
 <h4 class="3Heading">No Changes From Installed Files</h4>
-This is the default case.&nbsp; There is nothing you need to do.
+This is the default case. There is nothing you need to do.
 <h4 class="3Heading">Complete Override of Server Configuration <i><font
  color="#ff0000">(not
 recommended)</font></i></h4>
@@ -240,58 +182,15 @@ Partial Override of Server Configuration</h4>
 just a few changes and/or additions to the server configuration.&nbsp;
 It involves creating a local configuration file (<a
  href="localConfig.html">localConfig.py</a>)
-and overriding certain features.&nbsp; Not all features in
+and overriding certain features. Not all features in
 serverConfig.py
 may be redefined or overridden in this manner.&nbsp; See the <a
  href="localConfig.html">localConfig.py
-documentation</a> for details.&nbsp; Weather definitions are overridden
+documentation</a> for details. Weather definitions are overridden
 using the <a href="localWxConfig.html">localWxConfig.py</a>
 file.&nbsp; VTEC coordination information is overridden using the <a
  href="localVTECPartners.html">localVTECPartners.py</a> file.<br>
 </div>
-<div class="3Heading">
-<hr width="100%"></div>
-<h2 class="3Heading">
-<a name="ServerMapConfigurationModificationOptions"></a>Server Map
-Configuration
-Modification Options</h2>
-Map backgrounds are handled somewhat differently from the server
-database
-configuration and are defined in a different file.
-<h4 class="3Heading">No Changes From Installed Files</h4>
-This option should be chosen if the <a href="mapConfig.html">Maps.py</a>
-file is satisfactory and no changes are required.
-<h4 class="3Heading">Partial Override of Map Backgrounds</h4>
-<div class="3Heading">This option provides the site control over the
-set
-of generated map backgrounds and edit areas.&nbsp; If you want to
-change
-any item in the <a href="mapConfig.html">Maps.py</a> file, you use the
-<a href="localMapsConfig.html">localMaps.py</a> file to add, modify,
-and
-remove maps. You use the <a href="localMapFiles.html">localMapFiles.py</a>
-file to change the shapefile version (or filename) of the source
-shapefile.</div>
-<h4 class="3Heading">
-Complete Override of Map Backgrounds <i><font color="#ff0000">(not
-recommended)</font></i></h4>
-There should be no reason to completely override the Maps.py file since
-<a href="localMapsConfig.html">localMaps.py</a>&nbsp;
-and <a href="localMapFiles.html">localMapFiles.py</a> provides all of
-the
-override capability.&nbsp; But if you insist, you can copy the <a
- href="mapConfig.html">Maps.py</a>
-file from the <a href="#LocationofFiles">original location</a> (leave
-the
-original one there) to the <a href="#LocationofFiles">customized
-location</a>.&nbsp;
-Modify it in accordance with the <a href="mapConfig.html">map
-configuration
-manual</a>.&nbsp; Since Maps.py doesn't change frequently, all you
-should
-need to do is a comparison between the newly upgraded files and your
-modified
-files after each upgrade.
 <div class="3Heading">&nbsp;</div>
 <div class="3Heading">
 <hr width="100%"></div>
@@ -300,15 +199,14 @@ files after each upgrade.
 The location of the server configuration files are shown in the table
 below:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
       <td><b>File Purpose</b></td>
-      <td><b>Part of Standard&nbsp;</b>
+      <td><b>Part of Standard</b>
       <br>
       <b>Release</b></td>
-      <td><b>File Location&nbsp;</b>
+      <td><b>File Location</b>
       <br>
       <b>(relative to installation directory)</b></td>
     </tr>
@@ -317,63 +215,28 @@ below:
       <td>
       <center>yes</center>
       </td>
-      <td>etc/BASE/serverConfig.py</td>
+      <td>/awips2/edex/data/utility/edex_static/base/config/gfe</td>
     </tr>
     <tr>
       <td>Customized <a href="serverConfig.html">serverConfig.py</a></td>
       <td>
       <center>no</center>
       </td>
-      <td>etc/SITE/serverConfig.py</td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe</td>
     </tr>
     <tr>
       <td><a href="localConfig.html">localConfig.py</a></td>
       <td>
       <center>no</center>
       </td>
-      <td>etc/SITE/localConfig.py</td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe</td>
     </tr>
     <tr>
       <td><a href="localWxConfig.html">localWxConfig.py</a></td>
       <td>
       <center>no</center>
       </td>
-      <td>/etc/SITE/localWxConfig.py</td>
-    </tr>
-    <tr>
-      <td>Original <a href="mapConfig.html">Maps.py</a></td>
-      <td>
-      <center>yes</center>
-      </td>
-      <td>/etcBASE/Maps.py</td>
-    </tr>
-    <tr>
-      <td>Customized <a href="mapConfig.html">Maps.py</a></td>
-      <td>
-      <center>no</center>
-      </td>
-      <td>etc/SITE/Maps.py</td>
-    </tr>
-    <tr>
-      <td><a href="localMapsConfig.html">localMaps.py</a></td>
-      <td>
-      <center>no</center>
-      </td>
-      <td>etc/SITE/localMaps.py</td>
-    </tr>
-    <tr>
-      <td>Original <a href="MapFiles.html">MapFiles.py</a></td>
-      <td>
-      <center>yes</center>
-      </td>
-      <td>etc/BASE/MapFiles.py</td>
-    </tr>
-    <tr>
-      <td>Customized <a href="localMapFiles.html">localMapFiles.py</a></td>
-      <td>
-      <center>no</center>
-      </td>
-      <td>etc/SITE/localMapFiles.py</td>
+      <td>/awips2/edex/data/utility/edex_static/site/SITE_ID/config/gfe</td>
     </tr>
     <tr>
       <td style="vertical-align: top;">Original <a
@@ -381,7 +244,7 @@ below:
       </td>
       <td style="vertical-align: top; text-align: center;">yes<br>
       </td>
-      <td style="vertical-align: top;">etc/BASE/VTECPartners.py<br>
+      <td style="vertical-align: top;">/awips2/edex/data/utility/common_static/base/vtec<br>
       </td>
     </tr>
     <tr>
@@ -390,7 +253,7 @@ below:
       </td>
       <td style="vertical-align: top; text-align: center;">no<br>
       </td>
-      <td style="vertical-align: top;">etc/SITE/localVTECPartners.py<br>
+      <td style="vertical-align: top;">/awips2/edex/data/utility/common_static/site/SITE_ID/vtec<br>
       </td>
     </tr>
   </tbody>
@@ -398,7 +261,6 @@ below:
 <p>
 </p>
 <hr width="100%"><br>
-&nbsp;
 <div class="Body">&nbsp;<a href="#Overview">Back To Top</a>
 <br>
 &nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>

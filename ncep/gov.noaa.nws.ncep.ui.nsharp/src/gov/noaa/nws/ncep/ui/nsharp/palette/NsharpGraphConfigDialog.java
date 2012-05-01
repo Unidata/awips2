@@ -19,9 +19,14 @@ package gov.noaa.nws.ncep.ui.nsharp.palette;
  * @version 1.0
  */
 
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.menu.NsharpLoadDialog;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd.NsharpSkewTBackground;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpBackgroundResource;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -33,12 +38,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+
 import com.raytheon.uf.viz.core.exception.VizException;
 
 public class NsharpGraphConfigDialog extends Dialog {
 	private static NsharpGraphConfigDialog thisDialog=null;
+	private NsharpConfigStore configStore=null;
+	private NsharpGraphProperty graphProperty=null;
+	private NsharpConfigManager mgr;
 	private int btnWidth = 300;
 	private int btnHeight = 20;
 	private int labelGap = 20;
@@ -46,13 +57,49 @@ public class NsharpGraphConfigDialog extends Dialog {
 	private int btnGapY = 5;
 	private Button tempBtn, dewpBtn, parcelBtn, vTempBtn, wetBulbBtn, mixingRatioBtn, 
 		dryAdiabatBtn,moisAdiabatBtn,omegaBtn, meanWindVectorBtn, stormMVector3075Btn, stormMVector1585Btn,
-		stormMVectorBunkersRightBtn,stormMVectorBunkersLeftBtn, corfidiVectorBtn, hodoBtn;	
+		stormMVectorBunkersRightBtn,stormMVectorBunkersLeftBtn, corfidiVectorBtn, hodoBtn, efflayerBtn, cloudBtn, windBarbBtn;	
+	private Text windBarbText, tempOffsetText;
 	//default value for button initial setup
 	private  boolean temp=true, dewp=true, parcel=true, vTemp=true, wetBulb=true, hodo=true,
 		mixratio=false, dryAdiabat=true, moistAdiabat=false, omega=true, meanWind=true, 
-		smv3075=false, smv1585=false, smvBunkersR=true, smvBunkersL=true,corfidiV=false;
+		smv3075=false, smv1585=false, smvBunkersR=true, smvBunkersL=true,corfidiV=false, effLayer=true, cloud=false, windBarb=true;
+	private int windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
+	private int tempOffset = 0;
+	private void updateGraphProperty(){
+		if(graphProperty != null){
+			graphProperty.setTemp(temp);
+			graphProperty.setDewp(dewp);
+			graphProperty.setParcel(parcel);
+			graphProperty.setVTemp(vTemp);
+			graphProperty.setWetBulb(wetBulb);
+			graphProperty.setHodo(hodo);
+			graphProperty.setMixratio(mixratio);
+			graphProperty.setDryAdiabat(dryAdiabat);
+			graphProperty.setMoistAdiabat(moistAdiabat);
+			graphProperty.setOmega(omega);
+			graphProperty.setMeanWind(meanWind);
+			graphProperty.setSmv3075(smv3075);
+			graphProperty.setSmv1585(smv1585);
+			graphProperty.setSmvBunkersR(smvBunkersR);
+			graphProperty.setSmvBunkersL(smvBunkersL);
+			graphProperty.setCloud(cloud);
+			graphProperty.setCorfidiV(corfidiV);
+			graphProperty.setEffLayer(effLayer);
+			graphProperty.setWindBarb(windBarb);
+			graphProperty.setWindBarbDistance(windBarbDistance);
+			graphProperty.setTempOffset(tempOffset);
+		}
+	}
+	public boolean isCloud() {
+		return cloud;
+	}
 
-	
+
+	public boolean isEffLayer() {
+		return effLayer;
+	}
+
+
 	public boolean isHodo() {
 		return hodo;
 	}
@@ -124,6 +171,17 @@ public class NsharpGraphConfigDialog extends Dialog {
 	public  boolean isWetBulb() {
 		return wetBulb;
 	}
+	
+
+	public boolean isWindBarb() {
+		return windBarb;
+	}
+
+
+	public int getWindBarbDistance() {
+		return windBarbDistance;
+	}
+
 
 	public static NsharpGraphConfigDialog getInstance( Shell parShell){
 
@@ -144,10 +202,66 @@ public class NsharpGraphConfigDialog extends Dialog {
 	public static NsharpGraphConfigDialog getAccess() {
 		return thisDialog;
 	}
-
-	protected NsharpGraphConfigDialog(Shell parentShell) throws VizException {
+	public static NsharpConfigStore setDefaultGraphConfig(NsharpConfigStore cs){
+		NsharpGraphProperty gp = cs.getGraphProperty();
+		gp.setTemp(true);
+		gp.setDewp(true);
+		gp.setParcel(true);
+		gp.setVTemp(true);
+		gp.setWetBulb(true);
+		gp.setHodo(true);
+		gp.setMixratio(false);
+		gp.setDryAdiabat(true);
+		gp.setMoistAdiabat(false);
+		gp.setOmega(true);
+		gp.setMeanWind(true);
+		gp.setSmv3075(false);
+		gp.setSmv1585(false);
+		gp.setSmvBunkersL(true);
+		gp.setSmvBunkersR(true);
+		gp.setCloud(false);
+		gp.setCorfidiV(false);
+		gp.setEffLayer(true);
+		gp.setWindBarb(true);
+		gp.setWindBarbDistance(NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT);
+		gp.setTempOffset(0);
+		return cs;
+	}
+	public NsharpGraphConfigDialog(Shell parentShell) throws VizException {
 		super(parentShell);
 		thisDialog = this;
+		mgr =NsharpConfigManager.getInstance();
+		configStore = mgr.retrieveNsharpConfigStoreFromFs();
+		//if(configStore== null){
+		//	configStore = new NsharpConfigStore();
+        //	configStore = setDefaultGraphConfig(configStore);
+        //	configStore=NsharpLineConfigDialog.setDefaultLineConfig(configStore);
+		//}		
+		graphProperty = configStore.getGraphProperty();
+		if(graphProperty != null){
+			temp=graphProperty.isTemp();
+			dewp=graphProperty.isDewp();
+			parcel=graphProperty.isParcel();
+			vTemp=graphProperty.isVTemp();
+			wetBulb=graphProperty.isWetBulb();
+			hodo=graphProperty.isHodo();
+			mixratio=graphProperty.isMixratio();
+			dryAdiabat=graphProperty.isDryAdiabat();
+			moistAdiabat=graphProperty.isMoistAdiabat(); 
+			omega=graphProperty.isOmega();
+			meanWind=graphProperty.isMeanWind();
+			smv3075=graphProperty.isSmv3075();
+			smv1585=graphProperty.isSmv1585();
+			smvBunkersR=graphProperty.isSmvBunkersR(); 
+			smvBunkersL=graphProperty.isSmvBunkersL();
+			corfidiV=graphProperty.isCorfidiV(); 
+			effLayer=graphProperty.isEffLayer();
+			cloud=graphProperty.isCloud();
+			windBarb=graphProperty.isWindBarb();
+			windBarbDistance = graphProperty.getWindBarbDistance();
+			tempOffset = graphProperty.getTempOffset();
+		}
+		
 	}
 	private void createDialogContents(Composite parent){
 		
@@ -167,6 +281,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					temp=false;
 				else
 					temp=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		dewpBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -183,6 +298,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					dewp=false;
 				else
 					dewp=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		parcelBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -199,6 +315,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					parcel=false;
 				else
 					parcel=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		vTempBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -215,6 +332,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					vTemp=false;
 				else
 					vTemp=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		
@@ -232,6 +350,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					wetBulb=false;
 				else
 					wetBulb=true;
+				applyChange();
 			}          		            	 	
 		} );  
 
@@ -249,6 +368,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					mixratio=false;
 				else
 					mixratio=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		dryAdiabatBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -265,6 +385,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					dryAdiabat=false;
 				else
 					dryAdiabat=true;
+				applyChange();
 			}          		            	 	
 		} );  
 
@@ -282,13 +403,47 @@ public class NsharpGraphConfigDialog extends Dialog {
 					moistAdiabat=false;
 				else
 					moistAdiabat=true;
+				applyChange();
 			}          		            	 	
 		} );  
-		
+		efflayerBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		efflayerBtn.setText(NsharpNativeConstants.EFFECTIVE_LAYER);
+		efflayerBtn.setEnabled( true );
+		efflayerBtn.setBounds(btnGp.getBounds().x+ btnGapX, moisAdiabatBtn.getBounds().y + moisAdiabatBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		if(effLayer == true)
+			efflayerBtn.setSelection(true);
+		else
+			efflayerBtn.setSelection(false);
+		efflayerBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				if(effLayer == true)
+					effLayer=false;
+				else
+					effLayer=true;
+				applyChange();
+			}          		            	 	
+		} ); 
+		cloudBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		cloudBtn.setText(NsharpNativeConstants.CLOUD);
+		cloudBtn.setEnabled( true );
+		cloudBtn.setBounds(btnGp.getBounds().x+ btnGapX, efflayerBtn.getBounds().y + efflayerBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		if(cloud == true)
+			cloudBtn.setSelection(true);
+		else
+			cloudBtn.setSelection(false);
+		cloudBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				if(cloud == true)
+					cloud=false;
+				else
+					cloud=true;
+				applyChange();
+			}          		            	 	
+		} ); 
 		hodoBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		hodoBtn.setText(NsharpNativeConstants.HODOGRAPH);
 		hodoBtn.setEnabled( true );
-		hodoBtn.setBounds(btnGp.getBounds().x+ btnGapX, moisAdiabatBtn.getBounds().y + moisAdiabatBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		hodoBtn.setBounds(btnGp.getBounds().x+ btnGapX, cloudBtn.getBounds().y + cloudBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
 		if(hodo == true)
 			hodoBtn.setSelection(true);
 		else
@@ -299,6 +454,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					hodo=false;
 				else
 					hodo=true;
+				applyChange();
 			}          		            	 	
 		} ); 
 		meanWindVectorBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -315,6 +471,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					meanWind=false;
 				else
 					meanWind=true;
+				applyChange();
 			}          		            	 	
 		} ); 
 		stormMVector3075Btn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -331,6 +488,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					smv3075=false;
 				else
 					smv3075=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		stormMVector1585Btn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -347,6 +505,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					smv1585=false;
 				else
 					smv1585=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		stormMVectorBunkersRightBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -363,6 +522,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					smvBunkersR=false;
 				else
 					smvBunkersR=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		stormMVectorBunkersLeftBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
@@ -379,6 +539,7 @@ public class NsharpGraphConfigDialog extends Dialog {
 					smvBunkersL=false;
 				else
 					smvBunkersL=true;
+				applyChange();
 			}          		            	 	
 		} );  
 		
@@ -396,16 +557,88 @@ public class NsharpGraphConfigDialog extends Dialog {
 					corfidiV=false;
 				else
 					corfidiV=true;
+				applyChange();
 			}          		            	 	
 		} );  
+		windBarbBtn= new Button(btnGp, SWT.RADIO | SWT.BORDER);
+		windBarbBtn.setText(NsharpNativeConstants.WINDBARB);
+		windBarbBtn.setEnabled(true);
+		windBarbBtn.setBounds(btnGp.getBounds().x+ btnGapX, corfidiVectorBtn.getBounds().y + corfidiVectorBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		if(windBarb == true)
+			windBarbBtn.setSelection(true);
+		else
+			windBarbBtn.setSelection(false);
+		windBarbBtn.addListener(SWT.MouseUp, new Listener() {
+				public void handleEvent(Event event) {    
+					if(windBarb == true)
+						windBarb=false;
+					else
+						windBarb=true;
+					applyChange();
+				}          		            	 	
+			} );  
+		windBarbText = new Text(btnGp, SWT.BORDER | SWT.SINGLE);
+		windBarbText.setText(Integer.toString(windBarbDistance));
+		windBarbText.setBounds(windBarbBtn.getBounds().x+windBarbBtn.getBounds().width, windBarbBtn.getBounds().y,btnWidth/4,btnHeight);
+		windBarbText.setEditable(true);
+		windBarbText.setVisible(true); 
+		//to make sure user enter digits only
+		windBarbText.addListener (SWT.Verify, new Listener () {
+			public void handleEvent (Event e) {
+				String string = e.text;
+				char [] chars = new char [string.length ()];
+				string.getChars (0, chars.length, chars, 0);
+				//System.out.println("entered "+ string);
+				
+				for (int i=0; i<chars.length; i++) {
+					if (!('0' <= chars [i] && chars [i] <= '9')) {
+						e.doit = false;
+						return;
+					}
+				}
+				
+			}
+		});
+		Label tempOffsetLbl = new Label(btnGp, SWT.BORDER );
+		tempOffsetLbl.setText("Temperature Range Offset ");
+		tempOffsetLbl.setBounds(btnGp.getBounds().x+ btnGapX, windBarbBtn.getBounds().y + windBarbBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+		tempOffsetText = new Text(btnGp, SWT.BORDER | SWT.SINGLE);
+		tempOffsetText.setText(Integer.toString(tempOffset));
+		tempOffsetText.setBounds(tempOffsetLbl.getBounds().x+tempOffsetLbl.getBounds().width, tempOffsetLbl.getBounds().y,btnWidth/4,btnHeight);
+		tempOffsetText.setEditable(true);
+		tempOffsetText.setVisible(true); 
+		//to make sure user enter digits only
+		tempOffsetText.addListener (SWT.Verify, new Listener () {
+			public void handleEvent (Event e) {
+				String string = e.text;
+				char [] chars = new char [string.length ()];
+				string.getChars (0, chars.length, chars, 0);
+				//System.out.println("entered s="+ string);
+				//Chin note: when "Delete", "Backspace" entered, this handler will be called, but
+				// its chars.length = 0
+				if(chars.length == 1){
+					if(chars [0] == '-' ){
+						//if "-" is not first char
+						String textStr = tempOffsetText.getText();
+						if((textStr != null) && (textStr.length() >= 1) && (textStr.contains("-"))){
+							e.doit = false;
+							return;
+						}
+					}else if (!('0' <= chars [0] && chars [0] <= '9')) {
+						e.doit = false;
+						return;
+					}
 
+				}
+			}
+		});
 		if(NsharpLoadDialog.getAccess()!= null && 
 				   (NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.MODEL_SND ||
 						   NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.PFC_SND )){
 			omegaBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 			omegaBtn.setText(NsharpNativeConstants.OMEGA);
 			omegaBtn.setEnabled( true );
-			omegaBtn.setBounds(btnGp.getBounds().x+ btnGapX, corfidiVectorBtn.getBounds().y + corfidiVectorBtn.getBounds().height+ btnGapY, btnWidth,btnHeight);
+			omegaBtn.setBounds(btnGp.getBounds().x+ btnGapX, tempOffsetLbl.getBounds().y + tempOffsetLbl.getBounds().height+ btnGapY, btnWidth,btnHeight);
 			if(omega == true)
 				omegaBtn.setSelection(true);
 			else
@@ -416,30 +649,80 @@ public class NsharpGraphConfigDialog extends Dialog {
 						omega=false;
 					else
 						omega=true;
+					applyChange();
 				}          		            	 	
 			} );  
 		}
 
 	}
+	
 	@Override
 	public void createButtonsForButtonBar(Composite parent) {
-		// create OK and Cancel buttons by default
-		
-		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+		// create OK button but using Apply label for applying user entered data
+		//Chin note: when "apply" button is selected or Return key is entered, 
+		// okPressed() will be called. So, handle event at one place, ie.e at okPressed(). 
+		Button appBtn = createButton(parent, IDialogConstants.OK_ID,
+				"Apply",
 				true);
+		
+		/*appBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {  
+				//System.out.println("App listener is called");
+				//String textStr = windBarbText.getText();
+				//if((textStr != null) && !(textStr.isEmpty())){
+				//	windBarbDistance = Integer.decode(textStr);
+				//}
+				//applyChange();
+				
+			}          		            	 	
+		} );  */
+		Button saveBtn = createButton(parent, IDialogConstants.INTERNAL_ID,
+				"Save",false);
+		saveBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {  
+				//System.out.println("save listener is called, also apply changes");
+				okPressed();
+				try {
+		        	//save to xml
+					mgr.saveConfigStoreToFs(configStore);
+				} catch (VizException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		        
+				
+			}          		            	 	
+		} );  
+
+		Button canBtn = createButton(parent, IDialogConstants.CLOSE_ID,
+				IDialogConstants.CLOSE_LABEL, false);
+		canBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				//System.out.println("close listener is called");
+				close();
+			}          		            	 	
+		} );  
 	}
 
 
 	@Override
 	public void okPressed() {
-		//System.out.println("OK is pressed");
-		NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
-        if (editor != null) {
-        	NsharpSkewTResource rsc = editor.getNsharpSkewTDescriptor().getSkewtResource();
-        	rsc.createRscPressTempCurveShapeAll();
-        	editor.refresh();
-        }
-		close();
+		//"Enter" key is pressed, or "Apply" button is pressed.
+		//Chin: handle user entered data and apply its changes.
+		//System.out.println("CR is pressed");
+		String textStr = windBarbText.getText();
+		if((textStr != null) && !(textStr.isEmpty())){
+			windBarbDistance = Integer.decode(textStr);
+		}
+		textStr = tempOffsetText.getText();
+		if((textStr != null) && !(textStr.isEmpty())){
+			if(!textStr.contains("-") || textStr.length() > 1){
+				tempOffset = Integer.decode(textStr);
+				//System.out.println("temp offset is ="+tempOffset);
+			}
+		}
+		applyChange();
+		setReturnCode(OK);
 	}
 	
 	/*
@@ -450,7 +733,7 @@ public class NsharpGraphConfigDialog extends Dialog {
     @Override   
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
-        shell.setText( "Graphs Configuration" );
+        shell.setText( "Nsharp Parameters Selection" );
         
     }
 	@Override
@@ -484,10 +767,35 @@ public class NsharpGraphConfigDialog extends Dialog {
 	@Override
 	public boolean close() {
 		tempBtn= dewpBtn= parcelBtn= vTempBtn= wetBulbBtn= mixingRatioBtn= 
-		dryAdiabatBtn=moisAdiabatBtn=omegaBtn= meanWindVectorBtn= stormMVector3075Btn= stormMVector1585Btn=
-		stormMVectorBunkersRightBtn=stormMVectorBunkersLeftBtn= corfidiVectorBtn= hodoBtn=null;
+		dryAdiabatBtn=moisAdiabatBtn=efflayerBtn=omegaBtn= meanWindVectorBtn= stormMVector3075Btn= stormMVector1585Btn=
+		stormMVectorBunkersRightBtn=stormMVectorBunkersLeftBtn= corfidiVectorBtn= hodoBtn=windBarbBtn=null;
+		//thisDialog= null;
 		return (super.close());
     }
 
+	public void reset(){
+		windBarbDistance=NsharpNativeConstants.WINDBARB_DISTANCE_DEFAULT;
+		tempOffset=0;
+	}
 
+	private void applyChange(){
+		updateGraphProperty();
+		NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
+        if (editor != null) {
+        	NsharpSkewTResource rsc = editor.getNsharpSkewTDescriptor().getSkewtResource();
+        	//rsc.setWindBarbDistance(windBarbDistance);
+        	rsc.setGraphConfigProperty(graphProperty);
+        	rsc.createRscPressTempCurveShapeAll();
+    		NsharpBackgroundResource bkRsc = editor.getNsharpSkewTDescriptor().getSkewTBkGResource();
+    		if(bkRsc!= null)
+    		{ 
+    			NsharpSkewTBackground skewBkRsc = bkRsc.getSkewTBackground();
+    			if(skewBkRsc!= null)
+    				skewBkRsc.setGraphConfigProperty(graphProperty);
+    		}
+
+        	editor.refresh();
+        }
+	}
+	
 }

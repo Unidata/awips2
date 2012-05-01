@@ -31,9 +31,13 @@ import javax.measure.converter.MultiplyConverter;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -53,7 +57,6 @@ import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -67,6 +70,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.viz.core.rsc.hdf5.MeshCalculatorJob;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
@@ -184,16 +188,64 @@ public class RadarImageResource<D extends IDescriptor> extends
         ColorMapParameters params = getColorMapParameters(target,
                 populatedRecord);
 
-        PixelCoverage coverage = buildCoverage(target, populatedRecord);
-        if (coverage.getMesh() == null) {
-            coverage.setMesh(buildMesh(target, populatedRecord));
+        ImageTile tile = new ImageTile();
+        RadarRecord record = populatedRecord;
+        try {
+            // Attempt to create envelope, adapted from AbstractTileSet
+            double maxExtent = RadarUtil.calculateExtent(record);
+            GridGeometry2D geom = RadarUtil.constructGridGeometry(
+                    record.getCRS(), maxExtent,
+                    Math.max(record.getNumBins(), record.getNumRadials()));
+
+            MathTransform mt = geom.getGridToCRS(PixelInCell.CELL_CORNER);
+
+            double[] ul = new double[3];
+            double[] lr = new double[3];
+            double[] in = new double[2];
+            in[0] = 0;
+            in[1] = 0;
+            mt.transform(in, 0, ul, 0, 1);
+            in[0] = record.getNumRadials();
+            in[1] = record.getNumBins();
+            mt.transform(in, 0, lr, 0, 1);
+
+            tile.envelope = new ReferencedEnvelope(ul[0], lr[0], ul[1], lr[1],
+                    record.getCRS());
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, "Error constructing extent",
+                    e);
         }
 
-        IImage image = createImage(target, params, populatedRecord,
-                new Rectangle(0, 0, populatedRecord.getNumBins(),
-                        populatedRecord.getNumRadials()));
+        tile.rect = new Rectangle(0, 0, populatedRecord.getNumBins(),
+                populatedRecord.getNumRadials());
+
+        if (tile.coverage == null) {
+            tile.coverage = buildCoverage(target, tile, populatedRecord);
+        }
+
+        if (tile.coverage.getMesh() == null) {
+            IMesh mesh = buildMesh(target, populatedRecord);
+
+            if (mesh != null) {
+                try {
+                    MeshCalculatorJob.getInstance().requestLoad(
+                            this,
+                            mesh,
+                            tile,
+                            CRS.findMathTransform(populatedRecord.getCRS(),
+                                    DefaultGeographicCRS.WGS84));
+                } catch (FactoryException e) {
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Error finding math transform to lat/lon for radar record",
+                                    e);
+                }
+            }
+        }
+
+        IImage image = createImage(target, params, record, tile.rect);
         DrawableImage dImage = images.put(populatedRecord.getDataTime(),
-                new DrawableImage(image, coverage));
+                new DrawableImage(image, tile.coverage));
         if (dImage != null) {
             disposeImage(dImage);
         }
@@ -270,7 +322,7 @@ public class RadarImageResource<D extends IDescriptor> extends
                 colorMapName = "Radar/OSF/16 Level Reflectivity";
             }
 
-            params.setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+            params.setColorMap(target.buildColorMap(colorMapName));
 
         }
 
@@ -356,53 +408,38 @@ public class RadarImageResource<D extends IDescriptor> extends
 
             this.actualLevel = String.format("%1.1f",
                     record.getTrueElevationAngle());
-            DrawableImage image = getImage(target, displayedDate);
-            if (image != null) {
-                ImagingCapability cap = getCapability(ImagingCapability.class);
-                image.getImage().setBrightness(cap.getBrightness());
-                image.getImage().setContrast(cap.getContrast());
-                image.getImage().setInterpolated(cap.isInterpolationState());
-                target.drawRasters(paintProps, image);
-            }
-
-            if (image == null || image.getCoverage() == null
-                    || image.getCoverage().getMesh() == null) {
-                issueRefresh();
-            }
-        }
-    }
-
-    /**
-     * Get the radar image for the given time
-     * 
-     * @param target
-     * @param dataTime
-     * @return
-     * @throws VizException
-     */
-    public DrawableImage getImage(IGraphicsTarget target, DataTime dataTime)
-            throws VizException {
-        DrawableImage image = images.get(dataTime);
-        if (image == null || image.getCoverage() == null) {
-            VizRadarRecord record = getRadarRecord(dataTime);
-            if (record != null) {
-                if (record.getStoredDataAsync() == null) {
-                    issueRefresh();
-                } else {
-                    try {
-                        createTile(target, record);
-                        image = images.get(dataTime);
-                    } catch (Exception e) {
-                        String msg = e.getMessage();
-                        if (msg == null) {
-                            msg = "Error rendering radar";
-                        }
-                        throw new VizException(msg, e);
+            try {
+                DrawableImage image = images.get(displayedDate);
+                if (image == null || image.getCoverage() == null) {
+                    if (record.getStoredDataAsync() == null) {
+                        issueRefresh();
+                        return;
                     }
+                    createTile(target, record);
+                    image = images.get(displayedDate);
                 }
+
+                if (image != null) {
+                    ImagingCapability cap = getCapability(ImagingCapability.class);
+                    image.getImage().setBrightness(cap.getBrightness());
+                    image.getImage().setContrast(cap.getContrast());
+                    image.getImage()
+                            .setInterpolated(cap.isInterpolationState());
+                    target.drawRasters(paintProps, image);
+                }
+
+                if (image == null || image.getCoverage() == null
+                        || image.getCoverage().getMesh() == null) {
+                    issueRefresh();
+                }
+            } catch (Exception e) {
+                String msg = e.getMessage();
+                if (msg == null) {
+                    msg = "Error rendering radar";
+                }
+                throw new VizException(msg, e);
             }
         }
-        return image;
     }
 
     /**
@@ -562,7 +599,7 @@ public class RadarImageResource<D extends IDescriptor> extends
         return null;
     }
 
-    public PixelCoverage buildCoverage(IGraphicsTarget target,
+    public PixelCoverage buildCoverage(IGraphicsTarget target, ImageTile tile,
             VizRadarRecord timeRecord) throws VizException {
         return new PixelCoverage(new Coordinate(0, 0), 0, 0);
     }

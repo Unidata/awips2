@@ -205,7 +205,6 @@ public class NsharpHandleArchiveFile {
 					}
 					//System.out.println("total line " + i);
 					//System.out.println("time line " + timeLine + " stn disp info = " + stnDispInfo);
-					//Chin do we need this???? TBD timeList.add(timeLine);
 					if(sndLyList.size()> 0)
 					//Remove sounding layers that not used by NSHARP, and assume first layer is sfc layer from input data
 						sndLyList = NsharpDataHandling.organizeSoundingDataForShow(sndLyList, sndLyList.get(0).getGeoHeight());
