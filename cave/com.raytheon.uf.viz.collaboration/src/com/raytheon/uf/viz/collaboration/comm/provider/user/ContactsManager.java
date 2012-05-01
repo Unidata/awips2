@@ -64,7 +64,6 @@ public class ContactsManager {
 
         for (IRosterGroup rosterGroup : roster.getGroups()) {
             for (IRosterEntry rosterEntry : rosterGroup.getEntries()) {
-                System.out.println("Adding user " + rosterEntry.getUser());
                 usersMap.put(rosterEntry.getUser(), rosterEntry);
             }
         }
@@ -89,7 +88,6 @@ public class ContactsManager {
         // TODO update the event's user groups here for the desired type
         IRosterEntry rosterEntry = rosterChangeEvent.getEntry();
         IPresence presence = rosterChangeEvent.getEntry().getPresence();
-        // System.out.println("Roster change event " + rosterEntry.getUser());
         switch (rosterChangeEvent.getType()) {
         case ADD:
             if (!usersMap.containsKey(rosterEntry.getUser())) {
