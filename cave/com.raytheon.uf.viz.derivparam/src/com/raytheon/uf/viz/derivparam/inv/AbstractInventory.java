@@ -81,6 +81,8 @@ import com.raytheon.uf.viz.derivparam.tree.UnionLevelNode;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 17, 2010            bsteffen     Initial creation
+ * Apr 11, 2012	DR14666	   porricel		Modified resolveField to
+ *                                      use middle of layer for BL
  * 
  * </pre>
  * 
@@ -579,7 +581,7 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
                 || levelsToProcess == null || sourcesToProcess.isEmpty()
                 || paramsToProcess.isEmpty() || levelsToProcess.isEmpty()
                 || derParLibrary == null) {
-            return Collections.emptyList();
+            return null;
         }
         if (clazz != null) {
             // when clazz == null we need to link the aliases to the source
@@ -1021,17 +1023,24 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
         if (pStatic != null) {
             return pStatic;
         }
-
+        
         // Check to see if we can set the field from the
         // masterlevel name
         if (level.getMasterLevel().getName().equals(fieldParamAbbrev)) {
 
-            FloatRequestableData data = new FloatRequestableData(
+        	FloatRequestableData data;
+        	if (level.isRangeLevel() && fieldParamAbbrev.equals("BL")){
+        		// get midpoint of boundary layer
+        		 data = new FloatRequestableData(
+                      (float) ((level.getLevelonevalue() + level.getLeveltwovalue())/2));
+        	}
+        	else {
+        		 data = new FloatRequestableData(
                     (float) level.getLevelonevalue());
+        	}
             data.setUnit(level.getMasterLevel().getUnit());
             return data;
         }
-
         String validSource = field.getValidSource();
         SourceNode fieldSourceNode = sourceNode;
 

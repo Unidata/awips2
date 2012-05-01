@@ -15,10 +15,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Length;
@@ -40,7 +46,14 @@ import javax.measure.converter.ConversionException;
  * 06/23/09		*109		M. Li		Use NCCursor POINT_SELECT cursor
  * 11/24/09                 Greg Hull   migrate to to11d6; add commented out code for 
  *                                      STATION_DATA (partially implemented)
- * 11/18/10	     327        M. Li		add isAlreadyOpen                                     
+ * 11/18/10	     327        M. Li		add isAlreadyOpen
+ * 03/01/12      524        B. Hebbard  - Add 'Take Control' button (and related changes to
+ *                                        allow mutual operation with other Modal Tools) (TTR#11)
+ *                                      - Make 'Sounding Source Distance' display "N/A" vs. "NaN" (TTR#13)
+ *                                      - Make 'Status Messages' display scrollable (TTR#15)
+ *                                      - Widen fields to display full Sounding Source Time
+ * 03/28/12      N/A        B. Hebbard  Modify 'Take Control' refactor above, to fix error when reopening
+ *                                      Cloud Height tool after it had been closed
  * </pre>
  * 
  * @author 
@@ -66,7 +79,11 @@ public class CloudHeightDialog extends Dialog {
 
     private List alt_cloud_lvls_list = null;
     
-    private Text  sts_txt = null;
+    private Text sts_txt = null;
+    
+    private CloudHeightAction associatedCloudHeightAction;
+    
+	private static CloudHeightDialog INSTANCE = null;
     
     public enum SoundingDataSourceType {
     	STANDARD_ATM,
@@ -74,7 +91,8 @@ public class CloudHeightDialog extends Dialog {
     }
     
     public enum ComputationalMethod {
-    	STANDARD, MOIST_ADIABATIC
+    	STANDARD,
+    	MOIST_ADIABATIC
     }
     
     public enum PixelValueMethod {
@@ -91,23 +109,24 @@ public class CloudHeightDialog extends Dialog {
 	private UnitConverter distUnitsConverter = null;
 	private UnitConverter tempUnitsConverter = null;
 	private UnitConverter hghtUnitsConverter = null;
-	private Quadtree stationTree = null;
-	private final double DIST = 1.0;
+	//private Quadtree stationTree = null;
+	//private final double DIST = 1.0;
 
 	
 	public CloudHeightDialog(Shell parent, String title ) {
         super(parent);
         dlgTitle = title;
         
-        // create the Dialog before opening it since the error msg text may be set before opening the dialog.
+        // create the Dialog before opening it since the error
+        // msg text may be set before opening the dialog.
+        
     	//Shell parent = getParent();
-    	Display display = parent.getDisplay();
+    	//Display display = parent.getDisplay();
     	shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
     	shell.setText( dlgTitle);
     	shell.setSize( 600, 800 ); // pack later
-
     	init();
-    	
+    	/*  moved to open method...
     	GridLayout mainLayout = new GridLayout(1, true);
     	mainLayout.marginHeight = 1;
     	mainLayout.marginWidth = 1;
@@ -117,9 +136,22 @@ public class CloudHeightDialog extends Dialog {
     	createDialog( shell );
 
     	shell.pack();
-    	stationTree = new Quadtree();
+    	//stationTree = new Quadtree();
+    	*/
     }
-  
+
+	public static CloudHeightDialog getInstance( Shell parShell, CloudHeightAction anAction) {
+		if ( INSTANCE == null ){
+			try {
+				INSTANCE = new CloudHeightDialog( parShell, "Cloud Height" );
+				INSTANCE.associatedCloudHeightAction = anAction;
+				} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return INSTANCE;
+	}
+
     public void createDialog( Composite parent ) {
         Composite top_form = parent;
  
@@ -127,7 +159,7 @@ public class CloudHeightDialog extends Dialog {
         
         lat_txt = new Text( top_form, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY );
         lat_txt.setText("");
-        FormData fd = new FormData( 100, 20 );
+        FormData fd = new FormData( 70, 20 );
         fd.top   = new FormAttachment( 0, 15 );
         fd.left  = new FormAttachment( 0, 180 ); // this will shift all the text boxes and labels
         fd.right = new FormAttachment( 100, -105 );
@@ -344,7 +376,7 @@ public class CloudHeightDialog extends Dialog {
    		    		for( int i=0 ; i<old_alt_cld_lvls.length ; i++ ) {
    		    			String alt_str = old_alt_cld_lvls[i].trim();
    	   		    		
-   		    			try {   		    			
+   		    			try {
    	   		    			double hght_val = Double.parseDouble( 
    	   		    					alt_str.substring(0, alt_str.indexOf(' ')) );
    	   		    			hght_val = unitCnvtr.convert( hght_val );
@@ -404,8 +436,8 @@ public class CloudHeightDialog extends Dialog {
         fd1.right  = new FormAttachment( alt_cloud_lvls_list, -10, SWT.LEFT );
         alt_cl_lbl.setLayoutData( fd1 );
 
-        sts_txt = new Text( top_form, SWT.READ_ONLY | SWT.BORDER );
-        fd = new FormData( 300, 20 );
+        sts_txt = new Text( top_form, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL );
+        fd = new FormData( 180, 44 );
         fd.top   = new FormAttachment( alt_cloud_lvls_list, 25, SWT.BOTTOM );
         fd.left  = new FormAttachment( 0, 20 );
         fd.right = new FormAttachment( 100, -20 );
@@ -435,7 +467,8 @@ public class CloudHeightDialog extends Dialog {
 
         close_btn.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
-       			shell.dispose();
+       			//shell.dispose();
+       			close();
        		}
         });
 
@@ -454,6 +487,31 @@ public class CloudHeightDialog extends Dialog {
        			}
        	}});
         
+        Button take_control_btn = new Button( top_form, SWT.PUSH );
+        fd = new FormData();
+        take_control_btn.setText(" Take Control ");
+        fd.top = new FormAttachment( close_btn, 0, SWT.TOP );
+        fd.right = new FormAttachment( opts_btn, -25, SWT.LEFT );
+        take_control_btn.setLayoutData( fd );
+        
+        take_control_btn.addListener(SWT.Selection, new Listener(){
+			public void handleEvent(Event e){	
+				if(associatedCloudHeightAction != null){
+					AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+					.getCurrentPerspectiveManager();
+					if (mgr != null) {
+						mgr.getToolManager().selectModalTool(associatedCloudHeightAction);
+						associatedCloudHeightAction.setEnabled(false);
+						try {
+							mgr.getToolManager().activateToolSet(associatedCloudHeightAction.getCommandId());
+						} catch (VizException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});
         
     	setUnitComboBoxes();
     }
@@ -469,8 +527,8 @@ public class CloudHeightDialog extends Dialog {
 
     		try {
     			double val = Double.parseDouble( txt_wid.getText() );
-    				double cnvt_val = unitCnvtr.convert( val );
-    				txt_wid.setText( String.format("%.2f", cnvt_val ) );
+    			double cnvt_val = unitCnvtr.convert( val );
+    			txt_wid.setText( String.format("%.2f", cnvt_val ) );
     		} catch ( NumberFormatException e ) {
     			txt_wid.setText("Error");
     		}
@@ -507,6 +565,27 @@ public class CloudHeightDialog extends Dialog {
 
     	parent.setCursor( crossCursor );
         
+    	//Shell parent = getParent();
+    	//Display display = parent.getDisplay();
+    	if (shell == null || shell.isDisposed()) {
+    		shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE );
+    		shell.setText( dlgTitle);
+    		shell.setSize( 600, 800 ); // pack later
+    	}
+
+    	init();
+    	
+    	GridLayout mainLayout = new GridLayout(1, true);
+    	mainLayout.marginHeight = 1;
+    	mainLayout.marginWidth = 1;
+    	shell.setLayout(mainLayout);
+    	shell.setLocation(0, 0);
+
+    	createDialog( shell );
+
+    	shell.pack();
+    	//stationTree = new Quadtree();
+        
     	shell.open();
     	isOpen = true;
     	
@@ -516,7 +595,14 @@ public class CloudHeightDialog extends Dialog {
     		}
     	}
 
+    	//  Closure:  Reset cursor and execute modal tool shutdown sequence
+    	
     	parent.setCursor( prevCursor );
+
+    	AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getCurrentPerspectiveManager();
+		if (mgr != null) {
+			mgr.getToolManager().deselectModalTool(associatedCloudHeightAction);
+		}
     	
     	isOpen = false;
     	
@@ -552,11 +638,11 @@ public class CloudHeightDialog extends Dialog {
     
     // always in   converted from user selected units.
     public void setSoundingDataDistance( double workingDist ) {
-    	if( workingDist == Double.NaN) {
+    	if( Double.isNaN(workingDist) ) {
      		dist_txt.setText("N/A");
 //    		dist_txt.setText("");
     	}
-    	try {
+    	else try {
     		double distVal = distUnitsConverter.convert( workingDist );
         	//dist_txt.setText( distStr );
         	dist_txt.setText( String.format("%.1f", distVal) ); 
@@ -583,7 +669,7 @@ public class CloudHeightDialog extends Dialog {
     // hght is in meters but will be converted if needed
     public void setPrimaryCloudHeight( double workingHght, double pres ) {
     	if( Double.isNaN(workingHght) ) {
-        	hght1_txt.setText( "Unknown" );    		
+        	hght1_txt.setText( "Unknown" );
     	}
     	else {
     		try {
@@ -614,7 +700,7 @@ public class CloudHeightDialog extends Dialog {
 		try {
 			double cldHght = hghtUnitsConverter.convert( workingHght );
 
-	    	String altLvlStr = String.format("%-6.1f %s / %-6.1f mb", 
+	    	String altLvlStr = String.format("%-6.0f %s / %-4.0f mb", // "%-6.1f %s / %-6.1f mb",
 	    			  cldHght, optsDlg.getCloudHeightUnits().toString(), pres );
 	    	
 	    	alt_cloud_lvls_list.add( altLvlStr );
@@ -727,6 +813,7 @@ public class CloudHeightDialog extends Dialog {
      */
     public void close() {
     	if ( shell != null) shell.dispose();
+    	isOpen = false;
     }
     
    public int getMaxValidIntervalInHoursForStationData(){
@@ -737,14 +824,4 @@ public class CloudHeightDialog extends Dialog {
 	   return CloudHeightOptionsDialog.isPixelValueFromSinglePixel();
    }
 }
-
-
-
-
-
-
-
-
-
-
 

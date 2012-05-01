@@ -49,7 +49,9 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
  * 10/06/2011   465        Archana      redesigned the merge sounding to use 
  *                                                     the met parameters
  * 10/24/2011    465       Archana      Removed several debug statements. 
- *                                                    Used the Amount class to set values for the Met parameters                                                     
+ *                                                    Used the Amount class to set values for the Met parameters   
+ *  02/22/2012             C Chen       fixed minor bugs                                                                                                    
+ *  02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
  *
  * </pre>
  * 
@@ -406,6 +408,7 @@ public class MergeSounding2 implements ISerializableObject {
 					DewPointTemp dewPoint;
 					try {
 						dewPoint = new DewPointTemp();
+						dewPoint.setValue( new Amount ( dwpc, SI.CELSIUS ) );
 						layer.setDewpoint( dewPoint);
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
@@ -450,7 +453,7 @@ public class MergeSounding2 implements ISerializableObject {
 					else {
 						dwpc = (float) (243.5 * ( Math.log(6.112) - Math.log(vapr)) / 
 								(Math.log(vapr) - Math.log(6.112)-17.67));
-						dewpoint.setValueAs(dwpc, "℃" );
+						dewpoint.setValue( new Amount ( dwpc, SI.CELSIUS ));
 						layer.setDewpoint( dewpoint );
 						////System.out.println("rhToDewpoint dwpc: " + dwpc);
 					}

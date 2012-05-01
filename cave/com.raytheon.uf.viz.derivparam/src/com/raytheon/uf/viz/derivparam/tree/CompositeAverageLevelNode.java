@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -103,8 +102,7 @@ public class CompositeAverageLevelNode extends UnionLevelNode {
      * boolean, java.util.Map)
      */
     @Override
-    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
-            boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -116,8 +114,8 @@ public class CompositeAverageLevelNode extends UnionLevelNode {
         for (AbstractRequestableLevelNode request : requests) {
             // Do not request just latest only because if two nodes have
             // different latests than this will return no times
-            Set<DataTime> times = request.timeQuery(originalRequest, false,
-                    cache, latestOnlyCache);
+            Set<DataTime> times = request.timeQuery(false, cache,
+                    latestOnlyCache);
             if (times == TIME_AGNOSTIC) {
                 continue;
             } else if (results == TIME_AGNOSTIC) {

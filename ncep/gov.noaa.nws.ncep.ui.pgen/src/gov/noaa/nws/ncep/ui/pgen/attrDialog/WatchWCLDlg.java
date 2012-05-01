@@ -47,6 +47,7 @@ public class WatchWCLDlg extends CaveJFACEDialog {
 	
 	private String fileName = "WCL_report";
 	private String wclText;
+	private String outputPath;
 	
 	private final int NUM_LINES = 25;
 	private final int NUM_COLUMNS = 68;
@@ -119,7 +120,7 @@ public class WatchWCLDlg extends CaveJFACEDialog {
 		 * Save WCL button pressed.  Save WCL Message to a file
 		 */
 
-		File out = new File(fileName);
+		File out = new File(outputPath + fileName);
 
 		try {
 			FileWriter fw = new FileWriter(out);
@@ -163,6 +164,14 @@ public class WatchWCLDlg extends CaveJFACEDialog {
   	    this.getButtonBar().pack();
    	    return super.open();
 		
+	}
+
+	public void setOutputPath(String outputPath) {
+		this.outputPath = outputPath;
+	}
+
+	public String getOutputPath() {
+		return outputPath;
 	}
 
 }
