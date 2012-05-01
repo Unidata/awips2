@@ -1445,4 +1445,16 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 		return null;
 	}
 
+	@Override
+	public String getLineType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getWidth() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

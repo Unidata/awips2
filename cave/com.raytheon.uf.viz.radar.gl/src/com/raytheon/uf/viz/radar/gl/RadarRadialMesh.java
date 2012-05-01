@@ -19,25 +19,20 @@
  **/
 package com.raytheon.uf.viz.radar.gl;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.media.opengl.GL;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
+import com.raytheon.viz.core.gl.GLGeometryObject2D;
+import com.raytheon.viz.core.gl.GLGeometryObject2D.GLGeometryObjectData;
 import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
 
 /**
@@ -60,133 +55,30 @@ public class RadarRadialMesh extends AbstractGLMesh {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarRadialMesh.class);
 
-    private static class CacheKey {
-        private final float latitude;
-
-        private final float longitude;
-
-        private final int hashCode;
-
-        private final int numBins;
-
-        private final int numRadials;
-
-        private final int gateResolution;
-
-        private final float trueElevationAngle;
-
-        private final int jStart;
-
-        private final float[] angleData;
-
-        private final GeneralGridGeometry gridGeometry;
-
-        public CacheKey(float latitude, float longitude, int numBins,
-                int numRadials, int gateResolution, float trueElevationAngle,
-                int jStart, float[] angleData, GeneralGridGeometry gridGeometry) {
-            this.latitude = latitude;
-            this.longitude = longitude;
-            this.numBins = numBins;
-            this.numRadials = numRadials;
-            this.gateResolution = gateResolution;
-            this.trueElevationAngle = trueElevationAngle;
-            this.jStart = jStart;
-            this.angleData = angleData;
-            this.gridGeometry = gridGeometry;
-            final int prime = 31;
-            int hashCode = 1;
-            hashCode = prime * hashCode + Arrays.hashCode(angleData);
-            hashCode = prime * hashCode + gateResolution;
-            hashCode = prime * hashCode + jStart;
-            hashCode = prime * hashCode + Float.floatToIntBits(latitude);
-            hashCode = prime * hashCode + Float.floatToIntBits(longitude);
-            hashCode = prime * hashCode + numBins;
-            hashCode = prime * hashCode + numRadials;
-            hashCode = prime * hashCode
-                    + Float.floatToIntBits(trueElevationAngle);
-            hashCode = prime * hashCode + gridGeometry.hashCode();
-            this.hashCode = hashCode;
-        }
-
-        @Override
-        public int hashCode() {
-            return hashCode;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            CacheKey other = (CacheKey) obj;
-            if (hashCode != other.hashCode)
-                return false;
-            if (gateResolution != other.gateResolution)
-                return false;
-            if (jStart != other.jStart)
-                return false;
-            if (latitude != other.latitude)
-                return false;
-            if (longitude != other.longitude)
-                return false;
-            if (numBins != other.numBins)
-                return false;
-            if (numRadials != other.numRadials)
-                return false;
-            if (Float.floatToIntBits(trueElevationAngle) != Float
-                    .floatToIntBits(other.trueElevationAngle))
-                return false;
-            if (!Arrays.equals(angleData, other.angleData))
-                return false;
-            if (gridGeometry != null && other.gridGeometry == null) {
-                return false;
-            }
-            if (gridGeometry == null && other.gridGeometry != null) {
-                return false;
-            }
-            if (gridGeometry != null
-                    && !gridGeometry.equals(other.gridGeometry)) {
-                return false;
-            }
-            return true;
-        }
-    }
-
-    private static Map<CacheKey, RadarRadialMesh> cache = new HashMap<CacheKey, RadarRadialMesh>();
-
     /** The record to build the mesh for */
     private RadarRecord record;
 
-    private CacheKey cacheKey;
+    private IMapDescriptor descriptor;
 
-    private int refCount;
-
-    public RadarRadialMesh(RadarRecord record,
-            GeneralGridGeometry targetGeometry, CacheKey cacheKey)
-            throws VizException {
-        super(GL.GL_TRIANGLE_STRIP);
+    public RadarRadialMesh(IMapDescriptor descriptor, RadarRecord record) {
+        super(GL.GL_TRIANGLE_STRIP, descriptor);
         this.record = record;
-        this.cacheKey = cacheKey;
-        initialize(
-                RadarUtil.constructGridGeometry(record.getCRS(),
-                        RadarUtil.calculateExtent(record),
-                        Math.max(record.getNumBins(), record.getNumRadials())),
-                targetGeometry);
-        refCount = 0;
+        this.descriptor = descriptor;
     }
 
     @Override
-    protected double[][][] generateWorldCoords(GridGeometry2D imageGeometry,
-            MathTransform mt) throws TransformException {
+    protected double[][][] generateWorldCoords(ImageTile tile, MathTransform mt)
+            throws TransformException {
 
         int horizontalDivisions = key.horizontalDivisions;
-        int verticalDivisions = key.verticalDivisions + 1;
+        int verticalDivisions = key.verticalDivisions;
 
         // get dx and dy for texture points
-        float dX = (1.0f / (key.horizontalDivisions));
+        float dX = (1.0f / (horizontalDivisions));
+
+        vertexCoords = new GLGeometryObject2D(new GLGeometryObjectData(
+                GL.GL_TRIANGLE_STRIP, GL.GL_VERTEX_ARRAY));
+        vertexCoords.allocate(2 * verticalDivisions * horizontalDivisions);
 
         // set up our angle data for the radials
         float[] angles = record.getAngleData();
@@ -274,10 +166,9 @@ public class RadarRadialMesh extends AbstractGLMesh {
     }
 
     @Override
-    protected SharedCoordinateKey generateKey(GridGeometry2D imageGeometry,
-            MathTransform mt) {
+    protected SharedCoordinateKey generateKey(ImageTile tile, MathTransform mt) {
         try {
-            return new SharedCoordinateKey(record.getNumRadials(),
+            return new SharedCoordinateKey(record.getNumRadials() + 1,
                     getNumVerticalDivisions(mt, record));
         } catch (Exception e) {
             statusHandler
@@ -311,7 +202,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
         in[1] = 0;
         toLatLon.transform(in, 0, out, 0, 1);
 
-        double[] start = worldToPixel(out);
+        double[] start = descriptor.worldToPixel(out);
 
         for (int i = 0; i < angles.length; ++i) {
             // grab end
@@ -324,7 +215,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
             in[0] = range * sinAz;
             in[1] = range * cosAz;
             toLatLon.transform(in, 0, out, 0, 1);
-            out = worldToPixel(out);
+            out = descriptor.worldToPixel(out);
 
             int[] curPow2 = new int[] { (int) Math.floor(Math.log(numBins)
                     / Math.log(2)) };
@@ -365,7 +256,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
         double[] in = new double[] { rangeToTry * sinAz, rangeToTry * cosAz };
         double[] actual = new double[3];
         toLatLon.transform(in, 0, actual, 0, 1);
-        actual = worldToPixel(actual);
+        actual = descriptor.worldToPixel(actual);
 
         // Get linear interpolated point
         double[] interp = new double[] { (endLoc[0] + startLoc[0]) / 2,
@@ -385,54 +276,4 @@ public class RadarRadialMesh extends AbstractGLMesh {
         }
     }
 
-    private void use() {
-        refCount += 1;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.AbstractGLMesh#dispose()
-     */
-    @Override
-    public synchronized void dispose() {
-        refCount -= 1;
-        synchronized (cache) {
-            if (refCount == 0) {
-                super.dispose();
-                cache.remove(cacheKey);
-            }
-        }
-    }
-
-    public static RadarRadialMesh getMesh(RadarRecord radarData,
-            IDescriptor descriptor) throws VizException {
-        float latitude = radarData.getLatitude();
-        float longitude = radarData.getLongitude();
-        int numBins = radarData.getNumBins();
-        int numRadials = radarData.getNumRadials();
-        int gateResolution = radarData.getGateResolution();
-        float trueElevationAngle = radarData.getTrueElevationAngle();
-        Integer jStart = radarData.getJstart();
-        if (jStart == null) {
-            jStart = 0;
-        }
-        float[] angleData = radarData.getAngleData();
-        CacheKey key = new CacheKey(latitude, longitude, numBins, numRadials,
-                gateResolution, trueElevationAngle, jStart, angleData,
-                descriptor.getGridGeometry());
-        synchronized (cache) {
-            RadarRadialMesh mesh = cache.get(key);
-            if (mesh == null) {
-                // System.out.println("Mesh Cache miss");
-                mesh = new RadarRadialMesh(radarData,
-                        descriptor.getGridGeometry(), key);
-                cache.put(key, mesh);
-            } else {
-                // System.out.println("Mesh Cache hit");
-            }
-            mesh.use();
-            return mesh;
-        }
-    }
 }

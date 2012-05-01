@@ -249,7 +249,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 	 * Invoked by the workbench to initialize this View.
 	 */
 	public void init( IViewSite site ) {
-
+		//System.out.println("nctextuiPaletteWindow inited!!");
 		try {
 
 			super.init( site );
@@ -259,7 +259,7 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 			pie.printStackTrace();
 
 		}
-		
+		NctextuiResource.registerMouseHandler();
         page = site.getPage();
         page.addPartListener(this);
 
@@ -269,46 +269,36 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
 	 * Disposes resource.  invoked by the workbench
 	 */
 	public void dispose() {
-	    if ( ! isEditorVisible ) return;
-	    super.dispose();
+		// System.out.println("NctextuiPaletteWindow dispose me, isEditorVisible="+ isEditorVisible);
+	    if ( ! isEditorVisible ){
+	    	NctextuiResource.unregisterMouseHandler();
+	    	return;
+	    }
+	    else {
+	    	super.dispose();
 
-		 //System.out.println("NctextuiPaletteWindow dispose me");
-	    NCMapEditor editor = NctextuiResource.getMapEditor();
-        if ( editor !=null ) {
-        	for ( IRenderableDisplay display : UiUtil.getDisplaysFromContainer(editor) ) {
-        		//System.out.println("display " + display.toString());
-        		for ( ResourcePair rp : display.getDescriptor().getResourceList() ) {
-        			if ( rp.getResource() instanceof NctextuiResource ) {
-        				NctextuiResource rsc = (NctextuiResource)rp.getResource();
-        				rsc.unload();
-//					display.getDescriptor().getResourceList().removePreRemoveListener(rsc);
 
-        			}
-        		}
-				//System.out.println("rp "+ rp.getResource().getName());
+	    	NCMapEditor editor = NctextuiResource.getMapEditor();
+	    	if ( editor !=null ) {
+	    		for ( IRenderableDisplay display : UiUtil.getDisplaysFromContainer(editor) ) {
+	    			//System.out.println("display " + display.toString());
+	    			for ( ResourcePair rp : display.getDescriptor().getResourceList() ) {
+	    				if ( rp.getResource() instanceof NctextuiResource ) {
+	    					NctextuiResource rsc = (NctextuiResource)rp.getResource();
+	    					rsc.unload();
+	    				}
+	    			}
+	    		}
+	    	}
+	    	nctextuiPaletteWindow = null;
 
-			}
-		}
-        nctextuiPaletteWindow = null;
 
-		
-		/*
-		 * remove the workbench part listener
-		 */
-        page.removePartListener(this);
-		
+	    	/*
+	    	 * remove the workbench part listener
+	    	 */
+	    	page.removePartListener(this);
+	    }
 
-        //if( NmapUiUtils.getActiveNatlCntrsEditor() != null ){
-        //getNctextuiResource().setPoints(null);
-        //NmapUiUtils.getActiveNatlCntrsEditor().refresh();   
-        //reset mouse handler to default
-        //NmapUiUtils.setPanningMode();
-        //}
-
-        //close editor
-//        if(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage() != null && NctextuiResource.getMapEditor() != null ){
-//        		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeEditor(NctextuiResource.getMapEditor(), false);
-//        }
  	}
 	
 	private void close () {

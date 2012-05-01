@@ -47,7 +47,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 import gov.noaa.nws.ncep.viz.common.ui.*;
-import gov.noaa.nws.ncep.viz.tools.pgenFileName.PgenFileNameDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;

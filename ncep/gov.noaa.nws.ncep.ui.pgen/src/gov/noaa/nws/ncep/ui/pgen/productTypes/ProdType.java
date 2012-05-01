@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.productTypes;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.productManage.ProdTypeDialog;
@@ -202,11 +203,11 @@ public class ProdType {
 
     	if ( this.type.equalsIgnoreCase("Text Prod") ){
     		DOMSource ds = new DOMSource(sw);
-    		ret = applyStyleSheet( ds, getStyleSheetFilePath());
+    		ret = PgenUtil.applyStyleSheet( ds, getStyleSheetFilePath());
     	}
     	else if (this.type.equalsIgnoreCase("KML") ){
     		DOMSource ds = new DOMSource(sw);
-    		ret = formatXML(applyStyleSheet( ds, getStyleSheetFilePath()));
+    		ret = formatXML(PgenUtil.applyStyleSheet( ds, getStyleSheetFilePath()));
     	}
     	else if ( this.type.equalsIgnoreCase("XML")){
     		ret = getStringFromDoc( sw );
@@ -216,39 +217,6 @@ public class ProdType {
     	
     }
 
-    /**
-     * Apply the style sheet on the DOMSource and generate text
-     * @param dSource
-     * @param xsltName
-     * @return
-     */
-    private String applyStyleSheet(DOMSource dSource, String xsltName ){    	
-
-    	String ret = "";
-    	if ( xsltName != null && !xsltName.isEmpty() ){
-    		File xslt = new File( xsltName);
-    		if ( xslt.canRead() ){
-    			
-    			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-    			try{    	
-    				TransformerFactory tf = TransformerFactory.newInstance();
-    				StreamSource myStylesheetSrc = new StreamSource(xslt);       
-
-    				Transformer t = tf.newTransformer(myStylesheetSrc);
-
-    				t.transform(dSource, new StreamResult(baos)); 
-    				
-    				ret = new String(baos.toByteArray());
-    			}catch(Exception e){           
-    				System.out.println(e.getMessage());
-    			}     	
-    		}
-    	}
-
-        return ret;
-    }
-    
     /**
      * Format the input XML document.
      * @param doc

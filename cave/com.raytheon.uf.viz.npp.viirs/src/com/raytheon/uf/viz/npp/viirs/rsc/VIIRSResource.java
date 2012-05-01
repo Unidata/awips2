@@ -46,6 +46,8 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
+import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -53,12 +55,15 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * NPP VIIRS resource. Responsible for drawing a single color band
@@ -189,8 +194,8 @@ public class VIIRSResource extends
             data.projectionData = new float[][] { lonFloats, latFloats };
 
             data.tile = new ImageTile();
-            // data.tile.rect = new Rectangle(0, 0, width, height);
-            // data.tile.envelope = new Envelope(0, width, 0, height);
+            data.tile.rect = new Rectangle(0, 0, width, height);
+            data.tile.envelope = new Envelope(0, width, 0, height);
 
             calculateMesh(data, target);
 
@@ -379,21 +384,20 @@ public class VIIRSResource extends
      */
     private void calculateMesh(VIIRSData frame, IGraphicsTarget target)
             throws VizException {
-        // Rectangle tile = frame.tile.rect;
-        // frame.tile.coverage = new PixelCoverage(new
-        // Coordinate(tile.getMinX(),
-        // tile.getMinY()),
-        // new Coordinate(tile.getMaxX(), tile.getMinY()), new Coordinate(
-        // tile.getMaxX(), tile.getMaxY()), new Coordinate(
-        // tile.getMinX(), tile.getMaxY()));
-        // IMesh mesh = target.getExtension(IMapMeshExtension.class)
-        // .constructMesh(descriptor);
-        // mesh.calculateMesh(frame.tile.coverage, frame.tile,
-        // new VIIRSDataMathTransform(frame.projectionData,
-        // frame.tile.rect.width, frame.tile.rect.height));
-        // frame.projectionData = null;
-        // frame.tile.coverage.setMesh(mesh);
-        // frame.projectionData = null;
+        Rectangle tile = frame.tile.rect;
+        frame.tile.coverage = new PixelCoverage(new Coordinate(tile.getMinX(),
+                tile.getMinY()),
+                new Coordinate(tile.getMaxX(), tile.getMinY()), new Coordinate(
+                        tile.getMaxX(), tile.getMaxY()), new Coordinate(
+                        tile.getMinX(), tile.getMaxY()));
+        IMesh mesh = target.getExtension(IMapMeshExtension.class)
+                .constructMesh(descriptor);
+        mesh.calculateMesh(frame.tile.coverage, frame.tile,
+                new VIIRSDataMathTransform(frame.projectionData,
+                        frame.tile.rect.width, frame.tile.rect.height));
+        frame.projectionData = null;
+        frame.tile.coverage.setMesh(mesh);
+        frame.projectionData = null;
     }
 
     /**

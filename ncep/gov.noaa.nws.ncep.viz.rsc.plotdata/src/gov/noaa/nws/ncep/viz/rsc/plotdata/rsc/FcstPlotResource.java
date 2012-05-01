@@ -28,6 +28,7 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  10/04/2010     #307    ghull       Created 
+ *  02/16/2012     #555    sgurung     Changed frameData.setPopulated() to frameData.setPopulated(true) in populateFrame().
  * 
  * </pre>
  * 
@@ -97,7 +98,7 @@ public class FcstPlotResource extends PlotResource2 {
         			dataTimes.add( availTime );
         		}
         	}        	
-        }        
+        }
 	}
 	
 	// Override the PlotResource2 version which will query the db based on the start
@@ -155,9 +156,9 @@ public class FcstPlotResource extends PlotResource2 {
 			}
 		}
 
-        frameData.calculateProgDisc();
-
-        frameData.setPopulated();
+		frameData.calculateProgDisc();
+		
+		frameData.setPopulated(true);
     }
 	
 //	@Override

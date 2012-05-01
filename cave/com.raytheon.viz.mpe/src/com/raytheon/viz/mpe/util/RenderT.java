@@ -38,9 +38,10 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 11, 2009            snaples     Initial creation
+ * Date         Ticket#    Engineer    	Description
+ * ------------ ---------- ----------- 	--------------------------
+ * Mar 11, 2009            snaples     	Initial creation
+ * Apr 16, 2012			   mgamazaychik	DR9602 - made changes to how dist2 is calculated
  * 
  * </pre>
  * 
@@ -132,10 +133,13 @@ public class RenderT {
 
                     dist1 = hrap_grid.coord[i][j].lat
                             - temperature_stations.get(hh).lat;
-                    dist2 = (hrap_grid.coord[i][j].lon - temperature_stations
-                            .get(hh).lon)
+                    /*
+                     * DR9602 - Added Math.abs function to get the positive longitude
+                     */
+                    dist2 = (hrap_grid.coord[i][j].lon - Math.abs(temperature_stations
+                    		.get(hh).lon))
                             * Math.cos((hrap_grid.coord[i][j].lat + temperature_stations
-                                    .get(hh).lat) / 2 * conv);
+                            		.get(hh).lat) / 2 * conv);
 
                     dist = Math.pow(dist1, 2) + Math.pow(dist2, 2);
 
@@ -161,10 +165,12 @@ public class RenderT {
                     }
 
                     if (pcpn_time_step == 2) {
-
-                        temp = (temp + ((float) (hrap_grid.min[isom][i][j]) / 10 - temperature_stations
-                                .get(hh).min[isom])) * dist;
-
+                    	/*
+                    	 * DR9602 - made changes to improve readability of the code
+                    	 */
+                    	float hmin = hrap_grid.min[isom][i][j];
+                        float tmin = temperature_stations.get(hh).min[isom];
+                        temp = (temp + (hmin / 10 - tmin)) * dist;
                     }
 
                     value = value + temp;
@@ -213,12 +219,15 @@ public class RenderT {
                             continue;
                         }
 
-                        dist1 = hrap_grid.coord[i][j].lat
-                                - temperature_stations.get(h).lat;
-                        dist2 = (hrap_grid.coord[i][j].lon - temperature_stations
-                                .get(h).lon)
-                                * (Math.cos(hrap_grid.coord[i][j].lat
-                                        + temperature_stations.get(h).lat) / 2 * conv);
+                        dist1 = hrap_grid.coord[i][j].lat 
+                               - temperature_stations.get(h).lat;
+                        /*
+                         * DR9602 - Added Math.abs function to get the positive longitude
+                         */
+                        dist2 = (hrap_grid.coord[i][j].lon - Math.abs(temperature_stations
+                        		.get(h).lon))
+                                * Math.cos( ( hrap_grid.coord[i][j].lat + temperature_stations
+                                		.get(h).lat ) / 2 * conv);
 
                         dist = Math.pow(dist1, 2) + Math.pow(dist2, 2);
 
@@ -236,15 +245,19 @@ public class RenderT {
                         dist = 1 / dist;
 
                         temp = tdata[pcpn_day].tstn[h].tlevel2[time_pos].data;
-
+                        /*
+                         * DR9602 - made changes to improve readability of the code
+                         */
                         if (pcpn_time_step == 1) {
-                            temp = (temp + (hrap_grid.max[isom][i][j] / 10 - temperature_stations
-                                    .get(h).max[isom])) * dist;
+                        	float hmax = hrap_grid.max[isom][i][j];
+                            float tmax = temperature_stations.get(h).max[isom];
+                            temp = (temp + (hmax / 10 - tmax)) * dist;;
                         }
 
                         if (pcpn_time_step == 2) {
-                            temp = (temp + (hrap_grid.min[isom][i][j] / 10 - temperature_stations
-                                    .get(h).min[isom])) * dist;
+                        	float hmin = hrap_grid.min[isom][i][j];
+                            float tmin = temperature_stations.get(h).min[isom];
+                            temp = (temp + (hmin / 10 - tmin)) * dist;
                         }
 
                         value = value + temp;

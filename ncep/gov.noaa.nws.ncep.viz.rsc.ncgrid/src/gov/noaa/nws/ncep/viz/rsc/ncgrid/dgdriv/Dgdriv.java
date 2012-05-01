@@ -91,6 +91,9 @@ import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData;
  * 11/22/2011               X. Guo          Re-contrain datauri request map
  * 12/12/2011               X. Guo          Updated Ensemble requests
  * 01/12/2011               X. Guo          Updated getFilename()
+ * 02/02/2012               X. Guo          Updated query ensemble navigation
+ * 03/13/2012               X. Guo          Clean up
+ * 03/28/2012               X. Guo          Don't need to convert gdfile toUppercase
  * </pre>
  *
  * @author tlee
@@ -106,11 +109,9 @@ public class Dgdriv {
 	private String gdfileOriginal;
 	private NcgridResourceData gridRscData;
 	
-	private float resultMin=9999999.0f, resultMax=0.0f;
 	private ISpatialObject spatialObj; 
 	private ArrayList<DataTime> dataForecastTimes;
 	private static Connector conn;
-	private NcDataTree dataTree;
 	private NcInventory inventory;
 	
     public static final String PLUGIN_NAME_QUERY = "pluginName";
@@ -134,7 +135,7 @@ public class Dgdriv {
     
 //	private static boolean nativeLogging = true;
 	private static boolean nativeLogging = false;
-  
+
 
 	public Dgdriv() {
 		/*
@@ -154,7 +155,6 @@ public class Dgdriv {
 		scalar = false;
 		arrowVector = false;
 		dataForecastTimes = new ArrayList<DataTime>();
-	    dataTree = NcInventory.getInstance().getNcDataTree();
 	    inventory = NcInventory.getInstance();
 		try {
 			conn = Connector.getInstance();
@@ -337,9 +337,9 @@ public class Dgdriv {
 						logger.debug("retrieve data nx=" + nx +" ny=" + ny + " rDataSize=" + rDataSize);
 						gd.gem.db_returndata(flipData(rData, nx, ny),datSize);
 						long t2 = System.currentTimeMillis();
-						System.out.println("\tretrieve data took " + (t1-t0));
+//						System.out.println("\tretrieve data took " + (t1-t0));
 				        logger.debug("retrieve data took " + (t1-t0));
-				        System.out.println("\treturn data took " + (t2-t1));
+//				        System.out.println("\treturn data took " + (t2-t1));
 				        logger.debug("return data took " + (t2-t1));
 						return true;
 					} else {
@@ -363,6 +363,7 @@ public class Dgdriv {
 		@Override
 		public boolean callback(String msg) {
 			String navigationString=null;
+			logger.debug("request navigation for: " + msg );
 			long t0 = System.currentTimeMillis();
 			if (gdfile.startsWith("{") && gdfile.endsWith("}") ) {
 				navigationString = getEnsembleNavigation( msg );
@@ -373,7 +374,7 @@ public class Dgdriv {
 			logger.debug("Retrieved this navigation string " + navigationString);
 			gd.gem.db_returnnav(navigationString);
 			long t1 = System.currentTimeMillis();
-			System.out.println("\treturn navigation " + navigationString + " took " + (t1-t0));
+//			System.out.println("\treturn navigation " + navigationString + " took " + (t1-t0));
 			logger.debug("return navigation  " + navigationString + " took " + (t1-t0));
 			return true;
 		}
@@ -403,11 +404,12 @@ public class Dgdriv {
 //		}
 		public boolean callback(String msg) {
 			try {
+//				logger.debug("request datauri for:" + msg );
 				long t0 = System.currentTimeMillis();
 				String dataURI = getDataURI(msg);				
 				gd.gem.db_returnduri(dataURI);
 				long t1 = System.currentTimeMillis();
-				System.out.println("\treturn dataURI " + dataURI + " took " + (t1-t0));
+//				System.out.println("\treturn dataURI " + dataURI + " took " + (t1-t0));
 				logger.debug("return dataURI " + dataURI + " took " + (t1-t0));
 				return true;
 			} catch (VizException e) {
@@ -426,7 +428,7 @@ public class Dgdriv {
 			String cycleFcstHrsString = getCycleFcstHrsString(dataForecastTimes);
 			gd.gem.db_returnfhrs(cycleFcstHrsString);
 			long t1 = System.currentTimeMillis();
-			System.out.println("\treturn cycle forecast hours string " + cycleFcstHrsString + " took " + (t1-t0));
+//			System.out.println("\treturn cycle forecast hours string " + cycleFcstHrsString + " took " + (t1-t0));
 			logger.debug("return cycle forecast hours string " + cycleFcstHrsString + " took " + (t1-t0));
 			return true;
 		}
@@ -440,10 +442,10 @@ public class Dgdriv {
 				try {
 					long t0 = System.currentTimeMillis();
 					String fileNames = executeScript(msg);
-					System.out.println("Retrieved members:" + fileNames);
+//					System.out.println("Retrieved members:" + fileNames);
 					gd.gem.db_returnflnm(fileNames);
 					long t1 = System.currentTimeMillis();
-					System.out.println("\treturn file names string " + fileNames + " took " + (t1-t0));
+//					System.out.println("\treturn file names string " + fileNames + " took " + (t1-t0));
 					logger.debug("return file names string " + fileNames + " took " + (t1-t0));
 					return true;
 				} catch (VizException e) {
@@ -552,7 +554,7 @@ public class Dgdriv {
         	
         }
         long t06 = System.currentTimeMillis();
-        System.out.println("dgc_nfil took " + (t06-t05));
+//        System.out.println("dgc_nfil took " + (t06-t05));
         logger.debug("dgc_nfil took: " + (t06-t05));
         
         /*
@@ -672,7 +674,7 @@ public class Dgdriv {
 		}
 
 		long t012 = System.currentTimeMillis();
-		System.out.println("From gdc_nfil to dgc_grid took:" + (t012-t06));
+//		System.out.println("From gdc_nfil to dgc_grid took:" + (t012-t06));
 		logger.debug("From gdc_nfil to dgc_grid took: " + (t012-t06));
 		/*
 		 * Compute the requested grid.
@@ -698,7 +700,7 @@ public class Dgdriv {
 			}
 		}
 		long t013 = System.currentTimeMillis();
-		System.out.println("dgc_grid took " + (t013-t012));
+//		System.out.println("dgc_grid took " + (t013-t012));
 		logger.debug("dgc_grid took: " + (t013-t012));
 		
 		/*
@@ -718,28 +720,15 @@ public class Dgdriv {
 			fds.setDimension(2);				
 			fds.setSizes(new long[] { igx.getValue(), igy.getValue()});
 			fds.setVector(false);
-			
-			resultMin = rmin.getValue();
-			resultMax = rmax.getValue();
-			
+						
 			if (!scalar){  // vector
-				resultMin = 100.0f;
-				resultMax = 0.0f;
 				if ( arrowVector ) {
 					gd.gem.grc_sscl( iscalv, igx, igy, ix12, iy12, igx, igy, vgrid, rmin, rmax, iret);
 				}
 				fds.setYdata(flopData(vgrid, igx.getValue(), igy.getValue()));
 				fds.setDimension(2);
 				fds.setSizes(new long[] { igx.getValue(), igy.getValue()});
-				fds.setVector(true);
-				
-				for (int i = 0; i < grid_size; i++) {
-					if (ugrid[i] == -9999.0 || vgrid[i] == -9999.0) continue;
-					float speed = (float) Math.hypot(ugrid[i], vgrid[i]);
-					if (speed > resultMax) resultMax = speed;
-					if (speed < resultMin) resultMin = speed;
-				}
-				
+				fds.setVector(true);			
 			}
 			/*
 			 *  Free memory for all internal grids
@@ -747,7 +736,7 @@ public class Dgdriv {
 			gd.gem.dg_fall_( iret);
 	        long t1 = System.currentTimeMillis();
 	        logger.debug("Scaling took: " + (t1-t013));
-	        System.out.println("Scaling took:" + (t1-t013));
+//	        System.out.println("Scaling took:" + (t1-t013));
 	        printInfoMessage(t1 - t0);
 	        return fds;
 		}		
@@ -775,12 +764,13 @@ public class Dgdriv {
 	private void prepareGridDTInfo() {
 		String alias = this.gdfile;
 		String path = "A2DB_GRID";
+		logger.debug("prepareGridDTInfo-- alias:" + alias + " gdfileOriginal:" + this.gdfileOriginal);
 		String template = this.gdfileOriginal + "_db";
 		if ( this.gdfileOriginal.contains(":")) {
 			template = this.gdfileOriginal.substring(0, this.gdfileOriginal.indexOf(":")) + "_db";
 		}
 		IntByReference iret = new IntByReference(0);
-		System.out.println();
+//		System.out.println();
 		gd.gem.db_seta2dtinfo_ (alias, path, template, iret);
 		
 	}
@@ -817,7 +807,7 @@ public class Dgdriv {
 				if ( perturbationNum != null ) {
 					sba.append(":" + perturbationNum );
 				}
-				System.out.println();
+//				System.out.println();
 				sba.append("|");				
 			    sbt.append(getEnsembleTemplate(ensName,perturbationNum)); 
 			    sbt.append("|");
@@ -851,7 +841,7 @@ public class Dgdriv {
 		String path = sbp.toString().substring(0, sbp.toString().length()-1);
 		String template = sbt.toString().substring(0, sbt.toString().length()-1);
 		IntByReference iret = new IntByReference(0);
-		System.out.println();
+//		System.out.println();
 		gd.gem.db_seta2dtinfo_ (alias, path, template, iret);
 	}
 
@@ -875,7 +865,7 @@ public class Dgdriv {
 			pdoList = conn.connect(scriptToRun, null, 60000);
 			String ensTemplate = (String) pdoList[0];
 			long t1 = System.currentTimeMillis();
-	        System.out.println("\tgetEnsembleTemplate took: " + (t1-t0));
+//	        System.out.println("\tgetEnsembleTemplate took: " + (t1-t0));
 	        logger.debug("getEnsembleTemplate took: " + (t1-t0));
 			return ensTemplate;
 		} catch (VizException e) {
@@ -1096,7 +1086,7 @@ public class Dgdriv {
 		toprint.append(" ^" + this.gdattim + " @" + this.glevel + " %" + this.gvcord.toUpperCase());
 		toprint.append(" from " + this.dataSource + " took: " + t + " ms\n");
 //		toprint.append("\nMin: " + resultMin + "    Max: " + resultMax + "\n");
-		System.out.println(toprint.toString());
+//		System.out.println(toprint.toString());
 		logger.debug(toprint.toString());
 		
 	}
@@ -1112,6 +1102,7 @@ public class Dgdriv {
 
 			IDataStore ds = DataStoreFactory.getDataStore(new File(fileName));
 			dr = ds.retrieve("", dataURI + "/" + dataset, request);
+//			dr = ds.retrieve(dataURI ,dataset, request);
 			float[] data = (float[]) dr.getDataObject();
 			long t002 = System.currentTimeMillis();
 			logger.debug("Reading " + dataURI + " from hdf5 took: " + (t002-t001));
@@ -1297,7 +1288,7 @@ public class Dgdriv {
 		pdoList = conn.connect(scriptToRun, null, 60000);
 		String navStr = (String) pdoList[0];
 		long t1 = System.currentTimeMillis();
-        System.out.println("\texecuteScript(dataURI) took: " + (t1-t0));
+//        System.out.println("\texecuteScript(dataURI) took: " + (t1-t0));
         logger.debug("executeScript took: " + (t1-t0));
 		return navStr;
 	}
@@ -1366,7 +1357,7 @@ public class Dgdriv {
 
 		NcgribRecord rec = (NcgribRecord) pdoList[0];
 		long t1 = System.currentTimeMillis();
-        System.out.println("\tgetDataURI took: " + (t1-t0));
+//        System.out.println("\tgetDataURI took: " + (t1-t0));
         logger.debug("getDataURI took: " + (t1-t0));
 		return rec.getDataURI();
 	}
@@ -1427,7 +1418,7 @@ public class Dgdriv {
 								else sba.append (String.valueOf(mbrWt));
 								sba.append ("%");
 							}
-							sba.append(model.toUpperCase());
+							sba.append(model);
 							sba.append(":");
 							sba.append (mb);
 							if ( cycleTime != null ) {
@@ -1456,6 +1447,7 @@ public class Dgdriv {
 	
 	private String getEnsembleNavigation ( String msg){
 		String navStr = null;
+		logger.debug("getEnsembleNavigation: " + msg + " dataTime:" + dataForecastTimes.get(0).toString());
 		String []tmpAttrs = msg.split("\\|");
 		Map<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
 		queryList.put(PLUGIN_NAME_QUERY, new RequestConstraint( "ncgrib", ConstraintType.EQUALS ) );
@@ -1465,10 +1457,17 @@ public class Dgdriv {
 			queryList.put("eventName", 
 					new RequestConstraint( tmpAttrs[1], ConstraintType.EQUALS ) );
 		}
+		if ( tmpAttrs[2] != null && tmpAttrs[2].length() > 0) {
+			String navTime = buildRefTime(tmpAttrs[2]);
+			logger.debug("getEnsembleNavigation: " + navTime );
+			queryList.put("dataTime", new RequestConstraint( navTime ) );
+		}
+		else {
+			queryList.put("dataTime", new RequestConstraint( dataForecastTimes.get(0).toString() ) );
+		}
         
 		LayerProperty prop = new LayerProperty();
 		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		queryList.put("dataTime", new RequestConstraint( dataForecastTimes.get(0).toString() ) );
 		try {
 			prop.setEntryQueryParameters(queryList, false);
 			prop.setNumberOfImages(1);
@@ -1490,6 +1489,26 @@ public class Dgdriv {
         	return null;
         }
 		return navStr;
+	}
+	
+	private String buildRefTime( String navTime) {
+		StringBuffer reftime = new StringBuffer();
+		String []dt = navTime.split("f");
+		reftime.append(dt[0].substring(0, 4));
+		reftime.append("-");
+		reftime.append (dt[0].substring(4, 6));
+		reftime.append("-");
+		reftime.append (dt[0].substring(6, 8));
+		reftime.append(" ");
+		reftime.append (dt[0].substring(8,dt[0].length() ));
+		reftime.append(":00:00.0 (");
+		int ft =0;
+		if ( dt[1] != null && dt[1].length() > 0 ){
+			ft = Integer.parseInt(dt[1]);
+		}
+		reftime.append(String.valueOf(ft));
+		reftime.append(")");
+		return reftime.toString();
 	}
 }
 
