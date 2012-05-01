@@ -1,4 +1,4 @@
-package com.raytheon.viz.core.gl.internal.ext;
+package com.raytheon.viz.core.gl.ext;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -12,13 +12,13 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
-import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
 import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
+import com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension;
 
 public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         implements IOffscreenRenderingExtension {
@@ -37,7 +37,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         if (glImage.getStatus() == IImage.Status.UNLOADED
                 || glImage.getStatus() == IImage.Status.LOADING) {
             glImage.setStatus(IImage.Status.LOADING);
-            glImage.stageTexture();
+            glImage.stage();
         }
 
         if (glImage.getStatus() == IImage.Status.STAGED) {
@@ -63,7 +63,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
      */
     @Override
     public int getCompatibilityValue(IGLTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE.value;
+        return Compatibilty.TARGET_COMPATIBLE;
     }
 
     /*
@@ -73,8 +73,9 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
      * constructOffscreenImage(java.lang.Class, java.awt.Rectangle)
      */
     @Override
-    public IImage constructOffscreenImage(Class<? extends Buffer> dataType,
-            int[] dimensions) throws VizException {
+    public AbstractGLImage constructOffscreenImage(
+            Class<? extends Buffer> dataType, int[] dimensions)
+            throws VizException {
         return constructOffscreenImage(dataType, dimensions, null);
     }
 
@@ -85,9 +86,9 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
      * constructOffscreenImage(java.lang.Class, java.awt.Rectangle)
      */
     @Override
-    public IImage constructOffscreenImage(Class<? extends Buffer> dataType,
-            final int[] dimensions, ColorMapParameters parameters)
-            throws VizException {
+    public AbstractGLImage constructOffscreenImage(
+            Class<? extends Buffer> dataType, final int[] dimensions,
+            ColorMapParameters parameters) throws VizException {
         int width = dimensions[0];
         int height = dimensions[1];
         // Need to add support for multiple buffer types
@@ -102,10 +103,10 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         }
 
         if (imageBuffer != null) {
-            IImage image = null;
+            AbstractGLImage image = null;
             final Buffer buffer = imageBuffer;
-            IColormappedImageExtension cmapExt = target
-                    .getExtension(IColormappedImageExtension.class);
+            GLColormappedImageExtension cmapExt = target
+                    .getExtension(GLColormappedImageExtension.class);
             if (supportsLuminance) {
                 image = cmapExt.initializeRaster(
                         new IColorMapDataRetrievalCallback() {
