@@ -17,24 +17,25 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.radar.gl.mosaic;
+package com.raytheon.uf.viz.core.drawables.ext;
+
+import java.awt.image.RenderedImage;
+
+import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.IGLTarget;
-import com.raytheon.viz.core.gl.glsl.AbstractShaderLoader;
-import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 
 /**
- * TODO Add Description
+ * Extension for creating images that should be mapped to a single color
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 20, 2010            mschenke     Initial creation
+ * Dec 15, 2011            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -42,22 +43,23 @@ import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
  * @version 1.0
  */
 
-public class CompReflShaderLoader extends AbstractShaderLoader {
+public interface ISingleColorImageExtension extends IImagingExtension {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.glsl.IShaderLoader#loadData(com.raytheon.viz
-     * .core.gl.IGLTarget, com.raytheon.viz.core.gl.glsl.GLShaderProgram,
-     * com.raytheon.uf.viz.core.drawables.IImage,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
-    @Override
-    public void loadData(IGLTarget target, GLShaderProgram program,
-            IImage image, PaintProperties paintProps) throws VizException {
-        // load radar data to GL_TEXTURE0 (bound in drawRaster)
-        program.setUniform("radarData", 0);
+    public static interface ISingleColorImage extends IImage {
+
+        public void setColor(RGB color);
+
     }
+
+    /**
+     * Construct an ISingleColorImage image that maps the image passed into to
+     * the single color value
+     * 
+     * @param image
+     * @param color
+     * @return
+     * @throws VizException
+     */
+    public ISingleColorImage constructImage(RenderedImage image, RGB color);
 
 }

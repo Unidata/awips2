@@ -377,6 +377,22 @@ public class VizWorkbenchManager implements IPartListener, IPartListener2,
             if (parts != null) {
                 parts.add((IEditorPart) part);
             }
+
+            IEditorPart active = activeEditorMap.get(part.getSite()
+                    .getWorkbenchWindow());
+            if (active == null) {
+                // Active will be null if our active editor became hidden, try
+                // and get an active editor from the page
+                active = part.getSite().getPage().getActiveEditor();
+                if (active == null) {
+                    // Active will be null here if the page doesn't have an
+                    // active editor so we should use the part that became
+                    // visible
+                    active = (IEditorPart) part;
+                }
+                activeEditorMap
+                        .put(part.getSite().getWorkbenchWindow(), active);
+            }
         }
     }
 
