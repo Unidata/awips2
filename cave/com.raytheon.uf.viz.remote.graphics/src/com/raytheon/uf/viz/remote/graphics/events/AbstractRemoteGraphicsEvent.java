@@ -19,10 +19,11 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
 /**
- * Interface for objects that events for actually rendering an object. These
- * types of events can be skipped over unlike data events which are required to
- * execute at some point. Render events must implements equals
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -30,20 +31,32 @@ package com.raytheon.uf.viz.remote.graphics.events;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 9, 2012            mschenke     Initial creation
+ * Mar 8, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
+@DynamicSerialize
+public abstract class AbstractRemoteGraphicsEvent {
 
-public interface IRenderEvent {
+    @DynamicSerializeElement
+    private int displayId;
 
-    @Override
-    public abstract boolean equals(Object obj);
+    /**
+     * @return the displayId
+     */
+    public int getDisplayId() {
+        return displayId;
+    }
 
-    public abstract IRenderEvent createDiffObject(IRenderEvent event);
+    /**
+     * @param displayId
+     *            the displayId to set
+     */
+    public void setDisplayId(int displayId) {
+        this.displayId = displayId;
+    }
 
-    public abstract void applyDiffObject(IRenderEvent diffEvent);
 }

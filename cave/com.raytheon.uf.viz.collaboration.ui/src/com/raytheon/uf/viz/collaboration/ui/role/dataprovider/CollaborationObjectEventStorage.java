@@ -20,6 +20,10 @@
 package com.raytheon.uf.viz.collaboration.ui.role.dataprovider;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -76,7 +80,7 @@ public class CollaborationObjectEventStorage implements
             ISharedDisplaySession session) throws CollaborationException {
         CollaborationObjectEventStorage persistance = new CollaborationObjectEventStorage(
                 session);
-        persistance.setupStorage();
+        persistance.createFolder(URI.create(persistance.sessionDataURL));
         return persistance;
     }
 
@@ -85,29 +89,18 @@ public class CollaborationObjectEventStorage implements
         return new CollaborationObjectEventStorage(session);
     }
 
-    private ISharedDisplaySession session;
-
     private String sessionDataURL;
 
     private HttpClient client;
 
     private CollaborationObjectEventStorage(ISharedDisplaySession session) {
-        this.session = session;
         this.client = HttpClient.getInstance();
-    }
-
-    private void setupStorage() throws CollaborationException {
         String collaborationServer = Activator.getDefault()
                 .getPreferenceStore().getString(CollabPrefConstants.P_SERVER);
         if (collaborationServer != null) {
             sessionDataURL = String.format(SESSION_DATA_URL_FORMAT_STRING,
                     collaborationServer, SESSION_DATA_PORT);
-            createFolder(session.getSessionId());
-            // Successful creation of session folder, add to base url
             sessionDataURL += session.getSessionId() + "/";
-        } else {
-            throw new CollaborationException(
-                    "Could not retrieve collaboration server from preferences");
         }
     }
 
@@ -134,12 +127,16 @@ public class CollaborationObjectEventStorage implements
 
         try {
             CollaborationHttpPersistedEvent wrapped = new CollaborationHttpPersistedEvent();
-            String eventObjectURL = sessionDataURL + event.getObjectId() + "/"
+            String objectPath = event.getObjectId() + "/"
                     + event.getClass().getName() + ".obj";
+            String eventObjectURL = sessionDataURL + objectPath;
             HttpPut put = new HttpPut(eventObjectURL);
 
+            CollaborationHttpPersistedObject persistObject = new CollaborationHttpPersistedObject();
+            persistObject.persistTime = System.currentTimeMillis();
+            persistObject.event = event;
             byte[] toPersist = Tools.compress(SerializationUtil
-                    .transformToThrift(event));
+                    .transformToThrift(persistObject));
             stats.log(event.getClass().getSimpleName(), toPersist.length, 0);
             put.setEntity(new ByteArrayEntity(toPersist));
             HttpClientResponse response = executeRequest(put);
@@ -149,7 +146,7 @@ public class CollaborationObjectEventStorage implements
                                 + eventObjectURL + " : "
                                 + new String(response.data));
             }
-            wrapped.setResourceURL(eventObjectURL);
+            wrapped.setResourcePath(objectPath);
             return wrapped;
         } catch (CollaborationException e) {
             throw e;
@@ -182,30 +179,43 @@ public class CollaborationObjectEventStorage implements
     public AbstractDispatchingObjectEvent retrieveEvent(IPersistedEvent event)
             throws CollaborationException {
         if (event instanceof CollaborationHttpPersistedEvent) {
-            String objectURL = ((CollaborationHttpPersistedEvent) event)
-                    .getResourceURL();
-            HttpGet get = new HttpGet(objectURL);
-            HttpClientResponse response = executeRequest(get);
-            if (isSuccess(response.code)) {
-                try {
-                    stats.log(event.getClass().getSimpleName(), 0,
-                            response.data.length);
-                    return (AbstractDispatchingObjectEvent) SerializationUtil
-                            .transformFromThrift(Tools
-                                    .uncompress(response.data));
-                } catch (SerializationException e) {
-                    throw new CollaborationException(e);
-                }
+            CollaborationHttpPersistedObject object = retreiveStoredObject((CollaborationHttpPersistedEvent) event);
+            if (object != null && object.event != null) {
+                stats.log(object.event.getClass().getSimpleName(), 0,
+                        object.dataSize);
+                return object.event;
             } else {
                 throw new CollaborationException(
-                        "Error retrieving object from url " + objectURL + " : "
-                                + new String(response.data));
+                        "Unable to deserialize persisted event into event object");
             }
         } else if (event instanceof CollaborationWrappedEvent) {
             return ((CollaborationWrappedEvent) event).getEvent();
         } else {
             throw new CollaborationException(
                     "Unable to retreieve event for object: " + event);
+        }
+    }
+
+    private CollaborationHttpPersistedObject retreiveStoredObject(
+            CollaborationHttpPersistedEvent event)
+            throws CollaborationException {
+        String objectPath = event.getResourcePath();
+        HttpGet get = new HttpGet(sessionDataURL + objectPath);
+        HttpClientResponse response = executeRequest(get);
+        if (isSuccess(response.code)) {
+            try {
+                CollaborationHttpPersistedObject dataObject = (CollaborationHttpPersistedObject) SerializationUtil
+                        .transformFromThrift(Tools.uncompress(response.data));
+                if (dataObject != null) {
+                    dataObject.dataSize = response.data.length;
+                }
+                return dataObject;
+            } catch (SerializationException e) {
+                throw new CollaborationException(e);
+            }
+        } else {
+            throw new CollaborationException("Error retrieving object from "
+                    + objectPath + " : " + new String(response.data));
         }
     }
 
@@ -219,19 +229,80 @@ public class CollaborationObjectEventStorage implements
     @Override
     public AbstractDispatchingObjectEvent[] retrieveObjectEvents(int objectId)
             throws CollaborationException {
-        // TODO: Retrieve all events for the given objectId
-        throw new CollaborationException(
-                "Retrieving objects for creation is not supported yet!");
+        String objectURL = sessionDataURL + objectId + "/";
+        HttpGet get = new HttpGet(objectURL + "?C=M;O=A");
+        HttpClientResponse response = executeRequest(get);
+        if (isSuccess(response.code) == false) {
+            if (isNotExists(response.code)) {
+                return new AbstractDispatchingObjectEvent[0];
+            }
+            throw new CollaborationException(
+                    "Error retrieving object events, received code: "
+                            + response.code);
+        }
+        CollaborationHttpPersistedEvent event = new CollaborationHttpPersistedEvent();
+        List<CollaborationHttpPersistedObject> objectEvents = new ArrayList<CollaborationHttpPersistedObject>();
+        // parse out links of objects
+        String htmlStr = new String(response.data);
+        int searchIdx = 0;
+        String searchStrStart = "<a href=\"";
+        String objectEnding = ".obj";
+        String searchStrEnd = "\">";
+        int searchStrLen = searchStrStart.length();
+        while (searchIdx > -1) {
+            int previousIdx = searchIdx;
+            int foundAt = htmlStr.indexOf(searchStrStart, searchIdx);
+            // reset searchIdx to -1 until found
+            searchIdx = -1;
+            if (foundAt > previousIdx) {
+                foundAt += searchStrLen;
+                int endsAt = htmlStr.indexOf(searchStrEnd, foundAt);
+                if (endsAt > foundAt) {
+                    String object = htmlStr.substring(foundAt, endsAt);
+                    if (object.endsWith(objectEnding)) {
+                        event.setResourcePath(objectURL + object);
+                        CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
+                        if (eventObject != null) {
+                            objectEvents.add(eventObject);
+                        }
+                    }
+                    searchIdx = endsAt + 1;
+                }
+            }
+        }
+
+        // Sort by creation time
+        Collections.sort(objectEvents,
+                new Comparator<CollaborationHttpPersistedObject>() {
+                    @Override
+                    public int compare(CollaborationHttpPersistedObject o1,
+                            CollaborationHttpPersistedObject o2) {
+                        return (int) (o1.persistTime - o2.persistTime);
+                    }
+                });
+
+        AbstractDispatchingObjectEvent[] events = new AbstractDispatchingObjectEvent[objectEvents
+                .size()];
+        int i = 0;
+        for (CollaborationHttpPersistedObject object : objectEvents) {
+            events[i++] = object.event;
+        }
+
+        return events;
     }
 
     private void createFolder(String folderPath) throws CollaborationException {
+        createFolder(URI.create(sessionDataURL + folderPath));
+    }
+
+    private void createFolder(URI folderPath) throws CollaborationException {
         HttpRequestBase mkcol = new HttpRequestBase() {
             @Override
             public String getMethod() {
                 return "MKCOL";
             }
         };
-        mkcol.setURI(URI.create(sessionDataURL + folderPath));
+        mkcol.setURI(folderPath);
         HttpClientResponse rsp = executeRequest(mkcol);
         if (isSuccess(rsp.code) == false) {
             throw new CollaborationException("Folder creation failed for "
@@ -266,25 +337,68 @@ public class CollaborationObjectEventStorage implements
     }
 
     @DynamicSerialize
+    public static class CollaborationHttpPersistedObject {
+
+        @DynamicSerializeElement
+        private long persistTime;
+
+        @DynamicSerializeElement
+        private AbstractDispatchingObjectEvent event;
+
+        private long dataSize;
+
+        /**
+         * @return the persistTime
+         */
+        public long getPersistTime() {
+            return persistTime;
+        }
+
+        /**
+         * @param persistTime
+         *            the persistTime to set
+         */
+        public void setPersistTime(long persistTime) {
+            this.persistTime = persistTime;
+        }
+
+        /**
+         * @return the event
+         */
+        public AbstractDispatchingObjectEvent getEvent() {
+            return event;
+        }
+
+        /**
+         * @param event
+         *            the event to set
+         */
+        public void setEvent(AbstractDispatchingObjectEvent event) {
+            this.event = event;
+        }
+
+    }
+
+    @DynamicSerialize
     public static class CollaborationHttpPersistedEvent implements
             IPersistedEvent {
 
         @DynamicSerializeElement
-        private String resourceURL;
+        private String resourcePath;
 
         /**
          * @return the resourceURL
          */
-        public String getResourceURL() {
-            return resourceURL;
+        public String getResourcePath() {
+            return resourcePath;
         }
 
         /**
          * @param resourceURL
          *            the resourceURL to set
          */
-        public void setResourceURL(String resourceURL) {
-            this.resourceURL = resourceURL;
+        public void setResourcePath(String resourceURL) {
+            this.resourcePath = resourceURL;
         }
     }
 

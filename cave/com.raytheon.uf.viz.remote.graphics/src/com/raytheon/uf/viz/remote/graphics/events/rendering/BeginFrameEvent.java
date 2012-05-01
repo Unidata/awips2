@@ -17,13 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
 import java.util.Arrays;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 
 /**
  * TODO Add Description
@@ -42,8 +41,7 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class BeginFrameEvent extends AbstractRemoteGraphicsEvent implements
-        IRenderEvent {
+public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
     private double extentFactor;
@@ -79,18 +77,6 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsEvent implements
      */
     public void setExtentCenter(double[] extentCenter) {
         this.extentCenter = extentCenter;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
-     */
-    @Override
-    public IRenderEvent createDiffObject(IRenderEvent event) {
-        return event;
     }
 
     /*
