@@ -19,11 +19,17 @@
  **/
 package com.raytheon.uf.viz.core.drawables.ext.colormap;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.IColormappedImage;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
+import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * General colormapped image extension. Uses
@@ -56,10 +62,10 @@ public class GeneralColormappedImageExtension extends
      * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
      */
     @Override
-    public IImage initializeRaster(IColorMapDataRetrievalCallback dataCallback,
+    public IColormappedImage initializeRaster(
+            IColorMapDataRetrievalCallback dataCallback,
             ColorMapParameters colorMapParameters) {
-        return target.initializeRaster(new ColormappedRenderedImageCallback(
-                dataCallback, colorMapParameters));
+        return new ColormappedImage(target, dataCallback, colorMapParameters);
     }
 
     /*
@@ -70,7 +76,29 @@ public class GeneralColormappedImageExtension extends
      */
     @Override
     public int getCompatibilityValue(IGraphicsTarget target) {
-        return Compatibilty.GENERIC.value;
+        return Compatibilty.GENERIC;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.ext.IImagingExtension#drawRasters(
+     * com.raytheon.uf.viz.core.drawables.PaintProperties,
+     * com.raytheon.uf.viz.core.DrawableImage[])
+     */
+    @Override
+    public boolean drawRasters(PaintProperties paintProps,
+            DrawableImage... images) throws VizException {
+        List<DrawableImage> renderables = new ArrayList<DrawableImage>();
+        for (DrawableImage di : images) {
+            if (di.getImage() instanceof ColormappedImage) {
+                renderables.add(new DrawableImage(((ColormappedImage) di
+                        .getImage()).getWrappedImage(), di.getCoverage()));
+            }
+        }
+        return target.drawRasters(paintProps,
+                renderables.toArray(new DrawableImage[renderables.size()]));
     }
 
 }
