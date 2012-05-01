@@ -20,7 +20,7 @@
 # This is an example localConfig.py file to modify the weather element
 # and time constraint relationship for the Fcst and Official Databases
 # to the following:
-# T, Td, Wind, Wx, Sky: 3 hours long, no gaps
+# T, Td, Wind, Wx, Sky: 3 hours long, no gaps 
 # MaxT : 4am - 10pm local time
 # MinT : 4pm - 10am local time
 

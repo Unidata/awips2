@@ -230,6 +230,67 @@ public class NsharpNative {
     		
     	}
     	
+    	
+    	
+    	public static int MAX_CLOUD_LAYER=20;
+    	//cloudTypeFM value defined in caveNsharp.c OVC=1, BKN=2, SCT=3*/
+    	public static String[] CLOUD_TYPE = {"dummy","OVC", "BKN", "SCT"}; 
+    	public static class CloudInfoStr extends Structure {
+    		/* FM: Fred Mosher's Algorithm */
+    		public int sizeFM;
+    		public float[] preStartFM= new float[MAX_CLOUD_LAYER];
+    		public float[] preEndFM= new float[MAX_CLOUD_LAYER];
+    		public int[] cloudTypeFM= new int[MAX_CLOUD_LAYER];
+    		/* CE: Chernykh and Eskridge Algorithm */
+    		public int sizeCE;
+    		public float[] preStartCE= new float[MAX_CLOUD_LAYER];
+    		public float[] preEndCE= new float[MAX_CLOUD_LAYER];
+    		
+    		public  CloudInfoStr() {
+    			super();
+    			sizeFM=0;
+    			sizeCE=0;
+    		}
+    		
+    		protected ByReference newByReference() { return new ByReference(); }
+    		protected ByValue newByValue() { return new ByValue(); }
+    		protected CloudInfoStr newInstance() { return new CloudInfoStr(); }
+     		public static class ByReference extends CloudInfoStr implements Structure.ByReference {
+
+    		}
+    		public static class ByValue extends CloudInfoStr implements Structure.ByValue {
+
+    		}
+			public int getSizeFM() {
+				return sizeFM;
+			}
+
+			public int[] getCloudTypeFM() {
+				return cloudTypeFM;
+			}
+
+			public int getSizeCE() {
+				return sizeCE;
+			}
+
+			public float[] getPreStartCE() {
+				return preStartCE;
+			}
+
+			public float[] getPreEndCE() {
+				return preEndCE;
+			}
+
+			public float[] getPreStartFM() {
+				return preStartFM;
+			}
+
+			public float[] getPreEndFM() {
+				return preEndFM;
+			}
+			
+    		
+    	}
     	public static class StormSlinkyStr extends Structure {
     		public int size;
     		public float tottim;
@@ -241,16 +302,7 @@ public class NsharpNative {
     			super();
     			size=-1;
     		}
-    		/// @param tsuv C type : float[200][2]
-    		/*public  StormSlinkyStr(int size, float tottim, float angl, float tsuv[]) {
-    			super();
-    			this.size = size;
-    			this.tottim = tottim;
-    			this.angl = angl;
-    			if (tsuv.length != this.tsuv.length) 
-    				throw new java.lang.IllegalArgumentException("Wrong array size !");
-    			this.tsuv = tsuv;
-    		}*/
+    		
     		protected ByReference newByReference() { return new ByReference(); }
     		protected ByValue newByValue() { return new ByValue(); }
     		protected StormSlinkyStr newInstance() { return new StormSlinkyStr(); }
@@ -307,6 +359,7 @@ public class NsharpNative {
      	void get_storm(FloatByReference speed, FloatByReference direction);
      	void set_storm(float speed, float  direction);
      	void cave_visual1 ( float lower, float upper, float pres, float temp, float dwpt , NsharpLibrary.StormSlinkyStr stmSlinky);
+     	void draw_Clouds( NsharpLibrary.CloudInfoStr cloudInfo );
      	//float cave_bulk_rich ( float lplpres, float bplus,FloatByReference brnshear );
      	float cave_bulk_rich2 ( FloatByReference brnshear );
      	float cave_ship();

@@ -12,16 +12,9 @@
 <div class="3Heading">
 <h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
 Graphical Hardware Configuration</h2>
-The GFE is intended to run on a host of platforms.&nbsp; Some
-of these platforms contain graphical hardware accelerators.&nbsp; The
-GFE
-will attempt to take advantage of the hardware accelerators by using
-24-bit
-plane visuals, double-buffering extensions, bitmaps, and overlay
-planes.&nbsp;
-This section also controls some of the font sizes that are used in the
+This section controls some of the font sizes that are used in the
 GFE.</div>
-<div class="3Heading">&nbsp;
+<div class="3Heading">
 <table nosave="" border="1" cols="4" width="100%">
   <tbody>
     <tr>
@@ -36,13 +29,6 @@ GFE.</div>
       </td>
       <td>
       <center><b>Notes</b></center>
-      </td>
-    </tr>
-    <tr>
-      <td><a href="#UseBitmaps">Use Bitmaps&nbsp;</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
       </td>
     </tr>
     <tr>
@@ -61,30 +47,11 @@ Panes</a></td>
       <td><br>
       </td>
     </tr>
-    <tr>
-      <td><a href="#Geometry">Initial GFE&nbsp;Geometry</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
-      </td>
-    </tr>
   </tbody>
 </table>
 </div>
 <blockquote> </blockquote>
 <hr style="width: 100%; height: 2px;">
-<h4><br>
-</h4>
-<a name="UseBitmaps"></a><font size="+1">Use Bitmaps</font>
-The useBitmaps indicate whether bit maps will be used for graphics
-performance.
-Some PC X servers do not implement a bitmap stipple fill in hardware.
-This
-can make the default rendering mode of maps (and other bitmaps) slow.
-If
-you suspect this might be the case, then set the following to 0.
-<p><b><tt>useBitmaps = 1</tt></b> <br>
-&nbsp; </p>
 <h4><a name="Fonts"></a><font size="+1">Fonts</font></h4>
 The fonts used by the GFE can be controlled.&nbsp; For alignment
 purposes
@@ -124,30 +91,10 @@ change the <a
 colors</a> and <a href="gfeConfig_Samp.html#ImageLegendColor">image
 legend
 colors</a> to prevent conflicts.
-<p><b><tt>bgColor = "black"</tt></b> <br>
-&nbsp; </p>
-<h4><a name="Geometry"></a><font size="+1">Initial GFE&nbsp;Geometry</font></h4>
-The initial GFE&nbsp;geometry may be specified using the geometry
-identifier.&nbsp;
-The height and width of the initial GFE may be specified.&nbsp; The
-default
-is that the GFE will occupy 90% of the available space on the
-screen.&nbsp;
-This can be a problem for multiple-headed displays, since the GFE may
-initially
-be displayed across the two graphic heads.&nbsp; The format of the
-geometry
-is the standard X&nbsp;format, thus the initial location may also be
-specified,
-as in the second example.&nbsp; Refer to the X manuals for details on
-the
-geometry specification: &lt;&gt;<b><tt>geometry = '800x600'</tt></b> <br>
-<b><tt>-or-</tt></b> <br>
-<b><tt>geometry = '800x600+200+150'</tt></b> <br>
-&nbsp; <br>
-<hr style="width: 100%; height: 2px;">&nbsp;
+<p><b><tt>bgColor = "black"</tt></b> <br></p>
+<hr style="width: 100%; height: 2px;">
 <div class="Body">
-<center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+<center><a href="GFESuite.html">Back To TOC</a></center>
 </div>
 </div>
 </body>

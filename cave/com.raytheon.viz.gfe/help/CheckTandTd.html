@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
-  <title></title>
+  <title>CheckTandTd</title>
   <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
   <meta name="CREATED" content="19951121;16410000">
   <meta name="CHANGED" content="20050706;13040400">
@@ -59,7 +59,7 @@ CheckTandTd procedure begins by retrieving all of the MinT, MaxT, T,
 and Td grid inventory. These timeRanges are used later throughout
 the code, and allow the tool to work in any time zone. Next, each
 MinT grid and all T grids that correspond to the associated MinT
-timeRange are retrieved. Using Numeric Python, each T grid is
+timeRange are retrieved. Using numpy, each T grid is
 compared with the MinT grid to identify where T grid points are lower
 than the MinT grid. A temporary grid is created (named TLessThanMin)
 that highlights where this condition is met by flagging the grid with
@@ -137,33 +137,5 @@ before running this tool.</font>
 <br>
 <font face="New Century Schoolbook, Times New Roman, serif">No
 special configuration is required with this tool.</font>
-<br>
-<br>
-<big><big><font face="New Century Schoolbook, serif"><b>Installing the
-Tool</b></font>
-</big></big><br>
-<br>
-<font face="New Century Schoolbook, serif">A copy of
-<b>GFE_module_installer.sh</b>, authored by Paul Jendrowski, has been
-included in the distribution for convenience. To use it, install all
-of the files included with this distribution in a directory. Then
-run the GFE_module_installer to install the files. For more
-information on the GFE_module_installer see the web page at:</font>
-<br>
-<br>
-<font color="#000080"><u><a
- href="http://140.90.90.253/%7Eapplications/LAD/generalappinfoout.php3?appnum=1389"><font
- size="2"><font face="New Century Schoolbook, serif">http://140.90.90.253/~applications/LAD/generalappinfoout.php3?appnum=1389</font></font></a></u></font>
-<br>
-<br>
-<font size="3"><font face="New Century Schoolbook, serif">If you choose
-not to use the GFE_module_installer, you can install these files by
-hand using the ifpServerText command. Type <b>ifpServerText </b><span
- style="">in
-the gfe bin directory for more information.</span></font></font>
-<br>
-<br>
-<p class="western" style="margin-bottom: 0in;" lang="en-US"><br>
-</p>
 </body>
 </html>

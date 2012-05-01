@@ -98,7 +98,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  12/07/2011     #529    bhebbard    Change "plotAll" criteria for new user "Plot All" option
  *  12/16/2011     #529    bhebbard    Suppress (for now) pre-draw check for non-timematching
  *                                     stations, due to undesirable "blinking" effect
- * 
+ *  02/16/2012     #555    sgurung     Changed setPopulated() to setPopulated(true) in populateFrame().
+ *  02/16/2012     #639    Q.Zhou      Changed maxDensity to 3.0(Could do 4 or 5 if needed)
  * </pre>
  * 
  * @author brockwoo
@@ -278,7 +279,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     private double zoomLevel;
 
     private double density;
-    static final float MAX_DENSITY = 2.0f;
+    static final float MAX_DENSITY = 3.0f;
 
     private PaintProperties lastProps;
     private FrameData       lastFrameData;
@@ -470,7 +471,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 
 	        calculateProgDisc();
 
-	        setPopulated();
+	        setPopulated(true);
 
 	        return true;
 	    }

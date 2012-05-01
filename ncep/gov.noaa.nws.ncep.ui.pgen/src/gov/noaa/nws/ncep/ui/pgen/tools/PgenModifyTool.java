@@ -39,6 +39,8 @@ import gov.noaa.nws.ncep.ui.pgen.tools.PgenModifyLine;
  * ------------	----------	-----------	--------------------------
  * 05/09		#120		J. Wu   	Initial Creation.
  * 04/10		#165		G. Zhang	Added isModifiableSigmet()
+ * 02/12        #597        S. Gurung   Removed snapping while modification for all sigmets. 
+ * 										Moved snap functionalities to SnapUtil from SigmetInfo. 
  *
  * </pre>
  * 
@@ -148,7 +150,7 @@ public class PgenModifyTool extends AbstractPgenTool {
     			    }
     			    
                		pml.setClickPts( latlonToPixel( clickPts.toArray( new Coordinate[clickPts.size()] ) ) );
-    		        
+    		       
                		ModifyLine();           		                  		            		    
         		           		    
         			ghostEl.setColors(new Color[]{ ghostColor, new java.awt.Color( 255,255,255)});
@@ -190,7 +192,7 @@ public class PgenModifyTool extends AbstractPgenTool {
             		    		drawingLayer.replaceElement( drawingLayer.getSelectedDE(), mpe ); 
             		    		
             		    		//need snapping, get ghostEl's points with mpe's pgenType
-            		    		if( isModifiableSigmet(mpe)){ 
+            		    		/*if( isModifiableSigmet(mpe)){ 
 									ArrayList<Coordinate> list = SigmetInfo.getSnapWithStation(
 											ghostEl.getPoints(), 
 											SigmetInfo.VOR_STATION_LIST, 
@@ -198,7 +200,7 @@ public class PgenModifyTool extends AbstractPgenTool {
 											SigmetInfo.getNumOfCompassPts(mpe));
 									//ArrayList<Coordinate> list2 = SigmetInfo.getNonDplicList(list);
 									mpe.setPoints(list);//2);
-								}else
+								}else*/
 									mpe.setPoints(ghostEl.getPoints());
             		    		
             		    		drawingLayer.setSelected( mpe );
@@ -261,7 +263,7 @@ public class PgenModifyTool extends AbstractPgenTool {
             	newPts.add( loc );
             	
             	pml.setClickPts( latlonToPixel( newPts.toArray( new Coordinate[newPts.size()] ) ) );
-    		    
+            	
     		    ModifyLine();    		    
     		               
 		       	ghostEl.setColors(new Color[]{ ghostColor, new java.awt.Color( 255,255,255)});
