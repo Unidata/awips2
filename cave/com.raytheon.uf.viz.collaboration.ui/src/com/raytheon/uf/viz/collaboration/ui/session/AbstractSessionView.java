@@ -327,8 +327,11 @@ public abstract class AbstractSessionView extends ViewPart {
 
     private void createNotifier(UserId id, String time, String body) {
         String text = id.getName();
-        if (id.getAlias() != null && !id.getAlias().isEmpty()) {
-            text = id.getAlias();
+        for (UserId uid : userIds) {
+            if (uid.equals(id)) {
+                text = uid.getAlias();
+                break;
+            }
         }
         String titleText = "(" + time + ") " + text;
         PopupNotifier.notify(titleText, body);
