@@ -27,7 +27,6 @@ import java.util.Set;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
@@ -103,18 +102,15 @@ public class SharedDisplaySessionMgr {
     }
 
     /**
-     * Notifies the shared display session manager that an editor is associated
-     * with the session
+     * Removes a session from the manager.
      * 
-     * @param session
-     * @param editor
+     * @param sessionId
      */
-    public static void editorCreated(ISharedDisplaySession session,
-            CollaborationEditor editor) {
-        SessionContainer container = sharedDisplaySessionMap.get(session
-                .getSessionId());
-        container.setCollaborationEditor(editor);
-        editor.setTabTitle(session.getVenue().getInfo().getVenueDescription());
+    public static void exitSession(String sessionId) {
+        SessionContainer container = sharedDisplaySessionMap.remove(sessionId);
+        if (container != null) {
+            container.getRoleEventController().shutdown();
+        }
     }
 
 }

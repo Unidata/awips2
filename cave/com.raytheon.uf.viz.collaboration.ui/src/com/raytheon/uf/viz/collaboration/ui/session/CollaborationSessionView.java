@@ -296,4 +296,10 @@ public class CollaborationSessionView extends SessionView {
     public String getSessionId() {
         return session.getSessionId();
     }
+
+    @Override
+    public void dispose() {
+        SharedDisplaySessionMgr.exitSession(session.getSessionId());
+        super.dispose();
+    }
 }
