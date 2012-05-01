@@ -56,6 +56,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      the complete color matrix.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 08/11		#? TTR58	B. Yin		Made the time factors editable.
+ * 02/12        TTR456      Q.Zhou      Added speed units combo, roundTo combo and roundDirTo combo.
  * </pre>
  * 
  * @author	M. Gao
@@ -81,6 +82,10 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		"12:00", "Other"}; 
 	private String previousIntervalTimeValue = ""; 
 
+	private static String[] UnitValues = {"kts", "kph", "mph"};
+	private static String[] RoundTo = {" ", "5", "10"};
+	private static String[] RoundDirTo = {" ", "1", "5"};
+	
 	private Text firstTimeText; 
 	private Text secondTimeText; 
 	private boolean setTimeButtonSelected; 
@@ -89,7 +94,6 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 	
 	private Text numberOfTimesText; 
 	private Text intervalText; 
-	private String intervalTimeString; 
 
 	private Text skipFactorText; 
 	private ExtraPointTimeDisplayOption extraPointTimeDisplayOption; 
@@ -101,9 +105,16 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
     private Text text = null;
 
     private Combo intervalCombo; 
-
-	private int intervalComboSelectedIndex; 
-
+	
+	private Combo unitCombo;
+	private int unitComboSelectedIndex;
+	private Button roundButton;
+	private Combo roundCombo;
+	private int roundComboSelectedIndex;
+	private Button roundDirButton;
+	private Combo roundDirCombo;
+	private int roundDirComboSelectedIndex;
+	
 	private Combo fontSizeCombo;
 	private int fontSizeComboSelectedIndex; 
     private Combo fontNameCombo;
@@ -178,7 +189,8 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 					/*
 					 * populate the TrackExtrapPointInofDlg object
 					 */
-					populateTrackExtrapPointInfoDlgWithNewTrackData(getTrackExtrapPointInfoDlg(), newEl); 
+					populateTrackExtrapPointInfoDlgWithNewTrackData(getTrackExtrapPointInfoDlg(), newEl, 
+							unitComboSelectedIndex, roundComboSelectedIndex, roundDirComboSelectedIndex); 
 					
 					newList.add(newEl);
 
@@ -258,16 +270,16 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		 * 3. restore Number of times value
 		 */
 		if(track.getExtrapPoints() != null)
-			getNumberOfTimesText().setText(String.valueOf(track.getExtrapPoints().length));
+			numberOfTimesText.setText(String.valueOf(track.getExtrapPoints().length));
 		
 		/*
 		 * 4. restore interval time settings
 		 */
-		getIntervalCombo().select(track.getIntervalComboSelectedIndex()); 
-		int intervalComboItemCount = getIntervalCombo().getItemCount(); 
+		intervalCombo.select(track.getIntervalComboSelectedIndex()); 
+		int intervalComboItemCount = intervalCombo.getItemCount(); 
 		if((intervalComboItemCount - 1) == track.getIntervalComboSelectedIndex())
-			getIntervalText().setText(track.getIntervalTimeString()); 
-		setIntervalTimeString(getIntervalCombo().getText());
+			intervalText.setText(track.getIntervalTimeString()); 
+		setIntervalTimeString(intervalCombo.getText());
 		
 //		restoreIntervalTimeSettingByTrack(this, track); 
 		
@@ -291,16 +303,37 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		getFontNameCombo().select(track.getFontNameComboSelectedIndex()); 
 		getFontSizeCombo().select(track.getFontSizeComboSelectedIndex()); 
 		getFontStyleCombo().select(track.getFontStyleComboSelectedIndex()); 
+		
+		/*
+		 * 7. restore Unit combo values
+		 */
+		unitComboSelectedIndex = track.getUnitComboSelectedIndex();
+		getUnitCombo().select(unitComboSelectedIndex);
+		
+		roundComboSelectedIndex = track.getRoundComboSelectedIndex();
+		getRoundCombo().select(roundComboSelectedIndex); 
+		if (roundComboSelectedIndex >0)
+			roundButton.setSelection(true);
+		else
+			roundButton.setSelection(false);
+		
+		roundDirComboSelectedIndex = track.getRoundDirComboSelectedIndex();
+		getRoundDirCombo().select(roundDirComboSelectedIndex); 
+		if (roundDirComboSelectedIndex >0)
+			roundDirButton.setSelection(true);
+		else
+			roundDirButton.setSelection(false);
 	}
 	
-	private void populateTrackExtrapPointInfoDlgWithNewTrackData(TrackExtrapPointInfoDlg trackExtrapPointInfoDlgObject, Track newTrackObject) {
+	private void populateTrackExtrapPointInfoDlgWithNewTrackData(TrackExtrapPointInfoDlg trackExtrapPointInfoDlgObject, 
+			Track newTrackObject, int unitComboSelectedIndex, int roundComboSelectedIndex, int roundDirComboSelectedIndex) {
 		if(trackExtrapPointInfoDlgObject != null && newTrackObject != null) {
 			trackExtrapPointInfoDlgObject.close();
 			
 			trackExtrapPointInfoDlgObject.setBlockOnOpen( false );
 			trackExtrapPointInfoDlgObject.open();
 	       	
-	   		trackExtrapPointInfoDlgObject.setTrack(newTrackObject);
+	   		trackExtrapPointInfoDlgObject.setTrack(newTrackObject, unitComboSelectedIndex, roundComboSelectedIndex, roundDirComboSelectedIndex);
 
 	   		trackExtrapPointInfoDlgObject.setBlockOnOpen( true );
 		}
@@ -323,7 +356,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 	
 	private void makeTimeDisplayOptionSelected(ExtraPointTimeDisplayOption extraPointTimeDisplayOption, String skipFactorTextString) {
 		getSkipFactorButton().setSelection(false); 
-		getSkipFactorText().setText(""); 
+		skipFactorText.setText(""); 
 		if(extraPointTimeDisplayOption == ITrack.ExtraPointTimeDisplayOption.ON_HALF_HOUR)
 			getOnHalfHourButton().setSelection(true); 
 		else if(extraPointTimeDisplayOption == ITrack.ExtraPointTimeDisplayOption.ON_ONE_HOUR)
@@ -332,7 +365,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 			getShowFirstLastButton().setSelection(true); 
 		else {
 			getSkipFactorButton().setSelection(true); 
-			getSkipFactorText().setText(skipFactorTextString); 
+			skipFactorText.setText(skipFactorTextString); 
 		}
 	}
 	
@@ -417,11 +450,11 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
          */
         setNumberOfTimesText(createTextfieldWithLabel(topComposite, "Number of times:", 
         		SWT.SINGLE | SWT.BORDER, textWidth/3, textHeight, true));    
-        getNumberOfTimesText().setText(String.valueOf(numberOfTimes));
-        getNumberOfTimesText().addModifyListener(new ModifyListener() {
+        numberOfTimesText.setText(String.valueOf(numberOfTimes));
+        numberOfTimesText.addModifyListener(new ModifyListener() {
         	public void modifyText(ModifyEvent e) {
         		try {
-        			numberOfTimes = Integer.parseInt(getNumberOfTimesText().getText()); 
+        			numberOfTimes = Integer.parseInt(numberOfTimesText.getText()); 
         		} catch(NumberFormatException nfe) {
         			numberOfTimes = DEFAULT_NUMBER_OF_TIMES; //use the default value
         		//	log.error("The text value of number of times is invalid, input text="
@@ -444,29 +477,28 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
         	intervalCombo.add(currentString);
         }
         intervalCombo.select(2);  //set default to 01:00
-        setIntervalComboSelectedIndex(2); 
         setPreviousIntervalTimeValue(intervalCombo.getText()); 
-        setIntervalText(new Text(intervalRowGroup, SWT.SINGLE | SWT.BORDER));                        
+        intervalText = new Text(intervalRowGroup, SWT.SINGLE | SWT.BORDER);                        
         intervalCombo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				setIntervalComboSelectedIndex(intervalCombo.getSelectionIndex()); 
 				String lastItemString = intervalCombo.getItem(intervalCombo.getItemCount()-1); 
 				if(intervalCombo.getText().equals(lastItemString)) {
-					getIntervalText().setEditable(true); 
-					getIntervalText().setText(getPreviousIntervalTimeValue());
+					intervalText.setEditable(true); 
+					intervalText.setText(getPreviousIntervalTimeValue());
 					setIntervalTimeString(getPreviousIntervalTimeValue()); 
 				} else {
-					getIntervalText().setEditable(false);
-					getIntervalText().setText(""); 
+					intervalText.setEditable(false);
+					intervalText.setText(""); 
 					setPreviousIntervalTimeValue(intervalCombo.getText()); 
 					setIntervalTimeString(intervalCombo.getText()); 
 				}
 			}
         }); 
         
-        getIntervalText().addModifyListener(new ModifyListener() {
+        intervalText.addModifyListener(new ModifyListener() {
         	public void modifyText(ModifyEvent e) {
-        		setIntervalTimeString(getIntervalText().getText()); 
+        		if ( !((Text)e.widget).getText().isEmpty())
+        			setIntervalTimeString(intervalText.getText()); 
         	}
         }); 
         
@@ -483,6 +515,83 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
         extrapCS = new ColorButtonSelector( topComposite );
         extrapCS.setColorValue( new RGB( 0,192,0 ) ); // Green???
         
+        /*
+         * Draw speed unit selection  label, checkbox and combo
+         */
+        Label speedUnitLabel = new Label(topComposite, SWT.LEFT); 
+        speedUnitLabel.setText("Speed Unit:"); 
+       
+        unitCombo = new Combo(topComposite, SWT.DROP_DOWN | SWT.READ_ONLY); 
+        for (String unit : UnitValues) {
+        	unitCombo.add(unit);
+        }
+        
+        unitCombo.select(0);  // default to the 1st item of the list. the value is Courier
+        setUnitComboSelectedIndex(0); 
+        unitCombo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				setUnitComboSelectedIndex(unitCombo.getSelectionIndex()); 
+			}
+        });
+
+        /*
+        * Draw speed Round To selection
+        */
+        roundButton  = new Button(topComposite, SWT.CHECK);
+        String roundTo = "Round speed To:"; 
+        roundButton.setText(roundTo); 
+        roundButton.setSelection(false); 
+        roundButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (!roundButton.getSelection())
+					setRoundComboSelectedIndex(-1); 
+			}
+        });
+        
+        roundCombo = new Combo(topComposite, SWT.DROP_DOWN | SWT.READ_ONLY); 
+        for (String round : RoundTo) {
+        	roundCombo.add(round);
+        }       
+        roundCombo.select(0);  
+        setRoundComboSelectedIndex(0);
+        roundCombo.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (roundButton.getSelection())
+					setRoundComboSelectedIndex(roundCombo.getSelectionIndex()); 
+				else
+					setRoundComboSelectedIndex(-1);
+			}
+        });
+       
+        /*
+         * Draw Direction Round To selection
+         */
+         roundDirButton  = new Button(topComposite, SWT.CHECK);
+         String roundDirTo = "Round Direction To:"; 
+         roundDirButton.setText(roundDirTo); 
+         roundDirButton.setSelection(false); 
+         roundDirButton.addSelectionListener(new SelectionAdapter() {
+ 			public void widgetSelected(SelectionEvent e) {
+ 				if (!roundDirButton.getSelection())
+ 					setRoundDirComboSelectedIndex(-1); 
+ 			}
+         });
+         
+         roundDirCombo = new Combo(topComposite, SWT.DROP_DOWN | SWT.READ_ONLY); 
+         for (String round : RoundDirTo) {
+         	roundDirCombo.add(round);
+         }       
+         roundDirCombo.select(0);  
+         setRoundDirComboSelectedIndex(0);
+         roundDirCombo.addSelectionListener(new SelectionAdapter() {
+ 			public void widgetSelected(SelectionEvent e) {
+ 				if (roundDirButton.getSelection())
+ 					setRoundDirComboSelectedIndex(roundDirCombo.getSelectionIndex()); 
+ 				else
+ 					setRoundDirComboSelectedIndex(-1);
+ 			}
+         });
+         
         /*
          * Draw a single line Label
          */
@@ -865,18 +974,6 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		return onHalfHourButton;
 	}
 
-	public Combo getIntervalCombo() {
-		return intervalCombo;
-	}
-
-    public int getIntervalComboSelectedIndex() {
-		return intervalComboSelectedIndex;
-	}
-
-	public void setIntervalComboSelectedIndex(int intervalComboSelectedIndex) {
-		this.intervalComboSelectedIndex = intervalComboSelectedIndex;
-	}
-
 	public Combo getFontSizeCombo() {
 		return fontSizeCombo;
 	}
@@ -914,6 +1011,42 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		this.fontStyleComboSelectedIndex = fontStyleComboSelectedIndex;
 	}
 
+	public Combo getUnitCombo() {
+		return unitCombo;
+	}
+	
+	public int getUnitComboSelectedIndex() {
+		return unitComboSelectedIndex;
+	}
+
+	public void setUnitComboSelectedIndex(int unitComboSelectedIndex) {
+		this.unitComboSelectedIndex = unitComboSelectedIndex;
+	}
+
+	public Combo getRoundCombo() {
+		return roundCombo;
+	}
+	
+	public int getRoundComboSelectedIndex() {
+		return roundComboSelectedIndex;
+	}
+
+	public void setRoundComboSelectedIndex(int roundComboSelectedIndex) {
+		this.roundComboSelectedIndex = roundComboSelectedIndex;
+	}
+
+	public Combo getRoundDirCombo() {
+		return roundDirCombo;
+	}
+	
+	public int getRoundDirComboSelectedIndex() {
+		return roundDirComboSelectedIndex;
+	}
+
+	public void setRoundDirComboSelectedIndex(int roundDirComboSelectedIndex) {
+		this.roundDirComboSelectedIndex = roundDirComboSelectedIndex;
+	}
+
 
 	public boolean isSetTimeButtonSelected() {
 		return setTimeButtonSelected;
@@ -947,8 +1080,8 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		this.extraPointTimeDisplayOption = extraPointTimeDisplayOption;
 	}
 
-	public Text getSkipFactorText() {
-		return skipFactorText;
+	public String getSkipFactorText() {
+		return skipFactorText.getText();
 	}
 
 	public void setSkipFactorText(String skipFactorText) {
@@ -971,22 +1104,22 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		this.secondTimeText = secondTimeText;
 	}
 
-	public Text getNumberOfTimesText() {
-		return numberOfTimesText;
+	public int getExtraDrawingPointNumber() {
+		int ret = 0;
+		try {
+			ret = Integer.parseInt(numberOfTimesText.getText());
+		}
+		catch ( Exception e ){
+			ret = 0;
+		}
+		
+		return ret ;
 	}
 
 	public void setNumberOfTimesText(Text numberOfTimesText) {
 		this.numberOfTimesText = numberOfTimesText;
 	}
 
-	public Text getIntervalText() {
-		return intervalText;
-	}
-
-	public void setIntervalText(Text intervalText) {
-		this.intervalText = intervalText;
-	}
-	
 	public String getPreviousIntervalTimeValue() {
 		return previousIntervalTimeValue;
 	}
@@ -1000,11 +1133,25 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 	}
 
 	public String getIntervalTimeString() {
-		return intervalTimeString;
+		if(intervalCombo.getSelectionIndex() == intervalCombo.getItemCount() - 1) {
+			return intervalText.getText(); 
+		}
+		else 
+			return intervalCombo.getText(); 
 	}
 
 	public void setIntervalTimeString(String intervalTimeString) {
-		this.intervalTimeString = intervalTimeString;
+		for ( int ii = 0; ii < intervalCombo.getItemCount(); ii++ ){
+			if (intervalTimeString.equalsIgnoreCase( intervalCombo.getItem(ii) )){
+				intervalCombo.select(ii);
+				return;
+			}
+		}
+		
+		//set for 'Other'
+		intervalCombo.select( intervalCombo.getItemCount() - 1 );
+		intervalText.setText(intervalTimeString);
+
 	}
     
 	public void setFirstTimeCalendar(Calendar firstTimeCalendar) {

@@ -6,7 +6,7 @@ c       program sup_nsharp
 
       
 c SARS For Supercells
-
+       integer saob,maob
        parameter (maob=15000) ! Max number of raobs allowed.
        parameter (saob=15)    ! Number of raobs to return to NSHARP.
        
@@ -26,7 +26,7 @@ c SARS For Supercells
        character sndglist(saob)*15, fname*(80), fname1*(80)
        character tortype(maob)*8,suplist(saob)*8       
 
-       integer maob,i,j,cnt,mlmrmat(maob),mlcapemat(maob),
+       integer i,j,cnt,mlmrmat(maob),mlcapemat(maob),
      & mlcinmat(maob),mllclmat(maob),mucapemat(maob),sblclmat(maob),
      & shrmat(maob),srhmat(maob),tempmat(maob),lrmat(maob),stpmat(maob),
      & h500umat(maob),h500vmat(maob),shrcat(maob),matshrcat(maob),tier1,

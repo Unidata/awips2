@@ -7,39 +7,26 @@
 Among Smart Tools and Procedures</a>
 <!-- Leave this comment for formatting purposes -->
 <hr width="100%">
-
-
 <h1 class="1Heading">
 <a name="Util"></a><u>Utilities</u></h1>
 <img width="487" height="5" src="images/SmartTools-1.gif">
 <h2 class="2Heading"><a name="EAWin"></a>Edit Action Windows</h2>
-<div class="Body">So far, we have worked with the Smart Tool Window of
-the Edit Action Dialog. We will look at the other window that can be
-opened.</div>
+<div class="Body">So far, we have modified Smart Tools and Procedures.
+We will look at Utilities.</div>
 <div class="Step-First">
 <ol>
-  <li>From the Edit Action Dialog, choose Windows--&gt;Show All Windows.</li>
+  <li>From the Localization perspective, choose GFE--&gt;Utilities.</li>
 </ol>
 </div>
-<div class="Body">You will see two windows:</div>
-<ul>
-  <li class="Bulleted">Smart Tool Window -- Contains tools for editing
-grids.</li>
-  <li class="Bulleted">Utilities Window -- Any kind of Edit Action may
-be included here as
-well
-as general&nbsp; utilities that may be shared by your Smart Tools and
-Procedures.&nbsp;
 You will see some utilities listed including the SmartScript library
 which
-you can view from the MB3 popup over the window.You can add Python
+you can view from the MB3 popup over the window. You can add Python
 modules
 here which might contain methods you wish to share among the Smart
 Tools
 and Procedures you've created.</li>
 </ul>
-The Smart Tools window only contains Tools;&nbsp; the Utilities window
-only contain Utilities.&nbsp;<br>
+<br>
 <div class="Code">
 <div class="Code">
 <div class="Code">
@@ -48,53 +35,40 @@ Utility to Share Among
 Smart Tools and Procedures</h3>
 <div class="Body">Suppose that you would like to create your own
 library
-methods to share among your smart tools and procedures.&nbsp; In this
+methods to share among your smart tools and procedures. In this
 exercise,
 we will create a Utility that can be imported and accessed from any
 Smart
 Tool or Procedure.
 <ol>
-  <li>From the Edit Action Dialog Utility Window, select
-MB3--&gt;New.&nbsp;
-Choose
-Kind:&nbsp; Utility.</li>
+  <li>In Localization perspective under the GFE section,
+  on the Utility folder, select MB3--&gt;New.</li>
   <li>Name your Utility and select OK.</li>
-  <li>A Python window will appear.&nbsp; Enter some utility method
+  <li>A Python window will appear. Enter some utility method
 within the
-utility class.&nbsp; For example, you could simply copy the
+utility class. For example, you could simply copy the
 "convertFtToM"
-method from the SmartScript module.&nbsp; To follow the <a
- href="#NamingConventions">naming
-conventions</a>, preceed the name of your method with an
-underscore.&nbsp;
+method from the SmartScript module. To follow the naming
+conventions, precede the name of your method with an
+underscore.
 For example, _convertFtToM.</li>
   <li>Now, modify your Smart Tool from the previous Exercise to call
-this
-method.&nbsp;
+this method.
 To do this, you must do several things:</li>
   <br>
-&nbsp;
   <ul>
     <li>First, at the beginning of your Smart Tool, insert the
 statement:</li>
     <br>
-&nbsp;
   </ul>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 import MyUtility
   <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; where
 "MyUtility"
-is the name of your Utility. <br>
-&nbsp; </p>
+is the name of your Utility.<br></p>
   <ul>
     <li>Create an instance of your Utility as follows:</li>
     <br>
-&nbsp;
-    <p>&nbsp; <br>
-&nbsp; <br>
-&nbsp; <br>
-&nbsp; <br>
-&nbsp; </p>
     <p>&nbsp;&nbsp;&nbsp; class Tool (SmartScript.SmartScript): <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def __init__(self, dbss): <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -107,13 +81,9 @@ self._myUtility = MyUtility.MyUtility(self._dbss, self.eaMgr()) <br>
 &nbsp; </p>
     <li>Next, call your method as follows:</li>
     <br>
-&nbsp;
   </ul>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_F
 = self._myUtility._convertFtToM(T_K) <br>
 &nbsp; <li>Run and test your tool to make sure it works.</li>
 </ol>
-<a href="#AnswerUtil1">Click here for Answer to Exercise Utility-1.</a></div>
-<div class="Body">&nbsp;
-<h1><a name="Answers"></a>Answers to Exercises</h1>
-<img width="487" height="5" src="images/SmartTools-1.gif"></div>
+<a href="SmartToolsExerciseAnswers.html#AnswerUtil1">Click here for Answer to Exercise Utility-1.</a></div>

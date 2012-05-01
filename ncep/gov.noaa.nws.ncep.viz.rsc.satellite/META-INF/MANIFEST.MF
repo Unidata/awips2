@@ -36,4 +36,5 @@ Export-Package: gov.noaa.nws.ncep.viz.rsc.satellite,
  gov.noaa.nws.ncep.viz.rsc.satellite.rsc,
  gov.noaa.nws.ncep.viz.rsc.satellite.units
 Import-Package: 
+ com.raytheon.viz.core.gl,
  gov.noaa.nws.ncep.viz.ui.display

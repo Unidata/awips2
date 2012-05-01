@@ -47,6 +47,21 @@
             attributeName="colorMapName"
             ncResourceName="RadarMosaic">
       </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="alpha"
+            ncResourceName="RadarMosaic">
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="brightness"
+            ncResourceName="RadarMosaic">
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="contrast"
+            ncResourceName="RadarMosaic">
+      </nc-resourceAttribute>      
    </extension>
 
 </plugin>

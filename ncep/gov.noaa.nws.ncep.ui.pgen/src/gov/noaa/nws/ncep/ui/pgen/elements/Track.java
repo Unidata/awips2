@@ -7,6 +7,12 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.elements;
 
+import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
+import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
+import gov.noaa.nws.ncep.ui.pgen.display.ITrack;
+import gov.noaa.nws.ncep.ui.pgen.display.TrackPoint;
+
 import java.awt.Color;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,13 +25,6 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
-import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.display.ITrack;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
-import gov.noaa.nws.ncep.ui.pgen.display.TrackPoint;
-
 /**
  * Class to represent a track element.
  * 
@@ -36,7 +35,8 @@ import gov.noaa.nws.ncep.ui.pgen.display.TrackPoint;
  * 05/09					M. Gao   	Initial Creation.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 08/11 		?			B. Yin		Fixed the no half-hour label bug.
- *
+ * 02/12        TTR456      Q.Zhou      Added speed knot, mph. Added combos and roundTo indices for speed & dir .
+                                        Modified setSpeed
  * </pre>
  * 
  * @author	M. Gao
@@ -91,13 +91,11 @@ public class Track extends Line implements ITrack {
 
 	private float lineWidth; 
 	private int extraDrawingPointNumber; 
-	private String extraDrawingPointNumberText;  
 
 	private boolean setTimeButtonSelected; 
 
 	private Calendar firstTimeCalendar; 
 	private Calendar secondTimeCalendar; 
-	private Calendar intervalTimeCalendar; 
 	private String intervalTimeString; 
 	private int intervalComboSelectedIndex; 
 
@@ -112,10 +110,18 @@ public class Track extends Line implements ITrack {
 	private String skipFactorTextString; 
 	private boolean[] extraPointTimeTextDisplayIndicator; 
 	
+	// direction, speed and unit are not saved to a file	
 	private double directionForExtraPoints; 
-	private double speed;   // speed in meter/millisecond 
-	private double speedInKilometerOverHour; 
+	private boolean roundDirBtnSelected;
+	private int roundDirComboSelectedIndex;
 	
+	private double speed;   // speed in meter/millisecond 
+	private double speedInKnotOverHour; 
+	private double speedInKilometerOverHour;
+	private double speedInMileOverHour;
+	private boolean roundBtnSelected;
+	private int unitComboSelectedIndex;
+	private int roundComboSelectedIndex;
 	
 	public Track() {}
 	
@@ -133,15 +139,14 @@ public class Track extends Line implements ITrack {
 		initializeInitSecondTimeCalendar(secondTimeCalendar); 
 	}
 	
-	public void initializeTrackByTrackAttrDlgAndLocationList(TrackAttrDlg trackAttrDlgObject, ArrayList<Coordinate> locations) {
+	public void initializeTrackByTrackAttrDlgAndLocationList(ITrack trackAttrDlgObject, ArrayList<Coordinate> locations) {
 		initializeInitTrackPoints(locations); 
 		initializeInitFirstTimeCalendar(trackAttrDlgObject.getFirstTimeCalendar()); 
 		initializeInitSecondTimeCalendar(trackAttrDlgObject.getSecondTimeCalendar()); 
 		
 		this.setInitialMarker(""); 
 		this.setSetTimeButtonSelected(trackAttrDlgObject.isSetTimeButtonSelected()); 
-		this.setExtraDrawingPointNumberText(trackAttrDlgObject.getNumberOfTimesText().getText()); 
-		this.setIntervalComboSelectedIndex(trackAttrDlgObject.getIntervalComboSelectedIndex()); 
+		this.setExtraDrawingPointNumber(trackAttrDlgObject.getExtraDrawingPointNumber()); 
 		
 		this.setIntervalTimeString(getIntervalTimeTextStringValue(trackAttrDlgObject)); 
 		
@@ -151,10 +156,22 @@ public class Track extends Line implements ITrack {
 		this.setInitialColor(trackAttrDlgObject.getInitialColor()); 
 		this.setExtrapColor(trackAttrDlgObject.getExtrapColor()); 
 		this.setExtraPointTimeDisplayOption(trackAttrDlgObject.getExtraPointTimeDisplayOption()); 
-		this.setSkipFactorTextString(trackAttrDlgObject.getSkipFactorText().getText()); 
+		this.setSkipFactorTextString(trackAttrDlgObject.getSkipFactorText()); 
 		this.setFontNameComboSelectedIndex(trackAttrDlgObject.getFontNameComboSelectedIndex()); 
 		this.setFontSizeComboSelectedIndex(trackAttrDlgObject.getFontSizeComboSelectedIndex()); 
 		this.setFontStyleComboSelectedIndex(trackAttrDlgObject.getFontStyleComboSelectedIndex()); 
+		this.setUnitComboSelectedIndex(trackAttrDlgObject.getUnitComboSelectedIndex()); 
+		this.setRoundComboSelectedIndex(trackAttrDlgObject.getRoundComboSelectedIndex()); 
+		if (trackAttrDlgObject.getRoundComboSelectedIndex() >0)
+			this.setRoundBtnSelected(true);
+		else 
+			this.setRoundBtnSelected(false);
+		
+		this.setRoundDirComboSelectedIndex(trackAttrDlgObject.getRoundDirComboSelectedIndex()); 
+		if (trackAttrDlgObject.getRoundDirComboSelectedIndex() >0)
+			this.setRoundDirBtnSelected(true);
+		else 
+			this.setRoundDirBtnSelected(false);
 		
 		//This method can be called only after all of the above settings are completed!
 		this.calculateExtrapTrackPoints(); 
@@ -298,9 +315,6 @@ public class Track extends Line implements ITrack {
 		newTrack.setExtrapColor(new Color(getExtrapColor().getRed(), getExtrapColor().getGreen(), 
 				getExtrapColor().getBlue())); 
 		
-		Calendar newIntervalTimeCalendar = Calendar.getInstance(); 
-		newIntervalTimeCalendar.setTimeInMillis(getIntervalTimeCalendar().getTimeInMillis()); 
-		newTrack.setIntervalTimeCalendar(newIntervalTimeCalendar); 
 		newTrack.setIntervalTimeString(new String(getIntervalTimeString())); 
 		
 		/*
@@ -349,15 +363,14 @@ public class Track extends Line implements ITrack {
 		return newTrack; 
 	}
 	
-	public void update(TrackAttrDlg trackAttrDlg) {
+	public void update(ITrack trackAttrDlg) {
 //		log.info("############, track.update(...) is executed!!!!"); 
 		initializeInitFirstTimeCalendar(trackAttrDlg.getFirstTimeCalendar()); 
 		initializeInitSecondTimeCalendar(trackAttrDlg.getSecondTimeCalendar()); 
 		
 		setInitialMarker(INITIAL_MARKER); 
 		setSetTimeButtonSelected(trackAttrDlg.isSetTimeButtonSelected()); 
-		setExtraDrawingPointNumberText(trackAttrDlg.getNumberOfTimesText().getText()); 
-		setIntervalComboSelectedIndex(trackAttrDlg.getIntervalComboSelectedIndex()); 
+		setExtraDrawingPointNumber(trackAttrDlg.getExtraDrawingPointNumber()); 
 		setIntervalTimeString(trackAttrDlg.getIntervalTimeString()); 
 		setFontName(trackAttrDlg.getFontName()); 
 		setFontStyle(trackAttrDlg.getStyle()); 
@@ -365,10 +378,22 @@ public class Track extends Line implements ITrack {
 		setInitialColor(trackAttrDlg.getInitialColor()); 
 		setExtrapColor(trackAttrDlg.getExtrapColor()); 
 		setExtraPointTimeDisplayOption(trackAttrDlg.getExtraPointTimeDisplayOption()); 
-		setSkipFactorTextString(trackAttrDlg.getSkipFactorText().getText()); 
+		setSkipFactorTextString(trackAttrDlg.getSkipFactorText()); 
 		setFontNameComboSelectedIndex(trackAttrDlg.getFontNameComboSelectedIndex()); 
 		setFontSizeComboSelectedIndex(trackAttrDlg.getFontSizeComboSelectedIndex()); 
 		setFontStyleComboSelectedIndex(trackAttrDlg.getFontStyleComboSelectedIndex()); 
+		setUnitComboSelectedIndex(trackAttrDlg.getUnitComboSelectedIndex()); 
+		setRoundComboSelectedIndex(trackAttrDlg.getRoundComboSelectedIndex());
+		if (trackAttrDlg.getRoundComboSelectedIndex() >0)
+			this.setRoundBtnSelected(true);
+		else 
+			this.setRoundBtnSelected(false);
+		
+		setRoundDirComboSelectedIndex(trackAttrDlg.getRoundDirComboSelectedIndex());
+		if (trackAttrDlg.getRoundDirComboSelectedIndex() >0)
+			this.setRoundDirBtnSelected(true);
+		else 
+			this.setRoundDirBtnSelected(false);
 		
 		//This method can be called only after all of the above settings are completed!
 		calculateExtrapTrackPoints(); 
@@ -473,16 +498,9 @@ public class Track extends Line implements ITrack {
 	/*
 	 * All private help methods start here
 	 */
-	private String getIntervalTimeTextStringValue(TrackAttrDlg trackAttrDlg) {
-		String intervaltimeString = ""; 
-		int intervalComboSelectedIndex = trackAttrDlg.getIntervalCombo().getSelectionIndex(); 
-		if(intervalComboSelectedIndex == (trackAttrDlg.getIntervalCombo().getItemCount() - 1))
-			intervaltimeString = trackAttrDlg.getIntervalText().getText(); 
-		else 
-			intervaltimeString = trackAttrDlg.getIntervalCombo().getItem(intervalComboSelectedIndex); 
-		trackAttrDlg.setIntervalTimeString(intervaltimeString); 
+	private String getIntervalTimeTextStringValue(ITrack trackAttrDlg) {
 		
-		return intervaltimeString; 
+		return trackAttrDlg.getIntervalTimeString(); 
 	}
 	
 	private void addArrayToArrayList(ArrayList<Coordinate> coordinatePointList, TrackPoint[] trackPoints) {
@@ -945,6 +963,46 @@ public class Track extends Line implements ITrack {
 		this.intervalComboSelectedIndex = intervalComboSelectedIndex;
 	}
 
+	public int getUnitComboSelectedIndex() {
+		return unitComboSelectedIndex;
+	}
+
+	public void setUnitComboSelectedIndex(int unitComboSelectedIndex) {
+		this.unitComboSelectedIndex = unitComboSelectedIndex;
+	}
+
+	public int getRoundComboSelectedIndex() {
+		return roundComboSelectedIndex;
+	}
+
+	public void setRoundComboSelectedIndex(int roundComboSelectedIndex) {
+		this.roundComboSelectedIndex = roundComboSelectedIndex;
+	}
+
+	public boolean getRoundBtnSelected() {
+		return roundBtnSelected;
+	}
+
+	public void setRoundBtnSelected(boolean roundBtnSelected) {
+		this.roundBtnSelected = roundBtnSelected;
+	}
+
+	public int getRoundDirComboSelectedIndex() {
+		return roundDirComboSelectedIndex;
+	}
+
+	public void setRoundDirComboSelectedIndex(int roundDirComboSelectedIndex) {
+		this.roundDirComboSelectedIndex = roundDirComboSelectedIndex;
+	}
+
+	public boolean getRoundDirBtnSelected() {
+		return roundDirBtnSelected;
+	}
+
+	public void setRoundDirBtnSelected(boolean roundDirBtnSelected) {
+		this.roundDirBtnSelected = roundDirBtnSelected;
+	}
+
 	public double getDirectionForExtraPoints() {
 		return directionForExtraPoints;
 	}
@@ -961,15 +1019,23 @@ public class Track extends Line implements ITrack {
 		this.speed = speed;
 		/*
 		 * The original speed is meters / millisecond, now it needs
-		 * to be converted to kilometer / hour
+		 * to be converted to following units
 		 */
-		this.speedInKilometerOverHour = this.speed * 3600.0; 
-		
+		this.speedInKnotOverHour = speed * 1944; 
+		this.speedInKilometerOverHour = speed * 3600;		
+		this.speedInMileOverHour = speed * 2237;
 	}
-
+	
+	public double getSpeedInKnotOverHour() {
+		return speedInKnotOverHour;
+	}
 	public double getSpeedInKilometerOverHour() {
 		return speedInKilometerOverHour;
 	}
+	public double getSpeedInMileOverHour() {
+		return speedInMileOverHour;
+	}
+	
 
 	public ExtraPointTimeDisplayOption getExtraPointTimeDisplayOption() {
 		return extraPointTimeDisplayOption;
@@ -1042,14 +1108,6 @@ public class Track extends Line implements ITrack {
 		this.secondTimeCalendar = secondTimeCalendar;
 	}
 
-	public Calendar getIntervalTimeCalendar() {
-		return intervalTimeCalendar;
-	}
-
-	private void setIntervalTimeCalendar(Calendar intervalTimeCalendar) {
-		this.intervalTimeCalendar = intervalTimeCalendar;
-	}
-
 	public String getIntervalTimeString() {
 		return intervalTimeString;
 	}
@@ -1062,7 +1120,7 @@ public class Track extends Line implements ITrack {
 
 		Calendar intervalTimeCal = getIntervalCalendarByParsingString(_intervalTimeString, 
 				INTERVAL_TIME_FORMAT_PATTERN, getSecondTimeCalendar());
-		setIntervalTimeCalendar(intervalTimeCal); 
+		//setIntervalTimeCalendar(intervalTimeCal); 
 	}
 
 	public int getElapsedHourForExtraPoint() {
@@ -1081,18 +1139,15 @@ public class Track extends Line implements ITrack {
 		this.elapsedMinuteForExtraPoint = elapsedMinuteForExtraPoint;
 	}
 
-	public void setExtraDrawingPointNumberText(String extraDrawingPointNumberText) {
-		this.extraDrawingPointNumberText = extraDrawingPointNumberText;
-		int extraDrawingPointNumberIntValue = DEFAULT_EXTRA_POINT_NUMBER; 
-		if(extraDrawingPointNumberText == null || extraDrawingPointNumberText.trim().isEmpty())
-			return; 
-		try {
-			extraDrawingPointNumberIntValue = Integer.parseInt(extraDrawingPointNumberText); 
-		} catch(NumberFormatException nfe) {
-			log.error("The input of extraDrawingPointNumberText is invalid, extraDrawingPointNumberText="+
-					extraDrawingPointNumberText); 
-		}
-		setExtraDrawingPointNumber(extraDrawingPointNumberIntValue); 
+	@Override
+	public String getSkipFactorText() {
+		return skipFactorTextString;
+	}
+
+	@Override
+	public FontStyle getStyle() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

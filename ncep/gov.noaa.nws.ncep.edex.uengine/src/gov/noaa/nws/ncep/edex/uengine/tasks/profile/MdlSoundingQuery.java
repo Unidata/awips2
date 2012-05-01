@@ -13,6 +13,9 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/04/2011	301			Chin Chen	Initial coding
+ * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
+ * 03/28/2012               Chin Chen   Add new API to support query multiple Points at one shoot and using
+ * 										dataStore.retrieveGroups()
  *
  * </pre>
  * 
@@ -24,11 +27,13 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingModel;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingTimeLines;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribModel;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import com.raytheon.edex.plugin.modelsounding.common.SoundingSite;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -67,7 +72,8 @@ public class MdlSoundingQuery {
 	private static final String NCGRIB_TBL_NAME = "ncgrib";
 	private static final String D2DGRIB_TBL_NAME = "grib";
 	
-	private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, DWPK, SPFH, OMEG, RELH";
+	private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, OMEG, RELH";
+	//private static String NC_PARMS = "HGHT, UREL, VREL, TMPK, DWPK, SPFH, OMEG, RELH";
 	private static String D2D_PARMS = "GH, uW, vW,T, DWPK, SPFH,OMEG, RH";
 	private enum NcParmNames {
 		HGHT, UREL, VREL, TMPK, DWPK, SPFH, OMEG, RELH
@@ -80,6 +86,7 @@ public class MdlSoundingQuery {
 
 	public static UnitConverter kelvinToCelsius = SI.KELVIN
 			.getConverterTo(SI.CELSIUS);
+	private static final UnitConverter metersPerSecondToKnots = SI.METERS_PER_SECOND.getConverterTo(NonSI.KNOT);
 
 	public static NcSoundingTimeLines getMdlSndTimeLine(String mdlType,
 			String currentDBTblName) {
@@ -127,7 +134,7 @@ public class MdlSoundingQuery {
 			String queryStr = new String("Select Distinct rangestart FROM "
 				+ currentDBTblName + " where modelname='" + mdlType + "' AND "
 				+ "reftime='" + refTimeStr + ":00:00'"
-				+ " ORDER BY rangestart DESC");
+				+ " ORDER BY rangestart");
 			System.out.println("queryStr  " + queryStr);
 
 			CoreDao dao = new CoreDao(DaoConfig.forClass(SoundingSite.class));
@@ -141,7 +148,7 @@ public class MdlSoundingQuery {
 				query.setDistinctField("dataTime.validPeriod.start");
 				query.addParameter("modelInfo.modelName", mdlType);
 				query.addParameter("dataTime.refTime", refTimeStr + ":00:00");
-				query.setSortBy("dataTime.validPeriod.start", false);
+				query.setSortBy("dataTime.validPeriod.start", true);
 				@SuppressWarnings("unchecked")
 				List<GribRecord> recList = (List<GribRecord>) query.execute();
 				tl.setTimeLines(recList.toArray());
@@ -170,6 +177,96 @@ public class MdlSoundingQuery {
 	// }
 
 	/**
+	 * Returns a list of profile for location (lat,lon) array, time, and model for
+	 * grib or ncgrib data.
+	 * 
+	 * @param double[][] latLonArray, e.g. at nth element, lat=[n][0], lon=[n][1] 
+	 * @param refTimeCal
+	 *            data record reference time
+	 * @param validTimeCal
+	 *            data record valid time
+	 * @param pluginName
+	 *            the name of the data table ('grib' or 'ncgrib')
+	 * @param mdlName
+	 *            the name of the model
+	 * @return the profile
+	 * created @ 3/28/2012
+	 */
+	public static List<NcSoundingProfile> getMdlSndDataProfileList(double[][] latLonArray,
+			String refTime, String validTime, String pluginName, String mdlName) {
+		double lat, lon;
+		//System.out.println("getMdlSndData lat=" + lat + " lon="+lon);
+		long t01 = System.currentTimeMillis();
+		NcSoundingProfile pf = new NcSoundingProfile();
+		//NcSoundingCube cube = new NcSoundingCube();
+		List<NcSoundingProfile>  soundingProfileList = new ArrayList<NcSoundingProfile>();
+		List<?> levels = getModelLevels(refTime, validTime, pluginName, mdlName);
+		if (levels.size() == 0) {
+			System.out.println("getModelLevels return 0;  file=" + refTime+ " stime="+validTime + " gribtype="+ pluginName + " modeltype="+mdlName);
+			return soundingProfileList;
+		}
+		//System.out.println("getModelLevels = "+ levels.size()+" levels, took "+ (System.currentTimeMillis()-t01) + " ms");
+		
+		List<Point> points = new ArrayList<Point>();
+		for(int k =0; k< latLonArray.length; k++){
+			lat=latLonArray[k][0];
+			lon=latLonArray[k][1] ;
+			Point pnt = getLatLonIndices(lat, lon, refTime, validTime, levels.get(0).toString(),
+					pluginName, mdlName);
+			if (pnt == null) {
+				System.out.println("getLatLonIndices return 0; lat=" + lat + " lon="+lon+" stime="+validTime + " gribtype="+ pluginName + " modeltype="+mdlName);
+			}
+			else{
+				points.add(pnt);
+							}
+		}
+		if(points.size()==0){
+			return soundingProfileList;
+		}
+		long t011 = System.currentTimeMillis();
+		soundingProfileList = queryProfileListByPointGroup(points,
+				refTime, validTime, pluginName, mdlName, levels);
+		System.out.println("queryProfileListByPointGroup took "+ (System.currentTimeMillis()-t011) + " ms");
+
+		return soundingProfileList;
+		/* The floowing should be done in queryProfileListByPointGroup()
+		//System.out.println("getModelSoundingLayerList= "+  layerList.size()+ " layers, took "+ (System.currentTimeMillis()-t012) + " ms");
+		//pf.setStationLatitude( lat);
+		//pf.setStationLongitude( lon);
+		//Float sfcPressure = getModelSfcPressure(pnt, refTime, validTime,
+		//		pluginName, mdlName);
+		//System.out.println("getModelSfcPressure took "+ (System.currentTimeMillis()-t013) + " ms");
+		//if (sfcPressure == null) {
+		//	pf.setSfcPress(-9999.f);
+		//}
+		//else {
+		//	if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) 
+		//		pf.setSfcPress(sfcPressure/100F);
+		//	else
+		//		pf.setSfcPress(sfcPressure);
+		//}
+		//System.out.println("surface pressure ="+pf.getSfcPress()+ " lat= "+lat+ " lon="+lon);
+		//calculate dew point if necessary
+		long t014 = System.currentTimeMillis();
+		MergeSounding ms = new MergeSounding();
+		//ms.spfhToDewpoint(layerList);
+		ms.rhToDewpoint(layerList);
+		System.out.println("MergeSounding took "+ (System.currentTimeMillis()-t014) + " ms");
+		
+			
+		pf.setSoundingLyLst(layerList);
+		
+	
+		soundingProfileList.add(pf);
+		//cube.setSoundingProfileList(soundingProfileList);
+		//cube.setRtnStatus(NcSoundingCube.QueryStatus.OK);
+		long t02 = System.currentTimeMillis();
+		System.out.println("MDL cube retreival took " + (t02 - t01));
+		return pf;
+		*/
+
+	}
+	/**
 	 * Returns a profile for a specified location (lat,lon), time, and model for
 	 * grib or ncgrib data.
 	 * 
@@ -186,20 +283,20 @@ public class MdlSoundingQuery {
 	 * @param mdlName
 	 *            the name of the model
 	 * @return the profile
-	 */
+	 *
 	public static NcSoundingProfile getMdlSndData(double lat, double lon,
 			String refTime, String validTime, String pluginName, String mdlName) {
+		System.out.println("getMdlSndData lat=" + lat + " lon="+lon);
 		long t01 = System.currentTimeMillis();
 		NcSoundingProfile pf = new NcSoundingProfile();
-		//NcSoundingCube cube = new NcSoundingCube();
-		List<NcSoundingProfile>  soundingProfileList = new ArrayList<NcSoundingProfile>();
 		List<?> levels = getModelLevels(refTime, validTime, pluginName, mdlName);
 		if (levels.size() == 0) {
 			System.out.println("getModelLevels return 0;  file=" + refTime+ " stime="+validTime + " gribtype="+ pluginName + " modeltype="+mdlName);
 			pf.setRtnStatus(NcSoundingCube.QueryStatus.FAILED);
 			return pf;
 		}
-
+		System.out.println("getModelLevels = "+ levels.size()+" levels, took "+ (System.currentTimeMillis()-t01) + " ms");
+		long t011 = System.currentTimeMillis();
 		Point pnt = getLatLonIndices(lat, lon, refTime, validTime, levels.get(0).toString(),
 				pluginName, mdlName);
 		if (pnt == null) {
@@ -209,7 +306,8 @@ public class MdlSoundingQuery {
 			return pf;
 
 		}
-
+		System.out.println("getLatLonIndices pntX=" + pnt.getX()+ " pntY=" + pnt.getY()+ " took "+ (System.currentTimeMillis()-t011) + " ms");
+		long t012 = System.currentTimeMillis();
 		List<NcSoundingLayer> layerList = getModelSoundingLayerList(pnt,
 				refTime, validTime, pluginName, mdlName, levels);
 		if (layerList.size() == 0) {
@@ -220,10 +318,13 @@ public class MdlSoundingQuery {
 			return pf;
 		}
 		
-		pf.setStationLatitude((float) lat);
-		pf.setStationLongitude((float) lon);
+		System.out.println("getModelSoundingLayerList= "+  layerList.size()+ " layers, took "+ (System.currentTimeMillis()-t012) + " ms");
+		
+		pf.setStationLatitude( lat);
+		pf.setStationLongitude( lon);
 		Float sfcPressure = getModelSfcPressure(pnt, refTime, validTime,
 				pluginName, mdlName);
+		//System.out.println("getModelSfcPressure took "+ (System.currentTimeMillis()-t013) + " ms");
 		if (sfcPressure == null) {
 			pf.setSfcPress(-9999.f);
 		}
@@ -235,27 +336,41 @@ public class MdlSoundingQuery {
 		}
 		//System.out.println("surface pressure ="+pf.getSfcPress()+ " lat= "+lat+ " lon="+lon);
 		//calculate dew point if necessary
+		long t014 = System.currentTimeMillis();
 		MergeSounding ms = new MergeSounding();
-		ms.spfhToDewpoint(layerList);
+		//ms.spfhToDewpoint(layerList);
 		ms.rhToDewpoint(layerList);
+		System.out.println("MergeSounding took "+ (System.currentTimeMillis()-t014) + " ms");
 		
 			
 		pf.setSoundingLyLst(layerList);
 		
-	
-		soundingProfileList.add(pf);
-		//cube.setSoundingProfileList(soundingProfileList);
-		//cube.setRtnStatus(NcSoundingCube.QueryStatus.OK);
 		long t02 = System.currentTimeMillis();
 		System.out.println("MDL cube retreival took " + (t02 - t01));
 		return pf;
 
-	}
+	}*/
 
-	public static NcSoundingModel getMdls(String perspectiveName) {
-		// TO do by M. G.
+	public static NcSoundingModel getMdls(String pluginName) {
 		NcSoundingModel mdls = new NcSoundingModel();
-
+		Object[] mdlName = null;
+		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
+			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribModel.class));
+			String queryStr = new String("Select Distinct modelname FROM ncgrib_models ORDER BY modelname");
+			mdlName = (Object[]) dao.executeSQLQuery(queryStr);
+		}
+		else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+			CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribModel.class));
+			String queryStr = new String("Select Distinct modelname FROM grib_models ORDER BY modelname");
+			mdlName = (Object[]) dao.executeSQLQuery(queryStr);
+		}
+		if(mdlName!=null && mdlName.length>0){
+			List<String> mdlList = new ArrayList<String>();
+			for(Object mn : mdlName){
+				mdlList.add((String)mn);
+			}
+			mdls.setMdlList(mdlList);
+		}
 		return mdls;
 	}
 
@@ -552,6 +667,263 @@ public class MdlSoundingQuery {
 	}
 
 	/**
+	 * Returns a list of NcSoundingProfile for a group of Point with specific ref and range time, and
+	 * model for grib or ncgrib data.
+	 * 
+	 * @param pnt
+	 *            location
+	 * @param pluginName
+	 *            the name of the data table ('grib' or 'ncgrib')
+	 * @param modelName
+	 *            the name of the model
+	 * @param levels
+	 *            list of vertical levels
+	 * @return list of NcSoundingLayer objects
+	 * 
+	 * Created @ 3/28/2012
+	 */
+
+	private static List<NcSoundingProfile> queryProfileListByPointGroup(List<Point> points,
+			String refTime, String validTime, String pluginName,
+			String modelName, List<?> levels) {
+		
+		List<NcSoundingProfile>  soundingProfileList = new ArrayList<NcSoundingProfile>();
+		List<float[]> fdataArrayList = new ArrayList<float[]>();
+		//long t01 = System.currentTimeMillis();
+		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
+			List<NcgribRecord> recList = new ArrayList<NcgribRecord>(); ;
+			TableQuery query;
+			try {
+				query = new TableQuery("metadata",
+						NcgribRecord.class.getName());
+				query.addParameter("vcord", "PRES");
+				query.addParameter("modelName", modelName);
+				query.addList("parm",NC_PARMS);//parmList.toString()); //
+				query.addParameter("dataTime.refTime", refTime);
+				query.addParameter("dataTime.validPeriod.start", validTime);
+				//query.addParameter("glevel1", level.toString());
+				query.setSortBy("glevel1", false);
+				recList = (List<NcgribRecord>) query.execute();					
+				//System.out.println("Ncgrib group query0 result size ="+ recList.size());
+
+				if (recList.size() != 0) {
+
+					PointIn pointIn = new PointIn(pluginName, recList.get(0));
+					//Chin note:
+					// We query multiple points, and for each point, query all levels (pressure) and all parameters 
+					//(at that level) with one shot.
+					// The return array list (fdataArrayList) are listed in the same order as querying list "points" 
+					// Each element (float[]) of the returned array list, represent a Point data, contains the same number of 
+					// parameters and listed in the same order as querying rec array (recList.toArray())
+					//However, returned element (float[]) does not tell you which parameter itself is.
+					//Therefore, we have to use information in query rec array to find out returned value's type (which parameter it is)
+					// Further, we have to sort and store returned values to NcSoundingLayer based on its level (pressure)
+					// Parameters in same level should be stored in one same NcSoundingLayer, 
+					// NcSoundingLayers for same Point should be stored in same NcSoundingProfile.
+					fdataArrayList = pointIn.getHDF5GroupDataPoints(recList.toArray(),points);
+				}
+			}catch (DataAccessLayerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			int index=0;
+			GridGeometry2D geom = MapUtil.getGridGeometry(spatialArea);
+			CoordinateReferenceSystem crs = geom.getCoordinateReferenceSystem();
+			Coordinate coord= new Coordinate(45,45);
+
+			for(float[]  fdataArray: fdataArrayList ){
+				//one fdataArray is for one Point or say one profile
+				NcSoundingProfile pf = new NcSoundingProfile();
+				List<NcSoundingLayer> soundLyList = new ArrayList<NcSoundingLayer>();
+				Point pnt = points.get(index);
+				Object[] recArray = recList.toArray();
+				for (Object level : levels){
+					NcSoundingLayer soundingLy = new NcSoundingLayer();
+					int pressure= (Integer)level;
+					soundingLy.setPressure( pressure);
+
+					for (int i=0; i < recArray.length; i++) {
+						NcgribRecord rec1 = (NcgribRecord)recArray[i];
+						float fdata = fdataArray[i];
+						if(rec1.getGlevel1() == pressure){
+							String prm = rec1.getParm();
+
+							//long t01 = System.currentTimeMillis();				
+							switch (NcParmNames.valueOf(prm)) {
+							case HGHT:
+								soundingLy.setGeoHeight(fdata);
+								break;
+							case UREL:
+								// HDF5 data in unit of m/s, convert to Knots 4/12/2012 
+								soundingLy.setWindU((float)metersPerSecondToKnots.convert(fdata)); 
+								break;
+							case VREL:
+								// HDF5 data in unit of m/s, convert to Knots 4/12/2012 
+								soundingLy.setWindV((float)metersPerSecondToKnots.convert(fdata));  
+								break;
+							case TMPK:
+								soundingLy.setTemperature((float) kelvinToCelsius
+										.convert(fdata)); 
+								break;
+							case DWPK:								
+								soundingLy.setDewpoint((float) kelvinToCelsius
+										.convert(fdata)); 
+								break;
+							case SPFH:
+								soundingLy.setSpecHumidity(fdata);
+								break;
+							case OMEG:
+								soundingLy.setOmega(fdata);
+								break;
+							case RELH:
+								soundingLy.setRelativeHumidity(fdata);
+								break;
+							}
+						}
+					}
+					soundLyList.add(soundingLy);
+				}
+				try {
+					coord = PointUtil.determineLatLon(pnt, crs, geom);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//System.out.println(" point coord.y="+coord.y+ " coord.x="+ coord.x);
+				pf.setStationLatitude(coord.y);
+				pf.setStationLongitude( coord.x);
+				//Float sfcPressure = getModelSfcPressure(pnt, refTime, validTime,
+				//		pluginName, modelName);
+				//System.out.println("getModelSfcPressure took "+ (System.currentTimeMillis()-t013) + " ms");
+				//if (sfcPressure == null) {
+					pf.setSfcPress(-9999.f);
+				//}
+				//else {
+				//	pf.setSfcPress(sfcPressure);
+				//}
+				//System.out.println("surface pressure ="+pf.getSfcPress());
+				//calculate dew point if necessary
+				MergeSounding ms = new MergeSounding();
+				//ms.spfhToDewpoint(layerList);
+				ms.rhToDewpoint(soundLyList);
+				//System.out.println("MergeSounding took "+ (System.currentTimeMillis()-t014) + " ms");
+				pf.setSoundingLyLst(soundLyList);
+				soundingProfileList.add(pf);
+				index++;
+			}
+		}	
+		else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
+			List<GribRecord> recList = new ArrayList<GribRecord>(); ;
+			TableQuery query;
+			try {
+				query = new TableQuery("metadata",
+						GribRecord.class.getName());
+				query.addParameter("modelInfo.level.masterLevel.name", "MB");
+				query.addParameter("modelInfo.modelName", modelName);
+				query.addList("modelInfo.parameterAbbreviation",
+						D2D_PARMS);
+				query.addParameter("dataTime.refTime", refTime);
+				query.addParameter("dataTime.validPeriod.start", validTime);
+				query.setSortBy("modelInfo.level.levelonevalue", false);
+				recList = (List<GribRecord>) query.execute();					
+				if (recList.size() != 0) {
+					PointIn pointIn = new PointIn(pluginName, recList.get(0));
+					fdataArrayList = pointIn.getHDF5GroupDataPoints(recList.toArray(),points);
+				}
+			}catch (DataAccessLayerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			int index=0;
+			GridGeometry2D geom = MapUtil.getGridGeometry(spatialArea);
+			CoordinateReferenceSystem crs = geom.getCoordinateReferenceSystem();
+			Coordinate coord= new Coordinate(45,45);
+
+			for(float[]  fdataArray: fdataArrayList ){
+				//one fdataArray is for one Point or say one profile
+				NcSoundingProfile pf = new NcSoundingProfile();
+				List<NcSoundingLayer> soundLyList = new ArrayList<NcSoundingLayer>();
+				Point pnt = points.get(index);
+				Object[] recArray = recList.toArray();
+				for (Object level : levels){
+					NcSoundingLayer soundingLy = new NcSoundingLayer();
+					double pressure= (Double)level;
+					soundingLy.setPressure( (float)pressure);
+					for (int i=0; i < recArray.length; i++) {
+						GribRecord rec1 = (GribRecord)recArray[i];
+						float fdata = fdataArray[i];
+						if(rec1.getModelInfo().getLevelOneValue() == pressure){
+							String prm = rec1.getModelInfo().getParameterAbbreviation();
+							switch (D2DParmNames.valueOf(prm)) {
+							case GH:
+								soundingLy.setGeoHeight(fdata);
+								break;
+							case uW:
+								// HDF5 data in unit of m/s, convert to Knots 4/12/2012 
+								soundingLy.setWindU((float)metersPerSecondToKnots.convert(fdata)); 
+								break;
+							case vW:
+								// HDF5 data in unit of m/s, convert to Knots 4/12/2012 
+								soundingLy.setWindV((float)metersPerSecondToKnots.convert(fdata));  
+								break;
+							case T:
+								soundingLy.setTemperature((float) kelvinToCelsius
+										.convert(fdata)); 
+								break;
+							case DWPK:								
+								soundingLy.setDewpoint((float) kelvinToCelsius
+										.convert(fdata)); 
+								break;
+							case OMEG:
+								soundingLy.setOmega(fdata);
+								break;
+							case RH:
+								soundingLy.setRelativeHumidity(fdata);
+								break;
+							}
+						}
+					}
+					soundLyList.add(soundingLy);
+				}
+				try {
+					coord = PointUtil.determineLatLon(pnt, crs, geom);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				//System.out.println(" point coord.y="+coord.y+ " coord.x="+ coord.x);
+				pf.setStationLatitude(coord.y);
+				pf.setStationLongitude( coord.x);
+				//Float sfcPressure = getModelSfcPressure(pnt, refTime, validTime,
+				//		pluginName, modelName);
+				//System.out.println("getModelSfcPressure took "+ (System.currentTimeMillis()-t013) + " ms");
+				///if (sfcPressure == null) {
+					pf.setSfcPress(-9999.f);
+				//}
+				//else {
+				//	pf.setSfcPress(sfcPressure/100F);
+				//}
+				//System.out.println("surface pressure ="+pf.getSfcPress()+ " lat= "+lat+ " lon="+lon);
+				//calculate dew point if necessary
+				MergeSounding ms = new MergeSounding();
+				//ms.spfhToDewpoint(layerList);
+				ms.rhToDewpoint(soundLyList);
+				pf.setSoundingLyLst(soundLyList);
+				soundingProfileList.add(pf);
+				index++;
+			}
+		}
+		return soundingProfileList;
+	}
+	/**
 	 * Returns a list of NcSoundingLayer for a specified location, time, and
 	 * model for grib or ncgrib data.
 	 * 
@@ -564,136 +936,89 @@ public class MdlSoundingQuery {
 	 * @param levels
 	 *            list of vertical levels
 	 * @return list of NcSoundingLayer objects
-	 */
+	 *
 
 	private static List<NcSoundingLayer> getModelSoundingLayerList(Point pnt,
 			String refTime, String validTime, String pluginName,
 			String modelName, List<?> levels) {
-		// CoreDao dao = new CoreDao(DaoConfig.forClass(NcgribRecord.class));
-
 		List<NcSoundingLayer> soundLyList = new ArrayList<NcSoundingLayer>();
 
-		long t01 = System.currentTimeMillis();
-		StringBuilder parmList = new StringBuilder();
-		boolean ht, ur, vr, t, d,sh, rh, om;
+		//long t01 = System.currentTimeMillis();
 		if (pluginName.equalsIgnoreCase(NCGRIB_TBL_NAME)) {
 			
 			TableQuery query;
 			try {
-				for (Object level : levels) {
-					NcSoundingLayer soundingLy = new NcSoundingLayer();
-					ht = ur= vr= t= d=sh= rh= om= false;
-					query = new TableQuery("metadata",
-							NcgribRecord.class.getName());
-					query.addParameter("vcord", "PRES");
-					query.addParameter("modelName", modelName);
-					query.addList("parm",NC_PARMS);//parmList.toString()); //
-					query.addParameter("dataTime.refTime", refTime);
-					query.addParameter("dataTime.validPeriod.start", validTime);
-					query.addParameter("glevel1", level.toString());
-					//query.setSortBy("glevel1", false);
-					//System.out.println("level = "+ level.toString());
+				query = new TableQuery("metadata",
+						NcgribRecord.class.getName());
+				query.addParameter("vcord", "PRES");
+				query.addParameter("modelName", modelName);
+				query.addList("parm",NC_PARMS);//parmList.toString()); //
+				query.addParameter("dataTime.refTime", refTime);
+				query.addParameter("dataTime.validPeriod.start", validTime);
+				//query.addParameter("glevel1", level.toString());
+				query.setSortBy("glevel1", false);
+				
 
-					List<NcgribRecord> recList = (List<NcgribRecord>) query
-					.execute();					
-					//System.out.println("level = "+ level.toString() + " has "+recList.size()+ " records" );
-					if (recList.size() != 0) {
-						for (NcgribRecord rec1 : recList) {
-							soundingLy.setPressure((float) rec1
-									.getGlevel1());
-							String prm = rec1.getParm();
-							//System.out.println("point.x="+ pnt.x + " .y="+pnt.y+"pressure="+rec1
-							//		.getGlevel1());
-							
-							//System.out.println("point.x="+ pnt.x + " .y="+pnt.y+"prm="+prm);
-							
-							switch (NcParmNames.valueOf(prm)) {
-							case HGHT:
-								if(ht== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setGeoHeight(fdata);
-									ht = true;
+				List<NcgribRecord> recList = (List<NcgribRecord>) query.execute();					
+				System.out.println("Ncgrib group query0 result size ="+ recList.size());
+				
+				if (recList.size() != 0) {
+					
+					PointIn pointIn = new PointIn(pluginName, recList.get(0),
+							pnt.x, pnt.y);
+					//Chin note:
+					// We query all levels (pressure) and all parameters (at that level) at once.
+					// The return array (fdataArray) are listed in the same order as query array (recList.toArray())
+					//However, returned array does not tell you which parameter itself is.
+					//Therefore, we have to use information in query array to find out returned value's type (which parameter it is)
+					// Further, we have to sort and store returned values to NcSoundingLayer based on its level (pressure)
+					// Parameters in same level should be stored in one same NcSoundingLayer
+					float[] fdataArray = pointIn.getHDF5GroupDataPoint(recList.toArray());
+					Object[] recArray = recList.toArray();
+					for (Object level : levels){
+						NcSoundingLayer soundingLy = new NcSoundingLayer();
+						int pressure= (Integer)level;
+						soundingLy.setPressure( pressure);
+						
+						for (int i=0; i < recArray.length; i++) {
+							NcgribRecord rec1 = (NcgribRecord)recArray[i];
+							float fdata = fdataArray[i];
+							if(rec1.getGlevel1() == pressure){
+								String prm = rec1.getParm();
+								//System.out.println("point.x="+ pnt.x + " .y="+pnt.y+"pressure="+rec1
+								//		.getGlevel1()+ " Parm="+prm );
+								//long t01 = System.currentTimeMillis();				
+								switch (NcParmNames.valueOf(prm)) {
+								case HGHT:
+										soundingLy.setGeoHeight(fdata);
+									break;
+								case UREL:
+									// HDF5 data in unit of Knots, no conversion needed
+										soundingLy.setWindU(fdata); 
+									break;
+								case VREL:
+									// HDF5 data in unit of Knots, no conversion needed
+										soundingLy.setWindV(fdata);  
+									break;
+								case TMPK:
+										soundingLy.setTemperature((float) kelvinToCelsius
+												.convert(fdata)); 
+									break;
+								case DWPK:								
+										soundingLy.setDewpoint((float) kelvinToCelsius
+												.convert(fdata)); 
+									break;
+								case SPFH:
+										soundingLy.setSpecHumidity(fdata);
+									break;
+								case OMEG:
+										soundingLy.setOmega(fdata);
+									break;
+								case RELH:
+										soundingLy.setRelativeHumidity(fdata);
+									break;
 								}
-								break;
-							case UREL:
-								// HDF5 data in
-								// unit of
-								// Knots, no
-								// conversion
-								// needed
-								if(ur== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setWindU(fdata); 
-									ur = true;
-								}
-								break;
-							case VREL:
-								// HDF5 data in
-								// unit of
-								// Knots, no
-								// conversion
-								// needed
-								if(vr== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setWindV(fdata);  
-									vr = true;
-								}
-								break;
-							case TMPK:
-								if(t== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setTemperature((float) kelvinToCelsius
-											.convert(fdata)); 
-									t = true;
-								}
-								break;
-							case DWPK:								
-								if(d== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setDewpoint((float) kelvinToCelsius
-											.convert(fdata)); 
-									d = true;
-								}
-								break;
-							case SPFH:
-								if(sh== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setSpecHumidity(fdata);
-									sh = true;
-								}
-								break;
-							case OMEG:
-								if(om== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setOmega(fdata);
-									om = true;
-								}
-								break;
-							case RELH:
-								if(rh== false){
-									PointIn pointIn = new PointIn(pluginName, rec1,
-											pnt.x, pnt.y);
-									float fdata = pointIn.getPointData();
-									soundingLy.setRelativeHumidity(fdata);
-									rh = true;
-								}
-								break;
 							}
-
 						}
 						soundLyList.add(soundingLy);
 					}
@@ -706,149 +1031,99 @@ public class MdlSoundingQuery {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			//System.out.println("getModelSoundingLayerList:total level = "+ totalLevel + " total records= "+totalRecords );
+			
 		}
 		else if (pluginName.equalsIgnoreCase(D2DGRIB_TBL_NAME)) {
-			
+			try {
+				TableQuery query = new TableQuery("metadata",
+						GribRecord.class.getName());
+				//query.addParameter("modelInfo.level.levelonevalue",
+				//		level.toString());
+				//query.addParameter("modelInfo.level.leveltwovalue",
+				//		"-999999.0");
+				query.addParameter("modelInfo.level.masterLevel.name", "MB");
+				query.addParameter("modelInfo.modelName", modelName);
+				query.addList("modelInfo.parameterAbbreviation",
+						D2D_PARMS);
+				query.addParameter("dataTime.refTime", refTime);
+				query.addParameter("dataTime.validPeriod.start", validTime);
+				query.setSortBy("modelInfo.level.levelonevalue", false);
+				//System.out.println("level = "+ level.toString());
 
-			for (Object level : levels) {
-				ht = ur= vr= t= d=sh= rh= om= false;
-				NcSoundingLayer soundingLy = new NcSoundingLayer();
-				try {
-					//Chin should change for performance
-					TableQuery query = new TableQuery("metadata",
-							GribRecord.class.getName());
-					query.addParameter("modelInfo.level.levelonevalue",
-							level.toString());
-					query.addParameter("modelInfo.level.leveltwovalue",
-							"-999999.0");
-					query.addParameter("modelInfo.level.masterLevel.name", "MB");
-					query.addParameter("modelInfo.modelName", modelName);
-					query.addList("modelInfo.parameterAbbreviation",
-							D2D_PARMS);
-					query.addParameter("dataTime.refTime", refTime);
-					query.addParameter("dataTime.validPeriod.start", validTime);
-					query.setSortBy("modelInfo.level.levelonevalue", false);
-					//System.out.println("level = "+ level.toString());
-					try {
-						List<GribRecord> recList = (List<GribRecord>) query
-								.execute();
-						if (recList.size() != 0) {
-							for (GribRecord rec1 : recList) {
-								soundingLy.setPressure((float) rec1
-										.getModelInfo().getLevel()
-										.getLevelonevalue());
-								String prm = rec1.getModelInfo()
-										.getParameterAbbreviation();
+				List<GribRecord> recList = (List<GribRecord>) query.execute();
+				System.out.println("Grib group query0 result size ="+ recList.size());
 
-								
-								//System.out.println("point.x="+ pnt.x + " .y="+pnt.y+"prm="+prm+" value="+fdata);
+				if (recList.size() > 0) {
+					PointIn pointIn = new PointIn(pluginName, recList.get(0),
+							pnt.x, pnt.y);
+					float[] fdataArray = pointIn.getHDF5GroupDataPoint(recList.toArray());
+					Object[] recArray = recList.toArray();
+					for (Object level : levels){
+						NcSoundingLayer soundingLy = new NcSoundingLayer();
+						double pressure= (Double)level;
+						soundingLy.setPressure( (float)pressure);
+
+						for (int i=0; i < recArray.length; i++) {
+							GribRecord rec1 = (GribRecord)recArray[i];
+							float fdata = fdataArray[i];
+							if(rec1.getModelInfo().getLevelOneValue() == pressure){
+								String prm = rec1.getModelInfo().getParameterAbbreviation();
+								//System.out.println("point.x="+ pnt.x + " .y="+pnt.y+"pressure="+pressure+ " Parm="+prm );
+								//long t01 = System.currentTimeMillis();				
 								switch (D2DParmNames.valueOf(prm)) {
 								case GH:
-									if(ht == false){
-										PointIn pointIn = new PointIn(pluginName, rec1,
-												pnt.x, pnt.y);
-										float fdata = pointIn.getPointData();
-										soundingLy.setGeoHeight(fdata);
-										ht= true;
-									}
+									soundingLy.setGeoHeight(fdata);
 									break;
 								case uW:
-									// HDF5 data in
-																// unit of
-																// Knots, no
-																// conversion
-																// needed
-									if(ur == false){
-										PointIn pointIn = new PointIn(pluginName, rec1,
-												pnt.x, pnt.y);
-										float fdata = pointIn.getPointData();
-										soundingLy.setWindU(fdata); 
-										ur= true;
-									}
+									// HDF5 data in unit of Knots, no conversion needed
+									soundingLy.setWindU(fdata); 
 									break;
 								case vW:
-									// HDF5 data in
-																// unit of
-																// Knots, no
-																// conversion
-																// needed
-									if(vr == false){
-										PointIn pointIn = new PointIn(pluginName, rec1,
-												pnt.x, pnt.y);
-										float fdata = pointIn.getPointData();
-										soundingLy.setWindV(fdata); 
-										vr= true;
-									}
+									// HDF5 data in unit of Knots, no conversion needed
+									soundingLy.setWindV(fdata);  
 									break;
 								case T:
-									if(t == false){
-										PointIn pointIn = new PointIn(pluginName, rec1,
-												pnt.x, pnt.y);
-										float fdata = pointIn.getPointData();
-										soundingLy.setTemperature((float) kelvinToCelsius
-												.convert(fdata));
-								t= true;
-									}
+									soundingLy.setTemperature((float) kelvinToCelsius
+											.convert(fdata)); 
 									break;
-								case DWPK:
-									if(d == false){
-										PointIn pointIn = new PointIn(pluginName, rec1,
-												pnt.x, pnt.y);
-										float fdata = pointIn.getPointData();
-										soundingLy.setDewpoint((float) kelvinToCelsius
-												.convert(fdata));
-										d= true;
-									}
-									break;
-								case RH:
-									if(rh == false){
-										PointIn pointIn = new PointIn(pluginName, rec1,
-												pnt.x, pnt.y);
-										float fdata = pointIn.getPointData();
-										soundingLy.setRelativeHumidity(fdata);
-										rh= true;
-									}
+								case DWPK:								
+									soundingLy.setDewpoint((float) kelvinToCelsius
+											.convert(fdata)); 
 									break;
 								case OMEG:
-									if(om == false){
-										PointIn pointIn = new PointIn(pluginName, rec1,
-												pnt.x, pnt.y);
-										float fdata = pointIn.getPointData();
-										soundingLy.setOmega(fdata);
-										om= true;
-									}
+									soundingLy.setOmega(fdata);
+									break;
+								case RH:
+									soundingLy.setRelativeHumidity(fdata);
 									break;
 								}
-
 							}
-							soundLyList.add(soundingLy);
 						}
-
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						soundLyList.add(soundingLy);
 					}
-
-				} catch (DataAccessLayerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
-
+			}
+			catch (DataAccessLayerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
-		long t02 = System.currentTimeMillis();
+		//long t02 = System.currentTimeMillis();
 		//System.out.println("MDL profile retreival took " + (t02 - t01));
-		/*/debug
+		
 		for(NcSoundingLayer layer: soundLyList){
 			System.out.println("pre="+ layer.getPressure()+ " h="+layer.getGeoHeight()+ " T="+layer.getTemperature()+" D="+
 					layer.getDewpoint()+ " WS="+layer.getWindSpeed()+ " WD="+layer.getWindDirection() + " SH="+layer.getSpecHumidity()+ " RH="+layer.getRelativeHumidity());
-		}*/
+		}
 		return soundLyList;
 	}
-
-
+	*/
 	/**
 	 * Return a list of data vertical levels for a specified time and model for
 	 * grib or ncgrib data.
@@ -909,7 +1184,7 @@ public class MdlSoundingQuery {
 		return null;
 
 	}
-
+	private static ISpatialObject spatialArea = null;
 	/**
 	 * Returns the indices of the model grid of the closest point to the
 	 * specified latitude, longitude.
@@ -929,7 +1204,7 @@ public class MdlSoundingQuery {
 	public static Point getLatLonIndices(double lat, double lon,
 			String refTime, String validTime, String level, String pluginName,
 			String modelName) {
-		ISpatialObject spatialArea = null;
+		//ISpatialObject spatialArea = null;
 
 		Point pnt = null;
 

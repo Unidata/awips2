@@ -37,7 +37,7 @@
 /***************************************************************/
 #define GLOBAL
 #define VIDEO
-#include "xwcmn.h"
+//#include "xwcmn.h"
 #include "sharp95.h"
 
 /* 
@@ -56,11 +56,13 @@ short auto_mode;
 int xwdth, xhght, xdpth;
 int raob_mod;
 
+#ifndef _WIN32
 Pixel pixels[40];  /* for colors */
 GC gc;
 Widget draw_reg;
 Pixmap canvas;
 XtAppContext app;
+#endif
 
 short pagenum = 1;
 short overlay_previous;
@@ -71,6 +73,7 @@ struct _skewt skv = { 40,  25, 500,  500, 100, 70, 60, 1};
 struct _hodog hov = { 40, 675, 350, 1025, 0, 0, 120, 10};
 struct _stpinset stv = { 720, 520, 1080, 790, 0};
 struct _startup autostart;
+#ifndef _WIN32
 typedef struct {       /* for drawing moving crosshairs or zoom boxes */
   int start_x, start_y,
       last_x,  last_y;
@@ -82,6 +85,7 @@ typedef struct {       /* for drawing moving crosshairs or zoom boxes */
 } rubber_band_data;
 
 rubber_band_data rbdata;
+#endif
 
 /* mkay added functions */
 void mixratline(float val);
@@ -90,6 +94,7 @@ void display_levels(short colr);
 void display_effective_layer(short colr);
 
        /*NP*/
+#ifndef _WIN32
 void make_screen(int argc, char *argv[])
        /*************************************************************/
        /*  MAKE_SCREEN                                              */
@@ -696,7 +701,7 @@ void draw_hodo(void)
 */	}
 
 }
-
+#endif
 	/*NP*/
 void hodo_to_pix(float dir, float mag, short *x, short *y)
 	/*************************************************************/
@@ -783,6 +788,7 @@ void pix_to_hodo(short x, short y, float *dir, float *mag)
 	*mag = speed(u, v);
 }
 
+#ifndef _WIN32
 	/*NP*/
 void trace_hodo(short width)
 	/*************************************************************/
@@ -1494,7 +1500,6 @@ void trace_temp(short width, short colr)
 	
 }
 
-
 /* 
 
 This routine has same problems as trace_hodo
@@ -1535,7 +1540,6 @@ void trace_temp2(short width)
 	}
 }
 
-
 	/*NP*/
 void trace_vtmp(short width)
 	/*************************************************************/
@@ -1574,7 +1578,6 @@ void trace_vtmp(short width)
 	   }
 	}
 }
-
 
 	/*NP*/
 void trace_dwpt(short width, short colr)
@@ -1680,7 +1683,6 @@ void trace_dwpt2(short width)
 	}
 }
 
-
 	/*NP*/
 void trace_wetbulb(short width)
 	/*************************************************************/
@@ -1722,7 +1724,7 @@ void trace_wetbulb(short width)
 	   }
 	}
 }
-
+#endif
 	/*NP*/
 short pres_to_pix(float pres)
 	/*************************************************************/
@@ -1809,6 +1811,7 @@ float pix_to_temp(short x, short y)
 }
 
 	/*NP*/
+#ifndef _WIN32
 void trace_parcel(float pres, float temp, float dwpt)
 	/*************************************************************/
 	/*  TRACE_PARCEL                                             */
@@ -1977,7 +1980,6 @@ void wind_barb(float wdir, float wspd, short x, short y, short siz)
 	}
 }
 
-
 	/*NP*/
 void plot_barbs(void)
 	/*************************************************************/
@@ -2133,7 +2135,6 @@ void plot_barbs2(void)
 }
 
 
-
 	/*NP*/
 void vvel_profile(void)
 	/*************************************************************/
@@ -2193,7 +2194,6 @@ void vvel_profile(void)
   	   outgtext("-10", skv.tlx+43, skv.tlx+15);
 	}
 }
-
 
 	/*NP*/
 void trace_dcape(void)
@@ -2291,7 +2291,6 @@ void copytodisplay(void)
 	XFlush(XtDisplay(draw_reg));
 }
 
-
 void display_dendritic_zone(short width)
 {
         short i, x, y, xold, yold;
@@ -2372,7 +2371,6 @@ void display_dendritic_zone(short width)
 		disp_param( st, skv.brx-130, y-10);
 		}
 }
-
 
 void display_levels(short colr)
 {
@@ -2470,7 +2468,6 @@ void display_levels(short colr)
         outgtext(st, skv.tlx+ 35, y-5);
 }
 
-
 void display_effective_layer(short colr)
 {
         short i, x, y, xold, yold;
@@ -2557,3 +2554,4 @@ void display_effective_layer(short colr)
         sprintf( st, "%4.0f J/kg", pcl.bplus);
         outgtext(st, skv.brx - x2, y1+5); */
 }
+#endif

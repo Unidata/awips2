@@ -59,6 +59,36 @@
             attributeName="colorMapName"
             ncResourceName="McidasSatellite">
       </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="alpha"
+            ncResourceName="McidasSatellite">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="alpha"
+            ncResourceName="GiniSatellite">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="brightness"
+            ncResourceName="McidasSatellite">
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="brightness"
+            ncResourceName="GiniSatellite">
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="contrast"
+            ncResourceName="McidasSatellite">
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="contrast"
+            ncResourceName="GiniSatellite">
+      </nc-resourceAttribute>
    </extension>
 
 </plugin>

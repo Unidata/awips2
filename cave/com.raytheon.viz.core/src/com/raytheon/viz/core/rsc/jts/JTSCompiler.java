@@ -22,12 +22,12 @@ package com.raytheon.viz.core.rsc.jts;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.geospatial.ReferencedGeometry;
-import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.map.WorldWrapCorrector;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -107,8 +107,7 @@ public class JTSCompiler {
         this.descriptor = descriptor;
         this.pointStyle = pointStyle;
         if (descriptor instanceof IMapDescriptor) {
-            this.corrector = new WorldWrapCorrector(
-                    descriptor.getGridGeometry());
+            this.corrector = new WorldWrapCorrector((IMapDescriptor) descriptor);
         }
     }
 
