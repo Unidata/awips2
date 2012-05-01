@@ -93,9 +93,6 @@ public class RosterManager implements IRosterManager {
         }
         baseRoster = sessionManager.getPresenceContainerAdapter()
                 .getRosterManager().getRoster();
-        System.out.println(System.currentTimeMillis()
-                + " RosterManager Initialization got "
-                + baseRoster.getItems().size() + " roster items");
         roster = toLocalRoster(baseRoster);
     }
 
