@@ -27,9 +27,9 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingMesh;
 
@@ -50,8 +50,7 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingMesh;
  * @version 1.0
  */
 @DynamicSerialize
-public class PaintImagesEvent extends AbstractRemoteGraphicsEvent implements
-        IRenderEvent {
+public class PaintImagesEvent extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
     private float alpha;

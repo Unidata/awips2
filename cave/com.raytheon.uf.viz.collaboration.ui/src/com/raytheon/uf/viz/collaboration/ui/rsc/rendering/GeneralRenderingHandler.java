@@ -23,8 +23,8 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 
 /**
  * Handles general rendering events, begin frame and dispose

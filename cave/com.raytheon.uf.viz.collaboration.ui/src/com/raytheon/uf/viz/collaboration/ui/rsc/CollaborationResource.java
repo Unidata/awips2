@@ -50,10 +50,11 @@ import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
-import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
-import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
-import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
 
 /**
@@ -87,7 +88,7 @@ public class CollaborationResource extends
     private List<IRenderEvent> activeRenderables;
 
     /** Queue of graphics data update events to process in paint */
-    private List<AbstractRemoteGraphicsEvent> dataChangeEvents;
+    private List<AbstractDispatchingObjectEvent> dataChangeEvents;
 
     /** Internal rendering event object router */
     private EventBus renderingRouter;
@@ -96,12 +97,14 @@ public class CollaborationResource extends
 
     private BeginFrameEvent latestBeginFrameEvent;
 
+    private Set<Integer> waitingOnObjects = new HashSet<Integer>();
+
     private Set<Integer> waitingOnFrames = new HashSet<Integer>();
 
     public CollaborationResource(CollaborationResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        dataChangeEvents = new LinkedList<AbstractRemoteGraphicsEvent>();
+        dataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
         currentRenderables = new LinkedList<IRenderEvent>();
         activeRenderables = new LinkedList<IRenderEvent>();
     }
@@ -120,25 +123,48 @@ public class CollaborationResource extends
             toRender.addAll(currentRenderables);
         }
 
-        List<AbstractRemoteGraphicsEvent> currentDataChangeEvents = new LinkedList<AbstractRemoteGraphicsEvent>();
+        List<AbstractDispatchingObjectEvent> currentDataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
         synchronized (dataChangeEvents) {
-            currentDataChangeEvents.addAll(dataChangeEvents);
-            dataChangeEvents.clear();
+            if (waitingOnObjects.size() == 0) {
+                currentDataChangeEvents.addAll(dataChangeEvents);
+                dataChangeEvents.clear();
+            } else {
+                for (AbstractDispatchingObjectEvent dcEvent : dataChangeEvents) {
+                    if (waitingOnObjects.contains(dcEvent.getObjectId()) == false) {
+                        currentDataChangeEvents.add(dcEvent);
+                    }
+                }
+                dataChangeEvents.removeAll(currentDataChangeEvents);
+            }
         }
 
         dataManager.beginRender(target, paintProps);
 
-        // Handle begin frame
-        if (latestBeginFrameEvent != null) {
-            renderingRouter.post(latestBeginFrameEvent);
-            latestBeginFrameEvent = null;
-        }
-        for (AbstractRemoteGraphicsEvent event : currentDataChangeEvents) {
-            renderingRouter.post(event);
-        }
+        synchronized (renderingRouter) {
+            // Handle begin frame
+            if (latestBeginFrameEvent != null) {
+                renderingRouter.post(latestBeginFrameEvent);
+                latestBeginFrameEvent = null;
+            }
+            for (AbstractRemoteGraphicsEvent event : currentDataChangeEvents) {
+                renderingRouter.post(event);
+            }
 
-        for (IRenderEvent event : toRender) {
-            renderingRouter.post(event);
+            for (IRenderEvent event : toRender) {
+                renderingRouter.post(event);
+            }
+        }
+    }
+
+    public void lockObject(int objectId) {
+        synchronized (dataChangeEvents) {
+            waitingOnObjects.add(objectId);
+        }
+    }
+
+    public void unlockObject(int objectId) {
+        synchronized (dataChangeEvents) {
+            waitingOnObjects.remove(objectId);
         }
     }
 
@@ -146,7 +172,7 @@ public class CollaborationResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         renderingRouter = new EventBus();
         dataManager = new CollaborationRenderingDataManager(
-                resourceData.getSession());
+                resourceData.getSession(), this);
         for (CollaborationRenderingHandler handler : CollaborationRenderingDataManager
                 .createRenderingHandlers(dataManager)) {
             renderingRouter.register(handler);
@@ -157,7 +183,7 @@ public class CollaborationResource extends
     public void updateRenderFrameEvent(UpdateRenderFrameEvent event) {
         int objectId = event.getObjectId();
         RenderFrameEvent frame = dataManager.getRenderableObject(objectId,
-                RenderFrameEvent.class);
+                RenderFrameEvent.class, false);
         if (frame == null) {
             if (waitingOnFrames.contains(objectId) == false) {
                 RenderFrameNeededEvent needEvent = new RenderFrameNeededEvent();
@@ -243,8 +269,17 @@ public class CollaborationResource extends
         });
     }
 
+    public void postObjectEvent(AbstractDispatchingObjectEvent event) {
+        synchronized (renderingRouter) {
+            renderingRouter.post(event);
+        }
+    }
+
     @Subscribe
     public void renderableArrived(AbstractRemoteGraphicsEvent event) {
+        // TODO: May need to allow for adding objects to the data manager for an
+        // objectId and creation events should put a flag that a creation event
+        // was received for the object
         if (event instanceof IRenderFrameEvent) {
             // Skip IRenderFrameEvents, not applicable here
             return;
@@ -271,12 +306,16 @@ public class CollaborationResource extends
             } else {
                 activeRenderables.add((IRenderEvent) event);
             }
-        } else {
+        } else if (event instanceof AbstractDispatchingObjectEvent) {
             // If not IRenderEvent, event modifies data object
             synchronized (dataChangeEvents) {
-                dataChangeEvents.add(event);
+                dataChangeEvents.add((AbstractDispatchingObjectEvent) event);
             }
             issueRefresh();
+        } else {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    "Could not handle event type: "
+                            + event.getClass().getSimpleName());
         }
     }
 

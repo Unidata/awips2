@@ -17,13 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
 
 /**
- * TODO Add Description
+ * Abstract class for non-object based rendering events
  * 
  * <pre>
  * 
@@ -31,16 +30,16 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            mschenke     Initial creation
+ * May 1, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@DynamicSerialize
-public class EndFrameEvent extends AbstractRemoteGraphicsEvent implements
-        IRenderEvent {
+
+public abstract class AbstractRemoteGraphicsRenderEvent extends
+        AbstractRemoteGraphicsEvent implements IRenderEvent {
 
     /*
      * (non-Javadoc)
@@ -54,32 +53,7 @@ public class EndFrameEvent extends AbstractRemoteGraphicsEvent implements
         return event;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
-     */
     @Override
-    public void applyDiffObject(IRenderEvent diffEvent) {
-        // Nothing to do
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        return true;
-    }
+    public abstract boolean equals(Object obj);
 
 }
