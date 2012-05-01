@@ -29,7 +29,6 @@ import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -103,6 +102,38 @@ public class LoginDialog extends CaveSWTDialog {
         this.prefStore = Activator.getDefault().getPreferenceStore();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
+        shell.setLayout(new GridLayout(1, false));
+        createDialogArea(shell);
+        createButtonBar(shell);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
+     */
+    @Override
+    protected void preOpened() {
+        super.preOpened();
+        userTF.setText(prefStore.getString(CollabPrefConstants.P_USERNAME));
+        serverTF.setText(prefStore.getString(CollabPrefConstants.P_SERVER));
+
+        statusCombo.select(statusCombo.indexOf(prefStore
+                .getString(CollabPrefConstants.P_STATUS)));
+        messageTF.setText(prefStore.getString(CollabPrefConstants.P_MESSAGE));
+        userTF.selectAll();
+        userTF.setFocus();
+    }
+
     /**
      * @param parent
      * @return
@@ -135,7 +166,7 @@ public class LoginDialog extends CaveSWTDialog {
         gd.minimumWidth = 45;
         serverButton.setLayoutData(gd);
         serverButton.setToolTipText("Change Server");
-        serverButton.addSelectionListener(new SelectionListener() {
+        serverButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -143,6 +174,10 @@ public class LoginDialog extends CaveSWTDialog {
                     serverButton.setText("Edit");
                     serverButton.setToolTipText("Change Server");
                     serverTF.setEditable(false);
+                    messageTF.setEnabled(true);
+                    passwordTF.setEnabled(true);
+                    statusCombo.setEnabled(true);
+                    userTF.setEnabled(true);
                     serverTF.setBackground(serverTF.getParent().getBackground());
                     String server = serverTF.getText().trim();
                     serverTF.setText(server);
@@ -157,13 +192,13 @@ public class LoginDialog extends CaveSWTDialog {
                     serverTF.setBackground(null);
                     serverTF.selectAll();
                     serverTF.setFocus();
+                    messageTF.setEnabled(false);
+                    passwordTF.setEnabled(false);
+                    statusCombo.setEnabled(false);
+                    userTF.setEnabled(false);
                     serverTF.getParent().setTabList(withServerList);
                     logOnButton.setEnabled(false);
                 }
-            }
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
 
@@ -202,20 +237,6 @@ public class LoginDialog extends CaveSWTDialog {
         return body;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
-    @Override
-    protected void initializeComponents(Shell shell) {
-        shell.setLayout(new GridLayout(1, false));
-        createDialogArea(shell);
-        createButtonBar(shell);
-    }
-
     /**
      * @param parent
      */
@@ -229,24 +250,6 @@ public class LoginDialog extends CaveSWTDialog {
 
         createButton(bar, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
-    @Override
-    protected void preOpened() {
-        super.preOpened();
-        userTF.setText(prefStore.getString(CollabPrefConstants.P_USERNAME));
-        serverTF.setText(prefStore.getString(CollabPrefConstants.P_SERVER));
-
-        statusCombo.select(statusCombo.indexOf(prefStore
-                .getString(CollabPrefConstants.P_STATUS)));
-        messageTF.setText(prefStore.getString(CollabPrefConstants.P_MESSAGE));
-        userTF.selectAll();
-        userTF.setFocus();
     }
 
     /**
