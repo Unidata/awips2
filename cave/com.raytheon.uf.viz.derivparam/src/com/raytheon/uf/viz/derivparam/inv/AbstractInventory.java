@@ -581,7 +581,7 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
                 || levelsToProcess == null || sourcesToProcess.isEmpty()
                 || paramsToProcess.isEmpty() || levelsToProcess.isEmpty()
                 || derParLibrary == null) {
-            return null;
+            return Collections.emptyList();
         }
         if (clazz != null) {
             // when clazz == null we need to link the aliases to the source
