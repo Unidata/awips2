@@ -105,10 +105,13 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
             if (image != null) {
                 PixelCoverage coverage = new PixelCoverage(pie.getUl(),
                         pie.getUr(), pie.getLr(), pie.getLl());
-                IMesh mesh = dataManager.getRenderableObject(pie.getMeshId(),
-                        IMesh.class);
-                if (mesh != null) {
-                    coverage.setMesh(mesh);
+                int meshId = pie.getMeshId();
+                if (meshId > -1) {
+                    IMesh mesh = dataManager.getRenderableObject(
+                            pie.getMeshId(), IMesh.class);
+                    if (mesh != null) {
+                        coverage.setMesh(mesh);
+                    }
                 }
                 images.add(new DrawableImage(image, coverage));
             } else {
