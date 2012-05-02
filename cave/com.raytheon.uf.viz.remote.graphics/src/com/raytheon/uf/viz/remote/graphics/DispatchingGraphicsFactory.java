@@ -158,9 +158,8 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
             IDisplayPaneContainer container, DispatcherFactory factory) {
         try {
             for (IDisplayPane pane : container.getDisplayPanes()) {
-                Dispatcher dispatcher = factory.createNewDispatcher();
-                // Wrap view in dispatching view
                 IRenderableDisplay display = pane.getRenderableDisplay();
+                Dispatcher dispatcher = factory.createNewDispatcher(display);
                 // Wrap the graphics adapter in dispatching one
                 display.setGraphicsAdapter(new DispatchingGraphicsFactory(
                         display.getGraphicsAdapter(), dispatcher));
