@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.remote.graphics;
 
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+
 /**
  * Factory for creating Dispatcher objects for dispatching remote graphics
  * events
@@ -44,6 +46,7 @@ public interface DispatcherFactory {
      * 
      * @return
      */
-    public Dispatcher createNewDispatcher() throws InstantiationException;
+    public Dispatcher createNewDispatcher(IRenderableDisplay display)
+            throws InstantiationException;
 
 }
