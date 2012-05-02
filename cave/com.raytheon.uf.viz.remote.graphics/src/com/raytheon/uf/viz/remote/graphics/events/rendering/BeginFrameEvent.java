@@ -25,7 +25,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Frame that specifies the begining of a new rendering sequence. EndFrameEvent
+ * signals the end of the rendering sequence
  * 
  * <pre>
  * 
