@@ -439,5 +439,4 @@ public class CollaborationDataManager {
             ex.printStackTrace();
         }
     }
-
 }
