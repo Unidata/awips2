@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -257,11 +258,12 @@ public class DataProviderEventController extends AbstractRoleEventController {
             DispatchingGraphicsFactory.injectRemoteFunctionality(container,
                     new DispatcherFactory() {
                         @Override
-                        public Dispatcher createNewDispatcher()
+                        public Dispatcher createNewDispatcher(
+                                IRenderableDisplay display)
                                 throws InstantiationException {
                             try {
                                 CollaborationDispatcher dispatcher = new CollaborationDispatcher(
-                                        session);
+                                        session, display);
                                 dispatchers.add(dispatcher);
                                 return dispatcher;
                             } catch (CollaborationException e) {

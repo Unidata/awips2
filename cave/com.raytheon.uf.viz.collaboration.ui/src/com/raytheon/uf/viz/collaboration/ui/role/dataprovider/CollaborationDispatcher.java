@@ -20,7 +20,10 @@
 package com.raytheon.uf.viz.collaboration.ui.role.dataprovider;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
+
+import org.eclipse.swt.widgets.Event;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -31,9 +34,14 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IRenderFrameEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.MouseLocationEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrame;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameNeededEvent;
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.jobs.JobPool;
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
@@ -41,6 +49,7 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
+import com.raytheon.viz.ui.input.InputAdapter;
 
 /**
  * Dispatches graphics objects to participants in the collaboration session
@@ -75,12 +84,58 @@ public class CollaborationDispatcher extends Dispatcher {
 
     private RenderFrame currentFrame;
 
-    public CollaborationDispatcher(ISharedDisplaySession session)
-            throws CollaborationException {
+    private IInputHandler mouseCapturer = new InputAdapter() {
+
+        private double[] mouseLocation;
+
+        @Override
+        public boolean handleMouseMove(int x, int y) {
+            IDisplayPaneContainer container = display.getContainer();
+            for (IDisplayPane pane : container.getDisplayPanes()) {
+                if (pane.getRenderableDisplay() == display) {
+                    update(display.screenToGrid(x, y, 1.0, pane.getTarget()));
+                    break;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean handleMouseExit(Event event) {
+            update(null);
+            return false;
+        }
+
+        @Override
+        public boolean handleMouseEnter(Event event) {
+            handleMouseMove(event.x, event.y);
+            return false;
+        }
+
+        private void update(double[] mouseLocation) {
+            if (!Arrays.equals(mouseLocation, this.mouseLocation)) {
+                this.mouseLocation = mouseLocation;
+                MouseLocationEvent event = new MouseLocationEvent();
+                event.setDisplayId(getDispatcherId());
+                event.setMouseLocation(mouseLocation);
+                send(event);
+            }
+        }
+    };
+
+    private IRenderableDisplay display;
+
+    public CollaborationDispatcher(ISharedDisplaySession session,
+            IRenderableDisplay display) throws CollaborationException {
         this.session = session;
+        this.display = display;
         this.persistance = CollaborationObjectEventStorage
                 .createPersistanceObject(session);
         session.registerEventHandler(this);
+        // TODO:
+        // Not sure if we should show mouse location or not due to
+        // bandwidth, messages are very small but frequent
+        // display.getContainer().registerMouseHandler(mouseCapturer);
     }
 
     @Subscribe
