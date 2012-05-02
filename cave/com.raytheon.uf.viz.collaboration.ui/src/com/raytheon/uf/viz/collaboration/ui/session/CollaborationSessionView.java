@@ -26,10 +26,14 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 
@@ -47,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -74,6 +79,8 @@ public class CollaborationSessionView extends SessionView {
     private static final String COLLABORATION_SESSION_IMAGE_NAME = "messages.gif";
 
     private Action switchToAction;
+
+    private Action colorChangeAction;
 
     private ISharedDisplaySession session;
 
@@ -153,6 +160,26 @@ public class CollaborationSessionView extends SessionView {
             }
         };
         switchToAction.setMenuCreator(creator);
+
+        colorChangeAction = new Action("Change Color...") {
+            @Override
+            public void run() {
+                ColorDialog dlg = new ColorDialog(Display.getCurrent()
+                        .getActiveShell());
+                RGB rgb = dlg.open();
+                IStructuredSelection selection = (IStructuredSelection) usersTable
+                        .getSelection();
+                IRosterEntry entry = (IRosterEntry) selection.getFirstElement();
+                ColorChangeEvent event = new ColorChangeEvent(entry.getUser(),
+                        rgb);
+                try {
+                    session.sendObjectToVenue(event);
+                } catch (CollaborationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to send color change to venue", e);
+                }
+            }
+        };
     }
 
     /*
@@ -265,7 +292,24 @@ public class CollaborationSessionView extends SessionView {
             if (!selectedUser.getUser().equals(session.getUserID())) {
                 manager.add(switchToAction);
             }
+            if (session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
+                manager.add(new Separator());
+                manager.add(colorChangeAction);
+            }
         }
+    }
+
+    @Subscribe
+    public void modifyColors(ColorChangeEvent event) {
+        SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getColorManager()
+                .setColorForUser(event.getUserName(), event.getColor());
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                usersTable.refresh();
+            }
+        });
     }
 
     /*
