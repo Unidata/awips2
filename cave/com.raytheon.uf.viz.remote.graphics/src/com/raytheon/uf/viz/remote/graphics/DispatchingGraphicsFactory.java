@@ -24,12 +24,14 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.opengis.coverage.grid.GridEnvelope;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -191,17 +193,28 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
 
     private static void refreshPane(IDisplayPane pane) {
         IRenderableDisplay display = pane.getRenderableDisplay();
+        IDescriptor descriptor = display.getDescriptor();
         // Force resetting of the pane's display
         pane.setRenderableDisplay(null);
         pane.setRenderableDisplay(display);
 
         display.setup(pane.getTarget());
 
-        for (ResourcePair rp : display.getDescriptor().getResourceList()) {
+        for (ResourcePair rp : descriptor.getResourceList()) {
             if (rp.getResource() != null) {
                 rp.getResource().recycle();
             }
         }
+
+        if (descriptor.getTimeMatcher() != null) {
+            try {
+                descriptor.getTimeMatcher().redoTimeMatching(descriptor);
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        "Error redoing time matching", e);
+            }
+        }
+
         pane.refresh();
     }
 }
