@@ -721,6 +721,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         }
         status = ResourceStatus.NEW;
         initJob = null;
+        dataTimes.clear();
     }
 
     public ResourceOrder getResourceOrder() {
