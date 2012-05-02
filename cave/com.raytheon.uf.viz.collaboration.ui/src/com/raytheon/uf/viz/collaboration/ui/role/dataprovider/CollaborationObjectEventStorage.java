@@ -229,8 +229,8 @@ public class CollaborationObjectEventStorage implements
     @Override
     public AbstractDispatchingObjectEvent[] retrieveObjectEvents(int objectId)
             throws CollaborationException {
-        String objectURL = sessionDataURL + objectId + "/";
-        HttpGet get = new HttpGet(objectURL + "?C=M;O=A");
+        String objectPath = objectId + "/";
+        HttpGet get = new HttpGet(sessionDataURL + objectPath);
         HttpClientResponse response = executeRequest(get);
         if (isSuccess(response.code) == false) {
             if (isNotExists(response.code)) {
@@ -260,7 +260,7 @@ public class CollaborationObjectEventStorage implements
                 if (endsAt > foundAt) {
                     String object = htmlStr.substring(foundAt, endsAt);
                     if (object.endsWith(objectEnding)) {
-                        event.setResourcePath(objectURL + object);
+                        event.setResourcePath(objectPath + object);
                         CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
                         if (eventObject != null) {
                             objectEvents.add(eventObject);
