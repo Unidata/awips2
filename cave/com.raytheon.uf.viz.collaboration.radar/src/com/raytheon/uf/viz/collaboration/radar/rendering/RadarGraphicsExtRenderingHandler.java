@@ -20,10 +20,12 @@
 package com.raytheon.uf.viz.collaboration.radar.rendering;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.radar.mesh.CreateRadarRadialMesh;
 import com.raytheon.uf.viz.collaboration.radar.mosaic.CreateMosaicImageEvent;
 import com.raytheon.uf.viz.collaboration.radar.mosaic.UpdateImagesToMosaic;
 import com.raytheon.uf.viz.collaboration.radar.mosaic.UpdateMosaicExtent;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.ImagingRenderingHandler;
 import com.raytheon.uf.viz.core.IExtent;
@@ -55,21 +57,25 @@ public class RadarGraphicsExtRenderingHandler extends
         CollaborationRenderingHandler {
 
     @Subscribe
-    public void createRadarMesh(CreateRadarRadialMesh event)
-            throws VizException {
+    public void createRadarMesh(CreateRadarRadialMesh event) {
         int meshId = event.getObjectId();
-        IGraphicsTarget target = getTarget();
-        dataManager.putRenderableObject(
-                meshId,
-                target.getExtension(IRadialMeshExtension.class).constructMesh(
-                        event.getRadarRecord(), event.getTargetGeometry()));
+        IGraphicsTarget target = getGraphicsTarget();
+        try {
+            dataManager.putRenderableObject(
+                    meshId,
+                    target.getExtension(IRadialMeshExtension.class)
+                            .constructMesh(event.getRadarRecord(),
+                                    event.getTargetGeometry()));
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     @Subscribe
-    public void createMosaicImage(CreateMosaicImageEvent event)
-            throws VizException {
+    public void createMosaicImage(CreateMosaicImageEvent event) {
         int imageId = event.getObjectId();
-        IGraphicsTarget target = getTarget();
+        IGraphicsTarget target = getGraphicsTarget();
         IExtent imageExtent = null;
         ColorMapParameters parameters = null;
         if (event.getExtent() != null) {
@@ -81,11 +87,16 @@ public class RadarGraphicsExtRenderingHandler extends
                 parameters.setColorMap(event.getColorMap().getColorMap());
             }
         }
-        dataManager.putRenderableObject(
-                imageId,
-                target.getExtension(IRadarMosaicImageExtension.class)
-                        .initializeRaster(event.getBounds(), imageExtent,
-                                parameters));
+        try {
+            dataManager.putRenderableObject(
+                    imageId,
+                    target.getExtension(IRadarMosaicImageExtension.class)
+                            .initializeRaster(event.getBounds(), imageExtent,
+                                    parameters));
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     @Subscribe

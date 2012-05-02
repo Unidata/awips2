@@ -19,12 +19,22 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc.rendering;
 
+import org.eclipse.swt.graphics.RGB;
+
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.MouseLocationEvent;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Handles general rendering events, begin frame and dispose
@@ -63,7 +73,7 @@ public class GeneralRenderingHandler extends CollaborationRenderingHandler {
     @Subscribe
     public void handleBeginFrame(BeginFrameEvent event) {
         PaintProperties paintProps = getPaintProperties();
-        IGraphicsTarget target = getTarget();
+        IGraphicsTarget target = getGraphicsTarget();
         double[] center = event.getExtentCenter();
         IExtent copy = paintProps.getView().getExtent().clone();
         if (center != null) {
@@ -74,6 +84,71 @@ public class GeneralRenderingHandler extends CollaborationRenderingHandler {
             target.updateExtent(copy);
             event.setExtentCenter(null);
             target.setNeedsRefresh(true);
+        }
+    }
+
+    @Subscribe
+    public void handleDrawPoints(DrawPointsEvent event) {
+        try {
+            IGraphicsTarget target = getGraphicsTarget();
+            target.drawPoints(event.getPointsCollection(), event.getColor(),
+                    event.getStyle(), event.getMagnification());
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Subscribe
+    public void handleEndFrame(MouseLocationEvent event) {
+        // TODO: Draw the best icon for a cursor, for now will use what
+        // VizDisplayPane uses, this is copypasta
+        double[] mouseLoc = event.getMouseLocation();
+        if (mouseLoc == null) {
+            // Don't draw if no location
+            return;
+        }
+
+        IGraphicsTarget target = getGraphicsTarget();
+        PaintProperties paintProps = getPaintProperties();
+        target.clearClippingPlane();
+        // Calculate scale for image
+        double screenToWorldRatio = paintProps.getCanvasBounds().width
+                / paintProps.getView().getExtent().getWidth();
+        double middleValue = 5 / screenToWorldRatio;
+        double outsideValue = 6 / screenToWorldRatio;
+        double insideValue = 4 / screenToWorldRatio;
+
+        Coordinate virtualCursor = new Coordinate(mouseLoc[0], mouseLoc[1]);
+
+        try {
+            target.drawRect(new PixelExtent(virtualCursor.x - middleValue,
+                    virtualCursor.x + middleValue, virtualCursor.y
+                            - middleValue, virtualCursor.y + middleValue),
+                    new RGB(255, 255, 255), 1.0f, 1.0f);
+
+            target.drawRect(new PixelExtent(virtualCursor.x - outsideValue,
+                    virtualCursor.x + outsideValue, virtualCursor.y
+                            - outsideValue, virtualCursor.y + outsideValue),
+                    new RGB(0, 0, 0), 0.5f, 1.0f);
+
+            target.drawRect(new PixelExtent(virtualCursor.x - insideValue,
+                    virtualCursor.x + insideValue, virtualCursor.y
+                            - insideValue, virtualCursor.y + insideValue),
+                    new RGB(0, 0, 0), 0.5f, 1.0f);
+
+            DrawableCircle circle = new DrawableCircle();
+            circle.filled = true;
+            circle.radius = 1.0 / screenToWorldRatio;
+            circle.basics.color = new RGB(255, 255, 255);
+            circle.numberOfPoints = 4;
+            circle.setCoordinates(virtualCursor.x, virtualCursor.y);
+            target.drawCircle(circle);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        } finally {
+            target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 

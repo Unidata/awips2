@@ -54,9 +54,13 @@ public class DispatchingFont extends DispatchingObject<IFont> implements IFont {
 
     private float lastMagnification;
 
+    private Boolean lastScaleOnMagnify = null;
+
     private boolean lastSmoothing;
 
     private boolean lastScaleFont;
+
+    private boolean dirty;
 
     /**
      * @param wrappedObject
@@ -69,6 +73,7 @@ public class DispatchingFont extends DispatchingObject<IFont> implements IFont {
         this.lastScaleFont = wrappedObject.isScaleFont();
         sendCreateFontEvent(getFontName(), getFontSize(), getStyle(),
                 getMagnification(), getSmoothing(), isScaleFont(), null);
+        dirty = false;
     }
 
     public DispatchingFont(IFont wrappedObject, Dispatcher dispatcher,
@@ -79,6 +84,7 @@ public class DispatchingFont extends DispatchingObject<IFont> implements IFont {
         this.lastScaleFont = wrappedObject.isScaleFont();
         sendCreateFontEvent(getFontName(), getFontSize(), getStyle(),
                 getMagnification(), getSmoothing(), isScaleFont(), fontFile);
+        dirty = false;
     }
 
     private void sendCreateFontEvent(String fontName, float fontSize,
@@ -155,10 +161,8 @@ public class DispatchingFont extends DispatchingObject<IFont> implements IFont {
         wrappedObject.setMagnification(magnification);
         if (lastMagnification != magnification) {
             lastMagnification = magnification;
-            UpdateFontDataEvent event = RemoteGraphicsEventFactory.createEvent(
-                    UpdateFontDataEvent.class, this);
-            event.setMagnification(magnification);
-            dispatch(event);
+            lastScaleOnMagnify = null;
+            dirty = true;
         }
     }
 
@@ -172,11 +176,8 @@ public class DispatchingFont extends DispatchingObject<IFont> implements IFont {
         wrappedObject.setMagnification(magnification, scaleFont);
         if (lastMagnification != magnification) {
             lastMagnification = magnification;
-            UpdateFontDataEvent event = RemoteGraphicsEventFactory.createEvent(
-                    UpdateFontDataEvent.class, this);
-            event.setScaleFont(scaleFont);
-            event.setMagnification(magnification);
-            dispatch(event);
+            lastScaleOnMagnify = scaleFont;
+            dirty = true;
         }
     }
 
@@ -196,10 +197,7 @@ public class DispatchingFont extends DispatchingObject<IFont> implements IFont {
         wrappedObject.setSmoothing(smooth);
         if (lastSmoothing != smooth) {
             lastSmoothing = smooth;
-            UpdateFontDataEvent event = RemoteGraphicsEventFactory.createEvent(
-                    UpdateFontDataEvent.class, this);
-            event.setSmoothing(smooth);
-            dispatch(event);
+            dirty = true;
         }
     }
 
@@ -227,11 +225,20 @@ public class DispatchingFont extends DispatchingObject<IFont> implements IFont {
         wrappedObject.setScaleFont(scaleFont);
         if (lastScaleFont != scaleFont) {
             lastScaleFont = scaleFont;
-            UpdateFontDataEvent event = RemoteGraphicsEventFactory.createEvent(
-                    UpdateFontDataEvent.class, this);
-            event.setScaleFont(scaleFont);
-            dispatch(event);
+            dirty = true;
         }
     }
 
+    public void flushState() {
+        if (dirty) {
+            UpdateFontDataEvent event = RemoteGraphicsEventFactory.createEvent(
+                    UpdateFontDataEvent.class, this);
+            event.setMagnification(lastMagnification);
+            event.setScaleOnMagnify(lastScaleOnMagnify);
+            event.setScaleFont(lastScaleFont);
+            event.setSmoothing(lastSmoothing);
+            dispatch(event);
+            dirty = false;
+        }
+    }
 }
