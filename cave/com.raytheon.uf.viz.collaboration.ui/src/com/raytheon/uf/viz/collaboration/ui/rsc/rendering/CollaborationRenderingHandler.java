@@ -49,8 +49,8 @@ public abstract class CollaborationRenderingHandler {
         this.dataManager = dataManager;
     }
 
-    protected final IGraphicsTarget getTarget() {
-        return dataManager.getTarget();
+    protected final IGraphicsTarget getGraphicsTarget() {
+        return dataManager.getGraphicsTarget();
     }
 
     protected final PaintProperties getPaintProperties() {
