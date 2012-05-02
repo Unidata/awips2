@@ -78,6 +78,10 @@ public class SessionColorManager {
         return colors.get(user);
     }
 
+    public void setColorForUser(UserId id, RGB rgb) {
+        colors.put(id, rgb);
+    }
+
     /**
      * Add a user with a new color value
      * 
