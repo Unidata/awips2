@@ -291,7 +291,7 @@ public class DrawingLayer extends
 
     public void reset() {
         resetTemp();
-        disposeInternal();
+        disposeShapes();
         issueRefresh();
     }
 
@@ -310,6 +310,10 @@ public class DrawingLayer extends
      */
     @Override
     protected void disposeInternal() {
+        disposeShapes();
+    }
+
+    private void disposeShapes() {
         for (IWireframeShape shape : this.wireframeShapes.values()) {
             shape.dispose();
         }
