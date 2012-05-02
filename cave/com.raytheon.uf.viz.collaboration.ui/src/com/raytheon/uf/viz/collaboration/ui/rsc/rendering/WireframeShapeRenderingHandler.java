@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.collaboration.ui.rsc.rendering;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -53,7 +55,7 @@ public class WireframeShapeRenderingHandler extends
 
     @Subscribe
     public void createWireframeShape(CreateWireframeShapeEvent event) {
-        IGraphicsTarget target = getTarget();
+        IGraphicsTarget target = getGraphicsTarget();
         int shapeId = event.getObjectId();
         IWireframeShape shape = null;
         if (event.getSimplificationLevel() != null) {
@@ -119,9 +121,8 @@ public class WireframeShapeRenderingHandler extends
     }
 
     @Subscribe
-    public void renderWireframeShape(RenderWireframeShapeEvent event)
-            throws VizException {
-        IGraphicsTarget target = getTarget();
+    public void renderWireframeShape(RenderWireframeShapeEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         IWireframeShape shape = dataManager.getRenderableObject(
                 event.getObjectId(), IWireframeShape.class);
         if (shape != null) {
@@ -130,13 +131,18 @@ public class WireframeShapeRenderingHandler extends
                 font = dataManager.getRenderableObject(event.getFontId(),
                         IFont.class);
             }
-            if (event.getAlpha() == null) {
-                target.drawWireframeShape(shape, event.getColor(),
-                        event.getLineWidth(), event.getLineStyle(), font);
-            } else {
-                target.drawWireframeShape(shape, event.getColor(),
-                        event.getLineWidth(), event.getLineStyle(), font,
-                        event.getAlpha());
+            try {
+                if (event.getAlpha() == null) {
+                    target.drawWireframeShape(shape, event.getColor(),
+                            event.getLineWidth(), event.getLineStyle(), font);
+                } else {
+                    target.drawWireframeShape(shape, event.getColor(),
+                            event.getLineWidth(), event.getLineStyle(), font,
+                            event.getAlpha());
+                }
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        e.getLocalizedMessage(), e);
             }
         }
     }

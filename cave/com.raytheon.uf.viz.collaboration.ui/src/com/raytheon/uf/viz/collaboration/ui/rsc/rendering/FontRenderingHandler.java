@@ -23,10 +23,11 @@ import java.io.File;
 import java.io.IOException;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.CreateFontEvent;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
 
@@ -50,8 +51,8 @@ import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
 public class FontRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
-    public void createFont(CreateFontEvent event) throws VizException {
-        IGraphicsTarget target = getTarget();
+    public void createFont(CreateFontEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         int fontId = event.getObjectId();
         IFont font = null;
         if (event.getFontData() != null) {
@@ -61,8 +62,8 @@ public class FontRenderingHandler extends CollaborationRenderingHandler {
                 font = target.initializeFont(fontFile, event.getFontSize(),
                         event.getFontStyle());
             } catch (IOException e) {
-                throw new VizException("Unable to write font file: "
-                        + e.getLocalizedMessage());
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        "Error creating font from file", e);
             }
         } else {
             font = target.initializeFont(event.getFontName(),
@@ -79,21 +80,12 @@ public class FontRenderingHandler extends CollaborationRenderingHandler {
         IFont font = dataManager.getRenderableObject(event.getObjectId(),
                 IFont.class);
         if (font != null) {
-            if (event.getMagnification() != null) {
-                if (event.getScaleFont() != null) {
-                    font.setMagnification(event.getMagnification(),
-                            event.getScaleFont());
-                } else {
-                    font.setMagnification(event.getMagnification());
-                }
+            if (event.getScaleOnMagnify() != null) {
+                font.setMagnification(event.getMagnification(),
+                        event.getScaleOnMagnify());
             } else {
-                if (event.getScaleFont() != null) {
-                    font.setScaleFont(event.getScaleFont());
-                } else if (event.getSmoothing() != null) {
-                    font.setSmoothing(event.getSmoothing());
-                }
+                font.setMagnification(event.getMagnification());
             }
-            font.setMagnification(event.getMagnification());
             font.setSmoothing(event.getSmoothing());
             font.setScaleFont(event.getScaleFont());
         }
