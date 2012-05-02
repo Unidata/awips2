@@ -25,6 +25,8 @@ import java.util.List;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
@@ -76,15 +78,20 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     private Object colorMapLock = new Object();
 
     @Subscribe
-    public void renderImages(PaintImagesEvent event) throws VizException {
+    public void renderImages(PaintImagesEvent event) {
         PaintProperties paintProps = getPaintProperties();
-        IGraphicsTarget target = getTarget();
+        IGraphicsTarget target = getGraphicsTarget();
         PaintImageEvent[] events = event.getImageEvents();
         DrawableImage[] images = toDrawableImages(events, dataManager);
         if (images.length > 0) {
             PaintProperties imageProps = new PaintProperties(paintProps);
             imageProps.setAlpha(event.getAlpha());
-            target.drawRasters(imageProps, images);
+            try {
+                target.drawRasters(imageProps, images);
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        e.getLocalizedMessage(), e);
+            }
         }
     }
 
@@ -114,8 +121,6 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
                     }
                 }
                 images.add(new DrawableImage(image, coverage));
-            } else {
-                // TODO: Log?
             }
         }
         return images.toArray(new DrawableImage[images.size()]);
@@ -158,7 +163,7 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
     public void createImage(CreateIImageEvent event) {
-        IGraphicsTarget target = getTarget();
+        IGraphicsTarget target = getGraphicsTarget();
         RenderedImageDataCallback callback = new RenderedImageDataCallback();
         IImage image = target.initializeRaster(callback);
         dataManager.putRenderableObject(event.getObjectId(), new Object[] {
@@ -190,9 +195,8 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
      * @throws VizException
      */
     @Subscribe
-    public void createColormappedImage(CreateColormappedImageEvent event)
-            throws VizException {
-        IGraphicsTarget target = getTarget();
+    public void createColormappedImage(CreateColormappedImageEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         int imageId = event.getObjectId();
         IColorMapDataRetrievalCallback callback = new ColorMapDataCallback();
         UpdateColorMapParametersEvent cmapParamEvent = event
@@ -204,11 +208,16 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
                 params.setColorMap(event.getColorMap().getColorMap());
             }
         }
-        IColormappedImage image = target.getExtension(
-                IColormappedImageExtension.class).initializeRaster(callback,
-                params);
-        dataManager.putRenderableObject(imageId,
-                new Object[] { image, callback });
+        try {
+            IColormappedImage image = target.getExtension(
+                    IColormappedImageExtension.class).initializeRaster(
+                    callback, params);
+            dataManager.putRenderableObject(imageId, new Object[] { image,
+                    callback });
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     @Subscribe
@@ -282,23 +291,31 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     // ================== IMesh events ==================
 
     @Subscribe
-    public void createMesh(CreateMeshEvent event) throws VizException {
-        IGraphicsTarget target = getTarget();
-        // TODO: Should we cache or should we expect data provider or even
-        // internal to the target?
+    public void createMesh(CreateMeshEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         int meshId = event.getObjectId();
-        IMesh mesh = target.getExtension(IMapMeshExtension.class)
-                .constructMesh(event.getImageGeometry(),
-                        event.getTargetGeometry());
-        dataManager.putRenderableObject(meshId, mesh);
+        try {
+            IMesh mesh = target.getExtension(IMapMeshExtension.class)
+                    .constructMesh(event.getImageGeometry(),
+                            event.getTargetGeometry());
+            dataManager.putRenderableObject(meshId, mesh);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     @Subscribe
-    public void reprojectMesh(ReprojectMeshEvent event) throws VizException {
+    public void reprojectMesh(ReprojectMeshEvent event) {
         IMesh mesh = dataManager.getRenderableObject(event.getObjectId(),
                 IMesh.class);
         if (mesh != null) {
-            mesh.reproject(event.getTargetGeometry());
+            try {
+                mesh.reproject(event.getTargetGeometry());
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        e.getLocalizedMessage(), e);
+            }
         }
     }
 
@@ -310,16 +327,20 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     // ================== ISingleColorImage events ==================
 
     @Subscribe
-    public void createSingleColorImage(CreateSingleColorImage event)
-            throws VizException {
-        IGraphicsTarget target = getTarget();
+    public void createSingleColorImage(CreateSingleColorImage event) {
+        IGraphicsTarget target = getGraphicsTarget();
         RenderedImageDataCallback callback = new RenderedImageDataCallback();
         int imageId = event.getObjectId();
-        ISingleColorImage image = target.getExtension(
-                ISingleColorImageExtension.class).constructImage(callback,
-                event.getColor());
-        dataManager.putRenderableObject(imageId,
-                new Object[] { image, callback });
+        try {
+            ISingleColorImage image = target.getExtension(
+                    ISingleColorImageExtension.class).constructImage(callback,
+                    event.getColor());
+            dataManager.putRenderableObject(imageId, new Object[] { image,
+                    callback });
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     @Subscribe

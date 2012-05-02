@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -67,6 +68,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
@@ -799,16 +801,14 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         previousExtent = curExtent.clone();
     }
 
-    private EndFrameEvent endFrame = RemoteGraphicsEventFactory.createEvent(
-            EndFrameEvent.class, this);
-
     /**
      * 
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#endFrame()
      */
     public void endFrame() {
         wrappedObject.endFrame();
-        dispatch(endFrame);
+        dispatch(RemoteGraphicsEventFactory.createEvent(EndFrameEvent.class,
+                this));
     }
 
     /**
@@ -953,6 +953,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawPoint(double x, double y, double z, RGB color,
             PointStyle pointStyle) throws VizException {
         wrappedObject.drawPoint(x, y, z, color, pointStyle);
+        sendDrawPointsEvent(Arrays.asList(new double[] { x, y, z }), color,
+                pointStyle, 1.0f);
     }
 
     /**
@@ -968,6 +970,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawPoints(Collection<double[]> locations, RGB color,
             PointStyle pointStyle, float magnification) throws VizException {
         wrappedObject.drawPoints(locations, color, pointStyle, magnification);
+        sendDrawPointsEvent(locations, color, pointStyle, magnification);
     }
 
     /**
@@ -985,6 +988,19 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawPoint(double x, double y, double z, RGB color,
             PointStyle pointStyle, float magnification) throws VizException {
         wrappedObject.drawPoint(x, y, z, color, pointStyle, magnification);
+        sendDrawPointsEvent(Arrays.asList(new double[] { x, y, z }), color,
+                pointStyle, magnification);
+    }
+
+    private void sendDrawPointsEvent(Collection<double[]> points, RGB color,
+            PointStyle pointStyle, float magnification) {
+        DrawPointsEvent event = RemoteGraphicsEventFactory.createEvent(
+                DrawPointsEvent.class, this);
+        event.addPoints(points);
+        event.setColor(color);
+        event.setStyle(pointStyle);
+        event.setMagnification(magnification);
+        dispatch(event);
     }
 
     /**
