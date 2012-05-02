@@ -51,8 +51,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
 import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
-import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -104,13 +102,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     public CollaborationDrawingLayer(PathDrawingResourceData data,
             LoadProperties props) {
         super(data, props);
-        AbstractEditor editor = EditorUtil
-                .getActiveEditorAs(AbstractEditor.class);
         CollaborationDataManager mgr = CollaborationDataManager.getInstance();
-        // TODO, needs to be modified
-        for (String str : mgr.getSessions().keySet()) {
-            mgr.getSession(str).registerEventHandler(this);
-        }
         userId = mgr.getCollaborationConnection().getUser();
     }
 
@@ -172,9 +164,11 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                 for (ShapeContainer sh : collaboratorShapes.get(userName)) {
                     if (sh != null) {
                         RGB col = colorManager.getColors().get(userName);
-                        target.drawWireframeShape(sh.getShape(), col,
-                                outline.getOutlineWidth(),
-                                outline.getLineStyle(), imaging.getAlpha());
+                        if (sh.getShape() != null) {
+                            target.drawWireframeShape(sh.getShape(), col,
+                                    outline.getOutlineWidth(),
+                                    outline.getLineStyle(), imaging.getAlpha());
+                        }
                     }
                 }
             }
@@ -184,6 +178,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Subscribe
     public void setColorEvent(ColorChangeEvent event) {
         this.color = event.getColor();
+        if (event.getUserName().equals(userId)) {
+            getCapability(ColorableCapability.class).setColor(this.color);
+        }
         colorManager.getColorFromUser(event.getUserName());
         issueRefresh();
     }
@@ -301,15 +298,20 @@ public class CollaborationDrawingLayer extends DrawingLayer {
      * @param userName
      */
     private void clearSelfShapes(UserId userName) {
-        // TODO, fix this
-        for (UserId cont : collaboratorShapes.keySet()) {
-            if (cont.getFQName().equals(userName.getFQName())) {
-                for (ShapeContainer shape : collaboratorShapes.get(cont)) {
+        // TODO, does this need to clear all shapes if you are the session
+        // leader, or should it still just clear your own shapes
+        Multimap<UserId, ShapeContainer> map = LinkedHashMultimap
+                .create(collaboratorShapes);
+        for (UserId cont : map.keySet()) {
+            if (cont.equals(userName)) {
+                for (ShapeContainer shape : map.get(cont)) {
                     shape.getShape().dispose();
                 }
                 collaboratorShapes.removeAll(cont);
             }
         }
+
+        // this is what i was thinking of for clearing all shapes
         // for (ShapeContainer cont : collaboratorShapes.get(userName)) {
         // cont.getShape().dispose();
         // }
@@ -458,6 +460,12 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         // }
     }
 
+    public void initSession(String sessionId) {
+        setSessionId(sessionId);
+        SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
+                .registerEventHandler(this);
+    }
+
     /**
      * @return the allowDraw
      */
@@ -481,6 +489,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
+        SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
+                .unRegisterEventHandler(this);
         // if (/* is session leader */false) {
         // // synchronized (collaboratorShapes) {
         // // for (IWireframeShape shape : collaboratorShapes.values()) {
