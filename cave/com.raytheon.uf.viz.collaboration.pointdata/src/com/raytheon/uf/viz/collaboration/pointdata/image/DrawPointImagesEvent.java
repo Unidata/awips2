@@ -74,10 +74,12 @@ public class DrawPointImagesEvent extends AbstractRemoteGraphicsRenderEvent {
         removals.removeAll(diffEvent.images);
         DrawPointImagesEvent diffObject = new DrawPointImagesEvent();
         diffObject.setAlpha(diffEvent.getAlpha());
-        if (additions.size() > 0) {
+        if (additions.size() + removals.size() > diffEvent.images.size()) {
+            // Just do a full replace
+            diffObject.setRemovals(null);
+            diffObject.setImages(diffEvent.images);
+        } else {
             diffObject.setImages(additions);
-        }
-        if (removals.size() > 0) {
             diffObject.setRemovals(removals);
         }
         return diffObject;
@@ -96,9 +98,10 @@ public class DrawPointImagesEvent extends AbstractRemoteGraphicsRenderEvent {
         synchronized (images) {
             if (diffObject.removals != null) {
                 images.removeAll(diffObject.removals);
-            }
-            if (diffObject.images != null) {
                 images.addAll(diffObject.images);
+            } else {
+                // Null removals indicates full replaces
+                images = new HashSet<PointImageEvent>(diffObject.images);
             }
         }
         alpha = diffObject.getAlpha();
