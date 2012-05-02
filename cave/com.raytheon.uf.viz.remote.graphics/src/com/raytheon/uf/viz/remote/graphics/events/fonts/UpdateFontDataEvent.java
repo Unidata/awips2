@@ -43,18 +43,21 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
 public class UpdateFontDataEvent extends AbstractDispatchingObjectEvent {
 
     @DynamicSerializeElement
-    private Float magnification;
+    private float magnification;
 
     @DynamicSerializeElement
-    private Boolean smoothing;
+    private Boolean scaleOnMagnify;
 
     @DynamicSerializeElement
-    private Boolean scaleFont;
+    private boolean smoothing;
+
+    @DynamicSerializeElement
+    private boolean scaleFont;
 
     /**
      * @return the magnification
      */
-    public Float getMagnification() {
+    public float getMagnification() {
         return magnification;
     }
 
@@ -62,14 +65,29 @@ public class UpdateFontDataEvent extends AbstractDispatchingObjectEvent {
      * @param magnification
      *            the magnification to set
      */
-    public void setMagnification(Float magnification) {
+    public void setMagnification(float magnification) {
         this.magnification = magnification;
+    }
+
+    /**
+     * @return the scaleOnMagnify
+     */
+    public Boolean getScaleOnMagnify() {
+        return scaleOnMagnify;
+    }
+
+    /**
+     * @param scaleOnMagnify
+     *            the scaleOnMagnify to set
+     */
+    public void setScaleOnMagnify(Boolean scaleOnMagnify) {
+        this.scaleOnMagnify = scaleOnMagnify;
     }
 
     /**
      * @return the smoothing
      */
-    public Boolean getSmoothing() {
+    public boolean getSmoothing() {
         return smoothing;
     }
 
@@ -77,14 +95,14 @@ public class UpdateFontDataEvent extends AbstractDispatchingObjectEvent {
      * @param smoothing
      *            the smoothing to set
      */
-    public void setSmoothing(Boolean smoothing) {
+    public void setSmoothing(boolean smoothing) {
         this.smoothing = smoothing;
     }
 
     /**
      * @return the scaleFont
      */
-    public Boolean getScaleFont() {
+    public boolean getScaleFont() {
         return scaleFont;
     }
 
@@ -92,7 +110,7 @@ public class UpdateFontDataEvent extends AbstractDispatchingObjectEvent {
      * @param scaleFont
      *            the scaleFont to set
      */
-    public void setScaleFont(Boolean scaleFont) {
+    public void setScaleFont(boolean scaleFont) {
         this.scaleFont = scaleFont;
     }
 
