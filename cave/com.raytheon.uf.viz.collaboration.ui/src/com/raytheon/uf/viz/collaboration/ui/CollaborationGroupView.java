@@ -701,7 +701,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     }
 
     /**
+     * Add the ability to alias items in the group view and then to have that
+     * alias be used anywhere else that the UserId is used
      * 
+     * Saves to an xml file in localization where the user can edit if desired
      */
     protected void aliasItem() {
         Control oldEditor = treeEditor.getEditor();
