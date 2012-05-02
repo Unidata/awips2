@@ -119,7 +119,7 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
     /**
      * @return the target
      */
-    public IGraphicsTarget getTarget() {
+    public IGraphicsTarget getGraphicsTarget() {
         return target;
     }
 

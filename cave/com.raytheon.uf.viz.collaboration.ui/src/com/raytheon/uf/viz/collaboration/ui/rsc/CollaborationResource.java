@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.FrameDisposed;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IRenderFrameEvent;
+import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.MouseLocationEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameNeededEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.UpdateRenderFrameEvent;
@@ -97,6 +98,8 @@ public class CollaborationResource extends
 
     private BeginFrameEvent latestBeginFrameEvent;
 
+    private MouseLocationEvent latestMouseLocation;
+
     private Set<Integer> waitingOnObjects = new HashSet<Integer>();
 
     private Set<Integer> waitingOnFrames = new HashSet<Integer>();
@@ -152,6 +155,9 @@ public class CollaborationResource extends
 
             for (IRenderEvent event : toRender) {
                 renderingRouter.post(event);
+            }
+            if (latestMouseLocation != null) {
+                renderingRouter.post(latestMouseLocation);
             }
         }
     }
@@ -302,6 +308,9 @@ public class CollaborationResource extends
                     activeRenderables.clear();
                 }
                 activeRenderables.clear();
+                issueRefresh();
+            } else if (event instanceof MouseLocationEvent) {
+                latestMouseLocation = (MouseLocationEvent) event;
                 issueRefresh();
             } else {
                 activeRenderables.add((IRenderEvent) event);
