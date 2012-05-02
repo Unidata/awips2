@@ -235,18 +235,6 @@ public class SessionView extends AbstractSessionView {
     }
 
     @Subscribe
-    public void handleModifiedPresence(IRosterEntry rosterEntry) {
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                if (!usersTable.getTable().isDisposed()) {
-                    usersTable.refresh();
-                }
-            }
-        });
-    }
-
-    @Subscribe
     public void updateUserAlias(UserId id) {
         List<IRosterEntry> entries = (List<IRosterEntry>) usersTable.getInput();
         for (IRosterEntry entry : entries) {
@@ -592,7 +580,6 @@ public class SessionView extends AbstractSessionView {
             throws Exception {
         final ParticipantEventType type = event.getEventType();
         final UserId participant = event.getParticipant();
-        final IPresence presence = event.getPresence();
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -605,7 +592,6 @@ public class SessionView extends AbstractSessionView {
                     participantDeparted(participant);
                     break;
                 case PRESENCE_UPDATED:
-                    participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
                     // TODO ?
@@ -613,6 +599,16 @@ public class SessionView extends AbstractSessionView {
                 default:
                     System.err.println("Unknown Event type");
                 }
+            }
+        });
+    }
+
+    @Subscribe
+    public void handleModifiedPresence(final IRosterEntry entry) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                participantPresenceUpdated(entry.getUser(), entry.getPresence());
             }
         });
     }
@@ -650,5 +646,11 @@ public class SessionView extends AbstractSessionView {
         // TODO Keep as a place holder for now since it may be needed to set
         // leader/provider roles.
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
+        for (IRosterEntry entry : users) {
+            if (entry.getUser().equals(participant)) {
+                ((RosterEntry) entry).setPresence(presence);
+                usersTable.refresh(entry);
+            }
+        }
     }
 }
