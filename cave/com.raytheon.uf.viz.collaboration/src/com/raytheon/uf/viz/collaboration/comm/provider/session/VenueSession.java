@@ -379,9 +379,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
                                     ParticipantEventType.DEPARTED);
                             getEventPublisher().post(event);
                         }
-                        event = new VenueParticipantEvent(vp, p,
-                                ParticipantEventType.PRESENCE_UPDATED);
-                        getEventPublisher().post(event);
                     }
                 };
                 venueContainer.addChatRoomParticipantListener(pListener);
