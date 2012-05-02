@@ -55,6 +55,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
@@ -392,11 +393,18 @@ public class CollaborationDataManager {
                     }
                 }
                 try {
+                    // use the aliased name if there is one
+                    String sId = peer.getName();
+                    for (UserId id : CollaborationUtils.getIds()) {
+                        if (id.equals(peer)) {
+                            sId = id.getAlias();
+                        }
+                    }
                     PeerToPeerView p2pView = (PeerToPeerView) PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
                             .getActivePage()
-                            .showView(PeerToPeerView.ID, peer.getFQName(),
+                            .showView(PeerToPeerView.ID, sId,
                                     IWorkbenchPage.VIEW_ACTIVATE);
                     p2pView.setPeer(peer);
                     p2pView.appendMessage(message);
