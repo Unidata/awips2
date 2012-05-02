@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.pointdata.image.DrawPointImagesEvent;
 import com.raytheon.uf.viz.collaboration.pointdata.image.PointImageEvent;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -54,8 +56,8 @@ import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 public class PointImageRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
-    public void drawPointImages(DrawPointImagesEvent event) throws VizException {
-        IGraphicsTarget target = getTarget();
+    public void drawPointImages(DrawPointImagesEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         PaintProperties newProps = new PaintProperties(getPaintProperties());
         newProps.setAlpha(event.getAlpha());
         Set<PointImageEvent> events = event.getImagesCopy();
@@ -74,8 +76,13 @@ public class PointImageRenderingHandler extends CollaborationRenderingHandler {
             }
         }
 
-        target.getExtension(IPointImageExtension.class).drawPointImages(
-                newProps, images);
+        try {
+            target.getExtension(IPointImageExtension.class).drawPointImages(
+                    newProps, images);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
 }
