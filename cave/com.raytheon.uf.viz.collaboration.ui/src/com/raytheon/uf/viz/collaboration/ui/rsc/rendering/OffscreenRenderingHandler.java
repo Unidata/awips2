@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.collaboration.ui.rsc.rendering;
 import java.nio.Buffer;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
@@ -50,9 +52,8 @@ import com.raytheon.uf.viz.remote.graphics.events.offscreen.RenderOnscreenEvent;
 public class OffscreenRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
-    public void createOffscreenImage(CreateOffscreenImageEvent event)
-            throws VizException {
-        IGraphicsTarget target = getTarget();
+    public void createOffscreenImage(CreateOffscreenImageEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         try {
             IImage offscreenImage = null;
             IOffscreenRenderingExtension ext = target
@@ -77,32 +78,46 @@ public class OffscreenRenderingHandler extends CollaborationRenderingHandler {
                         offscreenImage);
             }
         } catch (ClassNotFoundException e) {
-            throw new VizException("Could not find class for buffer type: "
-                    + event.getBufferType(), e);
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    "Error construcint offscreen image with buffer type: "
+                            + event.getBufferType(), e);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
         }
     }
 
     @Subscribe
-    public void renderOffscreen(RenderOffscreenEvent event) throws VizException {
-        IGraphicsTarget target = getTarget();
+    public void renderOffscreen(RenderOffscreenEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         IImage offscreenImage = dataManager.getRenderableObject(
                 event.getObjectId(), IImage.class);
         if (offscreenImage != null) {
-            if (event.getExtent() != null) {
-                target.getExtension(IOffscreenRenderingExtension.class)
-                        .renderOffscreen(offscreenImage, event.getIExtent());
-            } else {
-                target.getExtension(IOffscreenRenderingExtension.class)
-                        .renderOffscreen(offscreenImage);
+            try {
+                if (event.getExtent() != null) {
+                    target.getExtension(IOffscreenRenderingExtension.class)
+                            .renderOffscreen(offscreenImage, event.getIExtent());
+                } else {
+                    target.getExtension(IOffscreenRenderingExtension.class)
+                            .renderOffscreen(offscreenImage);
+                }
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        e.getLocalizedMessage(), e);
             }
         }
     }
 
     @Subscribe
-    public void renderOnscreen(RenderOnscreenEvent event) throws VizException {
-        IGraphicsTarget target = getTarget();
-        target.getExtension(IOffscreenRenderingExtension.class)
-                .renderOnscreen();
+    public void renderOnscreen(RenderOnscreenEvent event) {
+        try {
+            IGraphicsTarget target = getGraphicsTarget();
+            target.getExtension(IOffscreenRenderingExtension.class)
+                    .renderOnscreen();
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
 }
