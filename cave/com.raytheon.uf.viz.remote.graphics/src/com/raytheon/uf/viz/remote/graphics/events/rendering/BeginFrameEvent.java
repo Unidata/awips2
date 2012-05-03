@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
 import java.util.Arrays;
 
+import org.eclipse.swt.graphics.RGB;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -49,6 +51,9 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
     private double[] extentCenter;
+
+    @DynamicSerializeElement
+    private int[] rgb;
 
     /**
      * @return the extentFactor
@@ -80,6 +85,56 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         this.extentCenter = extentCenter;
     }
 
+    /**
+     * @return the rgb
+     */
+    public int[] getRgb() {
+        return rgb;
+    }
+
+    /**
+     * @param rgb
+     *            the rgb to set
+     */
+    public void setRgb(int[] rgb) {
+        this.rgb = rgb;
+    }
+
+    public void setColor(RGB color) {
+        if (color != null) {
+            rgb = new int[] { color.red, color.green, color.blue };
+        }
+    }
+
+    public RGB getColor() {
+        if (rgb != null) {
+            return new RGB(rgb[0], rgb[1], rgb[2]);
+        }
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsRenderEvent
+     * #createDiffObject(com.raytheon.uf.viz.remote
+     * .graphics.events.rendering.IRenderEvent)
+     */
+    @Override
+    public IRenderEvent createDiffObject(IRenderEvent event) {
+        BeginFrameEvent diffEvent = (BeginFrameEvent) event;
+        BeginFrameEvent diffObject = new BeginFrameEvent();
+        if (Arrays.equals(extentCenter, diffEvent.extentCenter) == false) {
+            diffObject.extentCenter = diffEvent.extentCenter;
+        }
+        diffObject.extentFactor = diffEvent.extentFactor;
+        if (Arrays.equals(rgb, diffEvent.rgb) == false) {
+            diffObject.rgb = diffEvent.rgb;
+        }
+        return diffObject;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -90,8 +145,13 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
     @Override
     public void applyDiffObject(IRenderEvent diffEvent) {
         BeginFrameEvent event = (BeginFrameEvent) diffEvent;
-        this.extentCenter = event.extentCenter;
+        if (event.extentCenter != null) {
+            this.extentCenter = event.extentCenter;
+        }
         this.extentFactor = event.extentFactor;
+        if (event.rgb != null) {
+            rgb = event.rgb;
+        }
     }
 
     /*
@@ -112,6 +172,8 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
             return false;
         if (Double.doubleToLongBits(extentFactor) != Double
                 .doubleToLongBits(other.extentFactor))
+            return false;
+        if (!Arrays.equals(rgb, other.rgb))
             return false;
         return true;
     }
