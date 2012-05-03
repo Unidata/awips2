@@ -67,6 +67,10 @@ import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtensio
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.clipping.ClearClippingPane;
+import com.raytheon.uf.viz.remote.graphics.events.clipping.SetupClippingPane;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.DispatchingColorMapManager;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.DrawColorRampEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
@@ -780,8 +784,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
                 getDispatcher());
     }
 
-    private IExtent previousExtent;
-
     /**
      * @param display
      * @param isClearBackground
@@ -793,12 +795,10 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         BeginFrameEvent beginFrame = RemoteGraphicsEventFactory.createEvent(
                 BeginFrameEvent.class, this);
         IExtent curExtent = display.getExtent();
-        if (previousExtent == null || curExtent.equals(previousExtent) == false) {
-            beginFrame.setExtentFactor(curExtent.getScale());
-            beginFrame.setExtentCenter(curExtent.getCenter());
-        }
+        beginFrame.setExtentFactor(curExtent.getScale());
+        beginFrame.setExtentCenter(curExtent.getCenter());
+        beginFrame.setColor(display.getBackgroundColor());
         dispatch(beginFrame);
-        previousExtent = curExtent.clone();
     }
 
     /**
@@ -841,6 +841,10 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void setupClippingPlane(IExtent extent) {
         wrappedObject.setupClippingPlane(extent);
+        SetupClippingPane event = RemoteGraphicsEventFactory.createEvent(
+                SetupClippingPane.class, this);
+        event.setIExtent(extent);
+        dispatch(event);
     }
 
     /**
@@ -849,6 +853,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void clearClippingPlane() {
         wrappedObject.clearClippingPlane();
+        dispatch(RemoteGraphicsEventFactory.createEvent(
+                ClearClippingPane.class, this));
     }
 
     /**
@@ -890,6 +896,16 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawColorRamp(DrawableColorMap colorMap) throws VizException {
         wrappedObject.drawColorRamp(colorMap);
+        DrawColorRampEvent event = RemoteGraphicsEventFactory.createEvent(
+                DrawColorRampEvent.class, this);
+        event.setColorMapId(DispatchingColorMapManager.getInstance(
+                getDispatcher()).getColorMapId(colorMap.getColorMapParams()));
+        event.setAlpha(colorMap.alpha);
+        event.setBrightness(colorMap.brightness);
+        event.setContrast(colorMap.contrast);
+        event.setInterpolate(colorMap.interpolate);
+        event.setIExtent(colorMap.extent);
+        dispatch(event);
     }
 
     /**
@@ -1192,70 +1208,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             font = ((DispatchingFont) font).getWrappedObject();
         }
         return wrappedObject.getStringBounds(font, text, style);
-    }
-
-    /**
-     * @param colorMap
-     * @param pixelExtent
-     * @param blendAlpha
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf.common.colormap.IColorMap,
-     *      com.raytheon.uf.viz.core.IExtent, float)
-     */
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha) throws VizException {
-        wrappedObject.drawColorRamp(colorMap, pixelExtent, blendAlpha);
-    }
-
-    /**
-     * @param colorMap
-     * @param pixelExtent
-     * @param blendAlpha
-     * @param brightness
-     * @param contrast
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf.common.colormap.IColorMap,
-     *      com.raytheon.uf.viz.core.IExtent, float, float, float)
-     */
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha, float brightness, float contrast)
-            throws VizException {
-        wrappedObject.drawColorRamp(colorMap, pixelExtent, blendAlpha,
-                brightness, contrast);
-    }
-
-    /**
-     * @param colorMapParams
-     * @param pixelExtent
-     * @param blendAlpha
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf.viz.core.drawables.ColorMapParameters,
-     *      com.raytheon.uf.viz.core.IExtent, float)
-     */
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha) throws VizException {
-        wrappedObject.drawColorRamp(colorMapParams, pixelExtent, blendAlpha);
-    }
-
-    /**
-     * @param colorMapParams
-     * @param pixelExtent
-     * @param blendAlpha
-     * @param brightness
-     * @param contrast
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf.viz.core.drawables.ColorMapParameters,
-     *      com.raytheon.uf.viz.core.IExtent, float, float, float)
-     */
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha, float brightness,
-            float contrast) throws VizException {
-        wrappedObject.drawColorRamp(colorMapParams, pixelExtent, blendAlpha,
-                brightness, contrast);
     }
 
     /**
