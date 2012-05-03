@@ -794,9 +794,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         wrappedObject.beginFrame(display, isClearBackground);
         BeginFrameEvent beginFrame = RemoteGraphicsEventFactory.createEvent(
                 BeginFrameEvent.class, this);
-        IExtent curExtent = display.getExtent();
-        beginFrame.setExtentFactor(curExtent.getScale());
-        beginFrame.setExtentCenter(curExtent.getCenter());
+        beginFrame.setIExtent(display.getExtent());
         beginFrame.setColor(display.getBackgroundColor());
         dispatch(beginFrame);
     }
