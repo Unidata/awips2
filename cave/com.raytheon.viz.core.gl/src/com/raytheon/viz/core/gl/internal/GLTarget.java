@@ -1871,6 +1871,7 @@ public class GLTarget implements IGLTarget {
 
         gl.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA, glColorMap.getSize(),
                 0, GL.GL_RGBA, GL.GL_FLOAT, bb);
+        gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
         gl.glDisable(GL.GL_TEXTURE_1D);
 
         return t;
