@@ -638,19 +638,6 @@ public class GLTarget implements IGLTarget {
      * 
      * @see
      * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float)
-     */
-    @Override
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha) throws VizException {
-        drawColorRamp(colorMapParams, pixelExtent, blendAlpha, 1.0f, 1.0f);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
      * .viz.core.DrawableColorMap)
      */
     @Override
@@ -845,56 +832,6 @@ public class GLTarget implements IGLTarget {
         } finally {
             this.popGLState();
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float,
-     * float, float)
-     */
-    @Override
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha, float brightness,
-            float contrast) throws VizException {
-        DrawableColorMap colorMap = new DrawableColorMap(colorMapParams);
-        colorMap.extent = pixelExtent;
-        colorMap.alpha = blendAlpha;
-        colorMap.brightness = brightness;
-        colorMap.contrast = contrast;
-        drawColorRamp(colorMap);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float)
-     */
-    @Override
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha) throws VizException {
-        drawColorRamp(colorMap, pixelExtent, blendAlpha, 1.0f, 1.0f);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float,
-     * float, float)
-     */
-    @Override
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha, float brightness, float contrast)
-            throws VizException {
-        ColorMapParameters cmap = new ColorMapParameters();
-        cmap.setColorMap(colorMap);
-        drawColorRamp(cmap, pixelExtent, blendAlpha, brightness, contrast);
     }
 
     /*
