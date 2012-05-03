@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -188,9 +189,12 @@ public class D2DColorBarResource extends
         int pixels = paintProps.getCanvasBounds().width < 500 ? 18 : 25;
         double y2 = y1 + (pixels * ratio);
 
-        PixelExtent pixelExtent = new PixelExtent(x1, x2, y1, y2);
-        target.drawColorRamp(colorMapParameters, pixelExtent, (float) alpha,
-                brightness, contrast);
+        DrawableColorMap cmap = new DrawableColorMap(colorMapParameters);
+        cmap.extent = new PixelExtent(x1, x2, y1, y2);
+        cmap.alpha = alpha;
+        cmap.brightness = brightness;
+        cmap.contrast = contrast;
+        target.drawColorRamp(cmap);
 
         if (rsc.hasCapability(BlendedCapability.class)) {
             alpha *= 2.0;
@@ -225,9 +229,13 @@ public class D2DColorBarResource extends
         int pixels = paintProps.getCanvasBounds().width < 500 ? 18 : 25;
         double y2 = y1 + (pixels * ratio);
 
-        PixelExtent pixelExtent = new PixelExtent(x1, x2, y1, y2);
-        target.drawColorRamp(colorMapParameters, pixelExtent, (float) alpha,
-                brightness, contrast);
+        DrawableColorMap cmap = new DrawableColorMap(colorMapParameters);
+        cmap.extent = new PixelExtent(x1, x2, y1, y2);
+        cmap.alpha = alpha;
+        cmap.brightness = brightness;
+        cmap.contrast = contrast;
+        target.drawColorRamp(cmap);
+
         alpha *= 2.0;
         double yPos = y1 + ((y2 - y1) * .4);
         double zPos = 0; // draw the colorbar on the plane z = 0

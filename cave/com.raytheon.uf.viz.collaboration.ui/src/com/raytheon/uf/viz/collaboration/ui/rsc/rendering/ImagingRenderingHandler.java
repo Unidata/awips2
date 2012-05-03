@@ -27,6 +27,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
@@ -43,7 +44,9 @@ import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtensio
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.ColorMapDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColorMapEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.CreateColormappedImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.colormap.DrawColorRampEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapEvent;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.UpdateColorMapParametersEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
@@ -349,6 +352,35 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
                 event.getObjectId(), ISingleColorImage.class);
         if (image != null) {
             image.setColor(event.getColor());
+        }
+    }
+
+    // ================== IColorMap events ==================
+
+    @Subscribe
+    public void handleCreateColorMap(CreateColorMapEvent event) {
+        int objectId = event.getObjectId();
+        dataManager.putRenderableObject(objectId, event.getColorMap());
+    }
+
+    @Subscribe
+    public void drawColorRamp(DrawColorRampEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
+        IColorMap colorMap = dataManager.getRenderableObject(
+                event.getColorMapId(), IColorMap.class);
+        if (colorMap != null) {
+            DrawableColorMap cmap = new DrawableColorMap(colorMap);
+            cmap.alpha = event.getAlpha();
+            cmap.brightness = event.getBrightness();
+            cmap.contrast = event.getContrast();
+            cmap.interpolate = event.isInterpolate();
+            cmap.extent = event.getIExtent();
+            try {
+                target.drawColorRamp(cmap);
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        e.getLocalizedMessage(), e);
+            }
         }
     }
 }
