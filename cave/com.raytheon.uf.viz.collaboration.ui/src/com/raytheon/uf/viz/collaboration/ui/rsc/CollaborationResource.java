@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -45,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRendering
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -100,6 +103,8 @@ public class CollaborationResource extends
 
     private MouseLocationEvent latestMouseLocation;
 
+    private IExtent providerWindow;
+
     private Set<Integer> waitingOnObjects = new HashSet<Integer>();
 
     private Set<Integer> waitingOnFrames = new HashSet<Integer>();
@@ -136,6 +141,16 @@ public class CollaborationResource extends
             }
         }
 
+        if (providerWindow != null) {
+            IExtent clippingPane = paintProps.getClippingPane();
+            clippingPane = new PixelExtent(Math.max(providerWindow.getMinX(),
+                    clippingPane.getMinX()), Math.min(providerWindow.getMaxX(),
+                    clippingPane.getMaxX()), Math.max(providerWindow.getMinY(),
+                    clippingPane.getMinY()), Math.min(providerWindow.getMaxY(),
+                    clippingPane.getMaxY()));
+            paintProps.setClippingPane(clippingPane);
+        }
+
         dataManager.beginRender(target, paintProps);
 
         List<IRenderEvent> toRender = new LinkedList<IRenderEvent>();
@@ -154,6 +169,29 @@ public class CollaborationResource extends
             if (latestMouseLocation != null) {
                 renderingRouter.post(latestMouseLocation);
             }
+        }
+
+        if (providerWindow != null) {
+            // Render yellow box to show data provider visible area
+            target.clearClippingPlane();
+            IExtent currExtent = paintProps.getView().getExtent();
+            float size = 1.0f;
+            double xOffset = size
+                    * (currExtent.getWidth() / paintProps.getCanvasBounds().width);
+            double yOffset = size
+                    * (currExtent.getHeight() / paintProps.getCanvasBounds().height);
+            double minX = Math.max(currExtent.getMinX(),
+                    providerWindow.getMinX());
+            double maxX = Math.min(currExtent.getMaxX(),
+                    providerWindow.getMaxX());
+            double minY = Math.max(currExtent.getMinY(),
+                    providerWindow.getMinY());
+            double maxY = Math.min(currExtent.getMaxY(),
+                    providerWindow.getMaxY());
+            target.drawRect(new PixelExtent(minX - xOffset, maxX + xOffset,
+                    minY - yOffset, maxY + yOffset), new RGB(255, 255, 0),
+                    size + 1, 1.0f);
+            target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 
@@ -297,17 +335,37 @@ public class CollaborationResource extends
                     // Frame over, process BeginFrameEvent now to keep in sync
                     for (IRenderEvent renderable : activeRenderables) {
                         if (renderable instanceof BeginFrameEvent) {
+                            // Handle begin frame event immediately before next
+                            // paint occurs
                             IRenderableDisplay display = descriptor
                                     .getRenderableDisplay();
                             BeginFrameEvent bfe = (BeginFrameEvent) renderable;
-                            IExtent extent = display.getView().getExtent();
-                            double[] center = bfe.getExtentCenter();
-                            double[] currCenter = extent.getCenter();
-                            extent.shift(center[0] - currCenter[0], center[1]
-                                    - currCenter[1]);
-                            extent.scaleAndBias(
-                                    bfe.getExtentFactor() / extent.getScale(),
-                                    center[0], center[1]);
+                            IExtent frameExtent = bfe.getIExtent();
+                            providerWindow = frameExtent;
+                            Rectangle bounds = display.getBounds();
+                            double width = frameExtent.getWidth();
+                            double height = frameExtent.getHeight();
+                            if (width / height > bounds.width
+                                    / (double) bounds.height) {
+                                double neededHeight = (width / bounds.width)
+                                        * bounds.height;
+                                double padding = (neededHeight - height) / 2;
+                                frameExtent = new PixelExtent(
+                                        frameExtent.getMinX(),
+                                        frameExtent.getMaxX(),
+                                        frameExtent.getMinY() - padding,
+                                        frameExtent.getMaxY() + padding);
+                            } else {
+                                double neededWidth = (height / bounds.height)
+                                        * bounds.width;
+                                double padding = (neededWidth - width) / 2;
+                                frameExtent = new PixelExtent(
+                                        frameExtent.getMinX() - padding,
+                                        frameExtent.getMaxX() + padding,
+                                        frameExtent.getMinY(),
+                                        frameExtent.getMaxY());
+                            }
+                            display.getView().setExtent(frameExtent);
                             display.setBackgroundColor(bfe.getColor());
                         } else {
                             // Add to list for processing in paintInternal
