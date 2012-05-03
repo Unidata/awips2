@@ -25,6 +25,8 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.PixelExtent;
 
 /**
  * Frame that specifies the begining of a new rendering sequence. EndFrameEvent
@@ -47,42 +49,38 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
-    private double extentFactor;
-
-    @DynamicSerializeElement
-    private double[] extentCenter;
+    private double[] extent;
 
     @DynamicSerializeElement
     private int[] rgb;
 
     /**
-     * @return the extentFactor
+     * @return the extent
      */
-    public double getExtentFactor() {
-        return extentFactor;
+    public double[] getExtent() {
+        return extent;
     }
 
     /**
-     * @param extentFactor
-     *            the extentFactor to set
+     * @param extent
+     *            the extent to set
      */
-    public void setExtentFactor(double extentFactor) {
-        this.extentFactor = extentFactor;
+    public void setExtent(double[] extent) {
+        this.extent = extent;
     }
 
-    /**
-     * @return the extentCenter
-     */
-    public double[] getExtentCenter() {
-        return extentCenter;
+    public void setIExtent(IExtent extent) {
+        if (extent != null) {
+            setExtent(new double[] { extent.getMinX(), extent.getMaxX(),
+                    extent.getMinY(), extent.getMaxY() });
+        }
     }
 
-    /**
-     * @param extentCenter
-     *            the extentCenter to set
-     */
-    public void setExtentCenter(double[] extentCenter) {
-        this.extentCenter = extentCenter;
+    public IExtent getIExtent() {
+        if (extent != null) {
+            return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
+        }
+        return null;
     }
 
     /**
@@ -125,10 +123,9 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
     public IRenderEvent createDiffObject(IRenderEvent event) {
         BeginFrameEvent diffEvent = (BeginFrameEvent) event;
         BeginFrameEvent diffObject = new BeginFrameEvent();
-        if (Arrays.equals(extentCenter, diffEvent.extentCenter) == false) {
-            diffObject.extentCenter = diffEvent.extentCenter;
+        if (Arrays.equals(extent, diffEvent.extent) == false) {
+            diffObject.extent = diffEvent.extent;
         }
-        diffObject.extentFactor = diffEvent.extentFactor;
         if (Arrays.equals(rgb, diffEvent.rgb) == false) {
             diffObject.rgb = diffEvent.rgb;
         }
@@ -145,10 +142,9 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
     @Override
     public void applyDiffObject(IRenderEvent diffEvent) {
         BeginFrameEvent event = (BeginFrameEvent) diffEvent;
-        if (event.extentCenter != null) {
-            this.extentCenter = event.extentCenter;
+        if (event.extent != null) {
+            this.extent = event.extent;
         }
-        this.extentFactor = event.extentFactor;
         if (event.rgb != null) {
             rgb = event.rgb;
         }
@@ -168,10 +164,7 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         if (getClass() != obj.getClass())
             return false;
         BeginFrameEvent other = (BeginFrameEvent) obj;
-        if (!Arrays.equals(extentCenter, other.extentCenter))
-            return false;
-        if (Double.doubleToLongBits(extentFactor) != Double
-                .doubleToLongBits(other.extentFactor))
+        if (!Arrays.equals(extent, other.extent))
             return false;
         if (!Arrays.equals(rgb, other.rgb))
             return false;

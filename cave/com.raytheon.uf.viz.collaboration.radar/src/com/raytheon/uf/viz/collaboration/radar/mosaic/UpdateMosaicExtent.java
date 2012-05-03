@@ -70,7 +70,10 @@ public class UpdateMosaicExtent extends AbstractDispatchingObjectEvent {
     }
 
     public IExtent getIExtent() {
-        return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
+        if (extent != null) {
+            return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
+        }
+        return null;
     }
 
 }
