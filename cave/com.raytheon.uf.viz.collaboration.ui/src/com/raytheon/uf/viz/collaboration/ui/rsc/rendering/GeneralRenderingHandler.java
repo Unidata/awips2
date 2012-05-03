@@ -26,14 +26,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.MouseLocationEvent;
 import com.raytheon.uf.viz.core.DrawableCircle;
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.clipping.ClearClippingPane;
+import com.raytheon.uf.viz.remote.graphics.events.clipping.SetupClippingPane;
 import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
-import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -63,28 +63,6 @@ public class GeneralRenderingHandler extends CollaborationRenderingHandler {
     @Subscribe
     public void disposeRenderable(DisposeObjectEvent event) {
         dataManager.dispose(event.getObjectId());
-    }
-
-    /**
-     * Begin frame event, modifies the target extent
-     * 
-     * @param event
-     */
-    @Subscribe
-    public void handleBeginFrame(BeginFrameEvent event) {
-        PaintProperties paintProps = getPaintProperties();
-        IGraphicsTarget target = getGraphicsTarget();
-        double[] center = event.getExtentCenter();
-        IExtent copy = paintProps.getView().getExtent().clone();
-        if (center != null) {
-            double[] currCenter = copy.getCenter();
-            copy.shift(center[0] - currCenter[0], center[1] - currCenter[1]);
-            copy.scaleAndBias(event.getExtentFactor() / copy.getScale(),
-                    center[0], center[1]);
-            target.updateExtent(copy);
-            event.setExtentCenter(null);
-            target.setNeedsRefresh(true);
-        }
     }
 
     @Subscribe
@@ -152,4 +130,13 @@ public class GeneralRenderingHandler extends CollaborationRenderingHandler {
         }
     }
 
+    @Subscribe
+    public void clearClippingPane(ClearClippingPane event) {
+        getGraphicsTarget().clearClippingPlane();
+    }
+
+    @Subscribe
+    public void setupClippingPane(SetupClippingPane event) {
+        getGraphicsTarget().setupClippingPlane(event.getIExtent());
+    }
 }
