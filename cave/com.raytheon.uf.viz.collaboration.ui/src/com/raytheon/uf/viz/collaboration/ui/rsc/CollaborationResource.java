@@ -43,8 +43,10 @@ import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameN
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.UpdateRenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
@@ -96,8 +98,6 @@ public class CollaborationResource extends
 
     private CollaborationRenderingDataManager dataManager;
 
-    private BeginFrameEvent latestBeginFrameEvent;
-
     private MouseLocationEvent latestMouseLocation;
 
     private Set<Integer> waitingOnObjects = new HashSet<Integer>();
@@ -121,11 +121,6 @@ public class CollaborationResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        List<IRenderEvent> toRender = new LinkedList<IRenderEvent>();
-        synchronized (currentRenderables) {
-            toRender.addAll(currentRenderables);
-        }
-
         List<AbstractDispatchingObjectEvent> currentDataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
         synchronized (dataChangeEvents) {
             if (waitingOnObjects.size() == 0) {
@@ -143,12 +138,12 @@ public class CollaborationResource extends
 
         dataManager.beginRender(target, paintProps);
 
+        List<IRenderEvent> toRender = new LinkedList<IRenderEvent>();
+        synchronized (currentRenderables) {
+            toRender.addAll(currentRenderables);
+        }
+
         synchronized (renderingRouter) {
-            // Handle begin frame
-            if (latestBeginFrameEvent != null) {
-                renderingRouter.post(latestBeginFrameEvent);
-                latestBeginFrameEvent = null;
-            }
             for (AbstractRemoteGraphicsEvent event : currentDataChangeEvents) {
                 renderingRouter.post(event);
             }
@@ -295,19 +290,32 @@ public class CollaborationResource extends
             if (event instanceof BeginFrameEvent) {
                 // If begin frame event, clear current active renderables
                 activeRenderables.clear();
-                BeginFrameEvent beginEvent = (BeginFrameEvent) event;
-                if (beginEvent.getExtentCenter() != null) {
-                    // Event modifies extent
-                    latestBeginFrameEvent = beginEvent;
-                    issueRefresh();
-                }
+                activeRenderables.add((IRenderEvent) event);
             } else if (event instanceof EndFrameEvent) {
                 synchronized (currentRenderables) {
                     currentRenderables.clear();
-                    currentRenderables.addAll(activeRenderables);
+                    // Frame over, process BeginFrameEvent now to keep in sync
+                    for (IRenderEvent renderable : activeRenderables) {
+                        if (renderable instanceof BeginFrameEvent) {
+                            IRenderableDisplay display = descriptor
+                                    .getRenderableDisplay();
+                            BeginFrameEvent bfe = (BeginFrameEvent) renderable;
+                            IExtent extent = display.getView().getExtent();
+                            double[] center = bfe.getExtentCenter();
+                            double[] currCenter = extent.getCenter();
+                            extent.shift(center[0] - currCenter[0], center[1]
+                                    - currCenter[1]);
+                            extent.scaleAndBias(
+                                    bfe.getExtentFactor() / extent.getScale(),
+                                    center[0], center[1]);
+                            display.setBackgroundColor(bfe.getColor());
+                        } else {
+                            // Add to list for processing in paintInternal
+                            currentRenderables.add(renderable);
+                        }
+                    }
                     activeRenderables.clear();
                 }
-                activeRenderables.clear();
                 issueRefresh();
             } else if (event instanceof MouseLocationEvent) {
                 latestMouseLocation = (MouseLocationEvent) event;
