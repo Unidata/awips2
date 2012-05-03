@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -43,6 +45,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
@@ -51,6 +54,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -352,11 +356,33 @@ public class LoginDialog extends CaveSWTDialog {
                         initialPres.setStatusMessage(modeMessage);
 
                         try {
-                            sessionManager = new CollaborationConnection(
-                                    new UserId(user, server), password,
-                                    initialPres);
-                            setReturnValue(sessionManager);
-                            close();
+                            final String srvr = server;
+                            final String usr = user;
+                            final String passwd = password;
+                            final IPresence pres = initialPres;
+                            Job job = new Job(
+                                    "Creating the server connection...") {
+                                protected org.eclipse.core.runtime.IStatus run(
+                                        org.eclipse.core.runtime.IProgressMonitor monitor) {
+                                    try {
+                                        sessionManager = new CollaborationConnection(
+                                                new UserId(usr, srvr), passwd,
+                                                pres);
+                                        setReturnValue(sessionManager);
+                                        VizApp.runAsync(new Runnable() {
+                                            public void run() {
+                                                close();
+                                            };
+                                        });
+                                    } catch (CollaborationException e) {
+                                        statusHandler.handle(Priority.PROBLEM,
+                                                "Unable to create connection",
+                                                e);
+                                    }
+                                    return Status.OK_STATUS;
+                                };
+                            };
+                            job.schedule();
                         } catch (Exception e) {
                             if (focusField == null) {
                                 focusField = passwordTF;
