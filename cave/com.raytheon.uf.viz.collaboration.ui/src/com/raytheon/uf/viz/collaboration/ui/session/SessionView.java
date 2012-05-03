@@ -619,6 +619,10 @@ public class SessionView extends AbstractSessionView {
         IRosterEntry user = session.getConnection().getContactsManager()
                 .getUsersMap().get(participant);
         users.add(user);
+        System.out.println("user : " + user.getUser());
+        System.out.println("name : " + user.getUser().getName());
+        System.out.println("presence : " + user.getPresence());
+        System.out.println("presence mode : " + user.getPresence().getMode());
         usersTable.refresh();
     }
 
