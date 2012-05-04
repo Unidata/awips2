@@ -122,7 +122,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * May 27 2011 9584        jpiatt      Modified to not save updated forecast data 
  *                                     in rejecteddata table.
  * Sep 09 2011 9962        lbousaidi   reload time series when there is update/insert
- * 									   and highlight the row that was updated.	
+ * 									   and highlight the row that was updated.
  * 
  * </pre>
  * 
@@ -445,11 +445,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 	private final TabularTimeSeriesDlg self = this;
 
 	private int pid = HydroConstants.MISSING_VALUE;
-    
-	private boolean updateFlag= false;
-	
-	private int indexSelected= 0;
-	
+
+	private boolean updateFlag = false;
+
+	private int indexSelected = 0;
+
 	private TimeSeriesDataJobManager tsDataJobManager = null;
 
 	static {
@@ -472,7 +472,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 	 */
 	public TabularTimeSeriesDlg(Shell parent, Date beginningTime,
 			Date endingTime, TimeSeriesDlg parentDialog) {
-		super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+		super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK
+				| CAVE.INDEPENDENT_SHELL);
 		setText("Tabular Time Series");
 
 		this.beginningTime = beginningTime;
@@ -873,9 +874,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 		updateInsertBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				updateFlag=true;
+				updateFlag = true;
 				updateInsertValue();
-				updateFlag=false;
+				updateFlag = false;
 			}
 		});
 
@@ -1084,8 +1085,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 		try {
 			/* Get the unique time series defined from the parent info */
 			for (TabInfo ti : tabInfoList) {
-				ArrayList<SiteInfo> peList= ti.getInfoList();
-			
+				ArrayList<SiteInfo> peList = ti.getInfoList();
+
 				updateStationLabel();
 
 				ArrayList<Object[]> results;
@@ -1145,10 +1146,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 								/* if NO basis times found */
 								if (entryNumber < MAX_TS_ON_LIST) {
 									String str = String.format(
-											"%-5s %2s %4s %2s %s ",
-											row.getLid(), row.getPe().toUpperCase(),
-											row.getDur(), row.getTs().toUpperCase(),
-											row.getExt().toUpperCase());
+											"%-5s %2s %4s %2s %s ", row
+													.getLid(), row.getPe()
+													.toUpperCase(), row
+													.getDur(), row.getTs()
+													.toUpperCase(), row
+													.getExt().toUpperCase());
 									modifiedTSList.add(str + "No Data");
 									topDataList.add(str + "No Data");
 									entryNumber++;
@@ -1230,8 +1233,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 				sb.append("0");
 				selectedFloodLbl.setText(sb.toString());
 			}
-		
-			if (updateFlag) {				
+
+			if (updateFlag) {
 				topDataList.setSelection(indexSelected);
 			}
 
@@ -1452,8 +1455,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 		if (tabularDataList.size() != 0) {
 			oldValue = td.getValue();
 		}
-		
-		indexSelected = topDataList.getSelectionIndex(); 
+
+		indexSelected = topDataList.getSelectionIndex();
 		String data = topDataList.getItem(indexSelected);
 		String[] parts = data.split("\\s+");
 		ts = parts[3];
@@ -1536,7 +1539,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 			/* do the update */
 			String where;
 			String sql;
-			where = createUpdDelWhereObs(dr, tablename);
+			where = createUpdDelWhereObs(dr);
 			/* if toggle button ProductTime/ID is checked */
 
 			if (useProductTimeChk.getSelection()) {
@@ -1798,11 +1801,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 							+ " Error inserting max forecast record.");
 				}
 			}
-		}  // end if fcst
+		} // end if fcst
 
 		/* reload list of timeseries */
 		scheduleDataRetrieval();
-		tabularLoadTimeseries();			
+		tabularLoadTimeseries();
 	}
 
 	/**
@@ -1834,13 +1837,22 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 			basistime = parts[5] + " " + parts[6];
 		}
 
+		String sql = "update " + tablename + " set value = "
+				+ HydroConstants.MISSING_VALUE
+				+ ", revision= 1, shef_qual_code = 'M' " + ", postingtime= '"
+				+ HydroConstants.DATE_FORMAT.format(postTime) + "'  ";
+
 		DataRecord dr = new DataRecord();
 		int[] selectionIndices = bottomListControl.getSelectionIndices();
+
+		StringBuilder sb = new StringBuilder();
+		ArrayList<DataRecord> dataRecordList = new ArrayList<DataRecord>();
 
 		for (int i = 0; i < selectionIndices.length; i++) {
 			TabularData td = tabularDataList.get(selectionIndices[i]);
 
 			/* set the update structure with data which doesn't change */
+			dr = new DataRecord();
 			dr.setLid(lid);
 			dr.setPe(pe);
 			dr.setDur(Integer.parseInt(parts[2]));
@@ -1865,95 +1877,49 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 			dr.setRevision((short) 1);
 
 			/* code to update an observation to MISSING */
-
 			if (ts.toUpperCase().startsWith("R")
 					|| ts.toUpperCase().startsWith("P")) {
-
-				/* already a record with same key, do an update */
-
-				String where = createUpdDelWhereObs(dr, tablename);
-
-				String sql = "update "
-						+ tablename
-						+ " set value = "
-						+ HydroConstants.MISSING_VALUE
-						+ ", revision= "
-						+ dr.getRevision()
-						+ ", shef_qual_code = '"
-						+ dr.getShefQualCode()
-						+ "' "
-						+ ", postingtime= '"
-						+ HydroConstants.DATE_FORMAT
-								.format(dr.getPostingTime()) + "'  ";
-
-				int status;
-				try {
-					status = dataManager.update(sql + where);
-					if (status > 0) {
-						// Data updated successfully
-						/* Add data record to rejected data */
-						status = dataManager.insertRejectedData(dr);
-					}
-				} catch (VizException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
+				sb.append(sql);
+				String where = createUpdDelWhereObs(dr);
+				sb.append(where);
 			}
 
 			/* code to update a forecast to MISSING */
 			if (ts.toUpperCase().startsWith("F")
 					|| ts.toUpperCase().startsWith("C")) {
 
-				/* set the update structure with data which doesn't change */
-
 				dr.setBasisTime(basistime);
 
-				/* already a record with same key, do an update */
-
+				sb.append(sql);
 				String where = createUpdDelWhereFcst(td, dr);
+				sb.append(where);
+			}
+			dataRecordList.add(dr);
+		}
 
-				String sql = "update "
-						+ tablename
-						+ " set value = "
-						+ HydroConstants.MISSING_VALUE
-						+ ", revision= "
-						+ dr.getRevision()
-						+ ", shef_qual_code = '"
-						+ dr.getShefQualCode()
-						+ "' "
-						+ ", postingtime= '"
-						+ HydroConstants.DATE_FORMAT
-								.format(dr.getPostingTime()) + "'  ";
+		try {
+			int status = dataManager.update(sb.toString());
+			if (status > 0) {
+				/*
+				 * Data updated successfully Add data record to rejected data
+				 */
+				status = dataManager.insertRejectedData(dataRecordList);
+			}
+		} catch (VizException e) {
+			statusHandler.handle(Priority.PROBLEM, "Data Query:"
+					+ " Error updating records.", e);
+		}
 
-				int status;
-				try {
-					status = dataManager.update(sql + where);
-					if (status > 0) {
-						/*
-						 * Data updated successfully Add data record to rejected
-						 * data
-						 */
-						status = dataManager.insertRejectedData(dr);
-					}
-				} catch (VizException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+		/* call Load Max Forecast if update of H or Q PE's */
+		if (ts.toUpperCase().startsWith("F")
+				|| ts.toUpperCase().startsWith("C")) {
+			try {
+				LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
+			} catch (VizException e) {
+				statusHandler.handle(Priority.PROBLEM, "Data Query:"
+						+ " Error loading Max Forecast Table.", e);
 			}
 
-			/* call Load Max Forecast if update of H or Q PE's */
-
-			if (ts.toUpperCase().startsWith("F")
-			        || ts.toUpperCase().startsWith("C")) {
-				try {
-					LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
-				} catch (VizException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
 		}
 
 		scheduleDataRetrieval();
@@ -1980,6 +1946,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 		if (choice) {
 			TimeSeriesDataManager dataManager = TimeSeriesDataManager
 					.getInstance();
+			ArrayList<String> queryList = new ArrayList<String>();
+			ArrayList<DataRecord> dataRecordList = new ArrayList<DataRecord>();
 
 			String data = topDataList.getItem(topDataList.getSelectionIndex());
 			String[] parts = data.split("\\s+");
@@ -2016,18 +1984,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 				/********** This part is for OBSERVED or PROCCESSED data **********/
 				if (ts.toUpperCase().startsWith("R")
 						|| ts.toUpperCase().startsWith("P")) {
-					String where = createUpdDelWhereObs(dr, tablename);
-
-					try {
-						dataManager.deleteRecord(tablename, where);
-					} catch (VizException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						MessageDialog.openError(shell, "Error Occurred",
-								"An error occurred while deleting the record.\n"
-										+ e.getMessage());
-						return;
-					}
+					String where = createUpdDelWhereObs(dr);
+					queryList.add("delete from " + tablename + " " + where);
 
 					/* if precip then delete from curprecip table as well */
 					if (dr.getPe().startsWith("P")
@@ -2035,53 +1993,15 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 									&& !dr.getPe().endsWith("D")
 									&& !dr.getPe().endsWith("E") && !dr.getPe()
 									.endsWith("L"))) {
-						try {
 							if (dr.getPe().endsWith("P")) {
-								dataManager.deleteRecord("curpp", where);
-							} else {
-								dataManager.deleteRecord("curpc", where);
+								queryList.add("delete from curpp " + where);
+//								dataManager.deleteRecord("curpp", where);
 							}
-						} catch (VizException e) {
-							e.printStackTrace();
-							MessageDialog.openError(shell, "Error Occurred",
-									"An error occurred while deleting the record.\n"
-											+ e.getMessage());
-							return;
-						}
 					}
 
+					dataRecordList.add(dr);
 					/* copy the deleted record to RejectedData */
-					try {
-						dataManager.insertRejectedData(dr);
-					} catch (VizException e) {
-						e.printStackTrace();
-						MessageDialog.openError(
-								shell,
-								"Error Occurred",
-								"An error occurred inserting this record "
-										+ "into the 'RejectedData Table'\n"
-										+ e.getMessage());
-					}
 
-					/*
-					 * if height or discharge then calculate new RiverStatus as
-					 * well
-					 */
-					if (pe.toUpperCase().startsWith("H")
-							|| pe.toUpperCase().startsWith("Q")) {
-						String command = String
-								.format("load_obs_river('%s', '%s', '%s')",
-										lid, pe, ts);
-
-						try {
-							dataManager.execFunction(command);
-						} catch (VizException e) {
-							e.printStackTrace();
-							MessageDialog.openError(shell, "Error Occurred",
-									"An error occurred executing load_obs_river function\n "
-											+ e.getMessage());
-						}
-					}
 				}
 
 				/********** This part is for FORECAST data **********/
@@ -2089,42 +2009,50 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 						|| ts.toUpperCase().startsWith("C")) {
 
 					dr.setBasisTime(basistime);
-
+					dataRecordList.add(dr);
 					/* Delete all rows that have been selected */
 					String where = createUpdDelWhereFcst(td, dr);
-					try {
-						dataManager.deleteRecord(tablename, where);
-					} catch (VizException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						MessageDialog.openError(shell, "Error Occurred",
-								"An error occurred deleting this record "
-										+ "from '" + tablename + " Table'\n"
-										+ e.getMessage());
-					}
+					queryList.add("delete from " + tablename + " " + where);
 
 					/* copy the deleted record to RejectedData */
-					try {
-						dataManager.insertRejectedData(dr);
-					} catch (VizException e) {
-						e.printStackTrace();
-						MessageDialog.openError(
-								shell,
-								"Error Occurred",
-								"An error occurred inserting this record "
-										+ "into the 'RejectedData Table'\n"
-										+ e.getMessage());
-					}
+					dataRecordList.add(dr);
+				}
+			}
 
-					if (pe.toUpperCase().startsWith("H")
-							|| pe.toUpperCase().startsWith("Q")) {
-						try {
-							LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
-						} catch (VizException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+			// execute the queries
+			try {
+				dataManager.deleteRecords(queryList);
+				dataManager.insertRejectedData(dataRecordList);
+			} catch (VizException e1) {
+				statusHandler.handle(Priority.PROBLEM, "Data Query:"
+						+ " Error Deleting records.", e1);
+			}
+			
+			/*
+			 * if height or discharge then calculate new RiverStatus as
+			 * well
+			 */
+			if (pe.toUpperCase().startsWith("H")
+					|| pe.toUpperCase().startsWith("Q")) {
+				String command = String
+						.format("load_obs_river('%s', '%s', '%s')",
+								lid, pe, ts);
+
+				try {
+					dataManager.execFunction(command);
+				} catch (VizException e) {
+					statusHandler.handle(Priority.PROBLEM, "Data Query:"
+							+ " An error occurred executing load_obs_river function", e);
+				}
+			}
+
+			if (pe.toUpperCase().startsWith("H")
+					|| pe.toUpperCase().startsWith("Q")) {
+				try {
+					LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
+				} catch (VizException e) {
+					statusHandler.handle(Priority.PROBLEM, "Data Query:"
+							+ " An error occurred executing loadMaxFcst function", e);
 				}
 			}
 		}
@@ -2202,7 +2130,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 					|| ts.toUpperCase().startsWith("P")) {
 
 				/* do the update */
-				String where = createUpdDelWhereObs(dr, tablename);
+				String where = createUpdDelWhereObs(dr);
 				String sql = "update "
 						+ tablename
 						+ " set quality_code= "
@@ -2625,14 +2553,26 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 	 *            The DataRecord to update or delete
 	 * @return The Where clause used in the update or delete
 	 */
-	private String createUpdDelWhereObs(DataRecord dr, String tablename) {
+	private String createUpdDelWhereObs(DataRecord dr) {
 		StringBuilder sb = new StringBuilder(" where ");
-		sb.append("lid = '" + dr.getLid() + "' and ");
-		sb.append("pe = '" + dr.getPe().toUpperCase() + "' and ");
-		sb.append("obstime = '" + dbFormat.format(dr.getObsTime()) + "' and ");
-		sb.append("dur = " + dr.getDur() + " and ");
-		sb.append("ts = '" + dr.getTs().toUpperCase() + "' and ");
-		sb.append("extremum = '" + dr.getExt().toUpperCase() + "'");
+		sb.append("lid = '");
+		sb.append(dr.getLid());
+		sb.append("' and ");
+		sb.append("pe = '");
+		sb.append(dr.getPe().toUpperCase());
+		sb.append("' and ");
+		sb.append("obstime = '");
+		sb.append(dbFormat.format(dr.getObsTime()));
+		sb.append("' and ");
+		sb.append("dur = ");
+		sb.append(dr.getDur());
+		sb.append(" and ");
+		sb.append("ts = '");
+		sb.append(dr.getTs().toUpperCase());
+		sb.append("' and ");
+		sb.append("extremum = '");
+		sb.append(dr.getExt().toUpperCase());
+		sb.append("';");
 		return sb.toString();
 	}
 
@@ -2693,7 +2633,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 			siteLabel = lid;
 		}
 
-        selectedLocNameLbl.setText(siteLabel);
+		selectedLocNameLbl.setText(siteLabel);
 	}
 
 	/**
@@ -3117,10 +3057,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 		if ((productId == null) || (productId.length() == 0)) {
 			showMessage(shell, SWT.ERROR, INVALID_PRODUCT_ID,
 					"Product Id cannot be blank.");
-		// Apparently CCCCNNNXXX is valid so we'll accept it	
-//		} else if (productId.equals("CCCCNNNXXX")) {
-//			showMessage(shell, SWT.ERROR, INVALID_PRODUCT_ID,
-//					INVALID_PRODUCT_ID + ": CCCCNNNXXX");
+			// Apparently CCCCNNNXXX is valid so we'll accept it
+			// } else if (productId.equals("CCCCNNNXXX")) {
+			// showMessage(shell, SWT.ERROR, INVALID_PRODUCT_ID,
+			// INVALID_PRODUCT_ID + ": CCCCNNNXXX");
 		} else {
 			retVal = true;
 		}

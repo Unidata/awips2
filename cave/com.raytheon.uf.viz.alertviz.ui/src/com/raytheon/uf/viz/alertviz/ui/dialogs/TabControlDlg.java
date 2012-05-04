@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -80,7 +81,7 @@ public class TabControlDlg extends Dialog {
     /**
      * The composite that holds the tabFolder and detailsText
      */
-    private Composite topComp;
+    private SashForm topComp;
 
     /**
      * The TabFolder that is in the composite
@@ -106,6 +107,8 @@ public class TabControlDlg extends Dialog {
      * Styled text for details
      */
     private StyledText detailsText;
+
+    private static int[] weights = { 50, 50 };
 
     /**
      * Get the instance of the TabControl dialog
@@ -143,7 +146,7 @@ public class TabControlDlg extends Dialog {
     private void initShell() {
         Shell parent = getParent();
 
-        shell = new Shell(parent, SWT.TITLE);
+        shell = new Shell(parent, SWT.TITLE | SWT.RESIZE);
 
         GridLayout mainLayout = new GridLayout(1, false);
         shell.setLayout(mainLayout);
@@ -158,19 +161,19 @@ public class TabControlDlg extends Dialog {
         mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(new GridLayout(1, false));
 
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 800;
         mainComp.setLayoutData(gd);
 
-        topComp = new Composite(mainComp, SWT.NONE);
+        topComp = new SashForm(mainComp, SWT.HORIZONTAL);
         topComp.setLayout(new GridLayout(2, false));
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.widthHint = 400;
+        gd.heightHint = 285;
         topComp.setLayoutData(gd);
 
         tabFolder = new TabFolder(topComp, SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.widthHint = 400;
-        gd.heightHint = 285;
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         tabFolder.setLayoutData(gd);
 
         tabFolder.addDisposeListener(new DisposeListener() {
@@ -189,13 +192,14 @@ public class TabControlDlg extends Dialog {
                 shell.setText("Log list for: " + log.getFullText());
                 populateClearOptionsCombo(log);
                 detailsText.setText(log.getLogText());
-                clearOptionCbo.select(logs.get(index).getClearOptionCboSelectedIndex());
+                clearOptionCbo.select(logs.get(index)
+                        .getClearOptionCboSelectedIndex());
             }
         });
 
         detailsText = new StyledText(topComp, SWT.V_SCROLL | SWT.H_SCROLL
                 | SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 400;
         gd.heightHint = 285;
         detailsText.setLayoutData(gd);
@@ -223,20 +227,20 @@ public class TabControlDlg extends Dialog {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                 int index = tabFolder.getSelectionIndex();
-                 if (index < 0) {
-                     return;
-                 }
-                 if (clearOptionCbo.getItemCount() >= 2) {
-                     int position = clearOptionCbo.getSelectionIndex();
-                     String category = clearOptionCbo.getItem(position);
-                     logs.get(index).displayCategoryMessages(category);
-                     if (index == 0) {
-                         logs.get(index).populateClearOptionsCombo();
-                         clearOptionCbo.select(position);                         
-                     } 
-                     logs.get(index).setClearOptionCboSelectedIndex(position);
-                 }                 
+                int index = tabFolder.getSelectionIndex();
+                if (index < 0) {
+                    return;
+                }
+                if (clearOptionCbo.getItemCount() >= 2) {
+                    int position = clearOptionCbo.getSelectionIndex();
+                    String category = clearOptionCbo.getItem(position);
+                    logs.get(index).displayCategoryMessages(category);
+                    if (index == 0) {
+                        logs.get(index).populateClearOptionsCombo();
+                        clearOptionCbo.select(position);
+                    }
+                    logs.get(index).setClearOptionCboSelectedIndex(position);
+                }
             }
 
             @Override
@@ -288,11 +292,24 @@ public class TabControlDlg extends Dialog {
                     showHide.setText("Show Details");
                 }
                 detailsText.setVisible(visible);
-                ((GridData) detailsText.getLayoutData()).exclude = !visible;
+
+                SashForm sf = (SashForm) topComp;
+                if (!visible) {
+                    cacheCurrentWeights();
+                    sf.setWeights(new int[] { 100, 0 });
+                } else {
+                    sf.setWeights(weights);
+                }
                 topComp.layout();
                 mainComp.layout();
             }
         });
+    }
+
+    private void cacheCurrentWeights() {
+        int[] currentWeights = topComp.getWeights();
+        weights[0] = currentWeights[0];
+        weights[1] = currentWeights[1];
     }
 
     /**
