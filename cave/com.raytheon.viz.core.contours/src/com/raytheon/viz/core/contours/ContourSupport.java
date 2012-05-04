@@ -46,6 +46,7 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -60,7 +61,6 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.map.WorldWrapChecker;
 import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.viz.core.contours.cache.SubGridCacheKey;
 import com.raytheon.viz.core.contours.util.ContourContainer;
@@ -1337,7 +1337,8 @@ public class ContourSupport {
             throws TransformException {
         long tZ0 = System.currentTimeMillis();
 
-        WorldWrapChecker wwc = new WorldWrapChecker(descriptor);
+        WorldWrapChecker wwc = new WorldWrapChecker(
+                descriptor.getGridGeometry());
 
         List<float[]> splitLines = new ArrayList<float[]>();
         List<Float> dupValues = new ArrayList<Float>();
