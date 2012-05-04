@@ -53,6 +53,7 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.rsc.GridResourceData;
+import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -222,12 +223,18 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
         if (stylePreferences != null) {
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
         }
-        if (legendParams.unit == null) {
+        if (legendParams.unit == null || legendParams.unit.isEmpty()) {
             legendParams.unit = legendParams.model.getParameterUnit();
         }
+        List<DisplayType> displayTypes = FieldDisplayTypesFactory.getInstance()
+                .getDisplayTypes(gribModel.getParameterAbbreviation());
         DisplayType displayType = getDisplayType();
-        if (displayType == DisplayType.STREAMLINE) {
-            legendParams.type = " Streamlines";
+        if (displayTypes != null && !displayTypes.isEmpty()
+                && displayTypes.get(0).equals(displayType)) {
+            // The default type does not display in the legend
+            legendParams.type = "";
+        } else if (displayType == DisplayType.STREAMLINE) {
+            legendParams.type = "Streamlines";
         } else if (displayType == DisplayType.BARB) {
             legendParams.type = "Wind Barbs";
         } else if (displayType == DisplayType.ARROW) {
@@ -306,8 +313,59 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
 
     @Override
     public boolean isLoadableAsImage() {
-        DisplayType displayType = getDisplayType();
-        return displayType == DisplayType.CONTOUR;
+        if (super.isLoadableAsImage()) {
+            DisplayType displayType = getDisplayType();
+            List<DisplayType> displayTypes = FieldDisplayTypesFactory
+                    .getInstance().getDisplayTypes(
+                            gribModel.getParameterAbbreviation());
+            if (displayTypes == null || displayTypes.isEmpty()) {
+                return displayType == DisplayType.CONTOUR;
+            }
+            return displayTypes.contains(DisplayType.IMAGE);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isStreamlineVector() {
+        if (super.isStreamlineVector()) {
+            List<DisplayType> displayTypes = FieldDisplayTypesFactory
+                    .getInstance().getDisplayTypes(
+                            gribModel.getParameterAbbreviation());
+            if (displayTypes == null || displayTypes.isEmpty()) {
+                return true;
+            }
+            return displayTypes.contains(DisplayType.STREAMLINE);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isArrowVector() {
+        if (super.isArrowVector()) {
+            List<DisplayType> displayTypes = FieldDisplayTypesFactory
+                    .getInstance().getDisplayTypes(
+                            gribModel.getParameterAbbreviation());
+            if (displayTypes == null || displayTypes.isEmpty()) {
+                return true;
+            }
+            return displayTypes.contains(DisplayType.ARROW);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isWindVector() {
+        if (super.isWindVector()) {
+            List<DisplayType> displayTypes = FieldDisplayTypesFactory
+                    .getInstance().getDisplayTypes(
+                            gribModel.getParameterAbbreviation());
+            if (displayTypes == null || displayTypes.isEmpty()) {
+                return true;
+            }
+            return displayTypes.contains(DisplayType.BARB);
+        }
+        return false;
     }
 
 }

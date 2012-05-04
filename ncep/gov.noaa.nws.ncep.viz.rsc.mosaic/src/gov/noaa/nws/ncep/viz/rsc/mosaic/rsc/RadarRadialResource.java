@@ -39,7 +39,6 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.rsc.hdf5.MeshCalculatorJob;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
 import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
 import com.raytheon.viz.radar.IRadarRecordMetadata;
@@ -153,17 +152,8 @@ public class RadarRadialResource  extends RadarImageResource<MapDescriptor> {
         super.project(crs);
         for (RadarTimeRecord rtr : radarRecords.values()) {
             if (rtr.tile != null && rtr.tile.coverage.getMesh() != null) {
-                try {
-                    MeshCalculatorJob.getInstance().requestLoad(
-                            this,
-                            rtr.tile.coverage.getMesh(),
-                            rtr.tile,
-                            CRS.findMathTransform(rtr.radarCacheObject.getMetadata().getCRS(),
-                                    DefaultGeographicCRS.WGS84));
-                } catch (FactoryException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error constructing transform for mesh", e);
-                }
+                rtr.tile.coverage.getMesh().reproject(
+                        descriptor.getGridGeometry());
             } else {
                 refreshDisplay = true;
             }
