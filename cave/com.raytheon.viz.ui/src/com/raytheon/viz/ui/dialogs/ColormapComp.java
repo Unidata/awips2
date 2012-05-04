@@ -219,17 +219,8 @@ public class ColormapComp {
 
         LocalizationFile[] files = ColorMapLoader.listColorMapFiles();
         for (LocalizationFile file : files) {
-            String level = null;
-            String context = null;
 
             List<String> actualItems = new ArrayList<String>();
-
-            if (file.getContext().getLocalizationLevel().isSystemLevel() == false) {
-                level = file.getContext().getLocalizationLevel().name();
-                context = file.getContext().getContextName();
-                actualItems.add(level);
-                actualItems.add(context);
-            }
 
             String[] split = ColorMapLoader.shortenName(file).split("[/\\\\]"); // Win32
 

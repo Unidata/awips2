@@ -1296,12 +1296,31 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                         dataAndCategoriesMI.setSelection(false);
                         dataOnlyShowCatMI.setSelection(false);
                     } else {
-                        batchDataOnlyShowCatMI.setSelection(false);
-                        batchDataOnlyMI.setSelection(false);
-                        batchDataAndCategoriesMI.setSelection(true);
-                        dataOnlyShowCatMI.setSelection(false);
-                        dataOnlyMI.setSelection(false);
-                        dataAndCategoriesMI.setSelection(true);
+                    	String showCat = AppsDefaults.getInstance().getToken("timeseries_showcat");
+                    	int sc = Integer.parseInt(showCat);
+                    	System.out.println(showCat);
+                    	if (sc == 1) {
+                            batchDataOnlyShowCatMI.setSelection(false);
+                            batchDataOnlyMI.setSelection(true);
+                            batchDataAndCategoriesMI.setSelection(false);
+                            dataOnlyShowCatMI.setSelection(false);
+                            dataOnlyMI.setSelection(true);
+                            dataAndCategoriesMI.setSelection(false);
+                    	} else if (sc == 2) {
+                            batchDataOnlyShowCatMI.setSelection(true);
+                            batchDataOnlyMI.setSelection(false);
+                            batchDataAndCategoriesMI.setSelection(false);
+                            dataOnlyShowCatMI.setSelection(true);
+                            dataOnlyMI.setSelection(false);
+                            dataAndCategoriesMI.setSelection(false);                    		
+                    	} else {
+	                        batchDataOnlyShowCatMI.setSelection(false);
+	                        batchDataOnlyMI.setSelection(false);
+	                        batchDataAndCategoriesMI.setSelection(true);
+	                        dataOnlyShowCatMI.setSelection(false);
+	                        dataOnlyMI.setSelection(false);
+	                        dataAndCategoriesMI.setSelection(true);
+                    	}
                     }
                     
                     String traceMode = groupInfo.getTraceMode().trim();
