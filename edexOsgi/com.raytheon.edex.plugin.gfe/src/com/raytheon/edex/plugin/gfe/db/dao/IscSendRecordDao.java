@@ -39,6 +39,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2011            bphillip     Initial creation
+ * Apr 06, 2012  #457      dgilling     Added deleteForSite().
  * 
  * </pre>
  * 
@@ -48,9 +49,6 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 public class IscSendRecordDao extends CoreDao {
 
-    /**
-     * @param config
-     */
     public IscSendRecordDao() {
         super(DaoConfig.forClass(IscSendRecord.class));
     }
@@ -63,4 +61,12 @@ public class IscSendRecordDao extends CoreDao {
         return this.deleteByCriteria(deleteStmt);
     }
 
+    public int deleteForSite(String siteId) throws DataAccessLayerException {
+        DatabaseQuery deleteStmt = new DatabaseQuery(this.daoClass);
+        deleteStmt.addQueryParam("id.state", IscSendState.RUNNING,
+                QueryOperand.NOTEQUALS);
+        deleteStmt.addQueryParam("id.parmID", "%:" + siteId + "_%",
+                QueryOperand.LIKE);
+        return deleteByCriteria(deleteStmt);
+    }
 }

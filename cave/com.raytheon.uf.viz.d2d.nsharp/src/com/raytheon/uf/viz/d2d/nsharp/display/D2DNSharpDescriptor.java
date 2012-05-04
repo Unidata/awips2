@@ -21,6 +21,9 @@ package com.raytheon.uf.viz.d2d.nsharp.display;
 
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource.ElementStateProperty;
+
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -54,23 +57,39 @@ public class D2DNSharpDescriptor extends NsharpSkewTDescriptor {
     public D2DNSharpDescriptor() {
         super();
         setTimeMatcher(new D2DTimeMatcher());
+        // NSharp does not handle frame changes in the descriptor so it needs a
+        // custom frame coordinator to handle the events using the frame
+        // information in the resource.
         frameCoordinator = new FrameCoordinator(this) {
 
             @Override
             public void changeFrame(LoopProperties loopProperties) {
-                super.changeFrame(loopProperties);
-                // Copied code NsharpSkewTDescriptor, this entire class should
-                // go away once NsharpSkewTDescriptor is fixed
-                if (loopProperties == null || getFrames() == null) {
-                    // System.out.println("NsharpSkewTDescriptor checkDrawTime called but jump ");
+                if (loopProperties == null || !loopProperties.isLooping()) {
                     return;
                 }
+                NsharpSkewTResource skewRsc = getSkewtResource();
+                List<ElementStateProperty> frames = skewRsc
+                        .getDataTimelineList();
+                if (frames == null || frames.isEmpty()) {
+                    return;
+                }
+                // Determine wait time based off of direction
+                long waitTime = loopDirection > 0 ? loopProperties
+                        .getFwdFrameTime() : loopProperties.getRevFrameTime();
+                // use special wait time for first and last frame
+                if (frames.get(frames.size() - 1).getElementDescription()
+                        .equals(skewRsc.getPickedStnInfoStr())) {
+                    waitTime = loopProperties.getLastFrameDwell();
+                } else if (frames.get(0).getElementDescription()
+                        .equals(skewRsc.getPickedStnInfoStr())) {
+                    waitTime = loopProperties.getFirstFrameDwell();
+                }
+                // Tell the loop propertied how long to wait
+                loopProperties.drawAfterWait(waitTime);
 
-                if (loopProperties.isLooping() && loopProperties.isShouldDraw()) {
-                    NsharpSkewTResource skewRsc = getSkewtResource();
-
+                // Tell the resource to handle looping
+                if (loopProperties.isShouldDraw()) {
                     skewRsc.setLoopingDataTimeLine(loopProperties);
-                    // System.out.println("NsharpSkewTDescriptor handleDataTimeIndex handled!!!!!! ");
                 }
             }
 
@@ -82,8 +101,17 @@ public class D2DNSharpDescriptor extends NsharpSkewTDescriptor {
                         .valueOf(operation.name());
                 IDescriptor.FrameChangeMode dmode = IDescriptor.FrameChangeMode
                         .valueOf(mode.name());
-                D2DNSharpDescriptor.this.changeFrame(dop, dmode);
+                // Just hand this off to the resource.
+                getSkewtResource().setSteppingDataTimeLine(dop, dmode);
             }
         };
     }
+
+    @Override
+    public void checkDrawTime(LoopProperties loopProperties) {
+        // Do nothing, this is a deprecated method that should never get called
+        // but for some reason ncep continues writing new code that calls this
+        // and it continues to conflict with the frame coordinator object.
+    }
+
 }

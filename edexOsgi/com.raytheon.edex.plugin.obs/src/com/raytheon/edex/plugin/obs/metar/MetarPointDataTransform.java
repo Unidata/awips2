@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.obs.metar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,8 +53,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 3, 2009            chammack     Initial creation
- * Jun 23, 2009           njensen     Combined present weather
- * Jun 29, 2009     2538  jsanchez    Sorted the sky cover.
+ * Jun 23, 2009           njensen      Combined present weather
+ * Jun 29, 2009     2538  jsanchez     Sorted the sky cover.
+ * May 17, 2012      460  jkorman      Modified to limit stored data to dimensioned size.
  * 
  * </pre>
  * 
@@ -267,10 +269,15 @@ public class MetarPointDataTransform {
         pdv.setFloat(VISIBILITY, record.getVisibility());
 
         if (record.getSkyCoverage() != null) {
+            int maxSize = container.getDescription(SKY_COVER)
+            .getDimensionAsInt();
             record.sort(record.getSkyCoverage());
             Iterator<SkyCover> scIterator = record.getSkyCoverage().iterator();
             int i = 0;
             while (scIterator.hasNext()) {
+                if(i >= maxSize) {
+                    break;
+                }
                 // TODO: storing duplicate info like this, needs to be resolved
                 SkyCover sc = scIterator.next();
                 if (sc.getType() != null) {
@@ -298,9 +305,21 @@ public class MetarPointDataTransform {
         // Write this data in "backwards" so that the plot model stuff
         // displays correctly.
         if (record.getWeatherCondition() != null) {
-            int i = record.getWeatherCondition().size() - 1;
+            List<WeatherCondition> w = new ArrayList<WeatherCondition>();
             for (WeatherCondition wc : record.getWeatherCondition()) {
-                pdv.setString(PRES_WEATHER, wc.toCanonicalForm(), i--);
+                if (!"".equals(wc.toCanonicalForm())) {
+                    w.add(wc);
+                }
+            }
+            Collections.reverse(w);
+            int maxSize = container.getDescription(PRES_WEATHER)
+                    .getDimensionAsInt();
+            while (w.size() > maxSize) {
+                w.remove(0);
+            }
+            int i = 0;
+            for (WeatherCondition wc : w) {
+                pdv.setString(PRES_WEATHER, wc.toCanonicalForm(), i++);
             }
         }
 
