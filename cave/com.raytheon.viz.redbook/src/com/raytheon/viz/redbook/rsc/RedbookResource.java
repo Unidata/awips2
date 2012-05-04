@@ -149,9 +149,17 @@ public class RedbookResource extends
                                 + "Unable to load redbook mapping file", e);
                 return;
             }
-            RedbookWMOMap.Info info = map.mapping.get(wmo.getConstraintValue());
-            if (info != null && info.name != null)
-                this.humanReadableName = info.name;
+            for (String wmoStr : wmo.getConstraintValue().split(",")) {
+                wmoStr = wmoStr.trim();
+                if (wmoStr.isEmpty()) {
+                    continue;
+                }
+                RedbookWMOMap.Info info = map.mapping.get(wmoStr);
+                if (info != null && info.name != null) {
+                    this.humanReadableName = info.name;
+                    break;
+                }
+            }
         }
     }
 
