@@ -23,7 +23,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 
-import com.raytheon.uf.viz.core.IView.POVShiftType;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 
@@ -58,27 +57,6 @@ public interface IDisplayPane {
      *            ending point in screen coordinates
      */
     public abstract void shiftExtent(double[] startScreen, double[] endScreen);
-
-    /**
-     * Rotate the view between start to end
-     * 
-     * @param startScreen
-     *            initial mouse position in screen coordinates
-     * @param endScreen
-     *            final mouse position in screen coordinates
-     * @param type
-     *            type of shift
-     */
-    public abstract void shiftPOV(double[] startScreen, double[] endScreen,
-            POVShiftType shiftType);
-
-    /**
-     * Set the point on the globe user wants to look at
-     * 
-     * @param point
-     *            -
-     */
-    public abstract void setLookAt(double[] point);
 
     /**
      * Set the renderable display object
