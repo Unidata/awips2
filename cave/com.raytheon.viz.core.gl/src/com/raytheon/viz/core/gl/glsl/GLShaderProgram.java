@@ -21,7 +21,9 @@ package com.raytheon.viz.core.gl.glsl;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.media.opengl.GL;
@@ -31,8 +33,6 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.internal.GLProgramManager;
@@ -67,14 +67,6 @@ public class GLShaderProgram {
     private final GL gl;
 
     private int glslContext = -1;
-
-    private int vertexShaderId = -1;
-
-    private int fragmentShaderId = -1;
-
-    private IShaderLoader vertexShader;
-
-    private IShaderLoader fragmentShader;
 
     private State state = State.INVALID;
 
@@ -111,28 +103,36 @@ public class GLShaderProgram {
      * @param fragmentShader
      *            - can be null (but not if vertexShader == null)
      */
-    GLShaderProgram(IGLTarget target, String name, IShaderLoader vertexShader,
-            IShaderLoader fragmentShader) throws VizException {
+    GLShaderProgram(IGLTarget target, String name, String vertexShader,
+            String fragmentShader) throws VizException {
         gl = target.getGl();
-        glslContext = gl.glCreateProgramObjectARB();
+        glslContext = gl.glCreateProgram();
         if (glslContext < 1) {
             throw new VizException(
                     "Error creating glsl program, could not create program object");
         }
 
-        vertexShaderId = -1;
-        fragmentShaderId = -1;
-
+        List<Integer> shaderIds = new ArrayList<Integer>(2);
         if (vertexShader != null) {
-            this.setVertexShader(vertexShader);
+            shaderIds.add(addShader(vertexShader, GL.GL_VERTEX_SHADER));
         }
 
         if (fragmentShader != null) {
-            this.setFragmentShader(fragmentShader);
+            shaderIds.add(addShader(fragmentShader, GL.GL_FRAGMENT_SHADER));
         }
-        gl.glLinkProgramARB(glslContext);
+
+        for (Integer shaderId : shaderIds) {
+            gl.glAttachShader(glslContext, shaderId);
+        }
+        gl.glLinkProgram(glslContext);
         if (!checkForLinkingErrors(gl)) {
             state = State.INITIALIZED;
+            for (Integer shaderId : shaderIds) {
+                gl.glDeleteShader(shaderId);
+            }
+        } else {
+            throw new VizException(
+                    "Error creating glsl shader program, could not link");
         }
         this.name = name;
     }
@@ -142,7 +142,7 @@ public class GLShaderProgram {
      */
     public void startShader() {
         if (state == State.INITIALIZED) {
-            gl.glUseProgramObjectARB(glslContext);
+            gl.glUseProgram(glslContext);
             state = State.IN_USE;
         }
         loadedUniforms.clear();
@@ -153,7 +153,7 @@ public class GLShaderProgram {
      */
     public void endShader() {
         if (state == State.IN_USE) {
-            gl.glUseProgramObjectARB(0);
+            gl.glUseProgram(0);
             state = State.INITIALIZED;
         }
         loadedUniforms.clear();
@@ -168,53 +168,18 @@ public class GLShaderProgram {
     }
 
     /**
-     * Load data into the shader program
+     * Load, and compile the shader program
      * 
-     * @param target
-     * @param image
-     * @param paintProps
-     * @throws VizException
+     * @param shader
      */
-    public void loadData(IGLTarget target, IImage image,
-            PaintProperties paintProps) throws VizException {
-        if (state == State.IN_USE) {
-            if (vertexShader != null) {
-                vertexShader.loadData(target, this, image, paintProps);
-            }
-            if (fragmentShader != null) {
-                fragmentShader.loadData(target, this, image, paintProps);
-            }
-        }
-    }
-
-    /**
-     * Set, load, and compile the vertex shader program
-     * 
-     * @param vshader
-     */
-    private void setVertexShader(IShaderLoader vshader) throws VizException {
-        this.vertexShader = vshader;
-        vertexShaderId = loadShaderProgram(GLProgramManager.getInstance()
-                .getProgramCode(vshader.getName()), GL.GL_VERTEX_SHADER);
-        if (vertexShaderId < 0) {
+    private int addShader(String shaderName, int shaderType)
+            throws VizException {
+        int shaderId = loadShaderProgram(shaderName, shaderType);
+        if (shaderId < 1) {
             throw new VizException(
-                    "Error creating vertex shader, object not allocated");
+                    "Error creating shader, object not allocated");
         }
-    }
-
-    /**
-     * Set, load, and compile the fragment shader program
-     * 
-     * @param fshader
-     */
-    private void setFragmentShader(IShaderLoader fshader) throws VizException {
-        this.fragmentShader = fshader;
-        fragmentShaderId = loadShaderProgram(GLProgramManager.getInstance()
-                .getProgramCode(fshader.getName()), GL.GL_FRAGMENT_SHADER);
-        if (fragmentShaderId < 0) {
-            throw new VizException(
-                    "Error creating fragment shader, object not allocated");
-        }
+        return shaderId;
     }
 
     /**
@@ -224,52 +189,18 @@ public class GLShaderProgram {
      * @param glShaderId
      * @return the shader program id
      */
-    private int loadShaderProgram(String program, int glShaderId) {
-        int shaderId = gl.glCreateShaderObjectARB(glShaderId);
+    private int loadShaderProgram(String programName, int glShaderId)
+            throws VizException {
+        String program = GLProgramManager.getInstance().getProgramCode(
+                programName);
+        int shaderId = gl.glCreateShader(glShaderId);
         if (shaderId >= 0) {
-            gl.glShaderSourceARB(shaderId, 1, new String[] { program },
+            gl.glShaderSource(shaderId, 1, new String[] { program },
                     (int[]) null, 0);
-            gl.glCompileShaderARB(shaderId);
-            checkForCompileErrors(gl, shaderId, glShaderId);
-            gl.glAttachObjectARB(glslContext, shaderId);
+            gl.glCompileShader(shaderId);
+            checkForCompileErrors(gl, shaderId, glShaderId, programName);
         }
         return shaderId;
-    }
-
-    /**
-     * Updates the fragment shader's loader object
-     * 
-     * @param fshader
-     */
-    public void updateFragmentShader(IShaderLoader fshader) {
-        this.fragmentShader = fshader;
-    }
-
-    /**
-     * Update the vertex shader loader
-     * 
-     * @param vshader
-     */
-    public void updateVertexShader(IShaderLoader vshader) {
-        this.vertexShader = vshader;
-    }
-
-    /**
-     * Get the shader loader
-     * 
-     * @return
-     */
-    IShaderLoader getVertexShader() {
-        return vertexShader;
-    }
-
-    /**
-     * Get the fragment loader
-     * 
-     * @return
-     */
-    IShaderLoader getFragmentShader() {
-        return fragmentShader;
     }
 
     /**
@@ -283,6 +214,9 @@ public class GLShaderProgram {
             gl.glUniform1f(getUniformLocation(uniformName), (Float) value);
         } else if (value instanceof Integer) {
             gl.glUniform1i(getUniformLocation(uniformName), (Integer) value);
+        } else if (value instanceof Boolean) {
+            gl.glUniform1i(getUniformLocation(uniformName),
+                    ((Boolean) value) == true ? 1 : 0);
         } else if (value instanceof int[]) {
             gl.glUniform1iv(getUniformLocation(uniformName), MAX_MULTIGRIDS,
                     (int[]) value, 0);
@@ -306,7 +240,7 @@ public class GLShaderProgram {
      * @param value
      */
     public void setUniform(String key, Object value) {
-        if (value != null) {
+        if (value != null && state == State.IN_USE) {
             if (loadedUniforms.containsKey(key) == false
                     || value.equals(loadedUniforms.get(key)) == false) {
                 // we haven't loaded this uniform yet or it is different
@@ -324,7 +258,7 @@ public class GLShaderProgram {
      * @return
      */
     private int getUniformLocation(String name) {
-        return (gl.glGetUniformLocationARB(glslContext, name));
+        return (gl.glGetUniformLocation(glslContext, name));
     }
 
     /**
@@ -334,23 +268,22 @@ public class GLShaderProgram {
      * @param shader
      * @return
      */
-    private boolean checkForCompileErrors(GL gl, int shader, int glId) {
+    private boolean checkForCompileErrors(GL gl, int shader, int glId,
+            String name) {
         String type = "unknown";
-        String fileName = "unkown";
         if (glId == GL.GL_FRAGMENT_SHADER) {
             type = "fragment";
-            fileName = fragmentShader.getName();
         } else if (glId == GL.GL_VERTEX_SHADER) {
             type = "vertex";
-            fileName = vertexShader.getName();
         }
+
         boolean rval = false;
         int[] compilecheck = new int[1];
         gl.glGetObjectParameterivARB(shader, GL.GL_OBJECT_COMPILE_STATUS_ARB,
                 compilecheck, 0);
         if (compilecheck[0] == GL.GL_FALSE) {
             System.err.println("A compilation error occured in the " + type
-                    + " shader source file (" + fileName + ".glsl)");
+                    + " shader source file (" + name + ")");
 
             IntBuffer iVal = BufferUtil.newIntBuffer(1);
             gl.glGetObjectParameterivARB(shader,
@@ -367,8 +300,8 @@ public class GLShaderProgram {
             byte[] infoBytes = new byte[length - 1];
             infoLog.get(infoBytes);
             statusHandler.handle(Priority.CRITICAL, "Problem occured during "
-                    + type + " shader initialization of file " + fileName
-                    + ".glsl: " + new String(infoBytes));
+                    + type + " shader initialization of " + name + ": "
+                    + new String(infoBytes));
             System.err.println(new String(infoBytes));
             rval = true;
         }
@@ -417,18 +350,6 @@ public class GLShaderProgram {
             endShader();
         }
         if (state == State.INITIALIZED) {
-            if (fragmentShader != null) {
-                gl.glDetachShader(glslContext, fragmentShaderId);
-                gl.glDeleteShader(fragmentShaderId);
-                fragmentShaderId = -1;
-            }
-
-            if (vertexShader != null) {
-                gl.glDetachShader(glslContext, vertexShaderId);
-                gl.glDeleteShader(vertexShaderId);
-                vertexShaderId = -1;
-            }
-
             gl.glDeleteProgram(glslContext);
             glslContext = -1;
         }

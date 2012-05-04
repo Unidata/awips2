@@ -69,6 +69,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         // By default keep jms enabled
         store.setDefault(ThinClientPreferenceConstants.P_DISABLE_JMS, false);
 
+        store.setDefault(
+                ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION,
+                true);
+
         // Menu times will be enabled by default
         store.setDefault(ThinClientPreferenceConstants.P_DISABLE_MENU_TIMES,
                 false);

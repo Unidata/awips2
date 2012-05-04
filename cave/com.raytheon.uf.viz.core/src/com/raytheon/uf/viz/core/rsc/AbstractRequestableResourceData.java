@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.core.rsc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -385,11 +386,6 @@ public abstract class AbstractRequestableResourceData extends
 
         Set<DataTime> currentSet = new HashSet<DataTime>(Arrays.asList(current));
 
-        boolean initialLoad = false;
-        if (currentSet.size() == 0) {
-            initialLoad = true;
-        }
-
         Set<DataTime> loadSet = new HashSet<DataTime>();
         for (DataTime t : desiredSet) {
             boolean found = false;
@@ -409,6 +405,21 @@ public abstract class AbstractRequestableResourceData extends
             return new PluginDataObject[0];
         }
 
+        return requestPluginDataObjects(loadSet);
+    }
+
+    /**
+     * Request plugin data objects for the passed in times. This method is
+     * called from getLatestPluginDataObjects(DataTime[],DataTime[]) after time
+     * filter from desired and current has been done. The times passed in is a
+     * collection of new times needed
+     * 
+     * @param loadSet
+     * @return
+     * @throws VizException
+     */
+    protected PluginDataObject[] requestPluginDataObjects(
+            Collection<DataTime> loadSet) throws VizException {
         LayerProperty property = new LayerProperty();
         // TODO fix?
         property.setDesiredProduct(ResourceType.PLAN_VIEW);
@@ -476,7 +487,7 @@ public abstract class AbstractRequestableResourceData extends
     /**
      * Comparator for response array.
      */
-    private static Comparator<PluginDataObject> layerComparator = new Comparator<PluginDataObject>() {
+    protected static Comparator<PluginDataObject> layerComparator = new Comparator<PluginDataObject>() {
 
         @Override
         public int compare(PluginDataObject arg0, PluginDataObject arg1) {

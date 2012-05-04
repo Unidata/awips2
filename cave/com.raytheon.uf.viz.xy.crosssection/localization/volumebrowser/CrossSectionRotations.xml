@@ -19,8 +19,8 @@
         further_licensing_information.
     -->
 <CrossSectionRotations>
-	<rotation parameter="Comp Into" mode="VR_COMPONENT_INTO"/>
-	<rotation parameter="Comp Along" mode="VR_COMPONENT_ALONG"/>
+	<rotation parameter="Into" mode="VR_COMPONENT_INTO"/>
+	<rotation parameter="Along" mode="VR_COMPONENT_ALONG"/>
 	<rotation parameter="SNW" mode="VR_SECTION_COORDINATES"/>
 	<rotation parameter="uFX" mode="VR_GEO_MOMENTUM"/>
 	<rotation parameter="vertCirc" mode="VR_VERT_CIRC"/>
