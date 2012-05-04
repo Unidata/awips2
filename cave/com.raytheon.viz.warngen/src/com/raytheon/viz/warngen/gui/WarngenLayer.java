@@ -810,7 +810,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 MapManager mapManager = MapManager.getInstance(descriptor);
                 for (String map : maps) {
                     if (!loadedCustomMaps.contains(map)) {
-                        if (! mapManager.isMapLoaded(map)) {
+                        if (!mapManager.isMapLoaded(map)) {
                             mapManager.loadMapByName(map);
                             loadedCustomMaps.add(map);
                         }
@@ -1065,6 +1065,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
+    @Override
+    public void setDescriptor(final MapDescriptor descriptor) {
+        super.setDescriptor(descriptor);
+        if (dialog != null) {
+            dialog.getShell().addDisposeListener(new DisposeListener() {
+                @Override
+                public void widgetDisposed(DisposeEvent e) {
+                    descriptor.getResourceList().removeRsc(WarngenLayer.this);
+                }
+            });
+        }
+    }
+
     /**
      * Show the WarnGen dialog and move it to the front.
      */
@@ -1115,7 +1128,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry intersection = null;
             try {
                 // Get intersection between county and hatched boundary
-                intersection = GeometryUtil.intersection(hatchedArea, prepGeom);
+            	try {
+            		intersection = GeometryUtil.intersection(hatchedArea, prepGeom);
+            	} catch (TopologyException e) {
+            		// side location conflict using a prepared geom
+            		// need the actual geom for this case
+            		intersection = GeometryUtil.intersection(hatchedArea, geom);
+            	}
                 if (intersection.isEmpty()) {
                     continue;
                 }
@@ -2208,6 +2227,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         displayState.geomChanged = true;
+        drawShadedPoly(state.getWarningArea());
         issueRefresh();
     }
 

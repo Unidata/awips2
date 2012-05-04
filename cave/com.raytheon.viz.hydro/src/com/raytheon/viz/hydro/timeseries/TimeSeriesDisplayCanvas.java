@@ -120,7 +120,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 12 July 2011 9709     djingtao     add draw "DERIVED PP"         
  * 25 July 2011 10082    djingtao     modify makeRegions()
  * 10 August 2011 10457  djingtao     allow red rubberband box to be draw for setMissing in Edit
- * 27 March 20112 14527  wkwock       Fix incomplete time series selection issue
+ * 27 March 2012 14527   wkwock       Fix incomplete time series selection issue
+ * 24 April 2012 14669   wkwock       Handle invalid color name
  * 
  * @author lvenable
  * @version 1.0
@@ -2264,7 +2265,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         HydroUtils.getColor(traceIndex));
                 gc.setForeground(currentTraceColor);
             } else if (groupMode) {
-                if (td.getColorName() != null) {
+                if (td.getColorName() != null && HydroUtils.getColor(td.getColorName()) != null) {
                     currentTraceColor = new Color(parentComp.getDisplay(),
                             HydroUtils.getColor(td.getColorName()));
                 } else {
