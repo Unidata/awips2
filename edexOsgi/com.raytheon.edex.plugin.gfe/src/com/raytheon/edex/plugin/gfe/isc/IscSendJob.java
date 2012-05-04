@@ -31,6 +31,7 @@ import java.util.Map;
 
 import jep.JepException;
 
+import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
@@ -60,6 +61,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 07/06/09      1995       bphillip    Initial release
+ * 04/06/12      #457       dgilling    Move call to delete records
+ *                                      from queue into run().
  * 
  * </pre>
  * 
@@ -117,6 +120,7 @@ public class IscSendJob implements Runnable {
                         .getNextSendJob(runningTimeOutMillis);
                 if (record != null) {
                     runIscSend(record);
+                    SendIscTransactions.removeSendJob(record);
                 } else {
                     try {
                         Thread.sleep(threadSleepInterval);
@@ -139,6 +143,13 @@ public class IscSendJob implements Runnable {
             TimeRange tr = request.getId().getTimeRange();
             String xmlDest = request.getId().getXmlDest();
             String siteId = id.getDbId().getSiteId();
+
+            if (!GFESiteActivation.getInstance().getActiveSites()
+                    .contains(siteId)) {
+                statusHandler.warn("Attempted to send " + id
+                        + " for deactivated site " + siteId + ".");
+                return;
+            }
 
             statusHandler.info("Starting isc for " + id.toString() + " "
                     + tr.toString() + " " + xmlDest);
@@ -241,7 +252,6 @@ public class IscSendJob implements Runnable {
         } catch (Throwable t) {
             statusHandler.error("Exception in ISCSendJob: ", t);
         }
-        SendIscTransactions.removeSendJob(request);
     }
 
     public int getRunningTimeOutMillis() {
