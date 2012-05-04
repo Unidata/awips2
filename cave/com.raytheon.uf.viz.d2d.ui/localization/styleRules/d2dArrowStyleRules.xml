@@ -122,4 +122,13 @@
 			<displayUnits>kts</displayUnits>
 		</arrowStyle>
 	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>MTV</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits label="gm/kgs">g*m/(kg*s)</displayUnits>
+		</arrowStyle>
+	</styleRule>
 </styleRuleset>
