@@ -101,7 +101,7 @@
 			<bean ref="gribStaticDataGenerator"/>
 			<multicast parallelProcessing="false">
 				<to uri="directvm:gribIngestAlert"/>
-				<to uri="vm:gribNotification"/>
+				<to uri="directvm:gribNotification"/>
 			</multicast>
 		</route>
 	</camelContext>
