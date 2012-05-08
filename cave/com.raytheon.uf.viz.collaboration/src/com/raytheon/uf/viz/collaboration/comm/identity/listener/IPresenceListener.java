@@ -19,23 +19,23 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.listener;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import org.eclipse.ecf.presence.IPresence;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
 public interface IPresenceListener {

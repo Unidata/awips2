@@ -19,9 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
+import org.eclipse.ecf.presence.roster.IRosterItem;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 
 /**
  * TODO Add Description
@@ -44,19 +45,21 @@ public class RosterChangeEvent implements IRosterChangeEvent {
 
     private final RosterChangeType type;
 
-    private final IRosterEntry entry;
-    
+    private final IRosterItem item;
+
     /**
-     * Create an instance of this event using the given type and
-     * entry.
-     * @param type The event type.
-     * @param entry The changed entry.
+     * Create an instance of this event using the given type and entry.
+     * 
+     * @param type
+     *            The event type.
+     * @param entry
+     *            The changed entry.
      */
-    public RosterChangeEvent(RosterChangeType type, IRosterEntry entry) {
+    public RosterChangeEvent(RosterChangeType type, IRosterItem item) {
         this.type = type;
-        this.entry = entry;
+        this.item = item;
     }
-    
+
     /**
      * Get the event type.
      * 
@@ -70,12 +73,13 @@ public class RosterChangeEvent implements IRosterChangeEvent {
 
     /**
      * Get the changed entry
+     * 
      * @return The changed entry.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent#getEntry()
      */
     @Override
-    public IRosterEntry getEntry() {
-        return entry;
+    public IRosterItem getItem() {
+        return item;
     }
 
 }

@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import java.util.Map;
 
+import org.eclipse.ecf.presence.IPresence;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 
 /**

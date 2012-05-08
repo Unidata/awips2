@@ -91,6 +91,9 @@ public class CollaborationPathDrawingTool extends PathDrawingTool {
          */
         @Override
         public boolean handleMouseDown(int anX, int aY, int button) {
+            if (theDrawingLayer == null) {
+                return false;
+            }
             boolean allowDraw = ((CollaborationDrawingLayer) theDrawingLayer)
                     .isAllowDraw();
             boolean isSessionLeader = SharedDisplaySessionMgr
