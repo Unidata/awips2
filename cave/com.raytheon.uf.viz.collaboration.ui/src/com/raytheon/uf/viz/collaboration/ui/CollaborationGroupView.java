@@ -608,19 +608,13 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     private void populateGroups() {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-
-        // go through and clear out everything above the groups (my user, the
-        // sessions)
-        List<Object> obs = new ArrayList<Object>();
-        obs.addAll(topLevel.getObjects());
-        manager.getCollaborationConnection().getRosterManager();
-
         CollaborationUtils.readAliases();
-        refreshEntry(
-                manager.getCollaborationConnection().getContactsManager()
-                        .getUsersMap()
-                        .get(manager.getCollaborationConnection().getUser()),
-                manager.getCollaborationConnection());
+        for (Object ob : manager.getCollaborationConnection()
+                .getRosterManager().getRoster().getItems()) {
+            if (ob instanceof IRosterGroup) {
+                addGroup((IRosterGroup) ob);
+            }
+        }
     }
 
     private void fillStatusMenu(Menu menu) {
@@ -1295,17 +1289,13 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
     }
 
-    private void refreshGroup(IRosterGroup group) {
-
-    }
-
     /**
      * Adds users to groups if necessary
      * 
      * @param entry
      * @param connection
      */
-    private synchronized void refreshEntry(IRosterEntry entry,
+    private void refreshEntry(IRosterEntry entry,
             CollaborationConnection connection) {
         List<IRosterGroup> groups = new ArrayList<IRosterGroup>();
         for (Object ob : connection.getRosterManager().getRoster().getItems()) {
@@ -1313,6 +1303,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 groups.add((IRosterGroup) ob);
             }
         }
+
         // looping through my groups
         for (final IRosterGroup group : groups) {
             // looping through the other entries groups
@@ -1322,32 +1313,31 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 // so both users have it (you are showing it, and they
                 // are part of it)
                 if (group.getName().equals(otherGroup.getName())) {
-                    boolean created = false;
-                    List<Object> obs = new ArrayList<Object>();
-                    obs.addAll(topLevel.getObjects());
-                    for (Object topOb : obs) {
-                        if (topOb instanceof IRosterGroup) {
-                            IRosterGroup topGroup = (IRosterGroup) topOb;
-                            if (topGroup.getName().equals(group.getName())) {
-                                System.out.println("Created is true : "
-                                        + group.getName() + " / "
-                                        + topGroup.getName());
-                                created = true;
-                                break;
-                            } else {
-                                System.out.println("Created is false : "
-                                        + group.getName() + " / "
-                                        + topGroup.getName());
-                            }
-                        }
-                    }
-                    if (!created) {
-                        System.out.println("creating group : "
-                                + group.getName());
-                        topLevel.addObject(group);
-                    }
+                    addGroup(otherGroup);
                 }
             }
+        }
+    }
+
+    private synchronized void addGroup(IRosterGroup group) {
+        boolean created = false;
+        for (Object topOb : topLevel.getObjects()) {
+            if (topOb instanceof IRosterGroup) {
+                IRosterGroup topGroup = (IRosterGroup) topOb;
+                if (topGroup.getName().equals(group.getName())) {
+                    System.out.println("Created is true : " + group.getName()
+                            + " / " + topGroup.getName());
+                    created = true;
+                    break;
+                } else {
+                    System.out.println("Created is false : " + group.getName()
+                            + " / " + topGroup.getName());
+                }
+            }
+        }
+        if (!created) {
+            System.out.println("creating group : " + group.getName());
+            topLevel.addObject(group);
         }
     }
 
