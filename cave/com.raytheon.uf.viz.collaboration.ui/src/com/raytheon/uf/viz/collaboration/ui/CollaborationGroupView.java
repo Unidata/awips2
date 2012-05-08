@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -266,12 +265,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 List<UserId> ids = new ArrayList<UserId>();
 
                 for (IRosterEntry user : getSelectedUsers()) {
-                    UserId id = null;
-                    if (user.getUser() instanceof UserId) {
-                        id = (UserId) user.getUser();
-                    } else {
-                        id = IDConverter.convertFrom(user.getUser());
-                    }
+                    UserId id = IDConverter.convertFrom(user.getUser());
                     System.out.println("Add Selected User: " + id);
                     ids.add(id);
                 }
@@ -1177,12 +1171,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     @Subscribe
     public void handleModifiedPresence(final IRosterEntry rosterEntry) {
         // Only need to update the usersTreeViewer.
-        final UserId id;
-        if (rosterEntry.getUser() instanceof UserId) {
-            id = (UserId) rosterEntry.getUser();
-        } else {
-            id = IDConverter.convertFrom(rosterEntry.getUser());
-        }
+        final UserId id = IDConverter.convertFrom(rosterEntry.getUser());
         System.out.println("group view roster entry for:" + id.getName() + "@"
                 + id.getHost() + " " + rosterEntry.getPresence().getMode()
                 + "/" + rosterEntry.getPresence().getType());
@@ -1319,12 +1308,14 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      */
     private void refreshEntry(IRosterEntry entry,
             CollaborationConnection connection) {
-        IRosterEntry selfEntry = connection.getContactsManager().getUsersMap()
-                .get(connection.getUser());
-        Collection<?> groups = selfEntry.getGroups();
+        List<IRosterGroup> groups = new ArrayList<IRosterGroup>();
+        for (Object ob : connection.getRosterManager().getRoster().getItems()) {
+            if (ob instanceof IRosterGroup) {
+                groups.add((IRosterGroup) ob);
+            }
+        }
         // looping through my groups
-        for (final Object ob : groups) {
-            IRosterGroup group = (IRosterGroup) ob;
+        for (final IRosterGroup group : groups) {
             // looping through the other entries groups
             for (Object ob2 : entry.getGroups()) {
                 IRosterGroup otherGroup = (IRosterGroup) ob2;
@@ -1354,7 +1345,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     if (!created) {
                         System.out.println("creating group : "
                                 + group.getName());
-                        // topLevel.addObject(group);
+                        topLevel.addObject(group);
                     }
                 }
             }
