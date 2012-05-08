@@ -19,39 +19,39 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import org.eclipse.ecf.presence.IPresence;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface ISubscriptionResponseEvent {
 
     /**
      * How was the subscription responded to.
+     * 
      * @return The response type.
      */
     IPresence.Type getResponse();
-    
+
     /**
      * Was this response due to an auto responder.
+     * 
      * @return Was this response due to an auto responder.
      */
     boolean isAutoResponder();
-    
-    
-    
+
 }

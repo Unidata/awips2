@@ -24,17 +24,17 @@ import java.util.Map;
 
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
+import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.IPresenceSender;
+import org.eclipse.ecf.presence.Presence;
 import org.eclipse.ecf.presence.roster.IRosterManager;
 import org.eclipse.ecf.presence.roster.IRosterSubscriptionListener;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 
 /**
  * TODO Add Description
@@ -75,8 +75,8 @@ public class AccountManager implements IAccountManager {
                 subscribedType = IPresence.Type.SUBSCRIBED;
             }
 
-            IPresence presence = new Presence(IPresence.Mode.AVAILABLE,
-                    subscribedType, null);
+            IPresence presence = new Presence(subscribedType, null,
+                    IPresence.Mode.AVAILABLE);
             try {
                 sendPresence(fromID, presence);
             } catch (CollaborationException e) {
@@ -270,8 +270,7 @@ public class AccountManager implements IAccountManager {
         IPresenceSender sender = manager.getPresenceSender();
 
         try {
-            sender.sendPresenceUpdate(null,
-                    Presence.convertPresence(userPresence));
+            sender.sendPresenceUpdate(null, userPresence);
             sessionManager.setPresence(userPresence);
         } catch (ECFException e) {
             throw new CollaborationException("Could not send presence");
@@ -291,8 +290,7 @@ public class AccountManager implements IAccountManager {
         IPresenceSender sender = manager.getPresenceSender();
 
         try {
-            sender.sendPresenceUpdate(toId,
-                    Presence.convertPresence(userPresence));
+            sender.sendPresenceUpdate(toId, userPresence);
             sessionManager.setPresence(userPresence);
         } catch (ECFException e) {
             throw new CollaborationException("Could not send presence");
