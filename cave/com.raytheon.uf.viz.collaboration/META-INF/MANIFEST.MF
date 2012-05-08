@@ -29,6 +29,5 @@ Export-Package: com.raytheon.uf.viz.collaboration,
  com.raytheon.uf.viz.collaboration.comm.provider,
  com.raytheon.uf.viz.collaboration.comm.provider.event,
  com.raytheon.uf.viz.collaboration.comm.provider.info,
- com.raytheon.uf.viz.collaboration.comm.provider.roster,
  com.raytheon.uf.viz.collaboration.comm.provider.session,
  com.raytheon.uf.viz.collaboration.comm.provider.user

@@ -287,12 +287,6 @@ public class CollaborationConnection implements IEventPublisher {
      * 
      */
     private void setupRosterManager() {
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to sleep the thread", e);
-        }
         rosterManager = presenceAdapter.getRosterManager();
     }
 
