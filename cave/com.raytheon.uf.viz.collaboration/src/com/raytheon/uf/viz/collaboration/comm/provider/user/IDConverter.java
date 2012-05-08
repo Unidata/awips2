@@ -58,11 +58,16 @@ public class IDConverter {
      * @return
      */
     public static UserId convertFrom(org.eclipse.ecf.core.user.IUser user) {
-        String name = Tools.parseName(user.getID().getName());
-        String host = Tools.parseHost(user.getID().getName());
-        UserId rosterId = new UserId(name, host);
-        rosterId.setAlias(user.getNickname());
-        return rosterId;
+        UserId retVal = null;
+        if (user instanceof UserId) {
+            retVal = (UserId) user;
+        } else {
+            String name = Tools.parseName(user.getID().getName());
+            String host = Tools.parseHost(user.getID().getName());
+            retVal = new UserId(name, host);
+            retVal.setAlias(user.getNickname());
+        }
+        return retVal;
     }
 
     public static UserId convertFrom(String fqName) {
