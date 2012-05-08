@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.listener;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
 
 /**
  * TODO Add Description

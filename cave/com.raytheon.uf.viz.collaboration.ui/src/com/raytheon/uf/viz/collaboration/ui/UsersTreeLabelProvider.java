@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ecf.presence.IPresence.Type;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
+import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.SWT;
@@ -33,11 +36,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
@@ -80,11 +81,13 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             String mode = CollaborationDataManager.getInstance()
                     .getCollaborationConnection().getPresence().getMode()
                     .toString();
+            mode = mode.replaceAll("\\s+", "_");
             key = mode;
         } else if (element instanceof IRosterEntry) {
             IRosterEntry entry = (IRosterEntry) element;
             if (entry.getPresence().getType() == Type.AVAILABLE) {
-                key = entry.getPresence().getMode().toString();
+                key = entry.getPresence().getMode().toString()
+                        .replaceAll("\\s+", "_");
             } else {
                 key = "contact_disabled";
             }
@@ -107,11 +110,11 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
     public String getText(Object element) {
         if (element instanceof IRosterEntry) {
             IRosterEntry entry = (IRosterEntry) element;
-            if (entry.getUser().getAlias() == null
-                    || entry.getUser().getAlias().isEmpty()) {
-                return entry.getUser().getName();
+            UserId id = IDConverter.convertFrom(entry.getUser());
+            if (id.getAlias() == null || id.getAlias().isEmpty()) {
+                return id.getName();
             } else {
-                return entry.getUser().getAlias();
+                return id.getAlias();
             }
         } else if (element instanceof IRosterGroup) {
             return ((IRosterGroup) element).getName();
@@ -154,20 +157,21 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         StringBuilder builder = new StringBuilder();
         if (element instanceof IRosterEntry) {
             IRosterEntry user = (IRosterEntry) element;
-            builder.append("ID: ").append(user.getUser().getFQName());
+            builder.append("ID: ").append(
+                    IDConverter.convertFrom(user.getUser()).getFQName());
             builder.append("\nStatus: ");
             if (user.getPresence().getType() == Type.UNAVAILABLE) {
                 builder.append("Offline");
             } else {
-                builder.append(user.getPresence().getMode().getMode());
+                builder.append(user.getPresence().getMode().toString());
 
                 // builder.append("Type: ").append(user.getType())
                 // .append("\n");
-                String message = user.getPresence().getStatusMessage();
+                String message = user.getPresence().getStatus();
                 if (message != null && message.length() > 0) {
                     builder.append("\n");
                     builder.append("Message: \"").append(
-                            user.getPresence().getStatusMessage() + "\"");
+                            user.getPresence().getStatus() + "\"");
                 }
             }
             return builder.toString();

@@ -489,8 +489,12 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
-        SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
-                .unRegisterEventHandler(this);
+        if (SharedDisplaySessionMgr.getSessionContainer(sessionId) != null
+                && SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                        .getSession() != null) {
+            SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
+                    .unRegisterEventHandler(this);
+        }
         // if (/* is session leader */false) {
         // // synchronized (collaboratorShapes) {
         // // for (IWireframeShape shape : collaboratorShapes.values()) {

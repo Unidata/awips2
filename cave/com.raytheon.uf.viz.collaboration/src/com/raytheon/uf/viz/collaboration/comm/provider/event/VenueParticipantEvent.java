@@ -19,7 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import org.eclipse.ecf.presence.IPresence;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
