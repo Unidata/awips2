@@ -27,5 +27,7 @@ Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.viz.core.maps.display,
  com.raytheon.uf.viz.core.maps.rsc,
  com.raytheon.uf.viz.drawing,
- com.raytheon.viz.awipstools.ui.display
+ com.raytheon.viz.awipstools.ui.display,
+ org.eclipse.ecf.presence,
+ org.eclipse.ecf.presence.roster
 Bundle-ActivationPolicy: lazy

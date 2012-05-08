@@ -19,37 +19,39 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import org.eclipse.ecf.presence.roster.IRosterItem;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 6, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IRosterChangeEvent {
-    
+
     /**
      * Get the event type.
+     * 
      * @return The event type.
      */
     RosterChangeType getType();
-    
+
     /**
      * Get the changed entry
+     * 
      * @return The changed entry.
      */
-    IRosterEntry getEntry();
-    
+    IRosterItem getItem();
+
 }
