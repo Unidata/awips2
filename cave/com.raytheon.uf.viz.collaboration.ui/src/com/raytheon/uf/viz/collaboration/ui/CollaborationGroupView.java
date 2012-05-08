@@ -616,12 +616,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         manager.getCollaborationConnection().getRosterManager();
 
         CollaborationUtils.readAliases();
-        for (Object ob : manager.getCollaborationConnection()
-                .getRosterManager().getRoster().getItems()) {
-            topLevel.addObject(ob);
-        }
-
-        // topLevel.addObject(orphans);
+        refreshEntry(
+                manager.getCollaborationConnection().getContactsManager()
+                        .getUsersMap()
+                        .get(manager.getCollaborationConnection().getUser()),
+                manager.getCollaborationConnection());
     }
 
     private void fillStatusMenu(Menu menu) {
@@ -871,9 +870,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 .getString(CollabPrefConstants.P_STATUS).toLowerCase());
         String msg = Activator.getDefault().getPreferenceStore()
                 .getString(CollabPrefConstants.P_MESSAGE);
+        CollaborationDataManager.getInstance().fireModifiedPresence(mode, msg);
         UserId id = (UserId) topLevel.getObjects().get(0);
         usersTreeViewer.refresh(id);
-        CollaborationDataManager.getInstance().fireModifiedPresence(mode, msg);
     }
 
     private void createSession() {
@@ -1306,7 +1305,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      * @param entry
      * @param connection
      */
-    private void refreshEntry(IRosterEntry entry,
+    private synchronized void refreshEntry(IRosterEntry entry,
             CollaborationConnection connection) {
         List<IRosterGroup> groups = new ArrayList<IRosterGroup>();
         for (Object ob : connection.getRosterManager().getRoster().getItems()) {
