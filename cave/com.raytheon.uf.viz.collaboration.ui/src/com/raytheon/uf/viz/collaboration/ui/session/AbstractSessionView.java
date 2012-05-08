@@ -223,7 +223,7 @@ public abstract class AbstractSessionView extends ViewPart {
         String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
 
         if (!CollaborationDataManager.getInstance()
-                .getCollaborationConnection().getAccount().equals(userId)
+                .getCollaborationConnection().getUser().equals(userId)
                 && Activator.getDefault().getPreferenceStore()
                         .getBoolean("notifications")) {
             createNotifier(userId, time, body);
