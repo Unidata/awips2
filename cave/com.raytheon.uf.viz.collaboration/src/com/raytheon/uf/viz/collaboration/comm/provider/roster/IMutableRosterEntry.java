@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.roster;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
 
 /**
  * TODO Add Description

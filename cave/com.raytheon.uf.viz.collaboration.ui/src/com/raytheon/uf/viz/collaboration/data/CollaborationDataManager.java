@@ -23,6 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.IPresence.Mode;
+import org.eclipse.ecf.presence.IPresence.Type;
+import org.eclipse.ecf.presence.Presence;
+import org.eclipse.ecf.presence.roster.IRosterManager;
+import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -40,9 +46,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
@@ -52,7 +55,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenue
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
-import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -417,18 +419,14 @@ public class CollaborationDataManager {
     }
 
     public void fireModifiedPresence(Mode mode, String msg) {
-        IPresence presence = connection.getPresence();
-        if (mode != null) {
-            presence.setMode(mode);
-        }
-        presence.setType(Type.AVAILABLE);
-        if (msg != null) {
-            presence.setStatusMessage(msg);
-        }
+        IRosterManager manager = connection.getRosterManager();
+        IPresence presence = new Presence(Type.AVAILABLE, msg, mode);
+
         try {
             connection.getAccountManager().sendPresence(presence);
             UserId id = connection.getUser();
-            RosterEntry rosterEntry = new RosterEntry(id);
+            RosterEntry rosterEntry = new RosterEntry(manager.getRoster(), id,
+                    presence);
             rosterEntry.setPresence(presence);
             connection.getEventPublisher().post(rosterEntry);
         } catch (CollaborationException e) {
