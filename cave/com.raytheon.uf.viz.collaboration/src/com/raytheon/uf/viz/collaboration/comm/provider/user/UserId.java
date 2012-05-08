@@ -19,7 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -44,7 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  */
 @DynamicSerialize
 @XmlRootElement(name = "userId")
-public class UserId implements IQualifiedID {
+public class UserId implements IQualifiedID, IUser {
 
     private static final String CONF_ID = "conference.";
 
@@ -224,4 +229,23 @@ public class UserId implements IQualifiedID {
         return true;
     }
 
+    @Override
+    public Object getAdapter(Class adapter) {
+        return null;
+    }
+
+    @Override
+    public String getNickname() {
+        return alias;
+    }
+
+    @Override
+    public Map getProperties() {
+        return null;
+    }
+
+    @Override
+    public ID getID() {
+        return null;
+    }
 }

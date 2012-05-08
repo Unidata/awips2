@@ -20,9 +20,9 @@
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 /**

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.SWT;
@@ -36,8 +38,8 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -135,7 +137,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
         IRosterEntry user = (IRosterEntry) element;
         Image image = null;
-        String key = user.getPresence().getMode().toString();
+        String key = user.getPresence().getMode().toString()
+                .replaceAll("\\s+", "_");
         if (key != null) {
             image = imageMap.get(key);
             if (image == null) {
@@ -257,7 +260,14 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
         if (colors == null) {
             colors = new HashMap<UserId, Color>();
         }
-        UserId userId = ((IRosterEntry) element).getUser();
+
+        UserId userId = null;
+        IUser user = ((IRosterEntry) element).getUser();
+        if (user instanceof UserId) {
+            userId = (UserId) user;
+        } else {
+            userId = IDConverter.convertFrom(user);
+        }
         RGB color = manager.getColorFromUser(userId);
 
         // add to map so we can dispose
@@ -328,15 +338,20 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     protected String buildParticipantTooltip(IRosterEntry user) {
         StringBuilder builder = new StringBuilder();
-        if (user.getUser().getAlias() != null
-                && !user.getUser().getAlias().isEmpty()) {
+        UserId partUser = null;
+        if (user.getUser() instanceof UserId) {
+            partUser = (UserId) user.getUser();
+        } else {
+            partUser = IDConverter.convertFrom(user.getUser());
+        }
+        if (partUser.getAlias() != null && !partUser.getAlias().isEmpty()) {
             builder.append("Name : ").append(user.getUser().getName())
                     .append("\n");
         }
         builder.append("Status : ")
-                .append(user.getPresence().getMode().getMode()).append("\n");
-        builder.append("Message : \"")
-                .append(user.getPresence().getStatusMessage()).append("\"");
+                .append(user.getPresence().getMode().toString()).append("\n");
+        builder.append("Message : \"").append(user.getPresence().getStatus())
+                .append("\"");
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session instanceof SharedDisplaySession) {
