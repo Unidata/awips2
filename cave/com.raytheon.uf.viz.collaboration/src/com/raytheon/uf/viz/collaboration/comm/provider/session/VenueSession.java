@@ -30,6 +30,7 @@ import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IIMMessageEvent;
 import org.eclipse.ecf.presence.IIMMessageListener;
+import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationSender;
@@ -46,7 +47,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
@@ -54,7 +54,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
-import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
@@ -367,15 +366,14 @@ public class VenueSession extends BaseSession implements IVenueSession {
                             org.eclipse.ecf.presence.IPresence presence) {
 
                         UserId vp = IDConverter.convertFrom(fromID);
-                        IPresence p = Presence.convertPresence(presence);
                         IVenueParticipantEvent event = null;
-                        if (IPresence.Type.AVAILABLE.equals(p.getType())) {
-                            event = new VenueParticipantEvent(vp, p,
+                        if (IPresence.Type.AVAILABLE.equals(presence.getType())) {
+                            event = new VenueParticipantEvent(vp, presence,
                                     ParticipantEventType.ARRIVED);
                             getEventPublisher().post(event);
-                        } else if (IPresence.Type.UNAVAILABLE.equals(p
+                        } else if (IPresence.Type.UNAVAILABLE.equals(presence
                                 .getType())) {
-                            event = new VenueParticipantEvent(vp, p,
+                            event = new VenueParticipantEvent(vp, presence,
                                     ParticipantEventType.DEPARTED);
                             getEventPublisher().post(event);
                         }
@@ -431,7 +429,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             String name = Tools.parseName(from.getName());
 
-            UserId account = getSessionManager().getAccount();
+            UserId account = getSessionManager().getUser();
             String aName = account.getFQName();
             if (aName.equals(name)) {
                 acceptMessage = false;
@@ -449,16 +447,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             String body = message.getBody();
             if (body != null) {
-                if (body.startsWith(SEND_TXT)) {
-                    body = body.substring(SEND_TXT.length());
-                    message.setBody(body);
-
-                    TextMessage msg = new TextMessage(message.getTo(),
-                            message.getBody());
-                    msg.setFrom(message.getFrom());
-
-                    getEventPublisher().post(msg);
-                } else if (body.startsWith(SEND_CMD)) {
+                if (body.startsWith(SEND_CMD)) {
                     Object o = null;
                     try {
                         o = Tools.unMarshallData(body);
@@ -470,6 +459,25 @@ public class VenueSession extends BaseSession implements IVenueSession {
                                 "Error deserializing received message on venue "
                                         + venueInfo.getName(), ce);
                     }
+                } else if (body.startsWith(SEND_TXT)) {
+                    body = body.substring(SEND_TXT.length());
+                    message.setBody(body);
+
+                    TextMessage msg = new TextMessage(message.getTo(),
+                            message.getBody());
+                    msg.setFrom(message.getFrom());
+
+                    getEventPublisher().post(msg);
+                } else {
+                    // attempt to handle outside clients as text only since the
+                    // SEND_TXT won't be appended to the first portion of the
+                    // body
+                    // message.setBody(body);
+                    // TextMessage msg = new TextMessage(message.getTo(),
+                    // message.getBody());
+                    // msg.setFrom(message.getFrom());
+                    //
+                    // getEventPublisher().post(msg);
                 }
             }
         }

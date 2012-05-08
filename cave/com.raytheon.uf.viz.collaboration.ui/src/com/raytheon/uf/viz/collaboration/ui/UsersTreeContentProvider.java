@@ -20,10 +20,10 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
+import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 
