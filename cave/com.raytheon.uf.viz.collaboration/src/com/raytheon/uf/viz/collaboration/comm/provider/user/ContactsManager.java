@@ -62,10 +62,10 @@ public class ContactsManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ContactsManager.class);
 
-    private Map<IUser, IRosterEntry> usersMap;
+    private Map<UserId, IRosterEntry> usersMap;
 
     public ContactsManager(CollaborationConnection connection) {
-        usersMap = new HashMap<IUser, IRosterEntry>();
+        usersMap = new HashMap<UserId, IRosterEntry>();
         IRoster roster = connection.getRosterManager().getRoster();
 
         for (Object ob : roster.getItems()) {
@@ -74,13 +74,9 @@ public class ContactsManager {
                 IRosterGroup rosterGroup = (IRosterGroup) rosterItem;
                 for (Object rOb : rosterGroup.getEntries()) {
                     IRosterEntry rosterEntry = (IRosterEntry) rOb;
-                    if (rosterEntry.getUser() instanceof UserId) {
-                        usersMap.put(rosterEntry.getUser(), rosterEntry);
-                    } else {
-                        usersMap.put(
-                                IDConverter.convertFrom(rosterEntry.getUser()),
-                                rosterEntry);
-                    }
+                    usersMap.put(
+                            IDConverter.convertFrom(rosterEntry.getUser()),
+                            rosterEntry);
                 }
             }
         }
@@ -91,13 +87,8 @@ public class ContactsManager {
         for (IRosterItem rosterItem : items.toArray(new IRosterItem[0])) {
             if (rosterItem instanceof IRosterEntry) {
                 IRosterEntry rosterEntry = (IRosterEntry) rosterItem;
-                if (rosterEntry.getUser() instanceof UserId) {
-                    usersMap.put(rosterEntry.getUser(), rosterEntry);
-                } else {
-                    usersMap.put(
-                            IDConverter.convertFrom(rosterEntry.getUser()),
-                            rosterEntry);
-                }
+                usersMap.put(IDConverter.convertFrom(rosterEntry.getUser()),
+                        rosterEntry);
             }
         }
         User user = null;
@@ -108,10 +99,10 @@ public class ContactsManager {
         }
         RosterEntry me = new RosterEntry(roster, user, connection.getPresence());
         me.setPresence(connection.getPresence());
-        usersMap.put(user, me);
+        usersMap.put(connection.getUser(), me);
     }
 
-    public Map<IUser, IRosterEntry> getUsersMap() {
+    public Map<UserId, IRosterEntry> getUsersMap() {
         return usersMap;
     }
 
