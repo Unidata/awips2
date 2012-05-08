@@ -176,6 +176,12 @@ public class CollaborationConnection implements IEventPublisher {
                                 + event.getClass().getName());
                     }
                 });
+
+                // add the listeners before we connect so we don't potentially
+                // miss something
+                presenceAdapter = Tools.getPresenceContainerAdapter(container,
+                        IPresenceContainerAdapter.class);
+                this.setupInternalConnectionListeners();
             }
 
         } catch (ContainerCreateException cce) {
@@ -202,7 +208,6 @@ public class CollaborationConnection implements IEventPublisher {
 
         setupAccountManager();
 
-        setupInternalConnectionListeners();
         setupInternalVenueInvitationListener();
         setupP2PComm(presenceAdapter);
         getPeerToPeerSession();
@@ -252,11 +257,10 @@ public class CollaborationConnection implements IEventPublisher {
 
             // Now connect
             ID targetID = createID(account);
-            container.connect(targetID, ConnectContextFactory
-                    .createPasswordConnectContext(password));
-
             presenceAdapter = Tools.getPresenceContainerAdapter(container,
                     IPresenceContainerAdapter.class);
+            container.connect(targetID, ConnectContextFactory
+                    .createPasswordConnectContext(password));
         }
     }
 
