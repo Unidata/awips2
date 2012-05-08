@@ -35,6 +35,7 @@ import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.identity.IDFactory;
 import org.eclipse.ecf.core.identity.Namespace;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
+import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.IPresenceListener;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
@@ -42,9 +43,10 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationListener;
 import org.eclipse.ecf.presence.chatroom.IChatRoomManager;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.ecf.presence.roster.IRosterListener;
+import org.eclipse.ecf.presence.roster.IRosterManager;
+import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
@@ -53,7 +55,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
@@ -64,15 +65,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
-import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -275,15 +272,6 @@ public class CollaborationConnection implements IEventPublisher {
     }
 
     /**
-     * Return the account string that was used to create this manager.
-     * 
-     * @return The account string.
-     */
-    public UserId getAccount() {
-        return account;
-    }
-
-    /**
      * Get the account manager for this connection.
      * 
      * @return The account manager for this connection.
@@ -299,7 +287,13 @@ public class CollaborationConnection implements IEventPublisher {
      * 
      */
     private void setupRosterManager() {
-        rosterManager = new RosterManager(this);
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to sleep the thread", e);
+        }
+        rosterManager = presenceAdapter.getRosterManager();
     }
 
     /**
@@ -413,8 +407,8 @@ public class CollaborationConnection implements IEventPublisher {
             session = new SharedDisplaySession(container, eventBus, this);
 
             session.createVenue(venueName, subject);
-            session.setCurrentSessionLeader(account);
-            session.setCurrentDataProvider(account);
+            session.setCurrentSessionLeader(user);
+            session.setCurrentDataProvider(user);
 
             sessions.put(session.getSessionId(), session);
             return session;
@@ -519,16 +513,17 @@ public class CollaborationConnection implements IEventPublisher {
                     public void handlePresence(ID fromId,
                             org.eclipse.ecf.presence.IPresence presence) {
 
-                        IPresence p = Presence.convertPresence(presence);
-
                         String name = Tools.parseName(fromId.getName());
                         String host = Tools.parseHost(fromId.getName());
                         String resource = Tools.parseResource(fromId.getName());
 
-                        UserId id = new UserId(name, host, resource);
-
+                        // UserId id = new UserId(name, host, resource);
+                        UserId id = IDConverter.convertFrom(fromId);
                         if (rosterManager != null) {
-                            ((RosterManager) rosterManager).updateEntry(id, p);
+                            IRosterEntry entry = contactsMgr.getUsersMap().get(
+                                    id);
+                            ((RosterEntry) entry).setPresence(presence);
+                            eventBus.post(entry);
                         }
                     }
                 });
@@ -538,42 +533,23 @@ public class CollaborationConnection implements IEventPublisher {
 
                     @Override
                     public void handleRosterEntryAdd(IRosterEntry entry) {
-                        com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry re = RosterEntry
-                                .convertEntry(entry);
                         IRosterChangeEvent event = new RosterChangeEvent(
-                                RosterChangeType.ADD, re);
-                        System.out.println("Connection rosterEntryAdd "
-                                + entry.getUser());
+                                RosterChangeType.ADD, entry);
                         eventBus.post(event);
                     }
 
                     @Override
                     public void handleRosterUpdate(IRoster roster,
                             IRosterItem item) {
-                        if (item instanceof IRosterEntry) {
-                            com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry re = RosterEntry
-                                    .convertEntry((IRosterEntry) item);
-                            IRosterChangeEvent event = new RosterChangeEvent(
-                                    RosterChangeType.MODIFY, re);
-                            eventBus.post(event);
-                        } else if (item instanceof IRosterGroup) {
-                            IRosterGroup rg = (IRosterGroup) item;
-                            System.out.println("Roster update RosterGroup "
-                                    + rg.getName());
-                        } else if (item instanceof IRoster) {
-                            IRoster r = (IRoster) item;
-                            System.out
-                                    .println("Connection Roster update Roster "
-                                            + r.getItems().size() + " items");
-                        }
+                        IRosterChangeEvent event = new RosterChangeEvent(
+                                RosterChangeType.MODIFY, item);
+                        eventBus.post(event);
                     }
 
                     @Override
                     public void handleRosterEntryRemove(IRosterEntry entry) {
-                        com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry re = RosterEntry
-                                .convertEntry((IRosterEntry) entry);
                         IRosterChangeEvent event = new RosterChangeEvent(
-                                RosterChangeType.MODIFY, re);
+                                RosterChangeType.DELETE, entry);
                         eventBus.post(event);
                     }
                 });
