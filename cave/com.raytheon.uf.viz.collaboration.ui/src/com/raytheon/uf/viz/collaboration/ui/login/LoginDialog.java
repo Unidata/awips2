@@ -26,6 +26,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.IPresence.Type;
+import org.eclipse.ecf.presence.Presence;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -46,9 +49,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
-import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -220,7 +220,7 @@ public class LoginDialog extends CaveSWTDialog {
 
         // TODO get mode messages from config file?
         for (IPresence.Mode mode : CollaborationUtils.statusModes) {
-            statusCombo.add(mode.getMode());
+            statusCombo.add(mode.toString());
         }
         statusCombo.select(0);
         label = new Label(body, SWT.NONE);
@@ -350,10 +350,8 @@ public class LoginDialog extends CaveSWTDialog {
                                     "Unable to save login preferences", e);
                         }
 
-                        IPresence initialPres = new Presence();
-                        initialPres.setMode(mode);
-                        initialPres.setType(Type.AVAILABLE);
-                        initialPres.setStatusMessage(modeMessage);
+                        IPresence initialPres = new Presence(Type.AVAILABLE,
+                                modeMessage, mode);
 
                         try {
                             final String srvr = server;
