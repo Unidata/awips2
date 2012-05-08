@@ -19,24 +19,25 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import org.eclipse.ecf.presence.IPresence;
+
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface ISubscriptionResponder {
@@ -47,7 +48,7 @@ public interface ISubscriptionResponder {
      * @return The response that should be returned to the subscriber.
      */
     IPresence.Type handleSubscribeRequest(IQualifiedID fromID);
-    
+
     /**
      * 
      * @param fromID
@@ -59,7 +60,5 @@ public interface ISubscriptionResponder {
      * @param fromID
      */
     void handleUnsubscribed(IQualifiedID fromID);
-    
-    
-    
+
 }
