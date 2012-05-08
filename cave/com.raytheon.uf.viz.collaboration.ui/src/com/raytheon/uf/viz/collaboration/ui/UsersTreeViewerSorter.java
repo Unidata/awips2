@@ -20,12 +20,12 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
+import org.eclipse.ecf.presence.roster.IRosterGroup;
+import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 
@@ -88,8 +88,9 @@ public class UsersTreeViewerSorter extends ViewerSorter {
                     || ((IVenueSession) e1).getVenue() == null) {
                 return 0;
             }
-            return ((IVenueSession) e1).getVenue().toString()
-                    .compareTo(((IVenueSession) e2).getVenue().toString());
+            return 1;
+            // return ((IVenueSession) e1).getVenue().toString()
+            // .compareTo(((IVenueSession) e2).getVenue().toString());
         }
         return 0;
     }

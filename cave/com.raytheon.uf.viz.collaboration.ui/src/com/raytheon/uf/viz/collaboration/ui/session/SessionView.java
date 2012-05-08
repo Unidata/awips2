@@ -25,6 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
+import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -62,16 +66,13 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
@@ -222,7 +223,7 @@ public class SessionView extends AbstractSessionView {
         // separately
         if (message.getFrom().equals(
                 CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getAccount())) {
+                        .getCollaborationConnection().getUser())) {
             return;
         }
         VizApp.runAsync(new Runnable() {
@@ -238,8 +239,9 @@ public class SessionView extends AbstractSessionView {
     public void updateUserAlias(UserId id) {
         List<IRosterEntry> entries = (List<IRosterEntry>) usersTable.getInput();
         for (IRosterEntry entry : entries) {
-            if (entry.getUser().getFQName().equals(id.getFQName())) {
-                ((RosterItem) entry).setName(id.getAlias());
+            UserId uid = (UserId) entry.getUser();
+            if (uid.getFQName().equals(id.getFQName())) {
+                ((UserId) entry.getUser()).setName(id.getAlias());
                 break;
             }
         }
@@ -351,23 +353,37 @@ public class SessionView extends AbstractSessionView {
             public int compare(Viewer viewer, Object e1, Object e2) {
                 IRosterEntry c1 = (IRosterEntry) e1;
                 IRosterEntry c2 = (IRosterEntry) e1;
-                return c1.getUser().getFQName()
-                        .compareTo(c2.getUser().getFQName());
+                UserId c1Id = null;
+                UserId c2Id = null;
+                if (c1.getUser() instanceof UserId) {
+                    c1Id = (UserId) c1.getUser();
+                } else {
+                    c1Id = IDConverter.convertFrom(c1.getUser());
+                }
+
+                if (c2.getUser() instanceof UserId) {
+                    c2Id = (UserId) c2.getUser();
+                } else {
+                    c2Id = IDConverter.convertFrom(c2.getUser());
+                }
+                return c1Id.getFQName().compareTo(c2Id.getFQName());
             }
         });
 
         ColumnViewerToolTipSupport.enableFor(usersTable, ToolTip.RECREATE);
         List<IRosterEntry> users = new ArrayList<IRosterEntry>();
         if (session != null) {
-            Map<UserId, IRosterEntry> usersMap = session.getConnection()
+            session.getVenue().getParticipants();
+            Map<IUser, IRosterEntry> usersMap = session.getConnection()
                     .getContactsManager().getUsersMap();
             for (UserId participant : session.getVenue().getParticipants()) {
                 IRosterEntry entry = usersMap.get(participant);
                 // if it is yourself, add it
                 if (participant.equals(session.getUserID())) {
-                    RosterEntry rEntry = new RosterEntry(participant);
-                    rEntry.setPresence(CollaborationDataManager.getInstance()
-                            .getCollaborationConnection().getPresence());
+                    RosterEntry rEntry = new RosterEntry(session
+                            .getConnection().getRosterManager().getRoster(),
+                            participant, CollaborationDataManager.getInstance()
+                                    .getCollaborationConnection().getPresence());
                     users.add(rEntry);
                 } else if (entry != null) {
                     users.add(usersMap.get(participant));
@@ -433,7 +449,7 @@ public class SessionView extends AbstractSessionView {
         if (message.length() > 0) {
             try {
                 UserId id = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getAccount();
+                        .getCollaborationConnection().getUser();
                 appendMessage(id, System.currentTimeMillis(), message);
                 session.sendChatMessage(message);
             } catch (CollaborationException e) {
@@ -608,7 +624,13 @@ public class SessionView extends AbstractSessionView {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                participantPresenceUpdated(entry.getUser(), entry.getPresence());
+                UserId id = null;
+                if (entry.getUser() instanceof UserId) {
+                    id = (UserId) entry.getUser();
+                } else {
+                    id = IDConverter.convertFrom(entry.getUser());
+                }
+                participantPresenceUpdated(id, entry.getPresence());
             }
         });
     }
@@ -616,13 +638,19 @@ public class SessionView extends AbstractSessionView {
     @SuppressWarnings("unchecked")
     private void participantArrived(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
-        IRosterEntry user = session.getConnection().getContactsManager()
-                .getUsersMap().get(participant);
-        users.add(user);
-        System.out.println("user : " + user.getUser());
-        System.out.println("name : " + user.getUser().getName());
-        System.out.println("presence : " + user.getPresence());
-        System.out.println("presence mode : " + user.getPresence().getMode());
+        Map<IUser, IRosterEntry> usersMap = session.getConnection()
+                .getContactsManager().getUsersMap();
+        IRosterEntry user = usersMap.get(participant);
+        if (user != null) {
+            for (IUser usr : usersMap.keySet()) {
+                if (usr.getName().equals(participant.getName())) {
+                    user = usersMap.get(usr);
+                    users.add(user);
+                    break;
+                }
+            }
+        }
+        usersTable.setInput(users);
         usersTable.refresh();
     }
 
@@ -630,8 +658,14 @@ public class SessionView extends AbstractSessionView {
     private void participantDeparted(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
         for (int i = 0; i < users.size(); ++i) {
+            UserId otherId = null;
+            if (users.get(i).getUser() instanceof UserId) {
+                otherId = (UserId) users.get(i).getUser();
+            } else {
+                otherId = IDConverter.convertFrom(users.get(i).getUser());
+            }
             if (users.get(i) == null
-                    || participant.equals(users.get(i).getUser())) {
+                    || participant.getName().equals(otherId.getName())) {
                 users.remove(i);
                 usersTable.refresh();
                 break;

@@ -41,7 +41,6 @@ import org.eclipse.ecf.core.util.Base64;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 
 /**
  * TODO Add Description
@@ -250,99 +249,6 @@ public abstract class Tools {
             }
         }
         return resource;
-    }
-
-    /**
-     * Converts from an IPresence.Type to ECF Presence Type.
-     * 
-     * @param type
-     *            A type to convert.
-     * @return The converted type.
-     */
-    public static org.eclipse.ecf.presence.Presence.Type convertPresenceType(
-            IPresence.Type type) {
-
-        org.eclipse.ecf.presence.Presence.Type sType = null;
-        switch (type) {
-        case AVAILABLE: {
-            sType = org.eclipse.ecf.presence.Presence.Type.AVAILABLE;
-            break;
-        }
-        case ERROR: {
-            sType = org.eclipse.ecf.presence.Presence.Type.ERROR;
-            break;
-        }
-        case SUBSCRIBE: {
-            sType = org.eclipse.ecf.presence.Presence.Type.SUBSCRIBE;
-            break;
-        }
-        case SUBSCRIBED: {
-            sType = org.eclipse.ecf.presence.Presence.Type.SUBSCRIBED;
-            break;
-        }
-        case UNAVAILABLE: {
-            sType = org.eclipse.ecf.presence.Presence.Type.UNAVAILABLE;
-            break;
-        }
-        case UNSUBSCRIBE: {
-            sType = org.eclipse.ecf.presence.Presence.Type.UNSUBSCRIBE;
-            break;
-        }
-        case UNSUBSCRIBED: {
-            sType = org.eclipse.ecf.presence.Presence.Type.UNSUBSCRIBED;
-            break;
-        }
-        case UNKNOWN: {
-            sType = org.eclipse.ecf.presence.Presence.Type.UNKNOWN;
-            break;
-        }
-        default: {
-            sType = org.eclipse.ecf.presence.Presence.Type.ERROR;
-            break;
-        }
-        }
-
-        return sType;
-    }
-
-    /**
-     * Converts from an IPresence.Mode to ECF Presence Mode.
-     * 
-     * @param mode
-     *            A mode to convert.
-     * @return The converted mode.
-     */
-    public static org.eclipse.ecf.presence.Presence.Mode convertPresenceMode(
-            IPresence.Mode mode) {
-
-        org.eclipse.ecf.presence.Presence.Mode sMode = null;
-        switch (mode) {
-        case AVAILABLE: {
-            sMode = org.eclipse.ecf.presence.Presence.Mode.AVAILABLE;
-            break;
-        }
-        case AWAY: {
-            sMode = org.eclipse.ecf.presence.Presence.Mode.AWAY;
-            break;
-        }
-        case CHAT: {
-            sMode = org.eclipse.ecf.presence.Presence.Mode.CHAT;
-            break;
-        }
-        case DND: {
-            sMode = org.eclipse.ecf.presence.Presence.Mode.DND;
-            break;
-        }
-        case EXTENDED_AWAY: {
-            sMode = org.eclipse.ecf.presence.Presence.Mode.EXTENDED_AWAY;
-            break;
-        }
-        case INVISIBLE: {
-            sMode = org.eclipse.ecf.presence.Presence.Mode.INVISIBLE;
-            break;
-        }
-        }
-        return sMode;
     }
 
     /**
