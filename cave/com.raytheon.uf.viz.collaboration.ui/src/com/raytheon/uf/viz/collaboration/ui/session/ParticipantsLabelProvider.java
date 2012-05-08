@@ -261,13 +261,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
             colors = new HashMap<UserId, Color>();
         }
 
-        UserId userId = null;
         IUser user = ((IRosterEntry) element).getUser();
-        if (user instanceof UserId) {
-            userId = (UserId) user;
-        } else {
-            userId = IDConverter.convertFrom(user);
-        }
+        UserId userId = IDConverter.convertFrom(user);
         RGB color = manager.getColorFromUser(userId);
 
         // add to map so we can dispose
@@ -338,12 +333,7 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     protected String buildParticipantTooltip(IRosterEntry user) {
         StringBuilder builder = new StringBuilder();
-        UserId partUser = null;
-        if (user.getUser() instanceof UserId) {
-            partUser = (UserId) user.getUser();
-        } else {
-            partUser = IDConverter.convertFrom(user.getUser());
-        }
+        UserId partUser = IDConverter.convertFrom(user.getUser());
         if (partUser.getAlias() != null && !partUser.getAlias().isEmpty()) {
             builder.append("Name : ").append(user.getUser().getName())
                     .append("\n");

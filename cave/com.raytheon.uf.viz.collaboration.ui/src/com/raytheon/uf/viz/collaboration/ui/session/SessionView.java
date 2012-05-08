@@ -353,19 +353,9 @@ public class SessionView extends AbstractSessionView {
             public int compare(Viewer viewer, Object e1, Object e2) {
                 IRosterEntry c1 = (IRosterEntry) e1;
                 IRosterEntry c2 = (IRosterEntry) e1;
-                UserId c1Id = null;
-                UserId c2Id = null;
-                if (c1.getUser() instanceof UserId) {
-                    c1Id = (UserId) c1.getUser();
-                } else {
-                    c1Id = IDConverter.convertFrom(c1.getUser());
-                }
+                UserId c1Id = IDConverter.convertFrom(c1.getUser());
+                UserId c2Id = IDConverter.convertFrom(c2.getUser());
 
-                if (c2.getUser() instanceof UserId) {
-                    c2Id = (UserId) c2.getUser();
-                } else {
-                    c2Id = IDConverter.convertFrom(c2.getUser());
-                }
                 return c1Id.getFQName().compareTo(c2Id.getFQName());
             }
         });
@@ -374,7 +364,7 @@ public class SessionView extends AbstractSessionView {
         List<IRosterEntry> users = new ArrayList<IRosterEntry>();
         if (session != null) {
             session.getVenue().getParticipants();
-            Map<IUser, IRosterEntry> usersMap = session.getConnection()
+            Map<UserId, IRosterEntry> usersMap = session.getConnection()
                     .getContactsManager().getUsersMap();
             for (UserId participant : session.getVenue().getParticipants()) {
                 IRosterEntry entry = usersMap.get(participant);
@@ -624,12 +614,7 @@ public class SessionView extends AbstractSessionView {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                UserId id = null;
-                if (entry.getUser() instanceof UserId) {
-                    id = (UserId) entry.getUser();
-                } else {
-                    id = IDConverter.convertFrom(entry.getUser());
-                }
+                UserId id = IDConverter.convertFrom(entry.getUser());
                 participantPresenceUpdated(id, entry.getPresence());
             }
         });
@@ -638,7 +623,7 @@ public class SessionView extends AbstractSessionView {
     @SuppressWarnings("unchecked")
     private void participantArrived(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
-        Map<IUser, IRosterEntry> usersMap = session.getConnection()
+        Map<UserId, IRosterEntry> usersMap = session.getConnection()
                 .getContactsManager().getUsersMap();
         IRosterEntry user = usersMap.get(participant);
         if (user != null) {
@@ -658,12 +643,7 @@ public class SessionView extends AbstractSessionView {
     private void participantDeparted(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
         for (int i = 0; i < users.size(); ++i) {
-            UserId otherId = null;
-            if (users.get(i).getUser() instanceof UserId) {
-                otherId = (UserId) users.get(i).getUser();
-            } else {
-                otherId = IDConverter.convertFrom(users.get(i).getUser());
-            }
+            UserId otherId = IDConverter.convertFrom(users.get(i).getUser());
             if (users.get(i) == null
                     || participant.getName().equals(otherId.getName())) {
                 users.remove(i);
