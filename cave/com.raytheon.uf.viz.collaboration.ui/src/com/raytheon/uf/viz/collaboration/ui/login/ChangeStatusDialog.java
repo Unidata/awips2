@@ -20,6 +20,8 @@ package com.raytheon.uf.viz.collaboration.ui.login;
  * further licensing information.
  **/
 
+import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -35,8 +37,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
@@ -86,8 +86,8 @@ public class ChangeStatusDialog extends CaveSWTDialog {
         label.setText("Status: ");
         statusCombo = new Combo(body, SWT.DEFAULT);
 
-        for (IPresence.Mode mode : CollaborationUtils.statusModes) {
-            statusCombo.add(mode.getMode());
+        for (org.eclipse.ecf.presence.IPresence.Mode mode : CollaborationUtils.statusModes) {
+            statusCombo.add(mode.toString());
         }
 
         label = new Label(body, SWT.NONE);
@@ -181,7 +181,7 @@ public class ChangeStatusDialog extends CaveSWTDialog {
                 if (val != IDialogConstants.OK_ID) {
                     setReturnValue(null);
                 } else {
-                    IPresence.Mode mode = Mode.valueOf(statusCombo
+                    IPresence.Mode mode = Mode.fromString(statusCombo
                             .getItem(statusCombo.getSelectionIndex()));
                     String modeMessage = messageTF.getText().trim();
                     IPreferenceStore prefStore = Activator.getDefault()

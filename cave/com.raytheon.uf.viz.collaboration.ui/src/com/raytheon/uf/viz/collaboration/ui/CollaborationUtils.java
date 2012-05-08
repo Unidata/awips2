@@ -32,6 +32,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.presence.IPresence;
+import org.eclipse.ecf.presence.IPresence.Mode;
+import org.eclipse.ecf.presence.roster.IRoster;
+import org.eclipse.ecf.presence.roster.IRosterEntry;
+import org.eclipse.ecf.presence.roster.IRosterGroup;
+import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -44,11 +50,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserIdWrapper;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
@@ -76,8 +78,8 @@ public class CollaborationUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationUtils.class);
 
-    public static final IPresence.Mode[] statusModes = { Mode.AVAILABLE,
-            Mode.DND, Mode.AWAY };
+    public static final org.eclipse.ecf.presence.IPresence.Mode[] statusModes = {
+            Mode.AVAILABLE, Mode.DND, Mode.AWAY };
 
     private static final String PREFIX_CONFERENCE = "conference.";
 
@@ -97,18 +99,23 @@ public class CollaborationUtils {
         IRoster roster = CollaborationDataManager.getInstance()
                 .getCollaborationConnection().getRosterManager().getRoster();
         List<IRosterEntry> entries = new ArrayList<IRosterEntry>();
-        for (IRosterEntry entry : roster.getEntries()) {
-            entries.add(entry);
-        }
-        for (IRosterGroup group : roster.getGroups()) {
-            for (IRosterEntry entry : group.getEntries()) {
-                entries.add(entry);
+        for (Object ob : roster.getItems()) {
+            if (ob instanceof IRosterGroup) {
+                IRosterGroup group = (IRosterGroup) ob;
+                for (Object entryOb : group.getEntries()) {
+                    entries.add((IRosterEntry) entryOb);
+                }
+            } else if (ob instanceof IRosterEntry) {
+                entries.add((IRosterEntry) ob);
             }
         }
         for (IRosterEntry entry : entries) {
             for (UserId id : ids) {
-                if (id.equals(entry.getUser())) {
-                    entry.getUser().setAlias(id.getAlias());
+                UserId sId = IDConverter.convertFrom(entry.getUser());
+                if (id.equals(sId)) {
+                    sId.setAlias(id.getAlias());
+                    entry = new RosterEntry(entry.getParent(), sId,
+                            entry.getPresence());
                 }
             }
         }
@@ -151,19 +158,22 @@ public class CollaborationUtils {
                 Set<UserId> ids = new HashSet<UserId>();
 
                 // get the entries that are alone
-                for (IRosterEntry entry : roster.getEntries()) {
-                    if (entry.getUser().getAlias() != null
-                            && !entry.getUser().getAlias().isEmpty()) {
-                        ids.add(entry.getUser());
-                    }
-                }
-
-                // get the entries that are in groups
-                for (IRosterGroup group : roster.getGroups()) {
-                    for (IRosterEntry entry : group.getEntries()) {
-                        if (entry.getUser().getAlias() != null
-                                && !entry.getUser().getAlias().isEmpty()) {
-                            ids.add(entry.getUser());
+                for (Object ob : roster.getItems()) {
+                    if (ob instanceof IRosterEntry) {
+                        IRosterEntry entry = (IRosterEntry) ob;
+                        UserId id = (UserId) entry.getUser();
+                        if (id.getAlias() != null && !id.getAlias().isEmpty()) {
+                            ids.add(id);
+                        }
+                    } else if (ob instanceof IRosterGroup) {
+                        for (Object entryOb : ((IRosterGroup) ob).getEntries()) {
+                            IRosterEntry entry = (IRosterEntry) entryOb;
+                            UserId id = IDConverter
+                                    .convertFrom(entry.getUser());
+                            if (id.getAlias() != null
+                                    && !id.getAlias().isEmpty()) {
+                                ids.add(id);
+                            }
                         }
                     }
                 }

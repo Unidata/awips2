@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.Collection;
 
+import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
@@ -45,7 +46,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -122,7 +122,7 @@ public class CollaborationSessionView extends SessionView {
                                     .getSelection();
                             IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
-                            switchLeader(selectedUser.getUser());
+                            switchLeader((UserId) selectedUser.getUser());
                             usersTable.refresh();
                         };
                     };
@@ -138,7 +138,7 @@ public class CollaborationSessionView extends SessionView {
                                     .getSelection();
                             IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
-                            switchDataProvider(selectedUser.getUser());
+                            switchDataProvider((UserId) selectedUser.getUser());
                             usersTable.refresh();
                         };
                     };
@@ -170,8 +170,8 @@ public class CollaborationSessionView extends SessionView {
                 IStructuredSelection selection = (IStructuredSelection) usersTable
                         .getSelection();
                 IRosterEntry entry = (IRosterEntry) selection.getFirstElement();
-                ColorChangeEvent event = new ColorChangeEvent(entry.getUser(),
-                        rgb);
+                ColorChangeEvent event = new ColorChangeEvent(
+                        (UserId) entry.getUser(), rgb);
                 try {
                     session.sendObjectToVenue(event);
                 } catch (CollaborationException e) {
@@ -263,7 +263,7 @@ public class CollaborationSessionView extends SessionView {
         if (message.length() > 0) {
             try {
                 UserId id = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getAccount();
+                        .getCollaborationConnection().getUser();
                 appendMessage(id, System.currentTimeMillis(), message);
                 ((IVenueSession) session).sendChatMessage(message);
             } catch (CollaborationException e) {
