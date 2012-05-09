@@ -85,17 +85,18 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
 
 
     //private List<NsharpSkewTResource> rscList = new ArrayList<NsharpSkewTResource>();
-
+    private static NsharpSkewTEditor instance=null;
  
     protected VizDisplayPane displayPane[]= new VizDisplayPane[1];
 
-    
     public static NsharpSkewTEditor getActiveNsharpEditor() {
         // bsteffen instead of getting the static instance try to find an editor in the window
         IEditorPart ep = EditorUtil.getActiveEditor();
         if (ep instanceof NsharpSkewTEditor) {
+        	//System.out.println("getActiveNsharpEditor return ep from EditorUtil.getActiveEditor()");
             return (NsharpSkewTEditor) ep;
         }
+        
         // It might be desirable to stop here so that we only have an "active"
         // editor if it really is active.
         IWorkbenchPage activePage = PlatformUI.getWorkbench()
@@ -108,11 +109,36 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
         for (IEditorReference ref : references) {
             ep = ref.getEditor(false);
             if (ep instanceof NsharpSkewTEditor) {
+            	//System.out.println("getActiveNsharpEditor return ep from IEditorReference.getEditor");
                 return (NsharpSkewTEditor) ep;
             }
         }
         return null;
-    }
+    }/* testing 
+    public static NsharpSkewTEditor getActiveNsharpEditor() {
+    	if (instance != null) {
+        	System.out.println("getActiveNsharpEditor return existing editor ");
+            //PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+            //        .getActivePage().bringToTop(instance);
+            return instance;
+        } else {
+            try {
+                EditorInput edInput = new EditorInput(new NCLoopProperties(),
+                        new NsharpSkewTDisplay());
+                System.out.println("getActiveNsharpEditor creating new one");
+                instance = (NsharpSkewTEditor) PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getActivePage()
+                        .openEditor(edInput, EDITOR_ID);
+                return instance;
+            } catch (PartInitException e) {
+                UiPlugin.getDefault()
+                        .getLog()
+                        .log(new Status(Status.ERROR, UiPlugin.PLUGIN_ID,
+                                "Error constituting NsharpSkewTeditor", e));
+            }
+        }
+        return null;
+    }*/
     
     /*
      * (non-Javadoc)
@@ -373,7 +399,7 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
  
     @Override
     public void notifyRemove(ResourcePair rp) throws VizException {
-        //TBD
+        //
     }
 
     /**
@@ -412,17 +438,19 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
         }
         return null;
     }
+	
 	public static NsharpSkewTEditor createOrOpenSkewTEditor(  ) {
 		NsharpSkewTEditor editor = getActiveNsharpEditor();
         if (editor != null) {
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                    .getActivePage().bringToTop(editor);
+        	//System.out.println("createOrOpenSkewTEditor return editor from getActiveNsharpEditor");
+            //PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+            //        .getActivePage().bringToTop(editor);
             return editor;
         } else {
             try {
                 EditorInput edInput = new EditorInput(new NCLoopProperties(),
                         new NsharpSkewTDisplay());
-
+                //System.out.println("createOrOpenSkewTEditor creating new one");
                 return (NsharpSkewTEditor) PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage()
                         .openEditor(edInput, EDITOR_ID);
@@ -434,6 +462,39 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
             }
         }
         return null;
+	}/* testing 
+	public static NsharpSkewTEditor createOrOpenSkewTEditor(  ) {
+		//NsharpSkewTEditor editor = getActiveNsharpEditor();
+        if (instance != null) {
+        	System.out.println("createOrOpenSkewTEditor return existed editor ");
+            //PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+             //       .getActivePage().bringToTop(instance);
+            return instance;
+        } else {
+            try {
+                EditorInput edInput = new EditorInput(new NCLoopProperties(),
+                        new NsharpSkewTDisplay());
+                System.out.println("createOrOpenSkewTEditor creating new one");
+                instance = (NsharpSkewTEditor) PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getActivePage()
+                        .openEditor(edInput, EDITOR_ID);
+                return instance;
+            } catch (PartInitException e) {
+                UiPlugin.getDefault()
+                        .getLog()
+                        .log(new Status(Status.ERROR, UiPlugin.PLUGIN_ID,
+                                "Error constituting NsharpSkewTeditor", e));
+            }
+        }
+        return null;
+	}*/
+	public static void bringSkewTEditorToTop(  ) {
+		NsharpSkewTEditor editor = getActiveNsharpEditor();
+        if (editor != null) {
+            PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getActivePage().bringToTop(editor);
+            
+        } 
 	}
 	public void refreshGUIElements() {
         ICommandService service = (ICommandService) getSite().getService(

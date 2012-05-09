@@ -1,6 +1,10 @@
 package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
 
+import java.util.List;
+
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
@@ -8,11 +12,17 @@ import org.geotools.geometry.GeneralEnvelope;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 
 
 
@@ -47,6 +57,7 @@ public class McidasSatResource extends AbstractSatelliteResource
         	legendStr = satRscData.getMetadataMap().get("satelliteName").getConstraintValue() + " " +
         	            satRscData.getMetadataMap().get("imageType").getConstraintValue();
         }
+
 	}
     
 
@@ -122,5 +133,7 @@ public class McidasSatResource extends AbstractSatelliteResource
 		
 	       return mapGeom;
 	}
+
+
 
 }

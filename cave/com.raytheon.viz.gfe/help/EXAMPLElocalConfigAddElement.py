@@ -19,7 +19,7 @@
 ##
 # This is an example localConfig.py file
 
-# Always include these lines at the top of your localConfig.py file.
+# Always include these lines at the top of your localConfig.py file. 
 from serverConfig import *
 import serverConfig
 

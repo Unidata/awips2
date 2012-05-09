@@ -48,7 +48,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 04 Oct 2011  ???        B. Hebbard  Initial creation.
+ * 04 Oct 2011  466        B. Hebbard  Initial creation.
  * </pre>
  * 
  * @author bhebbard 

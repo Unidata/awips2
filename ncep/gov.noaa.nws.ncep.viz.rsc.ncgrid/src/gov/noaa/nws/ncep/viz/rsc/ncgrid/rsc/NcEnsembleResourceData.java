@@ -248,6 +248,23 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 		super.setGdpfun(gdpfun);
 	}
 
+	public String getSkip() {
+		return super.getSkip();
+	}
+
+	public void setSkip(String skip) {
+		super.setSkip(skip);
+	}
+
+	public String getFilter() {
+		return super.getFilter();
+	}
+
+	public void setFilter(String filter) {
+		super.setFilter(filter);
+	}
+
+	
 	public String getScale() {
 		return super.getScale();
 	}
