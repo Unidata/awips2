@@ -21,8 +21,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-
 /**
  *  an interface to edit resource attributes
  * 
@@ -37,6 +35,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04 Apr 2010   #259        Greg Hull  add dispose()
  * 27 Apr 2010   #245        Greg Hull  Added Apply Button
  * 22 Nov 2011   #495        Greg Hull  Make Application Modal when from ResourceManager.
+ * 13 Mar 2012   #651        Archana    Updated the code to reuse editedRscAttrSet in case of a roll-back  
+ * 28 March 2012 #651        S. Gurung  Removed changes made by Archana. 
+ * 										Moved the changes to a new class AbstractEditResourceAttrsInteractiveDialog.
  * 
  * </pre>
  * 

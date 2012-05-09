@@ -15,7 +15,7 @@
 #                         402.291.0100
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
+# further licensing information. 
 ##
 # Example ifpIMAGE configuration file.
 

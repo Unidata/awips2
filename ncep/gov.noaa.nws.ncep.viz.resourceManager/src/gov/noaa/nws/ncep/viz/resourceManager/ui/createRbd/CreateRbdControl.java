@@ -97,7 +97,8 @@ import com.raytheon.viz.ui.UiPlugin;
  * 08/20/11       #450       Greg Hull   Use new SpfsManager
  * 10/22/11       #467       Greg Hull   Add Modify button
  * 11/03/11       #???       B. Hebbard  Add "Save Source Timestamp As:" Constant / Latest 
- *
+ * 02/15/2012     627        Archana      Updated the call to addRbd() to accept 
+ *                                      a NCMapEditor object as one of the arguments
  * </pre>
  * 
  * @author ghull
@@ -235,7 +236,8 @@ public class CreateRbdControl extends Composite {
 				}
 				else if( newDomRsc.isAutoUpdateable() ){
 					auto_update_btn.setEnabled( true );
-					auto_update_btn.setSelection( rbdMngr.isAutoUpdate() );
+					//auto_update_btn.setSelection( rbdMngr.isAutoUpdate() );
+					auto_update_btn.setSelection( true );
 				}
 				else {
 					auto_update_btn.setSelection(false);
@@ -1581,7 +1583,7 @@ public class CreateRbdControl extends Composite {
     		
     		rbdMngr.setGeoSyncPanes( geo_sync_panes.getSelection() );
     		rbdMngr.setAutoUpdate( auto_update_btn.getSelection() );
-    		
+//    		rbdMngr.setAutoUpdate( auto_update_btn.getEnabled() );
     		RbdBundle rbdBndl = rbdMngr.createRbdBundle( rbdName,
     				                                     timelineControl.getTimeMatcher() );
     		
@@ -1667,9 +1669,9 @@ public class CreateRbdControl extends Composite {
 //    		vizWorkbenchManager.addListener(editor);  
     		editor.setApplicationName(rbdName); 
     		
-    		rbdBndl.setNcEditor( editor );
+//    		rbdBndl.setNcEditor( editor );
 
-    		rbdLoader.addRBD( rbdBndl );
+    		rbdLoader.addRBD( rbdBndl, editor );
 
         	VizApp.runSync( rbdLoader );
         	
@@ -1783,9 +1785,9 @@ public class CreateRbdControl extends Composite {
 			}
     		
 
-    		rbdBndl.setNcEditor( editor );
+//    		rbdBndl.setNcEditor( editor );
 
-    		rbdLoader.addRBD( rbdBndl );
+    		rbdLoader.addRBD( rbdBndl, editor );
 
         	VizApp.runSync( rbdLoader );
     	} 
@@ -1822,8 +1824,8 @@ public class CreateRbdControl extends Composite {
     			return;
     		}
     		impRbd = new RbdBundle();
-    		impRbd.setNcEditor( seldEditor );
-    		impRbd.initFromEditor();   				
+//    		impRbd.setNcEditor( seldEditor );
+    		impRbd.initFromEditor(seldEditor);   				
     	}
 
     	//boolean confirm = ( rbdMngr.getSelectedRscs().length > 1 ) || rbdMngr.isMultiPane();
