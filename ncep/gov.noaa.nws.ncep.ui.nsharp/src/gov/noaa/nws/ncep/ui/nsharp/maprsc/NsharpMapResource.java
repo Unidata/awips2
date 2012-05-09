@@ -11,7 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
- *
+ * 
  * </pre>
  * 
  * @author Chin Chen
@@ -25,7 +25,13 @@ import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -40,6 +46,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
@@ -51,6 +58,7 @@ import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
+import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
@@ -63,10 +71,13 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	private static NsharpMapResource mapRsc=null;
 	private static NCMapEditor mapEditor=null;
 	private static  NsharpMapMouseHandler mouseHandler;
-    
+	private static Cursor waitCursor=null;
+	private static Control cursorControl;
+	private static boolean mouseHandlerRegistered=false;
 	public static void bringMapEditorToTop(){
 		try{
-			if(mapEditor!=null){
+			if(mapEditor!=null&& PlatformUI.getWorkbench()!=null && PlatformUI.getWorkbench().getActiveWorkbenchWindow()!=null
+					&& PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()!=null){
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().bringToTop(mapEditor);
 				mapEditor.refresh();
 			}
@@ -105,8 +116,6 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 		else{
 			this.points = points;
 		}
-		
-		
 	}
 
 	public void addPoint(NsharpStationInfo point) {
@@ -121,28 +130,100 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 		super(resourceData, loadProperties);
 		this.nsharpMapResourceData = resourceData;
 		//System.out.println("NsharpMapResource constructed");
+		
 	}
+	public static void startWaitCursor(){
+		waitCursor = new Cursor( Display.getCurrent(), SWT.CURSOR_WAIT);
+		cursorControl = Display.getCurrent().getCursorControl();
+		if(cursorControl!=null && waitCursor!=null)
+			cursorControl.setCursor(waitCursor);
+   	}
+   	public static void stopWaitCursor(){
+   		if(cursorControl!=null&& waitCursor!=null){
+   			cursorControl.setCursor(null);
+   		}
+   		if(waitCursor!=null){
+   			waitCursor.dispose();
+   			waitCursor= null;
+   		}
+   	}
 	private static void createMapEditor(){
 		// create an editor MapEditor
 		File rbdFile = NcPathManager.getInstance().getStaticFile( 
 		         NcPathConstants.DFLT_RBD );
 		try {
+			
 			IEditorPart ep = EditorUtil.getActiveEditor();
 	        if (ep instanceof NCMapEditor) {
 	        	mapEditor= (NCMapEditor) ep;
 	        }else {
 	        	mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NSHARP" );
 	        }
+		
+	       
+	        for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
+	        	System.out.println( "A resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
 			RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
-			rbd.setNcEditor((NCMapEditor) mapEditor );
 			ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
-			rbdLoader.addRBD( rbd );
+			rbdLoader.addRBD( rbd, mapEditor );
 			VizApp.runSync( rbdLoader );
 			//System.out.println("NsharpMapResource create editor "+ mapEditor.toString());
+			for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
+	        	System.out.println( "B resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
+			
 		}
 		catch ( Exception ve ) {
 			System.out.println("NsharpMapResource Could not load initial editor: " + ve.getMessage());
 			ve.printStackTrace();
+		}
+	}
+	private static void createMapEditorTest(){
+		// create an editor MapEditor
+		File rbdFile = NcPathManager.getInstance().getStaticFile( 
+		         NcPathConstants.DFLT_RBD );
+		try {
+
+			IEditorPart ep = EditorUtil.getActiveEditor();
+			if (ep instanceof NCMapEditor) {
+				mapEditor= (NCMapEditor) ep;
+				System.out.println("NsharpMapResource using existing editor ");
+			}else {
+				mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NSHARP" );
+
+
+				RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
+				rbdLoader.addRBD( rbd, mapEditor );
+				VizApp.runSync( rbdLoader );
+				System.out.println("NsharpMapResource create new editor "+ mapEditor.toString());
+			}
+
+			for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
+				System.out.println( "Editor resource "+ i+" name="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
+
+		}
+		catch ( Exception ve ) {
+			System.out.println("NsharpMapResource Could not load initial editor: " + ve.getMessage());
+			ve.printStackTrace();
+		}
+	}
+	public static void registerMouseHandler(){
+		if(mouseHandlerRegistered)
+			return;
+		
+		mouseHandler = getMouseHandler();
+		if(mapEditor!=null && mouseHandler!=null){
+			mapEditor.registerMouseHandler((IInputHandler) mouseHandler );
+			mouseHandlerRegistered = true;
+		}
+	}
+	public static void unregisterMouseHandler(){
+		if(!mouseHandlerRegistered)
+			return;
+		mouseHandler = getMouseHandler();
+		if(mapEditor!=null && mouseHandler!=null){
+			mapEditor.unregisterMouseHandler((IInputHandler) mouseHandler );
+			mouseHandlerRegistered= false;
 		}
 	}
 	/**
@@ -152,7 +233,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
     public static NsharpMapResource getOrCreateNsharpMapResource() {
     	if(mapRsc == null ){
     		if(mapEditor == null)
-    			createMapEditor();
+    			createMapEditorTest();//createMapEditor();
     		if(mapEditor!=null){
     			IMapDescriptor desc = (IMapDescriptor) mapEditor.getActiveDisplayPane().getRenderableDisplay().getDescriptor();
     			try {	                
@@ -205,6 +286,10 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 		symbolSet = null;
 		symbolToMark = null;
 		mapRsc = null;
+		if(waitCursor!=null)
+			waitCursor.dispose();
+		waitCursor=null;
+		mouseHandlerRegistered= false;
 	}
 
 
@@ -405,6 +490,7 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
         return mouseHandler;
         
     }
+    
     @Override
 	public boolean okToUnload() {
 		/*
@@ -420,6 +506,44 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 		// TODO Auto-generated method stub
 		
 	}
-
+	@Override
+	public void propertiesChanged(ResourceProperties updatedProps) {
+         if ( updatedProps.isVisible() ) {
+        	 reopenTextView ();
+         }
+         else {
+        	 hideTextView ();	 
+         }
+    }
+    
+	private void hideTextView () {
+        IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		
+        IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.nsharp" );
+        if ( wpage.isPartVisible(vpart) ) {
+        	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+        	if(paletteWin!=null){
+        		paletteWin.setEditorVisible(false);
+        		wpage.hideView(vpart);
+        	}
+        }
+	}
+	    
+	private void reopenTextView () {
+        IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		
+        IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.nsharp" );
+        if ( !wpage.isPartVisible(vpart) ) {
+        	NsharpPaletteWindow paletteWin = NsharpPaletteWindow.getInstance();
+        	if(paletteWin!=null){
+        		paletteWin.setEditorVisible(true);
+        		try {
+        			vpart = wpage.showView( "gov.noaa.nws.ncep.ui.nsharp" );
+        		} catch (Exception e) {
+        			e.printStackTrace();
+        		}
+        	}
+        }
+	}
 }
 

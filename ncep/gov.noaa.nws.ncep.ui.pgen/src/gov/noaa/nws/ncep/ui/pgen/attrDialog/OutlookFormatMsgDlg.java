@@ -14,6 +14,8 @@ import java.io.FileWriter;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -43,7 +45,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * 02/10			?		B. Yin   	Initial Creation.
+ * 02/10			?		B. Yin   	Initial Creation. 
+ * 03/12		$703		B. Yin		Generate product text from style sheet
  *
  * </pre>
  * 
@@ -147,17 +150,33 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 	 * Save the formatted outlook element to a file
 	 */
 	private void savePressed(){
-		String fileName = getFileName(otlk) + ".dat";
+		
+		String pdName = ofd.getOtlkDlg().drawingLayer.getActiveProduct().getType();
+		ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
+		if ( pt != null ) pdName = pt.getType();
+		
+		String pd1 = pdName.replaceAll(" ", "_");
+			
+		String dirPath = PgenUtil.getPgenOprDirectory() + 
+							File.separator + pd1 + File.separator + "prod" +
+						File.separator + "text" + File.separator;
+		
+		String fileName = dirPath + getFileName(otlk) + ".dat";
+
 		InputDialog dlg = new InputDialog(this.getShell(), "Save Outlook", "Save To File:",fileName, null);
 		dlg.open();
 		if ( dlg.getReturnCode() == Dialog.OK ) {
 			fileName = dlg.getValue();
 			if ( !fileName.isEmpty() && PgenUtil.checkFileStatus(fileName) ) {
-				issueOutlook( otlk );
+				ofd.issueOutlook( otlk );
 				
 				File out = new File(fileName);
-				
+			    	
 				try {
+					//create directories if needed
+					File dir = new File(dirPath);
+					if ( !dir.exists()) dir.mkdirs();
+					
 					FileWriter fw = new FileWriter(out);
 					fw.write(message);
 					fw.close();
@@ -166,22 +185,10 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 					System.out.println("Problem writing Outlook to file "+out.getAbsolutePath());
 				}
 				
-				otlk.saveToFile( getFileName(otlk)+".xml");
+				otlk.saveToFile( dirPath + getFileName(otlk)+".xml");
 			}
 		}
 		
-	}
-	
-	/**
-	 * Save all information into the outlook
-	 * @param ol
-	 */
-	private void issueOutlook( Outlook ol ){
-		ol.setForecaster(ofd.getForecaster().toUpperCase());
-		ol.setDays(ofd.getDays().toUpperCase());
-		ol.setIssueTime(ofd.getInitTime());
-		ol.setExpirationTime(ofd.getExpTime());
-		ol.setLineInfo(ol.generateLineInfo("new_line"));
 	}
 	
 	/**

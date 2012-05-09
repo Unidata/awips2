@@ -13,7 +13,7 @@ WFO Site InformationWFO Site InformationWFO Site Information
 <center>
 <h1><a name="ProductSet-upand"></a>Product Set-up and Customization</h1>
 </center>
-&nbsp; <a href="#ServerTemplates">ifpServer Product Configuration</a> <br>
+&nbsp; <a href="#ServerTemplates">EDEX Product Configuration</a> <br>
 &nbsp; <a href="#QuickStartProductSet">Quick Start Product Set up</a> <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
  href="#TABULAR_-TYPE_PRODUCTS_">Tabular Products</a><br>
@@ -38,7 +38,7 @@ Phrases</a> <br>
  href="#HazardKey">HazardKey</a><br>
 &nbsp; <a href="#WFOSITE">WFO Site Information</a><br>
 <hr>
-<h2> <a name="ServerTemplates"></a>ifpServer Product Configuration</h2>
+<h2> <a name="ServerTemplates"></a>EDEX Product Configuration</h2>
 The GFESuite set of product formatters are delivered to the field as
 templates, which are then expanded upon installation. The installation
 converts the templates into the Baseline, Region, and local (site)
@@ -66,29 +66,26 @@ found.
 <p></p>
 <h2> <a name="QuickStartProductSet"></a>Quick Start Product Set Up</h2>
 This section gives step-by-step instructions to get a product set-up
-and running.&nbsp; The following section <a
+and running. The following section <a
  href="#ProductCustomization">"Product
 Customization Guide"</a> gives instructions on configuring the product
 and customizing it to your local site.
 <ul>
   <li> <b>Login to the GFE from a terminal window under a new user ID,
-e.g. TextTest</b>.&nbsp; From a terminal window in the /release/bin
-directory, type ./runGFE.&nbsp; Login as a new user ID such as
+e.g. TextTest</b>. From a terminal window in the /awips2/cave
+directory, type ./cave.sh -u <i>tester_id</i> -component GFE. Login as a new user ID such as
 TextTest.
-You will use this ID to set up new products and test them.&nbsp; When
+You will use this ID to set up new products and test them. When
 you are satisfied with a product, you may move it to your SITE
-directory.&nbsp; NOTE: If you have GFESuite text products running from
-IFPS 15 or prior versions, you will need to transition them to IFPS 16
-before running operationally.&nbsp; Please see the section on <a
- href="#Backward">Upgrades and Backward Compatibility</a>.</li>
-  <li> <b>Create Edit Areas.&nbsp;</b> Create edit areas named
+directory.</li>
+  <li> <b>Create Edit Areas.</b> Create edit areas named
 "area1",
-"area2", and "area3".&nbsp;&nbsp; Some products are set up to run with
-these "defaultEditAreas" as noted in the table below.&nbsp; Other
+"area2", and "area3". Some products are set up to run with
+these "defaultEditAreas" as noted in the table below. Other
 products run with a set of edit area Combinations which can be set up
 through the <a href="FormatterLauncher.html">Formatter Launcher Dialog</a>.</li>
-  <li><b>Locate the product you wish to set up.&nbsp; </b>From the GFE
-Main Menu, select "Define Text Products" .&nbsp; Locate the "Standard"
+  <li><b>Locate the product you wish to set up. </b>From the GFE
+Main Menu, select "Define Text Products". Locate the "Standard"
 file for the product you wish to set up in the table below:</li>
 </ul>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -366,37 +363,40 @@ FWS_&lt;site&gt;_Overrides</td>
 </table>
 </center>
 <ul>
-  <li> <b>Open the Standard product file for viewing.&nbsp; </b>Press
-MB3 over the name of the standard file and choose, "View".</li>
-  <li> <b>Create Data and Publish to Official Database.&nbsp; </b>Locate
+  <li> <b>Open the Standard product file for viewing. </b>Press
+the arrow to the left of the product name to display available configurations;
+then MB3 over the name of the standard file and choose, "Open".</li>
+  <li> <b>Create Data and Publish to Official Database. </b>Locate
 the documentation section in the standard file for "Weather Elements
-Required."&nbsp; Create data for these weather elements and then, from
+Required." Create data for these weather elements and then, from
 the Products Menu, choose "Publish to Official."</li>
-  <li> <b>Run your product.&nbsp;</b> From the "Products" menu, select
-"Formatter Launcher"&nbsp; The <a href="FormatterLauncher.html">Formatter
+  <li> <b>Run your product.</b> From the "Products" menu, select
+"Formatter Launcher" The <a href="FormatterLauncher.html">Formatter
 Launcher Dialog</a> will appear listing the
-products.&nbsp; Select the name of the product, which brings up a new
-tab. &nbsp;If the product
+products. Select the name of the product, which brings up a new
+tab. If the product
 runs with Combinations of edit areas, a map will appear and you may use
 the Zone Combiner portion of the dialog to set up desired
-combinations. &nbsp; Choose "Run" to start the formatter.</li>
-  <li> <b>Make dialog selections.</b>&nbsp; Some products will display
-a dialog for user input.&nbsp; Make appropriate selections and choose
+combinations. Choose "Run" to start the formatter.</li>
+  <li> <b>Make dialog selections.</b> Some products will display
+a dialog for user input. Make appropriate selections and choose
 OK.</li>
   <li> <b>Output will appear</b> in the Formatter Launcher Dialog and
 you
 can modify, save, and/or transmit it.</li>
   <li> <b>If you have any problems</b>, refer to the <a
- href="#TroubleShooting">Troubleshooting Guide </a>below.</li>
+ href="TextReferenceTroubleShooting.html">Troubleshooting Guide</a>.</li>
   <li style="font-weight: bold;">Review AreaDictionary. <span
  style="font-weight: normal;">The "AreaDictionary" is located in the
-"TextUtilities" window of the Define Text Products Dialog. This file is
+"TextUtilities" folder of the Localization perspective. This file is
 automatically generated and contains information about the zones,
 counties and cities for your site. This information is documented at
 the beginning of the file. Be sure and review the generated file and,
-if necessary, use MB3 "Modify" to make changes.</span></li>
+if necessary, use MB3 "Open" to make changes at SITE level.  Please
+note that any item listed as CONFIGURED is a generated item and will
+be overwritten during software upgrades.</span></li>
   <li style="font-weight: bold;"><span style="font-weight: normal;"><span
- style="font-weight: bold;">Set up Customized Edit Areas</span>.&nbsp;
+ style="font-weight: bold;">Set up Customized Edit Areas</span>.
 For those products that use "defaultEditAreas", modify the Site
 Definition file with appropriate edit areas customized for your site.<br>
     </span></li>
@@ -407,19 +407,19 @@ Launcher which your site does not want to use, you can deactivate them
 as follows: </b>Open the Site Definition File OR Local product file
 and set
 the
-"displayName.&nbsp; Press MB3 over the Site Definition File OR
+"displayName. Press MB3 over the Site Definition File OR
 Local file (see
-table above) and choose "Modify".&nbsp; Set the "displayName"
+table above) and choose "Open". Set the "displayName"
 Definition
-entry. &nbsp;This is the name that will appear in the Formatter
+entry. This is the name that will appear in the Formatter
 Launcher
 Dialog. <br>
   </li>
 </ul>
 <h2><a name="Hazard_Products"></a>Hazard Products</h2>
-The following Hazard Products are installed automatically.&nbsp; To run
-them:&nbsp; From the Formatter Launcher, choose
-Products--&gt;Hazards.&nbsp; <br>
+The following Hazard Products are installed automatically. To run
+them: From the Formatter Launcher, choose
+Products--&gt;Hazards.<br>
 <br>
 <table style="text-align: left; width: 100%;" border="1" cellpadding="2"
  cellspacing="2">
@@ -812,26 +812,24 @@ FIPS or ZONE codes.<br>
 <p>WINDS NORTHEAST 10 TO 20 KNOTS WITH GUSTS TO AROUND 70 KNOTS VEERING
 SOUTHEAST 5 TO 15 KNOTS WITH GUSTS AROUND 25 KNOTS IN THE EARLY
 MORNING. </p>
-<p>When we find this phrase in the <a href="#WINDANDWINDGUST">Wind and
-WindGust Text Rules section </a>, we see that it can be customized in
-various ways.&nbsp; If we want to change the descriptor from "WINDS" to
-"WIND", we need to override the <i><font color="#993366">phrase_descriptor_dict</font></i>&nbsp;
-for "Wind".&nbsp; <font color="#000000">First, we look to see if it is
+<p>When we find this phrase in the Wind and
+WindGust Text Rules section, we see that it can be customized in
+various ways. If we want to change the descriptor from "WINDS" to
+"WIND", we need to override the <i><font color="#993366">phrase_descriptor_dict</font></i>
+for "Wind". <font color="#000000">First, we look to see if it is
 already overridden in the Standard File, AreaFcst, which we
-open in the Text Products window of the Define Text Products dialog. We
+open in the Text Products folder of the Define Text Products dialog. We
 can issue a "find" command to see if it is there. It is not, so next we
-look in the ConfigVariables utility from the Text Utilities window
-and&nbsp; issue a "find" command.&nbsp; </font><font color="#cc0000">NOTE</font><font
+look in the ConfigVariables utility from the Text Utilities folder
+and issue a "find" command. </font><font color="#cc0000">NOTE</font><font
  color="#000000">:
 The ConfigVariables Utility is "Read-Only", so
 you cannot change the method in that file. You MUST copy it into your
 Overrides file, and in that location, you can change the value which
-will
-override or supercede the value found in the library
-module.&nbsp;&nbsp; <br>
+will override or supercede the value found in the library module.<br>
 </font></p>
 <p>We notice that the <i><font color="#993366">phrase_descriptor_dict</font></i>
-is very lengthy.&nbsp; We do not have to repeat the entire method.
+is very lengthy. We do not have to repeat the entire method.
 Instead, we can use the dictionary as a starting
 point and simply change any entries that are relevant to us as follows:
 </p>
@@ -861,11 +859,11 @@ unitsDict["kt"] = "kts"</font> <br>
   <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 return dict</font></blockquote>
 The wind_withGusts_phrase reports gusts if they are 10 knots greater
-than the maximum wind speed.&nbsp; Suppose we would like to suppress
+than the maximum wind speed. Suppose we would like to suppress
 reporting gusts unless they are at least 15 knots greater than the
-maximum wind speed.&nbsp; The table for the
+maximum wind speed. The table for the
 "public_windRange_withGusts_phrase" lists a method called <i><font
- color="#993366">gust_wind_difference_threshold.&nbsp;</font></i><font
+ color="#993366">gust_wind_difference_threshold.</font></i><font
  color="#000000"> We can locate it in the VectorRelatedPhrases module
 and copy and paste it into our Overrides file:</font><font
  color="#000000"></font>
@@ -882,7 +880,7 @@ return 15</font> </p>
 Definition and Configurable Issuance -- issuance_list</font></b> </p>
 <p><font color="#000000">Narrative products are composed of a
 "narrative" which contains a series of "component" phrase
-products.&nbsp;&nbsp; This is used to construct a "narrative" type of
+products. This is used to construct a "narrative" type of
 product of the form:</font> </p>
 <p><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font><font
  color="#006600">{</font> <br>
@@ -1092,11 +1090,11 @@ afternoon",<br>
 narrativeDefPM), <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</font></p>
 <p><font color="#006600"><br>
-</font> NOTE:&nbsp; Any variables that begin with a "self._" should be
-encased in a "try" block.&nbsp; This is because the "_issuance_list" is
+</font> NOTE: Any variables that begin with a "self._" should be
+encased in a "try" block. This is because the "_issuance_list" is
 accessed and examined once BEFORE the product is actually run in order
-to set up the input dialog.&nbsp; During this first examination, the
-variables are not yet initialized.&nbsp; As an example, here is the
+to set up the input dialog. During this first examination, the
+variables are not yet initialized. As an example, here is the
 issuance_list from the FWF:<br>
 </p>
 <p>&nbsp;&nbsp;&nbsp; <span style="color: rgb(0, 102, 0);">def
@@ -1253,14 +1251,12 @@ afternoon",</span><br style="color: rgb(0, 102, 0);">
  color="#000000">Post-Processing Narrative Phrases</font></b> </p>
 <p><font color="#000000">Although, it is not encouraged, there will be
 times that you will want to post-process phrases to clean up
-undesirable
-wording.</font> </p>
+undesirable wording.</font> </p>
 <p>A "postProcessPhrase" hook is available&nbsp; for most
-phrases.&nbsp;&nbsp; This&nbsp; allows you to do string replacement
-and/or abbreviations.&nbsp;&nbsp; Here is the default method from the
-PhraseBuilder module.&nbsp; You may copy it into your Overrides file
-and add
-additional replacements: </p>
+phrases. This&nbsp; allows you to do string replacement
+and/or abbreviations. Here is the default method from the
+PhraseBuilder module. You may copy it into your Overrides file
+and add replacements: </p>
 <p><font color="#663366">&nbsp;&nbsp;&nbsp; def postProcessPhrase(self,
 tree, node):</font> <br>
 <font color="#663366">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; words
@@ -1276,9 +1272,9 @@ return self.setWords(node, words)</font> <br>
 <span style="font-weight: bold;"><a name="AllowedHazards"></a>AllowedHazards</span><br>
 <br>
 Every product that includes Headline phrases also contains a method
-that controls which Hazards are mentioned.&nbsp; This method can be
+that controls which Hazards are mentioned. This method can be
 overridden so that you have control over which weather hazards
-(Warnings, Advisories, and Watches) appear in each product.&nbsp; An
+(Warnings, Advisories, and Watches) appear in each product. An
 example of this method appears below.<br>
 <br>
 <br style="color: rgb(0, 153, 0);">
@@ -1338,64 +1334,64 @@ WATER ADVISORY<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
 </span><br>
 In this example, we show all of the possible components of the
-allowedHazards list.&nbsp; This list not only controls which Headlines
+allowedHazards list. This list not only controls which Headlines
 appear in each product, but also which VTEC strings appear in the
 product as well. <br>
 <br>
 Each line in the allowedHazards list can contain up to three parts: the
 key for the hazard, the VTEC actions that are allowed for that hazard,
-and a category for the hazard.&nbsp; The only part that is mandatory is
-the hazard key.&nbsp;
+and a category for the hazard. The only part that is mandatory is
+the hazard key.
 Usually this key corresponds to a VTEC code, but locally-defined
-hazards may be defined as well (See the last entry.) .&nbsp; The action
-list and the category are optional.&nbsp;&nbsp; The category field can
-be used to group hazards.&nbsp; If more than one hazard in a group is
+hazards may be defined as well (See the last entry). The action
+list and the category are optional. The category field can
+be used to group hazards. If more than one hazard in a group is
 found, only the highest priority hazard is reported, where priority is
-defined by the order of appearance in the list.&nbsp; In the example
-above, if&nbsp; both a Storm Warning (SR.W) and Gale Warninng (GL.W)
+defined by the order of appearance in the list. In the example
+above, if both a Storm Warning (SR.W) and Gale Warninng (GL.W)
 were found in the grids, only the Storm Warning would be
-reported.&nbsp;&nbsp; By the same token, you can have multiple hazards
+reported. By the same token, you can have multiple hazards
 in an area by assigning different categories to each hazard.<br>
 <br>
 <span style="font-weight: bold;"><a name="HazardKey"></a>Hazard Key</span><br>
 <br>
 The HazardKey is the key that appears in the serverConfig file and
-hence in the GFE display when you edit the Hazard grid.&nbsp; There are
-two types of hazard keys, VTEC, and locally-defined.&nbsp; VTEC hazard
+hence in the GFE display when you edit the Hazard grid. There are
+two types of hazard keys, VTEC, and locally-defined. VTEC hazard
 keys follow a particular format and are pre-defined for you in the
-VTECTable. However you may also define local hazards as well.&nbsp; The
+VTECTable. However you may also define local hazards as well. The
 last entry in the above example of the allowedHazards list is a
 locally-defined hazard.&nbsp; In this example, it is "<span
  style="color: rgb(0, 102, 0);">SmCrftExCau</span>" which is an
-abreviation for "Small Craft Exercise Caution".&nbsp; To include a
+abreviation for "Small Craft Exercise Caution". To include a
 locally-defined hazard all you need to do is list it all by itself in
 the allowedHazards list. Once your localConfig is set up properly you
 will see this hazard appear (generally at the end of the list of
 hazards) and you can define a Hazard grid that contains this
-particulare Hazard.&nbsp; Once defined in a grid, this hazard will
+particular Hazard. Once defined in a grid, this hazard will
 automatically appear in the product as long as the same hazardKey
 appears in the allowedHazards list as in the example above.<br>
 <br>
-VTEC hazard keys are slightly more complicated.&nbsp; The presence of
+VTEC hazard keys are slightly more complicated. The presence of
 the key in allowedHazards list is not the only piece of information
-necessary for the hazard to appear in the product.&nbsp; You must also
-defined the list of VTEC "action codes" as well.&nbsp; This action code
-list defines which type of VTEC code can appear in your product.&nbsp;
+necessary for the hazard to appear in the product. You must also
+defined the list of VTEC "action codes" as well. This action code
+list defines which type of VTEC code can appear in your product.
 For convenience, we include a list including all possible VTEC codes,
 as well as a list of codes that apply to the Marine-type
-products.&nbsp; In general, you will want to include all of the VTEC
-action codes for every VTEC hazard.&nbsp; In some cases, however, you
-may want to limit the set of actions codes in each product.&nbsp; <br>
+products. In general, you will want to include all of the VTEC
+action codes for every VTEC hazard. In some cases, however, you
+may want to limit the set of actions codes in each product.<br>
 <br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="WFOSITE"></a>WFO Site Information</h2>
-WFO site information is stored in a TextUtility named SiteCFG.&nbsp;
+WFO site information is stored in a TextUtility named SiteCFG.
 This module is loaded using<br>
-the familiar BASE, SITE paradigm.&nbsp; Note that a user other than
+the familiar BASE, SITE paradigm. Note that a user other than
 BASE or SITE should not override<br>
-this file.&nbsp; The file contains a dictionary which holds information
+this file. The file contains a dictionary which holds information
 used to configure text products<br>
-from the BASE template files.&nbsp; It also is used by the formatter
+from the BASE template files. It also is used by the formatter
 launcher to find the name of<br>
 the backup site.<br>
 <br>
@@ -1414,12 +1410,10 @@ SiteInfo= {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
 }<br>
 <br>
-&nbsp; The key is a WFO site id.&nbsp; This file can be overridden by
-the SITE user to modify any desired<br>
-entries.&nbsp; Again, it is undefined bahavior (anything can happen)
-for any other user other than<br>
+The key is a WFO site id. This file can be overridden by
+the SITE user to modify any desired
+entries. Again, it is undefined bahavior (anything can happen)
+for any other user other than
 SITE to modify this file.<br>
-<br>
-<span style="font-weight: bold;"></span><br>
 </body>
 </html>
