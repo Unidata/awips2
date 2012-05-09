@@ -19,13 +19,14 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.colormap;
 
+import java.nio.Buffer;
+
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
-import com.raytheon.uf.viz.remote.graphics.Activator;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapDataType;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
@@ -49,38 +50,19 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
 public class ColorMapDataEvent extends AbstractDispatchingObjectEvent {
 
     @DynamicSerializeElement
-    private byte[] serializedColorMapData;
+    private int[] dimensions;
 
-    /**
-     * @return the serializedColorMapData
-     */
-    public byte[] getSerializedColorMapData() {
-        return serializedColorMapData;
-    }
+    @DynamicSerializeElement
+    private ColorMapDataType dataType;
 
-    /**
-     * @param serializedColorMapData
-     *            the serializedColorMapData to set
-     */
-    public void setSerializedColorMapData(byte[] serializedColorMapData) {
-        this.serializedColorMapData = serializedColorMapData;
-    }
+    @DynamicSerializeElement
+    private Buffer buffer;
 
     /**
      * @return the colorMapData
      */
     public ColorMapData getColorMapData() {
-        if (serializedColorMapData != null) {
-            try {
-                ColorMapDataWrapper wrapper = (ColorMapDataWrapper) SerializationUtil
-                        .transformFromThrift(serializedColorMapData);
-                return wrapper.getColorMapData();
-            } catch (SerializationException e) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
-                        e.getLocalizedMessage(), e);
-            }
-        }
-        return null;
+        return new ColorMapData(buffer, dimensions, dataType);
     }
 
     /**
@@ -88,15 +70,65 @@ public class ColorMapDataEvent extends AbstractDispatchingObjectEvent {
      *            the colorMapData to set
      */
     public void setColorMapData(ColorMapData colorMapData) {
-        ColorMapDataWrapper wrapper = new ColorMapDataWrapper();
-        wrapper.setColorMapData(colorMapData);
+        // Copy data via serialization
+        this.dimensions = colorMapData.getDimensions();
+        this.dataType = colorMapData.getDataType();
         try {
-            serializedColorMapData = SerializationUtil
-                    .transformToThrift(wrapper);
+            // Copy the buffer since it is the same buffer that will be used for
+            // rendering in a separate thread and serializing Buffer access is
+            // not thread safe
+            this.buffer = (Buffer) SerializationUtil
+                    .transformFromThrift(SerializationUtil
+                            .transformToThrift(colorMapData.getBuffer()));
         } catch (SerializationException e) {
-            Activator.statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+            throw new RuntimeException("Error copying data Buffer: "
+                    + e.getLocalizedMessage(), e);
         }
+    }
+
+    /**
+     * @return the dimensions
+     */
+    public int[] getDimensions() {
+        return dimensions;
+    }
+
+    /**
+     * @param dimensions
+     *            the dimensions to set
+     */
+    public void setDimensions(int[] dimensions) {
+        this.dimensions = dimensions;
+    }
+
+    /**
+     * @return the dataType
+     */
+    public ColorMapDataType getDataType() {
+        return dataType;
+    }
+
+    /**
+     * @param dataType
+     *            the dataType to set
+     */
+    public void setDataType(ColorMapDataType dataType) {
+        this.dataType = dataType;
+    }
+
+    /**
+     * @return the buffer
+     */
+    public Buffer getBuffer() {
+        return buffer;
+    }
+
+    /**
+     * @param buffer
+     *            the buffer to set
+     */
+    public void setBuffer(Buffer buffer) {
+        this.buffer = buffer;
     }
 
 }

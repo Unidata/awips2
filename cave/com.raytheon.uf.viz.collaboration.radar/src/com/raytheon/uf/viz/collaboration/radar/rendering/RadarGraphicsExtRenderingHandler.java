@@ -79,7 +79,7 @@ public class RadarGraphicsExtRenderingHandler extends
         IExtent imageExtent = null;
         ColorMapParameters parameters = null;
         if (event.getExtent() != null) {
-            imageExtent = event.getExtent().getIExtent();
+            imageExtent = event.getExtent().getExtent();
         }
         if (event.getColorMapParameters() != null) {
             parameters = event.getColorMapParameters().getColorMapParameters();
@@ -114,7 +114,7 @@ public class RadarGraphicsExtRenderingHandler extends
         IMosaicImage image = dataManager.getRenderableObject(
                 event.getObjectId(), IMosaicImage.class);
         if (image != null) {
-            image.setImageExtent(event.getIExtent());
+            image.setImageExtent(event.getExtent());
         }
     }
 }
