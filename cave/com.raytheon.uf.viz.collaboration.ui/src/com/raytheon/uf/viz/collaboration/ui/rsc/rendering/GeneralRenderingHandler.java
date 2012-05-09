@@ -137,6 +137,6 @@ public class GeneralRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
     public void setupClippingPane(SetupClippingPane event) {
-        getGraphicsTarget().setupClippingPlane(event.getIExtent());
+        getGraphicsTarget().setupClippingPlane(event.getExtent());
     }
 }
