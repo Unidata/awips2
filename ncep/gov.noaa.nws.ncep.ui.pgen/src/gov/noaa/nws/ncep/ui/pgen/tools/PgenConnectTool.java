@@ -42,6 +42,7 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
  * 07/09		#141		J. Wu  		Initial Creation.
  * 12/09		#167		J. Wu  		Connect contour lines within the
  * 										same Contours with the same label.
+ * 01/12		TTR342		J. Wu  		Update for connecting Contours lines.
  * 
  * </pre>
  * 
@@ -224,11 +225,9 @@ public class PgenConnectTool extends AbstractPgenDrawingTool {
         		    	}
         		    	else if ( firstEl.getParent() instanceof ContourLine ) {
         		    		
-        		    		// replace the old Contours with the a new Cntours.
-        		    		oldElem.add( firstEl.getParent().getParent() );	    	
-       			    		
-        		    		newElem.add( connectContourLine( firstEl, secondEl ) );		    	 
-        		    		
+        		    		// replace the old Contours with the a new Contours.
+        		    		oldElem.add( firstEl.getParent().getParent() );	  
+        		    		newElem.add( connectContourLine( firstEl, secondEl ) );	
         		    	}
         		    	else {  // Lines & Fronts
         		    	    oldElem.add( firstEl );
@@ -269,7 +268,7 @@ public class PgenConnectTool extends AbstractPgenDrawingTool {
             	
             	if ( secondEl != null ) {  
             		// reselect the second element          				
-           	    	ghostEl = createGhostElement( firstEl, nearPt, loc );
+            		ghostEl = createGhostElement( firstEl, nearPt, loc );
                 	drawingLayer.setGhostLine( ghostEl ); 
                 	
             		secondEl = null;
@@ -556,41 +555,48 @@ public class PgenConnectTool extends AbstractPgenDrawingTool {
    	     */
     	private Contours connectContourLine( MultiPointElement cline1, MultiPointElement cline2 ) {		
     		
-    		Contours newContours = new Contours();
+   		    Contours newContours = new Contours();
     		Contours oldContours = (Contours)cline1.getParent().getParent();
    		   		    		
             Iterator<AbstractDrawableComponent> iterator =  oldContours.getComponentIterator();
-            
-            boolean connected = false;
+               		           
+            boolean connected = false;           
             
             while ( iterator.hasNext() ) {    				        					        					        	
             	
-            	AbstractDrawableComponent oldContourLine = iterator.next();
-            	AbstractDrawableComponent newContourLine = oldContourLine.copy();
+            	AbstractDrawableComponent oldContourComp = iterator.next();
+        		AbstractDrawableComponent newContourComp = oldContourComp.copy();
+           	
+            	if ( oldContourComp instanceof ContourLine ) {
             	
-            	Line oldLine = ((ContourLine)oldContourLine).getLine();
-            	
-            	if ( oldLine.equals( (Line)cline1 ) || oldLine.equals( cline2 ) ) {
-            	    
-            		if ( !connected ) {           			            			            			
-            			
-            			Line ln = ((ContourLine)newContourLine).getLine();
-            			ln.getPoints().clear();
-            			ln.getPoints().addAll( ghostEl.getPoints() );
-                    	
-            			newContourLine.setParent( newContours );
-                    	newContours.add( newContourLine );       		
-           			    
-                    	connected = true;
-            		
+            		Line oldLine = ((ContourLine)oldContourComp).getLine();
+
+            		if ( oldLine.equals( (Line)cline1 ) || oldLine.equals( cline2 ) ) {
+
+            			if ( !connected ) {           			            			            			
+
+            				Line ln = ((ContourLine)newContourComp).getLine();
+            				ln.getPoints().clear();
+            				ln.getPoints().addAll( ghostEl.getPoints() );
+
+            				newContourComp.setParent( newContours );
+            				newContours.add( newContourComp );       		
+
+            				connected = true;
+
+            			}
+
             		}
-            		
+            		else {           	           	           	    
+            			newContourComp.setParent( newContours );
+            			newContours.add( newContourComp );              	    
+            		}
             	}
-            	else {           	           	           	    
-            		newContourLine.setParent( newContours );
-            	    newContours.add( newContourLine );              	    
+            	else {
+        			newContourComp.setParent( newContours );
+        			newContours.add( newContourComp );              	               		
             	}
-            	
+
             }
                 				
     		newContours.update( oldContours );

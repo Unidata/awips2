@@ -42,7 +42,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 09/10			305		B. Yin   	Initial Creation.
  * 12/11			?		B. Yin		Added open/close line functions
- * 
+ * 03/12        #697        Q. Zhou     Fixed line arrow head size
  * </pre>
  * 
  * @author	B. Yin
@@ -456,7 +456,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
     		locs.add(loc);    		
     		locs.add(ccfp.getAreaLine().getCentroid());    		
     		
-    		Line aln = new Line(null, new Color[]{Color.WHITE}, 2.0F, 1.5,false, false, locs, 0, 
+    		Line aln = new Line(null, new Color[]{Color.WHITE}, 2.0F, 1.0,false, false, locs, 0, 
     				gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern.FILL_PATTERN_2, "Lines", "POINTED_ARROW");
     		lbl.addArrow(aln);    	
     	}

@@ -487,7 +487,7 @@ public class NsharpParcelDialog extends Dialog {
 	//Override this and move close() from here to OK button Listener 
 	//So, we only close when "OK" is pressed, not "CR". 
 	public void okPressed() {
-		System.out.println("CR is pressed");
+		//System.out.println("CR is pressed");
 		setReturnCode(OK);
 		//close();
 	}

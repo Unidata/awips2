@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>Populate_SkyProcedure</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>Populate_SkyProcedure</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Overview</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"> The Populate_SkyTool (and 
+Populate_SkyProcedure) populate the GFE Sky_Cover grids based on an algorithm that finds 
+the maximum model-layer relative humidity (RH), and then applies an exponential relationship 
+to convert RH to sky cover at each grid point. The Populate_SkyTool contains other functions, 
+including the ability to turn on/off near surface and high clouds, the option to apply RH 
+with respect to ice at temperatures below -25C, and “limit value” functionality. 
+This document explains how the Populate_SkyTool works, and tips for using it.
+<br><br>
+This section explains the underlying premise of the Populate_SkyTool, and how it uses model RH to 
+determine sky cover. 
+<ol>
+  <li>Clouds are determined by first finding the maximum model layer RH (at each grid point) 
+  at the forecast time, corresponding to the availability of model data. The methodology eliminates 
+  the need to manually “pick” a level or layer where the clouds are expected.</li>
+  <li>The maximum model layer RH is converted to sky cover through an exponential function, which 
+  can be customized on-the-fly by the forecaster. The exponential relationship has been established 
+  observationally in previous published works (e.g., Walcek, 1994, his Figure 7b), but the exact 
+  shape of this function is not well known and likely depends on stability, shear, temperature, 
+  and other variables. Where model RH is concerned, varying model resolution and different physical 
+  parameterizations impact the distribution of RH. Thus, the exponential function can be customized 
+  by the forecaster to adjust the resultant sky cover.</li>
+  <li>Other functionality, including a “limit values” feature, the ability to turn on/off clouds 
+  below 925mb and in the 500-300 mb layer, and the ability to use a modified RH with respect to 
+  ice at temperatures colder than -25C, augment the basic functionality of the tool outlined in 
+  points 1 and 2. </li>
+</ol><br>
+<b>Maximum model layer RH Algorithm</b><br>
+Since GFE OB7.1, both the GFS40 and NAM12 include near-surface layers (30mb deep), with respect to 
+ground level. The Populate_SkyTool makes use of the mean RH in the lowest 4 of these near-surface AGL 
+layers. From 925mb to 500mb, the Populate_SkyTool has available RH data in 25mb increments. From 500mb 
+through 300mb, the vertical resolution available is 50mb. The RH data points are shown schematically 
+in Figure 1. 
+<br><br>
+When the user opts to exclude clouds below 925mb, the 4 near-surface layers are excluded from consideration. 
+When the user opts to exclude clouds between 500-300mb, RH from these data points are excluded from 
+consideration. Otherwise, the Populate_SkyTool uses all available RH information to determine the highest 
+model-layer RH value in the vertical. Each of the 4 near-surface 30mb layers is considered independently. 
+If the user selects a layer depth of 50mb, then 50mb centered averages are computed between 925-525mb as 
+follows:<br>
+<img alt="Populate_SkyProcedure" src="images/Populate1.jpg"><br><br>
+where the subscript p refers to the adjacent vertical grid points. As an example, if the forecaster selects 
+a 50mb layer depth, then the mean RH centered about 850mb is given by,<br>
+<img alt="Populate_SkyProcedure" src="images/Populate2.jpg"><br><br>
+This RH value is considered with all the other layer RH values to determine which layer has the greatest RH. 
+Since data is used every 25 mb, the successive 50mb RH layers overlap in the vertical. Since data is available 
+in 50mb increments from 500-300mb, a two-level average is taken as follows:<br>
+<img alt="Populate_SkyProcedure" src="images/Populate3.jpg"><br><br>
+When 25mb layers are selected by the user, the averaging scheme involves two successive model layers:<br>
+<img alt="Populate_SkyProcedure" src="images/Populate4.jpg"><br><br>
+Once the layer RH values are computed, the algorithm determines the maximum model-layer RH, and considers 
+this RH in determining the cloud amount (as shown in the next section).<br>
+<img alt="Populate_SkyProcedure" src="images/Populate5.png"><br>
+<b>Figure 1.</b> Vertical grid layers and grid points utilized by the Populate_SkyTool maximum model-layer 
+RH algorithm.<br><br>
+<b>Application of Exponential Response Function</b><br>
+It is assumed by the Populate_SkyTool that an exponential relationship exists between model layer RH and 
+cloud amount, and model layer RH is the only variable used by the tool.  The exponential function allows the 
+tool to depict a large range of sky cover values and sharp spatial gradients in sky amount. The forecaster 
+has control over the shape of the exponential function used in the Populate_SkyTool, as explained below. 
+<br><br>
+The basic exponential function used takes the form of:<br>
+<img alt="Populate_SkyProcedure" src="images/Populate6.jpg"><br>
+where a and b are multiplying factors modifying the shape of the function. 
+<br><br>
+In the specific case of the Populate_SkyTool, a basic exponential function was assumed, with variables to allow 
+for modification of the function’s shape. While we are confident the function is inherently exponential 
+in nature, there is not a unique correct shape for this model RH-Sky relationship; it depends on model 
+parameterizations and other physical factors. So, the goal here is to allow flexibility for adjustments, 
+if necessary, based on a forecaster’s operational experience with the behavior of the numerical models in 
+various situations. The function is:<br>
+ <img alt="Populate_SkyProcedure" src="images/Populate7.jpg"><br>
+ Where dash-RH is the maximum model layer RH value (in percent), RHCLR (in percent) is the user 
+ customized RH threshold for clear skies (resultant Sky Cover 5% or less), and b is a calibration 
+ factor that modulates the slope of the exponential function. The default values are b=1.0 and 
+ RHCLR = 60%. Setting these variables within the Populate_SkyTool is explained further in Section 4.<br><br>
+ EXAMPLE 1.
+<br><br>
+Based on the tool’s default values (b=1.0, RHCLR=60%), when the max model layer RH = 100%, we get:<br>
+<img alt="Populate_SkyProcedure" src="images/Populate8.jpg"><br>
+A maximum model layer RH of 100% yields 100% sky_cover at that grid point in GFE. 
+<br><br>
+EXAMPLE 2.
+<br><br>
+Again, using the tool’s default values (b=1.0, RHCLR=60%), when the max model layer RH = 60%, we get:<br>
+<img alt="Populate_SkyProcedure" src="images/Populate9.jpg"><br>
+So, for any value of RH equal to or less than RHCLR, our sky cover value is 5% or less (generally taken 
+as “clear skies”). 
+<br><br>
+We can better see the modulating effects of RHCLR and b (calibration), by graphing the function:<br>
+<img alt="Populate_SkyProcedure" src="images/Populate10.png"><br>
+<b>Figure 2.</b> The exponential function employed by the Populate_SkyTool relating maximum model layer RH (%) 
+to sky cover (%) for the default values (b=1.0, RHCLR = 60%; shown as thick solid line), and values of 
+b=1.0 and RHCLR = 44% (short dashed gray line), b=1.0 and  RHCLR = 74% (short dashed green line), b=1.5 
+and RHCLR = 44% (long dashed gray line), and b=1.5 and RHCLR = 74% (long dashed green line). In the GUI, 
+b is referred to as the calibration value and RHCLR is the 5% sky cover threshold.
+<br><br>
+Increasing the calibration value (b) increases the slope of the curve (long dashed lines in Figure 2) as 
+compared to the default curve (thick solid line), with 100% sky cover occurring at a value less than 100% 
+model layer RH (e.g., 81.3% for b=1.5 and RHCLR = 44%). At the same time, the 5% sky cover threshold is 
+adjusted in this case to 44%. Meanwhile, leaving b constant (at 1.0) and modulating the RHCLR threshold 
+(from 44% to 74% in Figure 2) primarily modifies the shape of the function at mid-range RH values 
+(i.e., 50-90%), while maintaining 100% sky cover for 100% maximum model layer RH. 
+<br><br>
+The extreme values of b and RHCLR allowed by the tool are arbitrary, except for the low value of b=1.0 
+which corresponds to 100% sky cover for 100% RH. The range and default values for b and RHCLR allowed by 
+the tool were determined subjectively (by trial and error) and generally capture the range of desired sky 
+values in most situations. If the forecaster desires more clouds at high RH values, the calibration value 
+should be set higher. On the other hand, if the forecaster desires cloud amount to taper off more slowly 
+as RH decreases, the value of RHCLR can be set lower. Since the numerical models handle moisture differently, 
+and initializations are not perfect, there is no one “correct” response function. Again, the goal is simply 
+to allow the forecaster some flexibility in modifying the exponential response for a given situation or for 
+model biases common to their forecast area.
+<br><br>
+<b>Running the Populate_SkyTool in GFE</b><br>
+To run the Populate_SkyTool, make Sky the editable grid element in the GFE temporal editor, and 
+select MB3-&gt;<i>Populate_SkyTool</i> from the Main Menu. When you select the 
+Populate_SkyTool, you will see a graphical user interface (GUI) appear, as shown below.<br><br>
+<img alt="Populate_SkyProcedure" src="images/Populate13.jpg"><br><br>
+The following is an explanation of each option within the Populate_SkyTool GUI:<br>
+<ul>
+  <li><b>Model:</b> Select the model you wish to use, either GFS40 or NAM12. The NAM12 can be used on 
+  grids out 84 hours from the current model run time, and is available in 3-hrly increments. The GFS40 
+  is available in 6-hrly increments out through 180 hours. </li>
+  <li><b>Model Run:</b> Select the model run you wish to use, either the current run, or the previous 
+  (6 hour earlier) run. Note: as new model data is coming into GFE, you may need to select the previous 
+  version for the tool to run.</li>
+  <li><b>Layer Depth:</b> This controls the depth of layer RH used in computing the model’s maximum layer 
+  RH. The choices are 25mb or 50mb layers, as outlined in the previous section, and pertain to model levels 
+  between 925mb and 500mb.</li>
+  <li><b>Use RH with respect to ice at temperatures at or below -25C:</b> This switch toggles on/off a 
+  modified RH with respect to ice, useful in capturing clouds composed primarily of ice crystals (e.g., 
+  cirrus clouds). These clouds may or may not be opaque in character, and the option to fully represent 
+  these clouds in the Populate_SkyTool is included as an user option.</li>
+  <li><b>Include High Clouds (500-300mb):</b> This toggles on/off model RH between 500-300mb from 
+  consideration in determining the layer with the highest model-layer RH and corresponding cloud 
+  cover.</li>
+  <li><b>Include Clouds Below 925mb:</b> This toggles on/off the four near-surface (30mb AGL) layers 
+  from consideration in determining the layer with the highest model-layer RH and corresponding cloud 
+  cover.</li>
+  <li><b>5% Sky Cover Threshold at RH percentage:</b> This slider bar sets the threshold for clear 
+  skies (taken as 5% sky cover). If the maximum model-layer RH value is equal to or less than this 
+  percentage, the sky cover will be equal to or less than 5%.</li>
+  <li><b>Calibration:</b> This slider bar controls the slope of the exponential function (parameter 
+  b in equation (5)), and at what RH value saturation occurs. Increasing the calibration value results 
+  in more clouds for a given RH percentage.</li>
+  <li><b>Limit Values:</b> After the algorithm runs, the limit values slider bars can be used to set 
+  bounds on the minimum and maximum sky cover amount returned by the tool at any grid point in the domain. 
+  It works in a manner analogous to the baseline “Limit Values” Smart Tool in GFE. </li>
+</ul><br>
+Once you select your options, choose <i>Run</i> or <i>Run/Dismiss</i> at the bottom of the GUI and the 
+Smart Tool will populate the sky grid for the selected hour.
+<br><br>
+<b>Running the Populate_SkyProcedure in GFE</b><br>
+The Populate_SkyProcedure is available from the Populate menu of GFE and allows the Populate_SkyTool 
+to be run over a user selected time range in GFE, with interpolation performed on hourly grids between 
+the available model data times. The GUI is largely the same, but two important notes are included near 
+the top of the GUI. As noted, to run the procedure, press and hold the left mouse button and scroll 
+across the range of sky grids desired in the Grid Manager. The start and end times selected by the user 
+must correspond to a 3-hrly or 6-hrly temporal grid block that contains model data in order for the 
+procedure to run properly. These times are model dependent: 
+<ul>
+  <li>For the NAM12, the available grid times are 00, 03, 06, 09, 12, 15, 18, 21 UTC, out 84h from the 
+  model run time. </li>
+  <li>For the GFS40, the available grid times are 00, 06, 12, 18 UTC, out 180h from the model run time 
+  (through the end of day 7). </li>
+</ul>
+Once you select your options and highlight your time range, choose <i>Run</i> or <i>Run/Dismiss</i> at 
+the bottom of the GUI. The procedure will create scratch grids at the available model times, and then 
+run the Populate_SkyTool at each of those times to populate the grids with sky cover amount. When this 
+step is complete, the procedure interpolates between the 3-hrly or 6-hrly grid times to create hourly sky 
+grids.<br><br>
+<img alt="Populate_SkyProcedure" src="images/Populate11.jpg"><br><br>
+<b>Assumptions and Limitations</b><br>
+<ul>
+  <li>It is assumed that an exponential relationship exists between model-layer RH and cloud amount. 
+  This is supported by observational work (e.g., Walcek 1994), but it is also known that temperature, 
+  stability, and vertical shear relate to sky cover, factors not considered by the tool (except for 
+  accounting for RH over ice at temperatures less than -25C). This tool provides an “on-the-fly” manual 
+  adjustment approach to estimate and account for uncertainties in the model-layer RH-cloud relationship. 
+  There is not a unique correct relationship between model-layer RH and sky cover.</li>
+  <li>The model-layer RH – sky cover relationship is dependent upon model resolution and physical 
+  parameterizations.</li>
+  <li>The tool is dependent on model forecasts. If moisture is not handled adequately in a particular 
+  model solution, the sky output from the tool is not likely to be accurate. The limit values and other 
+  options are provided to subjectively adjust the output as needed.</li>
+  <li>The Populate_SkyTool was formulated for relatively low elevations of the eastern CONUS. Pressure 
+  thresholds (such as 925mb) won’t translate well to the high plains or intermountain west, and would 
+  require some modification of the source code in these parts of the CONUS.</li>
+</ul><br>
+<b>Other Tips</b><br>
+<ul>
+  <li>BUFKIT is a useful software tool to understand and anticipate the sky cover values generated by the 
+  Populate_SkyTool based on model forecast soundings. Viewing point model soundings can give the 
+  forecaster a better idea of when they may want to toggle on/off high and low clouds, and whether 
+  population with the NAM12 or GFS40 is more desirable in a given situation.</li>
+  <li>In some forecast areas, the NAM12 tends to reach 100% RH more easily than the GFS40, but the NAM12 
+  also tends to show low-level RH values that are too high beneath frontal and subsidence inversions 
+  (often near saturation). In these situations, turning clouds below 925mb off can give a more accurate 
+  result. Also, if high near-surface RH resulting from anticipated ground fog is appearing as cloud cover, 
+  turning off clouds below 925mb will help mitigate this problem. </li>
+  <li>To maximize high cloud amount in the Populate_SkyTool, include both 500-300mb clouds and turn on the 
+  RH over ice calculation.</li>
+  <li>For thin cloud layers, set the cloud layer depth to 25mb. The tool takes slightly longer to run, but 
+  it will better depict narrow zones of relatively high RH and associated clouds (provided it is captured 
+  accurately in the model).</li>
+</ul>
+</font></body>
+</html>

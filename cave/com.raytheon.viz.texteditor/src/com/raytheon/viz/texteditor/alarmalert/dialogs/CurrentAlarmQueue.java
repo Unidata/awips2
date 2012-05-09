@@ -85,6 +85,11 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  *                                      removed shellListener().
  * Jun 03, 2011 9681       cjeanbap    Changed list style.
  * Aug 12, 2011 10045      rferrel     Now remembers screen location
+ * Mar 19, 2012 14624      mhuang      Fixed problem of always retrieval of latest 
+ *                                      product when a number of alarm products
+ *                                      with same afos pil but different issue
+ *                                      times showed up in the product list of
+ *                                      current alarm queue window. 
  * </pre>
  * 
  * @author mnash
@@ -111,7 +116,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
     private IQueryTransport queryTransport = null;
 
     private java.util.List<StdTextProduct> prodList = null;
-
+    
     private static CurrentAlarmQueue INSTANCE;
 
     private static Point closeLocation;
@@ -355,9 +360,20 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
     private void displayList() {
         String command = "";
+        String alarmHHMM = "";
         if (list != null && list.getItemCount() > 0
                 && list.getSelectionCount() > 0 && list.getSelection() != null) {
             command = list.getSelection()[0].split(" ")[0];
+            
+            // Get issue time of current alarm product (DR_14624)
+            String headTime = list.getSelection()[0].split(" ")[5];
+            String[] hdrTimeFields = null;
+            if (headTime != null) {
+                hdrTimeFields = headTime.split(":");
+            }
+            if (hdrTimeFields.length >= 2) {
+                alarmHHMM = hdrTimeFields[0] + hdrTimeFields[1];
+            }
             AlarmAlertLists.getInstance().getCurrentAlarms()
                     .remove(list.getSelectionIndex());
             list.remove(list.getSelectionIndex());
@@ -371,6 +387,32 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         if (command != "") {
             prods = produceTextProduct(command);
         }
+        
+		// Check incoming alarm product matching selected product from
+		// current Alarm Queue Window (DR_14624)
+        if (prods != null) {
+        	if (prods.size() == 1) {
+                String inprod = null;
+        		inprod = prods.get(0).getProduct();
+        		String[] prodLines = inprod.split("\n");
+        		String[] hdrFields = prodLines[0].split(" ");
+        		String wmoId = hdrFields[0];
+        		String site = hdrFields[1];
+        		String hdrTime = hdrFields[2];
+        		String hhmm = hdrTime.substring(2);
+        		String bbb = "";
+        		String awipsId = "";
+        
+        		// Use awips command to retrieve correct alarm product if it does
+        		// not match (DR_14624)
+        		if (!alarmHHMM.equals(hhmm)) {
+        			String hdrDate = hdrTime.substring(0,2);
+        			hdrTime = hdrDate.concat(alarmHHMM);
+        			prods = getAwipsTextProduct(awipsId, wmoId, site, hdrTime, bbb);
+        		}
+            }
+        }
+
         if (alarmDisplayDlg == null) {
             alarmDisplayDlg = new AlarmDisplayWindow(shell, prods);
             alarmDisplayDlg.open();
@@ -516,6 +558,15 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         return prodList;
     }
 
+    /*
+     * get text product using wmo command (DR_14624)
+     */
+    public java.util.List<StdTextProduct> getAwipsTextProduct(String awipsId, 
+    		String wmoId, String site, String hdrTime, String bbb) {
+        ICommand cmd = CommandFactory.getAwipsCommand(awipsId, wmoId, site, hdrTime, bbb);
+        executeCommand(cmd);
+        return prodList;
+    }
     /*
      * (non-Javadoc)
      * 

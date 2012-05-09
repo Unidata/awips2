@@ -12,7 +12,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.*;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -33,6 +32,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 03/10		#263		M.Laryukhin	Initial creation
+ * 01/11		TTR381		J. Wu	    Update cycle/hour for all GFA 
+ *                                      elements.
+ * 02/11		TTR381		J. Wu	    Reset PGEN IDisplayable for redraw. 
  * 
  * </pre>
  * 
@@ -176,28 +178,41 @@ public class CycleDlg extends AttrDlg {
 		
 		PgenCycleTool.setCycleRoutine(routineBtn.getSelection());
 
-		// get the list of selected elements
+		/*
+		 *  Update the cycle info for all GFA elements in ALL activities/layers?
+		 *  
+		 *  Legacy - only update all GFA elements on the active layer.
+		 */
 		if ( drawingLayer != null ) {
-			ArrayList<AbstractDrawableComponent> oldList = new ArrayList<AbstractDrawableComponent>();
-			ArrayList<AbstractDrawableComponent> newList = new ArrayList<AbstractDrawableComponent>();
-			for(Product p: drawingLayer.getProducts()){
-				for(Layer l: p.getLayers()){
-					for(AbstractDrawableComponent adc: l.getDrawables()){
+//			ArrayList<AbstractDrawableComponent> oldList = new ArrayList<AbstractDrawableComponent>();
+//			ArrayList<AbstractDrawableComponent> newList = new ArrayList<AbstractDrawableComponent>();
+//			for(Product p: drawingLayer.getProducts()){
+//				for(Layer l: p.getLayers()){
+					
+			        for(AbstractDrawableComponent adc: drawingLayer.getActiveLayer().getDrawables()){
 						if ( adc instanceof Gfa){
-							oldList.add(adc);
-							Gfa copy = (Gfa)adc.copy();
-							copy.setGfaCycleDay(PgenCycleTool.getCycleDay());
-							copy.setGfaCycleHour(PgenCycleTool.getCycleHour());
-							newList.add(copy);
+							//Remove the IDisplayable in the container to activate the redraw.
+							drawingLayer.resetElement( (Gfa)adc );  
+							
+							//Update Day/Cycle for redraw.
+							((Gfa)adc).setGfaCycleDay(PgenCycleTool.getCycleDay());
+							((Gfa)adc).setGfaCycleHour(PgenCycleTool.getCycleHour());
+//							oldList.add(adc);
+//							Gfa copy = (Gfa)adc.copy();
+//							copy.setGfaCycleDay(PgenCycleTool.getCycleDay());
+//							copy.setGfaCycleHour(PgenCycleTool.getCycleHour());
+//							newList.add(copy);
 						}
 					}
-				}
-			}
+//				}
+//			}
 
-			drawingLayer.replaceElements(oldList, newList);
+//			drawingLayer.replaceElements(oldList, newList);
+//			PgenUtil.refresh();
+			
 		}
 
-		if ( mapEditor != null ) {
+		if ( mapEditor != null ) {			
 			mapEditor.refresh();
 		}
 		

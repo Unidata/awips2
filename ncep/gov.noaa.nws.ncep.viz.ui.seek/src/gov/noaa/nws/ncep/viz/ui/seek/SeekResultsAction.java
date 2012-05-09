@@ -31,6 +31,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                                        to the seekResourceData object
  *                                                        Updated the execute() method to toggle
  *                                                        the display of the seek layer.  
+ * Jan   2012   TTR 326   J. Zeng      handled NUllPointerException                                                      
  *   
  * </pre>
  * 
@@ -61,7 +62,9 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
         if ( mouseHandler == null ) {
             mouseHandler = createSeekMouseHandler();
         }
-        mapEditor.registerMouseHandler( this.mouseHandler );
+        if (mapEditor != null)  {
+        	mapEditor.registerMouseHandler( this.mouseHandler );
+        }
         
         initializeTheSeekLayer();
         
@@ -88,7 +91,6 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
             mapEditor.unregisterMouseHandler( this.mouseHandler );
             mouseHandler = null;
         }
-
         removeSeekLayer();
     }
 
@@ -113,24 +115,23 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     		if (button != 1) {
     			return false;
     		}
-
-    		Coordinate ll = mapEditor.translateClick(x, y);
-    		if ( ll == null ) return false;
+    		if (mapEditor != null ) {
+    			Coordinate ll = mapEditor.translateClick(x, y);
+    			if ( ll == null ) return false;
     		
-    		if (id != null && id.isDlgOpen()/*.isOpen()*/ && ll != null) {//archana - changed isOpen() to isDlgOpen() 
-    			id.setPosition(ll);
-                firstMouseX = x;
-                firstMouseY = y;
-                endpts = id.getEndPoints();
-                if (endpts[0] != null || endpts[1] != null) {
-                	//seekDrawingLayer.drawClickPtLine(endpts[0], endpts[1]);
-                	(( SeekResourceData) seekDrawingLayer.getResourceData()).setFirstPt(endpts[0]);
-                	(( SeekResourceData) seekDrawingLayer.getResourceData()).setLastPt(endpts[1]);
-                }
+    			if (id != null && id.isDlgOpen()/*.isOpen()*/ && ll != null) {//archana - changed isOpen() to isDlgOpen() 
+    				id.setPosition(ll);
+    				firstMouseX = x;
+    				firstMouseY = y;
+    				endpts = id.getEndPoints();
+    				if (endpts[0] != null || endpts[1] != null) {
+    					//seekDrawingLayer.drawClickPtLine(endpts[0], endpts[1]);
+    					(( SeekResourceData) seekDrawingLayer.getResourceData()).setFirstPt(endpts[0]);
+    					(( SeekResourceData) seekDrawingLayer.getResourceData()).setLastPt(endpts[1]);
+    				}
+    			}
+    			mapEditor.refresh();
     		}
-
-    		mapEditor.refresh();
-
     		return true;
     	}
 
@@ -145,36 +146,36 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     		if (button != 1) {
     			return false;
     		}
-
-    		Coordinate c1 = mapEditor.translateClick(firstMouseX, firstMouseY);
-    		Coordinate c2 = mapEditor.translateClick(x, y);
-    		if (id != null && id.isDlgOpen() && c1 != null && c2 != null) {
- //   			seekDrawingLayer.drawLine(c1, c2);
-    			(( SeekResourceData) seekDrawingLayer.getResourceData()).setPoint1(c1);
-    			(( SeekResourceData) seekDrawingLayer.getResourceData()).setPoint2(c2);
-    			// Calculate distance and direction
-    			GeodeticCalculator gc = new GeodeticCalculator(
+    		if (mapEditor != null){
+    			Coordinate c1 = mapEditor.translateClick(firstMouseX, firstMouseY);
+    			Coordinate c2 = mapEditor.translateClick(x, y);
+    			if (id != null && id.isDlgOpen() && c1 != null && c2 != null) {
+ //   				seekDrawingLayer.drawLine(c1, c2);
+    				(( SeekResourceData) seekDrawingLayer.getResourceData()).setPoint1(c1);
+    				(( SeekResourceData) seekDrawingLayer.getResourceData()).setPoint2(c2);
+    				// Calculate distance and direction
+    				GeodeticCalculator gc = new GeodeticCalculator(
                         DefaultEllipsoid.WGS84);
-                gc.setStartingGeographicPoint(c2.x, c2.y);
-                gc.setDestinationGeographicPoint(c1.x, c1.y);
+    				gc.setStartingGeographicPoint(c2.x, c2.y);
+    				gc.setDestinationGeographicPoint(c1.x, c1.y);
                 
-                double azimuth = gc.getAzimuth();
-                if (azimuth < 0) azimuth += 360.0;
-                double distanceInMeter = gc.getOrthodromicDistance();
+    				double azimuth = gc.getAzimuth();
+    				if (azimuth < 0) azimuth += 360.0;
+    				double distanceInMeter = gc.getOrthodromicDistance();
                 
-                Coordinate c = mapEditor.translateClick(firstMouseX - 15, firstMouseY - 15);
-                String str = id.getFormatDistance(distanceInMeter, azimuth);
+    				Coordinate c = mapEditor.translateClick(firstMouseX - 15, firstMouseY - 15);
+    				String str = id.getFormatDistance(distanceInMeter, azimuth);
                 
-//                seekDrawingLayer.clearStrings();
-//                if (str != null) seekDrawingLayer.drawString(c, str);
-                ((SeekResourceData)seekDrawingLayer.getResourceData()).clearStrings();
-                if (str != null) {
-                	(( SeekResourceData) seekDrawingLayer.getResourceData()).drawString(c, str);
-                	}  
-    			mapEditor.refresh();
-    			return true;
+//            	    seekDrawingLayer.clearStrings();
+//            	    if (str != null) seekDrawingLayer.drawString(c, str);
+    				((SeekResourceData)seekDrawingLayer.getResourceData()).clearStrings();
+    				if (str != null) {
+    					(( SeekResourceData) seekDrawingLayer.getResourceData()).drawString(c, str);
+    				}  
+    				mapEditor.refresh();
+    				return true;
+    			}
     		}
-    		
     		return false;
     	}
 
@@ -189,16 +190,18 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
         	if (button != 1) {
                 return false;
             }
-    		Coordinate ll = mapEditor.translateClick(x, y);
-    		if ( ll == null ) return false;
+        	if (mapEditor != null){
+        		Coordinate ll = mapEditor.translateClick(x, y);
+        		if ( ll == null ) return false;        	
+//        		seekDrawingLayer.clearStrings();
+        		(( SeekResourceData) seekDrawingLayer.getResourceData()).clearStrings();
+//        		seekDrawingLayer.clearLine();
+        		(( SeekResourceData) seekDrawingLayer.getResourceData()).clearLine();
+        		mapEditor.refresh();
+        		return true;
+        	}
+        	return false;
         	
-//        	seekDrawingLayer.clearStrings();
-        	 (( SeekResourceData) seekDrawingLayer.getResourceData()).clearStrings();
-//        	seekDrawingLayer.clearLine();
-        	 (( SeekResourceData) seekDrawingLayer.getResourceData()).clearLine();
-        	mapEditor.refresh();
-        	return true;
-            
         }
     }   
     
@@ -219,11 +222,10 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
 //    }
     
     protected void initializeTheSeekLayer(){
-
-    	try {
-
-    		if ( seekResourceData == null ){
-    			seekResourceData = new SeekResourceData();
+    	if (mapEditor !=  null){
+    		try {
+    			if ( seekResourceData == null ){
+    				seekResourceData = new SeekResourceData();
     		}
 
     		if ( seekDrawingLayer == null ){
@@ -234,11 +236,13 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     			addedSeekLayerToResourceList =  mapEditor.getDescriptor().getResourceList().add(
     					seekDrawingLayer);
     		}
-    	} catch (VizException e) {
-    		e.printStackTrace();
+    		} catch (VizException e) {
+    			e.printStackTrace();
+    		} catch (NullPointerException e){
+    			e.printStackTrace();
+    		}
+    		mapEditor.refresh();
     	}
-    	mapEditor.refresh();
-
     }
     
     protected /*private*/ void removeSeekLayer() {
@@ -246,14 +250,16 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     	
       if(seekDrawingLayer != null){
     	  /*save off the resource data for the next time the handler is activated*/
- //   	  seekResourceData = ( SeekResourceData) seekDrawingLayer.getResourceData();  
-    	  mapEditor.getDescriptor().getResourceList().removeRsc(seekDrawingLayer);
-    	  addedSeekLayerToResourceList = false;
+ //   	  seekResourceData = ( SeekResourceData) seekDrawingLayer.getResourceData(); 
+    	  if (mapEditor != null ){
+    		  mapEditor.getDescriptor().getResourceList().removeRsc(seekDrawingLayer);
+    		  addedSeekLayerToResourceList = false;
 //    	 seekDrawingLayer.disposeInternal(); /*Added by archana*/
-   	seekDrawingLayer = null;
+    		  seekDrawingLayer = null;
+    		  mapEditor.refresh();
+    	  }
       }
 //    	
-        mapEditor.refresh();
     }
     
     protected SeekMouseHandler createSeekMouseHandler(){

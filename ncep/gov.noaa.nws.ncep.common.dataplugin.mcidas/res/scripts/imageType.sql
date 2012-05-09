@@ -135,3 +135,7 @@ INSERT INTO awips.mcidas_image_type VALUES (173, 'WV', '4', '184');
 INSERT INTO awips.mcidas_image_type VALUES (174, 'IR', '8', '184');
 INSERT INTO awips.mcidas_image_type VALUES (175, 'IR3', '128', '184');
 INSERT INTO awips.mcidas_image_type VALUES (176, 'IR4', '16', '184');
+INSERT INTO awips.mcidas_image_type VALUES (177, 'CAPE', '8', '185');
+INSERT INTO awips.mcidas_image_type VALUES (178, 'CINH', '16', '185');
+INSERT INTO awips.mcidas_image_type VALUES (179, 'LI', '32', '185');
+INSERT INTO awips.mcidas_image_type VALUES (180, 'TPW', '64', '185');
