@@ -10,7 +10,6 @@ package gov.noaa.nws.ncep.ui.pgen.productManage;
 import java.awt.Color;
 
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -96,8 +95,14 @@ public class LayeringDisplayDialog extends ProductDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 400,  pt.y + 146 );
+
+    	if ( shellLocation == null ) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 400,  pt.y + 146 );
+		} else {
+			shell.setLocation(shellLocation);
+		}
+
     }
 
     
@@ -140,8 +145,7 @@ public class LayeringDisplayDialog extends ProductDialog {
             	  				      cs.getColorValue().blue,
             	  				      layeringDlg.getLayerForColorMode().getColor().getAlpha() ),
             	  		   fillBtn.getSelection()  );         	
-            	
-            	shell.dispose();
+            	close();
             }
         });
         
@@ -150,7 +154,7 @@ public class LayeringDisplayDialog extends ProductDialog {
         cancelBtn.setLayoutData( gd );
         cancelBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+            	close();
             }
         });
 

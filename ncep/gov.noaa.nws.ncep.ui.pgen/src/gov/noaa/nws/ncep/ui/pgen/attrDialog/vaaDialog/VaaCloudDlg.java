@@ -52,12 +52,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/10		#165		G. Zhang   	Initial Creation.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 10/11		#?			J. Wu		Link color/FHR with layer.
+ * 02/12		#481,2,3	B. Yin		Fixed VAA text output issues.
  * </pre>
  * 
  * @author	G. Zhang
  */
 
-public class VaaCloudDlg extends AttrDlg implements ISigmet{
+public class VaaCloudDlg extends AttrDlg implements IVaaCloud{
 	
 	/**
 	 * singleton instance of this class.
@@ -204,7 +205,7 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 		if ( clr != null ) 
 			setColor(clr);
 		
-		txtWidth.setText(""+(vaCloud.getWidth()/PgenUtil.NM2M));
+		txtWidth.setText(""+(vaCloud.getWidth()));
 		
 		if(type.contains("Text")&& ! type.contains("WINDS")){
 			comboFcst.select( VaaInfo.getFcstItemIndexFromTxt(type.split(SEPERATER)[1]));
@@ -463,7 +464,7 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 	 * getter for ESOL width of the cloud.
 	 * @return String: width in String, default 25.
 	 */
-	public String getWidth(){
+	public String getCloudWidth(){
 		String dWidth = "25";
 		
 		if(txtWidth==null || txtWidth.isDisposed()) 
@@ -573,7 +574,11 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 			
 			return sb.append(fl).append(word.substring(index)).toString();
 		}else{
-			return sb.append(map.get(s)).toString();
+			if ( s.contains("WITH FL")){
+				sb.append(fl);
+				return sb.append(map.get(s).substring(7)).toString();
+			}
+			else return sb.append(map.get(s)).toString();
 		}
 					
 	}
@@ -639,7 +644,7 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
         ba.setEditableAttrSeqNum(this.getEditableAttrSequence());
         */
         ba.setType(getLineType()); 
-        ba.setWidth(getWidth());
+        ba.setWidth(Double.parseDouble(getCloudWidth()));
         
         copiedToSigmet = true;
 		
@@ -669,8 +674,10 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 	 * Boolean parameters can be used as a 3-state flag
 	 */	
 	private void radioBtnEnable(Boolean txtW, Boolean comboF){
-		if(txtW != null )
+		if(txtW != null ){
 			txtWidth.setEnabled(txtW);
+			txtWidth.setText("25");
+		}
 		if(comboF != null)
 			comboFcst.setEnabled(comboF);
 	}
@@ -786,6 +793,11 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 	public FillPattern getFillPattern() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public double getWidth() {
+		return Double.parseDouble(this.getCloudWidth());
 	}
 	
 }

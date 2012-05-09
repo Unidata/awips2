@@ -23,14 +23,11 @@
 from serverConfig import *
 import serverConfig
 
-# modifying the list of SATDIRS directories seen from the GFE, and scanned
-# by the ifpServer
-pfix = "/data/fxa/sat/SBN/netCDF/"
-serverConfig.SATDIRS = [(pfix + "westCONUS/conus_vis/regClip", "visibleWest"),
-           (pfix + "westCONUS/conus_i11/regClip", "ir11West"),
-           (pfix + "westCONUS/conus_i12/regClip", "ir13West"),
-           (pfix + "westCONUS/conus_i39/regClip", "ir39West"),
-           (pfix + "westCONUS/conus_iwv/regClip", "waterVaporWest"),
+# modifying the list of SATDATA directories seen from the GFE, and scanned
+# by EDEX
+pfix = "NESDIS/GOES-11(L)/"
+serverConfig.SATDATA.append = [(pfix + "West CONUS/Imager Visible", "visibleWest"),
+           (pfix + "East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest")]
 
 
 

@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>CopyFromModel</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>CopyFromModel</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Overview</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">CopyFromModel is a simple 
+tool to allow you to copy model data into a particular edit area, possibly while 
+time-shifting the model data.
+<br><br>
+If you use the "Populate" method to fill in a Fcst grid, the ENTIRE model grid is 
+copied into your Fcst grid.  Likewise, if you use the grid manager, button-3 menu 
+items of "copy" and "paste", the ENTIRE model grid is copied into your Fcst grid.  
+With this tool, if an edit area is active - it will only copy the model grid into 
+the specified edit area - NOT the entire grid.  If no edit area is active - it 
+copies the entire grid.  You can specify that a "taper grid" be used to smooth-in 
+your changes over a 5-gridbox band if you desire - so that there are not abrupt 
+gradient problems near the edge of your edit area.  In addition, you can specify 
+a model "hour offset" so that you can copy the data from other model hours into 
+the hours of your Fcst grid.
+<br><br>
+If the timerange of the grid you are editing contains more than one model grid, 
+the model grids are averaged (in a time-weighted sense) before they are copied 
+into your Fcst grid.  However, for QPF and SnowAmt, the model values are 
+accumulated - so that your Fcst grid will contain the total accumulation of 
+the model grids during the time period of your Fcst grid.  For PoP grids, the 
+maximum model value is copied into your Fcst grid - so that it remains consistent 
+with the "floating PoP" concept.  For Wx grids, it seems to read the "last" model 
+Wx grid and copies that into your Fcst grid - but I think you are crazy if you 
+use this tool for Wx grids.
+<br><br>
+If you use the "hour offset" feature, a negative offset means to read model data 
+from "earlier".  For example, if you have a Fcst grid with a timerange of 12-15Z, 
+and you say to copy from the GFS Model with an offset of -6, it will read the GFS 
+model grids from 6-9Z and copy them into your Fcst grid (and, again, only in the active 
+edit area, if you have one defined).  A positive offset means to read model data from 
+"later". For example, and offset of 6, with a Fcst grid timerange of 12-15Z, will 
+copy model data from 18-21Z.
+<br><br>
+This is a SmartTool - and, thus, it only operates on existing Fcst grids - so in 
+that sense it differs from the "Populate" or "Copy/Paste" methods which can 
+"create" grids for you.  You must create a grid (possibly "from scratch") before 
+you can run this tool. 
+<br><br>
+If you run the tool on multiple grids (i.e., with a selected time range), the 
+"hour offset" is applied separately to each grid.  For example, with a -3 
+"hour offset", a Fcst grid from 12-15Z will read model data from 9-12Z, while a 
+Fcst grid from 15-18Z will read model data from 12-15Z.</font>
+</body>
+</html>

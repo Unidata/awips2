@@ -6,6 +6,7 @@
                              9-15-2011 Merge in OB11.8.0-8 NEW XML SYNTAX CHANGES
      Mike Dangelo    WFO CTP 9-22-2011 to add in remarks and lines which will allow Zone-based products (Alaska TIM)
      EVAN BOOKBINDER WFO EAX 2-24-2012 corrected parseString errors that prevented auto selection
+     Qinglu Lin              04-04-2012 DR 14691. Added <feAreaField> tag.
 -->
 
 <warngenConfig>
@@ -190,6 +191,7 @@
 <!-- <areaField>NAME</areaField> -->
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField> 
 <!-- <fipsField>STATE_ZONE</fipsField> -->

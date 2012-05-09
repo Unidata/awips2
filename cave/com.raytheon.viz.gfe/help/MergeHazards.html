@@ -48,16 +48,16 @@ temporary grid, the run MergeHazards.<br>
 <h2><a name="Checking_for_Invalid_Combinations"></a>Checking for
 Invalid Combinations</h2>
 There are certain hazard combinations that are considered
-invalid.&nbsp; For example, BZ.W (BLIZZARD WARNING) and WS.W (WINTER
+invalid. For example, BZ.W (BLIZZARD WARNING) and WS.W (WINTER
 STORM WARNING) should never be combined at the same grid point since
 they are both forecasts for the same type of hazard but of different
 severity.<br>
 <br>
 The MergeHazards tool includes the capability of checking for these
-invalid combinations and notifying you when they occur.&nbsp; If an
+invalid combinations and notifying you when they occur. If an
 invalid combination is detected by the tool, a dialog appears informing
 you of the time period and hazard grids that are imporperly
-combined.&nbsp; The dialog looks like this:<br>
+combined. The dialog looks like this:<br>
 <br>
 <img alt="MergeHazards Dialog" title="MergeHazards Dialog"
  src="images/MergeHazardsDialog.png"
@@ -73,9 +73,9 @@ At this point you have two choices:<br>
 </ul>
 <big><big><small>If you select <span style="font-weight: bold;">Cancel
 Merge</span>, all of the grids will be left as they were before you
-executed the MergeHazards tool.&nbsp; You then have a chance to adjust
+executed the MergeHazards tool. You then have a chance to adjust
 the temporary hazards grids in space and/or time to remove the invalid
-combination.&nbsp; If you successfully remove the invalid combination
+combination. If you successfully remove the invalid combination
 and run the MergeHazards tool again, the grids will be properly merged
 into the Hazards weather element.</small><br>
 </big></big>
@@ -84,23 +84,23 @@ into the Hazards weather element.</small><br>
 </ul>
 If you select <span style="font-weight: bold;">Continue Merge</span> ,
 the tool will merge the grids anyway, despite the invalid
-combination.&nbsp; The tool is designed this way to avoid any
+combination. The tool is designed this way to avoid any
 frustration you may encounter if you truly believe that these hazards
 should be combined.<br>
 <br>
 Note that you may define your hazard grids such that you have more than
-one invalid combination.&nbsp; The MergeHazards tool displays the
+one invalid combination. The MergeHazards tool displays the
 warning dialog as soon as it detects the <span
  style="font-weight: bold;">first</span> invalid combination. If you
 fix the first combination and attempt to merge again, the tool will
-detect the next invalid combination.&nbsp; You may then cancel, adjust
-your grids, and attempt to merge again.&nbsp; This interative process
+detect the next invalid combination. You may then cancel, adjust
+your grids, and attempt to merge again. This interative process
 will continue until no invalid combinations exist in your temporary
 hazard grids.<br>
 <h2><a name="Configuring_Invalid_Combinations"></a>Configuring Invalid
 Combinations</h2>
 The MergeHazards tool includes a rather large Python dictionary that
-defines the invalid combinations for every VTEC code.&nbsp; Here is a
+defines the invalid combinations for every VTEC code. Here is a
 small snipet of this dictionary...<br>
 <br>
 <span
@@ -129,13 +129,13 @@ small snipet of this dictionary...<br>
 "WW.Y", "LE.Y", "LB.Y", "ZR.Y"],&nbsp; ...</span><br>
 </span><br>
 This small snipet of the dictionary defines the VTEC codes "AF.Y" and
-"AS.Y" as having no invalid combinations.&nbsp; In other words, these
-hazards may be combined with any other hazard.&nbsp; The "BS.Y" hazard,
-on the other hand, may not be combined with 14&nbsp; other winter
-hazards.&nbsp; If you wish, your local office may choose to edit the
-MergeHazards tool and modify this dictionary.&nbsp; However, we
+"AS.Y" as having no invalid combinations. In other words, these
+hazards may be combined with any other hazard. The "BS.Y" hazard,
+on the other hand, may not be combined with 14 other winter
+hazards. If you wish, your local office may choose to edit the
+MergeHazards tool and modify this dictionary. However, we
 strongly recommend that you restrict any editing to just this
-dictionary.&nbsp; Any other modifications may result in the
+dictionary. Any other modifications may result in the
 MergeHazards tool malfunctioning.<br>
 <span
  style="color: rgb(102, 0, 204); background-color: rgb(204, 204, 204);"><br>
@@ -148,7 +148,7 @@ The MergeHazards procedure follows these steps:<br>
   <li>It first looks for any temporary weather elements that begin with
 the letters "haz*"
 which were created by the Separate Hazards or Make Hazard
-procedures.&nbsp;&nbsp; <br>
+procedures.<br>
   </li>
   <li>It ensures that there are no conflicting locks on the Hazards
 weather element.</li>
@@ -159,8 +159,5 @@ weather element.</li>
   <li>It deletes the set of temporary hazard grids.<br>
   </li>
 </ul>
-<big><span style="font-style: italic;"></span><br>
-<br>
-</big>
 </body>
 </html>

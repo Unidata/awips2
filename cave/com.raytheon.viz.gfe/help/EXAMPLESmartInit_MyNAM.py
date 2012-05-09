@@ -38,6 +38,4 @@ class MyNAM12Forecaster(NAM12Forecaster):
 def main():
     MyNAM12Forecaster().run()
 
-if __name__ == "__main__":
-    main()
 

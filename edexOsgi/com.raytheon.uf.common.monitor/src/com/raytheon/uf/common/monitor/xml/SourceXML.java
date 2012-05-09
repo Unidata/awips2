@@ -27,8 +27,8 @@ package com.raytheon.uf.common.monitor.xml;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 Jan, 2010 3915         dhladky     Initial creation
+ * 18 Apr. 2012 DR 14619	 dhladky     Replace isOverride()
  * </pre>
- * 
  * @author dhladky
  * @version 1.0
  */
@@ -415,7 +415,7 @@ public class SourceXML implements ISerializableObject {
      * @param key
      * @param param
      * @return
-     */
+     *//* 2012-04-18: Old version: keep for reference: Gang Zhang
     private boolean isOverride(String key, String param) {
         if (sourceOverrideDataMap != null) {
             if (sourceOverrideDataMap.containsKey(key)) {
@@ -427,5 +427,26 @@ public class SourceXML implements ISerializableObject {
 
         return false;
     }
+*/
+    /**2012-04-18: code is from David Hladky in Omaha 
+     * for DR 14619/14620. Gang Zhang is checked in
+     * Check to see if we are overridden
+     * 
+     * @param key
+     * @param param
+     * @return
+     */    
+    private boolean isOverride(String key, String param) {
+        if (sourceOverrideDataMap != null) {
+            if (sourceOverrideDataMap.containsKey(key)) {
+                for (SourceOverrideParamXML paramx:  sourceOverrideDataMap.get(key)) {
+                    if (paramx.getParam().equals(param)) {
+                        return true;
+                    }
+                }
+            }
+        }
 
+        return false;
+    }    
 }

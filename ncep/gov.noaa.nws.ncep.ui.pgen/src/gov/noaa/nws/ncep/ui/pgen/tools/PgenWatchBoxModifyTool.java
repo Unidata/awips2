@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 10/09					B. Yin   	Initial Creation.
  * 04/11		?			B. Yin		Bring up the WatchBox spec dialog
  * 12/11		565			B. Yin		Modify watch box onlly when the curse is close enough
+ * 02/12		TTR 525		B. Yin		Make sure points don't move when selecting.
  * 
  * </pre>
  * 
@@ -94,6 +95,8 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
      *
      */
 	private class PgenWatchBoxModifyHandler extends PgenSelectingTool.PgenSelectHandler {
+		
+		private boolean dontMove = true;	//flag to prevent moving during selection
         /*
          * (non-Javadoc)
          * 
@@ -102,13 +105,17 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
-        	
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
         	
+        	if ( button == 1 ) {
+        		dontMove = false;
+        		return false;
+        	}
         	// clean up
-        	if ( button == 3 ) {
+        	else if ( button == 3 ) {
             	
             	// Close the attribute dialog and do the cleanup.
             	if ( attrDlg != null ) {
@@ -142,6 +149,9 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) {
+        	
+        	if ( dontMove ) return true;
+        	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null ) return false;
