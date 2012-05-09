@@ -25,8 +25,8 @@ package gov.noaa.nws.ncep.ui.pgen.display;
 
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
-import gov.noaa.nws.ncep.ui.pgen.elements.County;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
 
 import java.awt.Color;
 import java.util.List;

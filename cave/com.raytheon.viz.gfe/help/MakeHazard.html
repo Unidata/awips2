@@ -18,10 +18,10 @@
 </div>
 <br>
 <big>The MakeHazard procedure is the primary interface for creating and
-editing hazards in GFE, excluding convective and tropical<br>
+editing hazards in GFE, excluding convective and tropical
 hazards, which have their own procedures (<a href="PlotSPCWatches.html">PlotSPCWatches</a>
 and <a href="PlotTPCEvents.html">PlotTCPEvents</a>). For more on how
-to use the MakeHazard tool<br>
+to use the MakeHazard tool
 and general hazard methodology, check <a href="Hazard_Methodology.html">Hazard
 Methodlogy</a>.<br>
 <br>
@@ -120,9 +120,9 @@ of MakeHazard<br>
 <br>
 <span style="font-weight: bold;"></span></span><small>You can easily
 configure the hazards which display in the hazard lists, and the
-categories available, by creating an override as user SITE to the
+categories available, by creating an override at SITE level to the
 procedure. In the configuration
-section, located in method setUI, you can setthe map types, hazard
+section, located in method setUI, you can set the map types, hazard
 lists, categories, default categories, and more.
 See the example below.<br>
 <br>
@@ -131,37 +131,32 @@ See the example below.<br>
 <br>
 <br>
 The most important sections for configuration are the mapNames and the
-hazardDict.&nbsp;&nbsp; Each hazard that you want to appear in the
+hazardDict. Each hazard that you want to appear in the
 menus must be associated with a category.&nbsp;&nbsp; Each category
 must be associated with a map background (or map
-backgrounds).&nbsp;&nbsp; For example, the HU.W (Hurricane Warning) is
+backgrounds). For example, the HU.W (Hurricane Warning) is
 part of the "Tropical Cyclone" group in the hazardDict.&nbsp;&nbsp; The
 "Tropical Cyclone" category uses the Zones_&lt;site&gt;,
 Marine_Zones_&lt;site&gt;, and Offshore_Marine_Zones_&lt;site&gt; map
 backgrounds.<br>
 <br>
 If the lists are not synchronized properly, then the procedure will not
-work.&nbsp;&nbsp; Categories may be added and removed, and individual
+work. Categories may be added and removed, and individual
 hazards may be added and removed (including locally defined
-hazards).&nbsp;&nbsp; The list of map backgrounds contain &lt;site&gt;,
+hazards). The list of map backgrounds contain &lt;site&gt;,
 which is replaced with your real site identifier when the procedure
-runs.&nbsp; The list of map backgrounds assumes that you are using the
+runs. The list of map backgrounds assumes that you are using the
 standard set of map shapefiles and map names as defined in <a
  href="mapConfig.html">Maps.py</a>.<br>
-<br>
 <br>
 </small></big></big>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="howitworks"></a>How It Works</h2>
 The MakeHazard first separates out the Hazards grid into separate haz*
-temporary weather elements.&nbsp;&nbsp; The user chooses the type of
+temporary weather elements. The user chooses the type of
 event, the time, and the area (either on the grid as a selected area or
-by using the map), and presses Run or Run/Dismiss.&nbsp;&nbsp; The
+by using the map), and presses Run or Run/Dismiss. The
 temporary weather element is created (if not already there) and the
 grid is created/edited as appropriate.<br>
-<br>
-<h2><big><big><span style="font-weight: bold;"></span></big></big></h2>
-<big><big><span style="font-weight: bold;"></span></big></big><big><br>
-<big><span style="font-weight: bold;"></span></big></big><br>
 </body>
 </html>

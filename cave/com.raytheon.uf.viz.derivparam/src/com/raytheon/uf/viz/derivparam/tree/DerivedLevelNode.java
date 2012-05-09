@@ -57,6 +57,9 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 14, 2009            rjpeter     Initial creation
+ * Apr 11, 2012	DR14666	   porricel	   Modified getDataInternal to
+ *                                     use 0-30MB for derived boundary
+ *                                     layer
  * 
  * </pre>
  * 
@@ -396,9 +399,12 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
             if (record.getRequest().getBaseParams().size() == method
                     .getFields().size()) {
                 modifyRequest(record);
+                // Define derived BL as 0-30MB
+                if (record.getLevel().getMasterLevel().getName().equals("BL") && record.getLevel().getLevelOneValueAsString().equals("0.0") &&
+                		!record.getLevel().getLevelTwoValueAsString().equals("30.0"))
+                	continue;
                 finalResponses.add(record);
             }
-
         }
         return finalResponses;
     }

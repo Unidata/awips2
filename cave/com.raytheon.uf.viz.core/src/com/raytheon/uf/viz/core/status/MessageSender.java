@@ -32,6 +32,7 @@ import com.raytheon.uf.common.message.IMessage;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.comm.JMSConnection;
+import com.raytheon.uf.viz.core.preferences.JMSPreferences;
 
 /**
  * Sends messages to jms endpoints programmatically.
@@ -88,7 +89,8 @@ public class MessageSender {
             dest = session.createQueue(endpoint);
         }
         if (DestinationType.TOPIC.equals(type)) {
-            dest = session.createTopic(endpoint);
+            dest = session
+                    .createTopic(JMSPreferences.getPolicyString(endpoint));
         }
         return dest;
 

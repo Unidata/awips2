@@ -65,16 +65,19 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2009            lvenable     Initial creation
- * 
+ * Mar 15,2012	DR 14406  gzhang       Fixing QPF Column Title Missing 
+ * Mar 20,2012	DR 14250  gzhang       Eliminating column Missing values 
  * </pre>
- * 
  * @author lvenable
  * @version 1.0
  */
 public abstract class FFMPTable extends Composite {
     /** Default column width */
-    protected static final int DEFAULT_COLUMN_WIDTH = 75;
+    protected static final int DEFAULT_COLUMN_WIDTH = 95;//DR14406: old value: 75 too small 
 
+    /** DR14406:  For columns with more words */
+    protected static final int EXTRA_COLUMN_WIDTH = 28;
+    
     /**
      * Main table control.
      */
@@ -414,8 +417,8 @@ public abstract class FFMPTable extends Composite {
                  */
                 float dataVal = cellData[sortColIndex]
                                          .getValueAsFloat();
-                
-                if (sortedThreshCol.name().equalsIgnoreCase("RATIO") && Float.isNaN(dataVal)) {
+                //DR 14250 fix: any value not a number will be omitted
+                if (/*sortedThreshCol.name().equalsIgnoreCase("RATIO") &&*/ Float.isNaN(dataVal)) {
                     continue;
                 }
                 
@@ -654,7 +657,7 @@ public abstract class FFMPTable extends Composite {
             }
         }
 
-        imageWidth = maxTextLength * textWidth + 6;
+        imageWidth = maxTextLength * textWidth + EXTRA_COLUMN_WIDTH;//DR14406: old value 6 too small
         imageHeight = textHeight * 2;
 
         gc.dispose();
@@ -709,23 +712,25 @@ public abstract class FFMPTable extends Composite {
                 String[] tmpArray = colName.split("\n");
 
                 for (int j = 0; j < tmpArray.length; j++) {
-                    if (tmpArray[j].length() > maxTextLen) {
-                        maxTextLen = tmpArray[j].length();
-                    }
-                }
+//                    if (tmpArray[j].length() > maxTextLen) {
+//                        maxTextLen = tmpArray[j].length();
+//                    }
+//                }
 
-                xCoord = Math.round((imageWidth / 2)
-                        - (maxTextLen * textWidth / 2));
-                yCoord = 0;
+                	xCoord = Math.round((imageWidth / 2)- (tmpArray[j].length() /*DR14406: old value: maxTextLen*/* textWidth / 2));
+                	yCoord = j*(textHeight+1);//DR14406: old value 0 is only for the 1st line
+                	gc.drawText(tmpArray[j], xCoord, yCoord, true);//DR14406: draw each line separately		
+                }
             } else {
                 xCoord = Math.round((imageWidth / 2)
                         - (colName.length() * textWidth / 2));
                 yCoord = imageHeight / 2 - textHeight / 2 - 1;
+                gc.drawText(colName, xCoord, yCoord, true);//DR14406: draw text with a single line
             }
 
 //            System.out.println("Column name = " + colName);
-
-            gc.drawText(colName, xCoord, yCoord, true);
+            //DR14406: move the below text drawing code into the if-else blocks
+            //gc.drawText(colName, xCoord, yCoord, true);
 
             gc.dispose();
             tc.setImage(img);
@@ -779,7 +784,9 @@ public abstract class FFMPTable extends Composite {
                         tCols[i].setWidth(table.getColumn(i).getWidth());
                     } else {
                         tCols[i].setWidth(defaultColWidth);
-                    }
+                    } 
+                    
+                    setQPFColName(tCols[i], col);//DR14406: set QPF title with quicker response
                 } else {
                     tCols[i].setWidth(0);
                 }
@@ -858,4 +865,28 @@ public abstract class FFMPTable extends Composite {
      * @return Column index.
      */
     protected abstract int getColumnIndex(String sortCol);
+
+
+    
+    
+    
+    /**
+     * DR14406 code: QPF column's name should be re-set 
+     * when a user choose another type of QPF from the
+     * Attributes... button. 
+     * 
+     * See FfmpTableConfigData.setQpfType() with ColumnAttribData
+     * 
+     * @param tCols:	TableColumn
+     * @param col:		Column name
+     */
+    private void setQPFColName(TableColumn tCols, String col){
+    	
+    	if(COLUMN_NAME.QPF.getColumnName().equalsIgnoreCase(col)){    	
+    	
+	    	setColumnImages();
+	    	tCols.setWidth(defaultColWidth+EXTRA_COLUMN_WIDTH);//38);
+	    	    	
+    	}
+    }
 }

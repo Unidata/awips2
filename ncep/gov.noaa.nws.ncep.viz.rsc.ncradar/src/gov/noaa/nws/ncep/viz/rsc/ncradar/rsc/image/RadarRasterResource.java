@@ -55,6 +55,7 @@ import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/13/2011      #541       S. Gurung   Initial creation
+ * 03/30/2012      #651       S. Gurung   Removed method resourceChanged
  * 
  * </pre>
  * 
@@ -246,12 +247,7 @@ public class RadarRasterResource extends RadarImageResource<MapDescriptor> {
 		// TODO Auto-generated method stub
 		return new FrameData(frameTime, frameInterval );//return null;
 	}
-
-	@Override
-	public void resourceChanged(ChangeType type, Object object) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 }
 
