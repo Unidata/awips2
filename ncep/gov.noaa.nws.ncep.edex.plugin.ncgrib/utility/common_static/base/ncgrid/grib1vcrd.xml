@@ -105,7 +105,7 @@
           <name>Layer between two spec alts (msl)</name>
           <units>hm</units>
           <gnam>HGHT</gnam>
-          <scale>2</scale>
+          <scale>0</scale>
      </grib1vcrd>
      <grib1vcrd>
           <vcrdid>105</vcrdid>
@@ -119,21 +119,21 @@
           <name>Layer between two height levels (gnd)</name>
           <units>hm</units>
           <gnam>HGHT</gnam>
-          <scale>2</scale>
+          <scale>0</scale>
      </grib1vcrd>
      <grib1vcrd>
           <vcrdid>107</vcrdid>
           <name>Sigma level</name>
           <units>1/10000 sigma value</units>
           <gnam>SGMA</gnam>
-          <scale>0</scale>
+          <scale>4</scale>
      </grib1vcrd>
      <grib1vcrd>
           <vcrdid>108</vcrdid>
           <name>Layer between two sigma levels</name>
           <units>1/100 sigma values</units>
           <gnam>SGMA</gnam>
-          <scale>2</scale>
+          <scale>4</scale>
      </grib1vcrd>
      <grib1vcrd>
           <vcrdid>109</vcrdid>
@@ -203,7 +203,7 @@
           <name>ETA level</name>
           <units>1/10000</units>
           <gnam>ELVL</gnam>
-          <scale>0</scale>
+          <scale>4</scale>
      </grib1vcrd>
      <grib1vcrd>
           <vcrdid>120</vcrdid>

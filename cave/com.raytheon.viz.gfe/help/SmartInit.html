@@ -12,12 +12,10 @@
  text="#000000">
 <h1>
 Smart Initialization Configuration and User's Guide</h1>
-April 7, 2004<br>
+February 15, 2012<br>
 <p>This document describes how smart initialization works, and how it
-can
-be extended and modified.
+can be extended and modified.
 <br>
-&nbsp;
 </p>
 <h2>Table of Contents</h2>
 <a href="#HowSmartInitializationWorks">How Smart Initialization Works</a>
@@ -47,37 +45,36 @@ Line</a>
 <hr width="100%">
 <h2><a name="HowSmartInitializationWorks"></a>How Smart Initialization
 Works</h2>
-Smart initialization is closely coupled with the ifpServer.&nbsp; The
-ifpServer
+Smart initialization is closely coupled with EDEX. EDEX
 is aware of D2D model data changes and therefore knows when IFP data
 grids
-can be created.&nbsp; Whenever the ifpServer first starts, or new D2D
+can be created. Whenever EDEX first starts, or new D2D
 model
 data is detected (which occurs frequently - less than 5 minute
 intervals), the server will
 examine
 the serverConfig/localConfig configuration file for the INITMODULES
-definition.&nbsp;
+definition.
 If it finds a match with the updated D2D model, then it will spawn a
 process
 to run smart initialization for that model.
 <p>When a smart initialization process is started, it will run a
 particular
 class file, either one that has been supplied with the release, or one
-you have added.&nbsp; The software will examine all of the functions
+you have added. The software will examine all of the functions
 within
-that class looking for function names that begin with calc***.&nbsp;
+that class looking for function names that begin with calc***.
 These
 functions define the output weather element, e.g., calcT will derive T,
-and also the dependencies.&nbsp; The dependencies are determined from
+and also the dependencies. The dependencies are determined from
 the
 argument list for each function.
 </p>
 <p>The smart initialization software then figures out the dependencies
 for all of the calc*** functions and will determine what must run
 first,
-second, third, etc.&nbsp; This is done automatically and the programmer
-need not be concerned about it.&nbsp; The software also examines the
+second, third, etc. This is done automatically and the programmer
+need not be concerned about it. The software also examines the
 inventory
 for the dependent grids and the inventory for the output grids to
 determine
@@ -91,9 +88,9 @@ exits until the next D2D model update.
 </p>
 <p>Smart Initialization algorithms are written in a simple, intuitive
 language
-called Python and its extension, Numerical Python. The following
+called Python and its extension, numpy. The following
 sections
-assume that you have knowledge of Python&nbsp; which is covered in the
+assume that you have knowledge of Python which is covered in the
 <a href="Python.html">GFESuite
 Python Tutorial and Programming Guidelines</a>.
 <br>
@@ -103,19 +100,17 @@ Python Tutorial and Programming Guidelines</a>.
 smart initialization?</h2>
 The standard smart initialization files that are supplied with the
 release
-are installed into your <i>release</i>/etc/BASE/smartInit directory.&nbsp; No
-modifications
+are installed into your <i>release</i>/edex/data/utility/edex_static/base/smartinit 
+directory. No modifications
 should be made to any of the files in the BASE directory.
 User-customized
-files are installed into the <i>release</i>/etc/SITE directory.&nbsp;
-These
-SITE&nbsp; files are not overwritten during installs and upgrades.
+files are installed into the <i>release</i>/edex/data/utility/edex_static/site/SITE/smartinit 
+directory. These SITE files are not overwritten during installs and upgrades.
 <br>
 <hr width="100%">
 <h2><a name="BasicFileStructure"></a>Basic File Structure</h2>
 The basic structure of a smart initialization file contains a header
-that
-is simliar to:
+that is simliar to:
 <p><tt>from Init import *</tt>
 </p>
 <p><tt>class <i>model</i>Forecaster(<i>derivedFrom</i>Forecaster):</tt>
@@ -126,18 +121,16 @@ is simliar to:
 "<i>sourceDb</i>", "<i>destDb</i>")</tt>
 </p>
 <p>This is basically defining a new class called "<i>model</i>Forecaster",
-which is derived from "<i>derivedFrom</i>Forecaster".&nbsp; The
+which is derived from "<i>derivedFrom</i>Forecaster". The
 __init__
 function is the constructor to the class, which calls the base class
 (class
-it has been defined from)&nbsp; with three arguments, self, "sourceDb",
-and "destDb".&nbsp; The source db is the name of the D2D database, such
-as NAM80, NAM40, NAM12, NGM80, RUC80, GFS40, gfsLR.&nbsp; The
-destination database is the name of the
-output
-database, such as NAM12, GFS40, NAM_V.&nbsp; If there is an underscore
-in
-the destination database, then the format is the
+it has been defined from) with three arguments, self, "sourceDb",
+and "destDb". The source db is the name of the D2D database, such
+as NAM80, NAM40, NAM12, NGM80, RUC80, GFS40, gfsLR. The
+destination database is the name of the output
+database, such as NAM12, GFS40, NAM_V. If there is an underscore
+in the destination database, then the format is the
 modelname_optionaltype.
 </p>
 <p>A complete example of the header is shown below:
@@ -157,8 +150,8 @@ Forecaster.__init__(self,
 <p>There usually is a function called levels() which define a set of
 vertical
 pressure levels which are used when accessing cube data from the
-models.&nbsp;
-The levels() return a list of level values to use.&nbsp; Make sure that
+models.
+The levels() return a list of level values to use. Make sure that
 the levels you specify are actually available in the model. A complete
 example is shown below:
 </p>
@@ -175,14 +168,14 @@ example is shown below:
 </p>
 <p>Following the levels() function are the set of functions with a
 particular
-name.&nbsp; The calculation functions <b><font color="#000099">MUST
+name. The calculation functions <b><font color="#000099">MUST
 ALL
-BEGIN WITH calc</font></b> in their name.&nbsp; That is how smart
+BEGIN WITH calc</font></b> in their name. That is how smart
 initialization
-can determine what to run.&nbsp; It basically runs all calc***
+can determine what to run. It basically runs all calc***
 functions
-that are defined.&nbsp; The remainder of the name of the function after
-"calc" is the parameter name to create.&nbsp; For example, if RH is
+that are defined. The remainder of the name of the function after
+"calc" is the parameter name to create. For example, if RH is
 your
 weather element name, the name of the function to calculate RH would be
 calcRH(). The typical format for a calc function is shown below, this
@@ -267,20 +260,19 @@ and the real surface elevation.
 </p>
 <p>The name of the function is always calc***&nbsp;where *** is the
 weather
-element name and level.&nbsp; If you are creating weather elements for
+element name and level. If you are creating weather elements for
 surface data then the weather element name by itself is
-sufficient.&nbsp;
+sufficient.
 If you are creating weather elements for upper air or non-surface data,
 then the name of the calc function is:&nbsp;&nbsp;calc***_***, such as
 calcWind_3K() for the Wind at 3000 feet.
 </p>
-<p>Note the argument list for the calc*** functions.&nbsp; The first
+<p>Note the argument list for the calc*** functions. The first
 argument
-is always self.&nbsp; The remainder of the arguments represent gridded
-data.&nbsp; The format of the specification can be one of the following
+is always self. The remainder of the arguments represent gridded
+data. The format of the specification can be one of the following
 formats:
 <br>
-&nbsp;
 <table nosave="" width="100%" border="1">
   <tbody>
     <tr>
@@ -301,7 +293,7 @@ for numeric functions.</td>
     <tr>
       <td>parmName_level</td>
       <td>t_FHAG2</td>
-      <td>Refers to a single grid for the parmName and the level.&nbsp;
+      <td>Refers to a single grid for the parmName and the level.
 The example
 accesses the temperature grid from the model that is at the FHAG2
 (fixed
@@ -311,9 +303,9 @@ height above ground 2m level)</td>
       <td>parmName_c</td>
       <td>rh_c</td>
       <td>Refers to a cube of data for the parmName. The "_c" indicates
-the cube.&nbsp;
+the cube.
 The number of layers in the cube depend upon the levels() function
-contents.&nbsp;
+contents.
 For example, if the levels() contain: <br>
       <tt>&nbsp; def levels(self):</tt> <br>
       <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return ["MB950",
@@ -322,13 +314,13 @@ For example, if the levels() contain: <br>
 "MB700","MB650","MB600","MB550", "MB500",</tt> <br>
       <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 "MB450", "MB400", "MB350"]</tt> <br>
-then the cube will contain 13 levels.&nbsp; Access of individual levels
+then the cube will contain 13 levels. Access of individual levels
 can be done using indexing within the function.</td>
     </tr>
     <tr>
       <td>topo</td>
       <td>topo</td>
-      <td>Refers to the high-resolution surface topography field,&nbsp;
+      <td>Refers to the high-resolution surface topography field,
 in units
 of meters above MSL.</td>
     </tr>
@@ -375,7 +367,7 @@ D2D database.</td>
 <p>You can place additional functions (e.g., utility) functions
 anywhere
 in the file after the constructor (__init__) and before the tail end of
-the file.&nbsp;&nbsp; An example of a utility function could be one to
+the file. An example of a utility function could be one to
 calculate Td from T and RH as shown below:
 </p>
 <p><tt>&nbsp;&nbsp; def getTd(self, t, rh):</tt>
@@ -414,12 +406,6 @@ similar to that below:
 <br>
 <tt>&nbsp;&nbsp;&nbsp; <i>model</i>Forecaster().run()</tt>
 </p>
-<p><tt>if __name__ == "__main__":</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; main()</tt>
-<br>
-&nbsp;
-</p>
 <p>Here is an example of a real tail to the file. The name of the class
 within the main() function must match the name of the class you have
 defined
@@ -428,12 +414,6 @@ in the header:
 <p><tt>def main():</tt>
 <br>
 <tt>&nbsp;&nbsp;&nbsp; NAM12Forecaster().run()</tt>
-</p>
-<p><tt>if __name__ == "__main__":</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; main()</tt>
-<br>
-&nbsp;
 </p>
 <h2>
 <hr width="100%"><a name="Workingwith"></a>Working with SCALAR, VECTOR,
@@ -444,44 +424,42 @@ numerical python.
 <h3>SCALAR</h3>
 <p><br>
 When passing in a weather element that is scalar, you will either
-get a grid, or a cube.&nbsp;&nbsp; The grid is a numeric 2-d grid
+get a grid, or a cube. The grid is a numeric 2-d grid
 (x,y),
 the cube is a numeric 3-d grid (z,x,y).
 <br>
-&nbsp;
 </p>
 <h3>VECTOR</h3>
-For a single vector grid (single level), you get a tuple.&nbsp; The
+For a single vector grid (single level), you get a tuple. The
 first
 element is a grid of magnitude, the second is a grid of
-direction.&nbsp;&nbsp;
+direction.
 To access the magnitude grid, use this syntax: <tt>wind_SFC[0]</tt>,
 and
-for direction, use this syntax: <tt>wind_SFC[1]</tt>.&nbsp;&nbsp; Once
+for direction, use this syntax: <tt>wind_SFC[1]</tt>. Once
 you access either the magnitude or direction grid, they are treated
 like
 a scalar grid.
 <p>There are several "utility" functions in Init.py (located in your
-release/etc/BASE/smartInit
+release/edex/data/utility/edex_static/base/smartinit
 directory) that can help you when working with vector data. The <tt>self._getUV(
 mag, dir)</tt> call will convert a magnitude/direction grids into a
 returned
-tuple of u and v.&nbsp; The u component is [0] and the v component is
-[1].&nbsp;
+tuple of u and v. The u component is [0] and the v component is
+[1].
 The <tt>self._getMD(u,v)</tt> function converts a grid in u and v
 components
-into a tuple of magnitude and direction.&nbsp; The magnitude component
+into a tuple of magnitude and direction. The magnitude component
 is [0] and the direction component is [1].
 <br>
-&nbsp;
 </p>
 <h3>WEATHER</h3>
 Weather is much more complicated and can be a big performance problem.
-A tuple is provided.&nbsp; The first element is a grid, which contains
+A tuple is provided. The first element is a grid, which contains
 the indexes into the key. The second element is a sequence of all of
 the
-keys.&nbsp;&nbsp; The keys are the ugly strings associated with a
-WeatherKey.&nbsp;
+keys. The keys are the ugly strings associated with a
+WeatherKey.
 To access the grid:
 <p><tt>Wx[0]</tt>
 </p>
@@ -494,25 +472,24 @@ To access the grid:
 <p><tt>Wx[1][3]</tt>, would give your the 4th key.
 </p>
 <p>Normally you don't access the weather grid in your calculations, but
-if you need to, you have generally created a weather grid first.&nbsp;
+if you need to, you have generally created a weather grid first.
 In smart initialization, we know all of the possible weather keys that
 can be created and set up a table with those keys, then we simply poke
-in the correct index for the key.&nbsp; This is much more efficient
+in the correct index for the key. This is much more efficient
 than
 searching the keys for each grid point.
 <br>
-&nbsp;
 </p>
 <h3>DICRETE</h3>
 Discrete is much more complicated than the simple scalar and vector
 case,
 and like weather, can be a big performance problem. A tuple is
-provided.&nbsp;
+provided.
 The first element is a grid, which contains the indexes into the key.
 The
-second element is a sequence of all of the keys.&nbsp;&nbsp; The keys
+second element is a sequence of all of the keys. The keys
 are
-the discrete key values associated with the weather element.&nbsp; To
+the discrete key values associated with the weather element. To
 access
 the grid:
 <p><tt>DK[0]</tt>
@@ -527,10 +504,10 @@ the grid:
 </p>
 <p>Normally you don't access the discrete grid in your calculations,
 but
-if you need to, you have generally created a discrete grid first.&nbsp;
+if you need to, you have generally created a discrete grid first.
 In smart initialization, we know all of the possible discrete keys that
 can be created and set up a table with those keys, then we simply poke
-in the correct index for the key.&nbsp; This is much more efficient
+in the correct index for the key. This is much more efficient
 than
 searching the keys for each grid point.
 </p>
@@ -541,10 +518,10 @@ searching the keys for each grid point.
 Algorithm</h2>
 The basic procedure to modify an existing algorithm is shown below:
 <ul>
-  <li>Create a new file in <i>release</i>/etc/SITE which should be
+  <li>Create a new file in <i>release</i> which should be
 named
 similarily,
-but not identical to, the class in which you are modifying.&nbsp; For
+but not identical to, the class in which you are modifying. For
 example,
 if you are modifying the NAM12 model intiialization, which is stored in
 NAM12.py,
@@ -553,7 +530,7 @@ is
 your eta.</li>
   <li>The format of the file should be standard as shown in the <a
  href="#BasicFileStructure">Basic
-File Structure section</a> above.&nbsp;&nbsp; In particular, it needs
+File Structure section</a> above. In particular, it needs
 to
 include the following items:</li>
   <ul>
@@ -561,7 +538,7 @@ include the following items:</li>
 from</li>
     <li>the levels() function, but only if you are changing it</li>
     <li>a replacement, named the same, of the function you are
-modifying.&nbsp;
+modifying.
 You may want to copy this function (not ALL functions -- just this one)
 into this file from the original file and then edit it.</li>
     <li>the tail, which includes the main() and the final if __name__
@@ -572,10 +549,10 @@ statements</li>
 file to override the INITMODULES</a> section of the serverConfig.py.</li>
 </ul>
 Here is an example of overriding the NAM12 derivation of Snow
-Amount.&nbsp;
+Amount.
 The original NAM12.py file contains the following information (only
 part
-of the file is shown).&nbsp; The snow amount function calculates the
+of the file is shown). The snow amount function calculates the
 snow
 ratio which varies depending upon temperature, and then assigns the
 snow
@@ -628,10 +605,6 @@ where(less_equal(FzLevel
 <br>
 <tt>&nbsp;&nbsp;&nbsp; NAM12Forecaster().run()</tt>
 </p>
-<p><tt>if __name__ == "__main__":</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; main()</tt>
-</p>
 <p>Here is the derived MyNAM12 file that overrides the calcSnowAmt()
 function:
 </p>
@@ -657,31 +630,26 @@ NAM12Forecaster.__init__(self)</tt>
 <br>
 <tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
 </p>
-<p><tt>if __name__ == "__main__":</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; main()</tt>
-</p>
 <p>The algorithm was changed to have a fixed 10:1 snow ratio anytime
 the
-temperature is below 32.&nbsp; The freezing level is no longer used in
-this revision.&nbsp; Of course you can completely rewrite the
+temperature is below 32. The freezing level is no longer used in
+this revision. Of course you can completely rewrite the
 algorithm,
-use different arguments, etc.&nbsp; Note that the name of the function,
+use different arguments, etc. Note that the name of the function,
 calcSnowAmt() in this case is identical to to the name in the original
-file.&nbsp; This is important!
+file. This is important!
 <br>
 </p>
 <hr width="100%">
 <h2><a name="AddingNewAlgorithms"></a>Adding New Algorithms</h2>
 Adding a new algorithm is just about the same as <a
  href="#ModifyinganExistingAlgorithm">Modifying
-An Existing Algorithm</a>.&nbsp; You will do the similar steps:
+An Existing Algorithm</a>. You will do the similar steps:
 <ul>
-  <li>Create a new file in <i>release</i>/etc/SITE which should be
-named
-similarily,
+  <li>Create a new file in <i>release</i>/edex/data/utility/edex_static/site/SITE/smartinit 
+  which should be named similarily,
 but not identical to, the class in which you want to add a new
-algorithm.&nbsp;
+algorithm.
 For example, if you are adding to the NAM model intiialization, which
 is
 stored in NAM.py, perhaps you should name your new file MyNAM.py to
@@ -689,14 +657,13 @@ indicate
 that this is your eta.</li>
   <li>The format of the file should be standard as shown in the <a
  href="#BasicFileStructure">Basic
-File Structure section</a> above.&nbsp;&nbsp; In particular, it needs
+File Structure section</a> above. In particular, it needs
 to
 include the following items:</li>
   <ul>
     <li>the header, which is set to inherit the file you are
 interheiting from</li>
-    <li>the tail, which includes the main() and the final if __name__
-statements</li>
+    <li>the tail, which includes the main() statement</li>
   </ul>
   <li>Add your new function into the newly created file.</li>
   <li>Modify (create first if necessary) your server <a
@@ -732,13 +699,6 @@ NAM12Forecaster.__init__(self)</tt>
 <br>
 <tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
 </p>
-<p><tt>if __name__ == "__main__":</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; main()</tt>
-<br>
-&nbsp;
-</p>
-<p></p>
 <hr width="100%">
 <h2><a name="AddingNewModels"></a>Adding New Models</h2>
 Adding new models, and all of the algorithms to derive the elements
@@ -749,17 +709,17 @@ or <a href="#ModifyinganExistingAlgorithm">Modifying an Existing
 Algorithm</a>.
 The basic steps are:
 <ul>
-  <li>Create a new file in <i>release</i>/etc/SITE which should be
-named
-appropriately
-(and not the same name as any file in <i>release</i>/etc/BASE/smartInit) For
+  <li>Create a new file in <i>release</i>/edex/data/utility/edex_static/site/SITE/smartinit 
+  which should be named appropriately
+(and not the same name as any file in <i>release</i>/edex/data/utility/edex_static/base/
+smartnit) For
 example,
 if you are going to create a GWW model initialization, then the name
 should
 probably be GWW.py.</li>
   <li>The format of the file should be standard as shown in the <a
  href="#BasicFileStructure">Basic
-File Structure section</a> above.&nbsp;&nbsp; In particular, it needs
+File Structure section</a> above. In particular, it needs
 to
 include the following items:</li>
   <ul>
@@ -772,8 +732,7 @@ D2D-cube data.</li>
 of your
 weather
 elements.</li>
-    <li>the tail, which includes the main() and the final if __name__
-statements</li>
+    <li>the tail, which includes the main() statement</li>
   </ul>
   <li>Modify (create first if necessary) your server <a
  href="localConfig.html#InitializationModules">localConfig.py
@@ -785,12 +744,12 @@ associated
 with the database.</li>
 </ul>
 Here is a complete example of creating WaveHeight and Surface Wind from
-the GWW model.&nbsp; .&nbsp; The wave height logic catches values that
+the GWW model. The wave height logic catches values that
 are very high and assumes that they are missing data and resets them to
-zero height.&nbsp; There is also a conversion from meters to
-feet.&nbsp;
+zero height. There is also a conversion from meters to
+feet.
 The wind logic also catches values that are very high and assumes that
-they are missing data and resets the winds to calm.&nbsp; There is also
+they are missing data and resets the winds to calm. There is also
 a conversion from meters/second to knots.:
 <p><tt>from Init import *</tt>
 <br>
@@ -829,32 +788,23 @@ where(greater(wind_SFC[0],
 <br>
 <tt>&nbsp;&nbsp;&nbsp; GWWForecaster().run()</tt>
 </p>
-<p><tt>if __name__ == "__main__":</tt>
-<br>
-<tt>&nbsp;&nbsp;&nbsp; main()</tt>
-<br>
-&nbsp;
-</p>
-<p></p>
 <hr width="100%">
 <h2><a name="CommandLine"></a>Running Smart Initialization from the
 Command
 Line</h2>
 Normally you don't need to run smart initialization from the command
-line.&nbsp;
-Smart initialization is automatically started by the ifpServer when new
+line.
+Smart initialization is automatically started by EDEX when new
 D2D model data arrives.
 <p>In the event that you do want to run smart initialization from the
 command
 line, which you probably would when you are developing new algorithms,
 here is the proper syntax:
 </p>
-<p><tt>ifpInit [-h host] [-p port] [-t modelTime] [-a]&nbsp;
+<p><tt>ifpInit [-h host] [-p port] [-t modelTime] [-s site] [-u userid] [-a]
 algorithmFile</tt>
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" width="100%" border="1">
   <tbody>
     <tr>
@@ -865,34 +815,42 @@ algorithmFile</tt>
     <tr>
       <td>-h host</td>
       <td>yes</td>
-      <td>Defines the host upon which the ifpServer is running.&nbsp;
+      <td>Defines the host upon which EDEX is running.
 Normally
-this switch is not needed and the software will determine where the
-ifpServer
+this switch is not needed and the software will determine where EDEX
 is running.</td>
     </tr>
     <tr>
       <td>-p port</td>
       <td>yes</td>
-      <td>Defines the RPC port upon which the ifpServer is
-running.&nbsp; Normally
-this switch is not needed and the software will determine where the
-ifpServer
+      <td>Defines the RPC port upon which EDEX is
+running. Normally
+this switch is not needed and the software will determine where EDEX
 is running.</td>
     </tr>
     <tr>
       <td>-t modelTime</td>
       <td>yes</td>
       <td>Specifies the model run time in the format of
-yyyymmdd_hhmm.&nbsp;
-If not specified, then run using the latest model data.&nbsp;</td>
+yyyymmdd_hhmm.
+If not specified, then run using the latest model data.</td>
+    </tr>
+    <tr>
+      <td>-s site</td>
+      <td>no</td>
+      <td>Specifies the site id for whom to run the init.</td>
+    </tr>
+    <tr>
+      <td>-u user</td>
+      <td>yes</td>
+      <td>Specifies the user id who is executing the init.</td>
     </tr>
     <tr>
       <td>-a</td>
       <td>yes</td>
       <td>Specifies to create all of the possible data grids, which
 will overwrite
-existing previously calculated grids.&nbsp; Normally by default, only
+existing previously calculated grids. Normally by default, only
 those
 grids that haven't yet been created will be attempted to be calculated.</td>
     </tr>
@@ -906,21 +864,12 @@ module, such as NAM12, or MyNAM12.</td>
   </tbody>
 </table>
 <font color="#3366ff">Note: The -h and -p switches are predefined to
-match your GFESuite installation, such that they will point to the
-ifpServer
-specified on installation.&nbsp; Thus the -h and -p switches are not
-necessary
-for normal running of this program.&nbsp; However, if you wish to
-connect
-to a different server, then you will need to specify the -h and -p
-switches.&nbsp;</font><font color="#3366ff">&nbsp; If environment
-variables ${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -p switches.</font><br>
-&nbsp;
+match your AWIPS installation, such that they will point to EDEX
+specified on installation. Thus the -h and -p switches are not
+necessary for normal running of this program. However, if you wish to
+connect to a different server, then you will need to specify the -h and -p
+switches.</font><br>
 </p>
-<p></p>
 <hr width="100%">
 <h2><a name="Examples"></a>Examples of Complete Smart Initalization
 Files</h2>
@@ -944,6 +893,5 @@ a new model, the GWW model</a>, to calculate wave height and wind.
 Several smart initialization exercises are available <a
  href="SmartInitExercises.html">here</a>.
 <br>
-&nbsp;
 </body>
 </html>

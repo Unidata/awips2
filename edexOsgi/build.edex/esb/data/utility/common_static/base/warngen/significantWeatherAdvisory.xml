@@ -5,6 +5,7 @@
                              9-15-2011 Merge in OB11.8.0-8 Coding Changes, Zone Codes
      Mike Dangelo 02-27-2012 minor tweaks
      Phil Kurimski 3-01-2012
+     Qinglu Lin              04-04-2012 DR 14691. Added <feAreaField> tag.
  -->
 <warngenConfig>
 
@@ -137,6 +138,7 @@
   <areaField>NAME</areaField>
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>STATE_ZONE</fipsField>
   <sortBy>

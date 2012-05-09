@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.cloudHeight;
 
+import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
 import gov.noaa.nws.ncep.edex.common.metparameters.AirTemperature;
 import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
 import gov.noaa.nws.ncep.edex.common.metparameters.HeightAboveSeaLevel;
@@ -11,6 +12,7 @@ import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.PSLibrary
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube.QueryStatus;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
@@ -34,6 +36,8 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -63,6 +67,7 @@ import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 //import com.raytheon.uf.viz.core.data.IDataRetrievalCallback;
 //import com.raytheon.uf.viz.core.data.prep.CMDataPreparerManager;
+import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.prep.HDF5DataRetriever;
 import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -76,7 +81,9 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 //import com.raytheon.viz.core.gl.dataprep.ByteDataPreparer;
 //import com.raytheon.viz.core.gl.dataprep.GlNumericImageData;
-
+import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
+import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
+import com.raytheon.viz.core.gl.dataformat.GLColorMapDataFormatFactory;
 import gov.noaa.nws.ncep.gempak.parameterconversionlibrary.GempakConstants;
 
 
@@ -102,6 +109,11 @@ import gov.noaa.nws.ncep.gempak.parameterconversionlibrary.GempakConstants;
  * 09/14/2011   457         S. Gurung   Renamed H5UAIR to NCUAIR
  * 10/06/2011   465    Archana          Updated to use NcSoundingQuery2 and NcSoundingLayer2    
  * 11/18/2011               G. Hull     replace calls to getValue() with getValueAs(unit)
+ * 01/27/2012   583         B. Hebbard  Fix unit deserialization issue; replace ByteDataPreparer (etc.)
+ *                                      with RTS-refactored equivalents (package dataprep-->dataformat)
+ * 02/03/2012   583         B. Hebbard  In getPixelValueFromTheUserClickedCoordinate remove File.exists()
+ *                                      check, which will fail for non-local HDF5
+ * 03/01/2012   524         B. Hebbard  When multiple cloud levels found, make "primary" the lowest
  * 
  * @version 1
  */
@@ -205,7 +217,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 				}
 			}
 
-			if( cldHghtRsc == null ) { // a stupid user could have unloaded the cloud height resource
+			if( cldHghtRsc == null ) { // a user could have unloaded the cloud height resource
 				getResources();
 			}
 
@@ -226,7 +238,9 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 //			latlon = new Coordinate(-106.481689, 44.057579 );
 			pixVal = getPixelValueFromTheUserClickedCoordinate( latlon, satRsc,useSnglPix, pixAreaRad, pixValMthd);
 			if( pixVal != null ) {
-				pixValStr = pixVal.toString(); 
+				NumberFormat nf = new DecimalFormat("####");
+				pixValStr = nf.format(pixVal); 
+				//pixValStr = pixVal.toString(); 
 			}
             
 			Double tempK = null;
@@ -327,12 +341,12 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 				cldHghtDlg.displayStatusMsg("Unable to compute Cloud Height");
 			}
 			else {
-				cldHghtDlg.setPrimaryCloudHeight( cloudHeights.get(0).cloudHght,
-						                          cloudHeights.get(0).cloudPres );
+				cldHghtDlg.setPrimaryCloudHeight( cloudHeights.get(cloudHeights.size()-1).cloudHght,
+						                          cloudHeights.get(cloudHeights.size()-1).cloudPres );
 				if( cloudHeights.size() > 1 ) {
 					cldHghtDlg.displayStatusMsg("Multiple Cloud Levels Found.");
 
-					for( int ch=cloudHeights.size()-1 ; ch > 0 ; ch-- ) {
+					for( int ch=cloudHeights.size()-2 ; ch >= 0 ; ch-- ) {
 						cldHghtDlg.addAltCloudHeight( cloudHeights.get(ch).cloudHght, 
 								cloudHeights.get(ch).cloudPres );
 					}
@@ -354,6 +368,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 	private List<LevelValues> getSoundingDataFromStationData(Coordinate latlon){
 		 List<LevelValues> listOfLevelValues = new ArrayList<LevelValues>(0);
  if( sndingDataSrc == SoundingDataSourceType.STATION_DATA ) {
+	        cldHghtDlg.displayStatusMsg("Getting sounding data...");
 			sndingSrcTimeStr = "N/A";
 			sndingSrcStr = "Station Data";
 			sndingSrcDist = cldHghtDlg.getMaxSoundingDist();
@@ -377,6 +392,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 				// TODO could check that the station is actually different than the previous station.
 
 		}		
+        cldHghtDlg.displayStatusMsg("");
 		return listOfLevelValues;
 	} 
 	
@@ -480,6 +496,24 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 			          soundingQuery.setRefTimeConstraint( stationData
 						.stationRefTime.getRefTimeAsCalendar().getTime());
 			          NcSoundingCube thisSoundingCube = soundingQuery.query();
+
+			          //
+			          //TODO -- This shouldn't be necessary, given Amount.getUnit() should now heal itself
+			          //        from a null unit by using the String.  see also PlotModelGenerator2.plotUpperAirData()
+			          //        Repair the 'unit' in the met params, if damaged (as in, nulled) in transit.
+			          //System.out.println("CloudHeightProcesser.getListOfNcSoundingLayerForThisStation() begin fixing returned data...");
+			          if( thisSoundingCube != null && thisSoundingCube.getRtnStatus() == QueryStatus.OK ) {
+			        	  for(NcSoundingProfile sndingProfile : thisSoundingCube.getSoundingProfileList() ) {
+			        		  for(NcSoundingLayer2 sndingLayer : sndingProfile.getSoundingLyLst2()) {
+			        			  for(AbstractMetParameter metPrm : sndingLayer.getMetParamsMap().values()) {
+			        				  metPrm.syncUnits();
+			        			  }
+			        		  }
+			        	  }
+			          }
+			          //System.out.println("CloudHeightProcesser.getListOfNcSoundingLayerForThisStation() done fixing returned data");
+			          //TODO -- End
+			          //
 		
 			if(thisSoundingCube != null){
 				 List<NcSoundingProfile> listOfSoundingProfiles = thisSoundingCube.getSoundingProfileList();
@@ -519,20 +553,20 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 		    	 LevelValues newLvl = new LevelValues( );
 
 		    	 HeightAboveSeaLevel geoHeight =  eachNcSoundingLayer.getGeoHeight();
-		    	 if (  geoHeight != null ){
+		    	 if (  geoHeight != null && geoHeight.hasValidValue() ){
 		    		  double height = geoHeight.getValue (  ).doubleValue(); 
 	    		     newLvl.setHeight( height );		    			 
 		    	 }
 
 		    	 PressureLevel pressure = eachNcSoundingLayer.getPressure();
-		    	 if ( pressure != null ){
-			    	 newLvl.setPressure( pressure.getValue ( ).doubleValue());		    		 
+		    	 if ( pressure != null && pressure.hasValidValue() ){
+			    	 newLvl.setPressure( pressure.getValue ( ).doubleValue());
 		    	 }
 		    	 
 
 		    	//temperature in the sounding layer is already stored in celsius
 		    	 AirTemperature temperature = eachNcSoundingLayer.getTemperature();
-		    	 if ( temperature != null ){
+		    	 if ( temperature != null && temperature.hasValidValue()){
 		    	          newLvl.setTemperature ( temperature.getValueAs( SI.CELSIUS ).doubleValue());
 		    	 }
 		    	 aListOfLevelValues.add(newLvl);
@@ -608,6 +642,8 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 			}
 			
 //            if( tempCDoubleVal > tempMax){
+//              cldHghtDlg.displayStatusMsg("The cloud temperature is warmer than the entire sounding data");
+//              cldHghtDlg.displayStatusMsg("The cloud temperature is warmer than the entire sounding data");
 //            	System.out.println("The cloud temperature is warmer than the entire sounding data");
 //            }
 //			System.out.println("Maximum temperature is: "+tempMax);
@@ -779,10 +815,11 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 			              	invmtCRSToGrid.transform(out, 0, outCoord, 0, 1);
 			                /*Get the raw data from the HDF5 file*/
 			                File file = HDF5Util.findHDF5Location(pdo);
-			                if ( file.exists() ){
-				                      IDataRecord idr = null;
-
-					                  idr =  CubeUtil.retrieveData( pdo, "mcidas");
+			                //if ( file.exists() ){ }  // Won't be found for non-local HDF5
+				            IDataRecord idr = null;
+				            //  Following throws VizException on fail; trapped below
+					        idr = CubeUtil.retrieveData( pdo, "mcidas");
+					        if (idr != null) {
 					                  AbstractStorageRecord asr = ( AbstractStorageRecord ) idr;
 					                  long[] sizes = asr.getSizes();
 					                  maxX = ( int ) sizes[ 0 ];
@@ -792,18 +829,19 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 						                         byte[] arrayOfBytes = (  ( ByteDataRecord ) idr ).getByteData();
 						                         Rectangle rectangle = new Rectangle(0,0,maxX,maxY);
 						                         ByteBuffer byteBuffer = BufferUtil.wrapDirect(arrayOfBytes, rectangle );
-						                         //ByteDataPreparer bdp1 = new  ByteDataPreparer();
-				                                 //IDataRetrievalCallback retriever = new HDF5DataRetriever(file, "/full", rectangle);
+				                                 IColorMapDataRetrievalCallback retriever = new HDF5DataRetriever(file, "/full", rectangle);
 						                         double tempDbl = Double.NaN;
-						                         //if (retriever != null ){
+						                         if (retriever != null ){
 
-						                        	 /* Wrap the raw data of bytes into a ByteDataPreparer object */
-						                        	  //ByteDataPreparer bdp = bdp1.newInstance(byteBuffer, retriever, rectangle, new int[] {maxX,maxY});
-						                        	  //GlNumericImageData imageData = bdp.prepareData();
+						                        	 /* Wrap the raw data of bytes into a GLByteDataFormat object */
+							                          //TODO? GLColorMapDataFormatFactory bdff = new GLColorMapDataFormatFactory();
+						                        	  //TODO? GLByteDataFormat bdf = bdff.getGLColorMapDataFormat(byteBuffer, retriever, rectangle, new int[] {maxX,maxY});
+						                        	  GLByteDataFormat bdf = new GLByteDataFormat();
+						                        	  IColorMapDataRetrievalCallback.ColorMapData cmd = new IColorMapDataRetrievalCallback.ColorMapData(byteBuffer, new int[] {maxX,maxY});
+						                        	  GLColorMapData glColorMapData = new GLColorMapData(cmd, bdf);
 						                        	  
-						                        	  /*Get the actual  pixel value information from the byte array */ 
-						                        	  //tempDbl = bdp.getValue(imageData,  ( int )( outCoord[ 0 ] ), ( int ) ( outCoord[ 1 ] ) );
-						                        	  tempDbl = 0.0;
+						                        	  /*Get the actual pixel value information from the byte array */ 
+						                        	  tempDbl = bdf.getValue( ( int )( outCoord[ 0 ] ), ( int ) ( outCoord[ 1 ] ),  glColorMapData );
 						                        	  
 						                        	   if ( isSinglePixelNeeded ){
 					                                       pixVal = new Double( (tempDbl) );
@@ -830,7 +868,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 					                                		  /*Generate the NxN array of pixel values*/
 					                                		  for ( int i = 0 ;  i < newArrDimensions ;  i++){
 					                                			  for ( int j = 0 ; j < newArrDimensions ; j++){
-					                                				  //arrayOfPixVal[i][j] = bdp.getValue( imageData,  ( int )( squarePixelArea[i][j].xCoord ), ( int ) ( squarePixelArea[i][j].yCoord ) );
+					                                				  arrayOfPixVal[i][j] = bdf.getValue( ( int )( squarePixelArea[i][j].xCoord ), ( int ) ( squarePixelArea[i][j].yCoord ), glColorMapData );
 					                                			  }
 					                                		  }  		                           		              
 
@@ -844,7 +882,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 					                                	  } 
 
 					                                  }
-						                         //}
+						                           }
 				                       
 
   						             }

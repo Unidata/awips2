@@ -7,7 +7,7 @@
 <div class="Code">
 <div class="3Heading">ToolType = "numeric"</div>
 <div class="3Heading">WeatherElementEdited = "SnowAmt"</div>
-<div class="3Heading">from Numeric import *</div>
+<div class="3Heading">from numpy import *</div>
 <div class="3Heading">import SmartScript</div>
 <div class="3Heading">class Tool (SmartScript.SmartScript):</div>
 <div class="3Heading">&nbsp;&nbsp;&nbsp; def __init__(self, dbss):</div>
@@ -34,7 +34,7 @@ SnowAmt</div>
 <br>
 WeatherElementEdited = "SnowAmt"
 <br>
-from Numeric import *
+from numpy import *
 <br>
 import SmartScript
 <p>class Tool (SmartScript.SmartScript):
@@ -71,7 +71,7 @@ QPF * 10))
 <br>
 WeatherElementEdited = "SnowAmt"
 <br>
-from Numeric import *
+from numpy import *
 <br>
 import SmartScript
 <p>VariableList = [
@@ -117,7 +117,7 @@ elevation), 0, SnowAmt)
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return SnowAmt
 <br>
-&nbsp;</p>
+</p>
 </div>
 </div>
 <div class="Code">
@@ -132,7 +132,7 @@ SmartScript-1</h3>
 <br>
 WeatherElementEdited = "QPF"
 <br>
-from Numeric import *
+from numpy import *
 <br>
 import SmartScript
 <p>class Tool (SmartScript.SmartScript):
@@ -174,7 +174,7 @@ tp, qpf)
 <br>
 WeatherElementEdited = "QPF"
 <br>
-from Numeric import *
+from numpy import *
 <br>
 import SmartScript
 <p>VariableList = [("Model:" , "", "model")]
@@ -209,7 +209,6 @@ tp, qpf)
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return qpf
 <br>
-&nbsp;
 </p>
 <h3 class="3Heading"><a name="AnswerSS3"></a>Answer to Exercise
 SmartScript-3</h3>
@@ -220,7 +219,7 @@ SmartScript-3</h3>
 <br>
 WeatherElementEdited = "T"
 <br>
-from Numeric import *
+from numpy import *
 <br>
 import SmartScript
 <p>VariableList = [("Model:" , "", "D2D_model")]
@@ -314,7 +313,6 @@ T)
 </p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T_F
 <br>
-&nbsp;
 </p>
 <h3 class="3Heading"><a name="AnswerSS4"></a>Answer to Exercise
 SmartScript-4</h3>
@@ -325,7 +323,7 @@ SmartScript-4</h3>
 <br>
 WeatherElementEdited = "T"
 <br>
-from Numeric import *
+from numpy import *
 <br>
 import SmartScript
 <p>VariableList = [("Model:" , "", "D2D_model")]
@@ -426,150 +424,14 @@ T = where(readyToSet, t_Cube[i], T)
 </p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T_F
 <br>
-&nbsp;
 </p>
 <h3 class="3Heading"><a name="AnswerSS5"></a>Answer to Exercise
 SmartScript-5</h3>
-</div>
-</div>
-<div class="Code">
-<div class="Code">ToolType = "numeric"
-<br>
-WeatherElementEdited = "T"
-<br>
-from Numeric import *
-<br>
-import SmartScript
-<p>VariableList = [("Model:" , "", "D2D_model")]
-<br>
-class Tool (SmartScript.SmartScript):
-<br>
-&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-SmartScript.SmartScript.__init__(self,
-dbss)
-</p>
-<p>&nbsp;&nbsp;&nbsp; def execute(self, GridTimeRange, Topo, varDict):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This tool accesses QPF
-and tp&nbsp; grids directly"
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; model = varDict["Model:"]
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert Topo to meters
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; topo_M =
-self.convertFtToM(Topo)
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a sounding cubes
-for
-T
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Height will increase in
-the sounding and be the
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # first dimension
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; levels =
-["MB1000","MB950","MB900","MB850","MB800",
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-"MB750","MB700","MB650","MB600"]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh_Cube, t_Cube =
-self.makeNumericSounding(
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-model, "t", levels, GridTimeRange)
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "Cube shapes ",
-gh_Cube.shape,
-t_Cube.shape
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make an initial T grid
-with values of -200
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This is an out-of-range
-value to help us identify values that
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # have already been set.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T = (Topo * 0) - 200
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Work "upward" in the
-cubes
-to assign T
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # We will only set the value
-once, i.e. the first time the
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # gh height is greater than the
-Topo
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For each level
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for i in
-xrange(gh_Cube.shape[0]):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-# where ( gh &gt; topo and T == -200 ),
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set to t_Cube value, otherwise
-keep
-value already set))
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-notSet = equal(T, -200)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-aboveGround = greater(gh_Cube[i], topo_M)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-readyToSet = logical_and(notSet, aboveGround)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-try:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-# Interpolate between levels
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-T = where(readyToSet,
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-self.interpolateScalarValues(topo_M,(gh_Cube[i-1],t_Cube[i-1]),(gh_Cube[i],t_Cube[i])),
-T)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-except:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-# Handle first level by extrapolating
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-T = where(readyToSet,
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-self.extrapolate(topo_M,(gh_Cube[0],t_Cube[0]),(gh_Cube[1],t_Cube[1])),
-T)
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Convert from K to F
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_F = self.convertKtoF(T)
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T_F
-<br>
-&nbsp;
-</p>
-<h3 class="3Heading"><a name="AnswerSS6"></a>Answer to Exercise
-SmartScript-6</h3>
 ToolType = "numeric"
 <br>
 WeatherElementEdited = "None"
 <br>
-from Numeric import *
+from numpy import *
 <p>ScreenList = ["T","Td"]
 </p>
 <p>import SmartScript
@@ -616,14 +478,13 @@ timeConstraints=(0, 3600,3600), minAllowedValue = 0.0,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxAllowedValue
 = 100.0, units="%")
 <br>
-&nbsp;
 </p>
-<h3><a name="AnswerSS7"></a>Answer to Exercise SmartScript-7</h3>
+<h3><a name="AnswerSS6"></a>Answer to Exercise SmartScript-6</h3>
 ToolType = "numeric"
 <br>
 WeatherElementEdited = "Wx"
 <br>
-from Numeric import *
+from numpy import *
 <p>import SmartScript
 </p>
 <p>class Tool (SmartScript.SmartScript):
@@ -669,12 +530,12 @@ where(greater_equal(PoP,
 </p>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (wxValues, keys)
 </p>
-<h3><a name="AnswerSS8"></a>Answer to Exercise SmartScript-8</h3>
+<h3><a name="AnswerSS7"></a>Answer to Exercise SmartScript-7</h3>
 ToolType = "numeric"
 <br>
 WeatherElementEdited = "PoP"
 <br>
-from Numeric import *
+from numpy import *
 <p>import SmartScript
 </p>
 <p>class Tool (SmartScript.SmartScript):
@@ -794,7 +655,6 @@ CO_Boulder
 </p>
 <p>**Revised Procedure-1&nbsp; (does not use variableElement)
 <br>
-&nbsp;
 </p>
 <div class="3Heading">MenuItems = ["Edit"]</div>
 <div class="3Heading">ToolList = [</div>

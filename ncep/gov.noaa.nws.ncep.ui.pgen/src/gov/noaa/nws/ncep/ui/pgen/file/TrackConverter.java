@@ -17,6 +17,9 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.datum.DefaultEllipsoid;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 import gov.noaa.nws.ncep.ui.pgen.elements.Track;
@@ -24,7 +27,17 @@ import gov.noaa.nws.ncep.ui.pgen.display.ITrack;
 import gov.noaa.nws.ncep.ui.pgen.display.TrackPoint;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 
-
+/**
+ * Define a ProductConverter Class - some methods to convert the products between XML format 
+ * and the actual in-memory PGEN products. 
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date       	Ticket#		Engineer	Description
+ * ------------	----------	-----------	--------------------------
+ * 02/2012		TTR456			Q. Zhou   	Added speed, dir. Default to kts, no round
+ * </pre>
+ * */
 public class TrackConverter {
 
 	private final static org.apache.log4j.Logger log = 
@@ -86,6 +99,29 @@ public class TrackConverter {
     			trackElement.setPgenType(Track.TRACK_PGEN_TYPE); 
     		else
     			trackElement.setPgenType(trackBean.getPgenType()); 
+    		
+    		/*
+    		 * add speed, dir. Default to kts, no round --Quan
+    		 */
+    		TrackPoint[] initPts = trackElement.getInitTrackPoints();
+    		int initPtsLength = initPts.length; 
+    		Coordinate initPointBeforeLastInitPointCoordinate = initPts[initPtsLength - 2].getLocation(); 
+    		Coordinate lastInitPointCoordinate = initPts[initPtsLength - 1].getLocation(); 
+    		
+    		GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+    		gc.setStartingGeographicPoint(initPointBeforeLastInitPointCoordinate.x, 
+    				initPointBeforeLastInitPointCoordinate.y); 
+    		gc.setDestinationGeographicPoint(lastInitPointCoordinate.x, 
+    				lastInitPointCoordinate.y); 
+    		double direction = gc.getAzimuth(); 
+    		
+    		double distanceInMeter = gc.getOrthodromicDistance(); 
+    		long timeDifference = initPts[initPtsLength - 1].getTime().getTimeInMillis() -
+    				initPts[initPtsLength - 2].getTime().getTimeInMillis(); 
+    		double speed = distanceInMeter / (double)timeDifference; 
+    		
+    		trackElement.setDirectionForExtraPoints(direction);
+    		trackElement.setSpeed(speed);
     		
     		/*
     		 * add something related to line drawing

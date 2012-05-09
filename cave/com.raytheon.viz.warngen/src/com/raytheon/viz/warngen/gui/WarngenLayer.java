@@ -136,6 +136,9 @@ import com.vividsolutions.jts.io.WKTReader;
  * May 4, 2010            mschenke     Initial creation
  * 02/01/2012   DR 14491   D. Friedman Load/unload only the maps not already loaded
  * 02/28/2012   DR 13596   Qinglu Lin  Call GisUtil.restoreAlaskaLon() in figurePoint().
+ * 03/19/2012   DR 14690   Qinglu Lin  While newHatchedArea==null, handle the polygon differently
+ *                                     for initial warning and followup (CON); and 
+ *                                     convert ratio to percentage while doing comparison.
  * 
  * </pre>
  * 
@@ -1124,6 +1127,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
             try {
                 double ratio = intersection.getArea() / geom.getArea();
+                double ratioInPercent = ratio * 100.;
                 Double areaOfGeom = (Double) f.attributes.get(AREA);
                 double areaInKmSqOfIntersection = meterSqToKmSq
                         .convert(areaOfGeom * ratio);
@@ -1133,14 +1137,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     includeArea = areaInKmSqOfIntersection > 1;
                 } else if (getConfiguration().getAreaConfig()
                         .getInclusionAndOr().equalsIgnoreCase("AND")) {
-                    if ((ratio >= getConfiguration().getAreaConfig()
+                    if ((ratioInPercent >= getConfiguration().getAreaConfig()
                             .getInclusionPercent())
                             && (areaInKmSqOfIntersection > getConfiguration()
                                     .getAreaConfig().getInclusionArea())) {
                         includeArea = true;
                     }
                 } else {
-                    if ((ratio >= getConfiguration().getAreaConfig()
+                    if ((ratioInPercent >= getConfiguration().getAreaConfig()
                             .getInclusionPercent())
                             || (areaInKmSqOfIntersection > getConfiguration()
                                     .getAreaConfig().getInclusionArea())) {
@@ -1221,21 +1225,42 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
         if (newHatchedArea == null) {
-            newHatchedArea = buildArea(getPolygon());
+        	boolean initialWarning = false;
+        	String[] followUps = this.getConfiguration().getFollowUps();
+        	if (followUps.length == 0)
+        		initialWarning = true;
+        	else
+        		for (String followup : followUps) {
+        			if (followup.equals("NEW")) {
+        				initialWarning = true;
+        				break;
+        			}
+        	}
+        	if (initialWarning)
+        		state.clear2(); // not to hatch polygon for initial warning
+            else {
+            	// Snap back for follow-ups
+            	state.setWarningPolygon((Polygon) state
+            			.getMarkedWarningPolygon().clone());
+            	newHatchedArea = latLonToLocal((Geometry) state
+            			.getMarkedWarningArea().clone());
+            	state.resetMarked();
+            	updateWarnedAreas(snapHatchedAreaToPolygon, true);
+            }
         } else {
-            newHatchedArea = localToLatLon(newHatchedArea);
+			newHatchedArea = localToLatLon(newHatchedArea);
+			state.setWarningArea(newHatchedArea);
+			state.mark(newHatchedArea);
+			newHatchedArea = buildArea(getPolygon());
+			// add "W" strings
+			if (determineInclusion) {
+				populateStrings();
+			}        	
         }
 
-        state.setWarningArea(newHatchedArea);
-        state.mark(newHatchedArea);
         // Apply new hatched area
         state.geometryChanged = true;
         issueRefresh();
-
-        // add "W" strings
-        if (determineInclusion) {
-            populateStrings();
-        }
 
         VizApp.runAsync(new Runnable() {
             public void run() {

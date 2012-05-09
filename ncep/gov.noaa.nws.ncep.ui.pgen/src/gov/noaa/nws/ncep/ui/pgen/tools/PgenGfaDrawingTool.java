@@ -21,7 +21,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 import java.util.ArrayList;
 import org.eclipse.ui.PlatformUI;
@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/10					M.Laryukhin Initial Creation.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 12/11		#?			B. Yin		Sets vorText 
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 
  * </pre>
  * 
@@ -183,7 +184,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 
             		if(((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1){
 	            		// snap
-	        			points = SigmetInfo.getSnapWithStation(points,SigmetInfo.VOR_STATION_LIST,10,16);
+	        			points = SnapUtil.getSnapWithStation(points,SnapUtil.VOR_STATION_LIST,10,16);
             		}
             		// create a new DrawableElement.    
             		elem = def.create( drawableType, (IAttribute)attrDlg,

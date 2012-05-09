@@ -21,7 +21,7 @@ import com.raytheon.uf.edex.decodertools.aircraft.WordTranslator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 10, 2011            jkorman     Initial creation
- * 
+ * 2012/02/15   #680       Q.Zhou      Changed CAT and CHOP typo
  * </pre>
  * 
  * @author jkorman
@@ -129,8 +129,8 @@ public class PirepTools  {
         TURBC_WORDS.enter("EXTRE", "EXTRM", false, TURBC_INT_EXTRM, INT_ID);
         TURBC_WORDS.enter("XTRM", "EXTRM", false, TURBC_INT_EXTRM, INT_ID);
 
-        TURBC_WORDS.enter("CHOP", "CHOP", false, TURBC_TYP_CAT, TYP_ID);
-        TURBC_WORDS.enter("CAT", "CAT", false, TURBC_TYP_CHOP, TYP_ID);
+        TURBC_WORDS.enter("CAT", "CAT", false, TURBC_TYP_CAT, TYP_ID);
+        TURBC_WORDS.enter("CHOP", "CHOP", false, TURBC_TYP_CHOP, TYP_ID);
         TURBC_WORDS.enter("LLWS", "LLWS", false, TURBC_TYP_LLWS, TYP_ID);
 
         TURBC_WORDS.enter("ABV", "ABV", false, MOD_ID_ABV, MOD_ID);
