@@ -139,13 +139,13 @@ for display and coordination only.<br>
 </table>
 <br>
 <big>Here is an example of a WCL grid with two watches displayed. The
-brighter blue<br>
+brighter blue
 region is the new (proposed) Severe Thunderstorm Watch. The darker red
-area to <br>
+area to
 the southeast is an existing Tornado Watch. The purple area between
-them are counties<br>
+them are counties
 which are currently under the Tornado Watch, but will be under the
-Severe Thunderstorm<br>
+Severe Thunderstorm
 Watch when it is issued.<br>
 <br>
 <img style="width: 507px; height: 483px;" alt="WCL Grid 2"
@@ -154,8 +154,8 @@ Watch when it is issued.<br>
 </big>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="howitworks"></a>How It Works</h2>
-The ViewWCL procedure reads in saved data written into the ifpServer
-databases by the <a href="VTEC.html">VTEC Decoder</a>.&nbsp; The data
+The ViewWCL procedure reads in saved data written into the EDEX
+databases by the <a href="VTEC.html">VTEC Decoder</a>. The data
 contains the watch type, the ugc list of counties, the WCL issuance
 time, and the WCL expiration time.&nbsp; The procedure then filters the
 VTEC active table and extracts records that meet all of the following
@@ -170,7 +170,7 @@ The final steps are:<br>
 <ul>
   <li>The procedure calculates the starting and ending time of the
 "to-be-created" grid by encompassing all events that were filtered,
-plus the issuance and expiration time.&nbsp; <br>
+plus the issuance and expiration time.<br>
   </li>
   <li>Any existing ProposedWatches grids are removed from the GFE.</li>
   <li>Comparisons are made between the proposed WCL watch and the
@@ -178,10 +178,5 @@ active table information to determine the correct "category" for
 display.</li>
   <li>The temporary ProposedWatches grid is created and displayed.</li>
 </ul>
-<br>
-<br>
-<big><br>
-<br>
-</big>
 </body>
 </html>

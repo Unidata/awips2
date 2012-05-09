@@ -105,6 +105,8 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2009  #2161      lvenable     Initial creation
+ * Mar 27, 2012 #14506     Qinglu Lin   For cross section plot along a line of 
+ *                                      latitude, swap xStart and xEnd.
  * 
  * </pre>
  * 
@@ -935,8 +937,8 @@ public class ProductTableComp extends Composite implements IProductTable,
                                     new Coordinate(xEnd, yEnd) });
                 } else if (selectedPlaneKey.startsWith("Lat")) {
                     double yEnd, yStart, xEnd, xStart;
-                    xEnd = coverageRectangle.getMinX();
-                    xStart = coverageRectangle.getMaxX();
+                    xStart = coverageRectangle.getMinX();
+                    xEnd = coverageRectangle.getMaxX();
                     yEnd = Double.parseDouble(selectedPlaneKey.replace("Lat",
                             ""));
                     yStart = yEnd;

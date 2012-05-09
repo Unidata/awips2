@@ -72,9 +72,11 @@ public class NsharpSkewTDisplay extends AbstractRenderableDisplay {
     public NsharpSkewTDisplay() {
         this(new PixelExtent(NsharpConstants.NSHARP_SkewTRectangle));
     }
-
     private NsharpSkewTDisplay(PixelExtent pixelExtent) {
         super(pixelExtent, new NsharpSkewTDescriptor(pixelExtent));
+        //PixelExtent pext=(PixelExtent) this.getExtent();
+        //System.out.println("w="+pext.getWidth()+ " h="+pext.getHeight()+ " Xmin="+pext.getMinX()+ " xMax="+pext.getMaxX()+ " Ymin="+pext.getMinY()+ " YMax="+pext.getMaxY());
+        
     }
     /* Chin MERGE
     public static NsharpSkewTDisplay getOrCreateSkewTDisplay (){

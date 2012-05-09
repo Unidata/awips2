@@ -34,6 +34,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Dec 11, 2007 #601        chammack    Initial Creation.
+ *    APr 18, 2012 #14733      Qinglu Lin  David's fix is used, which adds 
+ *                                         a copy constructor.
  * 
  * </pre>
  * 
@@ -71,7 +73,23 @@ public class ClosestPoint implements Comparable<ClosestPoint> {
 
     }
 
-    public ClosestPoint(String name, Coordinate point) {
+    public ClosestPoint(ClosestPoint o) {
+    	this.name = o.name;
+    	this.area = o.area;
+    	this.parentArea = o.parentArea;
+    	this.point = o.point;
+    	this.distance = o.distance;
+    	this.roundedDistance = o.roundedDistance;
+    	this.azimuth = o.azimuth;
+    	this.roundedAzimuth = o.roundedAzimuth;
+    	this.oppositeAzimuth = o.oppositeAzimuth;
+    	this.oppositeRoundedAzimuth = o.oppositeRoundedAzimuth;
+    	this.population = o.population;
+    	this.warngenlev = o.warngenlev;
+    	this.time = o.time;
+	}
+
+	public ClosestPoint(String name, Coordinate point) {
         this(name, point, 0, 0);
     }
 

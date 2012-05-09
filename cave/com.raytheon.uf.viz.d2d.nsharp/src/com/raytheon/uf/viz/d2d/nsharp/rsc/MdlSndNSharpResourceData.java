@@ -94,7 +94,7 @@ public class MdlSndNSharpResourceData extends D2DNSharpResourceData {
 
     @Override
     protected NcSoundingCube getSoundingCube(NsharpStationInfo stnInfo) {
-        float[][] latLon = { { stnInfo.getLatitude(), stnInfo.getLongitude() } };
+        double[][] latLon = { { stnInfo.getLatitude(), stnInfo.getLongitude() } };
         return NcSoundingQuery.pfcSoundingQueryByLatLon(stnInfo.getReftime()
                 .getTime(), stnInfo.getRangestarttime().getTime(), latLon,
                 stnInfo.getSndType(), NcSoundingLayer.DataType.ALLDATA, false,

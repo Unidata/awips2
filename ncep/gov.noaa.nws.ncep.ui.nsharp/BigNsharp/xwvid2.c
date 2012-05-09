@@ -38,9 +38,12 @@
 /*  WW_TYPE						       */
 /***************************************************************/
 
+#ifndef _WIN32
 #include "xwcmn.h"
+#endif
 #include "sharp95.h"
 
+#ifndef _WIN32
 short switch_modes(short mode)
         /*************************************************************/
         /*  SWITCH_MODES                                             */
@@ -115,6 +118,7 @@ void disp_param(char *value, short rcol, short rlin)
 	outgtext(value, (rcol - getgtextextent(value)), rlin);
 }
 
+#endif
 /*
 
 grab_level should return an error as needed 
@@ -155,7 +159,7 @@ short grab_level(float pres)
 }
 
 
-
+#ifndef _WIN32
 	/*NP*/
 void skewt_cursor_data( short x, short y )
 	/*************************************************************/
@@ -306,7 +310,7 @@ void hodo_cursor_data( short x, short y )
 	sprintf( st, "%3.0f", ix4 );
 	outtext( st, skv.brx+315, skv.tly+60 );
 }
-
+#endif
 
 /*
 

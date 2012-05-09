@@ -6,6 +6,8 @@ import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -39,7 +41,7 @@ import org.eclipse.swt.widgets.Text;
  * 10/13/2011               qzhou       Fixed default level  
  * 11/01/2011    #482       Greg Hull   edit the plotDensity
  * 12/07/2011               B. Hebbard  Added "Plot All" option
- * 
+ * 02/16/2012    #639       Q. Zhou     Changed density text listener. Changed density duration to 30. Adjusted field size.
  * </pre>
  * 
  * @author mli
@@ -101,7 +103,7 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 		FormData fd = new FormData();
         fd.left = new FormAttachment( 0, 10 );
         fd.top = new FormAttachment( 0, 10 );
-        fd.right = new FormAttachment( 70, 0 );
+        fd.right = new FormAttachment( 79, 0 );
         densityGrp.setLayoutData( fd );
 
         densityGrp.setLayout( new FormLayout() );
@@ -115,9 +117,9 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         //fd.width = 120;
         densitySldr.setLayoutData( fd );
 
-        int initSldrVal = Math.min( ((Integer)plotDensityAttr.getAttrValue()).intValue(), 20 );
-        densitySldr.setValues( initSldrVal, 1, 21, 1, 1, 2 );
-        densitySldr.setToolTipText("");
+        int initSldrVal = Math.min( ((Integer)plotDensityAttr.getAttrValue()).intValue(), 30 );
+        densitySldr.setValues( initSldrVal, 1, 31, 1, 1, 2 );
+        densitySldr.setToolTipText("Density of plot stations");
         
         final Label sparseLbl = new Label( densityGrp, SWT.NONE );
         sparseLbl.setText("Sparse");
@@ -138,9 +140,39 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         fd = new FormData( );
         fd.left = new FormAttachment( densitySldr, 10, SWT.RIGHT );
         fd.bottom = new FormAttachment( densitySldr, 0, SWT.BOTTOM );
-        //fd.right = new FormAttachment( 100, -10 );
+        fd.top = new FormAttachment( densitySldr, 0, SWT.TOP );
+        fd.right = new FormAttachment( densityTxt, 30, SWT.LEFT );
+        densityTxt.setToolTipText("Plot density");
         densityTxt.setLayoutData( fd );
         
+        densityTxt.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {            	
+            	
+            		int ival;
+            		try {
+            			ival = Integer.parseInt( densityTxt.getText() );
+            		}
+            		catch( NumberFormatException exc ) { 
+            			ival = 10; //((Integer)plotDensityAttr.getAttrValue()).intValue();
+            		}
+
+            		if( ival < densitySldr.getMinimum() ) {
+            			ival = densitySldr.getMinimum();
+            			densityTxt.setText( Integer.toString( ival ) );
+            		}
+            		else if( ival >= densitySldr.getMaximum() ) { // was > see below
+            			//ival = densitySldr.getMaximum();
+            			ival = densitySldr.getMaximum() - 1;  //TODO that is, 20, due to slider quirk
+            			densityTxt.setText( Integer.toString( ival ) );
+            		}
+
+            		densitySldr.setSelection( ival );
+
+            		plotDensityAttr.setAttrValue( new Integer( ival ) );
+            	}            	
+             
+        });
+       
         final Button plotAllBtn = new Button ( densityGrp, SWT.CHECK );
         plotAllBtn.setText("Plot All");
         plotAllBtn.setToolTipText("Plot every station unconditionally");
@@ -157,32 +189,32 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         	}
         });
 
-        densityTxt.addSelectionListener( new SelectionAdapter() {
-        	public void widgetDefaultSelected(SelectionEvent e) {
-        		int ival;
-        		try {
-        			ival = Integer.parseInt( densityTxt.getText() );
-        		}
-        		catch( NumberFormatException exc ) {
-        			ival = ((Integer)plotDensityAttr.getAttrValue()).intValue();
-        			densityTxt.setText( Integer.toString( ival ) );
-        		}
-
-        		if( ival < densitySldr.getMinimum() ) {
-        			ival = densitySldr.getMinimum();
-        			densityTxt.setText( Integer.toString( ival ) );
-        		}
-        		else if( ival >= densitySldr.getMaximum() ) { // was > see below
-        			//ival = densitySldr.getMaximum();
-        			ival = densitySldr.getMaximum() - 1;  //TODO that is, 20, due to slider quirk
-        			densityTxt.setText( Integer.toString( ival ) );
-        		}
-
-        		densitySldr.setSelection( ival );
-
-        		plotDensityAttr.setAttrValue( new Integer( ival ) );
-        	}
-        });
+//        densityTxt.addSelectionListener( new SelectionAdapter() {
+//        	public void widgetDefaultSelected(SelectionEvent e) {
+//        		int ival;
+//        		try {
+//        			ival = Integer.parseInt( densityTxt.getText() );
+//        		}
+//        		catch( NumberFormatException exc ) {
+//        			ival = ((Integer)plotDensityAttr.getAttrValue()).intValue();
+//        			densityTxt.setText( Integer.toString( ival ) );
+//        		}
+//
+//        		if( ival < densitySldr.getMinimum() ) {
+//        			ival = densitySldr.getMinimum();
+//        			densityTxt.setText( Integer.toString( ival ) );
+//        		}
+//        		else if( ival >= densitySldr.getMaximum() ) { // was > see below
+//        			//ival = densitySldr.getMaximum();
+//        			ival = densitySldr.getMaximum() - 1;  //TODO that is, 20, due to slider quirk
+//        			densityTxt.setText( Integer.toString( ival ) );
+//        		}
+//
+//        		densitySldr.setSelection( ival );
+//
+//        		plotDensityAttr.setAttrValue( new Integer( ival ) );
+//        	}
+//        });
 
         plotAllBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected(SelectionEvent e) {
@@ -207,7 +239,7 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
         });
         
         // Big initial (incoming) density value means "plot all"
-        if ( ((Integer)plotDensityAttr.getAttrValue()).intValue() > 20 ) {
+        if ( ((Integer)plotDensityAttr.getAttrValue()).intValue() > 30 ) {
         	plotAllBtn.setSelection(true);
 			densitySldr.setEnabled(false);
 			densityTxt.setEnabled(false);

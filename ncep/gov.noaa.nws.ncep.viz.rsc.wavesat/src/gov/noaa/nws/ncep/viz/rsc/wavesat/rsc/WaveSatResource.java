@@ -70,7 +70,8 @@ import org.eclipse.swt.graphics.Rectangle;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *  09/21/2011    #248     Greg Hull    Initial creation.
+ *  09/21/2011    #248     Greg Hull    Initial creation. 
+ *  02/16/2012    #555     S. Gurung    Added call to setPopulated(true) in queryData().
  * 
  * </pre>
  * 
@@ -235,6 +236,8 @@ public class WaveSatResource extends AbstractNatlCntrsResource<WaveSatResourceDa
 					newRscDataObjsQueue.add(dataObject);
 				}
 			}
+	        
+	        setPopulated(true);
 		}
 
 		// query the data in the autoUpdateList and add results to the waveSatDataMap
@@ -653,7 +656,7 @@ public class WaveSatResource extends AbstractNatlCntrsResource<WaveSatResourceDa
             			waveSatRscData.getColorBar().getRGB(s), 
             			1.0f, LineStyle.SOLID, font );
         	}
-    	}    	
+    	}
     }                        
 
     public void disposeInternal() {

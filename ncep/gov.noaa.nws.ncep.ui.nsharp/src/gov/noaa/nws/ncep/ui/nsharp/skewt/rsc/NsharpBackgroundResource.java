@@ -22,10 +22,16 @@
 package gov.noaa.nws.ncep.ui.nsharp.skewt.rsc;
 
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpWxMath;
+import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd.NsharpHodoBackground;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd.NsharpIcingBackground;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd.NsharpInsetBackground;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd.NsharpSkewTBackground;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd.NsharpTurbulenceBackground;
+
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -59,6 +65,8 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 	private String sWindSpeed ="";
 	private String sWindDirection="";
 	private NsharpSkewTBackground skewTBackground;
+	private NsharpIcingBackground icingBackground;
+	private NsharpTurbulenceBackground turbBackground;
 	private NsharpHodoBackground hodoBackground;
 	private NsharpInsetBackground thetaEHeightBackground;
 	private NsharpInsetBackground srWindsBackground;
@@ -75,7 +83,19 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 	private NsharpInsetBackground colorNotationsBackground;
 	private NsharpInsetBackground verticalWindBackground;
 	private NsharpInsetBackground windMotionBackground;
-	
+	private int currentGraphMode= NsharpConstants.GRAPH_SKEWT;
+    
+    public int getCurrentGraphMode() {
+		return currentGraphMode;
+	}
+
+	public void setCurrentGraphMode(int currentGraphMode) {
+		this.currentGraphMode = currentGraphMode;
+		NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
+		if (editor != null) {
+			editor.refresh();
+		}
+	}
 	
 
 	@Override
@@ -211,6 +231,14 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 
 
 
+	public NsharpTurbulenceBackground getTurbBackground() {
+		return turbBackground;
+	}
+
+	public NsharpIcingBackground getIcingBackground() {
+		return icingBackground;
+	}
+
 	public NsharpInsetBackground getThetaEHeightBackground() {
 		return thetaEHeightBackground;
 	}
@@ -218,9 +246,11 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 	public NsharpBackgroundResource(NsharpBkgResourceData rscData,
 			LoadProperties loadProperties, NsharpSkewTDescriptor desc) {
 		super(rscData, loadProperties);
-		//System.out.println("NsharpSkewTBackgroundResource  constructor called");
+		System.out.println("NsharpBackgroundResource  constructor called");
 		skewTBackground = new NsharpSkewTBackground(desc);
 		hodoBackground = new NsharpHodoBackground(desc);
+		icingBackground = new NsharpIcingBackground(desc);
+		turbBackground = new NsharpTurbulenceBackground(desc);
 		thetaEHeightBackground = new NsharpInsetBackground(new Rectangle(NsharpConstants.THETAH_REC_X_ORIG,NsharpConstants.THETAH_REC_Y_ORIG,
         		NsharpConstants.THETAH_REC_WIDTH,NsharpConstants.THETAH_REC_HEIGHT));
 		srWindsBackground = new NsharpInsetBackground(new Rectangle(NsharpConstants.SRWINDS_REC_X_ORIG,NsharpConstants.SRWINDS_REC_Y_ORIG,
@@ -252,6 +282,7 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 		
 		windMotionBackground = new NsharpInsetBackground(new Rectangle(NsharpConstants.WIND_MOTION_REC_X_ORIG,NsharpConstants.WIND_MOTION_REC_Y_ORIG,
 				NsharpConstants.WIND_MOTION_REC_WIDTH,NsharpConstants.WIND_MOTION_REC_HEIGHT));
+		currentGraphMode = NsharpPaletteWindow.getCurrentGraphMode();
 	}
 	// NOTE:::Chin. It should only be called on new displays. Descriptor is passed to here as it is needed for
 	// creating SkewT and Hodo background in NsharpBackgroundResource constructor(). 
@@ -273,6 +304,8 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 		//System.out.println("NsharpBackgroundResource disposeInternal called");
 		skewTBackground.disposeInternal();
 		hodoBackground.disposeInternal();
+		icingBackground.disposeInternal();
+		turbBackground.disposeInternal();
 		hodoBackground=null;
 		skewTBackground=null;
 		//Chin Note: currently, all other backgrounds (all are NsharpInsetBackground) do not have to call disposeInternal()
@@ -298,14 +331,23 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 		//System.out.println("NsharpBackgroundResource initInternal called");
 		skewTBackground.initInternal(target);
 		hodoBackground.initInternal(target);
+		icingBackground.initInternal(target);
+		turbBackground.initInternal(target);
 		//Chin Note: currently, all other backgrounds (all are NsharpInsetBackground) do not have to call initInternal()
 	}
 
 	@Override
 	protected void paintInternal(IGraphicsTarget target,
 			PaintProperties paintProps) throws VizException {
-		
-		skewTBackground.paint(target, paintProps);
+		if(currentGraphMode== NsharpConstants.GRAPH_SKEWT)
+			skewTBackground.paint(target, paintProps);
+		else if(currentGraphMode == NsharpConstants.GRAPH_ICING)
+			icingBackground.paint(target, paintProps);
+		else if(currentGraphMode == NsharpConstants.GRAPH_TURB)
+			turbBackground.paint(target, paintProps);
+		else
+			//default
+			skewTBackground.paint(target, paintProps);
 		hodoBackground.paint(target, paintProps);
 		thetaEHeightBackground.paint(target, paintProps);
 		srWindsBackground.paint(target, paintProps);
@@ -342,7 +384,7 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 			//	return "";
 
 			if (skewTBackground.contains(c)) {
-				c = WxMath.reverseSkewTXY(skewTBackground.getWorld()
+				c = NsharpWxMath.reverseSkewTXY(skewTBackground.getWorld()
 						.unMap(c.x, c.y));
 				double p_mb = c.y;
 				double t_C = c.x; // Celsius
@@ -396,7 +438,7 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 			//System.out.println(" updateDynamicData entered!!!!!C.x="+c.x + " c.y="+c.y);
 
 			if (skewTBackground.contains(c)) {
-				c = WxMath.reverseSkewTXY(skewTBackground.getWorld()
+				c = NsharpWxMath.reverseSkewTXY(skewTBackground.getWorld()
 						.unMap(c.x, c.y));
 				double p_mb = c.y;
 				double t_C = c.x; // Celsius

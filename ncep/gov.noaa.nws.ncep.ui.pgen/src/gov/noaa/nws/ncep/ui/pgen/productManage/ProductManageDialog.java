@@ -161,8 +161,16 @@ public class ProductManageDialog extends ProductDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 255,  pt.y + 146 );
+
+    	if ( shellLocation == null ) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 255,  pt.y + 146 );
+		} 
+		else {
+			shell.setLocation(shellLocation);
+		}
+
+        
     }
 
     /**
@@ -1159,7 +1167,7 @@ public class ProductManageDialog extends ProductDialog {
         if ( displayDlg != null )   displayDlg.close();
         if ( layerLpfFileDlg != null )   layerLpfFileDlg.close();
     	
-        shell.dispose();
+        close();
 		        
     }
     
@@ -1205,7 +1213,7 @@ public class ProductManageDialog extends ProductDialog {
 
     	// Close the dialog first.
     	if ( isOpen() ) {
-        	shell.dispose();
+        	close();
         }
      	           
     	// Build & open the product control dialog.
@@ -1304,7 +1312,7 @@ public class ProductManageDialog extends ProductDialog {
         	 */   	     	
             cleanupDialogs();
             
-            shell.dispose();     	
+            close();            
     	}
 	    
         //reset the output file to null
