@@ -22,11 +22,13 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.ecf.core.user.User;
 import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.IPresence.Type;
@@ -606,11 +608,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      * Clear and populate the groups from the roster manager entries.
      */
     private void populateGroups() {
-        CollaborationDataManager manager = CollaborationDataManager
-                .getInstance();
-        CollaborationUtils.readAliases();
-        for (Object ob : manager.getCollaborationConnection()
-                .getRosterManager().getRoster().getItems()) {
+        // Collection<Object> obs = CollaborationUtils.readAliases();
+        Collection obs = CollaborationDataManager.getInstance()
+                .getCollaborationConnection().getRosterManager().getRoster()
+                .getItems();
+        for (Object ob : obs) {
             if (ob instanceof IRosterGroup) {
                 addGroup((IRosterGroup) ob);
             }
@@ -688,9 +690,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 }
                 manager.add(inviteManager);
                 manager.add(peerToPeerChatAction);
-                // use the fq name so that we know who we need to chat with
-                peerToPeerChatAction.setId(IDConverter.convertFrom(
-                        user.getUser()).getFQName());
+                UserId id = IDConverter.convertFrom(user.getUser());
+                // use the fq name so that we know who we need to chat with as a
+                // default
+                peerToPeerChatAction.setId(id.getFQName());
                 manager.add(new Separator());
                 manager.add(createSessionAction);
             }
@@ -745,7 +748,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-                    ((UserId) entry.getUser()).setAlias(treeEditor.getItem()
+                    UserId id = IDConverter.convertFrom(entry.getUser());
+                    id.setAlias(treeEditor.getItem().getText());
+                    ((User) entry.getUser()).setNickname(treeEditor.getItem()
                             .getText());
                     CollaborationUtils.addAlias();
                     CollaborationDataManager.getInstance()
@@ -788,8 +793,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 case SWT.FocusOut:
                     item.setText(modText.getText());
                     composite.dispose();
-                    IDConverter.convertFrom(entry.getUser()).setAlias(
-                            treeEditor.getItem().getText());
+                    ((User) entry.getUser()).setNickname(treeEditor.getItem()
+                            .getText());
                     CollaborationUtils.addAlias();
                     CollaborationDataManager.getInstance()
                             .getCollaborationConnection().getEventPublisher()
@@ -865,6 +870,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         String msg = Activator.getDefault().getPreferenceStore()
                 .getString(CollabPrefConstants.P_MESSAGE);
         CollaborationDataManager.getInstance().fireModifiedPresence(mode, msg);
+
+        // need to refresh the local tree so that the top user shows up with the
+        // current status
         UserId id = (UserId) topLevel.getObjects().get(0);
         usersTreeViewer.refresh(id);
     }
@@ -992,12 +1000,18 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      */
     private void createP2PChat(IQualifiedID peer) {
         try {
-            String name = "";
             UserId id = (UserId) peer;
+            String name = peer.getFQName();
+            TreeSelection selection = (TreeSelection) usersTreeViewer
+                    .getSelection();
+            IRosterEntry entry = (IRosterEntry) selection.getFirstElement();
             if (id.getAlias() != null && !id.getAlias().isEmpty()) {
                 name = id.getAlias();
+            } else if (entry.getUser().getName() != null
+                    && !entry.getUser().getName().isEmpty()) {
+                name = entry.getUser().getName();
             } else {
-                name = id.getName();
+                name = entry.getName();
             }
             PeerToPeerView p2pView = (PeerToPeerView) PlatformUI
                     .getWorkbench()
@@ -1185,21 +1199,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     @Subscribe
     public void handleRosterChangeEvent(IRosterChangeEvent rosterChangeEvent) {
-        // Assume the CollaborationDataManager has updated the back end.
-        // Only need to update the usersTreeView.
-        // System.out.println("CollaborationGroupView rosterChangeEvent<"
-        // + rosterChangeEvent.getType() + ">: "
-        // + rosterChangeEvent.getEntry().getUser().getFQName());
         final IRosterItem rosterItem = rosterChangeEvent.getItem();
-        if (rosterItem instanceof IRosterEntry) {
-            // IRosterEntry rosterEntry = (IRosterEntry) rosterItem;
-            // UserId userId = (UserId) rosterEntry.getUser();
-            // XXX TODO fix
-            // List<String> groupIds = new ArrayList<String>();
-            // for (IRosterGroup rosterGroup : rosterEntry.getGroups()) {
-            // groupIds.add(rosterGroup.getName());
-            // }
-        }
         CollaborationConnection connection = CollaborationDataManager
                 .getInstance().getCollaborationConnection();
         switch (rosterChangeEvent.getType()) {

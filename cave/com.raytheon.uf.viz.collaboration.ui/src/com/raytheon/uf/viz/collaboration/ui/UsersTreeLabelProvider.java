@@ -111,10 +111,13 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         if (element instanceof IRosterEntry) {
             IRosterEntry entry = (IRosterEntry) element;
             UserId id = IDConverter.convertFrom(entry.getUser());
-            if (id.getAlias() == null || id.getAlias().isEmpty()) {
-                return id.getName();
-            } else {
+            if (id.getAlias() != null && !id.getAlias().isEmpty()) {
                 return id.getAlias();
+            } else if (entry.getUser().getName() != null
+                    && !entry.getUser().getName().isEmpty()) {
+                return entry.getUser().getName();
+            } else {
+                return id.getName();
             }
         } else if (element instanceof IRosterGroup) {
             return ((IRosterGroup) element).getName();
