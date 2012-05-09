@@ -279,7 +279,7 @@ public class GFEDao extends DefaultPluginDao {
                         // commit
                         persistIndividually = true;
                         index = commitPoint;
-                        notDone = false;
+                        notDone = true;
                     }
 
                     tx = sess.beginTransaction();

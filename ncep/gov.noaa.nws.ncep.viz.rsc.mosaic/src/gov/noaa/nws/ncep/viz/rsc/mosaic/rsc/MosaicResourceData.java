@@ -49,6 +49,39 @@ public class MosaicResourceData extends AbstractNatlCntrsRequestableResourceData
 
 	@XmlElement
     private ColorBarFromColormap colorBar;
+	
+	@XmlElement
+	private Float alpha;
+
+	@XmlElement
+	private Float brightness;
+	
+	@XmlElement
+	private Float contrast;
+
+	public Float getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(Float alpha) {
+		this.alpha = alpha;
+	}
+
+	public Float getBrightness() {
+		return brightness;
+	}
+
+	public void setBrightness(Float brightness) {
+		this.brightness = brightness;
+	}
+
+	public Float getContrast() {
+		return contrast;
+	}
+
+	public void setContrast(Float contrast) {
+		this.contrast = contrast;
+	}
 
 	// Both the productCode and the productName should be given in the metadataMap
 	// but only one is really needed. 

@@ -19,7 +19,7 @@
                                 </Vector>
                             </DrawableElement>
                         </DECollection>
-                        <Line pgenType="FILLED_ARROW" pgenCategory="Lines" lineWidth="3.0" sizeScale="2.5" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                        <Line pgenType="FILLED_ARROW" pgenCategory="Lines" lineWidth="3.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
                             <Color red="255" green="0" blue="0" alpha="255"/>
                             <Color red="0" green="255" blue="0" alpha="255"/>
                             <Point Lat="22.385743592166126" Lon="-126.84696477158134"/>

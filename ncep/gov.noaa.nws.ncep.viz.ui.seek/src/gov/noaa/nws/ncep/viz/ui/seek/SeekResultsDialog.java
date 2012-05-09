@@ -1,22 +1,15 @@
 package gov.noaa.nws.ncep.viz.ui.seek;
 
 import gov.noaa.nws.ncep.viz.common.LocatorUtil;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.tools.cursor.NCCursors;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-//import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorTableReader;
-//import gov.noaa.nws.ncep.viz.ui.locator.util.LocatorUtil;
-//import gov.noaa.nws.ncep.viz.ui.locator.resource.PointDataResource;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -49,7 +42,6 @@ import org.eclipse.swt.widgets.Text;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
 
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -79,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                                           button to match legacy.
  * March  2011    351       Archana        Changed the path to save the CPF file - it is now under the user's home directory.    
  * Jan    2012   #561        G. Hull       make independent of Locator project. 
+ * 02/22/2012    #644      Q.Zhou       Added unit NM. Fixed point1 text(double units).
  * </pre>
  * 
  * @author mli
@@ -384,7 +377,7 @@ public class SeekResultsDialog extends Dialog  {
         distCombo.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
         
         int size = DISTANCEUNIT_OPTIONS.length;
-        for(int i = 1; i < size; i++) {
+        for(int i = 0; i < size; i++) {
            distCombo.add( DISTANCEUNIT_OPTIONS[i] );
         }   
         distCombo.addSelectionListener(new SelectionAdapter() {
@@ -781,7 +774,8 @@ public class SeekResultsDialog extends Dialog  {
     		
     		title.setEnabled(true);
     		title2.setEnabled(true);
-    		if (locName != null) title.setText(locName);
+    		if (locName != null)
+    			title.setText(locName);
 
     		try{
     			closePoints = SeekInfo.getClosestPoints(coord, locName);//.getPtsData(coord, locName);
@@ -872,7 +866,7 @@ public class SeekResultsDialog extends Dialog  {
     		
     		dt = closePoints[i];
     		String distStr = LocatorUtil.distanceDisplay(dt.getDistanceInMeter(), 1, distCombo.getText());
-    		distStr = distStr + distCombo.getText().toLowerCase();
+    		//distStr = distStr + distCombo.getText().toLowerCase();
     		
     		String dirStr = "-";
     		if (dt.getDistanceInMeter() > 0) {
@@ -953,8 +947,8 @@ public class SeekResultsDialog extends Dialog  {
     
     public String getFormatDistance(double dist, double dir) {
     	// format distance
-    	String distStr = LocatorUtil.distanceDisplay(dist, 1, distCombo.getText())
-    	        	+ distCombo.getText().toLowerCase();
+    	String distStr = LocatorUtil.distanceDisplay(dist, 1, distCombo.getText());
+    	        	//+ distCombo.getText().toLowerCase();
 
     	// format direction		
     	String dirStr = "-";

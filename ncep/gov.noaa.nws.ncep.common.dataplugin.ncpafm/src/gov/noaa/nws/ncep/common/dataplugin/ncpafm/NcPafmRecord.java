@@ -64,6 +64,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      IPointData -- that is, presents a PointDataView
  *                                      object suitable for HDF5 persistence.
  * 10 Oct 2011  126         G. Hull     replace stnid,lat&lon with the SurfaceObsLocation.
+ * 03 Feb 2012  606         G. Hull     added reportType to the URI for inventory updating
+ * 
  * </pre>
  * 
  * @author B. Hebbard, SIB
@@ -83,6 +85,7 @@ public class NcPafmRecord extends PersistablePluginDataObject implements
 
 	/** Report type */
 	@Column(length = 32)
+	@DataURI(position=6)
 	@XmlElement
 	@DynamicSerializeElement
 	private String reportType;

@@ -47,7 +47,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
-import gov.noaa.nws.ncep.viz.tools.pgenFileName.PgenFileNameDisplay;
+import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
@@ -75,6 +75,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.viz.core.gl.IGLTarget;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
 import com.vividsolutions.jts.geom.CoordinateList;
@@ -118,6 +119,12 @@ import com.vividsolutions.jts.geom.Point;
  * 04/11		?			B. Yin		Re-factor IAttribute
  * 09/11		?			B. Yin		Added Circle symbol for Inc/Dec selection.			
  * 01/12		?			J. Wu		TTR 444-Always display active product's active layer.			
+ * 03/12		?			B. Yin		Make VAA text editable
+ * 04/12		?			B. Hebbard	Per B. Yin; in paintInternal(), add makeContextCurrent()
+ * 										on IGLTarget after screenshot to avoid GLException:
+ * 										"No OpenGL context current on this thread"; 
+ * 										workaround pending RTS regression fix.
+
  *
  * </pre>
  * 
@@ -307,8 +314,12 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 			// Save current graphics target for possible future reminder
 			if ( saveOnNextPaint ) {
 				paneImage = target.screenshot();
+	        	// Following line is workaround (pending RTS solution) for RTS changes ~OB12.4
+	        	// that would cause GLException: "No OpenGL context current on this thread"
+				if ( target instanceof IGLTarget ) ((IGLTarget)target).makeContextCurrent();
 				saveOnNextPaint = false;
 			}
+			
 		}
 		//lastTarget = target;
 	}
@@ -1386,7 +1397,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		else if ( adc instanceof MultiPointElement ){
 			
 			if( adc instanceof gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet && 			
-					"Isolated".equalsIgnoreCase(((gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet) adc).getType())){
+					("Isolated".equalsIgnoreCase(((gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet) adc).getType())||
+							((gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet) adc).getType().contains("Text"))){
 					
 						double [] pt = mapEditor.translateInverseClick(((gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet) adc).getLinePoints()[0]);
 						Point ptScreen = new GeometryFactory().createPoint(new Coordinate(pt[0], pt[1]));

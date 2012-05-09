@@ -30,6 +30,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.LinePatternManager;
 import gov.noaa.nws.ncep.ui.pgen.display.SymbolPatternManager;
 import gov.noaa.nws.ncep.ui.pgen.display.TrackPoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 
 /**
@@ -896,6 +897,78 @@ class AttributeGenerator implements IArc, IAvnText, ICombo, IKink, IMidCloudText
 
 	@Override
 	public String getPatternName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Calendar getFirstTimeCalendar() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Calendar getSecondTimeCalendar() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isSetTimeButtonSelected() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getExtraDrawingPointNumber() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getSkipFactorText() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getFontNameComboSelectedIndex() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getFontSizeComboSelectedIndex() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getFontStyleComboSelectedIndex() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getUnitComboSelectedIndex() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getRoundComboSelectedIndex() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getRoundDirComboSelectedIndex() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getIntervalTimeString() {
 		// TODO Auto-generated method stub
 		return null;
 	}
