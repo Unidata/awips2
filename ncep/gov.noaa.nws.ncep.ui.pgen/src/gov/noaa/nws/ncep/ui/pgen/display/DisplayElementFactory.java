@@ -41,7 +41,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
 import gov.noaa.nws.ncep.ui.pgen.elements.ComboSymbol;
-import gov.noaa.nws.ncep.ui.pgen.elements.County;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
@@ -53,17 +52,18 @@ import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmWindQuarter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.tca.BPGeography;
 import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tca.WaterBreakpoint;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;//SigmetInfo;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.PatternSegment.PatternType;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -120,6 +120,8 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 04/11		?			B. Yin		Use Geometry instead of MultiPolygon for county shapes
  * 04/11		#?			B. Yin		Re-factor IAttribute, changed ISinglePoint to ISymbol
  * 07/11		#?			J. Wu		Allow more than 1 labels for closed contour lines.
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 03/12        #697        Q. Zhou     Fixed line arrow head size for line & gfa  
  * </pre>
  * 
  * @author sgilbert
@@ -284,6 +286,7 @@ public class DisplayElementFactory {
 		LinePatternManager lpl = LinePatternManager.getInstance();
 		try {
 			pattern = lpl.getLinePattern(de.getPatternName());
+			//System.out.println("&&&pattern "+pattern.getMaxExtent());
 		}
 		catch (LinePatternException lpe) {
 			/*
@@ -314,7 +317,14 @@ public class DisplayElementFactory {
 
 			double pointAngle = 60.0;                    // Angle of arrow point - defining narrowness
 			double extent = pattern.getMaxExtent();
-			double height = sfactor * extent * 1.5;      // distance away from center line
+			
+			// Consider distance away from center line, the height should be no less than extent * 1.5.
+			// Currently we only have extent 1 and 2 available.
+			// 3.5 is what we want the size to be.
+			double height = sfactor * 3.5;  			
+			if(extent * 1.5 > 3.5)   
+				height = sfactor * extent * 1.5;
+			
 			int n = smoothpts.length - 1;
 			//  calculate direction of arrow head
 			double slope = Math.toDegrees(Math.atan2( (smoothpts[n][1]-smoothpts[n-1][1]), (smoothpts[n][0]-smoothpts[n-1][0]) ));
@@ -437,17 +447,21 @@ public class DisplayElementFactory {
 	    			}
 	    			
 	    			if ( countyGeo != null ){
-	    				gCollection.add(countyGeo);
+	    				gCollection.add(countyGeo.buffer(.02));
 	    			}
         		}
+
 
         		//Merge counties together and fill the whole area
         		GeometryFactory gf = new GeometryFactory();
 
-        		GeometryCollection geometryCollection =
-        			(GeometryCollection) gf.buildGeometry( gCollection );
+        		if ( gCollection.size() > 1 ){
+        			GeometryCollection geometryCollection =
+        				(GeometryCollection) gf.buildGeometry( gCollection );
 
-        		cntyUnion = geometryCollection.union();
+        			cntyUnion = geometryCollection.union();
+        		}
+        		else cntyUnion = gf.buildGeometry( gCollection );
 
         		IShadedShape theShadedShape = target.createShadedShape(false, mapDescriptor, true);
 
@@ -3161,7 +3175,7 @@ public class DisplayElementFactory {
          * create shadedshape of the arrow head
          */
         double pointAngle = 60.0;
-        double height = deviceScale * vect.getArrowHeadSize();
+        double height = deviceScale * vect.getArrowHeadSize() * 2;
 		ArrowHead head = new ArrowHead (new Coordinate(end[0],end[1]), 
 				pointAngle, angle, height, ArrowHeadType.FILLED );
 		Coordinate[] ahead = head.getArrowHeadShape();
@@ -3829,7 +3843,7 @@ public class DisplayElementFactory {
 	 * @return A list of IDisplayable elements
 	 */	
 	private ArrayList<IDisplayable> createDisplayElements(AbstractSigmet sigmet, PaintProperties paintProps) {
-		double widthInNautical = sigmet.getWidth();
+		double widthInNautical = sigmet.getWidth()*PgenUtil.NM2M;
 		float density;
 	    double[][] pixels;
 	    double[][] smoothpts;
@@ -3880,7 +3894,7 @@ public class DisplayElementFactory {
 		    	
 		    }else if( lineType.contains(sigmet.LINE) ){ 
 	    	
-		    	String[] lineString = lineType.split(SigmetAttrDlg.LINE_SEPERATER);
+		    	String[] lineString = lineType.split(SigmetInfo.LINE_SEPERATER);
 		    	
 		    	if("ESOL".equalsIgnoreCase(lineString[1])){		    		
 		    		
@@ -3925,13 +3939,13 @@ public class DisplayElementFactory {
 	            return slist;
 		    }else if(lineType.contains("Text")){	  	
 		    	
-		    	String theTxt = lineType.split(SigmetAttrDlg.LINE_SEPERATER)[1];
+		    	String theTxt = lineType.split(SigmetInfo.LINE_SEPERATER)[1];
 		    	Coordinate[] locs = sigmet.getLinePoints(); 		
 		    	ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();	            	            
 		    	
 		    	Text display = new Text( null, "Courier", 14.0f, TextJustification.CENTER,
 			            locs[0], 0.0, TextRotation.SCREEN_RELATIVE, sigmet.getDisplayTxt(),
-			            FontStyle.REGULAR, dspClr[0], 0, 3, false, DisplayType.BOX,
+			            FontStyle.REGULAR, dspClr[0], 0, 0, false, DisplayType.BOX,
 			            "Text", "General Text" );            
 		    	slist.addAll(createDisplayElements((IText)display, paintProps));          
 		    	
@@ -3954,7 +3968,7 @@ public class DisplayElementFactory {
 		if( sigmet.isWithTopText() ) {		
 			
 			Text display = new Text( null, "Courier", 14.0f, TextJustification.CENTER,
-		            SigmetInfo.getNorthMostPoint(pts), 0.0, TextRotation.SCREEN_RELATIVE, new String[]{sigmet.getTopText()},
+		            SnapUtil.getNorthMostPoint(pts), 0.0, TextRotation.SCREEN_RELATIVE, new String[]{sigmet.getTopText()},
 		            FontStyle.REGULAR, dspClr[0], 0, 3, false, DisplayType.NORMAL,
 		            "Text", "General Text" );				
 			
@@ -4023,7 +4037,7 @@ public class DisplayElementFactory {
 		            FontStyle.REGULAR, getDisplayColors( elem.getColors())[0], 0, 0, true, DisplayType.BOX,
 		            "", "General Text" );
 			
-			Line line = new Line(null, getDisplayColors(elem.getColors()), 1.0F, 1.5,
+			Line line = new Line(null, getDisplayColors(elem.getColors()), 1.0F, 1.0,    //1.5 ->1.0
 					false, false, locs, 2, FillPattern.SOLID, "Lines", "POINTED_ARROW");
 			
 			list.addAll(createDisplayElements(line, paintProps));
@@ -4108,7 +4122,7 @@ public class DisplayElementFactory {
 						null, 
 						getDisplayColors(sigmet.getColors()),			
 						1.0F, 
-						1.5, 
+						1.0, 
 						false,			
 						spdCoors.get(0), 
 						gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType.ARROW,			
@@ -4176,7 +4190,7 @@ public class DisplayElementFactory {
 				
 				//no line drawn when text inside the sigmet area
 				if( ! CcfpInfo.isPtsInArea(sigmet,loc1)){					
-					Line line = new Line(null, new Color[]{Color.orange}, 1.0F, 1.5,
+					Line line = new Line(null, new Color[]{Color.orange}, 1.0F, 1.0,
 							false, false, locs, 2, FillPattern.SOLID, "Lines", "POINTED_ARROW");			
 					list.addAll(createDisplayElements(line, paintProps));
 				}

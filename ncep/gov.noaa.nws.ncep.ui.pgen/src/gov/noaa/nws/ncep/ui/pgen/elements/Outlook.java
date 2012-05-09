@@ -30,10 +30,11 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
+import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.OutlookAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.SaveMsgDlg;
+//import gov.noaa.nws.ncep.ui.pgen.attrDialog.OutlookAttrDlg;
+//import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.SaveMsgDlg;
 
 /**
  * Class for Jet element.
@@ -458,7 +459,7 @@ public class Outlook extends Contours {
 			
 		String lnInfo = "";
 		
-		List<Station> anchors = WatchBox.getAnchorTbl().getStationList();
+		List<Station> anchors = StationTableUtil.getAnchorTbl().getStationList();
 
 		Iterator<AbstractDrawableComponent> it = this.getComponentIterator();
 		while( it.hasNext() ){
@@ -753,7 +754,7 @@ public class Outlook extends Contours {
 		String rainTxt = "RISK OF RAINFALL EXCEEDING FFG TO THE RIGHT OF A LINE FROM";
 		String fiveInch = "TOTAL RAINFALL AMOUNTS OF FIVE INCHES WILL BE POSSIBLE TO THE RIGHT OF A LINE FROM";
 		
-		List<Station> sfstns = OutlookAttrDlg.getSfstnTbl().getStationList();
+		List<Station> sfstns = StationTableUtil.getSfstnTbl().getStationList();
 
 		Iterator<AbstractDrawableComponent> it = this.getComponentIterator();
 		while( it.hasNext() ){
@@ -813,7 +814,7 @@ public class Outlook extends Contours {
 			ret += "\n";
 		}
 		
-		return SaveMsgDlg.wrap(ret, 65, "\n", false);
+		return PgenUtil.wrap(ret, 65, "\n", false);
 
 	}
 	

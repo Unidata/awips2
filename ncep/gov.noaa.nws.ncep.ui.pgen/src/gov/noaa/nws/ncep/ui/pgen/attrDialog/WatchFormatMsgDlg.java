@@ -9,9 +9,24 @@
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
+import gov.noaa.nws.ncep.ui.pgen.file.Products;
+import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
+
+import javax.xml.bind.Marshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.dom.DOMSource;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -29,7 +44,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.w3c.dom.Document;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -40,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 02/10		#159		B. Yin   	Initial Creation.
+ * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
  *
  * </pre>
  * 
@@ -102,8 +121,9 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 		gd.widthHint = NUM_COLUMNS * fm.getAverageCharWidth ();
 
         messageBox.setLayoutData(gd);
+  	    setMessage( generateProducts(putWatcInProduct(wfd.getWatchBox()),"WatchText.xlt"));
         messageBox.setText(watchMsg);
-        
+
         //  Make sure to dispose of font
         messageBox.addDisposeListener(new DisposeListener() {
 
@@ -131,9 +151,17 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 		 */
 		String watchNumber = String.format("%1$04d", wfd.getWatchNumber());
 		
-		saveWatchText("ww"+watchNumber+".txt");
+		String pdName = wfd.getWbDlg().drawingLayer.getActiveProduct().getType();
+		ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
+		if ( pt != null ) pdName = pt.getType();
 		
-		String fname = "WW"+watchNumber+".xml";
+		String pd1 = pdName.replaceAll(" ", "_");
+			
+		String dirPath = PgenUtil.getPgenOprDirectory() + 
+							File.separator + pd1 +  File.separator + "prod" +
+						File.separator + "text" + File.separator;
+			
+		String fname = dirPath + "WW"+watchNumber+".xml";
 		
 		if ( PgenUtil.checkFileStatus(fname) ){
 			
@@ -144,6 +172,16 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 			wfd.getWbDlg().mapEditor.refresh();
 
 			wfd.getWatchBox().saveToFile(fname);
+			
+			//saveWatchText("ww"+watchNumber+".txt");
+			
+			Products pd = this.putWatcInProduct(wfd.getWatchBox());
+			saveProducts(watchMsg, dirPath + "ww"+watchNumber+".txt");
+			saveProducts(generateProducts(pd,"SAW.xlt"), dirPath + "WW"+watchNumber+".SAW");
+			saveProducts(generateProducts(pd,"SEL.xlt"), dirPath + "WW"+watchNumber+".SEL");
+			saveProducts(generateProducts(pd,"SEV.xlt"), dirPath + "WW"+watchNumber+".SEV");
+			saveProducts(generateProducts(pd,"WOU.xlt"), dirPath + "WW"+watchNumber+".WOU");
+
 			wfd.close();
 			super.okPressed();
 		}
@@ -162,25 +200,58 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 		super.cancelPressed();
 		
 	}
+
 	
-	/**
-	 * Save watch text to a file
-	 * @param filename
-	 */
-	private void saveWatchText(String filename ){
-		File out = new File(filename);
+	private void saveProducts( String outStr, String outFile){
+    	
+		if ( outStr != null && !outStr.isEmpty()){
 
-		try {
-			FileWriter fw = new FileWriter(out);
-			fw.write(watchMsg);
-			fw.close();
-		}
-		catch (Exception e) {
-			System.out.println("Problem writing Watch text to file "+out.getAbsolutePath());
-		}
+			//write to file
+			File out = new File( outFile );
 
+			try {
+				FileWriter fw = new FileWriter(out);
+				fw.write(outStr);
+				fw.close();
+			}
+			catch (Exception e) {
+				System.out.println("Problem writing Watch text to file "+out.getAbsolutePath());
+			}
+		}
+    
 	}
+	
+	private String generateProducts(Products pd, String xslt ){
+        
+    	Document sw = null;
+    	
+    	try{
+    		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    		dbf.setNamespaceAware(true);
+    		DocumentBuilder db = dbf.newDocumentBuilder();
+    		sw = db.newDocument();
+    		Marshaller mar =  SerializationUtil.getJaxbContext().createMarshaller();
+    		mar.marshal( pd, sw );
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
 
+    	DOMSource ds = new DOMSource(sw);
+    	
+    	//get style sheet file path
+    	String xsltPath = NcPathConstants.PGEN_ROOT + File.separator + "xslt" + File.separator + "watchbox" + File.separator + xslt;
+
+		LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(xsltPath);
+		
+		String outStr ="";
+		if ( lFile != null ){
+			outStr = PgenUtil.applyStyleSheet( ds, lFile.getFile().getAbsolutePath());
+		}
+		
+		return outStr;
+    
+	}
+		
 	/**
 	 * Set watch text
 	 * @param str The issued watch text
@@ -240,5 +311,20 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 		});
 		
 		getButton(IDialogConstants.OK_ID).setText("Save");
+	}
+	
+	private Products putWatcInProduct(WatchBox wb ){
+		Layer defaultLayer = new Layer();
+		//add watch collection(box and status line)
+		defaultLayer.addElement(wb.getParent());
+
+		Product defaultProduct = new Product();
+		defaultProduct.addLayer(defaultLayer);
+
+		ArrayList<Product> prds = new ArrayList<Product>();
+		prds.add( defaultProduct );
+		Products fileProduct = ProductConverter.convert( prds );
+		
+		return fileProduct;
 	}
 }

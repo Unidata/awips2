@@ -376,12 +376,19 @@ elements.
 </p>
 <p><b><tt>QPF_contourValues = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25,
 0.30,
-0.40, 0.50,</tt></b>
+0.40, 0.50,
 <br>
-<b><tt>&nbsp; 0.60, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2,
-2.4, 2.6, 2.8,</tt></b>
+&nbsp; 0.60, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2,
+2.4, 2.6, 2.8,
 <br>
-<b><tt>&nbsp; 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0]</tt></b>
+&nbsp; 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0]<br><br>
+Topography_contourValues = [5.0, 10.0, 20.0, 30.0, 40.0, 50.0,<br>
+  &nbsp;&nbsp;60.0, 70.0, 80.0, 90.0, 100.0, 125.0, 150.0, 175.0, 200.0, 250.0,<br>
+  &nbsp;&nbsp;300.0, 350.0, 400.0, 450.0, 500.0, 600.0, 700.0, 800.0, 900.0,<br>
+  &nbsp;&nbsp;1000.0, 1250.0, 1500.0, 1750.0, 2000.0, 2500.0, 3000.0, 3500.0,<br>
+  &nbsp;&nbsp;4000.0, 4500.0, 5000.0, 5500.0, 6000.0, 6500.0, 7000.0, 7500.0,<br>
+  &nbsp;&nbsp;8000.0, 8500.0, 9000.0, 9500.0, 10000.0, 11000.0, 12000.0, 13000.0,<br>
+  &nbsp;&nbsp;14000.0, 15000.0, 16000.0, 17000.0, 18000.0, 19000.0, 20000.0]</tt></b>
 </p>
 <h5><font size="+0">Contour Interval</font></h5>
 The user may also specify a contour interval for a weather
@@ -415,9 +422,9 @@ surface-based,
 the format is weatherElementName_level_deltaValue.&nbsp; Be sure to
 include
 a decimal point.
-<p><b><tt>FzLevel_deltaValue = 100.0</tt></b>
+<p><b><tt>FzLevel_deltaValue = 100.0<br>
+SnowLevel_deltaValue = 100.0</tt></b>
 <br>
-&nbsp;
 </p>
 <h4><a name="FuzzValues"></a><font size="+1">Fuzz Values</font></h4>
 Fuzz values are weather element specific.&nbsp; If not defined, it
@@ -691,11 +698,11 @@ parmName_level_windBarbDefaultSize.
 </p>
 <p>&nbsp;
 </p>
-<h4><a name="WindArrowScaling"></a><font size="+1">Wind Arrow Scaling</font></h4>
-The length of the wind arrows is porportionate to the percentage of the
+<h4><a name="WindArrowScaling"></a><font size="+1">Wind/Swell Arrow Scaling</font></h4>
+The length of the wind/swell arrows is proportional to the percentage of the
 magnitude to the maximum allowable magnitude. The user may specify
 whether
-this is a linear or a logrithmetic formula for each vector weather
+this is a linear or a logarithmic formula for each vector weather
 element.
 The format of these entries is parmName_arrowScaling.&nbsp; (For
 non-surface
@@ -774,7 +781,9 @@ length
 if the factor value is 0.01.
 <br>
 &nbsp;
-<p><b><tt>Wind_arrowScaling = 0.03</tt></b> <br>
+<p><b><tt>Wind_arrowScaling = 0.03<br>
+Swell_arrowScaling = 0.001<br>
+Swell2_arrowScaling = 0.001</tt></b> <br>
 </p>
 <p>&nbsp;
 </p>
@@ -883,20 +892,14 @@ SCALAR, VECTOR, WEATHER, and DISCRETE order:
 </p>
 <p><b><tt>T_defaultValue = 32.0</tt></b>
 <br>
-<b><tt>Wind_SFC_magDefaultValue = 10.0</tt></b>
-<br>
-<b><tt>Wind_SFC_dirDefaultValue = 90.0</tt></b>
-<br>
 <b><tt>Wx_defaultValue =
-"&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:"</tt></b>
+"&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:"<br>
+Wind_dirDefaultValue = 90.0</tt></b>
 <br>
-<b><tt>Headlines_defaultValue = "&lt;None&gt;"</tt></b> <br>
 </p>
 <hr style="width: 100%; height: 2px;">
-<p>&nbsp;
-</p>
 <div class="Body">
-<center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+<center><a href="GFESuite.html">Back To TOC</a></center>
 </div>
 </div>
 </body>

@@ -156,13 +156,14 @@
                 <reference
                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
                 </reference></visibleWhen>
-             <command
+<!--             <command
                    commandId="gov.noaa.nws.ncep.ui.actions.ImagePropertiesAction"
                    label="Image Properties"
                    style="push"
                    mnemonic="I">
-             </command> 
-             <command
+                 </command>
+                   -->
+              <command
                    commandId="gov.noaa.nws.ncep.viz.ui.actions.CursorAction"
                    id = "gov.noaa.nws.ncep.viz.ui.actions.CursorAction"
                    label="Cursor"

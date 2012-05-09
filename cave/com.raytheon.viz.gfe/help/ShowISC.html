@@ -25,17 +25,6 @@
 </font></font></b></p>
 <p class="western" style="margin-bottom: 0in; widows: 0; orphans: 0;"
  align="center">
-<font face="Arial, sans-serif"><font style="font-size: 11pt;" size="2"><b>Based
-on Tim Barker's Version
-2.4 ShowISC<br>
-November 17, 2004<br>
-</b></font></font></p>
-<p class="western" style="margin-bottom: 0in; widows: 0; orphans: 0;"
- align="center">
-<br>
-</p>
-<p class="western" style="margin-bottom: 0in; widows: 0; orphans: 0;"
- align="center">
 <font face="Arial, sans-serif">A collection of tools to mitigate
 site-to-site discrepancies </font>
 </p>
@@ -74,8 +63,8 @@ site-to-site discrepancies </font>
 <h2><font face="Arial, sans-serif"><a name="Introduction"></a>Introduction</font></h2>
 <p class="western" style="margin-bottom: 0in; widows: 0; orphans: 0;"><font
  face="Arial, sans-serif">These tools are adaptations upon Tim Barker's
-set of ShowISC tools.&nbsp; These tools were baselined in IFPS16.2
-(November 2004).&nbsp;&nbsp; There are four tools: <br>
+set of ShowISC tools. These tools were baselined in IFPS16.2
+(November 2004). There are four tools: <br>
 </font></p>
 <ul>
   <li><font face="Arial, sans-serif">Show_ISC_Highlights, which
@@ -288,7 +277,7 @@ points along the border have the same latitude, but have longitudes
 of 105.243 and 105.238, they would be 'combined' into a single
 point. While this makes almost no difference visually on the GFE
 displays, it CAN have an impact when determining if the center of a
-gridbox lies on which "side" of a shapefile border. A little
+gridbox lies on which "side" of a shapefile border. <!-- A little
 known configuration element in the IFPServer allows you to control
 the precision of the shapefile points. This is discussed in the
 documentation for the GFE Map files. For each map, you can specify a
@@ -297,29 +286,11 @@ numbers will store more decimal places of precision. In addition,
 you can set the precision to None, which will NOT allow the shapefile
 borders to be thinned at all. In my case, I found virtually no
 discernable difference running the server with either 2 or 4 decimal
-places - or even setting the precision to None. Thus, my
-<a href="localMapsConfig.html">localMaps.py</a> file contains entries
-like:</font></p>
-<p class="western"
- style="margin-left: 0.25in; text-indent: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;">
-<font face="Arial, sans-serif">CWAzones.precision=None</font></p>
-<p class="western"
- style="margin-left: 0.25in; text-indent: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;"><font
- face="Arial, sans-serif">Zones.precision=None</font></p>
-<p class="western"
- style="margin-left: 0.25in; text-indent: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;">
-<font face="Arial, sans-serif">FWCAzones.precision=None</font></p>
-<p class="western"
- style="margin-left: 0.25in; text-indent: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;">
-.</p>
-<p class="western"
- style="margin-left: 0.25in; text-indent: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;">
-<br>
-</p>
+places - or even setting the precision to None. --></font></p>
+
 <p class="western"
  style="margin-left: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;">
-<font face="Arial, sans-serif">for each of the maps used in the
-IFPServer. Using this higher precision, the location of the borders
+<font face="Arial, sans-serif">Using this higher precision, the location of the borders
 is much closer to what is calculated with NDFD. However, even with
 this high precision, roundoff errors lead to a few gridboxes placed
 on different "sides" of the CWA border. If identical results are
@@ -331,10 +302,7 @@ this difference is quite small, and for many borders is
 non-existantant. For sites that run at a different resolution than
 the 5-km resolution of NDFD, the border points will already be much
 different - so this small difference is irrelevant.</font></p>
-<p class="western"
- style="margin-left: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;">
-<br>
-</p>
+
 <p class="western"
  style="margin-left: 0.25in; margin-bottom: 0in; widows: 0; orphans: 0;">
 <font face="Arial, sans-serif">The NDFD algorithm will mark a
@@ -347,7 +315,7 @@ configurable in the Show_ISC_Highlights and Show_ISC_Info tools -
 as discussed in the installation section below.</font></p>
 <p class="western" style="margin-bottom: 0in; widows: 0; orphans: 0;"><br>
 </p>
-&nbsp; <font face="Arial, sans-serif">In order to ignore light wind
+<font face="Arial, sans-serif">In order to ignore light wind
 difference, in both the wind speed and wind direction calculations,
 the NDFD algorithm also ignores neighboring gridbox pairs where
 either wind speed value is below 8 knots. This means that your
@@ -359,11 +327,11 @@ ignored only if BOTH points are below 8 knots.<br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="Install"></a><font face="Arial, sans-serif"><font size="5"><b>Configuration</b></font></font></h2>
 The ShowISC tools on the Smart Tool Repository required configuration
-for each site.&nbsp; The baselined version are automatically configured
-based on edit area information within the ifpServer.<br>
+for each site. The baselined version are automatically configured
+based on edit area information within EDEX.<br>
 <br>
 The Show_ISC_Info and Show_ISC_Highlights tools have a common
-configuration section within the ISC_Utility.&nbsp; You can override
+configuration section within the ISC_Utility. You can override
 these values by copying the configuration() function from ISC_Utility
 and putting it into ISC_Utility_Local, and then changing the values.<br>
 <span style="font-family: courier,monospace;"></span><br>

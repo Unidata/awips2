@@ -162,6 +162,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
             timeDescriptor = self.headlinesTimeRange_descriptor(
                 tree, node, key, tr, areaLabel, issuanceTime)
+            from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKey
             headlineWords = DiscreteKey.discreteDefinition(siteId).keyDesc(
                 "Hazards" + "_SFC", key)
             if headlineWords == "":    #  Don't process the "<None>" key

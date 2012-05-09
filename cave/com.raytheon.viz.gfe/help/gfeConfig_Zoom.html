@@ -13,7 +13,7 @@
 <h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
 Dialog and Menu Configuration</h2>
 <br>
-<div class="3Heading">&nbsp;
+<div class="3Heading">
 <table nosave="" border="1" cols="4" width="100%">
   <tbody>
     <tr>
@@ -33,13 +33,6 @@ Dialog and Menu Configuration</h2>
     <tr>
       <td><a href="#SetPickupValueZoom">Set Pickup Value Dialog Zoom
 Configuration</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
-      </td>
-    </tr>
-    <tr>
-      <td><a href="#SEZoom">Spatial Editor Zoom Configuration</a></td>
       <td>YES</td>
       <td>NO</td>
       <td><br>
@@ -90,36 +83,6 @@ Defaults</a></td>
       <td>YES</td>
       <td>NO</td>
       <td><br>
-      </td>
-    </tr>
-    <tr>
-      <td><a
- href="gfeConfig_ISC.html#PreselectedSendISCDialogWeatherElementGroup">Preselected
-Send ISC Dialog Weather Element Group</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
-      </td>
-    </tr>
-    <tr>
-      <td><a href="gfeConfig_ISC.html#SendISCDialogTimesConfiguration">Send
-ISC
-Dialog Times Configuration</a></td>
-      <td>YES</td>
-      <td>NO</td>
-      <td><br>
-      </td>
-    </tr>
-
-    <tr>
-      <td style="vertical-align: top;"><a href="#ProcessorScripts">Scripts
-Dialog Processor Value</a><br>
-      </td>
-      <td style="vertical-align: top;">YES<br>
-      </td>
-      <td style="vertical-align: top;">NO<br>
-      </td>
-      <td style="vertical-align: top;"><br>
       </td>
     </tr>
     <tr>
@@ -185,30 +148,7 @@ An example for QPF is shown below: </p>
 <p><b><tt>SetValue_zoom = 4</tt></b> <br>
 <b><tt>QPF_SetValue_zoom = 10</tt></b> <br>
 </p>
-<p>&nbsp;<br>
-&nbsp; </p>
-<h4>&nbsp;<a name="SEZoom"></a><font size="+1">Spatial Editor Zoom
-Configuration</font></h4>
-The Spatial Editor Zoom configuration has two configurable items, the
-number
-of zoom steps and the zoom factor between steps.&nbsp; The SEZoomSteps
-can range from 3 to 9 and defines the number of zoom steps that are
-available
-on the editor.&nbsp; The default value is 5.&nbsp; The SEZoomFactor
-defines
-the amount of zoom to be applied for each step.&nbsp; The value can
-range
-between 1.1 and 2.5, with the default being 1.5.&nbsp; A value of 2
-means
-each zoom step will zoom up by a factor of 2, so the zoom ratios will
-be
-1:1, 2:1, 4:1, 8:1, 16:1, etc.
-<p>The default values in the configuration file are shown below: </p>
-<p><b><tt>SEZoomFactor = 1.5</tt></b> <br>
-<b><tt>SEZoomSteps = 5</tt></b> <br>
-</p>
-<p>&nbsp; &nbsp;&nbsp; &nbsp;<br>
-</p>
+<p>&nbsp;</p>
 <h4><a name="delta"></a><font size="+1">Maximum Set Delta Dialog
 Values</font></h4>
 The default range of the Set Discrepancy Dialog is 20% of the weather
@@ -303,26 +243,8 @@ also be specified. The units are hours and must range between 1 and 24.
 <b><tt>CreateScratchDefaultInterval = 1</tt></b> <br>
 <b><tt>CreateScratchDefaultDuration = 1</tt></b> <br>
 <br>
-&nbsp; <br>
-<br>
-<b><font size="+1"><a name="ProcessorScripts"></a>Scripts Dialog
-Processor Mode</font></b><br>
-<b><font size="+1"> </font></b>
-<blockquote>
-  <p> </p>
-</blockquote>
-<blockquote></blockquote>
-<p>Default setting for the Scripts
-Dialog Processor Mode.&nbsp; Options are "Server" and "Local".&nbsp; It
-is recommended that "Server" be used for better performance on the GFE.
-</p>
-<b><tt>ScriptsDialog_Processor =
-"Server"<br>
 <br>
 <br>
-<br>
-<br>
-</tt></b>
 <b><font size="+1"><a name="WxDiscreteShowDescription"></a>Wx/Discrete:
 Show Description<br>
 </font></b>
@@ -373,9 +295,8 @@ and weatherTypeSymbol_defaultIntensity.
 <br>
 <br>
 <hr style="width: 100%; height: 2px;"> <br>
-<blockquote>&nbsp;</blockquote>
 <div class="Body">
-<center><tt>&nbsp;<a href="GFESuite.html">Back To TOC</a></tt></center>
+<center><a href="GFESuite.html">Back To TOC</a></center>
 </div>
 </div>
 </body>

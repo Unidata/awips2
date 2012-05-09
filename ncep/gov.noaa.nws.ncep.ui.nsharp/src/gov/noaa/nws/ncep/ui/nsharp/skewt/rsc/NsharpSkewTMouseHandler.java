@@ -23,9 +23,11 @@ package gov.noaa.nws.ncep.ui.nsharp.skewt.rsc;
 
 import java.io.IOException;
 
+import gov.noaa.nws.ncep.ui.nsharp.maprsc.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpShowTextDialog;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDisplay;
+import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 
 import org.eclipse.swt.SWT;
@@ -228,9 +230,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
             	
             	//System.out.println("handleMouseDown x "+((int)pointxy[0]-xdiff)+ " y "+((int)pointxy[1]-ydiff));
             }
-            /* TBD else if(bkRsc.getWindMotionBackground().contains(c) == true) {
-            	this.mode = Mode.HODO_WIND_MOTION_DOWN;
-            }*/
+            
             else if(bkRsc.getHodoBackground().contains(c) == true) {
             	
             	if(graphEditOn){
@@ -440,6 +440,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
 
     @Override
     public boolean handleMouseUp(int x, int y, int mouseButton) {
+    	//System.out.println("skewtRsc handleMouseUp");
     	if(editor!=null){
 			NsharpSkewTResource skewRsc = getDescriptor().getSkewtResource();
 			NsharpBackgroundResource bkRsc = getDescriptor().getSkewTBkGResource();
@@ -447,11 +448,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
         	// button 1 is left mouse button 
     		if (mouseButton == 1 ){
     			Coordinate c = editor.translateClick(x, y);
-    			/* TBD if(bkRsc.getWindMotionBackground().contains(c) == true && mode == Mode.HODO_WIND_MOTION_DOWN) {
-    				int index =((int)(c.y - NsharpConstants.WIND_MOTION_REC_Y_ORIG))/(NsharpConstants.WIND_MOTION_REC_HEIGHT/3);
-    				skewRsc.setCurrentHodoWindMode(index);
-    			}
-    			else*/ if(bkRsc.getHodoBackground().contains(c) == true ) {
+    			 if(bkRsc.getHodoBackground().contains(c) == true ) {
     				//make sure it is clicked within hodo area
     				boolean graphEditOn = skewRsc.isEditGraphOn();
     				if(graphEditOn && this.mode == Mode.HODO_DOWN_MOVE){
@@ -501,11 +498,11 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
     				}
                 }
     			this.mode = Mode.CREATE;
-    		} /* else if(mouseButton == 3){
+    		} else if(mouseButton == 3){
     			//right mouse button
-    			graphEditOn = !graphEditOn;
-    			skewRsc.setGraphEditOn(graphEditOn);
-    		}*/
+    			//System.out.println("skewtRsc handleMouseUp right button");
+    			NsharpMapResource.bringMapEditorToTop();
+    		}
     		editor.refresh();
     	}
         return false;

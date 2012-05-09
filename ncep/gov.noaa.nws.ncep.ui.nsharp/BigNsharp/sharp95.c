@@ -43,6 +43,7 @@ History hist;
 
 struct _configure config;
 
+#ifndef _WIN32
 void main(int argc, char *argv[])
 {
 	int i;
@@ -125,3 +126,4 @@ void main(int argc, char *argv[])
 	/* Pass args so that X gets command line args */
 	make_screen(argc, argv);
 }
+#endif

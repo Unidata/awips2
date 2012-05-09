@@ -17,6 +17,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
@@ -138,5 +139,10 @@ public class EditResourceAttrsAction extends AbstractRightClickAction {
 	@SuppressWarnings("unchecked")
 	public String getText() {
 		return "Edit " + ((INatlCntrsResourceData)selectedRsc.getResourceData()).getResourceName().toString() + " Attributes";
+	}
+	
+	@Override
+	public void setSelectedRsc(ResourcePair selectedRsc) {
+		super.setSelectedRsc(selectedRsc);
 	}
 }
