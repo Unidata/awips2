@@ -27,9 +27,7 @@
  lang="en-US">
 <font size="6"><b>TCMWind Tool</b></font></p>
 <h1>
-<font size="4"><b>Version 2.3</b></font></h1>
-<h1>
-<font size="4"><b>July 6, 2005</b></font></h1>
+<font size="4"><b>March 9, 2012</b></font></h1>
 <p class="western" style="margin-bottom: 0in;" align="center"
  lang="en-US">
 <br>
@@ -75,17 +73,7 @@ a GFE yellow banner.</font>
 </p>
 <p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
 <img alt="TCMWind tool user interface" src="images/TCMWindToolUI.png"
- name="Graphic1"
- style="border: 0px solid ; width: 393px; height: 785px;" align="left"><br>
-</p>
-<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
-<br>
-</p>
-<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
-<br>
-</p>
-<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
-<br>
+ name="Graphic1" align="left"><br>
 </p>
 <p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
 <br>
@@ -210,7 +198,7 @@ the elevation is greater than zero (above sea level). Note that the
 scale range is from -20% to +50%. Negative values will increase the
 wind magnitude by that amount over areas above sea level.<br>
 <br>
-&nbsp;<br>
+<br>
 <font size="4"><b>Make Grid over Selected Time Only</b></font><br>
 <br>
 Selecting “Yes” for this option will produce grids only over a
@@ -221,7 +209,18 @@ the same effect as selecting “No”. If you have a time range
 selected and select “Yes” to “Make Grid Over Selected Time
 Only”, but your selected time does not intersect the valid time of
 the TCM bulletin, a yellow banner will display informing you that you
-selected a time outside the time period defined in the bulletin.
+selected a time outside the time period defined in the bulletin.<br><br>
+<font size="4"><b>MakeWind Swath for TCWindThreat?</b></font><br>
+<br>
+This option is for use only by those offices that are part of Tropical
+Impact Graphics experiment. This option, using the detailed wind radii info
+provided calculates a swath of maximum wind for each grid point that incorporates
+the specified land friction. This creates a TCMMaxWindComposite object that
+gets stored in the server. When the office runs the TCWindThreat tool as part of the tropical 
+impact grids/graphics, that object is available as one of two options for use as the 
+deterministic WindMax source. In the context of the TCWindThreat tool, the WindMax
+source created by the TCMWindTools would be named TCM. The downside to running 
+TCMWindTool with this option is that it will take 5 to 6 extra minutes to run.</font><br>
 <h1><big><font size="5"><big><b>The Algorithm</b></big></font></big></h1>
 The algorithm used to calculate the wind field is roughly a Rankine
 vortex. Wind values at specified radii are defined in the TCM bulletin.
@@ -235,19 +234,6 @@ quadrant of Hurricane Irene (17 Oct 1999) is shown in Figure 2 below.<br>
  name="Graphic2"
  style="border: 0px solid ; width: 516px; height: 537px;" align="left"><br>
 </p>
-<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
- align="left" lang="en-US">
-<font size="3"><b><br>
-</b></font></p>
-<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
- align="left" lang="en-US"><font size="3"><b><br>
-</b></font></p>
-<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
- align="left" lang="en-US"><font size="3"><b><br>
-</b></font></p>
-<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
- align="left" lang="en-US"><font size="3"><b><br>
-</b></font></p>
 <p class="western" style="margin-left: 1in; margin-bottom: 0in;"
  align="left" lang="en-US"><font size="3"><b><br>
 </b></font></p>
@@ -331,11 +317,6 @@ These wind caps are documented in the table below.<br>
 lead time.</b></font>
 <p class="western" style="margin-left: 1in; margin-bottom: 0in;"
  align="left" lang="en-US"><br>
-</p>
-<p style="margin-bottom: 0in;" align="left" lang="en-US"><br>
-</p>
-<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
-<br>
 </p>
 </body>
 </html>

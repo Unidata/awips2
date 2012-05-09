@@ -33,8 +33,7 @@ Local211 = ('Local211', LAMBERT_CONFORMAL,
 # Now we need to tell the server that our site (Boise in this example)
 # should use this new projection.  We need to completely redefine the
 # grid domain information for the site and include the new projection.
-SITES['BOI'] = ([45, 45], (25.00, 34.00), (11.0, 11.0), 'MST7MDT', Local211,
-  'wfo'))
+SITES['BOI'] = ([45, 45], (25.00, 34.00), (11.0, 11.0), 'MST7MDT', Local211, 'wfo')
 
 
 

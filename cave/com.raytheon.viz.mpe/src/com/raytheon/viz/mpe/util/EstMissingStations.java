@@ -141,7 +141,7 @@ public class EstMissingStations {
                     }
 
                     if (method == 2 && isoh > 0 && isoh1 > 0) {
-                        padj = pdata[j].stn[i].frain[h].data * (isoh1 / isoh);
+                        padj = pdata[j].stn[i].frain[h].data * isoh1 / isoh;
                     } else {
                         padj = pdata[j].stn[i].frain[h].data;
                     }
@@ -200,7 +200,7 @@ public class EstMissingStations {
 
                         if (method == 2 && isoh > 0 && isoh1 > 0) {
                             padj = pdata[j].stn[i].frain[h].data
-                                    * (isoh1 / isoh);
+                                    * isoh1 / isoh;
                         } else {
                             padj = pdata[j].stn[i].frain[h].data;
                         }

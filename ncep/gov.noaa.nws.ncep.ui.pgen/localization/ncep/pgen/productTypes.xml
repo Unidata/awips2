@@ -10269,4 +10269,183 @@
         </ns2:PgenClass>
         <ns2:PgenSave outputFile="temp.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
     </ns2:ProductType>
+        <ns2:ProductType Name="" Type="Convective Outlook" Subtype="None">
+        <ns2:PgenControls>
+            <ns2:Name>Open</ns2:Name>
+            <ns2:Name>Save</ns2:Name>
+            <ns2:Name>Save As</ns2:Name>
+            <ns2:Name>Exit</ns2:Name>
+            <ns2:Name>Restore</ns2:Name>
+            <ns2:Name>Save All</ns2:Name>
+            <ns2:Name>ProdCtrl</ns2:Name>
+        </ns2:PgenControls>
+        <ns2:PgenActions>
+            <ns2:Name>Select</ns2:Name>
+            <ns2:Name>Modify</ns2:Name>
+            <ns2:Name>Connect</ns2:Name>
+            <ns2:Name>MultiSelect</ns2:Name>
+            <ns2:Name>Move</ns2:Name>
+            <ns2:Name>Delete</ns2:Name>
+            <ns2:Name>Copy</ns2:Name>
+            <ns2:Name>Flip</ns2:Name>
+            <ns2:Name>Delete Point</ns2:Name>
+            <ns2:Name>Delete Part</ns2:Name>
+            <ns2:Name>Delete All</ns2:Name>
+            <ns2:Name>Undo</ns2:Name>
+            <ns2:Name>Redo</ns2:Name>
+            <ns2:Name>Add Point</ns2:Name>
+            <ns2:Name>Add Point Alt</ns2:Name>
+        </ns2:PgenActions>
+        <ns2:PgenClass Name="Any">
+            <ns2:PgenObjects/>
+        </ns2:PgenClass>
+        <ns2:PgenClass Name="Text">
+            <ns2:PgenObjects>
+                <ns2:Name>General Text</ns2:Name>
+                <ns2:Name>AVIATION_TEXT</ns2:Name>
+                <ns2:Name>MID_LEVEL_CLOUD</ns2:Name>
+            </ns2:PgenObjects>
+        </ns2:PgenClass>
+        <ns2:PgenClass Name="Lines">
+            <ns2:PgenObjects>
+                <ns2:Name>LINE_SOLID</ns2:Name>
+                <ns2:Name>POINTED_ARROW</ns2:Name>
+                <ns2:Name>FILLED_ARROW</ns2:Name>
+                <ns2:Name>LINE_DASHED_2</ns2:Name>
+                <ns2:Name>LINE_DASHED_3</ns2:Name>
+                <ns2:Name>LINE_DASHED_4</ns2:Name>
+                <ns2:Name>LINE_DASHED_5</ns2:Name>
+                <ns2:Name>LINE_DASHED_6</ns2:Name>
+                <ns2:Name>LINE_DASHED_7</ns2:Name>
+                <ns2:Name>LINE_DASHED_8</ns2:Name>
+                <ns2:Name>LINE_DASHED_9</ns2:Name>
+                <ns2:Name>LINE_DASHED_10</ns2:Name>
+                <ns2:Name>DASHED_ARROW</ns2:Name>
+                <ns2:Name>DASHED_ARROW_FILLED</ns2:Name>
+                <ns2:Name>BALL_CHAIN</ns2:Name>
+                <ns2:Name>ZIGZAG</ns2:Name>
+                <ns2:Name>SCALLOPED</ns2:Name>
+                <ns2:Name>ANGLED_TICKS_ALT</ns2:Name>
+                <ns2:Name>FILLED_CIRCLES</ns2:Name>
+                <ns2:Name>LINE_WITH_CARETS</ns2:Name>
+                <ns2:Name>LINE_CARET_LINE</ns2:Name>
+                <ns2:Name>SINE_CURVE</ns2:Name>
+                <ns2:Name>BOX_CIRCLE</ns2:Name>
+                <ns2:Name>FILL_OPEN_BOX</ns2:Name>
+                <ns2:Name>LINE_X_LINE</ns2:Name>
+                <ns2:Name>LINE_XX_LINE</ns2:Name>
+                <ns2:Name>FILL_CIRCLE_X</ns2:Name>
+                <ns2:Name>BOX_X</ns2:Name>
+                <ns2:Name>LINE_CIRCLE_ARROW</ns2:Name>
+                <ns2:Name>DOUBLE_LINE</ns2:Name>
+                <ns2:Name>ZZZ_LINE</ns2:Name>
+                <ns2:Name>TICK_MARKS</ns2:Name>
+                <ns2:Name>STREAM_LINE</ns2:Name>
+                <ns2:Name>LINE_FILLED_CIRCLE_ARROW</ns2:Name>
+            </ns2:PgenObjects>
+        </ns2:PgenClass>
+        <ns2:PgenLayer Name="hail" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="torn" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="wind" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="catg" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="pr2cat" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenSave outputFile="Convective_Outlook.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
+        <ns2:PgenSettingsFile></ns2:PgenSettingsFile>
+    </ns2:ProductType>
+    <ns2:ProductType Name="" Type="Fire Weather Outlook" Subtype="None">
+        <ns2:PgenControls>
+            <ns2:Name>Open</ns2:Name>
+            <ns2:Name>Save</ns2:Name>
+            <ns2:Name>Save As</ns2:Name>
+            <ns2:Name>Exit</ns2:Name>
+            <ns2:Name>Restore</ns2:Name>
+            <ns2:Name>Save All</ns2:Name>
+            <ns2:Name>ProdCtrl</ns2:Name>
+        </ns2:PgenControls>
+        <ns2:PgenActions>
+            <ns2:Name>Select</ns2:Name>
+            <ns2:Name>Modify</ns2:Name>
+            <ns2:Name>Move</ns2:Name>
+            <ns2:Name>Delete</ns2:Name>
+            <ns2:Name>Flip</ns2:Name>
+            <ns2:Name>Delete Point</ns2:Name>
+            <ns2:Name>Delete All</ns2:Name>
+            <ns2:Name>Undo</ns2:Name>
+            <ns2:Name>Redo</ns2:Name>
+            <ns2:Name>Add Point</ns2:Name>
+            <ns2:Name>Add Point Alt</ns2:Name>
+        </ns2:PgenActions>
+        <ns2:PgenClass Name="Any">
+            <ns2:PgenObjects/>
+        </ns2:PgenClass>
+        <ns2:PgenClass Name="Text">
+            <ns2:PgenObjects>
+                <ns2:Name>General Text</ns2:Name>
+                <ns2:Name>AVIATION_TEXT</ns2:Name>
+                <ns2:Name>MID_LEVEL_CLOUD</ns2:Name>
+            </ns2:PgenObjects>
+        </ns2:PgenClass>
+        <ns2:PgenClass Name="Lines">
+            <ns2:PgenObjects>
+                <ns2:Name>LINE_SOLID</ns2:Name>
+                <ns2:Name>POINTED_ARROW</ns2:Name>
+                <ns2:Name>FILLED_ARROW</ns2:Name>
+                <ns2:Name>LINE_DASHED_2</ns2:Name>
+                <ns2:Name>LINE_DASHED_3</ns2:Name>
+                <ns2:Name>LINE_DASHED_4</ns2:Name>
+                <ns2:Name>LINE_DASHED_5</ns2:Name>
+                <ns2:Name>LINE_DASHED_6</ns2:Name>
+                <ns2:Name>LINE_DASHED_7</ns2:Name>
+                <ns2:Name>LINE_DASHED_8</ns2:Name>
+                <ns2:Name>LINE_DASHED_9</ns2:Name>
+                <ns2:Name>LINE_DASHED_10</ns2:Name>
+                <ns2:Name>DASHED_ARROW</ns2:Name>
+                <ns2:Name>DASHED_ARROW_FILLED</ns2:Name>
+                <ns2:Name>BALL_CHAIN</ns2:Name>
+                <ns2:Name>ZIGZAG</ns2:Name>
+                <ns2:Name>SCALLOPED</ns2:Name>
+                <ns2:Name>ANGLED_TICKS_ALT</ns2:Name>
+                <ns2:Name>FILLED_CIRCLES</ns2:Name>
+                <ns2:Name>LINE_WITH_CARETS</ns2:Name>
+                <ns2:Name>LINE_CARET_LINE</ns2:Name>
+                <ns2:Name>SINE_CURVE</ns2:Name>
+                <ns2:Name>BOX_CIRCLE</ns2:Name>
+                <ns2:Name>FILL_OPEN_BOX</ns2:Name>
+                <ns2:Name>LINE_X_LINE</ns2:Name>
+                <ns2:Name>LINE_XX_LINE</ns2:Name>
+                <ns2:Name>FILL_CIRCLE_X</ns2:Name>
+                <ns2:Name>BOX_X</ns2:Name>
+                <ns2:Name>LINE_CIRCLE_ARROW</ns2:Name>
+                <ns2:Name>DOUBLE_LINE</ns2:Name>
+                <ns2:Name>ZZZ_LINE</ns2:Name>
+                <ns2:Name>TICK_MARKS</ns2:Name>
+                <ns2:Name>STREAM_LINE</ns2:Name>
+                <ns2:Name>LINE_FILLED_CIRCLE_ARROW</ns2:Name>
+            </ns2:PgenObjects>
+        </ns2:PgenClass>
+        <ns2:PgenLayer Name="fire" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="cat" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="dryt" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenLayer Name="wind" OnOff="true" MonoColor="false" Filled="false">
+            <ns2:Color blue="0" red="255" green="255" alpha="255"/>
+        </ns2:PgenLayer>
+        <ns2:PgenSave outputFile="Fire_Weather_Outlook.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
+        <ns2:PgenSettingsFile></ns2:PgenSettingsFile>
+    </ns2:ProductType>
 </ns2:ProductTypes>

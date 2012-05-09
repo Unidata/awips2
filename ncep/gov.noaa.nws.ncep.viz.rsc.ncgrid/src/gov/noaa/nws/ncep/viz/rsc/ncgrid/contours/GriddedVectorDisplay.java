@@ -3,13 +3,11 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData;
 
 import java.nio.FloatBuffer;
 
-import org.eclipse.swt.graphics.RGB;
 import org.geotools.referencing.GeodeticCalculator;
-import org.opengis.metadata.spatial.PixelOrientation;
-import org.opengis.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -41,7 +39,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 22, 2010            bsteffen     Initial creation
  * Nov 22, 2010			   M. Li		modified from RTS for NCGRID
  * Nov 02, 2011            X. Guo       Updated
- * 
+ * Feb 06, 2012  #538      Q. Zhou      Changed density to filter. 
+ * Feb 15, 2012  #539      Q. Zhou      Change barb tail direction on south hemisphere
+ * Mar 01, 2012            X. Guo       Added isDirectional and contourAttributes
+ * 										 to handle vector type changes
+ * Apr 03, 2012            X. Guo       Added createWireFrame
  * </pre>
  * 
  * @author bsteffen
@@ -73,13 +75,20 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
     private NcFloatDataRecord data;
     
+    private ContourAttributes contourAttributes;
+    
+    private Coordinate latLon;
+    
+    private boolean isDirectional;
+    
     
     public GriddedVectorDisplay(NcFloatDataRecord rec,
     		DisplayType displayType, boolean directional, IMapDescriptor descriptor, 
-            String windAttr, ISpatialObject gridLocation) {
+            ISpatialObject gridLocation, ContourAttributes attrs) {
         super(descriptor, MapUtil.getGridGeometry(gridLocation),gridLocation.getNx(),gridLocation.getNy());
         
         this.data = rec;
+        this.contourAttributes = attrs;
         if (directional) {
         	float[] dir = rec.getXdata();
     		float[] spd = new float[dir.length];
@@ -116,10 +125,12 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         this.gridLocation = gridLocation;
         this.displayType = displayType;
         this.gc = new GeodeticCalculator(descriptor.getCRS());
+        this.isDirectional = directional;
         
         int colorIndex = 31;
         float sizeFactor = 1;
         lineWidth = 1;
+        String windAttr = attrs.getWind();
         if (windAttr != null && !windAttr.isEmpty()) {
         	if (windAttr.contains("bk")) windAttr = windAttr.replace("bk", "");
         	String [] attr = windAttr.trim().split("/");
@@ -135,7 +146,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     
 
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps)
+    public void paint(NcgridResourceData gridRscData, IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
     	
     	if (paintProps.isZooming()) {
@@ -149,13 +160,27 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         }
         if (lastShape == null) {
             lastShape = target.createWireframeShape(false, descriptor);
-            super.paint(target, paintProps);
+            super.paint(gridRscData, target, paintProps);
             lastShape.compile();
         }
         
         target.drawWireframeShape(lastShape, color, lineWidth, lineStyle);
     }
 
+    public void createWireFrame (NcgridResourceData gridRscData, IGraphicsTarget target, PaintProperties paintProps) {
+
+    	if (lastShape == null) {
+    		try {
+    			lastShape = target.createWireframeShape(false, descriptor);
+    			super.paint(gridRscData, target, paintProps);
+    			lastShape.compile();
+    		}
+    		catch ( VizException e) {
+    			lastShape = null;
+    		}
+    	}
+    }
+    	   
     protected void paintImage(int x, int y, PaintProperties paintProps, double adjSize) throws VizException {
         int idx = x + y * this.gridDims[0];
 
@@ -173,13 +198,13 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         
         ReferencedCoordinate newrco = new ReferencedCoordinate(
 				new Coordinate(x, y),
-				this.gridGeometryOfGrid, Type.GRID_CORNER);
+				this.gridGeometryOfGrid, Type.GRID_CENTER);
         Coordinate plotLoc = null;
 
         try {
         	plotLoc = newrco.asPixel(this.descriptor
                     .getGridGeometry());
-            Coordinate latLon = newrco.asLatLon();
+            latLon = newrco.asLatLon();
             
             if (latLon.x > 180 || latLon.x < -180 || latLon.y < -90 || latLon.y > 90) return;
             
@@ -289,26 +314,40 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
         // PLOT LONE HALF-BARB, IF NECESSARY
         if (n50 == 0 && n10 == 0) {
-            ix2 = ix1 - dix * add;
-            jy2 = jy1 + djy * add;
-            ix1 = ix2 + dix1 * barb / 2.0;
-            jy1 = jy2 - djy1 * barb / 2.0;
-            lastShape.addLineSegment(new double[][] { { ix2, jy2 },
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb / 2.0; //-
+        		jy2 = jy1 - djy1 * barb / 2.0; //+
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb / 2.0; 
+            	jy2 = jy1 + djy1 * barb / 2.0; 
+        	}
+        	
+        	ix1 = ix1 - dix * add;
+            jy1 = jy1 + djy * add;
+        	lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
             return;
         }
 
         // PLOT FLAGS, IF NECESSARY
         for (int i = 0; i < n50; i++) {
-            ix2 = ix1 + dix1 * barb;
-            jy2 = jy1 - djy1 * barb;
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb; //+
+                jy2 = jy1 - djy1 * barb; //-
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb; 
+        		jy2 = jy1 + djy1 * barb; 
+        	}
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
-            ix1 = ix1 - dix * add * 2;
+            ix1 = ix1 - dix * add * 2; // 2 space
             jy1 = jy1 + djy * add * 2;
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
         }
+        
         if (n50 > 0) {
             ix1 = ix1 - dix * add / 2.0;
             jy1 = jy1 + djy * add / 2.0;
@@ -316,8 +355,14 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
         // PLOT BARB, IF NECESSARY
         for (int i = 0; i < n10; i++) {
-            ix2 = ix1 + dix1 * barb;
-            jy2 = jy1 - djy1 * barb;
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb; //+
+        		jy2 = jy1 - djy1 * barb;//-
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb; 
+        		jy2 = jy1 + djy1 * barb; 
+        	}           
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
             ix1 = ix1 - dix * add;
@@ -326,8 +371,14 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
         // PLOT HALF-BARB, IF NECESSARY
         if (n5 != 0) {
-            ix2 = ix1 + dix1 * barb / 2.0;
-            jy2 = jy1 - djy1 * barb / 2.0;
+        	if (latLon.y >= 0) {
+        		ix2 = ix1 + dix1 * barb / 2.0; //+
+        		jy2 = jy1 - djy1 * barb / 2.0; //-
+        	}
+        	else {
+        		ix2 = ix1 - dix1 * barb / 2.0; 
+        		jy2 = jy1 + djy1 * barb / 2.0; 
+        	}
             lastShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix1, jy1 } });
         }
@@ -446,11 +497,11 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     }
 
     /**
-     * @param density
-     *            the density to set
+     * @param filter
+     *            the filter to set.  Changed from density.
      */
-    public boolean setDensity(double density) {
-        if (super.setDensity(density)) {
+    public boolean setFilter(double filter) {
+        if (super.setFilter(filter)) {
             disposeImages();
             if (this.target != null) {
                 this.target.setNeedsRefresh(true);
@@ -509,4 +560,25 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 		return data;
 	}
     
+	public boolean checkAttrsChanged (DisplayType type, boolean dir, String attr) {
+		boolean isChanged = false;
+		if ( this.displayType != type ||
+			this.isDirectional != dir ||
+			! this.contourAttributes.getWind().equalsIgnoreCase(attr)) {
+			isChanged = true;
+		}
+		return isChanged;
+	}
+	
+	public boolean isMatch ( ContourAttributes attr) {
+		boolean match = false;
+		if ( this.contourAttributes == null ) return match;
+		if ( this.contourAttributes.getGlevel().equalsIgnoreCase(attr.getGlevel())&&
+			 this.contourAttributes.getGvcord().equalsIgnoreCase(attr.getGvcord()) &&
+			 this.contourAttributes.getScale().equalsIgnoreCase(attr.getScale()) &&
+			 this.contourAttributes.getGdpfun().equalsIgnoreCase(attr.getGdpfun()) ) {
+			match = true;
+		}
+		return match;
+	}
 }

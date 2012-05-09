@@ -79,6 +79,24 @@ Mode</a></td>
       </td>
     </tr>
     <tr>
+      <td><a href="#TemporalEditorStatisticsMode">Temporal
+Editor Statistics
+Mode</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#TemporalEditorStatisicsModeScales">Temporal
+Editor Statistics
+Mode Scales</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
       <td><a href="#WindEditMode">Wind Edit Mode</a></td>
       <td>YES</td>
       <td>NO</td>
@@ -110,6 +128,13 @@ Mode</a></td>
     <tr>
       <td><a href="#DefaultContourtoGridAlgorithm">Default Contour to
 Grid Algorithm</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ContourSubsample">Contour Sub-sample</a></td>
       <td>YES</td>
       <td>NO</td>
       <td><br>
@@ -214,6 +239,30 @@ relative mode which is defined by "yes" or "no".
 </p>
 <p>&nbsp;
 </p>
+
+<h4><a name="TemporalEditorStatisticsMode"></a><font size="+1">Temporal
+Editor Statistics Mode</font></h4>
+Initial statistics mode for temporal editor range statistics dialog.
+Choices are "ABSOLUTE", # "MODERATED", or "STANDARD_DEVIATION".
+<p><b><tt>TemporalEditorStatisticsMode = "ABSOLUTE"</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="TemporalEditorStatisticsModeScales"></a><font size="+1">Temporal
+Editor Statistics Mode Scales</font></h4>
+Initial minimum and maximum values for scales on temporal editor range
+statistics dialog in moderated and stadard deviation operation modes
+(dialog is not shown in absolute mode). Do NOT include a decimal point
+for moderated mode values, you MUST include a decimal point for standard
+deviation values.
+<p><b><tt>TemporalEditorStatisticsModeModeratedMin = 15<br>
+TemporalEditorStatisticsModeModeratedMax = 15<br>
+TemporalEditorStatisticsModeStandardDeviationMin = 1.0<br>
+TemporalEditorStatisticsModeStandardDeviationMax = 1.0</tt></b><br>
+</p>
+<p>&nbsp;
+</p>
+
 <h4><a name="WindEditMode"></a><font size="+1">Wind Edit Mode</font></h4>
 Default setting for editing components of vector parameters. Choices
 are
@@ -278,6 +327,26 @@ Analyzer" or "Internal SIRS Server".
 </p>
 <p>&nbsp;
 </p>
+
+<h4><a name="ContourSubsample"></a><font size="+1">Contour Sub-sample</font></h4>
+The Contour Analyzer algorithm can run over a sub-sampled grid
+to improve performance.  This is usually ok since the contour tool
+is mostly used where there is not much detail due to topography.
+The value of ContourSubSample is used to divide the x and y dimensions
+of the original grid to get the dimensions of the sub-sampled grid.
+So, setting ContourSubSample to 4 would cause the Contour Analyzer to
+reduce a 400x400 grid to a 100x100 grid for contouring purposes.
+This can greatly speed up the algorithm.  Setting ContourSubSample to
+1 will cause no reduction.
+The default value is 4.  If ContourSubSample is set to a value less than
+or equal to 0 then it will go back to 4.  If it is set to a value large
+enough to make the sub-sampled grid have an x or y dimension less than 5
+then it will be reduced so that the minimum dimension for x or y will be 5.
+<p><b><tt>ContourSubSample = 4</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+
 <h4><a name="SelectGridsWhenStepping"></a><font size="+1">Select Grids
 When Stepping</font></h4>
 Specifies whether the selection time range will track the spatial
@@ -345,15 +414,9 @@ Drawing Color</big></h4>
 Specifies the display color for the drawing aspect for the move/copy,
 select area, and contour drawing tools.&nbsp; Default is "White".<br>
 <p><b><tt>Drawing_color = "White"</tt></b></p>
-<b><tt><br>
-<br>
-</tt></b><br>
-<b><tt></tt></b>
-<p></p>
 <hr style="width: 100%; height: 2px;">
-<p>&nbsp;</p>
 <div class="Body">
-<center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+<center><a href="GFESuite.html">Back To TOC</a></center>
 </div>
 </div>
 </body>

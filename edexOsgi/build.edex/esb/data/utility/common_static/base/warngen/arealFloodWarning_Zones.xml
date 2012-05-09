@@ -2,7 +2,9 @@
 <!-- Created by Mike Dangelo 09-19-2011 at TIM Alaska to make Zones possible -->
 <!-- Localized for AK by Aaron Jacobs and Mary-Beth Schreck 9/23/2011 -->
 <!-- Edited by Mike Dangelo 01-26-2012 at CRH TIM 
-               Phil Kurimski 2-29-2012 -->
+               Phil Kurimski 2-29-2012 
+               Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
+-->
  
 <warngenConfig>
 
@@ -257,6 +259,7 @@
   <fipsField>STATE_ZONE</fipsField>
   <parentAreaField>NAME</parentAreaField> 
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <pointField>NAME</pointField>
   <sortBy>
