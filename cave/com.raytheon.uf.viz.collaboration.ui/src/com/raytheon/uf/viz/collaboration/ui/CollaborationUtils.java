@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,11 +33,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.roster.IRosterGroup;
+import org.eclipse.ecf.presence.roster.Roster;
 import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.swt.graphics.Image;
 
@@ -94,31 +97,44 @@ public class CollaborationUtils {
                 name.toLowerCase() + ".gif").createImage();
     }
 
-    public static void readAliases() {
+    public static Collection<Object> readAliases() {
         UserId[] ids = getIds();
-        IRoster roster = CollaborationDataManager.getInstance()
+        Roster roster = (Roster) CollaborationDataManager.getInstance()
                 .getCollaborationConnection().getRosterManager().getRoster();
-        List<IRosterEntry> entries = new ArrayList<IRosterEntry>();
-        for (Object ob : roster.getItems()) {
-            if (ob instanceof IRosterGroup) {
-                IRosterGroup group = (IRosterGroup) ob;
-                for (Object entryOb : group.getEntries()) {
-                    entries.add((IRosterEntry) entryOb);
+        Collection rosterObjects = new ArrayList<Object>();
+        rosterObjects.addAll(roster.getItems());
+        for (Object ob : rosterObjects) {
+            if (ob instanceof IRosterEntry) {
+                IRosterEntry entry = (IRosterEntry) ob;
+                for (UserId id : ids) {
+                    UserId sId = IDConverter.convertFrom(entry.getUser());
+                    if (sId.equals(id)) {
+                        sId.setAlias(id.getAlias());
+                        entry = new RosterEntry(entry.getParent(), sId,
+                                entry.getPresence());
+                    }
                 }
-            } else if (ob instanceof IRosterEntry) {
-                entries.add((IRosterEntry) ob);
+            } else if (ob instanceof IRosterGroup) {
+                Collection<Object> obs = new ArrayList<Object>();
+                obs.addAll(((IRosterGroup) ob).getEntries());
+                // System.out.println("\n\n\n" + ob);
+                for (Object entryOb : obs) {
+                    IRosterEntry entry = (IRosterEntry) entryOb;
+                    // System.out.println(entry.getName());
+                    for (UserId id : ids) {
+                        UserId sId = IDConverter.convertFrom(entry.getUser());
+                        if (sId.equals(id)) {
+                            sId.setAlias(id.getAlias());
+                            entry = new RosterEntry(entry.getParent(), sId,
+                                    entry.getPresence());
+                            break;
+                        }
+                    }
+                }
             }
         }
-        for (IRosterEntry entry : entries) {
-            for (UserId id : ids) {
-                UserId sId = IDConverter.convertFrom(entry.getUser());
-                if (id.equals(sId)) {
-                    sId.setAlias(id.getAlias());
-                    entry = new RosterEntry(entry.getParent(), sId,
-                            entry.getPresence());
-                }
-            }
-        }
+
+        return roster.getItems();
     }
 
     public static UserId[] getIds() {
@@ -155,24 +171,24 @@ public class CollaborationUtils {
                 IRoster roster = CollaborationDataManager.getInstance()
                         .getCollaborationConnection().getRosterManager()
                         .getRoster();
-                Set<UserId> ids = new HashSet<UserId>();
+                Set<IUser> ids = new HashSet<IUser>();
 
                 // get the entries that are alone
                 for (Object ob : roster.getItems()) {
                     if (ob instanceof IRosterEntry) {
                         IRosterEntry entry = (IRosterEntry) ob;
-                        UserId id = (UserId) entry.getUser();
-                        if (id.getAlias() != null && !id.getAlias().isEmpty()) {
-                            ids.add(id);
+                        IUser id = entry.getUser();
+                        if (id.getNickname() != null
+                                && !id.getNickname().isEmpty()) {
+                            ids.add(IDConverter.convertFrom(id));
                         }
                     } else if (ob instanceof IRosterGroup) {
                         for (Object entryOb : ((IRosterGroup) ob).getEntries()) {
                             IRosterEntry entry = (IRosterEntry) entryOb;
-                            UserId id = IDConverter
-                                    .convertFrom(entry.getUser());
-                            if (id.getAlias() != null
-                                    && !id.getAlias().isEmpty()) {
-                                ids.add(id);
+                            IUser user = entry.getUser();
+                            if (user.getNickname() != null
+                                    && !user.getNickname().isEmpty()) {
+                                ids.add(IDConverter.convertFrom(user));
                             }
                         }
                     }
