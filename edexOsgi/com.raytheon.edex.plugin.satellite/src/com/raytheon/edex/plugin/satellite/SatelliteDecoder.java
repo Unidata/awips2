@@ -64,6 +64,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 11/11/2008               chammack    Refactored to be thread safe in camel
  * 02/05/2010   4120        jkorman     Modified removeWmoHeader to handle WMOHeader in
  *                                      various start locations.
+ * 04/17/2012  14724        kshresth    This is a temporary workaround - Projection off CONUS                                    
  * 
  * </pre>
  * 
@@ -351,6 +352,23 @@ public class SatelliteDecoder extends AbstractDecoder {
                 SatMapCoverage mapCoverage = null;
 
                 try {
+/**
+ *   			This is a temporary workaround for DR14724, hopefully to be removed after NESDIS changes 
+ *              the product header              	
+ */
+                	if ((mapProjection == 3) 
+                			&& (record.getPhysicalElement().equalsIgnoreCase("Imager 13 micron (IR)") )
+                			&& (record.getSectorID().equalsIgnoreCase("West CONUS"))){
+                            nx = 1100;
+                            ny = 1280;
+                            dx = 4063.5f;
+                            dy = 4063.5f;
+                            la1 = 12.19f;
+                            lo1 = -133.4588f;                           
+                	}
+/**
+ *              End of DR14724                 	
+ */
                     mapCoverage = SatSpatialFactory.getInstance()
                             .getMapCoverage(mapProjection, nx, ny, dx, dy, lov,
                                     latin, la1, lo1, la2, lo2);

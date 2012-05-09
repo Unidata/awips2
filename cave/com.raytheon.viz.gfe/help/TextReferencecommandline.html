@@ -17,15 +17,15 @@ TextFormatter</h1>
 The usual way to execute the Text Formatter is via the Formatter
 Launcher Dialog in the GFE which automatically generates a command line
 from the
-Text Product definiton.&nbsp; However, the program can be run
-stand-alone with the following command and arguments.&nbsp; To see the
+Text Product definiton. However, the program can be run
+stand-alone with the following command and arguments. To see the
 set-up of these arguments for a given text product, examine the Process
 Monitor window.<br>
 <br>
 <span style="font-family: monospace; font-weight: bold;">runIFPText -d
-database [-p port] [-h hostname] -t forecastType [-o outputFile] [-u
+database -t forecastType [-c configFile] [-o outputFile] [-u
 username] [-l language] [-A appendFile] [-V {varDict}] [-O serverFile] [-S gfeGenOutputFile] 
-[-z drtOffset] [-a vtecActiveTableName] [-T] [-E] [-v vtecMode] [-r
+[-site siteID] [-z drtOffset] [-a vtecActiveTableName] [-T] [-E] [-v vtecMode] [-r
 editAreaName] [-w timeRangeName] [-s startTime -e endTime] [-i period]</span><br>
 <br>
 <table style="width: 100%; text-align: left;" border="1" cellpadding="2"
@@ -54,28 +54,6 @@ the gridded information.<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">-p port<br>
-      </td>
-      <td style="vertical-align: top;">Yes<br>
-      </td>
-      <td style="vertical-align: top;">-p 98000000<br>
-      </td>
-      <td style="vertical-align: top;">IFPServer port number. Defaults
-to that specified in siteConfig.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">-h hostname<br>
-      </td>
-      <td style="vertical-align: top;">Yes<br>
-      </td>
-      <td style="vertical-align: top;">-h polaris<br>
-      </td>
-      <td style="vertical-align: top;">IFPServer host. Defaults to that
-specified in siteConfig.<br>
-      </td>
-    </tr>
-    <tr>
       <td style="vertical-align: top;">-t forecastType<br>
       </td>
       <td style="vertical-align: top;">No<br>
@@ -83,6 +61,16 @@ specified in siteConfig.<br>
       <td style="vertical-align: top;">-t ZFP<br>
       </td>
       <td style="vertical-align: top;">Defines the Forecast Type.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-c configFile<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-c localGfeConfig<br>
+      </td>
+      <td style="vertical-align: top;">Defines the GFE config file. Default is gfeConfig.<br>
       </td>
     </tr>
     <tr>
@@ -105,10 +93,21 @@ specified in siteConfig.<br>
       <td style="vertical-align: top;">This is a special filename that is
 used for background processing text formatters to store the output forecast text. The 
 GFE puts on this switch for formatters that are run locally by the GFE 
-so the forecast text may be gathered at the end of the formatter execution.  Formatters run by the ifpServer put on this switch for the same purpose. The
+so the forecast text may be gathered at the end of the formatter execution.
+Formatters run by EDEX put on this switch for the same purpose. The
 connection allows for proper behavior in the GFE's Formatter Launcher and
 Process Monitor.
 <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-site siteID<br>
+      </td>
+      <td style="vertical-align: top;">Yes<br>
+      </td>
+      <td style="vertical-align: top;">-site bou<br>
+      </td>
+      <td style="vertical-align: top;">Defines the site id to use.<br>
       </td>
     </tr>
     <tr>
@@ -130,7 +129,7 @@ which to run the formatter.<br>
       <td style="vertical-align: top;">-l spanish<br>
       </td>
       <td style="vertical-align: top;">Used for formatters that support
-foreign languages. The options are "spanish" and "french".&nbsp;
+foreign languages. The options are "spanish" and "french".
 Default is "english".<br>
       </td>
     </tr>
@@ -141,7 +140,7 @@ Default is "english".<br>
       </td>
       <td style="vertical-align: top;">-A /tmp/123.txt<br>
       </td>
-      <td style="vertical-align: top;">Append filename.&nbsp; Output
+      <td style="vertical-align: top;">Append filename. Output
 text is appending to specified file.<br>
       </td>
     </tr>
@@ -165,7 +164,7 @@ interface dialog.<br>
       <td style="vertical-align: top;">-O test123<br>
       </td>
       <td style="vertical-align: top;">Output file in the server's
-TEXT/PRODGEN directory.<br>
+product drafts directory.<br>
       </td>
     </tr>
     <tr>
@@ -199,8 +198,8 @@ mode. If vtecMode is specified, it is set to "T". "TEST" mode adds
       <td style="vertical-align: top;">-E<br>
       </td>
       <td style="vertical-align: top;">Places the formatter into
-"EXPERIMENTAL" mode.&nbsp; If vtecMode is specified, it is set to
-"E".&nbsp; "EXPERIMENTAL" mode adds "EXPERIMENTAL..." to the MND header.<br>
+"EXPERIMENTAL" mode. If vtecMode is specified, it is set to
+"E". "EXPERIMENTAL" mode adds "EXPERIMENTAL..." to the MND header.<br>
       </td>
     </tr>
     <tr>
@@ -284,14 +283,14 @@ with variable period (for rows or columns)</td>
 The -E and -T switches are mutually exclusive.<br>
 <h2>-V Switch - run-time VariableList</h2>
 This option to provide a run-time VariableList instead
-of displaying the user dialog. <br>
+of displaying the user dialog.
 <p>The dictionary must be in the form of a Python dictionary
-string.&nbsp;&nbsp; For example: <br>
+string. For example:<br>
 </p>
 <p>&nbsp;
 -V&nbsp; '{("Product Issuance", "productIssuance"):"Morning",
 ("Issuance Type", "issuanceType"):"Routine"}' <br>
-&nbsp; <br>
+<br>
 </p>
 </body>
 </html>

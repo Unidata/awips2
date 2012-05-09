@@ -1,6 +1,7 @@
 <!-- Extreme Wind Warning followup configuration 
       MODIFIED EVAN BOOKBINDER 09-16-2011 OB11.0.8-8
       EVAN BOOKBINDER WFO EAX 11-4-2011 removed bulletDefaults that prevented auto selection
+      Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
 -->
 <warngenConfig>
 
@@ -121,6 +122,7 @@
   <areaField>COUNTYNAME</areaField>
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
   <pointField>NAME</pointField>

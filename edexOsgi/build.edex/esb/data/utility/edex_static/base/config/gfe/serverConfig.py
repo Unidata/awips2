@@ -59,7 +59,7 @@ SID = GFESUITE_SITEID
 
 ALASKA_SITES = ['AFG', 'AJK', 'AICE', 'ALU', 'AER', 'ACR', 'AFC']
 GreatLake_SITES = ['LOT', 'MKX', 'GRB', 'DLH', 'MQT', 'APX', 'GRR', 'DTX', 
-          'IWX', 'CLE', 'BUF', 'PBZ', 'ILM', 'IND', 'ILX', 'MPX', 'FGF']
+          'IWX', 'CLE', 'BUF', 'PBZ', 'ILN', 'IND', 'ILX', 'MPX', 'FGF']
 CONUS_EAST_SITES = ['ALY', 'AKQ', 'APX', 'BGM', 'BMX', 'BOX', 'BTV', 'BUF',
                     'CAE', 'CAR', 'CHS', 'CLE', 'CTP', 'DTX', 'FFC', 'GRR',
                     'GSP', 'GYX', 'ILM', 'ILN', 'IND', 'JAN', 'JAX', 'JKL',

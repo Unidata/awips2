@@ -1,4 +1,5 @@
 ##### UPDATED 3/2/12 12.2.1-4 BY EVAN BOOKBINDER
+#####         Qinglu Lin    04-04-2012 DR 14691.
 
 #*
 ####################################################################################################
@@ -253,6 +254,39 @@ SOUTH##
 EXTREME ## 
 #end 
 #end
+#if($list.contains($directionSet, "PA"))
+THE PANHANDLE OF##
+#end
+#if($list.contains($directionSet, "MI"))
+MIDDLE##
+#end
+#if($list.contains($directionSet, "PD"))
+THE PIEDMONT OF##
+#end
+#if($list.contains($directionSet, "UP"))
+UPSTATE##
+#end
+#if($list.contains($directionSet, "BB"))
+BIG BEND##
+#end
+#if($list.contains($directionSet, "ER"))
+EAST CENTRAL UPPER##
+#end
+#if($list.contains($directionSet, "EU"))
+EASTERN UPPER##
+#end
+#if($list.contains($directionSet, "SR"))
+SOUTH CENTRAL UPPER##
+#end
+#if($list.contains($directionSet, "NR"))
+NORTH CENTRAL UPPER##
+#end
+#if($list.contains($directionSet, "WU"))
+WESTERN UPPER##
+#end
+#if($list.contains($directionSet, "DS"))
+DEEP SOUTH##
+#end
 #if($list.contains($directionSet, "NORTH"))
 NORTH##
 #end
@@ -264,6 +298,18 @@ EAST##
 #end
 #if($list.contains($directionSet, "WEST"))
 WEST##
+#end
+#if($list.contains($directionSet, "NE"))
+NORTHEAST##
+#end 
+#if($list.contains($directionSet, "NW"))
+NORTHWEST##
+#end 
+#if($list.contains($directionSet, "SE"))
+SOUTHEAST##
+#end 
+#if($list.contains($directionSet, "SW"))
+SOUTHWEST##
 #end 
 #if($useCentral && $list.contains($directionSet, "CENTRAL")) 
 #if ($list.contains($directionSet, "NORTH") || $list.contains($directionSet, "SOUTH") || $list.contains($directionSet, "EAST") ||$list.contains($directionSet, "WEST"))

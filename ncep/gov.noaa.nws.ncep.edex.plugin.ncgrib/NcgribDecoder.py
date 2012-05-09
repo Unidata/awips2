@@ -701,8 +701,26 @@ class NcgribDecoder():
             
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
-                model.setTypeEnsemble(Integer(pdsTemplate[15]))
-                model.setPerturbationNumber(Integer(pdsTemplate[16]))
+                pdst15 = pdsTemplate[15]
+                model.setTypeEnsemble(Integer(pdst15))
+                
+                # Use the following codes with correct grib headers 
+                # print "Type of Ensemble Forecast: ", pdst15, " perturbation number: ", pdsTemplate[16]
+                #if  ( pdst15 == 0 or self.fileName.find ('ctl1') != -1 ):
+                #    self.derived = 'ctl1'
+                #elif ( pdst15 == 1 or self.fileName.find ('ctl2') != -1 ):
+                #    self.derived = 'ctl2'
+                #elif pdst15 == 2:
+                #    self.derived = 'n'
+                # to do
+                #elif pdst15 == 3:
+                #    self.derived = 'p'
+                # To do
+                # set perturbation number when code value = 2/3/192 to avoid 0                      
+
+                if pdst15 == 2 or pdst15 == 3 or pdst15 == 192:
+                    model.setPerturbationNumber(str(pdsTemplate[16]))
+                    
                 model.setNumForecasts(Integer(pdsTemplate[17]))
                 
                 if pdsTemplateNumber == 11:
@@ -716,14 +734,25 @@ class NcgribDecoder():
                 derivedForecast = pdsTemplate[15]
                 
                 if (derivedForecast == 0 or derivedForecast == 1 or derivedForecast == 6):
-                    parameterAbbreviation= parameterAbbreviation+"mean"
+                #    parameterAbbreviation= parameterAbbreviation+"mean"
                     self.derived = 'mean'
-                elif (derivedForecast >= 2  and derivedForecast <= 5 ):
-                    parameterAbbreviation= parameterAbbreviation+"sprd"
+                elif (derivedForecast == 2  or derivedForecast == 3 ):
+                #    parameterAbbreviation= parameterAbbreviation+"sprd"
                     self.derived = 'sprd'
                 elif (derivedForecast >= 193  and derivedForecast <= 195 ):
-                    parameterAbbreviation= parameterAbbreviation+"prob"
+                #    parameterAbbreviation= parameterAbbreviation+"prob"
                     self.derived = 'prob'
+                 
+                # Use the following codes with correct grib headers 
+                # if (derivedForecast >= 192  and derivedForecast <= 195 ):  
+                #if ( derivedForecast == 193 or self.fileName.find ('10p') != -1):
+                #    self.derived = '10p'
+                #elif ( derivedForecast == 194 or self.fileName.find ('50p') != -1):
+                #    self.derived = '50p'
+                #elif ( derivedForecast == 195 or self.fileName.find ('90p') != -1):
+                #    self.derived = '90p'     
+                #elif ( derivedForecast == 192 or self.fileName.find ('mode') != -1):
+                #   self.derived = 'mode'
                      
                 model.setTypeEnsemble(Integer(pdsTemplate[15]))
                 model.setNumForecasts(Integer(pdsTemplate[16]))
@@ -1412,7 +1441,7 @@ class NcgribDecoder():
 
         gridid = model.getGridid()
         process = model.getGenprocess()
-        gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process)
+        gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process, fileName, model)
 
         if gridModel is None:
             name = "NewGrid:" + str(center) + ":" + str(subcenter) + ":" + str(process) + ":" + gridid
@@ -1420,33 +1449,31 @@ class NcgribDecoder():
             hurricane = tokens[0]
             basin = hurricane[-1]
             trackno = hurricane[-3:-1]
-            if trackno.isdigit() or tokens[2] =="firewxnest":
+            if trackno.isdigit() or tokens[2] =="firewxnest" or tokens[2] == "hysplit":
                 if trackno.isdigit():
                     basins = "lewcs"
                     if basin in basins:
                     #name = "GHM:" + str(center) + ":" + str(subcenter) + ":" + str(process) + ":" + gridid
                     #hurricaneName = hurricane[:len(hurricane)-3]
-                        name = "GHM"
+                        name = "ghm"
                         if tokens[2] == "gribn3":
-                            name = "GHMNEST"
+                            name = "ghmNest"
                         elif tokens[2] == "grib6th":
-                            name = "GHM6TH"
+                            name = "ghm6th"
                         elif tokens[2] == "hwrfprs_n":
-                            name = "HWRFNEST"
+                            name = "hwrfNest"
                         elif tokens[2] == "hwrfprs_p":
-                            name = "HWRF"
-                else:
-                    name = "NAMFIREWX"         
+                            name = "hwrf"
+                elif tokens[2] == "firewxnest":
+                    name = "fireWxNest"       
+                    
+                else: 
+                    name = "hysplit"  
                 NcgribModelLookup.getInstance().setModel(center, subcenter, gridid, process, name)
-                gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process)
+                gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process, filename)
                     #name = gridModel.getName()
         else:
             name = gridModel.getName()
-            if name == "GEFS" :
-                tokens = fileName.split(".")
-                gefc = tokens[0]
-                if gefc[:3] == "gec":
-                    name = "GEFC"
             
         model.setModelName(name)
       
@@ -1527,18 +1554,35 @@ class NcgribDecoder():
             if g2varsId > 0 :
                 parm = Grib2VarsTableLookup.getVarGnam(discipline, category, parameterId, pdt)
                 modelName = record.getModelName()
-                if self.derived == 'mean':
-                    parm = parm + "ENMW"
-                    if modelName.find('MEAN') == -1:   
-                        modelName = modelName +"MEAN"
-                elif self.derived == 'sprd':
-                    parm = parm + "ENSA"
-                    if modelName.find('SPREAD') == -1 : 
-                        modelName = modelName +"SPREAD"
-                elif self.derived == 'prob':
-                    parm = parm + "PROB"
-                    if modelName.find ('PROB') == -1: 
-                        modelName = modelName +"PROB"
+                #if self.derived == 'mean':
+                #    parm = parm + "ENMW"
+                #    if modelName.find('Mean') == -1:   
+                #        modelName = modelName +"Mean"
+                #if self.derived == 'sprd':
+                #    parm = parm + "ENSA"
+                #    if modelName.find('Spread') == -1 : 
+                #        modelName = modelName +"Spread"
+                #elif self.derived == 'prob':  
+                #    if modelName.find('PROB') == -1 :                   
+                #        modelName = modelName +"PROB"
+                #elif self.derived == 'mode':
+                #parm = parm + "ENMO"
+                #    if modelName.find('MODE') == -1 : 
+                #        modelName = modelName +"MODE"   
+                #elif self.derived == '10p':
+                # parm = parm + "PROB"
+                #    if modelName.find ('10P') == -1: 
+                #        modelName = modelName +"10P"
+                #elif self.derived == '50p':
+                #    if modelName.find ('50P') == -1: 
+                #        modelName = modelName + "50P"
+                #elif self.derived == '90p':
+                #    if modelName.find ('90P') == -1: 
+                #        modelName = modelName + "90P"
+                #elif self.derived == 'ctl1' or self.derived == 'ctl2':                    
+                #    if modelName.find ('CTL') == -1:                     
+                #        modelName = modelName + self.derived
+                
                 record.setModelName(modelName)
                 record.getModelInfo().setModelName(modelName)
                 

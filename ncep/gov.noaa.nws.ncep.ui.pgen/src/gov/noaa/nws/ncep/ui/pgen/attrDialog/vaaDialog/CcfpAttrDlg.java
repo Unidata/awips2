@@ -20,6 +20,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.AbstractSigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
+import gov.noaa.nws.ncep.ui.pgen.sigmet.ICcfp;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.ui.pgen.tools.ILabeledLine;
@@ -28,6 +29,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -56,13 +58,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ---------	--------	----------	--------------------------
  * 09/10		322			G. Zhang 	Initial Creation.  
- * 04/11		#?			B. Yin			Re-factor IAttribute
+ * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 03/12        #625,#611   S. Gurung   Change default CCFP polygon colors: Purple for Hi confidence Area, Line and Line(Med) 
+   										Added ability to change SIGMET type (from Area to Line/LineMed and back and forth)
+ *
  * </pre>
  *  
  * @author	gzhang
  */
 
-public class CcfpAttrDlg extends AttrDlg implements ILine{	
+public class CcfpAttrDlg extends AttrDlg implements ICcfp{	
 	
 	private static CcfpAttrDlg INSTANCE = null;
 	private static String mouseHandlerName = null;
@@ -78,6 +83,9 @@ public class CcfpAttrDlg extends AttrDlg implements ILine{
 	private static final String WIDTH = "10.00";
 	private String width = WIDTH;
 	
+	private static final Color PURPLE = new Color(145, 44, 238);
+	private static final Color LIGHT_BLUE = new Color(30, 144, 255);
+	
 	private static final String[] ITEMS_CVRG = new String[]{"75-100%","40-74%","25-39%"};	
 	private static final String[] ITEMS_TOPS = new String[]{"400+","350-390","300-340","250-290" };
 	private static final String[] ITEMS_CONF = new String[]{"50-100%","25-49%"};
@@ -85,7 +93,7 @@ public class CcfpAttrDlg extends AttrDlg implements ILine{
 	private static final String[] ITEMS_SPD = new String[]{"0","5","10","15","20","25","30","35","40","45","50","55","60"};
 	private static final String[] ITEMS_DIR = SigmetInfo.DIRECT_ARRAY;//new String[]{"N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"};
 	
-	private Color[] colors = new Color[]{Color.cyan,Color.magenta};//Color.green};          
+	private Color[] colors = new Color[]{LIGHT_BLUE,PURPLE};//Color.green};          
     
 	private Group top_3;
 	private Button btnArea;
@@ -157,7 +165,7 @@ public class CcfpAttrDlg extends AttrDlg implements ILine{
 	public String getCcfpLineType(){		
 		
 		if(CcfpAttrDlg.LINE_MED.equalsIgnoreCase(lineType))
-			return "LINE_DASHED_3";
+			return "LINE_DASHED_4";
 		else 
 			return "LINE_SOLID";		
 	}
@@ -226,8 +234,8 @@ public class CcfpAttrDlg extends AttrDlg implements ILine{
     		//this.getButton(20091021).setEnabled(true);
     		this.getButton(20091021).addListener(SWT.Selection, new Listener(){
     			public void handleEvent(Event e){  			
-    				
-    				okPressed2();//saveApplyPressed(); 				
+
+            		okPressed2();//saveApplyPressed(); 	
     			}
     		});
     		this.getButton(20091229).setEnabled(false);
@@ -285,10 +293,10 @@ public class CcfpAttrDlg extends AttrDlg implements ILine{
 	
 	public Color[] getColors(){				  		
 //	    Color[] colors = new Color[2];          
-//        colors[0] = Color.cyan;          
+//        colors[0] = LIGHT_BLUE;          
 //        colors[1] = Color.green;
 		if( ! AREA.equalsIgnoreCase(lineType)){
-			return new Color[]{Color.magenta}; //Line/LineMed ONLY use magenta
+			return new Color[]{PURPLE}; //Line/LineMed ONLY use purple
 		}else{
 			
 			if(cmbConf==null || cmbConf.isDisposed())
@@ -296,9 +304,9 @@ public class CcfpAttrDlg extends AttrDlg implements ILine{
 			else{
 				ccfpConf = cmbConf.getText().trim();
 				if(ccfpConf.contains(ITEMS_CONF[1])){
-					return new Color[]{Color.magenta};
+					return new Color[]{PURPLE};
 				}else{
-					return new Color[]{Color.cyan};
+					return new Color[]{LIGHT_BLUE};
 				}
 			}
 		}
@@ -317,7 +325,7 @@ public class CcfpAttrDlg extends AttrDlg implements ILine{
 	public void setLineType(String lType){
 		this.lineType = lType;
 	}
-	
+				
 	public String getSideOfLine(){		
 		return "";		
 	}	
@@ -388,7 +396,7 @@ this.createAreaInfo(top);
 		    }
 		    
 		    init();
-		    grayOutUnselectedBtns();
+		    //grayOutUnselectedBtns();
 		    setMouseHandlerName(null);
 	        return top;
 	}
@@ -428,7 +436,7 @@ this.createAreaInfo(top);
 	
 //	private class SigmetCommAttrDlgSaveMsgDlg extends AttrDlg{	}		
 	
-	public void saveApplyPressed() {		
+	public void saveApplyPressed() {	
 		ArrayList<AbstractDrawableComponent> adcList = null;
 		ArrayList<AbstractDrawableComponent> newList = new ArrayList<AbstractDrawableComponent>() ;
 
@@ -489,7 +497,7 @@ this.createAreaInfo(top);
 	}
 	
 	static Color getDefaultColor(String pType){		
-		return Color.blue;
+		return LIGHT_BLUE;
 	}	
 		
 	/*
@@ -652,9 +660,9 @@ this.createAreaInfo(top);
         		
 				ccfpConf = cmbConf.getText().trim();
 				if(ccfpConf.contains(ITEMS_CONF[1])){
-					CcfpAttrDlg.this.setColor(Color.magenta);
+					CcfpAttrDlg.this.setColor(PURPLE);
 				}else{
-					CcfpAttrDlg.this.setColor(Color.cyan);
+					CcfpAttrDlg.this.setColor(LIGHT_BLUE);
 				}
 				
         	}
@@ -720,9 +728,9 @@ this.createAreaInfo(top);
 			public void handleEvent(Event e){
 				ccfpConf = cmbConf.getText().trim();
 				if(ccfpConf.contains(ITEMS_CONF[1])){
-					CcfpAttrDlg.this.setColor(Color.magenta);
+					CcfpAttrDlg.this.setColor(PURPLE);
 				}else{
-					CcfpAttrDlg.this.setColor(Color.cyan);
+					CcfpAttrDlg.this.setColor(LIGHT_BLUE);
 				}
 			}
 		});
@@ -966,7 +974,7 @@ this.createAreaInfo(top);
 		else
 			sig.setFillPattern(FillPattern.FILL_PATTERN_1);
         
-        copiedToSigmet = true;		
+       // copiedToSigmet = true;		
         
 		StringBuilder sb = new StringBuilder("CCFP_SIGMET");	
 		
@@ -1007,9 +1015,17 @@ this.createAreaInfo(top);
 	public void setCcfpDrawingTool(ILabeledLine pgenTool) {		
 		this.ccfpTool = pgenTool;		
 	}
-	
-	public void okPressed2(){
+			
+	public void okPressed2(){		
 		if ( ccfpTool != null && ccfpTool.getLabeledLine() != null ){
+			
+			String origLineType = (asig!=null)?asig.getType():""; 
+    		String newLineType = CcfpAttrDlg.this.getLineType();
+    				
+    		if (!newLineType.equals(origLineType)) {    			
+    			convertType();
+    		} 
+    		
 			LabeledLine ll = ccfpTool.getLabeledLine();
 
 			Line pln = (Line)ll.getPrimaryDE(); 
@@ -1098,4 +1114,81 @@ this.createAreaInfo(top);
 			return;
 		}
 	}
+	
+	public void convertType(){
+		if ( ccfpTool != null && ccfpTool.getLabeledLine() != null ){
+			LabeledLine ll = ccfpTool.getLabeledLine();
+			LabeledLine newll = ll.copy();
+			attrUpdate();	
+			
+			Sigmet sig = ((Ccfp)newll).getSigmet(); 
+			copyEditableAttrToAbstractSigmet2(sig, newll);		
+			setAbstractSigmet(sig);	
+			
+			newll = createLabeledLine(newll);
+		
+			drawingLayer.replaceElement(ll, newll);
+			ccfpTool.setLabeledLine(newll);			
+
+			//reset handle bar
+			drawingLayer.removeSelected();
+			Iterator<DrawableElement> iterator = newll.createDEIterator();
+			while( iterator.hasNext() ){
+				drawingLayer.addSelected(iterator.next());
+			}
+			mapEditor.refresh();
+		}
+	
+	}
+	
+	public LabeledLine createLabeledLine(LabeledLine ll){	
+			
+		CcfpAttrDlg ccdlg = (CcfpAttrDlg)this;
+		
+		List<Coordinate> newPoints = ll.getPoints();
+		
+		/* if converting from Area, remove points for Text and Arrow, if any. */
+		Iterator<DrawableElement> it = ll.createDEIterator();
+		while( it.hasNext() ){
+			DrawableElement de = it.next();
+			
+			if ( de instanceof Text ){				
+				newPoints.remove(newPoints.size()-1);				
+			}else if ( de instanceof Line ){
+				
+				if(	"POINTED_ARROW".equals(de.getPgenType()) )	{
+					newPoints.remove(newPoints.size()-1);
+					newPoints.remove(newPoints.size()-1);
+				}
+			}
+		}
+		Sigmet sig = new Sigmet(); 
+		sig.setType(ccdlg.getCcfpLineType());
+		
+		Line ln = new Line();
+		ln.update(ccdlg);
+		ln.setLinePoints(newPoints);
+		ln.setPgenCategory("Lines");				
+		ln.setPgenType(ccdlg.getCcfpLineType());
+		ln.setColors(ccdlg.getColors());
+		ln.setClosed(ccdlg.isAreaType());
+		ln.setFilled(ccdlg.isAreaType());
+		if (!ccdlg.isAreaType())
+			ln.setLineWidth(3.0f);
+		else
+			ln.setLineWidth(2.0f);	
+		
+		LabeledLine newll = new Ccfp( "CCFP_SIGMET" );
+		newll.setPgenCategory("SIGMET");
+		newll.setPgenType("CCFP_SIGMET");
+		newll.setParent(ll.getParent());
+		
+		((Ccfp)newll).setSigmet(sig);			
+		((Ccfp)newll).setAreaLine(ln);
+		((Ccfp)newll).setAttributes(ccdlg);
+		
+		newll.addLine(ln);
+		return newll;
+	}
+	
 }

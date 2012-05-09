@@ -269,7 +269,7 @@ public class EnsembleSelectComposite extends Composite {
 		HashMap<String,RequestConstraint> constraintMap = new HashMap<String,RequestConstraint>();
 		constraintMap.put( "pluginName", new RequestConstraint( "ncgrib", ConstraintType.EQUALS) );
 		constraintMap.put( "modelInfo.modelName", 
-        		new RequestConstraint( modelName.toUpperCase(), ConstraintType.EQUALS ) );
+        		new RequestConstraint( modelName, ConstraintType.EQUALS ) );
 		
 		LayerProperty property = new LayerProperty();
         property.setDesiredProduct( ResourceType.PLAN_VIEW );
