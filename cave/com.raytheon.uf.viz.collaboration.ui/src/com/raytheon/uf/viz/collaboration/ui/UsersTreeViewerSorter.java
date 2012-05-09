@@ -20,6 +20,7 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
+import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.jface.viewers.Viewer;
@@ -81,16 +82,36 @@ public class UsersTreeViewerSorter extends ViewerSorter {
         }
         if (e1 instanceof IRosterItem && e2 instanceof IRosterItem) {
             // Either both are groups or both are users.
-            return ((IRosterItem) e1).getName().compareTo(
-                    ((IRosterItem) e2).getName());
+            if (e1 instanceof IRosterGroup && e2 instanceof IRosterGroup) {
+                return ((IRosterGroup) e1).getName().compareTo(
+                        ((IRosterGroup) e2).getName());
+            } else if (e1 instanceof IRosterEntry && e2 instanceof IRosterEntry) {
+                String name;
+                String otherName;
+                IRosterEntry entry = (IRosterEntry) e1;
+                IRosterEntry otherEntry = (IRosterEntry) e2;
+                if (entry.getUser().getName() != null
+                        && !entry.getUser().getName().isEmpty()) {
+                    name = entry.getUser().getName();
+                } else {
+                    name = entry.getName();
+                }
+
+                if (otherEntry.getUser().getName() != null
+                        && !otherEntry.getUser().getName().isEmpty()) {
+                    otherName = otherEntry.getUser().getName();
+                } else {
+                    otherName = otherEntry.getName();
+                }
+                return name.compareTo(otherName);
+            }
         } else if (e1 instanceof IVenueSession && e2 instanceof IVenueSession) {
             if (((IVenueSession) e1).getVenue() == null
                     || ((IVenueSession) e1).getVenue() == null) {
                 return 0;
             }
-            return 1;
-            // return ((IVenueSession) e1).getVenue().toString()
-            // .compareTo(((IVenueSession) e2).getVenue().toString());
+            return ((IVenueSession) e1).getVenue().toString()
+                    .compareTo(((IVenueSession) e2).getVenue().toString());
         }
         return 0;
     }
