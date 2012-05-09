@@ -608,10 +608,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      * Clear and populate the groups from the roster manager entries.
      */
     private void populateGroups() {
-        // Collection<Object> obs = CollaborationUtils.readAliases();
-        Collection obs = CollaborationDataManager.getInstance()
-                .getCollaborationConnection().getRosterManager().getRoster()
-                .getItems();
+        Collection<Object> obs = CollaborationUtils.readAliases();
         for (Object ob : obs) {
             if (ob instanceof IRosterGroup) {
                 addGroup((IRosterGroup) ob);
