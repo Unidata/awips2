@@ -82,7 +82,6 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.ImagingSupport;
@@ -186,8 +185,6 @@ public class GLTarget implements IGLTarget {
 
     /** The current visible extent */
     protected IView targetView;
-
-    protected IExtent updatedExtent;
 
     /** The width of the screen */
     protected final float theWidth;
@@ -378,24 +375,18 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.IGraphicsTarget#beginFrame(IRenderableDisplay,
-     * boolean)
+     * @see com.raytheon.viz.IGraphicsTarget#beginFrame(IView, boolean)
      */
     @Override
-    public void beginFrame(IRenderableDisplay display, boolean clearBackground) {
+    public void beginFrame(IView view, boolean clearBackground) {
 
         if (theCanvas != null && theCanvas.isDisposed()) {
             return;
         }
 
-        if (this.updatedExtent != null) {
-            display.setExtent(this.updatedExtent);
-            this.updatedExtent = null;
-        }
-
-        this.targetView = display.getView();
-
         makeContextCurrent();
+
+        setView(view);
 
         if (clearBackground) {
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -404,8 +395,6 @@ public class GLTarget implements IGLTarget {
         IExtent viewExtent = targetView.getExtent();
         theCurrentZoom = (viewExtent.getMaxY() - viewExtent.getMinY())
                 / theHeight;
-
-        display.setup(this);
 
         hasLoadedTextureOnLoop = false;
         synchronized (this) {
@@ -2250,11 +2239,6 @@ public class GLTarget implements IGLTarget {
     @Override
     public void popGLState() {
         gl.glPopAttrib();
-    }
-
-    @Override
-    public void updateExtent(IExtent updatedExtent) {
-        this.updatedExtent = updatedExtent;
     }
 
     /*

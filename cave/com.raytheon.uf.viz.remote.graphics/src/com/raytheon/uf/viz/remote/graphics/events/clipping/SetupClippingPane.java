@@ -19,12 +19,9 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.clipping;
 
-import java.util.Arrays;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
@@ -48,7 +45,7 @@ import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 public class SetupClippingPane extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
-    private double[] extent;
+    private IExtent extent;
 
     /*
      * (non-Javadoc)
@@ -62,7 +59,7 @@ public class SetupClippingPane extends AbstractRemoteGraphicsRenderEvent {
     public IRenderEvent createDiffObject(IRenderEvent event) {
         SetupClippingPane diffEvent = (SetupClippingPane) event;
         SetupClippingPane diffObject = new SetupClippingPane();
-        if (Arrays.equals(extent, diffEvent.extent) == false) {
+        if (extent.equals(diffEvent.extent) == false) {
             diffObject.extent = diffEvent.extent;
         }
         return diffObject;
@@ -86,7 +83,7 @@ public class SetupClippingPane extends AbstractRemoteGraphicsRenderEvent {
     /**
      * @return the extent
      */
-    public double[] getExtent() {
+    public IExtent getExtent() {
         return extent;
     }
 
@@ -94,22 +91,8 @@ public class SetupClippingPane extends AbstractRemoteGraphicsRenderEvent {
      * @param extent
      *            the extent to set
      */
-    public void setExtent(double[] extent) {
+    public void setExtent(IExtent extent) {
         this.extent = extent;
-    }
-
-    public void setIExtent(IExtent extent) {
-        if (extent != null) {
-            setExtent(new double[] { extent.getMinX(), extent.getMaxX(),
-                    extent.getMinY(), extent.getMaxY() });
-        }
-    }
-
-    public IExtent getIExtent() {
-        if (extent != null) {
-            return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
-        }
-        return null;
     }
 
     /*
@@ -126,7 +109,10 @@ public class SetupClippingPane extends AbstractRemoteGraphicsRenderEvent {
         if (getClass() != obj.getClass())
             return false;
         SetupClippingPane other = (SetupClippingPane) obj;
-        if (!Arrays.equals(extent, other.extent))
+        if (extent == null) {
+            if (other.extent != null)
+                return false;
+        } else if (!extent.equals(other.extent))
             return false;
         return true;
     }
