@@ -40,7 +40,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType;
 import gov.noaa.nws.ncep.ui.pgen.display.ISinglePoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.ComboSymbol;
-import gov.noaa.nws.ncep.ui.pgen.elements.County;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
@@ -75,14 +74,16 @@ import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaRules;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaWording;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.VaaInfo;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
+import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 
 /**
@@ -124,6 +125,9 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
  * 01/11                    J. Wu       Reworked on Product's attributes. 
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 12/11		#?			B. Yin		Changed 'TO' to '-' in LLWS vorText
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 03/12        #676        Q. Zhou     Added Issue Office field.
+ * 
  * </pre>
  * 
  * @author	J. Wu
@@ -599,6 +603,7 @@ public class ProductConverter {
 					fSig.getType(), fSig.getWidth(),
 					
 					fSig.getEditableAttrArea(), 
+					fSig.getEditableAttrIssueOffice(),
 					fSig.getEditableAttrStatus(),
 					fSig.getEditableAttrId(), 
 					fSig.getEditableAttrSeqNum(),
@@ -953,23 +958,23 @@ public class ProductConverter {
 						}
 						// textVOR
 						ArrayList<Coordinate> pts = e.getPoints();
-						pts = SigmetInfo.getSnapWithStation(pts,SigmetInfo.VOR_STATION_LIST,10,16, false) ;
+						pts = SnapUtil.getSnapWithStation(pts,SnapUtil.VOR_STATION_LIST,10,16, false) ;
 						Coordinate[] a = new Coordinate[pts.size()];
 						a = pts.toArray(a);
 						String s = "";
 						if ( fgfa.getHazard().equalsIgnoreCase("FZLVL")){
 							if ( fgfa.isClosed() ){
-								s = SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
+								s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
 							}
 							else {
-								s = SigmetInfo.getVORText(a, "-", "Line", -1, true, false, true );
+								s = SnapUtil.getVORText(a, "-", "Line", -1, true, false, true );
 							}
 						}
 						else if ( fgfa.getHazard().equalsIgnoreCase("LLWS")){
-							s = SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
+							s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
 						}
 						else {
-							s = SigmetInfo.getVORText(a, " TO ", "Area", -1, true, false, true );
+							s = SnapUtil.getVORText(a, " TO ", "Area", -1, true, false, true );
 						}
 						fgfa.setTextVor(s);
 
@@ -1018,6 +1023,7 @@ public class ProductConverter {
 						sigmet.setWidth( ((Sigmet)de).getWidth());
 						
 						sigmet.setEditableAttrArea(				((Sigmet) de).getEditableAttrArea());
+						sigmet.setEditableAttrIssueOffice(		((Sigmet) de).getEditableAttrIssueOffice());
 						sigmet.setEditableAttrStatus(			((Sigmet) de).getEditableAttrStatus());
 						sigmet.setEditableAttrId(				((Sigmet) de).getEditableAttrId());
 						sigmet.setEditableAttrSeqNum(			((Sigmet) de).getEditableAttrSeqNum());
@@ -1964,7 +1970,7 @@ public class ProductConverter {
 	    	}
 	    	
 			//set outlines and holes
-			Geometry union = wb.getCountyUnion();
+		/*	Geometry union = wb.getCountyUnion();
 
 			if ( union != null ){
 				//loop through all polygons in the union
@@ -2004,7 +2010,7 @@ public class ProductConverter {
 					}
 				}
 			}
-			
+			*/
 	    return fwb;
     }
     
@@ -2122,7 +2128,7 @@ public class ProductConverter {
 	    	Station anchors[] = new Station[fwb.getAnchorPoints().size()];
 	    	nn = 0;
 	    	for ( String str : fwb.getAnchorPoints()){
-	    		anchors[nn++] = WatchBox.getAnchorTbl().getStation(StationField.STID, str.substring(0, 3));
+	    		anchors[nn++] = StationTableUtil.getAnchorTbl().getStation(StationField.STID, str.substring(0, 3));
 	    	}
 	    	wb.setAnchors(anchors[0], anchors[1]);		    
 		    

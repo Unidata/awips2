@@ -19,40 +19,505 @@
         further_licensing_information.
     -->
 
-
 <ncgribModelSet>
+	<model>
+		<title>CMC ensemble</title>
+		<name>cmce</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>401</grid>
+		<process>
+			<id>70</id>
+		</process>
+		<template>
+			cmc_gep.*|cmce;
+			cmc_gec.*|cmcec;
+			cmc_geavg.*|cmceMean;			
+			cmc_gespr.*|cmceSpread			
+		</template>
+		<dt>3</dt>
+	</model>
 
-    <model>
-	<title>GFS PGRB 0.5 degree</title>
-	<name>GFS0.5</name>
-	<center>7</center>
-	<subcenter>0</subcenter>
-	<grid>4</grid>
-	<process>
-		<id>96</id>
-		<id>77</id>
-		<id>81</id>
-	</process>
-	<dt>3</dt>
+	<model>
+		<title>Canadian Global 1x1 Degree</title>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>374</grid>
+		<process>
+			<id>47</id>
+		</process>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>Candian Global 1x1 Degree</title>
+		<name>cmc</name>
+		<center>54</center>
+		<subcenter>0</subcenter>
+		<grid>401</grid>
+		<process>
+			<id>47</id>
+		</process>
+		<dt>3</dt>
+	</model>
+
+
+	<model>
+		<title>Global Ensemble Forecast System 1x1 Degree</title>
+		<name>gefs</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>3</grid>
+		<process>
+			<id>107</id>
+		</process>
+		<template>
+			gec00.*bc.*|gefscBC;
+			gec00.*anl|gefscAnal;
+			gec00.*[0-9]|gefsc;
+			gep.*anl|gefsAnal;
+			gep.*bc.*|gefsBC;
+			gep.*|gefs;
+			geavg.*bc.*|gefsMeanBC;
+			geavg.*|gefsMean;
+			gespr.*bc.*|gefsSpreadBC;
+			gespr.*|gefsSpread		
+        </template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>Global Ensemble Forecast System 1x1 Degree</title>
+		<name>gefs</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>229</grid>
+		<process>
+			<id>107</id>
+		</process>
+		<template>
+			gec00.*[0-9]|gefsc;
+			gec00.*anl|gefscAnal;
+			gec00.*bc.*|gefscBC;
+			gep.*anl|gefsAnal;
+			gep.*bc.*|gefsBC;
+			gep.*|gefs;
+			geavg.*bc.*|gefsMeanBC;
+			gespr.*bc.*|gefsSpreadBC;
+			gespr.*|gefsSpread
+		</template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>Global Ensemble Forecast System 2.5x2.5 Degree</title>
+		<name>gefs</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>2</grid>
+		<process>
+			<id>107</id>
+		</process>
+		<template>
+			gec00.*[0-9]|gefsc;
+			gec00.*anl|gefscAnal;
+			gec00.*bc.*|gefscBC;
+			gep.*anl|gefsAnal;
+			gep.*bc.*|gefsBC;
+			gep.*|gefs;
+			geavg.*bc.*|gefsMeanBC;
+			gespr.*bc.*|gefsSpreadBC;
+			gespr.*|gefsSpread		
+        </template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>Global Wind-Wave Forecast Model</title>
+		<name>gww</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>3</grid>
+		<process>
+			<id>10</id>
+		</process>
+		<template>
+			mean.*|gwwMean;
+			probab.*|gwwProb;
+			spread.*|gwwSpread
+        </template>
+		<dt>6</dt>
+	</model>
+	
+	<model>
+		<title>Global Wind-Wave Forecast Model</title>
+		<name>gww</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>229</grid>
+		<process>
+			<id>10</id>
+		</process>
+		<dt>6</dt>
+	</model>
+		
+	<model>
+		<title>NAEFS ensemble BC</title>
+		<name>naefsBC</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>375</grid>
+		<process>
+			<id>114</id>
+		</process>
+		<template>			
+			naefs_geavg.*bc.*|naefsMeanBC;
+			naefs_gespr.*bc.*|naefsSpreadBC;			
+			naefs_ge10pt.*bc.*|naefs10ptBC;
+			naefs_ge50pt.*bc.*|naefs50ptBC;
+			naefs_ge90pt.*bc.*|naefs90ptBC;
+			naefs_gemode.*bc.*|naefsModeBC;
+        </template>
+		<dt>3</dt>
+	</model>
+	
+	<model>
+		<title>NAEFS ensemble BC</title>
+		<name>naefsBC</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>3</grid>
+		<process>
+			<id>114</id>
+		</process>
+		<template>			
+			naefs_geavg.*bc.*|naefsMeanBC;
+			naefs_gesprd.*bc.*|naefsSpreadBC;			
+			naefs_ge10pt.*bc.*|naefs10ptBC;
+			naefs_ge50pt.*bc.*|naefs50ptBC;
+			naefs_ge90pt.*bc.*|naefs90ptBC;
+			naefs_gemode.*bc.*|naefsModeBC;
+        </template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>NAEFS US</title>
+		<name>naefsUS</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>197</grid>
+		<process>
+			<id>114</id>
+		</process>
+		<template>
+			naefs_geavg.*conus.*grib2|naefsMeanUS;
+			naefs_ge10pt.*conus.*grib2|naefs10ptUS;
+			naefs_ge50pt.*conus.*grib2|naefs50ptUS;
+			naefs_ge90pt.*conus.*grib2|naefs90ptUS;
+			naefs_gemode.*conus.*grib2|naefsModeUS;
+		</template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>NAEFS Alaska</title>
+		<name>naefsAK</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>198</grid>
+		<process>
+			<id>114</id>
+		</process>
+		<template>
+			naefs_geavg.*alaska.*grib2|naefsMeanAK;
+			naefs_ge10pt.*alaska.*grib2|naefs10ptAK;
+			naefs_ge50pt.*alaska.*grib2|naefs50ptAK;
+			naefs_ge90pt.*alaska.*grib2|naefs90ptAK;
+			naefs_gemode.*alaska.*grib2|naefsModeAK;
+		</template>
+		<dt>3</dt>
+	</model>
+				
+	<model>
+		<title>North America Ensemble Forecast 1.0 Degree (No data yet)</title>
+		<name>naefs</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>229</grid>
+		<process>
+			<id>114</id>
+		</process>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>SREF ensemble with NAM40 navigation</title>
+		<name>sref</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>212</grid>
+		<process>
+			<id>84</id>
+		</process>
+		<template>
+			nam.*.awip3d00.*tm00|nam40;
+			sref_nam.*ctl1.*|srefNamCtl1;
+			sref_nam.*ctl2.*|srefNamCtl2;
+			sref_nam.*[pn][1-9].*|srefNam;
+			sref_eta.*[pn][1-9].*|srefEta;
+			sref_eta.*ctl1.*|srefEtaCtl1;
+			sref_eta.*ctl2.*|srefEtaCtl2;
+			sref_rsm.*ctl.*|srefRsmCtl;
+			sref_rsm.*[pn][1-9].*|srefRsm;
+			sref_nmm.*ctl.*|srefNmmCtl;
+			sref_nmm.*[pn][1-9].*|srefNmm;
+			sref_em.*[pn][1-9].*|srefEm;
+        </template>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>ECMWF Global 1x1 Degree</title>
+		<name>ecmwf</name>
+		<center>98</center>
+		<subcenter>0</subcenter>
+		<grid>3</grid>
+		<process>
+			<id>141</id>
+		</process>
+		<dt>3</dt>
+	</model>	
+
+
+	<model>
+		<title>ECMWF Global 2.5x2.5 Degrees</title>
+		<name>ecmwfg</name>
+		<center>98</center>
+		<subcenter>0</subcenter>
+		<grid>228</grid>
+		<process>
+			<id>141</id>
+		</process>
+		<dt>3</dt>
+	</model>
+	
+	<model>
+		<title>ECMWF Tropical 2.5x2.5 Degrees</title>
+		<name>ecmwft</name>
+		<center>98</center>
+		<subcenter>0</subcenter>
+		<grid>14529</grid>
+		<process>
+			<id>141</id>
+		</process>
+		<dt>3</dt>
+	</model>
+	
+		
+	<model>
+		<title>ECMWF Global Wave Model 1x1 Degree</title>
+		<name>ecmwfWave</name>
+		<center>98</center>
+		<subcenter>0</subcenter>
+		<grid>403</grid>
+		<process>
+			<id>108</id>
+		</process>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>ECMWF Global 1x1 Degree</title>
+		<name>ecmwf</name>
+		<center>98</center>
+		<subcenter>0</subcenter>
+		<grid>372</grid>
+		<process>
+			<id>120</id>
+			<id>121</id>
+			<id>122</id>
+			<id>123</id>
+			<id>124</id>
+			<id>125</id>
+			<id>126</id>
+			<id>127</id>
+			<id>128</id>
+			<id>129</id>
+			<id>130</id>
+			<id>131</id>
+			<id>132</id>
+			<id>133</id>
+			<id>134</id>
+			<id>135</id>
+			<id>136</id>
+			<id>137</id>
+			<id>138</id>
+			<id>139</id>
+			<id>140</id>
+			<id>141</id>
+			<id>142</id>
+			<id>143</id>
+			<id>144</id>
+			<id>145</id>
+			<id>146</id>
+			<id>147</id>
+			<id>148</id>
+			<id>149</id>
+			<id>150</id>
+			<id>151</id>
+			<id>152</id>
+			<id>153</id>
+			<id>154</id>
+			<id>155</id>
+			<id>156</id>
+			<id>157</id>
+			<id>158</id>
+			<id>159</id>
+			<id>160</id>
+			<id>161</id>
+			<id>162</id>
+			<id>163</id>
+			<id>164</id>
+			<id>165</id>
+			<id>166</id>
+			<id>167</id>
+			<id>168</id>
+			<id>169</id>
+			<id>170</id>
+			<id>171</id>
+			<id>172</id>
+			<id>173</id>
+			<id>174</id>
+			<id>175</id>
+			<id>176</id>
+			<id>177</id>
+			<id>178</id>
+			<id>179</id>
+			<id>180</id>
+			<id>181</id>
+			<id>182</id>
+			<id>183</id>
+			<id>184</id>
+			<id>185</id>
+			<id>186</id>
+			<id>187</id>
+			<id>188</id>
+			<id>189</id>
+			<id>190</id>
+			<id>191</id>
+			<id>192</id>
+			<id>193</id>
+			<id>194</id>
+			<id>195</id>
+			<id>196</id>
+			<id>197</id>
+			<id>198</id>
+			<id>199</id>
+			<id>200</id>
+			<id>201</id>
+			<id>202</id>
+			<id>203</id>
+			<id>204</id>
+			<id>205</id>
+			<id>206</id>
+			<id>207</id>
+			<id>208</id>
+			<id>209</id>
+			<id>210</id>
+			<id>211</id>
+			<id>212</id>
+			<id>213</id>
+			<id>214</id>
+			<id>215</id>
+			<id>216</id>
+			<id>217</id>
+			<id>218</id>
+			<id>219</id>
+			<id>220</id>
+			<id>221</id>
+			<id>222</id>
+			<id>223</id>
+			<id>224</id>
+			<id>225</id>
+			<id>226</id>
+			<id>227</id>
+			<id>228</id>
+			<id>229</id>
+			<id>230</id>
+			<id>231</id>
+			<id>232</id>
+			<id>233</id>
+			<id>234</id>
+			<id>235</id>
+			<id>236</id>
+			<id>237</id>
+			<id>238</id>
+			<id>239</id>
+			<id>240</id>
+			<id>241</id>
+			<id>242</id>
+			<id>243</id>
+			<id>244</id>
+			<id>245</id>
+			<id>246</id>
+			<id>247</id>
+			<id>248</id>
+			<id>249</id>
+			<id>250</id>
+			<id>251</id>
+			<id>252</id>
+			<id>253</id>
+			<id>254</id>
+			<id>255</id>
+		</process>
+		<dt>24</dt>
+	</model>
+
+	<model>
+		<title>Hybrid Single-Particle Lagrangian Integrated Trajectory Model</title>
+		<name>hysplit</name>
+		<center>7</center>
+		<subcenter>3</subcenter>
+		<grid>36928220</grid>
+		<process>
+			<id>3</id>
+		</process>
+		<dt>1</dt>
+	</model>
+
+	<model>
+		<title>GFS PGRB 0.5 degree</title>
+		<name>gfsP5</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>4</grid>
+		<process>
+			<id>96</id>
+			<id>77</id>
+			<id>81</id>
+		</process>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>GFS PGRB 0.5 degree</title>
+		<name>gfsP5</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>230</grid>
+		<process>
+			<id>96</id>
+			<id>77</id>
+			<id>81</id>
+		</process>
+		<dt>3</dt>
 	</model>
 
     <model>
 	<title>GFS PGRB 0.5 degree</title>
-	<name>GFS0.5</name>
-	<center>7</center>
-	<subcenter>0</subcenter>
-	<grid>230</grid>
-	<process>
-		<id>96</id>
-		<id>77</id>
-		<id>81</id>
-	</process>
-	<dt>3</dt>
-	</model>
-
-    <model>
-	<title>GFS PGRB 0.5 degree</title>
-	<name>GFS0.5</name>
+	<name>gfsP5</name>
 	<center>7</center>
 	<subcenter>0</subcenter>
 	<grid>408</grid>
@@ -64,7 +529,7 @@
 	
 	<model>
 		<title>GFS PGRB 1.0 DEGREE</title>
-		<name>GFS</name>
+		<name>gfs</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>229</grid>
@@ -74,48 +539,48 @@
 			<id>81</id>
 			<id>255</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 
 	<model>
 		<title>ECMWF Analysis from Global Data Assimilation System 1.0 DEGREE</title>
-		<name>GDAS</name>
+		<name>gdas</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>375</grid>
 		<process>
 			<id>82</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 			
 	<model>
 		<title>Analysis from Global Data Assimilation System 1.0 DEGREE</title>
-		<name>GDAS</name>
+		<name>gdas</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>3</grid>
 		<process>
 			<id>82</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 
 	<model>
 		<title>Analysis from Global Data Assimilation System 1.0 DEGREE</title>
-		<name>GDAS</name>
+		<name>gdas</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>229</grid>
 		<process>
 			<id>82</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 		
 	<model>
 		<title>GFS PGRB 1.0 DEGREE</title>
-		<name>GFS</name>
+		<name>gfs</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>3</grid>
@@ -124,36 +589,36 @@
 			<id>77</id>
 			<id>81</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 
 	<model>
 		<title>NOGAPS 361X181 Lat/Lon 1.0 DEGREE - nogaps*/wave_* </title>
-		<name>NOGAPS</name>
+		<name>nogaps</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>401</grid>
 		<process>
 			<id>58</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 
 	<model>
-		<title>NOGAPS 361X181 Lat/Lon 1.0 DEGREE - NAM Model 15km version</title>
-		<name>NOGAPS110</name>
+		<title>NOGAPS Global 1x1 Degree</title>
+		<name>fnmocWave</name>
 		<center>58</center>
 		<subcenter>0</subcenter>
 		<grid>401</grid>
 		<process>
 			<id>110</id>
 		</process>
-		<dt>4</dt>
+		<dt>6</dt>
 	</model>
 			
 	<model>
 		<title>GFS PGRB 2.5 DEGREE</title>
-		<name>GFS</name>
+		<name>gfs</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>2</grid>
@@ -167,7 +632,7 @@
 
 	<model>
 		<title>North American Regional Reanalysis GFS PGRB 2.5 DEGREE</title>
-		<name>NARR</name>
+		<name>narr</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
 		<grid>14529</grid>
@@ -179,7 +644,7 @@
 	
 	<model>
 		<title>North American Regional Reanalysis GFS PGRB 2.5 DEGREE</title>
-		<name>NARR</name>
+		<name>narr</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
 		<grid>2</grid>
@@ -191,7 +656,7 @@
 
 	<model>
 		<title>North American Regional Reanalysis GFS PGRB 2.5 DEGREE</title>
-		<name>NARR</name>
+		<name>narr</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
 		<grid>228</grid>
@@ -203,7 +668,7 @@
 	
 	<model>
 		<title>GFS PGRB 2.5 DEGREE</title>
-		<name>GFS</name>
+		<name>gfs</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>228</grid>
@@ -216,68 +681,68 @@
 	</model>
 	
 	<model>
-		<title>NAM Arakawa E-Grid</title>
-		<name>NAM99</name>
+		<title>Arakawa Staggered E-Grid for extended NAM12</title>
+		<name>nam12E</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>99</grid>
 		<process>
 			<id>89</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 	
 	<model>
-		<title>NGM Super C Grid</title>
-		<name>NAM</name>
+		<title>NAM 90.75464km at 60N</title>
+		<name>nam</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>104</grid>
 		<process>
 			<id>84</id>
 		</process>
-		<dt>4</dt>
+		<dt>1</dt>
 	</model>
 	
 	<model>
 		<title>NGM Big C-Grid</title>
-		<name>NGM101</name>
+		<name>nam91</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>101</grid>
 		<process>
 			<id>84</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 	
 	<model>
-		<title>NAM151 32-KM EXPANDED DOMAIN</title>
-		<name>NAM151</name>
+		<title>NAM 32km Expanded Domain (STR)</title>
+		<name>nam32E</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>151</grid>
 		<process>
 			<id>84</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 	
 	<model>
-		<title>NAM32 32-KM NOAMHI</title>
-		<name>NAM221</name>
+		<title>NAM 32km LCC</title>
+		<name>nam32</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>221</grid>
 		<process>
 			<id>84</id>
 		</process>
-		<dt>4</dt>
+		<dt>3</dt>
 	</model>
 	
 	<model>
 		<title>NAM Eastern North Pacific</title>
-		<name>NAM243</name>
+		<name>namP5ENP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>243</grid>
@@ -289,31 +754,31 @@
 	
 	<model>
 		<title>LFM Analysis</title>
-		<name>LFM</name>
+		<name>lfm</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>5</grid>
 		<process>
 			<id>84</id>
 		</process>
-		<dt>9</dt>
+		<dt>6</dt>
 	</model>
 	
 	<model>
 		<title>LFM Forecast</title>
-		<name>LFM</name>
+		<name>lfm</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>6</grid>
 		<process>
 			<id>84</id>
 		</process>
-		<dt>9</dt>
+		<dt>6</dt>
 	</model>
 	
 	<model>
 		<title>RUC20</title>
-		<name>RUC20</name>
+		<name>ruc20</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>252</grid>
@@ -325,128 +790,31 @@
 	
 	<model>
 		<title>SFC RUC 212</title>
-		<name>SRUC212</name>
+		<name>ruc40</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>212</grid>
 		<process>
 			<id>100</id>
 		</process>
-		<dt>5</dt>
+		<dt>3</dt>
 	</model>
 	
 	<model>
 		<title>SFC RUC 88</title>
-		<name>SRUC88</name>
+		<name>ruc15</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>88</grid>
 		<process>
 			<id>100</id>
 		</process>
-		<dt>5</dt>
-	</model>
-
-	<model>
-		<title>NAEFS 16X Resolution(5 km)</title>
-		<name>NAEFS197</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>197</grid>
-		<process>
-			<id>114</id>
-		</process>
-		<dt>3</dt>
-	</model>
-
-	<model>
-		<title>NAEFS Grid over Alaska(Polar Stereographic)</title>
-		<name>AKNAEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>198</grid>
-		<process>
-			<id>114</id>
-		</process>
-		<dt>3</dt>
-	</model>
-
-	<model>
-		<title>Global Ensemble Forecast 1.0 Degree</title>
-		<name>NAEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>3</grid>
-		<process>
-			<id>114</id>
-		</process>
-		<dt>3</dt>
-	</model>
-				
-	<model>
-		<title>North America Ensemble Forecast 1.0 Degree</title>
-		<name>NAEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>229</grid>
-		<process>
-			<id>114</id>
-		</process>
-		<dt>3</dt>
-	</model>
-
-	<model>
-		<title>ECMWF North America Ensemble Forecast 1.0 Degree</title>
-		<name>NAEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>375</grid>
-		<process>
-			<id>114</id>
-		</process>
 		<dt>3</dt>
 	</model>
 		
-	<model>
-		<title>GFSensemble 1.0 Degree</title>
-		<name>GEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>3</grid>
-		<process>
-			<id>107</id>
-			<id>255</id>
-		</process>
-		<dt>3</dt>
-	</model>
-		
-	<model>
-		<title>GFSensemble 1.0 Degree</title>
-		<name>GEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>229</grid>
-		<process>
-			<id>107</id>
-		</process>
-		<dt>3</dt>
-	</model>
-	
-	<model>
-		<title>GFSensemble 2.5 Degree</title>
-		<name>GEFS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>2</grid>
-		<process>
-			<id>107</id>
-		</process>
-		<dt>3</dt>
-	</model>
-	
 	<model>
 		<title>GFSensemble 5KM</title>
-		<name>GEFSNDGD</name>
+		<name>gefsNdgd</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
 		<grid>197</grid>
@@ -457,37 +825,13 @@
 	</model>
 
 	<model>
-		<title>ECMWF Global Ensemble 1.0 Degree</title>
-		<name>ECENS</name>
-		<center>7</center>
-		<subcenter>2</subcenter>
-		<grid>375</grid>
-		<process>
-			<id>107</id>
-		</process>
-		<dt>3</dt>
-	</model>
-	
-	<model>
 		<title>World wide ECMWF</title>
-		<name>ECMWF25</name>
+		<name>ecmwfg</name>
 		<center>98</center>
 		<subcenter>0</subcenter>
 		<grid>2</grid>
 		<process>
 			<id>137</id>
-		</process>
-		<dt>3</dt>
-	</model>
-	
-	<model>
-		<title>World wide ECMWF 1 degree LAMP</title>
-		<name>ECMWF</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>403</grid>
-		<process>
-			<id>108</id>
 		</process>
 		<dt>3</dt>
 	</model>
@@ -576,7 +920,7 @@
 
 	<model>
 		<title>NAM80</title>
-		<name>NAM80</name>
+		<name>nam80</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>211</grid>
@@ -588,7 +932,7 @@
 
 	<model>
 		<title>RUC80</title>
-		<name>RUC80</name>
+		<name>ruc80</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>211</grid>
@@ -653,8 +997,8 @@
 	</model>
 
 	<model>
-		<title>GFS-NOAMHI-High Resolution North American Master Grid(Lambert Conformal) </title>
-		<name>GFSNOAMHI</name>
+		<title>GFS North American High Resolution (32km)</title>
+		<name>gfs32</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>221</grid>
@@ -667,7 +1011,7 @@
 
 	<model>
 		<title>GFS in the ECMWF grid navigation</title>
-		<name>GFS</name>
+		<name>gfs</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>375</grid>
@@ -747,21 +1091,8 @@
 	</model>
 
 	<model>
-		<title>NAM40</title>
-		<name>mesoNam212</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>212</grid>
-		<process>
-			<id>84</id>
-		</process>
-		<dt>3</dt>
-	</model>
-
-	<model>
-		<title>NAM20</title>
-		<name>mesoNam215</name>
-		<alias>mesoNam212</alias>
+		<title>NAM 20km</title>
+		<name>nam20</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>215</grid>
@@ -1013,7 +1344,7 @@
 
 	<model>
 		<title>Coastal Ocean Circulation</title>
-		<name>RTOFSATL</name>
+		<name>ofsGmex</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>15058391</grid>
@@ -1025,7 +1356,7 @@
 
 	<model>
 		<title>Coastal Ocean Circulation Short Term Forecast</title>
-		<name>RTOFSATLSTF</name>
+		<name>ofsWatl</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>-26535243</grid>
@@ -1164,7 +1495,7 @@
 
 	<model>
 		<title>UKMET</title>
-		<name>UKMET</name>
+		<name>ukmet</name>
 		<center>74</center>
 		<subcenter>0</subcenter>
 		<grid>45</grid>
@@ -1303,30 +1634,6 @@
 	</model>
 
 	<model>
-		<title>Global Wind-Wave Forecast Model</title>
-		<name>GWW</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>3</grid>
-		<process>
-			<id>10</id>
-		</process>
-		<dt>6</dt>
-	</model>
-	
-	<model>
-		<title>Global Wind-Wave Forecast Model</title>
-		<name>GWW</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>229</grid>
-		<process>
-			<id>10</id>
-		</process>
-		<dt>6</dt>
-	</model>
-	
-	<model>
 		<title>GWW</title>
 		<name>GWW233</name>
 		<center>7</center>
@@ -1353,7 +1660,7 @@
 	
 	<model>
 		<title>NWW3</title>
-		<name>NWWIII233</name>
+		<name>nww3</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>233</grid>
@@ -1365,7 +1672,7 @@
 
 	<model>
 		<title>Southern Hemisphere High Resolution Sea Ice</title>
-		<name>SeaIceSouthernHemisphere</name>
+		<name>iceSouth</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>400</grid>
@@ -1374,10 +1681,10 @@
 		</process>
 		<dt>1</dt>
 	</model>
-	
-		<model>
-		<title>Southern Hemisphere High Resolution Sea Ice 0.5 degree</title>
-		<name>SeaIceSouthernHemisphere0.5</name>
+
+	<model>
+		<title>Sea Ice Concentration 0.5x0.5 Degree Southern Hemisphere</title>
+		<name>iceSHP5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>405</grid>
@@ -1386,10 +1693,23 @@
 		</process>
 		<dt>1</dt>
 	</model>
+
+	<model>
+		<title>Sea Ice Concentration 12.7km by 12.7km Southern Hemisphere
+		</title>
+		<name>iceSH12</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>172</grid>
+		<process>
+			<id>120</id>
+		</process>
+		<dt>1</dt>
+	</model>
 	
 	<model>
-		<title>Northern Hemisphere High Resolution Sea Ice</title>
-		<name>SeaIceNorthernHemisphere</name>
+		<title>Sea Ice Concentration 12.7km by 12.7km Northern Hemisphere</title>
+		<name>iceNH12</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>171</grid>
@@ -1400,8 +1720,8 @@
 	</model>
 
 	<model>
-		<title>Global 1/12 degree Lat/Lon grid Sea Ice</title>
-		<name>SeaIce173</name>
+		<title>Sea Ice Concentration 1/12 by 1/12 Degree Global</title>
+		<name>ice12th</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>173</grid>
@@ -1410,10 +1730,23 @@
 		</process>
 		<dt>1</dt>
 	</model>
-		
+
 	<model>
-		<title>SeaIce</title>
-		<name>SeaIce</name>
+		<title>Sea Ice Concentration 25.4km by 25.4km Southern Hemisphere
+		</title>
+		<name>iceSH</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>220</grid>
+		<process>
+			<id>120</id>
+		</process>
+		<dt>1</dt>
+	</model>
+
+	<model>
+		<title>Sea Ice Concentration 25.4km by 25.4km Northern Hemisphere</title>
+		<name>iceNH</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>219</grid>
@@ -1423,9 +1756,9 @@
 		<dt>1</dt>
 	</model>
 
-	<model>
-		<title>SeaIce</title>
-		<name>SeaIce235</name>
+	<model>		
+		<title>Sea Ice Concentration 0.5x0.5 Degrees Global</title>	
+		<name>iceP5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>235</grid>
@@ -1475,7 +1808,7 @@
 
 	<model>
 		<title>AKWAVE</title>
-		<name>WAVEAK</name>
+		<name>waveAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>239</grid>
@@ -1487,7 +1820,7 @@
 
 	<model>
 		<title>WNAwave</title>
-		<name>WAVEWNA</name>
+		<name>wave15mAtl</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>238</grid>
@@ -1524,8 +1857,8 @@
 	</model>
 
 	<model>
-		<title>NAM12</title>
-		<name>NAM218</name>
+		<title>NAM 12km and NAM GOES 12km</title>
+		<name>nam12</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>218</grid>
@@ -1549,7 +1882,7 @@
 
 	<model>
 		<title>NAM Hawaii</title>
-		<name>NAMHI</name>
+		<name>namNestHI</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>406</grid>
@@ -1742,7 +2075,7 @@
 	
 	<model>
 		<title>Global 1/12 degree Lat/Lon -SST-Analysis</title>
-		<name>SSTA173</name>
+		<name>sst12th</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>173</grid>
@@ -1814,7 +2147,7 @@
 
 	<model>
 		<title>Global 0.5 degree Lat/Lon -SST-Analysis</title>
-		<name>SSTA235</name>
+		<name>sstP5</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>235</grid>
@@ -1849,8 +2182,8 @@
 	</model>
 
 	<model>
-		<title>DGEX</title>
-		<name>DGEX185</name>
+		<title>Downscaled GFS with Eta Extension over US</title>
+		<name>dgexConus</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>185</grid>
@@ -1861,8 +2194,8 @@
 	</model>
 
 	<model>
-		<title>DGEX</title>
-		<name>DGEX186</name>
+		<title>Downscaled GFS with Eta Extension over Alaska</title>
+		<name>dgexAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>186</grid>
@@ -2016,7 +2349,7 @@
 
 	<model>
 		<title>RUC13</title>
-		<name>RUC13</name>
+		<name>ruc13</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>130</grid>
@@ -2064,7 +2397,7 @@
 
 	<model>
 		<title>RTMA Grid over - Guam(Mercator)</title>
-		<name>RTMAGUAM</name>
+		<name>rtmaGuam</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>199</grid>
@@ -2076,7 +2409,7 @@
 			
 	<model>
 		<title>RTMA</title>
-		<name>RTMA</name>
+		<name>rtma</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>197</grid>
@@ -2088,7 +2421,7 @@
 	
 	<model>
 		<title>RTMA-AK</title>
-		<name>RTMAAK</name>
+		<name>rtmaAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>198</grid>
@@ -2100,7 +2433,7 @@
 	
 	<model>
 		<title>RTMA-AK</title>
-		<name>RTMAAK</name>
+		<name>rtmaAK</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>198</grid>
@@ -2461,152 +2794,7 @@
 		<dt>12</dt>
 	</model>
 	
-	<model>
-		<title>ECMWF-LowRes</title>
-		<name>ECMWFNorthernHemisphere</name>
-		<center>98</center>
-		<subcenter>0</subcenter>
-		<grid>372</grid>
-		<process>
-			<id>120</id>
-			<id>121</id>
-			<id>122</id>
-			<id>123</id>
-			<id>124</id>
-			<id>125</id>
-			<id>126</id>
-			<id>127</id>
-			<id>128</id>
-			<id>129</id>
-			<id>130</id>
-			<id>131</id>
-			<id>132</id>
-			<id>133</id>
-			<id>134</id>
-			<id>135</id>
-			<id>136</id>
-			<id>137</id>
-			<id>138</id>
-			<id>139</id>
-			<id>140</id>
-			<id>141</id>
-			<id>142</id>
-			<id>143</id>
-			<id>144</id>
-			<id>145</id>
-			<id>146</id>
-			<id>147</id>
-			<id>148</id>
-			<id>149</id>
-			<id>150</id>
-			<id>151</id>
-			<id>152</id>
-			<id>153</id>
-			<id>154</id>
-			<id>155</id>
-			<id>156</id>
-			<id>157</id>
-			<id>158</id>
-			<id>159</id>
-			<id>160</id>
-			<id>161</id>
-			<id>162</id>
-			<id>163</id>
-			<id>164</id>
-			<id>165</id>
-			<id>166</id>
-			<id>167</id>
-			<id>168</id>
-			<id>169</id>
-			<id>170</id>
-			<id>171</id>
-			<id>172</id>
-			<id>173</id>
-			<id>174</id>
-			<id>175</id>
-			<id>176</id>
-			<id>177</id>
-			<id>178</id>
-			<id>179</id>
-			<id>180</id>
-			<id>181</id>
-			<id>182</id>
-			<id>183</id>
-			<id>184</id>
-			<id>185</id>
-			<id>186</id>
-			<id>187</id>
-			<id>188</id>
-			<id>189</id>
-			<id>190</id>
-			<id>191</id>
-			<id>192</id>
-			<id>193</id>
-			<id>194</id>
-			<id>195</id>
-			<id>196</id>
-			<id>197</id>
-			<id>198</id>
-			<id>199</id>
-			<id>200</id>
-			<id>201</id>
-			<id>202</id>
-			<id>203</id>
-			<id>204</id>
-			<id>205</id>
-			<id>206</id>
-			<id>207</id>
-			<id>208</id>
-			<id>209</id>
-			<id>210</id>
-			<id>211</id>
-			<id>212</id>
-			<id>213</id>
-			<id>214</id>
-			<id>215</id>
-			<id>216</id>
-			<id>217</id>
-			<id>218</id>
-			<id>219</id>
-			<id>220</id>
-			<id>221</id>
-			<id>222</id>
-			<id>223</id>
-			<id>224</id>
-			<id>225</id>
-			<id>226</id>
-			<id>227</id>
-			<id>228</id>
-			<id>229</id>
-			<id>230</id>
-			<id>231</id>
-			<id>232</id>
-			<id>233</id>
-			<id>234</id>
-			<id>235</id>
-			<id>236</id>
-			<id>237</id>
-			<id>238</id>
-			<id>239</id>
-			<id>240</id>
-			<id>241</id>
-			<id>242</id>
-			<id>243</id>
-			<id>244</id>
-			<id>245</id>
-			<id>246</id>
-			<id>247</id>
-			<id>248</id>
-			<id>249</id>
-			<id>250</id>
-			<id>251</id>
-			<id>252</id>
-			<id>253</id>
-			<id>254</id>
-			<id>255</id>
-		</process>
-		<dt>24</dt>
-	</model>
+
 	<model>
 		<title>ECMWF-LowRes</title>
 		<name>ECMWF1</name>
@@ -3905,7 +4093,7 @@
 	
 	<model>
 		<title>AKwave 0.25X0.167 degree Lan/Lon grid - Alaska</title>
-		<name>WAVEAK0.25</name>
+		<name>wave10mAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>15</grid>
@@ -3917,7 +4105,7 @@
 
 	<model>
 		<title>AKwave 0.25X0.167 degree Lan/Lon grid - Alaska</title>
-		<name>WAVEAK0.25</name>
+		<name>wave10mAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>15</grid>
@@ -3929,7 +4117,7 @@
 	
 	<model>
 		<title>AKwave 0.133X0.067 degree Lan/Lon grid - Alaska</title>
-		<name>WAVEAK0.133</name>
+		<name>wave4mAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>16</grid>
@@ -3953,7 +4141,7 @@
 
 	<model>
 		<title>Wave 0.167 degree Lan/Lon grid - US Weste Coast</title>
-		<name>WAVEWC</name>
+		<name>wave10mWC</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>13</grid>
@@ -3965,7 +4153,7 @@
 
 	<model>
 		<title>Wave 0.167 degree Lan/Lon grid - US Weste Coast</title>
-		<name>WAVEWC</name>
+		<name>wave10mWC</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>13</grid>
@@ -3977,7 +4165,7 @@
 	
 	<model>
 		<title>Wave 0.067 degree Lan/Lon grid - US Weste Coast</title>
-		<name>WAVEWCHI</name>
+		<name>wave4mWC</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>17</grid>
@@ -4084,15 +4272,26 @@
 		</process>
 		<dt>1</dt>
 	</model>
-	
+
 	<model>
-		<title>Aviation</title>
-		<name>AVIATION</name>
+		<title>Aviation-Icing</title>
+		<name>AWCICING</name>
 		<center>7</center>
 		<subcenter>8</subcenter>
 		<grid>255202</grid>
 		<process>
 			<id>191</id>
+		</process>
+		<dt>1</dt>
+	</model>
+
+	<model>
+		<title>Aviation-Turb</title>
+		<name>AWCTURB</name>
+		<center>7</center>
+		<subcenter>8</subcenter>
+		<grid>255202</grid>
+		<process>
 			<id>105</id>
 		</process>
 		<dt>1</dt>
@@ -4210,7 +4409,7 @@
 	
 	<model>
 		<title>HiResW-ARW-East</title>
-		<name>HiResWARWEast</name>
+		<name>hireswArwE</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255001</grid>
@@ -4222,7 +4421,7 @@
 
 	<model>
 		<title>HiResW-ARW-West</title>
-		<name>HiResWARWWest</name>
+		<name>hireswArwW</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255002</grid>
@@ -4234,7 +4433,7 @@
 
 	<model>
 		<title>HiResW-ARW-AK</title>
-		<name>HiResWARWAK</name>
+		<name>hireswArwAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255003</grid>
@@ -4246,7 +4445,7 @@
 
 	<model>
 		<title>HiResW-ARW-PR</title>
-		<name>HiResWARWPR</name>
+		<name>hireswArwPR</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255004</grid>
@@ -4258,7 +4457,7 @@
 
 	<model>
 		<title>HiResW-ARW-HI</title>
-		<name>HiResWARWHI</name>
+		<name>hireswArwHI</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255005</grid>
@@ -4270,7 +4469,7 @@
 
 	<model>
 		<title>NMM-GUAM</title>
-		<name>NMMGUAM</name>
+		<name>hireswNmmGuam</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>11731129</grid>
@@ -4282,7 +4481,7 @@
 	
 	<model>
 		<title>NMM-PR</title>
-		<name>NMMPR</name>
+		<name>hireswNmmPR</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>13560489</grid>
@@ -4294,7 +4493,7 @@
 	
 	<model>
 		<title>HiResW-NMM-East</title>
-		<name>EASTNMM</name>
+		<name>hireswNmmE</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255001</grid>
@@ -4307,7 +4506,7 @@
 
 	<model>
 		<title>HiResW-NMM-West</title>
-		<name>WESTNMM</name>
+		<name>hireswNmmW</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255002</grid>
@@ -4319,7 +4518,7 @@
 
 	<model>
 		<title>HiResW-NMM-AK</title>
-		<name>AKNMM</name>
+		<name>hireswNmmAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255003</grid>
@@ -4331,7 +4530,7 @@
 
 	<model>
 		<title>HiResW-NMM-PR</title>
-		<name>PRNMM</name>
+		<name>hireswNmmPR</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255004</grid>
@@ -4343,7 +4542,7 @@
 
 	<model>
 		<title>HiResW-NMM-HI</title>
-		<name>HINMM</name>
+		<name>hireswNmmHI</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255005</grid>
@@ -4356,7 +4555,7 @@
 
 	<model>
 		<title>GRLKwave</title>
-		<name>GRLKwave</name>
+		<name>waveGL</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>176</grid>
@@ -4813,7 +5012,7 @@
 		</process>
 		<dt>1</dt>
 	</model>
-	
+
 	<model>
 		<title>NOGAPS - Ice Concentration Analysis</title>
 		<name>NOGAPSWAVE</name>
@@ -4826,76 +5025,52 @@
 		<dt>1</dt>
 	</model>
 
-        <model>
-                <title>AQM</title>
-                <name>AQM196</name>
-                <center>7</center>
-                <subcenter>0</subcenter>
-                <grid>196</grid>
-                <process>
-                        <id>211</id>
-                </process>
-                <dt>8</dt>
-        </model>
+	<model>
+		<title>AQM</title>
+		<name>AQM196</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>196</grid>
+		<process>
+			<id>211</id>
+		</process>
+		<dt>8</dt>
+	</model>
 
-        <model>
-                <title>AQM</title>
-                <name>AQM198</name>
-                <center>7</center>
-                <subcenter>0</subcenter>
-                <grid>198</grid>
-                <process>
-                        <id>211</id>
-                </process>
-                <dt>8</dt>
-        </model>
+	<model>
+		<title>AQM</title>
+		<name>AQM198</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>198</grid>
+		<process>
+			<id>211</id>
+		</process>
+		<dt>8</dt>
+	</model>
 
-        <model>
-                <title>AQM</title>
-                <name>AQM227</name>
-                <center>7</center>
-                <subcenter>0</subcenter>
-                <grid>227</grid>
-                <process>
-                        <id>211</id>
-                </process>
-                <dt>8</dt>
+	<model>
+		<title>AQM</title>
+		<name>AQM227</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>227</grid>
+		<process>
+			<id>211</id>
+		</process>
+		<dt>8</dt>
+	</model>
+
+
+	<model>
+		<title>CMC-QLM</title>
+		<name>CMCQLM</name>
+		<center>54</center>
+		<subcenter>2</subcenter>
+		<grid>-90045000</grid>
+		<process>
+			<id>70</id>
+		</process>
+		<dt>3</dt>
         </model>
-        
-         <model>
-                <title>CMC-HYCOM - North Pacific basin</title>
-                <name>CMC</name>
-                <center>54</center>
-                <subcenter>0</subcenter>
-                <grid>374</grid>
-                <process>
-                        <id>47</id>
-                </process>
-                <dt>3</dt>
-        </model>
-        
-        <model>
-                <title>CMC-QLM</title>
-                <name>CMCQLM</name>
-                <center>54</center>
-                <subcenter>2</subcenter>
-                <grid>-90045000</grid>
-                <process>
-                        <id>70</id>
-                </process>
-                <dt>3</dt>
-        </model>
-        
-         <model>
-                <title>CMC-GEFS</title>
-                <name>CMCENS</name>
-                <center>54</center>
-                <subcenter>2</subcenter>
-                <grid>401</grid>
-                <process>
-                        <id>70</id>
-                </process>
-                <dt>3</dt>
-        </model>
-        
 </ncgribModelSet>

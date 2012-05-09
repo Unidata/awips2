@@ -5,7 +5,7 @@
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
+# to non-U.S. persons whether in the United States or abroad requires 
 # an export license or other authorization.
 # 
 # Contractor Name:        Raytheon Company

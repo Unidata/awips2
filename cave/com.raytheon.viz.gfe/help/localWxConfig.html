@@ -11,7 +11,7 @@
 <div class="Body">
 <h1>localWxConfig.py - Local Server Database Configuration (Weather
 Definition)</h1>
-May 13, 2004<br>
+December 30, 2011<br>
 <br>
 
 <br>
@@ -44,56 +44,51 @@ can you control from your custom localWxConfig.py file?</a>
 <h2><a name="Overview"></a>Overview</h2>
 <div class="Body">The localWxConfig.py file is one of several
 configuration
-files for the ifpServer (common database server).&nbsp; The
-localWxConfig
+files for GFE. The localWxConfig
 file is optional, and is not provided with the install or
-release.&nbsp;
-It is added by the field site to override certain features of the
-ifpServer
+release.
+It is added by the field site to override certain features of the GFE
 database configuration that are defined in the <a
  href="serverConfig.html">serverConfig.py</a>
-file.&nbsp; <b><font color="#ff0000">You should NEVER change the
+file. <b><font color="#ff0000">You should NEVER change the
 original
 serverConfig.py since your changes will be overwritten with the next
-upgrade.&nbsp;
+upgrade.
 See the <a
  href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
 configuration overview</a> for information on how to make changes that
 are supported to the server.</font></b>
 <p>The localWxConfig.py file can be used to override the weather
 definitions
-in <a href="serverConfig.html">serverConfig.py</a>.&nbsp; This
-document
-will describe what you can, and what you cannot override.&nbsp; If you
+in <a href="serverConfig.html">serverConfig.py</a>. This document
+will describe what you can, and what you cannot override. If you
 need to override an element that is not supported by <a
  href="localConfig.html">localConfig.py</a>
-or localWxConfig.py, then refer to the&nbsp;<font color="#000000"> <a
+or localWxConfig.py, then refer to the <font color="#000000"><a
  href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
 configuration overview</a> for details.</font><font color="#000000"></font>
 </p>
-<p><b><font color="#ff0000">Note:&nbsp;Changing weather definitions can
+<p><b><font color="#ff0000"><b>Note:</b> Changing weather definitions can
 cause problems when sending these grids to other sites via Intersite
-Coordination.&nbsp;
+Coordination.
 If another site receives grids that do not contain valid Weather
 Definitions
 at that site, the grid will be rejected.</font></b>
 </p>
-<p></p>
 <hr width="100%">
 <h2><a name="AddingYourOwnlocalConfig.pyFile"></a>Adding Your Own
 localWxConfig.py
 File</h2>
 If you want to make changes to the server database weather definitions,
-then you will want to add your own localWxConfig.py file.&nbsp; Refer
-to
-the <a href="serverConfiguration.html#LocationofFiles">server
+then you will want to add your own localWxConfig.py file. Refer
+to the <a href="serverConfiguration.html#LocationofFiles">server
 configuration
-overview file location section</a>&nbsp; for details on where the
+overview file location section</a> for details on where the
 localWxConfig.py
 file should be located.
 <p>The first lines of the localWxConfig.py <i>must</i> have the
 following
-format.&nbsp; Failure to do so will not let you refer to any of the
+format. Failure to do so will not let you refer to any of the
 definitions
 in serverConfig.py:
 </p>
@@ -103,11 +98,11 @@ in serverConfig.py:
 </p>
 <p>The syntax appearing in localWxConfig.py varies depending whether
 you
-are adding new definitions, or changing existing definitions.&nbsp;
+are adding new definitions, or changing existing definitions.
 Typically
 when changing existing definitions you will need to prefix the
 serverConfig
-to the name of the variable.&nbsp; For example,
+to the name of the variable. For example,
 </p>
 <p><tt>var = (a,b,c,d)</tt> refers to a local copy of this definition
 and
@@ -131,18 +126,10 @@ fields.</i>
 </p>
 <hr width="100%">
 <h2><a name="Testing"></a>Testing Your Own localWxConfig.py File</h2>
-The recommended way to test your localConfig.py file is to run the
-ifpServer
-with the -n switch.&nbsp; The -n switch indicates "no run".&nbsp; The
-server
-will start, read in all of the
-<br>
-configuration files, and if there are no syntax errors, will report
-that fact and exit.&nbsp; If there are errors, you will be directed to
-the log file where the syntax errors will be shown.&nbsp; The
-<br>
-ifpServer -n may be run when the primary ifpServer is running; i.e.,
-there is no need to shut it down first.
+The recommended way to test your localConfigWx.py file is to start EDEX
+while running a tail command on the /awips2/edex/logs/edex-request-<i>date</i>.log.
+If no exceptions result from the changes, you should be fine to proceed into GFE for
+further testing.
 <p></p>
 <hr width="100%">
 <h2><a name="WhatcanyoucontrolfromyourcustomlocalConfig"></a>What
@@ -150,12 +137,11 @@ can
 you control from your custom localWxConfig.py file?</h2>
 The following table describes what can be done using a custom
 localWxConfig.py
-file.&nbsp; If the override capability is marked as "NO" and you still
+file. If the override capability is marked as "NO" and you still
 need the modification, you will need to review <a
  href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">methods
 of modifying database configurations</a> for alternative choices.
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -166,7 +152,7 @@ of modifying database configurations</a> for alternative choices.
     <tr>
       <td>Visibilities</td>
       <td>YES</td>
-      <td>&nbsp;<a href="serverConfig.html#PossibleVisibilities">Possible
+      <td><a href="serverConfig.html#PossibleVisibilities">Possible
 Visibilities</a></td>
     </tr>
     <tr>
@@ -443,11 +429,9 @@ OVRPASS.</td>
 '0', '1/4', '1/2', '3/4', '1', '11/2', '2', '21/2', '3', '4', '5', '6',
 'P6']
 </p>
-<p></p>
 <hr width="100%"><br>
-&nbsp;
 <br>
-&nbsp;</div>
+</div>
 <div class="Body"><a href="#Overview">Back To Top</a>
 <br>
 <a href="GFESuite.html#TableOfContents">Back To TOC</a></div>

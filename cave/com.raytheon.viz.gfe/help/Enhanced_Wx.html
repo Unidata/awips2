@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>Enhanced_Wx</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>Enhanced_Wx</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Introduction</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The Enhanced_WxTool 
+is a significant enhancement to the original Wx_SmartTool, which was written. 
+Both tools assign Wx based on the corresponding PoP grids; however the 
+Enhanced_WxTool offers the following additional functionality:<br>
+<ol>
+  <li>The forecaster is allowed considerable freedom in choosing individual 
+  weather types (RW, R, SW, S, IP, ZR, L, ZL, and F are all supported).</li>
+  <li>Up to three weather types may be mixed together and a different 
+  intensity (very light [--], light [-], moderate [m], or heavy [+]) may be 
+  assigned to each. So for example, it is possible to assign weather such 
+  as RmSmIP- with this tool.</li>
+  <li>The forecaster can also choose whether to include thunder (T) 
+  with any other supported weather type; if thunder is included, he or she also 
+  has the option of specifying whether the thunder is severe in nature (T+).</li>
+  <li>The forecaster can assign either probability qualifiers or areal coverage 
+  qualifiers (where allowed) to the chosen weather types. If a forecaster attempts 
+  to use an invalid qualifier for a weather type, the tool will generate an error 
+  message appears indicating that this is not allowed.</li>
+  <li>For each individual weather type, the forecaster can override the default 
+  probability/coverage obtained from the PoP grid if desired. The same is also true 
+  for thunder (T). This makes it possible to: create weather combinations such as 
+  “Lkly RW:Chc SW” or “Def RW:Chc T”; and assign weather types of F, L, or ZL, 
+  which aren’t necessarily derived from the PoP grids.</li>
+  <li>For categorical PoPs, the forecaster can use alternate probability/coverage 
+  terms (other than "Def" or "Wide") if desired. The following options are 
+  available: "Ocnl", "Frq", "Brf", "Pds", and "Inter". When used, this setting 
+  applies to all categorical precip coverages that are derived from the PoP grid.</li>
+  <li>If thunder is included with the precipitation, the forecaster also has the 
+  additional option of specifying the following thunderstorm attributes, if 
+  desired:</li>
+    <ul>
+      <li>Small Hail (SmA)</li>
+      <li>Heavy Rain (HvyRn)</li>
+      <li>Gusty Winds (GW)</li>
+      <li>Frequent Lightning (FL)</li>
+      <li>Large Hail (LgA)</li>
+      <li>Damaging Winds (DmgW)</li>
+      <li>Tornadoes (TOR)</li>
+    </ul>
+</ol>
+<br>
+The tool is designed so that the last three attributes (LgA, DmgW, and TOR) can only be 
+assigned when severe thunderstorms (T+) are forecast. Similarly, the tool will also 
+only allow SmA and GW to be used with non-severe thunderstorms (T).  If the forecaster 
+tries to assign a thunderstorm attribute that is invalid, the tool will display a 
+message indicating this, and will automatically ignore such attributes and run to 
+completion.
+<br><br>
+It should be noted that the tool does not apply any scientific principle to derive 
+the final Wx type; the Wx type assigned is solely decided upon by the forecaster. 
+The forecaster chooses the Wx type through the use of a GUI interface that appears 
+when the tool is executed.</font>
+<br>
+<br>
+<br>
+<big><big><font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">How
+the Procedure Works</font><span style="font-weight: bold;">
+</span></big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">The floating PoP grids for the time 
+period in question must exist before running the tool. After creating all of the necessary 
+floating PoP grids, to run the tool the forecaster needs only to select the BUF_WxTool from the 
+list of available smart tools in GFE; this action brings up the following GUI:<br><br>
+<img alt="Enhanced_Wx" src="images/Enhanced_Wx.png"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Here is a brief overview of each section:
+<br><br>
+Qualifier Type: Allows you to toggle between the use of Probability and Areal Coverage terms. 
+The default setting is “Prob”.
+<br><br>
+Alter Terms Cat PoPs (new): Allows you to use alternate probability/coverage terms ("Ocnl", 
+"Frq", "Brf", "Pds", and "Inter") when categorical PoPs are used. When used, this setting 
+will apply to all categorical precipitation probabilities/coverages that are derived from 
+the PoP grid. The default setting is “None”.
+<br><br>
+1st/2nd/3rd Type: Allows you to select/combine up to 3 different weather types. 
+In version 2.0, the lists of available weather types have been expanded to include L, ZL, and F.
+<br><br>
+1st/2nd/3rd Inten: Allows you to specify the intensity of each weather type (--, -, m, or +). 
+In the case of fog (F), only + (dense) is a valid intensity. If F is selected with any other 
+intensity, the tool will automatically remove the intensity to prevent any errors. The default 
+setting is “-“ (light).
+<br><br>
+1st/2nd/3rd Type Alternate Prob/Cov (new): Allows you to override the default probability/coverage 
+obtained from the corresponding PoP grid for each individual weather type. This allows the easy 
+creation of weather types such as "Lkly RW:Chc SW". This approach also allows for the use of 
+other weather types (for example, F, L, and ZL) which aren't necessarily PoP-dependent. 
+The default setting is “None” - meaning the probability/coverage terms for each weather type 
+are derived from the PoP grid by default.
+<br>
+Thunder?: Allows you to specify whether you want thunder included with the other weather type(s) 
+selected. Options are “No”, “Yes (T)”, and “Yes (T+)” (severe T). The default setting is “No”.
+<br><br>
+Thunder Alternate Prob/Cov (new): Allows you to specify an alternate probability/coverage for 
+T if desired. This setting will override the default probability/coverage obtained from the 
+corresponding PoP grid, and makes it possible to create precip types such as "Def RW:Chc T". 
+The default setting is “None” - meaning the probability/coverage term for T is derived from 
+the PoP grid by default.
+<br><br>
+Tstm Attributes?: Allows you to specify Thunderstorm Attributes if you choose to include 
+Thunder in the Wx grid.
+<br><br>
+Once the forecaster has made their selections from the above GUI, he/she then assigns the 
+desired weather by clicking either of the Run or Run/Dismiss buttons within the GUI. 
+When this is done, a single weather type is created based on the forecaster input. Unless 
+specifically overridden by the forecaster, probability or areal coverage qualifiers will 
+be determined from the PoP grid in accordance with the following table:<br><br>
+<table border="1" cellpadding="2" cellspacing="2" width="100%">
+  <tr>
+    <td><b>PoP Value (rounded to the nearest %)</b></td>
+    <td><b>Probability Qualifier</b></td>
+    <td><b>Areal Coverage Qualifier</b></td>
+  </tr>
+  <tr>
+    <td>0 - SChc_min_PoP_threshold*</td>
+    <td>None; <NoWx> is assigned</td>
+    <td>None; <NoWx> is assigned</td>
+  </tr>
+  <tr>
+    <td>SChc_min_PoP_threshold* - 24</td>
+    <td>Slight Chance (SChc)</td>
+    <td>Isolated (Iso)</td>
+  </tr>
+  <tr>
+    <td>25 - 54</td>
+    <td>Chance (Chc)</td>
+    <td>Scattered (Sct)</td>
+  </tr>
+  <tr>
+    <td>55 - 74</td>
+    <td>Likely (Lkly)</td>
+    <td>Numerous (Num)</td>
+  </tr>
+  <tr>
+    <td>75 - 100</td>
+    <td>Definite (Def)</td>
+    <td>Widespread (Wide)</td>
+  </tr>
+</table><br><br>
+* - SChc_min_PoP_threshold is the minimum PoP needed for a SChc (slight chance) of weather to 
+be included in the Wx grid. This value is site-customizable; the default value is 14.5%. 
+Please see the Installation/Configuration section below if you would like to change this 
+setting at your site.</font>
+</body>
+</html>

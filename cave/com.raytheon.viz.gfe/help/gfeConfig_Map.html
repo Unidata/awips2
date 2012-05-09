@@ -70,17 +70,10 @@ Pattern</a></td>
       </td>
     </tr>
     <tr>
-      <td><a href="#MapBackgroundLabels">Map Background Labels</a></td>
-      <td>YES</td>
-      <td>YES</td>
-      <td><br>
-      </td>
-    </tr>
-    <tr>
       <td><a href="#FontOffset">Map Background Font Offset</a></td>
       <td>YES</td>
       <td>YES</td>
-      <td>The entry Map_font defines the base font to be used on all
+      <td>The entry defines the base font to be used on all
 map backgrounds.</td>
     </tr>
   </tbody>
@@ -91,44 +84,21 @@ map backgrounds.</td>
 Backgrounds</font></b>
 <p>The default map background list can contain zero or more map
 names.&nbsp;
-Refer to Maps.py in the server configuration file section for the
+In AWIPS1 you could refer to Maps.py in the server configuration file section for the
 possible
 set of map names, or use the GFE to display the list of available maps
-and choose names from the list. </p>
+and choose names from the list. In AWIPS2, currently a Maps.java file is used
+and is not subject to overrides.  There are planned changes to address this in
+the future.</p>
 <p>The following variable will load the initial loaded set of map
 backgrounds.
-The name of the <br>
-background should match the list of available maps defined in Maps.py
-in the server configuration files. </p>
-<p><b><tt>MapBackgrounds_default = ['CWA','States']</tt></b> <br>
+The name of the
+background should match the list of available maps defined in Maps.java.</p>
+<p><b><tt>MapBackgrounds_default = ['CWA','States']</tt></b><br>
 </p>
-<p>&nbsp; </p>
+<p>&nbsp;</p>
 <h4><a name="MapBackgroundColors"></a><font size="+1">Map Background
 Colors</font></h4>
-The available set of map background colors is specified in the
-MapBackgrounds_availColors.&nbsp;
-At present, all map backgrounds use the first color, unless explicitly
-overridden; the other colors are not assigned.&nbsp; The list of
-available
-colors is used in the spatial editor popup button 3 menu over the map
-legend.&nbsp;
-It is the list of colors that appear in the change graphic color menu.
-<p>The following variable defines the available colors for the map
-backgrounds
-that appears <br>
-in the color list popup button 3 over a map legend. </p>
-<p><b><tt>MapBackgrounds_availColors = ['gray60', 'yellow', 'white']</tt></b>
-</p>
-<p>Default Map Background colors can be set by map name.&nbsp; If you
-want
-a specific map background, such as States, to be a certain color, then
-this can be defined in the configuration file.&nbsp; You can always
-change
-the map background color to something else during the GFE
-session.&nbsp;
-If not specified, the assigned default color for the map background
-will
-be the first entry in MapBackgrounds_availColors. </p>
 <p>The user may specify a specific color to be used for a map
 background,
 rather than getting a random color assigned. Format is
@@ -174,33 +144,6 @@ mapName_linePattern. </p>
 <p><b><tt>States_linePattern = "SOLID"</tt></b> <br>
 </p>
 <p>&nbsp; </p>
-<p><a name="MapLabelOffsets"></a><b><font size="+1">Map Label Offsets</font></b>
-</p>
-<p>MapLabelXOffset and MapLabelYOffset are the number of pixels you
-wish
-to move map city labels relative to their "normal" position (Default is
-(0,0)). </p>
-<p><b><tt>MapLabelXOffset = 0</tt></b> <br>
-<b><tt>MapLabelXOffset = 0</tt></b> <br>
-</p>
-<p>&nbsp; </p>
-<p><a name="MapBackgroundLabels"></a><b><font size="+1">Map
-Background Labels</font></b> </p>
-<p>Labels may be placed on any map background.&nbsp; The choice of
-labels
-is limited to the shapefile attributes that are present for the
-particular
-map background.&nbsp; For example, the States map background has the
-following
-attributes in its shapefile: STATE, FIPS, LON, NAME, recnum, LAT,
-FE_ZONE.&nbsp;
-The format of specifying a default label attribute for the map
-background
-is mapName_labelAttribute = attributeName. </p>
-<p><b><tt>Cities_labelAttribute = "NAME"</tt></b> <br>
-&nbsp; <br>
-<br>
-&nbsp; </p>
 <h4><a name="FontOffset"></a><font size="+1">Map Background Font
 Offset</font></h4>
 The font used for a specific map background display is based on three
@@ -227,13 +170,12 @@ NNumbers
 can range from -2 through +2. Format is mapName_fontOffset.&nbsp;&nbsp;
 Do not include a decimal point after these entries.
 <p><b><tt>States_fontOffset = 0</tt></b> <br>
-&nbsp; <br>
-&nbsp;</p>
+</p>
 <br>
 <hr style="width: 100%; height: 2px;">&nbsp;
 <div class="Body">
-<center><tt>&nbsp;&nbsp; <a href="GFESuite.html">Back
-To TOC</a></tt></center>
+<center><a href="GFESuite.html">Back
+To TOC</a></center>
 </div>
 </div>
 </body>
