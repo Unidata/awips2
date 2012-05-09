@@ -19,12 +19,9 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.offscreen;
 
-import java.util.Arrays;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
@@ -50,7 +47,7 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
         implements IRenderEvent {
 
     @DynamicSerializeElement
-    private double[] extent;
+    private IExtent extent;
 
     /*
      * (non-Javadoc)
@@ -81,7 +78,7 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
     /**
      * @return the extent
      */
-    public double[] getExtent() {
+    public IExtent getExtent() {
         return extent;
     }
 
@@ -89,29 +86,8 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
      * @param extent
      *            the extent to set
      */
-    public void setExtent(double[] extent) {
+    public void setExtent(IExtent extent) {
         this.extent = extent;
-    }
-
-    /**
-     * @return the iextent
-     */
-    public IExtent getIExtent() {
-        if (extent != null) {
-            return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
-        }
-        return null;
-    }
-
-    /**
-     * @param iextent
-     *            the iextent to set
-     */
-    public void setIExtent(IExtent extent) {
-        if (extent != null) {
-            this.extent = new double[] { extent.getMinX(), extent.getMaxX(),
-                    extent.getMinY(), extent.getMaxY() };
-        }
     }
 
     /*
@@ -128,7 +104,10 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
         if (getClass() != obj.getClass())
             return false;
         RenderOffscreenEvent other = (RenderOffscreenEvent) obj;
-        if (!Arrays.equals(extent, other.extent))
+        if (extent == null) {
+            if (other.extent != null)
+                return false;
+        } else if (!extent.equals(other.extent))
             return false;
         return true;
     }

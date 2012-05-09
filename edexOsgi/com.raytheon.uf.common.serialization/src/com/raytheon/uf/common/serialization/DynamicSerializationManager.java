@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.sql.Timestamp;
@@ -49,6 +50,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.CalendarSerializer;
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.DateSerializer;
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.TimestampSerializer;
+import com.raytheon.uf.common.serialization.adapters.BufferAdapter;
 import com.raytheon.uf.common.serialization.adapters.ByteBufferAdapter;
 import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.common.serialization.adapters.EnumSetAdapter;
@@ -68,9 +70,6 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Dynamic Serialization Manager provides a serialization capability that runs
@@ -108,69 +107,27 @@ public class DynamicSerializationManager {
     private static final SerializationMetadata NO_METADATA = new SerializationMetadata();
 
     static {
-        SerializationMetadata md = new SerializationMetadata();
-        md.serializationFactory = new CalendarSerializer();
-        md.adapterStructName = GregorianCalendar.class.getName();
-        serializedAttributes.put(GregorianCalendar.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new DateSerializer();
-        md.adapterStructName = Date.class.getName();
-        serializedAttributes.put(Date.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new TimestampSerializer();
-        md.adapterStructName = Timestamp.class.getName();
-        serializedAttributes.put(Timestamp.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new BuiltInTypeSupport.SqlDateSerializer();
-        md.adapterStructName = java.sql.Date.class.getName();
-        serializedAttributes.put(java.sql.Date.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new PointAdapter();
-        md.adapterStructName = java.awt.Point.class.getName();
-        serializedAttributes.put(java.awt.Point.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new CoordAdapter();
-        md.adapterStructName = Coordinate.class.getName();
-        serializedAttributes.put(Coordinate.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new BuiltInTypeSupport.BigDecimalSerializer();
-        md.adapterStructName = BigDecimal.class.getName();
-        serializedAttributes.put(BigDecimal.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new GeometryTypeAdapter();
-        md.adapterStructName = Geometry.class.getName();
-        serializedAttributes.put(Polygon.class.getName(), md);
-        serializedAttributes.put(MultiPolygon.class.getName(), md);
-        serializedAttributes.put(Point.class.getName(), md);
-        serializedAttributes.put(Geometry.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new JTSEnvelopeAdapter();
-        md.adapterStructName = Envelope.class.getName();
-        serializedAttributes.put(Envelope.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new GridGeometry2DAdapter();
-        md.adapterStructName = GridGeometry2D.class.getName();
-        serializedAttributes.put(GridGeometry2D.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new GridGeometryAdapter();
-        md.adapterStructName = GeneralGridGeometry.class.getName();
-        serializedAttributes.put(GeneralGridGeometry.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new EnumSetAdapter();
-        md.adapterStructName = EnumSet.class.getName();
-        serializedAttributes.put(EnumSet.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new StackTraceElementAdapter();
-        md.adapterStructName = StackTraceElement.class.getName();
-        serializedAttributes.put(StackTraceElement.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new FloatBufferAdapter();
-        md.adapterStructName = FloatBuffer.class.getName();
-        serializedAttributes.put(FloatBuffer.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new ByteBufferAdapter();
-        md.adapterStructName = ByteBuffer.class.getName();
-        serializedAttributes.put(ByteBuffer.class.getName(), md);
+        // TODO: Can the registration of adapters that require dependencies be
+        // moved to a separate plugin somehow?
+        registerAdapter(GregorianCalendar.class, new CalendarSerializer());
+        registerAdapter(Date.class, new DateSerializer());
+        registerAdapter(Timestamp.class, new TimestampSerializer());
+        registerAdapter(java.sql.Date.class,
+                new BuiltInTypeSupport.SqlDateSerializer());
+        registerAdapter(java.awt.Point.class, new PointAdapter());
+        registerAdapter(Coordinate.class, new CoordAdapter());
+        registerAdapter(BigDecimal.class,
+                new BuiltInTypeSupport.BigDecimalSerializer());
+        registerAdapter(Geometry.class, new GeometryTypeAdapter());
+        registerAdapter(Envelope.class, new JTSEnvelopeAdapter());
+        registerAdapter(GridGeometry2D.class, new GridGeometry2DAdapter());
+        registerAdapter(GeneralGridGeometry.class, new GridGeometryAdapter());
+        registerAdapter(EnumSet.class, new EnumSetAdapter());
+        registerAdapter(StackTraceElement.class, new StackTraceElementAdapter());
+        // These two are OBE by BufferAdapter and should be deleted sometime
+        registerAdapter(ByteBuffer.class, new ByteBufferAdapter());
+        registerAdapter(FloatBuffer.class, new FloatBufferAdapter());
+        registerAdapter(Buffer.class, new BufferAdapter());
     }
 
     public enum EnclosureType {
@@ -297,6 +254,19 @@ public class DynamicSerializationManager {
         return ((ThriftSerializationContext) ctx).deserializeMessage();
     }
 
+    public static <T> void registerAdapter(Class<? extends T> clazz,
+            ISerializationTypeAdapter<T> adapter) {
+        SerializationMetadata md = new SerializationMetadata();
+        md.serializationFactory = adapter;
+        md.adapterStructName = clazz.getName();
+        if (serializedAttributes.containsKey(md.adapterStructName)) {
+            throw new RuntimeException(
+                    "Could not create serialization metadata for class: "
+                            + clazz + ", metadata already exists");
+        }
+        serializedAttributes.put(md.adapterStructName, md);
+    }
+
     /**
      * Inspect a class and return the metadata for the object
      * 
@@ -308,7 +278,6 @@ public class DynamicSerializationManager {
      *            the class
      * @return the metadata
      */
-    @SuppressWarnings("unchecked")
     public static SerializationMetadata inspect(Class<?> c) {
 
         // Check for base types
@@ -327,9 +296,9 @@ public class DynamicSerializationManager {
 
         // Check to see if there is an adapter
         if (serializeAdapterTag != null) {
-            Class factoryTag = (serializeAdapterTag).factory();
+            Class<?> factoryTag = (serializeAdapterTag).factory();
             try {
-                attribs.serializationFactory = (ISerializationTypeAdapter) factoryTag
+                attribs.serializationFactory = (ISerializationTypeAdapter<?>) factoryTag
                         .newInstance();
                 attribs.adapterStructName = c.getName();
             } catch (Exception e) {

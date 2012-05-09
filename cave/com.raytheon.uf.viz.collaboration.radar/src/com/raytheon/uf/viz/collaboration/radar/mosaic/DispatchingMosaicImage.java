@@ -106,7 +106,7 @@ public class DispatchingMosaicImage extends
             this.imageExtent = imageExtent;
             UpdateMosaicExtent extentUpdate = RemoteGraphicsEventFactory
                     .createEvent(UpdateMosaicExtent.class, this);
-            extentUpdate.setIExtent(imageExtent);
+            extentUpdate.setExtent(imageExtent.clone());
             dispatch(extentUpdate);
         }
     }

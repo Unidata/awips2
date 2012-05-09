@@ -121,13 +121,7 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
     private float magnification;
 
     @DynamicSerializeElement
-    private int red;
-
-    @DynamicSerializeElement
-    private int green;
-
-    @DynamicSerializeElement
-    private int blue;
+    private RGB color;
 
     /*
      * (non-Javadoc)
@@ -141,9 +135,7 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
     public IRenderEvent createDiffObject(IRenderEvent diffEvent) {
         DrawPointsEvent event = (DrawPointsEvent) diffEvent;
         DrawPointsEvent diffObject = new DrawPointsEvent();
-        diffObject.red = event.red;
-        diffObject.green = event.green;
-        diffObject.blue = event.blue;
+        diffObject.color = color;
         diffObject.magnification = event.magnification;
 
         Set<Point> additions = new HashSet<Point>(event.points);
@@ -171,9 +163,7 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
     @Override
     public void applyDiffObject(IRenderEvent diffEvent) {
         DrawPointsEvent event = (DrawPointsEvent) diffEvent;
-        red = event.red;
-        green = event.green;
-        blue = event.blue;
+        color = event.color;
         magnification = event.magnification;
 
         synchronized (points) {
@@ -269,60 +259,18 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
     }
 
     /**
-     * @return the red
+     * @return the color
      */
-    public int getRed() {
-        return red;
-    }
-
-    /**
-     * @param red
-     *            the red to set
-     */
-    public void setRed(int red) {
-        this.red = red;
-    }
-
-    /**
-     * @return the green
-     */
-    public int getGreen() {
-        return green;
-    }
-
-    /**
-     * @param green
-     *            the green to set
-     */
-    public void setGreen(int green) {
-        this.green = green;
-    }
-
-    /**
-     * @return the blue
-     */
-    public int getBlue() {
-        return blue;
-    }
-
-    /**
-     * @param blue
-     *            the blue to set
-     */
-    public void setBlue(int blue) {
-        this.blue = blue;
-    }
-
-    public void setColor(RGB color) {
-        if (color != null) {
-            red = color.red;
-            green = color.green;
-            blue = color.blue;
-        }
-    }
-
     public RGB getColor() {
-        return new RGB(red, green, blue);
+        return color;
+    }
+
+    /**
+     * @param color
+     *            the color to set
+     */
+    public void setColor(RGB color) {
+        this.color = color;
     }
 
     /*
@@ -339,9 +287,10 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
         if (getClass() != obj.getClass())
             return false;
         DrawPointsEvent other = (DrawPointsEvent) obj;
-        if (blue != other.blue)
-            return false;
-        if (green != other.green)
+        if (color == null) {
+            if (other.color != null)
+                return false;
+        } else if (!color.equals(other.color))
             return false;
         if (Float.floatToIntBits(magnification) != Float
                 .floatToIntBits(other.magnification))
@@ -350,8 +299,6 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
             if (other.points != null)
                 return false;
         } else if (!points.equals(other.points))
-            return false;
-        if (red != other.red)
             return false;
         if (removals == null) {
             if (other.removals != null)
