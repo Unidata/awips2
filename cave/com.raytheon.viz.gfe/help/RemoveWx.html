@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>RemoveWx</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="19951121;16410000">
+  <meta name="CHANGED" content="20050706;13040400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Bitstream Vera Serif", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Bitstream Vera Sans"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Lucidasans"; font-size: 12pt; so-language:  }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="5"><b>RemoveWx</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif"><font
+ size="3"><b>Introduction</b></font></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Sometimes you have complex combinations 
+of weather and you want to remove just one of the “pieces” of weather.  It is difficult to do using 
+the standard Assign_Value dialog for weather, without messing up other weather combinations, or 
+having to do the operation multiple times for each different combination of weather.  The RemoveWx 
+tool makes it easy to remove a particular weather string from any area of weather.</font>
+<br>
+<br>
+<br>
+<big><big><font style="font-weight: bold;"
+ face="New Century Schoolbook, Times New Roman, serif">How
+the Procedure Works</font><span style="font-weight: bold;">
+</span></big></big><br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Lets say we have a complex combination 
+of rain/snow (with different probability values) and we have patchy fog combined with both of these 
+weather types:<br><br>
+<img alt="RemoveWx" src="images/RemoveWx.png"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Now, lets say that we want to remove 
+the fog.  If we do a query to find all the pixels that contain fog, we cannot simply set the 
+values to rain, because we have the fog combined with rain in some areas and snow in others 
+(not to mention that we have it combined with ‘chance rain/snow’ in some areas and ‘likely 
+rain/snow’ in others).  If we use the ‘select homogeneous area’ tool we will have to do this 
+several times to find all the areas of fog combined with other things. When we start the RemoveWx 
+tool, it presents a dialog where we specify which weather we want to remove:<br>
+<img alt="RemoveWx" src="images/RemoveWx1.png"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">We just need to select F for Fog:<br>
+<img alt="RemoveWx" src="images/RemoveWx2.png"></font>
+<br>
+<br>
+<font face="New Century Schoolbook, Times New Roman, serif">Then run the tool, and all mention of 
+Fog is removed, while preserving all the other weather combinations:<br>
+<img alt=RemoveWx" src="images/RemoveWx3.png"><br><br>
+The tool also works if you specify an edit area, so that, for example, you could remove fog from 
+only some areas, while leaving it in others.  Say, for example, that you define an edit area like 
+this:<br>
+<img alt="RemoveWx" src="images/RemoveWx4.png"><br><br>
+And then remove the fog.  The result is:<br>
+<img alt="RemoveWx" src="images/RemoveWx5.png"><br><br>
+There are many cases where you want to do this sort of editing operation: removing thunderstorms from 
+an area of showers, removing freezing rain from an area of rain, etc.</font>
+</body>
+</html>

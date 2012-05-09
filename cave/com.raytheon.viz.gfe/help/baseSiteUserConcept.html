@@ -12,7 +12,7 @@
 <h1 class="3Heading">
 <a name="GFESuite"></a>GFESuite Configurability - BASE, SITE, USER
 Concept</h1>
-<div class="3Heading">January 10, 2005<br>
+<div class="3Heading">February 17, 2012<br>
 <br>
 Table of Contents</div>
 <div class="3Heading"><a href="#Overview">Overview</a></div>
@@ -52,37 +52,37 @@ Programs Other Than the GFE Affected by the BASE, SITE, USER Concept?</a>
 The GFESuite software uses the concept of site and user overrides. This
 permits the installed files from the software distribution to not
 interfere
-with local modifications.&nbsp; Installed files are called BASE
-files.&nbsp;
+with local modifications. Installed files are called BASE
+files.
 A site can choose to make changes or override the BASE files by
 installing
-the sites's files in the SITE area.&nbsp; An individual user can
+the sites's files in the SITE area. An individual user can
 override
 the BASE and SITE definitions by installing custom user files in the
 USER
-area.&nbsp; <font color="#ff0000">Files under the BASE directories
+area. <font color="#ff0000">Files under the BASE directories
 should
 NEVER be modified by the site or they will be overwritten on the next
 upgrade.</font>
-<p>Upon request of data from the ifpServer, the server will first look
-for data in the customized user directory.&nbsp; If the requested data
-is found, it is returned.&nbsp; If not found, the server then looks in
-the site directory.&nbsp; If the requested data is found there, it is
-returned.&nbsp;
-If not found, then the server looks in the base directory.&nbsp; If the
-requested data is found in the base directory, it is returned.&nbsp; If
+<p>Upon request of data from EDEX, the server will first look
+for data in the customized user directory. If the requested data
+is found, it is returned. If not found, the server then looks in
+the site directory. If the requested data is found there, it is
+returned.
+If not found, then the server looks in the base directory. If the
+requested data is found in the base directory, it is returned. If
 not found, an error is returned.
 </p>
-<p>Upon storage of data to the ifpServer, the server will always try to
-write into the customized user directory.&nbsp; If it is successful,
+<p>Upon storage of data to EDEX, the server will always try to
+write into the customized user directory. If it is successful,
 subsequent
 reads of the data will always be returned via the customized version of
 the file.
 </p>
-<p>Data is retrieved from the ifpServer using different identifiers,
+<p>Data is retrieved from EDEX using different identifiers,
 which
 identify the name of an entity, but not its location (e.g., BASE, SITE,
-USER).&nbsp; When that data is retrieved, the client can then determine
+USER). When that data is retrieved, the client can then determine
 where the data was retrieved.
 </p>
 <p>There are some special cases:
@@ -90,26 +90,22 @@ where the data was retrieved.
 <ul>
   <li> <a href="serverConfiguration.html">Server configuration files</a>
 are not
-stored in the server, but still use the concept of BASE and SITE.&nbsp;
+stored in the server, but still use the concept of BASE and SITE.
 There are no USER-type files for the server configuration since there
 is
 only one server per site. See the server configuration information for
 details.</li>
-  <li>Grids, topography, and map backgrounds data available through the
-ifpServer
-are available at only one level.&nbsp; There is no override capability
-for this type of data through the server.&nbsp; In other words, every
-user
-of an ifpServer will "see" the identical set of grids, topography, and
-map backgrounds.&nbsp; There aren't separate databases for BASE
-Forecast
-and SITE or USER Forecast.</li>
+  <li>Grids, topography, and map backgrounds data available through EDEX
+are available at only one level. There is no override capability
+for this type of data through the server. In other words, every
+user of an EDEX will "see" the identical set of grids, topography, and
+map backgrounds. There aren't separate databases for BASE
+Forecast and SITE or USER Forecast.</li>
 </ul>
 Some of the files stored in the server are Python files, and others are
-non-Python files.&nbsp; With the non-Python files, you get the choice
-of
+non-Python files. With the non-Python files, you get the choice of
 a complete override of SITE and BASE files, i.e., you can't do a simple
-merge.&nbsp; With the Python files, you can either do a complete
+merge. With the Python files, you can either do a complete
 override
 using SITE and BASE or you can use the Python "import" statement to do
 partial overrides.
@@ -120,17 +116,16 @@ Retrieval
 Using the BASE, SITE, USER Concept</h1>
 The following illustration shows examples of the files that will be
 retrieved
-by a user.&nbsp; The search path for users will always be the USER
+by a user. The search path for users will always be the USER
 directory
-first, then the SITE followed by the BASE.&nbsp; If the file is not
+first, then the SITE followed by the BASE. If the file is not
 found,
-an error will be returned.&nbsp; Files in the SITE override files in
+an error will be returned. Files in the SITE override files in
 the
-BASE directory.&nbsp; Files in each USER directory override files in
+BASE directory. Files in each USER directory override files in
 the
 BASE and SITE.
 <br>
-&nbsp;
 <h3>Non-Python Case</h3>
 <p><br>
 This example applies to <a
@@ -138,13 +133,9 @@ This example applies to <a
 files stored in the server</a>.
 </p>
 <p>This table illustrates the different conditions and what file is
-retrieved
-based on a USER, and based on a user called SITE (which is the site
-administrator).
+retrieved based on a USER, and based on SITE.
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr nosave="" align="center">
@@ -208,7 +199,6 @@ administrator).
 </p>
 <p><img src="images/baseSiteUserRetrieval.jpg" nosave="" height="540"
  width="720"><br>
-&nbsp;
 </p>
 <h3>Python Case</h3>
 <p><br>
@@ -219,7 +209,6 @@ arrows
 indicate the import path as defined in the actual files, the red arrows
 indicate the final result):
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr nosave="" align="center">
@@ -292,9 +281,9 @@ indicate the final result):
 <p><img src="images/baseSiteUserPythonRetrieval.jpg" nosave=""
  height="540" width="720"><br>
 Note that for the Python "n" case, the BASE "n" is hidden from the
-USER since there is already an "n" in USER.&nbsp; Therefore a USER who
+USER since there is already an "n" in USER. Therefore a USER who
 uses an "import n" statement in one of the files will not see the BASE
-"n", but will see the USER "n".&nbsp; There is no way to specify in an
+"n", but will see the USER "n". There is no way to specify in an
 import statement whether you want BASE or SITE or USER. In the case of
 USER "r", no imports were performed at all.
 <br>
@@ -305,24 +294,19 @@ Using
 the BASE, SITE, USER Concept</h1>
 The following illustration shows examples of the files that will be
 stored
-by a user.&nbsp; The storage path for users is always the USER
-directory.&nbsp;&nbsp;
+by a user. The storage path for users is always the USER
+directory.
 If the file is read-only, attempts to store a file with the same name
-will
-fail.
+will fail.
 <p>This table illustrates the different conditions and what file is
 stored
-based on a USER, and based on a user called SITE (which is the site
-administrator).&nbsp;&nbsp;
-File "e" in USER is read-only in this example.&nbsp; Attempts to write
-over "e" will fail.&nbsp; File "a" is located in BASE and a new one is
-written to USER.&nbsp; Even though "a" in BASE is read-only, the user
-may
-write a file into USER under the same name.
+based on a USER, and based on SITE.
+File "e" in USER is read-only in this example. Attempts to write
+over "e" will fail. File "a" is located in BASE and a new one is
+written to USER. Even though "a" in BASE is read-only, the user
+may write a file into USER under the same name.
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr nosave="" align="center">
@@ -392,31 +376,28 @@ write a file into USER under the same name.
 Multiple users, as long as their login name or specified user name are
 different, are isolated from each other. This allows individuals to
 create
-their own special set of edit areas, smart tools,&nbsp; and GFE
+their own special set of edit areas, smart tools, and GFE
 configurations
 without affecting other users.
 <p>It is quite possible, and probable, to have two different clients,
 such
-as GFEs, running under the same user login name.&nbsp; This case is not
+as GFEs, running under the same user login name. This case is not
 treated as two different users.
 </p>
 <p>The following illustration shows examples of the files that will be
-stored by two users with different login names.&nbsp; The storage path
-for users is always the USERx directory.&nbsp;&nbsp; If the file is
-read-only,
+stored by two users with different login names. The storage path
+for users is always the USER directory. If the file is read-only,
 then attempts to store a file with the same name will fail.
 </p>
 <p>The table illustrates the different conditions and what file is
 stored
-based two users, USER1 and USER1.&nbsp; In this example, there are no
+based two users, USER1 and USER1. In this example, there are no
 read-only
-files in USER1 or USER2.&nbsp; Examples are shown for the<a
+files in USER1 or USER2. Examples are shown for the<a
  href="#WhatdatatypesdotheBASESITEUSERapplyto">
 non-Python files</a>, which don't use the import facility.
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr nosave="" align="center">
@@ -488,12 +469,12 @@ non-Python files</a>, which don't use the import facility.
 <p><img src="images/baseSiteUserMultipleStorage.jpg" nosave=""
  height="540" width="720"></p>
 <p>The following illustration shows examples of the files that will be
-retrieved by two users.&nbsp; The search path for users is always the
+retrieved by two users. The search path for users is always the
 USER
-directory first, then the SITE followed by the BASE.&nbsp; If the file
-is not found, then an error will be returned.&nbsp; Files in the SITE
+directory first, then the SITE followed by the BASE. If the file
+is not found, then an error will be returned. Files in the SITE
 override
-files in the BASE directory.&nbsp; Files in each USER directory
+files in the BASE directory. Files in each USER directory
 override
 files in the BASE and SITE.
 </p>
@@ -503,14 +484,9 @@ just the user that matches the login name.
 </p>
 <p>The table illustrates the different conditions and what file is
 retrieved
-based on a user, and based on a user called SITE (which is the site
-administrator).
+based on a user, and based on SITE.
 <br>
-&nbsp;
 <br>
-&nbsp;
-<br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr nosave="" align="center">
@@ -582,14 +558,12 @@ the
 following table. If the BASE, SITE, USER concept is used, then the site
 can override the initial installation files (BASE), and an individual
 user
-can override the sites's files.&nbsp; If there is a "Python 'import'
+can override the sites's files. If there is a "Python 'import'
 capability"
 for a particular data type, that permits partial overrides by using the
 Python "import" statement to pull in additional files.
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -660,7 +634,7 @@ Element Groups</a>
 configurations, and color table)<br>
       </td>
       <td style="vertical-align: top;">NO - this is a special case that
-does not use the BASE/SITE/User concept.&nbsp; All files are written
+does not use the BASE/SITE/User concept. All files are written
 into the SITE-level regardless of user.<br>
       </td>
       <td style="vertical-align: top;">NO<br>
@@ -671,7 +645,7 @@ into the SITE-level regardless of user.<br>
 products)<br>
       </td>
       <td style="vertical-align: top;">NO - this is a special case that
-does not use the BASE/SITE/User concept.&nbsp;
+does not use the BASE/SITE/User concept.
 All files are written into the SITE-level regardless of user.</td>
       <td style="vertical-align: top;">YES<br>
       </td>
@@ -717,7 +691,7 @@ configuration guide</a>.</td>
     <tr>
       <td><a href="gfeConfiguration.html">GFE Configurations</a></td>
       <td>YES. The implementation is done differently than described
-here.&nbsp;
+here.
 For information, see the <a href="gfeConfiguration.html">GFE
 configuration
 guide</a>.</td>
@@ -750,13 +724,11 @@ BASE, SITE, and USER Files Located?</h1>
 The location of the server configuration files are shown in the table
 below:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
       <td><b>File Purpose</b></td>
       <td><b>Part of Standard Release</b></td>
-      <td><b>RPP File Location</b></td>
       <td><b>AWIPS File Location</b></td>
     </tr>
     <tr>
@@ -764,30 +736,29 @@ below:
       <td>
       <center>yes</center>
       </td>
-      <td>~/release/data/databases/BASE/*</td>
-      <td>/awips/GFESuite/primary/data/databases/BASE/*</td>
+      <td>/awips2/edex/data/utility/common_static/base/gfe/*<br>
+      /awips2/cave/etc/gfe/userPython/*</td>
     </tr>
     <tr>
       <td>SITE customized files</td>
       <td>
       <center>no</center>
       </td>
-      <td>~/release/data/databases/SITE/*</td>
-      <td>/awips/GFESuite/primary/data/databases/SITE/*</td>
+      <td>/awips2/edex/data/utility/common_static/site/<i>site</i>/gfe/*<br>
+      /awips2/edex/data/utility/cave_static/site/<i>site</i>/gfe/userPython/*</td>
     </tr>
     <tr>
       <td>USER customized files</td>
       <td>
       <center>no</center>
       </td>
-      <td>~/release/data/databases/<i>username</i>/*</td>
-      <td>/awips/GFESuite/primary/data/databases/<i>username</i>/*</td>
+      <td>/awips2/edex/data/utility/common_static/user/<i>username</i>/gfe/*<br>
+      /awips2/edex/data/utility/cave_static/user/<i>username</i>/gfe/userPython/*</td>
     </tr>
   </tbody>
 </table>
-<p>The BASE files should never be modified.&nbsp; SITE modifications
-are
-done in the SITE directories.&nbsp; User modifications are done in each
+<p>The BASE files should never be modified. SITE modifications are
+done in the SITE directories. User modifications are done in each
 individual user directory structure.
 <br>
 </p>
@@ -797,70 +768,38 @@ Whether
 I Am a USER or a SITE?</h1>
 Many of the files supported in this hierarchical scheme are
 written/controlled
-from the GFE.&nbsp; Starting the GFE with the correct command line
-switch
-will set the user name appropriately.&nbsp; Use the user name "SITE" to
-become the site administrator.&nbsp; The command line for the GFE
-includes
-a "-u" switch to indicate a specific user.&nbsp; If no user name is
-specified,
-then the user's login name will be used for the user identifier.
-<p>Example of starting the GFE to be user "xyz":
-</p>
-<p><tt>runGFE -u xyz</tt>
-</p>
-<p>Example of starting the GFE to be the site administrator:
-</p>
-<p><tt>runGFE -u SITE</tt>
-<br>
-</p>
+from the GFE. In AWIPS2, all users are logged in with their assigned
+system user id.  The software does not treat user vs. site as user 
+accounts.  Site level modifications by users are permitted.
 <hr width="100%">
 <h1><a name="HowdoImakemodificationstotheSITEfiles"></a>How Do I Make
 Modifications
 to the SITE Files?</h1>
 Making modifications to the SITE files can be accomplished two ways:
 <ol>
-  <li>Start the GFE with the "-u SITE" switch.&nbsp; The GFE will
-access the
-server in SITE administrator mode.</li>
+  <li>Start the <a href="LocalizationPerspective.html">Localization</a> perspective and make any changes.</li>
   <li>Go to the UNIX file system and edit, copy, move, or delete files
-from
-under
-the SITE/* directory.&nbsp; You can copy files from the BASE/*
+from under
+the SITE/* directory. You can copy files from the BASE/*
 directories,
 but make NO changes to the BASE/* directories or files.</li>
 </ol>
+<p>EDEX and CAVE must be restarted for any changes in common_static. CAVE must
+be restarted for any changes in CAVE configuration.</p>
 <hr width="100%">
 <h1><a name="HowdoImakemodificationstotheUSERfiles"></a>How Do I Make
 Modifications
 to the USER Files?</h1>
-Making modifications to the USER files are simply accomplished by
-starting
-the GFE with the correct user identifier.&nbsp; If your login name is
-the
-correct user identifier, then simply start the GFE with:
-<p><tt>runGFE</tt>
-</p>
-<p>If the login name is not the correct user identifier, start the GFE
-by specifying the appropriate user identifier on the command line:
-</p>
-<p><tt>runGFE -u <i>username</i></tt>
-</p>
-<p></p>
-<hr width="100%">
-<h1><a name="HowdoIdefineaUSER"></a>How Do I Define a New USER?</h1>
-There are no special files to set up a new user.&nbsp; The GFESuite
-will
-simply use the new user specified on the command line.
-<p></p>
+Making modifications to the USER files are accomplished the same way
+as SITE level modifications (see paragraph above).
 <hr width="100%">
 <h1><a name="AreOtherProgramsAffectedbytheBASESITEUSERconcept"></a>Are
 Programs
 Other Than the GFE Affected by the BASE, SITE, USER Concept?</h1>
 All other GFESuite programs, including <a href="ifpIMAGE.html">ifpIMAGE</a>,
 and <a href="ifpAG.html">ifpAG</a>, use the BASE, SITE, USER
-concept.&nbsp;
-These programs take a "-u" switch to specify the user name.&nbsp; By
+concept.
+These programs take a "-u" switch to specify the user name. By
 default,
 if the user name is not specified, in which case the SITE user name is
 used.
@@ -868,28 +807,16 @@ used.
 programs,
 it is unlikely that you would want individual user configurations to
 affect
-the output.&nbsp; Therefore the default is SITE.
+the output. Therefore the default is SITE.
 <br>
 </p>
 <hr width="100%"><br>
 <a href="#GFESuite">Back To Top</a>
 <br>
-<a href="GFESuite.html">Back To Table Of Contents</a>
+<a href="GFESuite.html">Back To TOC</a>
 <br>
-&nbsp;
 <br>
-&nbsp;</div>
+</div>
 <br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
 </body>
 </html>

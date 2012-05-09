@@ -134,14 +134,14 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * Resource to display FFMP data
- * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009 2521          dhladky     Initial creation
+ * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
+ * 16 Apr.  2012 DR 14511      gzhang      Handling NullPointer in getGraphData()
  * </pre>
- * 
  * @author dhladky
  * @version 1.0
  */
@@ -1037,8 +1037,13 @@ public class FFMPResource extends
 
     }
 
-    @Override
-    protected void initInternal(IGraphicsTarget target) throws VizException {
+    /**
+     * DR 14522 fixing: enclosing font setting 
+     * into GUI thread to avoid invalid thread
+     * access.
+     */
+    @Override  
+    protected void initInternal(final IGraphicsTarget target) throws VizException {
         EditableManager.makeEditable(this,
                 getCapability(EditableCapability.class).isEditable());
         IDisplayPaneContainer container = getResourceContainer();
@@ -1063,34 +1068,41 @@ public class FFMPResource extends
         } catch (Exception ex) {
             statusHandler.handle(Priority.PROBLEM, "Error opening FFMP", ex);
         }
+        
+        //DR 14522: use Display.getDefault().asyncExec() for GUI thread.
+        org.eclipse.swt.widgets.Display.getDefault().asyncExec(new Runnable(){ 
+        	
+        	public void run(){
+        	
+		        if (/*this.*/font == null) {
+		            /*this.*/font = target.initializeFont("Dialog", 11, null);
+		        }
 
-        if (this.font == null) {
-            this.font = target.initializeFont("Dialog", 11, null);
-        }
+		        font.setMagnification(getCapability(MagnificationCapability.class)
+		                .getMagnification().floatValue());
+		
+		        if (/*this.*/xfont == null) {
+		            IFont.Style[] styles = new IFont.Style[] { IFont.Style.BOLD };
+		            /*this.*/xfont = target.initializeFont("Monospace", 12, styles);
+		        }
 
-        font.setMagnification(getCapability(MagnificationCapability.class)
-                .getMagnification().floatValue());
+		        xfont.setMagnification(getCapability(MagnificationCapability.class)
+		                .getMagnification().floatValue());
+		
+		        fieldDescString = new DrawableString("FFMP " + df.format(getTime())
+		                + " hour " + FFMPRecord.getFieldLongDescription(getField()),
+		                getCapability(ColorableCapability.class).getColor());
+		        fieldDescString.font = font;
+		        fieldDescString.horizontalAlignment = HorizontalAlignment.CENTER;
+		        fieldDescString.verticallAlignment = VerticalAlignment.MIDDLE;
 
-        if (this.xfont == null) {
-            IFont.Style[] styles = new IFont.Style[] { IFont.Style.BOLD };
-            this.xfont = target.initializeFont("Monospace", 12, styles);
-        }
-
-        xfont.setMagnification(getCapability(MagnificationCapability.class)
-                .getMagnification().floatValue());
-
-        fieldDescString = new DrawableString("FFMP " + df.format(getTime())
-                + " hour " + FFMPRecord.getFieldLongDescription(getField()),
-                getCapability(ColorableCapability.class).getColor());
-        fieldDescString.font = font;
-        fieldDescString.horizontalAlignment = HorizontalAlignment.CENTER;
-        fieldDescString.verticallAlignment = VerticalAlignment.MIDDLE;
-
-        basinLocatorString = new DrawableString("X", new RGB(255, 255, 255));
-        basinLocatorString.font = xfont;
-        basinLocatorString.horizontalAlignment = HorizontalAlignment.CENTER;
-        basinLocatorString.verticallAlignment = VerticalAlignment.MIDDLE;
-        basinLocatorString.textStyle = TextStyle.BLANKED;
+		        basinLocatorString = new DrawableString("X", new RGB(255, 255, 255));
+		        basinLocatorString.font = xfont;
+		        basinLocatorString.horizontalAlignment = HorizontalAlignment.CENTER;
+		        basinLocatorString.verticallAlignment = VerticalAlignment.MIDDLE;
+		        basinLocatorString.textStyle = TextStyle.BLANKED;					
+        	}
+        });
     }
 
     /**
@@ -3135,27 +3147,27 @@ public class FFMPResource extends
         Long dataId = null;
         FFMPVirtualGageBasinMetaData fvgbmd = null;
         FFMPBasin basin = null;
-
         // System.out.println("*************************************************");
-
-        try {
+        //DR 14511: handle null pointer exceptions
+        try {    
             basinPfaf = Long.parseLong(pfafString);
             dataId = basinPfaf;
-        } catch (NumberFormatException nfe) {
+        } catch (NumberFormatException nfe) {    
             // can't parse a string for VGB
-            fvgbmd = monitor.getTemplates(getSiteKey())
-                    .getVirtualGageBasinMetaData(getSiteKey(), pfafString);
+            fvgbmd = monitor.getTemplates(getSiteKey()).getVirtualGageBasinMetaData(getSiteKey(), pfafString);        
             basinPfaf = fvgbmd.getParentPfaf();
             dataId = fvgbmd.getLookupId();
-        }
-
-        FFMPBasinMetaData mBasin = monitor.getTemplates(getSiteKey()).getBasin(
-                getSiteKey(), basinPfaf); /*
+        }        
+        FFMPBasinMetaData mBasin = null;
+        try{
+        	mBasin = monitor.getTemplates(getSiteKey()).getBasin(getSiteKey(), basinPfaf);
+        }catch (Exception e){ return null;}
+                /*getSiteKey(), basinPfaf);*/ /*
                                            * TODO: mBasin is never used so it is
                                            * not clear if this should be
                                            * basinPfaf or dataId
                                            */
-
+        if(mBasin == null) return null;
         FFMPGraphData fgd = null;
         // VGB
         if (fvgbmd != null) {

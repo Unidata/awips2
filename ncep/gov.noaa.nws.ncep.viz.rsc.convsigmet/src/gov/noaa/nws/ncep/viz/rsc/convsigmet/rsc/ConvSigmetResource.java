@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
@@ -52,6 +53,10 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 03 Oct 2010    307      Greg Hull   modify processRecords and updateFrameData to process 
  *        						  	   ConvSigmetRscDataObjs instead of ConvSigmetRecord
  * 22 Apr 2011             B. Hebbard  Prevent label overlap where W&C or C&E Outlooks have coincident top points
+ * 09 Mar 2012    728      B. Hebbard  Use postProcessFrameUpdate() to remove, for each frame, SIGMETs/Outlooks 
+ *                                     if superseded by any in that frame more recently issued for the same
+ *                                     region (W/C/E) (TTR 143).
+ * 
  * </pre>
  * 
  * @author bhebbard 
@@ -62,10 +67,12 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 	
 	private ConvSigmetResourceData convSigmetResourceData;
 
-    //  A map from an identifier string (which is unique within a single frame
-    //  to a structure for a single displayable element
     private class FrameData extends AbstractFrameData {
-        HashMap<String, ConvSigmetRscDataObj> convSigmetDataMap;  
+
+    	//  A map from an identifier string (like "18C", which is unique
+    	//  within a single frame) to a structure for one displayable element
+    	//  (polygon, line, point, etc.) for a SIGMET or Outlook location
+        HashMap<String, ConvSigmetRscDataObj> convSigmetDataMap;
 
 		public FrameData(DataTime frameTime, int timeInt) {
 			super( frameTime, timeInt );
@@ -74,7 +81,7 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 
         public boolean updateFrameData( IRscDataObject rscDataObj) {
         	if( !(rscDataObj instanceof ConvSigmetRscDataObj) ) {
-        		System.out.println("ConvSigmet.updateFrameData expecting ConvSigmetRscDataObj " 
+        		System.out.println("ConvSigmet.updateFrameData expecting ConvSigmetRscDataObj "
         			+ " instead of: " + rscDataObj.getClass().getName() );
         		return false;
         	}
@@ -82,15 +89,15 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
         	ConvSigmetRscDataObj cSigRscData = (ConvSigmetRscDataObj) rscDataObj;
 
         	if( cSigRscData != null &&
-        		cSigRscData.classType != ClassType.CS &&
-        		cSigRscData.classType != ClassType.UNKNOWN) {
+        		cSigRscData.csigType != ConvSigmetType.CS &&
+        		cSigRscData.csigType != ConvSigmetType.UNKNOWN) {
         		//  Note that -- unlike similar resources -- sequenceID alone is
         		//  not unique even within a single frame, since a CONVECTIVE SIGMET
         		//  and OUTLOOK can both be designated, say, "1C".  So we suffix with
         		//  the class type, to ensure uniqueness within a single frame.
         		//  TODO:  Is this good enough?  Since sequence IDs 'reset' each
         		//  frame/hour, might want to add end time string for added safety?
-        		String keyString = cSigRscData.sequenceID + " " + cSigRscData.classType;
+        		String keyString = cSigRscData.sequenceID + " " + cSigRscData.csigType;
         		ConvSigmetRscDataObj existingConvSigmetData = convSigmetDataMap.get(keyString);
 
         		//  If keyString is not in the list, or if the ref time is newer,
@@ -115,10 +122,11 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
     //  (for example, location lookups) so the paint() method can
     //  work directly from this data as efficiently as possible.
     private class ConvSigmetRscDataObj implements IRscDataObject {
-    	ClassType       classType;   //  see enumeration immediately below
+    	ConvSigmetType  csigType;    //  see enumeration immediately below
         String          sequenceID;  //  ex:  "24C"
         DataTime        issueTime;   //  issue time from bulletin
-        DataTime        eventTime;   //  start time of individual convective SIGMET or outlook
+        DataTime        eventTime;   //  time range of individual convective SIGMET or outlook
+        DataTime        matchTime;   //  same, but fudged so outlook 'valid' right away (per legacy)
         DataTime        endTime;     //  end time of individual convective SIGMET or outlook
         int             direction;   //  "from" direction in bulletin
         int             speed;       //  in knots
@@ -130,12 +138,18 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 
         @Override
 		public DataTime getDataTime() {
-			return eventTime;
+			//return eventTime;
+			return matchTime;
 		}
     }
     
-    private enum ClassType {
-    	AREA, LINE, ISOL, OUTLOOK, CS, UNKNOWN
+    private enum ConvSigmetType {
+    	AREA,      //  Convective SIGMET for AREA (polygon)
+    	LINE,      //  Convective SIGMET for LINE of storms, w/ distance both sides (combined)
+    	ISOL,      //  Convective SIGMET for ISOLated (point, w/ distance diameter)
+    	OUTLOOK,   //  Not a Convective SIGMET itself, but area (polygon) where things might develop 2-6 hours hence
+    	CS,        //  "NIL" Convective SIGMET; fulfilling required hourly issuance, explicitly saying there are no Convective SIGMETs for this region (W, C, or E)
+    	UNKNOWN    //  Unknown type -- something wrong
     }
     
     private IFont font=null;
@@ -195,6 +209,96 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 	}
 
     
+    @Override
+	protected boolean postProcessFrameUpdate() {
+    	//
+    	
+    	// for each frame...
+    	
+    	for (AbstractFrameData afd : frameDataMap.values()) {
+    		FrameData fd = (FrameData) afd;
+    		
+    		// ...go through all the data time matched to this frame
+    		// to determine, for every region (W, C, E), the latest issuance
+    		// of SIGMETs and of Outlooks for that region
+    		
+    		Map<Character,DataTime> latestSigmetIssuanceTimeForRegions = new HashMap<Character,DataTime>();
+    		Map<Character,DataTime> latestOutlooksIssuanceTimeForRegions = new HashMap<Character,DataTime>();
+    		
+    		for (ConvSigmetRscDataObj csigRDO : fd.convSigmetDataMap.values()) {
+    			String sequenceID = csigRDO.sequenceID.trim().toUpperCase();
+    			if (sequenceID != null && !sequenceID.isEmpty()) {
+    				Character region = sequenceID.charAt(sequenceID.length()-1); // the "C" in "18C"
+    				switch (csigRDO.csigType) { 
+    				case AREA:
+    				case ISOL:
+    				case LINE:
+    				case CS: // null Convective SIGMET still counts as 'issuance'
+    					DataTime latestSigmetIssuanceForThisRegion =
+    						latestSigmetIssuanceTimeForRegions.get(region);
+    					if (latestSigmetIssuanceForThisRegion == null ||
+    							csigRDO.issueTime.greaterThan(latestSigmetIssuanceForThisRegion)) {
+    						latestSigmetIssuanceTimeForRegions.put(region, csigRDO.issueTime);
+    					}
+    					break;
+    				case OUTLOOK:
+    					DataTime latestOutlooksIssuanceForThisRegion =
+    						latestOutlooksIssuanceTimeForRegions.get(region);
+    					if (latestOutlooksIssuanceForThisRegion == null ||
+    							csigRDO.issueTime.greaterThan(latestOutlooksIssuanceForThisRegion)) {
+    						latestOutlooksIssuanceTimeForRegions.put(region, csigRDO.issueTime);
+    					}
+    					break;
+    				case UNKNOWN:
+    					break;
+    				default:
+    				}
+    			}
+    		}
+    		
+    		// Now that we've determined the latest issuances for each region --
+    		// for both outlooks and actual Convective SIGMETs -- we make a second
+    		// pass through the data time matched to this frame.  This time,
+    		// we purge anything superseded by a later issuance.
+    		
+    		String[] keys = new String[1];
+    		keys = fd.convSigmetDataMap.keySet().toArray(keys);
+    		for (String key : keys) {
+    			ConvSigmetRscDataObj csigRDO = fd.convSigmetDataMap.get(key);
+    			String sequenceID = (csigRDO == null) ? null : csigRDO.sequenceID;
+    			if (sequenceID != null && !sequenceID.isEmpty()) {
+    				Character region = sequenceID.charAt(sequenceID.length()-1);
+    				switch (csigRDO.csigType) { 
+    				case AREA:
+    				case ISOL:
+    				case LINE:
+    				case CS:
+    					DataTime latestSigmetIssuanceForThisRegion =
+    						latestSigmetIssuanceTimeForRegions.get(region);
+    					if (latestSigmetIssuanceForThisRegion != null &&
+    							latestSigmetIssuanceForThisRegion.greaterThan(csigRDO.issueTime)) {
+    						fd.convSigmetDataMap.remove(key);
+    					}
+    					break;
+    				case OUTLOOK:
+    					DataTime latestOutlooksIssuanceForThisRegion =
+    						latestOutlooksIssuanceTimeForRegions.get(region);
+    					if (latestOutlooksIssuanceForThisRegion != null &&
+    							latestOutlooksIssuanceForThisRegion.greaterThan(csigRDO.issueTime)) {
+    						fd.convSigmetDataMap.remove(key);
+    					}
+    					break;
+    				case UNKNOWN:
+    					break;
+    				default:
+    				}
+    			}
+    		}
+    		
+    	}
+    	//
+		return true;
+	}
     
     public void paintFrame(AbstractFrameData frameData, IGraphicsTarget target, PaintProperties paintProps) throws VizException {
 
@@ -249,7 +353,7 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 			    boolean inMotion = (convSigmetData.direction >= 0) && (convSigmetData.speed > 0);
 			    
 				for (int hour = 0; hour <= 2; hour++) {
-					switch (convSigmetData.classType) {
+					switch (convSigmetData.csigType) {
 					    case AREA:
 					    case LINE:
 					    case ISOL:      //  these (may) have motion; set hourly parameters
@@ -293,7 +397,7 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 								target.drawLine(prevLoc.getX(), prevLoc.getY(), prevLoc.getZ(),
 										        currLoc.getX(), currLoc.getY(), currLoc.getZ(), color, lineWidth);
 							}
-							else if (convSigmetData.numPoints == 1) {  //TODO:  Check for classType ISOL instead or in addition?
+							else if (convSigmetData.numPoints == 1) {  //TODO:  Check for csigType ISOL instead or in addition?
 								//  single point; draw marker and circle
 								double delta = offsetY * 0.3;  //  tune to match NMAP
 								target.drawLine(currLoc.getX()-delta, currLoc.getY(), currLoc.getZ(),
@@ -321,7 +425,7 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 							HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
 							
 							if (sequenceIdEnable) {
-								if (convSigmetData.classType == ClassType.OUTLOOK) {
+								if (convSigmetData.csigType == ConvSigmetType.OUTLOOK) {
 									// Prevent label overlap when West & Central OR Central & East outlook
 									// polygons have coincident top points, by flipping some text to left
 									String outlookLabel = convSigmetData.sequenceID + " OUTLOOK";
@@ -337,7 +441,7 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 								}
 							}
 							
-							if (hour == 0 && convSigmetData.classType != ClassType.OUTLOOK) {
+							if (hour == 0 && convSigmetData.csigType != ConvSigmetType.OUTLOOK) {
 								if (convSigmetResourceData.timeEnable) {
 									String endTimeS = convSigmetData.endTime.toString();
 									labelList.add(endTimeS.substring(8, 10) + "/"  // date
@@ -394,18 +498,21 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
     	//  Convert classType string to an enum, just to avoid string comparisons
     	//  during all those paint()'s.
     	try {
-    		convSigmetData.classType = ClassType.valueOf(convSigmetSection.getClassType());
+    		convSigmetData.csigType = ConvSigmetType.valueOf(convSigmetSection.getClassType());
     	}
     	catch (IllegalArgumentException e) {
     		//TODO:  Signal unrecognized classType string
-    		convSigmetData.classType = ClassType.UNKNOWN;
+    		convSigmetData.csigType = ConvSigmetType.UNKNOWN;
     	}
     	
     	convSigmetData.sequenceID  = convSigmetSection.getSequenceID();
     	convSigmetData.issueTime   = rTime;
     	convSigmetData.eventTime   = new DataTime( convSigmetSection.getStartTime(),
-    			                        new TimeRange( convSigmetSection.getStartTime(),
-    			                        		       convSigmetSection.getEndTime() ) );
+    	                                           new TimeRange( convSigmetSection.getStartTime(),
+    	                                                          convSigmetSection.getEndTime() ) );
+    	convSigmetData.matchTime   = new DataTime( rTime.getRefTimeAsCalendar(),
+    	                                           new TimeRange( rTime.getRefTimeAsCalendar(),
+    	                                                          convSigmetSection.getEndTime() ) );
     	convSigmetData.endTime     = new DataTime (convSigmetSection.getEndTime());
     	convSigmetData.direction   = convSigmetSection.getDirection();
     	convSigmetData.speed       = convSigmetSection.getSpeed();

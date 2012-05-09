@@ -98,7 +98,7 @@ public class RbdBundle implements ISerializableObject {
     @XmlAttribute
     protected String rbdName;
 
-    private NCMapEditor ncEditor;
+//    private NCMapEditor ncEditor;
 
     // true if edited from the LoadRbd dialog
     private Boolean isEdited = false;
@@ -112,9 +112,9 @@ public class RbdBundle implements ISerializableObject {
 
     public void setAutoUpdate(boolean autoUpdate) {
         this.autoUpdate = autoUpdate;
-        if (this.ncEditor != null) {
-            this.ncEditor.setAutoUpdate(autoUpdate);
-        }
+//        if (this.ncEditor != null) {
+//            this.ncEditor.setAutoUpdate(autoUpdate);
+//        }
         for (NCMapRenderableDisplay disp : displays) {
             if (disp != null) {
                 ((NCMapDescriptor) disp.getDescriptor())
@@ -168,27 +168,27 @@ public class RbdBundle implements ISerializableObject {
      */
     public RbdBundle() {
         timeMatcher = null;
-        ncEditor = null;
+//        ncEditor = null;
     }
 
     // used when creating an RBD to be written out.
     public RbdBundle(PaneLayout paneLayout) {
         timeMatcher = null;
-        ncEditor = null;
+//        ncEditor = null;
         setPaneLayout(paneLayout);
         displays = new NCMapRenderableDisplay[paneLayout.getNumberOfPanes()];// numPaneRows*numPaneColumns];
     }
 
-    public NCMapEditor getNcEditor() {
-        return ncEditor;
-    }
+//    public NCMapEditor getNcEditor() {
+//        return ncEditor;
+//    }
+//
+//    public void setNcEditor(NCMapEditor ncEditor) {
+//        this.ncEditor = ncEditor;
+//        this.ncEditor.setAutoUpdate(isAutoUpdate());
+//    }
 
-    public void setNcEditor(NCMapEditor ncEditor) {
-        this.ncEditor = ncEditor;
-        this.ncEditor.setAutoUpdate(isAutoUpdate());
-    }
-
-    public void initFromEditor() {
+    public void initFromEditor(NCMapEditor ncEditor) {
         if (ncEditor == null) {
             return;
         }

@@ -85,27 +85,37 @@ public final class NctextRegexMatcher {
 //					System.out.println("Current line in file is: " + fileContent);
 					//retrieve the matching product type for the regular expression
 					String prodType =  new String(NCTEXT_PRODUCT_REGEX_MAP.get(thisPattern));
+					//System.out.println("Product type is " + prodType);
+					//System.out.println("Matching pattern is: " + thisPattern.pattern());
 					//If the product type is not already in the list...
 					if(!isNctextProductAlreadyInList(prodType)){
 					  //add it to the list	
 					  strNctextProductType.add(prodType);
-						System.out.println("Product type is " + prodType);
-						System.out.println("Matching pattern is: " + thisPattern.pattern());
+						
 					}
-					
+					//System.out.println("matchFileRegex group count =" + thisMatcher.groupCount() );
+					//for(int i=0; i< thisMatcher.groupCount();i++){
+					//	System.out.println("matchFileRegex group " + i+ "= "+thisMatcher.group(i));
+					//}
 					if(thisMatcher.groupCount() > 1){
 					//get the data captured from the groups of the matcher
 						String dateFromMatchedPattern = new String(thisMatcher.group(1)); 
 						String hourFromMatchedPattern = new String(thisMatcher.group(2));
 						String minuteFromMatchedPattern = new String(thisMatcher.group(3));
-						parsedDate = new Integer(Integer.parseInt(dateFromMatchedPattern));
-						parsedHour =  new Integer(Integer.parseInt(hourFromMatchedPattern)); 	
-						parsedMinute = new Integer(Integer.parseInt(minuteFromMatchedPattern));
+						try{
+							parsedDate = new Integer(Integer.parseInt(dateFromMatchedPattern));
+							parsedHour =  new Integer(Integer.parseInt(hourFromMatchedPattern)); 	
+							parsedMinute = new Integer(Integer.parseInt(minuteFromMatchedPattern));
+						} catch (NumberFormatException e){
+							System.out.println("matchFileRegex(): NumberFormatException event: for product type "+prodType);
+							continue;
+						}
 					}
 					isMatchFound =  true;
 				}
 				thisMatcher.reset();
 			}
+			//System.out.println("matchFileRegex returning "+ isMatchFound);
 			return isMatchFound;
 	}
 	/***
@@ -149,7 +159,12 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^FXUS[67][1-6] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area");
 		thisMap.put(Pattern.compile("^FPAK20 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area");//no data to test
 		thisMap.put(Pattern.compile("^FPHW03 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area");//no data to test
-		thisMap.put(Pattern.compile("^FX(HW|PN|PS)60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
+		//thisMap.put(Pattern.compile("^FX(HW|PN|PS)60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
+		//split above pattern to the following 3 patterns so matchFileRegex() can be coded in a generic way.
+		thisMap.put(Pattern.compile("^FXHW60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
+		thisMap.put(Pattern.compile("^FXPN60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
+		thisMap.put(Pattern.compile("^FXPS60 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "area"); 
+		
 		thisMap.put(Pattern.compile("^...... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*(\n|\r)FA[0-9].*"), "area");	//aviation forecasts
 		thisMap.put(Pattern.compile("^WWUS30 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"wtch2");
 		thisMap.put(Pattern.compile("^FNUS21 KWNS (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"),"fwddy1");
@@ -190,7 +205,7 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^FAAK2[1-6] KZAN (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "cwa");	
 		thisMap.put(Pattern.compile("^FAUS2[1-6] KZ.. (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "cwa");
 		thisMap.put(Pattern.compile("^WCUS2[1-6] KZ.. (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "cwa");			
-		thisMap.put(Pattern.compile("^FAUS20 (KZ..|PANC) (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "mis");	
+		thisMap.put(Pattern.compile("^FAUS20 PANC (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "mis");
 		thisMap.put(Pattern.compile("^FOUS14 KWNO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "ngmmos");	
 		thisMap.put(Pattern.compile("^FOAK2[5-9] KWNO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "ngmmos");	
 		thisMap.put(Pattern.compile("^FOPA20 KWNO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "gfsmos");	
@@ -310,7 +325,23 @@ public final class NctextRegexMatcher {
 		thisMap.put(Pattern.compile("^SXUS86 .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "cgr");//regexes clash for cgr and OMR
 		thisMap.put(Pattern.compile("^WV.... .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "vlcw");             //might clash with regex for inl and sgmt
 		thisMap.put(Pattern.compile("^W[CSV].... [^KP]... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
-		thisMap.put(Pattern.compile("^W[CSV](NT|PN|PA|AK)[01][0-9] (KKCI|PHFO|PAWU)  (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		//thisMap.put(Pattern.compile("^W[CSV](NT|PN|PA|AK)[01][0-9] (KKCI|PHFO|PAWU) (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		//split above pattern to the following 12 patterns so matchFileRegex() can be coded in a generic way.
+		thisMap.put(Pattern.compile("^W[CSV](NT|PN|PA|AK)[01][0-9] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]NT[01][0-9] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]NT[01][0-9] PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]NT[01][0-9] PAWU (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]PN[01][0-9] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]PN[01][0-9] PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]PN[01][0-9] PAWU (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]PA[01][0-9] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]PA[01][0-9] PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]PA[01][0-9] PAWU (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]AK[01][0-9] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]AK[01][0-9] PHFO (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		thisMap.put(Pattern.compile("^W[CSV]AK[01][0-9] PAWU (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "intl"); //regexes clash for intl and sgmt	
+		
+		
 		thisMap.put(Pattern.compile("^WSUS4[012] .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "conv");
 		thisMap.put(Pattern.compile("^W[CSV]US0[1-6] KKCI (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");	
 		thisMap.put(Pattern.compile("^WSUK.. .... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9])(.|\r|\n)+"), "sgmt");	

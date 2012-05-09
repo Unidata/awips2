@@ -18,7 +18,7 @@ import javax.xml.bind.Unmarshaller;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05/18/09  	115   		Greg Hull      Initial Creation
- *                       
+ *
  * </pre>
  * 
  * @author G. Hull
@@ -37,7 +37,7 @@ public class SoundingModelReader {
     	xmlFile = file;
 	}
 
-	public List<SoundingModel> getSoundingModels() throws JAXBException{           	
+	public List<SoundingModel> getSoundingModels() throws JAXBException{
 		JAXBContext context = JAXBContext.newInstance( PACKAGE);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         SoundingModels sndMdls = null;
@@ -45,12 +45,12 @@ public class SoundingModelReader {
 		try {
 			sndMdls = (SoundingModels)unmarshaller.unmarshal(
 			    new FileReader(xmlFile));
-			List<SoundingModel> sndingMdlList = sndMdls.getSoundingModel();			
+			List<SoundingModel> sndingMdlList = sndMdls.getSoundingModel();
 		    return  sndingMdlList;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}       
+		}
 		return null;
-    }    
+    }
 }

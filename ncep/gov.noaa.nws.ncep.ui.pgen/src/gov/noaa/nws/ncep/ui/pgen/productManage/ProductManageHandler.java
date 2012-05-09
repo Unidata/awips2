@@ -39,7 +39,7 @@ public class ProductManageHandler extends AbstractHandler {
      */
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
     	
-     	PgenSession.getInstance().getPgenResource().activateProductManage();
+//     	PgenSession.getInstance().getPgenResource().activateProductManage();
 		
         return null;
     

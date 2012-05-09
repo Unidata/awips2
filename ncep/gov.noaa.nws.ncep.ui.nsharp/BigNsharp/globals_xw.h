@@ -39,6 +39,7 @@
 #define DISPLAY_LEFT		0
 #define DISPLAY_RIGHT		1
 
+#ifndef _WIN32
 extern short drawing_mode;
 extern short display_mode_left;
 extern short display_mode_right;	
@@ -54,6 +55,7 @@ extern GC gc;
 extern Widget draw_reg;
 extern Pixmap canvas;
 extern XtAppContext app;
+#endif
 
 extern short pagenum;
 extern short nobanner;
