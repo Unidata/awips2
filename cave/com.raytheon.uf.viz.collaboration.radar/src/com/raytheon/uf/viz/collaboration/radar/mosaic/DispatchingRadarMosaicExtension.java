@@ -78,7 +78,7 @@ public class DispatchingRadarMosaicExtension extends
         if (imageExtent != null) {
             UpdateMosaicExtent extentUpdate = RemoteGraphicsEventFactory
                     .createEvent(UpdateMosaicExtent.class, image);
-            extentUpdate.setIExtent(imageExtent);
+            extentUpdate.setExtent(imageExtent.clone());
             creation.setExtent(extentUpdate);
         }
         target.dispatch(creation);

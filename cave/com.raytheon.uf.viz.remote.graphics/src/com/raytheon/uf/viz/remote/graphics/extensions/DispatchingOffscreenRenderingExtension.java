@@ -88,7 +88,7 @@ public class DispatchingOffscreenRenderingExtension extends
         // Send event for offscreen rendering
         RenderOffscreenEvent event = RemoteGraphicsEventFactory.createEvent(
                 RenderOffscreenEvent.class, image);
-        event.setIExtent(extent);
+        event.setExtent(extent.clone());
         image.dispatch(event);
     }
 
