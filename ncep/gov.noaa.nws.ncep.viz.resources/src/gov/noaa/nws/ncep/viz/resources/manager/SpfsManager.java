@@ -2,20 +2,16 @@ package gov.noaa.nws.ncep.viz.resources.manager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Vector;
 import java.io.File;
-import java.io.FilenameFilter;
 
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.Viewer;
-
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationAdapter;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -24,16 +20,13 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 
 /**
  * Common class for constants, utility methods ...
@@ -52,13 +45,13 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
  *                                       cycle times to LATEST before marshaling,
  *                                       and restore actual times afterwards.
  * 11/15/11                  ghull       add resolveLatestCycleTimes
- *
+ * 01/01/12                  J. Zeng     Add listener for multiple CAVEs to get SPFs info from each other 
  * </pre>
  * 
  * @author 
  * @version 1
  */
-public class SpfsManager {	
+public class SpfsManager implements ILocalizationFileObserver  {	
 
 	private static SpfsManager instance = null;
 
@@ -81,8 +74,6 @@ public class SpfsManager {
 	private void findAvailSpfs() {
 		spfsMap = new TreeMap<String,
 							Map<String, Map<String,RbdBundle>>>();
-//		spfsMap = new TreeMap<String,LocalizationFile>();
-//		rbdsMap = new TreeMap<String,LocalizationFile>();
 		
 		// This will find all the directories for SPFs and SPF groups as well
 		// as the RBDs
@@ -92,10 +83,11 @@ public class SpfsManager {
 		// loop thru the LocalizationFiles and save to 
 		for( LocalizationFile lFile : spfsLFileMap.values() ) {
 			
+			lFile.addFileUpdatedObserver(this);
+			
 			String[] dirs = lFile.getName().split( File.separator );
-
+			
 			// if this is a SPF Group or SPF directory
-			//
 			if( lFile.getFile().isDirectory() ) {
 				// if an SPF Group
 				if( dirs.length < 3 ) {
@@ -150,7 +142,6 @@ public class SpfsManager {
 		if( !spfsMap.containsKey( grpName ) ) {
 			spfsMap.put( grpName, new TreeMap<String, Map<String,RbdBundle>>() );
 		}
-		
 	}
 
 	public void addSpf( String grpName, String spfName ) {//, LocalizationFile lFile ) {
@@ -179,7 +170,6 @@ public class SpfsManager {
 		Map<String,RbdBundle>             sMap = gMap.get( spfName );
 		
 		if( !sMap.containsKey( rbd.getRbdName() ) ) {
-			
 			sMap.put( rbd.getRbdName(), rbd );
 		}
 	}
@@ -227,10 +217,6 @@ public class SpfsManager {
 		
 		return rbdNames;
 	}
-	
-//	public void createRBD() {
-//	
-//	}
 	
 	// return a copy of the Rbds in the given SPF.
 	public ArrayList<RbdBundle> getRbdsFromSpf( String grpName, String spfName,
@@ -364,6 +350,8 @@ public class SpfsManager {
 			
 			addRbd( grpName, spfName, rbd );
 			
+			lFile.addFileUpdatedObserver(this);
+			
 		} catch (LocalizationOpFailedException e) {
 			throw new VizException(e);
 		} catch (SerializationException e) {
@@ -388,4 +376,43 @@ public class SpfsManager {
 			
 		}
 	}
+
+	@Override
+	public void fileUpdated(FileUpdatedMessage message) {
+
+		
+		String chgFile = message.getFileName();
+		FileChangeType chgType = message.getChangeType();
+		LocalizationContext chgContext = message.getContext();
+		
+		if (chgType.toString().equals("ADDED")) {
+
+			String[] dirsf = chgFile.split( File.separator);
+			
+			if( ! chgFile.endsWith(".xml" ) ) {
+				System.out.println("Non-xmlfile found under SPFs dir???:"+ chgFile );
+			}
+			else if( dirsf.length != 5 ) {
+				System.out.println("xml file found in non-SPF directory? "+ chgFile );
+			}else {
+				try {
+					LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+							chgContext, chgFile );
+					RbdBundle rbd = RbdBundle.unmarshalRBD( lFile.getFile(), null );
+					//System.out.println("Add Rbd name is " + rbd.rbdName );
+					rbd.setLocalizationFile( lFile );
+					addRbd( dirsf[2], dirsf[3], rbd );
+				}
+				catch (VizException e ) {
+					// log error
+					System.out.println("Error unmarshalling rbd: "+ chgFile
+							+ "\n"+e.getMessage() );
+				}
+			
+			}
+		}
+
+	}
+	
+
 }

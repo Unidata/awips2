@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.message;bundle-version="1.11.22",
  org.apache.log4j;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
- org.junit
+ org.junit,
+ org.geotools
 Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.common,
  gov.noaa.nws.ncep.viz.common.dbQuery,

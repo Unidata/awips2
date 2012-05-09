@@ -87,7 +87,8 @@ import com.vividsolutions.jts.io.WKBReader;
  * 21 June 2010  254        M. Gao  	Initial creation.
  * 04 Oct  2010  307        G. Hull     timeMatch FfaRscDataObjs
  * 10 Jan. 2011  N/A        M. Gao      Event Time display includes date + time now since some 
- *                                      events start and then end in different dates                                     
+ *                                      events start and then end in different dates    
+ * 16 Feb 2012    555       S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords()                                 
  * 
  * </pre>
  * 
@@ -1144,6 +1145,8 @@ for(int i=0; i<textArray.length; i++) textArray[i] = (textArray[i]==null ? "" : 
 	
 	@Override
 	public void queryRecords() throws VizException {
+		// this method is almost similar to its super class's queryRecords(), may need to be modified later
+		// to use the super class's version for the common part
 		
 		HashMap<String, com.raytheon.uf.common.dataquery.requests.RequestConstraint> queryList = 
 			new HashMap<String, com.raytheon.uf.common.dataquery.requests.RequestConstraint>(resourceData.getMetadataMap());
@@ -1174,7 +1177,8 @@ for(int i=0; i<textArray.length; i++) textArray[i] = (textArray[i]==null ? "" : 
 		
 //TODO: handle EXA, EXB here: add newly extended areas
 		
-		queryResult.populateMap();
+		queryResult.populateMap();		   
+    	setAllFramesAsPopulated();
 	}
 	
     @Override
