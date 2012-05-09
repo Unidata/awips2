@@ -25,20 +25,20 @@
 &nbsp;
 <div class="Body">Nearly all of the spatial editor tools use edit areas
 to determine which grid points to modify. You will need to know how to
-define edit areas before using the spatial editor tools.</div>
+define edit areas before using the spatial editor tools.</div><br>
 <div class="Body">An Edit Area defines a set of grid points. These
 points
 may comprise a county, forecast zone, or any random area that you
 define.
 They may be saved and recalled later for reuse. In fact, there are two
-ways to save edit areas: as an ordinary named set or as a QuickSet.</div>
+ways to save edit areas: as an ordinary named set or as a QuickSet.</div><br>
 <div class="Body">After you define a edit area you may save it as a
 named
 set. The simplest example of this type of edit area is a county. In
 general,
 named edit areas are saved once, recalled many times, and not changed
 very
-often.</div>
+often.</div><br>
 <div class="Body">Another way to save an edit area is as a QuickSet.
 QuickSets
 should be considered as a temporary method of saving edit areas as they
@@ -48,12 +48,12 @@ perform
 some operation that requires a different edit area.</div>
 <h3 class="2Heading">
 <a name="EditAreaInterface"></a>Edit Area Interface</h3>
-<img src="images/EditAreaButtons.gif" height="85" width="353">
-<div class="Body">&nbsp;
+<img src="images/eaButtons.jpg">
+<div class="Body">
 <br>
 The figure above is a snapshot of the edit area buttons on the Button
 Bar. The operations include toggling, clearing, doing queries, setting
-the edit area mode, and accessing/storing edit areas.&nbsp; Refer to
+the edit area mode, and accessing/storing edit areas. Refer to
 the
 <a href="Toolbar.html">GFE
 Toolbar documentation</a> for more details.</div>
@@ -64,7 +64,7 @@ can
 recall a previously saved set, define a new edit area by hand, or
 execute
 a query that defines the set based on data values of any grid or grids
-that you specify.</div>
+that you specify.</div><br>
 <div class="Body">The simplest method of defining an edit area is to
 define
 one by hand. The Select Points tool was designed to allow you to define
@@ -78,10 +78,10 @@ an Edit Area from the Main Menu</font></b>
 </p>
 <p class="2Heading">Probably the easiest way to load an edit area is
 from
-the Main Menu.&nbsp; All of the edit areas that correspond to your
+the Main Menu. All of the edit areas that correspond to your
 counties,
 zones of various kinds, WFOs, and states are generated automatically by
-the IFPServer.&nbsp; You can find them under the Main Menu item Edit
+EDEX. You can find them under the Main Menu item Edit
 Areas.
 </p>
 <ul>
@@ -96,8 +96,8 @@ name of
 your choice]</b></li>
 </ol>
 You should see the county you chose highlight in a white stippled
-pattern.&nbsp;
-This indicates that this area has been choosen to edit.&nbsp; Any edit
+pattern.
+This indicates that this area has been chosen to edit. Any edit
 operation that you perform will be applied to this area.</div>
 </div>
 <h3 class="2Heading">
@@ -108,8 +108,7 @@ operation that you perform will be applied to this area.</div>
 <div class="Step-First">
 <ol>
   <li>Make sure that the current edit area mode is set to Replace (=).</li>
-  <li> <img nosave="" src="images/refset0.gif" align="middle"
- height="44" width="44"> Select
+  <li> <img nosave="" src="images/editArea.jpg" align="middle"> Select
 the Select Points tool.</li>
   <li>Move the cursor into the Spatial Editor.</li>
   <li>Press MB1 and drag the cursor to outline an area with the mouse.
@@ -124,19 +123,16 @@ pattern.</li>
 point,
 you could use one of the edit tools to modify the data over this new
 area
-that you defined. We discuss how to use tools&nbsp; in the <a
+that you defined. We discuss how to use tools in the <a
  href="#EditTools">Edit
-Tools</a> section.</div>
-<div class="Body">Repeat the above exercise, but this time select the
-union
+Tools</a> section.</div><br>
+<div class="Body">Repeat the above exercise, but this time select the union
 (|) mode button beforehand. Note that in union (|) mode, each time you
-define a new area the old area(s) remains amd is combined with the new
-area. Now select the intersection (&amp;)&nbsp; button and repeat the
-exercise
+define a new area the old area(s) remains and is combined with the new
+area. Now select the intersection (&amp;) button and repeat the exercise
 again. Note that this time the result is the intersection of the newly
 defined edit area and the current edit area. Only the areas that
-overlap
-remain.</div>
+overlap remain.</div>
 <h3 class="2Heading">
 <a name="EraseanEditArea"></a>Erase an Edit Area</h3>
 <div class="Body">Now and then you may want to remove a portion of an
@@ -173,20 +169,19 @@ displayed edit area. When you toggle the current edit area, all the
 grid
 points that were selected are deselected and all the points that were
 previously
-not selected become selected.</div>
+not selected become selected.</div><br>
 <div class="Step-First">Create an edit area by hand as you did in the
 exercise
 named, <a href="#DefineEditAreabyHand">Define Edit Area by Hand</a> ,
 using
-the&nbsp;<img nosave="" src="images/refset0.gif" align="middle"
- height="44" width="44">
+the&nbsp;<img nosave="" src="images/editArea.jpg" align="middle">
 Select Points Tool</div>
 <ol>
-  <li> <img nosave="" src="images/GFETraining-29.gif" align="middle"
- height="44" width="47">Using MB1 click on the Toggle Button.</li>
+  <li> <img nosave="" src="images/toggleEa.jpg" align="middle">
+  Using MB1 click on the Toggle Button.</li>
 </ol>
 <div class="Body">Note that all the grid points that were selected have
-been deselected and vise versa.</div>
+been deselected and vice versa.</div>
 <h3 class="2Heading">
 <a name="ClearanEditArea"></a>Clear an Edit Area</h3>
 <div class="Body">
@@ -201,12 +196,12 @@ and create a new one. The clear button was made for this purpose.</div>
 <ol>
   <li>Make sure there is an edit area displayed in the Spatial Editor.</li>
   <li>Using MB1 click on the button&nbsp;<img nosave=""
- src="images/GFETraining-30.gif" align="middle" height="44" width="42">
-.</li>
+ src="images/clearEa.jpg" align="middle">.
+</li>
 </ol>
 </div>
 <div class="Body">The edit area has been cleared and no grid points are
-selected.</div>
+selected.</div><br>
 <div class="Body">A couple of handy utilities can be found on the MB3
 pop-up
 menu over the spatial editor, one that selects a contiguous edit area
@@ -218,8 +213,7 @@ contiguous edit area. We discuss these in the next two sections.</div>
 Area based on Value</h3>
 <div class="Body">
 <li><b>Purpose:</b> To select an edit area based on value.</li>
-<br>
-&nbsp;</div>
+</div><br>
 <div class="Body">This function allows you to select an edit area based
 on the value of the selected point and the value of the points
 surrounding
@@ -249,15 +243,14 @@ Editor display and
 press
 MB3 and select <b>Set Fuzz Value... </b>This will display the <a
  href="SpatialEditorDialogs.html#FuzzValueDialog">Fuzz
-Value Dialog</a> .</li>
+Value Dialog</a>.</li>
   <li class="Step">Change the Fuzz Value so that it is two to three
 times larger than its
 current value.</li>
   <li class="Step">Select OK in the Fuzz Value dialog.</li>
   <li class="Step">Repeat steps 2-4 above, and note that the edit area
 is larger, since
-the
-fuzz value is now larger.</li>
+the fuzz value is now larger.</li>
 </ol>
 <div class="Body">The fuzz value is meaningless for the Weather data
 type.
@@ -291,25 +284,22 @@ save an edit area in a temporary location as a QuickSet.</div>
 <div class="Step-First">
 <ol>
   <li>Define an edit area as you did in any previous exercise.</li>
-  <li>Find the quick set store button&nbsp;<img nosave=""
- src="images/quickset0.gif" align="middle" height="44" width="44">
+  <li>Find the quick set store button <img nosave=""
+ src="images/saveEa.jpg" align="middle">
 in the group of edit area buttons on the right side of the toolbar
-click
-with MB1.</li>
-  <li>Move the mouse cursor over one of the numbered buttons&nbsp;<img
- nosave="" src="images/quick10.gif" align="middle" height="44"
- width="44">&nbsp;<img nosave="" src="images/quick20.gif" align="middle"
- height="44" width="44">&nbsp;<img nosave="" src="images/quick30.gif"
- align="middle" height="44" width="44">&nbsp;<img nosave=""
- src="images/quick40.gif" align="middle" height="44" width="44">
+click with MB1.</li>
+  <li>Move the mouse cursor over one of the numbered buttons <img
+ nosave="" src="images/quickSet1.jpg" align="middle">&nbsp;
+ <img nosave="" src="images/quickSet2.jpg" align="middle">&nbsp;
+ <img nosave="" src="images/quickSet3.jpg" align="middle">&nbsp;
+ <img nosave="" src="images/quickSet4.jpg" align="middle">
 and with MB1 click any one of them.</li>
 </ol>
 </div>
 <div class="Body">Now your edit area is saved under that particular
 slot
 and can be recalled at any time. The next exercise shows you how to
-recall
-a saved QuickSet.</div>
+recall a saved QuickSet.</div>
 <h3 class="2Heading">
 <a name="LoadingaQuickSet"></a>Loading a QuickSet</h3>
 <div class="Body"><b>Purpose:</b> To restore a previously saved QuickSet</div>
@@ -318,22 +308,21 @@ a saved QuickSet.</div>
   <li>Clear the edit area, if there is one currently displayed in the
 Spatial
 Editor.</li>
-  <li>Find the same button&nbsp;<img nosave="" src="images/quick10.gif"
- align="middle" height="44" width="44">&nbsp;<img nosave=""
- src="images/quick20.gif" align="middle" height="44" width="44">&nbsp;<img
- nosave="" src="images/quick30.gif" align="middle" height="44"
- width="44">&nbsp;<img nosave="" src="images/quick40.gif" align="middle"
- height="44" width="44">
+  <li>Find the same button&nbsp;<img nosave="" src="images/quickSet1.jpg"
+ align="middle">&nbsp;<img nosave=""
+ src="images/quickSet2.jpg" align="middle">&nbsp;<img
+ nosave="" src="images/quickSet3.jpg" align="middle">&nbsp;
+ <img nosave="" src="images/quickSet4.jpg" align="middle">
 under which you saved the QuickSet in the previous exercise.</li>
   <li>Click MB1 on this button.</li>
 </ol>
 </div>
 <div class="Body">Note that the edit area that you saved as a QuickSet
 is now displayed.</div>
-<div class="Body">To review, clicking the button&nbsp;<img nosave=""
- src="images/quickset0.gif" align="middle" height="44" width="44">
-and then a button labeled with a number&nbsp;<img nosave=""
- src="images/quick10.gif" align="middle" height="44" width="44"><b><i>saves</i></b>
+<div class="Body">To review, clicking the button <img nosave=""
+ src="images/saveEa.jpg" align="middle">
+and then a button labeled with a number <img nosave=""
+ src="images/quickSet1.jpg" align="middle"><b><i>saves</i></b>
 the currently displayed edit area under that slot. Simply clicking the
 number <b><i>displays</i></b> that edit area. QuickSets are intended
 for
@@ -348,22 +337,22 @@ them as a "named" edit area.</a></div>
 <a name="EditAreaGroups"></a>Edit Area Groups</h3>
 <div class="Step">Since the list of Edit Areas can be very long (well
 over
-100), the GFE provides you with a way to organize them.&nbsp; Any Edit
+100), the GFE provides you with a way to organize them. Any Edit
 Area that you define can be saved under any combination of edit area
-groups.</div>
+groups.</div><br>
 <div class="Step">The GFE provides two ways to assign a particular Edit
 Area under one or more Edit Area Groups. One way is to assign the
 group(s)
 when you initially save the EditArea. The other method is to first save
 the Edit Area without assigning any group and then use the <a
  href="ButtonBarDialogs.html#SaveEditAreaGroupDialog">Save
-Edit Area Groups Dialog</a> to assign Edit Areas to Edit Area Groups.</div>
+Edit Area Groups Dialog</a> to assign Edit Areas to Edit Area Groups.</div><br>
 <div class="Step">To assign a group to your Edit Area as you are saving
-it,&nbsp; follow the instructions in the section for <a
+it, follow the instructions in the section for <a
  href="ButtonBarDialogs.html#SaveEditAreaDialog">Saving
 Named Edit Areas</a> , but this time select or type in the Edit Area
 Group(s)
-before you click "Save."&nbsp; That operation will not only save your
+before you click "Save." That operation will not only save your
 Edit
 Area, but also assign it to the group or groups that you selected
 before
@@ -373,16 +362,16 @@ area, it will automatically be assigned to the "invisible" group
 "Misc".
 The only Edit Areas that are contained in the group "Misc" are those
 that
-have not been assigned to any other group.&nbsp; Once you assign an
+have not been assigned to any other group. Once you assign an
 Edit
 Area to a group, it will no longer appear under the "Misc" group name
 in
-the Edit Area Query Dialog.</div>
+the Edit Area Query Dialog.</div><br>
 <div class="Step">Now let's assume that you've saved some Edit Areas
 but
-not yet assigned them to any groups.&nbsp; To simply assign Edit Areas
+not yet assigned them to any groups. To simply assign Edit Areas
 to groups, use the Save/Delete Edit Area Groups dialog found within the
-Edit Area Query dialog under the "File" menu item.&nbsp; Here's an
+Edit Area Query dialog under the "File" menu item. Here's an
 exercise
 that steps through this process.
 <blockquote><li>Purpose: To save assign an Edit Area to a group name</li>
@@ -404,33 +393,33 @@ Group.</li>
 </ol>
 <div class="Step">Now when you use the Edit Area Query Dialog, those
 Edit
-Areas will appear under the&nbsp; group to which it was assigned.&nbsp;
+Areas will appear under the group to which it was assigned.
 If you want to make a new group name, just type the new name in the box
-labelled "Identfier" and a new group name will be created.</div>
+labelled "Identfier" and a new group name will be created.</div><br>
 <div class="Step">To remove an Edit Area from a group, bring up the <a
  href="ButtonBarDialogs.html#DeleteEditAreaGroupDialog">Delete
-Edit Area Group Dialog</a> again.&nbsp; Note that when you select any
+Edit Area Group Dialog</a> again. Note that when you select any
 Edit
-Area Group, the&nbsp; Edit Areas in that group automatically
-highlight.&nbsp;
+Area Group, the Edit Areas in that group automatically
+highlight.
 To remove one or more of the Edit Areas from the selected group, simply
 toggle them off and select "Save".</div>
 <h3 class="2Heading">
 <a name="LoadingNamedEditAreas"></a>Loading Named Edit Areas</h3>
 <div class="Body">
-<blockquote><li> <b>Purpose:</b>&nbsp; To display a named edit area</li>
+<blockquote><li> <b>Purpose:</b> To display a named edit area</li>
 </blockquote>
 </div>
 <div class="Body">Once you have saved an edit area as a named set, you
 will want to load it as the current edit area. The next exercise
 explains
 how to do this.</div>
-<div class="Step-First">Select the Clear button&nbsp;<img nosave=""
- src="images/clearRefset0.gif" height="44" width="44">
+<div class="Step-First">Select the Clear button <img nosave=""
+ src="images/clearEa.jpg">
 to clear the Spatial Editor of any current edit areas.</div>
 <ol>
-  <li class="Step">Select the button&nbsp;<img nosave=""
- src="images/defineRefset0.gif" align="middle" height="44" width="44">
+  <li class="Step">Select the button <img nosave=""
+ src="images/queryEa.jpg" align="middle">
 from the toolbar.</li>
   <li class="Step">Once the <a
  href="ButtonBarDialogs.html#EditAreaQueryDialog">Query
@@ -448,8 +437,7 @@ named area, depending on the edit area mode.
 <h3 class="2Heading"><a name="SavingNamedEditAreas"></a>Saving Named
 Edit Areas</h3>
 <div class="Body"><b>Purpose</b>: To save the current edit area as
-named
-set</div>
+named set</div><br>
 <div class="Body">There are some edit areas that you will want to save
 permanently as named sets rather then temporarily as QuickSets. This
 exercise
@@ -469,27 +457,24 @@ database.</li>
 </ol>
 Note that the GFE will automatically generate Edit Areas based on map
 data
-for your local area.&nbsp; For example, in the <a
+for your local area. For example, in the <a
  href="ButtonBarDialogs.html#EditAreaQueryDialog">Edit
-Area Query Dialog</a> , you should see each one of your counties and
+Area Query Dialog</a>, you should see each one of your counties and
 zones
-listed.&nbsp; There is no need for you to define these areas since they
+listed. There is no need for you to define these areas since they
 already are defined for you.</div>
 </div>
 <h3 class="2Heading">
 <a name="DeletingNamedEditAreas"></a>Deleting Named Edit Areas</h3>
-<div class="Body"><b>Purpose:</b>&nbsp; To delete a named edit area
-from
-the inventory</div>
+<div class="Body"><b>Purpose:</b> To delete a named edit area
+from the inventory</div><br>
 <div class="Body">Occasionally you will want to remove a named set from
 the edit area inventory. This exercise will show you how to delete a
-named
-edit area.</div>
+named edit area.</div>
 <div class="Step-First">
 <ol>
-  <li>Select the&nbsp;<img nosave="" src="images/defineRefset0.gif"
- align="middle" height="44" width="44">&nbsp;&nbsp;
-button located on the toolbar.</li>
+  <li>Select the <img nosave="" src="images/queryEa.jpg"
+ align="middle"> button located on the toolbar.</li>
   <li>From the <a href="ButtonBarDialogs.html#EditAreaQueryDialog">Edit
 Area
 Query Dialog</a> , select "Save/Delete" from its menu bar.</li>
@@ -523,8 +508,8 @@ query</li>
   <li>Set up the Spatial Editor display so that a temperature grid is
 displayed.</li>
   <li>Carefully examine the range of values on this grid.</li>
-  <li>Select the&nbsp;<img nosave="" src="images/defineRefset0.gif"
- align="middle" height="44" width="44">
+  <li>Select the&nbsp;<img nosave="" src="images/queryEa.jpg"
+ align="middle">
 Query button from the toolbar.</li>
   <li>When the <a href="ButtonBarDialogs.html#EditAreaQueryDialog">Edit
 Area
@@ -566,12 +551,12 @@ complex query</li>
 <div class="Step-First">
 <ol>
   <li>Clear the current edit area by selecting&nbsp;<img nosave=""
- src="images/clearRefset0.gif" height="44" width="44">
+ src="images/clearEa.jpg">
 from the toolbar.</li>
-  <li>With temperature still loaded, select the&nbsp;<img nosave=""
- src="images/defineRefset0.gif" align="middle" height="44" width="44">
+  <li>With temperature still loaded, select the <img nosave=""
+ src="images/queryEa.jpg" align="middle">
 query button, if the query dialog is not already visible.</li>
-  <li>Type the following into the query box:&nbsp;&nbsp; <b><tt><font
+  <li>Type the following into the query box: <b><tt><font
  size="+1">(T
 &gt; 70) &amp; (T &lt; 90)</font></tt></b></li>
   <li>Select the "Submit" button.</li>
@@ -581,7 +566,7 @@ query button, if the query dialog is not already visible.</li>
 between
 70 and 90 should be selected. This type of query demonstrates how to
 select
-a range of values using queries.&nbsp; When using the '&amp;' or '|'
+a range of values using queries. When using the '&amp;' or '|'
 operators,
 you must enclose the surrounding entries with parenthesis.</div>
 <h3 class="3Heading">
@@ -606,9 +591,8 @@ and dewpoint are displayed at the same time.</li>
 and
 dewpoint
 over this area.</li>
-  <li>Select the&nbsp;<img nosave="" src="images/defineRefset0.gif"
- align="middle" height="44" width="44"><a
- href="ButtonBarDialogs.html#EditAreaQueryDialog">Query
+  <li>Select the <img nosave="" src="images/queryEa.jpg"
+ align="middle"> <a href="ButtonBarDialogs.html#EditAreaQueryDialog">Query
 dialog</a> button to display the query dialog.</li>
   <li>Use the selectors or type in a query that resembles the
 following: <b><tt><font size="+1">(T
@@ -626,7 +610,7 @@ but use appropriate values for your data set. Once the values fit the
 data,
 you should see an area defined that identifies those grid points that
 satisfy
-the expression that you defined.</div>
+the expression that you defined.</div><br>
 <div class="Body">By this time, you should start to understand why
 defining
 edit areas via queries is so powerful. This method allows you to define
@@ -641,9 +625,8 @@ tediously define edit areas by hand is greatly reduced. Using queries
 in
 this way encourages you to think meteorologically.
 <br>
-&nbsp;
 <h3><a name="ComplexQueries"></a>Complex Queries</h3>
-Queries are simply expressed in numerical python.&nbsp; Thus the
+Queries are simply expressed in numpy. Thus the
 techniques
 you use to write <a href="SmartTools.html">smart tools</a> and <a
  href="SmartInit.html">smart
@@ -651,7 +634,7 @@ initialization</a> scripts may also be performed in the query engine,
 just
 as long as the result is a "mask" representing whether a grid cell is
 marked
-"on" or "off".&nbsp; Thus, numerical functions may be used as well as
+"on" or "off". Thus, numerical functions may be used as well as
 numerical
 expressions.
 <p>For example, the following query calculates the dew point depression
@@ -670,29 +653,29 @@ T_SFC_BOU_GRID__NAM_20030314_1200)
 &gt; 4</font></tt></b></p>
 </center>
 <p>The above query also introduces the concept of performing queries on
-non-Fcst database grids.&nbsp; There are several more convenient
+non-Fcst database grids. There are several more convenient
 formats
 than that shown above, please refer to the <a
  href="ButtonBarDialogs.html#EditAreaQueryDialog">Edit
 Area and Query Dialog</a> for more details.
 </p>
-<p>Queries on WEATHER and DISCRETE data are also complex.&nbsp; The
+<p>Queries on WEATHER and DISCRETE data are also complex. The
 Edit
 Area and Query Dialog provides several shortcuts so you don't need to
 remember
-the specific syntax.&nbsp; The options permit exact matches or
+the specific syntax. The options permit exact matches or
 "contains"
-matches.&nbsp; For example, you can search for any instance (i.e., any
+matches. For example, you can search for any instance (i.e., any
 coverage, any intensity) of RW (rain showers) using this query:
 </p>
 <center><b><tt><font size="+1">mask(Wx, ":RW:")</font></tt></b></center>
 <p>Intimate knowledge of the format of the WEATHER "ugly" string makes
-this job easier, even though the dialog provides automatic fillin if
+this job easier, even though the dialog provides automatic filling if
 desired.
 </p>
 <p>The weather query above will match any grid cell that contains any
 form
-of RW.&nbsp; If you wanted to make an exact match of only the RW, then
+of RW. If you wanted to make an exact match of only the RW, then
 the query would be similar to:
 </p>
 <center><b><tt><font size="+1">mask(Wx, "^Sct:RW:-:&lt;NoVis&gt;:\Z", 1)<br>
@@ -700,16 +683,16 @@ the query would be similar to:
 <div style="text-align: left;"><br>
 If you want to select the inverse of an edit area, for example, the
 opposite of the above statement, then you use the logical_not()
-function.&nbsp; The following selects everything but Sct RW-:<br>
+function. The following selects everything but Sct RW-:<br>
 <br>
 <div style="text-align: center;"><b><tt><font size="+1">logical_not(mask(Wx,
 "^Sct:RW:-:&lt;NoVis&gt;:\Z", 1))<br>
 <br>
 </font></tt></b>
 <div style="text-align: left;">Wind queries use the "FROM"
-direction.&nbsp; Wind is presented as a tuple, so if you want to do a
-query based on wind speed, use Wind[0].&nbsp; If you want to do a query
-based on wind direction, use Wind[1].&nbsp; For example, the following
+direction. Wind is presented as a tuple, so if you want to do a
+query based on wind speed, use Wind[0]. If you want to do a query
+based on wind direction, use Wind[1]. For example, the following
 wind query looks for speeds greater than 25 and directions between NW
 (325) and NE (45):<br>
 <br>
@@ -726,18 +709,18 @@ wind query looks for speeds greater than 25 and directions between NW
 <a name="SavingEditAreaQueries"></a>Saving Edit Area Queries</h3>
 <div class="Body">Edit Area Queries can be saved just like ordinary
 "polygon"
-queries.&nbsp; Once you have submitted the query, select the save
+queries. Once you have submitted the query, select the save
 button
-to save that query.&nbsp; Note that it will be saved as a query so that
+to save that query. Note that it will be saved as a query so that
 when you submit it again, the result may be different, depending on the
-particular data values on your display.</div>
+particular data values on your display.</div><br>
 <div class="Body"><b>Important note about Edit Area Queries!</b> <font
  color="#3366ff">Many
 of the product generation applications accept one or more edit areas as
 input to allow you to trim the product to a domain of your
-choice.&nbsp;
+choice.
 Unfortunately, these product generation applications cannot accept edit
-area queries as input to generate a product.&nbsp; Edit Areas passed
+area queries as input to generate a product. Edit Areas passed
 into
 these routines must be "polygon" areas that are defined by boundaries
 not
@@ -752,21 +735,21 @@ future.</i></b></font>
 tool and Pencil tool) require that you first define the set of grid
 points
 to which you want the edit operation to apply and then apply the
-operation.&nbsp;
+operation.
 Tools consist of the Select Points, Contour, Pencil, Move/Copy, and
-Sample.&nbsp;
+Sample.
 These tools are selected using the GFE Toolbar and then particular
 mouse
-actions do different editing operations.&nbsp; Refer to the <a
+actions do different editing operations. Refer to the <a
  href="Toolbar.html">GFE
 Toolbar Reference Guide</a> for more details on the mouse button
-assignments.&nbsp;&nbsp;
-Also, you can set up keyboard shortcuts for these tools.&nbsp; (See <a
+assignments.
+Also, you can set up keyboard shortcuts for these tools. (See <a
  href="gfeConfig_StartUp.html#KeyboardShortcuts">gfeConfig
 Keyboard Shortcuts).</a></div>
 <h3>
-<a name="SelectPointsTool"></a>Select Points Tool<img nosave=""
- src="images/refset0.gif" align="middle" height="44" width="44"></h3>
+<a name="SelectPointsTool"></a>Select Points Tool <img nosave=""
+ src="images/editArea.jpg" align="middle"></h3>
 <ul>
   <li class="4Heading"> <b>Purpose: </b>To define an Edit Area</li>
 </ul>
@@ -800,8 +783,8 @@ that you defined earlier is deleted.</li>
 </ol>
 </div>
 <h3>
-<a name="ContourTool"></a>ContourTool<img nosave=""
- src="images/contourTool0.gif" height="44" width="44"></h3>
+<a name="ContourTool"></a>ContourTool <img nosave=""
+ src="images/contour.jpg"></h3>
 <ul>
   <li class="4Heading"> <b>Purpose:</b> Modify grid values by drawing
 and adjusting contours</li>
@@ -868,12 +851,12 @@ you command the grid to be recalculated. If you use the adjust
 operation,
 however, the grid will be recalculated automatically. Once the grid is
 recalculated, you can make further modifications and recalculate
-again.&nbsp;
+again.
 Once you are done manipulating the contours, the Button-3 popup menu
 gives
-you the options to Calculate New Grid.&nbsp; Selecting this options
+you the options to Calculate New Grid. Selecting this options
 will
-generate a new grid based on the contours that you just edited.</div>
+generate a new grid based on the contours that you just edited.</div><br>
 <div class="Body">The Contour Tool works only on weather elements that
 are of type scalar. For example, you cannot use the Contour Tool to
 edit
@@ -895,12 +878,11 @@ and its corresponding legend in the Spatial Editor should show that the
 grid is ready to edit.</li>
   <li>Next, select the Contour Tool icon from the Button Bar. The icon
 looks
-like:&nbsp;<img nosave="" src="images/contourTool0.gif" height="44"
- width="44"></li>
+like: <img nosave="" src="images/contour.jpg"></li>
   <li>Now, you are ready to draw some contours. Pick a value from the
 color
 bar,
-located at the top of the Spatial Editor, by clicking MB1 or MB2&nbsp;
+located at the top of the Spatial Editor, by clicking MB1 or MB2
 on whatever value you like.</li>
   <li>Move the mouse cursor over the Spatial Editor. Press MB1 and drag
 to
@@ -921,7 +903,7 @@ bar.
 Continue defining new contours until (in your best judgement) the
 contours
 adequately define the grid. Try to draw the contours so that the edges
-touch the sides of the data area, or close the contour on itself.&nbsp;
+touch the sides of the data area, or close the contour on itself.
 Drawing contours this way yields the best results when the grid is
 recalculated.</li>
   <li>Now generate the grid based on your contours by pressing MB3
@@ -937,7 +919,7 @@ that you drew earlier.</li>
 </div>
 <div class="Body">
 <ul>
-&nbsp; <li><b>Purpose:</b> Adjust an existing contour</li>
+ <li><b>Purpose:</b> Adjust an existing contour</li>
 </ul>
 The next exercise shows you how to adjust the position of contours that
 already exist. With the adjust operation, the grid is recalculated
@@ -981,9 +963,9 @@ removed
 contour will not be used in the calculations when converting the
 contours
 to a grid. Typically you would remove a few contours before drawing new
-ones of a different value and location to replace them.&nbsp; Note that
+ones of a different value and location to replace them. Note that
 the remove contour function removes the closest contour from the click
-point.&nbsp; If you are not careful to click close to the contour that
+point. If you are not careful to click close to the contour that
 you want to remove, you may remove the wrong one.</div>
 <ul>
   <li class="4Heading"> <b>Purpose:</b> Add a new Contour</li>
@@ -1022,7 +1004,6 @@ you switch to a new grid or new weather element. In other words, new
 contours
 added this way will persist until you edit a different grid.
 <br>
-&nbsp;
 <h4>Contour Tool Notes</h4>
 </div>
 <ul>
@@ -1082,12 +1063,12 @@ field, the more likely that you will be happy with the resulting grid.
 Sometime the algorithms will produce gridded fields that appear to be
 noisy.
 The Smooth edit action will generally remove this noise in the
-data.&nbsp;
+data.
 You will get the best results when you:</li>
   <ul>
     <li class="4Heading">Draw contours to the edge of the grid or that
 close in on
-themselves.&nbsp;
+themselves.
 Contours that stop before the edge tend to generate "spikes" near the
 end
 point.</li>
@@ -1104,10 +1085,10 @@ that will affect the set of contours.</li>
     <li class="4Heading"> <b>Calculate New Grid</b> - Selecting this
 option will calculate
 a new
-grid based on the contours that you just edited.&nbsp; In general, only
-the area under the modified contours will be modified.&nbsp; Grid
+grid based on the contours that you just edited. In general, only
+the area under the modified contours will be modified. Grid
 values
-in areas that you did not modify will not be changed.&nbsp; So, if you
+in areas that you did not modify will not be changed. So, if you
 are satisfied with the contours in a particular area and you don't
 change
 them, they will not be modified.</li>
@@ -1116,8 +1097,8 @@ reverse the last
 contour edit
 that you made.&nbsp; If you added a new contour, it will be
 removed.&nbsp;
-If you deleted a contour, it will be added back.&nbsp; If you adjusted
-a contour, the old contour will be restored.&nbsp; If&nbsp; you deleted
+If you deleted a contour, it will be added back. If you adjusted
+a contour, the old contour will be restored. If you deleted
 all of the contours with the Delete All Contours operation, all of the
 contours will be restored to their previous state.</li>
     <li class="4Heading"> <b>Delete All Contours</b> - Selecting this
@@ -1132,20 +1113,20 @@ corresponds
 to the grid value under the cursor. So you may choose to delete all of
 the contours and then add a few back in areas that you want to preserve
 the existing gridded data.</li>
-    <li class="4Heading"> <b>Contour Adjust Influence</b>&nbsp;&nbsp;
+    <li class="4Heading"> <b>Contour Adjust Influence</b>
 - Selecting this
 option will
 cause a cascade menu to appear that lists a set of distances in
-kilometers.&nbsp;
+kilometers.
 Selecting one of these distances will affect the distance over which
 the
-Contour Adjust operation modifies the grid points.&nbsp; The&nbsp;
+Contour Adjust operation modifies the grid points. The&
 largest
 value affects about six times the distance from the new contour
 poistion
 than the smallest value.&nbsp; The Contour Adjust operation and
 influence
-works exactly like the <a href="#PencilTool">Pencil Tool</a> .&nbsp;
+works exactly like the <a href="#PencilTool">Pencil Tool</a>.
 In
 fact, if you change the Contour Adjust Influence for a particular
 parameter
@@ -1159,7 +1140,7 @@ from the Spatial Editor product labels.</li>
 </ul>
 <h3>
 <a name="PencilTool"></a>Pencil Tool<img nosave=""
- src="images/pencilTool0.gif" height="44" width="44"></h3>
+ src="images/pencil.jpg"></h3>
 <div class="Body">The Pencil Tool can be thought of as a contour
 adjustment
 tool, but it does not actually adjust contours. The Pencil Tool assigns
@@ -1216,17 +1197,17 @@ how it works. Note that you are allowed to cross contours.</li>
 <h4 class="Step">
 Pencil Tool Width</h4>
 <div class="Step">The&nbsp; button-3 popup menu contains the option to
-change the Pencil Tool Width.&nbsp; Making this value smaller modifies
-a smaller area on either side of the newly modified contour.&nbsp;
+change the Pencil Tool Width. Making this value smaller modifies
+a smaller area on either side of the newly modified contour.
 Making
 this value larger modifies a larger area on either side of the newly
 drawn
-contour.&nbsp; To become familiar with this feature, change the Pencil
-Tool Width to its smallest value and modify a contour.&nbsp; Then
+contour. To become familiar with this feature, change the Pencil
+Tool Width to its smallest value and modify a contour. Then
 change
-it to its largest value and modify another contour.&nbsp; Note the
+it to its largest value and modify another contour. Note the
 relative
-difference in the two operations.&nbsp;&nbsp;&nbsp; The individual
+difference in the two operations. The individual
 influence
 sizes can be configured via your GFE configuration file. Note that the
 Pencil Tool Width is Weather Element dependant.&nbsp; Changing the
@@ -1239,13 +1220,13 @@ a per Weather Element basis.
 <p><b>Pencil Tool with Active Edit Areas</b>
 </p>
 <p>To better control changes to your grids, the Pencil Tool operations
-are restricted to any active Edit Areas that you have defined.&nbsp; If
+are restricted to any active Edit Areas that you have defined. If
 there are no Edit Areas active, then the Pencil Tool beahves as if the
 entire grid is the active Edit Area.&nbsp; For example, if you first
 select
 an edit area and then repeat the exercise above, you will see that any
 changes that were made are confined to the Edit Area that you
-selected.&nbsp;
+selected.
 The data values are identical to what they would be if no Edit Areas
 were
 active, but again changes are restricted to those grid points that lie
@@ -1265,38 +1246,38 @@ command <b>Undo Area Edit</b>.
 </p>
 <p>Note that the Pencil Tool will also work on grids of type vector,
 such
-as wind.&nbsp; The algorithm is virtually identical except that the
+as wind. The algorithm is virtually identical except that the
 speed
 and direction are considered as separate components and are
 recalculated
-independently.&nbsp; Try the Pencil Tool with a wind grid to get an
+independently. Try the Pencil Tool with a wind grid to get an
 idea
 of how it works on data of type vector.
 </p>
 <p><a name="streamlineTool"></a><b>The Streamline Tool</b>
 </p>
 <p>The Pencil Tool works like a streamline editor for a given set of
-conditions.&nbsp;
-To use the Pencil Tool as a streamline tool , make a Wind (or any other
-vector-type weather element) active.&nbsp; Then from the main menu
+conditions.
+To use the Pencil Tool as a streamline tool, make a Wind (or any other
+vector-type weather element) active. Then from the main menu
 select
 <b>GFE-&gt;Editing
 Preferences-&gt;Vector Edit Mode-&gt;Direction Only</b> or from the MB3
 pop-up
 menu over the Spatial Editor select <b>Vector Edit Mode-&gt;Direction
-Only</b>.&nbsp;
+Only</b>.
 When the GFE is in this mode the Pencil Tool behave line a streamline
-editor.&nbsp;
-To use it,&nbsp; select the tool, press and hold MB1 and drag a line in
+editor.
+To use it, select the tool, press and hold MB1 and drag a line in
 the direction you want the wind to blow.&nbsp; For example, if you drag
 a line from northwest to southeast, all of the wind values within the
 Pencil
 Tool width will now indicate a northwest wind.&nbsp; Give it a
-try.&nbsp;
+try.
 Note that with a large enough Pencil Width you can draw a circle in a
 counter-clockwise
 direction with the tool and create a large cyclonic circulation in the
-wind field.&nbsp; <font color="#ff0000"><b>Remember that this tool
+wind field. <font color="#ff0000"><b>Remember that this tool
 works
 only on weather elements of vector type and when the Vector Edit Mode
 is
@@ -1306,7 +1287,7 @@ set to</b> <b>DIrection Only</b></font>.
 </p>
 <p>In the case of weather, the Pencil Tool will expand the extent of
 the
-weather/discrete (or No Weather/Discrete) that you select.&nbsp; When
+weather/discrete (or No Weather/Discrete) that you select. When
 using
 the Pencil Tool on Weather, <b>you must begin and end the Pencil Tool
 operation
@@ -1322,7 +1303,7 @@ areas of weather using
 the Pencil
 Tool</li>
   <br>
-&nbsp; <li class="4Heading">Load the "Wx" weather element&nbsp; into
+ <li class="4Heading">Load the "Wx" weather element into
 the GFE
 (if not already), select
 a grid and make it editable.</li>
@@ -1343,24 +1324,24 @@ area in which you started.</li>
 </ol>
 Note that you have now defined a new boundary for the weather area in
 which
-you started.&nbsp; Note that this is not a "paint" operation.&nbsp; The
-Pencil Tool defines a new <b>boundary</b> for the weather area.&nbsp;
+you started. Note that this is not a "paint" operation. The
+Pencil Tool defines a new <b>boundary</b> for the weather area.
 It
 does not assign values along the draw path like the algorithm that
 operates
-on scalar or vector data.&nbsp; You can also use the Pencil Tool to
+on scalar or vector data. You can also use the Pencil Tool to
 make
-any area of weather smaller.&nbsp; Simply start in an area that is
+any area of weather smaller. Simply start in an area that is
 defined
-as "No Weather" and define the new boundary.&nbsp; If the line you draw
+as "No Weather" and define the new boundary. If the line you draw
 crosses into any other weather area, the boundary of that area will
-change.&nbsp;
+change.
 Be sure to end your drag in the same "No Weather" areaas you started.
 Give
-it a try.&nbsp;&nbsp; Note the change in the weather grid.</div>
+it a try. Note the change in the weather grid.</div>
 <h3>
 <a name="Move/CopyTool"></a>Move/Copy Tool<img nosave=""
- src="images/movecopy0.gif" height="44" width="44"></h3>
+ src="images/moveCopy.jpg"></h3>
 <ul>
   <li class="4Heading"> <b>Purpose:</b> Adjust the spatial position of
 grid values</li>
@@ -1413,27 +1394,24 @@ it to a new location. Use MB2 if you want to move some feature and fill
 in the original area with background values.
 <br>
 &nbsp;
-<h1><a name="EditActions"></a>Edit Actions&nbsp;<img nosave=""
- src="images/editActions0.gif" align="middle" height="44" width="44"></h1>
-There are many more tools available from the Edit Actions menu.&nbsp;
+<h1><a name="EditActions"></a>Edit Actions <img nosave=""
+ src="images/editAction.jpg" align="middle"></h1>
+There are many more tools available from the Edit Actions menu.
 These
 edit tools always operate over the currently selected edit area. To use
-them, click on the Button Bar button labelled "E" .&nbsp; The Edit
+them, click on the Button Bar button labelled "E". The Edit
 Action
 dialog menu will display a list of tools that operate on the currently
 editable weather element.&nbsp; Selecting one of these tools will
 perform
-that operation over the edit area that you have selected.&nbsp; The
+that operation over the edit area that you have selected. The
 four
 standard tools that work for virtually all weather elements are listed
 in the table below.
 <br>
-&nbsp;
 <br>
 <table nosave="" border="1">
-  <caption><br>
-  </caption><tbody>
-  </tbody> <tbody>
+ <tbody>
     <tr>
       <td>&nbsp;&nbsp;&nbsp; <b>Tool Name</b></td>
       <td><b>&nbsp;Function</b></td>
@@ -1454,28 +1432,24 @@ in the table below.
       <td>&nbsp;Smooth</td>
       <td>&nbsp;Smooths out strong gradients</td>
     </tr>
-    <tr>
-      <td><br>
-      </td>
-    </tr>
   </tbody>
 </table>
 <p>The Edit Actions dialog also lists the set of Smart Tools that will
-edit the currently editable weather element.&nbsp; Smart Tools will
+edit the currently editable weather element. Smart Tools will
 also
-appear on the MB3 pop-up menu over the Spatial Editor.&nbsp; In
+appear on the MB3 pop-up menu over the Spatial Editor. In
 addition,
 keyboard shortcuts can be set up for Smart Tools and Procedures (<a
  href="gfeConfig_StartUp.html#KeyboardShortcuts">see
-gfeConfig Keyboard Shortcuts</a> ).&nbsp; For more information about
+gfeConfig Keyboard Shortcuts</a> ). For more information about
 Edit
-Actions and Smart Tools,&nbsp; go to the&nbsp; <a
+Actions and Smart Tools, go to the <a
  href="SmartTools.html">Smart
-Tool Training Guide</a> .</p>
+Tool Training Guide</a>.</p>
 </div>
 <h3>
-<a name="SampleTool"></a>Sample Tool&nbsp;<img nosave=""
- src="images/samples0.gif" align="middle" height="44" width="44"></h3>
+<a name="SampleTool"></a>Sample Tool <img nosave=""
+ src="images/sample.jpg" align="middle"></h3>
 <ul>
   <li class="4Heading"> <b>Purpose:</b> Provide a textual
 representation of grid values</li>
@@ -1489,7 +1463,7 @@ of a weather element at a particular location, such as a city. The
 Sample
 Tool can also be used to control "Markers", which are mainly used for
 Intersite
-Coordination data.&nbsp; Markers are similar to Samples, except that
+Coordination data. Markers are similar to Samples, except that
 data
 values are not shown.</div>
 <div class="Step-First">
@@ -1497,7 +1471,7 @@ values are not shown.</div>
   <li>Make sure that you have at least one grid displayed in the
 Spatial
 Editor.</li>
-  <li>Select the&nbsp; Sample tool located near the middle of the
+  <li>Select the Sample tool located near the middle of the
 button bar.</li>
   <li>Move the cursor into the display. Press and hold MB1 and drag the
 cursor
@@ -1538,26 +1512,26 @@ from
 the main menu bar <b>Maps-&gt;Samples-&gt;Show Lat/Lon</b>. Turning
 this mode
 on will cause the samples to display the latitude and longitude always
-at the bottom of the sample in the color white.&nbsp; Turning this mode
+at the bottom of the sample in the color white. Turning this mode
 off will remove the lat/lon display.
 <p>Samples may also be defined by latitude/longitude through the <a
  href="MainMenuDialogs.html#DefineSamplesviaLatitude/LongitudeDialog">Define
-Samples via Lat/Lon Dialog</a> .&nbsp; This is accessed from the main
+Samples via Lat/Lon Dialog</a>. This is accessed from the main
 menu
 bar, <b>Maps-&gt;Samples-&gt;Define Samples via Lat/Lon...</b>
 </p>
 <p>Samples and Marker options are available from the <b>Maps-&gt;Samples</b>
-and <b>Maps-&gt; ISC Markers</b> menu.&nbsp; The user can choose to
+and <b>Maps-&gt; ISC Markers</b> menu. The user can choose to
 enable
 optional features of the sample points, which include the update time,
 WFO site identifier, and "P" official database symbol for those data
-points.&nbsp;
+points.
 Markers and Samples differ in the fact that markers do not show data
 values
 and are intended for displayof intersite coordination data
-status.&nbsp;
+status.
 Samples display data points. The Sample Tool provides a MB3 popup menu
-to add and remove markers.&nbsp; Markers are not cleared from the <b>Samples-&gt;Clear</b>
+to add and remove markers. Markers are not cleared from the <b>Samples-&gt;Clear</b>
 menu. Refer to the <a href="ISC.html">Intersite Coordination User's
 Guide</a>
 for more information.
@@ -1566,17 +1540,17 @@ for more information.
  nosave="" src="images/isc4.jpg" height="432" width="395">Example
 of regular samples and ISC Markers
 <br>
-&nbsp;</p>
+</p>
 </div>
 <div class="1Heading">You can save a set of samples after you have
 defined
-them.&nbsp; Once you have the set of samples just the way you like,
+them. Once you have the set of samples just the way you like,
 select
-from the main menu bar, <b>Maps-Samples-&gt;Save/Delete...</b>&nbsp;&nbsp;
+from the main menu bar, <b>Maps-Samples-&gt;Save/Delete...</b>
 This will display the <a href="MainMenuDialogs.html#SaveSamplesDialog">Save/Delete
 Sample Dialog</a> which allows you to assign a name to your sample set.
 <p>Samples are represented with additional information if the GFE is in
-"<a href="ISC.html#UsingISCMode">Show ISC Mode</a>".&nbsp; When "<a
+"<a href="ISC.html#UsingISCMode">Show ISC Mode</a>". When "<a
  href="ISC.html#UsingISCMode">Show
 ISC Mode</a>" is enabled, the sample points may contain update times,
 site
@@ -1586,7 +1560,5 @@ User's
 Guide</a> for more details.
 <br>
 </p>
-
-
 </body>
 </html>

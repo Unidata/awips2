@@ -690,7 +690,7 @@ params = /*new ColorMapParameters();//*/ColorMapParameterFactory.build((Object) 
         rrcap.paint(target, paintProps);    	
     }    
 
-	public void resourceChanged(ChangeType type, Object object) {
-	}
+//	public void resourceChanged(ChangeType type, Object object) {
+//	}
 
 }

@@ -9,8 +9,8 @@
   <title>VTECPartners.py</title>
 </head>
 <body style="background-color: rgb(255, 255, 255);">
-<h1 class="3Heading">VTECPartners.py</h1>
-October 31, 2007<br>
+<h1 class="3Heading">VTECPartners</h1>
+December 30, 2011<br>
 <div class="3Heading"><br>
 <a name="TableofContents"></a>Table of Contents
 <br>
@@ -52,7 +52,7 @@ used to override baseline entries in the VTECPartners.py file.<br>
     <tr>
       <td style="vertical-align: top;">Contains a list of request
 sites.&nbsp; These are the AWIPS site identifiers (nominally
-3-letters).&nbsp; Requests will be sent from the ifpServer to these
+3-letters).&nbsp; Requests will be sent from EDEX to these
 sites at the interval specified in the VTEC_REMOTE_TABLE_FETCH_TIME
 entry.<br>
       </td>
@@ -232,7 +232,8 @@ CHANGE ANY CODE BELOW THIS NOTICE</span><br
 <hr style="width: 100%; height: 2px;">
 <h2><a name="ModificationTechnique"></a>Modification Technique</h2>
 The modification technique requires the user to create a
-localVTECPartners.py file in the etc/SITE directory and then override
+localVTECPartners.py file in the <i>/awips2/edex/data/utility/common_static/site/SITE_ID/vtec</i>
+directory and then override
 just those elements required.&nbsp; Refer to the <a
  href="localVTECPartners.html">localVTECPartners.py</a> documentation.<br>
 <hr style="width: 100%; height: 2px;">
@@ -254,13 +255,14 @@ Sharing of the VTEC active table is accomplished through these steps:<br>
   <li>Enabling your site to respond to other requests for your active
 table.</li>
   <li>Enabling your site to request other sites active table.</li>
-  <li>Restarting the ifpServer.<br>
+  <li>Restarting the EDEX.<br>
   </li>
 </ol>
 Refer to the <a href="localVTECPartners.html">localVTECPartners.py</a>
 documentation for more details on the syntax of the
 localVTECPartners.py file.&nbsp; Basically you will create a file in
-.../etc/SITE called localVTECPartners.py and it will contain at least
+<i>/awips2/edex/data/utility/common_static/site/SITE_ID/vtec</i> 
+called localVTECPartners.py and it will contain at least
 the following information:<br>
 <br>
 <span style="font-weight: bold; font-family: monospace;">import
@@ -288,18 +290,18 @@ such as:<br>
 = ['DVN','DMX']</span><br>
 <br>
 After you have enabled the sharing, you should examine your <a
- href="VTEC.html#LogFiles">ingestAT, sendAT, requestAT, iscDataRec log
+ href="VTEC.html#LogFiles">ingestAT, dumpAT, iscDataRec log
 files</a> to
 ensure operations are working as desired.<br>
 <br>
-Note: Starting with OB8.3, the sites specified in
+<b>Note:</b> The sites specified in
 VTEC_TABLE_REQUEST_SITES do not represent AWIPS physical sites, but
-ifpServers running the specified site domain.&nbsp; Thus if you specify
-'DMX', the software will discover all of the ifpServers on the network
-running the domain 'DMX' and choose one of the ifpServers to request
-the VTEC table updates from.&nbsp;&nbsp; The software will first try to
+EDEX servers running the specified site domain.&nbsp; Thus if you specify
+'DMX', the software will discover all of the EDEX servers on the network
+running the domain 'DMX' and choose one of the servers to request
+the VTEC table updates from.&nbsp; The software will first try to
 find a message handler ID that matches the domain id, with the known
-primary ifpServer location (dx4/98000000), and then will check other
+primary GFE location (dx3/98000000), and then will check other
 hosts and ports and perhaps different message handler ids for the 'DMX'
 domain.&nbsp; The log files will indicate where the requests are sent.<br>
 <br>

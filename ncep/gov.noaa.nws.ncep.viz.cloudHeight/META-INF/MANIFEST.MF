@@ -23,6 +23,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.datastorage.hdf5,
  com.raytheon.uf.common.pypies,
+ com.raytheon.viz.core.gl.dataformat,
  com.raytheon.viz.satellite.rsc,
  gov.noaa.nws.ncep.common.dataplugin.mcidas,
  gov.noaa.nws.ncep.edex.common.sounding,

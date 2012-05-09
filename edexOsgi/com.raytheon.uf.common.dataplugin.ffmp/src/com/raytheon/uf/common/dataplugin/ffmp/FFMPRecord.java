@@ -66,7 +66,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/03/09     2521     D. Hladky   Initial release
- * 
+ * 16/04/12		DR 14511 G. Zhang	 Replacing synchronized object
  * </pre>
  * 
  * @author dhladky
@@ -509,8 +509,8 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
             SourceXML source = FFMPSourceConfigurationManager.getInstance()
                     .getSource(sourceName);
             Long pfaf = basin.getPfaf();
-
-            synchronized (template) {
+            //DR 14511:	 FFMPResource.paintInternal() uses template, causing GUI delay 
+            synchronized (/*template*/template.getPrimaryDomain()) {
 
                 for (DomainXML domain : template.getDomains()) {
 

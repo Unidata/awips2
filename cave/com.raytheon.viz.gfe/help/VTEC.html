@@ -12,7 +12,7 @@
 <body style="background-color: rgb(255, 255, 255);">
 <h1 style="text-align: center;" class="3Heading">GFESuite VTEC<br>
 </h1>
-<div style="text-align: center;" class="3Heading">April 18, 2006<br>
+<div style="text-align: center;" class="3Heading">March 13, 2012 - <b>THIS VERSION IS NOT COMPLETE</b><br>
 </div>
 <div class="3Heading">
 <h2><a name="TableofContents"></a>Table of Contents</h2>
@@ -39,169 +39,104 @@ through the GFE.<br>
 <h2><a name="ProgramFlow"></a>VTEC Program Flow<br>
 </h2>
 The following diagram shows the VTEC program flow through the
-GFE.&nbsp; It consists of three major parts:&nbsp; VTEC Decoding, VTEC
+GFE. It consists of three major parts: VTEC Decoding, VTEC
 Merging, and Product Formatting.<br>
 <br>
 <h3>VTEC Decoding</h3>
 <span style="color: rgb(255, 0, 0);"><br>
 <span style="color: rgb(0, 0, 0);">Text bulletins containing VTEC codes
-are received over the AWIPS SBN.&nbsp;&nbsp; These are routed to the
-NotifyTextProd AWIPS D2D persistent process.&nbsp; The NotifyTextProd
+are received over the AWIPS SBN. These are routed to the
+NotifyTextProd AWIPS D2D persistent process. The NotifyTextProd
 compares the incoming product against the routing table contained in
-the pattern file.&nbsp; The pattern file is used to determine the
-process to be run for that file.&nbsp;&nbsp; The pattern file used in
+the pattern file. The pattern file is used to determine the
+process to be run for that file. The pattern file used in
 the GFESuite/VTEC situation instructs the NotifyTextProd to start the
 VTECDecoder anytime a W* (all warnings) or FZ* (all routine marine
 products) arrives.<br>
 <br>
 The VTECDecoder reads the text product, decodes the UGC strings and the
-VTEC strings.&nbsp;&nbsp; It then merges its findings with the "Active"
-table.&nbsp; The "Active" table represents the currently active (or
-recently active) watches, warnings, and advisories.&nbsp; It tracks
+VTEC strings. It then merges its findings with the "Active"
+table. The "Active" table represents the currently active (or
+recently active) watches, warnings, and advisories. It tracks
 Event Tracking Numbers (etns) by geographical id (UGC code) and knows
 the current state of each VTEC through action codes (e.g., NEW, CAN,
 UPG, EXT) for each product.<br>
 <br>
 There is a special WOU product that is received as guidance from the
-Storm Prediction Center (SPC).&nbsp;&nbsp; These products, when
+Storm Prediction Center (SPC). These products, when
 decoded, will send an alert message to the GFE (using sendGfeMessage)
-informing the forecaster to run the PlotSPCWatches tool.&nbsp; This
+informing the forecaster to run the PlotSPCWatches tool. This
 allows the latest SPC guidance to be placed into the Hazards grids,
 where it can further edited by the forecaster. Likewise, the Tropical
 Prediction Center (TPC) sends out TCV tropical event bulletins, which
 when decoded, sends an alert message to the GFE informing the
-forecaster to run the PlotTPCEvents tool.&nbsp; This allows the latest
+forecaster to run the PlotTPCEvents tool. This allows the latest
 TPC guidance to be placed into the Hazards grid.<br>
 <br>
-The "Active" table is designed to be "locked" when writing.&nbsp;&nbsp;
+The "Active" table is designed to be "locked" when writing.
 Only the VTECDecoder and MergeVTEC processes lock the table during
-their update cycle.&nbsp;&nbsp; Any client can read the table if the
+their update cycle. Any client can read the table if the
 table is not locked for writing.<br>
 </span></span><br>
 <img alt="VTEC Flow" src="images/VTECFlow.png"
  style="width: 960px; height: 720px;"><br>
 <br>
 <br>
-<h3>VTEC Merging</h3>
+<h3>VTEC Merging - <b>NOT COMPLETE</b></h3>
 <br>
 It is important that the "Active" table be always
-up-to-date.&nbsp;&nbsp; In the outside chance that a warning product is
-missed on the SBN, the ifpServer asks surrounding sites for their
-"Active" table on a routine basis.&nbsp;&nbsp; This is sent out as a
-request via the WAN.&nbsp; The adjacent site, upon receiving the
+up-to-date. In the outside chance that a warning product is
+missed on the SBN, EDEX asks surrounding sites for their
+"Active" table on a routine basis. This is sent out as a
+request via the WAN. The adjacent site, upon receiving the
 request, packages the Active table for transmission back to the
-requesting site.&nbsp;&nbsp; The requesting site receives the table and
-runs the MergeVTEC routine.&nbsp; The MergeVTEC routine will add/update
+requesting site. The requesting site receives the table and
+runs the MergeVTEC routine. The MergeVTEC routine will add/update
 any records that are newer in the received active table than the
-existing active table.&nbsp; If a warning was issued and the action
+existing active table. If a warning was issued and the action
 code or etn was updated but the local site missed the text bulletin
 (perhaps during a reboot), the MergeVTEC will update the warning record
-in the local table.&nbsp;&nbsp; The configuration file VTECPartners is
+in the local table. The configuration file VTECPartners is
 critical in this process since it defines the adjacent sites from which
 to get the active table, as well as the site filtering for the
 VTECDecoder.<br>
 <br>
-<img alt="VTEC Merge" src="images/VTECMerge.png"><br>
-<br>
-The steps in the VTEC Table Merging process is in three
-steps:&nbsp;&nbsp; request, reply, and merge.&nbsp; These steps use the
-same communication protocol as the Intersite Coordination of Grids
-technique. The steps on the diagram above are described below:<br>
-<br>
-Request<br>
-<br>
-1. The ifpServer starts the requestAT process on a user-specified
-interval (defined in VTECPartners.py).<br>
-2.&nbsp; The requestAT process writes out the requesting sites
-identifier into a disk file.&nbsp; The AWIPS MHS system works with
-email attachements so this information must be stored somewhere.<br>
-3.&nbsp; The requestAT process attempts to contact the daemon iscd on
-the AWIPS mhs host (ds1 prior to OB7, dx1 OB7 and after).&nbsp; <br>
-3a. The inetd process receives the message and starts the iscd daemon
-process, if it isn't already running.<br>
-4. The requestAT process passes the information package to the iscd
-daemon.<br>
-4a. The iscd daemon process spools the information to a disk file.<br>
-5. When the entire file is complete, the iscd daemon process calls the
-msg_send to send the message.<br>
-5a. The msg_send process reads the spooled file.<br>
-6.&nbsp; The msg_send process sends the message via the AWIPS Message
-Handler System.<br>
-<br>
-Reply<br>
-<br>
-7. The remote site's Message Handler System spools the received
-information to a temporary file.<br>
-8.&nbsp; The Message Handler System calls the iscDataRec process.&nbsp;
-<br>
-9.&nbsp; The iscDataRec process communicates the request with the
-ifpServer.<br>
-10. The ifpServer process starts the sendAT process.<br>
-11. The sendAT process asks the ifpServer for the active table.<br>
-12.&nbsp; The sendAT process spools the table to a temporary file.<br>
-13. The sendAT process attempts to contact the daemon iscd on the AWIPS
-mhs (ds1 prior to OB7, dx1 OB7 and after).<br>
-13a. The inetd process receives the message and starts the iscd daemon
-process, if it isn't already running.<br>
-14. The sendAT process passes the information package containing the
-active table to the iscd daemon.<br>
-14a. The iscd daemon process spools the information to a disk file.<br>
-15. When the entire file is complete, the iscd daemon process calls the
-msg_send to send the message to the requesting site.<br>
-15a. The msg_send process reads the spooled file.<br>
-16. The msg_send process sends the message via the AWIPS Message
-Handler System.<br>
-<br>
-Merge<br>
-<br>
-17. The local site's Message Handler System spools the received
-information to a temporary file.<br>
-18. The Message Handler System calls the iscDataRec process.<br>
-19. The iscDataRec process communicates the request with the ifpServer.<br>
-20. The ifpServer process starts the ingestAT process.<br>
-21.&nbsp; The ingestAT process calls the MergeVTEC module to do the
-merging.<br>
-22. The MergeVTEC module reads the spooled remote VTEC table, and the
-local server's active table, performs the merge operation, and then
-stores the updated active table.<br>
-<br>
-<br>
-<br>
+<!--<img alt="VTEC Merge" src="images/VTECMerge.png">--><br>
 <h3>Product Formatting</h3>
 When a GFE Text Product is run, it first analyzes the GFE Hazards
-weather element.&nbsp;&nbsp; The Hazards grid contains areas of VTEC
+weather element. The Hazards grid contains areas of VTEC
 phenomena and significance, such as WS.W for Winter Storm
-Warning.&nbsp;&nbsp; The Hazards grid contains the "Proposed" set of
-hazards.&nbsp; This is summed into a "Proposed" table.&nbsp;&nbsp; The
-"Active" table is retrieved through the ifpServer and the VTEC
+Warning. The Hazards grid contains the "Proposed" set of
+hazards. This is summed into a "Proposed" table. The
+"Active" table is retrieved through EDEX and the VTEC
 Comparison module analyzes the proposed and active table and derives
-the "Analyzed table".&nbsp;&nbsp; The "Analyzed" table contains all of
+the "Analyzed table". The "Analyzed" table contains all of
 the proper VTEC action strings and event tracking numbers based on the
-VTEC Comparison logic.&nbsp; For example, if there is a hazard in the
+VTEC Comparison logic. For example, if there is a hazard in the
 active table but not in the proposed table, generally a "CAN" for
-cancel is generated.&nbsp;&nbsp; If there is a new hazard in the
+cancel is generated. If there is a new hazard in the
 proposed table but not a matching one in the active table, then a "NEW"
-is issued.&nbsp; If the logic detects that the user has proposed a
+is issued. If the logic detects that the user has proposed a
 larger area or a longer time for an existing hazard, then the
 appropriate EXT, EXA, or EXB action codes are generated.<br>
 <br>
 After the Analyzed table is complete, the hazards are filtered by
-product, since not all products contain the same hazards.&nbsp;&nbsp;
+product, since not all products contain the same hazards.
 The GFE and GHG Text Generation modules create the output
-product.&nbsp;&nbsp; There is a fine line between the GFE and GHG text
-generation portion of GFESuite.&nbsp; They both use the GFE text
-formatter infrastructure.&nbsp; The GFE text formatters are for routine
+product. There is a fine line between the GFE and GHG text
+generation portion of GFESuite. They both use the GFE text
+formatter infrastructure. The GFE text formatters are for routine
 forecast products and the GHG text formatters are for the watch,
 warning, and advisory products.<br>
 <p>
-The Hazard weather element uses the auxilary data field capability of
-Discrete data. The auxilary data field is only used in two cases with
+The Hazard weather element uses the auxiliary data field capability of
+Discrete data. The auxiliary data field is only used in two cases with
 Hazards. For convective watches (Tornado Watches and Severe
 Thunderstorm
 Watches), the Storm Prediction Center's (SPC) Event Tracking Number
-is carried into the auxilary data field. This is used by the VTEC
+is carried into the auxiliary data field. This is used by the VTEC
 logic to determine which watch (or watches) is depicted in the grids.
-The second use for the auxilary data field is for GHG-style warning
+The second use for the auxiliary data field is for GHG-style warning
 products. It is used to define a segment number for multi-segmented
 products.
 </p>
@@ -226,48 +161,28 @@ VTEC can be in one of five modes:<br>
   <li>Experimental VTEC in an Operational Product ("X")</li>
 </ul>
 The mode is controlled by a single file contained in the
-data/databases/BASE/TEXT/TextUtility
-directory called VTECMessageType.TextUtility (which can be overridden
+/awips2/cave/etc/gfe/userPython/textUtilities/regular
+directory called VTECMessageType.py (which can be overridden
 at
-the SITE level if necessary).&nbsp; The product
+the SITE level if necessary). The product
 category, e.g., WSW, should be placed in the file and the VTEC mode
 indicated by
-one of the acceptable letters: "O", "T", "E", "X".&nbsp; If a product
+one of the acceptable letters: "O", "T", "E", "X". If a product
 category is not in this file, then VTEC is not enabled for that product.<br>
 <br>
 <span style="color: rgb(255, 0, 0);">IMPORTANT: The file in BASE should
-not be modified.&nbsp; Instead the following technique should be
+not be modified. Instead the following technique should be
 followed.<br>
 </span>
 <ol>
-  <li>As the "installed user" (typically 'ifps' for AWIPS machines), go
-to the ifpServer data directories and find the file&nbsp;&nbsp;
-...data/databases/BASE/TEXT/TextUtility/VTECMessageType.TextUtility.</li>
-  <li>chmod 644 VTECMessageType.TextUtility&nbsp; (to make it writable)</li>
-  <li>Start a GFE as user "SITE".&nbsp; Choose GFE -&gt; Define Text
-Products.&nbsp; From the Define Text Products Dialog's Text Utilities
-column, find VTECMessageType.&nbsp; MB3 press over the entry and select
-Modify.</li>
-  <li>The Python editor window will appear with the current contents of
-the VTECMessageType file.&nbsp; This will be a copy of the BASE version
-if these steps have not been previously done, or your last
-modifications to this file.</li>
+  <li>Open the localization perspective and browse to the GFE-&gt;TextUtilities.</li>
+  <li>Open the BASE level VTECMessageType.py.</li>
   <li>Comment in or out the appropriate lines in the file to
-enable/disable VTEC.&nbsp;&nbsp; Change the message type as appropriate
+enable/disable VTEC. Change the message type as appropriate
 to one of the allowable codes: O, T, E, or X.</li>
-  <li>Save the file, and exit the Python editor.&nbsp; Exit the GFE.</li>
-  <li>As the "installed user" (typically 'ifps' for AWIPS machines), go
-to the ifpServer data directories and find the file
-.../data/databases/BASE/TEXT/TextUtility/VTECMessageType.TextUtility.</li>
-  <li>chmod 444 VTECMessageType.TextUtility (to make it read-only)</li>
-  <li>Go to the SITE version of this file:&nbsp;
-.../data/databases/SITE/TEXT/TextUtility/VTECMessageType.TextUtility.</li>
-  <li>chmod 444 VTECMessageType.TextUtility (to make it read-only)</li>
+  <li>Use the File-&gt;Save As option to save the file as SITE, and exit the 
+  Python editor. Exit the Localization perspective.</li>
 </ol>
-By making the file read-only, the GFE will not allow the file to be
-modified.&nbsp; You do not want anyone overriding the values in this
-file or you will get inconsistent VTEC coding in the product
-formatters.
 <p>The default provided VTECMessageType enables "O" operational VTEC
 for all
 products except for the MWS, where VTEC is still experimental "X".
@@ -441,18 +356,18 @@ the active table.<br>
 <br>
 The VTEC Decoder writes to the "Active Table" via exclusive write
 locking.&nbsp; A backup copy of the "Active Table" is made after each
-modification.&nbsp; The VTECPartner's VTEC_BACKUP_TABLE_PURGE_TIME
+modification. The VTECPartner's VTEC_BACKUP_TABLE_PURGE_TIME
 specifies the number of hours in which to keep backup copies.<br>
 <br>
 <hr style="width: 100%; height: 2px;">
-<h2><a name="NotifyTextProd"></a>AWIPS D2D Setup for GFESuite VTEC<br>
+<h2><a name="NotifyTextProd"></a>AWIPS D2D Setup for GFESuite VTEC - NOT UPDATED<br>
 </h2>
 The AWIPS NotifyTextProd processes
 will look for
 /awips/GFESuite/primary/data/acquire/notifyPattern.txt and
 /awips/GFESuite/svcbu/data/acquire/notifyPattern.txt.&nbsp; That file
 contains routing information for incoming text bulletins based on a WMO
-pattern.&nbsp; Example contents of the "open" file is:<br>
+pattern. Example contents of the "open" file is:<br>
 <br>
 <span style="font-family: monospace; font-weight: bold;">#This file is
 for NotifyTextProd to start the VTECDecoder whenever certain</span><br
@@ -651,7 +566,7 @@ startNotifyTextProd scripts that are available.<br>
 <br>
 IMPORTANT CONFIGURATION:&nbsp; Once your site has installed OB6, you
 should add the following to your localConfig file to take advantage of
-the extra filtering, but only if you are running IFPS17.6.*.&nbsp;
+the extra filtering, but only if you are running IFPS17.6.*.
 Versions post IFPS17.6 are automatically configured for the extra
 filtering.<br>
 <br>
@@ -666,10 +581,10 @@ NotifyTextProd in localConfig</a> for additional information.<br>
 <br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="SynchronizationActiveTable"></a>Synchronization of the
-Active Table from Backup Sites<br>
+Active Table from Backup Sites - NOT UPDATED<br>
 </h2>
 Synchronization of the Active Table from Backup Sites is used to ensure
-that your VTEC table is always up-to-date.&nbsp;&nbsp; It comes in
+that your VTEC table is always up-to-date. It comes in
 especially handy when you enter service backup and you need the latest
 active table.&nbsp; Based on the clock, the ifpServer will make a
 request for adjacent site's active table.&nbsp; The remote site(s)
@@ -742,14 +657,14 @@ localVTECPartners</a> documentation.<br>
 <br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="DebuggingTables"></a>Debugging/Examining the Active,
-Proposed, and Analyzed Tables<br>
+Proposed, and Analyzed Tables - NOT UPDATED<br>
 </h2>
 The key to VTEC is the correct merging of the proposed and active
-table.&nbsp;&nbsp; For diagnostics, the logging preferences file may be
+table. For diagnostics, the logging preferences file may be
 edited to turn on the verbose and debug output for the VTECDecoder,
-VTEC Merging, and product formatting.&nbsp;&nbsp; The contents of the
+VTEC Merging, and product formatting. The contents of the
 analyzed table will be output at each step of the VTEC
-comparison.&nbsp; This is quite helpful for debugging.<br>
+comparison. This is quite helpful for debugging.<br>
 <br>
 For formatters, you will want to enable the debugging for
 HazardsTable.py.&nbsp; Here is the complete
@@ -1002,9 +917,9 @@ indicates that the event tracking number has not yet been determined.<br>
       <td style="vertical-align: top;">Seg<br>
       </td>
       <td style="vertical-align: top;">The assigned segment
-number.&nbsp; This is normally zero for the analyzed and proposed
-tables.&nbsp; The segment number from the VTECDecoder indicates the
-ordering of the product.&nbsp;&nbsp; The proposed table normally does
+number. This is normally zero for the analyzed and proposed
+tables. The segment number from the VTECDecoder indicates the
+ordering of the product. The proposed table normally does
 not have this entry, except that the forecaster may define a hazard
 with different segements to aid the hazard formatters in formatting the
 product.<br>
@@ -1014,7 +929,7 @@ product.<br>
       <td style="vertical-align: top;">Key<br>
       </td>
       <td style="vertical-align: top;">The key is the Discrete Key that
-was found in the grids.&nbsp; Keys with a colon and a number reflect a
+was found in the grids. Keys with a colon and a number reflect a
 convective watch with ETN or a segment descriptor.<br>
       </td>
     </tr>
@@ -1022,7 +937,7 @@ convective watch with ETN or a segment descriptor.<br>
       <td style="vertical-align: top;">Zone<br>
       </td>
       <td style="vertical-align: top;">The zone is the geographical
-identifier or UGC.&nbsp; UGCs may be Zone or FIPS.&nbsp; They are edit
+identifier or UGC. UGCs may be Zone or FIPS.&nbsp; They are edit
 area names for the proposed table and the decoded UGC identifiers for
 the active table.<br>
       </td>
@@ -1118,23 +1033,22 @@ or run the test products from the Fcst database while running the
 official products from the Official database.<br>
 <br>
 <hr style="width: 100%; height: 2px;">
-<h2><a name="LogFiles"></a>Important Log Files</h2>
+<h2><a name="LogFiles"></a>Important Log Files - NOT COMPLETE</h2>
 There are several log files that contain pertient information about the
-VTEC operation.&nbsp; These are the primary log files:<br>
+VTEC operation. These are the primary log files:<br>
 <table style="width: 100%; text-align: left;" border="1" cellpadding="2"
  cellspacing="2">
   <tbody>
     <tr>
-      <td style="vertical-align: top;">VTECDecoder<br>
+      <td style="vertical-align: top;">edex-ingest*<br>
       </td>
       <td style="vertical-align: top;">Logs from the VTEC Decoder,
 which shows the decoding of each received product and how the VTEC
-active table is being changed.&nbsp; Also logs "yellow banner"
-notifications.<br>
+active table is being changed.<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">ifpText*<br>
+      <td style="vertical-align: top;">cave* in the user caveData subdirectory<br>
       </td>
       <td style="vertical-align: top;">Formatter logs, which contain
 information about the processing of the Hazards grid and active table,
@@ -1143,21 +1057,21 @@ headlines.<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">ingestAT*<br>
+      <td style="vertical-align: top;">edex-ingest-text*<br>
       </td>
       <td style="vertical-align: top;">Received active table logs,
 showing the records that were merged into your active table.<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">requestAT*<br>
+      <td style="vertical-align: top;">edex-request-productSrvRequest* ??<br>
       </td>
       <td style="vertical-align: top;">Log showing requests from your
 site to other sites for active tables.<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">sendAT*<br>
+      <td style="vertical-align: top;">??<br>
       </td>
       <td style="vertical-align: top;">Log showing the sending of the
 active table from your site to other sites.<br>
@@ -1166,14 +1080,14 @@ active table from your site to other sites.<br>
   </tbody>
 </table>
 <br>
-There are secondary log files that are part of the Intersite
+There is a secondary log file that are part of the Intersite
 Coordination part of the software that also contain some transaction
 information:<br>
 <table style="width: 100%; text-align: left;" border="1" cellpadding="2"
  cellspacing="2">
   <tbody>
     <tr>
-      <td style="vertical-align: top;">iscd, iscDataRec<br>
+      <td style="vertical-align: top;">iscDataRec<br>
       </td>
       <td style="vertical-align: top;">Transmitted and Received ISC log
 files.<br>
@@ -2208,9 +2122,7 @@ WS.W (WINTER STORM WARNING), </td>
 <hr width="100%">
 <p><a href="#TableofContents">Back to Table Of Contents</a>
 <br>
-&nbsp;
 <br>
-&nbsp;
 <br>
 </p>
 </body>
