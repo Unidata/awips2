@@ -42,6 +42,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
  *    ------------ ----------  ----------- --------------------------
  *    Nov 26, 2007             chammack    Initial Creation.
  *    Aug 26, 2008 #1502       bclement    Added JAXB annotations
+ *    Mar 29, 2012 #14691      Qinglu Lin  Added feAreaField and its getter and setter.
  * 
  * </pre>
  * 
@@ -68,6 +69,9 @@ public class AreaConfiguration {
 
     @XmlElement
     private String areaField;
+
+    @XmlElement
+    private String feAreaField;
 
     @XmlElement
     private String fipsField;
@@ -132,11 +136,26 @@ public class AreaConfiguration {
     }
 
     /**
+     * @return the feAreaField
+     */
+    public String getFeAreaField() {
+        return feAreaField;
+    }
+
+    /**
      * @param areaField
      *            the areaField to set
      */
     public void setAreaField(String areaField) {
         this.areaField = areaField;
+    }
+
+    /**
+     * @param feAreaField
+     *            the feAreaField to set
+     */
+    public void setFeAreaField(String feAreaField) {
+        this.feAreaField = feAreaField;
     }
 
     /**

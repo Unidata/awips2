@@ -5,6 +5,7 @@
      Modified by Mike Dangelo 01-25-2012 at CRH TIM
      Modified by Mike Dangelo 02-23-2012
      Modified by Phil Kurimski 3-02-2012 OB12.2.1-4
+                 Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
 -->
 
 <warngenConfig>
@@ -176,6 +177,7 @@
 <!--  <areaField>NAME</areaField> --> 
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
 <!--  <fipsField>STATE_ZONE</fipsField> -->

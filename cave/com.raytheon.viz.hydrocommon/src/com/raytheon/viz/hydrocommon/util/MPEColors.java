@@ -33,6 +33,8 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
  * ------------ ---------- ----------- --------------------------
  * Nov 11, 2008            randerso     Initial creation
  * Aug 08, 2009 2675       mpduff       Added Radar Coverage.
+ * Apr 04, 2012 8672       lbousaidi    changed color scale for 24h 
+ * 										gridded precip.
  * </pre>
  * 
  * @author randerso
@@ -130,15 +132,12 @@ public class MPEColors {
      */
 
     /* 24h gridded precip */
+    static final String gridded_precip_colors_24hr [] = { "GRAY10", "GRAY69", "GRAY43",
+            "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1", "GREEN4", "MAGENTA1", "MAGENTA3",
+    	    "BLUE1", "BLUE3", "GOLD3", "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    static final String gridded_precip_colors_24hr[] = { "GRAY69", "GRAY10",
-            "GRAY30", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
-            "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
-            "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
-
-    static final double gridded_precip_levels_24hr[] = { -9999.0, 0.0, 0.01,
-            0.1, 0.2, 0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0,
-            5.5, 6.0 };
+    static final double gridded_precip_levels_24hr [] = {0.0, 0.01, 0.1, 0.2,
+    	   0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0};
 
     /*
      * { 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3,

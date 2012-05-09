@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- -----------  --------------------------
  * 09/20/2011     #459     Greg Hull    Initial creation 
- * 
+ * 02/21/2012              Chin Chen    Modified several areas for performance improvement
  * </pre>
  * 
  * @author ghull
@@ -66,6 +66,8 @@ public class NcSoundingQuery2 {
 	private List<String> stationIds = null;
 	
 	private List<String> stationNums = null;
+	
+	private List<Long> rangeTimeList = null;
 	
 	// only applies to UAIR data (true?)
 	// TODO : change this to be a list of levelTypes. 
@@ -117,6 +119,7 @@ public class NcSoundingQuery2 {
 //	public void setRequestedParameters( List<AbstractMetParameter> reqParams ) {
 //		requestedMetParameters = reqParams; // copy list?
 //	}
+	
 
 	public void setLatLonConstraints( List<Coordinate> coords ) {
 		if( stationNums != null ) {
@@ -130,6 +133,14 @@ public class NcSoundingQuery2 {
 		latLonCoords = new ArrayList<Coordinate>( coords );
 	}
 	
+	public List<Long> getRangeTimeList() {
+		return rangeTimeList;
+	}
+
+	public void setRangeTimeList(List<Long> rangeTimeList) {
+		this.rangeTimeList = rangeTimeList;
+	}
+
 	// TODO : could allow for both stationId and stationNum constraint if needed. 
 	public void setStationIdConstraints( List<String> stnIds ) {
 		if( stationNums != null ) {
@@ -191,10 +202,10 @@ public class NcSoundingQuery2 {
 	}
 	
 	public void setTimeRangeConstraint( TimeRange tRange ) { 
-		if( refTime != null ) {
-			System.out.println("TimeRange constraint is overriding refTime constraint.");
-			refTime = null;
-		}
+		//if( refTime != null ) {
+		//	System.out.println("TimeRange constraint is overriding refTime constraint.");
+		//	refTime = null;
+		//}
 		timeRange = tRange;
 	}
 
@@ -317,6 +328,7 @@ public class NcSoundingQuery2 {
     				validTime.getValidTime().getTimeInMillis()+ "L)\n"); 
     		
     		query.append("sndRq.setValidTimeEnd(0L)\n");
+    		System.out.println("refT="+refTime.toString()+" StartT="+ validTime.getValidTime().getTime().toString()+" StartT(GMT)="+ validTime.getValidTime().getTime().toGMTString());
     	}
     	else if( timeRange != null ) {
     		// TODO : should set the refTime to 0 but since NcSoundingQuery
@@ -326,11 +338,23 @@ public class NcSoundingQuery2 {
     		query.append("sndRq.setRefTime(" + timeRange.getStart().getTime()+ "L)\n"); 
     		query.append("sndRq.setValidTimeStart(" + timeRange.getStart().getTime()+ "L)\n"); 
     		query.append("sndRq.setValidTimeEnd(" + timeRange.getEnd().getTime() + "L)\n");
+    		System.out.println("refT="+timeRange.getStart().toGMTString()+" StartT="+ timeRange.getStart().toGMTString()+ " endT="+timeRange.getEnd().toGMTString());
     	}
     		
+    	if(rangeTimeList != null){
+    		String rtStr="[";
+    		for(int i=0; i < rangeTimeList.size(); i ++){
+    			rtStr = rtStr +  rangeTimeList.get(i)+"L";
+    			if(i <rangeTimeList.size()-1)
+    				rtStr = rtStr + "," ;
+    		}
+    		rtStr = rtStr + "]";
+    		query.append("sndRq.setRangeTimeArr("+rtStr+")\n");
+    	}
     	query.append("sndRq.setMerge("+ (merge ? "1" : "0")+ ")\n");
     	
     	query.append("sndRq.setLevel('" + level + "')\n");
+    	query.append("sndRq.setNcSoundingLayer2(1)\n");
     	
     	// set either lat/lon, stationId or stationNum 
     	if( latLonCoords != null ) {
@@ -338,14 +362,7 @@ public class NcSoundingQuery2 {
     		//double maxLat= 0;double minLat=0; double maxLon=0; double minLon=0;
     		for( int i=0 ; i<latLonCoords.size() ; i++ ) {
     			Coordinate latlon = latLonCoords.get(i);
-    			//if(i==0){
-    			//	maxLat=minLat=latlon.y;
-    			//	maxLon=minLon=latlon.x;
-    			//}
-    			//maxLat = Math.max(latlon.y, maxLat);
-    			//minLat = Math.min(latlon.y, minLat);
-    			//maxLon = Math.max(latlon.x, maxLon);
-    			//minLon = Math.min(latlon.x, minLon);
+    			
     			if( i == latLonCoords.size()-1 ) {
         			latLonStr = latLonStr +  latlon.y + ","+ latlon.x + "]";
     			}
@@ -353,8 +370,8 @@ public class NcSoundingQuery2 {
     				latLonStr = latLonStr +  latlon.y + ","+ latlon.x + ",";    			
     			}
     		}
-    		//System.out.println("1query stn siz="+latLonCoords.size());/*\+ " maxLon ="+maxLon+" minLon="+minLon+ " maxLat ="+maxLat+" minLat="+minLat);*/
-    		query.append("return sndRq.getSoundingLayer2DataByLatLonArray("+latLonStr+")");
+    		System.out.println("1query stn siz="+latLonCoords.size());/*\+ " maxLon ="+maxLon+" minLon="+minLon+ " maxLat ="+maxLat+" minLat="+minLat);*/
+    		query.append("return sndRq.getSoundingData2ByLatLonArray("+latLonStr+")");
     	}
     	else if( stationIds != null ) {
         	String stnStr = "[";
@@ -369,10 +386,12 @@ public class NcSoundingQuery2 {
         		}
         	}
         	//System.out.println("2query stn siz="+stationIds.size());
-        	query.append("return sndRq.getSoundingDataByStnIdArray("+stnStr+")");
+        	query.append("return sndRq.getSoundingData2ByStnIdArray("+stnStr+")");
         		
     	}
-    	else if( stationNums != null ) {
+    	else {
+    		return cube;
+    		/*if( stationNums != null ) {
         	String stnStr = "[";
         	
         	for( int i=0; i < stationNums.size(); i ++){
@@ -385,10 +404,10 @@ public class NcSoundingQuery2 {
         		}
         	}
         	//System.out.println("3query stn siz="+stationNums.size());
-        	query.append("return sndRq.getSoundingDataByStnNumArray("+stnStr+")");
+        	query.append("return sndRq.getSoundingDataByStnNumArray("+stnStr+")");*/
     	}
 
-    	//System.out.println(query.toString());
+    	System.out.println(query.toString());
     	
     	Object[] pdoList;
 		try {
