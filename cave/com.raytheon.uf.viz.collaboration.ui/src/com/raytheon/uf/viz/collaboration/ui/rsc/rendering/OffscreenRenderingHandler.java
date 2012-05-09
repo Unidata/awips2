@@ -96,7 +96,7 @@ public class OffscreenRenderingHandler extends CollaborationRenderingHandler {
             try {
                 if (event.getExtent() != null) {
                     target.getExtension(IOffscreenRenderingExtension.class)
-                            .renderOffscreen(offscreenImage, event.getIExtent());
+                            .renderOffscreen(offscreenImage, event.getExtent());
                 } else {
                     target.getExtension(IOffscreenRenderingExtension.class)
                             .renderOffscreen(offscreenImage);

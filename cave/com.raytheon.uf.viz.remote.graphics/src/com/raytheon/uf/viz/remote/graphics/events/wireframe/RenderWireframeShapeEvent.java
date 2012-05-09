@@ -48,13 +48,7 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
         implements IRenderEvent {
 
     @DynamicSerializeElement
-    private Integer red;
-
-    @DynamicSerializeElement
-    private Integer green;
-
-    @DynamicSerializeElement
-    private Integer blue;
+    private RGB color;
 
     @DynamicSerializeElement
     private float lineWidth;
@@ -92,57 +86,10 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
         RenderWireframeShapeEvent event = (RenderWireframeShapeEvent) diffEvent;
         this.setObjectId(event.getObjectId());
         this.alpha = event.alpha;
-        this.red = event.red;
-        this.green = event.green;
-        this.blue = event.blue;
+        this.color = event.color;
         this.fontId = event.fontId;
         this.lineStyle = event.lineStyle;
         this.lineWidth = event.lineWidth;
-    }
-
-    /**
-     * @return the red
-     */
-    public Integer getRed() {
-        return red;
-    }
-
-    /**
-     * @param red
-     *            the red to set
-     */
-    public void setRed(Integer red) {
-        this.red = red;
-    }
-
-    /**
-     * @return the green
-     */
-    public Integer getGreen() {
-        return green;
-    }
-
-    /**
-     * @param green
-     *            the green to set
-     */
-    public void setGreen(Integer green) {
-        this.green = green;
-    }
-
-    /**
-     * @return the blue
-     */
-    public Integer getBlue() {
-        return blue;
-    }
-
-    /**
-     * @param blue
-     *            the blue to set
-     */
-    public void setBlue(Integer blue) {
-        this.blue = blue;
     }
 
     /**
@@ -205,20 +152,19 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
         this.alpha = alpha;
     }
 
-    public void setColor(RGB color) {
-        if (color != null) {
-            red = color.red;
-            green = color.green;
-            blue = color.blue;
-        }
+    /**
+     * @return the color
+     */
+    public RGB getColor() {
+        return color;
     }
 
-    public RGB getColor() {
-        RGB color = null;
-        if (red != null && green != null && blue != null) {
-            color = new RGB(red, green, blue);
-        }
-        return color;
+    /**
+     * @param color
+     *            the color to set
+     */
+    public void setColor(RGB color) {
+        this.color = color;
     }
 
     /*
@@ -232,8 +178,6 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
             return true;
         if (!super.equals(obj))
             return false;
-        if (obj == null)
-            return false;
         if (getClass() != obj.getClass())
             return false;
         RenderWireframeShapeEvent other = (RenderWireframeShapeEvent) obj;
@@ -242,30 +186,20 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
                 return false;
         } else if (!alpha.equals(other.alpha))
             return false;
-        if (blue == null) {
-            if (other.blue != null)
+        if (color == null) {
+            if (other.color != null)
                 return false;
-        } else if (!blue.equals(other.blue))
+        } else if (!color.equals(other.color))
             return false;
         if (fontId == null) {
             if (other.fontId != null)
                 return false;
         } else if (!fontId.equals(other.fontId))
             return false;
-        if (green == null) {
-            if (other.green != null)
-                return false;
-        } else if (!green.equals(other.green))
-            return false;
         if (lineStyle != other.lineStyle)
             return false;
         if (Float.floatToIntBits(lineWidth) != Float
                 .floatToIntBits(other.lineWidth))
-            return false;
-        if (red == null) {
-            if (other.red != null)
-                return false;
-        } else if (!red.equals(other.red))
             return false;
         return true;
     }
