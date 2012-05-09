@@ -55,7 +55,6 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.ImagingSupport;
@@ -109,6 +108,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             .getHandler(DispatchGraphicsTarget.class);
 
     private IFont defaultFont;
+
+    private RGB backgroundColor = new RGB(0, 0, 0);
 
     private GraphicsExtensionManager extensionManager;
 
@@ -291,6 +292,8 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         for (int i = 0; i < parameters.length; ++i) {
             parameters[i].font = originalFonts[i];
         }
+        
+        // TODO: Send rendering event for String drawing
     }
 
     /**
@@ -787,15 +790,15 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     /**
      * @param display
      * @param isClearBackground
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#beginFrame(com.raytheon.uf.viz.core.drawables.IRenderableDisplay,
+     * @see com.raytheon.uf.viz.core.IGraphicsTarget#beginFrame(com.raytheon.uf.viz.core.IView,
      *      boolean)
      */
-    public void beginFrame(IRenderableDisplay display, boolean isClearBackground) {
-        wrappedObject.beginFrame(display, isClearBackground);
+    public void beginFrame(IView view, boolean isClearBackground) {
+        wrappedObject.beginFrame(view, isClearBackground);
         BeginFrameEvent beginFrame = RemoteGraphicsEventFactory.createEvent(
                 BeginFrameEvent.class, this);
-        beginFrame.setIExtent(display.getExtent());
-        beginFrame.setColor(display.getBackgroundColor());
+        beginFrame.setExtent(view.getExtent().clone());
+        beginFrame.setColor(backgroundColor);
         dispatch(beginFrame);
     }
 
@@ -841,7 +844,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         wrappedObject.setupClippingPlane(extent);
         SetupClippingPane event = RemoteGraphicsEventFactory.createEvent(
                 SetupClippingPane.class, this);
-        event.setIExtent(extent);
+        event.setExtent(extent);
         dispatch(event);
     }
 
@@ -876,6 +879,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#setBackgroundColor(org.eclipse.swt.graphics.RGB)
      */
     public void setBackgroundColor(RGB backgroundColor) {
+        this.backgroundColor = backgroundColor;
         wrappedObject.setBackgroundColor(backgroundColor);
     }
 
@@ -902,7 +906,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         event.setBrightness(colorMap.brightness);
         event.setContrast(colorMap.contrast);
         event.setInterpolate(colorMap.interpolate);
-        event.setIExtent(colorMap.extent);
+        event.setExtent(colorMap.extent);
         dispatch(event);
     }
 
@@ -1018,14 +1022,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     }
 
     /**
-     * @param updatedExtent
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#updateExtent(com.raytheon.uf.viz.core.IExtent)
-     */
-    public void updateExtent(IExtent updatedExtent) {
-        wrappedObject.updateExtent(updatedExtent);
-    }
-
-    /**
      * @param offscreenImage
      * @throws VizException
      * @deprecated
@@ -1072,11 +1068,14 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment, Double rotation)
             throws VizException {
-        if (font instanceof DispatchingFont) {
-            font = ((DispatchingFont) font).getWrappedObject();
-        }
-        wrappedObject.drawString(font, text, x, y, z, textStyle, color,
-                horizontalAlignment, verticalAlignment, rotation);
+        DrawableString string = new DrawableString(text, color);
+        string.setCoordinates(x, y, z);
+        string.font = font;
+        string.textStyle = textStyle;
+        string.horizontalAlignment = horizontalAlignment;
+        string.verticallAlignment = verticalAlignment;
+        string.rotation = rotation;
+        drawStrings(string);
     }
 
     /**
@@ -1102,11 +1101,13 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             double z, TextStyle textStyle, RGB color,
             HorizontalAlignment horizontalAlignment, Double rotation)
             throws VizException {
-        if (font instanceof DispatchingFont) {
-            font = ((DispatchingFont) font).getWrappedObject();
-        }
-        wrappedObject.drawString(font, text, x, y, z, textStyle, color,
-                horizontalAlignment, rotation);
+        DrawableString string = new DrawableString(text, color);
+        string.setCoordinates(x, y, z);
+        string.font = font;
+        string.textStyle = textStyle;
+        string.horizontalAlignment = horizontalAlignment;
+        string.rotation = rotation;
+        drawStrings(string);
     }
 
     /**
@@ -1132,11 +1133,13 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             double z, TextStyle textStyle, RGB[] colors,
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment) throws VizException {
-        if (font instanceof DispatchingFont) {
-            font = ((DispatchingFont) font).getWrappedObject();
-        }
-        wrappedObject.drawStrings(font, text, x, y, z, textStyle, colors,
-                horizontalAlignment, verticalAlignment);
+        DrawableString string = new DrawableString(text, colors);
+        string.setCoordinates(x, y, z);
+        string.font = font;
+        string.textStyle = textStyle;
+        string.horizontalAlignment = horizontalAlignment;
+        string.verticallAlignment = verticalAlignment;
+        drawStrings(string);
     }
 
     /**
@@ -1162,17 +1165,21 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment,
      *      java.lang.Double, float, double)
      */
-    public void drawString(IFont font, String string, double xPos, double yPos,
-            double zPos, TextStyle textStyle, RGB color,
+    public void drawString(IFont font, String text, double x, double y,
+            double z, TextStyle textStyle, RGB color,
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment, Double rotation, float alpha,
             double magnification) throws VizException {
-        if (font instanceof DispatchingFont) {
-            font = ((DispatchingFont) font).getWrappedObject();
-        }
-        wrappedObject.drawString(font, string, xPos, yPos, zPos, textStyle,
-                color, horizontalAlignment, verticalAlignment, rotation, alpha,
-                magnification);
+        DrawableString string = new DrawableString(text, color);
+        string.setCoordinates(x, y, z);
+        string.font = font;
+        string.textStyle = textStyle;
+        string.horizontalAlignment = horizontalAlignment;
+        string.verticallAlignment = verticalAlignment;
+        string.rotation = rotation;
+        string.basics.alpha = alpha;
+        string.magnification = magnification;
+        drawStrings(string);
     }
 
     /**

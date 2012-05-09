@@ -180,7 +180,10 @@ public class CollaborationObjectEventStorage implements
             throws CollaborationException {
         if (event instanceof CollaborationHttpPersistedEvent) {
             CollaborationHttpPersistedObject object = retreiveStoredObject((CollaborationHttpPersistedEvent) event);
-            if (object != null && object.event != null) {
+            if (object == null) {
+                // No object available
+                return null;
+            } else if (object.event != null) {
                 stats.log(object.event.getClass().getSimpleName(), 0,
                         object.dataSize);
                 return object.event;
@@ -213,6 +216,9 @@ public class CollaborationObjectEventStorage implements
             } catch (SerializationException e) {
                 throw new CollaborationException(e);
             }
+        } else if (isNotExists(response.code)) {
+            // Object was deleted
+            return null;
         } else {
             throw new CollaborationException("Error retrieving object from "
                     + objectPath + " : " + new String(response.data));
@@ -236,9 +242,8 @@ public class CollaborationObjectEventStorage implements
             if (isNotExists(response.code)) {
                 return new AbstractDispatchingObjectEvent[0];
             }
-            throw new CollaborationException(
-                    "Error retrieving object events, received code: "
-                            + response.code);
+            throw new CollaborationException("Error retrieving object ("
+                    + objectId + ") events, received code: " + response.code);
         }
         CollaborationHttpPersistedEvent event = new CollaborationHttpPersistedEvent();
         List<CollaborationHttpPersistedObject> objectEvents = new ArrayList<CollaborationHttpPersistedObject>();
@@ -264,6 +269,9 @@ public class CollaborationObjectEventStorage implements
                         CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
                         if (eventObject != null) {
                             objectEvents.add(eventObject);
+                        } else {
+                            // Object was deleted, abort
+                            return new AbstractDispatchingObjectEvent[0];
                         }
                     }
                     searchIdx = endsAt + 1;
