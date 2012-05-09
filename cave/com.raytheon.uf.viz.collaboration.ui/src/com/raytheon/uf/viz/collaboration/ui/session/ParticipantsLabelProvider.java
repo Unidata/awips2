@@ -205,8 +205,9 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
     public String getText(Object element) {
         IRosterEntry user = (IRosterEntry) element;
         String name = user.getUser().getName();
+        UserId userId = IDConverter.convertFrom(user.getUser());
         for (UserId id : userIds) {
-            if (id.equals(user.getUser())) {
+            if (id.equals(userId)) {
                 name = id.getAlias();
                 break;
             }
@@ -220,10 +221,12 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session instanceof SharedDisplaySession) {
-            boolean isSessionLeader = user.getUser().equals(
-                    ((SharedDisplaySession) session).getCurrentSessionLeader());
-            boolean isDataProvider = user.getUser().equals(
-                    ((SharedDisplaySession) session).getCurrentDataProvider());
+            UserId id = IDConverter.convertFrom(user.getUser());
+            boolean isSessionLeader = id
+                    .equals(((SharedDisplaySession) session)
+                            .getCurrentSessionLeader());
+            boolean isDataProvider = id.equals(((SharedDisplaySession) session)
+                    .getCurrentDataProvider());
             if (isSessionLeader && isDataProvider) {
                 Font currFont = Display.getCurrent().getSystemFont();
                 if (combinedFont == null) {
