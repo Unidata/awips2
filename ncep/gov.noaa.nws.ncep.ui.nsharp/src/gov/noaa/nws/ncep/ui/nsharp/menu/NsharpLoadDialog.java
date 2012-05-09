@@ -28,7 +28,11 @@ import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -42,7 +46,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 public class NsharpLoadDialog extends Dialog {
 	
 	private final static int DIALOG_WIDTH = 350;
-	private final static int DIALOG_HEIGHT = 620;
+	private final static int DIALOG_HEIGHT = 920;
 	
 	protected Composite top;
 	private static Composite dialogParent;
@@ -50,14 +54,14 @@ public class NsharpLoadDialog extends Dialog {
 	private static Shell shell;
 	private org.eclipse.swt.widgets.List soundingTypeList;
 	public static final String[] soundingTypeStringArray = {
-		"Observed Soundings" , "Model Soundings",  "PFC Soundings",  "ACARS Soundings", "Archive Files"
+		"Observed Soundings" , "Model Soundings",  "PFC Soundings",  "Archive Files","ACARS Soundings"
 	};
 	// define index to loadStringArray
 	public static final int OBSER_SND = 0; 
 	public static final int MODEL_SND = 1;
 	public static final int PFC_SND = 2;
-	public static final int ACARS_SND = 3;
-	public static final int ARCHIVE = 4;
+	public static final int ARCHIVE = 3;
+	public static final int ACARS_SND = 4;
 	private ObservedSoundingDialogContents obsDialog;
 	private PfcSoundingDialogContents pfcDialog;
 	private ModelSoundingDialogContents mdlDialog;
@@ -65,8 +69,12 @@ public class NsharpLoadDialog extends Dialog {
 	private int activeLoadSoundingType;
 	private Text text1;
 	private MessageBox mb;
+	private Cursor waitCursor=null;
+	private Font newFont;
 	
-	
+	public Font getNewFont() {
+		return newFont;
+	}
 	public ObservedSoundingDialogContents getObsDialog() {
 		return obsDialog;
 	}
@@ -93,9 +101,11 @@ public class NsharpLoadDialog extends Dialog {
 	public void createSndTypeList(Group TopLoadGp) {
 		soundingTypeGp =  new Group(TopLoadGp,SWT.SHADOW_ETCHED_IN);
 		soundingTypeGp.setText("Sounding Type");
+		soundingTypeGp.setFont(newFont);
 		soundingTypeList = new org.eclipse.swt.widgets.List(soundingTypeGp, SWT.SINGLE |  SWT.V_SCROLL );
-        soundingTypeList.setBounds(soundingTypeGp.getBounds().x + NsharpConstants.btnGapX, soundingTypeGp.getBounds().y +NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight+30);
-		for(String loadStr : soundingTypeStringArray){
+        soundingTypeList.setBounds(soundingTypeGp.getBounds().x + NsharpConstants.btnGapX, soundingTypeGp.getBounds().y +NsharpConstants.labelGap, NsharpConstants.filelistWidth, NsharpConstants.listHeight);
+        soundingTypeList.setFont(newFont);
+        for(String loadStr : soundingTypeStringArray){
 			soundingTypeList.add( loadStr );
 		}
 		//create a selection listener to handle user's selection on list
@@ -119,6 +129,7 @@ public class NsharpLoadDialog extends Dialog {
         					cleanupDialog(activeLoadSoundingType); //clean up before resetting activeLoadType
         					activeLoadSoundingType = OBSER_SND;
         					obsDialog.createObsvdDialogContents();
+        					//shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
         					dialogParent.pack();
         					dialogParent.layout(true);
         					dialogParent.redraw();
@@ -151,13 +162,24 @@ public class NsharpLoadDialog extends Dialog {
             				
         				}
 
+        			}       			
+        			else if(selectedProduct.equals(soundingTypeStringArray[ARCHIVE])){
+        				//System.out.println("ARCHIVE enter");
+        				
+        				if(activeLoadSoundingType != ARCHIVE) {
+        					cleanupDialog(activeLoadSoundingType);//clean up before resetting activeLoadType
+        					activeLoadSoundingType = ARCHIVE; 
+        					NsharpHandleArchiveFile.openArchiveFile(shell);
+        					close();
+        				}
+
         			}
         			else if(selectedProduct.equals(soundingTypeStringArray[ACARS_SND])){
         				//System.out.println("ACARS_SND enter");
         				if(activeLoadSoundingType != ACARS_SND) {
         					cleanupDialog(activeLoadSoundingType);//clean up before resetting activeLoadType
         					activeLoadSoundingType = ACARS_SND; 
-        					setShellSize(false);
+        					//setShellSize(false);
         					acarsGp = new Group(dialogParent,SWT.SHADOW_ETCHED_IN);
         					acarsGp.setLayout( new GridLayout( 1, false ) );
         					createSndTypeList(acarsGp);
@@ -170,18 +192,6 @@ public class NsharpLoadDialog extends Dialog {
             				
         				}
         			}
-        			else if(selectedProduct.equals(soundingTypeStringArray[ARCHIVE])){
-        				//System.out.println("ARCHIVE enter");
-        				
-        				if(activeLoadSoundingType != ARCHIVE) {
-        					cleanupDialog(activeLoadSoundingType);//clean up before resetting activeLoadType
-        					activeLoadSoundingType = ARCHIVE; 
-        					NsharpHandleArchiveFile.openArchiveFile(shell);
-        					close();
-        				}
-
-        			}
-
         		}
         	}
         });
@@ -257,7 +267,7 @@ public class NsharpLoadDialog extends Dialog {
 		
 		//System.out.println("loadDia constructed");
 		activeLoadSoundingType = OBSER_SND;
-		
+
 	}
 
 	   /*
@@ -269,13 +279,20 @@ public class NsharpLoadDialog extends Dialog {
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
         NsharpLoadDialog.shell = shell;     
-        setShellSize(false);
+        shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
         shell.setText( "Load" );
         mb = new MessageBox(shell, SWT.ICON_WARNING
 				| SWT.OK);
 
 		mb.setMessage( "User Input Error!");
-
+		Font font = shell.getFont();
+		FontData[] fontData = font.getFontData();
+		for (int i = 0; i < fontData.length; i++) {
+			fontData[i].setHeight(7);				
+			//fontData[i].setName("courier");
+		}
+		newFont = new Font(font.getDevice(), fontData);
+		shell.setFont(newFont);
     }
 
 	private void createLoadContents(Composite parent) {
@@ -287,100 +304,24 @@ public class NsharpLoadDialog extends Dialog {
         	rsc.cleanUpRsc();
         	editor.refresh();
         }
-		//System.out.println("createLoadContents called");
-		//NsharpMapModalTool.setModal();
-		//nsharpMapResource.
 		dialogParent = parent;
-		
-		/*
-		topLoadGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
-		topLoadGp.setLayout( new GridLayout( 2, false ) );
-		createSndTypeList(topLoadGp);
-		
-		*/
-		//dialogParent.setBounds(x, y, width, height);
 		obsDialog =  new ObservedSoundingDialogContents(dialogParent);
 		pfcDialog = new PfcSoundingDialogContents(dialogParent);
 		mdlDialog = new ModelSoundingDialogContents(dialogParent);
-		obsDialog.createObsvdDialogContents();
-		//mdlDialog.createMdlDialogContents();
-		// set default selection to observed sounding
-		soundingTypeList.setSelection(0);
-		activeLoadSoundingType = OBSER_SND;
-		//soundingTypeList.setSelection(MODEL_SND);
-		//activeLoadType = MODEL_SND;
-		/*
-        //create a selection listener to handle user's selection on list
-        soundingTypeList.addListener ( SWT.Selection, new Listener () {
-        	private String selectedProduct=null;	
-        	public void handleEvent (Event e) {   			
-        		if (soundingTypeList.getSelectionCount() > 0 ) {
-
-        			selectedProduct = soundingTypeList.getSelection()[0];
-
-        			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
-
-        			if(selectedProduct.equals(soundingTypeStringArray[OBSER_SND])){
-        				//System.out.println("OBSER_SND enter");
-        				if(activeLoadType != OBSER_SND){
-        					cleanupDialog(activeLoadType); //clean up before resetting activeLoadType
-        					activeLoadType = OBSER_SND;
-        					obsDialog.createObsvdDialogContents();
-        					dialogParent.pack();
-        					dialogParent.layout(true);
-        					dialogParent.redraw();
-        				}
-        			}
-        			else if(selectedProduct.equals(soundingTypeStringArray[MODEL_SND])){
-        				//System.out.println("MODEL_SND enter");
-        				if(activeLoadType != MODEL_SND) {
-        					cleanupDialog(activeLoadType);//clean up before resetting activeLoadType
-        					activeLoadType = MODEL_SND; 
-        					mdlDialog.createMdlDialogContents();
-        					dialogParent.pack();
-        					dialogParent.layout(true);
-        					dialogParent.redraw();
-        				}
-        			}
-        			else if(selectedProduct.equals(soundingTypeStringArray[PFC_SND])){
-        				//System.out.println("PFC_SND enter");
-        				if(activeLoadType != PFC_SND){
-        					cleanupDialog(activeLoadType); //clean up before resetting activeLoadType
-        					activeLoadType = PFC_SND;
-        					pfcDialog.createPfcDialogContents();
-        					dialogParent.pack();
-        					dialogParent.layout(true);
-        					dialogParent.redraw();
-        				}
-
-        			}
-        			else if(selectedProduct.equals(soundingTypeStringArray[ACARS_SND])){
-        				//System.out.println("ACARS_SND enter");
-        				if(activeLoadType != ACARS_SND) {
-        					cleanupDialog(activeLoadType);//clean up before resetting activeLoadType
-        					activeLoadType = ACARS_SND; 
-        					//Not supported now!!
-        					text1 = new Text(topLoadGp,  SWT.MULTI | SWT.BORDER | SWT.WRAP );
-        					text1.setText("Acars Soundings\nis still under\ndevelopment!");
-        					topLoadGp.pack();
-        					topLoadGp.layout(true);
-        					topLoadGp.redraw();
-        				}
-        			}
-        			else if(selectedProduct.equals(soundingTypeStringArray[ARCHIVE])){
-        				//System.out.println("ARCHIVE enter");
-        				if(activeLoadType != ARCHIVE) {
-        					cleanupDialog(activeLoadType);//clean up before resetting activeLoadType
-        					activeLoadType = ARCHIVE; 
-        					NsharpHandleArchiveFile.openArchiveFile(shell);
-        					close();
-        				}
-
-        			}
-
-        		}
-        	}
-        });*/
+		switch(activeLoadSoundingType){
+		case MODEL_SND:
+			mdlDialog.createMdlDialogContents();
+			break;
+		case PFC_SND:
+			pfcDialog.createPfcDialogContents();
+			break;
+		default: //OBSER_SND is default for all other cases, also set activeLoadSoundingType to OBSER_SND
+			obsDialog.createObsvdDialogContents();
+			activeLoadSoundingType = OBSER_SND;
+			break;
+		}
+		
+		soundingTypeList.setSelection(activeLoadSoundingType);
 		
 	}
 	
@@ -397,11 +338,13 @@ public class NsharpLoadDialog extends Dialog {
 	        mainLayout.marginHeight = 3;
 	        mainLayout.marginWidth = 3;
 	        
-	        top.setLayout(mainLayout);
-
+	        //top.setLayout(mainLayout);
+	        //System.out.println("createDialogArea called");
 	        // Initialize all of the menus, controls, and layouts
 	        createLoadContents(top);
-
+	        shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
+	        if(waitCursor==null)
+	        	waitCursor = new Cursor( top.getDisplay(), SWT.CURSOR_WAIT);
 	        return top;
 	}   
 
@@ -427,9 +370,14 @@ public class NsharpLoadDialog extends Dialog {
 		//System.out.println("loadDia closed");
 		cleanSelf();
 		cleanupDialog(activeLoadSoundingType);
-		INSTANCE = null;
+		//INSTANCE = null;
+		if(waitCursor!=null)
+			waitCursor.dispose();
+		waitCursor=null;
+		newFont.dispose();
 		return (super.close());
     }
+	
 	public boolean closeDiaOnly() {
 		cleanSelf();
 		return (super.close());
@@ -438,9 +386,14 @@ public class NsharpLoadDialog extends Dialog {
 	//Only use Cancel button but NOT ok button
 	@Override
 	public void createButtonsForButtonBar(Composite parent) {
+		
 		// create Cancel buttons by default, but use close label
-		createButton(parent, IDialogConstants.CANCEL_ID,
+		Button cancelBtn = createButton(parent, IDialogConstants.CANCEL_ID,
 				IDialogConstants.CLOSE_LABEL, false);
+		
+		
+		//cancelBtn.setBounds(cancelBtn.getBounds().x, cancelBtn.getBounds().y+DIALOG_HEIGHT, 20, 10);
+		//System.out.println("createButtonsForButtonBar cancelBtn bound"+cancelBtn.getBounds());
 	}
 
     
@@ -460,13 +413,19 @@ public class NsharpLoadDialog extends Dialog {
 		
 	}
 
-   	public void setShellSize(boolean big){
-   		if(big == true) {
-   			shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT);
-   		}
-   		else {
-   			shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT-100);
-   		}
+   	//public void setShellSize(boolean big){
+   	//	if(big == true) {
+   			
+   	//	}
+   	//	else {
+   	//		shell.setSize(DIALOG_WIDTH, DIALOG_HEIGHT-100);
+   	//	}
+   	//}
+   	public void startWaitCursor(){
+   		if(waitCursor!=null)
+   			top.setCursor(waitCursor);
    	}
-   
+   	public void stopWaitCursor(){
+   		top.setCursor(null);
+   	}
 }

@@ -4195,6 +4195,18 @@
           <g2varsid>888</g2varsid>
           <discipline>0</discipline>
           <category>19</category>
+          <pid>232</pid>
+          <pdt>0</pdt>
+          <name>Volcanic Ash Forecast Transport and Dispersion</name>
+          <units>log10(kg m**-3)</units>
+          <gnam>VAFTAD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
           <pid>233</pid>
           <pdt>0</pdt>
           <name>Icing Probability</name>

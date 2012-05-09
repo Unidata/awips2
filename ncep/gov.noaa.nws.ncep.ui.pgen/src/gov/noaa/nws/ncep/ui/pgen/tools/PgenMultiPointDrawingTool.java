@@ -63,7 +63,10 @@ import gov.noaa.nws.ncep.viz.common.LocatorUtil;
  * 02/11			?		B. Yin		Put Front with labels in DECollection 
  * 02/11        #318        S. Gilbert	Added option of displaying distance from first point
  *                                      while drawing.
- * 
+ * 01/12		597			S. Gurung	Removed Snapping for ConvSigmet
+ * 02/12        TTR456      Q.Zhou      Added parameters to setTrack()
+ * 02/12        #597        S. Gurung   Removed snapping for NCON_SIGMET. 
+                                        Moved snap functionalities to SnapUtil from SigmetInfo. 
  * </pre>
  * 
  * @author	B. Yin
@@ -192,8 +195,8 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
             		DrawableType drawableType = getDrawableType(pgenType); 
             		log.debug("PgenMultiPointDrawingTool, before call def.create, drawableType=" + drawableType + ", pgenType="+pgenType);
 
-            		if(drawableType == DrawableType.CONV_SIGMET && ("CONV_SIGMET".equals(pgenType)||"NCON_SIGMET".equals(pgenType))) 
-            			points = SigmetInfo.getSnapWithStation(points, SigmetInfo.VOR_STATION_LIST, 10, 8);
+            		/*if(drawableType == DrawableType.CONV_SIGMET && ("NCON_SIGMET".equals(pgenType))) //"CONV_SIGMET".equals(pgenType)||
+            			points = SnapUtil.getSnapWithStation(points, SnapUtil.VOR_STATION_LIST, 10, 8);*/
             		
             		// create a new DrawableElement.    
             		elem = def.create( drawableType, (IAttribute)attrDlg,
@@ -266,9 +269,9 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
         	
         	if( ( getSigmetLineType( attrDlg).contains("Text") )||"Isolated".equalsIgnoreCase( getSigmetLineType( attrDlg) ) ){          
         		
-        		if(getDrawableType(pgenType)==DrawableType.CONV_SIGMET 
-        				&& ("CONV_SIGMET".equals(pgenType)||"NCON_SIGMET".equals(pgenType))) 
-        			points = SigmetInfo.getSnapWithStation(points, SigmetInfo.VOR_STATION_LIST, 10, 8);
+        		/*if(getDrawableType(pgenType)==DrawableType.CONV_SIGMET 
+        				&& ("NCON_SIGMET".equals(pgenType))) //"CONV_SIGMET".equals(pgenType)||
+        			points = SnapUtil.getSnapWithStation(points, SnapUtil.VOR_STATION_LIST, 10, 8);*/
         		
                 elem = def.create( getDrawableType(pgenType), (IAttribute)attrDlg,
                     		pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
@@ -506,7 +509,9 @@ private boolean handleCcfpMouseMove(Coordinate loc){
     	extrapPointInfoDlg.setBlockOnOpen( false );
    		extrapPointInfoDlg.open();
        	
-   		extrapPointInfoDlg.setTrack(trackObject);
+   		extrapPointInfoDlg.setTrack(trackObject, trackAttrDlgObject.getUnitComboSelectedIndex(), 
+   				trackAttrDlgObject.getRoundComboSelectedIndex(), trackAttrDlgObject.getRoundDirComboSelectedIndex()); 
+
 
    		extrapPointInfoDlg.setBlockOnOpen( true );
 

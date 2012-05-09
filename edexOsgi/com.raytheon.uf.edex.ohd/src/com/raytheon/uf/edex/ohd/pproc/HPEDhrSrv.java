@@ -30,11 +30,14 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -48,6 +51,8 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2010  4200       snaples    Initial creation
+ * Mar 09, 2012  417        dgilling   Refactor to use two-stage queue
+ *                                     process.
  * </pre>
  * 
  * @author snaples
@@ -55,62 +60,225 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  */
 public class HPEDhrSrv {
 
-    private Log logger = LogFactory.getLog(getClass());
-
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
-
-    private CoreDao dao;
-
-    private File outFile;
+    private static final transient IUFStatusHandler logger = UFStatus
+            .getHandler(HPEDhrSrv.class);
 
     private static final Pattern WMO_PATTERN = Pattern
             .compile("([A-Z]{4}[0-9]{2} [A-Z]{4} [0-9]{6})\\x0D\\x0D\\x0A(\\w{6})\\x0D\\x0D\\x0A");
 
-    /** WMO header regex */
-    // private static final Pattern wmoPat = Pattern
-    // .compile("(\\p{Alpha}{4}\\d{2}) (\\p{Alnum}{4}) (\\d{6})");
-
-    private static final Pattern ldmPat = Pattern
+    private static final Pattern LDM_PATTERN = Pattern
             .compile("(\\p{Alpha}{3})(\\p{Alpha}{3})");
 
-    private static final Pattern radPat = Pattern
+    private static final Pattern RAD_PATTERN = Pattern
             .compile("(\\p{Alpha}{4}).(\\d{2,3}).(\\d{8}_\\d{4})");
 
-    private final String DHR = "DHR";
+    private static final String DHRTYPE = "32";
 
-    private final String dhrtype = "32";
+    private static final String DSPTYPE1 = "138";
 
-    private final String dsptype1 = "138";
+    private static final String DSPTYPE2 = "80";
 
-    private final String dsptype2 = "80";
+    private static final String DHR = "DHR";
 
-    private final String DSP = "DSP";
+    private static final String DSP = "DSP";
 
-    private final String STP = "STP";
+    private static final String STP = "STP";
 
-    public Object process(File hpeFile) throws EdexException {
-        // logger.info("Starting HPE Check message.");
-        checkMessage(hpeFile);
+    private static final int RADID_IDX = 0;
 
-        return null;
+    private static final int DTYPE_IDX = 1;
+
+    private static final int DT_IDX = 2;
+
+    private static final String JMS_QUEUE_URI = "jms-generic:queue:dhrProcess";
+
+    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+
+    /**
+     * Route endpoint for "dhrIngestRoute". Takes a message, writes the file to
+     * disk, and then runs the DHR data processing scripts so the file is
+     * ingested.
+     * 
+     * @param message
+     *            A <code>HPEDhrMessage</code> describing the DHR radar file to
+     *            be ingested.
+     */
+    public void process(HPEDhrMessage message) {
+        // logger.info("Starting HPE process message.");
+        try {
+            writeFile(message);
+        } catch (FileNotFoundException e) {
+            logger.handle(Priority.PROBLEM, "HPE cannot create output file.", e);
+            return;
+        } catch (IOException e) {
+            logger.handle(Priority.PROBLEM,
+                    "HPE Error writing updated contents of HPE file", e);
+            return;
+        }
+        runGatherScripts();
     }
 
     /**
+     * DPA radar files have been known to contain extra bytes at the beginning
+     * of the file. These bytes will cause the DHR decoder to fail.
+     * <p>
+     * This method removes the leading bytes to ensure proper decoding of DHR
+     * files.
      * 
-     * @param dhrFile
-     *            The radar server message
-     * @throws EdexException
-     *             If IOExceptions occur
+     * @param message
+     *            A <code>HPEDhrMessage</code> describing the DHR radar file to
+     *            be ingested.
+     * @throws FileNotFoundException
+     *             If the output file cannot be created or opened for any
+     *             reason.
+     * @throws IOException
+     *             If an I/O error occurs while writing the file.
      */
-    private void checkMessage(File hpeFile) throws EdexException {
+    private void writeFile(HPEDhrMessage message) throws FileNotFoundException,
+            IOException {
+        String dtype = message.getDtype();
+        String outname = dtype + message.getRadarId() + "." + message.getDt();
+        String outPath;
+        if (dtype.equals(DHR)) {
+            outPath = appsDefaults.getToken("dhr_prod_dir");
+        } else {
+            outPath = appsDefaults.getToken("dsp_prod_dir");
+        }
+        File oP = new File(outPath);
+        if (!oP.exists()) {
+            oP.mkdirs();
+        }
 
-        boolean proc = false;
-        // logger.info("Starting HPE CheckFile. ");
-        proc = checkFile(hpeFile);
-        if (proc == false) {
+        byte[] fileContents = message.getData();
+        int offset = findStartRadarData(new String(fileContents, 0, 80));
+        String outFile = FileUtil.join(outPath, outname);
+        BufferedOutputStream outStream = null;
+
+        try {
+            outStream = new BufferedOutputStream(new FileOutputStream(outFile));
+            // logger.info("HPE Writing contents of file to " +
+            // outFile);
+            outStream.write(fileContents, offset, fileContents.length - offset);
+        } finally {
+            if (outStream != null) {
+                outStream.close();
+            }
+        }
+    }
+
+    /**
+     * Route endpoint for "dhrIngestFilter". Reads the given file to memory and
+     * determines whether or not this file is a DHR radar file. If it is, a
+     * message is sent to a JMS queue so it is later ingested.
+     * 
+     * @param hpeFile
+     *            The radar file to check.
+     */
+    public void filter(File hpeFile) {
+        // logger.info("Starting HPE Check message.");
+        byte[] fileContents = new byte[0];
+        try {
+            fileContents = readHpeFile(hpeFile);
+        } catch (FileNotFoundException e) {
+            logger.handle(Priority.PROBLEM,
+                    "HPE Cannot find file: " + hpeFile.toString(), e);
+        } catch (IOException e) {
+            logger.handle(Priority.PROBLEM, "HPE Error reading file: "
+                    + hpeFile.toString(), e);
+        }
+
+        if (fileContents.length < 80) {
             return;
         }
+
+        // check header
+        String fileStartStr = new String(fileContents, 0, 80);
+        // array will hold radar id, dtype, and dt information. using array so
+        // its contents can be modified by the checkFile() method.
+        String[] fileMetadata = new String[3];
+        boolean validFile = checkFile(hpeFile.getName(), fileStartStr,
+                fileMetadata);
+
+        // write file to queue
+        if (validFile) {
+            try {
+                sendFileToQueue(fileContents, fileMetadata[RADID_IDX],
+                        fileMetadata[DTYPE_IDX], fileMetadata[DT_IDX]);
+            } catch (SerializationException e) {
+                logger.handle(Priority.PROBLEM,
+                        "HPE can't serialize HPEDhrMessage for file: "
+                                + hpeFile.toString(), e);
+            } catch (EdexException e) {
+                logger.handle(Priority.PROBLEM,
+                        "HPE can't send message to QPID queue for file: "
+                                + hpeFile.toString(), e);
+            }
+        }
+
         // logger.info("Finished HPE CheckFile. ");
+    }
+
+    /**
+     * Reads the given radar file to memory for later processing by the
+     * <code>filter</code> function.
+     * 
+     * @param hpeFile
+     *            The file to read.
+     * @return The contents of the file.
+     * @throws FileNotFoundException
+     *             If the specified file does not exist or cannot be opened.
+     * @throws IOException
+     *             If an I/O error occurs while reading the file.
+     */
+    private byte[] readHpeFile(File hpeFile) throws FileNotFoundException,
+            IOException {
+        BufferedInputStream inStream = null;
+        byte[] fileContents = null;
+
+        try {
+            inStream = new BufferedInputStream(new FileInputStream(hpeFile));
+            fileContents = new byte[(int) hpeFile.length()];
+            inStream.read(fileContents);
+        } finally {
+            if (inStream != null) {
+                inStream.close();
+            }
+        }
+
+        return fileContents;
+    }
+
+    /**
+     * Takes the given parameters and constructs a <code>HPEDhrMessage</code> to
+     * be placed onto the queue used by <code>HPEDhrSrv</code> for actual data
+     * processing.
+     * 
+     * @param data
+     *            The contents of the radar file.
+     * @param radid
+     *            The radar id for the given file.
+     * @param dtype
+     *            The file's dtype.
+     * @param dt
+     *            The file's dt.
+     * @throws SerializationException
+     *             If the constructed <code>HPEDhrMessage</code> cannot be
+     *             serialized by Thrift.
+     * @throws EdexException
+     *             If the message cannot be placed onto the QPID queue for DHR
+     *             data processing.
+     */
+    private void sendFileToQueue(byte[] data, String radid, String dtype,
+            String dt) throws SerializationException, EdexException {
+        HPEDhrMessage message = new HPEDhrMessage(data, radid, dtype, dt);
+        byte[] messageData = SerializationUtil.transformToThrift(message);
+        EDEXUtil.getMessageProducer().sendAsyncUri(JMS_QUEUE_URI, messageData);
+    }
+
+    /**
+     * Runs the DSPgather and DHRgather data processing scripts.
+     */
+    private void runGatherScripts() {
         // logger.info("Starting HPE DSP gather.");
         int exitValue = MainMethod.runProgram("ksh",
                 appsDefaults.getToken("pproc_bin") + "/DSPgather");
@@ -135,86 +303,55 @@ public class HPEDhrSrv {
     }
 
     /**
-     * DPA radar files have been known to contain extra bytes at the beginning
-     * of the file. These bytes will cause the DHR decoder to fail.
-     * <p>
-     * This method removes the leading bytes to ensure proper decoding of DHR
-     * files
+     * Given a radar file name and file header, this function determines whether
+     * or not this file is a DHR radar file.
      * 
      * @param fileName
-     *            The name of the DHR radar file
-     * @throws EdexException
-     *             If IOExceptions occur
+     *            The name of the radar file
+     * @param fileHeader
+     *            The first 80 bytes from the radar file.
+     * @param metadata
+     *            A length 3 <code>String</code> array that will be used to pass
+     *            the radar id, dtype, and dt back to the caller.
+     * @return If the specified file is a DHR radar file.
      */
-    private boolean checkFile(File hpeFile) throws EdexException {
-        /*
-         * Read the contents of the file into memory.
-         */
-        BufferedInputStream inStream = null;
-        try {
-            inStream = new BufferedInputStream(new FileInputStream(hpeFile));
-        } catch (FileNotFoundException e) {
-            throw new EdexException("HPE Cannot find file: " + hpeFile, e);
-        }
-        byte[] fileContents = new byte[(int) hpeFile.length()];
-        try {
-            inStream.read(fileContents);
-        } catch (IOException e) {
-            throw new EdexException("HPE Error reading file: " + hpeFile, e);
-        } finally {
-            try {
-                inStream.close();
-            } catch (IOException e1) {
-                throw new EdexException("HPE Error closing stream to file: "
-                        + hpeFile, e1);
-            }
-        }
-        String outPath = "";
-        String fname = hpeFile.getName();
-        String radid = "";
-        String dtype = "";
-        String dt = "";
-        String outname = "";
-
-        Matcher r = radPat.matcher(fname);
-        /*
-         * Copy off the first few bytes to see if leading bytes are present
-         * before the WMO header
-         */
-        if (fileContents.length < 80) {
-            return false;
-        }
-        String fileStartStr = new String(fileContents, 0, 80);
-
+    private boolean checkFile(String fileName, String fileHeader,
+            String[] metadata) {
         /*
          * Find the WMO header
          */
-        Matcher wmomat = WMO_PATTERN.matcher(fileStartStr);
-        Matcher dhrmat = ldmPat.matcher(fileStartStr);
+        Matcher r = RAD_PATTERN.matcher(fileName);
+        Matcher wmomat = WMO_PATTERN.matcher(fileHeader);
 
         if (r.find()) {
             // logger.info("HPE DHRSrv found Radar file.");
-            radid = r.group(1).substring(1).toUpperCase().trim();
+            // getting the radid
+            metadata[RADID_IDX] = r.group(1).substring(1).toUpperCase().trim();
             String ftype = r.group(2);
-            dt = r.group(3);
-            if (ftype.equals(dhrtype)) {
-                dtype = DHR;
+            // getting the dt
+            metadata[DT_IDX] = r.group(3);
+            // getting the dtype
+            if (ftype.equals(DHRTYPE)) {
+                metadata[DTYPE_IDX] = DHR;
                 // logger.info("HPE DHRSrv found Radar file type DHR.");
-            } else if (ftype.equals(dsptype1) || ftype.equals(dsptype2)) {
-                dtype = DSP;
+            } else if (ftype.equals(DSPTYPE1) || ftype.equals(DSPTYPE2)) {
+                metadata[DTYPE_IDX] = DSP;
                 // logger.info("HPE DHRSrv found Radar file type DSP.");
             } else {
                 // logger.info("HPE DHRSrv found Radar type unknown.");
                 return false;
             }
         } else if (wmomat.find()) {
+            Matcher dhrmat = LDM_PATTERN.matcher(fileHeader);
             if (dhrmat.find()) {
-                // logger.info("HPE DHRSrv found LDM file.");
-                dt = wmomat.group(1).substring(wmomat.group(1).length() - 6);
-                radid = dhrmat.group(2).toUpperCase().trim();
-                dtype = dhrmat.group(1).toUpperCase().trim();
-                if (!dtype.equals(DSP) || !dtype.equals(STP)
-                        || !dtype.equals(DHR)) {
+                // logger.info("HPEDHRSrv found LDM file.");
+                metadata[DT_IDX] = wmomat.group(1).substring(
+                        wmomat.group(1).length() - 6);
+                metadata[RADID_IDX] = dhrmat.group(2).toUpperCase().trim();
+                metadata[DTYPE_IDX] = dhrmat.group(1).toUpperCase().trim();
+                if ((!metadata[DTYPE_IDX].equals(DSP))
+                        && (!metadata[DTYPE_IDX].equals(STP))
+                        && (!metadata[DTYPE_IDX].equals(DHR))) {
                     return false;
                 }
             } else {
@@ -223,80 +360,42 @@ public class HPEDhrSrv {
         } else {
             return false;
         }
+
         // logger.info("HPE DHRSrv querying db for radid=" + radid
         // + " and use_radar=T.");
         String query = String.format(
                 "select * from radarloc where radid='%s' and use_radar='T' ",
-                radid);
-        dao = new CoreDao(DaoConfig.forDatabase("ihfs"));
+                metadata[RADID_IDX]);
+        CoreDao dao = new CoreDao(DaoConfig.forDatabase("ihfs"));
         Object[] rs = dao.executeSQLQuery(query);
-
         // logger.info("HPE DHRSrv querying db done.");
-        if (rs.length > 0) {
 
-            outname = dtype + radid + "." + dt;
-            if (dtype.equals(DHR)) {
-                outPath = appsDefaults.getToken("dhr_prod_dir");
-            } else {
-                outPath = appsDefaults.getToken("dsp_prod_dir");
-            }
-            File oP = new File(outPath);
-            if (!oP.exists()) {
-                oP.mkdir();
-            }
-
-            int offset = 0;
-            offset = findStartRadarData(fileStartStr);
-            outFile = new File(FileUtil.join(outPath, outname));
-            BufferedOutputStream outStream = null;
-
-            try {
-                outStream = new BufferedOutputStream(new FileOutputStream(
-                        outFile));
-            } catch (FileNotFoundException e) {
-                throw new EdexException("HPE Cannot find file: " + outFile, e);
-            }
-
-            try {
-                outStream.write(fileContents, offset, fileContents.length
-                        - offset);
-                // logger.info("HPE Re-writing contents of file: " + hpeFile
-                // + " to " + outFile);
-            } catch (IOException e) {
-                throw new EdexException(
-                        "HPE Error writing updated contents of HPE file: "
-                                + outFile, e);
-            } finally {
-                try {
-                    outStream.close();
-                } catch (IOException e1) {
-                    throw new EdexException("HPE Unable to close file: "
-                            + outFile, e1);
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
+        return (rs.length > 0);
     }
 
+    /**
+     * Given the header data from a radar file, this function determines the
+     * ending offset of the WMO header.
+     * 
+     * @param headerInfo
+     *            The header data from a radar file.
+     * @return Returns the offset after the last character in the WMO header.
+     */
     private int findStartRadarData(String headerInfo) {
-        int startOfRadarData = 0;
         Matcher matcher = WMO_PATTERN.matcher(headerInfo);
-        boolean foundHeader = matcher.find();
-        if (foundHeader) {
-            startOfRadarData = matcher.end();
+        if (matcher.find()) {
+            return matcher.end();
         }
 
-        return startOfRadarData;
+        return 0;
     }
 
     public static final void main(String[] args) {
 
         String input = "SDUS53_ABR_DSP_201538_185076111.rad";
         String input2 = "koax.32.20111020_1553";
-        Matcher m = ldmPat.matcher(input);
-        Matcher p = radPat.matcher(input2);
+        Matcher m = LDM_PATTERN.matcher(input);
+        Matcher p = RAD_PATTERN.matcher(input2);
 
         if (m.find()) {
             System.out.println(m.group(0));

@@ -25,6 +25,8 @@
 						<gdfile>${GDFILE}</gdfile>
 						<gvcord>${GVCORD}</gvcord>
 						<gdpfun>${GDPFUN}</gdpfun>
+						<skip>${SKIP}</skip>
+						<filter>${FILTER}</filter>
 						<scale>${SCALE}</scale>
 						<title>${TITLE}</title>
 						<colors>${COLORS}</colors>

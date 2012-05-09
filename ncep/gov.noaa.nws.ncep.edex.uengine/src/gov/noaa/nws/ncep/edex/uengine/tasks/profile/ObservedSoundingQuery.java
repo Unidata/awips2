@@ -19,6 +19,7 @@ package gov.noaa.nws.ncep.edex.uengine.tasks.profile;
  * 10/20/2011               S. Gurung   Added ncuair changes related to replacing slat/slon/selv with location of type SurfaceObsLocation
  * Nov 2011                 Chin Chen   changed Ncuair table query algorithm for performance improvement
  * 01/05/2012               S. Gurung   Removed references to UAIR (performed cleanup)
+ * 02/28/2012               Chin Chen   modify several sounding query algorithms for better performance
  * </pre>
  * 
  * @author Chin Chen
@@ -53,10 +54,9 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
+import com.raytheon.uf.common.dataplugin.bufrua.dao.BufrUAPointDataTransform;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
-import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -66,7 +66,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class ObservedSoundingQuery {
 	private static final UnitConverter metersPerSecondToKnots = SI.METERS_PER_SECOND.getConverterTo(NonSI.KNOT);
 	private static final UnitConverter kelvinToCelsius = SI.KELVIN.getConverterTo(SI.CELSIUS);
-	private static final String UAIR_TBL_NAME = "uair";
 	private static final String NCUAIR_TBL_NAME = "ncuair";
 	private static final String BURFUA_TBL_NAME = "bufrua";
 	private static String currentDBTblName = "nil";
@@ -81,7 +80,7 @@ public class ObservedSoundingQuery {
 		CoreDao dao;
 		List<String> fields = new ArrayList<String>();
 		List<Object> values = new ArrayList<Object>();
-		if(obType.equals(ObsSndType.NCUAIR.toString())){
+		/*if(obType.equals(ObsSndType.NCUAIR.toString())){
 			List<String> operands = new ArrayList<String>();
 			List<NcUairRecord> lUairRecords = null;	
 			if(queryType==SndQueryKeyType.STNID){
@@ -109,7 +108,7 @@ public class ObservedSoundingQuery {
 				operands.add("<=");
 			}
 			else {
-				//*System.out.println("request query type "+ queryType+ " is not supported in this API" );
+				//System.out.println("request query type "+ queryType+ " is not supported in this API" );
 				return pf;
 			}
 			fields.add("synopticTime");// the synoptic time field name defined in UairRecord
@@ -128,11 +127,11 @@ public class ObservedSoundingQuery {
 					pf.setStationLongitude((float)lUairRecords.get(0).getLongitude());
 									}
 			}catch (DataAccessLayerException e) {
-				//*System.out.println("obs sounding query exception");
+				//System.out.println("obs sounding query exception");
 				e.printStackTrace();
 			}
 		} 
-		else if(obType.equals(ObsSndType.BUFRUA.toString())) {
+		else*/ if(obType.equals(ObsSndType.BUFRUA.toString())) {
 			List<UAObs> lUairRecords = null;
 			if(queryType==SndQueryKeyType.STNID){
 				fields.add("stationName");// the stationName String field name defined in UAObs, dont be confused with UAIRRecord definition
@@ -164,6 +163,7 @@ public class ObservedSoundingQuery {
 					if(lUairRecords.get(0).getStationId()!=null && lUairRecords.get(0).getStationId().length()>0)
 						pf.setStationNum(Integer.parseInt(lUairRecords.get(0).getStationId()));
 					pf.setStationId(lUairRecords.get(0).getStationName());
+					pf.setFcsTime(lUairRecords.get(0).getDataTime().getRefTime().getTime());
 				}
 			}catch (DataAccessLayerException e) {
 				//*System.out.println("obs sounding query exception");
@@ -257,8 +257,8 @@ public class ObservedSoundingQuery {
 				
 				NcSoundingStnInfo stn = stnInfoCol.getNewStnInfo();
 				stn.setStnId(stnInfo);
-				stn.setStationLongitude((float)lon);
-				stn.setStationLatitude((float)lat);
+				stn.setStationLongitude(lon);
+				stn.setStationLatitude(lat);
 				stn.setStationElevation((float)elv);
 				stn.setSynopTime(synoptictime);
 				stationInfoList.add((NcSoundingStnInfo)stn);
@@ -342,8 +342,8 @@ public class ObservedSoundingQuery {
 	/*
 	 * Chin: Note: get NcUair based on stn is NOT supported yet!!!
 	 * NEW: This function requests ONE station's all dataTypes data at once
-	 * Nsharp is using this metod...dont remove it without consulting Nsharp developer
-	 */
+	 * NSHARP is using this metod...dont remove it without consulting Nsharp developer
+	 *
 	public static NcUairRecord[] getObservedSndNcUairData(Double lat, Double lon, String stn, String refTime){
 		
 		PointDataQuery request = null;
@@ -356,19 +356,16 @@ public class ObservedSoundingQuery {
 			request.setParameters(NcUairToRecord.MAN_PARAMS_LIST);
 			request.addParameter("location.latitude", String.valueOf(lat), "=");
 			request.addParameter("location.longitude", String.valueOf(lon), "=");
-			/*request.addParameter("location.latitude", String.valueOf(lat-0.1), ">=");
-			request.addParameter("location.latitude", String.valueOf(lat+0.1), "<=");
-			request.addParameter("location.longitude", String.valueOf(lon-0.1), ">=");
-			request.addParameter("location.longitude", String.valueOf(lon+0.1), "<=");*/
+			
 			request.addParameter("dataTime.refTime",refTime, "=");
 			request.addParameter("nil", String.valueOf(false), "=");
 			//Chin newQ request.addParameter("dataType", dataType, "=");
-			//long t001 = System.currentTimeMillis();
+			long t001 = System.currentTimeMillis();
 			request.requestAllLevels();
 			result = request.execute();
-			//long t002 = System.currentTimeMillis();
+			long t002 = System.currentTimeMillis();
 			//totalRqTime=totalRqTime+(t002-t001);
-			//System.out.println("getObservedSndNcUairData request at lat="+ lat+ " lon="+lon+" took "+(t002-t001)+"ms total Qtime="+totalRqTime);
+			//System.out.println("getObservedSndNcUairData request at lat="+ lat+ " lon="+lon+" took "+(t002-t001)+"ms ");
             if (result != null) {
             	//System.out.println("getObservedSndNcUairData: result is not null, getAllocatedSz= "+ result.getAllocatedSz());
             	//System.out.println("getObservedSndNcUairData:getting "+dataType);
@@ -426,12 +423,13 @@ public class ObservedSoundingQuery {
         	return pickedH5Records.toArray(new NcUairRecord[pickedH5Records.size()]);
         }
         return null;
-	}
+	}*/
 	/*
 	 * Chin: Note: get NcUair based on stn is NOT supported yet!!!
 	 * NEW: This function requests ALL stn with all dataTypes and returns all good ("corrected")records at once to improve performance
-	 */
-	public static List<NcUairRecord[]> getAllStnObservedSndNcUairData(float[][] latLonArray, String stn, String refTime){
+	 * Need performance improving by using Operand "in" for lat/lon pair, see getObservedSndNcUairDataByLatLonArrayNew() 02/15/2012 Chin
+	 *
+	public static List<NcUairRecord[]> getObservedSndNcUairDataByLatLonArray(double[][] latLonArray, String refTime){
 		//List<NcSoundingProfile>  soundingProfileList= new ArrayList<NcSoundingProfile>();
 		PointDataQuery request = null;
         PointDataContainer result = null;
@@ -441,12 +439,13 @@ public class ObservedSoundingQuery {
         List<NcUairRecord[]> finalRecordArrayList = new ArrayList<NcUairRecord[]>();
         maxLat=minLat=0.0;
 		maxLon=minLon=0.0;
-        for ( int i=0; i < latLonArray.length ; i++)
+		for ( int i=0; i < latLonArray.length ; i++)
 		{
 
 			//make sure we have right precision...
-			lat = Double.parseDouble(Float.toString(latLonArray[i][0]));
-			lon = Double.parseDouble(Float.toString(latLonArray[i][1]));
+			lat = latLonArray[i][0];
+			lon = latLonArray[i][1];
+			//latLonStr = latLonStr+
 			if(i==0){
 				maxLat=minLat=lat;
 				maxLon=minLon=lon;
@@ -481,8 +480,8 @@ public class ObservedSoundingQuery {
         			for ( int i=0; i < latLonArray.length ; i++)
         			{
         				//for each station
-        				lat = Double.parseDouble(Float.toString(latLonArray[i][0]));
-        				lon = Double.parseDouble(Float.toString(latLonArray[i][1]));
+        				lat = latLonArray[i][0];
+        				lon = latLonArray[i][1];
         				NcUairRecord record;
         				List<NcUairRecord> stnRecords = new ArrayList<NcUairRecord>();
         				//System.out.println("Before loop: Number of records in returnedDbRecords="+returnedDbRecords.size());
@@ -537,7 +536,7 @@ public class ObservedSoundingQuery {
         					//pickedUairRecords.get(0).setNil(false); // set for special handling for its caller
         					finalRecordArrayList.add(pickedUairRecords.toArray(new NcUairRecord[pickedUairRecords.size()]));
         					//System.out.println("After  checking: stn record size="+pickedUairRecords.size());
-        				}/*Chin:  If caller need all query stns returned (no matter there is no data), then we may need to add this code...	
+        				}//Chin:  If caller need all query stns returned (no matter there is no data), then we may need to add this code...	
         				else {
         					//just add a null record array
         					NcUairRecord dummy = new NcUairRecord();
@@ -550,7 +549,7 @@ public class ObservedSoundingQuery {
         					NcUairRecord[] dummys= new NcUairRecord[1];
         					dummys[0] = dummy;
         					finalRecordArrayList.add(dummys);
-        				}*/
+        				}//
         			}
         		}
         	}
@@ -558,10 +557,573 @@ public class ObservedSoundingQuery {
         	e.printStackTrace();
         }
         return finalRecordArrayList;
+	}*/
+	/*
+	 * Chin: Note: get NcUair based on stn is NOT supported yet!!!
+	 * NEW: This function requests ALL stn with all dataTypes and returns all good ("corrected")records at once to improve performance
+	 * Performance improved by using Operand "in" for lat/lon pair. 02/16/2012 Chin
+	 *
+	public static List<NcUairRecord[]> getObservedSndNcUairDataByLatLonArrayNew(double[][] latLonArray, String refTime){
+		//List<NcSoundingProfile>  soundingProfileList= new ArrayList<NcSoundingProfile>();
+		PointDataQuery request = null;
+        PointDataContainer result = null;
+        //NcUairRecord[] h5Records=null;
+        Double  lat, lon;
+        List<NcUairRecord> returnedDbRecords = new ArrayList<NcUairRecord>();
+        List<NcUairRecord[]> finalRecordArrayList = new ArrayList<NcUairRecord[]>();
+        String latStr="", lonStr="";
+        for ( int i=0; i < latLonArray.length ; i++)
+		{
+				latStr = latStr+String.valueOf(latLonArray[i][0])+",";
+				lonStr = lonStr+String.valueOf(latLonArray[i][1])+",";
+		}
+		latStr=latStr.substring(0, latStr.length()-1);//get rid of last ","
+		lonStr=lonStr.substring(0, lonStr.length()-1);//get rid of last ","
+        try {
+        	request = new PointDataQuery("ncuair");	
+        	request.setParameters(NcUairToRecord.MAN_PARAMS_LIST);
+
+        	request.addParameter("location.latitude",latStr, "in");
+        	request.addParameter("location.longitude", lonStr, "in");
+        	request.addParameter("dataTime.refTime",refTime, "=");
+        	request.addParameter("nil", String.valueOf(false), "=");
+        	request.requestAllLevels();
+        	result = request.execute();
+        	//long t002 = System.currentTimeMillis();
+        	//totalRqTime=totalRqTime+(t002-t001);
+        	//System.out.println("getObservedSndNcUairData request at lat="+ lat+ " lon="+lon+" took "+(t002-t001)+"ms total Qtime="+totalRqTime);
+        	if (result != null) {
+        		returnedDbRecords = NcUairToRecord.toNcUairRecordsList(result); 
+
+        		if(returnedDbRecords!= null && returnedDbRecords.size() > 0){
+        			System.out.println("Before loop: Number of records in returnedDbRecords="+returnedDbRecords.size());
+        			//Chin: keep list of records for same station 
+        			//search through all returned records and keep same staion's records in one list
+        			for ( int i=0; i < latLonArray.length ; i++)
+        			{
+        				//for each station
+        				lat = latLonArray[i][0];
+        				lon = latLonArray[i][1];
+        				NcUairRecord record;
+        				List<NcUairRecord> stnRecords = new ArrayList<NcUairRecord>();
+        				
+        				for(int j=returnedDbRecords.size()-1; j >=0; j--){
+        					record =returnedDbRecords.get(j);
+        					if(record.getLatitude() >= lat - 0.1 && record.getLatitude() <= lat + 0.1 && record.getLongitude() >= lon-0.1&& record.getLongitude() <= lon+0.1){
+        						//remove this record from return list and add it to this stn list
+        						stnRecords.add(returnedDbRecords.remove(j));
+        					}
+        				}
+        				if(stnRecords.size()>0){
+        					//System.out.println("Before  checking:stn lat="+lat +"stn record size="+stnRecords.size());
+        					List<NcUairRecord> pickedUairRecords = new ArrayList<NcUairRecord>();
+        					NcUairRecord orignalRd;
+        					boolean addToList = true;
+        					for(int ii=0; ii< stnRecords.size(); ii++){
+        						orignalRd = stnRecords.get(ii);
+        						addToList = true;
+        						for(NcUairRecord pickedRd: pickedUairRecords){
+        							if(orignalRd.getDataType().equals( pickedRd.getDataType())){
+        								//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " find a same datatype="+pickedRd.getDataType()+ " orignalRd corr="+orignalRd.getCorr()+
+        								//		" pickedRd Corr="+pickedRd.getCorr());
+
+        								//the two records have same data type
+        								//this records will either replace the one in list or be dropped
+    									addToList = false; 
+    									if ((pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())<0) ||
+        										(pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())==0 && orignalRd.getCorr()!=null && pickedRd.getCorr() != null && pickedRd.getCorr().compareTo(orignalRd.getCorr())<0 )||
+        										(pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())==0 && orignalRd.getCorr()!=null && pickedRd.getCorr() == null)
+        								)
+        								{
+        									// decide to replace picked with original record, based on the following cases, in (priority) order
+        									//case 1: original record has "later" issue time than picked record
+        									//case 2: original record has "larger" correction "corr" than picked record
+        									//case 3: original record has  correction "corr", picked record does not have
+        									//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " ori= " + orignalRd.getDataURI()+
+        									//		"  picked="+ pickedRd.getDataURI());
+        									int pickedIndex = pickedUairRecords.indexOf(pickedRd);
+        									pickedUairRecords.set(pickedIndex, orignalRd);
+        									//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " afterreplaced picked record ="+pickedH5Records.get(pickedIndex).getDataURI());
+        								}
+    									break;
+            						}
+        						}
+        						if(addToList==true){
+        							// add this original record to picked list
+        							pickedUairRecords.add(orignalRd);
+        							//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " add ori to picked record ="+orignalRd.getDataURI());
+
+        						}
+        					}
+        					//pickedUairRecords.get(0).setNil(false); // set for special handling for its caller
+        					finalRecordArrayList.add(pickedUairRecords.toArray(new NcUairRecord[pickedUairRecords.size()]));
+        					//System.out.println("After  checking: stn record size="+pickedUairRecords.size());
+        				}
+        			}
+        		}
+        	}
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+        System.out.println(" Number of records in finalRecordArrayList="+finalRecordArrayList.size());
+        return finalRecordArrayList;
+	}*/
+	/*
+	 * Chin: Note: 
+	 * NEW: This function requests ALL stn with all dataTypes and returns all good ("corrected")records at once to improve performance
+	 * Performance improved by using Operand "in" for stnId list. 02/16/2012 Chin
+	 *
+	public static List<NcUairRecord[]> getObservedSndNcUairDataByStnIdArray(String[] stnIdArray, String refTime){
+		//List<NcSoundingProfile>  soundingProfileList= new ArrayList<NcSoundingProfile>();
+		PointDataQuery request = null;
+        PointDataContainer result = null;
+        //NcUairRecord[] h5Records=null;
+        String  stnStr;
+        List<NcUairRecord> returnedDbRecords = new ArrayList<NcUairRecord>();
+        List<NcUairRecord[]> finalRecordArrayList = new ArrayList<NcUairRecord[]>();
+        String stnIdListStr="";
+		for ( int i=0; i < stnIdArray.length ; i++)
+		{
+
+			if(i < stnIdArray.length -1){
+				stnIdListStr = stnIdListStr+stnIdArray[i]+",";			
+			}
+		}
+        try {
+        	request = new PointDataQuery("ncuair");	
+        	request.setParameters(NcUairToRecord.MAN_PARAMS_LIST);
+
+        	request.addParameter("location.stationId",stnIdListStr, "in");
+        	request.addParameter("dataTime.refTime",refTime, "=");
+        	request.addParameter("nil", String.valueOf(false), "=");
+        	request.requestAllLevels();
+        	long t001 = System.currentTimeMillis();
+        	result = request.execute();
+        	long t002 = System.currentTimeMillis();
+        	//totalRqTime=totalRqTime+(t002-t001);
+        	System.out.println("getObservedSndNcUairDataByStnIdArray request stn size="+ stnIdArray.length+ " took "+(t002-t001)+"ms");
+        	
+        	if (result != null) {
+        		long t003 = System.currentTimeMillis();
+        		returnedDbRecords = NcUairToRecord.toNcUairRecordsList(result); 
+
+        		if(returnedDbRecords!= null && returnedDbRecords.size() > 0){
+        			System.out.println("getObservedSndNcUairDataByStnIdArray Before loop: Number of records in returnedDbRecords="+returnedDbRecords.size());
+        			//Chin: keep list of records for same station 
+        			//search through all returned records and keep same staion's records in one list
+        			for ( int i=0; i < stnIdArray.length ; i++)
+        			{
+        				//for each station
+        				stnStr = stnIdArray[i];
+        				NcUairRecord record;
+        				List<NcUairRecord> stnRecords = new ArrayList<NcUairRecord>();
+        				
+        				for(int j=returnedDbRecords.size()-1; j >=0; j--){
+        					record =returnedDbRecords.get(j);
+        					//System.out.println("requesting stn="+stnStr+" returned rd stnId="+record.getStationId()+ " stnNum="+record.getStnum());
+        					if(stnStr.equals(record.getStationId())){
+        						//remove this record from return list and add it to this stn list
+        						stnRecords.add(returnedDbRecords.remove(j));
+        					}
+        				}
+        				if(stnRecords.size()>0){
+        					//System.out.println("Before  checking:stn lat="+lat +"stn record size="+stnRecords.size());
+        					List<NcUairRecord> pickedUairRecords = new ArrayList<NcUairRecord>();
+        					NcUairRecord orignalRd;
+        					boolean addToList = true;
+        					for(int ii=0; ii< stnRecords.size(); ii++){
+        						orignalRd = stnRecords.get(ii);
+        						addToList = true;
+        						for(NcUairRecord pickedRd: pickedUairRecords){
+        							if(orignalRd.getDataType().equals( pickedRd.getDataType())){
+        								//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " find a same datatype="+pickedRd.getDataType()+ " orignalRd corr="+orignalRd.getCorr()+
+        								//		" pickedRd Corr="+pickedRd.getCorr());
+
+        								//the two records have same data type
+        								//this records will either replace the one in list or be dropped
+    									addToList = false; 
+    									if ((pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())<0) ||
+        										(pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())==0 && orignalRd.getCorr()!=null && pickedRd.getCorr() != null && pickedRd.getCorr().compareTo(orignalRd.getCorr())<0 )||
+        										(pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())==0 && orignalRd.getCorr()!=null && pickedRd.getCorr() == null)
+        								)
+        								{
+        									// decide to replace picked with original record, based on the following cases, in (priority) order
+        									//case 1: original record has "later" issue time than picked record
+        									//case 2: original record has "larger" correction "corr" than picked record
+        									//case 3: original record has  correction "corr", picked record does not have
+        									//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " ori= " + orignalRd.getDataURI()+
+        									//		"  picked="+ pickedRd.getDataURI());
+        									int pickedIndex = pickedUairRecords.indexOf(pickedRd);
+        									pickedUairRecords.set(pickedIndex, orignalRd);
+        									//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " afterreplaced picked record ="+pickedH5Records.get(pickedIndex).getDataURI());
+        								}
+    									break;
+            						}
+        						}
+        						if(addToList==true){
+        							// add this original record to picked list
+        							pickedUairRecords.add(orignalRd);
+        							//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " add ori to picked record ="+orignalRd.getDataURI());
+
+        						}
+        					}
+        					//pickedUairRecords.get(0).setNil(false); // set for special handling for its caller
+        					finalRecordArrayList.add(pickedUairRecords.toArray(new NcUairRecord[pickedUairRecords.size()]));
+        					//System.out.println("After  checking: stn record size="+pickedUairRecords.size());
+        				}
+        			}
+        			
+        		}
+        		long t004 = System.currentTimeMillis();
+        		System.out.println(" sorting return records took "+(t004-t003)+"ms");
+        	}
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+        
+        System.out.println("getObservedSndNcUairDataByStnIdArray Number of records in finalRecordArrayList="+finalRecordArrayList.size());
+        return finalRecordArrayList;
+	}*/
+	/*
+	 * Chin: 2/21/2012
+	 * Using Lat/lon array OR StnId array, AND soundingTimeAry (fcst time array) as input.
+	 * This function is to be generic for all cases.
+	 * One and only one of latLonArray and stnIdArr should be not null and the other one should be null
+	 * soundingTimeAry is a list of refer time (in Bufrua, only use refer time for query) should be not null 	 
+	 * Chin's note: NOT completed yet.................
+	 */
+	public static List<UAObs[]> getObservedSndBufruaDataGeneric(Coordinate[]  coordArray,String[] stnIdArray, List<String> soundingTimeStrList, long[] soundTimeLongArr){
+		//List<NcSoundingProfile>  soundingProfileList= new ArrayList<NcSoundingProfile>();
+		PointDataQuery request = null;
+        PointDataContainer result = null;
+        //NcUairRecord[] h5Records=null;
+        String  stnStr="";
+        Coordinate coord= new Coordinate();;
+        List<UAObs> returnedDbRecords = new ArrayList<UAObs>();
+        UAObs[] returnedDbRecordArr;
+        List<UAObs[]> finalRecordArrayList = new ArrayList<UAObs[]>();
+        boolean queryByStn;
+        try {
+        	request = new PointDataQuery("bufrua");	
+        	request.setParameters(BufrUAPointDataTransform.MAN_PARAMS_LIST);
+        	request.requestAllLevels();
+        	String d="";
+        	for (String timeStr: soundingTimeStrList){
+        		d = d+timeStr;
+        		d= d+",";
+        	}
+        	d=d.substring(0, d.length()-1);//get rid of last ","
+        	request.addParameter("dataTime.refTime",d, "in");
+        	if(coordArray != null){
+        		String latStr="", lonStr="";
+        		for ( int i=0; i < coordArray.length ; i++)
+        		{
+        			latStr = latStr+String.valueOf(coordArray[i].y)+",";
+        			lonStr = lonStr+String.valueOf(coordArray[i].x)+",";
+        		}
+        		latStr=latStr.substring(0, latStr.length()-1);//get rid of last ","
+        		lonStr=lonStr.substring(0, lonStr.length()-1);//get rid of last ","
+        		request.addParameter("location.latitude",latStr, "in");
+        		request.addParameter("location.longitude", lonStr, "in");
+        		queryByStn = false;
+        	}
+        	else if(stnIdArray != null){
+        		String stnIdListStr="";
+        		for ( int i=0; i < stnIdArray.length ; i++)
+        		{
+
+        			if(i < stnIdArray.length -1){
+        				stnIdListStr = stnIdListStr+stnIdArray[i]+",";			
+        			}
+        		}
+        		request.addParameter("location.stationId",stnIdListStr, "in");
+        		queryByStn= true;
+        	}
+        	else {
+        		return finalRecordArrayList;
+        	}
+        	long t001 = System.currentTimeMillis();
+        	result = request.execute();
+        	long t002 = System.currentTimeMillis();
+        	//totalRqTime=totalRqTime+(t002-t001);
+        	System.out.println("getObservedSndBufruaDataGeneric data query alone took "+(t002-t001)+"ms");
+
+        	if (result != null) {
+        		long t003 = System.currentTimeMillis();
+        		returnedDbRecordArr = BufrUAPointDataTransform.toUAObsRecords(result); 
+        		for(int i=0; i < returnedDbRecordArr.length; i++)
+        			returnedDbRecords.add(returnedDbRecordArr[i]);
+        		if(returnedDbRecords!= null && returnedDbRecords.size() > 0){
+        			System.out.println("getObservedSndBufruaDataGeneric Before loop: Number of records in returnedDbRecords="+returnedDbRecords.size());
+        			//Chin: keep list of records for same station 
+        			//search through all returned records and keep same staion's records in one list
+        			int loopLen;
+        			if(queryByStn== true){
+        				loopLen = stnIdArray.length;
+        			}
+        			else {
+        				loopLen = coordArray.length;
+        			}
+        			UAObs record;
+    				
+        			for ( int i=0; i < loopLen ; i++)
+        			{
+        				//for each station
+        				if(queryByStn== true){
+        					stnStr = stnIdArray[i];
+        				}
+        				else{
+        					coord = coordArray[i];
+        				}
+        				
+        				List<List<UAObs>> stnRecordsList = new ArrayList<List<UAObs>>();
+        				for (long refT: soundTimeLongArr){
+        					List<UAObs> stnRecords = new ArrayList<UAObs>();
+        					stnRecordsList.add(stnRecords);
+        				}
+        				for(int j=returnedDbRecords.size()-1; j >=0; j--){
+        					record =returnedDbRecords.get(j);
+        					boolean goodRecord = false;
+        					//System.out.println("requesting stn="+stnStr+" returned rd stnId="+record.getStationId()+ " stnNum="+record.getStnum());
+        					if(queryByStn== true){
+        						if(stnStr.equals(record.getStationId()) ){
+        							//remove this record from return list and add it to this stn list
+        							//stnRecords.add(returnedDbRecords.remove(j));
+        							goodRecord = true;
+        						}
+        					}
+        					else {
+        						//System.out.println("coor.x="+coord.x + " coor.y="+coord.y + " record lon="+record.getLongitude()+ " record lat="+ record.getLatitude());
+        						//Chin: for some unknown reason that record returned from DB with lat/lon extended with many digits
+        						//For example, coor.x=-114.4 coor.y=32.85 record lon=-114.4000015258789 record lat=32.849998474121094
+        						//Therefore, do the following.
+        						if( Math.abs(coord.x-record.getLongitude())< 0.01 && Math.abs(coord.y-record.getLatitude())<0.01){
+        							//remove this record from return list and add it to this stn list
+        							//stnRecords.add(returnedDbRecords.remove(j));
+        							goodRecord = true;
+        						}
+        					}
+        					if(goodRecord == true){
+        						for(int index=0; index< soundTimeLongArr.length; index++){
+        							long refT= soundTimeLongArr[index];
+        							if( refT == record.getDataTime().getRefTime().getTime()){
+        								stnRecordsList.get(index).add(returnedDbRecords.remove(j));
+        							}
+        						}
+        					}
+        				}
+        				for(List<UAObs> recordList:stnRecordsList){
+        					if(recordList.size()>0){
+        						
+        						//pickedUairRecords.get(0).setNil(false); // set for special handling for its caller
+        						finalRecordArrayList.add(recordList.toArray(new UAObs[recordList.size()]));
+        						//System.out.println("getObservedSndNcUairDataGeneric Number of records in PF=" + pickedUairRecords.size());
+        					}
+        				}
+        			}
+
+        		}
+        		long t004 = System.currentTimeMillis();
+        		System.out.println(" sorting return records took "+(t004-t003)+"ms");
+        	}
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+
+        System.out.println("getObservedSndBufruaDataGeneric Number profiles (record[]s) in finalRecordArrayList="+finalRecordArrayList.size());
+        return finalRecordArrayList;
+	}
+	/*
+	 * Chin: 2/21/2012
+	 * Using Lat/lon array OR StnId array, AND soundingTimeAry (fcst time array) as input.
+	 * This function is to be generic for all cases.
+	 * One and only one of latLonArray and stnIdArr should be not null and the other one should be null
+	 * soundingTimeAry is a list of refer time (in NCUair, only use refer time for query) should be not null 	 
+	 * 
+	 */
+	public static List<NcUairRecord[]> getObservedSndNcUairDataGeneric(Coordinate[]  coordArray,String[] stnIdArray, List<String> soundingTimeStrList, long[] soundTimeLongArr){
+		//List<NcSoundingProfile>  soundingProfileList= new ArrayList<NcSoundingProfile>();
+		PointDataQuery request = null;
+        PointDataContainer result = null;
+        //NcUairRecord[] h5Records=null;
+        String  stnStr="";
+        Coordinate coord= new Coordinate();;
+        List<NcUairRecord> returnedDbRecords = new ArrayList<NcUairRecord>();
+        List<NcUairRecord[]> finalRecordArrayList = new ArrayList<NcUairRecord[]>();
+        boolean queryByStn;
+        try {
+        	request = new PointDataQuery("ncuair");	
+        	request.setParameters(NcUairToRecord.MAN_PARAMS_LIST);
+        	request.addParameter("nil", String.valueOf(false), "=");
+        	request.requestAllLevels();
+        	String d="";
+        	for (String timeStr: soundingTimeStrList){
+        		d = d+timeStr;
+        		d= d+",";
+        	}
+        	d=d.substring(0, d.length()-1);//get rid of last ","
+        	request.addParameter("dataTime.refTime",d, "in");
+        	if(coordArray != null){
+        		String latStr="", lonStr="";
+        		for ( int i=0; i < coordArray.length ; i++)
+        		{
+        			latStr = latStr+String.valueOf(coordArray[i].y)+",";
+        			lonStr = lonStr+String.valueOf(coordArray[i].x)+",";
+        		}
+        		latStr=latStr.substring(0, latStr.length()-1);//get rid of last ","
+        		lonStr=lonStr.substring(0, lonStr.length()-1);//get rid of last ","
+        		request.addParameter("location.latitude",latStr, "in");
+        		request.addParameter("location.longitude", lonStr, "in");
+        		queryByStn = false;
+        	}
+        	else if(stnIdArray != null){
+        		String stnIdListStr="";
+        		for ( int i=0; i < stnIdArray.length ; i++)
+        		{
+
+        			if(i < stnIdArray.length -1){
+        				stnIdListStr = stnIdListStr+stnIdArray[i]+",";			
+        			}
+        		}
+        		request.addParameter("location.stationId",stnIdListStr, "in");
+        		queryByStn= true;
+        	}
+        	else {
+        		return finalRecordArrayList;
+        	}
+        	long t001 = System.currentTimeMillis();
+        	result = request.execute();
+        	long t002 = System.currentTimeMillis();
+        	//totalRqTime=totalRqTime+(t002-t001);
+        	System.out.println("getObservedSndNcUairDataGeneric data query alone took "+(t002-t001)+"ms");
+
+        	if (result != null) {
+        		long t003 = System.currentTimeMillis();
+        		returnedDbRecords = NcUairToRecord.toNcUairRecordsList(result); 
+
+        		if(returnedDbRecords!= null && returnedDbRecords.size() > 0){
+        			System.out.println("getObservedSndNcUairDataGeneric Before loop: Number of records in returnedDbRecords="+returnedDbRecords.size());
+        			//Chin: keep list of records for same station 
+        			//search through all returned records and keep same staion's records in one list
+        			int loopLen;
+        			if(queryByStn== true){
+        				loopLen = stnIdArray.length;
+        			}
+        			else {
+        				loopLen = coordArray.length;
+        			}
+        			NcUairRecord record;
+    				
+        			for ( int i=0; i < loopLen ; i++)
+        			{
+        				//for each station
+        				if(queryByStn== true){
+        					stnStr = stnIdArray[i];
+        				}
+        				else{
+        					coord = coordArray[i];
+        				}
+        				
+        				List<List<NcUairRecord>> stnRecordsList = new ArrayList<List<NcUairRecord>>();
+        				for (long refT: soundTimeLongArr){
+        					//create empty List<NcUairRecord> for each sounding time line
+        					List<NcUairRecord> stnRecords = new ArrayList<NcUairRecord>();
+        					stnRecordsList.add(stnRecords);
+        				}
+        				for(int j=returnedDbRecords.size()-1; j >=0; j--){
+        					record =returnedDbRecords.get(j);
+        					boolean goodRecord = false;
+        					//System.out.println("requesting stn="+stnStr+" returned rd stnId="+record.getStationId()+ " stnNum="+record.getStnum());
+        					if(queryByStn== true){
+        						if(stnStr.equals(record.getStationId()) ){
+        							//remove this record from return list and add it to this stn list
+        							//stnRecords.add(returnedDbRecords.remove(j));
+        							goodRecord = true;
+        						}
+        					}
+        					else {
+        						//System.out.println("coor.x="+coord.x + " coor.y="+coord.y + " record lon="+record.getLongitude()+ " record lat="+ record.getLatitude());
+        						//Chin: for some unknown reason that record returned from DB with lat/lon extended with many digits
+        						//For example, coor.x=-114.4 coor.y=32.85 record lon=-114.4000015258789 record lat=32.849998474121094
+        						//Therefore, do the following.
+        						if( Math.abs(coord.x-record.getLongitude())< 0.01 && Math.abs(coord.y-record.getLatitude())<0.01){
+        							//remove this record from return list and add it to this stn list
+        							//stnRecords.add(returnedDbRecords.remove(j));
+        							goodRecord = true;
+        						}
+        					}
+        					if(goodRecord == true){
+        						for(int index=0; index< soundTimeLongArr.length; index++){
+        							long refT= soundTimeLongArr[index];
+        							if( refT == record.getDataTime().getRefTime().getTime()){
+        								stnRecordsList.get(index).add(returnedDbRecords.remove(j));
+        							}
+        						}
+        					}
+        				}
+        				for(List<NcUairRecord> recordList:stnRecordsList){
+        					if(recordList.size()>0){
+        						//System.out.println("Before  checking:stn lat="+lat +"stn record size="+stnRecords.size());
+        						List<NcUairRecord> pickedUairRecords = new ArrayList<NcUairRecord>();
+        						NcUairRecord orignalRd;
+        						boolean addToList = true;
+        						for(int ii=0; ii< recordList.size(); ii++){
+        							orignalRd = recordList.get(ii);
+        							addToList = true;
+        							for(NcUairRecord pickedRd: pickedUairRecords){
+        								if(orignalRd.getDataType().equals( pickedRd.getDataType())){
+        									//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " find a same datatype="+pickedRd.getDataType()+ " orignalRd corr="+orignalRd.getCorr()+
+        									//		" pickedRd Corr="+pickedRd.getCorr());
+
+        									//the two records have same data type
+        									//this records will either replace the one in list or be dropped
+        									addToList = false; 
+        									if ((pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())<0) ||
+        											(pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())==0 && orignalRd.getCorr()!=null && pickedRd.getCorr() != null && pickedRd.getCorr().compareTo(orignalRd.getCorr())<0 )||
+        											(pickedRd.getIssueTime().compareTo(orignalRd.getIssueTime())==0 && orignalRd.getCorr()!=null && pickedRd.getCorr() == null)
+        									)
+        									{
+        										// decide to replace picked with original record, based on the following cases, in (priority) order
+        										//case 1: original record has "later" issue time than picked record
+        										//case 2: original record has "larger" correction "corr" than picked record
+        										//case 3: original record has  correction "corr", picked record does not have
+        										//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " ori= " + orignalRd.getDataURI()+
+        										//		"  picked="+ pickedRd.getDataURI());
+        										int pickedIndex = pickedUairRecords.indexOf(pickedRd);
+        										pickedUairRecords.set(pickedIndex, orignalRd);
+        										//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " afterreplaced picked record ="+pickedH5Records.get(pickedIndex).getDataURI());
+        									}
+        									break;
+        								}
+        							}
+        							if(addToList==true){
+        								// add this original record to picked list
+        								pickedUairRecords.add(orignalRd);
+        								//System.out.println("getObservedSndNcUairData: at lat="+ lat+ " lon="+lon+ " add ori to picked record ="+orignalRd.getDataURI());
+
+        							}
+        						}
+        						//pickedUairRecords.get(0).setNil(false); // set for special handling for its caller
+        						finalRecordArrayList.add(pickedUairRecords.toArray(new NcUairRecord[pickedUairRecords.size()]));
+        						//System.out.println("getObservedSndNcUairDataGeneric Number of records in PF=" + pickedUairRecords.size());
+        					}
+        				}
+        			}
+
+        		}
+        		long t004 = System.currentTimeMillis();
+        		System.out.println(" sorting return records took "+(t004-t003)+"ms");
+        	}
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
+
+        System.out.println("getObservedSndNcUairDataGeneric Number profiles (record[]s) in finalRecordArrayList="+finalRecordArrayList.size());
+        return finalRecordArrayList;
 	}
 	/*
 	 * This method query ONE station's specific one dataType data only
-	 */
+	 *
 	public static NcUairRecord getObservedSndNcUairData(Double lat, Double lon, String stn, String refTime, String dataType, SndQueryKeyType queryType){
 		NcUairRecord effectRecord=null;
 		PointDataQuery request = null;
@@ -621,316 +1183,7 @@ public class ObservedSoundingQuery {
         }
 		return effectRecord;
 	}
-
-	/*
-     * this api is provided for  applications  and for testing to retrieve observed uair data from PostgreSql DB
-     * dataType should use "enum DataType" defined in NcSoundingLayer.java
-     * Support  "ALLDATA" data type only
-     */
-	public static NcSoundingProfile getObservedSndAllData(Double lat, Double lon, String stn, long refTimeL, String obType, SndQueryKeyType queryType){
-		Calendar refTimeCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		// for testing ...refTimeCal.setTimeInMillis(1276581600000L);		
-		//refTimeCal.setTimeInMillis(refTime.getTime());
-		refTimeCal.setTimeInMillis(refTimeL);
-		return getObservedSndAllData(lat, lon, stn, refTimeCal, obType, queryType);
-	}
-	
-	  /*
-     * this api is provided for  applications  and for testing to retrieve observed uair data from PostgreSql DB
-     * dataType should use "enum DataType" defined in NcSoundingLayer.java
-     * Support  "ALLDATA" data type only
-     */
-	public static NcSoundingProfile getObservedSndAllData(Double lat, Double lon, String stn, Calendar refTimeCal, String obType, SndQueryKeyType queryType){
-		NcSoundingProfile pfAll= new NcSoundingProfile();
-		List<NcSoundingLayer> soundingLyLst, finalsoundingLyLst;
-		/*if(obType.equals(ObsSndType.UAIR.toString())){
-			NcSoundingProfile pf = getObservedSndData(lat, lon, stn, refTimeCal, obType, "TTAA", queryType);
-			pfAll.setStationElevation(pf.getStationElevation());
-			finalsoundingLyLst = pf.getSoundingLyLst();
-			if (finalsoundingLyLst.size() == 0) {
-				finalsoundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "UUAA", queryType).getSoundingLyLst();
-			}
-
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "TTBB", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() == 0) {
-				soundingLyLst = getObservedSndData(lat, lon,stn, refTimeCal, obType, "UUBB", queryType).getSoundingLyLst();
-			}
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "TTCC", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() == 0) {
-				soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "UUCC", queryType).getSoundingLyLst();
-			}
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "TTDD", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() == 0) {
-				soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "UUDD", queryType).getSoundingLyLst();
-			}
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "PPAA", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "PPBB", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "PPCC", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "PPDD", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon,stn, refTimeCal, obType, "MAXWIND_A", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "MAXWIND_C", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "TROPOPAUSE_A", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			soundingLyLst = getObservedSndData(lat, lon, stn,refTimeCal, obType, "TROPOPAUSE_C", queryType).getSoundingLyLst();
-			if (soundingLyLst.size() >= 0){
-				finalsoundingLyLst.addAll(soundingLyLst);
-			}
-			pfAll.setSoundingLyLst(finalsoundingLyLst);
-		}
-		*/
-		return pfAll;
-	}
-    /*
-     * this api is provided for  applications  and for testing to retrieve observed uair data from PostgreSql DB
-     * dataType should use "enum DataType" defined in NcSoundingLayer.java
-     * Support all dataType except "ALLDATA" data type
-     * using either lat/lon, stnId or stnNum and synopticTime as key
-     * refTime is with unit of msec as input
-     */
-	public static NcSoundingProfile getObservedSndData(Double lat, Double lon,String stn, long refTimeL, String obType, String dataType, SndQueryKeyType queryType){
-		Calendar refTimeCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		// for testing ...refTimeCal.setTimeInMillis(1276581600000L);		
-		//refTimeCal.setTimeInMillis(refTime.getTime());
-		refTimeCal.setTimeInMillis(refTimeL);
-		return getObservedSndData(lat, lon, stn, refTimeCal, obType,  dataType,  queryType);
-	}
-    /*
-     * this api is provided for  applications  and for testing to retrieve observed uair data from PostgreSql DB
-     * dataType should use "enum DataType" defined in NcSoundingLayer.java
-     * Support all dataType except "ALLDATA" data type
-     * using either lat/lon, stnId or stnNum and synopticTime as key
-     * reference time is with Calendar data type as input 
-     */
-	@SuppressWarnings("unchecked")
-	public static NcSoundingProfile getObservedSndData(Double lat, Double lon,String stn, Calendar refTimeCal, String obType, String dataType, SndQueryKeyType queryType){
-		NcSoundingProfile pf = new NcSoundingProfile();
-		//one StnPt represent one data time line 
-		List<NcSoundingLayer> soundLyLst = new ArrayList<NcSoundingLayer>();
-		NcSoundingLayer soundingLy;
-		soundLyLst.clear();		
-		
-		//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM",  refTimeCal);
-		//*System.out.println("sndType= "+ obType+" data type="+ dataType+ " lat " + lat+ " lon "+ lon+" GMT time " + gmtTimeStr  );
-
-		/*obType = ObsSndType.UAIR.toString(); // currently assume all uair sounding type
-		if(obType.equals(ObsSndType.UAIR.toString())){
-			if(dataType.equals(NcSoundingLayer.DataType.ALLDATA.toString())){
-				//System.out.println("request all data is not supported in this API");
-			}
-			else {
-				List<String> fields = new ArrayList<String>();
-				List<Object> values = new ArrayList<Object>();
-				List<String> operands = new ArrayList<String>();
-				List<UairRecord> lUairRecords = null;
-				if(queryType==SndQueryKeyType.STNID){
-					fields.add("stationId");// the stnId field name defined in UairRecord
-					values.add(stn);
-					operands.add("=");
-				}
-				else if(queryType==SndQueryKeyType.STNNUM){
-					fields.add("stationNumber");// the stnNum field name defined in UairRecord
-					values.add(stn);
-					operands.add("=");
-				}
-				else if(queryType==SndQueryKeyType.LATLON){
-					fields.add("slat");// the lat field name defined in UairRecord
-					values.add(lat-0.1); 
-					operands.add(">=");
-					fields.add("slat");// the lat field name defined in UairRecord
-					values.add(lat+0.1); 
-					operands.add("<=");
-					fields.add("slon");// the lon field name defined in UairRecord
-					values.add(lon-0.1); 
-					operands.add(">=");
-					fields.add("slon");// the lon field name defined in UairRecord
-					values.add(lon+0.1); 
-					operands.add("<=");
-					
-				}
-				else {
-					//System.out.println("request query type "+ queryType+ " is not supported in this API" );
-					return pf;
-				}
-				fields.add("dataTime.refTime");// the synoptic time field name defined in UairRecord
-				//fields.add("synopticTime");// the synoptic time field name defined in UairRecord
-				values.add(refTimeCal.getTime()); 
-				operands.add("=");
-				fields.add("nil");// nil field name defined in UairRecord
-				values.add(false); 
-				operands.add("=");
-				fields.add("dataType");// the record dataType field name defined in UairRecord
-				String realDataType; //when query, need to use TTAA for MAXWIND_A, or TROPOPAUSE_A, and TTCC for MAXWIND_C, or TROPOPAUSE_C
-				if(dataType.equals(NcSoundingLayer.DataType.MAXWIND_A.toString()) ||
-								dataType.equals(NcSoundingLayer.DataType.TROPOPAUSE_A.toString())){
-					realDataType = NcSoundingLayer.DataType.TTAA.toString();
-				} else if(dataType.equals(NcSoundingLayer.DataType.MAXWIND_C.toString()) ||
-						dataType.equals(NcSoundingLayer.DataType.TROPOPAUSE_C.toString())){
-					realDataType = NcSoundingLayer.DataType.TTCC.toString();
-				} else
-					realDataType = dataType;
-				values.add(realDataType); 
-				operands.add("=");
-
-				CoreDao dao = new CoreDao(DaoConfig.forClass(UairRecord.class));
-				try {
-					lUairRecords = (List<UairRecord>) dao.queryByCriteria(fields, values, operands);
-					if(lUairRecords.size() > 0){
-						//*System.out.println("size of uairrecord " + lUairRecords.size());
-						int lastCorrectedRecord=0;
-						String currentCorInd = "";
-						Calendar curIssueTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));		
-						// set init time
-						curIssueTime.setTimeInMillis(0);
-	            		
-						if(lUairRecords.size() > 1){
-							for(int i=0; i< lUairRecords.size(); i++){
-								//Since we are using lat/lon/refTime to query uair table. We may have several records returned for
-								// one query. It indicates there is a correction report, then we should use the newest one report. 
-								// we compare corIndicator to find the latest record.
-								//System.out.println("id ="+lUairRecords.get(i).getId() + " datauri=" +lUairRecords.get(i).getDataURI());
-								//System.out.println("size of ObsLevels ="+lUairRecords.get(i).getObsLevels().size() );
-								//System.out.println("size of maxWind ="+lUairRecords.get(i).getMaxWind().size() );
-								//System.out.println("size of Tropopause ="+lUairRecords.get(i).getTropopause().size() );
-								//System.out.println("correction ind ="+lUairRecords.get(i).getCorIndicator() );
-								if((curIssueTime.compareTo(lUairRecords.get(i).getIssueTime())==0 && lUairRecords.get(i).getCorIndicator()!= null && currentCorInd.compareTo(lUairRecords.get(i).getCorIndicator()) < 0)||
-										(curIssueTime.compareTo(lUairRecords.get(i).getIssueTime())<0))	{
-									currentCorInd = lUairRecords.get(i).getCorIndicator();
-									curIssueTime = lUairRecords.get(i).getIssueTime();
-									lastCorrectedRecord = i;
-								}
-							}	
-						}
-						pf.setStationElevation((float)lUairRecords.get(lastCorrectedRecord).getSelv());
-						pf.setStationId(lUairRecords.get(lastCorrectedRecord).getStationId());
-						if(lUairRecords.get(lastCorrectedRecord).getStationNumber()!= null && lUairRecords.get(lastCorrectedRecord).getStationNumber().length() >0){	
-							//System.out.println("stn num = "+ lUairRecords.get(lastCorrectedRecord).getStationNumber());
-							pf.setStationNum(Integer.parseInt(lUairRecords.get(lastCorrectedRecord).getStationNumber()));
-						}else{
-							pf.setStationNum(-1);
-						}
-						pf.setStationLatitude((float)lUairRecords.get(lastCorrectedRecord).getSlat());
-						pf.setStationLongitude((float)lUairRecords.get(lastCorrectedRecord).getSlon());
-						//System.out.println("stn elevation ="+ pf.getStationElevation() );
-
-
-						if((lUairRecords.get(lastCorrectedRecord).getObsLevels().size()>0) && 
-								!dataType.equals(NcSoundingLayer.DataType.MAXWIND_A.toString()) &&
-								!dataType.equals(NcSoundingLayer.DataType.TROPOPAUSE_A.toString()) &&
-								!dataType.equals(NcSoundingLayer.DataType.MAXWIND_C.toString()) &&
-								!dataType.equals(NcSoundingLayer.DataType.TROPOPAUSE_C.toString())){
-							//*System.out.println("getting "+ dataType);
-
-							java.util.Iterator<ObsLevels> it=lUairRecords.get(lastCorrectedRecord).getObsLevels().iterator();
-							while(it.hasNext())
-							{
-								ObsLevels value=(ObsLevels)it.next();
-								soundingLy = new NcSoundingLayer();
-								soundingLy.setGeoHeight(value.getGeoHeight());
-								soundingLy.setTemperature(value.getTemp());
-								soundingLy.setPressure(value.getPressure());
-								soundingLy.setWindDirection(value.getWindDirection());
-								if ( value.getWindSpeed() != NcSoundingLayer.MISSING ) {
-									soundingLy.setWindSpeed((float)metersPerSecondToKnots.convert((float)value.getWindSpeed()));
-								} else {
-									soundingLy.setWindSpeed((float)value.getWindSpeed());
-								}
-								soundingLy.setDewpoint(value.getDwpt());	
-								//							System.out.println("pressure :"+value.getPressure() + " temp:" + value.getTemp() + " H:"+value.getGeoHeight() + " D:" +
-								//									value.getWindDirection() + " F: " + value.getWindSpeed());
-								soundLyLst.add(soundingLy);
-							}
-						}
-						else if(lUairRecords.get(lastCorrectedRecord).getMaxWind().size() >0 &&
-								(dataType.equals(NcSoundingLayer.DataType.MAXWIND_A.toString())||
-										dataType.equals(NcSoundingLayer.DataType.MAXWIND_C.toString()))){
-							//*System.out.println("getting "+ dataType);
-							java.util.Iterator<MaxWind> itWind=lUairRecords.get(lastCorrectedRecord).getMaxWind().iterator();
-
-							while(itWind.hasNext())
-							{
-								MaxWind value=(MaxWind)itWind.next();
-								soundingLy = new NcSoundingLayer();
-								soundingLy.setPressure(value.getPressure());
-								soundingLy.setWindDirection(value.getWindDirection());
-								if ( value.getWindSpeed() != NcSoundingLayer.MISSING ) {
-									soundingLy.setWindSpeed((float)metersPerSecondToKnots.convert((float)value.getWindSpeed()));
-								} else {
-									soundingLy.setWindSpeed((float)value.getWindSpeed());
-								}
-								//*System.out.println("WIND pressure :"+value.getPressure() + " WD:" + value.getWindDirection() + " WS:"+(float)metersPerSecondToKnots.convert((float)value.getWindSpeed()));
-								soundLyLst.add(soundingLy);
-							}
-						}
-						else if(lUairRecords.get(lastCorrectedRecord).getTropopause().size() >0 &&
-								(dataType.equals(NcSoundingLayer.DataType.TROPOPAUSE_A.toString())||
-										dataType.equals(NcSoundingLayer.DataType.TROPOPAUSE_C.toString()))){
-							//*System.out.println("getting "+ dataType);
-							java.util.Iterator<Tropopause> it=lUairRecords.get(lastCorrectedRecord).getTropopause().iterator();
-							while(it.hasNext())
-							{
-								Tropopause value=(Tropopause)it.next();
-								soundingLy = new NcSoundingLayer();
-								soundingLy.setTemperature(value.getTemp());
-								soundingLy.setPressure(value.getPressure());
-								soundingLy.setWindDirection(value.getWindDirection());
-								if ( value.getWindSpeed() != NcSoundingLayer.MISSING ) {
-									soundingLy.setWindSpeed((float)metersPerSecondToKnots.convert((float)value.getWindSpeed()));
-									//*System.out.println("Tropopause pressure :"+value.getPressure() + " temp:" + value.getTemp()+" WD:" + value.getWindDirection() + " WS:"+(float)metersPerSecondToKnots.convert((float)value.getWindSpeed()));
-
-								} else {
-									soundingLy.setWindSpeed((float)value.getWindSpeed());
-									//*System.out.println("Tropopause pressure :"+value.getPressure() + " temp:" + value.getTemp()+" WD:" + value.getWindDirection() + " WS:"+(float)value.getWindSpeed());
-
-								}
-								soundingLy.setDewpoint(value.getDwpt());	
-								soundLyLst.add(soundingLy);
-							}
-						}
-					}
-
-				} catch (DataAccessLayerException e) {
-					//*System.out.println("obs sounding query exception");
-					//e.printStackTrace();
-				}
-			}
-
-		}//end ObsSndType.UAIR
 */
-		
-		pf.setSoundingLyLst(soundLyLst);
-		return pf;
-		
-	}
-
 	/*
 	 * NOT used currently
 	 * 
@@ -1146,6 +1399,8 @@ public class ObservedSoundingQuery {
      * Support all dataType except "ALLDATA" data type
      * using either lat/lon, stnId or stnNum and synopticTime as key
      * reference time is with Calendar data type as input 
+     * Chin's Note 2/28/2012:This API is used for bufrua query now. Should be replaced by
+     * 					   getObservedSndBufruaDataGeneric() when point data query is implemented.
      */
 	@SuppressWarnings("unchecked")
 	public static NcSoundingProfile getObservedSndBufruaData(Double lat, Double lon, String stn, Calendar refTimeCal, String dataType,SndQueryKeyType queryType){
@@ -1474,175 +1729,7 @@ public class ObservedSoundingQuery {
 			pf.setSoundingLyLst(soundLyList);
 
     		return pf;
-    		/*
-    		List<NcSoundingLayer> soundLyList = new ArrayList<NcSoundingLayer>();
-    		UAObs uaRecord = new UAObs();
-    		uaRecord.setPluginName("bufrua");
     		
-    		
-
-    		// refTimeCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-    		// for testing ...refTimeCal.setTimeInMillis(1276581600000L);
-
-    		//refTimeCal.setTimeInMillis(refTime.getTime());
-    		DataTime refTimeDataTime = new DataTime(refTimeCal);
-    		uaRecord.setDataTime(refTimeDataTime);
-
-    		// for testing ... validTime = new Timestamp(1277013600000L);
-    		//validTime.setTime(1277013600000L);
-			
-    		try {
-    			BufrUADao uadao =  new BufrUADao("bufrua");
-    			File hdf5loc = uadao.getFullFilePath(lUairRecords.get(0));
-    			System.out.println("hdf5 path = " + hdf5loc.getAbsolutePath());
-    			IDataStore dataStore = DataStoreFactory.getDataStore(hdf5loc);
-    			
-    			try {
-    				LongDataRecord longData = (LongDataRecord) dataStore.retrieve(
-    						"/", "validTime", Request.ALL);
-    				long[] validtimedata = longData.getLongData();
-
-    				FloatDataRecord latfloatData = (FloatDataRecord) dataStore.retrieve(
-    						"/", "latitude", Request.ALL);
-    				float[] latdata = latfloatData.getFloatData();
-
-    				FloatDataRecord lonfloatData = (FloatDataRecord) dataStore.retrieve(
-    						"/", "longitude", Request.ALL);
-    				float[] londata = lonfloatData.getFloatData();
-
-    				FloatDataRecord elvfloatData = (FloatDataRecord) dataStore.retrieve(
-    						"/", "staElev", Request.ALL);
-    				float[] elvdata = elvfloatData.getFloatData();
-
-    				StringDataRecord stnIdStrData = (StringDataRecord) dataStore.retrieve(
-    						"/", "staName", Request.ALL);
-    				String[] stnIddata = stnIdStrData.getStringData();
-
-    				IntegerDataRecord stnNumIntData = (IntegerDataRecord) dataStore.retrieve(
-    						"/", "wmoStaNum", Request.ALL);
-    				int[] stnNumdata = stnNumIntData.getIntData();
-
-    				IntegerDataRecord rptIntData = (IntegerDataRecord) dataStore.retrieve(
-    						"/", "rptType", Request.ALL);
-    				int[] rptData = rptIntData.getIntData();
-
-    				int selectedTimeIndex=-1; 
-
-    				for (int j=0; j<validtimedata.length; j++)
-    				{
-
-    					if(queryType==SndQueryType.LATLON){
-
-    						//find the index of user picked data time line, data type  and lat/lon
-    						if((validtimedata[j] == refTimeCal.getTimeInMillis()) &&
-    								(latdata[j] == (float)lat)	&& 
-    								(londata[j] == (float)lon)	&&
-    								(rptData[j] == NcSoundingLayer.dataTypeMap.get(dataType)))
-    						{
-    							selectedTimeIndex = j;
-    							break;
-    						}
-    					}
-    					else if(queryType==SndQueryType.STNID){
-    						//find the index of user picked data time line and lat/lon
-    						if((validtimedata[j] == refTimeCal.getTimeInMillis()) &&
-    								stn.equals(stnIddata[j])	)
-    						{
-    							selectedTimeIndex = j;
-    							break;
-    						}
-    					}
-    					else if(queryType==SndQueryType.STNNUM){
-    						//find the index of user picked data time line and lat/lon
-    						if((validtimedata[j] == refTimeCal.getTimeInMillis()) &&
-    						   Integer.toString(stnNumdata[j]).equals(stn))
-    						{
-    							selectedTimeIndex = j;
-    							break;
-    						}
-    					}
-    					else {
-    						return pf;
-    					}
-    				}
-    				if(selectedTimeIndex != -1) {
-						//*System.out.println("selected stn lon= " + lon +
-						//*		" lat = "+ lat + " elv = "+ elvdata[j] + " h5 table Y index ="+ j);
-    					
-    					//set pf data
-    					pf.setStationLatitude(latdata[selectedTimeIndex]);
-						pf.setStationLongitude(londata[selectedTimeIndex]);
-						pf.setStationElevation(elvdata[selectedTimeIndex]);
-						pf.setStationNum(stnNumdata[selectedTimeIndex]);
-						pf.setStationId(stnIddata[selectedTimeIndex]);
-						
-						FloatDataRecord sfcPressurefloatData = (FloatDataRecord) dataStore.retrieve(
-    							"/", "sfcPressure", Request.buildYLineRequest(new int[] {selectedTimeIndex}));
-    					float[] sfcPressuredata = sfcPressurefloatData.getFloatData();
-    					if(sfcPressuredata.length>0)
-    						pf.setSfcPress(sfcPressuredata[0]/100F);
-    					
-    					NcSoundingLayer soundingLy;
-
-    					// get temp, dew point, pressure, wind u/v components, and height
-    					//they are 2-D tables
-    					FloatDataRecord pressurefloatData = (FloatDataRecord) dataStore.retrieve(
-    							"/", "prMan", Request.buildYLineRequest(new int[] {selectedTimeIndex}));
-    					float[] pressuredata = pressurefloatData.getFloatData();
-    					FloatDataRecord temperaturefloatData = (FloatDataRecord) dataStore.retrieve(
-    							"/", "tpMan", Request.buildYLineRequest(new int[] {selectedTimeIndex}));
-    					float[] temperaturedata = temperaturefloatData.getFloatData();
-    					FloatDataRecord dewptfloatData = (FloatDataRecord) dataStore.retrieve(
-    							"/", "tdMan", Request.buildYLineRequest(new int[] {selectedTimeIndex}));
-    					float[] dewptdata = dewptfloatData.getFloatData();
-    					FloatDataRecord windDfloatData = (FloatDataRecord) dataStore.retrieve(
-    							"/", "wdMan", Request.buildYLineRequest(new int[] {selectedTimeIndex}));
-    					float[] windDdata = windDfloatData.getFloatData();
-    					FloatDataRecord windSfloatData = (FloatDataRecord) dataStore.retrieve(
-    							"/", "wsMan", Request.buildYLineRequest(new int[] {selectedTimeIndex}));
-    					float[] windSdata = windSfloatData.getFloatData();
-    					FloatDataRecord htfloatData = (FloatDataRecord) dataStore.retrieve(
-    							"/", "htMan", Request.buildYLineRequest(new int[] {selectedTimeIndex}));
-    					float[] htdata = htfloatData.getFloatData();
-    					long[] sizes = pressurefloatData.getSizes();
-    					//int dim = pressurefloatData.getDimension();
-    					for (int i=0; i<sizes[0]; i++)
-    					{
-    						soundingLy = new NcSoundingLayer();	
-    						//if data is not available, dont convert it and just use default setting data
-    						if(temperaturedata[i]!= NcSoundingLayer.MISSING)
-    							soundingLy.setTemperature((float)kelvinToCelsius.convert(temperaturedata[i]));
-    						if(pressuredata[i]!= NcSoundingLayer.MISSING)
-    							soundingLy.setPressure(pressuredata[i]/100F);
-    						if(windSdata[i]!= NcSoundingLayer.MISSING)
-    							soundingLy.setWindSpeed((float)metersPerSecondToKnots.convert((float)windSdata[i]));
-    						soundingLy.setWindDirection(windDdata[i]);
-    						if(dewptdata[i]!= NcSoundingLayer.MISSING)
-    							soundingLy.setDewpoint((float)kelvinToCelsius.convert(dewptdata[i]));						
-    						soundingLy.setGeoHeight(htdata[i]);						
-    						soundLyList.add(soundingLy);
-    					}
-    					//*System.out.println("sounding layer size = "+ soundLyList.size());
-    					//debug
-    					for(NcSoundingLayer ly: soundLyList){
-    						System.out.println("Pre= "+ly.getPressure()+ " Dew= "+ ly.getDewpoint()+ " T= "+ ly.getTemperature());
-    					}
-
-    				}
-
-    			} catch (Exception e) {
-    				//*System.out.println("exception=" + e );
-    				e.printStackTrace();
-    			}
-
-    		} catch (PluginException e1) {
-    			// TODO Auto-generated catch block
-    			e1.printStackTrace();
-    		}
-    		pf.setSoundingLyLst(soundLyList);
-
-    		return pf;
-    		*/
     	
     	}
 	}
