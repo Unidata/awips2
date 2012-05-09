@@ -17,17 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.imagery;
-
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
 /**
- * Creates a new single color image with given color or updates a single color
- * images color
+ * Event for drawing strings
  * 
  * <pre>
  * 
@@ -35,32 +28,37 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 12, 2012            mschenke     Initial creation
+ * May 3, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-@DynamicSerialize
-public class UpdateSingleColorImage extends AbstractDispatchingObjectEvent {
 
-    @DynamicSerializeElement
-    private RGB color;
+public class DrawStringsEvent extends AbstractRemoteGraphicsRenderEvent {
 
-    /**
-     * @return the color
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent#
+     * applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent)
      */
-    public RGB getColor() {
-        return color;
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+
     }
 
-    /**
-     * @param color
-     *            the color to set
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsRenderEvent#equals(java.lang.Object)
      */
-    public void setColor(RGB color) {
-        this.color = color;
+    @Override
+    public boolean equals(Object obj) {
+        return false;
     }
 
 }

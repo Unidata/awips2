@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -594,13 +593,12 @@ public interface IGraphicsTarget extends IImagingExtension {
      * Start a frame with a given extent. Must call endFrame after drawing is
      * complete.
      * 
-     * @param display
-     *            the display area that the frame covers
+     * @param view
+     *            viewable area of the frame
      * @param isClearBackground
      *            whether background should be cleared prior to drawing
      */
-    public abstract void beginFrame(IRenderableDisplay display,
-            boolean isClearBackground);
+    public abstract void beginFrame(IView view, boolean isClearBackground);
 
     /**
      * End a frame
@@ -774,14 +772,6 @@ public interface IGraphicsTarget extends IImagingExtension {
      * @return
      */
     public IView getView();
-
-    /**
-     * Notify the Graphics Target that there are updated extents that need to be
-     * set.
-     * 
-     * @param updatedExtent
-     */
-    public void updateExtent(IExtent updatedExtent);
 
     /**
      * Use getExtension(IOffscreenRenderingExtension.class).renderOffscreen(
