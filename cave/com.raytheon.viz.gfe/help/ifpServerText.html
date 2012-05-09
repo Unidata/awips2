@@ -10,7 +10,7 @@
 <body bgcolor="#ffffff">
 <h1 class="1Heading">
 ifpServerText User's Guide</h1>
-<div class="1Heading">April 4, 2006<br>
+<div class="1Heading">January 6, 2012<br>
 <br>
 </div>
 <a name="TableofContents"></a>Table of Contents
@@ -18,20 +18,17 @@ ifpServerText User's Guide</h1>
 <h4 class="1Heading">
 <a href="#Running">Running the ifpServerText Program</a></h4>
 <h4 class="1Heading">
-<a href="#ExampleData">Example Output</a></h4>
+<a href="#ExampleData">Example Execution</a></h4>
 <div class="1Heading"><b><a href="#formats">Output Formats</a></b></div>
 <div class="1Heading">
 <hr width="100%"></div>
 <h2 class="1Heading">
 <a name="Overview"></a>Overview</h2>
 <div class="1Heading">The ifpServerText is a program to allow reading,
-writing, deleting, and inventorying text data in the ifpServer.&nbsp;
-It
-is an easy way to store items such as smart tools directly into the
-ifpServer.&nbsp;
+writing, deleting, and inventorying text data in EDEX.
+It is an easy way to store items such as smart tools directly into EDEX.
 The following data types are supported:
 <br>
-&nbsp;
 <table nosave="" border="1" cols="2" width="100%">
   <tbody>
     <tr>
@@ -83,10 +80,6 @@ The following data types are supported:
       <td>Color Tables</td>
     </tr>
     <tr>
-      <td>Map</td>
-      <td>Map Backgrounds and Attributes</td>
-    </tr>
-    <tr>
       <td style="vertical-align: top;">Combinations<br>
       </td>
       <td style="vertical-align: top;">Zone Combiner Active Combination
@@ -102,18 +95,17 @@ Files<br>
 </h2>
 <h3 class="1Heading"><a name="Running"></a>Running the ifpServerText
 Program</h3>
-<div class="1Heading">&nbsp;</div>
 <div class="1Heading">The command line syntax is:</div>
-<div class="1Heading"><tt>ifpServerText -h hostname -p portnumber [-u
+<div class="1Heading"><tt>ifpServerText -h hostname -p portnumber -o siteID [-u
 user]
-[-s -n name -f filename -c class] [-d -n name [-c Config]] [-i [-c
-Config]
-[-g -f filename -n name [-c Config]] [-m infoType]</tt></div>
-<div class="1Heading">&nbsp;
+[-s -n name -f filename -c class] [-d -n name [-c class]] [-i [-c
+class]
+[-g -f filename -n name [-c class]] [-m infoType]</tt></div>
+<div class="1Heading">
 <br>
 A sample command line to store data is:
 <br>
-<tt>ifpServerText -h dx4f -p 98000000 -s -n MaxT_Tool -f /tmp/maxt.py
+<tt>ifpServerText -h dx3-oax -p 9581 -o LWX -s -n MaxT_Tool -f /tmp/maxt.py
 -c Tool</tt></div>
 <div class="1Heading">&nbsp;</div>
 <table nosave="" border="1" width="100%">
@@ -126,19 +118,23 @@ A sample command line to store data is:
     <tr>
       <td>-h hostname</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the host, upon which the ifpServer is running.</td>
+      <td>Specifies the host, upon which EDEX is running.</td>
     </tr>
     <tr>
       <td>-p port</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the port, upon which the ifpServer is running.</td>
+      <td>Specifies the port, upon which EDEX is running.</td>
+    </tr>
+    <tr>
+      <td>-o siteID</td>
+      <td>Mandatory</td>
+      <td>Specifies the site ID for which EDEX is running.</td>
     </tr>
     <tr>
       <td>-u user</td>
-      <td>Optional.&nbsp;</td>
-      <td>The connection to the ifpServer will be made using this user,
-which
-defaults to the UNIX login user.&nbsp;</td>
+      <td>Optional</td>
+      <td>The connection to EDEX will be made using this user,
+which defaults to the UNIX login user.</td>
     </tr>
     <tr>
       <td><b><i>MetaData Mode:</i></b></td>
@@ -149,14 +145,14 @@ defaults to the UNIX login user.&nbsp;</td>
     </tr>
     <tr>
       <td>-m infoType</td>
-      <td>Mandatory for meta mode.</td>
+      <td>Mandatory for meta mode</td>
       <td>infoType specifies the type of data to be obtained.&nbsp;
 Choices are
-"site", "sitetimezone", "domain", and "singleton".&nbsp; The "site"
+"site", "sitetimezone", "domain", and "singleton". The "site"
 will
-list the site for which the ifpServer is configured.&nbsp; The
+list the site for which EDEX is configured. The
 "sitetimezone"
-lists the site and the timezone for the ifpServer.&nbsp; The
+lists the site and the timezone for EDEX. The
 "singleton"
 lists all of the databases that are configured as singletons. The
 "domain"
@@ -177,13 +173,13 @@ information.</td>
     </tr>
     <tr>
       <td>-s</td>
-      <td>Mandatory for save mode.</td>
+      <td>Mandatory for save mode</td>
       <td>Indicates SAVE mode, requires the -n, -f, and -c switches.</td>
     </tr>
     <tr>
       <td>-n name</td>
       <td>Mandatory</td>
-      <td>Indicates the name to store the file under in the ifpServer</td>
+      <td>Indicates the name to store the file under in EDEX</td>
     </tr>
     <tr>
       <td>-f filename</td>
@@ -193,7 +189,7 @@ information.</td>
     <tr>
       <td>-c class</td>
       <td>Mandatory</td>
-      <td>Indicates the type of the file.&nbsp; Must be one of:&nbsp;
+      <td>Indicates the type of the file.&nbsp; Must be one of:
 Config,
 "Tool", "Procedure", "Utility", "TextUtility",&nbsp;
 "TextProduct",
@@ -210,7 +206,7 @@ Config,
     </tr>
     <tr>
       <td>-d</td>
-      <td>Mandatory for delete mode.</td>
+      <td>Mandatory for delete mode</td>
       <td>Indicates DELETE mode, requires the -n switch.&nbsp; The -c
 switch
 is used only for the class type of Config.</td>
@@ -218,13 +214,12 @@ is used only for the class type of Config.</td>
     <tr>
       <td>-n name</td>
       <td>Mandatory</td>
-      <td>Indicates the name of the entry to be deleted from the
-ifpServer.</td>
+      <td>Indicates the name of the entry to be deleted from EDEX.</td>
     </tr>
     <tr>
-      <td>-c Config</td>
+      <td>-c class</td>
       <td>Mandatory</td>
-      <td>Indicates the type of the file.&nbsp; Must be one of:&nbsp;
+      <td>Indicates the type of the file.&nbsp; Must be one of:
 Config,
 "Tool", "Procedure", "Utility", "TextUtility",&nbsp;
 "TextProduct",
@@ -241,21 +236,21 @@ Config,
     </tr>
     <tr>
       <td>-i</td>
-      <td>Mandatory for inventory mode.</td>
+      <td>Mandatory for inventory mode</td>
       <td>Indicates INVENTORY mode.&nbsp; The -c switch is used only
 for the
 class type of Config.</td>
     </tr>
     <tr>
-      <td>-c Config</td>
+      <td>-c class</td>
       <td>Mandatory</td>
-      <td>Indicates the type of the file.&nbsp; Must be one of:&nbsp;
+      <td>Indicates the type of the file.&nbsp; Must be one of:
 Config,
 "Tool", "Procedure", "Utility", "TextUtility",&nbsp;
 "TextProduct",
 "EditArea", "EditAreaGroup", "WeatherElementGroup", ColorTable",
 "SampleSet",
-"SelectTR", "Maps, "Combinations"</td>
+"SelectTR", "Combinations"</td>
     </tr>
     <tr>
       <td><b><i>Get Mode:</i></b></td>
@@ -266,11 +261,11 @@ Config,
     </tr>
     <tr>
       <td>-g</td>
-      <td>Mandatory for get mode.</td>
-      <td>Indicates GET mode, requires the -n switch.&nbsp; The -f
+      <td>Mandatory for get mode</td>
+      <td>Indicates GET mode, requires the -n switch. The -f
 switch is
 used to output the resulting file to another file, otherwise the output
-goes to the terminal.&nbsp; The -c switch is used only for the class
+goes to the terminal. The -c switch is used only for the class
 type
 of Config.</td>
     </tr>
@@ -281,435 +276,125 @@ of Config.</td>
 specified location.</td>
     </tr>
     <tr>
-      <td>-c Config</td>
+      <td>-c class</td>
       <td>Mandatory</td>
-      <td>Indicates the type of the file.&nbsp; Must be one of:&nbsp;
+      <td>Indicates the type of the file. Must be one of:
 Config,
-"Tool", "Procedure", "Utility", "TextUtility",&nbsp;
+"Tool", "Procedure", "Utility", "TextUtility",
 "TextProduct",
 "EditArea", "EditAreaGroup", "WeatherElementGroup", ColorTable",
 "SampleSet",
-"SelectTR", "Maps", "Combinations".</td>
+"SelectTR", "Combinations".</td>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note: The -h serverhost and -p port are
+<font color="#3366ff"><b>Note:</b> The -h serverhost and -p port are
 predefined
-based on your installation configration of GFESuite.&nbsp; The -h and
+based on your installation configuration of GFESuite. The -h and
 -r
 will be defined for the server host and port specified during
-installation.&nbsp;&nbsp;&nbsp;
+installation.
 If you wish to connect to another server, then these switches will be
-necessary.&nbsp;</font><font color="#3366ff">&nbsp; If environment
-variables ${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -p switches.</font>
-<p><br>
-</p>
+necessary.</font>
 <div class="1Heading">
 <hr width="100%"></div>
 <h3 class="1Heading">
 <a name="ExampleData"></a>Example Execution</h3>
 <div class="1Heading">Note that in the following examples, the -h and
 -p
-switches are not included.&nbsp; They will default to the currently
-installed
-ifpServer configuration.</div>
+switches are not included. They will default to the currently
+installed EDEX configuration.  Also in AWIPS2 the site switch becomes mandatory.</div>
 <h4>
 Saving Data</h4>
-<tt>camper&gt; <b><i>ifpServerText -s -n MyMaxTool -f
+<tt>camper&gt; <b><i>ifpServerText -o LWX -s -n MyMaxTool -f
 ../examples/smartTools/Td_SmartTool.py
 -c Tool</i></b></tt>
-<br>
-<tt>21:13:02.123 IFPServerText.py 289 EVENT: ifpServerText Starting</tt>
-<br>
-<tt>21:13:02.132 IFPServerText.py 289 EVENT: Build Date: Mon Sep 2
-01:43:14 2002 Built By: mark Built On: camper.fsl.noaa.gov (linux2)
-Version:
-development</tt>
-<br>
-<tt>21:13:02.142 Client.C 161 EVENT: Establishing connection to server
-on camper.fsl.noaa.gov:98000000 ver=20020626</tt>
-<br>
-<tt>21:13:02.150 Client.C 181 EVENT: Connection complete to server
-on camper.fsl.noaa.gov</tt>
-<br>
-<tt>21:13:02.420 IFPServerText.py 164 EVENT: Saved file
-../examples/smartTools/Td_SmartTool.py
-under MyMaxTool</tt>
-<br>
-<tt>21:13:02.425 IFPServerText.py 289 EVENT: ifpServerText Finished</tt>
-<br>
-&nbsp;
 <h4>Obtaining an Inventory</h4>
-<tt>camper &gt; <b><i>ifpServerText -c Tool -i</i></b></tt> <br>
-<tt>21:13:53.870 IFPServerText.py 289 EVENT: ifpServerText Starting</tt>
-<br>
-<tt>21:13:53.878 IFPServerText.py 289 EVENT: Build Date: Mon Sep 2
-01:43:14 2002 Built By: mark Built On: camper.fsl.noaa.gov (linux2)
-Version:
-development</tt>
-<br>
-<tt>21:13:53.887 Client.C 161 EVENT: Establishing connection to server
-on camper.fsl.noaa.gov:98000000 ver=20020626</tt>
-<br>
-<tt>21:13:53.894 Client.C 181 EVENT: Connection complete to server
-on camper.fsl.noaa.gov</tt>
-<br>
-<tt>Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Access&nbsp;&nbsp;&nbsp; Protect</tt>
-<br>
-<tt>----&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-------&nbsp;&nbsp;&nbsp; -------</tt>
-<br>
-<tt></tt><tt>AdjustValue_Down&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-USER&nbsp;&nbsp;&nbsp;&nbsp;
-Read-Only</tt>
-<br>
-<tt>AdjustValue_Up&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-USER&nbsp;&nbsp;&nbsp;&nbsp;
-Read-Only</tt>
-<br>
-<tt></tt><tt>Assign_Value&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-USER&nbsp;&nbsp;&nbsp;&nbsp; Read-Only</tt>
-<br>
-<tt>MyMaxTool&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-USER&nbsp;&nbsp;&nbsp;&nbsp; Read-Write</tt>
-<br>
-&nbsp;
+<tt>camper &gt; <b><i>ifpServerText -c Tool -i -o LWX</i></b></tt> <br>
 <h4>Getting Data</h4>
-<p><br>
 <tt>camper &gt; <b><i>ifpServerText -g -c Tool -n Assign_Value -f
-1.txt</i></b></tt>
-<br>
-<tt>15:19:16.275 IFPServerText.py 286 EVENT:&nbsp; ifpServerText
-Starting</tt>
-<br>
-<tt>15:19:16.279 IFPServerText.py 286 EVENT:&nbsp; Build Date: Tue
-Sep&nbsp; 3 14:33:58 2002 Built By: mark Built On: camper.fsl.noaa.gov
-(linux2) Version: development</tt>
-<br>
-<tt>15:19:16.291 Client.C 161 EVENT: Establishing connection to server
-on localhost:98000044 ver=20020626</tt>
-<br>
-<tt>15:19:16.312 Client.C 181 EVENT: Connection complete to server
-on localhost</tt>
-<br>
-<tt>15:19:16.436 IFPServerText.py 197 EVENT:&nbsp; Got&nbsp;
-Assign_Value
---- written to 1.txt</tt>
-<br>
-<tt>15:19:16.437 IFPServerText.py 286 EVENT:&nbsp; ifpServerText
-Finished</tt>
-<br>
-&nbsp;
-<br>
-&nbsp;
-</p>
+1.txt -o LWX</i></b></tt>
 <h4>Deleting Data</h4>
-<tt>camper &gt; <b><i>ifpServerText -c Tool -d -n MyTool</i></b></tt>
-<br>
-<tt>15:21:34.030 IFPServerText.py 286 EVENT:&nbsp; ifpServerText
-Starting</tt>
-<br>
-<tt>15:21:34.034 IFPServerText.py 286 EVENT:&nbsp; Build Date: Tue
-Sep&nbsp; 3 14:33:58 2002 Built By: mark Built On: camper.fsl.noaa.gov
-(linux2) Version: development</tt>
-<br>
-<tt>15:21:34.043 Client.C 161 EVENT: Establishing connection to server
-on localhost:98000044 ver=20020626</tt>
-<br>
-<tt>15:21:34.059 Client.C 181 EVENT: Connection complete to server
-on localhost</tt>
-<br>
-<tt>15:21:34.359 IFPServerText.py 185 EVENT:&nbsp; Deleted&nbsp; MyTool</tt>
-<br>
-<tt>15:21:34.360 IFPServerText.py 286 EVENT:&nbsp; ifpServerText
-Finished</tt>
-<p></p>
+<tt>camper &gt; <b><i>ifpServerText -c Tool -d -n MyTool -o LWX</i></b></tt>
+<br><br>
 <hr width="100%">
 <h3><a name="formats"></a>Output Formats</h3>
 The output formats for each of the classes are described in this
 section.
 <br>
-&nbsp;
 <h4>Tool, Procedure, Utility, TextUtility, TextProduct, Config,
 Combinations<br>
 </h4>
-The output format is the exact copy of the file in the ifpServer.
+The output format is the exact copy of the file in EDEX.
 <br>
-&nbsp;
 <h4>EditArea</h4>
-Note that this format is not identical to the format of the stored data
-in the ifpServer, and thus you cannot use the ifpServer format in this
-routine.<br>
+<p>In AWIPS2 edit areas are now stored in xml format.</p>
+<tt>&lt?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt<br>
+&lt referenceData xmlns:ns2="group"&gt<br>
+    &lt polygons &gt MULTIPOLYGON (((-100.74059659999995 39.56791216000005, -100.73749659999999 
+    39.56791216000005, -100.72409659999994 39.56801216000008, -100.72139659999999 
+    39.56801216000008, -100.72009659999998 39.56571216000003, -100.72009659999998 
+    39.56201216000005, -100.71999659999994 39.55391216000004, -100.72009659999998 
+    39.54661216000005, -100.71999659999994 39.53941216000004, -100.71999659999994 
+    39.53111216000008, -100.71999659999994 39.524712160000036, -100.72009659999998 
+    39.520412160000035, -100.72019659999995 39.513312160000055, -100.72019659999995 
+    39.50911216000003)))&lt/polygons &gt<br>
+    &lt/referenceData &gt</tt>
 <br>
-<tt>INCLUDE </tt>(or EXCLUDE) flag for the polygon
-<br>
-<tt>25&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</tt>(number of points in this polygon)
-<br>
-<tt>-115.23 40.23&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </tt>(longitude,
-latitude for point 1)
-<br>
-<tt>-115.11 40.25&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </tt>(longitude,
-latitude for point 2)
-<br>
-<tt>......</tt>
-<br>
-&nbsp;
 <h4>EditAreaGroup</h4>
 The output consists of a list of edit area names, one per line, that
 are
 contained within the edit area group, such as:
-<p><tt>CO_048</tt>
+<p><tt>1<br>
+PPLN1HW</tt>
 <br>
-<tt>CO_035</tt>
-<br>
-<tt>CO_046</tt>
-<br>
-<tt>CO_033</tt>
-<br>
-<tt>CO_030</tt>
-<br>
-<tt>CO_049</tt>
-<br>
-<tt>CO_042</tt>
-<br>
-<tt>CO_041</tt>
-<br>
-<tt>CO_038</tt>
-<br>
-<tt>CO_044</tt>
-<br>
-<tt>CO_036</tt>
-<br>
-&nbsp;
 </p>
 <h4>WeatherElementGroup</h4>
-The output consists of the identical format of the weather element
-group
-in the ifpServer, such as:
-<p><tt>MinT_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
+<p>In AWIPS2 weather element groups are stored in xml files:</p>
+<p><tt>&lt?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt<br>
+&lt WEGroup  name="FireWx" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType"&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="Hazards_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="PoP_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="QPF_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="RH_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="Sky_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="T_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+    &lt WEItem relativeCycleNumber="-1" parmID="Td_SFC:OAX_GRID__Fcst_00000000_0000"/&gt<br>
+&lt/WEGroup &gt</tt>
 <br>
-<tt>MaxT_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>T_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>Td_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>Wind_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>Wx_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>Sky_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>PoP_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>SnowAmt_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>QPF_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>FzLevel_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-<tt>SnowLevel_SFC:SITE_GRID__Fcst_00000000_0000 -1</tt>
-<br>
-&nbsp;
 </p>
 <h4>SelectTR</h4>
 The output consists of the identical format of the user-defined
 selection
-time range in the ifpServer, such as:
+time range in EDEX, such as:
 <p><tt>54 78</tt>
 </p>
 <h4>SampleSet</h4>
-<tt>#of samples</tt>
+<p>In AWIPS2 sample sets are stored in xml files:</p>
+<tt>&lt?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt<br>
+&lt sampleData xmlns:ns2="group"&gt<br>
+    <points>-95.2074,41.009</points><br>
+    <points>-95.6972,41.0414</points><br>
+    <points>-96.4373,41.4339</points><br>
+    <points>-96.6898,41.8389</points><br>
+    <points>-98.0257,42.7388</points><br>
+    <points>-96.75,40.86</points><br>
+    <points>-95.9,41.3</points><br>
+    <points>-97.43,41.98</points><br>
+    <points>-95.92,40.95</points><br>
+&lt/sampleData&gt</tt>
 <br>
-<tt>longitude1 latitude1</tt>
-<br>
-<tt>longitude2 latitude2</tt>
-<br>
-<tt>....</tt>
 <h4>ColorTable</h4>
-<tt># of color cells</tt>
-<br>
-<tt>red1 green1 blue1</tt>
-<br>
-<tt>red2 green2 blue2</tt>
-<br>
-<tt>.....</tt>
-<h4>Maps</h4>
-Map data is much more complicated since there can be POINT, POLYGON,
-and
-POLYLINE types of map data.&nbsp; Shapefile attributes are also
-included
-in the data stream.
-<p>For POINT data:
-<br>
-<tt>POINT</tt>
-<br>
-<tt>longitude1&nbsp;&nbsp; latitude1</tt>
-<br>
-<tt>label1</tt>
-<br>
-<tt>symbolFlag1</tt>
-<br>
-<tt># of attributes</tt>
-<br>
-<tt>attributeName1: attributeValue1</tt>
-<br>
-<tt>attributeName2: attributeValue2</tt>
-<br>
-<tt>....</tt>
-<br>
-<tt>POINT</tt>
-<br>
-<tt>longitude2&nbsp;&nbsp; latitude2</tt>
-<br>
-<tt>label2</tt>
-<br>
-<tt>symbolFlag2</tt>
-<br>
-<tt># of attributes</tt>
-<br>
-<tt>attributeName1: attributeValue1</tt>
-<br>
-<tt>attributeName2: attributeValue2</tt>
-<br>
-<tt>....</tt>
-</p>
-<p>For POLYGON data:
-</p>
-<p><tt>POLYGON</tt>
-<br>
-<tt># of points</tt>
-<br>
-<tt>longitude1 latitude1</tt>
-<br>
-<tt>longitude2 latitude2</tt>
-<br>
-<tt>...</tt>
-<br>
-<tt># of attributes</tt>
-<br>
-<tt>attributeName1: attributeValue1</tt>
-<br>
-<tt>attributeName2: attributeValue2</tt>
-<br>
-<tt>....</tt>
-<br>
-<tt>POLYGON</tt>
-<br>
-<tt># of points</tt>
-<br>
-<tt>longitude1 latitude1</tt>
-<br>
-<tt>longitude2 latitude2</tt>
-<br>
-<tt>...</tt>
-<br>
-<tt># of attributes</tt>
-<br>
-<tt>attributeName1: attributeValue1</tt>
-<br>
-<tt>attributeName2: attributeValue2</tt>
-<br>
-<tt>....</tt>
-</p>
-<p>For POLYLINE data:
-</p>
-<p><tt>POLYLINE</tt>
-<br>
-<tt># of points</tt>
-<br>
-<tt>longitude1 latitude1</tt>
-<br>
-<tt>longitude2 latitude2</tt>
-<br>
-<tt>...</tt>
-<br>
-<tt># of attributes</tt>
-<br>
-<tt>attributeName1: attributeValue1</tt>
-<br>
-<tt>attributeName2: attributeValue2</tt>
-<br>
-<tt>....</tt>
-<br>
-<tt>POLYLINE</tt>
-<br>
-<tt># of points</tt>
-<br>
-<tt>longitude1 latitude1</tt>
-<br>
-<tt>longitude2 latitude2</tt>
-<br>
-<tt>...</tt>
-<br>
-<tt># of attributes</tt>
-<br>
-<tt>attributeName1: attributeValue1</tt>
-<br>
-<tt>attributeName2: attributeValue2</tt>
-<br>
-<tt>....</tt>
-</p>
-<h4>MetaInfo</h4>
-For "site":
-<br>
-<tt>siteID</tt>
-<p>For "sitetimezone":
-<br>
-<tt>siteID timezone</tt>
-</p>
-<p>For "singleton":
-<br>
-<tt>BOU_GRID__MSAS_00000000_0000</tt>
-<br>
-<tt>BOU_GRID__Official_00000000_0000</tt>
-<br>
-<tt>BOU_GRID__Fcst_00000000_0000</tt>
-<br>
-<tt>BOU_GRID__ISC_00000000_0000</tt>
-<br>
-<tt>BOU_GRID__LAPS_00000000_0000</tt>
-<br>
-<tt></tt>
-</p>
-<p>For "domain":
-<br>
-<tt>ProjectionID: Grid211</tt>
-<br>
-<tt>Grid Size: (145, 145)</tt>
-<br>
-<tt>Grid Domain: ((38.0, 27.0), (9.0, 9.0))</tt>
-<br>
-<tt>latLonOrigin: (-95.0, 25.0)</tt>
-<br>
-<tt>projectionID: 'Grid211'</tt>
-<br>
-<tt>gridPointLL: (1, 1)</tt>
-<br>
-<tt>lonCenter: 0.0</tt>
-<br>
-<tt>latLonUR: (-49.384998321533203, 57.290000915527344)</tt>
-<br>
-<tt>gridPointUR: (93, 65)</tt>
-<br>
-<tt>stdParallelTwo: 25.0</tt>
-<br>
-<tt>projectionType: 'LAMBERT_CONFORMAL'</tt>
-<br>
-<tt>stdParallelOne: 25.0</tt>
-<br>
-<tt>latIntersect: 0.0</tt>
-<br>
-<tt>lonOrigin: 0.0</tt>
-<br>
-<tt>latLonLL: (-133.45899963378906, 12.189999580383301)</tt>
-<br>
-<tt></tt>&nbsp;
+<p>In AWIPS2 color tables are stored in xml files:</p>
+<tt>&lt colorMap &gt<br>
+    &lt color r="0" g="0" b="0" a="1" /><br>
+    &lt color r="0.00392156862745098" g="0.00392156862745098" b="0.00392156862745098" a="1" /&gt<br>
+    &lt color r="0.00784313725490196" g="0.00784313725490196" b="0.00784313725490196" a="1" /&gt<br>
+    &lt color r="0.0117647058823529" g="0.0117647058823529" b="0.0117647058823529" a="1" /&gt<br>
+    &lt color r="0.0156862745098039" g="0.0156862745098039" b="0.0156862745098039" a="1" /&gt<br>
+    &lt color r="0.0196078431372549" g="0.0196078431372549" b="0.0196078431372549" a="1" /&gt<br>
+    &lt color r="1" g="1" b="1" a="1" /&gt<br>
+&lt/colorMap &gt</tt><br>
 </p>
 </body>
 </html>

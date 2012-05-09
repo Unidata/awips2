@@ -19,6 +19,7 @@
  **/
 package gov.noaa.nws.ncep.edex.util.ncgrib;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribModel;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModel;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModelSet;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,11 +45,12 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 3/12/10      4758       bphillip     Initial creation
- * 10/13/10     276        llin                 Modified for NC GRIB.
- * 11/02/11                xguo          Updated gridid
+ * Date         Ticket#    	Engineer    Description
+ * ------------ ---------- 	----------- --------------------------
+ * 3/12/10      4758       	bphillip    Initial creation
+ * 10/13/10     276        	llin     	Modified for NC GRIB.
+ * 11/02/11                	xguo		Updated gridid
+ * 3/2012					T. Lee		Get ensemble modelName via template 
  * </pre>
  * 
  * @author njensen
@@ -99,8 +102,85 @@ public class NcgribModelLookup {
     }
 
     public NcgridModel getModel(int center, int subcenter, String grid,
-            int process) {
-        return models.get(toHash(center, subcenter, grid, process));
+            int process, String filename, NcgribModel nbm) {
+    	NcgridModel model = new NcgridModel ();
+    	model = models.get(toHash(center, subcenter, grid, process));
+    	if ( model == null ) {
+    		return model;
+    	} 
+    	String template = model.getTemplate();
+
+    	//System.out.println ( " Center: "+ center + " subCenter: "+ subcenter +  " gridID: " + grid
+    	//		+ " modelID: "+ process +  " modelName: " + model.getName() );
+
+    	if ( !template.equals("NONE")) {
+    		/* 
+		 	 * Using Template to get ModelName 
+			 */
+    		String[] tokens = template.replaceAll("\\s","").split(";");
+
+    		// CMC ensemble			
+			if ( Pattern.matches("cmc.*", filename)){
+				//System.out.println ( " CMC ensemble " + "!!!\n");
+				for ( String token : tokens ) {
+					String[] alias = token.split("\\|");
+					if ( Pattern.matches(alias[0], filename) ) {
+						model.setName(alias[1]);
+						break;
+					}
+				}
+
+			// SREF ensemble
+			} else if ( Pattern.matches("sref.*", filename)) {
+				for ( String token : tokens ) {
+					String[] alias = token.split("\\|"); 
+					if ( Pattern.matches(alias[0], filename)) {
+						model.setName(alias[1]);
+						
+						// perturbation number
+						String[] pert = filename.split("\\.");
+						if ( pert[3].startsWith("p") || pert[3].startsWith("n")) {
+							nbm.setPerturbationNumber(pert[3]);
+						}
+						break;
+					}
+				}
+				
+			// NAEFS ensemble
+			} else if ( Pattern.matches("naefs.*", filename)) {
+				for ( String token : tokens ) {
+					String[] alias = token.split("\\|");
+					if ( Pattern.matches(alias[0], filename)) {
+						model.setName(alias[1]);
+						break;
+					}
+				}
+				
+			// GEFS ensemble
+			} else if ( Pattern.matches("ge.*", filename)) {
+				for ( String token : tokens ) {
+					String[] alias = token.split("\\|");
+					if ( Pattern.matches(alias[0], filename)) {
+						model.setName(alias[1]);
+						break;
+					}
+				}
+				
+			// GWW derived data
+			} else if ( Pattern.matches("mean.*", filename) ||
+					    Pattern.matches("probab.*", filename) ||
+					    Pattern.matches("spread.*", filename)) {
+				for ( String token : tokens ) {
+					String[] alias = token.split("\\|");
+					if ( Pattern.matches(alias[0], filename)) {
+						model.setName(alias[1]);
+						break;
+					}
+				}
+			}
+
+    	}
+    	return model;
     }
 
     public synchronized void setModel(int center, int subcenter, String grid,
@@ -120,8 +200,8 @@ public class NcgribModelLookup {
     }
 
     public NcgridModel getModel(int center, int subcenter, int gridid,
-            int process) {
-        return getModel(center, subcenter, String.valueOf(gridid), process);
+            int process, String filename, NcgribModel model) {
+        return getModel(center, subcenter, String.valueOf(gridid), process, filename, model);
     }
 
     public NcgridModel getModelByName(String name) {

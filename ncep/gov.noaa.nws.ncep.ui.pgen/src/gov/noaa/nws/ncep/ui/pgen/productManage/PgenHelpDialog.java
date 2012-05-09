@@ -113,8 +113,14 @@ public class PgenHelpDialog extends ProductDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 500,  pt.y + 150 );
+        
+		if ( shellLocation == null ) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 500,  pt.y + 150 );
+		} else {
+			shell.setLocation(shellLocation);
+		}
+
     }
     
 

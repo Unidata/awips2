@@ -11,7 +11,7 @@
  vlink="#551a8b">
 <h1>
 netCDF File Format</h1>
-March 7, 2003
+January 3, 2012
 <br>
 <hr width="100%">
 <br>
@@ -22,11 +22,8 @@ generated from the <a href="ifpnetCDF.html">ifpnetCDF product formatter</a></li>
   <li>
 read by the <a href="iscMosaic.html">iscMosaic program</a></li>
 </ul>
-If you are interested in the format of the netCDF files read by the
-ifpServer,
-then refer to the <a href="ifpServerNETCDF.html">ifpServer netCDF
-format
-document.</a>
+In AWIPS1 ifpServer read netCDF files for gridded data.  In AWIPS2 this format
+has been replaced with <a href="edexHDF5.html">HDF5 format</a>.
 <p><a href="#OrganizationoftheGriddedData">Organization of the Gridded
 Data in the netCDF file</a>
 <br>
@@ -37,7 +34,7 @@ Data in the netCDF file</a>
 <h2><a name="OrganizationoftheGriddedData"></a>Organization of the
 Gridded
 Data in the netCDF file</h2>
-<div style="margin-bottom: 0in;">In order to fully understand this
+<div style="margin-bottom: 0in;">To fully understand this
 section
 you should know something about how netCDF files are structured in
 general.&nbsp;
@@ -56,15 +53,12 @@ of the data types are stored as a cube as</div>
 this
 simple cube form.&nbsp; For VECTOR weather elements,&nbsp; two cubes
 are
-<br>
 used, one for the magnitude, one for direction and they are coordinated
 so that the first magnitude grid corresponds to the first direction
 grid,
-<br>
 and so on.&nbsp; For WEATHER, one cube is used to store byte values
 that map into another structure that holds strings that represent the
 weather
-<br>
 values.&nbsp; The following illustration shows how this WEATHER grid
 and WEATHER KEY should be used to extract a weather value.
 </p>
@@ -75,14 +69,11 @@ the
 weather grid.&nbsp; The list on the left shows the actual weather
 values
 expressed
-<br>
 as a text string.&nbsp; In order to determine what the weather value
 is at any given point, you will need both the weather byte grid and the
 "weather
-<br>
 key".&nbsp; Simply read the byte value in the grid and lookup that
 value in the key list.
-<br>
 </p>
 <hr width="100%">
 <h2><a name="netCDFVariableNames"></a>netCDF Variable Names</h2>
@@ -185,85 +176,85 @@ about a particular attribute, click on the link.</div>
   </tbody>
   <tbody>
     <tr>
-      <td><b>&nbsp;Attribute Name</b></td>
-      <td>&nbsp; <b>Attribute Description</b></td>
+      <td><b>Attribute Name</b></td>
+      <td><b>Attribute Description</b></td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#ValidTimes">validTimes</a></td>
-      <td>&nbsp;A list of start and end times for which the grids are
+      <td><a href="#ValidTimes">validTimes</a></td>
+      <td>A list of start and end times for which the grids are
 valid.
 These are ordered start1, end1, start2, end2, etc.&nbsp; The time is in
 seconds from Jan 1, 1970 at 0000z.</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#DescriptiveName">descriptiveName</a></td>
-      <td>&nbsp;The descriptive name of the weather element.</td>
+      <td><a href="#DescriptiveName">descriptiveName</a></td>
+      <td>The descriptive name of the weather element.</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#GridSize">gridsize</a></td>
-      <td>&nbsp;the number of grid cells in each grid for this weather
+      <td><a href="#GridSize">gridsize</a></td>
+      <td>The number of grid cells in each grid for this weather
 element
 (x, y)</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#DomainOrigin">domainOrigin</a></td>
-      <td>&nbsp; The lower left corner of the grid domain in AWIPS
+      <td><a href="#DomainOrigin">domainOrigin</a></td>
+      <td>The lower left corner of the grid domain in AWIPS
 coordinates</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#DomainExtent">domainExtent</a></td>
-      <td>&nbsp; The extent of the domain in AWIPS coordinates</td>
+      <td><a href="#DomainExtent">domainExtent</a></td>
+      <td>The extent of the domain in AWIPS coordinates</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#MinMaxAllowedValues">minMaxAllowedValues</a></td>
-      <td>&nbsp; The minimum and maximum values allowed, respectively
+      <td><a href="#MinMaxAllowedValues">minMaxAllowedValues</a></td>
+      <td>The minimum and maximum values allowed, respectively
 for this
 weather element</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#GridType">gridType</a></td>
-      <td>&nbsp; The type of grid.&nbsp; The types are: SCALAR, VECTOR,
+      <td><a href="#GridType">gridType</a></td>
+      <td>The type of grid.&nbsp; The types are: SCALAR, VECTOR,
 WEATHER</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#DatabaseID">databaseID</a></td>
-      <td>&nbsp; Database identifier from which the grids were
+      <td><a href="#DatabaseID">databaseID</a></td>
+      <td>Database identifier from which the grids were
 extracted.</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#SiteID">siteID</a></td>
-      <td>&nbsp; The site ID of the database from which the grids were
+      <td><a href="#SiteID">siteID</a></td>
+      <td>The site ID of the database from which the grids were
 extracted.</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#Units">units</a></td>
-      <td>&nbsp; The units of the values for these grids.</td>
+      <td><a href="#Units">units</a></td>
+      <td>The units of the values for these grids.</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#Level">level</a></td>
-      <td>&nbsp; The level of the data.&nbsp; For forecast data this is
+      <td><a href="#Level">level</a></td>
+      <td>The level of the data.&nbsp; For forecast data this is
 always
 "SFC"</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#TimeConstraints">timeConstraints</a></td>
-      <td>&nbsp; Three integers that represent the time constraints for
+      <td><a href="#TimeConstraints">timeConstraints</a></td>
+      <td>Three integers that represent the time constraints for
 the data.&nbsp;
-See the ifpServer documentation for more details.</td>
+See GFE documentation for more details.</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#Precision">precision</a></td>
-      <td>&nbsp; Data precision for the gridded data.&nbsp;</td>
+      <td><a href="#Precision">precision</a></td>
+      <td>Data precision for the gridded data.&nbsp;</td>
     </tr>
     <tr>
-      <td>&nbsp; <a href="#ProjectionInfo">projection info</a> (12
+      <td><a href="#ProjectionInfo">projection info</a> (12
 items)</td>
-      <td>&nbsp; All the infomation needed to reconstruct the
+      <td>All the infomation needed to reconstruct the
 projection on which
 this grid is defined.</td>
     </tr>
     <tr>
-      <td>&nbsp; fillValue</td>
+      <td>fillValue</td>
       <td>Data fill value which indicates that portions of the grid is
 not valid.</td>
     </tr>
@@ -282,28 +273,23 @@ defaults to 0.</td>
   </tbody>
 </table>
 <br>
-&nbsp;
 <h3><a name="ValidTimes"></a>VaildTimes</h3>
 The valid times listed for a weather element define the start time and
 end time for each grid in terms of seconds since 01 Jan 1970.&nbsp;
 This
 is a
-<br>
 standard format for representing time on UNIX systems.&nbsp; The times
 listed are organized in pairs.&nbsp; The first pair applies to the
 start
 time and
-<br>
 end time of the first grid.&nbsp; The second pair applies to the start
 time and end time of the second grid, and so on.&nbsp; There should be
 exacty the
-<br>
-same number of validTime pairs
+same number of validTime pairs.
 <h3><a name="DescriptiveName"></a>Descriptive Name</h3>
 The descriptive name field provides a more detailed description of the
 parameter.
 <br>
-&nbsp;
 <h3><a name="GridSize"></a>GridSize</h3>
 The size of the grid in terms of grid cells expressed as a pair of
 numbers
@@ -313,7 +299,6 @@ The (x, y) coordinate origin or lower-left corner of the grid domain in
 AWIPS coordinates.&nbsp; The AWIPS coordinates are expressed in terms
 of
 the
-<br>
 current projection (usually the AWIPS 211 projection).
 <h3><a name="DomainExtent"></a>DomainExtent</h3>
 The (x, y) coordinate of the extent of the office domin expressed in
@@ -321,7 +306,6 @@ the
 same coordinate system as the origin.&nbsp; This is always the offset
 from
 the
-<br>
 origin.&nbsp; Adding this coordinate to the origin give the upper-right
 coordinate.
 <h3><a name="MinMaxAllowedValues"></a>MinMaxAllowedValues</h3>
@@ -330,12 +314,11 @@ expressed
 as a pair of numbers (min, max).
 <h3><a name="GridType"></a>GridType</h3>
 The data type for the grids.&nbsp; Possible values are SCALAR, VECTOR,
-and WEATHER
+and WEATHER.
 <h3><a name="DatabaseID"></a>DatabaseID</h3>
 The database identifier from which the grid originated. It has the
 format
 CCC_GRID__Fcst_YYYYMMDD_HHMM where,
-<br>
 CCC is the site identifier, YYYY is the year, MM is the number of the
 month, DD is the day, HH is the hour and MM is the minute
 <h3><a name="SiteID"></a>SiteID</h3>
@@ -343,7 +326,6 @@ The three letter identifier of the site from which the data originated.
 <h3><a name="Units"></a>Units</h3>
 The parameter units field indicates the units used by the data.
 <br>
-&nbsp;
 <h3><a name="Level"></a>Level</h3>
 The level for this weather element (e.g., 500MB).&nbsp; All surface
 data
@@ -365,8 +347,8 @@ must be aligned on the specified time constraints. The starting time
 indicates
 the time of the first possible grid after 0000z. The duration indicates
 the length of the grid. The repeat interval defines how often the grid
-can repeat. All of the units are in seconds.</div>
-<div style="margin-bottom: 0in;">For example, the illustration below
+can repeat. All of the units are in seconds.
+For example, the illustration below
 shows
 the possible grid boundaries for a time constraint of starting time of
 0, duration of 6 hours, and repeat interval of 6 hours:</div>
@@ -377,7 +359,7 @@ minimum of 6 hours long, but could be 12 or 18 or even 24 hours in
 length
 just as long as the starting and ending time of the grid falls on one
 of
-the defined above.</div>
+the defined above.
 A time constraint can be defined to have gaps in the data. For example,
 a 24-hour summary of daytime maximum temperature may have a constraint
 of starting time 900z, duration of 18 hours, and a repeat interval of
@@ -397,11 +379,9 @@ temporal resolution of the grids is one hour:
 constraints. This is the situation with a start time, repeat, and
 duration
 values all set to 0. The temporal resolution of the grids can be one
-second.
+second.</div>
 <br>
-&nbsp;
 <br>
-&nbsp;
 </p>
 <h3><a name="dataMultiplier"></a>Data Multiplier and Data Offset</h3>
 The data multiplier and data offset fields are only present when the -k
@@ -418,7 +398,7 @@ the netCDF data values into real values is:
 </center>
 <h3>
 <a name="ProjectionInfo"></a>Projection Info</h3>
-<>A series of values that allows one to
+A series of values that allows one to
 precisely reconstruct the projection and thus remap the data to any
 other
 projection.&nbsp; These 12 values comprise all of the value required
@@ -436,9 +416,7 @@ information, along with the <a href="#GridSize">Grid Size</a>, <a
  href="#DomainOrigin">Domain Origin</a>, and <a href="#DomainExtent">Domain
 Extent</a> information is used to define the location of the sub-grid
 on the Earth's surface.<br>
-&nbsp;
 <br>
-&nbsp;
 <br>
 <table nosave="" border="1" width="100%">
   <caption><br>
@@ -610,7 +588,7 @@ process, the process identifier (PID), and an optional lock value.</td>
     <tr>
       <td valign="top">7</td>
       <td valign="top">Update Time</td>
-      <td valign="top">Time when the grid was saved to the ifpServer
+      <td valign="top">Time when the grid was saved to GFE
 (for local
 grids), or time when the grid was created for Intersite Coordination
 Grids
@@ -700,6 +678,9 @@ For purposes of formatting a netCDF file to be compatible with the <a
  href="iscMosaic.html">iscMosaic</a>
 program, the fileFormatVersion must be: 20010816 or 20030117.
 <br>
-&nbsp;
+<hr width="100%"><br>
+<br>
+<div class="Body">
+<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
 </body>
 </html>

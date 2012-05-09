@@ -180,9 +180,10 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 		}
 
 		double pixPerUnit = nonInfRangeLength/colorBar.getDiscreteRange();
-		
+
 		try {
-			for( int r=0 ; r<colorBar.getNumIntervals() ; r++ ) {
+			
+			for( int r=0 ; r< numIntrvls ; r++ ) {
 				// compute the new maxX and Ys for the interval
 				if( colorBar.getDrawToScale() ) {
 					if( colorBar.getOrientation() == ColorBarOrientation.Horizontal ) {
@@ -251,7 +252,7 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 			}
 			
 			// draw the last label
-			String labelStr = colorBar.getLabelString( colorBar.getNumIntervals() );
+			String labelStr = colorBar.getLabelString( numIntrvls );
 			
 			if( labelStr != null ) {
 				double lblX = intMinX;
@@ -281,7 +282,8 @@ public class ColorBarResource extends AbstractVizResource<ColorBarResourceData, 
 			}		
 
 			// draw the border around the colorbar
-			target.drawRect(colorBarExtent, colorBar.getLabelColor(), 1.0f, 1.0d);
+			if (numIntrvls > 0) //check gets rid of the ghost outline if the colormap was cleared
+			  target.drawRect(colorBarExtent, colorBar.getLabelColor(), 1.0f, 1.0d);
 
 		} catch (VizException e) {
 		}

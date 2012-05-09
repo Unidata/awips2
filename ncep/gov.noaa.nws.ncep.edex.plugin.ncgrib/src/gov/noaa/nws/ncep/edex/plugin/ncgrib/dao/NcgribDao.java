@@ -112,70 +112,70 @@ public class NcgribDao extends NcepDefaultPluginDao {
         this("ncgrib");
     }
 
-    public void purgeExpiredData() {
-        QueryResult models = null;
-        try {
-            models = (QueryResult) executeNativeSql(MODEL_QUERY);
-        } catch (DataAccessLayerException e) {
-            logger.error("Error purging ncgrib data.  Unable to get models", e);
-        }
-
-        String currentModel = null;
-        for (int i = 0; i < models.getResultCount(); i++) {
-            currentModel = (String) models.getRowColumnValue(i, 0);
-            QueryResult refTimes = null;
-            try {
-                refTimes = (QueryResult) executeNativeSql(REFTIME_QUERY
-                        .replace("?", currentModel));
-            } catch (DataAccessLayerException e) {
-                logger
-                        .error("Error purging ncgrib data. Unable to get reference times for model ["
-                                + currentModel + "]");
-                continue;
-            }
-
-            // FIXME: Add rules for purging here instead of just keeping 2
-            // runs
-            List<String> filesKept = new ArrayList<String>();
-            File modelDirectory = new File(PLUGIN_HDF5_DIR + File.separator
-                    + currentModel);
-
-            for (int j = 0; j < refTimes.getResultCount(); j++) {
-                Date time = (Date) refTimes.getRowColumnValue(j, 0);
-                File hdf5File = new File(modelDirectory.getAbsolutePath()
-                        + File.separator
-                        + ((NcgribPathProvider) pathProvider).formatTime(time)
-                        + ".h5");
-
-                if (j < MODELCOUNT) {
-                    filesKept.add(hdf5File.getAbsolutePath());
-                    continue;
-                }
-
-                try {
-                    purgeDb(time, currentModel);
-                } catch (DataAccessLayerException e) {
-                    logger.error("Error purging database for ncgrib model ["
-                            + currentModel + "]");
-                }
-            }
-
-            List<File> files = FileUtil.listFiles(modelDirectory, fileFilter,
-                    false);
-
-            for (File file : files) {
-                if (!filesKept.contains(file.getAbsolutePath())) {
-                    if (!file.delete()) {
-                        logger
-                                .error("Error purging HDF5 files for ncgrib model ["
-                                        + currentModel + "]");
-                    }
-                }
-            }
-
-        }
-
-    }
+//    public void purgeExpiredData() {
+//        QueryResult models = null;
+//        try {
+//            models = (QueryResult) executeNativeSql(MODEL_QUERY);
+//        } catch (DataAccessLayerException e) {
+//            logger.error("Error purging ncgrib data.  Unable to get models", e);
+//        }
+//
+//        String currentModel = null;
+//        for (int i = 0; i < models.getResultCount(); i++) {
+//            currentModel = (String) models.getRowColumnValue(i, 0);
+//            QueryResult refTimes = null;
+//            try {
+//                refTimes = (QueryResult) executeNativeSql(REFTIME_QUERY
+//                        .replace("?", currentModel));
+//            } catch (DataAccessLayerException e) {
+//                logger
+//                        .error("Error purging ncgrib data. Unable to get reference times for model ["
+//                                + currentModel + "]");
+//                continue;
+//            }
+//
+//            // FIXME: Add rules for purging here instead of just keeping 2
+//            // runs
+//            List<String> filesKept = new ArrayList<String>();
+//            File modelDirectory = new File(PLUGIN_HDF5_DIR + File.separator
+//                    + currentModel);
+//
+//            for (int j = 0; j < refTimes.getResultCount(); j++) {
+//                Date time = (Date) refTimes.getRowColumnValue(j, 0);
+//                File hdf5File = new File(modelDirectory.getAbsolutePath()
+//                        + File.separator
+//                        + ((NcgribPathProvider) pathProvider).formatTime(time)
+//                        + ".h5");
+//
+//                if (j < MODELCOUNT) {
+//                    filesKept.add(hdf5File.getAbsolutePath());
+//                    continue;
+//                }
+//
+//                try {
+//                    purgeDb(time, currentModel);
+//                } catch (DataAccessLayerException e) {
+//                    logger.error("Error purging database for ncgrib model ["
+//                            + currentModel + "]");
+//                }
+//            }
+//
+//            List<File> files = FileUtil.listFiles(modelDirectory, fileFilter,
+//                    false);
+//
+//            for (File file : files) {
+//                if (!filesKept.contains(file.getAbsolutePath())) {
+//                    if (!file.delete()) {
+//                        logger
+//                                .error("Error purging HDF5 files for ncgrib model ["
+//                                        + currentModel + "]");
+//                    }
+//                }
+//            }
+//
+//        }
+//
+//    }
 
     private int purgeDb(final Date date, String modelName)
             throws DataAccessLayerException {

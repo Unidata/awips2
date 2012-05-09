@@ -35,9 +35,11 @@ import com.raytheon.viz.mpe.core.MPEDataManager;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 25, 2009            snaples     Initial creation
+ * Date         Ticket#    Engineer    	Description
+ * ------------ ---------- ----------- 	--------------------------
+ * Feb 25, 2009            snaples     	Initial creation
+ * Apr 16, 2012			   mgamazaychik	DR9602 - changed how max and min 
+ * 										temperature data are read from PRISM  
  * 
  * </pre>
  * 
@@ -129,16 +131,19 @@ public class MeanMonthlyTemp {
                     return false;
                 }
                 pdata = xmfile.getData();
-                // for (int i = MaxY - 1; i >= 0; i--) {
-                for (int i = 0; i < MaxY; ++i) {
-                    if (pdata.length == 0) {
-                        System.out.println("Error reading " + pfile);
-                        return false;
-                    }
-
+                if (pdata.length == 0) {
+                    System.out.println("Error reading " + pfile);
+                    return false;
+                }
+                /*
+                 * DR9602 - added to read max temps from PRISM properly
+                 */
+                int index=0;
+                for (int i = MaxY - 1; i >= 0; i--) {
                     for (int j = 0; j < MaxX; j++) {
-                        float f = 0;
-                        short s = pdata[i * MaxX + j];
+                        float f = 0;                        
+                        short s = pdata[index];
+                        index++;
                         if (s < 0) {
                             if (s == -9999 || s == -999) {
                                 f = s;
@@ -189,16 +194,19 @@ public class MeanMonthlyTemp {
                     return false;
                 }
                 pdata2 = xmfile.getData();
-                // for (int i = MaxY - 1; i >= 0; i--) {
-                for (int i = 0; i < MaxY; ++i) {
-                    if (pdata2.length == 0) {
-                        System.out.println("Error reading " + pfile);
-                        return false;
-                    }
-
+                if (pdata2.length == 0) {
+                    System.out.println("Error reading " + pfile);
+                    return false;
+                }
+                /*
+                 * DR9602 - added to read min temps from PRISM properly
+                 */
+                int index=0;
+                for (int i = MaxY - 1; i >= 0; i--) {
                     for (int j = 0; j < MaxX; j++) {
-                        float f = 0;
-                        short s = pdata2[i * MaxX + j];
+                        float f = 0;                        
+                        short s = pdata2[index];
+                        index++;
                         if (s < 0) {
                             if (s == -9999 || s == -999) {
                                 f = s;

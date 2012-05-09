@@ -44,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2011            rjpeter     Initial creation
+ * Mar 08, 2012   194   njensen   Improved safety of close()
  * 
  * </pre>
  * 
@@ -182,6 +183,11 @@ public class JmsPooledConnection implements ExceptionListener {
 
         if (canClose) {
             synchronized (this) {
+                // njensen: I moved removing the connection from the pool to be
+                // the first thing in this block instead of last thing so
+                // there's no chance it could be closed and then retrieved from
+                // the pool by something else
+                connFactory.removeConnectionFromPool(this);
                 if (conn != null) {
                     try {
                         conn.stop();
@@ -207,11 +213,10 @@ public class JmsPooledConnection implements ExceptionListener {
                     conn.close();
                 } catch (Exception e) {
                     statusHandler.handle(Priority.INFO,
-                            "Failed to close connection", e);
+                            "Failed to close connection " + conn, e);
                 }
             }
             conn = null;
-            connFactory.removeConnectionFromPool(this);
         }
     }
 
@@ -237,13 +242,17 @@ public class JmsPooledConnection implements ExceptionListener {
 
         synchronized (stateLock) {
             if (availableSession != null) {
-                if (availableSession.expired(System.currentTimeMillis(),
-                        resourceRetention)) {
-                    availableSession.getPooledObject().close();
-                    count++;
-                    availableSession = null;
-                } else {
-                    sessionToCheck = availableSession.getPooledObject();
+                // njensen: I added the synchronized line below so we're
+                // synchronized on availableSession.stateLock
+                synchronized (availableSession.getPooledObject().getStateLock()) {
+                    if (availableSession.expired(System.currentTimeMillis(),
+                            resourceRetention)) {
+                        availableSession.getPooledObject().close();
+                        count++;
+                        availableSession = null;
+                    } else {
+                        sessionToCheck = availableSession.getPooledObject();
+                    }
                 }
             }
         }

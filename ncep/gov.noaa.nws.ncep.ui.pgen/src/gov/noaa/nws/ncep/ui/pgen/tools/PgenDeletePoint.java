@@ -11,6 +11,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.display.IMultiPoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
@@ -30,6 +31,7 @@ import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
  * 08/09			79		B. Yin   	Handle jet.
  * 11/10		#332		B. Yin		Added cleanup() for handler
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 02/12		#665		J. Wu		Back to "Select" if no DE selected
  *
  * </pre>
  * 
@@ -98,7 +100,7 @@ public class PgenDeletePoint extends PgenSelectingTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
-        	
+
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -159,15 +161,21 @@ public class PgenDeletePoint extends PgenSelectingTool {
             }
             else if ( button == 3 ) {
             	
-        		ptSelected = false;
-            	drawingLayer.removeSelected();
-      	        mapEditor.refresh();
-      	        
+            	if ( drawingLayer.getSelectedDE() != null ) {
+            		ptSelected = false;
+            		drawingLayer.removeSelected();
+            		mapEditor.refresh();
+            	}
+            	else {
+            		// set selecting mode
+            		PgenUtil.setSelectingMode();  
+            	}
+     	        
             	return true;
             	
             }
             else{
-            	
+            	            	
                	return false;
                	
             }

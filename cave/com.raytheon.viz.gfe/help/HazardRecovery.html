@@ -9,7 +9,7 @@
 <h1 style="text-align: center;">HazardRecovery</h1>
 <div style="text-align: center;">
 <h2>Procedure to re-initialize your Hazard grid based on current events</h2>
-May 2, 2006<br>
+March 8, 20012<br>
 <br>
 <div style="text-align: left;"><br>
 <a href="#methodology">Methodology</a><br>
@@ -20,12 +20,10 @@ May 2, 2006<br>
 <br>
 </div>
 <br>
-&nbsp;<br>
 <big><big><span style="color: rgb(255, 0, 0);"><span
  style="font-style: italic;">Hazard recovery should only be used in
 case your</span><span style="font-style: italic;"> entire hazard grid
-is
-lost or mangled
+is lost or mangled
 by so many changes </span><span style="font-style: italic;">that you
 cannot recover. Attempt to
 restore from your </span><span style="font-style: italic;">official
@@ -57,7 +55,7 @@ HazardRecovery, a warning dialog will display.<br>
 </span></small><br>
 <small><span style="color: rgb(0, 0, 0);">Upon selecting <span
  style="font-weight: bold; font-style: italic;">Ok</span>, your entire
-Hazards grid will be deleted, and replaced with the current<br>
+Hazards grid will be deleted, and replaced with the current
 hazards found in the active table.<br>
 </span></small></span></big></big><br>
 <hr style="width: 100%; height: 2px;">
@@ -65,16 +63,16 @@ hazards found in the active table.<br>
 The Hazard Recovery tool calculates the current set of Hazards in
 effect (i.e., issued).&nbsp; It uses the following algorithm:<br>
 <ul>
-  <li>The VTEC active table is retrieved from the ifpServer.</li>
+  <li>The VTEC active table is retrieved from EDEX.</li>
   <li>The table is filtered and actions that are CAN, UPG, and EXP are
 removed.</li>
-  <li>Records that represent current events are kept.&nbsp; Current
+  <li>Records that represent current events are kept. Current
 events are obtained from three different sources (within the VTEC
 table):</li>
   <ul>
     <li>Convective Watches (TO.A, SV.A) from "my" site from "my" WCN
 are considered the current issued convective watches.&nbsp; We ignore
-the WOU and other information from SPC.&nbsp; Convective watches from
+the WOU and other information from SPC. Convective watches from
 "my" site but from a different product are ignored.<br>
     </li>
     <li>Any records from "my" site are considered, both tropical and
@@ -97,11 +95,8 @@ only
 is "TEST", then only "T" VTEC events will be considered.<br>
 <br>
 Note: HazardRecovery has been updated for the 2007 tropical season due
-to changes in the TCV product.&nbsp;&nbsp; The TCV product will now
+to changes in the TCV product. The TCV product will now
 only contain coastal zones, thus the HazardRecovery procedure now looks
 at tropical events issued by your site.<br>
-<br>
-<br>
-<br>
 </body>
 </html>

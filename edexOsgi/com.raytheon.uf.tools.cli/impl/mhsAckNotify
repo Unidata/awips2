@@ -1,0 +1,31 @@
+#!/bin/bash
+##############################################################################
+# Provides a simple wrapper to the mhsAckNotify Python module allowing that module
+# to be executed as a command line tool without requiring the .py extension.
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    04/06/2012		 10388		   mhuang		  Initial creation
+##############################################################################
+
+# this allows you to run this script from outside of ./bin
+path_to_script=`readlink -f $0`
+RUN_FROM_DIR=`dirname $path_to_script`
+
+BASE_AWIPS_DIR=`dirname $RUN_FROM_DIR`
+
+# source the env
+source ${RUN_FROM_DIR}/setup.env
+
+# setup the environment needed to run the the Python
+export LD_LIBRARY_PATH=${BASE_AWIPS_DIR}/src/lib:${PYTHON_INSTALL}/lib
+export PYTHONPATH=${RUN_FROM_DIR}/src:$PYTHONPATH
+
+# execute the Python module
+_PYTHON="${PYTHON_INSTALL}/bin/python"
+_MODULE="${RUN_FROM_DIR}/src/qpidNotify/mhsAckNotify.py"
+
+# quoting of '$@' is used to prevent command line interpretation 
+$_PYTHON $_MODULE "$@"
