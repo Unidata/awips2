@@ -10,7 +10,7 @@
 <body style="background-color: rgb(255, 255, 255);">
 <h1 style="text-align: center;">
 GFE Startup Information</h1>
-December 16, 2005<br>
+February 16, 2012<br>
 <br>
 Table of Contents<br>
 <br>
@@ -21,14 +21,10 @@ Table of Contents<br>
 <hr width="100%">
 <h2><a name="cmdline"></a>Command Line Options</h2>
 <p><br>
-<tt>runGFE [-h hostname] [-p portNumber] [-c configFile] [-u userName]
-[-t networkTimeout] [-m mutableModel] [-z drtTime] [-f specialMode]
-[-a]
-[-i
-dbCategories]</tt><br>
-&nbsp;
+<tt>cave.sh [-server hostname:port/services] [-mode TEST|PRACTICE|OPERATIONAL] [-site xxx] 
+[-u user] [-component componentName] [-perspective perspecitiveName] [-noredirect]
+[-consoleLog]<br>
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -37,103 +33,48 @@ dbCategories]</tt><br>
       <td><b>Meaning</b></td>
     </tr>
     <tr>
-      <td>-h hostname</td>
+      <td>-server hostname:port/services</td>
       <td>YES</td>
-      <td>Identifies the hostname upon which the ifpServer is
-running.&nbsp;
-During installation, this value is automatically set, but may be
-overridden.</td>
+      <td>Overrides the hostname and port settings in the localization preferences.</td>
     </tr>
     <tr>
-      <td>-p portNumber</td>
+      <td>-mode TEST|PRACTICE|OPERATIONAL</td>
       <td>YES</td>
-      <td>Identifies the RPC portnumber upon which the ifpServer is
-running.
-During installation, this value is automatically set, but may be
-overridden.</td>
+      <td>Causes CAVE to be started in the specified mode. OPERATIONAL by default.</td>
     </tr>
     <tr>
-      <td>-c config</td>
+      <td>-site xxx</td>
       <td>YES</td>
-      <td>Identifies the gfe configuration file to use for the session.
-If the
--u&nbsp; and -c switches are specified, then the startup dialog will
-not
-contain entry boxes for the user to choose the config file.</td>
-    </tr>
-    <tr>
-      <td>-u username</td>
-      <td>YES</td>
-      <td>Specifies the user id to be used for the GFE session.&nbsp;
-This affects
-the availability of metadata to the GFE.&nbsp; See the <a
- href="baseSiteUserConcept.html">base,
-site, and user configuration guide</a> for details.&nbsp; If the
--u&nbsp;
-and -c switches are specified, then the startup dialog will not contain
-entry boxes for the user to choose the username.</td>
-    </tr>
-    <tr>
-      <td>-t networkTimeout</td>
-      <td>YES</td>
-      <td>Normally defaults to 60 seconds.&nbsp; In heavy network
-situations,
-may need to increase this value to prevent the GFE/ifpServer from
-timeouts.</td>
-    </tr>
-    <tr>
-      <td>-m mutableModel</td>
-      <td>YES</td>
-      <td>The mutable model is stored in the gfe configuration
-file.&nbsp; It
-can be overriden through this switch.&nbsp; Note that the format is in
-the form of type_model or type_model_time, such as "_Fcst" or
-"_NAM_20021002_1200.</td>
-    </tr>
-    <tr>
-      <td>-z drtTime</td>
-      <td>YES</td>
-      <td>The GFE may be started in the <a
- href="gfeConfig_Misc.html#DisplacedRealTimeOffset">Displaced
-Real Time Mode</a>.&nbsp; <br>
+      <td>Overrides the localization site preference setting forcing CAVE to start as the specified site.
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">-f specialMode<br>
-      </td>
-      <td style="vertical-align: top;">YES<br>
-      </td>
-      <td style="vertical-align: top;">By default, this switch is not
-provided.&nbsp;&nbsp; If provided, will bring up the GFE in a special
-mode.&nbsp;&nbsp; The two special modes supported are <a href="#TEST">TEST</a>
-and <a href="#PRACTICE">PRACTICE</a>.&nbsp;
-These modes are product-generation specific.&nbsp; <br>
-      </td>
-    </tr>
-    <tr>
-      <td>-i dbCategories</td>
+      <td>-u user</td>
       <td>YES</td>
-      <td>The database viewable categories are stored in the gfe
-configuration
-file.&nbsp; It can be overriden through this switch.&nbsp; Note that
-the
-format does not normally include the time.&nbsp; The normal format is
-type,
-such as "" for no-type or "D2D" for d2d-type databases.&nbsp; There can
-be multiple -i switches.<br>
+      <td>Overrides the user workstation login with the specified user id. Note: SITE is NOT a user id in AWIPS2.
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">-a<br>
-      </td>
-      <td style="vertical-align: top;">YES<br>
-      </td>
-      <td style="vertical-align: top;">Force AWIPS mode.&nbsp; If this
-switch is set, then the -f switch determines the only possible modes
-that are available to choose from.&nbsp; For example, with -f TEST and
-no -a switch, the GFE is started in TEST mode but can be switched to
-PRACTICE or OPERATIONAL mode.&nbsp; With the -f TEST and -a switch, the
-GFE is started in TEST mode and cannot be switched to another mode.<br>
+      <td>-component componentName</td>
+      <td>YES</td>
+      <td>Used to start specialized CAVE sessions like textWS, avnMenu, ServiceBackup, etc.</td>
+    </tr>
+    <tr>
+      <td>-perspective perspecitiveName</td>
+      <td>YES</td>
+      <td>Causes CAVE to start in the specified perspective, i.e, GFE, D2D, etc. No perspective 
+      buttons will be displayed. You must use the CAVE->Perspective menu to change perspectives.</td>
+    </tr>
+    <tr>
+      <td>-noredirect</td>
+      <td>YES</td>
+      <td>Causes stdout and stderr to not be redirected but instead display in the terminal window
+      for debugging use.</td>
+    </tr>
+    <tr>
+      <td>-consoleLog</td>
+      <td>YES</td>
+      <td>Causes the CAVE log to be output to the console for monitoring/debugging.
       </td>
     </tr>
   </tbody>
@@ -141,11 +82,13 @@ GFE is started in TEST mode and cannot be switched to another mode.<br>
 </p>
 <hr width="100%">
 <h2><a name="standard"></a>Standard Startup of GFE</h2>
-GFE is normally started with just the runGFE script and no
-switches.&nbsp;
-When this is done, the GFE begins and contacts the
-ifpServer.&nbsp;&nbsp; If the ifpServer cannot be connected
-successfully, an error dialog is presented to the user.<br>
+GFE is normally started with the appLauncher menu activated by
+clicking anywhere on an AWIPS workstation desktop.<br><br>
+<img alt="" src="images/appLauncher.jpg"><br><br> To start GFE 
+via the command line execute the /awips2/cave/cave.sh script with the
+switch -component GFE.
+When this is done, the GFE begins and contacts EDEX. If EDEX cannot 
+be contacted successfully, an error dialog is presented to the user.<br>
 <br>
 <table style="width: 100%; text-align: left;" border="0" cellpadding="2"
  cellspacing="2">
@@ -160,92 +103,69 @@ successfully, an error dialog is presented to the user.<br>
 <br>
 <br>
 In normal situations once the server has been contacted, the user is
-presented with the GFE start up
-dialog.&nbsp;
-The known list of user names will appear in the left listbox. The user
-can click on an existing name in the list, or add a new
-name
-by typing the user name identifier in the entry field.&nbsp; Once a
-user
-name has been selected, the GFE will query the ifpServer and determine
+presented with the GFE start up dialog.
+GFE will query EDEX and determine
 the available list of configuration files that are available to the
-user.&nbsp;
-The standard "gfeConfig" is shipped with the system.&nbsp; The site may
-have overridden it and user's may override them too.&nbsp; See the <a
+user.
+The standard "gfeConfig" is shipped with the system. The site may
+have overridden it and users may override them too. See the <a
  href="baseSiteUserConcept.html">base,
-site, user concepts guide</a> for information.&nbsp;&nbsp; The gfe
+site, user concepts guide</a> for information. The gfe
 configuration
-file can be tailored to the site's or user's needs.&nbsp; See the <a
+file can be tailored to the site's or user's needs. See the <a
  href="gfeConfiguration.html">gfe
 configuration guide</a> for details. The user selects the appropriate
 configuration file from the
-list.&nbsp;
-The user is not allowed to enter a new configuration file since the gfe
+list.
+The user is not allowed to enter a new configuration file since gfe
 requires an existing configuration file to start.<br>
-<br>
-The third column is the GFE mode.&nbsp;&nbsp; It defaults to the modes
-specified by the command line switches.&nbsp; If no mode is specified
-via the command line, the mode is set to "operational".&nbsp;&nbsp; The
-user can change the mode to "test" for product live comms testing, or
-one of the two practice modes.&nbsp; Refer to the <a href="#special">Special
-GFE Startup Modes for TEST and PRACTICE</a>.<br>
 <p><img alt="" src="images/GFEStartup1.png"><br>
 </p>
-<p>The user positions the cursor over the START button and
-clicks.&nbsp;
-The GFE will now start and just the splash screen will be shown:<br>
+<p>The user positions the cursor over the Ok button and
+clicks.
+GFE will now start and just the splash screen will be shown:<br>
 </p>
 <p><img alt="" src="images/GFEStartup2.png"><br>
 </p>
 <p><br>
-If the GFE does not come up properly, ia
-bad configuration file is likely the cause and a dialog shows the
-location of the error:<br>
-</p>
-<p><img alt="" src="images/GFEStartup3.png"><br>
+If the GFE does not come up properly, a
+bad configuration file is likely the cause.<br>
 </p>
 <hr width="100%">
 <h2><a name="SpecialConfigurationFiles"></a>Special Configuration Files</h2>
-The GFE comes with some special
+GFE comes with some special
 configuration files which can be used to modify special grids. If a GFE
-is started as the SITE user using one of these files, then various
-special
+is started using one of these files, then various special
 weather elements can be edited.
 <h3>EditTopo</h3>
-Starting the GFE as the SITE user with this config file (runGFE -u SITE
--c EditTopo), allows for the editing of the topo grid.&nbsp; You can
-also
-use the standard startup runGFE, and enter EditTopo into the
-configuration
-column of the startup dialog.
+Starting the GFE with this config file allows for the editing of the topo grid. You can
+use the standard startup, and enter EditTopo into the configuration
+entry field of the startup dialog.
 <p>Once the GFE is running, there will be no weather elements appearing
-in the grid manager.&nbsp; One weather element will be loaded, of a
-persistent
-nature, into the spatial editor.&nbsp; This element is called Topo SFC
-Topo_EditTopo.&nbsp; You can edit the topography and once saved, the
-remainder
+in the grid manager. One weather element will be loaded, of a persistent
+nature, into the spatial editor. This element is called Topo SFC
+Topo_EditTopo. You can edit the topography and once saved, the remainder
 of the GFESuite system will see the modified topography when those
-programs
-are started.<br>
+programs are started.<br>
 </p>
 <hr style="width: 100%; height: 2px;"><br>
 <h2><a name="special"></a>Special GFE Startup Modes for Test and
 Practice</h2>
-The GFE may be started with three special modes.&nbsp; These modes
-allow for product testing and GFE practice.&nbsp; This section defines
+The GFE may be started with three special modes. These modes
+allow for product testing and GFE practice. This section defines
 the behavior of the GFE in these modes.<br>
 <br>
 <h3><a name="TEST"></a>TEST mode</h3>
-Starting the GFE with a <span style="font-weight: bold;">-f TEST</span>
-switch will place the GFE in TEST mode.&nbsp; All products issued in
-this mode will be issued with TEST mode enabled.&nbsp;&nbsp; The
+Starting the GFE with a <span style="font-weight: bold;">-mode TEST</span>
+switch will place the GFE in TEST mode. All products issued in
+this mode will be issued with TEST mode enabled. The
 forecaster edits a Test database instead of a Fcst
 database, thus no impact is made on formal operations.<br>
 <br>
 Test mode on products means that products that normally have VTEC will
 have the "T" code enabled, regardless of the definition in the
 VTECMessageType file (as long as there is a definition for the product
-in the VTECMessageType file).&nbsp;&nbsp; Test products mean that the
+in the VTECMessageType file). Test products mean that the
 MND header will contain the "...TEST..." and so will any headlines in
 the product.<br>
 <br>
@@ -261,25 +181,25 @@ database, thus no impact is made on formal operations.</li>
   <li>The VTEC "active" table is used since these products can be
 transmitted.</li>
   <li>The enabled VTEC modes specified in VTECMessageType is used only
-to determine if VTEC is enabled or not for a product.&nbsp; If a
+to determine if VTEC is enabled or not for a product. If a
 product does not normally
-contain VTEC, then in TEST mode no VTEC will appear.&nbsp; However, if
+contain VTEC, then in TEST mode no VTEC will appear. However, if
 vtec is enabled for a product, that vtec mode is switched to "T" mode.<br>
   </li>
   <li>The background color of the GFE is changed, to make it clear to
-the forecaster that they are in a special mode.&nbsp;&nbsp; The word
+the forecaster that they are in a special mode. The word
 TEST is placed in the window manager title.</li>
 </ul>
 <br>
 An example of the GFE in TEST mode is shown below:<br>
 <br>
 <div style="text-align: center;"><img alt="TEST mode"
- src="images/GFETestMode.png" style="width: 750px; height: 645px;"><br>
+ src="images/GFETestMode.png" style="width: 790px; height: 645px;"><br>
 </div>
 <br>
 <h3><a name="PRACTICE"></a>PRACTICE mode</h3>
-Starting the GFE with a <span style="font-weight: bold;">-f PRACTICE</span>
-switch will place the GFE in PRACTICE mode.&nbsp; In this mode the
+Starting the GFE with a <span style="font-weight: bold;">-mode PRACTICE</span>
+switch will place the GFE in PRACTICE mode. In this mode the
 following characteristics are changed:<br>
 <ul>
   <li>The forecaster edits a Practice database instead of a Fcst
@@ -291,21 +211,21 @@ database, thus no impact is made on formal operations.</li>
 with real operations.</li>
   <li>The ability to store products in the AWIPS text database and
 transmit them is not available, although the GUI will still
-exist.&nbsp; The Transmit GUI will clearly indicate that the transmit
+exist. The Transmit GUI will clearly indicate that the transmit
 is being simulated.</li>
   <li>A special Formatting entry appears on the Formatter Launcher to
-allow the forecaster to select the type of practice formatting.&nbsp;
+allow the forecaster to select the type of practice formatting.
 Choices range from the 3 operational VTEC modes and no VTEC for
 operational/normal wording, and two choices for test wording (with and
 without VTEC).<br>
   </li>
   <li>The background color of the GFE is changed, to make it clear to
-the forecaster that they are in a special mode.&nbsp;&nbsp; The word
+the forecaster that they are in a special mode. The word
 PRACTICE is placed in the window manager title.</li>
 </ul>
 The background of the GFE in Practice mode appears orange:<br>
 <div style="text-align: center;"><img alt="Practice Mode"
- src="images/GFEPracticeMode.png" style="width: 700px; height: 621px;"><br>
+ src="images/GFEPracticeMode.png" style="width: 790px; height: 645px;"><br>
 </div>
 <br>
 <br>

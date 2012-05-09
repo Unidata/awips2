@@ -5,8 +5,8 @@ C************************************************************************
         CHARACTER       dbdttm*20, dbstid*6, dbstns*6,
      +                  dbdatasrc*20, dbparms*128, dbprmfile*20,
      +                  dbtimes(200)*20, dbtime*20, dburi*255, 
-     +                  dbmodel*20, navtime*20, enstimes(200)*20,
-     +                  evtname*20, ensnames*500
+     +                  dbmodel*30, navtime*20, enstimes(200)*20,
+     +                  evtname*30, ensnames*500
         LOGICAL         dbread, firstdb, gridtmdb, isnavtime, 
      +                  isenstime, isevtname, isensnames
         INTEGER         stnindx, idbstns, stnlat, stnlon, stnelv, 

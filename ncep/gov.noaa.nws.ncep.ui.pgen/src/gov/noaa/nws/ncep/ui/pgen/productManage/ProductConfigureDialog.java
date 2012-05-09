@@ -259,8 +259,14 @@ public class ProductConfigureDialog extends ProductDialog {
      * @param parent
      */
     public void setDefaultLocation( Shell parent ) {
-        Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 500,  pt.y + 100 );
+        
+    	if ( shellLocation == null ) {
+	        Point pt = parent.getLocation();
+	        shell.setLocation( pt.x + 500,  pt.y + 100 );
+		} else {
+			shell.setLocation(shellLocation);
+		}
+
     }
     
     /**
@@ -695,8 +701,8 @@ public class ProductConfigureDialog extends ProductDialog {
                    	btn.setImage( iconMapSelected.get( str ) );
            	    }
             	else {
-            		btn.setSelection( false );;
-                   	btn.setImage( iconMap.get( str ) );
+            		btn.setSelection( false );
+            		btn.setImage( iconMap.get( str ) );
            	    }
             }
      		
@@ -758,7 +764,7 @@ public class ProductConfigureDialog extends ProductDialog {
     	}
     	else {   	      
    		    objectGroup = null;
-    		shell.dispose();
+   		    close();
     		PgenSession.getInstance().getPgenPalette().resetPalette( null );
     	}  	  
 
@@ -779,8 +785,10 @@ public class ProductConfigureDialog extends ProductDialog {
     	}
     	
         objectGroup = null;
-        shell.dispose();
-		PgenSession.getInstance().getPgenPalette().resetPalette( null );              	
+        close();
+		if ( PgenSession.getInstance().getPgenPalette() != null ) {
+			PgenSession.getInstance().getPgenPalette().resetPalette( null );              	
+		}
         
     }
 

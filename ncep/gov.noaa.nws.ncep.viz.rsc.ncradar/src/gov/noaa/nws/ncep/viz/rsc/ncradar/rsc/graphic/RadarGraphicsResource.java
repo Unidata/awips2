@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -35,8 +36,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.IMiddleClickCapableResource;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.radar.IRadarConfigListener;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
@@ -49,6 +52,7 @@ import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.AbstractRadarResource;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarImageResource;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarResourceData;
 import gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarTileSet;
+import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
 import com.raytheon.viz.radar.ui.RadarDisplayManager;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -65,6 +69,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/16/2011   #541       S. Gurung   Initial Creation
+ * 03/30/2012   #651       S. Gurung   Fixed NullPointerException bug in resourceChanged
  * 
  * </pre>
  * 
@@ -193,6 +198,7 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
      */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
+    	RadarResourceData radarRscData = ( RadarResourceData ) this.resourceData;
         //super.resourceChanged(type, object);
         if (type == ChangeType.CAPABILITY) {
             if (object instanceof MagnificationCapability) {
@@ -203,6 +209,37 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
                     display.setMagnification(mag);
                 }
             }
+            
+            else if (object instanceof ImagingCapability ){
+        		ImagingCapability imgCap = getCapability(ImagingCapability.class);
+           		ImagingCapability newImgCap = ( ImagingCapability ) object;
+        		imgCap.setBrightness(newImgCap.getBrightness(), false);
+        		imgCap.setContrast(newImgCap.getContrast(), false);
+        		imgCap.setAlpha(newImgCap.getAlpha(), false);
+        		radarRscData.setAlpha(  imgCap.getAlpha()  );
+                radarRscData.setBrightness(  imgCap.getBrightness() );
+                radarRscData.setContrast(  imgCap.getContrast() );
+       		
+        		
+        	}
+        	else if (object instanceof ColorMapCapability ){
+        		
+        		ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
+        		ColorMapCapability newColorMapCap = (ColorMapCapability) object;
+        		if (newColorMapCap.getColorMapParameters() != null) {
+	        		colorMapCap.setColorMapParameters(newColorMapCap.getColorMapParameters(), false);
+	        		ColorMap theColorMap = ( ColorMap ) colorMapCap.getColorMapParameters().getColorMap();
+	        		String colorMapName = colorMapCap.getColorMapParameters().getColorMapName();
+	        		radarRscData.setColorMapName( colorMapName );
+	        	    radarRscData.getRscAttrSet().setAttrValue( "colorMapName", colorMapName );
+	        	    ColorBarFromColormap cBar = radarRscData.getColorBar();
+	        	    cBar.setColorMap( theColorMap );
+	        	    radarRscData.getRscAttrSet().setAttrValue( "colorBar", cBar );
+	        	    radarRscData.setIsEdited( true );
+        		}
+        	}
+
+            
             issueRefresh();
         }
     }

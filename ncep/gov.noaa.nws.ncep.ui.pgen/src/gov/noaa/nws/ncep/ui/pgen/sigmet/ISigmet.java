@@ -26,5 +26,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.ILine;
  */
 
 public interface ISigmet extends ILine{
-
+	public String getLineType();
+	public double getWidth();
 }

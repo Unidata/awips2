@@ -5,12 +5,12 @@
  content="text/html; charset=iso-8859-1">
   <meta name="GENERATOR"
  content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
-  <title>ifpServerStats User's Guide</title>
+  <title>moveGFEData User's Guide</title>
 </head>
 <body bgcolor="#ffffff">
 <h1 class="1Heading">
 moveGFEData User's Guide</h1>
-<div class="1Heading">April 4, 2006<br>
+<div class="1Heading">January 9, 2012<br>
 </div>
 <h2 class="1Heading">
 <a name="TableofContents"></a>Table of Contents</h2>
@@ -26,7 +26,7 @@ moveGFEData User's Guide</h1>
 <a name="Overview"></a>Overview</h2>
 <div class="1Heading">The moveGFEData program is a utility to move or
 copy
-configuration files from one user to another.&nbsp; It can be used with
+configuration files from one user to another. It can be used with
 either one server, to copy/move files from user to user, or two
 servers,
 to copy/move files from one user on one server to another user on a
@@ -34,19 +34,15 @@ second
 server.</div>
 <div class="1Heading">
 <hr width="100%"></div>
-<div class="1Heading">
-<hr width="100%"></div>
 <h3 class="1Heading">
 <a name="Running"></a>Running the moveGFEData Program</h3>
-<div class="1Heading">&nbsp;</div>
 <div class="1Heading">The command line syntax is:</div>
 <div class="1Heading"><tt>moveGFEData -h hostname -p portnumber -s
 sourceUser
--d destUser [-c] [-a host2 -b port2]</tt></div>
+-d destUser [-c] [-a host2 -b port2] -w sourceSiteID [-x destSiteID]</tt></div>
 <div class="1Heading">A sample command line is:
 <br>
-<tt>moveGFEData -h dx4f -p 98000000 -s awipsusr -d SITE</tt></div>
-<div class="1Heading">&nbsp;</div>
+<tt>moveGFEData -h dx3-oax -p 9581 -s auser -d buser -w xxx</tt></div><br>
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -57,19 +53,19 @@ sourceUser
     <tr>
       <td>-h hostname</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the host, upon which the source ifpServer is
-running.&nbsp;
+      <td>Specifies the host, upon which the source EDEX is
+running.
 If -a and -b are not specified, then this also specifies the host upon
-which the destination ifpServer is running.</td>
+which the destination EDEX is running.</td>
     </tr>
     <tr>
       <td>-p port</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the port, upon which the source ifpServer is
+      <td>Specifies the port, upon which the source EDEX is
 running. If
 -a and -b are not specified, then this also specifies the port upon
 which
-the destination ifpServer is running.</td>
+the destination EDEX is running.</td>
     </tr>
     <tr>
       <td>-s sourceUser</td>
@@ -92,7 +88,7 @@ data is moved.</td>
     <tr>
       <td>-a host2</td>
       <td>Optional</td>
-      <td>Specifies the host, upon which the destination ifpServer is
+      <td>Specifies the host, upon which the destination EDEX is
 running.
 This switch is not necessary if you are copying/moving files between
 users
@@ -101,113 +97,76 @@ on the same server.</td>
     <tr>
       <td>-b port2</td>
       <td>Optional</td>
-      <td>Specifies the port, upon which the destination ifpServer is
+      <td>Specifies the port, upon which the destination EDEX is
 running.
 This switch is not necessary if you are copying/moving files between
 users
 on the same server.</td>
     </tr>
+    <tr>
+      <td>-w sourceSiteID</td>
+      <td>Mandatory</td>
+      <td>Specifies the source site ID.</td>
+    </tr>
+    <tr>
+      <td>-x dextSiteID</td>
+      <td>Optional</td>
+      <td>Specifies the destination site ID.</td>
+    </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note: The -h serverhost and -p port are
+<font color="#3366ff"><b>Note:</b> The -h serverhost and -p port are
 predefined
-based on your installation configration of GFESuite.&nbsp; The -h and
+based on your installation configuration of GFESuite. The -h and
 -p
 will be defined for the server host and port specified during
-installation.&nbsp;&nbsp;&nbsp;
+installation.
 If you wish to connect to another server, then these switches will be
-necessary.&nbsp;</font><font color="#3366ff">&nbsp; If environment
-variables ${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -p switches.</font>
+necessary.</font>
 <div class="1Heading">
 <hr width="100%"></div>
 <p><br>
-The program will list the various categories that are valid.&nbsp;
+The program will list the various categories that are valid.
 The user chooses a category and an inventory is shown of the data owned
-by the "sourceUser".&nbsp; The user chooses the file to move and the
+by the "sourceUser". The user chooses the file to move and the
 program
-moves the file.&nbsp; Then the program displays the updated inventory.
+moves the file. Then the program displays the updated inventory.
 <br>
-&nbsp;
 </p>
 <h3 class="1Heading"><a name="ExampleData"></a>Example Execution</h3>
 <div class="1Heading">The following shows an example execution of
 copying
-data from user "mark" to user "mark1".&nbsp; User input is shown in
+data from user "jdynina" to user "jdynina1". User input is shown in
 italics
 and bold. The program moves the ISC_Tool from mark to mark1.
-<p><tt>camper &gt; <b><i>moveGFEData -h polaris -p 98000000 -s mark -d
-mark1</i></b></tt>
+<p><tt>camper &gt; <b><i>moveGFEData  -s jdynina -d jdynina1 -w LWX</i></b></tt>
 </p>
-<p><tt>******************* MoveGFEData ******************</tt>
+<p><tt>19:14:18 moveGFEData.py INFO:  MoveGFEData from [jdynina] to [jdynina1]<br>
+******************* MoveGFEData ******************<br>
+SourceUser: jdynina<br>
+DestinationUser: jdynina1<br>
 <br>
-<tt>SourceUser: mark</tt>
-<br>
-<tt>DestinationUser: mark1</tt>
-</p>
-&lt;&gt;<tt>Enter type of data.&nbsp; Choose one of the options</tt>
-<br>
-<tt>0 - exit</tt>
-<br>
-<tt>1 - Color Tables</tt>
-<br>
-<tt>2 - Edit Areas (Reference Areas)</tt>
-<br>
-<tt>3 - Sample Sets</tt>
-<br>
-<tt>4 - Weather Element Groups</tt>
-<br>
-<tt>5 - Edit Area Groups</tt>
-<br>
-<tt>6 - GFE/ifpIMAGE Configurations</tt>
-<br>
-<tt>7 - Selection Time Ranges</tt>
-<br>
-<tt>8 - Smart Tools<br>
+Enter type of data.  Choose one of the options:<br>
+0 - exit<br>
+1 - Color Tables<br>
+2 - Edit Areas (Reference Areas)<br>
+3 - Sample Sets<br>
+4 - Weather Element Groups<br>
+5 - Edit Area Groups<br>
+6 - GFE/ifpIMAGE Configurations<br>
+7 - Selection Time Ranges<br>
+8 - Smart Tools<br>
 9 - Procedures<br>
 10 - Utilities<br>
 11 - Text Utilities<br>
 12 - Text Formatters<br>
-</tt><span style="font-family: monospace;">13 - Zone Combiner Saved
-Combos
-and Colors<br>
+13 - Zone Combiner Saved Combos and Colors<br>
 14 - Zone Combiner Combination Files<br>
-</span><b><i><tt>8</tt></i></b>
-<p><tt>***** Tools, Procedures, Utilities, Formatters *****</tt>
+8<br>
 <br>
-<tt>Current Inventory for User: mark</tt>
+***** Smart Tools *****<br>
+No files available to move</tt>
 <br>
-<tt>0.&nbsp; Exit</tt>
-<br>
-<tt>-1. ALL entries</tt>
-<br>
-<tt>1.&nbsp; SnowAmt_SmartTool</tt>
-<br>
-<tt>2.&nbsp; ISC_Tool</tt>
-<br>
-<tt>3.&nbsp; AdjustDown_wTaper</tt>
-<br>
-<tt>Enter number to move from mark to mark1</tt>
-<br>
-<b><i><tt>2</tt></i></b>
-<br>
-<tt>Current Inventory for User: mark</tt>
-<br>
-<tt>0.&nbsp; Exit</tt>
-<br>
-<tt>-1. ALL entries</tt>
-<br>
-<tt>1.&nbsp; SnowAmt_SmartTool</tt>
-<br>
-<tt>2.&nbsp; AdjustDown_wTaper</tt>
-<br>
-<tt>Enter number to move from mark to mark1</tt>
-<br>
-<b><i><tt>0</tt></i></b>
-<br>
-<tt>camper &gt;</tt></p>
 </div>
 </body>
 </html>

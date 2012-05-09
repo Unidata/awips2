@@ -18,9 +18,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+    	Date        DR#     Engineer   Description
+    	03/26/2012  12864   zhao       Changed CigVisTrendTimeout from 300 to 1800  
+     -->
 <ClimateTimeouts>
     <ClimateMetarTimeout>20</ClimateMetarTimeout>
     <WindRoseTimeout>20</WindRoseTimeout>
     <CigVisDistTimeout>90</CigVisDistTimeout>
-    <CigVisTrendTimeout>300</CigVisTrendTimeout>
+    <CigVisTrendTimeout>1800</CigVisTrendTimeout>
 </ClimateTimeouts>
