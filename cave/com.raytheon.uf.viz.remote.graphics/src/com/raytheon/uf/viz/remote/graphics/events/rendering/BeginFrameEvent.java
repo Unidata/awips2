@@ -19,14 +19,11 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
-import java.util.Arrays;
-
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 
 /**
  * Frame that specifies the begining of a new rendering sequence. EndFrameEvent
@@ -49,67 +46,10 @@ import com.raytheon.uf.viz.core.PixelExtent;
 public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
-    private double[] extent;
+    private IExtent extent;
 
     @DynamicSerializeElement
-    private int[] rgb;
-
-    /**
-     * @return the extent
-     */
-    public double[] getExtent() {
-        return extent;
-    }
-
-    /**
-     * @param extent
-     *            the extent to set
-     */
-    public void setExtent(double[] extent) {
-        this.extent = extent;
-    }
-
-    public void setIExtent(IExtent extent) {
-        if (extent != null) {
-            setExtent(new double[] { extent.getMinX(), extent.getMaxX(),
-                    extent.getMinY(), extent.getMaxY() });
-        }
-    }
-
-    public IExtent getIExtent() {
-        if (extent != null) {
-            return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
-        }
-        return null;
-    }
-
-    /**
-     * @return the rgb
-     */
-    public int[] getRgb() {
-        return rgb;
-    }
-
-    /**
-     * @param rgb
-     *            the rgb to set
-     */
-    public void setRgb(int[] rgb) {
-        this.rgb = rgb;
-    }
-
-    public void setColor(RGB color) {
-        if (color != null) {
-            rgb = new int[] { color.red, color.green, color.blue };
-        }
-    }
-
-    public RGB getColor() {
-        if (rgb != null) {
-            return new RGB(rgb[0], rgb[1], rgb[2]);
-        }
-        return null;
-    }
+    private RGB color;
 
     /*
      * (non-Javadoc)
@@ -123,11 +63,11 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
     public IRenderEvent createDiffObject(IRenderEvent event) {
         BeginFrameEvent diffEvent = (BeginFrameEvent) event;
         BeginFrameEvent diffObject = new BeginFrameEvent();
-        if (Arrays.equals(extent, diffEvent.extent) == false) {
+        if (extent.equals(diffEvent.extent) == false) {
             diffObject.extent = diffEvent.extent;
         }
-        if (Arrays.equals(rgb, diffEvent.rgb) == false) {
-            diffObject.rgb = diffEvent.rgb;
+        if (color.equals(diffEvent.color) == false) {
+            diffObject.color = diffEvent.color;
         }
         return diffObject;
     }
@@ -145,9 +85,39 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         if (event.extent != null) {
             this.extent = event.extent;
         }
-        if (event.rgb != null) {
-            rgb = event.rgb;
+        if (event.color != null) {
+            color = event.color;
         }
+    }
+
+    /**
+     * @return the extent
+     */
+    public IExtent getExtent() {
+        return extent;
+    }
+
+    /**
+     * @param extent
+     *            the extent to set
+     */
+    public void setExtent(IExtent extent) {
+        this.extent = extent;
+    }
+
+    /**
+     * @return the color
+     */
+    public RGB getColor() {
+        return color;
+    }
+
+    /**
+     * @param color
+     *            the color to set
+     */
+    public void setColor(RGB color) {
+        this.color = color;
     }
 
     /*
@@ -164,9 +134,15 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         if (getClass() != obj.getClass())
             return false;
         BeginFrameEvent other = (BeginFrameEvent) obj;
-        if (!Arrays.equals(extent, other.extent))
+        if (color == null) {
+            if (other.color != null)
+                return false;
+        } else if (!color.equals(other.color))
             return false;
-        if (!Arrays.equals(rgb, other.rgb))
+        if (extent == null) {
+            if (other.extent != null)
+                return false;
+        } else if (!extent.equals(other.extent))
             return false;
         return true;
     }

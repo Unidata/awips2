@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.collaboration.radar.mosaic;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
@@ -45,12 +44,12 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
 public class UpdateMosaicExtent extends AbstractDispatchingObjectEvent {
 
     @DynamicSerializeElement
-    private double[] extent;
+    private IExtent extent;
 
     /**
      * @return the extent
      */
-    public double[] getExtent() {
+    public IExtent getExtent() {
         return extent;
     }
 
@@ -58,22 +57,8 @@ public class UpdateMosaicExtent extends AbstractDispatchingObjectEvent {
      * @param extent
      *            the extent to set
      */
-    public void setExtent(double[] extent) {
+    public void setExtent(IExtent extent) {
         this.extent = extent;
-    }
-
-    public void setIExtent(IExtent extent) {
-        if (extent != null) {
-            setExtent(new double[] { extent.getMinX(), extent.getMaxX(),
-                    extent.getMinY(), extent.getMaxY() });
-        }
-    }
-
-    public IExtent getIExtent() {
-        if (extent != null) {
-            return new PixelExtent(extent[0], extent[1], extent[2], extent[3]);
-        }
-        return null;
     }
 
 }
