@@ -14,7 +14,7 @@ void flipflopsounding(float **inoutsndg, int nlev)
 	int i, j;
 
 	if (nlev >= MAXLEV) {
-	  fprintf(stderr, "WTF? flipflopsounding. nlev >= MAXLEV\n");
+	  fprintf(stderr, " flipflopsounding. nlev >= MAXLEV\n");
 	}
 
 	/* First copy stuff into temporary array */

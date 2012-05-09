@@ -1,4 +1,6 @@
 <!-- Special Weather Statement configuration -->
+<!-- Qinglu Lin              04-04-2012 DR 14691. Added <feAreaField> tag.
+-->
 <warngenConfig>
 
  <!-- Config distance/speed units -->
@@ -68,6 +70,7 @@
   <areaField>COUNTYNAME</areaField>
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
   <pointField>NAME</pointField>

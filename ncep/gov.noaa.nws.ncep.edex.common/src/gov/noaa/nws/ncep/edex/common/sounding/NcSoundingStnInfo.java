@@ -41,9 +41,11 @@ public class NcSoundingStnInfo implements  ISerializableObject{
 	@DynamicSerializeElement
     private float stationElevation;
     @DynamicSerializeElement
-    private float	stationLatitude;
+    //private float	stationLatitude;
+    private double	stationLatitude;
     @DynamicSerializeElement
-    private float	stationLongitude;
+    //private float	stationLongitude;
+    private double	stationLongitude;
     @DynamicSerializeElement
     private String stnId;
     @DynamicSerializeElement
@@ -67,16 +69,16 @@ public class NcSoundingStnInfo implements  ISerializableObject{
 	public void setStationElevation(float stationElevation) {
 		this.stationElevation = stationElevation;
 	}
-	public float getStationLatitude() {
+	public double getStationLatitude() {
 		return stationLatitude;
 	}
-	public void setStationLatitude(float stationLatitude) {
+	public void setStationLatitude(double stationLatitude) {
 		this.stationLatitude = stationLatitude;
 	}
-	public float getStationLongitude() {
+	public double getStationLongitude() {
 		return stationLongitude;
 	}
-	public void setStationLongitude(float stationLongitude) {
+	public void setStationLongitude(double stationLongitude) {
 		this.stationLongitude = stationLongitude;
 	}
 	public String getStnId() {

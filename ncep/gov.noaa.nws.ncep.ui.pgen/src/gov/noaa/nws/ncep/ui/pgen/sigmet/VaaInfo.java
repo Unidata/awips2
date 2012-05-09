@@ -29,7 +29,6 @@ import org.w3c.dom.*;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
 
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
@@ -45,6 +44,7 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
  * 01/10		#165		G. Zhang   	Initial Creation.
  * 07/11        #450        G. Hull     NcPathManager
  * 10/11        #?          J. Wu       Match "OBS" with "F00"
+ * 02/12		#481,2,3	B. Yin		Fixed VAA text output issues.
  *
  * </pre>
  * 
@@ -107,7 +107,7 @@ public class VaaInfo {
 	/**
 	 * the common words separator, used to divide words in a line of text
 	 */	
-	public static final String SEPERATER = SigmetAttrDlg.LINE_SEPERATER;
+	public static final String SEPERATER = SigmetInfo.LINE_SEPERATER;
 	
 	/**
 	 * message to be displayed when trying to open a non-drawable text element 
@@ -1179,8 +1179,8 @@ public class VaaInfo {
 					if(fhr == null) 
 						return sb.toString();
 					
-					if(fhr.contains(hour)){
-						String txt = getParsedTxt(fhr,fromLine, vac.getType());											
+					if(fhr.substring(0, 3).contains(hour)){
+						String txt = getParsedTxt(fhr,fromLine, vac.getType(), Integer.toString((int)(vac.getWidth()/PgenUtil.NM2M)));											
 
 						//OBS takes ONLY the first element if NotSeen is present
 						if( ! VaaInfo.LAYERS[2].equals(hour )
@@ -1211,7 +1211,7 @@ public class VaaInfo {
 	/**
 	 * helper method for calculating the OBS and FCST Ash cloud info
 	 */
-	private static String getParsedTxt(String fhr, String fline, String type){
+	private static String getParsedTxt(String fhr, String fline, String type, String lineWidth){
 		
 		if(type != null && type.contains(VaaInfo.TYPE_TEXT))
 			return getFcstTxtFromTextType(type);
@@ -1236,6 +1236,10 @@ public class VaaInfo {
 			
 		sb.append(" ");
 		
+		if ( type.contains("Line")){
+			sb.append( lineWidth);
+			sb.append( "NM WID LINE BTN ");
+		}
 		//---points of the ash cloud
 		
 		for(String s : txtFline){	
@@ -1369,8 +1373,10 @@ public class VaaInfo {
 		
 		//all txt should be the same except with {FL}
 		for(int i=0; i<values.length; i++){
-			if(values[i].equals(txt))
-				index = i;	
+			if(values[i].equals(txt)){
+				index = i;
+				break;
+			}
 			if( ! values[i].equals(txt) && values[i].contains(keyWord) && txt.contains(keyWord) ){
 				if( txt.substring( txt.indexOf(keyWord) ).equals( values[i].substring( values[i].indexOf(keyWord)))
 						&& txt.indexOf(keyWord) > 0 && values[i].indexOf(keyWord) > 0)//{FL}
@@ -1421,6 +1427,8 @@ public class VaaInfo {
 		String txt = texts[index];
 		
 		if(txt != null){
+			
+			if ( txt.contains("SFC/FL")) return disTxt;
 			
 			/* for text products with FL numbers, 
 			 * curly braces { } should always exist for the 

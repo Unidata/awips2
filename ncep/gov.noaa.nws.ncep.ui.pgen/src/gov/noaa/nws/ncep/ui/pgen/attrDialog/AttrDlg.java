@@ -363,7 +363,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
     		DrawableElement de = (DrawableElement)adc;
     		if("INTL_SIGMET".equals(pgenType)){ 
     			((SigmetAttrDlg)this).setSigmet(de);
-    			((Sigmet)de).copyEditableAttrToSigmetAttrDlg((SigmetAttrDlg)this);
+    			((SigmetAttrDlg)this).copyEditableAttrToSigmetAttrDlg((Sigmet)de);
     		}else if("VOLC_SIGMET".equals(pgenType)){
     			((VolcanoVaaAttrDlg)this).setVolcano(de);
     		}else if("VACL_SIGMET".equals(pgenType)){ 
@@ -376,7 +376,7 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
     			}			
 
     			((SigmetCommAttrDlg)this).setAbstractSigmet(de);
-    			((AbstractSigmet)de).copyEditableAttrToSigmetAttrDlg((SigmetCommAttrDlg)this);
+    			((SigmetCommAttrDlg)this).copyEditableAttrToSigmetAttrDlg((AbstractSigmet)de);
     		} 
     		else {
     			AttrDlg.de = de;

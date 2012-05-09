@@ -39,7 +39,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 05/28/10      #281       Greg Hull   fix bug drawing seld point
  * 01/05/11      #393       Archana     Added logic to find the nearest time-matched station
  * 09/21/11      #393       Archana     Changed the name of the table to ncuair 
- *                                      and updated the field names in the query string  
+ *                                      and updated the field names in the query string
+ * 02/16/12      #583       B. Hebbard  On upper air query from DB, only get stations where
+ *                                      "nil" flag is FALSE
  * </pre>
  * 
  * @version 1
@@ -194,7 +196,7 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     	//from other tables like the BUFRUA. Or pass a different query string altogether, if the field names vary as well.
     	queryString.append("select reftime, latitude, longitude, stationId from ");    	
      	queryString.append(UPPER_AIR_TABLE);
-  		queryString.append(";");
+  		queryString.append(" where nil=FALSE ;");
   		try {
   			/*execute the query*/
   			List<Object[]>  results = new ArrayList<Object[]>(DirectDbQuery.executeQuery(queryString.toString(), 
@@ -352,20 +354,3 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
         return isFound;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
