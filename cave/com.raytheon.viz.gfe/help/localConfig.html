@@ -10,7 +10,7 @@
 <body bgcolor="#ffffff">
 <div class="Body">
 <h1>localConfig.py - Local Server Database Configuration</h1>
-July 24, 2007<br>
+December 30, 2011<br>
 <br>
 <br>
 Table of Contents
@@ -93,17 +93,16 @@ Elements</a>
 <h1><a name="Overview"></a>Overview</h1>
 <div class="Body">The localConfig.py file is one of several
 configuration
-files for the ifpServer (common database server).&nbsp; The localConfig
+files for GFE. The localConfig
 file is optional, and is not provided with the install or
-release.&nbsp;
-It is added by the field site to override certain features of the
-ifpServer
+release.
+It is added by the field site to override certain features of the GFE
 database configuration that are defined in the <a
  href="serverConfig.html">serverConfig.py</a>
 file.&nbsp; <b><font color="#ff0000">You should NEVER change the
 original
 serverConfig.py since your changes will be overwritten with the next
-upgrade.&nbsp;
+upgrade.
 See the <a
  href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
 configuration overview</a> for information on how to make changes that
@@ -111,9 +110,9 @@ are supported to the server.</font></b>
 <p>The localConfig.py file can be used to override many of the
 definitions
 in <a href="serverConfig.html">serverConfig.py</a>, but not all of
-them.&nbsp;
+them.
 This document will describe what you can, and what you cannot
-override.&nbsp;
+override.
 If you need to override an element that is not supported by
 localConfig.py
 or <a href="localWxConfig.html">localWxConfig.py</a>, then refer to
@@ -134,15 +133,13 @@ of modifying map definitions</a> to do this.</font>
 localConfig.py
 File</h1>
 If you want to make changes to the server database definitions, then
-you
-will want to add your own localConfig.py file.&nbsp; Refer to the <a
+you will want to add your own localConfig.py file. Refer to the <a
  href="serverConfiguration.html#LocationofFiles">server
-configuration overview file location section</a>&nbsp; for details on
-where
-the localConfig.py file should be located.
+configuration overview file location section</a> for details on
+where the localConfig.py file should be located.
 <p>The first lines of the localConfig.py <i>must</i> have the
 following
-format.&nbsp; Failure to do so will not let you refer to any of the
+format. Failure to do so will not let you refer to any of the
 definitions
 in serverConfig.py:
 </p>
@@ -151,11 +148,11 @@ in serverConfig.py:
 <tt>import serverConfig</tt>
 </p>
 <p>The syntax appearing in localConfig.py varies depending whether you
-are adding new definitions, or changing existing definitions.&nbsp;
+are adding new definitions, or changing existing definitions.
 Typically
 when changing existing definitions you will need to prefix the
 serverConfig
-to the name of the variable.&nbsp; For example,
+to the name of the variable. For example,
 </p>
 <p><tt>var = (a,b,c,d)</tt> refers to a local copy of this definition
 and
@@ -172,18 +169,10 @@ editor.
 </p>
 <hr width="100%">
 <h1><a name="Testing"></a>Testing Your localConfig.py File</h1>
-The recommended way to test your localConfig.py file is to run the
-ifpServer
-with the -n switch.&nbsp; The -n switch indicates "no run".&nbsp; The
-server
-will start, read in all of the configuration files, and if there are no
-syntax errors, will report that fact and exit.&nbsp; If there are
-errors,
-you will be directed to the log file where the syntax errors will be
-shown.&nbsp;
-The ifpServer -n may be run when the primary ifpServer is running;
-i.e.,
-there is no need to shut it down first.
+The recommended way to test your localConfig.py file is to start 
+EDEX while running a tail command on the /awips2/edex/logs/edex-request-date.log. 
+If no exceptions result from the changes, you should be fine to proceed into GFE 
+for further testing. 
 <p></p>
 <hr width="100%">
 <h1><a name="WhatcanyoucontrolfromyourcustomlocalConfig"></a>What
@@ -659,7 +648,7 @@ then the second line needs to be modified to be in this format:
 </p>
 <p><tt>parms = [([parm1, parm2, parm3], tc1)]</tt>
 </p>
-<p>&nbsp;If you choose to add multiple parms using different time
+<p>If you choose to add multiple parms using different time
 constraints,
 then the second line needs to be modified to be in this format:
 </p>
@@ -981,11 +970,7 @@ Local211))</tt>
 <p>Note that when changing a projection, you will also be changing the
 AWIPS world coordinate systems as defined.&nbsp; This can result in a
 distorted
-map background.&nbsp; You may have to use the <a
- href="coordConversion.html">coordConversion</a>
-program to help determine your new world coordinates to use in the
-SITES
-line.
+map background.
 </p>
 <p><a href="EXAMPLElocalConfigProjection.py">Example localConfig.py file</a>
 <br>
@@ -994,10 +979,9 @@ line.
 <h1><a name="ModifyanexistingProjection"></a>Modify an existing
 Projection</h1>
 <font color="#000000">Modifying an existing projection is not
-supported.&nbsp;
-Attempts to do so will result in the ifpServer aborting on startup.</font>
+supported.
+Attempts to do so will result in EDEX failing to initialize GFE successfully.</font>
 <br>
-&nbsp;
 <p></p>
 <hr width="100%">
 <h1><a name="RemoveaProjection"></a>Remove a Projection</h1>
@@ -1028,7 +1012,6 @@ section of serverConfig.py</a>.
 following
 characteristics:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -1510,85 +1493,31 @@ models
 that you wish to use in the GFE.&nbsp; The entry in <a
  href="serverConfig.html#D2DModelFileDirectories">serverConfig.py</a>
 can be overriden using the following syntax:
-<p><tt>serverConfig.D2DDIRS = ['directory1', 'directory2', 'directory3']</tt>
+<p><tt>serverConfig.D2DMODELS = [('directory1', 'model')]</tt>
 </p>
 <p>This definition will completely override the one in <a
  href="serverConfig.html#D2DModelFileDirectories">serverConfig.py</a>
 so you will probably want to include those original definitions.
 </p>
-<p>Here is an example of adding an additional XYZ model on
-projection
-CONUS211 (refer to the last line):
+<p>Here is an example of adding an SREF model on
+projection SREF12:
 </p>
-<p><tt>serverConfig.D2DDIRS </tt><tt>=
-[('/data/fxa/Grid/SBN/netCDF/CONUS212/GFS', 'GFS40'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/CONUS211/Eta', 'NAM80'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/CONUS211/NGM', 'NGM80'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/CONUS202/MRF', 'gfsLR'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/CONUS211/RUC', 'RUC80'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/CONUS212/MesoEta', 'NAM40'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/CONUS215/MesoEta', 'NAM20'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-'/data/fxa/Grid/FSL/netCDF/MSAS',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/FSL/netCDF/LAPS_Grid/LAPS', 'LAPS'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-'/data/fxa/Grid/SBN/netCDF/REG233/GWW',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-'/data/fxa/Grid/SBN/netCDF/GRID218/HPCQPF',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-'/data/fxa/Grid/SBN/netCDF/CONUS215/HPCdelta',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-'/data/fxa/Grid/SBN/netCDF/LATLON/GLERL',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-'/data/fxa/Grid/SBN/netCDF/GRID238/GWW',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-'/data/fxa/Grid/SBN/netCDF/CONUS226/TPCtcm',<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/GRID218/Eta', 'NAM12'),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-('/data/fxa/Grid/SBN/netCDF/CONUS211/XYZ', 'XYZ')]<br>
-<br>
-<br>
+<p><tt>serverConfig.D2DMODELS = [('SREF212', 'SREF')]<br>
 </tt></p>
 <p><span style="color: rgb(255, 0, 0);">Note that overridding the
-complete D2DDIRS is not recommended</span>, since you will
+complete D2DMODELS is not recommended</span>, since you will
 miss baseline updates with each release. Instead, you should use the
-append feature to simply add a new entry
-without
+append feature to simply add a new entry without
 modifying existing entries as:
 </p>
-<p><tt>serverConfig.D2DDIRS.append(('/data/fxa/Grid/SBN/netCDF/CONUS212',
-'NAM20'))</tt>
+<p><tt>serverConfig.D2DDIRS.append(('CONUS212', 'NAM20'))</tt>
 </p>
-<p>Note that in the above definitions, that some of the lines contain
-tuples, and others simply contain a directory name. There is another
-format for D2DDIRS that can be used to "change" the
-model name seen by the ifpServer. Normally the model name is taken from
-the "model" netCDF variable, but if a conflict occurs you will not see
-all of the models. The alternative form of each entry in the D2DDIRS is
-a tuple consisting of the directory name and the overridden model name.
-Thus, if you wanted to add the NAM12 model, but its model variable says
-ETA, it will conflict with the CONUS211/ETA. You can force the model
-name
-to NAM12 using a syntax like this:
-</p>
-<p><tt>serverConfig.D2DDIRS.append(('/data/fxa/Grid/SBN/netCDF/GRID218/Eta',
-'NAM12'))</tt>
-</p>
-<p><font color="#ff0000">Note that the ifpServer simply cannot see and
-intrepret every type of netCDF file in existance.&nbsp; Even if the
-netCDF
+<p><font color="#ff0000">Note that GFE simply cannot see and
+intrepret every type of hdf5 file in existance. Even if the hdf5
 files are D2D-displayable, there may be some missing information in the
-files that make the ifpServer ignore the file.&nbsp; Refer to the <a
- href="ifpServerNETCDF.html">ifpServer
-netCDF format requirements document</a> for more details.</font>
+files that make GFE ignore the file. Refer to the <a
+ href="edexHDF5.html">EDEX
+hdf5 format requirements document</a> for more details.</font>
 </p>
 <p><a href="EXAMPLElocalConfigD2DDir.py">Example localConfig file</a>
 <br>
@@ -1597,67 +1526,41 @@ netCDF format requirements document</a> for more details.</font>
 <h1><a name="SATDIRS"></a>Modifying
 the list of D2D Directories for satellite data access</h1>
 The standard list of D2D directories for satellite access may not
-include all of the D2D directories&nbsp;
+include all of the D2D directories
 that you wish to use in the GFE, or may contain weather element names
-that are not desirable.&nbsp; The entry in <a
+that are not desirable. The entry in <a
  href="serverConfig.html#SATDIRS">serverConfig.py</a>
 can be overriden using the following syntax:
-<p><tt>serverConfig.SATDIRS = [('directory1', 'weather element name
+<p><tt>serverConfig.SATDATA = [('directory1', 'weather element name
 1'), ('directory2', 'weather element names 2')]</tt>
 </p>
 <p>This definition will completely override the one in <a
  href="serverConfig.html#SATDIRS">serverConfig.py</a>
 so you will probably want to include those original definitions.
 </p>
-<p>Here is an example of redefining the complete list of SATDIRS; this
+<p>Here is an example of redefining the complete list of SATDATA; this
 technique is not the best, since you will miss updates to serverConfig
 and is not recommended:<br>
 </p>
-<p><tt>serverConfig.SATDIRS =
-[("/data/fxa/sat/SBN/netCDF/westCONUS/conus_vis", "visibleWest"),<br>
+<p><tt>serverConfig.SATDATA =
+[("NESDIS/GOES-13(N)/East CONUS/Imager Visible", "visibleWest"),<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_i11", "ir11West"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_i12", "ir13West"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_i39", "ir39West"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/westCONUS/conus_iwv", "waterVaporWest"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_vis", "visibleCentral"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_i11", "ir11Central"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_i12", "ir13Central"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_i39", "ir39Central"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/conusC/conus_iwv", "waterVaporCentral"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_vis", "visibleEast"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_i11", "ir11East"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_i12", "ir13East"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_i39", "ir39East"),<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-("/data/fxa/sat/SBN/netCDF/eastCONUS/conus_iwv", "waterVaporEast")]<br>
-</tt><tt><br>
-</tt></p>
+("NESDIS/GOES-13(N)/East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]<br>
+</tt><br>
+</p>
 <p>You can also use the append feature to simply add a new entry
 without
 modifying existing entries as:
 </p>
-<p><tt>serverConfig.SATDIRS.append(('/data/fxa/sat/SBN/netCDF/alaska/akBig_i11','ir11'))</tt>
+<p><tt>serverConfig.SATDATA.append(("NESDIS/GOES-13(N)/East CONUS/Imager 3.9 micron IR", "ir39East"))</tt>
 </p>
-<font color="#ff0000">Note that the ifpServer simply cannot see and
-intrepret every type of satellite netCDF file in existance.&nbsp; Even
-if the satellite netCDF
+<font color="#ff0000">Note that GFE simply cannot see and
+intrepret every type of satellite hdf5 file in existance. Even
+if the satellite hdf5
 files are D2D-displayable, there may be some missing information in the
-files that make the ifpServer ignore the file.&nbsp; Refer to the <a
- href="ifpServerSatelliteNETCDF.html">ifpServer
-satellite netCDF format requirements document</a> for more details.</font>
+files that make GFE ignore the file. Refer to the <a
+ href="edexHDF5.html">EDEX
+satellite hdf5 format requirements document</a> for more details.</font>
 <p></p>
 <p><a href="EXAMPLElocalConfigSATDIR.py">Example localConfig file</a></p>
 <p><br>
@@ -1666,10 +1569,8 @@ satellite netCDF format requirements document</a> for more details.</font>
 <h2><a name="D2DVersion"></a>D2D Model Database Version Specification</h2>
 You can override the default number of retained (available) D2D
 model versions through localConfig.py. This can also be used to define
-the number of D2D Satellite images that can be seen through the
-ifpServer.
-&nbsp; Further information, including
-restrictions,
+the number of D2D Satellite images that can be seen through GFE.
+Further information, including restrictions,
 is provided in the <a href="serverConfig.html#D2DVersion">serverConfig.py
 D2D Model Database Version Specification section</a>. The format to
 override all entries (not recommended) is:
@@ -1764,7 +1665,8 @@ The format is:
 </p>
 <p>Example of adding a new initialization module for LAPS, which we
 assume
-that a user has created a LAPS.py and placed it into <i>release</i>/etc/SITE:
+that a user has created a LAPS.py and placed it into 
+<i>/awips2/edex/data/utility/edex_static/site/SITE_ID/smartinit</i>:
 </p>
 <p><tt>serverConfig.INITMODULES["LAPS] = ["LAPS"]</tt>
 </p>
@@ -1835,67 +1737,13 @@ You may override the serverConfig.py's definition of the number of days
 to keep the GFESuite logs with this syntax:
 <p><tt>serverConfig.LOG_FILE_PURGE_AFTER = 6</tt>
 <br>
-&nbsp;
 </p>
 <p></p>
-<hr width="100%">
-<h2><a name="Processes"></a>Modifying the Number of Simultaneous Smart
-Init
-Processes</h2>
-You may override the serverConfig.py's definition of the maximum number
-of simultaneous smart initialization processes with this syntax:
-<p><tt>serverConfig.MAX_INIT_PROCESSES = 1<br>
-</tt></p>
-<hr width="100%">
-<h2><a name="backgroundtasks"></a>Modifying the Number of Simultaneous
-Background Tasks<br>
-</h2>
-You may override the serverConfig.py's definition of the maximum number
-of simultaneous background tasks with this syntax:
-<p><tt>serverConfig.MAX_USER_BACKGROUND_PROCESSES = 1</tt>
-</p>
-<p>Background tasks are those submitted by the Graphical Forecast
-Editor to run on the ifpServer.&nbsp; Note that a user can always force
-a task to be started through a special command, even if the number of
-current processes exceed the maximum allowed.<br>
-</p>
-<p></p>
-<p></p>
-<hr width="100%">
-<h2><a name="ProductPurge"></a>Modifying the Number of Hours to Keep
-Product
-Files</h2>
-<p><br>
-You may override the serverConfig.py's definition of the number
-of hours to keep generated product files with this syntax:
-</p>
-<p><tt>serverConfig.PROD_FILE_PURGE_AFTER = 6</tt>
-</p>
-<p></p>
-<hr width="100%">
-<h2><a name="DFC"></a>Enabling Daily Forecast Critique, or Disabling
-Daily
-Forecast Critique</h2>
-The update frequency of the Daily Forecast Critique data collection
-programs
-may be overridden using the following syntax:
-<p><tt># defines the update frequency in minutes of Daily Forecast
-Critique</tt>
-<br>
-<tt># set to 0 to disable DFC</tt>
-<br>
-<tt>serverConfig.DFC_UPDATE_INTERVAL = 10</tt>
-</p>
-<p>The DFC capability may be disabled by setting the update interval to
-0.&nbsp; It is recommended to keep the update interval in the range of
-15-30 minutes.
-</p>
 <hr width="100%">
 <h2><a name="ExtraPrecision"></a>Defining Extra Precision for Certain
 Weather
 Elements</h2>
-Weather Elements are stored in their specified precision in the
-ifpServer,
+Weather Elements are stored in their specified precision in GFE,
 thus if you have the precision set to 0 for a weather element, it will
 effectively be stored as integers.&nbsp; Sometimes you might want
 additional
@@ -1999,28 +1847,21 @@ modify entries, rather than redefining the entire dictionary.<br>
 <h2><a name="NotifyTextProd"></a>Automatic Configuration of
 NotifyTextProd</h2>
 NotifyTextProd is a AWIPS D2D process that routes certain text
-bulletins to the VTECDecoder.&nbsp; In pre-OB6 AWIPS systems, the
-pattern file was static and "wide open" to warnings throughout the
-country.&nbsp;&nbsp; For performance reasons, in OB6 and later versions
-of AWIPS, the pattern file is automatically created upon ifpServer
-startup and is customized to the configured site.&nbsp;&nbsp; This
+bulletins to the VTECDecoder. The pattern file is automatically created when GFE
+is loaded in EDEX and is customized to the configured site. This
 reduces the amount of traffic being sent to the VTECDecoder by 90%.<br>
 <br>
 Due to the staging of the GFESuite and AWIPS softwares, a configuration
-item is required to tell the ifpServer to begin generating the custom
-pattern file.&nbsp; This is done through a simple localConfig.py
+item is required to tell GFE to begin generating the custom
+pattern file. This is done through a simple localConfig.py
 addition:<br>
 <br>
 <span style="font-weight: bold; font-family: monospace;">serverConfig.AUTO_CONFIGURE_NOTIFYTEXTPROD
 = 1</span><br>
 <br>
-<span style="font-weight: bold; color: rgb(255, 0, 0);">Change the
-above variable only after you have installed OB6 or performance
-concerns or missing warning data may occur!</span><br>
 <hr style="width: 100%; height: 2px;">
 <h2><span style="font-weight: bold;"><a name="ISC"></a></span>Intersite
 Coordination Grids Configuration
-&nbsp;
 </h2>
 The Intersite Coordination Grids configuration can be overridden in the
 localConfig.py file.&nbsp; <br>
@@ -2035,7 +1876,7 @@ value, use this syntax:<br>
 <span style="font-family: monospace;">serverConfig.ISC_ROUTING_TABLE_ADDRESS
 = "http://exampleurl.nws.noaa.gov"</span><br>
 <h3>Requested ISC Sites</h3>
-The default is to have the ifpServer calculate the list of sites to
+The default is to have EDEX calculate the list of sites to
 request ISC data from based on the generated ISC_xxx edit
 areas.&nbsp;&nbsp; This is accomplished by setting the value to None.
 If you wish to override this value, then use this syntax:<br>
@@ -2047,9 +1888,9 @@ Be sure to always include your own site; if you don't you won't see
 your own ISC data in the ISC database.<br>
 <br>
 <h3>Request ISC</h3>
-Setting the value to 0 disables the request of ISC data and the
-ifpServer will not register with the ISC Routing Table Web
-Server.&nbsp;&nbsp; To enable the reception of ISC data, you use this
+Setting the value to 0 disables the request of ISC data and
+EDEX will not register with the ISC Routing Table Web
+Server. To enable the reception of ISC data, you use this
 syntax in the localConfig.py file:<br>
 <br>
 <span style="font-family: monospace;">serverConfig.REQUEST_ISC = 1</span><br>
@@ -2072,7 +1913,7 @@ data is stored to the publish database.<br>
 = 1</span><br>
 <br>
 <h3>Requested ISC Parms</h3>
-The default is to have the ifpServer calculate the list of weather
+The default is to have EDEX calculate the list of weather
 elements to be requested from the list of available weather elements in
 the Fcst database. This is denoted by setting the variable to None.
 &nbsp; The site can override this and specify a list of weather

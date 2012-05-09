@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NsharpConfigStore xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <graphProperty tempOffset="0" windBarbDistance="400" windBarb="true" corfidiV="false" omega="true" smvBunkersL="true" smvBunkersR="true" smv1585="false" smv3075="false" meanWind="true" hodo="true" cloud="false" effLayer="true" moistAdiabat="false" dryAdiabat="true" mixratio="false" wetBulb="true" vTemp="true" parcel="true" dewp="true" temp="true"/>
+    <linePropertyMap>
+        <Line lineName="Compare 6">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {0, 255, 255}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 5">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 215, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 4">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {30, 144, 255}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Icing EPI">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 0, 255}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 3">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {155, 0, 220}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Wind Barb">
+            <lineProperty lineWidth="1" lineStyle="SOLID">
+                <lineColor>RGB {255, 255, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Icing RH">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {0, 255, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 9">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {0, 139, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 8">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {139, 0, 139}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 7">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {139, 71, 38}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 10">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {144, 238, 144}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Overlay 2">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {0, 255, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Temperature">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 0, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Overlay 1">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 0, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Turbulence WindShear">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 174, 185}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 2">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {0, 255, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Compare 1">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 0, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Icing Temp">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 0, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Wetbulb">
+            <lineProperty lineWidth="1" lineStyle="SOLID">
+                <lineColor>RGB {0, 255, 255}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Turbulence Ln">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {255, 0, 255}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Virtual Temp">
+            <lineProperty lineWidth="2" lineStyle="SHORT_DASHED">
+                <lineColor>RGB {255, 0, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Dew Point">
+            <lineProperty lineWidth="2" lineStyle="SOLID">
+                <lineColor>RGB {0, 255, 0}</lineColor>
+            </lineProperty>
+        </Line>
+        <Line lineName="Parcel">
+            <lineProperty lineWidth="1" lineStyle="SHORT_DASHED">
+                <lineColor>RGB {255, 250, 250}</lineColor>
+            </lineProperty>
+        </Line>
+    </linePropertyMap>
+</NsharpConfigStore>

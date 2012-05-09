@@ -41,9 +41,9 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
-import gov.noaa.nws.ncep.ui.pgen.elements.County;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchBoxModifyTool;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 

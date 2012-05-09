@@ -50,6 +50,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 16, 2010            bfarmer     Initial creation
+ * Apr 09, 2012 DR14765    mhuang      Map out correct CCCC site ID for backup
+ *                                      sites.
  * 
  * </pre>
  * 
@@ -142,7 +144,7 @@ public class SiteMap {
                 LocalizationLevel.SITE);
         file = pathMgr.getFile(lc, AFOS_LOOKUP_FILENAME);
         loadAfosLookupFile(file, siteToSiteMap);
-
+        
         // load national category
         lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
                 LocalizationLevel.BASE);
@@ -325,6 +327,19 @@ public class SiteMap {
         // if site not found default to K
         if (site == null) {
             site = "K" + site3LetterId;
+        } else { 
+        	// DR_14765, in case the site hashed out from combined mapping
+        	// table from both national_category_table and afo_lookup_table 
+        	// does not start with K but not from site3LetterTo4LetterOerride.dat
+        	// which are starting with P or T
+        	char[] siteChar = site.toCharArray();
+        	if (siteChar[0] != 'K') {
+        		if (!((siteChar[0] == 'P' && (siteChar[1] == 'A' || siteChar[1] == 'G'
+        			|| siteChar[1] == 'H')) ||
+        				(siteChar[0] == 'T' && siteChar[1] == 'S'))) {
+            		site = "K" + site3LetterId;       			
+        		}
+        	}
         }
 
         return site;

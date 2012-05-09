@@ -11,16 +11,14 @@
  vlink="#551a8b">
 <h1><a class="mozTocH1" name="mozTocId714819"></a>
 Intersite and Intrasite Coordination of Grids</h1>
-September 28, 2008<br>
+February 14, 2012<br>
 <p>This documentation covers the theory of operation, configuration,
 and
-how-to-use the intersite/intrasite&nbsp; coordination of grids feature
-in GFESuite.&nbsp; The purpose of this software is to provide access to
+how-to-use the intersite/intrasite coordination of grids feature
+in GFESuite. The purpose of this software is to provide access to
 forecast data from adjacent sites for purposes of determining whether
-forecast
-inconsistencies exist.
+forecast inconsistencies exist.
 <br>
-&nbsp;
 </p>
 <h1><a class="mozTocH1" name="mozTocId57578"></a>Table of Contents</h1>
 <ul id="mozToc">
@@ -30,7 +28,7 @@ Intersite/Intrasite
 Coordination of Grids</a>
     <ul>
       <li><a href="#mozTocId19624">Configuring the AWIPS system</a></li>
-      <li><a href="#mozTocId90239">Sending Intersite
+      <li><a href="#SendingGrids">Sending Intersite
 Coordination
 Grids</a></li>
       <li><a href="#mozTocId892241">Accessing
@@ -40,7 +38,7 @@ Data</a><br>
       </li>
       <li><a href="#mozTocId657158">Log
 files for Intersite Coordination</a></li>
-      <li><a href="#mozTocId438682">ifpServer
+      <li><a href="#mozTocId438682">EDEX
 Storage of ISC Grids</a></li>
       <li><a href="#mozTocId973373">Mosaic
 Technique</a>
@@ -62,44 +60,31 @@ Configurations</a></li>
 Intersite/Intrasite
 Coordination of Grids</h1>
 Beginning with OB8.3, the configuration of Intersite/Intrasite
-coordination is done automatically through a central server.&nbsp; The
+coordination is done automatically through a central server. The
 receiving site determines what data is desired and registers with a
-central server for what is needed.&nbsp; As each other ifpServer
+central server for what is needed. As each EDEX server
 prepares to send ISC data, it checks with the central server to find
 out the destinations.<br>
 <br>
 All of your configuration needed to set up ISC is done through the
-serverConfig/localConfig route.&nbsp; Refer to <a
+serverConfig/localConfig route. Refer to <a
  href="serverConfig.html#ISC">Intersite Coordination Configuration Items</a>
 for details.<br>
-&nbsp;
 <br>
 <p></p>
 <hr width="100%">
 <h2><a class="mozTocH2" name="mozTocId19624"></a><a
  name="HPConfiguration"></a>Configuring the AWIPS system</h2>
 The AWIPS WAN configuration is more complicated than the GFE
-configuration.&nbsp;
+configuration.
 Several
 scripts are installed and several directories are created, the AWIPS
 message
 handler receive table is modified if
 necessary.
-<p>A separate installation script called <b>installISC<font size="+1">
-</font></b>is
-provided on the distribution CD in the file <b>isc.tar.gz</b>. The
-script<font size="+1">
-</font>performs
-most of the necesssary setup tasks on the AWIPS MHS data server.&nbsp;
-Refer to the <a href="README.html">release notes</a> for details on
-installing
-the intersite coordination package on AWIPS.&nbsp;
-</p>
-<p>Once the <b>installISC</b> is installed, your site will be able to
+<p>Once AWIPS is installed, your site will be able to
 transmit
-grids to your configured adjacent sites.&nbsp; <br>
-&nbsp;&nbsp;
-&nbsp;
+grids to your configured adjacent sites.<br>
 <br>
 </p>
 <h2><br>
@@ -121,63 +106,62 @@ each time you save data.<br>
 the Intersite Coordination Data</h2>
 The intersite coordination data is placed in a singleton database with
 the name of xxx_GRID__ISC_00000000_0000, where xxx is your site
-identifier.&nbsp;
+identifier.
 The database will appear in the <a
  href="MainMenuDialogs.html#WEBrowserDialog">WE
-Volume Browse</a>r and hence weather elements can be loaded and
-displayed.&nbsp;
+Volume Browser</a> and hence weather elements can be loaded and
+displayed.
 The user may also write smart tools to provide consistency checkers if
-desired.&nbsp; Refer to the <a href="ISC.html">Intersite Coordination
+desired. Refer to the <a href="ISC.html">Intersite Coordination
 Training
 Guide</a> for more details on how the GFE operates with ISC data.<br>
 <br>
 Data you receive from office types (e.g., wfo, rfc) different from your
 own are renamed with the receiving office type appended to the
-name.&nbsp;&nbsp; For example, if QPF data is sent from a RFC to a WFO,
+name. For example, if QPF data is sent from a RFC to a WFO,
 then the data appears in the WFO's ISC database as QPFrfc.<br>
 <br>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="OfficeTypes"></a>Office Types and their Effect on ISC Data</h2>
 The <a href="serverConfi.html#GridDomainConfiguration">serverConfig</a>
-file defines each site's domain and office type.&nbsp;&nbsp; The
-commonly used office types in the NWS are "wfo" and "rfc".&nbsp;&nbsp;
+file defines each site's domain and office type. The
+commonly used office types in the NWS are "wfo" and "rfc".
 Requesting and receiving data from an office type that differs from
 your own office type will cause the weather element to be renamed upon
 storage into your ISC database.<br>
 <br>
 The following picture illustrates the sending of ISC from a WFO to a
-WFO and RFC.&nbsp; In the originating site's Fcst database is an
-element called QPF.&nbsp;&nbsp; Sites that want this data via ISC will
-register with the IRT and specify the weather element.&nbsp; For WFOs
+WFO and RFC. In the originating site's Fcst database is an
+element called QPF. Sites that want this data via ISC will
+register with the IRT and specify the weather element. For WFOs
 who want this data, they will request the QPF weather element, since
-the sender and receiver site office types are the same.&nbsp;&nbsp; For
+the sender and receiver site office types are the same. For
 RFCs who want this data, they will request the QPFwfo weather element,
-since the server and receiver site office type are different.&nbsp; The
+since the server and receiver site office type are different. The
 weather elements are renamed as they arrive into a site with a
-different office type than the sender.&nbsp; The office type is
+different office type than the sender. The office type is
 appended to the weather element name, but prior to the level
-indicator.&nbsp; For example, QPF_SFC (SFC-surface) becomes QPFwfo_SFC
-when received at an RFC.&nbsp;&nbsp; The list of weather elements to
+indicator. For example, QPF_SFC (SFC-surface) becomes QPFwfo_SFC
+when received at an RFC. The list of weather elements to
 request from other sites is defined in the <a
  href="serverConfig.html#ISC">ISC_REQUESTED_PARMS</a> variable in
-serverConfig/localConfig.&nbsp;&nbsp; For a WFO to receive QPF from
-another WFO, QPF needs to be part of this variable.&nbsp;&nbsp; For a
+serverConfig/localConfig. For a WFO to receive QPF from
+another WFO, QPF needs to be part of this variable. For a
 RFC to receive QPF from a WFO, QPFwfo needs to be part of the variable.<br>
 <br>
 The default list of weather elements to be requested will include all
-weather elements defined in the ISC database.&nbsp; If is also
+weather elements defined in the ISC database. If is also
 necessary to add the weather element to the ISC database if not already
 defined by the <a href="serverConfig.html#ISC">EXTRA_ISC_PARMS</a>
-entry in serverConfig.&nbsp; Adding the element to the ISC database is
+entry in serverConfig. Adding the element to the ISC database is
 through the <a href="localConfig.html#ISC">extraISCparms</a> entry in
 localConfig.<br>
 <br>
-<img style="width: 768px; height: 576px;" alt=""
- src="images/WFOsending.png"><br>
+<img style="width: 768px; height: 576px;" alt="" src="images/WFOsending.png"><br>
 The following illustration shows the RFC sending QPF vis ISC to both
-WFOs and RFCs.&nbsp;&nbsp; Again, the weather element is renamed when
+WFOs and RFCs. Again, the weather element is renamed when
 it is received at a site of a different office type than the sender, in
-this case the WFO.&nbsp; QPF is renamed to QPFrfc for the wfos and
+this case the WFO. QPF is renamed to QPFrfc for the wfos and
 remains QPF for RFCs.<br>
 <br>
 <img style="width: 768px; height: 576px;" alt=""
@@ -190,12 +174,11 @@ files for Intersite Coordination</h2>
 The Intersite Coordination facility runs on two different machines
 (linux
 and the AWIPS data servers), and uses several different
-processes.&nbsp;
+processes.
 This can make it difficult to determine whether the software is working
-properly.&nbsp; This section outlines the location and contents of the
+properly. This section outlines the location and contents of the
 log files pertaining to the intersite coordination.
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -205,16 +188,27 @@ log files pertaining to the intersite coordination.
       <td><b>File Name or Directory Name</b></td>
     </tr>
     <tr>
+      <td>irtServer</td>
+      <td>dx3/dx4</td>
+      <td>Logs for connectivity with the irt server - check this log if ISC grids are 
+      not being received to ensure the system can connect and configured correctly based
+      on the argument list.</td>
+      <td><b><i>release</i></b>/logs/<b><i>SITE/DATEDIR</i></b>/irtServer*,
+where release is the installation directory, typically
+/awips2/GFESuite
+for AWIPS.</td>
+    </tr>
+    <tr>
       <td>iscExtract</td>
-      <td>dx4</td>
+      <td>dx3/dx4</td>
       <td>Main routine run on linux when sending isc grids. Lists time
 sent,
 number of bytes sent, wall clock time, cpu time, sites data sent to,
 time
 range of data, and weather elements.</td>
-      <td><b><i>release</i></b>/data/logfiles/<b><i>DATEDIR</i></b>/iscExtract*,
+      <td><b><i>release</i></b>/logs/<b><i>SITE/DATEDIR</i></b>/iscExtract*,
 where release is the installation directory, typically
-/awips/GFESuite/primary
+/awips2/GFESuite
 for AWIPS.</td>
     </tr>
     <tr>
@@ -224,34 +218,33 @@ for AWIPS.</td>
 file received
 (which contains the site identifier that sent the data), the size in
 bytes,
-and to which ifpServer (host/port) the data was sent to for further
+and to which EDEX or ifpServer (host/port) the data was sent to for further
 processing</td>
-      <td><span style="font-weight: bold; font-style: italic;">release</span>/data/logfiles/<b><span
- style="font-style: italic;">DATEDIR</span></b>/iscDataRec*</td>
+      <td><span style="font-weight: bold; font-style: italic;">release</span>/logs/<b><span
+ style="font-style: italic;">SITE/DATEDIR</span></b>/iscDataRec*</td>
     </tr>
     <tr>
       <td>ifpnetCDF</td>
-      <td>dx4</td>
-      <td>Program that extracts data from the ifpServer and writes it
+      <td>dx3/dx4</td>
+      <td>Program that extracts data from EDEX and writes it
 to a compressed
-netCDF file.&nbsp; Raw file and compressed file sizes are listed.
+netCDF file. Raw file and compressed file sizes are listed.
 Number
 of grids processed per weather element is output.</td>
-      <td><b><i>release</i></b>/data/logfiles/<b><i>DATEDIR</i></b>/ifpnetCDF*,
+      <td><b><i>release</i></b>/logs/<b><i>SITE/DATEDIR</i></b>/ifpnetCDF*,
 where release is the installation directory, typically
-/awips/GFESuite/primary
+/awips2/GFESuite
 for AWIPS.</td>
     </tr>
     <tr>
       <td>iscMosaic</td>
-      <td>dx4</td>
+      <td>dx3/dx4</td>
       <td>Program that extracts data from a compressed netCDF file
 (written originally
-from iscnetCdf) and uses mosaic techniques to merge the data into the
-ifpServer.</td>
-      <td><b><i>release</i></b>/data/logfiles/<b><i>DATEDIR</i></b>/iscMosaic*,
+from iscnetCdf) and uses mosaic techniques to merge the data into EDEX.</td>
+      <td><b><i>release</i></b>/data/logfiles/<b><i>SITE/DATEDIR</i></b>/iscMosaic*,
 where release is the installation directory, typically
-/awips/GFESuite/primary
+/awips2/GFESuite
 for AWIPS.</td>
     </tr>
   </tbody>
@@ -259,17 +252,17 @@ for AWIPS.</td>
 <br>
 <p></p>
 <hr width="100%">
-<h2><a class="mozTocH2" name="mozTocId438682"></a><a name="storage"></a>ifpServer
-Storage of ISC Grids</h2>
-The ifpServer configuration is set to contain a new logical database,
+<h2><a class="mozTocH2" name="mozTocId438682"></a><a name="storage"></a>
+EDEX Storage of ISC Grids</h2>
+EDEX configuration is set to contain a logical database,
 called
-ISC.&nbsp; The ISC database is a persistent database, like Fcst and
+ISC. The ISC database is a persistent database, like Fcst and
 Official,
-and will contain the same set of weather elements.&nbsp; The grids
+and will contain the same set of weather elements. The grids
 contained
 within the ISC database will be a composite of all of the adjoining
 site's
-intersite-coordination grids.&nbsp; Individual grids from each site
+intersite-coordination grids. Individual grids from each site
 will
 not be retained.
 <p>The grids that "this site" has sent out to other sites will also be
@@ -278,10 +271,10 @@ used in the ISC database to represent the CWA data.
 <p>Since the ISC is simply another GFESuite database, all of the tools
 and capabilities within the GFE can be used with this database.<br>
 </p>
-<p>Weather elements have a designated "office type".&nbsp; Thus, when
+<p>Weather elements have a designated "office type". Thus, when
 grids are received from a site with a different office type (e.g., WFO
 receiving grids from an RFC), the weather element is renamed and stored
-into the ISC database with the "office type" designator.&nbsp;&nbsp;
+into the ISC database with the "office type" designator.
 This allows weather elements to be properly mosaicked without
 overwriting data from other office types.<br>
 </p>
@@ -291,15 +284,14 @@ overwriting data from other office types.<br>
 Technique</h2>
 The mosaic technique (iscMosaic) merges in a supplied grid (or grids)
 into
-the database.&nbsp; The mosaic technique is done both spatially and
+the database. The mosaic technique is done both spatially and
 temporally.
 <br>
-&nbsp;
 <h3><a class="mozTocH3" name="mozTocId224156"></a><a
  name="TemporalMosaicTechnique"></a>Temporal Mosaic Technique</h3>
 The temporal mosaic technique always uses two sources of data: the
 incoming
-grid from a site, and the existing grids within the ISC database.&nbsp;
+grid from a site, and the existing grids within the ISC database.
 Since incoming grids are processed one site at a site, this technique
 will
 work. The valid time ranges for existing grids within the ISC database
@@ -307,34 +299,33 @@ and the time ranges for received grids are compared and the "least
 common
 denominator" technique is used to determine all of the possible
 permutations
-of the time ranges.&nbsp; Basically if a grid comes in from an
+of the time ranges. Basically if a grid comes in from an
 adjoining
 site that has a large time range, it will be inserted into several
 existing
-grids.&nbsp; If a grid comes in from a site with a small time range,
+grids. If a grid comes in from a site with a small time range,
 then
 existing grids in the ISC database may be split.<br>
 <br>
-This concept is for non-virtual ISC weather elements.&nbsp; Certain
+This concept is for non-virtual ISC weather elements. Certain
 virtual ISC weather elements may use a different mosaic algorithm.<br>
 <p><img src="images/ISCTemporalMosaic.png" nosave="" height="540"
  width="720">
 <br>
-&nbsp;
 </p>
 <h3><a class="mozTocH3" name="mozTocId244320"></a><a
  name="SpatialMosaicTechnique"></a>Spatial Mosaic Technique</h3>
 The spatial mosaic technique is used to combine pieces of grids
 spatially
 in order to produce a composite grid that contains a patchwork of grid
-points from several sites.&nbsp; In the ifpServer, a series of edit
+points from several sites. In EDEX, a series of edit
 areas
-are defined for each WFO.&nbsp; These are calculated automatically from
-map shapefiles.&nbsp; The edit areas define the set of grid points that
-are within each WFO's CWA and marine zones.&nbsp; The incoming
+are defined for each WFO. These are calculated automatically from
+map shapefiles. The edit areas define the set of grid points that
+are within each WFO's CWA and marine zones. The incoming
 intersite
 coordination data contains a sparsely populated grid, which indicators
-on which grid points are valid.&nbsp; Since the incoming data grid may
+on which grid points are valid. Since the incoming data grid may
 not be on the same map projection, or have the same grid domain or
 resolution,
 the incoming data is mapped to the projection and domain within the ISC
@@ -342,8 +333,8 @@ database.
 <p>After the mosaic is completed, any grid points that remain undefined
 in the ISC database will be set to the weather element's minimum
 possible
-value.&nbsp; This may lead to some confusion since the minimum possible
-values are possible values.&nbsp; Note that the GFE and ifpServer do
+value. This may lead to some confusion since the minimum possible
+values are possible values. Note that the GFE and EDEX do
 not
 currently have the capability of sparsely populated grids.
 </p>
@@ -357,17 +348,16 @@ through
 Configurations</h2>
 The GFESuite offers several configurable items to allow you to
 controlling
-the processing overhead.&nbsp; All of these options are available
+the processing overhead. All of these options are available
 through the <a href="serverConfig.html#ISC">Intersite Coordination
-Configuration Items</a> section in serverConfig.py.&nbsp;&nbsp; Sites
-should create localConfig.py to override the defaults.&nbsp;&nbsp; <br>
+Configuration Items</a> section in serverConfig.py. Sites
+should create localConfig.py to override the defaults.<br>
 <br>
 <span style="color: rgb(255, 0, 0);">NOTE:&nbsp; All sites MUST
 override the entries in serverConfig in order for them to enable ISC
-processing and to send ISC.&nbsp; The default in the baseline is to
-have ISC disabled.&nbsp;&nbsp; </span><br>
+processing and to send ISC. The default in the baseline is to
+have ISC disabled.</span><br>
 <br>
 <br>
-&nbsp;
 </body>
 </html>

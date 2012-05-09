@@ -1,6 +1,7 @@
 <!-- Special Weather Statement configuration -->
 <!-- MODIFIED 
      EVAN BOOKBINDER WFO EAX 9-15-2011 Merge in OB11.8.7 Coding Changes, Zone format
+     Qinglu Lin              04-04-2012 DR 14691. Added <feAreaField> tag.
  -->
 <warngenConfig>
 
@@ -78,6 +79,7 @@
   <areaField>NAME</areaField>
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>STATE_ZONE</fipsField>
   <pointField>NAME</pointField>

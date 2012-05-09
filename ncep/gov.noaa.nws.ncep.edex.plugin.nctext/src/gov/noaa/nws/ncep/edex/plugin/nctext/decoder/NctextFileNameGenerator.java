@@ -84,7 +84,7 @@ public class NctextFileNameGenerator {
 	 */
 	public synchronized PluginDataObject[] renameAndDecodeFile(File fileToRename) throws IOException{
 		//logger.debug("renameAndDecodeFile() called...");
-		System.out.println("renameAndDecodeFile() invoked");
+		//System.out.println("renameAndDecodeFile() invoked");
 		PluginDataObject[] srcArray = new PluginDataObject[0];
 		List<PluginDataObject> dynamicDestArray = new ArrayList<PluginDataObject>(0);
 		this.formattedFileNameList = new ArrayList<String>(0); 		
@@ -94,9 +94,9 @@ public class NctextFileNameGenerator {
 		String[] linesOfFileHeader = fileHeader.split(System.getProperty("line.separator"));
 		if(linesOfFileHeader != null && linesOfFileHeader.length > 1){
 			//			System.out.println("Date of file creation: "+ this.fileCreatedCalendar.getTime().toString());
-			for(int k =0; k < linesOfFileHeader.length; k++){
-				System.out.println("Line "+ k + " ="+ linesOfFileHeader[k]);
-			}
+			//for(int k =0; k < linesOfFileHeader.length; k++){
+			//	System.out.println("Line "+ k + " ="+ linesOfFileHeader[k]);
+			//}
 			
 			int i=0;
 			 while( i < linesOfFileHeader.length - 1){
@@ -121,9 +121,9 @@ public class NctextFileNameGenerator {
 		if (this.formattedFileNameList.size() > 0) {
 			//			System.out.println("The final list of formatted file names: "+ this.formattedFileNameList);
 			boolean isFileRenamedInPostProcess = false;
-			for(int p =0; p < formattedFileNameList.size(); p++){
-				System.out.println("File name "+p+ " ="+formattedFileNameList.get(p));
-			}
+			//for(int p =0; p < formattedFileNameList.size(); p++){
+			//	System.out.println("File name "+p+ " ="+formattedFileNameList.get(p));
+			//}
 			int index = 0;
 			int listSize = this.formattedFileNameList.size();
 			while(index <  listSize && !isFileRenamedInPostProcess){
@@ -143,21 +143,21 @@ public class NctextFileNameGenerator {
 					isFileRenamedInPostProcess = true;
 				}
 
-				System.out.println("New name for file: "+ outFilePath);
+				//System.out.println("New name for file: "+ outFilePath);
 				srcArray = decodeFile(fileToRename, outFilePath);
 				pdoList =   new ArrayList<PluginDataObject>(Arrays.asList(srcArray));
 				dynamicDestArray.addAll(pdoList);
 				index++;
 			}
 		}else{
-			 System.out.println("No match found with any regular expression- file= "+ fileToRename.getName());
-			 //Chin:TESTING 
-			 //srcArray = decodeFile(fileToRename, fileToRename.getName()); 
+			//System.out.println("No match found with any regular expression- file= "+ fileToRename.getName());
+			//Chin:TESTING 
+			//srcArray = decodeFile(fileToRename, fileToRename.getName()); 
 			// pdoList =   new ArrayList<PluginDataObject>(Arrays.asList(srcArray));
-    		 //dynamicDestArray.addAll(pdoList);
+			//dynamicDestArray.addAll(pdoList);
 		}
 		
-		System.out.println("The final array length : " + dynamicDestArray.size());
+		//System.out.println("The final array length : " + dynamicDestArray.size());
 		PluginDataObject[] returnArray = new PluginDataObject[0];
 		
 		return dynamicDestArray.toArray(returnArray);
@@ -282,6 +282,8 @@ public class NctextFileNameGenerator {
 	  				this.formattedFileNameList.add( DATE_WITH_HOUR.format(tempCal.getTime()) + "." + fileExtension);
 	  			}
 	  		}
+	  		//else
+	  		//	System.out.println("product size =0");
 		}
 		
 		return (this.formattedFileNameList.size() > 0 ? true: false );

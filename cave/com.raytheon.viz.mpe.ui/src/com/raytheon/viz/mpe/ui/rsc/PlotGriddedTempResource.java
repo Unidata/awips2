@@ -87,7 +87,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Jun 30, 2009  2524          snaples     Initial creation
  * Feb 29  2010  9909         lbousaidi	  changed the for loop for getting 
- * 										  the HRAP grid bin  
+ * 										  the HRAP grid bin
+ * Apr 17, 2012	 9602		mgamazaychikm	Changed the HRAP grid j index for loop   
  * </pre>
  * 
  * @author snaples
@@ -221,8 +222,8 @@ public class PlotGriddedTempResource extends
         buf = FloatBuffer.allocate(hrap_grid.maxi * hrap_grid.maxj);
 
         /* Get value in the HRAP grid bins. */
-         for (j = 0; j < hrap_grid.maxj; j++) {
-             for (i = 0; i < hrap_grid.maxi; i++) {
+        for (j = hrap_grid.maxj - 1; j >= 0; j--) {
+            for (i = 0; i < hrap_grid.maxi; i++) {
 
                 if (hrap_grid.owner[i][j] == -1) {
                     continue;

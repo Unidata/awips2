@@ -10,7 +10,7 @@
 <body bgcolor="#ffffff">
 <h1 class="1Heading">
 dumpAT User's Guide</h1>
-<div class="1Heading">August 25, 2005<br>
+<div class="1Heading">January 9, 2012<br>
 </div>
 <h2 class="1Heading">
 <a name="TableofContents"></a>Table of Contents</h2>
@@ -31,16 +31,14 @@ meaning of the codes within the VTEC active table, refer to the <a
 </div>
 <div class="1Heading">
 <hr width="100%"></div>
-<h3 class="1Heading">
-<a name="Running"></a>Running the dumpAT Program</h3>
-<div class="1Heading">&nbsp;<span
- style="color: rgb(255, 0, 0); font-weight: bold;">Restriction:&nbsp;
+<h3 class="1Heading">Running the dumpAT Program</h3>
+<div class="1Heading"><span style="color: rgb(255, 0, 0); font-weight: bold;">Restriction:
 The dumpAT program can only be run from the same machine as the VTEC
 active table is residing!</span><br>
 <br>
 </div>
 <div class="1Heading">The command line syntax is:</div>
-<div class="1Heading"><tt>dumpAT [-w siteid] [-p phenomena] [-s
+<div class="1Heading"><tt>dumpAT -w siteid [-p phenomena] [-s
 significance] [-a id] [-e etn] [-l pil] [-a action] [-n tableName] [-f
 tableFilename]<br>
 <br>
@@ -60,10 +58,9 @@ tableFilename]<br>
     <tr>
       <td>-w wfoid<br>
       </td>
-      <td>Optional. May have more than one -w switch.<br>
+      <td>Mandatory. May have more than one -w switch.<br>
       </td>
-      <td>Defines the WFOID filter.&nbsp; If not specified, then all
-records from all sites will be output.<br>
+      <td>Defines the WFOID filter.<br>
       </td>
     </tr>
     <tr>
@@ -154,81 +151,43 @@ active table.<br>
 <a name="ExampleData"></a>Example Execution</h3>
 <div class="1Heading">The following shows an example of running the
 dumpAT without any filtering:<br>
-<p><tt>bart &gt; dumpAT</tt>
+<p><tt>lx1-nhda{jdynina}113: ./dumpAT -w LWX<br>
+INFO:dumpAT:*********** dumpAT ****************<br>
+INFO:dumpAT:Cmd: -h ec -r 9581 -w LWX<br>
+INFO:dumpAT:Requesting active table dump from server.<br>
+INFO:dumpAT:Response received from server.<br>
+INFO:dumpAT:Number of records (unfiltered): 16<br>
+INFO:dumpAT:Number of records (filtered): 16<br>
+INFO:dumpAT:Records:<br>
+Vtec: /O.CAN.KLWX.WI.Y.0001.000000T0000Z-120102T1000Z/<br>
+Hdln:<br>
+Start:  Mon Jan  2 08:09:00 2012 1325491740L  Action: CAN  Pil: NPW<br>
+End:    Mon Jan  2 10:00:00 2012 1325498400L  UFN: False RecState: Decoded<br>
+Purge:  Mon Jan  2 09:15:00 2012 1325495700L<br>
+Issue:  Mon Jan  2 08:09:00 2012 1325491740L<br>
+Phen: WI   Sig: Y   Office: KLWX   Etn: 0001 Seg: 1   Key: WI.Y<br>
+Zone: MDZ501<br>
 <br>
-&nbsp;<span style="font-weight: bold; font-family: monospace;">LOG-STATUS:
-Log file opened on host bart at Mon Jul&nbsp; 4 19:30:14 2005</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">19:30:14.144
-dumpAT 65 EVENT:&nbsp; *********** dumpAT ****************</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">19:30:14.146
-dumpAT 79 EVENT:&nbsp; Cmd: []</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">19:30:14.155
-dumpAT 126 EVENT:&nbsp; Number of records (unfiltered):&nbsp; 15</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">19:30:14.155
-dumpAT 127 EVENT:&nbsp; Number of records (filtered):&nbsp; 15</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">19:30:14.163
-dumpAT 128 EVENT:&nbsp; Records:</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Vtec:
-/X.CON.KSHV.FA.A.0001.000000T0000Z-050705T1500Z/</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Hdln: ????</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Start:&nbsp;
-Mon Jul&nbsp; 4 18:07:00 2005 1120500420.0&nbsp; Action: CON&nbsp; Pil:
-FFA</span><br style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">End:&nbsp;&nbsp;&nbsp;
-Tue Jul&nbsp; 5 15:00:00 2005 1120575600.0&nbsp; UFN: 0</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Purge:&nbsp;
-Tue Jul&nbsp; 5 02:15:00 2005 1120529700.0</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Issue:&nbsp;
-Mon Jul&nbsp; 4 18:07:00 2005 1120500420.0</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Phen:
-FA&nbsp;&nbsp; Sig: A&nbsp;&nbsp; Office: KSHV&nbsp;&nbsp; Etn: 0001
-Seg: 1&nbsp;&nbsp; Key: FA.A</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Zone:
-['ARC027', 'ARC073', 'ARC091', 'ARC099', 'ARC139', 'LAC015', 'LAC017',
-'LAC119', 'TXC067', 'TXC073', 'TXC183', 'TXC203', 'TXC315', 'TXC401']</span><br
- style="font-weight: bold; font-family: monospace;">
-<br style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Vtec:
-/X.NEW.KSHV.LE.A.0001.050704T1408Z-050704T1500Z/</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Hdln: ????</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Start:&nbsp;
-Mon Jul&nbsp; 4 14:08:00 2005 1120486080.0&nbsp; Action: NEW&nbsp; Pil:
-WSW</span><br style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">End:&nbsp;&nbsp;&nbsp;
-Mon Jul&nbsp; 4 15:00:00 2005 1120489200.0&nbsp; UFN: 0</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Purge:&nbsp;
-Mon Jul&nbsp; 4 15:15:00 2005 1120490100.0</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Issue:&nbsp;
-Mon Jul&nbsp; 4 14:08:00 2005 1120486080.0</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Phen:
-LE&nbsp;&nbsp; Sig: A&nbsp;&nbsp; Office: KSHV&nbsp;&nbsp; Etn: 0001
-Seg: 1&nbsp;&nbsp; Key: LE.A</span><br
- style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">Zone:
-['ARZ073']</span><br style="font-weight: bold; font-family: monospace;">
-<br style="font-weight: bold; font-family: monospace;">
-<br style="font-weight: bold; font-family: monospace;">
-<span style="font-weight: bold; font-family: monospace;">19:30:14.164
-dumpAT 135 EVENT:&nbsp; Final: wctime: 0.02&nbsp;&nbsp; ,cputime: 0.19</span><br>
-</p>
-<p><tt></tt><br>
+Vtec: /O.CON.KLWX.WS.W.0001.000000T0000Z-120103T2200Z/<br>
+Hdln:<br>
+Start:  Tue Jan  3 15:29:00 2012 1325604540L  Action: CON  Pil: WSW<br>
+End:    Tue Jan  3 22:00:00 2012 1325628000L  UFN: False RecState: Decoded<br>
+Purge:  Tue Jan  3 22:00:00 2012 1325628000L<br>
+Issue:  Tue Jan  3 15:29:00 2012 1325604540L<br>
+Phen: WS   Sig: W   Office: KLWX   Etn: 0001 Seg: 2   Key: WS.W<br>
+Zone: MDZ501<br>
+<br>
+Vtec: /O.EXT.KLWX.GL.W.0001.000000T0000Z-120104T0000Z/<br>
+Hdln:<br>
+Start:  Tue Jan  3 22:36:00 2012 1325630160L  Action: EXT  Pil: MWW<br>
+End:    Wed Jan  4 00:00:00 2012 1325635200L  UFN: False RecState: Decoded<br>
+Purge:  Wed Jan  4 06:45:00 2012 1325659500L<br>
+Issue:  Tue Jan  3 22:36:00 2012 1325630160L<br>
+Phen: GL   Sig: W   Office: KLWX   Etn: 0001 Seg: 1   Key: GL.W<br>
+Zone: ANZ530<br>
+<br>
+<br>
+INFO:dumpAT:Final: wctime:2.40, cputime:0.28</tt><br>
 </p>
 </div>
 </body>

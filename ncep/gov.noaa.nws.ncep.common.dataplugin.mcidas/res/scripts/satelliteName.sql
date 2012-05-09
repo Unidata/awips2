@@ -27,3 +27,4 @@ INSERT INTO awips.mcidas_satellite_names VALUES (84,'MTS');
 INSERT INTO awips.mcidas_satellite_names VALUES (85,'MTSAT2');
 INSERT INTO awips.mcidas_satellite_names VALUES (180,'GOES13');
 INSERT INTO awips.mcidas_satellite_names VALUES (184,'GOES15');
+INSERT INTO awips.mcidas_satellite_names VALUES (185,'DPD');
