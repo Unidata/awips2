@@ -6,10 +6,11 @@ void db_returnflnm(char *result)
 {
    int      diagMessageLength=2000, ier;
    char     diagMessage[diagMessageLength];
+   char     *flnmStr;
 /*----------------------------------------------------------------------*/
     diagMessage[0] = '\0';
-    sprintf (diagMessage, "%s %s", "back from Java result=", result);
-    db_msgcave ("db_returnflnm", "debug", diagMessage, &ier);
+//    sprintf (diagMessage, "%s %s", "back from Java result=", result);
+//    db_msgcave ("db_returnflnm", "debug", diagMessage, &ier);
    
     if ( flnmStrBack != NULL ) {
        G_FREE( flnmStrBack, char );

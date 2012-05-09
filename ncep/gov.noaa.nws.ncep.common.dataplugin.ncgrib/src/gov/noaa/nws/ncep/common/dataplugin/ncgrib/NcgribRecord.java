@@ -61,6 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 10/13/10      276        llin        Modified for NC GRIB.
+ * 03/07/12      606        ghull       Added eventName to URI for NcInventory updating.
  * 
  * </pre>
  * 
@@ -202,6 +203,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @Column
     @XmlAttribute
     @DynamicSerializeElement
+    @DataURI(position = 8)
     private String eventName;
     
     /** Type of Generating Process 
