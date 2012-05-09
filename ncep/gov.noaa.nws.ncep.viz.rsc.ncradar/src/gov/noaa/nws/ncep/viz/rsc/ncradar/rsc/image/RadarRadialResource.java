@@ -56,6 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 12/09/2011   #541       S. Gurung   Initial creation
  * 12/16/2011              S. Gurung   Removed resourceAttrsModified()
+ * 03/30/2012   #651       S. Gurung   Removed method resourceChanged
  * 
  * </pre>
  * 
@@ -262,12 +263,7 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
 		// TODO Auto-generated method stub
 		return new FrameData(frameTime, frameInterval );//return null;
 	}
-	
-	
-	@Override
-    public void resourceChanged(ChangeType type, Object object) {
-	}
-    
+	   
 
 }
 

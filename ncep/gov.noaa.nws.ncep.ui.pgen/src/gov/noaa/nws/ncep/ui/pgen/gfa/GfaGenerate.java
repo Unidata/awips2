@@ -15,7 +15,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
@@ -48,9 +47,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 07/10		#223		M.Laryukhin	Initial creation
- * 02/11					Save result to Pgen working dir.
- * 04/11					update state list order and create additional
- * 							smear for smears with two FA areas.
+ * 02/11					J. Wu		Save result to Pgen working dir.
+ * 04/11					J. Wu		update state list order and create additional
+ * 										smear for smears with two FA areas.
+ * 02/12		#672		J. Wu		Re-order states list based on FA area.
  * 
  * </pre>
  * 
@@ -103,6 +103,58 @@ public class GfaGenerate {
 			    adjusted.add( sg );
 			}
 			
+		}
+		
+		/*
+		 * Need to reorder the state list in FA area.
+		 */
+		for ( Gfa gg : adjusted ) {
+			String area = gg.getGfaArea();
+
+			ArrayList<String> oldStates = new ArrayList<String>();
+			ArrayList<String> oldStatesNoWater = new ArrayList<String>();
+			for ( String ss : gg.getGfaStates().split(" ") ) {
+				oldStates.add( ss );
+				if ( ss.length() == 2 )oldStatesNoWater.add( ss );
+			}
+			
+			String[] s = area.split( "-" );
+			
+			ArrayList<String> statesInArea1 = GfaInfo.getStateOrderByArea().get( s[0] );
+			ArrayList<String> statesInArea2 = null;
+			if ( s.length > 1 ) {
+				statesInArea2 = GfaInfo.getStateOrderByArea().get( s[1] );			    
+			}
+			
+			//Sort states in primary FA area
+			StringBuilder newStates = new StringBuilder();
+			for ( String st : statesInArea1 ) {
+				if ( st.length() == 2 && oldStatesNoWater.contains( st ) ) {
+					newStates.append( st );
+					newStates.append( " " );
+				}
+			}
+			
+			//Sort and add states in second FA area, if any.
+			if ( statesInArea2 != null ) {
+				for ( String st : statesInArea2 ) {
+					if ( st.length() == 2 && oldStatesNoWater.contains( st ) ) {
+						newStates.append( st );
+						newStates.append( " " );
+					}
+				}
+			}
+			
+			//Add back "CSTL WTRS" or "AND CSTL WTRS".
+			for ( String st : oldStates ) {
+				if ( st.length() > 2 ) {
+					newStates.append( st );
+					newStates.append( " " );
+				}
+			}
+						
+			gg.setGfaStates( newStates.toString().trim() );
+						
 		}
 		
 		/*

@@ -6,6 +6,10 @@ class NcSoundingDataRequest():
     def __init__(self):
         self.NcSoundingDrv = NcSoundingDrv()
         
+    def setNcSoundingLayer2(self, useLayer2):
+        self.NcSoundingDrv.setUseNcSoundingLayer2(useLayer2)
+        
+        
     def setLat(self, lat):
         self.NcSoundingDrv.setLat(lat)
         self.lat = lat
@@ -13,6 +17,20 @@ class NcSoundingDataRequest():
     def setLon(self, lon):
         self.NcSoundingDrv.setLon(lon)
         self.lon = lon
+        
+    def setRangeTimeArr(self,rtArr):
+        from jep import jarray, JLONG_ID
+        jTA = jarray(len(rtArr), JLONG_ID)
+        for i in range(len(rtArr)):
+            jTA[i] = long(rtArr[i])
+        self.NcSoundingDrv.setRangeTimeArr(jTA)
+
+    def setLatLonArr(self, LatLonArr):
+        from jep import jarray, JDOUBLE_ID
+        jA = jarray(len(LatLonArr), JDOUBLE_ID)
+        for i in range(len(LatLonArr)):
+            jA[i] = LatLonArr[i]
+        self.NcSoundingDrv.setLatLons(jA)
         
     def setRefTime(self, refTime):
         self.NcSoundingDrv.setRefTime(refTime)
@@ -64,11 +82,11 @@ class NcSoundingDataRequest():
         self.NcSoundingDrv.setDbIdList(jA)
         
     def setLatLonList(self, LatLonArr):
-        from jep import jarray, JFLOAT_ID
-        jA = jarray(len(LatLonArr)*len(LatLonArr[0]), JFLOAT_ID, 0)
+        from jep import jarray, JDOUBLE_ID
+        jA = jarray(len(LatLonArr)*len(LatLonArr[0]), JDOUBLE_ID, 0)
         for i in range(len(LatLonArr)):
             for j in range(len(LatLonArr[0])):
-                jA[i*len(LatLonArr)+j] = float(LatLonArr[i][j])
+                jA[i*len(LatLonArr)+j] = LatLonArr[i][j]
         self.NcSoundingDrv.setLatLons(jA)
         
     def setTimeLine(self, timeLine):
@@ -121,52 +139,33 @@ class NcSoundingDataRequest():
     
     def getSoundingDataByLatLonArray(self, LatLonArr):
         self.NcSoundingDrv.setQueryType("LATLON")
-        from jep import jarray, JFLOAT_ID
-        jA = jarray(len(LatLonArr), JFLOAT_ID)
+        from jep import jarray, JDOUBLE_ID
+        jA = jarray(len(LatLonArr), JDOUBLE_ID)
         for i in range(len(LatLonArr)):
-            jA[i] = float(LatLonArr[i])
+            jA[i] = LatLonArr[i]
         self.NcSoundingDrv.setLatLons(jA)
-
-        self.result = self.NcSoundingDrv.getSoundingDataByLatLonArray()
+        self.result = self.NcSoundingDrv.getSoundingDataGeneric()
+#was        self.result = self.NcSoundingDrv.getSoundingDataByLatLonArray()
         if self.result is None:
             return self.makeNullResponse()
         else:
             return self.makeResponse()
         
-    def getSoundingLayer2DataByLatLonArray(self, LatLonArr):
-#        print'from NcSoundingDataRequest.getSoundingLayer2DataByLatLonArray'
+        
+    def getSoundingDataByRangeTimeArray(self, rtArr):
         self.NcSoundingDrv.setQueryType("LATLON")
-        from jep import jarray, JFLOAT_ID
-        jA = jarray(len(LatLonArr), JFLOAT_ID)
-        for i in range(len(LatLonArr)):
-            jA[i] = float(LatLonArr[i])
-        self.NcSoundingDrv.setLatLons(jA)
-#        print'just before calling self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArray()'
-        self.result = self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArray()
+        from jep import jarray, JLONG_ID
+        jTA = jarray(len(rtArr), JLONG_ID)
+        for i in range(len(rtArr)):
+            jTA[i] = long(rtArr[i])
+        self.NcSoundingDrv.setRangeTimeArr(jTA)
+        self.result = self.NcSoundingDrv.getSoundingDataGeneric()
+#        self.result = self.NcSoundingDrv.getSoundingDataByRangeTimeArray()
         if self.result is None:
-#            print 'unable to get the sounding cube back'
             return self.makeNullResponse()
         else:
-#            print 'Got the sounding cube back'
-            return self.makeResponse()        
-
-    def getSoundingLayer2DataByLatLonArray1(self, LatLonArr):
-#       This method calling per station base algorithm. It is not used for production.
-        self.NcSoundingDrv.setQueryType("LATLON")
-        from jep import jarray, JFLOAT_ID
-        jA = jarray(len(LatLonArr), JFLOAT_ID)
-        for i in range(len(LatLonArr)):
-            jA[i] = float(LatLonArr[i])
-        self.NcSoundingDrv.setLatLons(jA)
-#        print'just before calling self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArray()'
-        self.result = self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArrayPerStn()
-        if self.result is None:
-#            print 'unable to get the sounding cube back'
-            return self.makeNullResponse()
-        else:
-#            print 'Got the sounding cube back'
-            return self.makeResponse()        
-
+            return self.makeResponse()
+        
     def getSoundingDataByStnIdArray(self, StnIdArr):
         self.NcSoundingDrv.setQueryType("STNID")
         from jep import jarray
@@ -175,8 +174,8 @@ class NcSoundingDataRequest():
         for i in range(len(StnIdArr)):
             jA[i] = String(StnIdArr[i])
         self.NcSoundingDrv.setStnIdArr(jA)
-
-        self.result = self.NcSoundingDrv.getSoundingDataByStnArray()
+        self.result = self.NcSoundingDrv.getSoundingDataGeneric()
+#        self.result = self.NcSoundingDrv.getSoundingDataByStnArray()
         if self.result is None:
             return self.makeNullResponse()
         else:
@@ -190,13 +189,52 @@ class NcSoundingDataRequest():
         for i in range(len(StnNumArr)):
             jA[i] = String(StnNumArr[i])
         self.NcSoundingDrv.setStnNumArr(jA)
-
-        self.result = self.NcSoundingDrv.getSoundingDataByStnArray()
+        self.result = self.NcSoundingDrv.getSoundingDataGeneric()
+#        self.result = self.NcSoundingDrv.getSoundingDataByStnArray()
         if self.result is None:
             return self.makeNullResponse()
         else:
             return self.makeResponse()
+
+    def getSoundingData2ByStnIdArray(self, stnIdArr):
+        self.NcSoundingDrv.setQueryType("STNID")
+        from jep import jarray        
+        from java.lang import String
+        jA = jarray(len(stnIdArr), String)
+        for i in range(len(stnIdArr)):
+            jA[i] = String(stnIdArr[i])
+        self.NcSoundingDrv.setStnIdArr(jA)
+
+        self.result = self.NcSoundingDrv.getSoundingData2Generic()
+        if self.result is None:
+            return self.makeNullResponse()
+        else:
+            return self.makeResponse()    
+    def getSoundingData2ByLatLonArray(self, LatLonArr):
+#        print'from NcSoundingDataRequest.getSoundingLayer2DataByLatLonArray'
+        self.NcSoundingDrv.setQueryType("LATLON")
+        from jep import jarray, JDOUBLE_ID
+        jA = jarray(len(LatLonArr), JDOUBLE_ID)
+        for i in range(len(LatLonArr)):
+            jA[i] = LatLonArr[i]
+        self.NcSoundingDrv.setLatLons(jA)
+#        print'just before calling self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArray()'
+        self.result = self.NcSoundingDrv.getSoundingData2Generic()
+        if self.result is None:
+#            print 'unable to get the sounding cube back'
+            return self.makeNullResponse()
+        else:
+#            print 'Got the sounding cube back'
+            return self.makeResponse()        
+
+    def getModelSoundingModelNames (self):
+        self.result = self.NcSoundingDrv.getModels()
+        if self.result is None:
+            return self.makeNullResponse()
+        else:
+            return self.makeResponse() 
         
+#   Chin: query DB from Python script directly. Much slower than from Java. Obsoleted and replaced by getModelSoundingModelNames()
     def getSoundingModelNames (self, plugin):
         from java.util import ArrayList
         from com.raytheon.edex.uengine.tasks.query import TableQuery

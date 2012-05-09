@@ -6,6 +6,10 @@ public class ContourAttributes {
 	
 	private String gvcord;
 	
+	private String skip;
+	
+	private String filter; 
+		
 	private String scale;
 	
 	private String gdpfun;
@@ -44,7 +48,22 @@ public class ContourAttributes {
 		this.gvcord = gvcord;
 	}
 
-	
+	public String getSkip() {
+		return skip;
+	}
+
+	public void setSkip(String skip) {
+		this.skip = skip;
+	}
+
+	public String getFilter() {
+		return filter;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
+	}
+
 	public String getScale() {
 		return scale;
 	}
@@ -137,6 +156,8 @@ public class ContourAttributes {
 		boolean match = false;
 		if ( this.glevel.trim().equalsIgnoreCase(attr.getGlevel())&&
 			 this.gvcord.trim().equalsIgnoreCase(attr.getGvcord()) &&
+			 this.skip.trim().equalsIgnoreCase(attr.getSkip()) &&
+			 this.filter.trim().equalsIgnoreCase(attr.getFilter()) &&
 			 this.scale.trim().equalsIgnoreCase(attr.getScale()) &&
 			 this.gdpfun.trim().equalsIgnoreCase(attr.getGdpfun()) &&
 			 this.type.trim().equalsIgnoreCase(attr.getType())&&

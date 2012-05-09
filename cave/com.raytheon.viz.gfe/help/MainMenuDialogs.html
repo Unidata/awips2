@@ -6,19 +6,18 @@
   <meta
  content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]"
  name="GENERATOR">
-  <title>MainMenuDialogs</title>
+  <title>GFESuite Documentation - MainMenuDialogs</title>
 </head>
 <body bgcolor="#ffffff">
 <h1 class="3Heading">
 <a name="MainMenuDialogs"></a>Main Menu Dialogs</h1>
-September 28, 2008<br>
+January 30, 2012<br>
 <p><br>
 The following dialogs are invoked directly or indirectly from the Main
 Menu:
 </p>
 <ul>
   <li> <a href="#StartUpDialog">Start Up Dialog</a></li>
-  <li> <a href="#DeleteUserDialog">Delete User Dialog</a></li>
   <li class="3Heading"> <a href="#DefineConfigAndIFPImageDialog">Define
 Config and IFP
 Image Dialog</a></li>
@@ -78,26 +77,11 @@ Latitude/Longitude Dialog</a></li>
 </p>
 <hr width="100%">
 <h2><a name="StartUpDialog"></a>Start Up Dialog</h2>
-The Start Up Dialog appears when the GFE is initializing. The normal
-message
-will be "Starting GFE..." If the system cannot connect to the server, a
-message will describe the problem. In some cases, the system will
-continue
-re-trying. You can cancel this at any time.
-<p><img nosave="" src="images/GFEStartup4.jpg" height="431" width="378"></p>
+The Start Up Dialog appears when the GFE is initializing.
+If the system cannot connect to the server, a
+message will describe the problem.
+<p><img nosave="" src="images/GFEStartup4.jpg" height="561" width="378"></p>
 <p></p>
-<hr width="100%">
-<h2><a name="DeleteUserDialog"></a>Delete User Dialog</h2>
-The Delete User Dialog will only appear when you start the GFE as
-SITE.&nbsp;
-The delete user dialog is used to remove entries from the Start Up
-Dialog.&nbsp;
-Note that only the entry is removed from the start up dialog, and not
-the
-configuration files associated with the user.
-<p><img nosave="" src="images/DialogDeleteUser.jpg" height="264"
- width="213"><br>
-</p>
 <hr width="100%">
 <h2><a name="BreakLockDialog"></a>Break Lock Dialog</h2>
 <div class="Body">For each grid block selected in the GridManager, the
@@ -107,32 +91,31 @@ Break Lock dialog lists the:
   <li>Weather Element name</li>
   <li>Lock timerange</li>
   <br>
-&nbsp;
 </ul>
 The dialog is separated into two sections, the "Locks Owned By Active
 Clients",
-and the "Orphaned Locks".&nbsp; Locks that are owned by active clients,
-if broken, will likely result in loss of data.&nbsp; If it is a GFE
+and the "Orphaned Locks". Locks that are owned by active clients,
+if broken, will likely result in loss of data. If it is a GFE
 that
 owns those locks, then the forecaster will lose all of his/her unsaved
 data.&nbsp; Orphaned Locks, on the other hand, are owned by processes
 that
-are no longer connected to the ifpServer.&nbsp; Orphaned locks can
+are no longer connected to EDEX. Orphaned locks can
 generally
 be broken without any consequences.
 <p>Select the locks you wish to break and click Breaklock(s) or click
 Cancel
-at any time to cancel the operation and close the dialog.&nbsp; Note
+at any time to cancel the operation and close the dialog. Note
 that
 breaking a lock is irreversible. The "Select All Orphans" button
 highlights
-all of the orphaned entries and the "Clear All" button deselects the
-entries.&nbsp;
+all of the orphaned entries and the "Clear All" button de-selects the
+entries.
 For verification purposes, the "Select All Orphans" button does not
 highlight
 locks owned by active clients; these must be individually selected.
 </p>
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 <img nosave="" src="images/DialogBreakLock.jpg" height="496" width="772"><br>
 <hr width="100%">
@@ -143,35 +126,28 @@ Dialog</h2>
 </div>
 The Define Config Dialog lists all existing configuration files.
 <br>
-Choosing File--&gt;New allows you to modify configuration files that
+Selecting a foler and doing right-click--&gt;New allows you to modify configuration files that
 affect
 the behavior of the GFE and IFPImage. A dialog will appear for you to
 enter
 the name of the configuration file. After clicking Ok, the Python
 editor
 will appear for you add or modify the configuration attrubites.
-<p>An Editable Listbox displays the config files, and pressing MB3 over
-the box, brings up a menu described in the <a
- href="EditableListbox.html">Editable
-Listbox </a>description. When finished, click "Close" to exit the
-dialog.
-</p>
 <p><img alt="define config dialog" src="images/DialogDefineConfig.png"
- style="width: 876px; height: 490px;"><br>
+ style="width: 876px; height: 590px;"><br>
 </p>
 <hr width="100%"><br>
-&nbsp;
 <h2><a name="AutoSaveDialog"></a>Auto Save Interval Dialog</h2>
 The Auto Save Interval Dialog allows the user to enable or disable the
-automatic save feature of the GFE.&nbsp; If disabled, no weather
+automatic save feature of the GFE. If disabled, no weather
 elements
-will be automatically saved.&nbsp; If enabled, the user may choose an
+will be automatically saved. If enabled, the user may choose an
 interval
-from one minute to sixty minutes.&nbsp; At this regular interval, the
+from one minute to sixty minutes. At this regular interval, the
 GFE
-checks for modified weather elements.&nbsp; If there are any, then one
+checks for modified weather elements. If there are any, then one
 weather element at a time is saved with a short interval between
-them.&nbsp;
+them.
 During the auto save process, you will notice that the cursor shape
 will
 change to the "wait" cursor, and the "green" lock indications on the
@@ -179,20 +155,18 @@ Grid
 Manager will disappear indicating that those grids have been saved to
 the
 database.
-<p><img nosave="" src="images/DialogAutoSaveInterval.jpg" height="149"
- width="366"><br>
+<p><img nosave="" src="images/DialogAutoSaveInterval.jpg"><br>
 </p>
 <hr width="100%">
 <h2><a name="InterpolationAlgorithmDialog"></a>Interpolation Algorithm
 Dialog</h2>
 The interpolation algorithm dialog allows the user to select one of
 four
-interpolation algorithms to use for scalar interpolation.&nbsp; The
+interpolation algorithms to use for scalar interpolation. The
 interpolation
 for vector and weather weather elements are not selectable.
 <p>The user has a choice of the following algorithms:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -201,16 +175,16 @@ for vector and weather weather elements are not selectable.
     </tr>
     <tr>
       <td>Cubic / Advection</td>
-      <td>Cubic spline is applied to the data points temporally.&nbsp;
+      <td>Cubic spline is applied to the data points temporally.
 Software
-looks for areas that can be advected.&nbsp; The advection component of
+looks for areas that can be advected. The advection component of
 the algorithm works best for weather elements that contain areas of
 zero
 value.</td>
     </tr>
     <tr>
       <td>Cubic / NoAdvection</td>
-      <td>Cubic spline is applied to the data points temporally.&nbsp;
+      <td>Cubic spline is applied to the data points temporally.
 Software
 gradually adjusts points from starting value to ending value without
 advection
@@ -219,8 +193,8 @@ considerations.</td>
     <tr>
       <td>Linear/ Advection</td>
       <td>Linear calculations are applied to adjacent base grids
-temporally.&nbsp;
-Software looks for areas that can be advected.&nbsp; The advection
+temporally.
+Software looks for areas that can be advected. The advection
 component
 of the algorithm works best for weather elements that contain areas of
 zero value.</td>
@@ -228,7 +202,7 @@ zero value.</td>
     <tr>
       <td>Linear/ No Advection</td>
       <td>Linear calculations are applied to adjacent base grids
-temporally.&nbsp;
+temporally.
 Software gradually adjusts points from starting value to ending value
 without
 advection considerations.</td>
@@ -236,42 +210,37 @@ advection considerations.</td>
   </tbody>
 </table>
 </p>
-<p><img nosave="" src="images/DialogInterpAlgorithm.jpg" height="300"
- width="337"><br>
+<p><img nosave="" src="images/DialogInterpAlgorithm.jpg"><br>
 </p>
 <hr width="100%">
 <h2><a name="TEStatisticsDialog"></a>Temporal Editor Statistics Dialog</h2>
 The temporal editor statistics dialog controls the type of data that is
 displayed in the Temporal Editor when one of the Range (RangeBar,
 TEColorRangeBar)
-visualizations are enabled.&nbsp; An example of the RangeBar
+visualizations are enabled. An example of the RangeBar
 visualization
-is shown below.&nbsp; This particular visualization is showing the
+is shown below. This particular visualization is showing the
 moderated
-15% minimum, 15% maximum values from an edit area.&nbsp; The max,
+15% minimum, 15% maximum values from an edit area. The max,
 average,
 and minimum values are shown.
 <p><img nosave="" src="images/TEStatisticsVisual.jpg" height="177"
  width="362">Example of temporal editor range
 bar visualization.
 <br>
-&nbsp;
 </p>
 <p>The dialog controls the data presented in the temporal editor range
-visualizations.&nbsp; Absolute will display the absolute minimum and
+visualizations. Absolute will display the absolute minimum and
 maximum
-values in the editor.&nbsp; Moderated will chop out the outlyers based
-on the given percentages for the minimum and maximum.&nbsp; The
+values in the editor. Moderated will chop out the outlyers based
+on the given percentages for the minimum and maximum. The
 Standard
 Deviation choice includes those points within a certain number of
 standard
 deviations from the average.
 </p>
-<p><img nosave="" src="images/DialogTEStatisticsMode.jpg" height="278"
- width="260"><br>
-&nbsp;
+<p><img nosave="" src="images/DialogTEStatisticsMode.jpg"><br>
 <br>
-&nbsp;
 </p>
 <p></p>
 <hr width="100%">
@@ -279,16 +248,14 @@ deviations from the average.
 Periods
 Dialog</h2>
 The time scale displayed periods dialog is used to specify which of the
-named selection time ranges are to appear on the Time Scale.&nbsp; The
-defijnitions of the selection time ranges, and new named selection time
+named selection time ranges are to appear on the Time Scale. The
+definitions of the selection time ranges, and new named selection time
 ranges, may be defined through the Save Selection Time Range Dialog.
-<p><img nosave="" src="images/DialogTimeScaleDisplayedPeriods.jpg"
- height="256" width="246"></p>
-<p></p>
+<p><img nosave="" src="images/DialogTimeScaleDisplayedPeriods.jpg"></p>
 <hr width="100%">
 <h2><a name="EditAreaAppearanceDialog"></a>Edit Area Appearance Dialog</h2>
 The edit area appearance dialog is used to control the color and border
-line width for the edit area on the spatial editor.&nbsp; The default
+line width for the edit area on the spatial editor. The default
 color
 and line width may be set in the gfe configuration file entries: <a
  href="gfeConfig_UI.html#EditAreaColors">ReferenceSet_color
@@ -296,15 +263,14 @@ and ReferenceSet_width</a>.
 <p>The user can choose the new color from the color selector as well as
 the line width.
 </p>
-<p><img nosave="" src="images/DialogEditAreaAppearance.jpg" height="335"
- width="386"></p>
+<p><img nosave="" src="images/DialogEditAreaAppearance.jpg"></p>
 <p></p>
 <hr width="100%">
 <h2><a name="ExitGFEDialog"></a>Exit GFE Dialog</h2>
 If there are unsaved Weather Elements that have been modified, a dialog
 will appear allowing you to save the modified data.
 <p>The dialog displays the names of all modified Weather
-Elements.&nbsp;
+Elements.
 Choose Yes to save all elements and exit the GFE. Choose No if you do
 not
 want to save the elements before exiting the GFE.
@@ -318,13 +284,12 @@ dialog without exiting the GFE.
 <p>If you happen to have any temporary hazard grids active in your GFE
 and attempt to exit, you may see a dialog that looks like this:<br>
 </p>
-<p><img alt="ExitGFEDialog" src="images/ExitGFEDialog.png"
- style="width: 435px; height: 298px;"><br>
+<p><img alt="ExitGFEDialog" src="images/ExitGFEDialog.png"><br>
 </p>
 <p>If you see this dialog, it means that you must save or manually
 unload the temporary hazards weather elements before you can save the
 "Hazards" weather element. If you select "No", the GFE will exit
-without saving any of your modified grids.&nbsp; If you select "Cancel"
+without saving any of your modified grids. If you select "Cancel"
 the operation will be canceled and leave the grid state unchanged.<br>
 <br>
 </p>
@@ -341,11 +306,11 @@ D2D). For
 a list of D2D weather elements and descriptions, <a
  href="d2dWENames.html">click
 here.</a></li>
-  <li>Source&nbsp;&nbsp;&nbsp; -Grid database sources and times and the
+  <li>Source&nbsp;&nbsp;-Grid database sources and times and the
 official
 forecast (LAPS, RUC, Fcst, etc.)</li>
   <li>Field&nbsp;&nbsp;&nbsp;&nbsp; -Weather Elements to load</li>
-  <li>Plane&nbsp;&nbsp;&nbsp;&nbsp; -The vertical plane of gridded
+  <li>Plane&nbsp;&nbsp;&nbsp;&nbsp;-The vertical plane of gridded
 data.
 "SFC"
 stands for surface and is the plane of the forecast and official
@@ -355,7 +320,7 @@ databases.</li>
 <div class="Body">&nbsp;
 <br>
 In each option field listed above, single click on the items you wish
-to include/exclude.&nbsp; Scroll bars to the right of each field allow
+to include/exclude. Scroll bars to the right of each field allow
 you to page through all available selections. Alternately, you can
 click
 on the option heading itself to list all available selections.
@@ -381,8 +346,7 @@ selections
 and close the dialog, or click Cancel at any time to end the operation
 and close the dialog.
 </p>
-<img alt="WE Browser Dialog" src="images/WEBrowserDialog.png"
- style="width: 576px; height: 546px;">
+<img alt="WE Browser Dialog" src="images/WEBrowserDialog.png">
 <ul>
   <h3>Working With Groups</h3>
 While the Weather Element Volume Browser Dialog allows you to load and
@@ -422,15 +386,14 @@ Element Group.</li>
 Dialog</a>
 appears. Enter the group name and select Save.</li>
   </ol>
-Now your new group has been saved and is ready to be used. <br>
-&nbsp;
+Now your new group has been saved and is ready to be used.<br>
   <p>You can delete saved groups by choosing File--&gt;Delete Weather
 Element
 Group which brings up the <a href="#DeleteWEGroupDialog">Delete
 Weather
 Element Group Dialog</a>.</p>
 </ul>
-<div class="Body">&nbsp;
+<div class="Body">
 <br>
 <hr width="100%">
 <h2><a name="SaveWEGroupDialog"></a>Save Weather
@@ -440,8 +403,7 @@ Volume
 Browser, type a name in the identifier box and click "Save." You can
 re-save
 an existing group by clicking on its name.
-<p><img nosave="" src="images/DialogSaveWeatherElementGroup.jpg"
- height="340" width="285"><br>
+<p><img nosave="" src="images/DialogSaveWeatherElementGroup.jpg" height="337" width="200"><br>
 </p>
 <hr width="100%">
 <h2><a name="DeleteWEGroupDialog"></a>Delete Weather
@@ -449,52 +411,49 @@ Element Group Dialog</h2>
 To delete an existing weather element group, click on its name which
 will
 appear in the identifier box. Then click "Delete."
-<p><img nosave="" src="images/DialogDeleteWeatherElementGroup.jpg"
- height="337" width="283"></p>
+<p><img nosave="" src="images/DialogDeleteWeatherElementGroup.jpg"></p>
 <p></p>
 <hr width="100%">
 <h2><a name="ManageHiddenWeatherElements"></a>Manage Hidden Weather
 Elements Dialog</h2>
 The Manage Hidden Weather Elements Dialog is used to unload and/or make
-visible hidden weather elements.&nbsp; Hidden weather elements are
+visible hidden weather elements. Hidden weather elements are
 those weather elements which have been created during smart tool
-execution or during "Show ISC Mode".&nbsp;&nbsp; The GFE creates
-temporary weather elements for purposes of holding calculations.&nbsp;
+execution or during "Show ISC Mode". The GFE creates
+temporary weather elements for purposes of holding calculations.
 Some of these may not get unloaded automatically and since these
 weather elements are "hidden", i.e., don't appear in the spatial editor
 or grid manager, the user is not aware of their existance.<br>
 <br>
 One example of a hidden weather element is when "Show ISC Mode" is
-enabled.&nbsp;&nbsp; The GFE will continue to display just the Fcst
+enabled. The GFE will continue to display just the Fcst
 weather elements and not any ISC elements in the grid manager and
-spatial editor.&nbsp;&nbsp; The GFE software loads the ISC and any
+spatial editor. The GFE software loads the ISC and any
 needed virtual ISC elements in order to display the composite grids in
-the editors.&nbsp; When "Show ISC Mode" is turned off, these hidden
+the editors. When "Show ISC Mode" is turned off, these hidden
 elements remain.<br>
 <br>
 The dialog provides a convenient way to view these "hidden" elements or
 to "unload" them.<br>
 <br>
 <br>
-<img src="images/DialogManageHiddenWE.jpg" alt=""
- style="width: 286px; height: 300px;"><br>
-<br>
+<img src="images/DialogManageHiddenWE.jpg" alt=""><br>
 <br>
 <hr style="width: 100%; height: 2px;"><br>
-<br>
-<br>
 <h2><a name="DefineProceduresDialog"></a>Define
 Procedures Dialog</h2>
 Procedures are a sequences of commands allowing you to populate the
 Forecast
 database from the Model databases that have been created via
 initialization
-and to call Smart Tools. (See&nbsp; <a href="SmartTools.html">GFE
+and to call Smart Tools. (See <a href="SmartTools.html">GFE
 Smart
 Tools Training Guide</a>)
-<p>The Define Procedures Dialog lists all existing procedures.
-<br>
-Choosing File--&gt;New allows you to add a new procedure. A dialog will
+<p>The Define Procedures Dialog opens the Localization perspective with the Procedures
+folder selected in the left column.
+</p>
+<p>
+Choosing MB3--&gt;New allows you to add a new procedure. A dialog will
 appear for you to enter the name of your new procedure. After clicking
 Ok, the Python editor will appear for you enter your procedure
 commands.
@@ -502,12 +461,6 @@ A template is provided in the Python window with documentation in the <a
  href="SmartTools.html#SSLib">Smart
 Script Class Library</a> and <a href="SmartTools.html#SS">Procedures</a>
 section of the Smart Tools Training Guide.
-</p>
-<p>An Editable Listbox displays the procedures, and pressing MB3 over
-the
-box, brings up a menu described in the <a href="EditableListbox.html">Editable
-Listbox </a>description. When finished, click "Close" to exit the
-dialog.
 </p>
 <p>NOTE: Procedures can be run in background mode from the command
 line.
@@ -528,12 +481,11 @@ Selected
 Time Range of the Grid Manager.
 <p>The dialog displays the names of all available models and you choose
 the model you wish to copy from by clicking directly on the model
-identifier.&nbsp;
+identifier.
 If necessary, you can use the scroll bar at right to page through all
-the
-available models.
+the available models.
 </p>
-<p>After making your selection(s)&nbsp; click OK or click Cancel at any
+<p>After making your selection(s) click OK or click Cancel at any
 time to cancel the operation and close the dialog.
 </p>
 <p><img nosave="" src="images/DialogCopySelectedGrids.jpg" height="357"
@@ -546,10 +498,9 @@ The Copy All Grids From dialog allows you to Copy all data from a model
 to one or more <i>Forecast</i> Weather Elements.
 <p>The dialog displays the names of all available models and you choose
 the model you wish to copy from by clicking directly on the model
-identifier.&nbsp;
+identifier.
 If necessary, you can use the scroll bar at right to page through all
-the
-available models.
+the available models.
 </p>
 <p>After making your selection(s) click OK or click Cancel at any time
 to cancel the operation and close the dialog.
@@ -561,30 +512,25 @@ to cancel the operation and close the dialog.
 <h2><a name="SendISCDialog"></a>Send Intersite Grids Dialog</h2>
 The Send Intersite Grids dialog controls the sending of grids to
 adjacent
-sites.&nbsp; Sending of grids is either an automatic process when grids
+sites. Sending of grids is either an automatic process when grids
 are saved (if SEND_ISC_ON_SAVE is set in localConfig), or a manual
-process accomplished through this dialog.&nbsp; It is not recommended
+process accomplished through this dialog. It is not recommended
 to use both methods. If SEND_ISC_ON_SAVE in serverConfig/localConfig is
 0, or disabled, then this dialog must be used to transmit grids. The
 Send Intersite Grids Dialog has two fields in manual mode, and just one
 choice for automatic mode. Do not confuse this
 automatic mode with the SEND_ISC_ON_SAVE.
-&nbsp;
 <p>In manual mode, the user chooses the set of weather elements to
 send, which default to
 the currently loaded elements in the Fcst database, the time ranges to
 send, whether it be "All Grids", grids over the "Selected Time", or
-grids
-over a specific user-defined time range.&nbsp; </p>
+grids over a specific user-defined time range.</p>
 <p>There are several convenient buttons used to select the set of
-Weather
-Elements.&nbsp; By default, the loaded weather elements are
-selected.&nbsp;
+Weather Elements. By default, the loaded weather elements are selected.
 The "Set All" sets all weather elements to on, the "Clear All" sets all
 weather elements (and sites) to off, and the Groups button brings up a
-menu allowing the forecaster to choose a predefined <a
- href="#SaveWEGroupDialog">Weather
-Element Group</a>.&nbsp; The "Set Selected" option sets the weather
+menu allowing the forecaster to choose a predefined <a href="#SaveWEGroupDialog">Weather
+Element Group</a>. The "Set Selected" option sets the weather
 elements and time range to that currently selected in the GFE Grid
 Manager.<br>
 <br>
@@ -593,11 +539,9 @@ Manager.<br>
 </p>
 <p><img nosave="" src="images/DialogSendISC1.jpg"><br>
 </p>
-<p>In automatic mode, the ifpServer keeps track of what ISC grids have
-been
+<p>In automatic mode, EDEX keeps track of what ISC grids have been
 sent since the grids were last modified. When Send ISC is chosen with
-automatic mode, the ifpServer sends all grids that were previously
-modified
+automatic mode, EDEX sends all grids that were previously modified
 but haven't yet been sent via ISC.
 </p>
 <hr width="100%">
@@ -617,7 +561,7 @@ this one-time request. As the user selects and deselects domains, the
 entries
 in the second column, Grid Source, will change. The Grid Source
 contains
-information about the "known" ifpServers that are running the desired
+information about the "known" EDEX servers that are running the desired
 domain.
 The "best" guess selection for each domain is automatically chosen, but
 may
@@ -632,7 +576,7 @@ forecaster must
 choose the site and server that was used to backup your site. </p>
 <p>The information in the second column details the Domain, then the
 server. The format of the information for the server is the
-host/port@site. Don't
+host/port@site where site is the configured mhs id. Don't
 get confused if the domain is your own, but the site is someone else.
 This
 indicates that there is another server on the network that is running
@@ -648,57 +592,56 @@ weather elements you normally receive via ISC. This list defaults to
 all elements.
 </p>
 <p>Pressing the "Make Request" button will send a request to the chosen
-ifpServers, which will process the requests and send you back the
+EDEX servers, which will process the requests and send you back the
 specific
 ISC data in the normal fashion.
 </p>
-<p><img style="width: 558px; height: 398px;" alt="" nosave=""
- src="images/DialogRequestISC.jpg"><br>
+<p><img alt="" nosave="" src="images/DialogRequestISC.jpg"><br>
 </p>
 <p>If you are requesting ISC data from a site with a different office
 type than your own (such as an RFC requesting data from a WFO), then
 the weather element you request will have the remote office type as
-part of its name.&nbsp;&nbsp;&nbsp; For example if you are at a WFO and
-want to request QPF.&nbsp;&nbsp; Requesting QPF will work from any WFO,
+part of its name. For example if you are at a WFO and
+want to request QPF. Requesting QPF will work from any WFO,
 but you must request QPFrfc to request the data from an
-RFC.&nbsp;&nbsp; In a similar fashion, if you are at an RFC and want
-QPF from another RFC, simply request QPF.&nbsp; But if you want QPF
+RFC. In a similar fashion, if you are at an RFC and want
+QPF from another RFC, simply request QPF. But if you want QPF
 from an WFO, you must choose QPFwfo.<br>
 </p>
 <hr width="100%">
 <h2><a name="InterpolateDialog"></a>Interpolate Dialog</h2>
 The interpolation dialog controls the interpolation for the selected
 time
-ranges and weather elements.&nbsp; The user can choose interpolate by
+ranges and weather elements. The user can choose interpolate by
 gaps,
 in which all gaps are interpolated, or based on edited data, in which
 only
 those grids that been edited will be preserved and all other grids and
 gaps will be interpolated.
-<p>The user may&nbsp; choose an interpolation interval in hours.&nbsp;
+<p>The user may choose an interpolation interval in hours.
 The scale varies from the minimum size of the time constraints for the
-selected weather elements up to 24 hours.&nbsp; If the user chooses 1,
+selected weather elements up to 24 hours. If the user chooses 1,
 then a grid will be created each hour (or the minimum allowable time
 for
-the weather element).&nbsp; If the user chooses 3, then interpolated
+the weather element). If the user chooses 3, then interpolated
 grids
 will be created every 3 hours.
 </p>
-<p>The user may choose the duration of the grids in hours.&nbsp; The
+<p>The user may choose the duration of the grids in hours. The
 scale
 varies from the minimum size of the time constraints for the selected
 weather
-elements up to 24 hours.&nbsp; If the user chooses 1, then each
+elements up to 24 hours. If the user chooses 1, then each
 interpolated
 grid will be 1 hour in length (or the minimum allowable time for the
 weather
-element).&nbsp; If the user chooses 3, then each interpolated grid will
+element). If the user chooses 3, then each interpolated grid will
 be 3 hours in length if possible.
 </p>
 <p>Note that the "Interpolation Interval In Hours" and the "Duration of
 Grids in Hours" may not always appear on the dialog, depending upon the
 time constraint characteristics of the weather elements you have
-selected.&nbsp;
+selected.
 The "Duration of Grids in Hours" will not appear when selecting a
 weather
 element in which gaps are permitted, or when weather elements are
@@ -713,46 +656,45 @@ set in the gfe configuration file. See the <a
  href="gfeConfig_Zoom.html#InterpolationDialogDefaults">Interpolation
 Dialog Defaults</a> section.
 </p>
-<p><img nosave="" src="images/DialogInterpolation.jpg" height="265"
- width="262"></p>
+<p><img nosave="" src="images/DialogInterpolation.jpg"></p>
 <p></p>
 <hr width="100%">
 <h2><a name="CreateFromScratchDialog"></a>Create From Scratch Dialog</h2>
 The create from scratch dialog creates new grids for the selected time
-ranges and weather elements.&nbsp; The user can choose to fill the
+ranges and weather elements. The user can choose to fill the
 newly
 created grids using either the default weather value for the weather
 element,
 or the currently assigned pick-up value.
-<p>The user may&nbsp; choose an creation interval in hours.&nbsp; The
+<p>The user may choose an creation interval in hours. The
 scale
 varies from the minimum size of the time constraints for the selected
 weather
-elements up to 24 hours.&nbsp; If the user chooses 1, then a grid will
+elements up to 24 hours. If the user chooses 1, then a grid will
 be created each hour (or the minimum allowable time for the weather
-element).&nbsp;
+element).
 If the user chooses 3, then grids will be created every 3 hours.
 </p>
-<p>The user may choose the duration of the grids in hours.&nbsp; The
+<p>The user may choose the duration of the grids in hours. The
 scale
 varies from the minimum size of the time constraints for the selected
 weather
-elements up to 24 hours.&nbsp; If the user chooses 1, then each created
+elements up to 24 hours. If the user chooses 1, then each created
 grid will be 1 hour in length (or the minimum allowable time for the
 weather
-element).&nbsp; If the user chooses 3, then each created grid will be 3
+element). If the user chooses 3, then each created grid will be 3
 hours in length if possible.
 </p>
 <p>Note that the "Creation Interval In Hours" and the "Duration of
 Grids
 in Hours" may not always appear on the dialog, depending upon the time
 constraint characteristics of the weather elements you have
-selected.&nbsp;
+selected.
 The "Duration of Grids in Hours" will not appear when selecting a
 weather
 element in which gaps are permitted, or when weather elements are
 selected
-with differing allowable durations.&nbsp; The "Creation Interval in
+with differing allowable durations. The "Creation Interval in
 Hours"
 will not appear when multiple weather elements are selected and their
 repeat
@@ -766,8 +708,7 @@ may be set in the gfe configuration file. See the <a
  href="gfeConfig_Zoom.html#CreateScratchDialogDefaults">Create
 From Scratch Dialog Defaults</a> section.
 </p>
-<p><img nosave="" src="images/DialogCreateFromScratch.jpg" height="269"
- width="265"><br>
+<p><img nosave="" src="images/DialogCreateFromScratch.jpg"><br>
 </p>
 <hr width="100%">
 <h2><a name="TimeShiftDialog"></a>Time Shift Dialog</h2>
@@ -778,13 +719,12 @@ or move, and the amount of
 time you wish to shift (in Hours). Depending upon the selected weather
 elements, the slider may only allow you to select certain time shift
 values due to the defined time constraints of the elements.
-<p>After making your selections click OK.&nbsp; At any time you can
+<p>After making your selections click OK. At any time you can
 click
 Cancel to cancel the operation and close the dialog.
 </p>
-<p><img nosave="" src="images/DialogTimeShift.jpg" height="192"
- width="419"></p>
-<div class="Body">&nbsp;
+<p><img nosave="" src="images/DialogTimeShift.jpg"></p>
+<div class="Body">
 <br>
 <hr width="100%">
 <h2><a name="SaveSelectionTRDialog"></a>Save Selection
@@ -800,12 +740,11 @@ specifying:</div>
 </ul>
 <div class="3Heading">The start and stop hours are relative to either
 0000LT
-(midnight) or 0000Z, depending upon the radiobutton setting for the
+(midnight) or 0000Z, depending upon the radio button setting for the
 time
-mode.&nbsp; The following table illustrates the calculation of the time
+mode. The following table illustrates the calculation of the time
 range based on various input factors:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -850,8 +789,8 @@ range based on various input factors:
 </div>
 At any time, you can click Cancel to cancel the operation and close the
 dialog.
-<p><img nosave="" src="images/DialogSTR.jpg" height="374" width="501"></p>
-<div class="Body">&nbsp;
+<p><img nosave="" src="images/DialogSTR.jpg"></p>
+<div class="Body">
 <br>
 <hr width="100%">
 <h2><a name="DeleteSelectionTRDialog"></a>Delete
@@ -860,11 +799,11 @@ Selection Time Range Dialog</h2>
 delete Selection Time Ranges. To Delete an existing Time Range
 Definition,
 click on its name which will appear in the Identifier box. Then click
-"Delete."</div>
+"Delete."
 At any time, you can click Cancel to cancel the operation and close the
-dialog.
-<p><img nosave="" src="images/DialogDTR.jpg" height="360" width="222"></p>
-<div class="Body">&nbsp;
+dialog.</div>
+<p><img nosave="" src="images/DialogDTR.jpg"></p>
+<div class="Body">
 <br>
 <hr width="100%">
 <h2><a name="SaveForecastDialog"></a>Save Forecast
@@ -873,7 +812,7 @@ The Save Forecast dialog allows you to save the data of modified
 Forecast
 Weather Elements.
 <p>The dialog displays the names of all modified Weather
-Elements.&nbsp;
+Elements.
 Choose the Weather Elements you wish to save and click Save Forecast.
 </p>
 <p>The "Send ISC on Save" option can be enabled to also send out
@@ -893,15 +832,15 @@ dialog.
 that looks like this:<br>
 </p>
 <p><img alt="Picture of Save Dialog" title="Save Dialog"
- src="images/SaveDialog.png" style="width: 415px; height: 281px;"><br>
+ src="images/SaveDialog.png"><br>
 </p>
 <p>When you see a Save Dialog that looks like this, it means that you
-have temporary hazard grids active in the GFE.&nbsp; These temporary
-grids must be merged manually before they can be saved.&nbsp; If you
+have temporary hazard grids active in the GFE. These temporary
+grids must be merged manually before they can be saved. If you
 select "Save Weather Element(s) at this point, all of your modified
-weather elements will be saved, except "Hazards".&nbsp; To save
+weather elements will be saved, except "Hazards". To save
 "Hazards", you must first select "Hazards-&gt;MergeHazards" from the
-GFE main menu bar.&nbsp; Selecting "Cancel" will not save any weather
+GFE main menu bar. Selecting "Cancel" will not save any weather
 elements and leave the state of the grids just as they were before you
 attempted to save.<br>
 </p>
@@ -909,21 +848,16 @@ attempted to save.<br>
 <h2><a name="RevertForecastDialog"></a>Revert Forecast
 Dialog</h2>
 The Revert Forecast dialog allows you to revert the data of modified
-Weather
-Elements.&nbsp;&nbsp; The dialog displays the names of all modified
-Weather
+Weather Elements. The dialog displays the names of all modified Weather
 Elements and you choose the Weather Elements you wish to revert to the
-last saved data.&nbsp; If you Revert the "Hazards" weather element, any
+last saved data. If you Revert the "Hazards" weather element, any
 temporary hazards weatehr elements will be automatically unloaded in
-the Grid Manager.&nbsp; To get the temporary elements back, select from
+the Grid Manager. To get the temporary elements back, select from
 the GFE main menu: <span style="font-weight: bold;">Hazards-&gt;SeparateHazards</span>.<br>
 <p>At any time you can click Cancel to cancel the operation and close
-the
-dialog.
+the dialog.
 </p>
-<p><img nosave="" src="images/DialogRevertFcst.jpg" height="170"
- width="226"><br>
-&nbsp;
+<p><img nosave="" src="images/DialogRevertFcst.jpg"><br>
 </p>
 <p></p>
 <hr width="100%">
@@ -931,16 +865,15 @@ dialog.
 Official Dialog</h2>
 The Publish To Official dialog allows you to publish the data of
 Weather
-Elements.&nbsp; The dialog displays the names of all&nbsp; Weather
+Elements. The dialog displays the names of all Weather
 Elements
 for the mutable database (e.g., Fcst), and you choose the Weather
 Elements
 you wish to publish.
 <br>
 The Time Period entry allows you to select all grids to be published,
-the selected time range, or just certain defined time periods.&nbsp;
-The
-time periods shown are those defined by the <a
+the selected time range, or just certain defined time periods.
+The time periods shown are those defined by the <a
  href="GFEMainMenu.html#DefineSelectTimeRanges...">GFE-&gt;Define
 Time Ranges</a> menu entry that also appear in the <a
  href="gfeConfig_Zoom.html#ListofPublishDialogTimePeriods">Publish
@@ -952,8 +885,8 @@ any grids that overlap the defined time range will be published.
 <p></p>
 <p>There are several convenient buttons used to select the set of
 Weather
-Elements.&nbsp; By default, the loaded weather elements are
-selected.&nbsp;
+Elements. By default, the loaded weather elements are
+selected.
 The "Set All" sets all weather elements to on, the "Clear All" sets all
 weather elements (and sites) to off, and the Groups button brings up a
 menu allowing the forecaster to choose a predefined <a
@@ -971,32 +904,27 @@ to cancel the operation and close the dialog.
 <hr style="width: 100%; height: 2px;">
 <h2><a name="FormatterLauncher"></a>Formatter Launcher
 Dialog</h2>
-The Formatter Launcher Dialog is opened from the Products menu.&nbsp;
-The
-dialog
-allows you to generate products using the local formatter
+The Formatter Launcher Dialog is opened from the Products menu.
+The dialog allows you to generate products using the local formatter
 infrastructure, define zone combinations, edit the final output
 product, and view the output log from the formatter. It is highly
-recommended that you Publish To Official
-prior to generating products
-since usually products are generated from the Official Database.&nbsp;<br>
-<p>Each product you can generate is listed in the dialog.&nbsp; To
-learn
+recommended that you Publish To Official prior to generating products
+since usually products are generated from the Official Database.<br>
+<p>Each product you can generate is listed in the dialog. To learn
 how to add your own product selections or change the entries currently
 in the dialog, refer to the <a href="TextFormatter.html">Text
 Formatter User's Guide</a>. <br>
 </p>
 <p>By default, product generation will use the Official database for
-the data source.&nbsp;
+the data source.
 The data source for product generation can be changed to use the Fcst
-or
-the ISC database using the "Data Source" menu.&nbsp;&nbsp; The default
+or the ISC database using the "Data Source" menu. The default
 may also be specified in the Definition section of each product
 formatter using the <span style="font-weight: bold;">Definition['database']</span>
 entry.<br>
 </p>
-<p>By default, product generation will run on the ifpServer platform,
-rather than on the local platform.&nbsp;&nbsp; The forecaster may
+<p>By default, product generation will run on the EDEX platform,
+rather than on the local platform. The forecaster may
 change this from the "Processor" menu.<br>
 </p>
 <div class="Body">
@@ -1004,19 +932,18 @@ change this from the "Processor" menu.<br>
 go to the appropriate tab and click the "Run" button.<br>
 <br>
 When the "Run" button is pressed, the product will
-be queued for execution.&nbsp; A dialog will usually be displayed
+be queued for execution. A dialog will usually be displayed
 allowing for entry of specific information, such as the issuance
-time.&nbsp; After the entry dialog is closed, the actual
-formatter will be queued for execution either on the ifpServer platform
+time. After the entry dialog is closed, the actual
+formatter will be queued for execution either on the EDEX platform
 or local platform. Upon completion, the generated product will be
-displayed in the dialog.&nbsp; The user can then edit it, save it to a
-file, store it into AWIPS, or transmit it via AWIPS.&nbsp;&nbsp; <br>
+displayed in the dialog. The user can then edit it, save it to a
+file, store it into AWIPS, or transmit it via AWIPS.<br>
 <br>
 For more details, refer to the<a href="FormatterLauncher.html">
 Formatter Launcher How-To Guide</a>.<br>
 <br>
-<p><img alt="Formatterlauncher" src="images/FormatterLauncher.png"
- style="width: 804px; height: 696px;"><br>
+<p><img alt="Formatterlauncher" src="images/FormatterLauncher.png"><br>
 </p>
 </div>
 </div>
@@ -1024,10 +951,10 @@ Formatter Launcher How-To Guide</a>.<br>
 <br>
 <hr width="100%">
 <h2><a name="ScriptsDialog"></a>Scripts Dialog</h2>
-The Scripts dialog is opened from the Products menu.&nbsp; The dialog
+The Scripts dialog is opened from the Products menu. The dialog
 allows you to generate products and perform other tasks. Each item
 shown is defined by using an entry in the gfe configuration file. is
-listed in the dialog.&nbsp; To learn
+listed in the dialog. To learn
 how to add your own product selections or change the entries currently
 in the dialog, refer to the <a href="gfeConfig_ProdGen.html">Product
 Generation
@@ -1037,24 +964,23 @@ file</a>.<br>
 <br>
 <div class="Body">
 <div class="Body">After selecting the script(s) you wish to generate,
-select Run/Dismiss, or just Run.&nbsp;
+select Run/Dismiss, or just Run.
 At any time you can select Cancel to cancel the operation and close the
 dialog.<br>
 <br>
-The scripts can be run either locally or on the server machine.&nbsp;
+The scripts can be run either locally or on the server machine.
 Some scripts may run quicker on the server machine since the grids will
 not be required to flow between the local machine and server
-machine.&nbsp;&nbsp; However, keep in mind that the directory structure
+machine. However, keep in mind that the directory structure
 is different on the local and server machines, and thus it may be
 difficult to "code" up directory names that will work in both cases.<br>
-<p><img style="width: 374px; height: 388px;" alt=""
- src="images/DialogScripts.jpg"><br>
+<p><img src="images/DialogScripts.jpg"><br>
 </p>
 <hr style="width: 100%; height: 2px;"><br>
 <h2><a name="ProcessMonitorDialog"></a>Process Monitor Dialog</h2>
 The Process Monitor Dialog displays the queue of pending and finished
-background processes on both the local machine as well as the ifpServer
-machine.&nbsp; As background processes are requested to be
+background processes on both the local machine as well as the EDEX
+machine. As background processes are requested to be
 run from the Product Generation Scripts and Formatter Launcher Dialogs,
 the GFE will queue them for execution.&nbsp; This dialog can be used to
 display and manipulate the queue. <br>
@@ -1063,17 +989,17 @@ display and manipulate the queue. <br>
  src="images/DialogProcessMonitor1.jpg"><br>
 <br>
 The "Local Scripts" section shows the pending, running, and finished
-processes that were queued locally.&nbsp; Only the processes that were
-started by the current GFE will be shown.&nbsp;&nbsp; The "Server
+processes that were queued locally. Only the processes that were
+started by the current GFE will be shown. The "Server
 Scripts" section shows the pending, running, and finished processes
-that were queued remotely.&nbsp; Processes queued by you, as well as
+that were queued remotely. Processes queued by you, as well as
 other GFEs, will be shown in this area of the dialog.<br>
 <br>
 <img style="width: 24px; height: 27px;" alt="start button" title=""
  src="images/DialogProcessMonitor2.jpg"> The "start" button flashes
 when
-the process is running.&nbsp;&nbsp; If the process is still pending,
-then the button does not flash.&nbsp; Clicking with MB1 will force the
+the process is running. If the process is still pending,
+then the button does not flash. Clicking with MB1 will force the
 process to begin, even if it will exceed the maximum configured number
 of background processes.<br>
 <br>
@@ -1090,21 +1016,18 @@ that produce a lot of output may not have all of their output contained
 in the dialog. The window may be opened up at any time, while it is
 pending, running, or finished. Some log messages may not be written to
 the terminal window unless the .logPref file is correctly
-configured.&nbsp;&nbsp; The terminal button is only available for
+configured. The terminal button is only available for
 server processes after the process has finished.<br>
 <br>
-<img alt="console" src="images/DialogProcessMonitor5.jpg"
- style="width: 756px; height: 508px;"><br>
+<img alt="console" src="images/DialogProcessMonitor5.jpg"><br>
 <br>
 Characteristics of the local processing and dialog can be set through
 the<a href="gfeConfig_process.html"> GFE configuration file process
 monitor
-entries</a>.&nbsp;&nbsp; Characteristics of the remote processing
+entries</a>. Characteristics of the remote processing
 (e.g., number of simultaneous processes) can be set through the <a
  href="localConfig.html#backgroundtasks">server's local configuration
 file</a>.<br>
-<br>
-<br>
 <br>
 <br>
 <hr width="100%"></div>
@@ -1117,47 +1040,32 @@ phrases.
 For detailed examples and guidelines for creating your own text
 products,
 please refer to the GFE Text Product Training Guide.
-<p>The Define Text Product Dialog lists all existing text products.
-<br>
-Choosing File--&gt;New allows you to add a new product to the list. A
-dialog will appear for you to enter the name of your new product and
-the
+<p>The Define Text Product Dialog is opened by selecting GFE--&gtDefine Text Products.
+This opens the Localization perspective with TextProducts folder selected.  Within
+the Text product folder are all existing text products.
+<br><br>
+Choosing MB3--&gt;New on the selected TextProducts folder 
+allows you to add a new product to the list. A
+dialog will appear for you to enter the name of your new product and the
 product type. After clicking Ok, the Python editor will appear for you
 enter your product definition. A template is provided in the Python
-window
-with documentation explaining the definition.
+window with documentation explaining the definition.
 </p>
-<p>Editable Listboxes display the text products and utilities, and
-pressing
-MB3 over a box, brings up a menu described in the <a
- href="EditableListbox.html">Editable
-Listbox</a> description. When finished, click "Close" to exit the
-dialog.
+<p><img alt="Define Text Product Dialog" src="images/DialogDefineText.png"><br>
 </p>
-<p><br>
-</p>
-<p><img alt="Define Text Product Dialog"
- src="images/DialogDefineText.png"><br>
-</p>
-<p></p>
 </div>
 </div>
 <hr width="100%">
 <h2><a name="LoadSamplesDialog"></a>Load Sample Set
 Dialog</h2>
-The Load Sample Set Dialog allows you load existing Sample Sets into
-the
+The Load Sample Set Dialog allows you load existing Sample Sets into the
 GFE Spatial Editor display.
-<br>
 To load a Sample Set, click on its name which will highlight it. You
 may choose more than one Sample Set.
-<br>
 To add the chosen Sample Set(s) to those already being displayed, click
 "Add."
-<br>
 To remove the chosen Sample Set(s) from those being displayed, click
 "Remove."
-<br>
 To display only the chosen Sample Set(s) and remove all others from
 the display, click "Replace."
 <p>At any time, you can click Cancel to cancel the operation and close
@@ -1172,7 +1080,6 @@ The Save Sample Set dialog allows you to name and save Sample Sets.
 <p>A sample point can be added to the Spatial Editor when the <a
  href="Toolbar.html#SampleTool">Sample
 Tool</a> is active by clicking on a location in the display.
-<br>
 To save the set of sample points displayed in the Spatial Editor as
 a named Sample Set, type a name in the Identifier box and click "Save."
 You may Cancel the dialog at any time.
@@ -1183,8 +1090,6 @@ You may Cancel the dialog at any time.
 <h2><a name="DeleteSamplesDialog"></a>Delete Sample
 Set Dialog</h2>
 The Delete Sample Set dialog allows you delete Sample Sets.
-<br>
-&nbsp;
 <p>To delete a saved Sample Set, click on its name which will appear in
 the Identifier box and click "Delete." You may Cancel the dialog at any
 time.
@@ -1195,77 +1100,23 @@ time.
 <h2><a name="DefineSamplesviaLatitude/LongitudeDialog"></a>Define
 Samples via
 Latitude/Longitude Dialog</h2>
-The samples may be defined by latitude and longitude.&nbsp; A sample
+The samples may be defined by latitude and longitude. A sample
 point
 may be added based on the location in latitude/longitude through this
 dialog,
 which is accessed from the <a
  href="GFEMainMenu.html#DefinebyLat/Lon...">main
-menu Samples entry</a>.&nbsp; The user enters the latitude and the
+menu Samples entry</a>. The user enters the latitude and the
 longitude
-as a decimal number and that point is added to the display.&nbsp; Note
+as a decimal number and that point is added to the display. Note
 that in the Western Hemisphere, the longitudes are negative.
-<p><img nosave="" src="images/DialogSamplesLatLon.jpg" height="138"
- width="267"><br>
+<p><img nosave="" src="images/DialogSamplesLatLon.jpg"><br>
 </p>
 <hr width="100%">
 <h2><a name="AboutDialog"></a>About Dialog</h2>
-The About Dialog provides general information about the GFE, as shown
-in
-the following table:
+<p>The About Dialog provides general information about CAVE.</p>
+<p><img nosave="" src="images/DialogAboutCAVE.jpg">
 <br>
-&nbsp;
-<table nosave="" border="1" cols="2" width="100%">
-  <tbody>
-    <tr>
-      <td>Build Date</td>
-      <td>Displays the date that the software was built.</td>
-    </tr>
-    <tr>
-      <td>Built By</td>
-      <td>Displays the username (account) that built the software.</td>
-    </tr>
-    <tr>
-      <td>Built On</td>
-      <td>Displays the hostname of the machine upon which the software
-was built.</td>
-    </tr>
-    <tr>
-      <td>Network Protocol Version</td>
-      <td>Protocol version number, in the form of yyyymmdd, that this
-software
-is using.&nbsp; The gfe and server must be running the same protocol
-version
-number or they will not be able to connect.</td>
-    </tr>
-    <tr>
-      <td>Version</td>
-      <td>The software version "tag" is shown.&nbsp;</td>
-    </tr>
-    <tr>
-      <td>Server Host/Port</td>
-      <td>The name and port of the currently connected ifpServer is
-shown.</td>
-    </tr>
-    <tr>
-      <td>Time Zone</td>
-      <td>The current timezone for the GFE is shown.</td>
-    </tr>
-    <tr>
-      <td>My WsID</td>
-      <td>The identifier of this GFE is shown in the following format:
-username@hostname:program
-name:pid:lockKey.&nbsp; The program name is gfe, the pid is the process
-identification number, and the lockKey is an optional synchronization
-value.</td>
-    </tr>
-  </tbody>
-</table>
-<p><img nosave="" src="images/DialogAbout.jpg" height="221" width="357">
-<br>
-&nbsp;
-<br>
-&nbsp;
 </p>
 <div class="Body">
 <div class="Body">

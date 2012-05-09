@@ -5,12 +5,12 @@
  content="text/html; charset=iso-8859-1">
   <meta name="GENERATOR"
  content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
-  <title>ifpServer ASCII Grid Format and ifpAG Program</title>
+  <title>ASCII Grid Format and ifpAG Program</title>
 </head>
 <body bgcolor="#ffffff">
 <h1 class="1Heading">
 ifpAG User's Guide</h1>
-<div class="1Heading">April 4, 2006<br>
+<div class="1Heading">January 4, 2012<br>
 </div>
 <a name="TableofContents"></a>Table of Contents</h2>
 <h4 class="1Heading">
@@ -52,14 +52,13 @@ Use of ifpAG to exchange grids between different resolutions of GFESuite</a></h4
 GFESuite
 of product generation software.
 <br>
-&nbsp;</div>
-<div class="1Heading">The current ifpServer (common data server)
+</div>
+<div class="1Heading">The current EDEX (common data server)
 currently
-uses a C++ interface to store and retrieve grids in the database. While
+uses a Java interface to store and retrieve grids in the database. While
 this works well for the Graphical Forecast Editor and initialization
 processes,
-it makes it difficult for field sites to store and retrieve data into
-the
+it makes it difficult for field sites to store and retrieve data into the
 database.</div>
 <div class="1Heading">&nbsp;
 <br>
@@ -81,15 +80,11 @@ program
 to take 5 kilometer resolution grids from GFESuite and populate another
 GFESuite running at 2.5 kilometer resolution.&nbsp; Of course, data
 resolution
-will be lost.&nbsp;&nbsp;&nbsp; Obviously there are some cases where
+will be lost. Obviously there are some cases where
 grids
 cannot be transferred, such as the input and output domains don't
 overlap
 at all or the projection is different (e.g., Grid211).</div>
-<div class="1Heading">
-<hr width="100%"></div>
-<h2 class="1Heading">
-<div class="1Heading">
 <hr width="100%"></div>
 <h2 class="1Heading">
 <a name="TerminologyandConceptsofGFESuiteGriddedData"></a>Terminology
@@ -102,7 +97,7 @@ basic
 GFESuite concepts.</div>
 <h3 class="1Heading">
 <a name="ServerConfiguration"></a>Server Configuration</h3>
-<div class="1Heading">The ifpServer configuration file (<a
+<div class="1Heading">The GFE configuration file (<a
  href="serverConfig.html">serverConfig</a>
 and <a href="localConfig.html">localConfig</a>) define all parameters,
 types of databases, and their attributes. The configuration file is
@@ -112,7 +107,7 @@ configuration
 manual</a> for further information.</div>
 <h3 class="1Heading">
 <a name="DataTypes"></a>Data Types</h3>
-<div class="1Heading">The ifpServer supports four different data types:
+<div class="1Heading">GFE supports four different data types:
 SCALAR, VECTOR, WEATHER, and DISCRETE. SCALAR is used for parameters
 whose
 values can be represented by a single value. VECTOR is used for
@@ -129,11 +124,9 @@ grids.</div>
 <div class="1Heading">A parameter identifier is used to uniquely
 identify
 an element in the database. A parameter identifier consists of two
-parts:</div>
-<div class="1Heading">parameter name, and database identifier. A
-complete
+parts: parameter name, and database identifier. A complete
 identifier (in ASCII) may appear like the following in the ASCII grid
-file:</div>
+file:</div><br>
 <div class="1Heading"><tt>Wind</tt></div>
 <div class="1Heading"><tt>BOU</tt></div>
 <div class="1Heading"><tt>&lt;notype&gt;</tt></div>
@@ -149,25 +142,25 @@ The example above indicates that the parameter is Wind. It is from (or
 derived from) 1the May 6, 1998 1200z eta model. The optional type is
 blank
 in the above case.</div>
-<div class="1Heading">&nbsp;
+<div class="1Heading">
 <br>
 There may be some databases which always exist, i.e., are not model
-time based. Typically the forecast database is handled this way.&nbsp;
-An example identifier for the forecast database is shown below:</div>
+time based. Typically the forecast database is handled this way.
+An example identifier for the forecast database is shown below:</div><br>
 <div class="1Heading"><tt>T</tt></div>
 <div class="1Heading"><tt>BOU</tt></div>
 <div class="1Heading"><tt>&lt;notype&gt;</tt></div>
 <div class="1Heading"><tt>Fcst</tt></div>
 <div class="1Heading"><tt>00000000_0000</tt></div>
-<div class="1Heading">&nbsp;
+<div class="1Heading">
 <br>
 The date-time group of all zeros indicate that the database is
 persistent
-and therefore does not have a model run time associated with it.</div>
-<div class="1Heading">A full list of parameters, site identifiers, and
-model names supported by the ifpServer is available in the server
+and therefore does not have a model run time associated with it.
+A full list of parameters, site identifiers, and
+model names supported by GFE is available in the server
 configuration
-files.&nbsp; Refer to the <a href="serverConfiguration.html">server
+files. Refer to the <a href="serverConfiguration.html">server
 configuration
 manual </a>for details. This server configuration files may be
 tailored
@@ -175,43 +168,36 @@ by each site.
 <p>Note that the parameter name may contain a level.&nbsp; Many of the
 parameters are surface-based, but for those that are not, the parameter
 definition is in the form of name_level, such as Wind_MB500 for the
-500MB&nbsp;Wind.</p>
+500MB Wind.</p>
 </div>
 <h3 class="1Heading">
 <a name="TimeRangeValidtimeofgrid"></a>Time Range (Valid time of grid)</h3>
 <div class="1Heading">Time is defined as a TimeRange which consists of
 a starting and ending time. A TimeRange contains all times from and
-including</div>
-<div class="1Heading">the starting time up to but not including the
+including the starting time up to but not including the
 ending
 time. For example, a TimeRange of 1:00pm to 2:00pm contains all times
-from</div>
-<div class="1Heading">1:00pm including 1:00pm up to but not including
+from 1:00pm including 1:00pm up to but not including
 2:00pm.</div>
-<div class="1Heading">&nbsp;
+<div class="1Heading">
 <br>
 All data stored in the database uses this time definition. The duration
-of data is calculated by taking subtracting the starting time</div>
-<div class="1Heading">from the ending time. Note that a duration of
-zero
+of data is calculated by taking subtracting the starting time
+from the ending time. Note that a duration of zero
 means a snapshot in time. Durations of zero are illegal for the
-database
-since a</div>
-<div class="1Heading">forecast field must have a valid time range.</div>
-<div class="1Heading">&nbsp;
+database since a forecast field must have a valid time range.</div>
+<div class="1Heading">
 <br>
-The format of the time is in yyyymmdd_hhmm. For example,</div>
-<div class="1Heading"><tt>19980518_1300</tt></div>
+The format of the time is in yyyymmdd_hhmm. For example,</div><br>
+<div class="1Heading"><tt>19980518_1300</tt></div><br>
 <div class="1Heading">indicates May 18, 1998 at 1300z.</div>
 <br>
-&nbsp;
 <h3 class="1Heading"><a name="GeographicalLocationInformation"></a>Geographical
 Location Information</h3>
 <div class="1Heading">Associated with each grid is geographical
 location
 which is used to position the grid on the earth's surface.The placement
-of the</div>
-<div class="1Heading">grid in the world coordinate system is based on
+of the grid in the world coordinate system is based on
 three
 items:</div>
 <ul>
@@ -222,8 +208,7 @@ items:</div>
 <div class="1Heading">All of these items are defined in the individual
 database configuration files. An example of these values are shown
 below
-for the</div>
-<div class="1Heading">Boulder WFO area:</div>
+for the Boulder WFO area:</div>
 <ul>
   <li class="1Heading">&nbsp;&nbsp;&nbsp; projection identifier =
 Grid211 (AWIPS Conus)</li>
@@ -235,11 +220,9 @@ Grid211 (AWIPS Conus)</li>
 </ul>
 <div class="1Heading">This is interpreted as a 73 x 73 point grid whose
 lowest-left grid point is at the world coordinate (37, 27) on the AWIPS
-world</div>
-<div class="1Heading">coordinate projection and whose uppermost-right
+world coordinate projection and whose uppermost-right
 grid
-point is at the world coordinate (37+9, 27+9) as shown in the diagram</div>
-<div class="1Heading">below:</div>
+point is at the world coordinate (37+9, 27+9) as shown in the diagram below:</div>
 <div class="1Heading"><img src="images/ifpAG-4.gif" nosave=""
  height="332" width="484"></div>
 <h3 class="1Heading">
@@ -281,8 +264,7 @@ on the specified time constraints. The starting time indicates the time
 of the first possible grid after 0000z. The duration indicates the
 length
 of the grid. The repeat interval defines how often the grid can repeat.
-All of the units are in seconds.</div>
-<div class="1Heading">For example, the illustration below shows the
+All of the units are in seconds. For example, the illustration below shows the
 possible
 grid boundaries for a time constraint of starting time of 0, duration
 of
@@ -293,8 +275,7 @@ of
 hours long, but could be 12 or 18 or even 24 hours in length just as
 long
 as the starting and ending time of the grid falls on one of the defined
-above.</div>
-<div class="1Heading">A time constraint can be defined to have gaps in
+above. A time constraint can be defined to have gaps in
 the data. For example, a 24-hour summary of daytime maximum temperature
 may have a constraint of starting time 900z, duration of 18 hours, and
 a repeat interval of 24 hours:</div>
@@ -308,10 +289,8 @@ a one hour constraint (start time = 0000z, repeat = 1 hour, duration =
 </p>
 <p class="1Heading">A special case exists which defines no constraints.
 This is the situation with a start time, repeat, and duration values
-all
-set to 0. The temporal resolution of the grids can be one second.
+all set to 0. The temporal resolution of the grids can be one second.
 <br>
-&nbsp;
 </p>
 <h3 class="1Heading"><a name="DataFormat"></a>Data Format</h3>
 <div class="1Heading">The format of the data depends upon whether the
@@ -341,7 +320,7 @@ to vision that are present for that gridpoint. The entire set of
 characters
 on a single line is called a weather key. A weather key is comprised of
 weather sub keys.</div>
-<div class="1Heading">&nbsp;
+<div class="1Heading">
 <br>
 A weather subkey consists of four parts and one additional optional
 part:</div>
@@ -352,7 +331,7 @@ scattered or slight chance)</div>
 <div class="1Heading">&nbsp;&nbsp;&nbsp; visibility (e.g., 25 m)</div>
 <div class="1Heading">&nbsp;&nbsp;&nbsp; attributes (e.g., "in
 mountains")</div>
-<div class="1Heading">&nbsp;
+<div class="1Heading">
 <br>
 The general format of a single weather sub key is:
 <tt>coverage:type:intensity:visibility:attributes</tt></div>
@@ -365,7 +344,7 @@ type or obstruction as a string of characters. The intensity field is a
 string of characters that denote an intensity. The visibility string
 denotes
 the character. The list of optional attributes are comma deliminated.</div>
-<div class="1Heading">&nbsp;
+<div class="1Heading">
 <br>
 Multiple weather sub keys are separated by the caret (^) character
 like this:</div>
@@ -376,9 +355,7 @@ There is no (practical) limit to the number of types of weather.
 Multiple
 weather types at a single grid point require a weather key that
 contains
-multiple groupings.</div>
-<div class="1Heading"></div>
-<div class="1Heading">A typical weather key is shown below:</div>
+multiple groupings. A typical weather key is shown below:</div>
 <p class="1Heading"><tt>ISO:T:+:1/4sm:HvyRain^ISO:A:&lt;NoInten&gt;:&lt;NoVis&gt;:SmA</tt>
 </p>
 <p class="1Heading">which is decoded as isolated intense thunder with
@@ -410,7 +387,6 @@ that gridpoint. The entire set of characters on a single line is called
 a discrete key. A discrete key may be&nbsp; comprised of discrete sub
 keys.&nbsp;
 Subkeys are separated by the '^' character.</div>
-<div class="1Heading">&nbsp;</div>
 <div class="1Heading">A typical discrete key is shown below:</div>
 <p class="1Heading"><tt>WintStmWRN^HiWndWRN</tt>
 </p>
@@ -430,9 +406,7 @@ the <a href="serverConfig.html#WeatherElementConfigurationSection">weather
 element configuration section</a> of the serverConfig documentation for
 further details.
 <br>
-&nbsp;
 <br>
-&nbsp;
 </p>
 <h4 class="1Heading">Organizational Order of the Grid</h4>
 <div class="1Heading">Grids are organized from lower-left across and
@@ -447,14 +421,14 @@ shown:</div>
 <a name="RunningtheifpAGProgram"></a>Running the ifpAG Program</h3>
 <div class="1Heading">The program is capable of both storing and
 retrieving
-grids from the ifpServer.
-<p><font color="#3366ff">Note: when running ifpAG in the normal
+grids from EDEX.
+<p><font color="#3366ff"><b>Note:</b> when running ifpAG in the normal
 environment,
 the -h and the -r switches are preset to the values defined by your
 installation,
-and thus the -h and -r switches are not needed.&nbsp; If you are
+and thus the -h and -r switches are not needed. If you are
 connecting
-to a different ifpServer than configured, then you will need the -h and
+to a different EDEX than configured, then you will need the -h and
 -r switches.</font></p>
 </div>
 <h4 class="1Heading">
@@ -462,11 +436,11 @@ to a different ifpServer than configured, then you will need the -h and
 <div class="1Heading">The command line syntax is:</div>
 <div class="1Heading"><tt>ifpAG -o outputFile -h hostname -r
 rpcPortNumber
--d databaseID [-p parmID] [-s startTime] [-e endTime] [-c
+-d databaseID [-p parmID] [-s startTime] [-e endTime] [-u username] [-c
 domainConfiguration]</tt></div>
 <div class="1Heading">A sample command line is:</div>
-<div class="1Heading"><tt>ifpAG -o testIt -h abc.fsl.noaa.gov -r
-95000000
+<div class="1Heading"><tt>ifpAG -o testIt -h dx3-oax -r
+9581
 -d TEST_GRID__Fcst_00000000_0000 -p Temp -s 19980604_1200 -e
 19980605_0000</tt></div>
 <div class="1Heading">&nbsp;</div>
@@ -480,28 +454,27 @@ domainConfiguration]</tt></div>
     <tr>
       <td>-o filename</td>
       <td>Mandatory</td>
-      <td>Specifies the name of the output file.&nbsp; If "-" is used,
+      <td>Specifies the name of the output file. If "-" is used,
 output
 will go to standard out.</td>
     </tr>
     <tr>
       <td>-h hostname</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the host, upon which the ifpServer is running</td>
+      <td>Specifies the host, upon which EDEX is running</td>
     </tr>
     <tr>
       <td>-r port</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the port, upon which the ifpServer is running</td>
+      <td>Specifies the port, upon which EDEX is running</td>
     </tr>
     <tr>
       <td>-d databaseid</td>
       <td>Mandatory</td>
       <td>Source, a.k.a. database identifier, from which to get the
-data.&nbsp;
+data.
 There may be several databaseIDs (several -d's) specified.&nbsp; The
-format
-of the database identifier is:
+format of the database identifier is:
 site_GRID_optType_modelName_modelRunTime.
 An example is DEN_GRID__eta_19980604_1200.</td>
     </tr>
@@ -514,9 +487,14 @@ databases will be processed.&nbsp; There may be several -p switches
 present
 if desired.&nbsp; The weather element name can include a level, if
 desired,
-such as T_3K.&nbsp; By default if the level is not specified, it is
+such as T_3K. By default if the level is not specified, it is
 assumed
 to be SFC.</td>
+    </tr>
+    <tr>
+      <td>-u username</td>
+      <td>Optional</td>
+      <td>The user running the program.</td>
     </tr>
     <tr>
       <td>-s startTime</td>
@@ -545,7 +523,7 @@ Format is yyyyMMDD_HHMM or 19980604_1200.</div>
       <td>Optional</td>
       <td>By default, the grids are output in the same projection,
 domain, and
-grid resolution as they are stored in the ifpServer.&nbsp; You can
+grid resolution as they are stored in GFE. You can
 override
 the domain configuration by specifying an encoded string in
 quotes.&nbsp;
@@ -554,22 +532,16 @@ yextent". An example is "35 35 Grid211 28.0 14.0 9.0 9.0".</td>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note:&nbsp; that when running ifpAG within the
+<font color="#3366ff"><b>Note:</b> that when running ifpAG within the
 standard
 GFESuite environment, the -h and -r switches are automatically filled
-in
-for the configured ifpServer and port. </font><font color="#3366ff">If
-environment variables ${CDSHOST} or ${CDSPORT}
-are defined, then the default server and port will be determined from
-the environment variables.</font>
+in for the configured EDEX and port. </font>
 <h4 class="1Heading"><a name="Input"></a>Input Mode</h4>
 <div class="1Heading">The command line syntax is:</div>
 <div class="1Heading"><tt>ifpAG -i inputFile -h hostname -r
-rpcPortNumber</tt></div>
+rpcPortNumber [-u username]</tt></div>
 <div class="1Heading">A sample command line is:</div>
-<div class="1Heading"><tt>ifpAG -i testIt -h abc.fsl.noaa.gov -r
-95000000</tt></div>
-<div class="1Heading">&nbsp;</div>
+<div class="1Heading"><tt>ifpAG -i testIt -h dx3-oax -r 9581 -u jsmith</tt></div><br>
 <table border="1" width="100%" nosave="">
   <tbody>
     <tr>
@@ -580,57 +552,44 @@ rpcPortNumber</tt></div>
     <tr>
       <td>-i filename</td>
       <td>Mandatory&nbsp;</td>
-      <td>Specifies the name of the input file.&nbsp; If "-" is used,
-input will
+      <td>Specifies the name of the input file. If "-" is used, input will
 come from standard in.</td>
     </tr>
     <tr>
       <td>-h hostname</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the host, upon which the ifpServer is running</td>
+      <td>Specifies the host, upon which EDEX is running</td>
     </tr>
     <tr>
       <td>-r port</td>
       <td>Mandatory (See Note)</td>
-      <td>Specifies the port, upon which the ifpServer is running</td>
+      <td>Specifies the port, upon which EDEX is running</td>
+    </tr>
+    <tr>
+      <td>-u username</td>
+      <td>Optional</td>
+      <td>Specifies the user running the program</td>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note:&nbsp; that when running ifpAG within the
+<font color="#3366ff"><b>Note:</b> that when running ifpAG within the
 standard
 GFESuite environment, the -h and -r switches are automatically filled
 in
-for the configured ifpServer and port.&nbsp;</font><font color="#3366ff">&nbsp;
-If environment variables ${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -r switches.</font>
+for the configured EDEX and port.</font>
 <div class="1Heading">
 <hr width="100%"></div>
 <h3 class="1Heading">
 <a name="SpecialUseofifpAGtoexchangegridsbetweendifferentversio"></a>Special
 Use of ifpAG to exchange grids between different resolutions of GFESuite</h3>
 <div class="1Heading">ifpAG can be used to communicate with different
-servers
-of GFESuite that are running different resolutions.</div>
-<div class="1Heading">You cannot use ifpAG supplied with the current
-version
-of GFESuite to communicate with a different version of GFESuite due to
-ifpServer protocol changes. If you attempt this, you will receive "RPC
-Protocol Version" errors since the program will not be able to
-communicate
-with the ifpServer.&nbsp;&nbsp; You can, however; take an ifpAG
-executable
-from a different release, rename it, and use it to communicate with
-your
-remote server if the protocol has changed.</div>
-<div class="1Heading">To transfer all data in the Fcst database from
-the
+servers of GFESuite that are running different resolutions. To transfer 
+all data in the Fcst database from
 one server to the other server, you will use a command line similar to
 that below:</div>
-<p class="1Heading"><tt>ifpAG -o - -h rpp-bou -r 98000000 -d
+<p class="1Heading"><tt>ifpAG -o - -h dx3-oax -r 9581 -d
 BOU_GRID__Fcst_00000000_0000
-| ifpAG -i - -h dx4f -r 98000000</tt>
+| ifpAG -i - -h dx3-oax -r 9581</tt>
 </p>
 <p class="1Heading"></p>
 <hr width="100%">
@@ -639,7 +598,6 @@ BOU_GRID__Fcst_00000000_0000
 is interpreted. More than one GRID may be contained in a single file.</div>
 <h4 class="1Heading">
 Scalar</h4>
-&nbsp;
 <table border="1" width="100%" nosave="">
   <tbody>
     <tr>
@@ -1031,15 +989,7 @@ of yyyymmdd_hhmm</td>
     </tr>
   </tbody>
 </table>
-<div class="1Heading"><tt></tt></div>
-&nbsp;
-<div class="1Heading"><tt></tt></div>
-&nbsp;
-</div>
-<div class="1Heading"></div>
 <br>
-&nbsp;
 <br>
-&nbsp;
 </body>
 </html>

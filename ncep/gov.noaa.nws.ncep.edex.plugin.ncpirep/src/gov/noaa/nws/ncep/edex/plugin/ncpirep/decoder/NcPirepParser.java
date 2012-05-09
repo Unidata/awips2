@@ -1573,13 +1573,14 @@ public class NcPirepParser {
             Matcher matcher = pattern.matcher(str);
             
             if (matcher.find()) { 
-                matcher = pattern.matcher(str); //need to re-match
+                matcher = pattern.matcher(str); //need to re-match.  LGT RIME 014-083
             	while (matcher.find()) { 
-                	addFlightCondition(matcher, theIcingLayers);
+            		//System.out.println("***str "+str);               	
+                	addFlightCondition(matcher, theIcingLayers);                	
             	}
             }
             else {
-            	Pattern pattern2 = Pattern.compile("([A-Z]{3,5})"); //only intensity
+            	Pattern pattern2 = Pattern.compile("([A-Z]{3,5})"); //only intensity.  LGT
             	Matcher matcher2 = pattern2.matcher(str);
             	while (matcher2.find()) {
             		
@@ -1690,7 +1691,7 @@ public class NcPirepParser {
         if(matcher.groupCount() >= 13) {
             String s1 = matcher.group(1);           
             String s2 = matcher.group(3);
-            
+            //System.out.println("***matcher "+matcher.group(0)); //MOD null null RIME RIME null null null
             // Some words that may show up in group 1 or 3 that need to be
             // thrown away!
             s1 = WX_COND_WORDS.get(s1);

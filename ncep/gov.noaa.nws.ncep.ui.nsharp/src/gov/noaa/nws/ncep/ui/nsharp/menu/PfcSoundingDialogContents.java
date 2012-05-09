@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -46,12 +47,14 @@ public class PfcSoundingDialogContents {
 	private  Composite parent;
 	private org.eclipse.swt.widgets.List availablefileList, sndTimeList;
 	private Group  topGp, fileTypeGp, bottomGp, availableFileGp, sndTimeListGp;
-	private Button namBtn, gfsBtn, ruc2Btn, rucpBtn, browseBtn,timeBtn;
-	private boolean timeLimit = false;
+	private Button namBtn, gfsBtn, newTabBtn,timeBtn;
+	private boolean timeLimit = false, newtab=false;
 	private List<String> selectedFileList = new ArrayList<String>(); 
-	private List<String> selectedTimeList = new ArrayList<String>(); 
+	private List<String> queriedTimeList = new ArrayList<String>(); 
+	private List<NsharpStationInfo> stnPoints = new ArrayList<NsharpStationInfo>();
 	private NcSoundingProfile.PfcSndType currentSndType = NcSoundingProfile.PfcSndType.NONE;
-
+	private NsharpLoadDialog ldDia;
+	private Font newFont;
 	public NcSoundingProfile.PfcSndType getCurrentSndType() {
 		return currentSndType;
 	}
@@ -59,7 +62,8 @@ public class PfcSoundingDialogContents {
 	}
 	public PfcSoundingDialogContents (Composite parent) {
 		this.parent = parent;
-		
+		ldDia = NsharpLoadDialog.getAccess();
+		newFont = ldDia.getNewFont();
 	}
 	private void createPFCAvailableFileList() {
 		sndTimeList.removeAll();;
@@ -67,6 +71,7 @@ public class PfcSoundingDialogContents {
 		//query using NcSoundingQuery class to query
 		NcSoundingTimeLines timeLines = NcSoundingQuery.soundingTimeLineQuery(currentSndType.toString());
 		if(timeLines!= null && timeLines.getTimeLines() != null){
+			ldDia.startWaitCursor();
 			for(Object timeLine : timeLines.getTimeLines()){
 				Timestamp reftime = (Timestamp)timeLine;
 				if(reftime != null){
@@ -80,6 +85,7 @@ public class PfcSoundingDialogContents {
 				}
 				
 			}
+			ldDia.stopWaitCursor();
 		}
 		else
 			System.out.println("SQL: query return null");	
@@ -90,9 +96,15 @@ public class PfcSoundingDialogContents {
 		//currentDBTblName = MODELSOUNDING_TBL_NAME;
 		sndTimeList.removeAll();
 		//query using NcSoundingQuery to query
+		ldDia.startWaitCursor();
+		String sndStr = currentSndType.toString();
+		int endIndex= Math.min(3, sndStr.length());
+		String dispSndStr = sndStr.substring(0, endIndex);
     	for(int i=0; i<  selectedFlLst.size(); i++){	
 			String fl = selectedFlLst.get(i);
-			NcSoundingTimeLines timeLines = NcSoundingQuery.soundingRangeTimeLineQuery(currentSndType.toString(), fl);
+			long reftimeMs= NcSoundingQuery.convertRefTimeStr(fl);
+			//System.out.println("reftime="+fl + " in ms="+reftimeMs);
+			NcSoundingTimeLines timeLines = NcSoundingQuery.soundingRangeTimeLineQuery(sndStr, fl);
 			if(timeLines != null && timeLines.getTimeLines().length >0) {
 				for(Object obj : timeLines.getTimeLines()){
 					Timestamp rangestart = (Timestamp)obj;
@@ -100,10 +112,13 @@ public class PfcSoundingDialogContents {
 						//need to format rangestart to GMT time string.  Timestamp.toString produce a local time Not GMT time
 						Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 						cal.setTimeInMillis(rangestart.getTime());
-						
-						String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
+						long vHour = (cal.getTimeInMillis()- reftimeMs)/3600000;
+						//String sndType = currentSndType.toString().substring(0, 3); //use max of 3 char for sounding type
+						//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
+						String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tHV%2$03d %3$s",  cal, vHour,dispSndStr);
+						//gmtTimeStr = gmtTimeStr+ String.format("V%03d", vHour);
 						if(sndTimeList.indexOf(gmtTimeStr) != -1){
-							// this indicate that gmtTimeStr is laready in the sndTimeList, then we dont need to add it to list again.
+							// this indicate that gmtTimeStr is already in the sndTimeList, then we dont need to add it to list again.
 							continue;
 						}
 						
@@ -119,23 +134,24 @@ public class PfcSoundingDialogContents {
 				}
 			}
     	}
-		
+    	ldDia.stopWaitCursor();
 	}
 	public void createPfcDialogContents(){
+		selectedFileList.clear();
 		topGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		topGp.setLayout( new GridLayout( 2, false ) );
-		NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
-		ldDia.setShellSize(false);
+		
+		//ldDia.setShellSize(false);
 		ldDia.createSndTypeList(topGp);
 		
 		fileTypeGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
 		fileTypeGp.setText("File Type");
-
+		fileTypeGp.setFont(newFont);
 		namBtn = new Button(fileTypeGp, SWT.RADIO | SWT.BORDER);
 		namBtn.setText("NAMSND");
 		namBtn.setEnabled( true );
 		namBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, fileTypeGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		namBtn.setFont(newFont);
 		namBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				currentSndType = NcSoundingProfile.PfcSndType.NAMSND;
@@ -146,19 +162,19 @@ public class PfcSoundingDialogContents {
 		gfsBtn.setText("GFSSND");
 		gfsBtn.setEnabled( true );
 		gfsBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, namBtn.getBounds().y + namBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		gfsBtn.setFont(newFont);
 		gfsBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				currentSndType = NcSoundingProfile.PfcSndType.GFSSND;
 				createPFCAvailableFileList();
 			}          		            	 	
 		} );  
-
+		/*
 		ruc2Btn = new Button(fileTypeGp, SWT.RADIO | SWT.BORDER);
 		ruc2Btn.setText("RUC2SND");
 		ruc2Btn.setEnabled( false );
 		ruc2Btn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, gfsBtn.getBounds().y + gfsBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		ruc2Btn.setFont(newFont);
 		ruc2Btn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				currentSndType = NcSoundingProfile.PfcSndType.RUC2SND;
@@ -169,7 +185,7 @@ public class PfcSoundingDialogContents {
 		rucpBtn.setText("RUCPTYPSND");
 		rucpBtn.setEnabled( false );
 		rucpBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, ruc2Btn.getBounds().y + ruc2Btn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		rucpBtn.setFont(newFont);
 		rucpBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				currentSndType = NcSoundingProfile.PfcSndType.RUCPTYPSND;
@@ -180,19 +196,19 @@ public class PfcSoundingDialogContents {
 		browseBtn.setText("BROWSE");
 		browseBtn.setEnabled( false );
 		browseBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, rucpBtn.getBounds().y + rucpBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		browseBtn.setFont(newFont);
 		browseBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				currentSndType = NcSoundingProfile.PfcSndType.BROWSE;
 			}          		            	 	
-		} );  
+		} );  */
 		
 		
 		timeBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
 		timeBtn.setText("00Z and 12Z only");
 		timeBtn.setEnabled( true );
-		timeBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		//timeBtn.setBounds(fileTypeGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
+		timeBtn.setFont(newFont);
 		timeBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {    
 				if(timeLimit)
@@ -201,7 +217,7 @@ public class PfcSoundingDialogContents {
 					timeLimit = true;
 				
 				//refresh sounding list if file type is selected already
-				if(!currentSndType.equals("NA") && selectedFileList.size() > 0){
+				if(!currentSndType.equals("NA") && selectedFileList.size() > 0 ){
 					createPFCSndTimeList(selectedFileList);
 				}
 
@@ -213,9 +229,11 @@ public class PfcSoundingDialogContents {
 		
 		availableFileGp = new Group(bottomGp,SWT.SHADOW_ETCHED_IN);
 		availableFileGp.setText("Available PFC files:");
+		availableFileGp.setFont(newFont);
 		availablefileList = new org.eclipse.swt.widgets.List(availableFileGp, SWT.BORDER  | SWT.MULTI| SWT.V_SCROLL  );
-		availablefileList.setBounds(availableFileGp.getBounds().x, availableFileGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.filelistHeight );
-		//create a selection listener to handle user's selection on list		
+		availablefileList.setBounds(availableFileGp.getBounds().x, availableFileGp.getBounds().y + NsharpConstants.labelGap , NsharpConstants.filelistWidth, NsharpConstants.listHeight *36/5);
+		//create a selection listener to handle user's selection on list
+		availablefileList.setFont(newFont);
 		availablefileList.addListener ( SWT.Selection, new Listener () {
 			private String selectedFile=null;	
 			
@@ -235,64 +253,110 @@ public class PfcSoundingDialogContents {
 		 //create Sounding Times widget list 
 		sndTimeListGp = new Group(bottomGp,SWT.SHADOW_ETCHED_IN);
 		sndTimeListGp.setText("Sounding Times:");
+		sndTimeListGp.setFont(newFont);
 		sndTimeList = new org.eclipse.swt.widgets.List(sndTimeListGp, SWT.BORDER  | SWT.MULTI| SWT.V_SCROLL  );
 		sndTimeList.removeAll();
-		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight );
+		sndTimeList.setFont(newFont);
+		sndTimeList.setBounds(sndTimeListGp.getBounds().x, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight*36/5 );
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
 			private String selectedSndTime=null;
     		public void handleEvent (Event e) {   			
     			if (sndTimeList.getSelectionCount() > 0 ) {
     				NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();//NsharpLoadDialog.getAccess().getNsharpMapResource();
     				nsharpMapResource.setPoints(null);
-    				selectedTimeList.clear();
+    				//.clear();
+    				ldDia.startWaitCursor();
+    				queriedTimeList.clear();
     				for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
     					selectedSndTime = sndTimeList.getSelection()[i];
+    					int endIndex = selectedSndTime.indexOf(" ");
+    					selectedSndTime = selectedSndTime.substring(0, endIndex);
     					//System.out.println("selected sounding time is " + selectedSndTime);
-    					queryAndMarkStn(selectedSndTime);
-    					selectedTimeList.add(selectedSndTime);
+    					//refTimeStr is same as "PFC file" name in Load dialog display 
+    					String refTimeStr=NcSoundingQuery.convertSoundTimeDispStringToRefTime(selectedSndTime);
+    					//while rangeStartStr is same as "sounding Times
+    					String rangeStartStr = NcSoundingQuery.convertSoundTimeDispStringToRangeStartTimeFormat(selectedSndTime);
+    					if(queriedTimeList.contains(refTimeStr)== true){
+    						addStnPtWithoutQuery(refTimeStr,rangeStartStr,selectedSndTime);
+    					}
+    					else {
+    						queriedTimeList.add(refTimeStr);
+    						queryAndMarkStn(refTimeStr,rangeStartStr,selectedSndTime);
+    					}
     				}
-    				//NsharpMapMouseHandler.getAccess().setSelectedTimeList(selectedTimeList);
+    				
+    				ldDia.stopWaitCursor();
+    				
+    				nsharpMapResource.setPoints(stnPoints);
+    				NsharpMapResource.bringMapEditorToTop();
     			}
     		}
     	});
-
+		/*
+		newTabBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
+		newTabBtn.setText("new skewT editor");
+		newTabBtn.setEnabled( true );
+		//newTabBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
+		newTabBtn.setFont(newFont);
+		newTabBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				if(newTabBtn.getSelection())
+					newtab = true;
+				else
+					newtab = false;
+				
+			}          		            	 	
+		} );*/
 	}
-	private void queryAndMarkStn(String selectedSndTime) {
+	
+	private void addStnPtWithoutQuery(String refTimeStr,String rangeStartStr, String selectedSndTime) {
+		long reftimeMs= NcSoundingQuery.convertRefTimeStr(refTimeStr);
+		Timestamp refTime = new Timestamp(reftimeMs);
+		for(NsharpStationInfo stn: stnPoints){
+			if(refTime.equals(stn.getReftime())== true){
+				long rangetimeMs= NcSoundingQuery.convertRefTimeStr(rangeStartStr);
+				Timestamp rangeStartTime = new Timestamp(rangetimeMs);
+				NsharpStationInfo.timeLineSpecific timeLinsSpc =  stn.new timeLineSpecific();
+				String sndTypeStr = currentSndType.toString();
+				int endIndex= Math.min(4, sndTypeStr.length());
+				String dispInfo = stn.getStnId()+ " " + selectedSndTime+" "+sndTypeStr.substring(0,endIndex);
+				timeLinsSpc.setDisplayInfo(dispInfo);
+				timeLinsSpc.setTiemLine(rangeStartTime);
+				stn.addToTimeLineSpList(timeLinsSpc);
+			}
+		}		
+		//System.out.println("addStnPtWithoutQuery stn num ="+ stnPoints.size()+ " for pfc refTime(file) "+refTimeStr);
+	} 
+	private void queryAndMarkStn(String refTimeStr,String rangeStartStr, String selectedSndTime) {
 		//use NcSoundingQuery to query stn info
-		NcSoundingStnInfoCollection sndStnInfoCol = NcSoundingQuery.soundingStnInfoQuery(currentSndType.toString(),selectedSndTime);
+		String sndTypeStr = currentSndType.toString();
+		NcSoundingStnInfoCollection sndStnInfoCol = NcSoundingQuery.soundingStnInfoQuery(sndTypeStr,rangeStartStr, refTimeStr);
 		if(sndStnInfoCol != null && sndStnInfoCol.getStationInfo() != null){
 
 			NcSoundingStnInfo[] stnInfoAry = sndStnInfoCol.getStationInfo();
 			NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();//NsharpLoadDialog.getAccess().getNsharpMapResource();
-			
-			//System.out.println("queryAndMarkStn stn num ="+ stnInfoAry.length);
-			//Note: A same station may have many reports
+			//System.out.println("queryAndMarkStn stn num ="+ stnInfoAry.length+ " for pfc refTime(file) "+refTimeStr);
 			for(int i=0; i < stnInfoAry.length; i++){
 				NcSoundingStnInfo stnInfo = stnInfoAry[i];
 				NsharpStationInfo stn = new NsharpStationInfo();
-				stn.setStnDisplayInfo(stnInfo.getStnId() + " " + selectedSndTime);
+				NsharpStationInfo.timeLineSpecific timeLinsSpc =  stn.new timeLineSpecific();
+				
+				int endIndex= Math.min(4, sndTypeStr.length());
+				String dispInfo = stnInfo.getStnId() + " " + selectedSndTime+" "+sndTypeStr.substring(0,endIndex);
+				timeLinsSpc.setDisplayInfo(dispInfo);
+				timeLinsSpc.setTiemLine(stnInfo.getRangeStartTime());
+				stn.addToTimeLineSpList(timeLinsSpc);
 				stn.setLongitude(stnInfo.getStationLongitude());
 				stn.setLatitude(stnInfo.getStationLatitude());
 				stn.setReftime(stnInfo.getSynopTime());
-				stn.setRangestarttime(stnInfo.getRangeStartTime());
-				stn.setSndType(currentSndType.toString());
-				//System.out.println( " currentSndType "+currentSndType);
-				//stn.setElevation(stnInfo.getStationElevation());
-				nsharpMapResource.addPoint(stn);
+				stn.setStnId(stnInfo.getStnId());
+				stn.setSndType(sndTypeStr);
+				//if(i <10)
+				//	System.out.println( "disP="+dispInfo+" refT= "+stnInfo.getSynopTime()+ " rangSt="+stnInfo.getRangeStartTime());
+				stnPoints.add(stn);
+				;
 			}
-			NsharpMapResource.bringMapEditorToTop();
-			/* Chin test if(NsharpMapResource.getMapEditor() != null){
-				
-				
-				NsharpMapResource.getMapEditor().refresh();
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().bringToTop(NsharpMapResource.getMapEditor());
-			}
-			else{
-				//bring the MAP editor back to top 
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().bringToTop(NmapUiUtils.findDisplayByName("Map"));
-			}*/
 			
-			//NsharpMapModalTool.setModal();
 			
 		}
 	}
@@ -307,7 +371,7 @@ public class PfcSoundingDialogContents {
 			gfsBtn.dispose();
 			gfsBtn = null;
 		}		
-		if(ruc2Btn != null){
+		/*if(ruc2Btn != null){
 			ruc2Btn.removeListener(SWT.MouseUp, ruc2Btn.getListeners(SWT.MouseUp)[0]);
 			ruc2Btn.dispose();
 			ruc2Btn = null;
@@ -322,7 +386,7 @@ public class PfcSoundingDialogContents {
 			browseBtn.dispose();
 			browseBtn = null;
 			
-		}	
+		}	*/
 		NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
 		ldDia.cleanSndTypeList();
 		if(topGp!= null){
@@ -365,5 +429,10 @@ public class PfcSoundingDialogContents {
 			bottomGp.dispose();
 			bottomGp = null;
 		}
+		/*if(newTabBtn != null){
+			newTabBtn.removeListener(SWT.MouseUp, newTabBtn.getListeners(SWT.MouseUp)[0]);
+			newTabBtn.dispose();
+			newTabBtn = null;
+		}*/
 	}
 }

@@ -6,10 +6,9 @@
 <body>
 <!-- <hr> -->
 <h2><a name="UsingISCMode"></a>Using the GFE in Show ISC Mode</h2>
-The GFE is one of two modes: Normal, Show ISC.&nbsp; When the GFE is
+The GFE is one of two modes: Normal, Show ISC. When the GFE is
 toggled
-into "Show ISC Mode" using the&nbsp;<img nosave="" src="images/isc0.gif"
- height="46" width="46">
+into "Show ISC Mode" using the <img nosave="" src="images/toggleISC.jpg">
 button on the toolbar, the data presented in the spatial editor is the
 composite grid, rather than the forecast or primary grids.&nbsp; A
 composite
@@ -20,26 +19,23 @@ the remainder of the area., if your office type is WFO.&nbsp; For RFCs,
 a composite grid is made up of the forecast grid over the RFC area, and
 all of the surrounding intersite coordination grids received from
 adjacent RFCs for the remainder of the area. &nbsp; Any area that does
-not have ISC data
-or
-forecast data available will be blank.
+not have ISC data or forecast data available will be blank.
 <p>When in Show ISC mode, the following behavior is changed from the
 default:
 <br>
-&nbsp;
 </p>
 <ul>
   <li>Composite Grid is shown in the spatial editor consisting of the
 forecast
 data over the combined CWA/marine zones (for wfos) and intersite
 coordination data
-over the remainder of the grid domain.&nbsp; For RFCs, the forecast
+over the remainder of the grid domain. For RFCs, the forecast
 data is the RFCs area of responsibility.<br>
   </li>
   <li>Editing changes made to the Forecast grid may not be visible, if
 those
 changes are made to the Forecast grid outside of the CWA/marine zones
-(for WFOs) and RFC area of responsibility (for RFCs)&nbsp;
+(for WFOs) and RFC area of responsibility (for RFCs)
 (since
 the intersite coordination data will be shown instead).</li>
   <li>Blank areas indicate no data has been received.</li>
@@ -50,31 +46,26 @@ start
 drag operation.</li>
   <li>The Move/Copy tool will move/copy the composite grid and place it
 into
-the forecast grid.&nbsp; The region copied/moved will be clipped to
+the forecast grid. The region copied/moved will be clipped to
 those
-valid data points before the operation begins.&nbsp; The valid points
+valid data points before the operation begins. The valid points
 are
 defined as your forecast grid and the valid intersite coordination data.</li>
   <li>The Smooth tool will smooth between the ISC and the Fcst segments
-of
-the
-composite grid.</li>
+of the composite grid.</li>
   <li>The Color Bar Fit To Data operations will use the composite grid
-for
-its
-calculations.</li>
+for its calculations.</li>
   <li>The Sample Tool and sample points will show the data value, the
-site
-identifier,
+site identifier,
 the last update time, and whether or not the data came from an
 Official/Published
-database for the ISC portions of the grid.&nbsp; The site
-identifier,&nbsp;
+database for the ISC portions of the grid. The site
+identifier,
 update time, and official db symbol may be turned off through the GFE
 Maps-&gt;Sample
-menu.&nbsp; Markers (similar to samples except there are no data values
+menu. Markers (similar to samples except there are no data values
 displayed) may be placed at appropriate locations to indicate the site
-identifier, update time, and official db symbol.&nbsp; These can be
+identifier, update time, and official db symbol. These can be
 controlled
 through the GFE Maps-&gt;Markers menu.</li>
 </ul>
@@ -102,57 +93,50 @@ the ISC portions of the grid.</li>
 </ul>
 <br>
 The ISC Markers that are present are based on whether ISC data is
-displayed from WFOs or RFCs.&nbsp; Each office type has its own set of
+displayed from WFOs or RFCs. Each office type has its own set of
 ISC markers.<br>
 <br>
 <h3>Example of how GFE appearance changes when placed into ISC mode</h3>
-&nbsp;
 <h4>Normal Display Mode</h4>
 <img nosave="" src="images/isc1.jpg" height="798" width="1228">
 <br>
-&nbsp;
 <br>
-&nbsp;
 <br>
-&nbsp;
 <h4>ISC Display Mode</h4>
 <img nosave="" src="images/isc2.jpg" height="797" width="1231">
 <br>
-&nbsp;
 <br>
-&nbsp;
 <br>
-&nbsp;
 <h4>Samples in Normal Mode compared to ISC Mode</h4>
 <img nosave="" src="images/isc3.jpg" height="438" width="295"><img
  nosave="" src="images/isc4.jpg" height="432" width="395">
 <br>
-In the normal mode, sample points are displayed.&nbsp; In ISC mode,
+In the normal mode, sample points are displayed. In ISC mode,
 for those data points that are really ISC data points, the site
 identifier
 (optional), the update time (optional), and the official/published
 database
-symbol (optional) are also presented.&nbsp; The information shown with
+symbol (optional) are also presented. The information shown with
 a sample is controlled through the <a
  href="GFEMainMenu.html#ShowISCUpdateTime">Show
 ... on Data Samples options</a>.
 <p>If the ISC data represents data from the official database, then a
 "P"
-symbol will be appended to the sample string.&nbsp; If the ISC data
+symbol will be appended to the sample string. If the ISC data
 represents
 data from any other database, e.g., Fcst database, then no symbol will
-be appended.&nbsp; The purpose of the "P" symbol is to indicate that is
+be appended. The purpose of the "P" symbol is to indicate that is
 the official released forecast from that site.
 </p>
 <p>There are two types of samples -- one with data values shown, and
 the
-other without data values shown.&nbsp; Normal samples, a.k.a. sample
+other without data values shown. Normal samples, a.k.a. sample
 sets,
-always have data values shown.&nbsp; Markers are similar to samples,
+always have data values shown. Markers are similar to samples,
 except
-that data values are not shown.&nbsp; Markers are persistent, i.e.,
+that data values are not shown. Markers are persistent, i.e.,
 clearing
-sample points will not clear marker points.&nbsp; Loading of sample
+sample points will not clear marker points. Loading of sample
 sets
 does not affect the set of markers placed on the screen.&nbsp; Markers
 may be added or removed through the Sample Tool MB3 popup menu. The

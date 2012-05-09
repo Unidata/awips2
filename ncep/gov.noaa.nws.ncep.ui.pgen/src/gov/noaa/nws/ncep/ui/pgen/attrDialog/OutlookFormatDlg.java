@@ -8,15 +8,25 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.xml.bind.Marshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.dom.DOMSource;
+
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
+import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
@@ -40,6 +50,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -51,6 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------	----------	-----------	--------------------------
  * 04/10			?		B. Yin   	Initial Creation.
  * 07/11        #450        G. Hull     NcPathManager
+ * 03/12		$703		B. Yin		Generate product text from style sheet
  *
  * </pre>
  * 
@@ -353,7 +366,7 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	 */
 	private String generateOutlookMsg( Outlook ol, Layer layer){
 		String msg ="";
-		
+	/*	
 		if ( !ol.getOutlookType().equalsIgnoreCase("EXCE_RAIN")) {
 
 			//days
@@ -370,6 +383,41 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		//get line info for all outlooks
 		//msg += generateLineInfo( ol, "\n");
 		msg += ol.generateLineInfo("\n");
+	*/
+		Layer defaultLayer = new Layer();
+		//add watch collection(box and status line)
+		defaultLayer.addElement(this.issueOutlook(ol));
+
+		Product defaultProduct = new Product();
+		defaultProduct.addLayer(defaultLayer);
+
+		ArrayList<Product> prds = new ArrayList<Product>();
+		prds.add( defaultProduct );
+		Products fileProduct = ProductConverter.convert( prds );
+		
+		org.w3c.dom.Document sw = null;
+    	
+    	try{
+    		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    		dbf.setNamespaceAware(true);
+    		DocumentBuilder db = dbf.newDocumentBuilder();
+    		sw = db.newDocument();
+    		Marshaller mar =  SerializationUtil.getJaxbContext().createMarshaller();
+    		mar.marshal( fileProduct, sw );
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+
+    	DOMSource ds = new DOMSource(sw);
+    	
+    	//get style sheet file path
+    	String xsltPath = NcPathConstants.PGEN_ROOT + File.separator + "xslt" + File.separator + "outlook" + File.separator + "Outlook.xlt";
+
+		LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(xsltPath);
+		
+		if ( lFile != null ){
+			msg = PgenUtil.applyStyleSheet( ds, lFile.getFile().getAbsolutePath());
+		}
 		
 		//show warning if there are different types of outlook in the same layer
 		Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
@@ -573,4 +621,24 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		expTime.setMinutes(cal.get(Calendar.MINUTE));
 	}
 	
+	/**
+	 * Save all information into the outlook
+	 * @param ol
+	 */
+	public Outlook issueOutlook( Outlook ol ){
+		ol.setForecaster(getForecaster().toUpperCase());
+		ol.setDays(getDays().toUpperCase());
+		ol.setIssueTime(getInitTime());
+		ol.setExpirationTime(getExpTime());
+		ol.setLineInfo(ol.generateLineInfo("new_line"));
+		return ol;
+	}
+
+	public OutlookAttrDlg getOtlkDlg() {
+		return otlkDlg;
+	}
+
+	public void setOtlkDlg(OutlookAttrDlg otlkDlg) {
+		this.otlkDlg = otlkDlg;
+	}
 }

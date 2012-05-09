@@ -49,14 +49,55 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 06/07/11     #445        Xilin Guo     Data Manager Performance Improvements
  * 10/15/11		?			B. Yin		  Keep PGEN resource when loading RBDs.
  * 01/09/11     #561        Greg Hull     rm code to add Locator Resource
- * 
+ * 02/15/11     #627        Archana       Created the private class RbdBundleEditorWrapper,
+ *                                        changed the seldRBDs queue to accept a RbdBundleEditorWrapper
+ *                                        and updated the addRBD() to take a NCMapEditor as an additional
+ *                                        argument.
+ *                                        
+ *                                             
+ *                                       
+ *                                             
  * </pre>
  * 
  * @version 1
  */
 public class ResourceBndlLoader implements Runnable {  // extends Job {
+
+	private final class RbdBundleEditorWrapper<RbdBundle, NCMapEditor>{
+		private RbdBundle rbdBundle;
+		private NCMapEditor mapEditor;
+		RbdBundleEditorWrapper(RbdBundle theRbdBundle, NCMapEditor theMapEditor){
+			setRbdBundle( theRbdBundle);
+			setMapEditor( theMapEditor );
+		}
+		/**
+		 * @param rbdBundle the rbdBundle to set
+		 */
+		public void setRbdBundle(RbdBundle rbdBundle) {
+			this.rbdBundle = rbdBundle;
+		}
+		/**
+		 * @return the rbdBundle
+		 */
+		public RbdBundle getRbdBundle() {
+			return rbdBundle;
+		}
+		/**
+		 * @param mapEditor the mapEditor to set
+		 */
+		public void setMapEditor(NCMapEditor mapEditor) {
+			this.mapEditor = mapEditor;
+		}
+		/**
+		 * @return the mapEditor
+		 */
+		public NCMapEditor getMapEditor() {
+			return mapEditor;
+		}
+	}
 	
-    private final ConcurrentLinkedQueue<RbdBundle> seldRBDs;
+//    private final ConcurrentLinkedQueue<RbdBundle> seldRBDs;
+    private final ConcurrentLinkedQueue<RbdBundleEditorWrapper<RbdBundle, NCMapEditor>> seldRBDs;
         
     // when set we will only load the selected Pane
     private boolean loadSelectedPaneOnly = false;
@@ -69,13 +110,18 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	seldRBDs.clear();
     }
 
-    public void addRBD( RbdBundle newRBD ) {
-    	seldRBDs.add( newRBD );
-    }
+//    public void addRBD( RbdBundle newRBD ) {
+//    	seldRBDs.add( newRBD );
+//    }
+//
+  public void addRBD( RbdBundle newRBD, NCMapEditor theEditor ) {
+	   
+	seldRBDs.add( new RbdBundleEditorWrapper<RbdBundle,NCMapEditor> ( newRBD, theEditor ) );
+}
     
     public ResourceBndlLoader( String name ) { // name of the Job
 		//super(name);
-		seldRBDs = new ConcurrentLinkedQueue<RbdBundle>();
+		seldRBDs = new ConcurrentLinkedQueue<RbdBundleEditorWrapper<RbdBundle, NCMapEditor>>();
 	}
         
     private class ErrorMsg implements Runnable {
@@ -116,95 +162,103 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 		*/
 		
 		
-    	RbdBundle[] rbdList  = (RbdBundle[])seldRBDs.toArray( new RbdBundle[0] );    
+//    	RbdBundle[] rbdList  = (RbdBundle[])seldRBDs.toArray( new RbdBundle[0] );   
     	
+    	RbdBundleEditorWrapper[] wrapperClassArray= ( RbdBundleEditorWrapper[] ) seldRBDs.toArray ( new RbdBundleEditorWrapper[0] );
+		
     	if( loadSelectedPaneOnly ) {
-    		if( rbdList.length > 1 ) {
+    		if( wrapperClassArray.length > 1 ) {
     			System.out.println("Warning: rbdLoader should only load one RBD when"+
     					"loadSelectedPaneOnly is true??" );
     		}    		
     	}
-    	
-    	for( RbdBundle rbdBndl : rbdList ) {    		    		
-    		// initialize the timeline if it has not already
-    		// been initialized
-// xguo,06/02/11. Not initialize time-line until the user selects it
-//    		rbdBndl.initTimeline();
+    
+		for ( RbdBundleEditorWrapper<RbdBundle,NCMapEditor> thisWrapper : wrapperClassArray ){
+        	
+     		 RbdBundle rbdBndl = thisWrapper.getRbdBundle();
     		
-    		// the editor should have already be created with the right 
-    		// number of displays and matching paneLayouts 
-    		NCMapEditor editor = rbdBndl.getNcEditor();
-    		
-    		if( editor == null ) {
-    			System.out.println("??editor is null in rbdLoader?");
-    			continue;
-    		}
-    		
-    		// If this editor currently has resources loaded, clear them out except for PGEN
-    		for( IDisplayPane pane : editor.getDisplayPanes() ) {    			
-    			List<ResourcePair> rlist = ((NCDisplayPane)pane).getRenderableDisplay().getDescriptor().getResourceList();
-    			Iterator<ResourcePair> it = rlist.iterator();
-    			
-    			while( it.hasNext() ){
-    				ResourcePair rp = it.next();
-    				if ( !rp.getResource().getClass().getName().endsWith("PgenResource") ) {
-    					rlist.remove(rp);
-    				}
-    			}
-    		}
-    		
-    		editor.setGeoSyncPanesEnabled( rbdBndl.isGeoSyncedPanes() );
-    		editor.setHideShow(false); //init to false, means rsc on
-    		    		    		    		
-    		IDisplayPane displayPanes[] = editor.getDisplayPanes();
-    		
-    		if( loadSelectedPaneOnly ) {
-    			
-    			if( editor.getPaneLayout().getRows() <= rbdBndl.getSelectedPaneId().getRow() ||
-    				editor.getPaneLayout().getColumns() <= rbdBndl.getSelectedPaneId().getColumn() ) {
-    				
-    				System.out.println("Error: The Active Display doesn't have enough Panes"+
-					" for the selected Pane: ");    				
-    				break;
-    			}
-    		}
-    		else if( !editor.getPaneLayout().equals( rbdBndl.getPaneLayout() ) ) {
-    			     System.out.println("PaneLayouts of the RBD and Editor don't match?");
-    			continue;
-    		}
-    		
-    		// loop thru the panes in the RBD
-    		//
-    		for( int r=0 ; r<rbdBndl.getPaneLayout().getRows() ; r++ ) {
-    		    for( int c=0 ; c<rbdBndl.getPaneLayout().getColumns() ; c++ ) {
-    		    	PaneID paneid = new PaneID(r,c);
-    		    	
-    		    	// don't load this pane if we are only loading the selected pane and 
-    		    	// this isn't it
-    		    	if( loadSelectedPaneOnly &&
-    		    		rbdBndl.getSelectedPaneId().compare( paneid ) != 0 ) {
-    		    		continue;
-    		    	}
+//        	for( RbdBundle rbdBndl : rbdList ) {    		    		
+        		// initialize the timeline if it has not already
+        		// been initialized
+    // xguo,06/02/11. Not initialize time-line until the user selects it
+//        		rbdBndl.initTimeline();
+        		
+        		// the editor should have already be created with the right 
+        		// number of displays and matching paneLayouts 
+        		NCMapEditor editor = thisWrapper.getMapEditor();
+        		
+        		if( editor == null ) {
+        			System.out.println("??editor is null in rbdLoader?");
+        			continue;
+        		}
+        		
+        		// If this editor currently has resources loaded, clear them out except for PGEN
+        		for( IDisplayPane pane : editor.getDisplayPanes() ) {    			
+        			List<ResourcePair> rlist = ((NCDisplayPane)pane).getRenderableDisplay().getDescriptor().getResourceList();
+        			Iterator<ResourcePair> it = rlist.iterator();
+        			
+        			while( it.hasNext() ){
+        				ResourcePair rp = it.next();
+        				if ( !rp.getResource().getClass().getName().endsWith("PgenResource") ) {
+        					rlist.remove(rp);
+        				}
+        			}
+        		}
+        		editor.setAutoUpdate(rbdBndl.isAutoUpdate() );
+        		editor.setGeoSyncPanesEnabled( rbdBndl.isGeoSyncedPanes() );
+        		editor.setHideShow(false); //init to false, means rsc on
+        		    		    		    		
+        		IDisplayPane displayPanes[] = editor.getDisplayPanes();
+        		
+        		if( loadSelectedPaneOnly ) {
+        			
+        			if( editor.getPaneLayout().getRows() <= rbdBndl.getSelectedPaneId().getRow() ||
+        				editor.getPaneLayout().getColumns() <= rbdBndl.getSelectedPaneId().getColumn() ) {
+        				
+        				System.out.println("Error: The Active Display doesn't have enough Panes"+
+    					" for the selected Pane: ");    				
+        				break;
+        			}
+        		}
+        		else if( !editor.getPaneLayout().equals( rbdBndl.getPaneLayout() ) ) {
+        			     System.out.println("PaneLayouts of the RBD and Editor don't match?");
+        			continue;
+        		}
+        		
+        		// loop thru the panes in the RBD
+        		//
+        		for( int r=0 ; r<rbdBndl.getPaneLayout().getRows() ; r++ ) {
+        		    for( int c=0 ; c<rbdBndl.getPaneLayout().getColumns() ; c++ ) {
+        		    	PaneID paneid = new PaneID(r,c);
+        		    	
+        		    	// don't load this pane if we are only loading the selected pane and 
+        		    	// this isn't it
+        		    	if( loadSelectedPaneOnly &&
+        		    		rbdBndl.getSelectedPaneId().compare( paneid ) != 0 ) {
+        		    		continue;
+        		    	}
 
-    		    	IDisplayPane displayPane = editor.getDisplayPane( paneid ); 
-    		    	AbstractRenderableDisplay mapDisp = rbdBndl.getDisplayPane( paneid );
+        		    	IDisplayPane displayPane = editor.getDisplayPane( paneid ); 
+        		    	AbstractRenderableDisplay mapDisp = rbdBndl.getDisplayPane( paneid );
 
-    		    	// if the editor was just created and there was an error, close the editor.
-    		    	// TODO: if there is an error, prompt if the user wishes to continue.
-    		    	if( loadResourceBundleDefn( displayPane, 
-    		    			(NCMapRenderableDisplay) mapDisp, 
-    		    			rbdBndl.getTimeMatcher() ) == false ) {
+        		    	// if the editor was just created and there was an error, close the editor.
+        		    	// TODO: if there is an error, prompt if the user wishes to continue.
+        		    	if( loadResourceBundleDefn( displayPane, 
+        		    			(NCMapRenderableDisplay) mapDisp, 
+        		    			rbdBndl.getTimeMatcher() ) == false ) {
 
-    		    		VizApp.runAsync(new ErrorMsg("Error Loading Pane "+paneid.toString()+
-    		    				" for RBD "+ rbdBndl.getRbdName() ) );
-    		    	}
-    		    }
-    		}
+        		    		VizApp.runAsync(new ErrorMsg("Error Loading Pane "+paneid.toString()+
+        		    				" for RBD "+ rbdBndl.getRbdName() ) );
+        		    	}
+        		    }
+        		}
 
-    		editor.refresh();
-    		editor.refreshGUIElements();
+        		editor.refresh();
+        		editor.refreshGUIElements();
+//        	}
+    		
     	}
-
+    	
     	// update Menu Elements for the editor
     	
      //   this.cancel();  if a Job 

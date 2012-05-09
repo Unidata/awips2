@@ -81,7 +81,8 @@ import com.vividsolutions.jts.io.ParseException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05-Nov- 2010   247       Archana  Initial creation.
+ * 05-Nov- 2010   247       Archana  Initial creation.   
+ * 16 Feb 2012    555      S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords().
  * 
  * </pre>
  * 
@@ -1173,7 +1174,9 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 	
 	@Override
 	public void queryRecords() throws VizException {
-
+		// this method is almost similar to its super class's queryRecords(), may need to be modified later
+		// to use the super class's version for the common part
+		
 		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
 				resourceData.getMetadataMap());
 
@@ -1196,7 +1199,8 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 			}
 		}
 		
-wqr.populateFipsMap();
+		wqr.populateFipsMap();
+		setAllFramesAsPopulated();
 	}
 	
 	private List<FipsInfo> createListOfFipsInfoObjects2 ( Set<AwwFips> aSetOfAwwFips ) {
