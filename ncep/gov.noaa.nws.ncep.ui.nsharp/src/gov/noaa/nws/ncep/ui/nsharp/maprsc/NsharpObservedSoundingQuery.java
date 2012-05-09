@@ -105,58 +105,85 @@ public class NsharpObservedSoundingQuery {
 	*/
     
     //Chin-T public static void getObservedSndData(List<NsharpStationInfo> stnPtDataLineLst, Map<String, List<SoundingLayer>> soundingLysLstMap) {
-
+	//Chin: note that Nsharp currently GUI only allow user pick one stn at one time, but could be many refTimes.
 	public static void getObservedSndData(List<NsharpStationInfo> stnPtDataLineLst, boolean rawData, Map<String, List<NcSoundingLayer>> soundingLysLstMap) {
 		//String pickedStnInfo = "";
+		List<Coordinate> coords= new ArrayList<Coordinate>();
+		List<Long> refTimeLst = new ArrayList<Long>();
+		//create refTime array and lat/lon array
 		for(NsharpStationInfo StnPt :  stnPtDataLineLst){
 			//one StnPt represent one data time line 
 			//List<Integer> Ids  = StnPt.getDbId();
-			//System.out.println("stn lat ="+StnPt.getLatitude()+ " lon="+StnPt.getLongitude());
-			List<Coordinate> coords= new ArrayList<Coordinate>();
-			Coordinate coord = new Coordinate(StnPt.getLongitude(),StnPt.getLatitude());
-			coords.add(coord);
-			//testing
-			/*Coordinate coord = new Coordinate(91.93000030517578, 21.43000030517578);
-			coords.add(coord);
-			coord = new Coordinate(91.80999755859375, 22.350000381469727);
-			coords.add(coord);
-			coord = new Coordinate(90.36000061035156, 22.75);
-			coords.add(coord);
-			coord = new Coordinate(89.16000366210938, 23.18000030517578);
-			coords.add(coord);
-			coord = new Coordinate(90.37999725341797, 23.760000228881836);
-			coords.add(coord);
-			coord = new Coordinate(89.05000305175781, 24.1299991607666);
-			coords.add(coord);
-			coord = new Coordinate(91.87999725341797, 24.899999618530273);
-			coords.add(coord);
-			coord = new Coordinate(89.36000061035156, 24.850000381469727);
-			coords.add(coord);*/
-			NcSoundingCube cube = NcSoundingQuery.soundingQueryByLatLon(StnPt.getReftime().getTime(), coords, StnPt.getSndType(),
-					NcSoundingLayer.DataType.ALLDATA, !rawData, "-1");
-			if(cube != null && cube.getRtnStatus()==NcSoundingCube.QueryStatus.OK){
-				NcSoundingProfile sndPf = cube.getSoundingProfileList().get(0);
-				//System.out.println("size of profile = "+ cube.getSoundingProfileList().size());
-				//debug
-				//for(NcSoundingProfile pf: cube.getSoundingProfileList()){
-				//	System.out.println("sounding profile: lat="+pf.getStationLatitude()+" lon="+pf.getStationLongitude()+ " stnId="+ pf.getStationId() );
-				//}
-				List<NcSoundingLayer> rtnSndLst = sndPf.getSoundingLyLst();
-				// Chin-T List<SoundingLayer>  sndLyList = NsharpSoundingQueryCommon.convertToSoundingLayerList(rtnSndLst);
-				if(rtnSndLst != null &&  rtnSndLst.size() > 0){  
-					//update sounding data so they can be used by Skewt Resource and PalletWindow
-					if(rawData)
-						rtnSndLst = NsharpDataHandling.sortObsSoundingDataForShow(rtnSndLst, sndPf.getStationElevation());
-					else
-						rtnSndLst = NsharpDataHandling.organizeSoundingDataForShow(rtnSndLst, sndPf.getStationElevation());
-					//minimum rtnSndList size will be 2 (50 & 75 mb layers), but that is not enough
-					// We need at least 2 regular layers for plotting
-					if(rtnSndLst != null &&  rtnSndLst.size() > 4)
-						soundingLysLstMap.put(StnPt.getStnDisplayInfo(), rtnSndLst);
+			System.out.println("stn lat ="+StnPt.getLatitude()+ " lon="+StnPt.getLongitude());
+			boolean exist = false;
+			for(Coordinate c: coords){
+				if(c.x == StnPt.getLongitude() && c.y == StnPt.getLatitude()){
+					exist= true;
+					break;
 				}
+			}			
+			if(exist==false) {
+				Coordinate coord = new Coordinate(StnPt.getLongitude(),StnPt.getLatitude());
+				coords.add(coord);
+			}
+			exist = false;
+			for(long t: refTimeLst){
+				if(t == StnPt.getReftime().getTime()){
+					exist= true;
+					break;
+				}
+			}			
+			if(exist==false) {
+				refTimeLst.add(StnPt.getReftime().getTime());
 			}
 			
-		} // end for loop of  stnPtsLst
+				
+		}
+		double[][] latLon = new double[coords.size()][2];
+		for (int i=0; i< coords.size(); i++){
+			latLon[i][0]= coords.get(i).y; //lat
+			latLon[i][1]= coords.get(i).x; //lon
+		}
+		NcSoundingCube cube = NcSoundingQuery.uaGenericSoundingQuery(refTimeLst.toArray(new Long[0]), latLon, stnPtDataLineLst.get(0).getSndType(),
+				NcSoundingLayer.DataType.ALLDATA, !rawData, "-1");
+		//NcSoundingCube cube = NcSoundingQuery.soundingQueryByLatLon(stnPtDataLineLst.get(0).getReftime().getTime(), coords, stnPtDataLineLst.get(0).getSndType(),
+		//		NcSoundingLayer.DataType.ALLDATA, !rawData, "-1");
+		if(cube != null && cube.getSoundingProfileList().size()>0 && cube.getRtnStatus()==NcSoundingCube.QueryStatus.OK){
+			for(NcSoundingProfile sndPf : cube.getSoundingProfileList()){
+				List<NcSoundingLayer> rtnSndLst = sndPf.getSoundingLyLst();
+				//if(rtnSndLst != null &&  rtnSndLst.size() > 0){  
+
+					//NcSoundingProfile sndPf = cube.getSoundingProfileList().get(0);
+					//System.out.println("size of profile = "+ cube.getSoundingProfileList().size());
+					//debug
+					//for(NcSoundingProfile pf: cube.getSoundingProfileList()){
+					//	System.out.println("sounding profile: lat="+pf.getStationLatitude()+" lon="+pf.getStationLongitude()+ " stnId="+ pf.getStationId() );
+					//}
+					//List<NcSoundingLayer> rtnSndLst = sndPf.getSoundingLyLst();
+					// Chin-T List<SoundingLayer>  sndLyList = NsharpSoundingQueryCommon.convertToSoundingLayerList(rtnSndLst);
+					if(rtnSndLst != null &&  rtnSndLst.size() > 0){  
+						//update sounding data so they can be used by Skewt Resource and PalletWindow
+						if(rawData)
+							rtnSndLst = NsharpDataHandling.sortObsSoundingDataForShow(rtnSndLst, sndPf.getStationElevation());
+						else
+							rtnSndLst = NsharpDataHandling.organizeSoundingDataForShow(rtnSndLst, sndPf.getStationElevation());
+						//minimum rtnSndList size will be 2 (50 & 75 mb layers), but that is not enough
+						// We need at least 2 regular layers for plotting
+						if(rtnSndLst != null &&  rtnSndLst.size() > 4){
+							String dispInfo="";
+							for(NsharpStationInfo StnPt :  stnPtDataLineLst){
+								if(StnPt.getReftime().getTime() == sndPf.getFcsTime()){
+									dispInfo = StnPt.getStnDisplayInfo();
+									break;
+								}
+							}
+							soundingLysLstMap.put(dispInfo, rtnSndLst);
+						}
+					}
+				}
+			//}
+		}
+			
 	}
 	
 }

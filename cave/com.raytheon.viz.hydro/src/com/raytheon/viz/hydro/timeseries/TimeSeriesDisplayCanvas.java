@@ -120,6 +120,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 12 July 2011 9709     djingtao     add draw "DERIVED PP"         
  * 25 July 2011 10082    djingtao     modify makeRegions()
  * 10 August 2011 10457  djingtao     allow red rubberband box to be draw for setMissing in Edit
+ * 27 March 20112 14527  wkwock       Fix incomplete time series selection issue
  * 
  * @author lvenable
  * @version 1.0
@@ -2383,7 +2384,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         }
 
                         if (basisTime.getTime() != prevBasisTime.getTime()) {
-                            if (!latestFcstFlag && (ntraces < MAX_FCST_TRACES)) {
+                            if (ntraces < MAX_FCST_TRACES) {
                                 traceData.setXmin(beginDate);
                                 traceData.setXmax(endDate);
                                 n = 0; /* Reset npts in new forecast trace */
@@ -2408,6 +2409,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 traceData.setName(name);
                                 traceData.setBasistime(basisTime);
                                 traceData.setProductTime(productTime);
+                                if (this.latestFcstFlag) {
+                                	traceData.setTraceOn(false);
+                                }
                             } else {
                                 /* reached max fcst traces, break out of loop */
                                 break;

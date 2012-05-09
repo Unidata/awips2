@@ -37,7 +37,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Track;
  * ------------	----------	-----------	--------------------------
  * 05/09					M. Gao   	Initial Creation.
  * 10/11					J. Wu   	Adjusted text width
- *
+ * 02/12        TTR456      Q.Zhou      Modified setTrack() and added roundToXX() functions.
  * </pre>
  * 
  * @author	M. Gao
@@ -108,11 +108,49 @@ public class TrackExtrapPointInfoDlg extends AttrDlg {
 		return track;
 	}
 
-	public void setTrack(Track _track) {
+	public void setTrack(Track _track, int unitComboSelectedIndex, int roundComboSelectedIndex, int roundDirComboSelectedIndex) {
 		this.track = _track;
+		String unit = "";
+		double speed = 0.0;
+		double dir = 0.0;
+		int roundSpeed = 0;
+		int roundDir = 0;
+		
+		//speed
+		if (unitComboSelectedIndex ==0){
+			unit = " kts";
+			speed = this.track.getSpeedInKnotOverHour();
+		}
+		else if (unitComboSelectedIndex ==1){
+			unit = " kph";
+			speed = this.track.getSpeedInKilometerOverHour();
+		}
+		else if (unitComboSelectedIndex ==2){
+			unit = " mph";
+			speed = this.track.getSpeedInMileOverHour();
+		}
+		
+		if (roundComboSelectedIndex ==1)
+			roundSpeed = roundTo5( (int)(speed + 0.5));	//if speed>=0.5, +1
+		else if (roundComboSelectedIndex ==2)
+			roundSpeed = roundTo10( (int)(speed + 0.5));	
 
-		speedText.setText("Spd: " + doubleValurFormater(this.track.getSpeedInKilometerOverHour(), 2) + " km/h"); 
-		directionText.setText("Dir: " + doubleValurFormater(this.track.getDirectionForExtraPoints(), 2) + " deg."); 
+		if (roundComboSelectedIndex >0)
+			speedText.setText("Spd: " + roundSpeed + unit);
+		else
+			speedText.setText("Spd: " + doubleValurFormater(speed, 2) + unit); 
+		
+		//dir
+		dir = this.track.getDirectionForExtraPoints();
+		if (roundDirComboSelectedIndex ==1)
+			roundDir = (int)(dir + 0.5);	//if speed>=0.5, +1
+		else if (roundDirComboSelectedIndex ==2)
+			roundDir = roundTo5( (int)(dir + 0.5));	
+
+		if (roundDirComboSelectedIndex >0)
+			directionText.setText("Dir: " + roundDir + " deg.");
+		else
+			directionText.setText("Dir: " + doubleValurFormater(dir, 2) + " deg."); 
 
 		/*
 		 * fill time, latitude and longitude info for the last two initial points
@@ -120,6 +158,38 @@ public class TrackExtrapPointInfoDlg extends AttrDlg {
 		fillLastTwoInitPointInfo(track.getInitialPoints()); 
 		
 		fillExtraPointInfo(track.getExtrapPoints()); 
+	}
+
+	private int roundTo5(int speed) {
+		int remain = speed%10;
+		int divid = speed/10;
+		int roundSpeed = 0;
+		
+		if (remain >=1 && remain <=2)
+			roundSpeed = divid*10;
+		else if (remain >=3 && remain <=7)
+			roundSpeed = divid*10 + 5;
+		else if (remain >=8 && remain <=9)
+			roundSpeed = divid*10 + 10;
+		else 
+			roundSpeed = speed;
+
+		return roundSpeed;
+	}
+	
+	private int roundTo10(int speed) {
+		int remain = speed%10;
+		int divid = speed/10;
+		int roundSpeed = 0;
+		
+		if (remain >=1 && remain <=4)
+			roundSpeed = divid*10;
+		else if (remain >=5 && remain <=9)
+			roundSpeed = divid*10 + 10;
+		else 
+			roundSpeed = speed;
+
+		return roundSpeed;
 	}
 
  	/**

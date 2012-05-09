@@ -10,12 +10,12 @@
   <meta name="CREATED" content="20010713;13550500">
   <meta name="CHANGEDBY" content="Tom Lefebvre">
   <meta name="CHANGED" content="20010713;15202800">
-  <title>iifpnetCDF Formatter User's Guide</title>
+  <title>ifpnetCDF Formatter User's Guide</title>
 </head>
 <body bgcolor="#ffffff">
 <h1>
 ifpnetCDF Formatter User's Guide</h1>
-<div style="margin-bottom: 0in;">August 1, 2005<br>
+<div style="margin-bottom: 0in;">January 6, 2012<br>
 </div>
 <p><br>
 </p>
@@ -37,7 +37,7 @@ Interval File</a><br>
 <h2><a name="Overview"></a>Overview</h2>
 <div style="margin-bottom: 0in;">The ifpnetCDF program reads gridded
 data
-from the ifpServer that you specify and writes the data to a netCDF
+from EDEX that you specify and writes the data to a netCDF
 file.
 In addtion to the forecast grids, a <a href="#Topography">topography
 grid</a>,
@@ -50,7 +50,7 @@ information,
 units, and valid times for each grid. The following sections describe
 how
 to use this program and document the structure of the resulting netCDF
-file.&nbsp; A special switch is available (-k) to "squish" down the
+file. A special switch is available (-k) to "squish" down the
 formats
 of the data file to as compact as possible.<br>
 <br>
@@ -64,26 +64,19 @@ netCDF file when only a portion of the inventory is required.<br>
 <hr>
 <h2><a name="RunningtheifpAGProgram"></a>Running the ifpnetCDF Program</h2>
 <div style="margin-bottom: 0in;">The program is capable of both storing
-and retrieving grids from the ifpServer.</div>
+and retrieving grids from EDEX.</div>
 <div style="margin-bottom: 0in;">The command line syntax is:</div>
-<div style="margin-bottom: 0in;"><tt>ifpnetCDF -o outputFile -h
-hostname
+<div style="margin-bottom: 0in;"><tt>ifpnetCDF -o outputFile -h hostname
 -r rpcPortNumber -d databaseID [-p parmID] [-s startTime] [-e endTime]
 [-m editAreaName] [-u user] [-g] [-t] [-C configurationIntervalName]<br>
 </tt></div>
 <div style="margin-bottom: 0in;">A sample command line is:</div>
-<div style="margin-bottom: 0in;"><tt>ifpnetCDF -o myGridFile -h
-abc.fsl.noaa.gov
--r 98000000 -d TEST_GRID__Fcst_00000000_0000 -p T -s 19980604_1200 -e
+<div style="margin-bottom: 0in;"><tt>ifpnetCDF -o myGridFile -h dx3-oax
+-r 9581 -d TEST_GRID__Fcst_00000000_0000 -p T -s 19980604_1200 -e
 19980605_0000
 -m BOU -g -c -t -C cdfSample<br>
 </tt></div>
 <br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
 <table border="1" cellpadding="2" cellspacing="2" width="100%">
   <tbody>
     <tr>
@@ -105,7 +98,7 @@ the data will be written to the file ifpnetCDFFile.cdf</td>
       <td>
       <center>Mandatory (See Note)</center>
       </td>
-      <td>Specifies the ifpServer host from which the data will be
+      <td>Specifies the EDEX host from which the data will be
 extracted.</td>
     </tr>
     <tr>
@@ -113,7 +106,7 @@ extracted.</td>
       <td>
       <center>Mandatory (See Note)</center>
       </td>
-      <td>Specifies the ifpServer host from which the data will be
+      <td>Specifies the EDEX host from which the data will be
 extracted.</td>
     </tr>
     <tr>
@@ -184,8 +177,8 @@ or 20010604_1200.</td>
       </td>
       <td>Specifies an edit area outside of which the grids are clipped
 with
-a fill value. If the edit area is not specified&nbsp; <br>
-or is not found in the ifpServer, the entire grid will be written to
+a fill value. If the edit area is not specified
+or is not found in EDEX, the entire grid will be written to
 the file unclipped.</td>
     </tr>
     <tr>
@@ -224,7 +217,7 @@ with
       </td>
       <td>When specified, data values will be "trimmed" or rounded to
 the precision
-of the data, as defined by the ifpServer.</td>
+of the data, as defined by EDEX.</td>
     </tr>
     <tr>
       <td>-k</td>
@@ -251,18 +244,18 @@ back into real numbers.</td>
       <td style="vertical-align: top;">Specifies a <a
  href="#configIntervalFile">configuration interval file</a> which
 controls the interval/spacing of the grids.&nbsp; The name identifies a
-file within the ifpServer TEXT/Utility directory and must be a Python
+file within the EDEX textUtilities directory and must be a Python
 file in the correct format.<br>
       </td>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note: The -h and -r switches are predefined if
+<font color="#3366ff"><b>Note:</b> The -h and -r switches are predefined if
 you
 are running ifpnetCDF in the GFESuite installed environment.&nbsp; The
 values specified in the installation are picked up automatically. You
 only
-need to specify them if you want to connect to a different ifpServer.</font><font
+need to specify them if you want to connect to a different EDEX.</font><font
  color="#3366ff">&nbsp;</font><font color="#3366ff">&nbsp; If
 environment variables ${CDSHOST} or
 ${CDSPORT} are defined, then the default server and port will be
@@ -334,7 +327,7 @@ that contains that explicit time, then the grid is included in the
 output.<br>
 <br>
 The configuration interval file is a python file and must reside in the
-ifpServer's TEXT/Utility directory.&nbsp; You can create the file
+EDEX textUtilities directory.&nbsp; You can create the file
 through the use of the GFE, with the GFE-&gt;Define Text Products menu,
 or by using a conventional text editor and the <a
  href="ifpServerText.html">ifpServerText utility</a>.<br>

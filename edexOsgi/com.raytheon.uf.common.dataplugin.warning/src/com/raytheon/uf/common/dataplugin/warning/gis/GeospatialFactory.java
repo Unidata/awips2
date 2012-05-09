@@ -56,6 +56,11 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2011            rjpeter     Initial creation
+ * Mar 29, 2012  #14691    Qinglu Lin  Added returned value of getFeAreaField() of 
+ *                                     AreaSourceConfiguration to areaFields List.
+ * Apr 11, 2012  #14691    Qinglu Lin  For marine warnings, getFeAreaField() returns null.
+ *                                     So, do not add the returned value of getFeAreaField() 
+ *                                     to areaFields. 
  * 
  * </pre>
  * 
@@ -242,11 +247,20 @@ public class GeospatialFactory {
         AreaSourceConfiguration[] ascs = template.getAreaSources();
 
         for (AreaSourceConfiguration asc : ascs) {
-            List<String> areaFields = new ArrayList<String>(4);
-            areaFields.add(WarningConstants.GID);
+        	List<String> areaFields;
+        	String tmp = asc.getFeAreaField();
+            if (tmp == null) {
+                areaFields = new ArrayList<String>(4);
+            } else {
+            	areaFields = new ArrayList<String>(5);
+            }
+        	areaFields.add(WarningConstants.GID);
             areaFields.add(asc.getAreaField());
+            if (tmp != null) {
+            	areaFields.add(tmp);
+            }                        
             areaFields.add(asc.getFipsField());
-            areaFields.add(asc.getAreaNotationField());
+            areaFields.add(asc.getAreaNotationField());            
 
             GeospatialMetadata gmd = new GeospatialMetadata();
             gmd.setAreaSource(asc.getAreaSource());

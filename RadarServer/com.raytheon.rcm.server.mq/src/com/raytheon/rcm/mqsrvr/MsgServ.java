@@ -79,146 +79,155 @@ import com.raytheon.rcm.server.Log;
 import com.raytheon.rcm.server.RadarServer;
 import com.raytheon.rcm.server.StatusManager.RadarStatus;
 
-
 public class MsgServ implements RadarEventListener, MessageListener {
-	
-	QueueConnection queueConn;	
-	QueueSession queueSession;
-	QueueSender queueSender;
-	TopicConnection topicConn;
-	TopicSession topicSession;
-	TopicPublisher topicPublisher;
-	JAXBContext jaxbCtx;
-	Marshaller m;
-	Unmarshaller u;
-	
-	Serv serv;
-	
-	public MsgServ(RadarServer server) {		
-		serv = new Serv(server);
-		try {
-			jaxbCtx = JAXBContext.newInstance(ReqObj.class, ReplyObj.class, 
-					EventObj.class, RmrEvent.class);
-			m = jaxbCtx.createMarshaller();
-			u = jaxbCtx.createUnmarshaller();
-		} catch (JAXBException e) {
-			Log.errorf("MsgServ could not create JAXBContext: %s", e);
-		}
-	}
-	
-	public void start(QueueConnectionFactory qConnFac,
-			TopicConnectionFactory tConnFac) {
-		try {
-			queueConn = qConnFac.createQueueConnection();
-			queueSession = queueConn.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue queue = queueSession.createQueue("RadarServer");
-			queueSender = queueSession.createSender(null);
-			QueueReceiver qr = queueSession.createReceiver(queue);
-			qr.setMessageListener(this);
-			
-			topicConn = tConnFac.createTopicConnection();
-			topicSession = topicConn.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
-			Topic topic = topicSession.createTopic("RadarEvents");
-			topicPublisher = topicSession.createPublisher(topic);
-			
-			queueConn.start();
-		} catch (JMSException e) {
-			Log.errorf("MsgServ could not start connections: %s", e);
-		}
-	}
 
-	@Override
-	public void handleRadarEvent(RadarEvent event) {
-		RadarEvent eventToSend = EventObj.filterRadarEvent(event);
-		if (eventToSend != null)
-			publishEvent(eventToSend);
-	}
+    QueueConnection queueConn;
 
-	@Override
-	public void onMessage(Message msg) {
-		try {
-			ReplyObj po = null;
-			String error = null;
-			Exception exc = null;
-			
-			Destination replyToDestination = msg.getJMSReplyTo();
-			
-			if (msg instanceof TextMessage) {
-				TextMessage tms = (TextMessage) msg;
-				StringReader sr = new StringReader(tms.getText());
-				Object o = null;
-				try {
-					o = u.unmarshal(sr);
-				} catch (JAXBException e) {
-				    exc = e;
-				}
-				
-				if (o instanceof ReqObj) {
-					ReqObj ro = (ReqObj) o;
-					try {
-					    po = handleRequest(replyToDestination, ro);
-					} catch (RuntimeException e) {
-					    error = "Unexpected error while processing request: " + e.toString();
-					    exc = e;
-					}
-				} else if (o != null)
-					error = String.format("Invalid request class '%s'", o.getClass());
-			} else
-				error = "Invalid JMS message type";
+    QueueSession queueSession;
 
-			if (error == null && exc != null)
-			    error = exc.toString();
-			if (po == null)
-				po = ReplyObj.error(error != null ? error : "Unknown error");
-			
-			if (exc != null)
-			    Log.errorf("Error processing remote request: %s", exc);
-			else if (error != null)
-				Log.errorf("Error processing remote request: %s", error);
-			
-			if (po != null) {
-				StringWriter sw = new StringWriter();
-				try {
-					synchronized (m) {
-						m.marshal(po, sw);
-					}
-				} catch (JAXBException e) {
-					Log.errorf("Error processing remote request: %s", e);
-					return;
-				}
-				TextMessage rtm = queueSession.createTextMessage(
-						sw.toString());
-				
-				String id = msg.getJMSCorrelationID();
-				if (id == null)
-					id = msg.getJMSMessageID();
-				if (id != null)
-					rtm.setJMSCorrelationID(id);
-				if (replyToDestination != null)
-					queueSender.send(replyToDestination, rtm);
-				else
-					Log.errorf("Client did not specify reply-to destination");
-			}
-			
-		} catch (JMSException e) {
-			Log.errorf("Error while processing JMS message: %s", e);
-		}
-	}
-	
-	private ReplyObj handleRequest(Destination replyToDestination, ReqObj ro) {
-	    ReplyObj po = null;
+    QueueSender queueSender;
+
+    TopicConnection topicConn;
+
+    TopicSession topicSession;
+
+    TopicPublisher topicPublisher;
+
+    JAXBContext jaxbCtx;
+
+    Marshaller m;
+
+    Unmarshaller u;
+
+    Serv serv;
+
+    public MsgServ(RadarServer server) {
+        serv = new Serv(server);
+        try {
+            jaxbCtx = JAXBContext.newInstance(ReqObj.class, ReplyObj.class,
+                    EventObj.class, RmrEvent.class);
+            m = jaxbCtx.createMarshaller();
+            u = jaxbCtx.createUnmarshaller();
+        } catch (JAXBException e) {
+            Log.errorf("MsgServ could not create JAXBContext: %s", e);
+        }
+    }
+
+    public void start(QueueConnectionFactory qConnFac,
+            TopicConnectionFactory tConnFac) {
+        try {
+            queueConn = qConnFac.createQueueConnection();
+            queueSession = queueConn.createQueueSession(false,
+                    Session.AUTO_ACKNOWLEDGE);
+            Queue queue = queueSession.createQueue("RadarServer");
+            queueSender = queueSession.createSender(null);
+            QueueReceiver qr = queueSession.createReceiver(queue);
+            qr.setMessageListener(this);
+
+            topicConn = tConnFac.createTopicConnection();
+            topicSession = topicConn.createTopicSession(false,
+                    Session.AUTO_ACKNOWLEDGE);
+            Topic topic = topicSession.createTopic("RadarEvents");
+            topicPublisher = topicSession.createPublisher(topic);
+
+            queueConn.start();
+        } catch (JMSException e) {
+            Log.errorf("MsgServ could not start connections: %s", e);
+        }
+    }
+
+    @Override
+    public void handleRadarEvent(RadarEvent event) {
+        RadarEvent eventToSend = EventObj.filterRadarEvent(event);
+        if (eventToSend != null)
+            publishEvent(eventToSend);
+    }
+
+    @Override
+    public void onMessage(Message msg) {
+        try {
+            ReplyObj po = null;
+            String error = null;
+            Exception exc = null;
+
+            Destination replyToDestination = msg.getJMSReplyTo();
+
+            if (msg instanceof TextMessage) {
+                TextMessage tms = (TextMessage) msg;
+                StringReader sr = new StringReader(tms.getText());
+                Object o = null;
+                try {
+                    o = u.unmarshal(sr);
+                } catch (JAXBException e) {
+                    exc = e;
+                }
+
+                if (o instanceof ReqObj) {
+                    ReqObj ro = (ReqObj) o;
+                    try {
+                        po = handleRequest(replyToDestination, ro);
+                    } catch (RuntimeException e) {
+                        error = "Unexpected error while processing request: "
+                                + e.toString();
+                        exc = e;
+                    }
+                } else if (o != null)
+                    error = String.format("Invalid request class '%s'",
+                            o.getClass());
+            } else
+                error = "Invalid JMS message type";
+
+            if (error == null && exc != null)
+                error = exc.toString();
+            if (po == null)
+                po = ReplyObj.error(error != null ? error : "Unknown error");
+
+            if (exc != null)
+                Log.errorf("Error processing remote request: %s", exc);
+            else if (error != null)
+                Log.errorf("Error processing remote request: %s", error);
+
+            if (po != null) {
+                StringWriter sw = new StringWriter();
+                try {
+                    synchronized (m) {
+                        m.marshal(po, sw);
+                    }
+                } catch (JAXBException e) {
+                    Log.errorf("Error processing remote request: %s", e);
+                    return;
+                }
+                TextMessage rtm = queueSession.createTextMessage(sw.toString());
+
+                String id = msg.getJMSCorrelationID();
+                if (id == null)
+                    id = msg.getJMSMessageID();
+                if (id != null)
+                    rtm.setJMSCorrelationID(id);
+                if (replyToDestination != null)
+                    queueSender.send(replyToDestination, rtm);
+                else
+                    Log.errorf("Client did not specify reply-to destination");
+            }
+
+        } catch (JMSException e) {
+            Log.errorf("Error while processing JMS message: %s", e);
+        }
+    }
+
+    private ReplyObj handleRequest(Destination replyToDestination, ReqObj ro) {
+        ReplyObj po = null;
         String error = null;
-	    
+
         Log.eventf("Got remote request %s", ro);
-        
+
         if (ro instanceof GetRadarList)
-            po = ReplyObj.toGetRadarList(
-                    serv.getRadarList());
+            po = ReplyObj.toGetRadarList(serv.getRadarList());
         else if (ro instanceof GetRadarConfig) {
             GetRadarConfig grc = (GetRadarConfig) ro;
             if (grc.radarID != null)
-                po = ReplyObj.toGetRadarConfig(
-                        serv.getRadarConfig(grc.radarID));
+                po = ReplyObj
+                        .toGetRadarConfig(serv.getRadarConfig(grc.radarID));
             else
                 po = ReplyObj.toGetRadarConfig(serv.getAllRadarConfigs());
         } else if (ro instanceof SetRadarConfig) {
@@ -227,33 +236,31 @@ public class MsgServ implements RadarEventListener, MessageListener {
         } else if (ro instanceof GetRadarStatusMessages) {
             GetRadarStatusMessages grs = (GetRadarStatusMessages) ro;
             if (grs.radarID != null)
-                po = ReplyObj.toGetRadarStatusMessages(
-                        createROStatus(grs.radarID,
-                                serv.getRadarStatus(grs.radarID)));
+                po = ReplyObj.toGetRadarStatusMessages(createROStatus(
+                        grs.radarID, serv.getRadarStatus(grs.radarID)));
             else {
                 ArrayList<ROStatus> status = new ArrayList<ROStatus>();
-                for (Map.Entry<String, ? extends RadarStatus> e :
-                        serv.getAllRadarStatus().entrySet()) {
-                    status.add(createROStatus(e.getKey(), 
-                            e.getValue()));
+                for (Map.Entry<String, ? extends RadarStatus> e : serv
+                        .getAllRadarStatus().entrySet()) {
+                    status.add(createROStatus(e.getKey(), e.getValue()));
                 }
                 po = ReplyObj.toGetRadarStatusMessages(status);
             }
         } else if (ro instanceof SendOneTimeRequests) {
             MsgServOtrHandler handler = null;
-            
-            /* Correlation ID should be null so as to not intefere
-             * with the handler list on the client side.
+
+            /*
+             * Correlation ID should be null so as to not intefere with the
+             * handler list on the client side.
              */
             /*
-            String id = msg.getJMSCorrelationID();
-            if (id == null)
-                id = msg.getJMSMessageID();
-            */
-            String id = null; 
+             * String id = msg.getJMSCorrelationID(); if (id == null) id =
+             * msg.getJMSMessageID();
+             */
+            String id = null;
             if (replyToDestination != null)
-                handler = new MsgServOtrHandler(replyToDestination, id); 
-            
+                handler = new MsgServOtrHandler(replyToDestination, id);
+
             SendOneTimeRequests r = (SendOneTimeRequests) ro;
             serv.sendOTRs(r.radarIDs, r.requests, handler);
         } else if (ro instanceof SendRpsList) {
@@ -267,17 +274,17 @@ public class MsgServ implements RadarEventListener, MessageListener {
         } else if (ro instanceof GetRpsList) {
             GetRpsList r = (GetRpsList) ro;
             if (r.radarID != null) {
-                int vcp = r.vcp != null ? r.vcp : -1; 
-                int opMode = r.opMode != null ? r.opMode : GSM.OP_MODE_MAINTENANCE;
+                int vcp = r.vcp != null ? r.vcp : -1;
+                int opMode = r.opMode != null ? r.opMode
+                        : GSM.OP_MODE_MAINTENANCE;
                 RpsList rpsList = serv.getRpsList(r.radarID, opMode, vcp);
                 po = new ReplyObj.RpsListReply(rpsList);
                 /*
-                if (rpsList != null)
-                    po = ReplyObj.toGetRpsList(rpsList);
-                else
-                    error = String.format("Could not retrieve RPS list for radar %s%s",
-                            r.radarID, vcp != -1 ? ", VCP " + vcp : "");
-                */
+                 * if (rpsList != null) po = ReplyObj.toGetRpsList(rpsList);
+                 * else error =
+                 * String.format("Could not retrieve RPS list for radar %s%s",
+                 * r.radarID, vcp != -1 ? ", VCP " + vcp : "");
+                 */
             } else
                 error = "Must specify a radar name";
         } else if (ro instanceof GetGlobalConfig) {
@@ -301,7 +308,8 @@ public class MsgServ implements RadarEventListener, MessageListener {
             po = r;
         } else if (ro instanceof SendAlertRequest) {
             SendAlertRequest ro2 = (SendAlertRequest) ro;
-            error = serv.sendAlertRequest(ro2.radarID, ro2.areaIndex, ro2.alertRequest);
+            error = serv.sendAlertRequest(ro2.radarID, ro2.areaIndex,
+                    ro2.alertRequest);
         } else if (ro instanceof SendMessageToRPG) {
             SendMessageToRPG ro2 = (SendMessageToRPG) ro;
             error = serv.sendMessageToRPG(ro2.radarID, ro2.message);
@@ -316,7 +324,7 @@ public class MsgServ implements RadarEventListener, MessageListener {
             error = serv.debugHandleMessage(r.radarID, r.message);
         } else
             error = String.format("Unsupported request '%s'", ro.toString());
-        
+
         if (po == null) {
             if (error == null)
                 po = new ReplyObj();
@@ -324,97 +332,97 @@ public class MsgServ implements RadarEventListener, MessageListener {
                 po = ReplyObj.error(error);
         }
 
-	    return po;
-	}
-	
-	private ROStatus createROStatus(String radarID, RadarStatus rs) {
-		ROStatus ros = new ROStatus();
-		ros.radarID = radarID;
-		ros.currentAAP = rs.getCurrentAAP();
-		ros.currentGSM = rs.getCurrentGSM();
-		ros.currentPTL = rs.getCurrentPTL();
-		ros.lastAAP = rs.getLastAAP();
-		ros.lastGSM = rs.getLastGSM();
-		ros.lastPTL = rs.getLastPTL();
-		return ros;
-	}
+        return po;
+    }
 
-	@Override
-	public void handleConfigEvent(ConfigEvent event) {
-		publishEvent(event);
-	}
-	
-	private void publishEvent(Object obj) {
-		// Can get events before mq is set up.
-		if (topicPublisher == null)
-			return;
-		
-		StringWriter sw = new StringWriter();
-		try {
-			synchronized (m) {
-				m.marshal(obj, sw);
-			}
-		} catch (JAXBException e) {
-			Log.errorf("Error serializing event: %s", e);
-			return;
-		}
-		try {
-			TextMessage tm = topicSession.createTextMessage(
-					sw.toString());
-			topicPublisher.publish(tm);
-		} catch (JMSException e) {
-			Log.errorf("Error sending message: %s", e);
-		}
-	}
+    private ROStatus createROStatus(String radarID, RadarStatus rs) {
+        ROStatus ros = new ROStatus();
+        ros.radarID = radarID;
+        ros.currentAAP = rs.getCurrentAAP();
+        ros.currentGSM = rs.getCurrentGSM();
+        ros.currentPTL = rs.getCurrentPTL();
+        ros.lastAAP = rs.getLastAAP();
+        ros.lastGSM = rs.getLastGSM();
+        ros.lastPTL = rs.getLastPTL();
+        return ros;
+    }
 
-	@Override
-	public void handleNotificationEvent(NotificationEvent event) {
-		publishEvent(event);		
-	}
-	
-	class MsgServOtrHandler implements OTRHandler {
-		Destination destination;
-		String correlationID;
-		
-		public MsgServOtrHandler(Destination destination, String correlationID) {
-			this.destination = destination;
-			this.correlationID = correlationID;
-		}
-		
-		@Override
-		public void handleOtrEvent(OtrEvent event) {
-		    OtrEvent eventToSend = event.clone();
-		    /* This OTR notification capability is currently only used to
-		     * display alerts in CAVE.  Thus, there is no need to send the
-		     * actual product data.  Given that some products can be larger
-		     * than one megabyte and the notification is in XML format,
-		     * this is a useful optimization.
-		     */
-		    if (event.product != null
+    @Override
+    public void handleConfigEvent(ConfigEvent event) {
+        publishEvent(event);
+    }
+
+    private void publishEvent(Object obj) {
+        // Can get events before mq is set up.
+        if (topicPublisher == null)
+            return;
+
+        StringWriter sw = new StringWriter();
+        try {
+            synchronized (m) {
+                m.marshal(obj, sw);
+            }
+        } catch (JAXBException e) {
+            Log.errorf("Error serializing event: %s", e);
+            return;
+        }
+        try {
+            TextMessage tm = topicSession.createTextMessage(sw.toString());
+            topicPublisher.publish(tm);
+        } catch (JMSException e) {
+            Log.errorf("Error sending message: %s", e);
+        }
+    }
+
+    @Override
+    public void handleNotificationEvent(NotificationEvent event) {
+        publishEvent(event);
+    }
+
+    class MsgServOtrHandler implements OTRHandler {
+        Destination destination;
+
+        String correlationID;
+
+        public MsgServOtrHandler(Destination destination, String correlationID) {
+            this.destination = destination;
+            this.correlationID = correlationID;
+        }
+
+        @Override
+        public void handleOtrEvent(OtrEvent event) {
+            OtrEvent eventToSend = event.clone();
+            /*
+             * This OTR notification capability is currently only used to
+             * display alerts in CAVE. Thus, there is no need to send the actual
+             * product data. Given that some products can be larger than one
+             * megabyte and the notification is in XML format, this is a useful
+             * optimization.
+             */
+            if (event.product != null
                     && com.raytheon.rcm.message.Message
                             .messageCodeOf(event.product) > 16)
                 eventToSend.product = GraphicProduct
                         .extractHeaderAndPDB(event.product);
 
-			StringWriter sw = new StringWriter();
-			try {
-				synchronized (m) {
-					m.marshal(eventToSend, sw);
-				}
-			} catch (JAXBException e) {
-				Log.errorf("Error processing remote request: %s", e);
-				return;
-			}
-			try {
-				TextMessage rtm = queueSession.createTextMessage(
-						sw.toString());
-				if (correlationID != null)
-					rtm.setJMSCorrelationID(correlationID);
-				queueSender.send(destination, rtm);
-			} catch (JMSException e) {
-				Log.errorf("Error sending message: %s", e);
-			}
-		}
-		
-	}
+            StringWriter sw = new StringWriter();
+            try {
+                synchronized (m) {
+                    m.marshal(eventToSend, sw);
+                }
+            } catch (JAXBException e) {
+                Log.errorf("Error processing remote request: %s", e);
+                return;
+            }
+            try {
+                TextMessage rtm = queueSession.createTextMessage(sw.toString());
+                if (correlationID != null)
+                    rtm.setJMSCorrelationID(correlationID);
+                queueSender.send(destination, rtm);
+            } catch (JMSException e) {
+                Log.errorf("Error sending message: %s", e);
+            }
+        }
+
+    }
 }

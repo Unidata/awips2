@@ -4,6 +4,8 @@ import gov.noaa.nws.ncep.gempak.parameters.line.LineDataStringParser;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.contours.ContourSupport.ContourGroup;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.eclipse.swt.graphics.RGB;
@@ -21,6 +23,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Generalized contour renderable
@@ -37,6 +40,10 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
  * Mar 08, 2011				M. Li		abstract class -> general class 
  * Apr 05, 2011				M. Li		increase threading retries from 10 to 100
  * Nov,02, 2011             X. Guo      Added HILO relative
+ * Feb,15, 2012             X. Guo      Cached contour information
+ * Mar,01, 2012             X. Guo      Handle five zoom levels
+ * Mar,13, 2012             X. Guo      Added createContours()
+ * Mar,15, 2012             X. Guo      Set synchronized block in ContoutSupport
  * 
  * </pre>
  * 
@@ -48,7 +55,7 @@ public class ContourRenderable implements IRenderable {
 
     private ContourGroup[] contourGroup;
 
-    private final IMapDescriptor descriptor;
+    private IMapDescriptor descriptor;
 
     private LineStyle lineStyle;
 
@@ -65,6 +72,8 @@ public class ContourRenderable implements IRenderable {
     private static final int NUMBER_CONTOURING_LEVELS = 5;
     
     private int actual_contour_level = 1	;
+    
+    private boolean reproj;
 
 //    public abstract IDataRecord getData();
 //
@@ -87,6 +96,12 @@ public class ContourRenderable implements IRenderable {
     private IFont font;
     
     private String name;
+    
+    private String cint;
+    
+    private double defaultZoomLevel;
+    
+    private double zoomLevelInterval;
 
 
     /**
@@ -111,6 +126,8 @@ public class ContourRenderable implements IRenderable {
         this.gridGeometry = gridGeometry;
         this.contourAttributes = contourAttributes;
         this.name = fullName;
+        this.defaultZoomLevel = 0.0;
+        this.zoomLevelInterval = 0.0;
     }
     
     /*
@@ -121,147 +138,117 @@ public class ContourRenderable implements IRenderable {
      * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
      */
     @Override
-    public void paint(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
-    	
-        synchronized (this) {
+    public void paint (IGraphicsTarget target, PaintProperties paintProps) throws VizException {
 
-        	LineDataStringParser lineAttr = new LineDataStringParser(contourAttributes.getLine());
-        	this.color = GempakColor.convertToRGB(lineAttr.getInstanceOfLineBuilder().getLineColorsList().get(0));
-        	this.lineStyle = lineAttr.getInstanceOfLineBuilder().getLineStyleList().get(0);
-        	this.outlineWidth = lineAttr.getInstanceOfLineBuilder().getLineWidthList().get(0);
-        	
-            if (contourGroup == null) {
-            	if (contourAttributes.getCint() != null ) {
-                	String[] cintArray = contourAttributes.getCint().trim().split(">");
-                	actual_contour_level = cintArray.length+1;
-                }
-            	
-                if (actual_contour_level > NUMBER_CONTOURING_LEVELS ) 
-                	actual_contour_level = NUMBER_CONTOURING_LEVELS;
+    	initContourGroup ( paintProps );
+    		
+    		double density = 1.0;//paintProps.getDensity();
+    		double magnification = 1.0; //paintProps.getMagnification();
+
+    		if (density > 4.0f) {
+    			density = 4.0f;
+    		}
+
+    		if (contourGroup != null) {
+    			if (this.lastMagnification != magnification || font == null) {
+    				this.lastMagnification = magnification;
+    				if (this.font != null) {
+    					font.dispose();
+    				}
+    				font = target.getDefaultFont();
+
+    				font = target.initializeFont(font.getFontName(),
+    						(float) (font.getFontSize() / 1.4 * magnification),
+    						null);
+    			}
+
+    			int i = contourGroup.length - 1;
+//    			double mapWidth = ((MapDescriptor) this.descriptor)
+//                	.getMapWidth();
+//    			double widthInMeters = mapWidth * paintProps.getZoomLevel();
+    			double rangeHi, rangeLo,zoomlvl;
+    			zoomlvl = paintProps
+						.getView().getExtent().getWidth()/paintProps
+						.getCanvasBounds().width;
+    			while (i >= 0) {
+    				rangeHi = Double.MAX_VALUE;
+    				rangeLo = 0.0;
+    				if ( contourGroup.length > 1 ) {
+    					if ( i == contourGroup.length - 1) {
+    						rangeLo = zoomLevelInterval /2 + ( i-1)*zoomLevelInterval;
+    					}
+    					else if ( i == 0 ){
+    						rangeHi = zoomLevelInterval /2;
+    					}
+    					else {
+    						rangeHi = zoomLevelInterval /2 + i*zoomLevelInterval;
+    						rangeLo = zoomLevelInterval /2 + ( i-1)*zoomLevelInterval;
+    					}
+//    					System.out.println ( "==actual_contour_level:"+ actual_contour_level +" zoomLevelInterval:"+zoomLevelInterval + " zoomlvl:" + zoomlvl + " rangeHi:"+ rangeHi + " rangeLo:" + rangeLo);
+    				}
+//    				double curlvl = (METERS_AT_BASE_ZOOMLEVEL)
+//                    	* (Math.pow(ZOOM_REACTION_FACTOR, i));
+    				if ( rangeHi >= zoomlvl && zoomlvl > rangeLo ) {
                 
-                contourGroup = new ContourGroup[actual_contour_level];
-            }
-            double density = 1.0;//paintProps.getDensity();
-            double magnification = 1.0; //paintProps.getMagnification();
+    					// Run contours if:
+    					// 1. Contours was never ran before -or-
+    					// 2. The area currently viewed is outside of the
+    					// contoured window -or-
+    					// 3. The density has changed
+    					if (contourGroup[i] == null || getMapProject()
+    							|| contourGroup[i].lastDensity != density) {
 
-            if (density > 4.0f) {
-                density = 4.0f;
-            }
+    						MathTransform mathTransformFromGrid = gridGeometry.getGridToCRS(PixelInCell.CELL_CORNER);
 
-            if (contourGroup != null) {
-                if (this.lastMagnification != magnification || font == null) {
-                    this.lastMagnification = magnification;
-                    if (this.font != null) {
-                        font.dispose();
-                    }
-                    font = target.getDefaultFont();
+    						// If required data unavailable, quit now
+    						if (mathTransformFromGrid == null
+    								|| data == null
+    								|| gridGeometry == null) {
+    							return;
+    						}
 
-                    font = target.initializeFont(font.getFontName(),
-                            (float) (font.getFontSize() / 1.4 * magnification),
-                            null);
-                }
+    						ContourGroup cg = null;
+    						
+    						float pixelDensity = (float) (paintProps
+									.getCanvasBounds().width / paintProps
+									.getView().getExtent().getWidth());
 
-                int i = contourGroup.length - 1;
-                double mapWidth = ((MapDescriptor) this.descriptor)
-                        .getMapWidth();
-                double widthInMeters = mapWidth * paintProps.getZoomLevel();
-                
-                while (i >= 0) {
-                    double curlvl = (METERS_AT_BASE_ZOOMLEVEL)
-                            * (Math.pow(ZOOM_REACTION_FACTOR, i));
+    						ContourSupport cntrSp = new ContourSupport(data, contourGroup.length-i-1,
+    									paintProps.getView().getExtent(),
+    									density, mathTransformFromGrid,
+    									gridGeometry,
+    									descriptor.getGridGeometry(), target,
+    									descriptor, contourAttributes, name, pixelDensity,
+    									contourGroup[i]);
+    						cntrSp.createContours();
+    						cg = cntrSp.getContours (); 
 
-                    if (widthInMeters <= curlvl || i == 0) {
-                        boolean contains = (contourGroup[i] == null || contourGroup[i].lastUsedPixelExtent == null) ? false
-                                : (contourGroup[i].lastUsedPixelExtent
-                                        .getEnvelope()
-                                        .contains(((PixelExtent) paintProps
-                                                .getView().getExtent())
-                                                .getEnvelope()));
-                        // Run contours if:
-                        // 1. Contours was never ran before -or-
-                        // 2. The area currently viewed is outside of the
-                        // contoured window -or-
-                        // 3. The density has changed
-                        if (contourGroup[i] == null || !contains
-                                || contourGroup[i].lastDensity != density) {
+    						if (cg != null) {
+    							// Dispose old wireframe shapes
+    							disposeContourGroup (contourGroup[i]);
+                        
+    							contourGroup[i] = new ContourGroup();
+    							contourGroup[i].zoomLevel = cg.zoomLevel;
+    							contourGroup[i].posValueShape = cg.posValueShape;
+    							contourGroup[i].negValueShape = cg.negValueShape;
+    							contourGroup[i].fillShapes = cg.fillShapes;
+    							contourGroup[i].parent = cg.parent;
+    							contourGroup[i].lastUsedPixelExtent = cg.lastUsedPixelExtent;
+    							contourGroup[i].lastDensity = cg.lastDensity;
+    							contourGroup[i].cvalues = new ArrayList<Double>(cg.cvalues);
+    							contourGroup[i].fvalues = new ArrayList<Double>(cg.fvalues);
+    							contourGroup[i].data = new HashMap< String, Geometry>(cg.data);
+    							contourGroup[i].grid = cg.grid;
+    							contourGroup[i].posValueShape.compile();
+    							contourGroup[i].negValueShape.compile();
+    							contourGroup[i].fillShapes.compile();
+    						} 
+    						else {
+    							target.setNeedsRefresh(true);
+    						}
+    					}
 
-                            MathTransform mathTransformFromGrid = gridGeometry.getGridToCRS(PixelInCell.CELL_CORNER);
-
-                            // If required data unavailable, quit now
-                            if (mathTransformFromGrid == null
-                                    || data == null
-                                    || gridGeometry == null) {
-                                return;
-                            }
-
-                            ContourGroup cg = null;
-                            int retries = 0;
-                            do {
-
-                                // calculate the pixel density
-                                float pixelDensity = (float) (paintProps
-                                        .getCanvasBounds().width / paintProps
-                                        .getView().getExtent().getWidth());
-
-//                            	float zoomLevel = paintProps.getZoomLevel();
-//                                
-//                            	System.out.println(" pixelDensity="+pixelDensity+ " zoomLevel="+zoomLevel);
-                            	
-                                cg = ContourManagerJob.getInstance().request(
-                                        uuid + "::" + this + "::" + i,
-                                        data, i,
-                                        paintProps.getView().getExtent(),
-                                        density, mathTransformFromGrid,
-                                        gridGeometry,
-                                        descriptor.getGridGeometry(), target,
-                                        descriptor, contourAttributes, name, pixelDensity);
-
-                                try {
-                                    if (cg == null
-                                            && paintProps.getLoopProperties() != null
-                                            && paintProps.getLoopProperties()
-                                                    .isLooping()) {
-                                    	
-                                        Thread.sleep(50);
-                                    }
-                                } catch (InterruptedException e) {
-                                    // ignore
-                                }
-                                retries++;
-                            } while (cg == null
-                                    && paintProps.getLoopProperties() != null
-                                    && paintProps.getLoopProperties()
-                                            .isLooping() && retries < 100);  // Allow up to 5 seconds for contouring
-
-                            if (cg != null) {
-                                // Dispose old wireframe shapes
-                                if (contourGroup[i] != null
-                                        && contourGroup[i].posValueShape != null) {
-                                    contourGroup[i].posValueShape.dispose();
-                                }
-
-                                if (contourGroup[i] != null
-                                        && contourGroup[i].negValueShape != null) {
-                                    contourGroup[i].negValueShape.dispose();
-                                }
-
-                                if (contourGroup[i] != null
-                                		&& contourGroup[i].fillShapes != null) {
-                                	contourGroup[i].fillShapes.dispose();
-                                }
-                                
-                                contourGroup[i] = cg;
-                                contourGroup[i].posValueShape.compile();
-                                contourGroup[i].negValueShape.compile();
-                                contourGroup[i].fillShapes.compile();
-                            } else {
-                                target.setNeedsRefresh(true);
-                            }
-
-                        }
-
-                        LineStyle posLineStyle = null;
+    					LineStyle posLineStyle = null;
                         LineStyle negLineStyle = null;
                         if (this.lineStyle == null) {
                             posLineStyle = LineStyle.SOLID;
@@ -310,19 +297,203 @@ public class ContourRenderable implements IRenderable {
                                     }
                                 }
                             }
-
-                            target.setNeedsRefresh(true);
-
                         }
-                        break;
 
-                    }
+                        target.setNeedsRefresh(true);
+                        break;
+    				}
+    				i--;
+    			}
+    		}
+    }    
+    public void paintContour(IGraphicsTarget target, PaintProperties paintProps)
+            throws VizException {
+    	
+        synchronized (this) {
+
+        	LineDataStringParser lineAttr = new LineDataStringParser(contourAttributes.getLine());
+        	this.color = GempakColor.convertToRGB(lineAttr.getInstanceOfLineBuilder().getLineColorsList().get(0));
+        	this.lineStyle = lineAttr.getInstanceOfLineBuilder().getLineStyleList().get(0);
+        	this.outlineWidth = lineAttr.getInstanceOfLineBuilder().getLineWidthList().get(0);
+        	
+
+            if (contourGroup != null) {
+            	LineStyle posLineStyle = null;
+                LineStyle negLineStyle = null;
+                if (this.lineStyle == null) {
+                    posLineStyle = LineStyle.SOLID;
+                    negLineStyle = LineStyle.DASHED_LARGE;
+                } else {
+                    posLineStyle = this.lineStyle;
+                    negLineStyle = this.lineStyle;
+                }
+                
+                int i = contourGroup.length - 1;
+                  
+                while (i >= 0) {
+
+                        if (contourGroup[i] != null
+                                && paintProps.getView().getExtent().intersects(
+                                        contourGroup[i].lastUsedPixelExtent)) {
+                        	target.drawShadedShape(contourGroup[i].fillShapes , 0.5f);
+                        	
+                            target.drawWireframeShape(
+                                    contourGroup[i].posValueShape, this.color,
+                                    this.outlineWidth, posLineStyle, font);
+                            target.drawWireframeShape(
+                                    contourGroup[i].negValueShape, this.color,
+                                    this.outlineWidth, negLineStyle, font);                            
+                        } 
                     i--;
                 }
             }
         }
     }
 
+    public void createContours (IGraphicsTarget target, PaintProperties paintProps) throws VizException {
+
+    	initContourGroup ( paintProps );
+
+    		double density = 1.0;//paintProps.getDensity();
+    		double magnification = 1.0; //paintProps.getMagnification();
+
+    		if (density > 4.0f) {
+    			density = 4.0f;
+    		}
+
+    		if (contourGroup != null) {
+    			if (this.lastMagnification != magnification || font == null) {
+    				this.lastMagnification = magnification;
+    				if (this.font != null) {
+    					font.dispose();
+    				}
+    				font = target.getDefaultFont();
+
+    				font = target.initializeFont(font.getFontName(),
+    						(float) (font.getFontSize() / 1.4 * magnification),
+    						null);
+    			}
+
+    			int i = contourGroup.length - 1;
+//    			double mapWidth = ((MapDescriptor) this.descriptor)
+//                	.getMapWidth();
+//    			double widthInMeters = mapWidth * paintProps.getZoomLevel();
+    			double rangeHi, rangeLo,zoomlvl;
+    			zoomlvl = paintProps
+						.getView().getExtent().getWidth()/paintProps
+						.getCanvasBounds().width;
+    			while (i >= 0) {
+    				rangeHi = Double.MAX_VALUE;
+    				rangeLo = 0.0;
+    				if ( contourGroup.length > 1 ) {
+    					if ( i == contourGroup.length - 1) {
+    						rangeLo = zoomLevelInterval /2 + ( i-1)*zoomLevelInterval;
+    					}
+    					else if ( i == 0 ){
+    						rangeHi = zoomLevelInterval /2;
+    					}
+    					else {
+    						rangeHi = zoomLevelInterval /2 + i*zoomLevelInterval;
+    						rangeLo = zoomLevelInterval /2 + ( i-1)*zoomLevelInterval;
+    					}
+//    					System.out.println ( "==actual_contour_level:"+ actual_contour_level +" zoomLevelInterval:"+zoomLevelInterval + " zoomlvl:" + zoomlvl + " rangeHi:"+ rangeHi + " rangeLo:" + rangeLo);
+    				}
+//    				double curlvl = (METERS_AT_BASE_ZOOMLEVEL)
+//                    	* (Math.pow(ZOOM_REACTION_FACTOR, i));
+    				if ( rangeHi >= zoomlvl && zoomlvl > rangeLo ) {
+                
+    					// Run contours if:
+    					// 1. Contours was never ran before -or-
+    					// 2. The area currently viewed is outside of the
+    					// contoured window -or-
+    					// 3. The density has changed
+    					if (contourGroup[i] == null || getMapProject()
+    							|| contourGroup[i].lastDensity != density) {
+
+    						MathTransform mathTransformFromGrid = gridGeometry.getGridToCRS(PixelInCell.CELL_CORNER);
+
+    						// If required data unavailable, quit now
+    						if (mathTransformFromGrid == null
+    								|| data == null
+    								|| gridGeometry == null) {
+    							return;
+    						}
+
+    						ContourGroup cg = null;
+    						float pixelDensity = (float) (paintProps
+									.getCanvasBounds().width / paintProps
+									.getView().getExtent().getWidth());
+    						ContourSupport cntrSp = new ContourSupport(data, contourGroup.length-i-1,
+    									paintProps.getView().getExtent(),
+    									density, mathTransformFromGrid,
+    									gridGeometry,
+    									descriptor.getGridGeometry(), target,
+    									descriptor, contourAttributes, name, pixelDensity,
+    									contourGroup[i]);
+    						cntrSp.createContours();
+    						cg = cntrSp.getContours ();
+
+    						if (cg != null) {
+    							// Dispose old wireframe shapes
+    							disposeContourGroup (contourGroup[i]);
+                        
+    							contourGroup[i] = new ContourGroup();
+    							contourGroup[i].zoomLevel = cg.zoomLevel;
+    							contourGroup[i].posValueShape = cg.posValueShape;
+    							contourGroup[i].negValueShape = cg.negValueShape;
+    							contourGroup[i].fillShapes = cg.fillShapes;
+    							contourGroup[i].parent = cg.parent;
+    							contourGroup[i].lastUsedPixelExtent = cg.lastUsedPixelExtent;
+    							contourGroup[i].lastDensity = cg.lastDensity;
+    							contourGroup[i].cvalues = new ArrayList<Double>(cg.cvalues);
+    							contourGroup[i].fvalues = new ArrayList<Double>(cg.fvalues);
+    							contourGroup[i].data = new HashMap< String, Geometry>(cg.data);
+    							contourGroup[i].grid = cg.grid;
+    							contourGroup[i].posValueShape.compile();
+    							contourGroup[i].negValueShape.compile();
+    							contourGroup[i].fillShapes.compile();
+    						} 
+    					}
+                        break;
+    				}
+    				i--;
+    			}
+    		}
+    }   
+    
+    private void initContourGroup ( PaintProperties paintProps ) {
+    	LineDataStringParser lineAttr = new LineDataStringParser(contourAttributes.getLine());
+		this.color = GempakColor.convertToRGB(lineAttr.getInstanceOfLineBuilder().getLineColorsList().get(0));
+		this.lineStyle = lineAttr.getInstanceOfLineBuilder().getLineStyleList().get(0);
+		this.outlineWidth = lineAttr.getInstanceOfLineBuilder().getLineWidthList().get(0);
+
+		if (contourGroup == null) {
+			this.defaultZoomLevel = paintProps
+			.getView().getExtent().getWidth()/paintProps
+			.getCanvasBounds().width;
+			if (contourAttributes.getCint() != null ) {
+				String[] cintArray = contourAttributes.getCint().trim().split(">");
+				actual_contour_level = cintArray.length;
+				this.cint = contourAttributes.getCint();
+			}
+	
+			if (actual_contour_level > NUMBER_CONTOURING_LEVELS ) 
+				actual_contour_level = NUMBER_CONTOURING_LEVELS;
+    
+			contourGroup = new ContourGroup[actual_contour_level];
+			if ( actual_contour_level > 1)
+				this.zoomLevelInterval = this.defaultZoomLevel/(actual_contour_level-1);
+		}
+		else {
+			if ( this.defaultZoomLevel == 0.0 ) {
+				this.defaultZoomLevel = paintProps
+				.getView().getExtent().getWidth()/paintProps
+				.getCanvasBounds().width;
+				if ( actual_contour_level > 1)
+    				this.zoomLevelInterval = this.defaultZoomLevel/(actual_contour_level-1);
+			}
+		}
+    }
     /**
      * Dispose the renderable
      */
@@ -350,6 +521,48 @@ public class ContourRenderable implements IRenderable {
 
     }
 
+    public void disposeInternal() {
+        if (contourGroup != null) {
+            for (ContourGroup c : contourGroup) {
+                if (c == null) {
+                    continue;
+                }
+
+                if (c.posValueShape != null) {
+                    c.posValueShape.dispose();
+                }
+                if (c.negValueShape != null) {
+                    c.negValueShape.dispose();
+                }
+                if (c.fillShapes != null) {
+                	c.fillShapes.dispose();
+                }
+            }
+        }
+    }
+    /**
+     * Dispose the contour group
+     */
+    private void disposeContourGroup (ContourGroup contourGp ) {
+    	// Dispose old wireframe shapes
+        if (contourGp != null ){
+        	if ( contourGp.posValueShape != null)
+        		contourGp.posValueShape.dispose();
+        	if (contourGp.negValueShape != null) {
+        		contourGp.negValueShape.dispose();
+        	}
+        	if (contourGp.fillShapes != null) {
+        		contourGp.fillShapes.dispose();
+        	}
+        	if ( contourGp.cvalues != null )
+        		contourGp.cvalues.clear();
+        	if ( contourGp.fvalues != null )
+        		contourGp.fvalues.clear();
+        	if ( contourGp.data != null )
+        		contourGp.data.clear();
+        }
+    }
+    
     public ContourAttributes getContourAttributes() {
 		return contourAttributes;
 	}
@@ -358,6 +571,47 @@ public class ContourRenderable implements IRenderable {
 		this.contourAttributes = contourAttributes;
 	}
 
+	public void updatedContourRenderable () {
+		
+		if ( this.cint == null ) {
+			if (contourAttributes.getCint() != null ) {
+				String[] cintArray = contourAttributes.getCint().trim().split(">");
+				actual_contour_level = cintArray.length;
+				this.cint = contourAttributes.getCint();
+			}
+
+			if (actual_contour_level > NUMBER_CONTOURING_LEVELS ) 
+				actual_contour_level = NUMBER_CONTOURING_LEVELS;
+
+			disposeInternal();
+			contourGroup = new ContourGroup[actual_contour_level];
+			if ( actual_contour_level > 1)
+				this.zoomLevelInterval = this.defaultZoomLevel/(actual_contour_level-1);
+		}
+		else {
+			if (contourAttributes.getCint() == null) {
+				actual_contour_level = 1;
+				this.cint = null;
+				disposeInternal();
+				contourGroup = new ContourGroup[actual_contour_level];
+			}
+			else {
+				if ( ! this.cint.equalsIgnoreCase(contourAttributes.getCint())){
+					disposeInternal();
+					String[] cintArray = contourAttributes.getCint().trim().split(">");
+					actual_contour_level = cintArray.length;
+					this.cint = contourAttributes.getCint();
+					if (actual_contour_level > NUMBER_CONTOURING_LEVELS ) 
+						actual_contour_level = NUMBER_CONTOURING_LEVELS;
+					contourGroup = new ContourGroup[actual_contour_level];
+					if ( actual_contour_level > 1)
+						this.zoomLevelInterval = this.defaultZoomLevel/(actual_contour_level-1);
+				}
+			}
+		}
+		
+	}
+	
 	public IDataRecord getData() {
 		return data;
 	}
@@ -380,5 +634,28 @@ public class ContourRenderable implements IRenderable {
 
 	public void setGridRelativeHiLo (GridRelativeHiLoDisplay gridRelativeHiLoDisplay) {
 		this.gridRelativeHiLoDisplay = gridRelativeHiLoDisplay;
+	}
+	
+	public void setMapProject ( boolean proj){
+		this.reproj = proj;
+	}
+	
+	private boolean getMapProject () {
+		return this.reproj;
+	}
+	public void setIMapDescriptor (IMapDescriptor descriptor) {
+        this.descriptor = descriptor;
+        this.defaultZoomLevel = 0.0;
+    }
+	public boolean isMatch ( ContourAttributes attr) {
+		boolean match = false;
+		
+		if ( this.contourAttributes.getGlevel().equalsIgnoreCase(attr.getGlevel())&&
+			 this.contourAttributes.getGvcord().equalsIgnoreCase(attr.getGvcord()) &&
+			 this.contourAttributes.getScale().equalsIgnoreCase(attr.getScale()) &&
+			 this.contourAttributes.getGdpfun().equalsIgnoreCase(attr.getGdpfun()) ) {
+			match = true;
+		}
+		return match;
 	}
 }
