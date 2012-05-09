@@ -65,6 +65,8 @@ public class UserId implements IQualifiedID, IUser {
     @DynamicSerializeElement
     protected String alias;
 
+    private ID id;
+
     public UserId() {
 
     }
@@ -246,6 +248,14 @@ public class UserId implements IQualifiedID, IUser {
 
     @Override
     public ID getID() {
-        return null;
+        return id;
+    }
+
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(ID id) {
+        this.id = id;
     }
 }
