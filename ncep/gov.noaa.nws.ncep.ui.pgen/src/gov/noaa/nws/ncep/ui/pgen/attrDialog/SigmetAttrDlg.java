@@ -20,6 +20,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
@@ -46,6 +47,8 @@ import java.util.TimeZone;
 import org.apache.commons.beanutils.BeanUtils;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
@@ -88,7 +91,11 @@ import com.vividsolutions.jts.geom.Polygon;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 07/11        #450        G. Hull     NcPathManager
  * 12/11		#526		B. Yin		Close dialog after text is saved.
- *
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 03/12        #612,#613   S. Gurung   Accept phenom Lat/Lon and convert them to prepended format.
+ * 										Change KZOA to KZAK.
+ * 03/12        #611        S. Gurung   Fixed ability to change SIGMET type (from Area to Line/Isolated and back and forth)
+ * 03/12        #676        Q. Zhou     Added Issue Office dropdown list.
  *  </pre>
  * 
  * @author	gzhang
@@ -102,12 +109,14 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 	private HashMap<String, Object> attr = new HashMap<String, Object>( );
 	
 	public static final String AREA = "Area", LINE = "Line", ISOLATED = "Isolated";
-	public static final String LINE_SEPERATER = ":::";
+
 	
 	private String lineType = AREA; //default
 	
+	private String origLineType = lineType; 
+	
 	private static final String WIDTH = "10.00";
-	private String width = WIDTH;//default, nautical miles
+	private String widthStr = WIDTH;//default, nautical miles
 	
 	private static final String[] LINE_SIDES = new String[]{"ESOL","NOF","SOF","EOF","WOF"};	
 	private String sideOfLine = LINE_SIDES[0]; //default
@@ -127,6 +136,7 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 	
 	
 	private String editableAttrArea;	//MWO
+	private String editableAttrIssueOffice;	//IssueOffice
 	private String editableAttrStatus;	//0=new,1=amend,2=cancel...
 	private String editableAttrId;		//alfa,brave...
 	private String editableAttrSeqNum;	//1,2,...,300
@@ -175,7 +185,7 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 	private void resetText(String coorsLatLon, Text txtInfo){
 		
 		StringBuilder sb = new StringBuilder();
-		String[] strings = coorsLatLon.split(LINE_SEPERATER);
+		String[] strings = coorsLatLon.split(SigmetInfo.LINE_SEPERATER);
     	for(int i=0; i<strings.length; i++){
     		if(i != 0 && (i%6 == 0)) sb.append("\n");
     		if((i==strings.length-1)
@@ -189,7 +199,6 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 	}
 	
 	public void okPressed() {
-		
 		ArrayList<AbstractDrawableComponent> adcList = null;
 		ArrayList<AbstractDrawableComponent> newList = new ArrayList<AbstractDrawableComponent>() ;
 
@@ -208,8 +217,13 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 				if ( el != null ){
 					// Create a copy of the currently selected element
 					Sigmet newEl = (Sigmet)el.copy();
+					
 					// Update the new Element with these current attributes
 					copyEditableAttrToSigmet(newEl);//20100115 newEl.update(this);
+					
+					// Change type and update From line
+					newEl = convertType(newEl);
+					
 					newList.add(newEl);
 
 				}
@@ -228,6 +242,7 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 		if ( mapEditor != null ) {
 			mapEditor.refresh();
 		}
+		
 	}
 	
 	public void setMouseHandlerName(String mhName){
@@ -257,7 +272,16 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 	}
 	
 	public void setLineType(String lType){
+		setOrigLineType(getLineType());
 		this.lineType = lType;
+	}	
+	
+	public String getOrigLineType(){
+		return this.origLineType;
+	}
+	
+	public void setOrigLineType(String lType){
+		this.origLineType = lType;
 	}
 	
 	public String getSideOfLine(){
@@ -268,12 +292,16 @@ public class SigmetAttrDlg  extends AttrDlg implements ISigmet {
 		this.sideOfLine = lineSideString;
 	}
 	
-	public String getWidth(){	
-		return this.width;
+	public double getWidth(){	
+		return Double.parseDouble(this.widthStr);
 	}
 	
-	public void setWidth(String widthString){
-		this.width = widthString;
+	public  String getWidthStr(){	
+		return this.widthStr;
+	}
+		
+	public void setWidthStr(String widthString){
+		this.widthStr = widthString;
 	}
 	
 	private double stringToDouble(String s){
@@ -633,10 +661,23 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		    	
 		    	txtPheLat.addListener(SWT.Modify, new Listener(){
 		    		public void handleEvent(Event e){
-		    			if(validateLatLon(txtPheLat.getText(), true) )
-		    				SigmetAttrDlg.this.setEditableAttrPhenomLat(txtPheLat.getText());
+		    			String phenomLat = getPhenomLatLon(txtPheLat.getText().trim(), true);
+		    			if(!"".equals(phenomLat))
+		    				SigmetAttrDlg.this.setEditableAttrPhenomLat(phenomLat);
 		    		}
-		    	});		    	
+		    	});		
+		    	txtPheLat.addFocusListener(new FocusListener() {	
+						@Override
+						public void focusGained(FocusEvent e) {							
+						}
+
+						@Override
+						public void focusLost(FocusEvent e) {
+							if (SigmetAttrDlg.this.getEditableAttrPhenomLat() != null)
+								txtPheLat.setText(SigmetAttrDlg.this.getEditableAttrPhenomLat());
+						}
+		    	});	
+		    	
 		    	txtPheLat.setLayoutData(gdText);
 		    	
 		    	Label lblPheLon = new Label(top_phenom,SWT.LEFT);
@@ -646,10 +687,24 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		    	
 		    	txtPheLon.addListener(SWT.Modify, new Listener(){
 		    		public void handleEvent(Event e){
-		    			if(validateLatLon(txtPheLon.getText(), false) )
-		    				SigmetAttrDlg.this.setEditableAttrPhenomLon(txtPheLon.getText());
+		    			String phenomLon = getPhenomLatLon(txtPheLon.getText().trim(), false);		    		
+		    			if(!"".equals(phenomLon)) {
+		    				SigmetAttrDlg.this.setEditableAttrPhenomLon(phenomLon);	
+		    			}
 		    		}
+		    	});		    	
+		    	txtPheLon.addFocusListener(new FocusListener() {	
+					@Override
+					public void focusGained(FocusEvent e) {						
+					}
+
+					@Override
+					public void focusLost(FocusEvent e) {
+						if (SigmetAttrDlg.this.getEditableAttrPhenomLon() != null)
+							txtPheLon.setText(SigmetAttrDlg.this.getEditableAttrPhenomLon());
+					}
 		    	});
+		    			    	
 		    	txtPheLon.setLayoutData(gdText);
 		    	
 		    	Label lblPressure = new Label(top_phenom,SWT.LEFT);
@@ -971,7 +1026,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
     }
     
     private String getVOR(Coordinate[] coors){
-    	return SigmetInfo.getVORText(coors,"-",this.lineType, 6,false);
+    	return SnapUtil.getVORText(coors,"-",this.lineType, 6,false);
     }
     
 //-----------------------------------------------------------------------------------------------------    
@@ -1005,7 +1060,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 	        Label lblText = new Label(top,SWT.LEFT);			
 	        lblText.setText("Width: ");
 	        final Text txtWidth = new Text(top, SWT.SINGLE | SWT.BORDER);	
-	        attrControlMap.put("width", txtWidth);
+	        attrControlMap.put("widthStr", txtWidth);
 	        txtWidth.setText("10.00");
 	        txtWidth.setEnabled(false);
 	        attrButtonMap.put("lineType", new Button[]{btnArea,btnLine,btnIsolated});	        
@@ -1024,7 +1079,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 	        		comboLine.setEnabled(true);
 	        		txtWidth.setEnabled(true);
 	        		
-	        		SigmetAttrDlg.this.setLineType(LINE + LINE_SEPERATER + SigmetAttrDlg.this.getSideOfLine());
+	        		SigmetAttrDlg.this.setLineType(LINE + SigmetInfo.LINE_SEPERATER + SigmetAttrDlg.this.getSideOfLine());
 	        	}
 	        });
 	        
@@ -1040,13 +1095,13 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 	        comboLine.addListener(SWT.Selection,new Listener(){ // Line:::ESOL, Line:::SOF,... etc
 	        	public void handleEvent(Event e){
 	        		SigmetAttrDlg.this.setSideOfLine(comboLine.getText());
-	        		SigmetAttrDlg.this.setLineType(LINE + LINE_SEPERATER + SigmetAttrDlg.this.getSideOfLine());//::: seperater
+	        		SigmetAttrDlg.this.setLineType(LINE + SigmetInfo.LINE_SEPERATER + SigmetAttrDlg.this.getSideOfLine());//::: seperater
 	        	}
 	        });
 	        
 	        txtWidth.addListener(SWT.Modify, new Listener(){ // or ModifyListener
 	        	public void handleEvent(Event e){
-	        		SigmetAttrDlg.this.setWidth(txtWidth.getText());
+	        		SigmetAttrDlg.this.setWidthStr(txtWidth.getText());
 	        	}
 	        });
 	        
@@ -1058,7 +1113,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 	        
 	        this.setLineType(AREA);//set and reset
 	        this.setSideOfLine(comboLine.getText());
-	        this.setWidth(txtWidth.getText());
+	        this.setWidthStr(txtWidth.getText());
 	        
 	        if( ! "INTL_SIGMET".equals(pgenType) && ! "CONV_SIGMET".equals(pgenType) ){// ONLY the two with all
 	        	btnLine.setEnabled(false);		
@@ -1078,12 +1133,26 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		    	   
 		    	   GridLayout mainLayout2 = new GridLayout(8,false);//8, false);
 			        mainLayout2.marginHeight = 3;
-			        mainLayout2.marginWidth = 3;
+			        mainLayout2.marginWidth = 4;   //qu
 			        topSelect.setLayout(mainLayout2);
 			        
 			        Group top2 = new Group(topSelect,SWT.LEFT);
 			        top2.setLayoutData(new GridData(SWT.FILL,SWT.CENTER,true,true,8,1));
 			        top2.setLayout(new GridLayout(8,false)); 
+
+		        	Label lblISU = new Label(top2, SWT.LEFT);
+		        	lblISU.setText("ISSUE: ");
+		        	final Combo comboISU = new Combo(top2,SWT.READ_ONLY);
+		        	attrControlMap.put("editableAttrIssueOffice", comboISU);
+		        	comboISU.setItems(MWO_ITEMS);
+		        	comboISU.select(0);	this.setEditableAttrIssueOffice(comboISU.getText());		
+		        	comboISU.setLayoutData(new GridData(SWT.LEFT,SWT.CENTER,true,true,1,1));
+		        	
+		        	comboISU.addListener(SWT.Selection, new Listener(){
+		        		public void handleEvent(Event e){
+		        			SigmetAttrDlg.this.setEditableAttrIssueOffice(comboISU.getText());
+		        		}
+		        	});
 		        	
 		        	Label lblMWO = new Label(top2, SWT.LEFT);
 		        	lblMWO.setText(" MWO: ");
@@ -1100,7 +1169,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		        	});
 		        	
 		        	Label lblID = new Label(top2, SWT.LEFT);
-		        	lblID.setText(" ID: ");
+		        	lblID.setText("ID: ");
 		        	final Combo comboID = new Combo(top2,SWT.READ_ONLY);
 		        	attrControlMap.put("editableAttrId", comboID);
 		        	comboID.setItems(ID_ITEMS);
@@ -1114,12 +1183,12 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		        	});
 		        	
 		        	Label lblSequence = new Label(top2, SWT.LEFT);
-		        	lblSequence.setText(" Sequence: ");
+		        	lblSequence.setText("Sequence: ");
 		        	final Spinner spiSeq = new Spinner(top2,SWT.BORDER);
 		        	attrControlMap.put("editableAttrSeqNum", spiSeq);
 		        	spiSeq.setMinimum(1);
 		        	spiSeq.setMaximum(300);	this.setEditableAttrSeqNum(""+spiSeq.getSelection());
-		        	spiSeq.setLayoutData(new GridData(SWT.FILL,SWT.CENTER,true,false,3,1));
+		        	spiSeq.setLayoutData(new GridData(SWT.FILL,SWT.CENTER,true,false,1,1));
 		        	
 		        	spiSeq.addListener(SWT.Selection, new Listener(){
 		        		public void handleEvent(Event e){
@@ -1136,7 +1205,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 //			        btnOld.setText("Old(Postpend dir)");
 //			        btnOld.setLayoutData(new GridData(SWT.LEFT,SWT.CENTER,true,false,2,1));
 			        			        
-			        final Button btnVor = new Button(top2,SWT.RADIO);
+			        final Button btnVor = new Button(top2,SWT.RADIO);			        
 			        btnVor.setText("VOR");
 			        btnVor.setLayoutData(new GridData(SWT.LEFT,SWT.CENTER,true,false,4,1));
 			        
@@ -1160,7 +1229,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 				    	   if(editableAttrFromLine==null || editableAttrFromLine.equals("")){
 				    		   coorsLatLon.append(getLatLonStringPrepend2(coors, AREA.equals( ((Sigmet)elSelected).getType() ) ));	        	
 				    		   resetText(coorsLatLon.toString(), txtInfo);					        	
-				    		   coorsLatLon.append(SigmetAttrDlg.LINE_SEPERATER);// for Sigment element use later
+				    		   coorsLatLon.append(SigmetInfo.LINE_SEPERATER);// for Sigment element use later
 				    		   String latLonFmtText = coorsLatLon.append("New").toString();
 				    		   SigmetAttrDlg.this.setLatLonFormatFlagAndText(latLonFmtText);
 				    		   SigmetAttrDlg.this.setEditableAttrFromLine(latLonFmtText);
@@ -1174,7 +1243,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 				        	sb.append(getLatLonStringPrepend2(coors, AREA.equals( ((Sigmet)elSelected).getType() ) ));
 				        	resetText(sb.toString(), txtInfo);
 				        	
-				        	sb.append(SigmetAttrDlg.LINE_SEPERATER);// for Sigment element use later
+				        	sb.append(SigmetInfo.LINE_SEPERATER);// for Sigment element use later
 				        	String latLonFmtText = sb.append("New").toString();
 				        	SigmetAttrDlg.this.setLatLonFormatFlagAndText(latLonFmtText);
 				        	SigmetAttrDlg.this.setEditableAttrFromLine(latLonFmtText);//txtInfo.getText());
@@ -1200,7 +1269,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 				        	sb.append(getVOR(coors ));
 				        	resetText(sb.toString(), txtInfo);
 				        	
-				        	sb.append(SigmetAttrDlg.LINE_SEPERATER);// for Sigment element use later
+				        	sb.append(SigmetInfo.LINE_SEPERATER);// for Sigment element use later
 				        	String latLonFmtText = sb.append("VOR").toString();
 				        	SigmetAttrDlg.this.setLatLonFormatFlagAndText(latLonFmtText);
 				        	SigmetAttrDlg.this.setEditableAttrFromLine(latLonFmtText);//txtInfo.getText());
@@ -1356,7 +1425,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 	}	
 	
     public void copyEditableAttrToSigmet(Sigmet ba){
-        Field[] ff = this.getClass().getDeclaredFields();
+    	Field[] ff = this.getClass().getDeclaredFields();
         for(Field f : ff){
             try{               
                 if(f.getName().contains("editableAttr"))                   
@@ -1372,6 +1441,14 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
         
         copiedToSigmet = true;
     }
+
+	public String getEditableAttrIssueOffice() {
+		return (editableAttrIssueOffice==null||editableAttrIssueOffice.length()==0) ? AREA_MAP.get(SIGMET_TYPES[0])[0] : editableAttrIssueOffice;
+	}
+
+	public void setEditableAttrIssueOffice(String editableAttrIssueOffice) {
+		this.editableAttrIssueOffice = editableAttrIssueOffice;
+	}
 
 	public String getEditableAttrArea() {
 		return (editableAttrArea==null||editableAttrArea.length()==0) ? AREA_MAP.get(SIGMET_TYPES[0])[0] : editableAttrArea;
@@ -1644,7 +1721,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 				"EITHER SIDE OF","NORTH OF"
 				,"SOUTH OF","EAST OF","WEST OF"};
 		
-		String type = typeString.split(this.LINE_SEPERATER)[1];
+		String type = typeString.split(SigmetInfo.LINE_SEPERATER)[1];
 		int index = 0;
 		for(int i=0; i<LINE_SIDES.length; i++){
 			if(this.LINE_SIDES[i].equals(type))
@@ -1808,7 +1885,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 			sb.append(" ").append("VALID");
 			sb.append(" ").append(SigmetAttrDlg.this.getEditableAttrStartTime()==null?startTime:SigmetAttrDlg.this.getEditableAttrStartTime());
 			sb.append("/").append(SigmetAttrDlg.this.getEditableAttrEndTime()==null?endTime:SigmetAttrDlg.this.getEditableAttrEndTime());// should be from the widget
-			sb.append(" ").append(SigmetAttrDlg.this.getEditableAttrArea()).append("-");			
+			sb.append(" ").append(SigmetAttrDlg.this.getEditableAttrIssueOffice()).append("-");			
 			
 			return sb.toString();
 		}
@@ -1949,7 +2026,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		
 			String lineType = ((Sigmet)SigmetAttrDlg.this.drawingLayer.getSelectedDE()).getType();
 			String fromLineWithFormat =  SigmetAttrDlg.this.getLatLonFormatFlagAndText();//from_line without format in C
-			String[] lineArray = fromLineWithFormat.split(SigmetAttrDlg.LINE_SEPERATER);
+			String[] lineArray = fromLineWithFormat.split(SigmetInfo.LINE_SEPERATER);
 			
 			if(SigmetAttrDlg.ISOLATED.equals(lineType)){//in C: switch( _subType)nmap_pgsigw.c@4008
 				if(isTropCyc){
@@ -2125,7 +2202,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 					headers[0] = "NT";
 					headers[1] = "NT";
 					headers[2] = "A0";
-				}else if(fir.contains("KZOA") || fir.contains("PAZA")){
+				}else if(fir.contains("KZAK") || fir.contains("PAZA")){
 					headers[0] = "PN";
 					headers[1] = "PN";
 					headers[2] = "P0";
@@ -2147,7 +2224,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
         	
         	if( coors != null ) {
         		IMapDescriptor mapDescriptor = SigmetAttrDlg.this.drawingLayer.getDescriptor();
-        		double width = Double.parseDouble(SigmetAttrDlg.this.width);
+        		double width = Double.parseDouble(SigmetAttrDlg.this.widthStr);
         		
         		if( SigmetAttrDlg.this.AREA.equals(lineType) ){
         			
@@ -2164,7 +2241,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
         			fir.append( getFirString(areaP) );     			
         			
         		}else{//Lines
-        			String subLineType = lineType.split(SigmetAttrDlg.this.LINE_SEPERATER)[1];
+        			String subLineType = lineType.split(SigmetInfo.LINE_SEPERATER)[1];
         			Polygon areaP = SigmetInfo.getSOLPolygon(coors, subLineType, width, mapDescriptor);
         			fir.append( getFirString(areaP) );    			      			
         		}
@@ -2237,7 +2314,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 	private void init(){  
 		
 		Sigmet sigmet = (Sigmet)this.getSigmet();
-		if(sigmet != null) sigmet.copyEditableAttrToSigmetAttrDlg(this);
+		if(sigmet != null) copyEditableAttrToSigmetAttrDlg(sigmet);
 			
 		Field[] fields = this.getClass().getDeclaredFields();
 		for(Field f : fields){
@@ -2260,7 +2337,7 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 					//String firstWord = typeValue.split(" ")[0];
 					//char firstChar = firstWord.charAt(0), lastChar = firstWord.charAt(firstWord.length()-1);
 					
-					String[] words = typeValue.split(this.LINE_SEPERATER);
+					String[] words = typeValue.split(SigmetInfo.LINE_SEPERATER);
 					String lastPart = words[words.length-1];
 					
 					if(butts != null){
@@ -2475,5 +2552,152 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	private String getPhenomLatLon(String input, boolean isLat) {		
+		
+		if (input.startsWith("S") || input.startsWith("W"))
+			input = "-" + input;
+    	input = input.replaceAll("[^-0-9.]","");
+    	
+    	StringBuilder result = new StringBuilder();
+		if ( !"".equals(input) && !"-".equals(input) && validateLatLon(input, isLat) ) {
+			Double value = Double.parseDouble(input);
+			
+	    	if (isLat) {
+	    		result.append(value>=0.0 ? "N":"S");   
+	    		double y = (double)Math.abs(value);
+	        	result.append(y);      
+	    	}    		
+	    	else {
+	    		result.append(value>=0.0 ? " E":" W");     		
+	        	double x = (double)Math.abs(value);
+	        	result.append(x);
+	    	}
+	    
+	    	return result.toString().trim();
+		} 
+		else 
+			return "";
+	}
+	
+	public Sigmet convertType(Sigmet newEl) {
+		 
+		String origLineType = this.getOrigLineType(); 
+		String newLineType = this.getLineType();
+				
+		if (!newLineType.equals(origLineType)) {
+			
+			float p45 = 45.0F, p135 = 135.0F, p225 = 225.0F, p315 = 315.0F;
+			
+			ArrayList<Coordinate> ptsCopy = newEl.getPoints();
+			ArrayList<Coordinate> newPtsCopy = new ArrayList<Coordinate>();
+					
+			if (ISOLATED.equals(origLineType)) {    /* converting from a point (Isolated) */
+				
+				Coordinate centerCoor = ptsCopy.get(0);
+			
+				if (newLineType.startsWith(LINE)) { /* to a Line */	
+					 /*
+				     * 3 point diagonal with original point as middle point
+				     */
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(widthStr), p315));
+					newPtsCopy.add(centerCoor);
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(widthStr), p135));					
+				}
+				else {                              /* to an Area */	
+					/*
+				     * square centered around original point
+				     */
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(widthStr), p45));
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(widthStr), p135));		
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(widthStr), p225));
+					newPtsCopy.add(PgenUtil.computePoint(centerCoor, Float.parseFloat(widthStr), p315));		
+				}			
 
+				newEl.setPoints(newPtsCopy);
+			}
+			else if (ISOLATED.equals(newLineType)) { /* converting to a point (Isolated) */
+				newPtsCopy.add(ptsCopy.get(0));	
+				newEl.setPoints(newPtsCopy);
+			}
+		}
+		
+		setSigmetFromLine(newEl);
+		return newEl;
+	}
+	
+	public void setSigmetFromLine(gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement sigmet) {		
+		this.sigmet = (Sigmet)sigmet;		
+		Button[] buttons = (Button[]) attrButtonMap.get("editableAttrFromLine");
+		Coordinate[] coors = ((Sigmet)sigmet).getLinePoints();
+		StringBuilder s = new StringBuilder(); 
+		 
+		for(int i=0; buttons!=null && i<buttons.length; i++){
+			Button btn = buttons[i];
+			if(btn!=null&&(!btn.isDisposed())&&btn.getSelection()&&btn.getText()!=null&&btn.getText().length()>0){
+				if(btn.getText().contains("VOR")) {
+					s.append(this.getVOR(coors)); 
+					s.append(SigmetInfo.LINE_SEPERATER);
+		        	String latLonFmtText = s.append("VOR").toString();
+		        	SigmetAttrDlg.this.setLatLonFormatFlagAndText(latLonFmtText);
+		        	SigmetAttrDlg.this.setEditableAttrFromLine(latLonFmtText);
+				}
+				else {
+				   s.append(getLatLonStringPrepend2(coors, AREA.equals( ((Sigmet)sigmet).getType() ) ));
+				   s.append(SigmetInfo.LINE_SEPERATER);
+	    		   String latLonFmtText = s.append("New").toString();
+	    		   SigmetAttrDlg.this.setLatLonFormatFlagAndText(latLonFmtText);
+	    		   SigmetAttrDlg.this.setEditableAttrFromLine(latLonFmtText);
+				}
+			}
+		}
+		if(txtInfo != null && ! txtInfo.isDisposed() && s != null )			 
+			this.resetText(s.toString(), txtInfo);
+		
+	}
+
+	public void copyEditableAttrToSigmetAttrDlg(Sigmet sig){
+    	this.setLineType(sig.getType());
+    	this.setWidthStr(""+sig.getWidth());//legacy properties
+        
+		this.setEditableAttrFreeText(sig.getEditableAttrFreeText());
+		this.setEditableAttrStatus(sig.getEditableAttrStatus());
+		this.setEditableAttrStartTime(sig.getEditableAttrStartTime());
+		this.setEditableAttrEndTime(sig.getEditableAttrEndTime());
+		this.setEditableAttrPhenom(sig.getEditableAttrPhenom());
+		this.setEditableAttrPhenom2(sig.getEditableAttrPhenom2());
+		this.setEditableAttrPhenomLat(sig.getEditableAttrPhenomLat());
+		this.setEditableAttrPhenomLon(sig.getEditableAttrPhenomLon());
+		this.setEditableAttrPhenomSpeed(sig.getEditableAttrPhenomSpeed());
+		this.setEditableAttrPhenomDirection(sig.getEditableAttrPhenomDirection());
+		
+		this.setEditableAttrRemarks(sig.getEditableAttrRemarks());
+		this.setEditableAttrPhenomName(sig.getEditableAttrPhenomName());
+		this.setEditableAttrPhenomPressure(sig.getEditableAttrPhenomPressure());
+		this.setEditableAttrPhenomMaxWind(sig.getEditableAttrPhenomMaxWind());
+		this.setEditableAttrTrend(sig.getEditableAttrTrend());
+		this.setEditableAttrMovement(sig.getEditableAttrMovement());
+		this.setEditableAttrLevel(sig.getEditableAttrLevel());
+		this.setEditableAttrLevelInfo1(sig.getEditableAttrLevelInfo1());
+		this.setEditableAttrLevelInfo2(sig.getEditableAttrLevelInfo2());
+		this.setEditableAttrLevelText1(sig.getEditableAttrLevelText1());
+		this.setEditableAttrLevelText2(sig.getEditableAttrLevelText2());
+		this.setEditableAttrFir(sig.getEditableAttrFir());
+        
+        String lineType = this.getType();
+        if(lineType != null && lineType.contains(SigmetInfo.LINE_SEPERATER)){
+        	this.setSideOfLine(lineType.split(SigmetInfo.LINE_SEPERATER)[1]);
+        }
+       
+        this.setWidthStr(""+(sig.getWidth()));//NM
+        this.setLatLonFormatFlagAndText(sig.getEditableAttrFromLine());
+        
+        //from AbstractSigmet: Class.getDeclaredFields() excludes inherited fields.
+        this.setEditableAttrArea(sig.getEditableAttrArea());
+        this.setEditableAttrIssueOffice(sig.getEditableAttrIssueOffice());
+        this.setEditableAttrFromLine(sig.getEditableAttrFromLine());
+        this.setEditableAttrId(sig.getEditableAttrId());
+        this.setEditableAttrSeqNum(sig.getEditableAttrSeqNum());
+        
+    }
 }

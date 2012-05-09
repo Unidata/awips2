@@ -48,7 +48,8 @@ public class WatchWCCDlg extends CaveJFACEDialog {
 	private final String filename = "KNCFNIMNAT";
 	private String wccText;
 	private String launchText;
-	
+	private String outputPath;
+
 	private final int NUM_LINES = 25;
 	private final int NUM_COLUMNS = 68;
 	
@@ -138,10 +139,14 @@ public class WatchWCCDlg extends CaveJFACEDialog {
 		 * Save WCC button pressed.  Save WCC Message to a file
 		 */
 		
-			File out = new File(filename);
-			File out2 = new File(filename+".launch");
+			File out = new File(outputPath + filename);
+			File out2 = new File(outputPath + filename+".launch");
 			
 			try {
+				//create directories if needed
+				File dir = new File(outputPath);
+				if ( !dir.exists()) dir.mkdirs();
+				
 				FileWriter fw = new FileWriter(out);
 				fw.write(wccText);
 				fw.close();
@@ -188,6 +193,14 @@ public class WatchWCCDlg extends CaveJFACEDialog {
   	    this.getButtonBar().pack();
    	    return super.open();
 		
+	}
+
+	public void setOutputPath(String outputPath) {
+		this.outputPath = outputPath;
+	}
+
+	public String getOutputPath() {
+		return outputPath;
 	}
 
 }

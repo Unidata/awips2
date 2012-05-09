@@ -58,5 +58,15 @@
             name="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor">
       </descriptor>
    </extension>
-
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Nsharp"
+             recursive="true"
+             value="ncep/nsharp"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
 </plugin>
