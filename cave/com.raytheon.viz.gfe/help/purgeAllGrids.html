@@ -11,7 +11,7 @@
 <body text="#000000" bgcolor="#ffffff" link="#0000ee" vlink="#551a8b"
  alink="#ff0000">
 <h1>purgeAllGrids User's Guide</h1>
-July 23, 2003<br>
+January 6, 2012<br>
 <hr width="100%">
 <br>
 The purgeAllGrids program is part of the GFESuite software.&nbsp;
@@ -27,9 +27,7 @@ Command Line Switches</h3>
 The command line syntax is:
 <p><b><tt>purgeAllGrids -h hostname -p rpcPortNumber</tt></b>
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table border="1" width="100%">
   <tbody>
     <tr>
@@ -40,12 +38,12 @@ The command line syntax is:
     <tr>
       <td>-h</td>
       <td>Mandatory (see Note)</td>
-      <td>Host name upon which the ifpServer is running</td>
+      <td>Host name upon which EDEX is running</td>
     </tr>
     <tr>
       <td>-p</td>
       <td>Mandatory (see Note)</td>
-      <td>RPC port upon which the ifpServer is running</td>
+      <td>RPC port upon which EDEX is running</td>
     </tr>
     <tr>
       <td style="vertical-align: top;">-d <br>
@@ -58,42 +56,22 @@ to purge all grids.<br>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note:&nbsp;The -h and -p switches are predefined
-when running in an installed GFESuite environment.&nbsp; They are
+<font color="#3366ff"><b>Note:</b>&nbsp;The -h and -p switches are predefined
+when running in an installed GFESuite environment. They are
 defined
 to the values specified when installing the software.&nbsp; If you wish
-to connect to a different ifpServer, then the switches will need to be
+to connect to a different EDEX, then the switches will need to be
 specified.</font>
-<font color="#3366ff">&nbsp; If environment variables ${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -p switches.</font>
 </p>
 <hr width="100%">
-<h3>Sample Output</h3>
+<h3>Sample Input</h3>
 <tt></tt>
 <p style="font-weight: bold; font-family: monospace;">purgeAllGrids -d
 BOU_GRID__Restore_00000000_0000</p>
-<p><tt></tt> <span style="font-family: monospace;">19:14:49.778
-PurgeAllGrids.py 73 EVENT:&nbsp; PurgeAllGrids starting</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">19:14:49.791 Client.C 161 EVENT:
-Establishing connection to server on localhost:98000044 ver=20030321</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">19:14:49.802 Client.C 181 EVENT:
-Connection complete to server on localhost</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">19:14:49.849 PurgeAllGrids.py 47
-EVENT:&nbsp; purging all grids from:&nbsp;
-BOU_GRID__Restore_00000000_0000</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">19:14:50.114 PurgeAllGrids.py 73
-EVENT:&nbsp; PurgeAllGrids finished</span><br>
 <br>
-<tt></tt>&nbsp;
 </p>
 <p></p>
 <hr width="100%"><br>
-<a href="GFESuite.html">Return to Table of Contents</a>
+<a href="GFESuite.html">Return to TOC</a>
 </body>
 </html>

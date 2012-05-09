@@ -10,7 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.gfa;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.CurveFitter;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.graphicUtil.ReducePoints;
 
 import java.lang.reflect.Array;
@@ -43,6 +43,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 05/2011		#?			B. Yin		Initial Creation.
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 
  * </pre>
  * 
@@ -772,10 +773,10 @@ public class FrzlFormatter {
 	 * @return
 	 */
 	private String createClosedFromLine( List<Coordinate> pts ){
-		ArrayList<Coordinate> snap = SigmetInfo.getSnapWithStation(pts,SigmetInfo.VOR_STATION_LIST,10,16, false) ;
+		ArrayList<Coordinate> snap = SnapUtil.getSnapWithStation(pts,SnapUtil.VOR_STATION_LIST,10,16, false) ;
 		Coordinate[] a = new Coordinate[snap.size()];
 		a = snap.toArray(a);
-		String fromLine = "BOUNDED BY " + SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
+		String fromLine = "BOUNDED BY " + SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
 		return fromLine;
 	}
 	

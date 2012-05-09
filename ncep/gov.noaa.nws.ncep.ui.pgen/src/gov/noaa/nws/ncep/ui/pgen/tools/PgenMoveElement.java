@@ -17,6 +17,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 /**
  * Implements a modal map tool for the PGEN copy element function.
@@ -27,6 +28,8 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
  * ------------	----------	-----------	--------------------------
  * 04/09			78		B. Yin   	Initial Creation.
  * 06/09			116		B. Yin		Use AbstractDrawingComponent
+ * 02/12            597     S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo.  
+ * 02/12                    S. Gurung   Moved isSnapADC() and getNumOfCompassPts() to SigmeInfo.
  *
  * </pre>
  * 
@@ -84,9 +87,9 @@ public class PgenMoveElement extends PgenCopyElement {
 	     						 (WatchBox)ghostEl, (WatchBox)ghostEl)) ){
           			
 	     			if(SigmetInfo.isSnapADC(ghostEl)){
-	        			java.util.ArrayList<Coordinate> list = SigmetInfo.getSnapWithStation(
+	        			java.util.ArrayList<Coordinate> list = SnapUtil.getSnapWithStation(
 	    						ghostEl.getPoints(), 
-	    						SigmetInfo.VOR_STATION_LIST, 
+	    						SnapUtil.VOR_STATION_LIST, 
 	    						10, 
 	    						SigmetInfo.getNumOfCompassPts(ghostEl));
 	    				AbstractDrawableComponent ghostElCp = ghostEl.copy();

@@ -555,5 +555,3 @@ class NAM12Forecaster(Forecaster):
 def main():
     NAM12Forecaster().run()
 
-if __name__ == "__main__":
-    main()
