@@ -99,6 +99,7 @@ log_msg "Copying files into position..."
 
 log_msg "Checking if localization directories exist for ${SITE_CAPS}"
 edex_site_dest=${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}/config
+edex_site_si_dest=${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}
 common_site_dest=${LOCALIZATION_PATH}/common_static/site/${SITE_CAPS}
 cave_site_dest=${LOCALIZATION_PATH}/cave_static/site/${SITE_CAPS}
 
@@ -129,8 +130,10 @@ cp -r GFEconfig/common_static/site/gfe ${common_site_dest}
 log_msg 70
 cp -r GFEconfig/edex_static/site/gfe ${edex_site_dest}
 log_msg 80
-cp -r GFEconfig/cave_static/site/gfe ${cave_site_dest}
+cp -r GFEconfig/edex_static/site/smartinit ${edex_site_si_dest}
 log_msg 90
+cp -r GFEconfig/cave_static/site/gfe ${cave_site_dest}
+log_msg 100
 log_msg "Files successfully copied!"
 
 log_msg "Changing ownership of received configuration"
@@ -147,7 +150,7 @@ else
 fi
 
  
-log_msg 95
+log_msg 105
 
 #Change the MHS ID of the received configuration
 backup_config=${LOCALIZATION_PATH}/edex_static/site/${my_site_caps}/config/gfe/siteConfig.py
@@ -167,6 +170,6 @@ cd ${SVCBU_HOME}
 rm -rf *
 
 rm -f ${LOCK_DIR}/importConfiguration
-log_msg 100
+log_msg 110
 touch ${LOCK_DIR}/${SITE}svcbuMode
 log_msg "Configuration Import Complete!"

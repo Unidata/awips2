@@ -12,13 +12,15 @@
 <body style="background-color: rgb(255, 255, 255);">
 <h1 class="3Heading">
 GFESuite Directory Layout</h1>
-<div class="3Heading">July 23, 2007<br>
+<div class="3Heading">March 27, 2012<br>
 </div>
 <div class="3Heading">
 <h2><a name="TableofContents"></a>Table of Contents</h2>
 <a href="#Overview">Overview</a>
 <br>
-<a href="#Top-LevelRuntimeDirectory">Top-Level Runtime Directory</a>
+<a href="#EDEXTop-LevelRuntimeDirectory">EDEX Top-Level Runtime Directory</a>
+<br>
+<a href="#CAVETop-LevelRuntimeDirectory">CAVE Top-Level Runtime Directory</a>
 <br>
 <a href="#DatabaseDirectoryStructure">Database Directory Structure</a>
 <br>
@@ -27,292 +29,152 @@ GFESuite Directory Layout</h1>
 <a href="#ModelData/ForecastDataFileStructure">Model Data / Forecast
 Data File Structure</a>
 <br>
-<a href="#dfcDirectoryStructure">Daily Forecast Critique (dfc)
-Directory
-Structure</a>
-<br>
-<a href="#VTEC">VTEC Directory Structure</a><br>
-<a href="#acquire">acquire Directory Structure</a><br>
-<a href="#TextInstall">Text Install Directory Structure</a><br>
+<a href="#TextInstall">Text Products Directory Structure</a><br>
 <a href="#HPUXDirectoryStructure">MHS Directory Structure</a>
 <hr width="100%">
 <h2><a name="Overview"></a>Overview</h2>
 This document describes the install and runtime directory structure for
-the&nbsp; AWIPS and RPP sites.&nbsp; The only difference in the
-directory
-structure is the name of the top-level directory.&nbsp; On AWIPS, the
-top-level
-directory is /awips/GFESuite/primary or /awips/GFESuite/svcbu on the px
-machine, and /awips/GFESuite on the lx machine.&nbsp; On the RPP
-machines, it is normally
-$HOME/release.&nbsp; A description of each file and its purpose is
-included.&nbsp;
-The directory tree is described in six parts:
+the AWIPS sites. In AWIPS2, directories are split up into EDEX side (server) and
+CAVE side (client). On both sides, the top-level directory is /awips2, however
+EDEX operations are mainly run on dx3/dx4, with data management (PyPies) on dx1. 
+CAVE operations and directory structure reside on lx/xt workstations. 
+This page describes *SOME* of the important directories accessed by GFE.
+The directory tree is described in the following parts:
 <ul>
-  <li> <a href="#Top-LevelRuntimeDirectory">top-level runtime directory</a>,
-consisting
-of the descriptions of the executables and static data</li>
-  <li>the <a href="#DatabaseDirectoryStructure">"database" directory
-structure</a>,
-as controlled by the ifpServer</li>
+  <li> <a href="#EDEXTop-LevelRuntimeDirectory">EDEX top-level runtime directory</a>,
+  consisting of the descriptions of the executables and static data</li>
+  <li> <a href="#CAVETop-LevelRuntimeDirectory">CAVE top-level runtime directory</a>,
+  consisting of the descriptions of the executables and static data</li>
+  <li>the <a href="#DatabaseDirectoryStructure">"database" directory structure</a>,
+  as controlled by PyPies</li>
   <li>the <a href="#GRIDDatabaseStructure">"GRID" directory structure</a>,
-which
-contains all of the model, Forecast, and Official databases</li>
-  <li>the <a href="#ModelData/ForecastDataFileStructure">model,
-Forecast,
-and
-Official database file structure</a></li>
+  which contains all of the model, Forecast, and Official databases</li>
+  <li>the <a href="#ModelData/ForecastDataFileStructure">model, Forecast,
+  and Official database file structure</a></li>
   <li>the <a href="#HPUXDirectoryStructure">data structure on AWIPS MHS</a>
-to support intersite coordination of grids</li>
-  <li>the <a href="#dfcDirectoryStructure">daily forecast critique</a>
-data
-structure
-to support dfc critiques</li>
+  to support intersite coordination of grids</li>
 </ul>
 <p><br>
 </p>
 <hr width="100%">
-<h2><a name="Top-LevelRuntimeDirectory"></a>Top - Level Runtime
+<h2><a name="EDEXTop-LevelRuntimeDirectory"></a>EDEX Top - Level Runtime
 Directory</h2>
 The top-level runtime directory consists of several other directories.
 The top-level directories are:
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
-  <caption><b>Top-Level Directories</b></caption> <tbody>
+  <caption><b>Top-Level EDEX Directories</b></caption> <tbody>
     <tr>
       <td><b>Directory Name</b></td>
       <td><b>Purpose</b></td>
     </tr>
     <tr>
-      <td>data</td>
-      <td>top-level data directory</td>
+      <td>edex</td>
+      <td>top-level data and executables</td>
     </tr>
     <tr>
-      <td>doc</td>
-      <td>top-level documentation directory</td>
-    </tr>
-    <tr>
-      <td>products</td>
-      <td>top-level products directory</td>
-    </tr>
-    <tr>
-      <td>bin</td>
-      <td>top-level executables and scripts directory</td>
-    </tr>
-    <tr>
-      <td>etc</td>
-      <td>top-level configuration directory</td>
-    </tr>
-    <tr>
-      <td>examples</td>
-      <td>top-level examples directory</td>
-    </tr>
-    <tr>
-      <td>BAD</td>
-      <td>holding location for bad database files, ifpServer moves
-invalid database
-files into this directory.&nbsp; Sometimes other files that the server
-cannot recognize are also moved here. Files located here are deleted
-after
-seven days.<br>
-      </td>
-    </tr>
-    <tr>
-      <td>patch</td>
-      <td>location for "saved" versions of files when a patch is
-installed.<br>
-      </td>
+      <td>GFESuite</td>
+      <td>top-level utilities, data and Service Backup</td>
     </tr>
   </tbody>
 </table>
-<p><img alt="Top" src="images/directoryStructureTop.jpg"
- style="width: 768px; height: 576px;"><br>
-</p>
 <p>The following tables describe files and directory structures within
 each of the top-level directories:
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
-  <caption><b>Data Directories</b></caption> <tbody>
+  <caption><b>EDEX Sub-Directories</b></caption> <tbody>
     <tr>
       <td><b>Filename or Directory Name</b></td>
       <td><b>Purpose</b></td>
     </tr>
     <tr>
-      <td><a href="#DatabaseDirectoryStructure">data/databases</a></td>
-      <td>top-level databases directory</td>
+      <td>edex/bin</td>
+      <td>top-level configuration and startup scripts</td>
+    </tr>
+        <tr>
+      <td>edex/conf</td>
+      <td>Top-level edex configuration for logs and services</td>
     </tr>
     <tr>
-      <td>data/climo</td>
-      <td>Top-level file for climate data.</td>
+      <td>edex/data</td>
+      <td>Top-level data, utilities and edex configuration files including localizations
+      and vcmodule for virtual ISC displays</td>
     </tr>
     <tr>
-      <td>data/climo/NCDC</td>
-      <td>location NCDC climate data files</td>
+      <td>edex/etc</td>
+      <td>runtime parameters for different edex runtime levels and services like ingest/request</td>
     </tr>
     <tr>
-      <td>data/climo/PRISM</td>
-      <td>location of PRISM climate data files</td>
+      <td>edex/lib</td>
+      <td>location of libraries used by edex</td>
     </tr>
     <tr>
-      <td>data/logfiles</td>
-      <td>location of logfiles</td>
+      <td>edex/logs</td>
+      <td>edex logfiles</td>
     </tr>
     <tr>
-      <td>data/maps</td>
-      <td>input shapefiles for map generation program</td>
-    </tr>
-    <tr>
-      <td>data/topo</td>
-      <td>input topography data for topography generation program</td>
-    </tr>
-    <tr>
-      <td><a href="#dfcDirectoryStructure">data/dfc</a></td>
-      <td>top-level Daily Forecast Critique directory</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">data/vtec<br>
-      </td>
-      <td style="vertical-align: top;">directory containing vtec data
-files (e.g., active table)<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">data/vtec/backup<br>
-      </td>
-      <td style="vertical-align: top;">directory containing backup
-versions of the active table. The MergeTable and VTECDecoder create
-backup versions each time the active table changes. <br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">data/vtec/spool<br>
-      </td>
-      <td style="vertical-align: top;">directory containing spooled
-received
-text data from NotifyTextProd (D2D AWIPS process) to be decoded by the
-VTEC Decoder. <br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">data/textInstall<br>
-      </td>
-      <td style="vertical-align: top;">installation directory
-containing templates for the various product formatters.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">data/acquire<br>
-      </td>
-      <td style="vertical-align: top;">directory containing text
-routing table for D2D's NotifyTextProd.&nbsp; Associated with VTEC.<br>
-      </td>
+      <td>edex/webapps</td>
+      <td>scripts run by uengine</td>
     </tr>
   </tbody>
 </table>
 </p>
-<p><img alt="" src="images/directoryStructureData.jpg">&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
-  <caption><b>Documentation Directories</b></caption> <tbody>
+  <caption><b>Relevant Top-Level CAVE Directories</b></caption> <tbody>
     <tr>
       <td><b>Filename or Directory Name</b></td>
       <td><b>Purpose</b></td>
     </tr>
     <tr>
-      <td>doc/onlinehelp</td>
-      <td>location of all on-line help *.html files</td>
+      <td>alertviz</td>
+      <td>AlertViz executables and settings</td>
     </tr>
     <tr>
-      <td>doc/test</td>
-      <td>location of all test plans *.html files. Numerous
-subdirectories are below this top-level</td>
+      <td>cave</td>
+      <td>cave configurations and executables including cave.sh</td>
     </tr>
     <tr>
-      <td>doc/onlinehelp/images</td>
-      <td>location of all on-line help image files<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">doc/onlinehelp/<span
- style="font-style: italic;">xxx</span><br>
-      </td>
-      <td style="vertical-align: top;">document directories containing
-additional *.html and image files.<br>
+      <td>GFESuite</td>
+      <td>command line interface executables for GFE
       </td>
     </tr>
   </tbody>
 </table>
 <br>
-&nbsp;
-<img alt="" src="images/directoryStructureDoc.jpg"><br>
 </p>
 <p><br>
 <table nosave="" border="1" width="100%">
-  <caption><b>Product Directories</b></caption> <tbody>
+  <caption><b>Important CAVE Sub-Directories</b></caption> <tbody>
     <tr>
       <td><b>Filename or Directory Name</b></td>
       <td><b>Purpose</b></td>
     </tr>
     <tr>
-      <td>products/AG</td>
-      <td>default location for output of ascii grid files from <a
- href="ifpAG.html">ifpAG</a>
-product generation</td>
-    </tr>
-    <tr>
-      <td>products/IMAGE</td>
-      <td>default location for output of image (PNGs) from <a
- href="ifpIMAGE.html">ifpIMAGE</a>
-product generation</td>
-    </tr>
-    <tr>
-      <td>products/TEXT</td>
-      <td>recommended location for output of TEXT from GFESuite text
-product
-generation</td>
-    </tr>
-    <tr>
-      <td>products/ISC</td>
-      <td>location of files produced for the intersite coordination of
-grids
-facility by the <a href="ifpnetCDF.html">ifpnetCDF</a> program.</td>
-    </tr>
-    <tr>
-      <td>products/NETCDF</td>
-      <td>recommended location for output of NETCDF files from <a
- href="ifpnetCDF.html">ifpnetCDF</a>
-program.</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">products/ATBL<br>
-      </td>
-      <td style="vertical-align: top;">location of incoming/outgoing
-temporary files for VTEC active table merging<br>
+      <td>cave/etc/gfe</td>
+      <td>GFE base level tools, procedures, utilities and configurations<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">products/PRACTICE<br>
-      </td>
-      <td style="vertical-align: top;">location of practice mode text
-products. Product files are timestamped and named with their pil.<br>
-      </td>
+      <td>cave/etc/ghg</td>
+      <td>GHG monitor executables and configurations</td>
+    </tr>
+    <tr>
+      <td>cave/configuration</td>
+      <td>Eclipse runtime settings</td>
+    </tr>
+    <tr>
+      <td>GFESuite/bin</td>
+      <td>location of command line interface executables</td>
     </tr>
   </tbody>
 </table>
 <br>
-&nbsp; <img alt="" src="images/directoryStructureProducts.jpg"><br>
 </p>
-<p>&nbsp;
-<br>
-</p>
-<p>&nbsp;
+<p>
 <table nosave="" border="1" width="100%">
-  <caption><b>Executable and Script Directories (bin)</b></caption> <tbody>
+  <caption><b>Executable and Script Directories (/awips2/GFESuite/bin)</b></caption><tbody>
     <tr>
       <td><b>Filename or Directory Name</b></td>
       <td><b>Purpose</b></td>
@@ -324,47 +186,23 @@ utility for querying the afos2awips.txt table for PILs, deleting, and
 recreating product templates. </td>
     </tr>
     <tr>
-      <td>bin/<a href="coordConversion.html">coordConversion</a></td>
-      <td><a href="coordConversion.html">coordinate conversion utility</a>
-for
-AWIPS map coordinates to lat/lon and vice versa</td>
-    </tr>
-    <tr>
       <td>bin/<a href="dumpAT.html">dumpAT</a></td>
       <td><a href="dumpAT.html">VTEC active table dump utility</a>
-for
-AWIPS map coordinates to lat/lon and vice versa</td>
+for AWIPS map coordinates to lat/lon and vice versa</td>
     </tr>
     <tr>
-      <td>bin/<a href="getNotify.html">getNotify</a></td>
+      <td>bin/<a href="getNotify.html">getNotify.py</a></td>
       <td><a href="getNotify.html">notification debug utility</a> to
-show database
-notifications from the ifpServer</td>
+show database notifications from EDEX</td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">bin/gfehandleOUP<br>
-      </td>
-      <td style="vertical-align: top;">GFE interface to the handleOUP
-(AWIPS D2D) call.&nbsp; Sets up the correct environment.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/gfetextdb<br>
-      </td>
-      <td style="vertical-align: top;">GFE interface to the textdb
-(AWIPS D2D) call.&nbsp; Sets up the correct environment.<br>
-      </td>
+      <td>bin/gfeclient.sh</td>
+      <td>a wrapper script that allows to execute command line scripts in EDEX</td>
     </tr>
     <tr>
       <td style="vertical-align: top;">bin/<a href="GHGMonitor.html">ghgMonitor</a><br>
       </td>
       <td style="vertical-align: top;">GHG Monitor Program<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/gpython<br>
-      </td>
-      <td style="vertical-align: top;">Python interpreter using the GFE.<br>
       </td>
     </tr>
     <tr>
@@ -374,12 +212,6 @@ notifications from the ifpServer</td>
     <tr>
       <td>bin/<a href="ifpBreakAllLocks.html">ifpBreakAllLocks</a></td>
       <td>script to break all locks in the server</td>
-    </tr>
-    <tr>
-      <td>bin/<a href="dfcUser.html">ifpDFC</a></td>
-      <td>script to run the <a href="dfcUser.html">interactive daily
-forecast
-critique viewer</a></td>
     </tr>
     <tr>
       <td>bin/ifpIMAGE</td>
@@ -398,12 +230,6 @@ program</td>
 program.</td>
     </tr>
     <tr>
-      <td>bin/<a href="ifpServerStats.html">ifpServerStats</a></td>
-      <td>program to examine network queues, directory structures, data
-states
-of the ifpServer</td>
-    </tr>
-    <tr>
       <td>bin/<a href="ifpServerText.html">ifpServerText</a></td>
       <td>script to run the <a href="ifpServerText.html">ifpServerText</a>
 program</td>
@@ -414,32 +240,10 @@ program</td>
 program</td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">bin/<a href="MakeD2DFile.html">makeD2DFile</a><br>
-      </td>
-      <td style="vertical-align: top;">script to run the <a
- href="MakeD2DFile.html">makeD2DFile</a> program<br>
-      </td>
-    </tr>
-    <tr>
       <td>bin/<a href="moveGFEData.html">moveGFEData</a></td>
       <td>utility program to <a href="moveGFEData.html">move gfe
 configuration
 data</a> from one user to another</td>
-    </tr>
-    <tr>
-      <td>bin/ncdump</td>
-      <td>ncdump utility - useful for looking at netcdf files</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/ncgen<br>
-      </td>
-      <td style="vertical-align: top;">ncgen utility - useful for
-generating a netcdf file from text<br>
-      </td>
-    </tr>
-    <tr>
-      <td>bin/<a href="publishGFE.html">publishGFE</a></td>
-      <td><a href="publishGFE.html">publishGFE</a> data utility</td>
     </tr>
     <tr>
       <td style="vertical-align: top;">bin/<a href="purgeAllGrids.html">purgeAllGrids</a><br>
@@ -447,20 +251,6 @@ generating a netcdf file from text<br>
       <td style="vertical-align: top;">script to delete all grids from
 a specified database.<br>
       </td>
-    </tr>
-    <tr>
-      <td>bin/run</td>
-      <td>top-level directory for executables and "hidden"
-scripts.&nbsp; These
-scripts and programs are not intended to be run directly.</td>
-    </tr>
-    <tr>
-      <td>bin/runGFE</td>
-      <td>script to start GFE</td>
-    </tr>
-    <tr>
-      <td>bin/runIFPServer</td>
-      <td>script to start the ifpServer</td>
     </tr>
     <tr>
       <td>bin/runIFPText</td>
@@ -474,708 +264,99 @@ scripts and programs are not intended to be run directly.</td>
       <td style="vertical-align: top;">bin/<a href="sendGfeMessage.html">sendGfeMessage</a><br>
       </td>
       <td style="vertical-align: top;">script to send messages to all
-clients connected to the ifpServer, message appears on status bar<br>
+clients connected to EDEX, message appears in AlertViz<br>
       </td>
     </tr>
     <tr>
-      <td>bin/stopIFPServer</td>
-      <td>script to stop the ifpServer</td>
-    </tr>
-    <tr>
-      <td>bin/VERSION</td>
-      <td>Text file containing GFESuite version information</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/archiveObs<br>
+      <td style="vertical-align: top;">bin/<a href="VTEC.html">VTECDecoder</a><br>
       </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
+      <td style="vertical-align: top;">script to run VTEC decoder<br>
       </td>
     </tr>
     <tr>
-      <td style="vertical-align: top;">bin/run/archivePointFcst<br>
+      <td style="vertical-align: top;">bin/src<br>
       </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/<a
- href="coordConversion.html">coordConversion</a></td>
-      <td style="vertical-align: top;"><big><big><big><big><big><span
- style="color: rgb(204, 0, 0); font-weight: bold;"></span></big></big></big></big></big>coordConversion
-executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/getNotify<br>
-      </td>
-      <td style="vertical-align: top;">getNotify executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/gfe<br>
-      </td>
-      <td style="vertical-align: top;">GFE executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/<a href="ghETN.html">ghETN</a><br>
-      </td>
-      <td style="vertical-align: top;">Get Highest ETN - used by
-WarnGen for some products<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ghgMonitor<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td>bin/run/ifpAG</td>
-      <td>ifpAG executable</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ifpBreakAllLocks<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ifpDFC<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td>bin/run/ifpDFCArchive</td>
-      <td>routine to run the archive programs for the daily forecast
-critique</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ifpIMAGE<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ifpInit<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ifpnetCDF<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe exectuable<br>
-      </td>
-    </tr>
-    <tr>
-      <td>bin/run/ifpServer</td>
-      <td>ifpServer executable</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ifpServerStats<br>
-      </td>
-      <td style="vertical-align: top;">ifpServerStats executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ifpServerText<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe exectuable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/ingestAT<br>
-      </td>
-      <td style="vertical-align: top;">routine to ingest the <a
- href="VTEC.html">VTEC</a> active table from an adjacent site.<br>
-      </td>
-    </tr>
-    <tr>
-      <td>bin/run/iscExtract, bin/run/iscExtract1<br>
-      </td>
-      <td>Extraction script for <a href="IntersiteCoordination.html">intersite
-coordination of grids</a></td>
-    </tr>
-    <tr>
-      <td>bin/run/iscInject</td>
-      <td>Injection script for <a href="IntersiteCoordination.html">intersite
-coordination of grids</a></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/iscMosaic<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/MergeVTEC,<br>
-bin/run/MergeVTEC1<br>
-      </td>
-      <td style="vertical-align: top;">routine to run the MergeVTEC
-program, which merges one active table with another<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/moveGFEData<br>
-      </td>
-      <td style="vertical-align: top;">moveGFEData executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/publishGFE<br>
-      </td>
-      <td style="vertical-align: top;">publishGFE executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/purgeAllGrids<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/requestAT<br>
-      </td>
-      <td style="vertical-align: top;">routine that is executed when a
-request for the <a href="VTEC.html">VTEC</a> active table is received<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/runIFPText<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/runProcedure<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/sendAT<br>
-      </td>
-      <td style="vertical-align: top;">routine to send the <a
- href="VTEC.html">VTEC</a> active table to a set of sites<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/sendGfeMessage<br>
-      </td>
-      <td style="vertical-align: top;">link to gfe executable<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/setupTextEA,
-bin/run/setupTextEA1<br>
-      </td>
-      <td style="vertical-align: top;">script plus link to gfe
-exectutable for the setupTextEA utility<br>
-      </td>
-    </tr>
-    <tr>
-      <td>bin/run/site.sh</td>
-      <td>site configuration and directory location scripts -
-automatically generated
-upon install<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">bin/run/VTECDecoder,
-bin/run/VTECDecoder1<br>
-      </td>
-      <td style="vertical-align: top;"><a href="VTEC.html">VTEC product
-decoder</a> for decoding incoming text products and maintaining the
-"active" table.<br>
+      <td style="vertical-align: top;">contains sub-directories with executables called by
+      the scripts listed in this table
       </td>
     </tr>
   </tbody>
 </table>
-<table nosave="" border="1" width="100%">
-  <caption><b><br>
-  </b></caption>
-</table>
 </p>
-<div style="text-align: left;"><img alt=""
- src="images/directoryStructureBin.jpg"><br>
-<br>
-<br>
-</div>
 <p>
 <table nosave="" border="1" width="100%">
   <caption><b> <br>
-Etc (configuration) Directory</b></caption> <tbody>
+etc/gfe (configuration) Important Directories</b></caption> <tbody>
     <tr>
       <td><b>Filename or Directory Name</b></td>
       <td><b>Purpose</b></td>
     </tr>
     <tr>
-      <td>etc/BASE</td>
-      <td>location of configuration files for BASE, which are provided
-as part
-of the release.&nbsp; No one should make changes in this directory.</td>
+      <td>combinations</td>
+      <td>default zone combo configuration</td>
     </tr>
     <tr>
-      <td>etc/SITE</td>
-      <td>location of site-tailored configuration files, used to
-override settings
-from files in etc/BASE.</td>
+      <td>editAreaGroups</td>
+      <td>default edit area groups</td>
     </tr>
     <tr>
-      <td>etc/TclTk</td>
-      <td>location of Tcl/Tk release package used with GFESuite</td>
+      <td>editAreas</td>
+      <td>default edit areas</td>
     </tr>
     <tr>
-      <td>etc/BASE/smartInit: GFS40.py, GFS80.py, NAM80.py, NAM40.py,
-gfsLR.py,
-NGM80.py,
-RUC80.py, Init.py (others
-may
-be present)</td>
-      <td><a href="SmartInit.html">smart initialization</a> scripts for
-each
-model</td>
+      <td>sampleSets</td>
+      <td>default sample sets</td>
     </tr>
     <tr>
-      <td>etc/BASE/logPref: dfc.logPref, gfe.logPref, ifpIMAGE.logPref,
-ifpServer.logPref,
-isc.logPref (others may be present)</td>
-      <td>logging preferences files for the daily forecast critique,
-gfe, ifpIMAGE,
-ifpServer, and isc programs</td>
+      <td>userPython</td>
+      <td>baseline smart tools, procedures, gfeConfig files, text products, text utilities,
+      and other utilities used by tools and procedures</td>
     </tr>
     <tr>
-      <td>etc/BASE/gfe.zip</td>
-      <td>Bundled GFE Python library</td>
-    </tr>
-    <tr>
-      <td>etc/BASE/idleConfig.txt, idleConfig-unix.txt</td>
-      <td>Python idle editor configuration file</td>
-    </tr>
-    <tr>
-      <td>etc/BASE/ifpcc.so, ifpc.py, logstream.py</td>
-      <td>Python IFPServer protocol files</td>
-    </tr>
-    <tr>
-      <td>etc/BASE/iscSendRouteBASE.py, etc/BASE/iscSendRouteSVCBCK.py</td>
-      <td><a href="IntersiteCoordination.html">Intersite and Intrasite
-Transmission
-Routing Configuration</a></td>
-    </tr>
-    <tr>
-      <td>etc/BASE/MapFiles.py</td>
-      <td><a href="mapConfig.html">Map background configuration file
-containing
-the names of the map shapefiles</a></td>
-    </tr>
-    <tr>
-      <td>etc/BASE/Maps.py</td>
-      <td><a href="mapConfig.html">Map background configuration file</a></td>
-    </tr>
-    <tr>
-      <td>etc/BASE/pylib.zip</td>
-      <td>Bundled Python library</td>
-    </tr>
-    <tr>
-      <td>etc/BASE/serverConfig.py</td>
-      <td><a href="serverConfig.html">ifpServer configuration file</a></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">etc/BASE/VTECMessageType.py<br>
-      </td>
-      <td style="vertical-align: top;">Master control file to
-enable/disable <a href="VTEC.html">VTEC</a> in GFE formatters.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">etc/BASE/VTECPartners.py<br>
-      </td>
-      <td style="vertical-align: top;"><a href="VTEC.html">VTEC</a>
-configuration file for active table merges, decodes, and coordination
-requests.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">etc/SITE/localVTECPartners.py<br>
-      </td>
-      <td style="vertical-align: top;">Site override file for
-VTECPartners.py.<br>
-      </td>
-    </tr>
-    <tr>
-      <td>etc/BASE/siteConfig.py</td>
-      <td>site configuration and directory location file -
-automatically generated
-upon install</td>
-    </tr>
-    <tr>
-      <td>etc/BASE/lib-dynload</td>
-      <td>Dynamically loaded Python libraries</td>
-    </tr>
-    <tr>
-      <td>etc/BASE/noaalogo2.png, nwslogo.png</td>
-      <td>Logo files for the <a href="ifpIMAGE.html">ifpIMAGE</a>
-program.</td>
-    </tr>
-    <tr>
-      <td>etc/SITE/iscSendRouteSITE.py</td>
-      <td>User created override script for outgoing ISC traffic
-routing. <a href="IntersiteCoordination.html">Intersite
-and Intrasite Transmission Routing Configuration</a></td>
+      <td>weGroups</td>
+      <td>default weather element groups</td>
     </tr>
   </tbody>
 </table>
 <br>
-&nbsp;
-<img alt="" src="images/directoryStructureEtc.jpg"><br>
-&nbsp;
 <table nosave="" border="1" width="100%">
-  <caption><b>Examples Directory</b></caption> <tbody>
+  <caption><b>etc/ghg Sub-Directory</b></caption> <tbody>
     <tr>
       <td><b>Filename or Directory Name</b></td>
       <td><b>Purpose</b></td>
     </tr>
     <tr>
-      <td>examples/procedures</td>
-      <td>directory containing examples of procedures</td>
+      <td>config</td>
+      <td>contains default GHG monitor configuration file</td>
     </tr>
     <tr>
-      <td>examples/smartTools</td>
-      <td>directory containing examples of smart tools</td>
-    </tr>
-    <tr>
-      <td>examples/textProducts</td>
-      <td>directory containing examples of text products</td>
-    </tr>
-    <tr>
-      <td>examples/utilities</td>
-      <td>directory containing examples of utilities</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">examples/smartInit<br>
-      </td>
-      <td style="vertical-align: top;">directory containing examples of
-smart initialization modules<br>
-      </td>
+      <td>userPython</td>
+      <td>contains the MakeHazard utility and TCMETNDecoder</td>
     </tr>
   </tbody>
 </table>
-</p>
-<p><img alt="" src="images/directoryStructureExamples.jpg"><br>
-<br>
-</p>
-<table nosave="" border="1" width="100%">
-  <caption><b>Patch Directory</b></caption> <tbody>
-    <tr>
-      <td><b>Filename or Directory Name</b></td>
-      <td><b>Purpose</b></td>
-    </tr>
-    <tr>
-      <td>patch/<i>yyyymmdd_hhmm</i></td>
-      <td>top-level patch directory. The name of the directory matches
-the date/time of the patch identifier. The number of subdirectories
-under this directory is based on which files got replaced during the
-patch.</td>
-    </tr>
-  </tbody>
-</table>
-<p><img alt="" src="images/directoryStructurePatch.jpg"><br>
-<br>
 </p>
 </div>
 <hr width="100%">
 <h2><a name="DatabaseDirectoryStructure"></a>Database Directory
 Structure</h2>
-<div class="3Heading">The <a href="siteConfig.html">top-level directory</a>
-from the view of the ifpServer is the databases directory.&nbsp;
-Beneath
-that is the BASE, SITE, and all of the user directories.&nbsp; Within
-each
-set of user directories are configuration, tools, and other
-user-specific
-files.&nbsp; For more information on the BASE, SITE, and USER concept,
-see the <a href="baseSiteUserConcept.html">base, site, and user
-concept
-guide</a>.
-<p><img nosave="" src="images/topDatabaseDirectory.jpg" height="540"
- width="720"></p>
-<p>The structure within each of the BASE, SITE, and USER directories is
-identical, except that the BASE directory has additional items.&nbsp;
-It
-is possible that there aren't any SITE or USER directories on the
-system
-if there haven't been any local configuration changes to the system.
-</p>
-<p>Each of these directory structures contain:
-<br>
-&nbsp;
-<table nosave="" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td><b>Directory Name</b></td>
-      <td><b>Description</b></td>
-      <td>Format</td>
-      <td>Part of Release</td>
-    </tr>
-    <tr>
-      <td>GRID</td>
-      <td><a href="#GRIDDatabaseStructure">grid databases</a>
-containing grids
-for models, Forecast, and Official databases (BASE only)</td>
-      <td>Binary</td>
-      <td>Created during first run of ifpServer.</td>
-    </tr>
-    <tr>
-      <td>MAPS</td>
-      <td>map background cache files (BASE only)</td>
-      <td>Ascii/Binary</td>
-      <td>Created during first run of ifpServer.</td>
-    </tr>
-    <tr>
-      <td>TOPO</td>
-      <td>topography cache files (BASE only)</td>
-      <td>Ascii</td>
-      <td>Created during first run of ifpServer.</td>
-    </tr>
-    <tr>
-      <td>LOCK</td>
-      <td>grid database (BASE only) and text file lock files</td>
-      <td>Ascii</td>
-      <td>Created during first lock request.</td>
-    </tr>
-    <tr>
-      <td>COLORTABLE</td>
-      <td>color table definitions&nbsp;</td>
-      <td>Binary</td>
-      <td>YES, user may add more through the GFE.</td>
-    </tr>
-    <tr>
-      <td>SAMPLE</td>
-      <td>Sample set definitions</td>
-      <td>Ascii</td>
-      <td>NO, user may add entries through the GFE.</td>
-    </tr>
-    <tr>
-      <td>REFERENCE</td>
-      <td>Edit area definitions</td>
-      <td>Ascii</td>
-      <td>Created during first run of ifpServer, user may add more
-through the
-GFE.</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TASKOUTPUT<br>
-      </td>
-      <td style="vertical-align: top;">Temporary Spooling area for
-Background Tasks<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">Created when gfe-initiated
-background tasks are queued to run on the ifpServer.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/BUNDLE<br>
-      </td>
-      <td style="vertical-align: top;">Saved weather element groups.<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">Yes, user may add more through
-the GFE.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/COMBODATA</td>
-      <td style="vertical-align: top;">Saved combinations files for
-different products.&nbsp; Also contains the color map for the zone
-combiner.</td>
-      <td style="vertical-align: top;">Binary</td>
-      <td style="vertical-align: top;">Yes. &nbsp; User creates
-combinations files and color maps through the <a
- href="FormatterLauncher.html">Formatter Launcher</a>.</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/COMBINATIONS<br>
-      </td>
-      <td style="vertical-align: top;">Text product combination files.<br>
-      </td>
-      <td style="vertical-align: top;">Binary<br>
-      </td>
-      <td style="vertical-align: top;">Yes.&nbsp; User creates
-combinations file through the <a href="FormatterLauncher.html">Formatter
-Launcher</a>.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/DRAFT<br>
-      </td>
-      <td style="vertical-align: top;">Contains Product Editor Draft
-files.<br>
-      </td>
-      <td style="vertical-align: top;">Binary<br>
-      </td>
-      <td style="vertical-align: top;">No.&nbsp; User creates through
-the product editor.<br>
-      </td>
-    </tr>
-    <tr>
-      <td>TEXT/EditAreaGroup</td>
-      <td>Edit area group definitions</td>
-      <td>Binary</td>
-      <td>Created during first run of ifpServer, user may add more
-through the
-GFE.</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/GFECONFIG</td>
-      <td style="vertical-align: top;"><a href="gfeConfig.html">GFE
-configuration files</a></td>
-      <td style="vertical-align: top;">Ascii</td>
-      <td style="vertical-align: top;">YES, user may add more through
-the GFE.</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/GHGConfig<br>
-      </td>
-      <td style="vertical-align: top;">GHG Monitor configuration file<br>
-      </td>
-      <td style="vertical-align: top;">Binary<br>
-      </td>
-      <td style="vertical-align: top;">Created upon user command from
-the <a href="GHGMonitor.html">GHG Monitor</a><br>
-      </td>
-    </tr>
-    <tr>
-      <td>TEXT/ISCGrid</td>
-      <td>Temporary caching of ISC edit areas in grid format</td>
-      <td>Binary</td>
-      <td>Created when running the ISC_Discrepancies procedure and used
-as a
-cache to increase performance.</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/Procedure<br>
-      </td>
-      <td style="vertical-align: top;">Contains procedures.<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">Yes, user may add more through
-the GFE.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/PRODGEN<br>
-      </td>
-      <td style="vertical-align: top;">Temporary holding location for
-generated products and scripts.<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">No. These files are controlled
-by the ifpServer and are temporary in nature.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/SELECTTR<br>
-      </td>
-      <td style="vertical-align: top;">Selection time range definitions<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">YES, user may add more through
-the GFE.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/TextProduct<br>
-      </td>
-      <td style="vertical-align: top;">Text Product definitions<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">YES, user may add more through
-the GFE.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/TextUtility<br>
-      </td>
-      <td style="vertical-align: top;">Text Utility definitions<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">YES, user may add more through
-the GFE.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/Tool<br>
-      </td>
-      <td style="vertical-align: top;">Smart Tool definitions<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">YES, user may add more through
-the GFE.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/UserInfo/ifpUsers.UserInfo<br>
-      </td>
-      <td style="vertical-align: top;">User and configuration startup
-file<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">NO, automatically generated.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/Utility<br>
-      </td>
-      <td style="vertical-align: top;">Utility definitions (for smart
-tools and procedures)<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">YES, user may add more through
-the GFE.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TEXT/VCMODULE<br>
-      </td>
-      <td style="vertical-align: top;">Virtual Parm Definition Files<br>
-      </td>
-      <td style="vertical-align: top;">Ascii<br>
-      </td>
-      <td style="vertical-align: top;">YES, user may add more.
-Currently no interface is provided.<br>
-      </td>
-    </tr>
-  </tbody>
-</table>
-</p>
-<p><img alt="" src="images/eachDatabaseStructure.png"
- style="width: 768px; height: 576px;"><br>
-<font size="+2"><span style="font-weight: bold; color: rgb(255, 0, 0);"></span></font><br>
-</p>
+<div class="3Heading">In AWIPS2 the database is on dx1 under /awips2/edex/data/hdf5.
+The sub-directories used by GFE are grib and gfe. The grib sub-directory 
+contains grib model data. The gfe/SITE_ID sub-directory contains GFE grid
+databases including Fcst, Official, ISC, Restore, and any model databases.
+Topography databases are also found here. 
 <hr width="100%">
 <h2><a name="GRIDDatabaseStructure"></a>GRID Database Structure</h2>
-The model, Forecast, and Official databases are stored in the GRID
-directory
-tree.&nbsp; The first level subdirectories underneath GRID are the
-model
-names, e.g., NAM and Fcst.&nbsp; Within each model directory will be a
-series of database files.&nbsp; A database contains all of the grid and
-metadata needed to represent the weather elements.&nbsp;&nbsp; <a
+The model, Forecast, and Official databases are stored in the
+/awips2/edex/data/hdf5/gfe/SITE_ID directory
+tree. The first level subdirectories are the model
+names, e.g., NAM and Fcst. Within each model directory will be a
+series of database files contained in a directory that represents
+the date and time of the data, i.e., 2012_03_27_0600/RNK_GRID__GFS40_20120327_0600.h5. 
+A database contains all of the grid and
+metadata needed to represent the weather elements. <a
  href="#ModelData/ForecastDataFileStructure">Each
-database</a> actually consists of several netCDF files.
+database</a> actually consists one HDF5 file.
 <p>The name of each database represents the:
 </p>
 <ul>
@@ -1185,268 +366,42 @@ database</a> actually consists of several netCDF files.
   <li>Optional Database Type (e.g., V)</li>
   <li>Date/Time of Model Run (e.g., 20001214_0000)</li>
 </ul>
-<img nosave="" src="images/gridStructure.jpg" height="540" width="720">
 <hr width="100%"><br>
-&nbsp;
 <h2><a name="ModelData/ForecastDataFileStructure"></a>Model Data /
-Forecast
-Data File Structure</h2>
-Each model (e.g., NGM), Forecast, and Official database is stored in
-netCDF
-file format. There are usually five netCDF files associated with each
-model.&nbsp;
-The model name is in the following format:&nbsp; <i>site</i>_GRID_<i>ot</i>_<i>date</i>_<i>time</i>,
+Forecast Data File Structure</h2>
+Each model (e.g., NAM), Forecast, and Official database is stored in
+HDF5 file format.
+The model name is in the following format: <i>site</i>_GRID_<i>ot</i>_<i>date</i>_<i>time</i>,
 where <i>site</i> is the WFO identifier, <i>ot</i> is the optional
 type,
 <i>date</i>
 and <i>time</i> are the date-time stamp for the model valid
-time.&nbsp;
+time.
 If the date/timestamp is all zeros (00000000_0000), then the model is
 "rolling"
-or not time-based.&nbsp; In this case the files are never purged from
+or not time-based. In this case the files are never purged from
 the
-system.&nbsp; Typically the Forecast and Official databases are set up
-to be permanent.&nbsp; Another word to describe this case is a
-singleton
-model.
-<p><img nosave="" src="images/modelFileStructure.jpg" height="540"
- width="720"><br>
-The main file is the *.cdf file.&nbsp; It contains the following
+system. Typically the Forecast and Official databases are set up
+to be permanent. Another word to describe this case is a
+singleton model. The *.h5 file contains the following
 information:
 </p>
 <ul>
-  <li>Weather Element information, such as name, maximum and minimum
-possible
-values, units, descriptive name, precision, domain and grid size
-information.</li>
-  <li>Inventory (valid times) of each grid for that weather element,
-plus an
-identifier to which storage area the data is located in, and index
-pointers
-into the storage area where the grid is actually stored. Links to the
-history
-storage area and weather key storage area are also present.</li>
-  <li>Map Projection Information for the database</li>
-  <li>Definition of Weather - available coverages/probabilities,
-intensities,
-weather types, visibilities, and optional attributes</li>
+  <li>Grid data.</li>
+  <li>Grid Parm Info of each weather element,
+that fully describes how the data is represented in the system.</li>
+  <li>Grid Parm Storage Information for the database</li>
 </ul>
-The History Storage Area file contains history information for each
-grid:
-<ul>
-  <li>original source for the grid - Initialized from model, time
-interpolated,
-created from scratch, slider interpolated, other</li>
-  <li>original weather element name and source</li>
-  <li>original time range (valid time)</li>
-  <li>user identifier who has modified the grid</li>
-  <li>time it was modified</li>
-</ul>
-The history storage area file automatically grows as more space is
-needed.
-<p>The byte35x35, short35x35, and float35x35 are storage areas for the
-grids.&nbsp;
-The 35x35 signifies the grid size.&nbsp; If your system has different
-grid
-sizes, then these numbers will be different.&nbsp; The byte area stores
-grids that are represented in bytes.&nbsp; The float area stores grids
-that are represented in floats.&nbsp; The short area stores grids that
-are represented as a short. The byte area represents grids that are
-stored in bytes.&nbsp; This file automatically grows as more space is
-needed.
-</p>
-<p>The KeyStorageArea contains keys for each grid of type WEATHER and
-DISCRETE.&nbsp; These grids
-are unlike other grids in that an index is stored in the grid, and the
-key is needed to decode the index.
-<br>
-</p>
-<hr width="100%">
-<h2><a name="dfcDirectoryStructure"></a>Daily Forecast Critique (dfc)
-Directory
-Structure</h2>
-<p><br>
-<img nosave="" src="images/directoryDFC.jpg" height="540" width="720"><br>
-&nbsp;
-<br>
-&nbsp;
-<table nosave="" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td><b>Filename or Location</b></td>
-      <td><b>Purpose</b></td>
-    </tr>
-    <tr>
-      <td>dfc</td>
-      <td>top-level daily forecast critique directory</td>
-    </tr>
-    <tr>
-      <td>archivedObs</td>
-      <td>directory containing hourly time-stamped files containing
-observational
-data.&nbsp; Filenames are in the YYYYMMDD_hhmm format.</td>
-    </tr>
-    <tr>
-      <td>archivedFcsts</td>
-      <td>directory containing multiple directories representating
-models or
-the official forecast database</td>
-    </tr>
-    <tr>
-      <td>archivedFcsts/...</td>
-      <td>directory containing forecast files for models or the
-official database.&nbsp;
-The files are timestamped which represent the model run.&nbsp; The
-official
-database files are timestamped which represent the time at which the
-official
-database was published (to the nearest hour).</td>
-    </tr>
-    <tr>
-      <td>dfc/*.pic</td>
-      <td>Pickled-python files used to keep track of the archived
-observations
-and forecasts.&nbsp;</td>
-    </tr>
-  </tbody>
-</table>
-<br>
 </p>
 <hr style="width: 100%; height: 2px;">
-<h2><a name="VTEC"></a>VTEC Directory Structure</h2>
-The VTEC Directory contains the VTEC "active" table, which represents
-the
-current state of VTEC for issued products.&nbsp; There are different
-"active" tables present, as well as a spooling and backup directory.<br>
-<br>
-&nbsp;
-<table nosave="" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td><b>Filename or Location</b></td>
-      <td><b>Purpose</b></td>
-    </tr>
-    <tr>
-      <td>active.tbl<br>
-      </td>
-      <td>Pickled-python file containing the active table representing
-the current state of VTEC.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">active.tbllock<br>
-      </td>
-      <td style="vertical-align: top;">Lock file for the active table,
-used to enforce the write locking and read locking.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">PRACTICE.tbl<br>
-      </td>
-      <td style="vertical-align: top;">Pickled-python file containing
-the active table used in PRACTICE mode, represents the current state of
-the VTEC in PRACTICE mode.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">PRACTICE.tbllock<br>
-      </td>
-      <td style="vertical-align: top;">Lock file for the PRACTICE
-active table, used to enforce the write lock and read locking.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">empty.tbl<br>
-      </td>
-      <td style="vertical-align: top;">Empty pickled-python file
-containing no records.&nbsp; Used (manually) in the event the active
-table has become hopelessly corrupted.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">empty.tbllock<br>
-      </td>
-      <td style="vertical-align: top;">Lock file for the "empty" active
-table, used to enforce the write lock and read locking.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">spool/*<br>
-      </td>
-      <td style="vertical-align: top;">Transient files written by the
-AWIPS D2D NotifyTextProd process, read by the VTEC Decoder.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">backup/* <br>
-      </td>
-      <td style="vertical-align: top;">Series of files, generally 168
-hours of backup versions, for the active table.&nbsp; Each time the
-active table changes, the process responsible (VTECDecoder or
-ingestAT/MergeVTEC) writes out a compressed version of the previous
-state and time stamps it.&nbsp; Helpful in diagnosing problems or for
-manual recovery.<br>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<br>
-<img alt="" src="images/vtecDirectoryStructure.jpg"><br>
-<br>
-<hr style="width: 100%; height: 2px;">
-<h2><a name="acquire"></a>acquire Directory Structure</h2>
-The acquire directory contains one file named notifyPattern.txt.&nbsp;
-This file is used in conjunction with the AWIPS D2D NotifyTextProd
-process to start certain processes when certain text products arrive in
-VTEC.&nbsp;&nbsp; GFESuite uses this routing file to have
-NotifyTextProd start the VTECDecoder process to manage the active
-table.&nbsp; See the <a href="VTEC.html">VTEC Guide</a> for more
-details.<br>
-<br>
-<hr style="width: 100%; height: 2px;">
-<h2><a name="TextInstall"></a>Text Install Directory Structure</h2>
-<p>The text install directories are used for configuring the GFE
-formatters that are "templated".&nbsp; When GFE is installed, the
-formatters are created from templates.&nbsp; The templates, and the
-routines to expand them into products are contained in the text
-installation directory structure.<br>
+<h2><a name="TextInstall"></a>Text Products Directory Structure</h2>
+<p>The /awips2/edex/data/utility/edex_static/base/textproducts directories 
+are used for configuring the GFE formatters that are "templated". 
+When AWIPS is installed, the formatters are created from templates. 
+The templates, and the routines to expand them into products are contained 
+in the text installation directory structure.  See the Readme.txt file for
+detailed information.<br>
 </p>
-<p>&nbsp;
-</p>
-<table nosave="" border="1" width="100%">
-  <tbody>
-    <tr>
-      <td><b>Filename or Location</b></td>
-      <td><b>Purpose</b></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">afos2awips.txt<br>
-      </td>
-      <td style="vertical-align: top;">backup table mapping WMOIDs to
-PILs for each site.&nbsp; This table is only used if the primary table
-cannot be found on the AWIPS system.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TextProduct_BASE<br>
-      </td>
-      <td style="vertical-align: top;">directory containing TextProduct
-templates that will be expanded into the BASE/TEXT/TextProduct
-directory.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">TextUtility_BASE<br>
-      </td>
-      <td style="vertical-align: top;">directory containing TextUtility
-templates that will be expanded into the BASE/TEXT/TextUtility
-directory.<br>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<br>
-<img alt="" src="images/textInstallDirectoryStructure.jpg"><br>
 <hr width="100%">
 <h2><a name="HPUXDirectoryStructure"></a>MHS Directory Structure</h2>
 The MHS Directory Structure to support GFESuite is quite small, but
@@ -1455,14 +410,11 @@ The directory structure is used to support <a
  href="IntersiteCoordination.html">Intersite
 Coordination of Grids</a>. The MHS host on AWIPS is "ds1" prior to OB7,
 and "dx1" OB7 and after.
-<p>There are two spooling directories for incoming and outgoing
-messages
-to the AWIPS Message Handling System, and three scripts to support the
+<p>There os one spooling directory for incoming messages
+to the AWIPS Message Handling System, and two scripts to support the
 intersite coordination grids.
 <br>
-&nbsp;
 <br>
-&nbsp;
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -1471,78 +423,27 @@ intersite coordination grids.
       <td><b>Part of Release</b></td>
     </tr>
     <tr>
-      <td>/data/adapt/GFESuite/iscDataXmt</td>
-      <td>Spooling directory for intersite coordination data to be
-transmitted
-over the AWIPS WAN to other sites.</td>
-      <td>Created through isc installation script.</td>
+      <td>/awips2/GFESuite/products/ISC</td>
+      <td>ISC spooling directory for incoming data.</td>
+      <td>Installed as a part of AWIPS</td>
     </tr>
     <tr>
-      <td>/data/adapt/GFESuite/iscDataRec</td>
-      <td>Spooling directory for intersite coordination data that is
-received
-from the AWIPS WAN.</td>
-      <td>Created through isc installation script.</td>
+      <td>/awips2/GFESuite/bin/iscDataRec</td>
+      <td>Script that requests processing from EDEX for grids
+received from the AWIPS WAN.</td>
+      <td>Installed as a part of AWIPS</td>
     </tr>
     <tr>
-      <td>/awips/adapt/GFESuite/bin/iscd</td>
-      <td>Transmit daemon to send data to the AWIPS MHS system.</td>
-      <td>Installed through isc installation script.</td>
-    </tr>
-    <tr>
-      <td>/awips/adapt/GFESuite/bin/iscDataRec</td>
-      <td>Receive script called by the AWIPS MHS (Message Handling
-System) when
+      <td>/awips2/edex/data/utility/edex_static/base/gfe/isc/iscDataRec.py</td>
+      <td>Receive script called by the IscDataRecRequestHandler when
 intersite data has been received from other sites.</td>
-      <td>Installed through isc installation script.</td>
-    </tr>
-    <tr>
-      <td>/awips/adapt/GFESuite/bin/iscReceiveRouteBASE.py</td>
-      <td>Configuration information used by the iscDataXmt and
-iscDataRec scripts.</td>
-      <td>Created through isc installation script.</td>
-    </tr>
-    <tr>
-      <td>/awips/adapt/GFESuite/bin/logstream.py, PyNet.py, rpc.py</td>
-      <td>Additional files needed to support ISC.</td>
-      <td>Created through isc installation script.</td>
-    </tr>
-    <tr>
-      <td>/awips/adapt/GFESuite/bin/iscReceiveRouteSVCBCK.py</td>
-      <td>Service backup override script for iscReceiveRouteBASE</td>
-      <td>Created during service backup operations by scripts.</td>
-    </tr>
-    <tr>
-      <td>/awips/adapt/GFESuite/bin/iscReceiveRouteSITE.py</td>
-      <td>User override for incoming routing information. Overrides
-iscReceiveRouteBASE.py</td>
-      <td>User-created.</td>
+      <td>Installed as a part of AWIPS</td>
     </tr>
   </tbody>
 </table>
 </p>
-<p><img nosave="" src="images/directoryHPUX.png"></p>
 </div>
 <hr width="100%">
 <p><a href="#TableofContents">Back to Table Of Contents</a>
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-<br>
-&nbsp;
-</p>
 </body>
 </html>

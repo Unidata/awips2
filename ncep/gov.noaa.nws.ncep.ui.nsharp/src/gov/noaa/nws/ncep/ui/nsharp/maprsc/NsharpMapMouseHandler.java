@@ -36,10 +36,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.UIJob;
 import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -51,7 +56,6 @@ public class NsharpMapMouseHandler extends InputHandlerDefaultImpl {
 	 
 	public NsharpMapMouseHandler() {
 		instance = this;
-		
 	}
 	//private NsharpSkewTDisplay renderableDisplay=null;
 	
@@ -502,19 +506,21 @@ using hdf5 obj lib
      */
     @Override
     public boolean handleMouseUp(int x, int y, int button) {
-    	
+    	//System.out.println("NsharpMapMouseHandler handleMouseUp called");
        	// button 1 is left mouse button
     	if (button == 1 ){
-    		//TBD NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
     		NCMapEditor mapEditor = NsharpMapResource.getMapEditor();
     		if(mapEditor != null){
+    			//for(int i=0; i< mapEditor.getDescriptor().getResourceList().size(); i++)
+    	        //	System.out.println( "C resourcename="+mapEditor.getDescriptor().getResourceList().get(i).getResource().getName());
+
     			//  Check if mouse is in geographic extent
     			Coordinate loc = mapEditor.translateClick(x, y);
     			if ( loc == null ) 
     				return false;
     			NsharpLoadDialog loadDia = NsharpLoadDialog.getAccess();		
     			if(loadDia!=null){
-    				if(loadDia.getActiveLoadSoundingType() == NsharpLoadDialog.MODEL_SND && loadDia.getMdlDialog()!=null){
+    				if(loadDia.getActiveLoadSoundingType() == NsharpLoadDialog.MODEL_SND && loadDia.getMdlDialog()!=null&& loadDia.getMdlDialog().getLocationText()!=null){
 
     					if(loadDia.getMdlDialog().getCurrentLocType() == ModelSoundingDialogContents.LocationType.STATION){
     						//System.out.println("mouse up 1 loc.x "+ loc.x+ " loc.y="+ loc.y);
@@ -534,23 +540,28 @@ using hdf5 obj lib
     				}
     				else {
     					//get the stn (point) list
+    					int activeLoadType = loadDia.getActiveLoadSoundingType();
     					List<NsharpStationInfo> points = NsharpMapResource.getOrCreateNsharpMapResource().getPoints();//loadDia.getNsharpMapResource().getPoints();
     					if(points.isEmpty() == false){
+    						
     						//get the stn close to loc "enough" and retrieve  report for it
     						// Note::One stn may have more than one dataLine, if user picked multiple data time lines
     						List<NsharpStationInfo> stnPtDataLineLst = getPtWithinMinDist(points, loc);
-    						if(stnPtDataLineLst!= null && stnPtDataLineLst.size() > 0){
+     						if(stnPtDataLineLst!= null && stnPtDataLineLst.size() > 0){
     							//System.out.println("MapMouseHandler creating NsharpSkewTDisplay");
     							//hash map, use stn display info as key
     							Map<String, List<NcSoundingLayer>> soundingLysLstMap = new HashMap<String, List<NcSoundingLayer>>();
-    							int activeLoadType = loadDia.getActiveLoadSoundingType();
+    							
     							//String soundingType;
-    							if(activeLoadType == NsharpLoadDialog.OBSER_SND){ 								
+    							if(activeLoadType == NsharpLoadDialog.OBSER_SND){ 	
+    								NsharpMapResource.startWaitCursor();
     								NsharpObservedSoundingQuery.getObservedSndData(stnPtDataLineLst,loadDia.getObsDialog().isRawData(),soundingLysLstMap);   								
+    								NsharpMapResource.stopWaitCursor();
     							} 
     							else if (activeLoadType == NsharpLoadDialog.PFC_SND){
-    								NsharpPfcSoundingQuery.getPfcSndData(stnPtDataLineLst,soundingLysLstMap);
-    								//soundingType=  loadDia.getPfcDialog().getCurrentSndType().toString();
+    								NsharpMapResource.startWaitCursor();
+    								NsharpPfcSoundingQuery.getPfcSndDataBySndTmRange(stnPtDataLineLst,soundingLysLstMap);
+    								NsharpMapResource.stopWaitCursor();
     							} 
     							else 
     								return false;
@@ -580,6 +591,7 @@ using hdf5 obj lib
     							if (mapEditor != null) {
     								mapEditor.refresh();
     							}
+    							bringSkewTEdToTop();
     						}
     						else
     						{	
@@ -596,7 +608,30 @@ using hdf5 obj lib
     		
     		
     	}
-        return true;        
+    	else if(button == 3){
+    		//NsharpSkewTEditor.bringSkewTEditorToTop(); 
+    		bringSkewTEdToTop();
+    	}
+    	
+        return false;        
+    }
+    /*
+     * Chin Note: If calling NsharpSkewTEditor.bringSkewTEditorToTop() directly in mouse handler API, e.g.
+     * handleMouseUp(), then handleMouseUp() will be called one more time by System. Do not know the root cause of it.
+     * To avoid handling such event twice (e.g. query sounding data twice), we will call NsharpSkewTEditor.bringSkewTEditorToTop()
+     * from another Job (thread).
+     */
+    private void bringSkewTEdToTop(){
+    	Job uijob = new UIJob("clear source selection"){ //$NON-NLS-1$
+			public IStatus runInUIThread(
+					IProgressMonitor monitor) {
+				NsharpSkewTEditor.bringSkewTEditorToTop(); 
+				return Status.OK_STATUS;
+			}
+
+		};
+		uijob.setSystem(true);
+		uijob.schedule();
     }
     
      /**
@@ -611,7 +646,6 @@ using hdf5 obj lib
     	double	minDistance = NctextuiPointMinDistance; 	
     	GeodeticCalculator gc;
     	List<NsharpStationInfo> thePoints = new ArrayList<NsharpStationInfo>();
-    	//TBD NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
     	NCMapEditor mapEditor = NsharpMapResource.getMapEditor();
     	if(mapEditor != null){
     		IMapDescriptor desc = (IMapDescriptor) mapEditor.getActiveDisplayPane().getRenderableDisplay().getDescriptor();

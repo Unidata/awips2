@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Text;
  * Nove  2010	             M. Li		Add wind
  * Nov,22 2010  352			 X. Guo     Add HILO, HLSYM and move all help functions
  *                                      into NcgridAttributesHelp.java
- *
+ * Feb 06, 2012  #538        Q. Zhou    Added skip and filter areas and implements. 
  * 
  * @author mli
  * @version 1
@@ -41,6 +41,8 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     private RscAttrValue cintString = null;
     private RscAttrValue glevel = null;
     private RscAttrValue gvcord = null;
+    private RscAttrValue skip = null;
+    private RscAttrValue filter = null; 
     private RscAttrValue scale = null;
     private RscAttrValue gdpfun = null;
     private RscAttrValue type = null;
@@ -57,7 +59,8 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     
     private Text glevelText;
     private Text gvcordText;
-    
+    private Text skipText;
+    private Text filterText;
     private Text scaleText;
     private Text gdpfunText;
     private Text typeText;
@@ -90,6 +93,8 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     	cintString = editedRscAttrSet.getRscAttr("cint");
     	glevel     = editedRscAttrSet.getRscAttr("glevel");
     	gvcord     = editedRscAttrSet.getRscAttr("gvcord");
+    	skip       = editedRscAttrSet.getRscAttr("skip");
+    	filter    = editedRscAttrSet.getRscAttr("filter");
     	scale      = editedRscAttrSet.getRscAttr("scale");
     	gdpfun     = editedRscAttrSet.getRscAttr("gdpfun");
     	type       = editedRscAttrSet.getRscAttr("type");
@@ -97,7 +102,7 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     	fline      = editedRscAttrSet.getRscAttr("fline");
     	hilo 	   = editedRscAttrSet.getRscAttr("hilo");
     	hlsym 	   = editedRscAttrSet.getRscAttr("hlsym");
-    	wind      = editedRscAttrSet.getRscAttr("wind");
+    	wind       = editedRscAttrSet.getRscAttr("wind");
     	title      = editedRscAttrSet.getRscAttr("title");
     	colors     = editedRscAttrSet.getRscAttr("colors");
     	marker     = editedRscAttrSet.getRscAttr("marker");
@@ -167,6 +172,30 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
 			}
         });
         
+     // SKIP
+        Label skipLabel = new Label(comp, SWT.NONE);
+        skipLabel.setText("SKIP:");
+        skipText = new Text(comp,SWT.SINGLE | SWT.BORDER );
+        skipText.setLayoutData(new GridData(230, SWT.DEFAULT));
+        skipText.setText((String)skip.getAttrValue());
+        skipText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				skip.setAttrValue((String)skipText.getText().trim());
+			}
+        });
+        
+     // filter
+        Label filterLabel = new Label(comp, SWT.NONE);
+        filterLabel.setText("FILTER:");
+        filterText = new Text(comp,SWT.SINGLE | SWT.BORDER );
+        filterText.setLayoutData(new GridData(230, SWT.DEFAULT));
+        filterText.setText((String)filter.getAttrValue());
+        filterText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				filter.setAttrValue((String)filterText.getText().trim());
+			}
+        });
+          
         // SCALE
         Label scaleLabel = new Label(comp, SWT.NONE);
         scaleLabel.setText("SCALE:");
@@ -369,6 +398,8 @@ public class EditGridAttributesDialog extends AbstractEditResourceAttrsDialog {
     	if (on) {
     		glevelText.setToolTipText(NcgridAttributesHelp.GlevelToolTipText());
     		gvcordText.setToolTipText(NcgridAttributesHelp.GvcordToolTipText());
+    		skipText.setToolTipText(NcgridAttributesHelp.SkipToolTipText()); 
+    		filterText.setToolTipText(NcgridAttributesHelp.FilterToolTipText());
     		scaleText.setToolTipText(NcgridAttributesHelp.ScaleToolTipText());
     		gdpfunText.setToolTipText(NcgridAttributesHelp.GdpfunToolTipText());
     		typeText.setToolTipText(NcgridAttributesHelp.TypeToolTipText());

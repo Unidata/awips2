@@ -1,7 +1,9 @@
 <!-- Short Term Forecast configuration -->
 <!-- Customized by Phil Kurimski WFO DTX 19 August 2011 with OB11.8 changes -->
 <!-- Changed Co coding to Zones - Mike Dangelo 09-23-2011 at Alaska TIM -->
-<!-- Edited by Mike Dangelo 02-27-2012 -->
+<!-- Edited by Mike Dangelo 02-27-2012 
+               Qinglu Lin   04-04-2012 DR 14691. Added <feAreaField> tag.
+-->
 <warngenConfig>
 
  <!-- Config distance/speed units -->
@@ -138,6 +140,7 @@
   <areaField>NAME</areaField> 
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
 <!--  <fipsField>FIPS</fipsField> -->
   <fipsField>STATE_ZONE</fipsField>

@@ -83,7 +83,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2011            rjpeter     Initial creation
- * 
+ * Mar 29, 2012  #14691    Qinglu Lin  Added returned value of getFeArea() of 
+ *                                     AreaConfiguration to areaFields List.
  * </pre>
  * 
  * @author rjpeter
@@ -303,6 +304,7 @@ public class GeospatialDataGenerator {
         areaFields.add(areaConfig.getAreaField());
         areaFields.add(areaConfig.getFipsField());
         areaFields.add(areaConfig.getAreaNotationField());
+        areaFields.add(areaConfig.getFeAreaField());
         rval.setFipsField(areaConfig.getFipsField());
         rval.setAreaFields(areaFields);
         rval.setTimeZoneSource(geoConfig.getTimezoneSource());

@@ -20,7 +20,7 @@ int db_gFileNames ( const char *dir, int isearch, struct dirent ***ret_namelist)
     int      possible_fileNames;
     int      ii, jj, ier, ier1, len;
     int      used, allocated,istmax;
-    char     modelName[20], dbTag[5], ensTag[20], timeTmpl[75];
+    char     modelName[30], dbTag[5], ensTag[20], timeTmpl[75];
     char     *fileNames;
     char      **starr;
     struct dirent *entry=NULL, *entry2=NULL;
@@ -66,9 +66,27 @@ int db_gFileNames ( const char *dir, int isearch, struct dirent ***ret_namelist)
        sprintf ( timeTmpl, "%s", starr[3] );
     }
     else {
-       for ( jj = 0; jj < max_number_components; jj++ ) free( starr[jj] );
-       if( starr ) free( (char **)starr );
-       return(0);
+       if ( istmax > 4 ) {
+           sprintf ( modelName, "%s", starr[0] );
+           sprintf ( dbTag, "%s", starr[1] );
+           sprintf ( ensTag, "%s", starr[2] );
+           for ( jj = 3; jj < istmax; jj ++ ) {
+               if ( starr[jj][0] == '[' ) {
+                   sprintf ( timeTmpl, "%s", starr[jj] );
+                   break;
+               }
+               else {
+                   strcat ( ensTag,"_" );
+                   strcat ( ensTag,starr[jj] ); 
+               }
+           }
+           istmax = 4;
+       }
+       else {
+           for ( jj = 0; jj < max_number_components; jj++ ) free( starr[jj] );
+           if( starr ) free( (char **)starr );
+           return(0);
+       }
     }
 
    /*
