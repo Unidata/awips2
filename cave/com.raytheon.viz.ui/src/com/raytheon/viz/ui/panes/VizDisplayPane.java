@@ -499,7 +499,7 @@ public class VizDisplayPane implements IDisplayPane {
         }
 
         synchronized (this) {
-            this.target.beginFrame(renderableDisplay, true);
+            this.target.beginFrame(renderableDisplay.getView(), true);
 
             try {
                 PaintProperties paintProps = new PaintProperties(1.0f,
