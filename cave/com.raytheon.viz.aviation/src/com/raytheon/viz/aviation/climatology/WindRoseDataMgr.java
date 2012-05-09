@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *                                      to prevent the indexing error.
  * 3/31/2011    8774        rferrel     killProcess when doing a disposed
  * 4/4/2011     8896        rferrel     Made timeout configurable
+ * 3/9/2012     14530       zhao        Revised wind rose plot to match AWIPS-1
  * 
  * </pre>
  * 
@@ -370,6 +371,8 @@ public class WindRoseDataMgr implements PyProcessListener {
             double delta) {
         if (windDirIdx == calmDirIndex) {
             calm[hourIdx] += delta;
+            windRoseDataArray[hourIdx][windDirTotalIndex][knotsTotalIndex] += delta;
+            return;
         }
         windRoseDataArray[hourIdx][windDirIdx][windSpdIdx] += delta;
         windRoseDataArray[hourIdx][windDirIdx][knotsTotalIndex] += delta;
@@ -465,6 +468,26 @@ public class WindRoseDataMgr implements PyProcessListener {
     }
 
     /**
+     * Get the Variable value over all of the wind directions.
+     * 
+     * @return The Variable total value.
+     */
+    public double getVariableValue() {
+        double varTotal = 0.0;
+
+        for (int i = hour; i < (hour + numHours); ++i) {
+            int h = i;
+            if (h >= 24) {
+                h -= 24;
+            }
+
+            varTotal += windRoseDataArray[h][variableWindIndex][knotsTotalIndex];
+        }
+
+        return varTotal;
+    }
+
+    /**
      * Get the average Variable value over all of the wind directions.
      * 
      * @return The Variable average.
@@ -531,7 +554,7 @@ public class WindRoseDataMgr implements PyProcessListener {
         }
 
         for (int i = 0; i < dblArray.length; ++i) {
-            dblArray[i] = (dblArray[i] / totalCount) * 100;
+        	dblArray[i] = (dblArray[i] / totalCount) * 100;
         }
 
         return dblArray;
@@ -539,14 +562,12 @@ public class WindRoseDataMgr implements PyProcessListener {
 
     /**
      * Get the total of all the counts for all of the wind directions/knots,
-     * variable winds, and calm winds.
      * 
      * @return The total count of all winds in all directions.
      */
     public double getTotalWindDirCount() {
         int total = 0;
-        int variableTotal = 0;
-
+        
         for (int x = hour; x < (hour + numHours); ++x) {
             int h = x;
             if (h >= 24) {
@@ -554,10 +575,9 @@ public class WindRoseDataMgr implements PyProcessListener {
             }
 
             total += windRoseDataArray[h][windDirTotalIndex][knotsTotalIndex];
-            variableTotal += windRoseDataArray[h][variableWindIndex][knotsTotalIndex];
         }
 
-        return total + variableTotal + getCalmValue();
+        return total;
     }
 
     /**

@@ -98,16 +98,10 @@ Exercise 3: "Phrase Anatomy"</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Phrase_Builder_Exercise_4">Phrase
 Exercise 4: "Creating a New
 Narrative Product"</a><br>
-
 <hr>
 
-
 NOTE: For these exercises, you will be working with the
-ZFP_&lt;site&gt;_Overrides file
-which you can activate according to the <a href="#QuickStartProductSet">Quick-Start
-Product Set
-Up instructions.</a> <br>
-For these Exercises, use the Fcst database instead of Official.
+ZFP_&lt;site&gt;_Overrides file. For these Exercises, use the Fcst database instead of Official.
 <h2><a name="ThresholdsandVariablesExercises"></a>Thresholds and
 Variables Exercises</h2>
 <a name="ThresholdsExercise1ModifyingaPre-existingOverride"></a><b>Thresholds
@@ -118,11 +112,12 @@ the Wx grid and a 10 percent PoP value.&nbsp; Be sure and Save your
 grids to the Fcst database.</li>
   <li>Run the ZFP using the Fcst database and notice that no weather is
 reported.</li>
-  <li>Open the ZFP_&lt;site&gt;_Overrides file using MB3--&gt;Modify.</li>
+  <li>Open the ZFP_&lt;site&gt;_Overrides file using the Localization perspective to 
+  modify Text Products.</li>
   <li>Open the WxPhrases class in the Text Utilities Window of the
-Define Text Products Dialog using MB3--&gt;New. Locate the&nbsp;<span
+Define Text Products Dialog using MB3--&gt;New on the Text Products folder. Locate the <span
  style="font-style: italic; color: rgb(102, 51, 102); font-weight: bold;">"pop_wx_lower_threshold"</span>
-method and copy and paste it into your Overrides file.&nbsp; Now change
+method and copy and paste it into your Overrides file. Now change
 the default value of 20
 percent to 10.</li>
   <li>Re-run the ZFP and verify that rain showers are now reported.</li>
@@ -130,23 +125,22 @@ percent to 10.</li>
 <a name="ThresholdsExercise2WorkingwiththetemporalCoverage_perce"></a><b>Thresholds
 Exercise 2: "Working with the <i><font color="#663366">temporalCoverage_percentage</font></i>"</b>
 <ol>
-  <li>Open the SampleAnalysis class using MB3--&gt;View in the Text
-Utilities window.</li>
+  <li>Open the SampleAnalysis class using Localization perspective and browsing to the Text
+Utilities folder.</li>
   <li>Find the "<i style="font-weight: bold;"><font color="#663366">temporalCoverage_percentage</font></i><span
  style="font-weight: bold;">"</span> method. Copy it into the
 ZFP_&lt;site&gt;_Overrides file at the end.</li>
   <li>Create a HeatIndex grid that covers the first 2 hours of the
-first period over which the ZFP will run.&nbsp; Set the value for this
+first period over which the ZFP will run. Set the value for this
 grid to 110 degrees.</li>
   <li>Create a HeatIndex grid that covers the last 10 hours of the
-first period over which the ZFP will run.&nbsp;&nbsp; Copy the MaxT
+first period over which the ZFP will run. Copy the MaxT
 grid
 into this HeatIndex grid.</li>
-  <li>Save your data and run the ZFP.&nbsp; Note inclusion of the
+  <li>Save your data and run the ZFP. Note inclusion of the
 HeatIndex phrase. Even though the HeatIndex grid does not cover 20
 percent of the 12-hour time period, it is included since the ENTIRE
-grid
-falls within the 12-hour time period.</li>
+grid falls within the 12-hour time period.</li>
   <li>Now extend the first HeatIndex grid into the prior period by 2
 hours and run the ZFP again. Note that HeatIndex is not reported since
 the first HeatIndex grid does not cover 20 percent of the 12-hour time
@@ -159,31 +153,25 @@ since we lowered the threshold for grid inclusion.</li>
 <a name="ThresholdsExercise3WorkingwithaNon-linearThreshold"></a><b>Thresholds
 Exercise 3: "Working with a Non-linear Threshold"</b>
 <ol>
-  <li>Locate the&nbsp;<span
+  <li>Locate the <span
  style="color: rgb(102, 51, 102); font-style: italic;"><span
  style="font-weight: bold;">"minimum_range_nlValue_dict"</span>&nbsp;</span>method
 within the ZFP_&lt;site&gt;_Overrides file.</li>
   <li>Set-up a non-linear dictionary for the minimum range so that
-values below 40 mph will have a range of 5 mphand those above will have
+values below 40 mph will have a range of 5 mph and those above will have
 a range of 10 mph.</li>
   <li>Set up a Wind grid with values between 45 and 65 mph and verify
 that the phrasing is in 10 mph ranges when you run the ZFP.</li>
   <li>Set up a Wind grid with values between 15 and 35 mph and verify
 that the phrasing is in 5 mph ranges when you run the ZFP.</li>
 </ol>
-For more information on non-linear thresholds, see the section: <a
- href="#STRATEGYFORNONLINEARTHRESHOLDS">Non-Linear
-Thresholds.</a>
 <p><a name="ThresholdsExercise4BasingaThresholdontheCurrentEdit"></a><b>Thresholds
 Exercise 4: "Basing a Threshold on the Current Edit Area"</b> </p>
 <ol>
-  <li>Use the "currentAreaContains" method to return different&nbsp;<span
+  <li>Use the "currentAreaContains" method to return different <span
  style="color: rgb(102, 51, 102); font-style: italic; font-weight: bold;">"pop_wx_lower_threshold"&nbsp;</span>values
 depending on the current edit area.</li>
   <li>Run the ZFP to verify that your override works as intended.</li>
-  <li>(For an example, see the section on <a
- href="#ArgumentstoTextRulesClass">Arguments to
-Narrative Methods</a>.)</li>
 </ol>
 <h2> <a name="ProductComponentExercises"></a>Product Component
 Exercises</h2>
@@ -193,25 +181,23 @@ Exercise 1: "Working with Analysis-Driven Wind Phrasing"</b>
   <li>Copy the entire"Period_1" Product Component method from the
 AreaFcst standard file into the ZFP_&lt;site&gt;_Overrides file.</li>
   <li>Make sure you have significant and variable Winds in the first
-period for the edit areas over which the ZFP will run.&nbsp; They
+period for the edit areas over which the ZFP will run. They
 should
 be above 5 knots and include minimum and maximum values that range over
-at least 25 knots.&nbsp; They should also vary every 3 hours.</li>
+at least 25 knots. They should also vary every 3 hours.</li>
   <li>Run the ZFP and make note of the Wind phrase that results for the
 first period of each edit area.</li>
   <li>Change the "Wind" analysis method from "vectorMedianRange" to
 "vectorAvg" and run the product again. Did the phrases change?</li>
   <li>Change the "Wind" analysis method to "vectorModeratedMinMax" and
-run the product again.&nbsp; Did the phrases change?</li>
+run the product again. Did the phrases change?</li>
   <li>Override the "moderated_dict" (from the SampleAnalysis class) in
-your ZFP_&lt;site&gt;_Overrides file.&nbsp; Modify its values for Wind,
-re-run the
-product and notice any phrase changes that result.</li>
+your ZFP_&lt;site&gt;_Overrides file. Modify its values for Wind,
+re-run the product and notice any phrase changes that result.</li>
   <li>Change the temporal resolution for the Wind analysis from 6 hours
-to 3 hours and run the product again.&nbsp; To do this, change the [6]
-specification to [3] in the "Wind" analysisList entry.&nbsp; How did
-the
-phrases change?</li>
+to 3 hours and run the product again. To do this, change the [6]
+specification to [3] in the "Wind" analysisList entry. How did
+the phrases change?</li>
 </ol>
 <a name="ComponentExercise2WorkingwithAnalysisDrivenWeatherPhr"></a><b>Component
 Exercise 2: "Working with Analysis-Driven Weather Phrasing"</b>
@@ -220,15 +206,15 @@ Exercise 2: "Working with Analysis-Driven Weather Phrasing"</b>
 ZFP_&lt;site&gt;_Overrides
 file (if it is not already there).</li>
   <li>Make sure you have significant weather in the Wx grids for the
-first period for the edit areas over which the ZFP will run.&nbsp; Make
-at least 3 grids with varying weather conditions.&nbsp; Make at least
+first period for the edit areas over which the ZFP will run. Make
+at least 3 grids with varying weather conditions. Make at least
 one grid which does not end on a 3-hour boundary e.g. ending at 2 pm
 local time.</li>
   <li>Make sure the PoP for the first period is above 20.</li>
   <li>Run the ZFP and make note of the Weather phrase that results for
 the first period of each edit area.</li>
   <li>Change the temporal resolution for the Wx analysis from 6 hours
-to "[0]" (by grid).&nbsp; Did the phrases change?</li>
+to "[0]" (by grid). Did the phrases change?</li>
   <li>Change the temporal resolution for the Wx analysis to 12 hours
 and notice the resulting phrase changes.</li>
 </ol>
@@ -238,13 +224,12 @@ Exercise 3: "Choosing an Alternate Phrase"</b>
   <li>Copy the "Period_1" product Component Method into the
 ZFP_&lt;site&gt;_Overrides
 file (if it is not already there).</li>
-  <li>Run the ZFP and make note of the temporature phrases that result
+  <li>Run the ZFP and make note of the temperature phrases that result
 for the first period of each edit area.</li>
-  <li>Look up the "highs_range_phrase" and "lows_range_phrase" in the <a
- href="#SCALARWEATHERELEMENT">SCALAR WEATHER ELEMENT</a>
+  <li>Look up the "highs_range_phrase" and "lows_range_phrase" in the SCALAR WEATHER ELEMENT
 phrase table.</li>
-  <li>Comment out the "highs_phrase"&nbsp; and "lows_phrase" in the
-"Period_1" component and uncomment the "highs_range_phrase" and
+  <li>Comment out the "highs_phrase" and "lows_phrase" in the
+"Period_1" component and un-comment the "highs_range_phrase" and
 "lows_range_phrase".</li>
   <li>Re-run the ZFP and notice the difference in the temperature
 phrases.</li>
@@ -255,23 +240,19 @@ Exercise 4: "Customizing a Phrase"</b>
   <li>Copy the "Period_1" product Component Method into the
 ZFP_&lt;site&gt;_Overrides
 file (if it is not already there).</li>
-  <li>Choose a phrase and look up its entry in the <a
- href="#NARRATIVEPHRASES">Narrative Phrases </a>tables
+  <li>Choose a phrase and look up its entry in the Narrative Phrases tables
 under the appropriate Weather Element(s).</li>
   <li>Examine the list of Thresholds and Variables that apply to this
 phrase.</li>
-  <li>Select several to override.&nbsp; For each,</li>
+  <li>Select several to override. For each,</li>
   <ul>
     <li>Find it in infrastructure class and copy it into your Overrides
 file,</li>
-    <li>Read any documenation comments included with the threshold or
+    <li>Read any documentation comments included with the threshold or
 variable method,</li>
     <li>Modify its value,</li>
     <li>Re-run the ZFP and notice any resulting phrase changes.</li>
   </ul>
-  <li>If you would like to see an example of phrase customization, see <a
- href="#ExampleCustomizing">Customizing a Narrative
-Phrase.</a></li>
 </ol>
 <h2> <a name="ComponentExercise5WorkingwithBasicLocalEffects"></a>Component
 Exercise 5: "Working with Basic Local Effects"</h2>
@@ -279,10 +260,8 @@ Exercise 5: "Working with Basic Local Effects"</h2>
   <li>Copy the "Period_1" product Component Method into the
 ZFP_&lt;site&gt;_Overrides
 file (if it is not already there).</li>
-  <li>Set up a basic local effect for the wind_withGusts_phrase.&nbsp;
-If you need help with the steps or to see an example, refer to the <a
- href="#STRATEGYFORLOCALEFFECTSPhraseBuildermodule">Local
-Effects</a> section.</li>
+  <li>Set up a basic local effect for the wind_withGusts_phrase.
+ </li>
 </ol>
 <h2> <a name="ConfigurableIssuanceExercises"></a>Configurable
 Issuance Exercises</h2>
@@ -290,17 +269,17 @@ Issuance Exercises</h2>
 Issuance Exercise 1: "Working with Configurable Issuance"</h2>
 <ol>
   <li>Locate the "_10_503_issuance_list" in the AreaFcst standard
-file.&nbsp; Copy it into the ZFP_&lt;site&gt;_Overrides file (be sure
+file. Copy it into the ZFP_&lt;site&gt;_Overrides file (be sure
 to copy the ENTIRE
 method!)</li>
   <li>Locate the "narrativeDefAM" list of components and comment out
 all except the "Period_1" entry.</li>
   <li>Run the ZFP for the "Morning" issuance and notice that you will
-see only a Period 1 narrative.&nbsp; This is a handy way limit the
+see only a Period 1 narrative. This is a handy way limit the
 product output when you are trouble-shooting or developing an
 enhancement.</li>
-  <li>Locate the "Morning" label in the "return" statement list.&nbsp;
-Alter it and re-run the ZFP.&nbsp; Notice the dialog that appears has a
+  <li>Locate the "Morning" label in the "return" statement list.
+Alter it and re-run the ZFP. Notice the dialog that appears has a
 new default label.</li>
   <li>For more information on the "issuance list" and it's entries, see
 the section: <a href="#ConfigurableIssuance--">Narrative
@@ -310,7 +289,7 @@ Definition and Configurable Issuance -- "def issuance_list"</a></li>
 <h2> <a name="HeadlineExercise1GeneratingHeadlines"></a>Headline
 Exercise 1: "Generating Headlines"</h2>
 <ol>
-  <li>Create&nbsp; a Hazards grid with a duration within the first
+  <li>Create a Hazards grid with a duration within the first
 period to be covered by the ZFP.</li>
   <li>Set its value to "FL.W".</li>
   <li>Run the ZFP and note the headline that appears.</li>
@@ -331,26 +310,24 @@ included.</li>
 </ol>
 <h2> <a name="Simple_Tabular_Products"></a>Simple Tabular Products
 Exercises</h2>
-<h2 class="3Heading"> <a name="Simple_Tabular_Products_Exercise_1"></a>Simple
+<h2 class="3Heading"><a name="Simple_Tabular_Products_Exercise_1"></a>Simple
 Tabular Products Exercise 1: "Creating a Weather Element by Area Table
 Product"</h2>
 Create a new Table Product. Your table should show QPF, PoP and Wind
 across the columns and a set of default Edit Areas down the rows. Do
-not
-ask the user to specify the Edit Areas at run time. Instead, set them
-up
-in the table definition.
-<p><a href="#Answer_to_Simple_Tabular_Product">Answer
+not ask the user to specify the Edit Areas at run time. Instead, set them
+up in the table definition.
+<p><a href="TextReferenceAnswers_to_Exercises.html#Answer_to_Simple_Tabular_Product">Answer
 to Simple Tabular Product Exercise 1</a> </p>
-<h2 class="3Heading"><a name="Simple_Tabular_Products_Exercise_2"></a>Simple
-Tabular Products Exercise 2:&nbsp; "Creating an Area By Period Table
+<h2 class="3Heading"><a name="Simple_Tabular_Products_Exercise_2">Simple
+Tabular Products Exercise 2: "Creating an Area By Period Table
 Product"</h2>
 Create an "Area By Period" table to show Temperature for a set of Edit
 Areas at time period intervals. Let the user specify the Edit Areas and
 the time period interval at run time. Have the table generated
 beginning
 with the "Today" time range.
-<p><a href="#Answer_to_Simple_Tabular_Products_">Answer
+<p><a href="TextReferenceAnswers_to_Exercises.html#Answer_to_Simple_Tabular_Products_">Answer
 to Simple Tabular Product Exercise 2</a> </p>
 <h2><a name="Smart_Tabular_Product_Exercises"></a>Smart Tabular Product
 Exercises</h2>
@@ -361,46 +338,46 @@ Product Template, we will study the SmartElementTable which can be
 found
 in the Define Text Products dialog IF you log on to the GFE as user
 GFETEST.&nbsp; It consists of two files: SmartElementTable.py and
-SmartElementTable_Local.py.&nbsp;&nbsp; To activate the product, modify
-the Overrides file and uncomment the "displayName". Make sure you have
-defined edit areas named "area1", "area2", and "area3".&nbsp; Run the
+SmartElementTable_Local.py. To activate the product, modify
+the Overrides file and un-comment the "displayName". Make sure you have
+defined edit areas named "area1", "area2", and "area3". Run the
 product so see the results.
 <p>Note the following in the standard SmartElementTable file: </p>
-<blockquote><li> VariableList:&nbsp; This allows the user to choose
-options at run-time.&nbsp; In this case, the user will specifiy whether
+<blockquote><li> VariableList: This allows the user to choose
+options at run-time. In this case, the user will specifiy whether
 a morning or afternoon product is desired.</li>
-  <li>Definition:&nbsp; This specifies the product type (smart), output
-file, edit areas and a product-specific regionList.&nbsp; The
+  <li>Definition: This specifies the product type (smart), output
+file, edit areas and a product-specific regionList. The
 regionList
 maps the edit areas to regions by which the product results are
-grouped.&nbsp; Note that the "displayName" is set to None.&nbsp; This
+grouped. Note that the "displayName" is set to None. This
 is
-because this file serves only as a base.&nbsp; The derived Overrides
+because this file serves only as a base. The derived Overrides
 file
 will specify the "displayName."</li>
-  <li>TextProduct Class:&nbsp; This inherits from TextRules and
+  <li>TextProduct Class: This inherits from TextRules and
 SampleAnalysis classes.</li>
-  <li>generateForecast:&nbsp; This part of the code is identical to the
+  <li>generateForecast: This part of the code is identical to the
 Smart Text Product Template, following the same basic steps.</li>
   <li>_getAnalysisList: This method (called by _getVariables) returns
 an analysisList that specifies the statistics desired for each weather
 element.</li>
   <li>_getTimeRange: This method (called by _determineTimeRanges) is in
-the TimeRangeUtils module.&nbsp; Given the name of Time Range (defined
+the TimeRangeUtils module. Given the name of Time Range (defined
 in the GFE by Select Time Range), it returns a TimeRange object.</li>
   <li>_getPeriods: This method (called by _determineTimeRanges) is in
-the TimeRangeUtils module.&nbsp; It returns a list of (timeRange,
+the TimeRangeUtils module. It returns a list of (timeRange,
 label)
 tuples given a timeRange, period, span, and optional labelMethod or
 labelFormat.</li>
-  <li>_getSampler: This method&nbsp; (called by _sampleData) is in the
-Interfaces module.&nbsp; It returns a HistoSampler object representing
+  <li>_getSampler: This method (called by _sampleData) is in the
+Interfaces module. It returns a HistoSampler object representing
 histograms from sampled data. The method is given an analysisList:
-(weather element, method)&nbsp; tuples, a timeRange list: (timeRange,
+(weather element, method) tuples, a timeRange list: (timeRange,
 label) tuples, and an editArea list: (editArea, label) tuples.</li>
   <li>_getStatList: This method (called by _makeProduct) is in the
 Interfaces module. For each timeRange, it creates a statistics
-dictionary for a given list of weather elements and an edit area.&nbsp;
+dictionary for a given list of weather elements and an edit area.
 The dictionaries are returned in a list which can then be used by the
 formatting methods to create the appropriate text strings.</li>
   <li>_getTempValues and _getPopValues: These methods (called by
@@ -409,18 +386,18 @@ use
 a TableBuilder method, _getScalarValue, which, given a numeric value,
 returns a text string</li>
 </blockquote>
-&nbsp;Note the following about the local SmartElementTable_Local file:
-<blockquote><li>import SmartElementTable:&nbsp; This is necessary to
+Note the following about the local SmartElementTable_Local file:
+<blockquote><li>import SmartElementTable: This is necessary to
 have access to the standard class file.</li>
-  <li>Definition:&nbsp; The Definition section is copied from the
+  <li>Definition: The Definition section is copied from the
 standard file so that entries can be overriden to allow site-specific
 information such as output file and edit areas.</li>
-  <li>VariableList:&nbsp; This is not repeated here, but could be if
+  <li>VariableList: This is not repeated here, but could be if
 the local site wanted something different from the one in the standard
 file.</li>
-  <li>TextProduct Class:&nbsp; Note that the local class inherits from
+  <li>TextProduct Class: Note that the local class inherits from
 the standard class (SmartElementTable) thus having access to all its
-methods as well as those in TextRules and SampleAnalysis.&nbsp;
+methods as well as those in TextRules and SampleAnalysis.
 Therefore, to override any inherited method, the local class simply
 provides its own "def" method.</li>
 </blockquote>
@@ -438,7 +415,7 @@ Temp, PoP, and Humidity in various orders.</li>
 <h2> <a name="Smart_Tabular_Exercise_2"></a>Smart Tabular Exercise 2:
 "Extending the SmartElementTable"</h2>
 Extend the SmartElementTable to have the capability of reporting
-Wind.&nbsp; You will have to:
+Wind. You will have to:
 <ul>
   <li>Override and add to "_getAnalysisList"</li>
   <li>Override and add to "_getTitleDict"</li>
@@ -448,52 +425,45 @@ Wind.&nbsp; You will have to:
   <li>Test your modifications by changing the "elementList" to include
 Wind.</li>
 </ul>
-<a href="#Answer_to_Smart_Tabular_Exercise_2">Answer to Smart Tabular
+<a href="TextReferenceAnswers_to_Exercises.html#Answer_to_Smart_Tabular_Exercise_2">Answer to Smart Tabular
 Exercise 2</a>
 <h2><a name="Smart_Tabular_Exercise_3"></a>Smart Tabular Exercise 3:
 "Working with the FWFTable"</h2>
 To see a more sophisticated example of a Smart Table Product, we will
-study the FWFTable.&nbsp; The Standard andOverrides files are FWFTable,
-FWFTable_&lt;site&gt;_Definition,&nbsp;
-and
-FWFTable_&lt;site&gt;_Overrides, respectively.&nbsp; Activate the
-FWFTable by setting
-it's "displayName" and Run the product.
+study the FWFTable. The Standard andOverrides files are FWFTable,
+FWFTable_&lt;site&gt;_Definition, and
+FWFTable_&lt;site&gt;_Overrides, respectively. Activate the
+FWFTable by setting it's "displayName" and Run the product.
 <p>Note the use of the following inherited methods in the base FWFTable
 standard file: </p>
 <blockquote><li> getCurrentTime: This method (called by
-_preProcessProduct) is in the TimeDescriptor module.&nbsp; It will
-format the current time and return a text string.&nbsp; For a
-description of the possible format entries allowed, see the <a
- href="#Time_Display_Formats">Time Display Formats</a> section.</li>
+_preProcessProduct) is in the TimeDescriptor module. It will
+format the current time and return a text string.</li>
   <li>getWeekDay: This method (called by _getLabel) is in the
-TimeDescriptor module.&nbsp; It is an all-purpose weekday labeling
+TimeDescriptor module. It is an all-purpose weekday labeling
 method which takes a time range as input and returns a text string
-label
-(e.g. Today, Tonight, Monday, etc).&nbsp; It can handle various
+label (e.g. Today, Tonight, Monday, etc). It can handle various
 combinations of upper and lower case, punctuation and holidays.</li>
-  <li>makeRow: This method (called by _makeProduct)&nbsp; is in the
+  <li>makeRow: This method (called by _makeProduct) is in the
 TableBuilder module. It is a general-purpose method for adding a row to
-a table.&nbsp; Arguments include&nbsp; a row label, a column width, a
+a table. Arguments include: a row label, a column width, a
 statList and a formatting method with optional arguments.</li>
   <li>getStats: This method (called by the text formatting methods) is
-in the Interfaces module.&nbsp; Given a statDict and a weather element
-name, it returns the corresponding statistics.&nbsp;&nbsp; If no data
-is
-available for the element,&nbsp; getStats returns "None".&nbsp; This
+in the Interfaces module. Given a statDict and a weather element
+name, it returns the corresponding statistics. If no data
+is available for the element, getStats returns "None". This
 should be tested in the text formatting method.</li>
   <li>generateProduct: This method (called by _makeProduct) is in the
-Interfaces module.&nbsp; It can be used to "glue" another text product
-onto the current one.&nbsp; (It is similar to the "callSmartTool"
-command for Procedures.)&nbsp; In this case, we are generating and
+Interfaces module. It can be used to "glue" another text product
+onto the current one. (It is similar to the "callSmartTool"
+command for Procedures.) In this case, we are generating and
 Extended Narrative product onto the tabular portion of the
-product.&nbsp; Notice the the Narrative Definition and Product
-Component
-Definitions for the Extended Narrative are included in the FWFTable
+product. Notice the the Narrative Definition and Product
+Component Definitions for the Extended Narrative are included in the FWFTable
 standard file.</li>
 </blockquote>
 Make the following modifications to the FWFTable_&lt;site&gt;_Overrides
-file.&nbsp;
+file.
 Override portions of the FWFTable standard file if necessary. Make sure
 to comment changes that you make. Test each change as you go along:
 <blockquote><li>Rearrange the order of the rows of the table by
@@ -504,64 +474,62 @@ header.</li>
 print statement in your method to verify that it has successfully
 overridden the one in the Standard file.</li>
   <li>Notice that there is a "windAdjustmentFactor" in the Definition
-section.&nbsp; Wind reporting works as follows:&nbsp; If there is a
-Wind20ft grid available, that is used.&nbsp; If not, the Wind grid
+section. Wind reporting works as follows: If there is a
+Wind20ft grid available, that is used. If not, the Wind grid
 values are used after multiplying by the "windAdjustmentFactor" which
-has a default of .80.&nbsp;&nbsp; First, remove any Wind20ft grids that
-might be in the Today period.&nbsp; Run the product so that the Wind
-grid values are reported.&nbsp; Note the Wind values for the Today
-period.&nbsp; Now change the "windAdjustmentFactor" and run the product
-again.&nbsp; Note the change in the reported Wind values.&nbsp;
-Finally,
-create a Wind20ft grid in the Today period and assign values distinct
-from that in the Wind grid.&nbsp; Run the product again and verify that
+has a default of .80. First, remove any Wind20ft grids that
+might be in the Today period. Run the product so that the Wind
+grid values are reported. Note the Wind values for the Today
+period. Now change the "windAdjustmentFactor" and run the product
+again. Note the change in the reported Wind values.
+Finally, create a Wind20ft grid in the Today period and assign values distinct
+from that in the Wind grid. Run the product again and verify that
 the Wind20ft values are now being reported.</li>
 </blockquote>
-<a href="#Answer_to_Smart_Tabular_Exercise_3">Answer to Smart Tabular
+<a href="TextReferenceAnswers_to_Exercises.html#Answer_to_Smart_Tabular_Exercise_3">Answer to Smart Tabular
 Exercise 3</a>
 <h2><a name="Smart_Tabular_Exercise_4"></a>Smart Tabular Exercise 4:
 "Extending the FWFTable"</h2>
-Add a new row to the FWFTable for WindGust.&nbsp; Report a WindGust
+Add a new row to the FWFTable for WindGust. Report a WindGust
 value only if the difference between the maximum WindGust and the
 maximum Wind value is greater than some configurable
-threshold.&nbsp;&nbsp;&nbsp; Use the "Wind20ft" weather element&nbsp;
+threshold. Use the "Wind20ft" weather element
 for Wind if available, otherwise, use and adjusted "Wind" weather
-element value.&nbsp; The adjusted value will simply be the Wind
-magnitude multiplied by the "windAdjustmentFactor".&nbsp; See if you
-can
-solve this problem without&nbsp; reading any further.&nbsp; If you get
+element value. The adjusted value will simply be the Wind
+magnitude multiplied by the "windAdjustmentFactor". See if you
+can solve this problem without reading any further. If you get
 stuck, you can read on for some hints.
 <ul>
   <li>Add a new Definition entry, for example,
-"gustWindDifferenceThreshold" and set it to a default value.&nbsp;
+"gustWindDifferenceThreshold" and set it to a default value.
 Remember that simply by adding this entry to the Definition, the
 variable, "self._gustWindDifferenceThreshold" will be available to be
 used in your product.</li>
   <li>Override the "_getAnalysisList" method and add an entry for
-"WindGust."&nbsp; You will also have to add a entries for "Wind" and
-"Wind20ft"&nbsp; to check the maximum wind for comparison.</li>
+"WindGust." You will also have to add a entries for "Wind" and
+"Wind20ft" to check the maximum wind for comparison.</li>
   <li>Add a new method, for example, "_windGust" that tests the
 difference between maximum Wind and maximum WindGust against the
 "GustWindDifferenceThreshold" and returns an appropriate string for the
-WindGust row entry.&nbsp; You will want to refer to the "_wind" method
+WindGust row entry. You will want to refer to the "_wind" method
 for help in dealing with the Wind and Wind20ft grids.</li>
   <li>Add a new method, for example, "_windGust_row", which calls
-"makeRow" to create the WindGust row.&nbsp;&nbsp; The call to "makeRow"
+"makeRow" to create the WindGust row. The call to "makeRow"
 will use your "_windGustEntry" method.</li>
   <li>Add an entry for WindGust to the "_rowList" that refers to your
 "_windGust" method</li>
 </ul>
-<a href="#Smart_Tabular_Exercise_4"> Answer to Smart Tabular
-Exercise&nbsp; 4</a><br>
+<a href="TextReferenceAnswers_to_Exercises.html#Answer_to_Smart_Tabular_Exercise_4"> Answer to Smart Tabular
+Exercise 4</a><br>
 <h2><a name="Narrative_Product_Exercises"></a>Narrative Product
 Exercises</h2>
 <h2><a name="Narrative_Exercise_1"></a>Narrative Exercise 1:
 "Accessing the Statistics Dictionary"</h2>
 In this exercise, you will practice accessing the Statistics Dictionary
-using the "tree.stats.get" command.&nbsp; <br>
+using the "tree.stats.get" command.<br>
 <ol>
   <li>Put the following code in your ZFP_&lt;site&gt;_Overrides
-file:&nbsp;&nbsp;&nbsp; <br>
+file:<br>
     <br>
 &nbsp;def sky_setUp(self, tree, node):&nbsp; &nbsp;&nbsp; <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if node.getComponentName()
@@ -604,34 +572,34 @@ self.scalarConnector)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
     <br>
   </li>
   <li>Run the ZFP with the default settings and examine the printed
-results in the terminal window.&nbsp;&nbsp; Examine the data to verify
+results in the terminal window. Examine the data to verify
 that the results are correct.<br>
   </li>
   <li>Alter the "tree.stats.get" commands using various arguments and
-re-run the product.&nbsp; Satisfy yourself that that the results are
+re-run the product. Satisfy yourself that that the results are
 correct.</li>
 </ol>
 <h2><a name="Narrative_Exercise_2"></a>Narrative Exercise 2: "Narrative
 Tree Processing Rules"</h2>
 This exercise will illustrate the multiple-pass processing of the
 narrative tree by printing a trace of the methods executed and their
-return status.&nbsp; <br>
+return status.<br>
 <ol>
   <li>Bring up the GFE under userID GFETEST.&nbsp; There you will find
-a Overrides file called "Phrase_Test_Local".&nbsp; Bring up the
+a Overrides file called "Phrase_Test_Local". Bring up the
 Formatter Launcher Dialog and run this product.</li>
   <li>Now we would like to turn on a trace for a phrase and follow it's
-progress.&nbsp; In the "phraseList" for Period_1, comment out all
+progress. In the "phraseList" for Period_1, comment out all
 except
-the "weather_phrase".&nbsp; Now set the Wx grid for the first 12-hour
-period to Sct RW- and set the PoP to 60.&nbsp; Save your data to the
+the "weather_phrase". Now set the Wx grid for the first 12-hour
+period to Sct RW- and set the PoP to 60. Save your data to the
 Fcst database. Finally, uncomment the 'Definition["trace"] = 1' in the
 Definition section.&nbsp; Now run the product using the Fcst database.</li>
   <li>You will see a trace in the terminal window similar to the
 following which has been annotated and bolded to help you read it:</li>
 </ol>
 Local Formatter executed script:&nbsp;&nbsp; runIFPText -t
-Phrase_Test_Local -g Phrase_Test -h polaris -p 98000000 -d
+Phrase_Test_Local -g Phrase_Test -h dx3 -p 9581 -d
 BOU_GRID__Fcst_00000000_0000 -u GFETEST &amp; <br>
 Finding&nbsp; Phrase_Test_Local <br>
 Finding&nbsp; Period_1 <br>
@@ -768,19 +736,19 @@ Progress: 100% Phrase_Test Complete <br>
 to construct the weather phrase.
 <ul>
   <li>Can you see the levels of the tree i.e. tree level, component
-level, phrase level and sub-phrase level?&nbsp; The tree and sub-phrase
+level, phrase level and sub-phrase level? The tree and sub-phrase
 levels are labeled as "None" since they have no node name.</li>
   <li>Can you follow the progress from the top of the tree to each of
-the nodes?&nbsp;&nbsp;&nbsp; Notice at each level how different methods
-return a DONE status.&nbsp; After returning DONE, they are not called
+the nodes? Notice at each level how different methods
+return a DONE status. After returning DONE, they are not called
 again when traversing the node.</li>
   <li>Notice the methods at each level. A the top level, we have
-"assembleChildWords".&nbsp; Look this up in the Phrase Builder
-module.&nbsp; What is the trigger condition upon which this method can
-execute?&nbsp; At the Component level, we have "assemblePhrases" and
-"wordWrap".&nbsp;&nbsp; What trigger condition do these have?&nbsp; We
+"assembleChildWords". Look this up in the Phrase Builder
+module. What is the trigger condition upon which this method can
+execute? At the Component level, we have "assemblePhrases" and
+"wordWrap". What trigger condition do these have? We
 will learn more about the Phrase level methods in a later
-session.&nbsp;
+session.
 For now, notice that some execute immediately while others trigger only
 after the words are complete.</li>
   <li>When you are done examining the trace, reverse the changes you
@@ -791,16 +759,16 @@ made to restore the "Phrase_Test_Local" file to its original state.</li>
 with 'Phrase_Test_Local'"</h2>
 <span style="font-weight: bold;"></span>In this exercise, you will work
 with Phrase_Test_Local to understand the Narrative Phrases and
-Strategies.&nbsp; From the GFE Help menu, select "Test Cases" and find
-"tp003:&nbsp; Narrative Phrases Test Cases and Tutorial".&nbsp; Follow
+Strategies. From the GFE Help menu, select "Test Cases" and find
+"tp003: Narrative Phrases Test Cases and Tutorial". Follow
 the instructions for setting up and testing the Phrase_Test_Local file
 located under the GFETEST userID.<span style="font-weight: bold;"><br>
 </span>
 <h2><a name="Narrative_Exercise_4"></a>Narrative Exercise 4: "Working
 with 'Local_Effects_Test_Local'"</h2>
 In this exercise, you will learn about different ways to set up local
-effects.&nbsp; From the GFE Help menu, select "Test Cases" and find
-"tp004: Local Effects Test Cases and Tutorial".&nbsp; Follow the
+effects. From the GFE Help menu, select "Test Cases" and find
+"tp004: Local Effects Test Cases and Tutorial". Follow the
 instructions for setting up and testing the the
 Local_Effects_Test_Local
 file located under the GFETEST userID.<br>
@@ -809,27 +777,27 @@ file located under the GFETEST userID.<br>
 <h2><a name="Phrase_Builder_Exercise_1"></a>Phrase Exercise 1:
 "Overriding a Word Method"</h2>
 In this exercise, you will see how to override a Word Method in order
-to alter the wording a phrase.&nbsp; You will see that although the na<br>
+to alter the wording a phrase. You will see that although the na<br>
 <ol>
   <li>In the ZFP_&lt;site&gt;_Overrides file, override the "snow_words"
 method
 (ScalarPhrases).</li>
   <li>Change the wording to use a dash instead of the word, "to".&nbsp;
-For example,&nbsp; "1 to 2 inches" will come out as "1-2" inches.</li>
+For example, "1 to 2 inches" will come out as "1-2" inches.</li>
 </ol>
-<a href="#Answer_to_Phrase_Exercise_1">Answer to Phrase Exercise 1</a><br>
+<a href="TextReferenceAnswers_to_Exercises.html#Answer_to_Phrase_Exercise_1">Answer to Phrase Exercise 1</a><br>
 <h2><a name="Phrase_Builder_Exercise_2"></a> <a
  name="Phrase_Builder_Exercise_2"></a>Phrase Builder Exercise 2:
 "Inter-phrase Dependency"</h2>
 In this exercise, you will learn how to use the resulting words from
-one phrase to affect the words of another phrase.&nbsp; For example,
+one phrase to affect the words of another phrase. For example,
 the
 PoP phrase wording will depend on the type of weather occuring in the
 period. <br>
 <ol>
-  <li>Examine the "popMax_words" method from ScalarPhrases.&nbsp;
+  <li>Examine the "popMax_words" method from ScalarPhrases.
 Notice the "findWords" method that finds the words for the
-weather_phrase.&nbsp; Since the popMax_phrase is dependent on the
+weather_phrase. Since the popMax_phrase is dependent on the
 weather_phrase, it does not execute until the weather_phrase words have
 been set.<br>
   </li>
@@ -854,7 +822,7 @@ wxWords == "":<br>
 return self.setWords(node, "null")<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
   <li>Run the product and examine the results in the terminal
-window.&nbsp; Can you explain them?</li>
+window. Can you explain them?</li>
 </ol>
 <h2><a name="Phrase_Builder_Exercise_3"></a>Phrase Exercise 3: "Phrase
 Anatomy"</h2>
@@ -864,11 +832,11 @@ and see how they all work together to form the resulting phrase.<br>
   <li>In the Phrase_Test_Local file,&nbsp; comment out all phrases
 EXCEPT the wind_withGusts_phrase in the Period_1 product component.</li>
   <li>Override the "standard_vector_phraseMethods" from
-VectorRelatedPhrases.&nbsp; <br>
+VectorRelatedPhrases.<br>
   </li>
   <li>Set up one Wind grid and no WindGust grid for the first period.</li>
   <li>For each phraseMethod in turn (including the setUp and
-wordMethods), comment it out and run the product.&nbsp;&nbsp; Can you
+wordMethods), comment it out and run the product. Can you
 explain the results?</li>
   <li>Set up two differing 6-hour Wind grids and repeat Step 4.</li>
   <li>Set up one WindGust grid with a non-null value and repeat Step 4.</li>
@@ -882,11 +850,11 @@ phraseMethod combinations to gain insight into phrase building..</li>
 product component.</li>
   <li>Override the "standard_weather_phraseMethods" from WxPhrases.</li>
   <li>Set up one Wx grid with significant weather for the first
-period.&nbsp; Make sure the corresponding PoP grid is set to at least
+period. Make sure the corresponding PoP grid is set to at least
 20.<br>
   </li>
   <li>For each phraseMethod in turn (including the setUp and
-wordMethods), comment it out and run the product.&nbsp;&nbsp; Can you
+wordMethods), comment it out and run the product. Can you
 explain the results?</li>
   <li>Set up two differing 6-hour Wx grids and repeat Step 4.</li>
   <li>Continue to experiment with different data values and
@@ -899,11 +867,11 @@ In this exercise, you will add a QPF&nbsp; phrase to Period_1 for the
 ZFP product.&nbsp; <br>
 <ol>
   <li>Create a new phrase for QPF and add it to the ZFP product.&nbsp;
-Use the popMax_phrase as a starting point.&nbsp; For simplicity, report
+Use the popMax_phrase as a starting point. For simplicity, report
 the QPF value as an integer.<br>
   </li>
 </ol>
-Try this exercise without reading further.&nbsp; If you need some more
+Try this exercise without reading further. If you need some more
 hints, read on.<br>
 <ol>
   <li>Use the "accumSum" or "accumMinMax" analysis method. Make sure
@@ -913,32 +881,21 @@ your phrase can handle either.</li>
 phrase_descriptor_dict. <br>
   </li>
 </ol>
-<a href="#Answer_to_Phrase_Exercise_4_">Answer to Phrase Exercise 4</a><br>
+<a href="TextReferenceAnswers_to_Exercises.html#Answer_to_Phrase_Exercise_4_">Answer to Phrase Exercise 4</a><br>
 <h2><a name="Trouble-shooting_Exercises"></a>Trouble-shooting Exercises</h2>
-<h2><a name="Trouble_Exercise_1"></a>Trouble Exercise 1:&nbsp; "Simple
+<h2><a name="Trouble_Exercise_1"></a>Trouble Exercise 1: "Simple
 Error Message"</h2>
 In this exercise, you will look up an error message in the
 Trouble-shooting section to isolate the problem.<br>
 <ol>
   <li>Open the Combinations file in the Define Text Products
-dialog.&nbsp; Replace "area1" with "area15".</li>
+dialog. Replace "area1" with "area15".</li>
   <li>Run the ZFP product.</li>
-  <li>Check the terminal window for error messages.&nbsp; You should
-see: &nbsp;<br>
-Traceback (most recent call last):<br>
-&nbsp; File "&lt;string&gt;", line 1, in ?<br>
-&nbsp; File "TextFormatter.py", line 953, in profMain<br>
-&nbsp; File "TextFormatter.py", line 894, in main2<br>
-&nbsp; File "TextFormatter.py", line 79, in getForecast<br>
-&nbsp; File "TextFormatter.py", line 307, in __getRunTimeVariables<br>
-&nbsp; File "TextFormatter.py", line 473, in getCombinations<br>
-&nbsp; File "TextFormatter.py", line 569, in getEditArea<br>
-&nbsp; File "AFPSSup.py", line 2285, in getReferenceData<br>
-TypeError: IFPClient::getReferenceData()failed : Unable to find
-reference data [(area15,P=0,A=0)] <br>
+  <li>Check the terminal window for error messages. You should
+see a stack trace.
   </li>
-  <li>Look in the <a href="#TroubleShooting">Trouble-shooting section</a>
-and find the description for this error.&nbsp; <br>
+  <li>Look in the <a href="TextReferenceTroubleShooting.html">Trouble-shooting page</a>
+and find the description for this error.<br>
   </li>
   <li>Make the correction and run the product again.<br>
   </li>
@@ -949,7 +906,7 @@ In this exercise, you will follow the Trouble-shooting Strategy to
 isolate and fix a problem with a formatter.<br>
 <ol>
   <li>Run the product with displayName appearing as "TroubleEx2".</li>
-  <li>Use the <a href="#TroubleshootingStrategies">Trouble-shooting
+  <li>Use the <a href="TextReferenceTroubleShooting.html">Trouble-shooting
 Strategy 3 </a>to isolate and fix the problem.<br>
   </li>
 </ol>
@@ -958,10 +915,10 @@ Hunt"</h2>
 In this exercise, you will follow the Trouble-shooting Strategy to
 isolate an infinite loop in processing the narrative tree.<br>
 <ol>
-  <li>Ask a buddy to set up this exercise by doing steps 2-7.&nbsp;
+  <li>Ask a buddy to set up this exercise by doing steps 2-7.
 Then do step 8.</li>
   <li>In the Text Utilities Window, create a file named
-"TroubleEx3".&nbsp;&nbsp; Remove the template code and create a new
+"TroubleEx3". Remove the template code and create a new
 class:<br>
 class TextProduct:<br>
   </li>
@@ -970,20 +927,20 @@ Period_1 of the AreaFcst product.</li>
   <li>Change the last "setWords" call to a simple "return" statement.
 Copy it into the TextProduct class in the TroubleEx3 file. Save and
 close the file.</li>
-  <li>Open the ZFP_&lt;site&gt;_Overrides.&nbsp; Comment out the
+  <li>Open the ZFP_&lt;site&gt;_Overrides. Comment out the
 "class" declaration and
 replace it with the following:<br>
-&nbsp;<br>
+<br>
 &nbsp;import TroubleEx3<br>
 &nbsp;class TextProduct(TroubleEx3.TextProduct, AreaFcst.TextProduct):<br>
 &nbsp;&nbsp;&nbsp; Definition =
-copy.deepcopy(AreaFcst.TextProduct.Definition)<br>
-&nbsp;</li>
+copy.deepcopy(AreaFcst.TextProduct.Definition)<br><br>
+</li>
   <li>Run the ZFP and make sure that the product returns an error
 message instead of text. If not, change the data or the TroubleEx3 file
 to make sure an error occurs.</li>
   <li>Save and close the file and return to your seat.</li>
-  <li>Run the ZFP.&nbsp; Use <a href="#TroubleshootingStrategies">Trouble-shooting
-Strategy 4</a> to isolate the problem. &nbsp; See&nbsp; how far you can
+  <li>Run the ZFP.&nbsp; Use <a href="TextReferenceTroubleShooting.html">Trouble-shooting
+Strategy 4</a> to isolate the problem. See how far you can
 get WITHOUT looking at TroubleEx3!</li>
 </ol>
