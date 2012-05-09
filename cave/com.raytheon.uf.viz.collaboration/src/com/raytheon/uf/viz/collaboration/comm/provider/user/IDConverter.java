@@ -65,6 +65,7 @@ public class IDConverter {
             String name = Tools.parseName(user.getID().getName());
             String host = Tools.parseHost(user.getID().getName());
             retVal = new UserId(name, host);
+            retVal.setId(user.getID());
             retVal.setAlias(user.getNickname());
         }
         return retVal;
