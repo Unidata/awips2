@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.remote.graphics.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
+Eclipse-BuddyPolicy: dependent
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",

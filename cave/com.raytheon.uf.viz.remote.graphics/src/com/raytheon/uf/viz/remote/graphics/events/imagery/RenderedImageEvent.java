@@ -46,28 +46,13 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
 public class RenderedImageEvent extends AbstractDispatchingObjectEvent {
 
     @DynamicSerializeElement
-    private RenderedImageWrapper wrapper = new RenderedImageWrapper();
-
-    /**
-     * @return the wrapper
-     */
-    public RenderedImageWrapper getWrapper() {
-        return wrapper;
-    }
-
-    /**
-     * @param wrapper
-     *            the wrapper to set
-     */
-    public void setWrapper(RenderedImageWrapper wrapper) {
-        this.wrapper = wrapper;
-    }
+    private RenderedImage renderedImage;
 
     /**
      * @return the renderedImage
      */
     public RenderedImage getRenderedImage() {
-        return wrapper.getWrappedImage();
+        return renderedImage;
     }
 
     /**
@@ -75,7 +60,7 @@ public class RenderedImageEvent extends AbstractDispatchingObjectEvent {
      *            the renderedImage to set
      */
     public void setRenderedImage(RenderedImage renderedImage) {
-        wrapper.setWrappedImage(renderedImage);
+        this.renderedImage = renderedImage;
     }
 
 }
