@@ -19,7 +19,7 @@
 ##
 # Example ifpIMAGE configuration file.
 
-# Must always import from gfeConfig (or your site configuration)
+# Must always import from gfeConfig (or your site configuration) 
 from gfeConfig import *
 import gfeConfig
 

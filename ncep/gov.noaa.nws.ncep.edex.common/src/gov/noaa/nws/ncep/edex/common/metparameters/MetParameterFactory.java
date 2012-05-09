@@ -137,6 +137,7 @@ public class MetParameterFactory implements ISerializableObject{
 		ncParamsMap.put( HighResWaveHeight.class.getSimpleName(), new HighResWaveHeight() );
 		ncParamsMap.put( HumitureIndex.class.getSimpleName(), new HumitureIndex() );
 		ncParamsMap.put( IceCode.class.getSimpleName(), new IceCode() );
+		ncParamsMap.put( IceType.class.getSimpleName(), new IceType() );
 		ncParamsMap.put( IcingIntensitySymbol.class.getSimpleName(), new IcingIntensitySymbol() );
 		ncParamsMap.put( IcingTypeSymbol.class.getSimpleName(), new IcingTypeSymbol() );
 		ncParamsMap.put( InterWindDir.class.getSimpleName(), new InterWindDir() );
@@ -270,6 +271,7 @@ public class MetParameterFactory implements ISerializableObject{
 		ncParamsMap.put( TotalSkyCoverFcst12hr.class.getSimpleName(), new TotalSkyCoverFcst12hr() );
 		ncParamsMap.put( TurbulenceFrequencySymbol.class.getSimpleName(), new TurbulenceFrequencySymbol() );
 		ncParamsMap.put( TurbulenceIntensitySymbol.class.getSimpleName(), new TurbulenceIntensitySymbol() );
+		ncParamsMap.put( TurbulenceTypeSymbol.class.getSimpleName(), new TurbulenceTypeSymbol() );
 		ncParamsMap.put( TurbulentKineticEnergy.class.getSimpleName(), new TurbulentKineticEnergy() );
 		ncParamsMap.put( EstStormDirectionUComp.class.getSimpleName(), new EstStormDirectionUComp() );
 		ncParamsMap.put( UCompAt10Meters.class.getSimpleName(), new UCompAt10Meters() );

@@ -26,7 +26,8 @@ import com.raytheon.uf.viz.core.VizApp;
  * ------------ ---------- ----------- --------------------------
  * 04/20/11                Greg Hull   change name to plot model editor. Don't refresh mapEditor
  * 08/12/11       #450     Greg Hull   use the RBD name instead of the filename. 
- *
+ * 02/15/2012     #627     Archana    Updated the call to addRbd() to accept 
+ *                                    a NCMapEditor object as one of the arguments   
  * </pre>
  * 
  * @author ghull
@@ -81,11 +82,11 @@ public class NewDisplayAction extends AbstractHandler {
     		}
     		
     		NCMapEditor editor = NmapUiUtils.createNatlCntrsEditor( newDisplayName );
-    		rbd.setNcEditor( editor );
+   // 		rbd.setNcEditor( editor );
     		
     		ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+rbd.getRbdName() );
     		
-    		rbdLoader.addRBD( rbd );
+    		rbdLoader.addRBD( rbd, editor );
     		VizApp.runAsync( rbdLoader );
     	}
     	catch ( Exception ve ) {

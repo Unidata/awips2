@@ -14,6 +14,7 @@ import static java.lang.Math.atan2;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 09/09		#280		B. Yin   	Move methods from action tools
+ * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 02/12                    S. Gurung   Moved isSnapADC() and getNumOfCompassPts() to SigmeInfo. 
  * </pre>
  * 
  * @author	B. Yin
@@ -106,7 +109,7 @@ public class PgenToolUtils {
     	}
     	if( SigmetInfo.isSnapADC(adc) ){
   	    	int numOfCompassPts = SigmetInfo.getNumOfCompassPts(adc);
-  	    	return SigmetInfo.getSnapWithStation(newPoints, SigmetInfo.VOR_STATION_LIST, 10, numOfCompassPts);
+  	    	return SnapUtil.getSnapWithStation(newPoints, SnapUtil.VOR_STATION_LIST, 10, numOfCompassPts);
   	    }
         return newPoints;
     
@@ -221,7 +224,7 @@ public class PgenToolUtils {
 		while ( len > lineLength ){
 			
 			int newline = oneLine.indexOf("\n");
-			if (  newline < lineLength ){
+			if (  newline <= lineLength ){
 				len -= newline+1;
 				oneLine = oneLine.substring( newline+1);
 			}

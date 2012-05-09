@@ -28,6 +28,9 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
+import gov.noaa.nws.ncep.ui.pgen.maps.County;
+import gov.noaa.nws.ncep.ui.pgen.maps.USState;
+import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
@@ -67,6 +70,7 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
 
     	new Thread(){
 			public void run(){
+				USState.loadStateTable();
 				County.loadCountyTable();
 			}
 		}.start();
@@ -350,7 +354,7 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
 		Polygon poly = new Polygon(xpoints, ypoints, polyPoints.size());
 		
 		// get a list of all anchor points
-		StationTable anchorTbl = WatchBox.getAnchorTbl();
+		StationTable anchorTbl = StationTableUtil.getAnchorTbl();
     	List<Station> anchorList = anchorTbl.getStationList();
     	
     	// if an anchor point is in the polygon, add it to the return list.

@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                                        for time-matching 
  * 11-Nov-2010    307      Greg Hull   Use data with best timeMatch. adjust startTime in query.  
  * 01-Mar-2011             Greg Hull   frameInterval -> frameSpan
+ * 16 Feb 2012    555      S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords()
  *                                                
  * @author archana
  *</pre>
@@ -534,6 +535,7 @@ implements INatlCntrsResource{
 				frameStartTime.clear();
 			}
 
+			setAllFramesAsPopulated();
 		} catch (VizException e) {
 			e.printStackTrace();
 		}

@@ -35,6 +35,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2010            mschenke     Initial creation
+ * 03/14/2012   DR 14690  Qinglu Lin   Add clear2().
  * 
  * </pre>
  * 
@@ -144,13 +145,23 @@ public class WarngenUIState {
     }
 
     public void clear() {
-        oldWarningArea = null;
+        warningPolygon = null;
+        clear2();
+    }
+
+    /**
+     * clear2
+     *   Same as clear(), except for not assigning null to warningPolygon. 
+     * History
+     * 03-16-2012 Qinglu Lin   DR14690 Created.
+     */
+    public void clear2() {
+    	oldWarningArea = null;
         oldWarningPolygon = null;
         oldWarningArea = null;
         oldWarningPolygon = null;
         strings.clear();
         warningArea = null;
-        warningPolygon = null;
         markedWarningArea = null;
         markedWarningPolygon = null;
     }
