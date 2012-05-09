@@ -4,7 +4,7 @@
      +                 sndglist, haillist, fname)
  
 c Jan 27, 2010, REJ.
-
+       integer maob,saob
        parameter (maob=15000) ! Max number of raobs allowed.
        parameter (saob=15)    ! Number of raobs to return to NSHARP.
        
@@ -21,7 +21,7 @@ c Jan 27, 2010, REJ.
        character datestn*15,dummy*25,matdatestn(maob)*15
        character sndglist(saob)*15, fname*(80), fname1*(80)
        
-       integer maob,j,cnt,mrmat(maob),capemat(maob),tempmat(maob),
+       integer j,cnt,mrmat(maob),capemat(maob),tempmat(maob),
      & lrmat(maob),shrmat(maob),km9mat(maob),shr3mat(maob),golf,
      & sigm(maob),tier1,tier1cnt,srhmat(maob)
 

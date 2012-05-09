@@ -22,7 +22,7 @@
 	<name>228</name>
 	<description> Global (longitude/latitude grid)</description>
 	<nx>144</nx>
-	<ny>83</ny>
+	<ny>73</ny>
 	<la1>90</la1>
 	<lo1>0</lo1>
 	<la2>-90</la2>

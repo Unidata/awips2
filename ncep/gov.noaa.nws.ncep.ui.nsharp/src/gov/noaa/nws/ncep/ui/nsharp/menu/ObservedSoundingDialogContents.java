@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -46,19 +48,19 @@ import org.eclipse.swt.widgets.Listener;
 public class ObservedSoundingDialogContents {
 	private  Composite parent;
 	private   org.eclipse.swt.widgets.List sndTimeList;
-	private Group  btnGp,  sndTimeListGp, topGp;
-	private   boolean timeLimit = false;	
+	private Group  btnGp,  sndTimeListGp, topGp, midGp;
+	private   boolean timeLimit = false, newtab=false;	
 	private   boolean rawData = false;	
-	private   Button timeBtn,  browseBtn, tamBtn,  bufruaBtn, uairBtn, rawBtn;//, ncuairBtn;
+	private   Button timeBtn,  browseBtn, tamBtn,  bufruaBtn, uairBtn, rawBtn, newTabBtn;
 	private  String FILE_UAIR = "UAIR";
 	private  String FILE_BUFRUA = "BUFRUA";
 	//private  String FILE_DROP = "DROP";
 	private  String FILE_TAMDAR = "TAMDAR";
 	private  String FILE_BROWSE = "BROWSE";
 	private  NcSoundingProfile.ObsSndType currentSndType = NcSoundingProfile.ObsSndType.NONE;
-	
+	private NsharpLoadDialog ldDia;
 	private  List<String> selectedTimeList = new ArrayList<String>(); 
-	
+	private Font newFont;
 	public boolean isRawData() {
 		return rawData;
 	}
@@ -67,21 +69,25 @@ public class ObservedSoundingDialogContents {
 	}
 	public ObservedSoundingDialogContents(Composite parent) {
 		this.parent = parent;
-		
+		ldDia = NsharpLoadDialog.getAccess();
+		newFont = ldDia.getNewFont();
 	}
 	private void createObsvdSndUairList() {
 		sndTimeList.removeAll();
 		
 		// use NcSoundingQuery to query
 		NcSoundingTimeLines timeLines = NcSoundingQuery.soundingTimeLineQuery(currentSndType.toString());
+		
 		if(timeLines!= null && timeLines.getTimeLines() != null){
+			ldDia.startWaitCursor();
 			for(Object timeLine : timeLines.getTimeLines()){
 				Timestamp synoptictime = (Timestamp)timeLine;
 				if(synoptictime != null){
 					//need to format synoptictime to GMT time string.  Timestamp.toString produce a local time Not GMT time
 					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 					cal.setTimeInMillis(synoptictime.getTime());
-					String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
+					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH",  cal);
+					//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
 					//System.out.println("GMT time " + gmtTimeStr + " msec="+ synoptictime.getTime() + " local time "+synoptictime.toString());
 					if(!timeLimit){
 						//System.out.println("not 00z and 12z only");
@@ -95,18 +101,21 @@ public class ObservedSoundingDialogContents {
 					}
 				}
 			}
+			ldDia.stopWaitCursor();
 		}
 		else
 			System.out.println("EDEX timeline query return null");
 
 	}
 	private void queryAndMarkStn(String selectedSndTime) {
+		String selectTimetr = NcSoundingQuery.convertSoundTimeDispStringToRangeStartTimeFormat(selectedSndTime);
 		NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();
-		float lat, lon;
+		//Chin float lat, lon;
+		double lat, lon;
 		String stnInfoStr;
 		
 		//use NcSoundingQuery to query stn info
-		NcSoundingStnInfoCollection sndStnInfoCol = NcSoundingQuery.soundingStnInfoQuery(currentSndType.toString(),selectedSndTime);
+		NcSoundingStnInfoCollection sndStnInfoCol = NcSoundingQuery.soundingStnInfoQuery(currentSndType.toString(),selectTimetr);
 		if(sndStnInfoCol != null && sndStnInfoCol.getStationInfo() != null){
 
 			NcSoundingStnInfo[] stnInfoAry = sndStnInfoCol.getStationInfo();
@@ -130,6 +139,7 @@ public class ObservedSoundingDialogContents {
 				stn.setLatitude(lat);
 				//stn.setElevation(elv);
 				stn.setReftime(synoptictime);
+				stn.setRangestarttime(synoptictime);
 				stn.setSndType(currentSndType.toString());
 				//System.out.println("sndType= "+currentSndType);
 				//System.out.println("stn  lat ="+stn.getLatitude() + " lon="+stn.getLongitude());
@@ -157,18 +167,18 @@ public class ObservedSoundingDialogContents {
 		rawData = false;
 		topGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		topGp.setLayout( new GridLayout( 2, false ) );
-		NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
-		ldDia.setShellSize(false);
+		
+		//ldDia.setShellSize(false);
 		ldDia.createSndTypeList(topGp);
 		
 		btnGp = new Group(topGp, SWT.SHADOW_ETCHED_IN);
 		btnGp.setText("File Type");
-
+		btnGp.setFont(newFont);
 		uairBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		uairBtn.setText(FILE_UAIR);
 		uairBtn.setEnabled( true );
 		uairBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, btnGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		
+		uairBtn.setFont(newFont);
 		uairBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {   
 				sndTimeList.removeAll();
@@ -182,7 +192,7 @@ public class ObservedSoundingDialogContents {
 		bufruaBtn.setText(FILE_BUFRUA);
 		bufruaBtn.setEnabled( true );
 		bufruaBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, uairBtn.getBounds().y + uairBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		bufruaBtn.setFont(newFont);
 		bufruaBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {    
 				sndTimeList.removeAll();
@@ -216,13 +226,13 @@ public class ObservedSoundingDialogContents {
 				sndTimeList.removeAll();
 				currentSndType = NcSoundingProfile.ObsSndType.DROP;
 			}          		            	 	
-		} ); */
+		} ); 
 		tamBtn = new Button(btnGp, SWT.RADIO | SWT.BORDER);
 		tamBtn.setText(FILE_TAMDAR);
 		tamBtn.setEnabled( false );
 		tamBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, bufruaBtn.getBounds().y + bufruaBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
 		//tamBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, ncuairBtn.getBounds().y + ncuairBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		tamBtn.setFont(newFont);
 		tamBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {  
 				sndTimeList.removeAll();
@@ -233,19 +243,20 @@ public class ObservedSoundingDialogContents {
 		browseBtn.setText(FILE_BROWSE);
 		browseBtn.setEnabled( false );
 		browseBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, tamBtn.getBounds().y + tamBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-
+		browseBtn.setFont(newFont);
 		browseBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {    
 				sndTimeList.removeAll();
 				currentSndType = NcSoundingProfile.ObsSndType.BROWSE;
 			}          		            	 	
-		} );  
-		
-		timeBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
+		} );  */
+		midGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
+		midGp.setLayout( new GridLayout( 2, false ) );
+		timeBtn = new Button(midGp, SWT.CHECK | SWT.BORDER);
 		timeBtn.setText("00Z and 12Z only");
 		timeBtn.setEnabled( true );
 		//timeBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
-		
+		timeBtn.setFont(newFont);
 		timeBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {    
 				if(timeBtn.getSelection())
@@ -261,9 +272,12 @@ public class ObservedSoundingDialogContents {
 				
 			}          		            	 	
 		} );  
-		rawBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
+		rawBtn = new Button(midGp, SWT.CHECK | SWT.BORDER);
 		rawBtn.setText("raw data");
 		rawBtn.setEnabled( true );
+		rawBtn.setBounds(timeBtn.getBounds().x+timeBtn.getBounds().width, timeBtn.getBounds().y,
+				timeBtn.getBounds().width, timeBtn.getBounds().height);
+		rawBtn.setFont(newFont);
 		rawBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {    
 				if(rawBtn.getSelection())
@@ -275,9 +289,11 @@ public class ObservedSoundingDialogContents {
 		 //create file widget list 
 		sndTimeListGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		sndTimeListGp.setText("Sounding Times:");
+		sndTimeListGp.setFont(newFont);
 		sndTimeList = new org.eclipse.swt.widgets.List(sndTimeListGp, SWT.BORDER | SWT.MULTI| SWT.V_SCROLL  );
-		sndTimeList.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight );
-        //create a selection listener to handle user's selection on list		
+		sndTimeList.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, sndTimeListGp.getBounds().y + NsharpConstants.labelGap, NsharpConstants.listWidth, NsharpConstants.listHeight*7 );
+		sndTimeList.setFont(newFont);
+		//create a selection listener to handle user's selection on list		
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
         	private String selectedSndTime=null;	
     		public void handleEvent (Event e) {   			
@@ -285,16 +301,32 @@ public class ObservedSoundingDialogContents {
     				NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();//NsharpLoadDialog.getAccess().getNsharpMapResource();
     				nsharpMapResource.setPoints(null);
     				selectedTimeList.clear();
+    				ldDia.startWaitCursor();
     				for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
     					selectedSndTime = sndTimeList.getSelection()[i];
     					//System.out.println("selected sounding time is " + selectedSndTime);
     					queryAndMarkStn(selectedSndTime);
     					selectedTimeList.add(selectedSndTime);
     				}
+					ldDia.stopWaitCursor();
+
     				//NsharpMapMouseHandler.getAccess().setSelectedTimeList(selectedTimeList);
     			}
     		}
     	});
+		/*newTabBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
+		newTabBtn.setText("new skewT editor");
+		newTabBtn.setEnabled( true );
+		//newTabBtn.setBounds(btnGp.getBounds().x+ NsharpConstants.btnGapX, browseBtn.getBounds().y + browseBtn.getBounds().height+ NsharpConstants.btnGapY, NsharpConstants.btnWidth,NsharpConstants.btnHeight);
+		newTabBtn.setFont(newFont);
+		newTabBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {    
+				if(newTabBtn.getSelection())
+					newtab = true;
+				else
+					newtab = false;
+			}          		            	 	
+		} ); */ 
 	}
 	public void cleanup(){
 		if(sndTimeList != null){
@@ -316,7 +348,11 @@ public class ObservedSoundingDialogContents {
 			rawBtn.dispose();
 			rawBtn= null;
 		}
-		if(browseBtn != null){
+		if(midGp!= null){
+			midGp.dispose();
+			midGp = null;
+		}
+		/*if(browseBtn != null){
 			browseBtn.removeListener(SWT.MouseUp, browseBtn.getListeners(SWT.MouseUp)[0]);
 			browseBtn.dispose();
 			browseBtn = null;
@@ -328,11 +364,7 @@ public class ObservedSoundingDialogContents {
 			tamBtn.dispose();
 			tamBtn = null;
 		}
-		/*if(ncuairBtn != null){
-			ncuairBtn.removeListener(SWT.MouseUp, ncuairBtn.getListeners(SWT.MouseUp)[0]);
-			ncuairBtn.dispose();
-			ncuairBtn = null;
-		}*/
+		*/
 		if(bufruaBtn != null){
 			bufruaBtn.removeListener(SWT.MouseUp, bufruaBtn.getListeners(SWT.MouseUp)[0]);
 			bufruaBtn.dispose();
@@ -347,6 +379,11 @@ public class ObservedSoundingDialogContents {
 			btnGp.dispose();
 			btnGp = null;
 		}
+		/*if(newTabBtn != null){
+			newTabBtn.removeListener(SWT.MouseUp, newTabBtn.getListeners(SWT.MouseUp)[0]);
+			newTabBtn.dispose();
+			newTabBtn = null;
+		}*/
 		NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
 		ldDia.cleanSndTypeList();
 		if(topGp!= null){

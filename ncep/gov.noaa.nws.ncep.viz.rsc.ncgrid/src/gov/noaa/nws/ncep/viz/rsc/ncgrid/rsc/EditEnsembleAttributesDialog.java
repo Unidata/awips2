@@ -32,7 +32,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Nov,22 2010  352			 X. Guo     Add HILO, HLSYM and move all help functions
  *                                      into NcgridAttributesHelp.java
  * Dec 13 2011  578          G. Hull    added ensembleComponentWeights, and folded the 
- *                                      EnsembleSelectDialog into this one.                                    
+ *                                      EnsembleSelectDialog into this one.
+ * Feb 15 2013               X. Guo     Added skip and filter                                                                         
  * 
  * @author mli
  * @version 1
@@ -42,6 +43,8 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     private RscAttrValue cintString = null;
     private RscAttrValue glevel = null;
     private RscAttrValue gvcord = null;
+    private RscAttrValue skip = null;
+    private RscAttrValue filter = null; 
     private RscAttrValue scale = null;
     private RscAttrValue gdpfun = null;
     private RscAttrValue type = null;
@@ -58,7 +61,8 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     
     private Text glevelText;
     private Text gvcordText;
-    
+    private Text skipText;
+    private Text filterText;    
     private Text scaleText;
     private Text gdpfunText;
     private Text typeText;
@@ -91,6 +95,8 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     	cintString = editedRscAttrSet.getRscAttr("cint");
     	glevel     = editedRscAttrSet.getRscAttr("glevel");
     	gvcord     = editedRscAttrSet.getRscAttr("gvcord");
+    	skip       = editedRscAttrSet.getRscAttr("skip");
+    	filter    = editedRscAttrSet.getRscAttr("filter");
     	scale      = editedRscAttrSet.getRscAttr("scale");
     	gdpfun     = editedRscAttrSet.getRscAttr("gdpfun");
     	type       = editedRscAttrSet.getRscAttr("type");
@@ -163,6 +169,29 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         gvcordText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				gvcord.setAttrValue((String)gvcordText.getText().trim());
+			}
+        });
+        // SKIP
+        Label skipLabel = new Label(gridAttrsComp, SWT.NONE);
+        skipLabel.setText("SKIP:");
+        skipText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        skipText.setLayoutData(new GridData(230, SWT.DEFAULT));
+        skipText.setText((String)skip.getAttrValue());
+        skipText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				skip.setAttrValue((String)skipText.getText().trim());
+			}
+        });
+        
+     // filter
+        Label filterLabel = new Label(gridAttrsComp, SWT.NONE);
+        filterLabel.setText("FILTER:");
+        filterText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        filterText.setLayoutData(new GridData(230, SWT.DEFAULT));
+        filterText.setText((String)filter.getAttrValue());
+        filterText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				filter.setAttrValue((String)filterText.getText().trim());
 			}
         });
         
@@ -378,6 +407,8 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     	if (on) {
     		glevelText.setToolTipText(NcgridAttributesHelp.GlevelToolTipText());
     		gvcordText.setToolTipText(NcgridAttributesHelp.GvcordToolTipText());
+    		skipText.setToolTipText(NcgridAttributesHelp.SkipToolTipText()); 
+    		filterText.setToolTipText(NcgridAttributesHelp.FilterToolTipText());
     		scaleText.setToolTipText(NcgridAttributesHelp.ScaleToolTipText());
     		gdpfunText.setToolTipText(NcgridAttributesHelp.GdpfunToolTipText());
     		typeText.setToolTipText(NcgridAttributesHelp.TypeToolTipText());
@@ -400,6 +431,8 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     	else {
     		glevelText.setToolTipText(null);
     		gvcordText.setToolTipText(null);
+    		skipText.setToolTipText(null);
+    		filterText.setToolTipText(null);
     		scaleText.setToolTipText(null);
     		gdpfunText.setToolTipText(null);
     		typeText.setToolTipText(null);

@@ -53,6 +53,7 @@ public class NsharpShowTextDialog extends Dialog {
 	private Shell shell;
 	private Text text=null;
 	private Group textGp;
+	private Font newFont ;
 	private static boolean iAmClosed;
 	private static String textToSave="";
 	public Text getText() {
@@ -83,7 +84,7 @@ public class NsharpShowTextDialog extends Dialog {
 			fontData[i].setHeight(12);				
 			fontData[i].setName("courier");
 		}
-		Font newFont = new Font(font.getDevice(), fontData);
+		newFont = new Font(font.getDevice(), fontData);
 		text.setFont(newFont);
 		
 	}
@@ -234,6 +235,10 @@ public class NsharpShowTextDialog extends Dialog {
 		
 		//System.out.println("ShowText close called");
 		iAmClosed = true;
+		if(newFont!= null){
+			newFont.dispose();
+			newFont=null;
+		}
 		return (super.close());
 	}
 	public static NsharpShowTextDialog getInstance( Shell parShell){

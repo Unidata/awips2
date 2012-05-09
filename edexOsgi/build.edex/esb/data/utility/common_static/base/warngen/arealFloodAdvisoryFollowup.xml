@@ -5,6 +5,7 @@
                  Mike and Phil 01-25-2012 at CRH TIM
                  Evan Bookbinder 09-16-2011 for OB11.8.0-8
                  Phil Kurimski 03-02-2012 for OB12.1.1-4
+                 Qinglu Lin    04-04-2012 DR 14691. Added <feAreaField> tag.
 -->
 <warngenConfig>
 
@@ -166,6 +167,7 @@
   <areaField>COUNTYNAME</areaField>
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
   <pointField>NAME</pointField>

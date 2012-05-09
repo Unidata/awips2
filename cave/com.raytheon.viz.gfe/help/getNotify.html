@@ -10,7 +10,7 @@
 <body style="background-color: rgb(255, 255, 255);">
 <h1 class="1Heading">
 getNotify User's Guide</h1>
-<div class="1Heading">April 4, 2006<br>
+<div class="1Heading">January 13, 2012<br>
 </div>
 <h2 class="1Heading">
 <a name="TableofContents"></a>Table of Contents</h2>
@@ -25,25 +25,20 @@ getNotify User's Guide</h1>
 <h2 class="1Heading">
 <a name="Overview"></a>Overview</h2>
 <div class="1Heading">The getNotify program is a diagnostic routine to
-connect to the ifpServer, receive notifications of data changes, and
-then
-output the notifications to the terminal window.&nbsp; It is handy for
-diagnosing notifications that are sent from the server.</div>
-<div class="1Heading">
-<hr width="100%"></div>
+connect to awips qpid server, receive notifications of data changes, and
+then output the notifications to the terminal window. It is handy for
+diagnosing notifications that are sent from the server.
+</div><br>
 <div class="1Heading">
 <hr width="100%"></div>
 <h3 class="1Heading">
 <a name="Running"></a>Running the getNotify Program</h3>
-<div class="1Heading">&nbsp;</div>
 <div class="1Heading">The command line syntax is:
 <br>
-<tt>getNotify -h hostname -p portNumber [-u user] [-l] [-g] [-d] [-s]
-[-r] [-c] [-m] [-t] [-b] [-v]<br>
+<tt>python getNotify.py -h hostname -p portNumber [-u user] [-l] [-g] [-d] [-m] [-v]<br><br>
 </tt></div>
 <div class="1Heading">A sample command line is:</div>
-<div class="1Heading"><tt>getNotify -h dx4f -p 98000000 -g</tt></div>
-<div class="1Heading">&nbsp;</div>
+<div class="1Heading"><tt>python getNotify.py -h cpsbn1 -p 5672 -g</tt></div><br>
 <table nosave="" border="1" width="100%">
   <tbody>
     <tr>
@@ -54,18 +49,17 @@ diagnosing notifications that are sent from the server.</div>
     <tr>
       <td>-h hostname</td>
       <td>Mandatory (See note)</td>
-      <td>Specifies the host, upon which the ifpServer is running</td>
+      <td>Specifies the host, upon which the awips qpid server is running</td>
     </tr>
     <tr>
       <td>-p port</td>
       <td>Mandatory (See note)</td>
-      <td>Specifies the port, upon which the ifpServer is running</td>
+      <td>Specifies the port, upon which the awips qpid server is running</td>
     </tr>
     <tr>
       <td>-u user</td>
       <td>Optional</td>
-      <td>Specifies the user on connection to the ifpServer.&nbsp;
-Defaults to
+      <td>Specifies the user on connection to the awips qpid server. Defaults to
 the current UNIX login name.</td>
     </tr>
     <tr>
@@ -88,45 +82,10 @@ inventory
 change notifications.</td>
     </tr>
     <tr>
-      <td>-s</td>
-      <td>Optional</td>
-      <td>If specified, outputs detailed information about sample set
-notifications.</td>
-    </tr>
-    <tr>
-      <td>-r</td>
-      <td>Optional</td>
-      <td>If specified, outputs detailed information about edit area
-(reference
-set) notifications.</td>
-    </tr>
-    <tr>
-      <td>-c</td>
-      <td>Optional</td>
-      <td>If specified, outputs detailed information about color table
-notifications.</td>
-    </tr>
-    <tr>
       <td>-m</td>
       <td>Optional</td>
       <td>If specified, outputs detailed information about user message
 notifications.</td>
-    </tr>
-    <tr>
-      <td>-t</td>
-      <td>Optional</td>
-      <td>If specified, outputs detailed information about TEXT data
-notifications.<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">-b<br>
-      </td>
-      <td style="vertical-align: top;">Optional<br>
-      </td>
-      <td style="vertical-align: top;">If specified, outputs detailed
-information about the Server Process Notifications.<br>
-      </td>
     </tr>
     <tr>
       <td style="vertical-align: top;">-v<br>
@@ -139,58 +98,35 @@ information about the VTEC Table Change Notifications.<br>
     </tr>
   </tbody>
 </table>
-<font color="#3366ff">Note:&nbsp;The -h serverhost and -p port are
-predefined
-based on your installation configration of GFESuite.&nbsp; The -h and
--p
-will be defined for the server host and port specified during
-installation.&nbsp;
-If you wish to connect to another server, then these switches will be
-necessary.</font><font color="#3366ff">&nbsp; If environment variables
-${CDSHOST} or
-${CDSPORT} are defined, then the default server and port will be
-determined from the environment variables, unless overridden with the
-user specified -h and -p switches.</font>
 <div class="1Heading">
 <hr width="100%"></div>
-<br>
-&nbsp;
 <h3 class="1Heading"><a name="ExampleData"></a>Example Data</h3>
 <div class="1Heading">The following shows some example output and how
 it
-is interpreted.&nbsp; This example uses just the -h and -p switches so
+is interpreted. This example uses just the -h and -p switches so
 the program output simply lists the number of received notifications.
 <br>
-&nbsp;
 <h4>Basic Execution</h4>
-<b><tt>getNotify -h polaris -p 98000000</tt></b>
-<p><b><tt>camper &gt; getNotify -h polaris -p 98000000</tt></b>
-<br>
-<b><tt>14:47:19.154 Client.C 146 EVENT: Establishing connection to
-server on polaris</tt></b>
-<br>
-<b><tt>14:47:19.175 Client.C 161 EVENT: Connection complete to server
-on polaris</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,</tt></b><br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b><br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b><br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b><br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
-<br>
-<b><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,</tt></b><b><tt>U=0,B=0,V=0,</tt></b>
+<p><b><tt>dx3-nhda{jdynina}112: python getNotify.py -h cpsbn1 -p 5672<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=42,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=25,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=85,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=38,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=29,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=38,D=0,S=0,R=0,C=0,T=0,U=1,B=0,V=0,<br>
+L=0,G=9,D=0,S=0,R=0,C=0,T=0,U=1,B=0,V=0,<br>
+L=0,G=3,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=3,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=53,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=14,D=0,S=0,R=0,C=0,T=0,U=1,B=0,V=0,<br>
+L=0,G=65,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+</tt></b>
 </p>
 <p>The following table describes the symbol and its meaning:
 <br>
@@ -210,30 +146,8 @@ on polaris</tt></b>
       <td>Database Inventory Change Notifications</td>
     </tr>
     <tr>
-      <td>S</td>
-      <td>Sample Set Notifications</td>
-    </tr>
-    <tr>
-      <td>R</td>
-      <td>Edit Area (Reference Set) Notifications</td>
-    </tr>
-    <tr>
-      <td>C</td>
-      <td>Color Table Notifications</td>
-    </tr>
-    <tr>
-      <td>T</td>
-      <td>Text Notifications (tools, procedures)</td>
-    </tr>
-    <tr>
       <td>M</td>
       <td>User Message Notifications</td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">B<br>
-      </td>
-      <td style="vertical-align: top;">Server Process Notifications<br>
-      </td>
     </tr>
     <tr>
       <td style="vertical-align: top;">V<br>
@@ -244,541 +158,167 @@ on polaris</tt></b>
   </tbody>
 </table>
 <br>
-&nbsp;
-<br>
-&nbsp;
+<p><b>Note:</b> For AWIPS2, a decision was made to not support the following notification 
+types:<br><br> 
+*SampleNotification<br>
+*ReferenceNotification<br> 
+*ColorSpectrumNotification<br> 
+*TextFileNotification<br> 
+*ProcessStatusNotification<br><br> 
+because of the architectural 
+differences between AWIPS1 and AWIPS2, these specific notifications will not 
+be supported by getNotify.</p>
 </p>
 <h4>Execution with -l switch</h4>
 The lock notification message contains the weather element identifier
-(ParmID),
-and the new lockTable.
-<p><tt>getNotify -h polaris -p 98000000 -l -g</tt>
+(ParmID), and the new lockTable. Note, no locks were detected in this case.
+<p><tt>dx3-nhda{jdynina}113: python getNotify.py -h cpsbn1 -p 5672 -l<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=13,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=9,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=8,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=8,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+</tt>
 <br>
-<tt>15:01:29.779 Client.C 146 EVENT: Establishing connection to server
-on polaris</tt>
-<br>
-<tt>15:01:29.801 Client.C 161 EVENT: Connection complete to server
-on polaris</tt>
-</p>
-<p><tt>L=1,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>LOCK=[TimeOnQueue: 0.000287 PostedTime: Jan 22 02 15:02:27 GMT
-Updater: 389696393:mark:gfe:20941:0</tt>
-<br>
-<tt>ParmID: MaxT_SFC:BOU_GRID__Fcst_00000000_0000</tt>
-<br>
-<tt>ParmId: MaxT_SFC:BOU_GRID__Fcst_00000000_0000 LockTable WsId:
-389696393:mark:getNotify:20939:0</tt>
-<br>
-<tt>&nbsp;&nbsp; Lock: TR: (Jan 24 02 10:00:00 GMT, Jan 25 02 04:00:00
-GMT) WsId: 389696393:mark:gfe:20941:0</tt>
-</p>
-<p><tt>&nbsp;]</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-&nbsp;
 </p>
 <h4>Execution with -g switch</h4>
 The grid update notification message contains the replacement time
 range,
 the weather element identifier (ParmID), and the replacement times of
-the
-grids.
-<p><tt>getNotify -h polaris -p 98000000&nbsp; -g</tt>
+the grids.
+<p><tt>dx3-nhda{jdynina}115: python getNotify.py -h cpsbn1 -p 5672 -g<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=21,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+GRID=[<br>
+ParmID: WVPER_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Replacement TimeRange: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 )<br>
+Histories: {(Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ): [Origin: INITIALIZED<br>
+Origin Parm: WVPER_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Origin Time Range: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ) Time Modified: None Who Modified: None<br>
+Update Time: None<br>
+Publish Time: None<br>
+Last Sent Time: None<br>
+]},<br>
+ParmID: PERPW_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Replacement TimeRange: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 )<br>
+Histories: {(Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ): [Origin: INITIALIZED<br>
+Origin Parm: PERPW_SFC:LWX_GRID_D2D_EPwave10_20120113_1200<br>
+Origin Time Range: (Jan 20 12 12:00:00 , Jan 20 12 13:00:00 ) Time Modified: None Who Modified: None<br>
+Update Time: None<br>
+Publish Time: None<br>
+Last Sent Time: None<br>
+]}</tt>
 <br>
-<tt>15:01:29.779 Client.C 146 EVENT: Establishing connection to server
-on polaris</tt>
-<br>
-<tt>15:01:29.801 Client.C 161 EVENT: Connection complete to server
-on polaris</tt>
-</p>
-<p><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-</p>
-<p><tt>L=1,G=1,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-</p>
-<p><tt>GRID=[TimeOnQueue: 0.000493 PostedTime: Jan 22 02 15:02:30 GMT
-Updater:
-389696393:mark:gfe:20941:0</tt>
-<br>
-<tt>ParmID: MaxT_SFC:BOU_GRID__Fcst_00000000_0000</tt>
-<br>
-<tt>Replacement TimeRange: (Jan 24 02 10:00:00 GMT, Jan 25 02 04:00:00
-GMT)</tt>
-<br>
-<tt>Replacement Times: [(Jan 24 02 10:00:00 GMT, Jan 25 02 04:00:00
-GMT) ]</tt>
-<br>
-<tt>&nbsp;]</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-&nbsp;
 </p>
 <h4>Execution with -d switch</h4>
 The database inventory change notification message contains the updated
 inventory, the additions, deletions.
-<p><tt>L=0,G=0,D=1,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>DB=[TimeOnQueue: 0.00056 PostedTime: Jan 22 02 16:08:10 GMT
-Updater:
-2688174985:afps:ifpServer:26672:0</tt>
-<br>
-<tt>Inventory: [BOU_GRID__Official_00000000_0000,
-BOU_GRID__Fcst_00000000_0000,
-BOU_GRID__ISC_00000000_0000, BOU_GRID__LAPS_00000000_0000,
-BOU_GRID_D2D_MRF_20020120_0000,
-BOU_GRID__MRF_20020120_0000,
-BOU_GRID_D2D_GWW_20020121_0000,
-BOU_GRID_D2D_MRF_20020121_0000,
-BOU_GRID__MRF_20020121_0000,
-BOU_GRID_D2D_NGM_20020121_1200,
-BOU_GRID__NGM_20020121_1200,
-BOU_GRID_D2D_ETA_20020121_1200,
-BOU_GRID__NAM_20020121_1200,
-BOU_GRID_D2D_GWW_20020121_1200,
-BOU_GRID_D2D_MESOETAU_20020121_1800, BOU_GRID__MesoNAM_20020121_1800,
-BOU_GRID_D2D_MESOETAS_20020121_1800, BOU_GRID_D2D_AVN_20020121_1800,
-BOU_GRID__AVN_20020121_1800,
-BOU_GRID__RUC_20020121_2100,
-BOU_GRID_D2D_RUC_20020121_2200,
-BOU_GRID_D2D_MAPSNationalSurfaceAnalysis_20020122_0100,
-BOU_GRID_D2D_RUC_20020122_0000,
-BOU_GRID__RUC_20020122_0000,
-BOU_GRID_D2D_NGM_20020122_0000,
-BOU_GRID__NGM_20020122_0000,
-BOU_GRID_D2D_ETA_20020122_0000, BOU_GRID__NAM_20020122_0000,
-BOU_GRID_D2D_MESOETAU_20020122_0000, BOU_GRID__MesoNAM_20020122_0000,
-BOU_GRID_D2D_MESOETAS_20020122_0000,
-BOU_GRID_D2D_MAPSNationalSurfaceAnalysis_20020122_0400,
-BOU_GRID_D2D_AVN_20020122_0000, BOU_GRID__AVN_20020122_0000,
-BOU_GRID_D2D_LAPS_20020122_1300, BOU_GRID_D2D_LAPS_20020122_1500 ]</tt>
-<br>
-<tt>Additions: [ ]</tt>
-<br>
-<tt>Deletions: [BOU_GRID_D2D_LAPS_20020122_1200,
-BOU_GRID_D2D_LAPS_20020122_1100
+<p><tt>dx3-nhda{jdynina}116: python getNotify.py -h cpsbn1 -p 5672 -d<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=60,D=1,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+DB=[<br>
+Inventory[AFC_GRID__Restore_00000000_0000,<br>
+AFC_GRID_Test_Fcst_00000000_0000, AFC_GRID__ISC_00000000_0000,<br> 
+AFC_GRID__RTMA_00000000_0000, AFC_GRID__SAT_00000000_0000, AFC_GRID__MSAS_00000000_0000,<br> 
+AFC_GRID__Official_00000000_0000, AFC_GRID__Fcst_00000000_0000,<br>
+AFC_GRID_Prac_Fcst_00000000_0000, AFC_GRID__LAPS_00000000_0000, AFC_GRID__AKWAVE_20120113_0000,<br> 
+AFC_GRID__AKWAVE_20120113_0600, AFC_GRID__MOSGuide_20120112_1200,<br>
+AFC_GRID__MOSGuide_20120113_0000, AFC_GRID__NAM12_20120113_0000, AFC_GRID__NAM12_20120113_0600,<br> 
+AFC_GRID__NamDNG5_20120113_0000, AFC_GRID__NamDNG5_20120113_0600,<br>
+AFC_GRID_D2D_NAM40_20120113_1200, AFC_GRID_D2D_UKMET-NorthernHemisphere_20120113_1200,<br> 
+AFC_GRID_D2D_TPCProb_20120113_1200, AFC_GRID_D2D_AKWAVE_20120113_0000,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120111_0000, AFC_GRID_D2D_NAM20_20120113_1200,<br>
+AFC_GRID_D2D_ENSEMBLE_20120113_0000, AFC_GRID_D2D_NAM95_20120113_0000,<br>
+AFC_GRID_D2D_TPCProb_20120112_0000, AFC_GRID_D2D_TPCProb_20120113_0000,<br>
+AFC_GRID_D2D_gfsLR_20120113_0000, AFC_GRID_D2D_MOSGuide_20120112_1200,<br>
+AFC_GRID_D2D_TPCProb_20120112_0600, AFC_GRID_D2D_RTMA_20120113_1400,<br>
+AFC_GRID_D2D_TPCProb_20120111_1800, AFC_GRID_D2D_GlobalWave_20120113_0600,<br> 
+AFC_GRID_D2D_OPCTAFBNW_20120113_1200, AFC_GRID_D2D_NAM95_20120113_1200,<br>
+AFC_GRID_D2D_GFS190_20120113_0600, AFC_GRID_D2D_GFS190_20120113_1200,<br>
+AFC_GRID_D2D_TPCProb_20120112_1800, AFC_GRID_D2D_gfsLR_20120112_0000,<br>
+AFC_GRID_D2D_ENSEMBLE_20120112_1200, AFC_GRID_D2D_GlobalWave_20120113_1200,<br> 
+AFC_GRID_D2D_GWW233_20120113_0600, AFC_GRID_D2D_RTMA_20120113_1500,<br>
+AFC_GRID_D2D_TPCProb_20120112_1200, AFC_GRID_D2D_NamDNG5_20120113_1200,<br> 
+AFC_GRID_D2D_AKWAVE_20120113_0600, AFC_GRID_D2D_OPCTAFBNW_20120113_0000,<br>
+AFC_GRID_D2D_GFS190_20120113_0000, AFC_GRID_D2D_MOSGuide_20120113_0000,<br>
+AFC_GRID_D2D_NamDNG5_20120113_0600, AFC_GRID_D2D_gfsLR_20120111_0000,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120111_1200, AFC_GRID_D2D_NAM12_20120113_1200,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120112_1200, AFC_GRID_D2D_OPCTAFBNW_20120112_0000,<br> 
+AFC_GRID_D2D_OPCTAFBNW_20120108_1200, AFC_GRID_D2D_TPCProb_20120113_0600,<br>
+AFC_GRID_D2D_OPCTAFBNW_20120109_0000, AFC_GRID_D2D_UKMET-NorthernHemisphere_20120113_0600,<br> 
+AFC_GRID_EditTopo_Topo_00000000_0000, AFC_GRID_D2D_PRISMClimo_00000000_0000,<br>
+AFC_GRID_D2D_NCDCClimo_00000000_0000, AFC_GRID_D2D_CRMTopo_00000000_0000,<br>
+AFC_GRID_D2D_NED_00000000_0000, AFC_GRID_D2D_AKWAVE_20120113_1200]<br>
+Additions[AFC_GRID_D2D_AKWAVE_20120113_1200]<br>
+Deletions[],<br>
 ]</tt>
 <br>
-<tt>&nbsp;]</tt>
 <br>
-&nbsp;
-</p>
-<h4>Execution with -s switch</h4>
-The sample set notification message contains the updated inventory, the
-additions, deletions, and changes that occurred.&nbsp; Each entry is
-defined
-by a name, a protection (p) field, and an access code (0-BASE, 1-SITE,
-2-USER).
-<p><tt>camper &gt; getNotify -h polaris -p 98000000 -u mark&nbsp; -r</tt>
-<br>
-<tt>15:05:03.724 Client.C 146 EVENT: Establishing connection to server
-on polaris</tt>
-<br>
-<tt>15:05:03.737 Client.C 161 EVENT: Connection complete to server
-on polaris</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=1,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=1,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>SAMPLE=[TimeOnQueue: 0.000321 PostedTime: Jan 22 02 15:05:27 GMT
-Updater: 389696393:mark:gfe:20941:0</tt>
-<br>
-<tt>Inventory: [(test,P=0,A=3) ]</tt>
-<br>
-<tt>Additions: [(test,P=0,A=3) ]</tt>
-<br>
-<tt>Deletions: [ ]</tt>
-<br>
-<tt>Changes: [ ]</tt>
-<br>
-<tt>&nbsp;]</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-&nbsp;
-<br>
-&nbsp;
-</p>
-<h4>Execution with -r switch</h4>
-The edit area (reference set) notification message contains the updated
-inventory, the additions, deletions, and changes that occurred.&nbsp;
-Each
-entry is defined by a name, a protection (p) field, and an access code
-(0-BASE, 1-SITE, 2-USER).
-<p><tt>getNotify -h polaris -p 98000000 -u mark -r</tt>
-<br>
-<tt>15:06:51.755 Client.C 146 EVENT: Establishing connection to server
-on polaris</tt>
-<br>
-<tt>15:06:51.768 Client.C 161 EVENT: Connection complete to server
-on polaris</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=1,C=0,T=0,M=0</tt>
-<br>
-<tt>REF=[TimeOnQueue: 0.000288 PostedTime: Jan 22 02 15:07:18 GMT
-Updater:
-389696393:mark:gfe:20941:0</tt>
-<br>
-<tt>Inventory: [(ABQ,P=0,A=1), (AMA,P=0,A=1), (BOU,P=0,A=1),
-(CO_030,P=0,A=1),
-(CO_031,P=0,A=1), (CO_032,P=0,A=1), (CO_033,P=0,A=1), (CO_034,P=0,A=1),
-(CO_035,P=0,A=1), (CO_036,P=0,A=1), (CO_037,P=0,A=1), (CO_038,P=0,A=1),
-(CO_039,P=0,A=1), (CO_040,P=0,A=1), (CO_041,P=0,A=1), (CO_042,P=0,A=1),
-(CO_043,P=0,A=1), (CO_044,P=0,A=1), (CO_045,P=0,A=1), (CO_046,P=0,A=1),
-(CO_047,P=0,A=1), (CO_048,P=0,A=1), (CO_049,P=0,A=1), (CO_050,P=0,A=1),
-(CO_051,P=0,A=1), (CO_Adams,P=0,A=1), (CO_Arapahoe,P=0,A=1),
-(CO_Boulder,P=0,A=1),
-(CO_ClearCreek,P=0,A=1), (CO_Denver,P=0,A=1), (CO_Douglas,P=0,A=1),
-(CO_Elbert,P=0,A=1),
-(CO_Gilpin,P=0,A=1), (CO_Grand,P=0,A=1), (CO_Jackson,P=0,A=1),
-(CO_Jefferson,P=0,A=1),
-(CO_Larimer,P=0,A=1), (CO_Lincoln,P=0,A=1), (CO_Logan,P=0,A=1),
-(CO_Morgan,P=0,A=1),
-(CO_Park,P=0,A=1), (CO_Phillips,P=0,A=1), (CO_Sedgwick,P=0,A=1),
-(CO_Summit,P=0,A=1),
-(CO_Washington,P=0,A=1), (CO_Weld,P=0,A=1), (CYS,P=0,A=1),
-(Colorado,P=0,A=1),
-(DDC,P=0,A=1), (GJT,P=0,A=1), (GLD,P=0,A=1), (ISC_Area,P=0,A=1),
-(ISC_Send_Area,P=0,A=1),
-(Kansas,P=0,A=1), (LBF,P=0,A=1), (Nebraska,P=0,A=1),
-(NewMexico,P=0,A=1),
-(Oklahoma,P=0,A=1), (PUB,P=0,A=1), (RIW,P=0,A=1),
-(SouthDakota,P=0,A=1),
-(Texas,P=0,A=1), (Wyoming,P=0,A=1), (QuickSet4,P=0,A=3) ]</tt>
-<br>
-<tt>Additions: [(QuickSet4,P=0,A=3) ]</tt>
-<br>
-<tt>Deletions: [ ]</tt>
-<br>
-<tt>Changes: [ ]</tt>
-<br>
-<tt>&nbsp;]</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-&nbsp;
-</p>
-<h4>Execution with -c switch</h4>
-The color table notification message contains the updated inventory,
-the
-additions, deletions, and changes that occurred.&nbsp; Each entry is
-defined
-by a name, a protection (p) field, and an access code (0-BASE, 1-SITE,
-2-USER).
-<p>&nbsp;<tt>getNotify -h polaris -p 98000000 -u mark -m -c</tt>
-<br>
-<tt>15:08:14.847 Client.C 146 EVENT: Establishing connection to server
-on polaris</tt>
-<br>
-<tt>15:08:14.861 Client.C 161 EVENT: Connection complete to server
-on polaris</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=1,T=0,M=0</tt>
-<br>
-<tt>COLOR=[TimeOnQueue: 0.000312 PostedTime: Jan 22 02 15:08:38 GMT
-Updater: 389696393:mark:gfe:20941:0</tt>
-<br>
-<tt>Inventory: [(Cloud,P=0,A=1), (Discrepancy,P=0,A=1), (Gridded
-Data,P=0,A=1),
-(Hi Range Enhanced,P=0,A=1), (Linear,P=0,A=1), (Low Range
-Enhanced,P=0,A=1),
-(Mid Range Enhanced,P=0,A=1), (Prob Precip,P=0,A=1), (QPF,P=0,A=1),
-(SLCWV,P=0,A=1),
-(Steps,P=0,A=1), (Warm To Cold,P=0,A=1), (WaterColor,P=0,A=1),
-(newTest,P=0,A=3)
-]Additions: [(newTest,P=0,A=3) ]</tt>
-<br>
-<tt>Deletions: [ ]</tt>
-<br>
-<tt>Changes: [ ]</tt>
-<br>
-<tt>&nbsp;]</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-&nbsp;
-<br>
-&nbsp;
-</p>
-<h4>Execution with -t switch</h4>
-Example output when using the -t switch:
-<p><tt>camper &gt; getNotify -h polaris -p 98000000 -u mark1 -t</tt>
-<br>
-<tt>14:52:53.585 Client.C 146 EVENT: Establishing connection to server
-on polaris</tt>
-<br>
-<tt>14:52:53.598 Client.C 161 EVENT: Connection complete to server
-on polaris</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
-<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=1,M=0</tt>
-<br>
-<tt>TEXT=[TimeOnQueue: 0.000276 PostedTime: Jan 22 02 14:52:59 GMT
-Updater: 0:::0:0</tt>
-<br>
-<tt>Category: UserPython</tt>
-<br>
-<tt>Inventory: [(n=AdjustValue_Down,c=UserPython,p=1,a=1),
-(n=Show_ISC_Area,c=UserPython,p=0,a=1),
-(n=WindChillTool,c=UserPython,p=0,a=1),
-(n=SnowAmt_SmartTool,c=UserPython,p=0,a=1),
-(n=Show_ISC_Grid,c=UserPython,p=0,a=1),
-(n=Forecast,c=UserPython,p=1,a=1),
-(n=Discrepancy_Value_Grid,c=UserPython,p=0,a=1),
-(n=Translator,c=UserPython,p=0,a=1),
-(n=HeatIndexTool,c=UserPython,p=0,a=1),
-(n=QPF_SmartTool,c=UserPython,p=0,a=1),
-(n=MinT_SmartTool,c=UserPython,p=0,a=1),
-(n=Holidays,c=UserPython,p=0,a=1),
-(n=AdjustValue_Up,c=UserPython,p=1,a=1),
-(n=QPF_SnowAmt,c=UserPython,p=0,a=1),
-(n=WxMethods,c=UserPython,p=1,a=1), (n=RHTool,c=UserPython,p=0,a=1),
-(n=AnalysisMethods,c=UserPython,p=1,a=1),
-(n=ISC_Utility,c=UserPython,p=0,a=1),
-(n=Assign_Value,c=UserPython,p=1,a=1),
-(n=Show_ISC_Highlights,c=UserPython,p=0,a=1),
-(n=MaxT_SmartTool,c=UserPython,p=0,a=1),
-(n=Smooth,c=UserPython,p=1,a=1),
-(n=ISC_Discrepancies,c=UserPython,p=0,a=1),
-(n=TextRulesMethods,c=UserPython,p=1,a=1),
-(n=ISC_Tool,c=UserPython,p=0,a=2),
-(n=SmartScript,c=UserPython,p=1,a=1) ]</tt>
-<br>
-<tt>Additions: [(n=ISC_Tool,c=UserPython,p=0,a=2) ]</tt>
-<br>
-<tt>Deletions: [(n=ISC_Tool,c=UserPython,p=0,a=3) ]</tt>
-<br>
-<tt>Changes: [(n=ISC_Tool,c=UserPython,p=0,a=3) ]</tt>
-<br>
-<tt>&nbsp;]</tt>
-</p>
-<p>Each text notification is output.&nbsp; The information contained
-within
-the notification is the text category, the updated inventory, the
-additions,
-deletions, and changes that occurred.&nbsp; Each entry is defined by a
-name, a category, a protection (p) field, and an access code (0-BASE,
-1-SITE,
-2-USER).
-<br>
-&nbsp;
 </p>
 <h4>Execution with -m switch</h4>
 The user message notification consists of the message, and the
 priority.
-<p><tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0</tt>
+<p><tt>dx3-nhda{jdynina}117: python getNotify.py -h cpsbn1 -p 5672 -m<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=7,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=8,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=15,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=11,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=6,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+USER=[<br>
+Message: ISC: PBZ ['MinT'] (21/00->21/13) #Grids=1<br>
+Priority: EVENTA<br>
+Category: ISC<br>
+,<br>
+]
+</tt>
 <br>
-<tt>L=3,G=24,D=0,S=0,R=0,C=0,T=0,M=1</tt>
 <br>
-<tt>USER=[TimeOnQueue: 0.00016 PostedTime: Jan 22 02 16:22:19 GMT
-Updater:
-2688174985:afps:ifpInit:31108:0</tt>
-<br>
-<tt>Message: Model Data Arrived: LAPS (BOU) #Grids=3</tt>
-<br>
-<tt>Priority: 0</tt>
-<br>
-<tt>&nbsp;]</tt>
-<br>
-&nbsp;
-<br>
-</p>
-<h4>Execution with -b switch</h4>
-The server process notification consists of the queue entries and
-status.&nbsp; For processes that are marked "Finished", the output from
-standard out and standard err is part of the notification.&nbsp; In
-this example, ifpIMAGE was run on the ifpServer and an error
-occurred.&nbsp;&nbsp; The output from standard out and standard err is
-in blue.<br>
-<p><span style="font-family: monospace;">15:52:20.073
-getNotify.C 136 EVENT: L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0,B=1</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">15:52:20.074 getNotify.C 158
-EVENT: PROC=[TimeOnQueue: 0.000847 PostedTime: May</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">13 04 15:52:20 GMT Updater:
-2688174985:afps:ifpServer:31720:0</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">ProcStat: [Finished UIname: Png
-Images... CmdLine: ifpIMAGE -u SITE -h polaris -p 98000000 -c gfeConfig
--o /localhost/home/afps/release/products/IMAGE Id: 1 Originator:
-389696393:mark:gfe:13731:0 QueueTime: May 13 04 15:52:19 GMT StartTime:
-May 13 04 15:52:19 GMT QueueTime: 0 EndTime: May 13 04 15:52:24 GMT
-RunTime: 5</span><br style="font-family: monospace;">
-<span style="font-family: monospace;">Output: <span
- style="color: rgb(51, 51, 255);">ifpIMAGE 305 15:52:20.056
-PngWriter.py 577 EVENT:&nbsp; ifpIMAGE Starting</span></span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.060 PngWriter.py 580 EVENT:&nbsp; Build Date: Wed May 12
-01:37:43 2004 Built By: mark Built On: camper.fsl.noaa.gov (linux2)
-Version: IFPS16 (ver. c) 05/11/04</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.098 Client.C 163 EVENT: Establishing connection to server</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">on
-polaris:98000000 ver=20040422</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.109 Client.C 183 EVENT: Connection complete to server on
-polaris</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.190 Config.C 250 EVENT: Config::findFile(): initializing
-from python module: gfeConfig</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.193 DBSubsystem.C 216 EVENT: Server Host: polaris Port:
-98000000</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.194 DBSubsystem.C 218 EVENT: Username: SITE</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.195 DBSubsystem.C 220 EVENT: Build Date: Wed May 12
-01:37:43 2004</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.197 DBSubsystem.C 221 EVENT: Built By: mark</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.198 DBSubsystem.C 222 EVENT: Built On: camper.fsl.noaa.gov
-(linux2)</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.199 DBSubsystem.C 223 EVENT: Version: IFPS16 (ver. c)
-05/11/04</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.263 Client.C 163 EVENT: Establishing connection to server</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">on
-polaris:98000000 ver=20040422</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.270 Client.C 183 EVENT: Connection complete to server on
-polaris</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.277 NetworkMgr.C 125 EVENT: Site Identifier: BOU</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.279 NetworkMgr.C 139 EVENT: Site TimeZone: MST7MDT</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.280 NetworkMgr.C 160 EVENT: Mutable Database:
-BOU_GRID__Fcst_00000000_0000</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.282 NetworkMgr.C 163 EVENT: Viewable Databases types: [,
-D2D, V ]</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.288 NetworkMgr.C 167 EVENT: My Workstation ID:
-SITE@polaris.fsl.noaa.gov:ifpIMAGE:305:0</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:20.291 NetworkMgr.C 168 EVENT: Network Protocol Version:
-[20040422 ]</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:24.650 PngWriter.py 35 EVENT:&nbsp; Configuration File:&nbsp;
-gfeConfigifpIMAGE 305 15:52:24.745 PngWriter.py 320 PROBLEM:&nbsp;
-Png_parms missing or empty</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">ifpIMAGE
-305 15:52:24.751 PngWriter.py 634 BUG:&nbsp; Traceback (most recent
-call last):</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">&nbsp;&nbsp;
-File "./gfe/ui/PngWriter.py", line 632, in main</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">&nbsp;&nbsp;
-File "./gfe/ui/PngWriter.py", line 398, in paint</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">&nbsp;&nbsp;
-File "./gfe/ui/PngWriter.py", line 60, in getParms</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">&nbsp;&nbsp;
-File "./gfe/ui/PngWriter.py", line 321, in initParms</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">&nbsp;UserWarning:
-Png_parms missing or empty</span><br
- style="font-family: monospace; color: rgb(51, 51, 255);">
-<span style="font-family: monospace; color: rgb(51, 51, 255);">&nbsp;</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;]</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">&nbsp;]</span><br
- style="font-family: monospace;">
-<span style="font-family: monospace;">15:52:23.102 getNotify.C 136
-EVENT: L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0,B=0</span><br>
-&nbsp;<br>
 </p>
 <h4>Execution with -v switch</h4>
 The vtec table change notification consists of the table name,
 modification time, and modification source:<br>
-<tt>L=0,G=0,D=0,S=0,R=0,C=0,T=0,M=0,V=0,</tt><br>
-<tt>L=3,G=24,D=0,S=0,R=0,C=0,T=0,M=0,V=0,</tt><br>
-<tt>TableName: active</tt><br>
-<tt>ModTime: Nov 11 2004 13:45:20 GMT</tt><br>
-<tt>ModSource: VTECDecoder</tt><br>
-&nbsp;<tt>]</tt>
+<tt>dx3-nhda{jdynina}118: python getNotify.py -h cpsbn1 -p 5672 -v<br>
+Get Notifications Diagnostic Program<br>
+Establishing connection to broker on cpsbn1<br>
+Establishing connection to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+Connection complete to broker on cpsbn1<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+L=0,G=0,D=0,S=0,R=0,C=0,T=0,U=0,B=0,V=0,<br>
+VTEC=[<br>
+Table Name: 'OPERATIONAL'<br>
+ModTime: Jan 13 12 16:54:25 GMT<br>
+ModSource: VTECDecoder,<br>
+]
+</tt>
 <br>
-&nbsp;
 <br>
-<h4><br>
-</h4>
-<p><br>
-</p>
 </div>
 </body>
 </html>
