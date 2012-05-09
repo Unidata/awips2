@@ -41,6 +41,7 @@ import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.Roster;
 import org.eclipse.ecf.presence.roster.RosterEntry;
+import org.eclipse.ecf.presence.roster.RosterGroup;
 import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -101,7 +102,7 @@ public class CollaborationUtils {
         UserId[] ids = getIds();
         Roster roster = (Roster) CollaborationDataManager.getInstance()
                 .getCollaborationConnection().getRosterManager().getRoster();
-        Collection rosterObjects = new ArrayList<Object>();
+        Collection<?> rosterObjects = new ArrayList<Object>();
         rosterObjects.addAll(roster.getItems());
         for (Object ob : rosterObjects) {
             if (ob instanceof IRosterEntry) {
@@ -125,6 +126,7 @@ public class CollaborationUtils {
                         UserId sId = IDConverter.convertFrom(entry.getUser());
                         if (sId.equals(id)) {
                             sId.setAlias(id.getAlias());
+                            ((RosterGroup) ob).remove(entry);
                             entry = new RosterEntry(entry.getParent(), sId,
                                     entry.getPresence());
                             break;
