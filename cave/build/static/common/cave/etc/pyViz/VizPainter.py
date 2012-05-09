@@ -54,7 +54,7 @@ class VizPainter():
                 
         self.target = GLTargetProxy.constructOffScreenTarget(imageWidth, imageHeight)
         self.target.init()
-        
+        self.display.setup(self.target)
     
     def __del__(self):
         resources = self.getDescriptor().getResourceList()
