@@ -5,66 +5,49 @@
  content="text/html; charset=iso-8859-1">
   <meta name="GENERATOR"
  content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
-  <title>0.0.1 StatusBar</title>
+  <title>AlertViz Monitor</title>
 </head>
 <body style="background-color: rgb(255, 255, 255);">
 <h1 class="3Heading">
-<a name="StatusBar"></a>GFE Status Bar</h1>
-January 27, 2009<br>
+<a name="StatusBar"></a>AlertViz</h1>
+February 17, 2012<br>
 <hr style="width: 100%; height: 2px;"><br>
-The Status Bar appears at the bottom of the GFE display. It contains
+AlertViz is a separate component of AWIPS2 that is shared among all the 
+perspectives, including GFE. It contains
 two
-complete status bars, each with a message indicator light and message
-display.&nbsp;
-At the right side of the two status bars is an indicator for ISC send
-enabling, a progress bar, and the
-current
-time. When a new message is displayed, the appropriate message light
-will
-blink. Messages are color-coded (set up in the gfe configuration file)
+complete status bars, each with a log list and a message
+display. Messages are color-coded (set up in the AlertViz configuration file)
 and of the following categories:
 <ul>
   <li>Regular: Successful completion of an operation. (default color:
 green)</li>
   <li>Significant: An error message usually indicating an operation
 cannot be
-completed. (default color: yellow)&nbsp; When a Significant message
-occurs, the <a href="#Significant">Significant Messages Dialog </a>will
+completed (default color: yellow). When a Significant message
+occurs, the Significant Messages Dialog will
 appear.<br>
   </li>
   <li>Urgent: A serious error usually indicating a server or system
-problem.
-(default color: red) When an Urgent message occurs, the <a
+problem
+(default color: red). When an Urgent message occurs, the <a
  href="#UrgentMessagesDialog">Urgent
 Messages Dialog</a> will appear.</li>
-  <li>Alert: A warning to the forecaster of an event&nbsp; (default
+  <li>Alert: A warning to the forecaster of an event (default
 color: orange).<br>
   </li>
 </ul>
-To acknowledge a Regular or Alert message and stop the blinking,
-click MB1 over the message which will change to gray.
-<br>
-To view a list of previous messages, click on the ^ sign to the left
+To acknowledge an Alert popup message, click MB1 over the message 
+"Acknowledge Last" button which will close the message dialog.
+To view a list of previous messages, click on the notepad icon to the right
 of the Status message. The <a href="#ViewMessagesDialog">View Messages
-Dialog</a> will appear.<br>
-<br>
-The ISC Send Enabling indicator looks like a red traffic light, when
-ISC data will not be sent from this GFE, and looks like a green traffic
-light, when ISC will be sent from the GFE.&nbsp; The user can control
-the overall ISC send enable through the Consistency-&gt;ISC Send Enable
-menu entry.&nbsp; The traffic light is red, to denote no ISC traffic
-will be sent, if the ifpServer ISC configuration is
-disabled.&nbsp;&nbsp; If enabled, then ISC data will be sent either on
-saving, publishing, or manually sending the grids via the Send
-Intersite Coordination dialog.<br>
+Dialog</a> will appear. Aleternately you can click the "Show Log" button.<br>
 <p>Most of the status messages will appear in the left status
-bar.&nbsp;
-The right status bar is reserved for incoming ISC&nbsp;traffic and
+bar.
+The right status bar is reserved for incoming ISC traffic and
 Smart
 Init model arrival messages.
 </p>
-<p><img style="width: 969px; height: 28px;" alt=""
- src="images/StatusBar.jpg"><br>
+<p><img alt="" src="images/StatusBar.jpg"><br>
 </p>
 <hr width="100%">
 <h2><a name="UrgentMessagesDialog"></a>Urgent Messages
@@ -72,11 +55,12 @@ Dialog</h2>
 The Urgent Messages Dialog appears with a red message bar. Multiple
 messages
 may be active in the Dialog and each must be acknowledged by clicking
-"Acknowledge."
+"Acknowledge Last".
 You can acknowledge all the active messages by clicking "Acknowledge
-All."
+All".
 A history of all messages, including Urgent Messages, can be viewed in
-the <a href="StatusBar.html#ViewMessagesDialog">View Messages Dialog</a>.
+the <a href="StatusBar.html#ViewMessagesDialog">View Messages Dialog</a>, or by
+clicking the "Show Log" button.
 <p><img alt="Urgent Message" src="images/UrgentMessage.png"></p>
 <hr style="width: 100%; height: 2px;">
 <h2><a name="UrgentMessagesDialog"></a><span style="font-weight: bold;">Significant
@@ -86,37 +70,31 @@ The Significant Messages Dialog appears with a yellow message bar.
 Multiple
 messages
 may be active in the Dialog and each must be acknowledged by clicking
-"Acknowledge."
+"Acknowledge Last".
 You can acknowledge all the active messages by clicking "Acknowledge
-All."
+All".
 A history of all messages, including Significant Messages, can be
 viewed in
-the <a href="#ViewMessagesDialog">View Messages Dialog</a>.
-<p><img alt="Significant" src="images/SignificantMessage.png" nosave=""
- style="width: 814px; height: 102px;"></p>
+the <a href="#ViewMessagesDialog">View Messages Dialog</a>, or by clicking the
+"Show Log" button.
+<p><img alt="Significant" src="images/SignificantMessage.png" nosave=""></p>
 <hr width="100%">
 <h2><a name="ViewMessagesDialog"></a>View Messages
 Dialog</h2>
-To view a history of status messages, click on the ^ to the left of the
-Status Bar message. The View Messages Dialog will appear. The messages
-are color-coded with the most recent listed first. You may scroll or
-resize
-the window to see all the messages. Click "Close" to close the dialog.
-<p><img src="images/ViewMessage.jpg" nosave="" height="369" width="1018"></p>
+To view a history of status messages, click on the notepad icon to the right of the
+Status Bar message. The Log list Dialog will appear. The messages
+are listed with level of significance displayed to the right of the time of the
+message. The most recent message is listed at the bottom. 
+Click "Close" to close the dialog.
+<p><img src="images/ViewMessage.jpg" nosave=""></p>
 <div class="Body">
 <div class="Body">
 <hr width="100%">
-<h2><a name="ProgressBar"></a>Progress Bar</h2>
-The Progress Bar is on the right-hand side of the Status Bar. It shows
-the progress of a smart tool executing over multiple grids. For
-point-based
-smart tools, if the user clicks B3 over the Progress Bar, the smart
-tool
-execution will be interrupted.&nbsp; In this case, the progress is
-shown
-per grid, so if you are running a point-based smart tool over multiple
-grids, you will see the progress bar paint for each grid.
-<p><img src="images/ProgressBar.jpg" nosave="" height="29" width="1000"></p>
+<h2>Other</h2>
+<p>The "C" button causes the message log to be cleared from the display window, however 
+the messages are still present if the user clicks the notepad button.</p>
+<p>The "i" button at the left side of the AlertViz monitor will display information
+about the AlertViz monitor.</p>
 <div class="Body">
 <div class="Body">
 <hr width="100%"></div>

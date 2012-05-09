@@ -7,7 +7,7 @@
 </head>
 <body>
 <h1 style="text-align: center;">Formatter Launcher User's Guide</h1>
-<div style="text-align: center;">May 12, 2006<br>
+<div style="text-align: center;">March 7, 2012<br>
 </div>
 <br>
 <br>
@@ -40,8 +40,8 @@ product canvas area, and status bar.<br>
 <h3>Main Menu Bar</h3>
 <h4>Products</h4>
 The products menu permits selection of the products to appear in the
-panes.&nbsp;&nbsp; The menu is divided into "Site-level" products, then
-Hazard and&nbsp; Civil Emergency, then Baseline, Regional, and Hazard
+panes. The menu is divided into "Site-level" products, then
+Hazard and Civil Emergency, then Baseline, Regional, and Hazard
 backup product configurations, and then the Product Editor / Make
 Correction
 tab.&nbsp;&nbsp;
@@ -53,8 +53,8 @@ text database and making corrections to a product. <br>
 <br>
 <h4>Data Source</h4>
 The data source menu allows the forecaster to change the source
-database for all products to one of the four options:&nbsp; Official,
-Fcst, ISC, or Default.&nbsp; The Default setting uses the database
+database for all products to one of the four options: Official,
+Fcst, ISC, or Default. The Default setting uses the database
 definition contained within each formatter to determine which database
 should be used as a data source.<br>
 <br>
@@ -75,12 +75,12 @@ only Data Source is the Practice Forecast database; in <a
  href="GFEStartup.html#special">GFE TEST mode</a>, the only Data Source
 is the Test Forecast database.<br>
 <h4>Processor</h4>
-Formatters execute either on the ifpServer platform or the local
-platform.&nbsp; Better performance for the local GFE and faster
+Formatters execute either on the server platform or the local
+platform. Better performance for the local GFE and faster
 formatter execution should be realized when the processor is set to
-"Server".&nbsp; This item is not configurable on a per-product
-basis.&nbsp; The default is "Server".&nbsp; Setting the item to "Local"
-will run the formatters locally.&nbsp;&nbsp; The default may be changed
+"Server". This item is not configurable on a per-product
+basis. The default is "Server". Setting the item to "Local"
+will run the formatters locally. The default may be changed
 through the gfe configuration entry <a
  href="gfeConfig_formatterLauncher.html#Processor">FormatterLauncherDialog_Processor</a>.<br>
 <br>
@@ -89,7 +89,7 @@ through the gfe configuration entry <a
 The Issued By option brings up a dialog allowing the forecaster to
 enter his/her site identifier (3-letters).&nbsp; The entry is only used
 when the site is performing service backup for another
-site.&nbsp;&nbsp; Defining an "Issued By" entry will result in the
+site. Defining an "Issued By" entry will result in the
 generated products containing the Issued By statement in the product
 header.<br>
 <br>
@@ -100,10 +100,10 @@ The Help menu simply provides a color legend for the Product Tabs. <br>
 <h3><span style="font-weight: bold; font-family: monospace;"></span></h3>
 <span style="font-weight: bold; font-family: monospace;"></span>There
 is a product tab for each selected entry in the Products
-Selector.&nbsp; Clicking on one of the tabs will then display that
-product's Product Canvas Area.&nbsp; The Product Canvas Area contains
+Selector. Clicking on one of the tabs will then display that
+product's Product Canvas Area. The Product Canvas Area contains
 the zone combiner (if applicable), editor window, output log, and
-several other controls.&nbsp; The color state of the buttons indicate
+several other controls. The color state of the buttons indicate
 whether the product is queued, running, or finished as shown below:<br>
 <br>
 <table style="width: 100%; text-align: left;" border="1" cellpadding="2"
@@ -165,8 +165,8 @@ editor is now locked.<br>
 Canvas Area</span></span></h3>
 The Product Canvas Area appears for each product that has been
 selected.&nbsp; Use the Product Tabs to display the specific Product
-Canvas Area of interest.&nbsp; The Product Canvas consists of a control
-panel and the canvas area.&nbsp;&nbsp; Depending upon the state of the
+Canvas Area of interest. The Product Canvas consists of a control
+panel and the canvas area. Depending upon the state of the
 product, some of the controls are dimmed and not accessible.<br>
 <br>
 <img alt="Controls" src="images/FormatterLauncher2.png"><br>
@@ -182,7 +182,7 @@ The controls perform the following functions:<br>
       <td style="vertical-align: top;">Zone Combiner<br>
       </td>
       <td style="vertical-align: top;">When selected, the zone combiner
-will appear in the Product Canvas Area.&nbsp; This button is dimmed if
+will appear in the Product Canvas Area. This button is dimmed if
 the product doesn't support zone combinations, or while the formatter
 is currently running.<br>
       </td>
@@ -194,9 +194,9 @@ is currently running.<br>
       <td style="vertical-align: top;">Product Editor<br>
       </td>
       <td style="vertical-align: top;">When selected, the product
-editor will appear in the Product Canvas Area.&nbsp; Initially, this
-pane is blank.&nbsp; When the product has finished generation, the
-contents of the generated product will appear in the canvas.&nbsp; This
+editor will appear in the Product Canvas Area. Initially, this
+pane is blank. When the product has finished generation, the
+contents of the generated product will appear in the canvas. This
 button is dimmed until the formatter has completed.<br>
       </td>
     </tr>
@@ -207,10 +207,10 @@ button is dimmed until the formatter has completed.<br>
       <td style="vertical-align: top;">Output Log<br>
       </td>
       <td style="vertical-align: top;">When selected, the output from
-the formatter execution will appear in the Product Canvas Area.&nbsp;
-Initially this pane is blank.&nbsp; Only when the formatter has
+the formatter execution will appear in the Product Canvas Area.
+Initially this pane is blank. Only when the formatter has
 completed, will the output log button be undimmed and the contents
-available.&nbsp; If you wish to monitor the progress of a formatter
+available. If you wish to monitor the progress of a formatter
 during its execution, please use the <a
  href="MainMenuDialogs.html#ProcessMonitorDialog">Process Monitor</a>. <br>
       </td>
@@ -223,7 +223,7 @@ during its execution, please use the <a
       </td>
       <td style="vertical-align: top;">When selected, the Formatter
 Launcher is switched to the product editor and the saved draft for the
-product is loaded.&nbsp;&nbsp; If there isn't a saved draft, then a
+product is loaded. If there isn't a saved draft, then a
 message will be displayed to the forecaster indicating that no draft
 exists.<br>
       </td>
@@ -235,8 +235,8 @@ exists.<br>
       <td style="vertical-align: top;">Run Formatter<br>
       </td>
       <td style="vertical-align: top;">This button will queue the
-formatter for execution.&nbsp;&nbsp; Once it is queued, the button will
-be dimmed until the product is completed.&nbsp; Queuing a product will
+formatter for execution. Once it is queued, the button will
+be dimmed until the product is completed. Queuing a product will
 cause the zone combiner, product editor, and output log buttons to be
 dimmed.<br>
       </td>
@@ -248,7 +248,7 @@ dimmed.<br>
       <td style="vertical-align: top;">Stop Formatter<br>
       </td>
       <td style="vertical-align: top;">This button is available during
-the execution of a formatter.&nbsp; If selected, the formatter will be
+the execution of a formatter. If selected, the formatter will be
 aborted.<br>
       </td>
     </tr>
@@ -403,7 +403,7 @@ errors: <span style="font-style: italic;">combofilename</span><br>
       <td style="vertical-align: top;">Significant<br>
       </td>
       <td style="vertical-align: top;">The product's combination file
-was retrieved from the ifpServer, but could not be decoded.&nbsp; The
+was retrieved from EDEX, but could not be decoded. The
 zone combiner may still be used, but the current set of combinations is
 cleared.</td>
     </tr>
@@ -414,8 +414,8 @@ format: <span style="font-style: italic;">combofilename</span><br>
       <td style="vertical-align: top;">Significant<br>
       </td>
       <td style="vertical-align: top;">The retrieved combination file
-(from the ifpServer) was not in the correct format, i.e., not a list of
-tuples containing a list of zones and a label.&nbsp; The zone combiner
+(from EDEX) was not in the correct format, i.e., not a list of
+tuples containing a list of zones and a label. The zone combiner
 may still be used, but the current set of combinations is cleared.</td>
     </tr>
     <tr>
@@ -425,7 +425,7 @@ may still be used, but the current set of combinations is cleared.</td>
       <td style="vertical-align: top;">Regular<br>
       </td>
       <td style="vertical-align: top;">Indicates that a combinations
-file was saved.&nbsp; If a GFE red banner appears, then there may have
+file was saved. If a GFE red banner appears, then there may have
 been a problem with the save.<br>
       </td>
     </tr>
@@ -638,16 +638,16 @@ the map background.&nbsp; Zone groups are counted from 1.<br>
 Colors...<br>
       </td>
       <td style="vertical-align: top;">The Zone Colors... selection
-brings up the Zone Color Table Editor.&nbsp; There is only one color
+brings up the Zone Color Table Editor. There is only one color
 map for all products, and the size of the color map depends upon the
-maximum number of zones that have been color-edited.&nbsp; The color
+maximum number of zones that have been color-edited. The color
 editor works simlarily to the other <a href="ColorDialogs.html">Color
-Table Editors in the GFE</a>.&nbsp;&nbsp; Pressing "Apply" will change
+Table Editors in the GFE</a>. Pressing "Apply" will change
 the color mapping of the Zone Combiner as well as save the new color
-table to the ifpServer.<br>
+table to EDEX.<br>
       </td>
       <td style="vertical-align: top;"><img
- style="width: 410px; height: 398px;" alt=""
+ style="width: 510px; height: 398px;" alt=""
  src="images/DialogComboColors.jpg"></td>
     </tr>
   </tbody>
@@ -657,49 +657,49 @@ The Combo Options menu entry is dimmed if there are no combinations
 being shown in the zone combiner.<br>
 <br>
 <h4>Zoom</h4>
-The map background in the zone combiner may be zoomed.&nbsp; The scroll
-bars around the map are used to pan the display.&nbsp;&nbsp; The
+The map background in the zone combiner may be zoomed. The scroll
+bars around the map are used to pan the display. The
 options on the zoom menu control the amount of zooming, from "No Zoom"
 to various zoom factors.<br>
 <br>
 <br>
 <h3>Zone Combiner Canvas</h3>
 <br>
-The canvas is the drawing area of the zone combiner.&nbsp;&nbsp;
+The canvas is the drawing area of the zone combiner.
 Through a series of clicks and drags, the set of zone combinations may
 be edited.<br>
 <br>
-The canvas may be resized.&nbsp;&nbsp; Its initial size is configurable
-through the gfe configuration file.&nbsp;&nbsp; By default, the zone
+The canvas may be resized. Its initial size is configurable
+through the gfe configuration file. By default, the zone
 combiner dialog is about 80% the height and width of the display.<br>
 <br>
 <h4>Drawing a New Combination</h4>
 Using MB1, press over a zone that is "grayed-out" which represents an
 individual zone, and drag through that zone into zones you wish to be
-part of the same combination.&nbsp;&nbsp; The "zone color" is chosen
-automatically for you.&nbsp; You can change the zone colors if desired
+part of the same combination. The "zone color" is chosen
+automatically for you. You can change the zone colors if desired
 through the <a href="FormatterLauncher.html#ZoneColors">Zone Colors....</a>
 menu entry.<br>
 <br>
 <h4>Picking Up a Zone Combination</h4>
-A MB2 click over a zone will "pick-up" that zone's configuration.&nbsp;
+A MB2 click over a zone will "pick-up" that zone's configuration.
 This is useful for adding another zone to a combination or changing the
 existing configuration of a zone to that which was "picked-up".<br>
 <br>
 <h4>Adding Another Zone to a Combination - Contiguous</h4>
-Using MB1, press over the zone which you want to extend.&nbsp; Drag
+Using MB1, press over the zone which you want to extend. Drag
 through the new zones (whether they are already assigned or not doesn't
-matter).&nbsp; As you drag through the zones, they become part of the
+matter). As you drag through the zones, they become part of the
 same combination.<br>
 <br>
 <h4>Adding Another Zone to a Combination - Non-Contiguous</h4>
 MB2 click over a zone in the combination you wish to extend to pick up
-its value. MB1 click over the zone you wish to add.&nbsp; You may need
+its value. MB1 click over the zone you wish to add. You may need
 to MB1 click more than once.<br>
 <br>
 <h4>Toggling Zones</h4>
 MB1 clicks will toggle a zone from the combination, to a new group, and
-to "off" or non-included zone.&nbsp;&nbsp; If the "Include
+to "off" or non-included zone. If the "Include
 All Zones" is selected, then the clicks will toggle between the
 combination and a new group.<br>
 <br>
@@ -714,9 +714,9 @@ server.<br>
 <h3>Proper Formatter and Configuration Setup</h3>
 <br>
 The zone combiner requires certain Definition section items to be set
-up in each formatter.&nbsp;&nbsp; It also requires <a
+up in each formatter. It also requires <a
  href="mapConfig.html">map backgrounds</a> to be configured properly in
-the ifpServer.<br>
+the EDEX.<br>
 <br>
 <h4>Definition section of product<br>
 </h4>
@@ -731,8 +731,8 @@ the ifpServer.<br>
       <td style="vertical-align: top;">Mandatory<br>
       </td>
       <td style="vertical-align: top;">Defines the map background used
-for this product's zone combinations.&nbsp;&nbsp; All edit areas in the
-combinations file must match the map backgrounds's attribute&nbsp;
+for this product's zone combinations. All edit areas in the
+combinations file must match the map backgrounds's attribute
 "EDITAREANAME"'s values.<br>
       </td>
     </tr>
@@ -743,7 +743,7 @@ combinations file must match the map backgrounds's attribute&nbsp;
       <td style="vertical-align: top;">Mandatory<br>
       </td>
       <td style="vertical-align: top;">Defines the combinations file to
-be used for this product.&nbsp; If default edit areas is not a
+be used for this product. If default edit areas is not a
 combinations file, i.e., it is a list of edit areas, then the zone
 combiner will not be available.&nbsp; <br>
       </td>
@@ -765,7 +765,7 @@ products are intentionally restricted for this capability.<br>
       <td style="vertical-align: top;">Optional<br>
       </td>
       <td style="vertical-align: top;">Limits the zone combinations to
-just those zones listed in the subDomainUGCs entry.&nbsp; This is
+just those zones listed in the subDomainUGCs entry. This is
 normally only used for those sites whose domain is split into several
 products.<br>
       </td>
@@ -773,20 +773,19 @@ products.<br>
   </tbody>
 </table>
 Note: the combinations file must be read-write in the server in order
-for the user to modify the zone combinations.&nbsp; If a combinations
+for the user to modify the zone combinations. If a combinations
 file is marked read-only, then the zone combiner will not be displayed.<br>
 <br>
-<h4>Map Configuration in ifpServer<br>
+<h4>Map Configuration in EDEX<br>
 </h4>
 The map background configuration defines the editAreaName for certain
-map backgrounds.&nbsp; If this attribute is defined, then edit areas
+map backgrounds. If this attribute is defined, then edit areas
 will be automatically generated for the map background, based on the
-attributes specified.&nbsp; The Zone Combiner uses the edit area names
+attributes specified. The Zone Combiner uses the edit area names
 associated with each shape in the map background to map combination
-edit area names to map background names.&nbsp;&nbsp; If your
+edit area names to map background names. If your
 combinations file uses other names, then the zone combiner will reject
 those names and start out with an empty set of zone combinations.<br>
-<br>
 <br>
 <br>
 <br>
@@ -795,16 +794,16 @@ those names and start out with an empty set of zone combinations.<br>
 The Product Editor is used to display the finished product to the
 forecaster, and then allows the forecaster to edit, save to a file,
 save as a draft, store, and
-transmit it..&nbsp; It consists of a menu bar, the text editor,
+transmit it.. It consists of a menu bar, the text editor,
 and to save a draft and transmit the product.<br>
 <br>
 Some fields in the product editor may appear in a different color
-(default is blue).&nbsp; These fields are "Locked" and cannot be edited
-by the forecaster.&nbsp;&nbsp; NWS policy requires quality control on
+(default is blue). These fields are "Locked" and cannot be edited
+by the forecaster. NWS policy requires quality control on
 the UGC, VTEC, and other components of the product thus requires that
 the forecaster not be
-able to edit that field.&nbsp; Some fields may appear in another color
-(default is red).&nbsp; These fields are "framing codes" and indicate
+able to edit that field. Some fields may appear in another color
+(default is red). These fields are "framing codes" and indicate
 to the forecaster that the text within the framing codes and the
 framing code deliminators must be edited/removed by the forecaster.<br>
 <br>
@@ -831,7 +830,7 @@ existing product.<br>
       </td>
       <td style="vertical-align: top;">Brings up a file chooser to
 allow the user to save the contents of the
-text buffer to a disk file.&nbsp; The default location is defined in
+text buffer to a disk file. The default location is defined in
 the
 Definition['outputFile'] part of the formatter.</td>
     </tr>
@@ -840,18 +839,18 @@ Definition['outputFile'] part of the formatter.</td>
       </td>
       <td style="vertical-align: top;">Brings up an entry field
 containing the 8 or 9-letter PIL (Product Inventory List) that will
-be used to store the product into the AWIPS text database.&nbsp;
+be used to store the product into the AWIPS text database.
 The default pil is defined in the Definition['textdbPil'] part
 of the formatter. <b>Use with caution:</b> Saving to the text
 database will cause triggers for that PIL if they have been
-defined.&nbsp; This button is colored Blue when in practice mode and
+defined. This button is colored Blue when in practice mode and
 the product won't get stored to the AWIPS text database.&nbsp; Normally
 the button is gray.<br>
       <img alt="Store" src="images/StoreDialog.png"><br>
 The user can change the AWIPS Product ID if necessary,
 and then presses the "Store" button to store the product.&nbsp;
 The Store Countdown timer counts down from 5 seconds giving the user
-the chance to abort the store operation.&nbsp; If the operation
+the chance to abort the store operation. If the operation
 is not aborted, the product will be stored into the AWIPS text
 database. <b>Use with caution:</b>
 Saving to the text database will cause
@@ -868,8 +867,8 @@ contains the traceback on the store failure. <br>
 containing the 9 or 10-letter AWIPS WAN PIL
 (Product Inventory List) that will be used to transmit the product onto
 the AWIPS WAN.&nbsp; The product is also stored into the text database
-during this operation.&nbsp; The default pil is defined in the
-Definition['awipsWANPil'] part of the formatter.&nbsp; This button is
+during this operation. The default pil is defined in the
+Definition['awipsWANPil'] part of the formatter. This button is
 colored RED if live transmission is enabled and colored BLUE if live
 transmission is disabled due to practice mode. <br>
       </td>
@@ -878,8 +877,8 @@ transmission is disabled due to practice mode. <br>
       <td style="vertical-align: top;">Print<br>
       </td>
       <td style="vertical-align: top;">Sends the contents of the editor
-to the lpr command.&nbsp; This should cause the contents of the editor
-to be printed.&nbsp; However, the lpr command must be configured at the
+to the lpr command. This should cause the contents of the editor
+to be printed. However, the lpr command must be configured at the
 system level for this to work.<br>
       </td>
     </tr>
@@ -888,7 +887,7 @@ system level for this to work.<br>
       </td>
       <td style="vertical-align: top;">This option only appears for
 product tabs.&nbsp; It retreives a previously saved draft and places it
-into the product editor for editing.&nbsp; If there is no previously
+into the product editor for editing. If there is no previously
 saved draft, a message is displayed to the forecaster.<br>
       </td>
     </tr>
@@ -896,7 +895,7 @@ saved draft, a message is displayed to the forecaster.<br>
       <td style="vertical-align: top;">Save Draft<br>
       </td>
       <td style="vertical-align: top;">This option only appears for
-product tabs.&nbsp; It saves the current text in the editor along with
+product tabs. It saves the current text in the editor along with
 the product definition for later callup with Load Draft.<br>
       </td>
     </tr>
@@ -904,7 +903,7 @@ the product definition for later callup with Load Draft.<br>
       <td style="vertical-align: top;">Open File<br>
       </td>
       <td style="vertical-align: top;">This option only appears for the
-"Product Editor"tab.&nbsp; It allows you to bring any local file into
+"Product Editor"tab. It allows you to bring any local file into
 the text editor. Products brought into this window are set to routine
 products with an option to set them to Corrected, Updated, Delayed, or
 Resend mode through the "Type" pulldown menu choice at the bottom of
@@ -915,9 +914,9 @@ the Formatter Launcher window. <br>
       <td style="vertical-align: top;">Load Product / Make Correction<br>
       </td>
       <td style="vertical-align: top;">This option only appears for the
-"Product Editor" tab.&nbsp; It allows you to specify a pil, then
+"Product Editor" tab. It allows you to specify a pil, then
 retrieves the product from the AWIPS text database and loads it into
-the editor.&nbsp; The editor is placed into Resend mode automatically
+the editor. The editor is placed into Resend mode automatically
 when selecting this option. Typing in the product changes the mode to
 Corrected automatically.<br>
       </td>
@@ -961,7 +960,7 @@ the cursor location.<br>
       <td style="vertical-align: top;">Find...<br>
       </td>
       <td style="vertical-align: top;">Brings up the Find dialog,
-allowing the user to find words.&nbsp; There are many options
+allowing the user to find words. There are many options
 available, such as backwards and forwards searches, regular expression
 or exact searches, ignoring case, starting at the start, end, or at the
 cursor position. <img alt="" src="images/FormatterLauncher5.png"><br>
@@ -983,9 +982,9 @@ cursor location.<br>
       <td style="vertical-align: top;">Spell Check...<br>
       </td>
       <td style="vertical-align: top;">Brings up the spell
-checker.&nbsp; As each mispelled word is found, suggestions are
+checker. As each mispelled word is found, suggestions are
 provided and the user can choose the suggestion or type in the correct
-spelling.&nbsp; Capabilities are provided to add a word to your
+spelling. Capabilities are provided to add a word to your
 personal dictionary, or to ignore the mispelling.<br>
       <img alt="" src="images/FormatterLauncher7.png"><br>
       <br>
@@ -995,9 +994,9 @@ personal dictionary, or to ignore the mispelling.<br>
       <td style="vertical-align: top;">Wrap Selected<br>
       </td>
       <td style="vertical-align: top;">Rewraps the selected portion of
-the product based on the wrap length.&nbsp; You probably will want to
+the product based on the wrap length. You probably will want to
 wrap paragraph by paragraph rather than selecting the entire
-text.&nbsp; The Product Editor does understand certain types of
+text. The Product Editor does understand certain types of
 paragraphs, such as blank lines denoting paragraphs and ".xxx..."
 syntax such as ".TONIGHT..." as paragraphs.<br>
       </td>
@@ -1008,7 +1007,7 @@ syntax such as ".TONIGHT..." as paragraphs.<br>
       <td style="vertical-align: top;">Auto Wrap<br>
       </td>
       <td style="vertical-align: top;">Enables/disables automatic
-wrapping while typing.&nbsp; The default value may be set through the
+wrapping while typing. The default value may be set through the
 gfe configuration file on a per-pil basis.<br>
       </td>
     </tr>
@@ -1026,11 +1025,11 @@ gfe configuration file on a per-pil basis.<br>
       <td style="vertical-align: top;">Based on the editor insertion
 point which defines the segment, brings up the possible set of call to
 action statements for the VTEC hazards identified within the
-segment.&nbsp;&nbsp; The user selects a call to action and the text is
-inserted at the insertion point in the editor.&nbsp; Call to action
+segment. The user selects a call to action and the text is
+inserted at the insertion point in the editor. Call to action
 statements are configurable through the CallToActions
-TextUtility.&nbsp; If the cursor is not in a segment that has VTEC
-hazards, then the Call To Actions dialog will be empty.&nbsp; The text
+TextUtility. If the cursor is not in a segment that has VTEC
+hazards, then the Call To Actions dialog will be empty. The text
 appearing in the dialog is either the actual Call To Action text or a
 descriptive string, depending upon the Call To Action entry format.<br>
       <img alt="CallToActions" src="images/CallToActions.png"
@@ -1053,7 +1052,7 @@ the text is inserted at the insertion point in the editor. <br>
       </td>
       <td style="vertical-align: top;">Based on the editor insertion
 point, brings
-up the set of generic call to action statements.&nbsp;&nbsp; The user
+up the set of generic call to action statements. The user
 selects a call to action and
 the text is inserted at the insertion point in the editor. Call to
 action statements are configurable through the CallToActions
@@ -1074,14 +1073,14 @@ colors and their meaning.<br>
 <br>
 <br>
 <h3>Text Window</h3>
-The Text Window is the text editor.&nbsp; Clicking on a location will
+The Text Window is the text editor. Clicking on a location will
 set the cursor position to that location. Typing will then insert
-characters at that point.&nbsp;&nbsp; Dragging over text will select
+characters at that point. Dragging over text will select
 the text, which then can be used in cut/copy/paste operations.<br>
 <br>
 The WMOID block, headlines, and UGC blocks cannot be edited and appear
 in a different color
-(configurable through the GFE configuration file).&nbsp; The UGC block
+(configurable through the GFE configuration file). The UGC block
 consists of the UGC codes, any VTEC lines, the list of zone names, the
 list of city names, and the date-time group.<br>
 <br>
@@ -1089,7 +1088,7 @@ A MB3 popup menu is available that duplicates the functions found on
 the menu bar.<br>
 <h3>Buttons</h3>
 There are usually three buttons available: Save File..., Store, and
-Transmit.&nbsp; During <a href="GFEStartup.html#special">GFE Practice
+Transmit. During <a href="GFEStartup.html#special">GFE Practice
 mode</a>, the buttons are labeled the same, but have a different
 appearance.<br>
 <br>
@@ -1100,8 +1099,8 @@ appearance.<br>
       <td style="vertical-align: top;">Save Draft<br>
       </td>
       <td style="vertical-align: top;">Saves the current text and
-product definition to the ifpServer.&nbsp;&nbsp; The name of the file
-is based on the Definition['awipsWANPil'].&nbsp;&nbsp; This allows
+product definition to EDEX. The name of the file
+is based on the Definition['awipsWANPil']. This allows
 other workstations to access the text/product to continue edits.<br>
       </td>
     </tr>
@@ -1110,16 +1109,16 @@ other workstations to access the text/product to continue edits.<br>
       </td>
       <td style="vertical-align: top;">Brings up an Transmit Dialog
 containing the 9 or 10-letter AWIPS WAN PIL (Product Inventory List)
-that will be used to transmit the product onto the AWIPS WAN.&nbsp; The
+that will be used to transmit the product onto the AWIPS WAN. The
 product is also stored into the text database during this
-operation.&nbsp; The default pil is defined in the
-Definition['awipsWANPil'] part of the formatter.&nbsp; If live
-transmission is enabled, then this button is RED.&nbsp; If live
+operation. The default pil is defined in the
+Definition['awipsWANPil'] part of the formatter. If live
+transmission is enabled, then this button is RED. If live
 transmission is disabled, as in PRACTICE mode, then this button is
 BLUE.
 In practice mode, this action emulates the normal sending out of the
 product via the AWIPS WAN, the receipt of the product via the SBN, and
-the running of the VTEC Decoder. &nbsp; </td>
+the running of the VTEC Decoder.</td>
     </tr>
     <tr>
       <td style="vertical-align: top;"><img alt=""
@@ -1297,25 +1296,26 @@ and then hand off the product to another forecaster for review or
 further editing.<br>
   </li>
 </ul>
-The saved draft is put into the ifpServer TEXT/DRAFT directory and is
+The saved draft is put into the EDEX 
+/awips2/edex/data/utility/cave_static/site/SITE/gfe/drafts directory and is
 named via the Definition['awipsWANpil'] contained in the product
-definition.&nbsp; The saved information consists of the product text
-and the product definition.&nbsp; The product definition contains
+definition. The saved information consists of the product text
+and the product definition. The product definition contains
 important attributes for the product, such as line length and segment
-expiration time characteristics.&nbsp;&nbsp; The ifpServer monitors
+expiration time characteristics. EDEX monitors
 incoming VTEC notifications and compares them to the contents of the
 draft products and invalidates the draft products if there is a match;
 this prevents the loading of a draft that might contain invalid VTEC
-and then transmitting a product with invalid VTEC.&nbsp; Loading a
+and then transmitting a product with invalid VTEC. Loading a
 draft that has been invalidated will result in the editor being
 disabled and a message indicating that there is a possibility of
 invalid VTEC so the product must be regenerated.<br>
 <br>
 Once the draft is saved, the same forecaster or different forecasters
-may load the draft into their product editor.&nbsp;&nbsp; Loading a
+may load the draft into their product editor. Loading a
 draft is accomplished by selecting Products -&gt; XXX in the Formatter
 Launcher, where XXX is the product name, to create the product
-pane.&nbsp; Then the forecaster clicks on the Load Draft (<img
+pane. Then the forecaster clicks on the Load Draft (<img
  alt="LoadDraft" src="images/loadDraft.gif"
  style="width: 22px; height: 22px;">) button and the previously saved
 text and its product definition are loaded into the editor.<br>

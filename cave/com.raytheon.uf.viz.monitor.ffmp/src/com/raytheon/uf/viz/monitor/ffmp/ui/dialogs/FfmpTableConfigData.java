@@ -45,7 +45,7 @@ import com.raytheon.uf.viz.monitor.ffmp.xml.FFMPTableColumnXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 8, 2011            lvenable     Initial creation
- * 
+ * Mar 8, 2012	DR 14406  gzhang       Fixing QPF Column Title Missing 
  * </pre>
  * 
  * @author lvenable
@@ -361,8 +361,8 @@ public class FfmpTableConfigData {
 
         tableColumnAttrMap.put(
                 COLUMN_NAME.QPF.getColumnName(),
-                new ColumnAttribData(qpfName + " "
-                        + COLUMN_NAME.QPF.getColumnName(), sortDir));
+                new ColumnAttribData(qpfName + "::"//DR14406: old code no split-string: "::" 
+                        + COLUMN_NAME.QPF.getColumnName(), sortDir,false,"::"));
 
         this.qpfType = qpfType;
     }

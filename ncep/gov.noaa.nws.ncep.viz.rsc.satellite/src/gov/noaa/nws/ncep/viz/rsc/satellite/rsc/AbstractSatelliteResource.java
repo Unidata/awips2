@@ -7,6 +7,7 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
@@ -21,6 +22,7 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
+import org.eclipse.jface.action.IContributionItem;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -44,14 +46,20 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.GenericResourceData;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
+import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.style.level.Level;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
+import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
 import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
 import com.raytheon.viz.satellite.SatelliteConstants;
+import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -74,7 +82,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  04/15/2010      #259     ghull       Added ColorBar
  *  05/24/2010      #281     ghull       Incorporate changes to Raytheon's SatResource.
  *  05/25/2010      #281     ghull       created from SatResource and McidasResource
- *  03/10/2011      #393     archana   added the method getTileSet() to the resource
+ *  03/10/2011      #393     archana     added the method getTileSet() to the resource
+ *  03/12/2012      #651     archana     added method resourceChanged(). Updated paintFrame() to relect the 
+ *                                       current brightness/contrast/alpha values in the loaded satellite image
+ *  04/10/2012               bhebbard    In getSatIRTemperature(...), do IGLTarget.makeContextCurrent()
+ *                                       to avoid GLException: "No OpenGL context current on this thread" 
+ *                                       on following interrogate(); workaround pending RTS regression fix.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -82,7 +96,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
  
 public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResource<SatelliteResourceData, MapDescriptor> implements
-			INatlCntrsResource {
+			INatlCntrsResource, IResourceDataChanged 
+			{
 
 	protected SatelliteResourceData satRscData;
 	
@@ -252,6 +267,7 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
     public AbstractSatelliteResource(SatelliteResourceData data, LoadProperties props) {
         super(data, props);
         satRscData = data;
+        satRscData.addChangeListener(this);
 //        this.tileSet = new HashMap<DataTime, FileBasedTileSet>();
 //        this.dataTimes = new ArrayList<DataTime>();
 
@@ -475,14 +491,21 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
         FileBasedTileSet tileSet = currFrame.tileSet;
         
         if( tileSet != null ) {
+        	ImagingCapability imgCap = new ImagingCapability();
+        	imgCap.setBrightness(satRscData.getBrightness());
+        	imgCap.setContrast(satRscData.getContrast());
+        	imgCap.setAlpha(satRscData.getAlpha());
+        	paintProps.setAlpha(satRscData.getAlpha());
+//        	satRscData.fireChangeListeners(ChangeType.CAPABILITY, imgCap);
+//        	System.out.println("alpha = " + imgCap.getAlpha());
             ColorMapParameters params = getCapability(ColorMapCapability.class)
                     .getColorMapParameters();
             if (params.getColorMap() == null) {
                 String colorMapName = params.getColorMapName();
                 if (colorMapName == null)
                     colorMapName = "Sat/VIS/ZA (Vis Default)";
-
-                params.setColorMap(target.buildColorMap(colorMapName));
+//                params.setColorMap(target.buildColorMap(colorMapName));
+                 params.setColorMap(ColorMapUtil.loadColorMap(ResourceName.SatelliteRscCategory, colorMapName));                
             }
 
             tileSet.paint( target, paintProps );
@@ -608,6 +631,12 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
             return null;
         }
         try {
+        	// Workaround for RTS changes ~OB12.4 that would cause
+        	// GLException: "No OpenGL context current on this thread"
+        	// on following interrogate(...); pending RTS solution.
+        	if (grphTarget instanceof IGLTarget) {
+        		((IGLTarget)grphTarget).makeContextCurrent();
+        	}
 			return currFrame.tileSet.interrogate(latlon, false);
 		} catch (VizException e) {
 			return null;
@@ -680,11 +709,42 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 //
 //    	return legendStr;
 //    }
-//
-//    @Override
-//    public void addContextMenuItems(IMenuManager menuManager) {
-//        if (descriptor != null && getName().contains("IR")) {
-//            CloudHeightRightClickAction.addInstance(menuManager, descriptor);
-//        }
-//    }
+
+	
+	@Override
+	public void resourceChanged(ChangeType type, Object object) {
+        if ( type != null && type == ChangeType.CAPABILITY ){
+        	if (object instanceof ImagingCapability ){
+        		ImagingCapability imgCap = getCapability(ImagingCapability.class);
+           		ImagingCapability newImgCap = ( ImagingCapability ) object;
+        		imgCap.setBrightness(newImgCap.getBrightness(), false);
+        		imgCap.setContrast(newImgCap.getContrast(), false);
+        		imgCap.setAlpha(newImgCap.getAlpha(), false);
+                satRscData.setAlpha(  imgCap.getAlpha()  );
+                satRscData.setBrightness(  imgCap.getBrightness() );
+                satRscData.setContrast(  imgCap.getContrast() );
+        		issueRefresh();
+        		
+        		
+        	}
+        	else if (object instanceof ColorMapCapability ){
+        		
+        		ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
+        		ColorMapCapability newColorMapCap = (ColorMapCapability) object;
+        		colorMapCap.setColorMapParameters(newColorMapCap.getColorMapParameters(), false);
+        		ColorMap theColorMap = ( ColorMap ) colorMapCap.getColorMapParameters().getColorMap();
+        		String colorMapName = colorMapCap.getColorMapParameters().getColorMapName();
+        		satRscData.setColorMapName( colorMapName );
+        	    satRscData.getRscAttrSet().setAttrValue( "colorMapName", colorMapName );
+        	    ColorBarFromColormap cBar = satRscData.getColorBar();
+        	    cBar.setColorMap( theColorMap );
+        	    satRscData.getRscAttrSet().setAttrValue( "colorBar", cBar );
+        	    satRscData.setIsEdited( true );
+        		issueRefresh();
+
+        	}
+
+        }
+
+	}
 }

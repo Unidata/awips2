@@ -1,5 +1,5 @@
 <html>
-<title>GFESuite Documentation - </title>
+<title>Smart Script Class Grid Access</title>
 <body>
 
 <h1><a name="GridAccess"></a>Grid Access Methods</h1>
@@ -10,8 +10,6 @@
 <br>
 <a href="#directionTaperGrid">directionTaperGrid</a>
 <br>
-<a href="#getValue">getValue (point-based only)</a>
-<br>
 <a href="#getComposite">getComposite (numeric only)</a>
 <br>
 <a href="#getGridInfo">getGridInfo</a>
@@ -21,7 +19,7 @@
 <h2><a name="getGrids"></a>getGrids</h2>
 def getGrids(self, model, element, level, timeRange,
 mode="TimeWtAverage",
-noDataError=1, mostRecentModel=0):
+noDataError=1, mostRecentModel=0, cache=1):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the value(s) for the given model,
 element, and level
@@ -60,10 +58,7 @@ tools to taper results.
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Argument:
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea : must be of type
-AFPS.ReferenceData
-or None
-<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea: Reference data or None<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # (use editArea tool argument)
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # taperFactor: If set to zero, will
@@ -75,13 +70,13 @@ do Full Taper
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def preProcessTool(self, editArea):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; taperGrid
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; self._tGrid
 = self.getTaperGrid(editArea, 5)
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y):
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, variableElement):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; result = value
-* taperGrid[x][y]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; return = 
+variableElement + self._tGrid * 10.0
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
 <h2><a name="directionTaperGrid"></a>directionTaperGrid</h2>
@@ -111,8 +106,7 @@ tools to show
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Argument:
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea : must be of type
-AFPS.ReferenceData
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea : ReferenceData
 or None
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # (use editArea tool argument)
@@ -126,118 +120,17 @@ e.g. "NNW", "NW", etc.
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def preProcessTool(self, editArea):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; spaceProgress
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; self._spaceProgress
 = self.directionTaperGrid(editArea, "NW")
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y):
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, variableElement):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; result = value
-* spaceProgress[x][y]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<h2><a name="getValue"></a>getValue (point-based only)</h2>
-def getValue(self, model, element, level, x, y, timeRange,
-mode="TimeWtAverage",
-noDataError=1, mostRecentModel=0):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Point-based tools only.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the value(s) for the given model,
-element, and level
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # at the x, y coordinate and over the
-given timeRange.
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Examples:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the following arguments in your
-execute method:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y, GridTimeRange,
-varDict):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Accessing values from the Fcst
-database:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue("Fcst", "T", "SFC",
-x, y, GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # PoP = self.getValue("Fcst", "PoP",
-"SFC", x,y, GridTimeRange,
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # noDataError=0)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # From an IFP model database:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue("BOU__NAM_Oct3100",
-"T", "SFC",x,y,GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue("BOU__NAM", "T",
-"SFC",x,y,GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Or, using a variable:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # VariableList = [("Model:" , "",
-"model")]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y, GridTimeRange,
-varDict):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # model = varDict["Model:"]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue(model, "T",
-"SFC",x,y,GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # From D2D database:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # rh = self.getValue(
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "BOU_D2D_ETA", "rh", "MB850", x, y,
-GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # rh = self.getValue(
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "BOU_D2D_ETA_Oct3100", "rh",
-"MB850",x,
-y, GridTimeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Or, using a variable:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # VariableList = [("Model:" , "",
-"D2D_model")]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y, GridTimeRange,
-varDict):
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # model = varDict["Model:"]
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # rh = self.getValue(model, "rh",
-"MB850",
-x, y, GridTimeRange)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; return 
+variableElement * self._spaceProgress
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
 <h2><a name="getComposite"></a>getComposite (numeric only)</h2>
-def getComposite(self, WEname, GridTimeRange, exactMatch=1):
+def getComposite(self, WEname, GridTimeRange, exactMatch=1, onlyISC=0):
 <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a composite grid
 consisting
@@ -335,29 +228,25 @@ wxType == 1: # VECTOR
 #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 bits, mag, dir = isc
 <br>
-&nbsp;
 <h2><a name="getGridInfo"></a>getGridInfo</h2>
 def getGridInfo(self, model, element, level, timeRange,
 mostRecentModel=0):
 <br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; Return a list of GridInfo
-objects
-for the given weather element and timeRange
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; Example:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-timeRange = self.getTimeRange("Today")
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-infoList = self.getGridInfo("Fcst", "T", "SFC", timeRange)
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-for info in infoList:
-<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-print "grid", info.gridTime()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; Return the GridInfo object for the given weather element and timeRange<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; Example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     timeRange = self.getTimeRange("Today")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     infoList = self.getGridInfo("Fcst", "T", "SFC", timeRange)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     for info in infoList:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;         print "grid", info.gridTime()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @param model: The model for which grid info is requested.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @type model: DatabaseId or String<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @param element: The element for which grid info is requested.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @type element: String<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @param level: The level for which grid info is requested.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @type level: String<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @param timeRange: A time range over which grid info is requested.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @type timeRange: com.raytheon.uf.common.time.TimeRange or TimeRange<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @param mostRecentModel: whether to use current time in request expr.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @type mostRecentModel: integer or boolean<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;     @return: Java GridParmInfo object<br>

@@ -34,7 +34,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
  * 03/10			?		B. Yin   	Initial Creation.
  * 04/11			?		B. Yin		Re-factor IAttribute
  * 12/11        #582        Q.Zhou      changed hard coded line type in mouse down/move for TROPICAL
- * 
+ * 03/2012      #599        Q.Zhou      Added FLOOD
  * </pre>
  * 
  * @author	B. Yin
@@ -172,7 +172,8 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
             	}
             	else {
             		// create a new DrawableElement.    
-            		if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL"))
+            		if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
+            				|| ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
             			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
             				"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
             		else 
@@ -255,7 +256,8 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         	
         	// create the ghost line and put it in the drawing layer
         	AbstractDrawableComponent ghost = null;
-        	if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL"))
+        	if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL")
+        			|| ((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("FLOOD"))
         		ghost = def.create(DrawableType.LINE, (IAttribute)attrDlg,
         			"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
         	else

@@ -11,6 +11,9 @@
  * ------------ ---------- ----------- --------------------------
  * 06/28/2011    T402       X. Guo     Re-format NCTEXT view panel, check
  *                                     the click action on nctext legend
+ * 02/15/2012    T627       Archana    Updated the call to addRbd() to accept 
+ *                                     a NCMapEditor object as one of the arguments
+ *                                     Removed the call to setNcEditor()                                       
  */
 package gov.noaa.nws.ncep.ui.nctextui.rsc;
 
@@ -104,8 +107,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 		// create an editor MapEditor
 		if(mapEditor != null)
 			return;
-		File rbdFile = NcPathManager.getInstance().getStaticFile( 
-		         NcPathConstants.DFLT_RBD );
+		
 		try {
 			IEditorPart ep = EditorUtil.getActiveEditor();
 			if ( ep instanceof NCMapEditor ) {
@@ -113,17 +115,17 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 			}
 			else {
 				mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NCTEXT" );
+
+				File rbdFile = NcPathManager.getInstance().getStaticFile( 
+						NcPathConstants.DFLT_RBD );
+				RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+				ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
+				rbdLoader.addRBD( rbd, mapEditor );
+				VizApp.runSync( rbdLoader );
 			}
-			
-			RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
-			rbd.setNcEditor( (NCMapEditor)mapEditor );
-			ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
-			rbdLoader.addRBD( rbd );
-			VizApp.runSync( rbdLoader );
-//			mapEditorNum = mapEditor.getEditorNum();
 			//register mouse handler
-    		mouseHandler = getMouseHandler();
-    		mapEditor.registerMouseHandler((IInputHandler) mouseHandler );
+			mouseHandler = getMouseHandler();
+			mapEditor.registerMouseHandler((IInputHandler) mouseHandler );
 			//System.out.println("NctextuiPaletteWindow create editor "+ mapEditor.toString());
 		}
 		catch ( Exception ve ) {
@@ -205,9 +207,21 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 		closeTextView ();
 		nctextuiResource = null;
 	}
+	
+	public static void registerMouseHandler(){
+		mouseHandler = getMouseHandler();
+		if(mapEditor!=null && mouseHandler!=null)
+			mapEditor.registerMouseHandler((IInputHandler) mouseHandler );
+	}
+	public static void unregisterMouseHandler(){
+		mouseHandler = getMouseHandler();
+		if(mapEditor!=null && mouseHandler!=null)
+			mapEditor.unregisterMouseHandler((IInputHandler) mouseHandler );
+	}
 
 	@Override
 	public void propertiesChanged(ResourceProperties updatedProps) {
+		//System.out.println("NctextuiResource:propertiesChanged");
          if ( updatedProps.isVisible() ) {
         	 reopenTextView ();
          }
@@ -218,7 +232,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
     
 	private void hideTextView () {
         IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		
+        //System.out.println("NctextuiResource:hideTextView");
         IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.NCTEXTUI" );
         if ( wpage.isPartVisible(vpart) ) {
         	NctextuiPaletteWindow paletteWin = NctextuiPaletteWindow.getAccess();
@@ -227,6 +241,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
         }
 	}
 	private void closeTextView () {
+		//System.out.println("NctextuiResource:closeTextView");
 		IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		if(wpage!= null){
 			IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.NCTEXTUI" );
@@ -237,6 +252,7 @@ public class NctextuiResource  extends AbstractVizResource<NctextuiResourceData,
 	}
     
 	private void reopenTextView () {
+		//System.out.println("NctextuiResource:reopenTextView");
         IWorkbenchPage wpage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 		
         IViewPart vpart = wpage.findView( "gov.noaa.nws.ncep.ui.NCTEXTUI" );

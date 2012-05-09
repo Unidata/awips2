@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 15, 2011            rjpeter     Initial creation
+ * Mar 08, 2012   194   njensen   Improved logging
  * 
  * </pre>
  * 
@@ -471,7 +472,7 @@ public class JmsPooledSession {
                     sess.close();
                 } catch (Exception e) {
                     statusHandler.handle(Priority.INFO,
-                            "Failed to close session", e);
+                            "Failed to close session " + sess, e);
                 }
             }
         }

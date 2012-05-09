@@ -91,10 +91,7 @@ the minimum wavelength, maximum wavelength, and number of colors that
 the
 default color table uses.
 <p>Depending upon the hardware graphics capability in use, you may not
-want to increase the number of colors too far.&nbsp; On 8-bit hardware,
-the number of colors totally available is 256 and these must be shared
-between applications.&nbsp; On 24-bit hardware, the number of available
-colors is increased.
+want to increase the number of colors too far.
 </p>
 <p>The left wavelength defines the left side value for the color in
 nanometers.
@@ -109,25 +106,7 @@ is displayed.
 <b><tt>DefaultColorTable_rightWavelength = 650.0</tt></b>
 <br>
 <b><tt>DefaultColorTable_numColors = 70</tt></b>
-</p>
-<p>The number of colors to use in standard color tables is defined in
-the
-ColorTable_maxSize entry.&nbsp; Typically the D2D color tables that are
-used in the GFE application contain 256 colors.&nbsp; This is usually
-too
-many colors for the display, especially if the display is an 8-bit
-X-terminal.&nbsp;
-Depending upon the hardware graphics capability in use, you may not
-want
-to increase the number of colors too far.
-</p>
-<p>The number of colors in these tables are reduced by sampling down to
-the number given.
-</p>
-<p><b><tt>ColorTable_maxSize = 70</tt></b>
-<br>
-&nbsp;
-</p>
+</p><br>
 <h4><a name="WeatherElementDefaultColorTables"></a><font size="+1">Weather
 Element
 Default Color Tables</font></h4>
@@ -146,7 +125,9 @@ the popup menu over the legend to see a list of color tables. If a
 default
 color table is not defined for a parameter, then the spectrum defined
 in
-DefaultColorTable* will be used for the parameter.
+DefaultColorTable* will be used for the parameter.<br>
+<p><b>Note:</b> In AWIPS2 this list is greatly expanded.  See gfeConfig.py
+for full list.</p>
 <p><b><tt>T_defaultColorTable="midrange enhanced"</tt></b>
 <br>
 <b><tt>Td_defaultColorTable="midrange enhanced"</tt></b>
@@ -282,8 +263,8 @@ those in the database.
 <p><b><tt>T_maxColorTableValue = 120.0</tt></b>
 <br>
 <b><tt>T_minColorTableValue = -30.0<br>
-</tt></b></p>
-<p><b><tt><br>
+WetBulb_maxColorTableValue = 50.0<br>
+WetBulb_minColorTableValue = 20.0<br>
 </tt></b></p>
 <p>The user may also specify that the initial color table is calculated
 based on the "fit to data" algorithm.&nbsp; All of the grid values are
@@ -310,7 +291,7 @@ entry.
 </p>
 <p><b><tt>T_fitToDataColorTable = "None"</tt></b> <br>
 </p>
-<p>&nbsp;
+<p>
 </p>
 <h4><a name="ColorBarLabelSpecification"></a><b><font size="+1">Color
 Bar Label
@@ -331,7 +312,7 @@ does not apply to Weather data types, only scalar and vector.
 <p><b><tt><br>
 </tt></b></p>
 <div class="Body">
-<center><tt>&nbsp;<a href="GFESuite.html">Back To TOC</a></tt></center>
+<center><a href="GFESuite.html">Back To TOC</a></center>
 </div>
 </div>
 </body>

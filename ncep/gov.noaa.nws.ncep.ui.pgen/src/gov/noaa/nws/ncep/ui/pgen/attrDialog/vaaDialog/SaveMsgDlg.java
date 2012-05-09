@@ -172,7 +172,7 @@ public class SaveMsgDlg  extends AttrDlg{
 			File f = new File(/*dirLocal*/PgenUtil.getWorkingDirectory()+File.separator+txtSave.getText());						
 			Writer output = new BufferedWriter(new FileWriter(f));
 			try {					      
-				output.write( wrap( txtInfo.getText(), 51, null, false) );//2010-04-12: 20100407 decided to save txt here
+				output.write( PgenUtil.wrap( txtInfo.getText(), 51, null, false) );//2010-04-12: 20100407 decided to save txt here
 				output.flush();
 			}catch(Exception ee){
 				System.out.println(ee.getMessage());
@@ -300,85 +300,5 @@ public class SaveMsgDlg  extends AttrDlg{
 	public void setTxtFileContent(String txt){
 		txtFileContent = txt.trim();
 	}
-	
-	/**
-	 * Based on apache's WordUtils to wrap the long lines
-	 * of OBS/Fcst info
-	 * 
-	 * @param String str1: 		the line to be wrapped
-	 * @param int wrapLength:	the line's desired length
-	 * @param String newLineStr:the new line string 
-	 * @param boolean wrapLongWords:	if to wrapped long words
-	 * @return String: the wrapped String
-	 */
-	
-	public static String  wrap(String  str1, int wrapLength, String  newLineStr, boolean wrapLongWords) {
-        if (str1 == null) {
-            return "";
-        }
-        if (newLineStr == null) {
-            newLineStr = System.getProperty("line.separator");
-           
-        }
-        if (wrapLength < 1) {
-            wrapLength = 1;
-        }
-        int inputLineLength1 = str1.length();
-        int offset = 0;
-        StringBuffer  wrappedLine = new StringBuffer (inputLineLength1 + 32);
-        
-        String[] lines = str1.split(newLineStr);
-        
-        for(int i=0; i<lines.length; i++){
-        	offset = 0;
-        	int inputLineLength = lines[i].length();
-        	
-        	if(lines[i].length() < wrapLength){
-        		
-        		wrappedLine.append(lines[i]).append(newLineStr);
-        	
-        	}else{												
-        		String str = lines[i];
-		        while ((inputLineLength - offset) > wrapLength) {
-		            if (str.charAt(offset) == ' ') {
-		                offset++;
-		                continue;
-		            }
-		            int spaceToWrapAt = str.lastIndexOf(' ', wrapLength + offset);
-		
-		            if (spaceToWrapAt >= offset) {
-		                // normal case
-		            	wrappedLine.append(str.substring(offset, spaceToWrapAt));
-		                wrappedLine.append(newLineStr);
-		                offset = spaceToWrapAt + 1;
-		                
-		            } else {
-		                // really long word or URL
-		            	if (wrapLongWords) {
-		                    // wrap really long word one line at a time
-		            		wrappedLine.append(str.substring(offset, wrapLength + offset));
-		                    wrappedLine.append(newLineStr);
-		                    offset += wrapLength;
-		                } else {
-		                    // do not wrap really long word, just extend beyond limit
-		                	spaceToWrapAt = str.indexOf(' ', wrapLength + offset);
-		                    if (spaceToWrapAt >= 0) {
-		                        wrappedLine.append(str.substring(offset, spaceToWrapAt));
-		                        wrappedLine.append(newLineStr);
-		                        offset = spaceToWrapAt + 1;
-		                    } else {
-		                        wrappedLine.append(str.substring(offset));
-		                        offset = inputLineLength;
-		                    }
-		                }
-		            }
-		        }
-		
-		        // Whatever is left in line is short enough to just pass through
-		        wrappedLine.append(str.substring(offset)).append(newLineStr);
-        	}
-        }
 
-        return wrappedLine.toString();
-    }
 }
