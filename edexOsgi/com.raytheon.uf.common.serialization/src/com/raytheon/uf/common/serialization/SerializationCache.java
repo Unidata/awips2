@@ -98,6 +98,7 @@ public class SerializationCache {
             generator = new BeanMap.Generator();
         }
 
+        generator.setClassLoader(SerializationCache.class.getClassLoader());
         generator.setBean(obj);
         bm = generator.create();
         generator.setBean(null);
@@ -121,7 +122,9 @@ public class SerializationCache {
         synchronized (classCache) {
             FastClass fc = classCache.get(name);
             if (fc == null) {
-                fc = FastClass.create(Class.forName(name));
+                fc = FastClass.create(
+                        SerializationCache.class.getClassLoader(),
+                        Class.forName(name));
                 classCache.put(name, fc);
             }
             return fc;

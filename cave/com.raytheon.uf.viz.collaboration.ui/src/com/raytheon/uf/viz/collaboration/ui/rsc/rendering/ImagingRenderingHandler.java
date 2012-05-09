@@ -374,7 +374,7 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
             cmap.brightness = event.getBrightness();
             cmap.contrast = event.getContrast();
             cmap.interpolate = event.isInterpolate();
-            cmap.extent = event.getIExtent();
+            cmap.extent = event.getExtent();
             try {
                 target.drawColorRamp(cmap);
             } catch (VizException e) {

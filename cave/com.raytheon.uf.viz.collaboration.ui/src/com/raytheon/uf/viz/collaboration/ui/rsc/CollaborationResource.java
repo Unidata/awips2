@@ -299,7 +299,11 @@ public class CollaborationResource extends
             @Override
             public void run() {
                 try {
-                    renderableArrived(dataManager.retrieveEvent(event));
+                    AbstractDispatchingObjectEvent objectEvent = dataManager
+                            .retrieveEvent(event);
+                    if (objectEvent != null) {
+                        renderableArrived(objectEvent);
+                    }
                 } catch (CollaborationException e) {
                     Activator.statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
@@ -340,7 +344,7 @@ public class CollaborationResource extends
                             IRenderableDisplay display = descriptor
                                     .getRenderableDisplay();
                             BeginFrameEvent bfe = (BeginFrameEvent) renderable;
-                            IExtent frameExtent = bfe.getIExtent();
+                            IExtent frameExtent = bfe.getExtent();
                             providerWindow = frameExtent;
                             Rectangle bounds = display.getBounds();
                             double width = frameExtent.getWidth();
