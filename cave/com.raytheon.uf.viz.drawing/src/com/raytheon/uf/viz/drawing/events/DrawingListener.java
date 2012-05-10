@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.drawing.events;
 import com.google.common.eventbus.Subscribe;
 
 /**
- * TODO Add Description
+ * The listener that drawing events use
  * 
  * <pre>
  * 
