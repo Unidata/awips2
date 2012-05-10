@@ -23,8 +23,6 @@ package com.raytheon.uf.viz.drawing.tools;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.commands.HandlerEvent;
-import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.ImageData;
@@ -206,13 +204,6 @@ public class PathDrawingTool extends AbstractDrawingTool {
         editor.registerMouseHandler(getMouseHandler());
         EditableManager.makeEditable(theDrawingLayer, theDrawingLayer
                 .getCapability(EditableCapability.class).isEditable());
-        addHandlerListener(new IHandlerListener() {
-            @Override
-            public void handlerChanged(HandlerEvent handlerEvent) {
-                // TODO Auto-generated method stub
-                System.out.println("changed");
-            }
-        });
         theDrawingLayer.issueRefresh();
     }
 
