@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 import com.raytheon.uf.viz.drawing.events.DrawingEventBus;
 
 /**
- * TODO Add Description
+ * Extends the toolbar and adds the "Leader Only" button
  * 
  * <pre>
  * 
