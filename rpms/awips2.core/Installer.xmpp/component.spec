@@ -24,6 +24,8 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
+requires: awips2-java
+requires: awips2-httpd-collaboration
 provides: awips2-%{_xmpp_server}
 
 %description
