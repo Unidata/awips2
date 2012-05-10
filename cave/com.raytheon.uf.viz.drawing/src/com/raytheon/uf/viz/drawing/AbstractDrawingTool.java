@@ -90,8 +90,6 @@ public abstract class AbstractDrawingTool extends AbstractModalTool {
             try {
                 desc.getResourceList().add(theDrawingLayer);
 
-                // TODO probably need to make this so that it can't be the time
-                // match basis
                 theDrawingLayer.initInternal(editor.getActiveDisplayPane()
                         .getTarget());
             } catch (Exception e) {

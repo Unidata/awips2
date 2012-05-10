@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXB;
@@ -32,9 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
@@ -213,58 +210,19 @@ public class CollaborationUtils {
         job.schedule();
     }
 
-    public static void sendChatMessage(List<String> ids, String message) {
-        // TODO transform Strings to IDS
-        System.err.println("sendChatMessage: " + message);
-        // if (CollaborationData.getInstance().hasChat(null)) {
-        // IChat chat = CollaborationData.getInstance().getOpenChat(null);
-        // try {
-        // chat.sendChatMessage(message);
-        // } catch (ECFException e) {
-        // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-        // e);
-        // }
-        // }
-    }
+    public static String formatMode(Mode mode) {
+        String name = mode.toString();
 
-    public static void createChat(List<ID> users) {
-        System.err.println("createChat: " + users);
-        // IPresenceContainerAdapter presence = CollaborationData.getInstance()
-        // .getPresence();
-        // try {
-        // presence.getChatManager().createChat(users.get(0),
-        // new IIMMessageListener() {
-        // @Override
-        // public void handleMessageEvent(
-        // IIMMessageEvent messageEvent) {
-        // if (messageEvent instanceof ChatMessageEvent) {
-        // ChatMessageEvent event = (ChatMessageEvent) messageEvent;
-        // System.out.println(event.getChatMessage()
-        // .getBody());
-        // }
-        // }
-        // });
-        // } catch (ECFException e) {
-        // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        // }
-    }
+        StringBuilder result = new StringBuilder(name.length());
+        String[] words = name.split("\\s");
+        for (int i = 0, l = words.length; i < l; ++i) {
+            if (i > 0)
+                result.append(" ");
+            result.append(Character.toUpperCase(words[i].charAt(0))).append(
+                    words[i].substring(1));
 
-    public static void changeStatus(IPresence.Mode statusMode) {
-        System.out.println("Changing mode...");
-        // IPresenceContainerAdapter presence = CollaborationData.getInstance()
-        // .getPresence();
-        //
-        // IPresence pres = new Presence(IPresence.Type.AVAILABLE, "AVAILABLE",
-        // IPresence.Mode.fromString(type.toString()));
-        // try {
-        // presence.getRosterManager()
-        // .getPresenceSender()
-        // .sendPresenceUpdate(
-        // CollaborationData.getInstance().getClient().getID(),
-        // pres);
-        // } catch (ECFException e) {
-        // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        // }
-        // presence.getAccountManager();
+        }
+
+        return result.toString();
     }
 }
