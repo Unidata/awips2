@@ -8,12 +8,16 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
+import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -32,20 +36,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenSession;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
-import gov.noaa.nws.ncep.ui.pgen.elements.Product;
-import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
-import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
-import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-
 /**
  * Singleton text product dialog for CCFP.
  * 
@@ -63,6 +53,8 @@ public class CcfpMsgDlg extends AttrDlg{
 	
 	// Constant for Button Update	
 	private static final int CCFP_CONSTANT_UPDATE = 20101007;
+	public static final String PGEN_CCFP_XSLT  =  "xslt"+File.separator+
+		"ccfp"+File.separator+"ccfpXml2Txt.xslt";
 	
 	// singleton instance for this class	
 	private static CcfpMsgDlg INSTANCE = null;
@@ -134,8 +126,8 @@ public class CcfpMsgDlg extends AttrDlg{
 			
 				String xmlFileName = CcfpInfo.saveCcfpXmlFile(getIssueTime(), getValidTime());
 				txtFileContent = CcfpInfo.convertXml2Txt(xmlFileName, 
-						NcPathManager.getInstance().getStaticFile( 
-								NcPathConstants.PGEN_CCFP_XSLT).getAbsolutePath() );
+						PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+								PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_CCFP_XSLT ));
 				txtInfo.setText(txtFileContent.trim());
 				
 			}
