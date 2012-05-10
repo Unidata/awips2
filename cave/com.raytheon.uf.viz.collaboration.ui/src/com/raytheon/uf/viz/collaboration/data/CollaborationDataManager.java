@@ -124,9 +124,10 @@ public class CollaborationDataManager {
      * 
      * @return sessionManager or null if unable to get connection.
      */
-    synchronized public CollaborationConnection getCollaborationConnection() {
+    synchronized public CollaborationConnection getCollaborationConnection(
+            boolean needsLogin) {
         // Get user's server account information and make connection.
-        if (isConnected() == false) {
+        if (isConnected() == false && needsLogin) {
             VizApp.runSync(new Runnable() {
 
                 @Override
@@ -255,7 +256,7 @@ public class CollaborationDataManager {
      */
     public String createCollaborationSession(String venue, String subject)
             throws CollaborationException {
-        CollaborationConnection sessionManager = getCollaborationConnection();
+        CollaborationConnection sessionManager = getCollaborationConnection(true);
         IVenueSession session = null;
         String sessionId = null;
         // try {
@@ -277,7 +278,7 @@ public class CollaborationDataManager {
 
     public String createTextOnlySession(String venueName, String subject)
             throws CollaborationException {
-        CollaborationConnection sessionManager = getCollaborationConnection();
+        CollaborationConnection sessionManager = getCollaborationConnection(true);
         IVenueSession session = null;
         String sessionId = null;
         session = sessionManager.createTextOnlyVenue(venueName, subject);
