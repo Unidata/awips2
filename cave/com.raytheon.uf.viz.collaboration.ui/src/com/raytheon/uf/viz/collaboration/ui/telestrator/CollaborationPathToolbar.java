@@ -100,7 +100,7 @@ public class CollaborationPathToolbar extends PathToolbar {
                     CollaborationDrawingEvent cde = (CollaborationDrawingEvent) event;
                     if (!cde.getUserName().equals(
                             CollaborationDataManager.getInstance()
-                                    .getCollaborationConnection().getUser())) {
+                                    .getCollaborationConnection(true).getUser())) {
                         if (cde.getType() == CollaborationEventType.DISABLE) {
                             disableAll();
                         }

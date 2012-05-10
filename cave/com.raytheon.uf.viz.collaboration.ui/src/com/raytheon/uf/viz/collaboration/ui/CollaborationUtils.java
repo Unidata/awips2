@@ -98,7 +98,7 @@ public class CollaborationUtils {
     public static Collection<Object> readAliases() {
         UserId[] ids = getIds();
         Roster roster = (Roster) CollaborationDataManager.getInstance()
-                .getCollaborationConnection().getRosterManager().getRoster();
+                .getCollaborationConnection(true).getRosterManager().getRoster();
         Collection<?> rosterObjects = new ArrayList<Object>();
         rosterObjects.addAll(roster.getItems());
         for (Object ob : rosterObjects) {
@@ -168,7 +168,7 @@ public class CollaborationUtils {
                         "collaboration" + File.separator
                                 + "collaborationAliases.xml");
                 IRoster roster = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getRosterManager()
+                        .getCollaborationConnection(true).getRosterManager()
                         .getRoster();
                 Set<IUser> ids = new HashSet<IUser>();
 
