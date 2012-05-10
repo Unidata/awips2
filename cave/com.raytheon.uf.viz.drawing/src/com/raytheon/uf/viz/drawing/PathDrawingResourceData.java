@@ -28,7 +28,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
 
 /**
- * TODO Add Description
+ * The resource data for the path drawing layer
  * 
  * <pre>
  * 
@@ -72,7 +72,6 @@ public class PathDrawingResourceData extends
      */
     @Override
     public void update(Object updateData) {
-        // TODO Auto-generated method stub
         super.update(updateData);
     }
 

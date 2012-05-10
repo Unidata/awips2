@@ -25,7 +25,9 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * TODO Add Description
+ * This container holds the wireframe shape as well as the geometry that it
+ * applies to. This will get serialized and sent over the network to other
+ * users, and will just be the geometry at that time.
  * 
  * <pre>
  * 
