@@ -1,0 +1,42 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Standalone Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.standalone; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.standalone.Activator
+Export-Package: gov.noaa.nws.ncep.standalone,
+ gov.noaa.nws.ncep.standalone.colormapConverter,
+ gov.noaa.nws.ncep.standalone.vgfConverter,
+ gov.noaa.nws.ncep.standalone.xmlConverter
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.viz.core,
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.common,
+ gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
+ org.apache.log4j;bundle-version="1.0.0",
+ org.geotools,
+ org.junit;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.ui.pgen;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.common.staticdata;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.core.exception,
+ com.raytheon.uf.viz.core.rsc,
+ com.raytheon.uf.viz.core.rsc.capabilities,
+ com.raytheon.viz.core.rsc,
+ com.raytheon.viz.ui.dialogs,
+ com.raytheon.viz.ui.dialogs.colordialog,
+ com.raytheon.viz.ui.editor,
+ gov.noaa.nws.ncep.edex.common.stationTables,
+ gov.noaa.nws.ncep.viz.localization,
+ gov.noaa.nws.ncep.viz.resources.manager
+Bundle-ClassPath: ., jna.jar, VgfXml.so
+
