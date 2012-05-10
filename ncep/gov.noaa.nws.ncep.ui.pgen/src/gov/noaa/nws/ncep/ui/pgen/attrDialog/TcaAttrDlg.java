@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.tca.Basin;
@@ -55,8 +56,6 @@ import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
 import gov.noaa.nws.ncep.ui.pgen.tca.StormAdvisoryNumber;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenTcaTool;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Singleton attribute dialog for text.
@@ -84,7 +83,8 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 	private static final String CREATE_TEXT_LABEL = "Create Text";
 	private static final int CANCEL_ID = IDialogConstants.CLIENT_ID + 7588;
 	private static final String CANCEL_LABEL = "Cancel All";
-    
+	public static final String PGEN_TCA_ATTR_INFO   = "TCAinfo.xml";
+	
 	private final String APPLY = "Apply";
 	private final String DELETE_SEGMENT = "Delete Segment";
 	private final String NEW_SEGMENT = "New Segment";
@@ -996,9 +996,8 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 	 */
 	private static void readOptions() {
 		
-		File tcainfoFile = NcPathManager.getInstance().getStaticFile( 
-    				NcPathConstants.PGEN_TCA_ATTR_INFO );   	    
-    		
+		File tcainfoFile = 	PgenStaticDataProvider.getProvider().getStaticFile( 
+				 PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_TCA_ATTR_INFO);   	    
 
 		try {
 			info = (TcaAttrInfo)SerializationUtil.jaxbUnmarshalFromXmlFile(tcainfoFile.getAbsoluteFile() );

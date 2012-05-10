@@ -7,22 +7,19 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.graphToGrid;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
-import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
-
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKBReader;
-
-import org.apache.log4j.Logger;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -41,7 +38,7 @@ import org.apache.log4j.Logger;
 
 public class BoundPolygon {
 	
-	private final static Logger logger = Logger.getLogger( BoundPolygon.class);
+//	private final static Logger logger = Logger.getLogger( BoundPolygon.class);
 	
 	/** 
 	 * The bound specification string. 
@@ -69,21 +66,6 @@ public class BoundPolygon {
 	 */
 	private Boolean			inout;
 
-	/** 
-	 * Database name, currently defaulted to "ncep". 
-	 */
-	public String			database		= "ncep";
-
-	/** 
-	 * Schema name, currently defaulted to "bounds". 
-	 */
-	public String			schema			= "bounds";
-   
-	/** 
-	 * Factory 
-	 * */
-	private GeometryFactory	geometryFactory	= new GeometryFactory();
-	
 	/** 
 	 *  Bound polygons retrieve for the specified bounds. 
 	 */
@@ -148,84 +130,9 @@ public class BoundPolygon {
 	    
 		// Parse the bound specification
 	    parseBounds();
-	    	    
-		// Query the bound table name in config.clo
-	    String bndsTable = "select t.table_name from config.clo t where t.alias_name = '" +
-		                    boundsTableAlias.toUpperCase() + "'";
-    	
-	    logger.debug( "bndsTable=" + bndsTable );
-	    
-	    List<Object[]> tableFile = null;		
-	    try {	    
-	        tableFile  = NcDirectDbQuery.executeQuery(
-	        		bndsTable, database, QueryLanguage.SQL );
-	    } catch (Exception e ) {
-	    	logger.debug( "Cannot find table for " + boundsTableAlias );
-	    }
-	    
-		                      
-	    String tableName = null; 
-	    if ( tableFile.isEmpty() ){
-		    // no record, try to use it directly as a table name
-		    tableName = boundsTableAlias;
-	    } else {
-		    for (Object o : tableFile.get(0) ) {
-			    tableName = (String) o;
-		    }
-	    }	        	
-		
-	    // Query the bounds from the table
-	    String queryBnds;
-    	queryBnds = "SELECT AsBinary(t.the_geom) FROM " + schema + "." + tableName;	    
-    	if ( columnName != null  && columnValue != null ) {
-//	    	queryBnds += " t" + " WHERE t." + columnName + " like '" + columnValue + "%'";
-	    	queryBnds += " t" + " WHERE t." + columnName.toUpperCase() + " = '" + 
-	    	                                  columnValue.toUpperCase() + "'";
-	    }
-    	
-    	logger.debug( "queryBnds=" + queryBnds );
-		
-    	List<Object[]> bounds = null;
-    	try {	    
-		    bounds = NcDirectDbQuery.executeQuery(
-                     queryBnds, database, QueryLanguage.SQL );
 
-	    } catch (Exception e ) {
-	    	logger.debug( "Cannot find bounds for " + boundsTableAlias );
-	    }
-       
-		
-	    // Read and store it
-	    WKBReader wkbReader = new WKBReader();
-	    
-        if ( bounds != null && !bounds.isEmpty() ) {
-		    for ( Object[] bnd : bounds ){
-			    
-		    	if ( bnd[0] != null ){
-					
-	    		    MultiPolygon mpoly = null;
-	    			try {
-	    				Geometry g = wkbReader.read( (byte[]) bnd[0] );
-	    				if ( g instanceof MultiPolygon ) {
-	    					mpoly = (MultiPolygon) g;
-	    			    }
-	    				else if ( g instanceof Polygon ) {
-	    					mpoly = new MultiPolygon( new Polygon[]{ (Polygon)g },
-	    							       geometryFactory );
-	    				}
-	    				
-	    			} catch ( ParseException e) {
-	    				logger.debug( "Error reading bound polygon" + e );
-	    			}
-	    	        	    			
-	    			if ( mpoly != null ) {
-	    				multiPolygons.add( mpoly );
-	    			}
-	    			
-			    }
-		    }
-        }	    
-      
+	    multiPolygons = PgenStaticDataProvider.getProvider().getG2GBounds(boundsTableAlias, columnName, columnValue);
+
 	}
 	    	 
 	
@@ -237,7 +144,7 @@ public class BoundPolygon {
 	private void parseBounds() {
 		
 		String[] bndStr = bnds.split("\\|");
-    	logger.debug( "bnds=" + bnds );
+//    	logger.debug( "bnds=" + bnds );
     	
     	inout = true;
     	
@@ -246,7 +153,7 @@ public class BoundPolygon {
 			    boundsTableAlias = bndStr[0];
 			}
 		   	
-			logger.debug( "boundsTableAlias=" +  boundsTableAlias);
+//			logger.debug( "boundsTableAlias=" +  boundsTableAlias);
 			
 			if ( bndStr.length > 1 ) {
 				int  inds = bndStr[1].indexOf("<");
@@ -258,8 +165,8 @@ public class BoundPolygon {
 				}
 			}
 			
-			logger.debug( "columnName=" +  columnName);			
-			logger.debug( "columnvale=" +  columnValue);
+//			logger.debug( "columnName=" +  columnName);			
+//			logger.debug( "columnvale=" +  columnValue);
 			
 			if ( bndStr.length > 2 ) {
 				if ( bndStr[2].trim().charAt(0) != 'T' &&
@@ -329,8 +236,8 @@ public class BoundPolygon {
 	        nn++;
 	    }
 	
-	    logger.debug( "# of bounds MultiPolygon found: " + nn );
-	    logger.debug( "# of bound Polygon found: " + mm );
+//	    logger.debug( "# of bounds MultiPolygon found: " + nn );
+//	    logger.debug( "# of bound Polygon found: " + mm );
         
 	    return boundContours;
 	}
@@ -347,7 +254,7 @@ public class BoundPolygon {
 		ArrayList<BoundPolygon> allBounds = new ArrayList<BoundPolygon>();
 		
 		String[] bndArray = bndStr.split("\\+");
-		logger.debug( "Total # of bounds"+ bndArray.length );	
+//		logger.debug( "Total # of bounds"+ bndArray.length );	
 		
 		for ( String str : bndArray ) {	
 			if ( str.trim().length() > 0 ) {

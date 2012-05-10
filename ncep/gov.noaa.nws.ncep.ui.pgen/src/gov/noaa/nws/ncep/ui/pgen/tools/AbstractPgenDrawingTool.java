@@ -10,7 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlgFactory;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IEditorPart;
@@ -18,6 +18,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * The abstract super class for all PGEN drawing tools.
@@ -66,7 +67,8 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
     @Override
     protected void activateTool( ) {
     	IEditorPart ep = EditorUtil.getActiveEditor();
-        if (!(ep instanceof NCMapEditor) ){
+//        if (!(ep instanceof NCMapEditor) ){
+        if (!(ep instanceof AbstractEditor) ){
             return;
         }
     	/*
