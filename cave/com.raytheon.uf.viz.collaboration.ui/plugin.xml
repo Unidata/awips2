@@ -154,9 +154,6 @@
             class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.GeneralRenderingHandler">
       </renderingExtension>
       <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.FontRenderingHandler">
-      </renderingExtension>
-      <renderingExtension
             class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.ImagingRenderingHandler">
       </renderingExtension>
       <renderingExtension
@@ -164,6 +161,9 @@
       </renderingExtension>
       <renderingExtension
             class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.WireframeShapeRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.StringRenderingHandler">
       </renderingExtension>
    </extension>
    <extension

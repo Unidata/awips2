@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
@@ -74,6 +75,8 @@ import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.strings.DrawStringEvent;
+import com.raytheon.uf.viz.remote.graphics.events.strings.DrawStringsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension;
@@ -279,21 +282,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawStrings(com.raytheon.uf.viz.core.DrawableString[])
      */
     public void drawStrings(DrawableString... parameters) throws VizException {
-        IFont[] originalFonts = new IFont[parameters.length];
-        for (int i = 0; i < parameters.length; ++i) {
-            DrawableString string = parameters[i];
-            originalFonts[i] = string.font;
-            if (string.font instanceof DispatchingFont) {
-                string.font = ((DispatchingFont) string.font)
-                        .getWrappedObject();
-            }
-        }
-        wrappedObject.drawStrings(parameters);
-        for (int i = 0; i < parameters.length; ++i) {
-            parameters[i].font = originalFonts[i];
-        }
-        
-        // TODO: Send rendering event for String drawing
+        drawStrings(Arrays.asList(parameters));
     }
 
     /**
@@ -307,15 +296,31 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         for (DrawableString string : parameters) {
             originalFonts.add(string.font);
             if (string.font instanceof DispatchingFont) {
-                string.font = ((DispatchingFont) string.font)
-                        .getWrappedObject();
+                DispatchingFont font = (DispatchingFont) string.font;
+                font.flushState();
+                string.font = font.getWrappedObject();
             }
         }
         wrappedObject.drawStrings(parameters);
-        int i = 0;
-        for (DrawableString string : parameters) {
-            string.font = originalFonts.get(i);
+
+        Iterator<DrawableString> stringIter = parameters.iterator();
+        Iterator<IFont> fontIter = originalFonts.iterator();
+        while (stringIter.hasNext() && fontIter.hasNext()) {
+            stringIter.next().font = fontIter.next();
         }
+
+        DrawStringsEvent event = RemoteGraphicsEventFactory.createEvent(
+                DrawStringsEvent.class, this);
+        DrawStringEvent[] strings = new DrawStringEvent[parameters.size()];
+        int i = 0;
+        for (DrawableString param : parameters) {
+            strings[i] = RemoteGraphicsEventFactory.createEvent(
+                    DrawStringEvent.class, this);
+            strings[i].setDrawableString(param);
+            ++i;
+        }
+        event.setStrings(strings);
+        dispatch(event);
     }
 
     /**
@@ -506,7 +511,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         event.setLineStyle(lineStyle);
         event.setAlpha(alpha);
         if (font instanceof DispatchingFont) {
-            event.setFontId(((DispatchingFont) font).getObjectId());
+            DispatchingFont df = (DispatchingFont) font;
+            df.flushState();
+            event.setFontId(df.getObjectId());
         }
         dispatch(event);
     }
