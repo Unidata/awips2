@@ -185,6 +185,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      */
     @Override
     public void createPartControl(Composite parent) {
+        CollaborationConnection connection = CollaborationDataManager
+                .getInstance().getCollaborationConnection(true);
+        if (connection == null) {
+            return;
+        }
         // build the necessary actions for the view
         createActions();
 
@@ -206,8 +211,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             usersTreeViewer.getTree().setEnabled(false);
         }
 
-        CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection();
         if (connection != null) {
             connection.registerEventHandler(this);
         }
@@ -219,7 +222,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     public void dispose() {
         super.dispose();
         CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection();
+                .getInstance().getCollaborationConnection(false);
         if (connection != null) {
             connection.unRegisterEventHandler(this);
         }
@@ -331,7 +334,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     IRosterEntry user = (IRosterEntry) node;
                     if (user.getPresence().getType() == Type.AVAILABLE) {
                         UserId loginUserId = CollaborationDataManager
-                                .getInstance().getCollaborationConnection()
+                                .getInstance().getCollaborationConnection(true)
                                 .getUser();
                         if (!loginUserId.equals(user)) {
                             createP2PChat(IDConverter.convertFrom(user
@@ -535,7 +538,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
         CollaborationConnection sessionManager = manager
-                .getCollaborationConnection();
+                .getCollaborationConnection(true);
         topLevel.clear();
         // set all the menu actions to false to start with
         if (sessionManager == null) {
@@ -562,7 +565,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         // make the first thing to show up in the list, which happens to be the
         // user's name and gives the user options to modify status and other
         // things
-        UserId user = manager.getCollaborationConnection().getUser();
+        UserId user = manager.getCollaborationConnection(true).getUser();
         topLevel.addObject(user);
 
         activeSessionGroup = new SessionGroupContainer();
@@ -751,8 +754,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             .getText());
                     CollaborationUtils.addAlias();
                     CollaborationDataManager.getInstance()
-                            .getCollaborationConnection().getEventPublisher()
-                            .post(entry.getUser());
+                            .getCollaborationConnection(true)
+                            .getEventPublisher().post(entry.getUser());
                 }
             }
         });
@@ -794,8 +797,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             .getText());
                     CollaborationUtils.addAlias();
                     CollaborationDataManager.getInstance()
-                            .getCollaborationConnection().getEventPublisher()
-                            .post(entry.getUser());
+                            .getCollaborationConnection(true)
+                            .getEventPublisher().post(entry.getUser());
                     break;
                 case SWT.Verify:
                     String newText = modText.getText();
@@ -844,7 +847,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         if (result != null) {
             char[] password = result.toString().toCharArray();
             CollaborationConnection sessionManager = CollaborationDataManager
-                    .getInstance().getCollaborationConnection();
+                    .getInstance().getCollaborationConnection(true);
             try {
                 sessionManager.getAccountManager().changePassword(password);
             } catch (CollaborationException e) {
@@ -878,7 +881,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
         CollaborationConnection sessionManager = manager
-                .getCollaborationConnection();
+                .getCollaborationConnection(true);
         if (sessionManager == null) {
             System.err.println("Unable to get session manager");
             return;
@@ -1181,7 +1184,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 + "/" + rosterEntry.getPresence().getType());
 
         ((RosterEntry) CollaborationDataManager.getInstance()
-                .getCollaborationConnection().getContactsManager()
+                .getCollaborationConnection(true).getContactsManager()
                 .getUsersMap().get(id)).setPresence(rosterEntry.getPresence());
         VizApp.runAsync(new Runnable() {
             @Override
@@ -1198,7 +1201,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     public void handleRosterChangeEvent(IRosterChangeEvent rosterChangeEvent) {
         final IRosterItem rosterItem = rosterChangeEvent.getItem();
         CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection();
+                .getInstance().getCollaborationConnection(true);
         switch (rosterChangeEvent.getType()) {
         case MODIFY:
         case ADD:

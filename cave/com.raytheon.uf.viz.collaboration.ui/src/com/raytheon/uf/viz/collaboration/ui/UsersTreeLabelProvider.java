@@ -79,7 +79,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         String key = "";
         if (element instanceof UserId) {
             String mode = CollaborationDataManager.getInstance()
-                    .getCollaborationConnection().getPresence().getMode()
+                    .getCollaborationConnection(true).getPresence().getMode()
                     .toString();
             mode = mode.replaceAll("\\s+", "_");
             key = mode;
