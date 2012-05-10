@@ -1,0 +1,71 @@
+! enhance.tbl
+!
+! enhancement table for imagery 
+!
+!	image_type:	1 = SAT, 2 = RAD
+!	lutfile_name:   lookup table file name	
+! LOG:
+!    C. Lin/EAI		12/97	based on old enhancement table
+!    S. Jacobs/NCEP	12/97	Updated for NIDS
+!    T. Piper/GSC	 2/98	Added rad_gray8 & rad_gray16
+!    J. Carr/HPC	 5/98	Added watvap2
+!    J. Partain/MPC	12/98   Added ssmi_mpc
+!    J. Carr/HPC        02/01   Added goes_dpw
+!  m.gamazaychikov/SAIC 06/03	changed ssmi_mpc to ssmi_opc
+! T. Piper/SAIC		03/06	Added gdp*, micro*, and ssmiwind
+!
+!image_type    lutfile_name 
+	1	gdpicape
+	1	gdpicinh
+	1	gdpili
+	1	gdpipw
+	1 	ir_drgb
+	1 	ir_nmc
+	1 	ir_rgbv
+	1 	ir_sab
+	1 	ir_tpc
+	1 	ir_tv1
+	1 	ir_grb
+	1 	colormb
+	1 	lingradk
+	1 	lingray
+	1	micro89a
+	1	micro89b
+	1	micropw
+	1	microrain
+	1 	visgray
+	1	ssmi_opc
+        1	ssmiwind
+	1       goes_dpw
+	1 	wv_gree
+	1 	wv_gr8
+	1 	wv_tpc
+	1 	watvap
+	1 	watvap2
+	1 	gray
+
+        1       colormb2.cmap               
+        1       m58.cmap  
+        1       sabir.cmap     
+        1       wv_lin.cmap
+        1       freds_albedo_vis_gray.cmap  
+        1       m62.cmap  
+        1       wv_color.cmap  
+        1       wv_n30.cmap
+	2 	nids_ref8
+	2 	nids_ref16
+	2 	nids_pre
+	2 	nids_tops
+	2 	nids_vel8
+	2 	nids_vel16
+	2 	nids_vil
+	2	nids_cmref
+	2	nids_csher
+	2	nids_rsher
+	2	nids_swid
+	2	nids_wecho
+	2 	osf_ref8
+	2 	osf_ref16
+	2 	rad_gray8
+	2 	rad_gray16
+	2 	wsi_mosaic
