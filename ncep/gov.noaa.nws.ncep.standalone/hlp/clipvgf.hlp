@@ -1,0 +1,74 @@
+*******************************************************************************
+                                  Clip VGF 
+*******************************************************************************
+
+INPUT PARAMETERS
+
+java -jar clipvgf.jar input_filename clip_bound keep_flag output_filename clip_accuracy [EDEXServer]
+   clipvgf              Program name
+   input_filename       xml file to be clipped
+   clip_bound           Bounds name of geographical clipping area; format:
+                        bound_name|<area_tag_name>area_tag_value
+                        and must be enclosed w/ quotes so the shell will ignore 
+                        directives.
+   keep_flag            "keep" keeps all element points inside clip_bound;
+                        "notkeep" keeps all element points outside clip_bound;
+                        anything else tosses element points inside clip_bound.
+   output_filename      Clipped xml file
+   clip_accuracy        must be "exact". This parameter is required when EDEX
+                        sever is specified, otherwise it is optional.
+   EDEXServer           http address of EDEX server location 
+   
+PROGRAM DESCRIPTION
+
+CLIPVGF scans an xml file and tests each element for clipping against a
+bounds area. Users are given a choice of employing one of two clipping
+techniques.
+
+CLIPPING TECHNIQUE (ACCURACY)
+
+Element (lat,lon) points are determined to be either inside or outside
+of the geographical clip area and are either kept or thrown away based
+on the input flag "keep_flag".  Note that linear elements such as fronts
+and lines will not be clipped precisely at the clip area boundary when
+using this option.
+
+NOTE: In both cases, the line's unsmoothed points are used to determine
+the clip edges. Therefore if the line has a smoothing factor, the resulting
+line may not have precisely the same curvature as the original, unclipped
+line when the smoothing factor is re-applied.\n
+
+LABELING
+
+If a linear object is grouped with a text label, the resulting clipped
+object will also be grouped with the same text label even if this label
+must be created. Labels such as these will be located midway between the
+first and second points of the clipped line.  If a symbol is grouped with
+a text label, the text label will be either clipped or not depending on
+whether the symbol is clipped or not.
+
+The following element classes are not processed:
+CLASS_WATCHES, CLASS_TRACKS, CLASS_SIGMETS
+
+The bounds area MUST be a single area, i.e., it may not have multiple parts
+such as islands. The only bounds file designed specifically for clipping
+(only one part per bound area) is the seamless surface analysis (SSA) file.
+
+EXAMPLES
+
+   java -jar clipvgf.jar input.xml "STATEBNDS|<STATE>CO" keep output.xml exact http://localhost:9581/services
+
+        - clips the xml file "input.xml" against the seamless surface analysis
+          bounds area. "STATEBNDS" is in the alias of the table stored in bounds.clo table, 
+          "<STATE>" is the column name in that table, and "CO" is the shape name. In this example, 
+          STATEBNDS|<STATE>CO corresponds to bounds.statebnds table, column state, shape for Colorado.
+          "Clip against the shape taken from bounds.statebnds table where state is CO"
+          Element points within this bounds area are saved into the xml file "output.xml". 
+
+   java -jar clipvgf.jar input.xml "COUNTY|<WFO>GID" notkeep output.xml exact http://lnx111.ncep.noaa.gov:9581/services
+
+        - clips the xml file "input.xml" against the seamless surface analysis
+          bounds area named "GID". "COUNTY" corresponds to COUNTYBNDS in bounds.clo, 
+          "WFO" is the column name. Element points outside of this bounds
+          area are saved into the xml file "output.xml". Linear objects are
+          clipped exactly at the boundaries.
