@@ -166,7 +166,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             if (user.getPresence().getType() == Type.UNAVAILABLE) {
                 builder.append("Offline");
             } else {
-                builder.append(user.getPresence().getMode().toString());
+                builder.append(CollaborationUtils.formatMode(user.getPresence()
+                        .getMode()));
 
                 // builder.append("Type: ").append(user.getType())
                 // .append("\n");
