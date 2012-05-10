@@ -23,7 +23,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * TODO Add Description
+ * A basic drawing event, just signifying that something happened
  * 
  * <pre>
  * 

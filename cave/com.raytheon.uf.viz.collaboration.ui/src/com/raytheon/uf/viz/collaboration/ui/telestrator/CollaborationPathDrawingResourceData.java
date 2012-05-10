@@ -29,7 +29,7 @@ import com.raytheon.uf.viz.drawing.DrawingLayer;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
 
 /**
- * TODO Add Description
+ * Extends PathDrawingResourceData and holds the session id
  * 
  * <pre>
  * 

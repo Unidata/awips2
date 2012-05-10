@@ -342,7 +342,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
                     .append("\n");
         }
         builder.append("Status : ")
-                .append(user.getPresence().getMode().toString()).append("\n");
+                .append(CollaborationUtils.formatMode(user.getPresence()
+                        .getMode())).append("\n");
         builder.append("Message : \"").append(user.getPresence().getStatus())
                 .append("\"");
         IVenueSession session = CollaborationDataManager.getInstance()
