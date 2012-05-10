@@ -24,9 +24,9 @@ package gov.noaa.nws.ncep.ui.pgen.display;
  */
 
 
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
 
 import java.awt.Color;
 import java.util.List;
@@ -37,7 +37,7 @@ public interface IWatchBox extends IMultiPoint{
 	public Color getFillColor();
 	public WatchShape getWatchBoxShape();
 	public Station[] getAnchors();
-	public List<County> getCountyList();
+	public List<SPCCounty> getCountyList();
 	public String getWatchSymbolType();
 	public float getWatchSymbolWidth();
 	public double getWatchSymbolSize();

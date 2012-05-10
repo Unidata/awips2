@@ -27,7 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -65,7 +65,7 @@ public class GfaRules {
 	public static final String WORDING = "WORDING";
 
 	/** Logger */
-	private final static Logger logger = Logger.getLogger(GfaRules.class);
+//	private final static Logger logger = Logger.getLogger(GfaRules.class);
 
 	/** Area limit in square nautical miles */
 	public static final double AREA_LIMIT = 3000.0;
@@ -279,8 +279,8 @@ public class GfaRules {
 			}
 			smear.addAttribute( WORDING, wording );
 			
-			logger.trace( smear.toString() );
-			logger.debug( "\n" + wording );
+//			logger.trace( smear.toString() );
+//			logger.debug( "\n" + wording );
 			
 			// create beginning and ending 
 			parseWording( smear, wording );
@@ -529,7 +529,7 @@ public class GfaRules {
 				// sanity check - should never reach this place
 				// check asssignXorO if this happens
 				String err = "Snapshot type must be assigned by this time";
-				logger.error(err);
+//				logger.error(err);
 				throw new IllegalArgumentException(err);
 			}
 		}

@@ -46,8 +46,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class Track extends Line implements ITrack {
 //public class Track extends MultiPointElement implements ITrack {
 
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(Track.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(Track.class);
 
 	
 	private final static float DEFAULT_FONT_SIZE = 14.0f; 
@@ -520,7 +520,7 @@ public class Track extends Line implements ITrack {
 			ExtraPointTimeDisplayOption extraPointTimeDisplayOption, 
 			String skipFactorTextString) {
 		if(initialPoints == null || initialPoints.length < 2) {
-			log.error("Method:calculateExtrapTrackPoints, the input initialPoints is null or initialPoints.length less than 2"); 
+//			log.error("Method:calculateExtrapTrackPoints, the input initialPoints is null or initialPoints.length less than 2"); 
 			return null; 
 		}
 		
@@ -531,8 +531,8 @@ public class Track extends Line implements ITrack {
 				!isCoordinateValid(lastInitPointCoordinate) || 
 				initPointBeforeLastInitPointTimeCal == null || 
 				lastInitPointTimeCal == null) {
-			log.error("Method: calculateExtrapTrackPoints, find 4 possible invalid input: startPointCoordinate or "+
-					"destPointCoordinate is invalid. firstTimeCal or secondTimeCal is null"); 
+//			log.error("Method: calculateExtrapTrackPoints, find 4 possible invalid input: startPointCoordinate or "+
+//					"destPointCoordinate is invalid. firstTimeCal or secondTimeCal is null"); 
 			return null; 
 		}
 		
@@ -628,8 +628,8 @@ public class Track extends Line implements ITrack {
 		try {
 			skipFactorIntValue = Integer.parseInt(skipFactorTextString); 
 		} catch(NumberFormatException nfe) {
-			log.error("The input of skipFactorTextString is invalid, skipFactorTextString="+
-					skipFactorTextString); 
+//			log.error("The input of skipFactorTextString is invalid, skipFactorTextString="+
+//					skipFactorTextString); 
 		}
 		
 		/*
@@ -781,7 +781,7 @@ public class Track extends Line implements ITrack {
 				elapsedHour = cal.get(Calendar.HOUR_OF_DAY); 
 				elapsedMinute = cal.get(Calendar.MINUTE); 
 			} catch(ParseException pe) {
-				log.error("The input of dateString is invalid, parse fails, dateString="+dateString); 
+//				log.error("The input of dateString is invalid, parse fails, dateString="+dateString); 
 				elapsedHour = 1; 
 			}
 		}

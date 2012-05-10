@@ -512,6 +512,7 @@ public class JetAttrDlg extends LineAttrDlg {
 		if ( barbAttrDlg != null ) barbAttrDlg.close();
 		if ( hashAttrDlg != null ) hashAttrDlg.close();
 		if ( flAttrDlg != null ) flAttrDlg.close();
+		jetTool = null;				//prevent reseting mouse handler
 		barbDlg.close();
 		return super.close();
 		

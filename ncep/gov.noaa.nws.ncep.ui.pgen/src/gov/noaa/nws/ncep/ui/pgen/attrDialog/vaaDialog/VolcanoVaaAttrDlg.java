@@ -46,8 +46,6 @@ import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
 import gov.noaa.nws.ncep.ui.pgen.*;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -88,6 +86,8 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 	 */
 	private static int RESET_ID = 20100201+1;
 	
+    private static final String PGEN_VAA_XSLT       = "xslt"+File.separator+
+	"vaa"+File.separator+"vaaXml2Txt.xslt";
 	/**
 	 * top Composite for this dialog.
 	 */
@@ -415,8 +415,8 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 		smDlg.setVolcano(volcano);	
 		
 		String xmlDir = PgenUtil.getWorkingDirectory();//LocalizationManager.getBaseDir();
-		String xsltFile = NcPathManager.getInstance().getStaticFile( 
-					NcPathConstants.PGEN_VAA_XSLT).getAbsolutePath();
+		String xsltFile = PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+				   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_VAA_XSLT );
 		smDlg.setTxtFileContent( convertXml2Txt(xmlDir+File.separator+volXMLFileName, xsltFile));	
 		
 		smDlg.open();

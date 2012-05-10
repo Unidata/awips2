@@ -28,8 +28,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField.StationField;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAvnText.AviationTextType;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
@@ -74,7 +76,6 @@ import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaRules;
@@ -82,7 +83,6 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.GfaWording;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.VaaInfo;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
-import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
 
@@ -1887,7 +1887,7 @@ public class ProductConverter {
 	    	}
 	    	
 	    	//set county list
-	    	for ( County cnty : wb.getCountyList()){
+	    	for ( SPCCounty cnty : wb.getCountyList()){
 	    		
 	    		String cntyName = "";
 	    		if ( cnty.getName() != null ){
@@ -2128,13 +2128,13 @@ public class ProductConverter {
 	    	Station anchors[] = new Station[fwb.getAnchorPoints().size()];
 	    	nn = 0;
 	    	for ( String str : fwb.getAnchorPoints()){
-	    		anchors[nn++] = StationTableUtil.getAnchorTbl().getStation(StationField.STID, str.substring(0, 3));
+	    		anchors[nn++] = PgenStaticDataProvider.getProvider().getAnchorTbl().getStation(StationField.STID, str.substring(0, 3));
 	    	}
 	    	wb.setAnchors(anchors[0], anchors[1]);		    
 		    
 	    	//set county list
 	    	if ( !fwb.getCounties().isEmpty()){
-	    		for ( County cnty : County.getAllCounties()){
+	    		for ( SPCCounty cnty : PgenStaticDataProvider.getProvider().getSPCCounties()){
 	    			if( cnty.getUgcId() != null ){
 	    				Iterator<String> it  = fwb.getCounties().iterator();
 	    				while ( it.hasNext() ){

@@ -8,10 +8,9 @@
 
 package gov.noaa.nws.ncep.ui.pgen.productManage;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProdType;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -280,10 +279,10 @@ public class ProdTypeDialog  extends Dialog {
 		}
 		else {
 	    	//put into localization
-		    LocalizationContext userContext = NcPathManager.getInstance().getContext(
+		    LocalizationContext userContext = PgenStaticDataProvider.getProvider().getLocalizationContext(
 					LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
 		    
-		    LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+		    LocalizationFile lFile = PgenStaticDataProvider.getProvider().getLocalizationFile( 
 		    		userContext, getStyleSheetFileName(nameTxt.getText()));
 		    
 		    //check file
@@ -332,7 +331,7 @@ public class ProdTypeDialog  extends Dialog {
 		
 		String pn = prodName.replaceAll(" ", "_");
 		
-		return NcPathConstants.PGEN_ROOT + File.separator + "xslt" + File.separator + "prod" + File.separator + pn  + ".xslt";
+		return PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + File.separator + "xslt" + File.separator + "prod" + File.separator + pn  + ".xslt";
 	}
 	
 }

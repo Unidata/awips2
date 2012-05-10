@@ -8,47 +8,16 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.awt.Color;
-
-import org.dom4j.Document;
-import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
-
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.widgets.Slider;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.PlatformUI;
-
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.vividsolutions.jts.geom.Coordinate;
-
-import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
+import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
-import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
@@ -59,8 +28,36 @@ import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.graphToGrid.GraphToGridParamDialog;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.ui.PlatformUI;
+
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Singleton attribute dialog for outlooks.
@@ -1280,8 +1277,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		
 		if (outlookTbl == null) {
 			try {
-				String outlookTypeFile = NcPathManager.getInstance().getStaticFile(
-						   NcPathConstants.PGEN_OUTLOOK_TYPE ).getAbsolutePath();
+				String outlookTypeFile = PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+						   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "outlooktype.xml" );
 
 				SAXReader reader = new SAXReader();
 				outlookTbl = reader.read(outlookTypeFile);
@@ -1465,9 +1462,9 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		
 		settings = new HashMap<String, Line>();
 		
-		String settingFile = NcPathManager.getInstance().getStaticFile(
-				   NcPathConstants.PGEN_OUTLOOK_SETTINGS ).getAbsolutePath();
-		
+		String settingFile = PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+				   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "outlooksettings.xml" );
+	
 		gov.noaa.nws.ncep.ui.pgen.file.Products products = FileTools.read( settingFile );
 		
         if ( products != null ){

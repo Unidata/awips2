@@ -8,12 +8,11 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.elements.AvnText;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
+import gov.noaa.nws.ncep.ui.pgen.elements.AvnText;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.tools.ILabeledLine;
@@ -605,7 +604,6 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 	@Override
 	public boolean close(){
 		
-		PgenUtil.setSelectingMode();
 		return super.close();
 		
 	}

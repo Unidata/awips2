@@ -23,6 +23,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
@@ -31,7 +32,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.*;
 
@@ -74,7 +75,8 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 	 * A handler to the current map editor. The map editor is used to 
 	 * redraw the drawing layer when user click on 'OK'.
 	 */
-	protected NCMapEditor	mapEditor = null;
+//	protected NCMapEditor	mapEditor = null;
+	protected AbstractEditor	mapEditor = null;
 	protected String pgenCategory = null;
 	protected String pgenType = null; 
 	protected static final int CHK_WIDTH = 16;
@@ -140,7 +142,8 @@ public abstract class AttrDlg extends Dialog implements IAttribute {
 	 * Sets the map editor
 	 * @param me
 	 */
-	public void setMapEditor( NCMapEditor me ){
+//	public void setMapEditor( NCMapEditor me ){
+	public void setMapEditor( AbstractEditor me ){
 		this.mapEditor = me;
 	}
 	
