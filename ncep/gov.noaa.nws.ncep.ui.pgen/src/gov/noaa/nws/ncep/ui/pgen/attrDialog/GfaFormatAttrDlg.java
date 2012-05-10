@@ -30,7 +30,7 @@ import java.util.HashMap;
 
 import javax.xml.bind.JAXBException;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -65,7 +65,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 public class GfaFormatAttrDlg extends AttrDlg {
 
-	private final static Logger logger = Logger.getLogger(GfaFormatAttrDlg.class);
+//	private final static Logger logger = Logger.getLogger(GfaFormatAttrDlg.class);
 
 	private static final String ZULU = "ZULU";
 	private static final String TANGO = "TANGO";
@@ -131,7 +131,8 @@ public class GfaFormatAttrDlg extends AttrDlg {
 				instance = new GfaFormatAttrDlg(parShell);
 
 			} catch (VizException e) {
-				logger.error(e);
+//				logger.error(e);
+				e.printStackTrace();
 			}
 		}
 
@@ -317,10 +318,12 @@ public class GfaFormatAttrDlg extends AttrDlg {
 			text.setText(sb.toString());
 		} catch (IOException e) {
 			text.setText("I/O Error");
-			logger.error(e);
+//			logger.error(e);
+			e.printStackTrace();
 		} catch (JAXBException e) {
 			text.setText("Serialization Error");
-			logger.error(e);
+//			logger.error(e);
+			e.printStackTrace();
 		}
 
 		getButton(OK_ID).setEnabled(false);

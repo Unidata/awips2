@@ -16,10 +16,13 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.common.staticdata.USState;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
@@ -28,10 +31,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
-import gov.noaa.nws.ncep.ui.pgen.maps.USState;
-import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Implements a modal map tool to draw PGEN watch boxes.
@@ -70,8 +70,7 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
 
     	new Thread(){
 			public void run(){
-				USState.loadStateTable();
-				County.loadCountyTable();
+				PgenStaticDataProvider.getProvider().getSPCCounties();
 			}
 		}.start();
 		
@@ -338,7 +337,8 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
      * @param polyPoints - list of coordinates of the polygon
      * @return - list of anchor points in the polygon
      */
-    public static ArrayList<Station> getAnchorsInPoly(NCMapEditor editor, List<Coordinate> polyPoints ){
+    public static ArrayList<Station> getAnchorsInPoly(AbstractEditor editor, List<Coordinate> polyPoints ){
+//    public static ArrayList<Station> getAnchorsInPoly(NCMapEditor editor, List<Coordinate> polyPoints ){
     	
     	ArrayList<Station> stnList = new ArrayList<Station>();
     	
@@ -354,7 +354,7 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
 		Polygon poly = new Polygon(xpoints, ypoints, polyPoints.size());
 		
 		// get a list of all anchor points
-		StationTable anchorTbl = StationTableUtil.getAnchorTbl();
+		StationTable anchorTbl = PgenStaticDataProvider.getProvider().getAnchorTbl();
     	List<Station> anchorList = anchorTbl.getStationList();
     	
     	// if an anchor point is in the polygon, add it to the return list.

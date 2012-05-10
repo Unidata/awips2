@@ -64,8 +64,8 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 
 public class TrackAttrDlg extends AttrDlg implements ITrack{
 	
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(TrackAttrDlg.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(TrackAttrDlg.class);
 	
 	public static enum FontSizeName { TINY, SMALL, MEDIUM, LARGE, HUGE, GIANT };
 	public static int[] FontSizeValue =  { 10, 12, 14, 18, 24, 34 };
@@ -380,7 +380,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
         GridLayout childGridLayout = new GridLayout( 2, false );
 
         this.getShell().setText("Track Attributes");
-        log.info("===now it is inside initializeComponents(...)"); 
+//        log.info("===now it is inside initializeComponents(...)"); 
 
         /**
          * Draw Frame/Set time buttons 
