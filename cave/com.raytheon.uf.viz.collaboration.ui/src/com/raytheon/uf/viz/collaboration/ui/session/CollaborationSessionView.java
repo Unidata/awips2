@@ -263,7 +263,7 @@ public class CollaborationSessionView extends SessionView {
         if (message.length() > 0) {
             try {
                 UserId id = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getUser();
+                        .getCollaborationConnection(true).getUser();
                 appendMessage(id, System.currentTimeMillis(), message);
                 ((IVenueSession) session).sendChatMessage(message);
             } catch (CollaborationException e) {
