@@ -58,6 +58,24 @@ import com.vividsolutions.jts.geom.TopologyException;
  * @author chammack
  * 
  */
+
+/**
+ * A basic drawing layer
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??                      chammack    Initial creation
+ * March 30, 2012          mnash       Updated to match current conventions
+ * 
+ * </pre>
+ * 
+ * @author mnash
+ * @version 1.0
+ */
 public class DrawingLayer extends
         AbstractVizResource<AbstractResourceData, MapDescriptor> {
     public static enum LayerState {
