@@ -142,8 +142,8 @@ public class CollaborationObjectEventStorage implements
             HttpClientResponse response = executeRequest(put);
             if (isSuccess(response.code) == false) {
                 throw new CollaborationException(
-                        "Error uploading event object to server @ "
-                                + eventObjectURL + " : "
+                        "Error uploading event object (" + event.getObjectId()
+                                + ") to server @ " + eventObjectURL + " : "
                                 + new String(response.data));
             }
             wrapped.setResourcePath(objectPath);
