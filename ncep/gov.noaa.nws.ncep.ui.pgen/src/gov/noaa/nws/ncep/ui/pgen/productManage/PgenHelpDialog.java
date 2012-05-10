@@ -7,8 +7,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.productManage;
 
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -186,9 +185,8 @@ public class PgenHelpDialog extends ProductDialog {
     		 *  Get the help file from the localization
     		 */    		
    	    	helpContent = "";
-   	    	File prdHelpFile = NcPathManager.getInstance().getStaticFile( 
-    				NcPathConstants.PGEN_HELP_FILE );   	    
-    		
+   	    	File prdHelpFile = PgenStaticDataProvider.getProvider().getStaticFile( 
+   	    			PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "PgenHelp.txt" );   	    
     		
      		if( prdHelpFile != null && prdHelpFile.exists() && prdHelpFile.canRead() ) {
 

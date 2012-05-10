@@ -20,6 +20,7 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
@@ -68,7 +69,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackExtrapPointInfoDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.OutlookAttrDlg;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Implements a modal map tool for PGEN selecting functions.
@@ -142,7 +143,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     	if ( PgenSession.getInstance().getPgenPalette() == null ) return;
     	
     	IEditorPart ep = EditorUtil.getActiveEditor();
-        if (!(ep instanceof NCMapEditor) ){
+        if (!(ep instanceof AbstractEditor) ){
             return;
         }
     	attrDlg = null;

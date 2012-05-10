@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
 import static gov.noaa.nws.ncep.ui.pgen.gfa.GfaInfo.*;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -22,14 +23,12 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
 import java.util.*;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.dom4j.Node;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -75,7 +74,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	private static GfaAttrDlg instance = null;
 
 	/** Logger */
-	private final static Logger log = Logger.getLogger(GfaAttrDlg.class);
+//	private final static Logger log = Logger.getLogger(GfaAttrDlg.class);
+    public static final String PGEN_RED_CROSS_IMG   = "red_cross.png";
 
 	private final String[] LABELS = { "Hazard:", "Fcst Hr:", "Tag:", "Desk:", "Issue Type:", "", "" };
 
@@ -130,8 +130,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	private Label warning;
 
 	private final String RED_CROSS_PATH = 
-		NcPathManager.getInstance().getStaticFile(
-				   NcPathConstants.PGEN_RED_CROSS_IMG ).getAbsolutePath();
+		PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+				   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_RED_CROSS_IMG );
 	
 	/** Digits, semicolon*/
 	private final String TIME = "[01234569]?|12|[012345]?:|[012345]?:(0|1|3|4|00|15|30|45)";
@@ -158,7 +158,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			try {
 				instance = new GfaAttrDlg(parShell);
 			} catch (VizException e) {
-				log.error(e.getStackTrace());
+//				log.error(e.getStackTrace());
+				e.printStackTrace();
 			}
 		}
 		return instance;

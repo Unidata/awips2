@@ -196,7 +196,7 @@
             commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea">
       </handler>      
       <handler
-            class="gov.noaa.nws.ncep.viz.tools.customProjection.CreateCustomProjectionHandler"
+            class="gov.noaa.nws.ncep.viz.customprojection.CreateCustomProjectionHandler"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection">
       </handler>
       <handler
