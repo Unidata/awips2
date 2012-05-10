@@ -26,7 +26,8 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 
 /**
- * TODO Add Description
+ * Extends the PathDrawingTool with logic to allow for locking of other users
+ * ("Leader Only") as well as holding the session id
  * 
  * <pre>
  * 

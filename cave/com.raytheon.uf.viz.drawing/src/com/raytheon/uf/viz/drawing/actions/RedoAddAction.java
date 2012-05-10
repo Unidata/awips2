@@ -31,7 +31,7 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * TODO Add Description
+ * Redraws the last shape that was undone
  * 
  * <pre>
  * 

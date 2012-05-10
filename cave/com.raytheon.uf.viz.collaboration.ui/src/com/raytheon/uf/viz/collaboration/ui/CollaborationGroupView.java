@@ -619,7 +619,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     private void fillStatusMenu(Menu menu) {
         for (int index = 0; index < CollaborationUtils.statusModes.length; ++index) {
             IPresence.Mode mode = CollaborationUtils.statusModes[index];
-            Action action = new Action(mode.toString()) {
+            Action action = new Action(CollaborationUtils.formatMode(mode)) {
                 public void run() {
                     changeStatusAction.setId(getId());
                     changeStatusAction.run();
@@ -1211,6 +1211,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     }
                 });
             } else if (rosterItem instanceof IRosterGroup) {
+                System.out.println("handling group");
             } else if (rosterItem instanceof IRoster) {
                 for (Object ob : ((IRoster) rosterItem).getItems()) {
                     if (ob instanceof IRosterEntry) {
