@@ -58,16 +58,16 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenPreferences;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.Activator;
 
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 
 import gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.*;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * This class allows the user to configure and edit the product types.
@@ -102,7 +102,8 @@ public class ProductConfigureDialog extends ProductDialog {
     		                               "Delete current activity type", "Ignore changes and exit" };
     private final String[] typeTabNames = { "Palette", "Settings", "Layer", "Save", "Filter", 
     										"Share", "Clip", "Products" };
-	
+    private static final String PGEN_PRODUCT_TYPES   ="productTypes.xml";
+
     private HashMap<String, IConfigurationElement> itemMap = null;  // map of PGEN configuration elements
 	
 	private static ArrayList<String> controls = null;
@@ -579,8 +580,8 @@ public class ProductConfigureDialog extends ProductDialog {
     	
 		ProductTypes ptyps = new ProductTypes();
 		
-		prdTypesFile = NcPathManager.getInstance().getStaticLocalizationFile(
-				   NcPathConstants.PGEN_PRODUCT_TYPES );
+		prdTypesFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(
+				PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_PRODUCT_TYPES);
 		
 		if( prdTypesFile != null && prdTypesFile.getFile().exists() && 
 				prdTypesFile.getFile().canRead() ) {
@@ -836,10 +837,10 @@ public class ProductConfigureDialog extends ProductDialog {
 
     		    	if ( !settings.equalsIgnoreCase("settings_tbl.xml")){ //don't delete the default file
 
-    		    		LocalizationContext userContext = NcPathManager.getInstance().getContext(
+    		    		LocalizationContext userContext = PgenStaticDataProvider.getProvider().getLocalizationContext(
     		    				LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
 
-    		    		LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+    		    		LocalizationFile lFile = PgenStaticDataProvider.getProvider().getLocalizationFile( 
     		    				userContext, settings);
 
     		    		lFile.delete();
@@ -952,11 +953,11 @@ public class ProductConfigureDialog extends ProductDialog {
     		}
     		else {  // create a user-level context and create/get a new localization file
 
-    			LocalizationContext userContext = NcPathManager.getInstance().getContext(
+    			LocalizationContext userContext = PgenStaticDataProvider.getProvider().getLocalizationContext(
     					prdTypesFile.getContext().getLocalizationType(), 
     					LocalizationLevel.USER );
-    			prdTypesFile = NcPathManager.getInstance().getLocalizationFile( 
-    					userContext, NcPathConstants.PGEN_PRODUCT_TYPES );
+    			prdTypesFile = PgenStaticDataProvider.getProvider().getLocalizationFile( 
+    					userContext, PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_PRODUCT_TYPES );
     		}
     		File ptypFile = prdTypesFile.getFile();
     		
@@ -3034,10 +3035,10 @@ public class ProductConfigureDialog extends ProductDialog {
 		    	ptyp.setPgenSettingsFile( "" );
 		    	
 		    	//put into localization
-			    LocalizationContext userContext = NcPathManager.getInstance().getContext(
+			    LocalizationContext userContext = PgenStaticDataProvider.getProvider().getLocalizationContext(
 						LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
 			    
-			    LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+			    LocalizationFile lFile = PgenStaticDataProvider.getProvider().getLocalizationFile( 
 			    		userContext, getSettingFullPath(pdName));
 			    
 			    //check file
@@ -3129,10 +3130,10 @@ public class ProductConfigureDialog extends ProductDialog {
 							//remove style sheets
 							String xsltFile = ProdTypeDialog.getStyleSheetFileName( pt.getName());
 							if ( xsltFile != null && !xsltFile.isEmpty()){
-								LocalizationContext userContext = NcPathManager.getInstance().getContext(
+								LocalizationContext userContext = PgenStaticDataProvider.getProvider().getLocalizationContext(
 										LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
 
-								LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+								LocalizationFile lFile = PgenStaticDataProvider.getProvider().getLocalizationFile( 
 										userContext, xsltFile);
 
 								lFile.delete();
@@ -3333,7 +3334,7 @@ public class ProductConfigureDialog extends ProductDialog {
 	 */
 	static public String getSettingFullPath( String prodType ){
 		
-		return NcPathConstants.PGEN_ROOT + getSettingFileName( prodType );
+		return PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() +  getSettingFileName( prodType );
 	}
 	
 	/**
@@ -3356,14 +3357,14 @@ public class ProductConfigureDialog extends ProductDialog {
 	 * @return
 	 */
 	private String getCurrentSetting( String prodType ){
-		File settingsFile = NcPathManager.getInstance().getStaticFile( 
+		File settingsFile = PgenStaticDataProvider.getProvider().getStaticFile( 
 				 getSettingFullPath( prodType));
 		
 		String fileName = "";
 		if ( settingsFile == null || !settingsFile.exists() ){
 			fileName = "settings_tbl.xml";
-			settingsFile = NcPathManager.getInstance().getStaticFile( 
-					NcPathConstants.PGEN_SETTINGS_TBL);
+			settingsFile = PgenStaticDataProvider.getProvider().getStaticFile( 
+					PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + AttrSettings.settingsFileName);
 		}
 		else {
 			fileName = getSettingFileName( prodType );

@@ -74,8 +74,8 @@ import gov.noaa.nws.ncep.viz.common.LocatorUtil;
 
 public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
 	
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(PgenMultiPointDrawingTool.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(PgenMultiPointDrawingTool.class);
 	
 	private TrackExtrapPointInfoDlg trackExtrapPointInfoDlg; 	
 	
@@ -193,7 +193,7 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
             	else {
             		//Use pgenType value to decide if the DrawableType should be TRACK or LINE
             		DrawableType drawableType = getDrawableType(pgenType); 
-            		log.debug("PgenMultiPointDrawingTool, before call def.create, drawableType=" + drawableType + ", pgenType="+pgenType);
+//            		log.debug("PgenMultiPointDrawingTool, before call def.create, drawableType=" + drawableType + ", pgenType="+pgenType);
 
             		/*if(drawableType == DrawableType.CONV_SIGMET && ("NCON_SIGMET".equals(pgenType))) //"CONV_SIGMET".equals(pgenType)||
             			points = SnapUtil.getSnapWithStation(points, SnapUtil.VOR_STATION_LIST, 10, 8);*/
