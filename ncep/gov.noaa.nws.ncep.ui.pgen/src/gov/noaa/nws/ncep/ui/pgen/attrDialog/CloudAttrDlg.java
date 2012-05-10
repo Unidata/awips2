@@ -8,12 +8,11 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.MidCloudText;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Cloud;
@@ -590,7 +589,6 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 	public boolean close(){
 		
 		if ( labelDlg != null ) labelDlg.close();
-		PgenUtil.setSelectingMode();
 		return super.close();
 		
 	}

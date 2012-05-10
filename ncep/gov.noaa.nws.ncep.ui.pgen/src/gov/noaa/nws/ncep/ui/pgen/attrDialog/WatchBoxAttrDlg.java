@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
@@ -43,7 +44,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchBoxModifyTool;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 
@@ -583,7 +583,8 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 	 * @param flag
 	 */
 	public void enableDspBtn( boolean flag){
-		dispBtn.setEnabled(flag);
+		if ( !dispBtn.isDisposed() )
+			dispBtn.setEnabled(flag);
 	}
 	
 	@Override
@@ -591,6 +592,7 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 	 * Close the watch attribute dialog and the watch info dialog 
 	 */
 	public boolean close(){
+		wbTool = null;
 		if( infoDlg != null ){
 			infoDlg.close();
 		}
@@ -752,7 +754,7 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 	}
 
 	@Override
-	public List<County> getCountyList() {
+	public List<SPCCounty> getCountyList() {
 		// TODO Auto-generated method stub
 		return null;
 	}
