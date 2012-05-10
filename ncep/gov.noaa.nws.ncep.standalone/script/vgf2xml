@@ -1,0 +1,27 @@
+#!/bin/sh
+
+usage(){
+    cat <<EOF
+      This scripts is used to convert vgf file to xml file.
+
+      Usage: vgf2xml <sourcedf> <target>
+      - <sourcedf>: the source directory or the source file.
+      - <target>: the target directory
+      The converted file has the same name with .xml ending.
+EOF
+    exit
+}
+
+srcpath=$1
+tgtpath=$2
+
+if [ $# -lt 2 ];  then
+     usage
+fi
+
+mkdir -p $tgtpath
+
+export LD_LIBRARY_PATH=%{CONV_INSTALL}%/distVC/lib:$LD_LIBRARY_PATH
+
+java -jar %{CONV_INSTALL}%/distVC/vgfConverter.jar $srcpath $tgtpath
+
