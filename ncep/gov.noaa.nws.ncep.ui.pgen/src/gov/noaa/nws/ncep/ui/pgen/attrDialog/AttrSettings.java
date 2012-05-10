@@ -8,26 +8,23 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.Text;
+import gov.noaa.nws.ncep.ui.pgen.elements.Track;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
+import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
+import gov.noaa.nws.ncep.ui.pgen.file.Products;
+import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
+
 import java.io.File;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.viz.core.exception.VizException;
-
-import gov.noaa.nws.ncep.ui.pgen.elements.*;
-
-import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
-import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
-import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Singleton for the default attribute settings of PGEN DrawableElements.
@@ -56,7 +53,7 @@ public class AttrSettings {
 	private static HashMap<String, AbstractDrawableComponent> settings = null;
 
     private static String settingsTblLocal = "." + File.separator;   
-    private static String settingsFileName = "settings_tbl.xml";
+    public static String settingsFileName = "settings_tbl.xml";
     
 	/**
 	 * Private constructor
@@ -139,8 +136,8 @@ public class AttrSettings {
 		/*
 		 *  Get the settings table file from localization
 		 */		
-		File settingsFile = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_SETTINGS_TBL );
+		File settingsFile =		PgenStaticDataProvider.getProvider().getFile(
+				   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + settingsFileName);
 		
 		if ( settingsFile == null ) {
 			System.out.println("Unable to fing pgen settings table");
@@ -159,13 +156,8 @@ public class AttrSettings {
 				
 				String pt = ProductConfigureDialog.getProductTypes().get(prodName).getType();
 				String pt1 = pt.replaceAll(" ", "_");
-	//			LocalizationContext userContext = NcPathManager.getInstance().getContext(
-	//					LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
-
-	//			LocalizationFile lFile1 = NcPathManager.getInstance().getLocalizationFile( 
-	//					userContext, ProductConfigureDialog.getSettingFullPath(pt1));
 				
-				LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(ProductConfigureDialog.getSettingFullPath(pt1));
+				LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(ProductConfigureDialog.getSettingFullPath(pt1));
 				
 				String filePath =  lFile.getFile().getAbsolutePath();
 				if ( !new File( filePath).canRead()){

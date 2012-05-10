@@ -9,6 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
@@ -19,7 +20,6 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
-import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 
@@ -878,18 +878,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 	//"id","bounds.greatlakesbnds"
 	//"id","bounds.adjcstlbnds"
 	public static List<Object[]> initAllStates(String field, String table){
-		List<Object[]> list = null;		
-		String query = "Select AsBinary(the_geom_0_016), "+field+" FROM "+table;//mapdata.states";
-		
-		try {
-			list = NcDirectDbQuery.executeQuery( query, "ncep", QueryLanguage.SQL);
-		}
-		catch (Exception e ){
-			System.out.println("___ Error: SigmetCommAttrDlg: initAllStates(): "+e.getMessage());
-			list = new ArrayList<Object[]>();
-		}
-		
-		return list;
+		return PgenStaticDataProvider.getProvider().queryNcepDB(field, table);
 	}
 	
 	public static List<String> getAreaStringList(Polygon cSigPoly, IMapDescriptor mapDescriptor, String field, String table){

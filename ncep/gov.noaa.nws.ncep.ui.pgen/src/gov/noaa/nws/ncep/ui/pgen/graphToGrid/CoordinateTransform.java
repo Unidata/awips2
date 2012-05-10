@@ -7,13 +7,14 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.graphToGrid;
 
-import gov.noaa.nws.ncep.viz.tools.customProjection.CustomProjectionServiceImpl;
-import gov.noaa.nws.ncep.viz.tools.customProjection.ICustomProjectionService;
-import gov.noaa.nws.ncep.gempak.parameters.marshaller.garea.GraphicsAreaCoordinates;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import java.io.File;
 
-import org.apache.log4j.Logger;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.viz.customprojection.CustomProjectionServiceImpl;
+import gov.noaa.nws.ncep.viz.customprojection.ICustomProjectionService;
+import gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea.GraphicsAreaCoordinates;
+
+//import org.apache.log4j.Logger;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -50,15 +51,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class CoordinateTransform {
 	
-	private final static Logger logger = Logger.getLogger( CoordinateTransform.class );
+//	private final static Logger logger = Logger.getLogger( CoordinateTransform.class );
 
 	/*
 	 * Configure the two files in the extension
 	 */
-	private final String geogFilePath = NcPathManager.getInstance().getStaticFile(
-			NcPathConstants.GEOG_TBL ).getAbsolutePath();
-	private final String stationFilePath =  NcPathManager.getInstance().getStaticFile(
-			NcPathConstants.SFSTNS_TBL ).getAbsolutePath();
+	private final String geogFilePath = PgenStaticDataProvider.getProvider().getGeogFile().getAbsolutePath();
+	
+	private final String stationFilePath =  PgenStaticDataProvider.getProvider().getSfcStnFile().getAbsolutePath();
 
     /*
      *	Max dimension for holding intersections defined in grphgd.cmn
@@ -204,35 +204,35 @@ public class CoordinateTransform {
 		 */		
 		if ( this.projection == null || this.projection.length() == 0 ) {
 			this.projection = "DEF";
-			logger.warn( "Invalid input for PROJ - default to DEF");
+//			logger.warn( "Invalid input for PROJ - default to DEF");
 		}
 		
 		if ( this.garea == null || this.garea.length() == 0 ) {
 			this.garea = "US";
-			logger.warn( "Invalid input for GAREA - default to US");
+//			logger.warn( "Invalid input for GAREA - default to US");
 		}
 				
 		if ( this.kx <= 0 ) {
 			this.kx =  63;
-			logger.warn( "Invalid input for kx - default to 63");
+//			logger.warn( "Invalid input for kx - default to 63");
 		}
 		
 		if ( this.ky <= 0 ) {
 			this.ky = 28;
-			logger.warn( "Invalid input for ky - default to 28");
+//			logger.warn( "Invalid input for ky - default to 28");
 		}
 		
 		if ( ( kx * ky ) > LLMXTG || ( kx + ky ) > MAXDIM ) {
 			this.kx =  63;
 			this.ky = 28;
-			logger.warn( "Grid is too large - default to 63 x 28");
+//			logger.warn( "Grid is too large - default to 63 x 28");
 		}
 		   	
 		/*
 		 * Parse the garea and projection.
 		 */
-        logger.debug( "Projection/garea/kx/ky are " + projection  + "/" + garea +
-        		               "/" + kx + "/" + ky );
+//        logger.debug( "Projection/garea/kx/ky are " + projection  + "/" + garea +
+//        		               "/" + kx + "/" + ky );
          
 		GraphicsAreaCoordinates gareaCoordObj = new GraphicsAreaCoordinates( garea ); 
         
@@ -296,11 +296,13 @@ public class CoordinateTransform {
 	      	    yscale = ysize / (ky - 1);
 	      	          	        	      	    
 	        } catch (Exception e) {
-			    logger.error( "Failed to create CoordinateTransform", e );
+//			    logger.error( "Failed to create CoordinateTransform", e );
+				e.printStackTrace();
 	        }
 
 	    } catch ( Exception e) {	    			    
-		    logger.error( "Failed to create CoordinateTransform", e );
+//		    logger.error( "Failed to create CoordinateTransform", e );
+			e.printStackTrace();
 	    }
 	    			
 	}
@@ -328,7 +330,8 @@ public class CoordinateTransform {
 			try {      	        
 				worldToGeneralGrid.transform( lonlat, 0, outp, 0, numPts );
 			} catch (Exception e) {
-			    logger.error( "Failed to transform from world to grid coordinate", e );
+//			    logger.error( "Failed to transform from world to grid coordinate", e );
+				e.printStackTrace();
 			}
 			
 			/*
@@ -383,8 +386,9 @@ public class CoordinateTransform {
 				lonlat = new double[ numPts * 2 ]; 
 				generalGridToWorld.transform( outp, 0, lonlat, 0, numPts );
 			} catch (Exception e) {
-			    logger.error( "Failed to transform from grid to world coordinate", e );
-	        }
+//			    logger.error( "Failed to transform from grid to world coordinate", e );
+				e.printStackTrace();
+			}
 			
 	    }
 		
@@ -413,7 +417,8 @@ public class CoordinateTransform {
 			try {      	        
 				worldToGeneralGrid.transform( lonlat, 0, gridout, 0, numPts );
 			} catch (Exception e) {
-			    logger.error( "Failed to transform from world to grid coordinate", e );
+//			    logger.error( "Failed to transform from world to grid coordinate", e );
+				e.printStackTrace();
 			}
 			
 	    }
@@ -444,8 +449,9 @@ public class CoordinateTransform {
 				lonlat = new double[ numPts * 2 ]; 
 				generalGridToWorld.transform( gridin, 0, lonlat, 0, numPts );
 			} catch (Exception e) {
-			    logger.error( "Failed to transform from grid to world coordinate", e );
-	        }
+//			    logger.error( "Failed to transform from grid to world coordinate", e );
+				e.printStackTrace();
+			}
 			
 	    }
 		

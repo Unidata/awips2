@@ -9,11 +9,10 @@
 package gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog;
 
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -242,8 +241,8 @@ public class CcfpTimeDlg extends AttrDlg{
 		//save CCFP xml file then apply style sheet to get text product
         String fileName = CcfpInfo.saveCcfpXmlFile(ccfpIssueTime, ccfpValidTime);        
         String txtPrd = CcfpInfo.convertXml2Txt( fileName, 
-				NcPathManager.getInstance().getStaticFile( 
-						NcPathConstants.PGEN_CCFP_XSLT).getAbsolutePath() );
+				PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+						PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + CcfpMsgDlg.PGEN_CCFP_XSLT ));
 
         //close this dialog
         cancelPressed();
@@ -276,8 +275,9 @@ public class CcfpTimeDlg extends AttrDlg{
 
 		try {
 			
-			File file = NcPathManager.getInstance().getStaticFile( 
-					   NcPathConstants.PGEN_CCFP_TIMES );
+			File file = PgenStaticDataProvider.getProvider().getFile(
+					PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "ccfpTimes.xml" );
+
 			  DocumentBuilder builder = factory.newDocumentBuilder();
 			  doc = builder.parse( file.getAbsoluteFile() );
 		} catch (Exception e) {  System.out.println("-----------"+e.getMessage());		} 

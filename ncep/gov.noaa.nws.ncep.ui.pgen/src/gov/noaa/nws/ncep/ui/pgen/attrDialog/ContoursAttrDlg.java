@@ -47,7 +47,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gov.noaa.nws.ncep.gempak.parameters.contourinterval.CINT;
+import gov.noaa.nws.ncep.gempak.parameters.core.contourinterval.CINT;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
