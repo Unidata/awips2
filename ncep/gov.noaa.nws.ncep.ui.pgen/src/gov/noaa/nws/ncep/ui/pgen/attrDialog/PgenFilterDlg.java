@@ -12,12 +12,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilter;
 import gov.noaa.nws.ncep.ui.pgen.filter.ForecastHourFilter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -37,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Implementation of a dialog to control filters.
@@ -65,7 +65,8 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 	private PgenResource drawingLayer;
 	
 	//Map editor
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	
 	//top level container for all widgets
 	private Composite top;
@@ -378,7 +379,8 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 	 * @param resource
 	 * @param editor
 	 */
-	public void setResource(PgenResource resource, NCMapEditor editor){
+	public void setResource(PgenResource resource, AbstractEditor editor){
+//	public void setResource(PgenResource resource, NCMapEditor editor){
 		this.drawingLayer = resource;
 		this.mapEditor = editor;
 	}
@@ -392,8 +394,8 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 		
 		if (HOURS == null) {
 			try {
-				String filterHourFile = NcPathManager.getInstance().getStaticFile(
-						   NcPathConstants.PGEN_FILTER_HOUR ).getAbsolutePath();
+				String filterHourFile =		PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+						   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "filterHour.xml" );
 
 				SAXReader reader = new SAXReader();
 				filterHourTbl = reader.read(filterHourFile);

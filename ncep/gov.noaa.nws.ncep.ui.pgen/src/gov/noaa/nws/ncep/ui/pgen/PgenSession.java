@@ -10,7 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenCommandManager;
 import gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 /**
  * This singleton is intended to couple a PGEN Palette with a PGgenResource, so that
@@ -95,7 +95,8 @@ public class PgenSession {
 	public PgenResource getPgenResource() {
 		
 		if ( pgenResource == null ) {
-			PgenResource rsc = PgenUtil.findPgenResource(NmapUiUtils.getActiveNatlCntrsEditor());
+//			PgenResource rsc = PgenUtil.findPgenResource(NmapUiUtils.getActiveNatlCntrsEditor());
+			PgenResource rsc = PgenUtil.findPgenResource(PgenUtil.getActiveEditor());
 			if ( rsc != null ) {
 				pgenResource = rsc;
 			}

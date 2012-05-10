@@ -7,7 +7,9 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.elements;
 
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
@@ -16,9 +18,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
-import gov.noaa.nws.ncep.ui.pgen.maps.USState;
-import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
@@ -45,6 +44,7 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
+
 /**
  * Implementation of Pgen  watch box element.
  * 
@@ -88,7 +88,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	private boolean fillFlag;
 	private Color fillColor;
 	private Station anchors[];
-	private List<County> countyList;
+	private List<SPCCounty> countyList;
 	
 	//Watch Issue Information
 	private String issueStatus;
@@ -122,7 +122,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	
 	public WatchBox(){
 		anchors = new Station[2];
-		countyList = new ArrayList<County>();
+		countyList = new ArrayList<SPCCounty>();
 		issueFlag = 0;
 	}
 	
@@ -326,7 +326,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 */
 	public Station getNearestVor(Coordinate loc ){
 
-		return StationTableUtil.getVorTbl().getNearestStation(loc);
+		return PgenStaticDataProvider.getProvider().getVorTbl().getNearestStation(loc);
 		
 	}
 
@@ -390,18 +390,18 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
      * Add the input county in the county list
      * @param cnty
      */
-    public void addCounty(County cnty){
+    public void addCounty(SPCCounty cnty){
     	countyList.add(cnty);
     }
     
-    public void removeCounty(County cnty){
+    public void removeCounty(SPCCounty cnty){
     	countyList.remove(cnty);
     }
     
     /**
      * Get the county list
      */
-    public List<County> getCountyList(){
+    public List<SPCCounty> getCountyList(){
     	return countyList;
     }
     
@@ -410,9 +410,9 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
      * county to it
      * @param cl
      */
-    public void setCountyList(List<County> cl){
-    	List<County> newList = new ArrayList<County>();
-    	for( County cnty : cl ){
+    public void setCountyList(List<SPCCounty> cl){
+    	List<SPCCounty> newList = new ArrayList<SPCCounty>();
+    	for( SPCCounty cnty : cl ){
     		newList.add(cnty);
     	}
     	countyList = newList;
@@ -479,7 +479,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		ArrayList<String> wfos = new ArrayList<String>();
 		
 		if ( countyList != null && !countyList.isEmpty()){
-			for(County cnty: countyList ){
+			for(SPCCounty cnty: countyList ){
 
 				String wfo = cnty.getWfo();
 				//wfo can be more than one
@@ -504,7 +504,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	public List<String> getStates(){
 		ArrayList<String> states = new ArrayList<String>();
 		if ( countyList != null && !countyList.isEmpty()){
-			for(County cnty : countyList ){
+			for(SPCCounty cnty : countyList ){
 
 				if ( cnty.getState()!= null && !states.contains(cnty.getState())){
 					states.add(cnty.getState());
@@ -524,9 +524,9 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 */
 	public void removeState(String state ){
 		if ( countyList != null && !countyList.isEmpty()){
-			Iterator<County> it = countyList.iterator();
+			Iterator<SPCCounty> it = countyList.iterator();
 			while( it.hasNext() ){
-				County cnty = it.next();
+				SPCCounty cnty = it.next();
 				if (cnty.getState() != null && cnty.getState().equalsIgnoreCase(state)){
 					it.remove();
 				}
@@ -540,9 +540,9 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 */
 	public void removeCwa(String cwa ){
 		if ( countyList != null && !countyList.isEmpty()){
-			Iterator<County> it = countyList.iterator();
+			Iterator<SPCCounty> it = countyList.iterator();
 			while( it.hasNext() ){
-				County cnty = it.next();
+				SPCCounty cnty = it.next();
 				if (cnty.getWfo() != null && cnty.getWfo().equalsIgnoreCase(cwa)){
 					it.remove();
 				}
@@ -556,10 +556,10 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 * @param cwa
 	 */
 	public void addCwa(String cwa ){
-		List<County> allCounties = County.getAllCounties();
+		List<SPCCounty> allCounties = PgenStaticDataProvider.getProvider().getSPCCounties();
 		
 		if ( allCounties != null){
-			for ( County cnty : allCounties ){
+			for ( SPCCounty cnty : allCounties ){
 				if ( cnty.getWfo() != null 
 						&& cnty.getWfo().equalsIgnoreCase(cwa)
 						&& !countyList.contains(cnty) ) {
@@ -588,13 +588,13 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 * of the active county union
 	 * @return
 	 */
-	public List<County> getInactiveCountiesInWB(){
+	public List<SPCCounty> getInactiveCountiesInWB(){
 		
 		if ( countyList == null || countyList.isEmpty() ){
 			return null;
 		}
 		
-		List<County> rt = new ArrayList<County>();
+		List<SPCCounty> rt = new ArrayList<SPCCounty>();
 		Geometry union = getCountyUnion();
 		GeometryFactory gf = new GeometryFactory();
 
@@ -615,7 +615,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 				if ( area < 0.01 ) continue;
 
 				//Check any county centeriod inside the hole
-				for ( County cnty : County.getAllCounties() ){
+				for ( SPCCounty cnty : PgenStaticDataProvider.getProvider().getSPCCounties() ){
 
 					if ( p.contains(gf.createPoint(cnty.getCentriod()))){
 						rt.add(cnty);
@@ -632,14 +632,14 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 * Get a list of active counties outside of the main watch box
 	 * @return
 	 */
-	public List<County> getActiveCountiesOutsideWB(){
+	public List<SPCCounty> getActiveCountiesOutsideWB(){
 		
 		if ( countyList == null || countyList.isEmpty() ){
 			return null;
 		}
 		
 		//initialization 
-		List<County> rt = new ArrayList<County>();
+		List<SPCCounty> rt = new ArrayList<SPCCounty>();
 		Geometry union = getCountyUnion();
 		GeometryFactory gf = new GeometryFactory();
 		Polygon largestPoly = null;
@@ -658,7 +658,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		
 		//loop through the active county list and check if
 		// any county is outside of the largest polygon
-		for ( County cnty : countyList ){
+		for ( SPCCounty cnty : countyList ){
 		
 			if ( !largestPoly.contains(gf.createPoint(cnty.getCentriod()))){
 				rt.add(cnty);
@@ -677,7 +677,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		
 		Collection<Geometry> gCollection = new ArrayList<Geometry>();;
 
-		for ( County cnty : countyList ){
+		for ( SPCCounty cnty : countyList ){
 			Geometry countyGeo = cnty.getShape();
 			if ( countyGeo != null ){
 				if ( !countyGeo.isValid() ) {
@@ -1500,13 +1500,13 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		Geometry union = this.getCountyUnion();
 		Geometry bUnion = union.buffer(0.01);
 		
-		List<County> counties = new ArrayList<County>(); 
+		List<SPCCounty> counties = new ArrayList<SPCCounty>(); 
 
-		counties.addAll(County.getCountiesInGeometry(bUnion));
+		counties.addAll(PgenStaticDataProvider.getProvider().getCountiesInGeometry(bUnion));
 		ArrayList<String> nWFOs = new ArrayList<String>();
 		
 		List<String> wfos = this.getWFOs();
-		for(County cnty : counties ){
+		for(SPCCounty cnty : counties ){
 			String wfo = cnty.getWfo();
 			//wfo can be more than one
 			if ( wfo != null ) {
@@ -1526,20 +1526,8 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 * Get the state name hash map
 	 * @return
 	 */
-	public static HashMap<String, String> getStateName(){
-		if (stateName == null ){
-			stateName = new HashMap<String, String>();
-			List<USState> states = USState.getAllStates();
-
-			if (  states != null ){
-				for ( USState st : states ){
-					stateName.put(st.getStateAbrv(), st.getName());
-				}
-			}
-				
-		}
-		
-		return stateName;
+	public HashMap<String, String> getStateName(){
+		return PgenStaticDataProvider.getProvider().getStateAbrvMap();
 	}
 	
 	/** 
@@ -1550,7 +1538,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 */
 	public String createCountyInfo(String state, Calendar exp ){
 		
-		if ( stateName == null ) getStateName();
+		if ( stateName == null ) stateName = getStateName();
 		
 		String ugcStr ="";
 		String oneLine ="";
@@ -1563,7 +1551,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		int iCiti = 0;
 		int iCnty = 0;
 		
-		for ( County county : countyList ){
+		for ( SPCCounty county : countyList ){
 			if ( county.getState() != null && state.equalsIgnoreCase(county.getState())){
 				if (ugcStr.isEmpty()){
 					ugcStr = county.getUgcId();
@@ -1670,7 +1658,7 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
      */
     private List<String> findCntyInClst(String fips, List<String> rt){
     	 if ( rt == null ) rt = new ArrayList<String>();
-    	String value = StationTableUtil.getClstTbl().get(fips);
+    	String value = PgenStaticDataProvider.getProvider().getClstTbl().get(fips);
     	if ( value != null ){
     		int index = 0;
     		do {
@@ -1698,12 +1686,12 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
      * Remove counties from the watch box
      * @param county
      */
-    public void rmClstCnty(County county){
+    public void rmClstCnty(SPCCounty county){
     	if ( county.getFips().isEmpty() || county.getFips().equalsIgnoreCase("00000")){
     		removeCounty( county);
     	}
     	for ( String fips : findCntyInClst(county.getFips(), null)){
-    		removeCounty(County.findCounty(fips));
+    		removeCounty(PgenStaticDataProvider.getProvider().findCounty(fips));
     	}
     }  
     
@@ -1711,13 +1699,13 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 * Add clustering counties to the watch box
 	 * @param county
 	 */
-    public void addClstCnty(County county){
+    public void addClstCnty(SPCCounty county){
     	if ( county.getFips().isEmpty() || county.getFips().equalsIgnoreCase("00000")){
     		addCounty( county);
     	}
     	else {
     		for ( String fips : findCntyInClst(county.getFips(), null)){
-    			County cnty = County.findCounty(fips);
+    			SPCCounty cnty = PgenStaticDataProvider.getProvider().findCounty(fips);
     			if (  cnty != null && !countyList.contains(cnty)) addCounty(cnty);
     		}
     	}
@@ -1765,12 +1753,12 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	 * @param countyList
 	 * @return
 	 */
-	public String formatCountyInfo( List<County> cntyList){
+	public String formatCountyInfo( List<SPCCounty> cntyList){
 		
 		String cntyInfo="";
 		if ( cntyList != null && !cntyList.isEmpty() ){
 			
-			for( County cnty : cntyList ){
+			for( SPCCounty cnty : cntyList ){
 				String cntyName = cnty.getName().replaceAll("City of ", "").replaceAll(" City", "");
 				cntyInfo += String.format("%1$-7s%2$-5s%3$-12s%4$6.2f%5$8.2f%6$7s%7$5s", 
 						cnty.getUgcId(), cnty.getState(), cntyName,
