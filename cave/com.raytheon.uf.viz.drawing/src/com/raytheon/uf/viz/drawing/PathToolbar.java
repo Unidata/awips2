@@ -60,7 +60,8 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
 
 /**
- * TODO Add Description
+ * The dialog that holds the toolbar for the path drawing tool, interacts with
+ * the layer
  * 
  * <pre>
  * 
