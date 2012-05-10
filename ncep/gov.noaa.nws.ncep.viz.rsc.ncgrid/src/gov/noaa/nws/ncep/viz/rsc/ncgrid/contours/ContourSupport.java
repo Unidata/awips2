@@ -22,7 +22,7 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
-import gov.noaa.nws.ncep.gempak.parameters.contourinterval.CINT;
+import gov.noaa.nws.ncep.gempak.parameters.core.contourinterval.CINT;
 import gov.noaa.nws.ncep.gempak.parameters.infill.FINT;
 import gov.noaa.nws.ncep.gempak.parameters.infill.FLine;
 import gov.noaa.nws.ncep.gempak.parameters.line.LineDataStringParser;
@@ -34,7 +34,6 @@ import gov.noaa.nws.ncep.viz.tools.contour.FillGenerator;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1159,7 +1158,7 @@ public class ContourSupport {
                 arrowSize, xPoints, yPoints, numPoints, minspc, maxspc,
                 -1000000f, -999998f);
         
-        long t1 = System.currentTimeMillis();
+//        long t1 = System.currentTimeMillis();
 //        System.out.println("Streamline Contouring took: " + (t1 - t0));
 
         List<double[]> vals = new ArrayList<double[]>();

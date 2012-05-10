@@ -8,12 +8,11 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenToolUtils;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,7 +60,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 public class WatchCoordDlg  extends CaveJFACEDialog  {
 
 	static final int LINE_LEN = 65;
-	
+    public static final String PGEN_FORECASTER      = "forecasters.xml";
+
 	//instance of watch info dialog
 	static private WatchCoordDlg INSTANCE = null;
 	
@@ -501,9 +501,9 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		
 		if (FORECASTERS == null) {
 			try {
-				String forecasterFile = NcPathManager.getInstance().getStaticFile(
-						   NcPathConstants.PGEN_FORECASTER ).getAbsolutePath();
-
+				String forecasterFile = PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+						   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + PGEN_FORECASTER );
+				
 				SAXReader reader = new SAXReader();
 				forecasterTbl = reader.read(forecasterFile);
 			} catch (Exception e) {

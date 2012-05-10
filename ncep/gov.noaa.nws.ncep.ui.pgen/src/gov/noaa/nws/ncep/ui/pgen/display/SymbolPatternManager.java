@@ -7,9 +7,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.display;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -73,8 +71,8 @@ public class SymbolPatternManager {
 	private void initialize() {
 	
 		loadInternal();
-		File patterns = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_SYMBOL_PATTERNS );
+		File patterns = PgenStaticDataProvider.getProvider().getStaticFile( 
+				PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "symbolPatterns.xml");
 		if ( patterns != null && patterns.exists() ) {
 			loadPatternsFromFile( patterns.getAbsolutePath() );
 		}				

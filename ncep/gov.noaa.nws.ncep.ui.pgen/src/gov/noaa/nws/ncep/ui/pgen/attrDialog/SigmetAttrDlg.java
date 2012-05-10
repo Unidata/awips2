@@ -13,6 +13,7 @@ import static gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.ID_MAP;
 import static gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.SIGMET_TYPES;
 import static gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.VOL_NAME_BUCKET_ARRAY;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
@@ -22,8 +23,6 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
 import java.beans.PropertyDescriptor;
@@ -2504,8 +2503,8 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		   
 		   org.w3c.dom.NodeList nlist = null;      
 		   
-		   File file = NcPathManager.getInstance().getStaticFile( 
-				   NcPathConstants.PGEN_PHENOMENONS );
+		   File file = PgenStaticDataProvider.getProvider().getStaticFile( 
+				   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "phenomenons.xml" );
 	             
 		   try {            	 
 			   org.w3c.dom.Document doc  = 

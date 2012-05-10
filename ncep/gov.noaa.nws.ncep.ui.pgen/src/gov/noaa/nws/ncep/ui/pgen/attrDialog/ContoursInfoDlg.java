@@ -14,9 +14,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -474,8 +473,9 @@ public class ContoursInfoDlg extends CaveJFACEDialog implements IContours {
 		
 		if ( contoursInfoTbl == null) {
 			try {
-				String cntrInfoFile = NcPathManager.getInstance().getStaticFile(
-						   NcPathConstants.PGEN_CONTOURS_INFO ).getAbsolutePath();
+				String cntrInfoFile =	PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+						   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "contoursInfo.xml" );
+
 				SAXReader reader = new SAXReader();
 				contoursInfoTbl = reader.read(cntrInfoFile);
 			} catch (Exception e) {

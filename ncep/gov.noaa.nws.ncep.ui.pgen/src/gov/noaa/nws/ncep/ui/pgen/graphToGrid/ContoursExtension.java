@@ -7,7 +7,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.graphToGrid;
 
-import gov.noaa.nws.ncep.gempak.parameters.categorymap.CatMap;
+import gov.noaa.nws.ncep.gempak.parameters.core.categorymap.CatMap;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;

@@ -11,6 +11,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 import java.awt.geom.Line2D;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
@@ -30,7 +31,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.TextAttrDlg;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Implements a modal map tool for PGEN text drawing.
@@ -344,7 +345,8 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
      *		    -1 - left side of the line
      *  	    0  - on the line
      */
-    public static int rightOfLine( NCMapEditor mEditor, Coordinate pt, Line ln ){
+//    public static int rightOfLine( NCMapEditor mEditor, Coordinate pt, Line ln ){
+    public static int rightOfLine( AbstractEditor mEditor, Coordinate pt, Line ln ){
 
     	double screenPt[] = mEditor.translateInverseClick(pt);
 
