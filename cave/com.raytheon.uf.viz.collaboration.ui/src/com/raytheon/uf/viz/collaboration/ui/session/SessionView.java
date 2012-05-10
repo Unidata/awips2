@@ -143,7 +143,7 @@ public class SessionView extends AbstractSessionView {
     @Override
     protected void initComponents(Composite parent) {
         initColorManager();
-        CollaborationDataManager.getInstance().getCollaborationConnection()
+        CollaborationDataManager.getInstance().getCollaborationConnection(true)
                 .getEventPublisher().register(this);
         super.initComponents(parent);
     }
@@ -162,7 +162,7 @@ public class SessionView extends AbstractSessionView {
             public void run() {
                 try {
                     CollaborationConnection sessionManager = CollaborationDataManager
-                            .getInstance().getCollaborationConnection();
+                            .getInstance().getCollaborationConnection(true);
                     ISession session = sessionManager.getPeerToPeerSession();
                     PlatformUI
                             .getWorkbench()
@@ -223,7 +223,7 @@ public class SessionView extends AbstractSessionView {
         // separately
         if (message.getFrom().equals(
                 CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getUser())) {
+                        .getCollaborationConnection(true).getUser())) {
             return;
         }
         VizApp.runAsync(new Runnable() {
@@ -373,7 +373,7 @@ public class SessionView extends AbstractSessionView {
                     RosterEntry rEntry = new RosterEntry(session
                             .getConnection().getRosterManager().getRoster(),
                             participant, CollaborationDataManager.getInstance()
-                                    .getCollaborationConnection().getPresence());
+                                    .getCollaborationConnection(true).getPresence());
                     users.add(rEntry);
                 } else if (entry != null) {
                     users.add(usersMap.get(participant));
@@ -416,7 +416,7 @@ public class SessionView extends AbstractSessionView {
         session.unRegisterEventHandler(this);
         CollaborationDataManager mgr = CollaborationDataManager.getInstance();
         mgr.closeSession(sessionId);
-        mgr.getCollaborationConnection().getEventPublisher().unregister(this);
+        mgr.getCollaborationConnection(true).getEventPublisher().unregister(this);
 
         super.dispose();
     }
@@ -439,7 +439,7 @@ public class SessionView extends AbstractSessionView {
         if (message.length() > 0) {
             try {
                 UserId id = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection().getUser();
+                        .getCollaborationConnection(true).getUser();
                 appendMessage(id, System.currentTimeMillis(), message);
                 session.sendChatMessage(message);
             } catch (CollaborationException e) {
