@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # TODO - Check Number Of Arguments.
-WORKSPACE=${1}
-SHARE_DIR=${2}
+export WORKSPACE=${1}
+export SHARE_DIR=${2}
 # This is where we will copy the rpms to once they are
 # successfully built.
-REPO_DEST=${3}
+export REPO_DEST=${3}
 
 # Determine if we are 32-bit?
 CHECK_ARCH=`uname -i`
@@ -30,34 +30,97 @@ echo "INFO: Starting The 32-Bit Build."
 export BUILDROOT_DIR=/tmp/awips-component
 
 # Build awips2-httpd-pypies
-PYPIES_PROJECT_DIR="Installer.rpm/awips2.core/Installer.httpd-pypies"
-HTTPD_PYPIES_RPM="awips2-httpd-pypies-2.2.3-*.i386.rpm"
-# We Need The Source RPM.
-PYPIES_SRC_RPM="${SHARE_DIR}/packages/httpd-pypies/src/awips2-httpd-pypies-2.2.3-22.src.rpm"
+PYPIES_PROJECT_DIR="${WORKSPACE}/Installer.rpm/awips2.core/Installer.httpd-pypies"
+COLLABORATION_PROJECT_DIR="${WORKSPACE}/Installer.rpm/awips2.core/Installer.httpd-collaboration"
 
-# Ensure That The Source RPM Exists.
-if [ ! -f ${PYPIES_SRC_RPM} ]; then
-   echo "ERROR: Unable to locate the httpd-pypies source rpm."
-   echo "Unable To Continue ... Terminating."
+httpd_version="2.2.3"
+HTTPD_PYPIES_pattern="awips2-httpd-pypies-${httpd_version}-*.i386.rpm"
+HTTPD_COLLABORATION_pattern="awips2-httpd-collaboration-${httpd_version}-*.i386.rpm"
+
+# Create a temporary repository destination for the httpd rpms.
+if [ -d ${REPO_DEST}/httpd-temp ]; then
+   rm -rf ${REPO_DEST}/httpd-temp
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
+mkdir -p ${REPO_DEST}/httpd-temp/BUILD
+if [ $? -ne 0 ]; then
    exit 1
 fi
-# If the source rpm does exist install it.
-rpm -ivh ${PYPIES_SRC_RPM}
-RC=$?
-if [ ${RC} -ne 0 ]; then
-   echo "ERROR: Installation of the httpd-pypies src rpm Failed."
-   echo "Unable To Continue ... Terminating."
+mkdir -p ${REPO_DEST}/httpd-temp/RPMS
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${REPO_DEST}/httpd-temp/SOURCES
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${REPO_DEST}/httpd-temp/SPECS
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${REPO_DEST}/httpd-temp/SRPMS
+if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Prepare to build the rpm.
-export PROJECT_DIR="${WORKSPACE}/Installer.rpm/awips2.core/Installer.httpd-pypies"
+# Unpack the httpd source.
+httpd_src="${WORKSPACE}/Installer.rpm/awips2.core/deploy.builder/httpd.SOURCES"
+httpd_src_tar="${httpd_src}/httpd-2.2.3-SOURCES.tar"
+tar -xvf ${httpd_src_tar} -C ${REPO_DEST}/httpd-temp/SOURCES
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+echo "Building ... awips2-httpd-pypies"
 # Build awips2-httpd-pypies
-rpmbuild -ba --target=i386 --buildroot ${BUILDROOT_DIR} ${PROJECT_DIR}/component.spec
+rpmbuild -ba --target=i386 \
+   --define '_topdir %(echo ${REPO_DEST}/httpd-temp)' \
+   --define '_build_root %(echo ${BUILDROOT_DIR})' \
+   --define '_baseline_workspace %(echo ${WORKSPACE})' \
+   --buildroot ${BUILDROOT_DIR} \
+   ${PYPIES_PROJECT_DIR}/component.spec
 RC=$?
 if [ ${RC} -ne 0 ]; then
    echo "ERROR: Build of awips2-httpd-pypies Failed."
    echo "Unable To Continue ... Terminating."
+   exit 1
+fi
+
+echo "Building ... awips2-httpd-collaboration"
+# Build awips2-httpd-collaboration
+rpmbuild -ba --target=i386 \
+   --define '_topdir %(echo ${REPO_DEST}/httpd-temp)' \
+   --define '_build_root %(echo ${BUILDROOT_DIR})' \
+   --define '_baseline_workspace %(echo ${WORKSPACE})' \
+   --buildroot ${BUILDROOT_DIR} \
+   ${COLLABORATION_PROJECT_DIR}/component.spec
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   echo "ERROR: Build of awips2-httpd-collaboration Failed."
+   echo "Unable To Continue ... Terminating."
+   exit 1
+fi
+
+# Copy the httpd rpms to the specified destination directory.
+if [ ! -d ${REPO_DEST}/RPMS/i386 ]; then
+   mkdir -p ${REPO_DEST}/RPMS/i386
+fi
+cp -v ${REPO_DEST}/httpd-temp/RPMS/i386/${HTTPD_PYPIES_pattern} \
+   ${REPO_DEST}/RPMS/i386
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp -v ${REPO_DEST}/httpd-temp/RPMS/i386/${HTTPD_COLLABORATION_pattern} \
+   ${REPO_DEST}/RPMS/i386
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+# Remove the temporary repository destination.
+rm -rf ${REPO_DEST}/httpd-temp
+if [ $? -ne 0 ]; then
    exit 1
 fi
 
@@ -115,7 +178,7 @@ fi
 # ----------------------------------------------------------------------------------------------- #
 
 # Copy the rpms that we just built to the specified destination.
-cp -v ${RPM_DEST_DIR}/${HTTPD_PYPIES_RPM} ${REPO_DEST} 
-cp -v ${RPM_DEST_DIR}/${LDM_RPM} ${REPO_DEST}
-cp -v ${RPM_DEST_DIR}/${PYGTK_RPM} ${REPO_DEST}
-cp -v ${RPM_DEST_DIR}/${PYCAIRO_RPM} ${REPO_DEST}
+cp -v ${RPM_DEST_DIR}/${HTTPD_PYPIES_RPM} ${REPO_DEST}/RPMS/i386 
+cp -v ${RPM_DEST_DIR}/${LDM_RPM} ${REPO_DEST}/RPMS/i386
+cp -v ${RPM_DEST_DIR}/${PYGTK_RPM} ${REPO_DEST}/RPMS/i386
+cp -v ${RPM_DEST_DIR}/${PYCAIRO_RPM} ${REPO_DEST}/RPMS/i386
