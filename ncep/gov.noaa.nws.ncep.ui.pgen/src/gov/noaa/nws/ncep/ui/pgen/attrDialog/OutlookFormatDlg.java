@@ -20,6 +20,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
@@ -27,8 +28,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -411,9 +410,9 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
     	DOMSource ds = new DOMSource(sw);
     	
     	//get style sheet file path
-    	String xsltPath = NcPathConstants.PGEN_ROOT + File.separator + "xslt" + File.separator + "outlook" + File.separator + "Outlook.xlt";
+    	String xsltPath =  PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + File.separator + "xslt" + File.separator + "outlook" + File.separator + "Outlook.xlt";
 
-		LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(xsltPath);
+		LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(xsltPath);
 		
 		if ( lFile != null ){
 			msg = PgenUtil.applyStyleSheet( ds, lFile.getFile().getAbsolutePath());
@@ -500,8 +499,9 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		
 		if ( otlkTimesTbl == null) {
 			try {
-				String outlookTimesFile =  NcPathManager.getInstance().getStaticFile(
-						   NcPathConstants.PGEN_OUTLOOK_TIMES ).getAbsolutePath();
+				String outlookTimesFile =  		PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+						   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "outlooktimes.xml" );
+				
 				SAXReader reader = new SAXReader();
 				otlkTimesTbl = reader.read(outlookTimesFile);
 			} catch (Exception e) {

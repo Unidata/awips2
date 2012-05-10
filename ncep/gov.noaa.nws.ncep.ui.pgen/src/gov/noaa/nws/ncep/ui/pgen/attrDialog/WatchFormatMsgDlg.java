@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
@@ -16,8 +17,6 @@ import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -239,9 +238,9 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
     	DOMSource ds = new DOMSource(sw);
     	
     	//get style sheet file path
-    	String xsltPath = NcPathConstants.PGEN_ROOT + File.separator + "xslt" + File.separator + "watchbox" + File.separator + xslt;
+    	String xsltPath = PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "xslt" + File.separator + "watchbox" + File.separator + xslt;
 
-		LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(xsltPath);
+		LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(xsltPath);
 		
 		String outStr ="";
 		if ( lFile != null ){
