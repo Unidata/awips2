@@ -73,7 +73,7 @@ public class CollaborationObjectEventStorage implements
 
     private static final int SESSION_DATA_PORT = 80;
 
-    private static NetworkStatistics stats = com.raytheon.uf.viz.collaboration.Activator
+    private static NetworkStatistics stats = com.raytheon.uf.viz.collaboration.comm.Activator
             .getDefault().getNetworkStats();
 
     public static IObjectEventPersistance createPersistanceObject(
