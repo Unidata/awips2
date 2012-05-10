@@ -29,7 +29,7 @@ import org.eclipse.ecf.presence.im.IChatMessageEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.Activator;
+import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;

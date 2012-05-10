@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.ui,
  org.geotools;bundle-version="2.6.4",
  org.eclipse.ui;bundle-version="3.6.1",
- com.raytheon.uf.viz.collaboration
+ com.raytheon.uf.viz.collaboration.comm
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.collaboration.display.editor,
