@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration;
+package com.raytheon.uf.viz.collaboration.comm;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

@@ -30,7 +30,7 @@ import org.eclipse.ecf.presence.im.IChatMessage;
 import org.eclipse.ecf.presence.im.IChatMessageSender;
 
 import com.google.common.eventbus.EventBus;
-import com.raytheon.uf.viz.collaboration.Activator;
+import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
