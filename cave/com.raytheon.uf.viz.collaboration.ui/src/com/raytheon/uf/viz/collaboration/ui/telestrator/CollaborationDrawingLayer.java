@@ -103,7 +103,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             LoadProperties props) {
         super(data, props);
         CollaborationDataManager mgr = CollaborationDataManager.getInstance();
-        userId = mgr.getCollaborationConnection().getUser();
+        userId = mgr.getCollaborationConnection(true).getUser();
     }
 
     /*
