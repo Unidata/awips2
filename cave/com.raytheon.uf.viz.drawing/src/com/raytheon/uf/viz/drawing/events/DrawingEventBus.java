@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.drawing.events;
 import com.google.common.eventbus.EventBus;
 
 /**
- * TODO Add Description
+ * Declare its own event bus so events can be sent efficiently
  * 
  * <pre>
  * 

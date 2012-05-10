@@ -30,7 +30,7 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * TODO Add Description
+ * Clears the drawing of the resource such that all user's shapes are removed
  * 
  * <pre>
  * 
