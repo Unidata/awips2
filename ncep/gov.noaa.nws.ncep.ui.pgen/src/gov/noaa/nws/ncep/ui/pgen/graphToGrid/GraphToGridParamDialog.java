@@ -8,6 +8,7 @@
 package gov.noaa.nws.ncep.ui.pgen.graphToGrid;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
@@ -20,9 +21,8 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 
@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 import java.awt.Color;
 import java.io.File;
@@ -76,12 +77,12 @@ import java.io.File;
 
 public class GraphToGridParamDialog extends CaveJFACEDialog {
 	
-	private final static Logger logger = Logger.getLogger( GraphToGridParamDialog.class );
+//	private final static Logger logger = Logger.getLogger( GraphToGridParamDialog.class );
     
 	private static LinkedHashMap<String, String> productMaps = null;
 	private static HashMap<String, String> currentProductParams = null;
 	private static ArrayList<String> productNames = null;	
-	private static String grphgdTblName = NcPathConstants.PGEN_G2G_GRPHGD; // "grphgd.tbl"; 
+	private static String grphgdTblName = PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "grphgd.tbl"; // "grphgd.tbl"; 
 	private static ArrayList< HashMap<String, String> > productDefaults = null;
 	
 	private static final int 	BASIC_ADV_ID = IDialogConstants.CLIENT_ID + 7585;
@@ -141,7 +142,7 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
         	    String fileName = value.substring( value.lastIndexOf('/') + 1 );
        	    
         		HashMap<String, String> map = GraphToGrid.loadParameters( 
-        				NcPathConstants.PGEN_ROOT+File.separator+fileName );
+        				PgenStaticDataProvider.getProvider().getPgenLocalizationRoot()+File.separator+fileName );
         		
         		if ( map.size() > 0 ) {
         			productDefaults.add( map );
@@ -717,7 +718,8 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
 	 */
 	private void showExtension() {
 		
-		NCMapEditor currentEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+//		AbstractEditor currentEditor = NmapUiUtils.getActiveNatlCntrsEditor();
+		AbstractEditor currentEditor = PgenUtil.getActiveEditor();
 		PgenResource drawingLayer = PgenSession.getInstance().getPgenResource();
 		      
 		Contours cnt = getCurrentContours();
@@ -739,7 +741,7 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
 	        	ky = Integer.parseInt( nkxky[1] );
 	        }
 	        else {
-	        	logger.warn( "Invalid input for kx;ky - default to 63;28" );
+//	        	logger.warn( "Invalid input for kx;ky - default to 63;28" );
 	        }
 	       
 			       

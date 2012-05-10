@@ -7,7 +7,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.graphToGrid;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -34,7 +34,7 @@ import com.sun.jna.Native;
 
 public class G2GNativeLibrary {
 	
-	private final static Logger logger = Logger.getLogger( G2GNativeLibrary.class);
+//	private final static Logger logger = Logger.getLogger( G2GNativeLibrary.class);
 	
 	/** Setting up Singleton */
     private static G2GNativeLibrary instance;
@@ -77,9 +77,9 @@ public class G2GNativeLibrary {
      *  Test 
      */
 	public static void main(String[] args) {
-		logger.debug("Test G2G native library");
+//		logger.debug("Test G2G native library");
 	    G2GNative INSTANCE = (G2GNative) Native.loadLibrary("g2g", G2GNative.class);
-	    logger.debug("Finish test G2G native library");
+//	    logger.debug("Finish test G2G native library");
 	}
 
 	
@@ -102,7 +102,7 @@ public class G2GNativeLibrary {
                         String catmap, String hstgrd, String discrete, 
     		            String dlines, String gglimt, String edgeopts ) {
      	
-    	logger.debug( "Start G2G native calculation ......");
+//    	logger.debug( "Start G2G native calculation ......");
       	    	    	
     	int ier = g2gNative.g2g_driver( grid, hist, kx, ky, nlines, 
         		                    nlatlons, latPts, lonPts,
@@ -114,7 +114,7 @@ public class G2GNativeLibrary {
        		                        catmap, hstgrd, discrete, dlines, 
         		                    gglimt, edgeopts  );
    	
-    	logger.debug( "Finish G2G native calculation - ier = " + ier );
+//    	logger.debug( "Finish G2G native calculation - ier = " + ier );
     	
     	return ier;
     }
@@ -128,13 +128,13 @@ public class G2GNativeLibrary {
 	        		   String maxgrd, String gparm, String gdatim, 
 	        		   String gvcord, String glevel ) {
 
-	    logger.debug( "Writing G2G grid to file ......");
+//	    logger.debug( "Writing G2G grid to file ......");
   	    	
     	int ier = g2gNative.g2g_writer( grid, hist, hstgrd,  
     	        	gdfile, proj, cpyfil, gdarea, anlyss, kxky,
     	            maxgrd, gparm, gdatim, gvcord, glevel );
 
-    	logger.debug( "Finish writing G2G grid - ier = " + ier );
+//    	logger.debug( "Finish writing G2G grid - ier = " + ier );
 
     	return 0;
     }
