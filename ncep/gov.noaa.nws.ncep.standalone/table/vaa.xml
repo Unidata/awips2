@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<vaa>
+
+<path   LPF_PATH="./" ></path>
+<path   TXT_PATH="./" ></path>
+
+<header-information orig-stn="KNES" vaac="/WASHINGTON" wmoid="/XX" wmo-header-number="/20;21;22;23;24;25;26;27"></header-information>
+<header-information orig-stn="PANC"  vaac="/ANCHORAGE"     wmoid="/AK"        wmo-header-number="/20;21;22;23;24"></header-information>
+<header-information orig-stn="CWAO"  vaac="/MONTREAL"      wmoid="/CN"        wmo-header-number="/01;02;03;04"></header-information>
+<header-information orig-stn="SABM"  vaac="/BUENOS AIRES"  wmoid="/XX"        wmo-header-number="/01"></header-information>
+<header-information orig-stn="ADRM"  vaac="/DARWIN"        wmoid="/AU"        wmo-header-number="/01;02;03;04"></header-information>
+<header-information orig-stn="EGRR"  vaac="/LONDON"        wmoid="/UK"        wmo-header-number="/01"></header-information>
+<header-information orig-stn="RJTD"  vaac="/TOKYO"         wmoid="/FE"        wmo-header-number="/01"></header-information>
+<header-information orig-stn="LFPW"  vaac="/TOULOUSE"      wmoid="/AF;AW;EU"  wmo-header-number="/01"></header-information>
+<header-information orig-stn="NZKL"  vaac="/WELLINGTON"    wmoid="/PS"        wmo-header-number="/01"></header-information>
+
+	<information-source source="NOT AVBL" ></information-source>
+	<information-source source="MEXICO CITY MWO" ></information-source>
+	<information-source source="TEGUCIGALPA MWO" ></information-source>
+	<information-source source="PIARCO MWO" ></information-source>
+	<information-source source="GUAYAQUIL MWO" ></information-source>
+	<information-source source="GUAM WFO" ></information-source>
+	<information-source source="HONOLULU MWO" ></information-source>
+	<information-source source="GOES-12" ></information-source>
+	<information-source source="GFS MODEL WINDS" ></information-source>
+	<information-source source="RADIOSONDE" ></information-source>
+	<information-source source="CENAPRED" ></information-source>
+	<information-source source="GEOPHYSICAL INST" ></information-source>
+	<information-source source="MONTSERRAT OBSERVATORY" ></information-source>
+	<information-source source="COLIMA OBSERVATORY" ></information-source>
+	<information-source source="METAR" ></information-source>
+	<information-source source="VAFTAD" ></information-source>
+	<information-source source="INETER" ></information-source>
+	<information-source source="AWC" ></information-source>
+	<information-source source="INSIVUMEH" ></information-source>
+	<information-source source="PILOT REPORT" ></information-source>
+	<information-source source="GOES-10" ></information-source>
+	<information-source source="GOES-9" ></information-source>
+	<information-source source="USGS" ></information-source>
+
+	<aviation-color-code  code="NOT GIVEN" ></aviation-color-code>
+	<aviation-color-code  code="NIL" ></aviation-color-code>
+	<aviation-color-code  code="UNKNOWN" ></aviation-color-code>
+	<aviation-color-code  code="GREEN" ></aviation-color-code>
+	<aviation-color-code  code="YELLOW" ></aviation-color-code>
+	<aviation-color-code  code="ORANGE" ></aviation-color-code>
+	<aviation-color-code  code="RED" ></aviation-color-code>
+
+	<next-advisory   advisory="WILL BE ISSUED BY YYYYMMMDD/HHNNZ"></next-advisory>
+	<next-advisory   advisory="NO FURTHER ADVISORIES"></next-advisory>
+	<next-advisory   advisory="AS SOON AS POSSIBLE"></next-advisory>
+
+
+	<forecasters name="BALDWIN"></forecasters>
+	<forecasters name="BROWN"></forecasters>
+	<forecasters name="GALLINA"></forecasters>
+	<forecasters name="HUGHES"></forecasters>
+	<forecasters name="KARST"></forecasters>
+	<forecasters name="KIBLER"></forecasters>
+	<forecasters name="MERCKLE"></forecasters>
+	<forecasters name="RUMINSKI"></forecasters>
+	<forecasters name="SCHWARTZ"></forecasters>
+	<forecasters name="STREETT"></forecasters>
+	<forecasters name="SWANSON"></forecasters>
+	<forecasters name="TURK"></forecasters>
+	<forecasters name="WALTER"></forecasters>
+
+
+	<format location="LOC_EDIT"  product="NORMAL"  vaa-form-entry-value="&lt;ALL&gt;"></format>
+
+	<format location="LOC_EDIT"  product="END"  vaa-form-entry-value="&lt;ALL&gt;" ></format>
+	<format location="LOC_EDIT"  product="END"  vaa-form-entry-value="&lt;OBS ASH CLOUD&gt;ASH NOT IDENTIFIABLE FROM SATELLITE DATA" ></format>
+	<format location="LOC_EDIT"  product="END"  vaa-form-entry-value="&lt;FCST ASH CLOUD +6H&gt;NOT AVBL" ></format>
+	<format location="LOC_EDIT"  product="END"  vaa-form-entry-value="&lt;FCST ASH CLOUD +12H&gt;NOT AVBL" ></format>
+	<format location="LOC_EDIT"  product="END"  vaa-form-entry-value="&lt;FCST ASH CLOUD +18H&gt;NOT AVBL" ></format>
+	<format location="LOC_EDIT"  product="END"  vaa-form-entry-value="&lt;NEXT ADVISORY&gt; NO FURTHER ADVISORIES" ></format>
+
+	<format location="LOC_CREATE"  product="TEST"    vaa-form-entry-value="&lt;VOLCANO&gt;TEST" ></format>
+	<format location="LOC_CREATE"  product="TEST"    vaa-form-entry-value="&lt;NUMBER&gt;9999-99" ></format>
+	<format location="LOC_CREATE"  product="TEST"    vaa-form-entry-value="&lt;LOCATION&gt;N9999W9999" ></format>
+	<format location="LOC_CREATE"  product="TEST"    vaa-form-entry-value="&lt;AREA&gt;TEST" ></format>
+	<format location="LOC_CREATE"  product="TEST"    vaa-form-entry-value="&lt;SUMMIT ELEVATION&gt;9999 FT (9999M)" ></format>
+	<format location="LOC_CREATE"  product="TEST"    vaa-form-entry-value="&lt;ADVISORY NUMBER&gt;001" ></format>
+	<format location="LOC_CREATE"  product="TEST"    vaa-form-entry-value="&lt;REMARKS&gt;TEST...TEST...TEST. THIS IS ONLY A TEST." ></format>
+	
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;ALL&gt;"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;LOCATION&gt;"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;AREA&gt;"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;SUMMIT ELEVATION&gt;"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;ADVISORY NUMBER&gt;"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;INFORMATION SOURCE&gt;NOT AVBL"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;ERUPTION DETAILS&gt;NOT AVBL"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;OBS ASH DATA/TIME&gt;NIL MAYBE"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;OBS ASH CLOUD&gt;NOT AVBL"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;FCST ASH CLOUD +6H&gt;NOT AVBL"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;FCST ASH CLOUD +12H&gt;NOT AVBL"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;FCST ASH CLOUD +18H&gt;NOT AVBL"></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;REMARKS&gt;WE HAVE RECEIVED INFORMATION SUGGESTING A POSSIBLE ASH EMISSION. WE WILL GATHER FURTHER INFORMATION AND ISSUE A FULL ADVISORY AS SOON AS POSSIBLE."></format>
+	<format location="LOC_EDIT"  product="QUICK"       vaa-form-entry-value="&lt;NEXT ADVISORY&gt;AS SOON AS POSSIBLE"></format>
+
+	<format location="LOC_EDIT"  product="NEAR"        vaa-form-entry-value="&lt;ALL&gt;"></format>
+	<format location="LOC_EDIT"  product="NEAR"        vaa-form-entry-value="&lt;LOCATION&gt;"></format>
+	<format location="LOC_EDIT"  product="NEAR"        vaa-form-entry-value="&lt;AREA&gt;"></format>
+	<format location="LOC_EDIT"  product="NEAR"        vaa-form-entry-value="&lt;SUMMIT ELEVATION&gt;"></format>
+	<format location="LOC_EDIT"  product="NEAR"        vaa-form-entry-value="&lt;ADVISORY NUMBER&gt;"></format>
+	<format location="LOC_EDIT"  product="NEAR"        vaa-form-entry-value="&lt;REMARKS&gt;"></format>
+	
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;ALL&gt;"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;LOCATION&gt;"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;AREA&gt;"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;SUMMIT ELEVATION&gt;"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;ADVISORY NUMBER&gt;"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;INFORMATION SOURCE&gt;"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;ERUPTION DETAILS&gt;NO ERUPTION HAS OCCURRED"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;REMARKS&gt;"></format>
+	<format location="LOC_EDIT"  product="WATCH"       vaa-form-entry-value="&lt;NEXT ADVISORY&gt;WILL BE ISSUED DAILY UNTIL THE IMMINENT THREAT HAS PASSED OR SOONER IF AN ERUPTION OCCURS"></format>
+	
+	<format location="LOC_CREATE"  product="RESUME"      vaa-form-entry-value="&lt;VOLCANO&gt;USER MESSAGE"></format>
+	<format location="LOC_CREATE"  product="RESUME"      vaa-form-entry-value="&lt;LOCATION&gt;XX"></format>
+	<format location="LOC_CREATE"  product="RESUME"      vaa-form-entry-value="&lt;AREA&gt;XX"></format>
+	<format location="LOC_CREATE"  product="RESUME"      vaa-form-entry-value="&lt;REMARKS&gt;THE WASHINGTON VAAC HAS NOW RESUMED NORMAL OPERATIONS."></format>
+	
+	<format location="LOC_CREATE"  product="BACKUP"    vaa-form-entry-value="&lt;VOLCANO&gt;USER MESSAGE" ></format>
+	<format location="LOC_CREATE"  product="BACKUP"    vaa-form-entry-value="&lt;LOCATION&gt;XX" ></format>
+	<format location="LOC_CREATE"  product="BACKUP"    vaa-form-entry-value="&lt;AREA&gt;XX" ></format>		
+	<format location="LOC_CREATE"  product="BACKUP"    vaa-form-entry-value="&lt;REMARKS&gt;"></format>
+
+	<misc info="MISCMESG EFFECTIVE SEPTEMBER 1 2004...THE HEADER IDENTIFICATION FOR THIS PRODUCT WILL CHANGE FROM KWBC TO KNES."></misc>
+
+	<others-fcst dialog="NOT AVBL" 				display="NOT AVAILABLE" 		text="NOT AVBL"></others-fcst>
+	<others-fcst dialog="ASH DSIPTG" 			display="{FL} ASH DISSIPATING" 	text="{FL} ASH DSIPTG"></others-fcst>
+	<others-fcst dialog="ASH DSIPTG (NO FL)" 	display="ASH DISSIPATING" 		text="ASH DSIPTG"></others-fcst>
+	<others-fcst dialog="NO ASH EXP" 			display="NO ASH EXPECTED" 		text="NO ASH EXP"></others-fcst>
+
+	<wording tag="&lt;VAA&gt;"	old-wording="VOLCANIC_ASH_ADVISORY" 	new-wording="VA_ADVISORY" ></wording>
+	<wording tag="&lt;DTG&gt;"	old-wording="ISSUED" 			new-wording="DTG"></wording>
+	<wording tag="&lt;PSN&gt;"	old-wording="LOCATION" 			new-wording="PSN"></wording>
+	<wording tag="&lt;SUM&gt;"	old-wording="SUMMIT_ELEVATION" 		new-wording="SUMMIT_ELEV"></wording>
+	<wording tag="&lt;ADV&gt;"	old-wording="ADVISORY_NUMBER" 		new-wording="ADVISORY_NR"></wording>
+	<wording tag="&lt;INF&gt;"	old-wording="INFORMATION_SOURCE" 	new-wording="INFO_SOURCE"></wording>
+	<wording tag="&lt;OAD&gt;"	old-wording="OBS_ASH_DATE/TIME" 	new-wording="OBS_VA_DTG"></wording>
+	<wording tag="&lt;OAC&gt;"	old-wording="OBS_ASH_CLOUD" 		new-wording="OBS_VA_CLD"></wording>
+	<wording tag="&lt;F06&gt;"	old-wording="FCST_ASH_CLOUD_+6H" 	new-wording="FCST_VA_CLD_+6H"></wording>
+	<wording tag="&lt;F12&gt;"	old-wording="FCST_ASH_CLOUD_+12H" 	new-wording="FCST_VA_CLD_+12H"></wording>
+	<wording tag="&lt;F18&gt;"	old-wording="FCST_ASH_CLOUD_+18H" 	new-wording="FCST_VA_CLD_+18H"></wording>
+	<wording tag="&lt;RMK&gt;"	old-wording="REMARKS" 			new-wording="RMK"></wording>
+	<wording tag="&lt;TXT&gt;"	old-wording="NEXT_ADVISORY" 		new-wording="NXT_ADVISORY"></wording>
+	<wording tag="&lt;TOF&gt;"	old-wording="TO" 			new-wording="FROM"></wording>
+
+
+</vaa>
