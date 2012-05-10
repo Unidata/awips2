@@ -27,6 +27,7 @@ Export-Package: com.raytheon.uf.viz.remote.graphics,
  com.raytheon.uf.viz.remote.graphics.events.offscreen,
  com.raytheon.uf.viz.remote.graphics.events.points,
  com.raytheon.uf.viz.remote.graphics.events.rendering,
+ com.raytheon.uf.viz.remote.graphics.events.strings,
  com.raytheon.uf.viz.remote.graphics.events.wireframe,
  com.raytheon.uf.viz.remote.graphics.extensions,
  com.raytheon.uf.viz.remote.graphics.objects

@@ -26,13 +26,17 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.CreateFontEvent;
 import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.strings.DrawStringEvent;
+import com.raytheon.uf.viz.remote.graphics.events.strings.DrawStringsEvent;
 
 /**
- * Handles render events for Font objects
+ * Rendering handler for strings and fonts
  * 
  * <pre>
  * 
@@ -40,7 +44,7 @@ import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 16, 2012            mschenke     Initial creation
+ * May 10, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -48,7 +52,26 @@ import com.raytheon.uf.viz.remote.graphics.events.fonts.UpdateFontDataEvent;
  * @version 1.0
  */
 
-public class FontRenderingHandler extends CollaborationRenderingHandler {
+public class StringRenderingHandler extends CollaborationRenderingHandler {
+
+    @Subscribe
+    public void drawStrings(DrawStringsEvent event) {
+        DrawStringEvent[] events = event.getStrings();
+        DrawableString[] strings = new DrawableString[events.length];
+        for (int i = 0; i < events.length; ++i) {
+            strings[i] = events[i].getDrawableString();
+            if (events[i].getFontId() > -1) {
+                strings[i].font = dataManager.getRenderableObject(
+                        events[i].getFontId(), IFont.class);
+            }
+        }
+        try {
+            getGraphicsTarget().drawStrings(strings);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
+    }
 
     @Subscribe
     public void createFont(CreateFontEvent event) {
@@ -95,4 +118,5 @@ public class FontRenderingHandler extends CollaborationRenderingHandler {
     public void disposeFont(IFont font) {
         font.dispose();
     }
+
 }
