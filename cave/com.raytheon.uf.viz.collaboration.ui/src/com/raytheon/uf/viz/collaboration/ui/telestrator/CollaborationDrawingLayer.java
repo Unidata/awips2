@@ -495,6 +495,8 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
                     .unRegisterEventHandler(this);
         }
+
+        // TODO, for disposing of all shapes (if the session leader)
         // if (/* is session leader */false) {
         // // synchronized (collaboratorShapes) {
         // // for (IWireframeShape shape : collaboratorShapes.values()) {
