@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
@@ -16,8 +17,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmWindQuarters;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.util.Calendar;
@@ -156,8 +155,8 @@ public class TcmAttrDlg extends AttrDlg implements ITcm, SelectionListener {
 	 */
 	private static void readOptions() {
 		
-		File tcainfoFile = NcPathManager.getInstance().getStaticFile( 
-    				NcPathConstants.PGEN_TCA_ATTR_INFO );   	    
+		File tcainfoFile = PgenStaticDataProvider.getProvider().getStaticFile( 
+				 PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + TcaAttrDlg.PGEN_TCA_ATTR_INFO); 	    
     		
 
 		try {

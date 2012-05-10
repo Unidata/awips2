@@ -7,7 +7,7 @@
  */
 package gov.noaa.nws.ncep.gempak.parameters.gridlimits;
 
-import gov.noaa.nws.ncep.gempak.parameters.util.StringUtil;
+import gov.noaa.nws.ncep.gempak.parameters.core.util.StringUtil;
 
 import java.util.regex.Pattern;
 

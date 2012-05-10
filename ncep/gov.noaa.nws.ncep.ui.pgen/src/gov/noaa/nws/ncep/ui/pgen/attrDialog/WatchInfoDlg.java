@@ -8,9 +8,10 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -853,7 +854,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		if ( fmtDlg != null ) fmtDlg.close();
 		WatchCoordDlg.getInstance(WatchInfoDlg.this.getParentShell(),wbDlg).close();
 		if ( wbDlg != null) {
-			wbDlg.getWbTool().resetMouseHandler();
+			if (wbDlg.getWbTool() != null )  wbDlg.getWbTool().resetMouseHandler();
 			wbDlg.enableDspBtn(true);
 		}
 		
@@ -895,31 +896,6 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 	}
 	
 	/**
-	 * Return the county table
-	 * @return
-	 */
-/*	static public List<Object[]>getAllCounties(){
-		
-		
-		//read county table from database
-		if ( allCounties == null ){
-			String query = "Select AsBinary(the_geom), countyname, state, cwa, fips, time_zone, lon, lat, gid FROM mapdata.county";
-			try {
-				allCounties = NcDirectDbQuery.executeQuery(
-						query, "maps", QueryLanguage.SQL);
-			}
-			catch (Exception e ){
-				System.out.println("db exception!");
-			}
-		}
-		
-		County.getAllCounties();
-		
-		return allCounties; 
-	}
-	*/
-	
-	/**
 	 * Enable/disable CWA in/out buttons
 	 * @param flag
 	 */
@@ -955,7 +931,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 	 *  not set either button.
 	 */
 	public void setCwaBtns(){
-		List<County> cntyInWb = wbDlg.getWatchBox().getCountyList();
+		List<SPCCounty> cntyInWb = wbDlg.getWatchBox().getCountyList();
 		for ( CwaComposite cwa : cwaComp){
 			
 			//get number of counties of a CWA, which are inside of the watch box
@@ -968,7 +944,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 			}
 			else {
 				//get the total county number of the CWA
-				int totalCounties = getCountiesOfCwa(cwa.lbl.getText(), County.getAllCounties());
+				int totalCounties = getCountiesOfCwa(cwa.lbl.getText(), PgenStaticDataProvider.getProvider().getSPCCounties());
 				if ( totalCounties == countiesIn ){
 					cwa.inBtn.setSelection(true);
 					cwa.outBtn.setSelection(false);
@@ -988,9 +964,9 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 	 * @param counties
 	 * @return - number of counties
 	 */
-	private int getCountiesOfCwa(String cwa, List<County> counties){
+	private int getCountiesOfCwa(String cwa, List<SPCCounty> counties){
 		int total = 0;
-		for ( County cnty : counties ){
+		for ( SPCCounty cnty : counties ){
 			if (cnty.getWfo() != null && cwa.equalsIgnoreCase(cnty.getWfo())){
 				total++;
 			}
@@ -1149,9 +1125,9 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 
 		WatchBox newWb = (WatchBox)wbDlg.getWatchBox().copy();
 	
-		List<County> counties = County.getCountiesInGeometry(watchGeo);
+		List<SPCCounty> counties = PgenStaticDataProvider.getProvider().getCountiesInGeometry(watchGeo);
 		
-		for ( County county : counties ){
+		for ( SPCCounty county : counties ){
 	    	if(isClusteringOn()){
 	    		newWb.addClstCnty(county);
 	    	}

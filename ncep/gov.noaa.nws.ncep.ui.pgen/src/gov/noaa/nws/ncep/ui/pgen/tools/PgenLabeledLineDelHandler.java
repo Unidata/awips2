@@ -15,10 +15,11 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Label;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import java.util.Iterator;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -41,7 +42,8 @@ import com.vividsolutions.jts.geom.Point;
  */
 public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
 	
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	private PgenResource drawingLayer;
 	
 	//LabeledLineDrawingTool or LabeledLineModifyTool
@@ -67,7 +69,8 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
 	 * @param prevTool
 	 * @param dlg
 	 */
-	public PgenLabeledLineDelHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+//	public PgenLabeledLineDelHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+	public PgenLabeledLineDelHandler(AbstractEditor mapEditor, PgenResource drawingLayer,
 			ILabeledLine prevTool, AttrDlg dlg, boolean delLine, boolean flip, boolean openClose ){
 		this.mapEditor= mapEditor;
 		this.drawingLayer = drawingLayer;
