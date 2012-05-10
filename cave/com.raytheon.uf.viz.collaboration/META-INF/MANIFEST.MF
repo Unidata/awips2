@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Collaboratioin
-Bundle-SymbolicName: com.raytheon.uf.viz.collaboration
+Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.comm
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.collaboration.Activator
+Bundle-Activator: com.raytheon.uf.viz.collaboration.comm.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Require-Bundle: org.eclipse.core.runtime,
@@ -18,7 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.comm
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: com.raytheon.uf.viz.collaboration,
+Export-Package: com.raytheon.uf.viz.collaboration.comm,
  com.raytheon.uf.viz.collaboration.comm.identity,
  com.raytheon.uf.viz.collaboration.comm.identity.event,
  com.raytheon.uf.viz.collaboration.comm.identity.info,

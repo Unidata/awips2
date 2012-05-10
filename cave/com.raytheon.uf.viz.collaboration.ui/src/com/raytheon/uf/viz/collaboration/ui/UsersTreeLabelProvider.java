@@ -85,7 +85,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             key = mode;
         } else if (element instanceof IRosterEntry) {
             IRosterEntry entry = (IRosterEntry) element;
-            if (entry.getPresence().getType() == Type.AVAILABLE) {
+            if (entry.getPresence() != null
+                    && entry.getPresence().getType() == Type.AVAILABLE) {
                 key = entry.getPresence().getMode().toString()
                         .replaceAll("\\s+", "_");
             } else {

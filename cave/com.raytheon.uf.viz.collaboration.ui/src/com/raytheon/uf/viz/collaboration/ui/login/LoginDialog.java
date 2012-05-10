@@ -220,7 +220,7 @@ public class LoginDialog extends CaveSWTDialog {
 
         // TODO get mode messages from config file?
         for (IPresence.Mode mode : CollaborationUtils.statusModes) {
-            statusCombo.add(mode.toString());
+            statusCombo.add(CollaborationUtils.formatMode(mode));
         }
         statusCombo.select(0);
         label = new Label(body, SWT.NONE);
