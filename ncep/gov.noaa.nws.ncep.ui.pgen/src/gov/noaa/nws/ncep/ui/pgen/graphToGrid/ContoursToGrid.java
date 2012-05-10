@@ -8,7 +8,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.graphToGrid;
 
-import gov.noaa.nws.ncep.gempak.parameters.categorymap.CatMap;
+import gov.noaa.nws.ncep.gempak.parameters.core.categorymap.CatMap;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
@@ -40,7 +40,7 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
@@ -67,7 +67,7 @@ import org.eclipse.ui.PlatformUI;
 
 public class ContoursToGrid extends GraphToGrid {
 	
-	private final static Logger logger = Logger.getLogger( ContoursToGrid.class );
+//	private final static Logger logger = Logger.getLogger( ContoursToGrid.class );
 
     private static float smallestContourValue = Util.GRID_FILL_VALUE - 1;
     private static float largestContourValue = Util.GRID_FILL_VALUE + 1;
@@ -105,7 +105,7 @@ public class ContoursToGrid extends GraphToGrid {
         	ky = Integer.parseInt( nkxky[1] );
         }
         else {
-        	logger.warn( "Invalid input for kx;ky - default to 63;28" );
+//        	logger.warn( "Invalid input for kx;ky - default to 63;28" );
         }
                         
         /*
@@ -399,12 +399,12 @@ public class ContoursToGrid extends GraphToGrid {
         }
         
         if ( gparm == null || gparm.trim().length() == 0 ) {
-        	logger.debug( "GPARM is not provided");
+//        	logger.debug( "GPARM is not provided");
         	return;
         }
         
         if ( glevel == null || glevel.trim().length() == 0 ) {
-        	logger.debug( "GLEVEL is not provided");
+//        	logger.debug( "GLEVEL is not provided");
         	return;
         }
                 
@@ -463,7 +463,8 @@ public class ContoursToGrid extends GraphToGrid {
          */
         String cpyfil = new String(" ");
         String anlyss = new String(" "); 
-        
+
+/*
         logger.debug( "G2G parameters for writing GEMPAK grid file:");
         logger.debug( "hstgrd="+histgrd);
         logger.debug( "path="+path);
@@ -478,7 +479,7 @@ public class ContoursToGrid extends GraphToGrid {
         logger.debug( "kxky="+ckxky);
         logger.debug( "proj="+proj);
         logger.debug( "gdarea="+gdarea);
-                
+*/               
         g2gNative.g2g_write( grid, hist, histgrd,  
      		   fullFile, proj, cpyfil, gdarea, anlyss, ckxky,
      		   maxgrd, gparm, gdatim, gvcord, glevel );
@@ -539,7 +540,7 @@ public class ContoursToGrid extends GraphToGrid {
         			interval = Math.abs( Float.parseFloat( cint ) );
         		}
         		catch( Exception e) {
-        			logger.debug( "Invalid contour interval - " + e );
+//        			logger.debug( "Invalid contour interval - " + e );
         		}
         		
         		if ( interval > 0. && (gmin + interval) < gmax ) {

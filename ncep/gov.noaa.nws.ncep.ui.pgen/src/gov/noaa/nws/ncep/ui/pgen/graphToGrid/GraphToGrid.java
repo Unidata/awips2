@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
-import gov.noaa.nws.ncep.gempak.parameters.categorymap.CatMap;
+import gov.noaa.nws.ncep.gempak.parameters.core.categorymap.CatMap;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 
 
 /**
@@ -38,7 +38,7 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 
 public abstract class GraphToGrid {
 	
-	private final static Logger logger = Logger.getLogger( GraphToGrid.class);
+//	private final static Logger logger = Logger.getLogger( GraphToGrid.class);
 
 	AbstractDrawableComponent currentGraph;	     
     
@@ -230,8 +230,8 @@ public abstract class GraphToGrid {
 		
     	//Check if the given file exists and readable.
         String fname = null;
-        if ( NcPathManager.getInstance().getStaticFile( localizationName ) != null ) {
-            fname = NcPathManager.getInstance().getStaticFile( localizationName ).getAbsolutePath();
+        if ( PgenStaticDataProvider.getProvider().getStaticFile( localizationName ) != null ) {
+            fname = PgenStaticDataProvider.getProvider().getStaticFile( localizationName ).getAbsolutePath();
         }
  
         File thisFile = null;                
@@ -306,7 +306,7 @@ public abstract class GraphToGrid {
 	        return mapVals;
 	    }
 	    else {
-	        logger.debug( "Cannot find input for " +  paramName );
+//	        logger.debug( "Cannot find input for " +  paramName );
 	        return new String("");
 	    }
 	

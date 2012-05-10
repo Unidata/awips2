@@ -45,8 +45,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Track;
 
 public class TrackExtrapPointInfoDlg extends AttrDlg {
 	
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(TrackExtrapPointInfoDlg.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(TrackExtrapPointInfoDlg.class);
 	
 	private static TrackExtrapPointInfoDlg INSTANCE = null;
        
@@ -233,7 +233,7 @@ public class TrackExtrapPointInfoDlg extends AttrDlg {
 	        mainLayout.marginWidth = 3;
 	        top.setLayout(mainLayout);
 
-	        log.info("===right before calling initializeComponents(...) in TrackExtrapPointInfoDlg"); 
+//	        log.info("===right before calling initializeComponents(...) in TrackExtrapPointInfoDlg"); 
 	        // Initialize all of the menus, controls, and layouts
 	        initializeComponents(top, parent);
 
