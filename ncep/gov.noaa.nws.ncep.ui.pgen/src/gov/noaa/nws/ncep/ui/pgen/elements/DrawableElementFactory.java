@@ -67,8 +67,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class DrawableElementFactory {
 
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(DrawableElementFactory.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(DrawableElementFactory.class);
 	
 	public AbstractDrawableComponent create( DrawableType typeName, IAttribute attr,
 						String pgenCategory, String pgenType, 
@@ -224,7 +224,7 @@ public class DrawableElementFactory {
 			/*
 			 * Do nothing.
 			 */
-			log.info( typeName + " is not supported.");
+//			log.info( typeName + " is not supported.");
 	        break;
 		}
 		

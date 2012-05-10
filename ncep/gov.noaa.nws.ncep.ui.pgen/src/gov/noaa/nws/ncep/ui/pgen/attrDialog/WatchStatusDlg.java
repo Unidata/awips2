@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.TimeZone;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
-import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenToolUtils;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -272,7 +272,7 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 			Iterator<AbstractDrawableComponent> it = ((DECollection)adc).getComponentIterator();
 			
 			//get anchor point list
-			List<Station> anchors = StationTableUtil.getAnchorTbl().getStationList();
+			List<Station> anchors = PgenStaticDataProvider.getProvider().getAnchorTbl().getStationList();
 			
 			//loop through status lines and construct from lines.
 			while ( it.hasNext() ){

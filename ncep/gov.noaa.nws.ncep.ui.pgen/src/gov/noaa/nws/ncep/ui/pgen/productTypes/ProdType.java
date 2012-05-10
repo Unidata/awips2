@@ -8,15 +8,12 @@
 
 package gov.noaa.nws.ncep.ui.pgen.productTypes;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.productManage.ProdTypeDialog;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -39,9 +36,6 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
 
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
@@ -270,13 +264,8 @@ public class ProdType {
     private String getStyleSheetFilePath(){
     	String ret = "";
     	try {
-	//		LocalizationContext userContext = NcPathManager.getInstance().getContext(
-	//				LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
-
-	//		LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
-	//				userContext, ProdTypeDialog.getStyleSheetFileName(name) );
 			
-			LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(ProdTypeDialog.getStyleSheetFileName(name) );
+			LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(ProdTypeDialog.getStyleSheetFileName(name) );
 			
 			ret =  lFile.getFile().getAbsolutePath();
 		}

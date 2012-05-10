@@ -8,17 +8,18 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.4.1",
  org.eclipse.core.runtime,
  org.apache.commons.lang;bundle-version="2.3.0",
  javax.measure;bundle-version="1.0.0",
- com.raytheon.uf.viz.core;bundle-version="1.11.31"
+ com.raytheon.uf.viz.core;bundle-version="1.11.31",
+ gov.noaa.nws.ncep.gempak.parameters.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: gov.noaa.nws.ncep.viz.common.ui,
+Import-Package: gov.noaa.nws.ncep.gempak.parameters.core.contourinterval,
+ gov.noaa.nws.ncep.gempak.parameters.core.util,
+ gov.noaa.nws.ncep.viz.common.ui,
  gov.noaa.nws.ncep.viz.common.ui.color,
  gov.noaa.nws.ncep.viz.localization,
  org.junit
 Export-Package: gov.noaa.nws.ncep.gempak.parameters,
- gov.noaa.nws.ncep.gempak.parameters.categorymap,
  gov.noaa.nws.ncep.gempak.parameters.colors,
- gov.noaa.nws.ncep.gempak.parameters.contourinterval,
  gov.noaa.nws.ncep.gempak.parameters.discrete,
  gov.noaa.nws.ncep.gempak.parameters.dlines,
  gov.noaa.nws.ncep.gempak.parameters.gridlimits,
@@ -29,8 +30,5 @@ Export-Package: gov.noaa.nws.ncep.gempak.parameters,
  gov.noaa.nws.ncep.gempak.parameters.intext,
  gov.noaa.nws.ncep.gempak.parameters.line,
  gov.noaa.nws.ncep.gempak.parameters.marker,
- gov.noaa.nws.ncep.gempak.parameters.marshaller.garea,
- gov.noaa.nws.ncep.gempak.parameters.marshaller.garea.station,
- gov.noaa.nws.ncep.gempak.parameters.title,
- gov.noaa.nws.ncep.gempak.parameters.util
+ gov.noaa.nws.ncep.gempak.parameters.title
 Bundle-ClassPath: ., jna.jar

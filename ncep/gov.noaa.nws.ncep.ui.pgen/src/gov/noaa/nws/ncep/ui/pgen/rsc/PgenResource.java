@@ -48,8 +48,8 @@ import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.core.gl.IGLTarget;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
 import com.vividsolutions.jts.geom.CoordinateList;
@@ -304,7 +305,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
 			throws VizException {
 	    IDisplayPaneContainer editor = getResourceContainer();
-		if( editor instanceof NCMapEditor ) {//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
+		if( editor instanceof AbstractEditor ) {//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
 			DisplayElementFactory df = new DisplayElementFactory( target, descriptor);
 
 			drawProduct( target, paintProps );
@@ -1284,7 +1285,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		
 		double minDist = Double.MAX_VALUE;
 		
-    	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+//    	AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+    	AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
     	double [] locScreen = mapEditor.translateInverseClick(loc);
     	
 		if ( adc instanceof SinglePointElement ) {
@@ -1468,7 +1470,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	public double distanceFromLineSegment( Coordinate loc, Coordinate startPt, Coordinate endPt ){
 		double dist = Double.MAX_VALUE;
 		
-	  	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+//	  	AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+	  	AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
     	double [] locScreen = mapEditor.translateInverseClick(loc);
     	
     	double [] pt1 = mapEditor.translateInverseClick(startPt);
