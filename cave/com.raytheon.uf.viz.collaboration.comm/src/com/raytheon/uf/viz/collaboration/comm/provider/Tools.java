@@ -19,20 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.InflaterInputStream;
-
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.ecf.core.IContainer;
@@ -40,6 +26,7 @@ import org.eclipse.ecf.core.util.Base64;
 
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 
 /**
@@ -100,35 +87,10 @@ public abstract class Tools {
 
     public static boolean COMPRESSION_OFF = false;
 
-    public static CompressionType COMPRESSION_TYPE = CompressionType.ZLIB;
-
-    private static boolean log_compression = false;
-
-    private enum CompressionType {
-        ZLIB, GZIP;
-
-        public byte toByte() {
-            return (byte) ordinal();
-        }
-
-        public static CompressionType fromByte(byte b) {
-            if (b < 0 || b > CompressionType.values().length) {
-                throw new IndexOutOfBoundsException(
-                        "Unable to determine CompressionType for " + b);
-            }
-            return CompressionType.values()[b];
-        }
-    };
-
     static {
         try {
             COMPRESSION_OFF = Boolean
                     .getBoolean("collaboration.compressionOff");
-            String compressionType = System
-                    .getProperty("collaboration.compressionType");
-            if (compressionType != null) {
-                COMPRESSION_TYPE = CompressionType.valueOf(compressionType);
-            }
         } catch (Exception e) {
             // must not have permission to access system properties. ignore and
             // use default.
@@ -297,7 +259,8 @@ public abstract class Tools {
                          */
                         byte[] marshalledThrift = SerializationUtil
                                 .transformToThrift(data);
-                        marshalledBinary = compress(marshalledThrift);
+                        marshalledBinary = CompressionUtil
+                                .compress(marshalledThrift);
                         sb.append(ENV_THRIFT_COMPRESSED);
                     }
                 } catch (Exception e) {
@@ -316,7 +279,8 @@ public abstract class Tools {
                         }
                     } else {
                         String rawString = SerializationUtil.marshalToXml(data);
-                        marshalledBinary = compress(rawString.getBytes());
+                        marshalledBinary = CompressionUtil.compress(rawString
+                                .getBytes());
                         sb.append(ENV_JAXB_COMPRESSED);
                     }
                 } catch (Exception je) {
@@ -375,7 +339,8 @@ public abstract class Tools {
                 String s = data.substring(ENV_THRIFT_COMPRESSED.length());
                 try {
                     byte[] rawBytes = decodeFromBase64(s);
-                    byte[] uncompressedBytes = uncompress(rawBytes);
+                    byte[] uncompressedBytes = CompressionUtil
+                            .uncompress(rawBytes);
 
                     unMarshalledData = SerializationUtil
                             .transformFromThrift(uncompressedBytes);
@@ -398,7 +363,8 @@ public abstract class Tools {
                 try {
                     byte[] rawBytes = decodeFromBase64(rawString);
                     unMarshalledData = SerializationUtil
-                            .unmarshalFromXml(new String(uncompress(rawBytes)));
+                            .unmarshalFromXml(new String(CompressionUtil
+                                    .uncompress(rawBytes)));
                     // unMarshalledData = SerializationUtil
                     // .unmarshalFromXml(createCompressionInputStream(rawBytes));
                 } catch (Exception je) {
@@ -414,102 +380,6 @@ public abstract class Tools {
             }
         }
         return unMarshalledData;
-    }
-
-    public static byte[] compress(byte[] bytes) throws CollaborationException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(bytes.length);
-        CompressionType cType = COMPRESSION_TYPE;
-
-        out.write(cType.toByte());
-        OutputStream compressionStrm = null;
-        try {
-            compressionStrm = createCompressionOutputStream(out);
-            long start = System.currentTimeMillis();
-            compressionStrm.write(bytes);
-            compressionStrm.flush();
-            compressionStrm.close();
-            byte[] result = out.toByteArray();
-            if (log_compression) {
-                System.out.println(cType + " Compression time(milliseconds) "
-                        + (System.currentTimeMillis() - start) / 1000F
-                        + " to compress " + bytes.length + " bytes to "
-                        + result.length + " bytes.");
-            }
-            return result;
-        } catch (IOException e) {
-            throw new CollaborationException("Unable to compress data.", e);
-        }
-    }
-
-    private static OutputStream createCompressionOutputStream(OutputStream out)
-            throws IOException {
-        OutputStream stream = null;
-        switch (COMPRESSION_TYPE) {
-        case GZIP:
-            stream = new GZIPOutputStream(out);
-            break;
-        case ZLIB:
-        default:
-            stream = new DeflaterOutputStream(out);
-            break;
-        }
-        return stream;
-    }
-
-    public static byte[] uncompress(byte[] bytes) throws CollaborationException {
-        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        CompressionType cType = CompressionType.fromByte((byte) in.read());
-        long start = System.currentTimeMillis();
-
-        try {
-            ReadableByteChannel src = Channels
-                    .newChannel(createCompressionInputStream(cType, in));
-            WritableByteChannel dest = Channels.newChannel(out);
-
-            final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
-            while (src.read(buffer) != -1) {
-                buffer.flip();
-                dest.write(buffer);
-                buffer.compact();
-            }
-
-            // EOF will leave buffer in fill state
-            buffer.flip();
-
-            // make sure the buffer is fully drained.
-            while (buffer.hasRemaining()) {
-                dest.write(buffer);
-            }
-            dest.close();
-            byte[] resultBuffer = out.toByteArray();
-            if (log_compression) {
-                System.out.println(cType
-                        + " Uncompression time(milliseconds): "
-                        + ((System.currentTimeMillis() - start) / 1000F)
-                        + " to uncompress " + bytes.length + " bytes to "
-                        + resultBuffer.length + " bytes.");
-            }
-            return resultBuffer;
-        } catch (IOException e) {
-            throw new CollaborationException("Unable to uncompress data.", e);
-        }
-    }
-
-    private static InputStream createCompressionInputStream(
-            CompressionType cType, InputStream in) throws IOException {
-        InputStream stream = null;
-        switch (cType) {
-        case GZIP:
-            stream = new GZIPInputStream(in);
-            break;
-        case ZLIB:
-        default:
-            stream = new InflaterInputStream(in);
-            break;
-        }
-        return stream;
     }
 
 }
