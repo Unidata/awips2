@@ -114,9 +114,9 @@ import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.uf.viz.drawing.PathToolbar;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 
 /**
@@ -314,11 +314,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     // loop through all the views so that we can bring the one
                     // that
                     // was selected to the top...
+                    IVenueSession session = (IVenueSession) selection
+                            .getFirstElement();
                     for (IViewReference ref : getViewSite()
                             .getWorkbenchWindow().getActivePage()
                             .getViewReferences()) {
-                        IVenueSession session = (IVenueSession) selection
-                                .getFirstElement();
                         if (session.getSessionId().equals(ref.getSecondaryId())) {
                             PlatformUI.getWorkbench()
                                     .getActiveWorkbenchWindow().getActivePage()
@@ -468,7 +468,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         drawToolbarAction = new Action("Drawing Toolbar") {
             @Override
             public void run() {
-                PathToolbar.getToolbar().open();
+                CollaborationPathToolbar.getToolbar().open();
             }
         };
         drawToolbarAction.setImageDescriptor(IconUtil.getImageDescriptor(
@@ -671,7 +671,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         // the user, both the logged in user as well as his buddies
         if (o instanceof IRosterEntry) {
             IRosterEntry user = (IRosterEntry) o;
-            if (user.getPresence().getType() == Type.AVAILABLE) {
+            if (user.getPresence() != null
+                    && user.getPresence().getType() == Type.AVAILABLE) {
                 MenuManager inviteManager = new MenuManager("Invite to...");
                 // get current open chats
                 Map<String, IVenueSession> sessions = CollaborationDataManager
