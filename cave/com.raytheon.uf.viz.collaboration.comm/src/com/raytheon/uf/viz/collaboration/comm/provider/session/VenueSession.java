@@ -402,7 +402,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
                         }
                     };
                     venueContainer.addMessageListener(intListener);
-
                 }
             } catch (Exception e) {
                 throw new CollaborationException(
