@@ -164,7 +164,8 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             builder.append("ID: ").append(
                     IDConverter.convertFrom(user.getUser()).getFQName());
             builder.append("\nStatus: ");
-            if (user.getPresence().getType() == Type.UNAVAILABLE) {
+            if (user.getPresence() == null
+                    || user.getPresence().getType() == Type.UNAVAILABLE) {
                 builder.append("Offline");
             } else {
                 builder.append(CollaborationUtils.formatMode(user.getPresence()

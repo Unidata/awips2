@@ -86,7 +86,7 @@ public abstract class AbstractRoleEventController implements
 
     protected void deactivateTelestrator() {
         // TODO this must be handled better
-        PathToolbar.getToolbar().close();
+        CollaborationPathToolbar.getToolbar().close();
         if (tool != null) {
             tool.deactivate();
             session.unRegisterEventHandler(tool);

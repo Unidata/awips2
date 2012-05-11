@@ -21,5 +21,6 @@ Import-Package: com.raytheon.uf.common.time,
  com.raytheon.viz.ui.cmenu,
  com.vividsolutions.jts.geom
 Export-Package: com.raytheon.uf.viz.drawing,
+ com.raytheon.uf.viz.drawing.actions,
  com.raytheon.uf.viz.drawing.events,
  com.raytheon.uf.viz.drawing.tools
