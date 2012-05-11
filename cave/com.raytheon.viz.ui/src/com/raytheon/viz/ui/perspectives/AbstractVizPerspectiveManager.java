@@ -228,24 +228,27 @@ public abstract class AbstractVizPerspectiveManager implements
     protected abstract void open();
 
     public void close() {
-        // Cleanup hidden editors
-        if (perspectiveEditors.size() > 0) {
-            page.closeEditors(perspectiveEditors
-                    .toArray(new IEditorReference[perspectiveEditors.size()]),
-                    false);
-        }
+        if (opened) {
+            // Cleanup hidden editors
+            if (perspectiveEditors.size() > 0) {
+                page.closeEditors(
+                        perspectiveEditors
+                                .toArray(new IEditorReference[perspectiveEditors
+                                        .size()]), false);
+            }
 
-        perspectiveEditors.clear();
-        layoutMap.clear();
+            perspectiveEditors.clear();
+            layoutMap.clear();
 
-        opened = false;
+            opened = false;
 
-        closeDialogs();
-        deactivateContexts();
-        removeFromStatusLine();
+            closeDialogs();
+            deactivateContexts();
+            removeFromStatusLine();
 
-        if (backgroundColor != null) {
-            backgroundColor.removeListener(BGColorMode.GLOBAL, this);
+            if (backgroundColor != null) {
+                backgroundColor.removeListener(BGColorMode.GLOBAL, this);
+            }
         }
     }
 
