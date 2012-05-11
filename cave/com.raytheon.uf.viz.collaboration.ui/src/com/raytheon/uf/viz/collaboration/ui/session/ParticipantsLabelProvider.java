@@ -255,7 +255,7 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
             }
         }
 
-        return boldFont;
+        return null;
     }
 
     @Override
@@ -349,10 +349,12 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session instanceof SharedDisplaySession) {
-            boolean isSessionLeader = user.getUser().equals(
-                    ((SharedDisplaySession) session).getCurrentSessionLeader());
-            boolean isDataProvider = user.getUser().equals(
-                    ((SharedDisplaySession) session).getCurrentDataProvider());
+            UserId id = IDConverter.convertFrom(user.getUser());
+            boolean isSessionLeader = id
+                    .equals(((SharedDisplaySession) session)
+                            .getCurrentSessionLeader());
+            boolean isDataProvider = id.equals(((SharedDisplaySession) session)
+                    .getCurrentDataProvider());
             if (isSessionLeader || isDataProvider) {
                 if (isSessionLeader) {
                     builder.append("\nSession Leader");
