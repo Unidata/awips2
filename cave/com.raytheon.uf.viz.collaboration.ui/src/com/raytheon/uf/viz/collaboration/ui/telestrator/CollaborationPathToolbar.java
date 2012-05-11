@@ -65,6 +65,7 @@ public class CollaborationPathToolbar extends PathToolbar {
      */
     protected CollaborationPathToolbar(Shell parentShell) {
         super(parentShell);
+        setText("Collaboration Drawing");
     }
 
     public static PathToolbar getToolbar() {
@@ -98,8 +99,8 @@ public class CollaborationPathToolbar extends PathToolbar {
             public void run() {
                 if (event instanceof CollaborationDrawingEvent) {
                     CollaborationDrawingEvent cde = (CollaborationDrawingEvent) event;
-                    if (!cde.getUserName().equals(
-                            CollaborationDataManager.getInstance()
+                    if (!cde.getUserName()
+                            .equals(CollaborationDataManager.getInstance()
                                     .getCollaborationConnection(true).getUser())) {
                         if (cde.getType() == CollaborationEventType.DISABLE) {
                             disableAll();
@@ -128,7 +129,7 @@ public class CollaborationPathToolbar extends PathToolbar {
                     .getSessionContainer(sessionId).getSession();
             if (session != null
                     && !session.hasRole(SharedDisplayRole.SESSION_LEADER)
-                    && leaderOnly != null) {
+                    && leaderOnly != null && !leaderOnly.isDisposed()) {
                 leaderOnly.setEnabled(false);
             }
         }
@@ -159,7 +160,9 @@ public class CollaborationPathToolbar extends PathToolbar {
     }
 
     public void disableAll() {
-        toolbar.setEnabled(!toolbar.getEnabled());
+        if (toolbar != null && !toolbar.isDisposed()) {
+            toolbar.setEnabled(!toolbar.getEnabled());
+        }
     }
 
 }

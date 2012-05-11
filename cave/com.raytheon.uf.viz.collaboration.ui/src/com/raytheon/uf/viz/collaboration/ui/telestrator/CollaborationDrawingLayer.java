@@ -33,6 +33,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
@@ -164,7 +166,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                 for (ShapeContainer sh : collaboratorShapes.get(userName)) {
                     if (sh != null) {
                         RGB col = colorManager.getColors().get(userName);
-                        if (sh.getShape() != null) {
+                        if (sh.getShape() != null && col != null) {
                             target.drawWireframeShape(sh.getShape(), col,
                                     outline.getOutlineWidth(),
                                     outline.getLineStyle(), imaging.getAlpha());
@@ -183,6 +185,17 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         }
         colorManager.getColorFromUser(event.getUserName());
         issueRefresh();
+    }
+
+    @Subscribe
+    public void participantChanged(IVenueParticipantEvent event) {
+        if (event.getEventType().equals(ParticipantEventType.DEPARTED)) {
+            System.out
+                    .println(event.getParticipant().getFQName() + " departed");
+            resetTemp();
+            clearSelfShapes(event.getParticipant());
+            issueRefresh();
+        }
     }
 
     @Subscribe

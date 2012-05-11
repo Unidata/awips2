@@ -23,6 +23,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 import java.util.Collection;
 
 import org.eclipse.ecf.presence.roster.IRosterEntry;
+import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
@@ -122,8 +124,14 @@ public class CollaborationSessionView extends SessionView {
                                     .getSelection();
                             IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
-                            switchLeader((UserId) selectedUser.getUser());
-                            usersTable.refresh();
+                            usersTable.remove(selectedUser);
+                            UserId id = IDConverter.convertFrom(selectedUser
+                                    .getUser());
+                            selectedUser = new RosterEntry(
+                                    selectedUser.getParent(), id,
+                                    selectedUser.getPresence());
+                            switchLeader(id);
+                            usersTable.refresh(selectedUser);
                         };
                     };
                     ActionContributionItem leaderItem = new ActionContributionItem(
@@ -138,8 +146,14 @@ public class CollaborationSessionView extends SessionView {
                                     .getSelection();
                             IRosterEntry selectedUser = (IRosterEntry) selection
                                     .getFirstElement();
-                            switchDataProvider((UserId) selectedUser.getUser());
-                            usersTable.refresh();
+                            usersTable.remove(selectedUser);
+                            UserId id = IDConverter.convertFrom(selectedUser
+                                    .getUser());
+                            selectedUser = new RosterEntry(
+                                    selectedUser.getParent(), id,
+                                    selectedUser.getPresence());
+                            switchDataProvider(id);
+                            usersTable.refresh(selectedUser);
                         };
                     };
                     ActionContributionItem dataProviderItem = new ActionContributionItem(
@@ -171,7 +185,7 @@ public class CollaborationSessionView extends SessionView {
                         .getSelection();
                 IRosterEntry entry = (IRosterEntry) selection.getFirstElement();
                 ColorChangeEvent event = new ColorChangeEvent(
-                        (UserId) entry.getUser(), rgb);
+                        IDConverter.convertFrom(entry.getUser()), rgb);
                 try {
                     session.sendObjectToVenue(event);
                 } catch (CollaborationException e) {
