@@ -511,11 +511,6 @@ public class CollaborationConnection implements IEventPublisher {
                     public void handlePresence(ID fromId,
                             org.eclipse.ecf.presence.IPresence presence) {
 
-                        String name = Tools.parseName(fromId.getName());
-                        String host = Tools.parseHost(fromId.getName());
-                        String resource = Tools.parseResource(fromId.getName());
-
-                        // UserId id = new UserId(name, host, resource);
                         UserId id = IDConverter.convertFrom(fromId);
                         if (rosterManager != null) {
                             IRosterEntry entry = contactsMgr.getUsersMap().get(
