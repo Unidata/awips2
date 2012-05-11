@@ -49,7 +49,10 @@ public class IDConverter {
         String name = Tools.parseName(id.getName());
         String host = Tools.parseHost(id.getName());
         String rsc = Tools.parseResource(id.getName());
-        return new UserId(name, host, rsc);
+
+        UserId uid = new UserId(name, host, rsc);
+        uid.setId(id);
+        return uid;
     }
 
     /**
