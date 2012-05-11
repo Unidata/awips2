@@ -109,6 +109,8 @@ public class CollaborationResource extends
 
     private Set<Integer> waitingOnFrames = new HashSet<Integer>();
 
+    private Rectangle previousBounds = null;
+
     public CollaborationResource(CollaborationResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -126,6 +128,15 @@ public class CollaborationResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        if (previousBounds == null
+                || previousBounds.equals(paintProps.getCanvasBounds()) == false) {
+            if (previousBounds != null && providerWindow != null) {
+                adjustView(providerWindow);
+            }
+            previousBounds = paintProps.getCanvasBounds();
+            issueRefresh();
+            return;
+        }
         List<AbstractDispatchingObjectEvent> currentDataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
         synchronized (dataChangeEvents) {
             if (waitingOnObjects.size() == 0) {
@@ -320,9 +331,6 @@ public class CollaborationResource extends
 
     @Subscribe
     public void renderableArrived(AbstractRemoteGraphicsEvent event) {
-        // TODO: May need to allow for adding objects to the data manager for an
-        // objectId and creation events should put a flag that a creation event
-        // was received for the object
         if (event instanceof IRenderFrameEvent) {
             // Skip IRenderFrameEvents, not applicable here
             return;
@@ -344,32 +352,7 @@ public class CollaborationResource extends
                             IRenderableDisplay display = descriptor
                                     .getRenderableDisplay();
                             BeginFrameEvent bfe = (BeginFrameEvent) renderable;
-                            IExtent frameExtent = bfe.getExtent();
-                            providerWindow = frameExtent;
-                            Rectangle bounds = display.getBounds();
-                            double width = frameExtent.getWidth();
-                            double height = frameExtent.getHeight();
-                            if (width / height > bounds.width
-                                    / (double) bounds.height) {
-                                double neededHeight = (width / bounds.width)
-                                        * bounds.height;
-                                double padding = (neededHeight - height) / 2;
-                                frameExtent = new PixelExtent(
-                                        frameExtent.getMinX(),
-                                        frameExtent.getMaxX(),
-                                        frameExtent.getMinY() - padding,
-                                        frameExtent.getMaxY() + padding);
-                            } else {
-                                double neededWidth = (height / bounds.height)
-                                        * bounds.width;
-                                double padding = (neededWidth - width) / 2;
-                                frameExtent = new PixelExtent(
-                                        frameExtent.getMinX() - padding,
-                                        frameExtent.getMaxX() + padding,
-                                        frameExtent.getMinY(),
-                                        frameExtent.getMaxY());
-                            }
-                            display.getView().setExtent(frameExtent);
+                            adjustView(bfe.getExtent());
                             display.setBackgroundColor(bfe.getColor());
                         } else {
                             // Add to list for processing in paintInternal
@@ -396,6 +379,31 @@ public class CollaborationResource extends
                     "Could not handle event type: "
                             + event.getClass().getSimpleName());
         }
+    }
+
+    /**
+     * @param frameExtent
+     */
+    private void adjustView(IExtent frameExtent) {
+        IRenderableDisplay display = descriptor.getRenderableDisplay();
+        providerWindow = frameExtent;
+        Rectangle bounds = display.getBounds();
+        double width = frameExtent.getWidth();
+        double height = frameExtent.getHeight();
+        if (width / height > bounds.width / (double) bounds.height) {
+            double neededHeight = (width / bounds.width) * bounds.height;
+            double padding = (neededHeight - height) / 2;
+            frameExtent = new PixelExtent(frameExtent.getMinX(),
+                    frameExtent.getMaxX(), frameExtent.getMinY() - padding,
+                    frameExtent.getMaxY() + padding);
+        } else {
+            double neededWidth = (height / bounds.height) * bounds.width;
+            double padding = (neededWidth - width) / 2;
+            frameExtent = new PixelExtent(frameExtent.getMinX() - padding,
+                    frameExtent.getMaxX() + padding, frameExtent.getMinY(),
+                    frameExtent.getMaxY());
+        }
+        display.getView().setExtent(frameExtent);
     }
 
     /*
