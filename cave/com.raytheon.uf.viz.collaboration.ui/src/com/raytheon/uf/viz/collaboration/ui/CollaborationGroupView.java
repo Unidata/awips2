@@ -104,6 +104,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
+import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
@@ -116,6 +117,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.drawing.PathToolbar;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 
 /**
  * This class is the main view to display the user's information and allow the
@@ -1396,6 +1398,21 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     activeSessionGroup.removeObject(node);
                     usersTreeViewer.refresh(activeSessionGroup);
                     break;
+                }
+            }
+        }
+
+        if (part instanceof CollaborationSessionView) {
+            String sessionId = ((CollaborationSessionView) part).getSessionId();
+            SessionContainer container = SharedDisplaySessionMgr
+                    .getSessionContainer(sessionId);
+            if (container != null) {
+                CollaborationEditor assocEditor = container
+                        .getCollaborationEditor();
+                if (assocEditor != null) {
+                    IWorkbenchPage page = VizWorkbenchManager.getInstance()
+                            .getCurrentWindow().getActivePage();
+                    page.closeEditor(assocEditor, false);
                 }
             }
         }
