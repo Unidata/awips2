@@ -161,6 +161,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * 03/01/2008              chammack    Initial Creation.
  * Aug 20, 2008            dglazesk    Update for the ColorMap interface change
  * Nov 23, 2011            mli         set vector lineStyle
+ * May 11, 2012            njensen    Allow rsc to be recycled
  * 
  * </pre>
  * 
@@ -369,7 +370,11 @@ public class GFEResource extends
      * @return Returns the parm associated with the GFE Resource
      */
     public Parm getParm() {
-        return this.parm;
+        Parm retVal = null;
+        if (this.getStatus() != ResourceStatus.DISPOSED) {
+            retVal = this.parm;
+        }
+        return retVal;
     }
 
     /*
@@ -416,8 +421,6 @@ public class GFEResource extends
         }
 
         clearVectorDisplays();
-
-        this.parm = null;
     }
 
     private void clearVectorDisplays() {
