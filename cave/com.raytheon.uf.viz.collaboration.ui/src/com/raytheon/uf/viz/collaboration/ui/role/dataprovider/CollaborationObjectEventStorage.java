@@ -39,9 +39,9 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
@@ -135,7 +135,7 @@ public class CollaborationObjectEventStorage implements
             CollaborationHttpPersistedObject persistObject = new CollaborationHttpPersistedObject();
             persistObject.persistTime = System.currentTimeMillis();
             persistObject.event = event;
-            byte[] toPersist = Tools.compress(SerializationUtil
+            byte[] toPersist = CompressionUtil.compress(SerializationUtil
                     .transformToThrift(persistObject));
             stats.log(event.getClass().getSimpleName(), toPersist.length, 0);
             put.setEntity(new ByteArrayEntity(toPersist));
@@ -208,7 +208,8 @@ public class CollaborationObjectEventStorage implements
         if (isSuccess(response.code)) {
             try {
                 CollaborationHttpPersistedObject dataObject = (CollaborationHttpPersistedObject) SerializationUtil
-                        .transformFromThrift(Tools.uncompress(response.data));
+                        .transformFromThrift(CompressionUtil
+                                .uncompress(response.data));
                 if (dataObject != null) {
                     dataObject.dataSize = response.data.length;
                 }
