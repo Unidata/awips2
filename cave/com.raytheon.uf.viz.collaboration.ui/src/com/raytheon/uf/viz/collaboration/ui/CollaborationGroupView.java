@@ -180,16 +180,14 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     private TreeEditor treeEditor;
 
+    private Composite parent;
+
     /**
      * @param parent
      */
     @Override
     public void createPartControl(Composite parent) {
-        CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection(true);
-        if (connection == null) {
-            return;
-        }
+        this.parent = parent;
         // build the necessary actions for the view
         createActions();
 
@@ -198,7 +196,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
         // add some actions to the menubar
         createMenubar();
-
+        CollaborationConnection connection = CollaborationDataManager
+                .getInstance().getCollaborationConnection(true);
+        if (connection == null) {
+            return;
+        }
         // add a part listener so that we can check when things about the view
         // change
         getViewSite().getWorkbenchWindow().getPartService()
@@ -216,6 +218,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
         populateTree();
         usersTreeViewer.refresh();
+        parent.layout();
     }
 
     @Override
@@ -350,7 +353,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         logonAction = new Action("Login...") {
             @Override
             public void run() {
-                populateTree();
+                if (usersTreeViewer == null) {
+                    createPartControl(parent);
+                }
             }
         };
         logonAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
