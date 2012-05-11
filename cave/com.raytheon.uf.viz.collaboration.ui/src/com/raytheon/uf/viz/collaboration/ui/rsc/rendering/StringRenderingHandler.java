@@ -56,6 +56,7 @@ public class StringRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
     public void drawStrings(DrawStringsEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
         DrawStringEvent[] events = event.getStrings();
         DrawableString[] strings = new DrawableString[events.length];
         for (int i = 0; i < events.length; ++i) {
@@ -66,7 +67,7 @@ public class StringRenderingHandler extends CollaborationRenderingHandler {
             }
         }
         try {
-            getGraphicsTarget().drawStrings(strings);
+            target.drawStrings(strings);
         } catch (VizException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
