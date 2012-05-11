@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.CollaborationDispa
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRsc;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingLayer;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
@@ -367,7 +368,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
                     List<ResourcePair> rscToRemoveList = new ArrayList<ResourcePair>();
                     for (ResourcePair rp : list) {
                         unwrapResourcePair(rp);
-                        if (rp.getResource() instanceof DataProviderRsc) {
+                        if (rp.getResource() instanceof DataProviderRsc
+                                || rp.getResource() instanceof CollaborationDrawingLayer) {
                             rscToRemoveList.add(rp);
                         }
                     }
