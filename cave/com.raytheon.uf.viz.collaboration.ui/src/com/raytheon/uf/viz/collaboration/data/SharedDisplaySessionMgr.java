@@ -107,10 +107,12 @@ public class SharedDisplaySessionMgr {
      * @param sessionId
      */
     public static void exitSession(String sessionId) {
-        SessionContainer container = sharedDisplaySessionMap.remove(sessionId);
+        SessionContainer container = sharedDisplaySessionMap.get(sessionId);
         if (container != null) {
             container.getRoleEventController().shutdown();
+
+            // remove after shutting down event controller
+            sharedDisplaySessionMap.remove(sessionId);
         }
     }
-
 }

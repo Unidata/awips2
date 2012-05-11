@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.CollaborationDispatcher;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
+import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRsc;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
@@ -342,6 +344,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
             rp.setResourceData(((CollaborationWrapperResourceData) rp
                     .getResourceData()).getWrappedResourceData());
         }
+
     }
 
     /*
@@ -361,11 +364,18 @@ public class DataProviderEventController extends AbstractRoleEventController {
             for (IDisplayPaneContainer container : sc.getSharedEditors()) {
                 for (IDisplayPane pane : container.getDisplayPanes()) {
                     ResourceList list = pane.getDescriptor().getResourceList();
+                    List<ResourcePair> rscToRemoveList = new ArrayList<ResourcePair>();
                     for (ResourcePair rp : list) {
                         unwrapResourcePair(rp);
+                        if (rp.getResource() instanceof DataProviderRsc) {
+                            rscToRemoveList.add(rp);
+                        }
                     }
                     list.removePreAddListener(wrappingListener);
                     list.removePostRemoveListener(wrappingListener);
+                    for (ResourcePair remove : rscToRemoveList) {
+                        list.remove(remove);
+                    }
                 }
                 DispatchingGraphicsFactory
                         .extractRemoteFunctionality(container);
@@ -375,7 +385,6 @@ public class DataProviderEventController extends AbstractRoleEventController {
         for (CollaborationDispatcher dispatcher : dispatchers) {
             dispatcher.dispose();
         }
-        // TODO should remove the SharedEditorIndiciatorRsc
     }
 
     private class ResourceWrapperListener implements AddListener,
