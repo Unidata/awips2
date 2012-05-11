@@ -283,6 +283,17 @@ public class PathToolbar extends CaveSWTDialog {
         updateToolbar();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        super.disposed();
+        pathToolbar = null;
+    }
+
     public void updateToolbar() {
         if (this.isDisposed()) {
             return;
