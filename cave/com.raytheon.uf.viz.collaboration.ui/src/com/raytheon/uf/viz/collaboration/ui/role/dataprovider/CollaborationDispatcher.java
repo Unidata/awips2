@@ -28,9 +28,9 @@ import org.eclipse.swt.widgets.Event;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IRenderFrameEvent;
@@ -176,7 +176,7 @@ public class CollaborationDispatcher extends Dispatcher {
                 // Not a creation event, check event size. All creation events
                 // are sent immediately to avoid false negatives
                 try {
-                    byte[] data = Tools.compress(SerializationUtil
+                    byte[] data = CompressionUtil.compress(SerializationUtil
                             .transformToThrift(eventObject));
                     if (data.length > IMMEDIATE_SEND_SIZE) {
                         immediateSend = false;
