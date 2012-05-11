@@ -89,8 +89,11 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 SessionContainer container = SharedDisplaySessionMgr
                         .getSessionContainer(sessionId);
                 container.setCollaborationEditor(editor);
-                editor.setTabTitle(session.getVenue().getInfo()
-                        .getVenueDescription());
+                String title = session.getVenue().getInfo()
+                        .getVenueDescription();
+                editor.setTabTitle(title);
+                editor.disableClose("Please close the \"" + title
+                        + "\" chat to exit the session.");
 
                 // initialize resources
                 if (se.getLocalResources() != null) {
