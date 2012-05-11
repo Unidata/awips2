@@ -57,8 +57,8 @@ public class ChatRoomAction extends AbstractHandler {
             PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getActivePage().showView(SessionView.ID);
         } catch (PartInitException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to open product browser", e);
+            statusHandler.handle(Priority.PROBLEM, "Unable to open chat room",
+                    e);
         }
         return event;
     }

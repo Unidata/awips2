@@ -363,7 +363,6 @@ public class SessionView extends AbstractSessionView {
         ColumnViewerToolTipSupport.enableFor(usersTable, ToolTip.RECREATE);
         List<IRosterEntry> users = new ArrayList<IRosterEntry>();
         if (session != null) {
-            session.getVenue().getParticipants();
             Map<UserId, IRosterEntry> usersMap = session.getConnection()
                     .getContactsManager().getUsersMap();
             for (UserId participant : session.getVenue().getParticipants()) {
@@ -373,7 +372,8 @@ public class SessionView extends AbstractSessionView {
                     RosterEntry rEntry = new RosterEntry(session
                             .getConnection().getRosterManager().getRoster(),
                             participant, CollaborationDataManager.getInstance()
-                                    .getCollaborationConnection(true).getPresence());
+                                    .getCollaborationConnection(true)
+                                    .getPresence());
                     users.add(rEntry);
                 } else if (entry != null) {
                     users.add(usersMap.get(participant));
@@ -416,7 +416,8 @@ public class SessionView extends AbstractSessionView {
         session.unRegisterEventHandler(this);
         CollaborationDataManager mgr = CollaborationDataManager.getInstance();
         mgr.closeSession(sessionId);
-        mgr.getCollaborationConnection(true).getEventPublisher().unregister(this);
+        mgr.getCollaborationConnection(true).getEventPublisher()
+                .unregister(this);
 
         super.dispose();
     }
@@ -664,10 +665,12 @@ public class SessionView extends AbstractSessionView {
         // TODO Keep as a place holder for now since it may be needed to set
         // leader/provider roles.
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
-        for (IRosterEntry entry : users) {
-            if (entry.getUser().equals(participant)) {
-                ((RosterEntry) entry).setPresence(presence);
-                usersTable.refresh(entry);
+        if (users != null) {
+            for (IRosterEntry entry : users) {
+                if (entry.getUser().equals(participant)) {
+                    ((RosterEntry) entry).setPresence(presence);
+                    usersTable.refresh(entry);
+                }
             }
         }
     }
