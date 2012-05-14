@@ -90,7 +90,7 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
     public IGraphicsTarget constructTarget(Canvas canvas, float width,
             float height) throws VizException {
         return new DispatchGraphicsTarget(delegate.constructTarget(canvas,
-                width, height), dispatcher);
+                width, height), canvas, dispatcher);
     }
 
     /*
