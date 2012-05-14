@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.swt.graphics.Rectangle;
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -37,6 +39,7 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -78,8 +81,10 @@ public class EditorSetup {
     public static SharedEditorData extractSharedEditorData(AbstractEditor editor) {
         SharedEditorData se = new SharedEditorData();
 
+        IRenderableDisplay display = editor.getActiveDisplayPane()
+                .getRenderableDisplay();
         // extract grid geometry
-        IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
+        IDescriptor desc = display.getDescriptor();
         se.setGeometry(desc.getGridGeometry());
 
         // extract extent to get the proper zoom/pan
@@ -103,6 +108,11 @@ public class EditorSetup {
             }
         }
         se.setLocalResources(rscList);
+
+        // Set current size
+        Rectangle bounds = display.getBounds();
+        se.setWidth(bounds.width);
+        se.setHeight(bounds.height);
 
         return se;
     }
@@ -135,6 +145,8 @@ public class EditorSetup {
             displays[0] = disp;
             editor = (CollaborationEditor) UiUtil.createEditor(
                     CollaborationEditor.EDITOR_ID, displays);
+            editor.setCanvasSize(new Rectangle(0, 0, sharedEditor.getWidth(),
+                    sharedEditor.getHeight()));
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
