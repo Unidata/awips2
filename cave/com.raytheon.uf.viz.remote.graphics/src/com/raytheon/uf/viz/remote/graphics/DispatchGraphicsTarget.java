@@ -29,7 +29,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.colormap.IColorMap;
@@ -116,9 +121,19 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
 
     private GraphicsExtensionManager extensionManager;
 
-    public DispatchGraphicsTarget(IGraphicsTarget target, Dispatcher dispatcher) {
+    private Rectangle bounds;
+
+    public DispatchGraphicsTarget(IGraphicsTarget target, Canvas canvas,
+            Dispatcher dispatcher) {
         super(target, dispatcher);
         extensionManager = new GraphicsExtensionManager(this);
+        bounds = canvas.getBounds();
+        canvas.addListener(SWT.Resize, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                bounds = ((Canvas) event.widget).getBounds();
+            }
+        });
     }
 
     /*
@@ -806,6 +821,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
                 BeginFrameEvent.class, this);
         beginFrame.setExtent(view.getExtent().clone());
         beginFrame.setColor(backgroundColor);
+        beginFrame.setBounds(bounds);
         dispatch(beginFrame);
     }
 
