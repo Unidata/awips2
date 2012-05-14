@@ -3,6 +3,7 @@ package com.raytheon.uf.viz.remote.graphics;
 import java.awt.image.BufferedImage;
 
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -12,6 +13,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.remote.graphics.adapters.PixelExtentSerializationAdapter;
 import com.raytheon.uf.viz.remote.graphics.adapters.RGBSerializationAdapter;
+import com.raytheon.uf.viz.remote.graphics.adapters.RectangleAdapter;
 import com.raytheon.uf.viz.remote.graphics.adapters.RenderedImageAdapter;
 
 /**
@@ -50,6 +52,8 @@ public class Activator extends AbstractUIPlugin {
                 new RGBSerializationAdapter());
         DynamicSerializationManager.registerAdapter(BufferedImage.class,
                 new RenderedImageAdapter());
+        DynamicSerializationManager.registerAdapter(Rectangle.class,
+                new RectangleAdapter());
     }
 
     /*
