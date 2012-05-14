@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
@@ -214,6 +215,19 @@ public class CollaborationSessionView extends SessionView {
                 + userId.getFQName());
         // TODO need to send invite/request for transfer, and then if successful
         // deactivate the local ones since we won't receive the message
+        SharedDisplayVenueInvite invite = new SharedDisplayVenueInvite();
+        invite.setMessage(session.getUserID().getName()
+                + " has requested you become the data provider...");
+        invite.setSessionId(session.getSessionId());
+        invite.setSubject(session.getVenue().getInfo().getVenueSubject());
+        invite.setDataProvider(session.getCurrentDataProvider());
+        invite.setSessionLeader(session.getCurrentSessionLeader());
+        try {
+            session.sendInvitation(userId, invite);
+        } catch (CollaborationException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to switch data providers", e);
+        }
     }
 
     private void switchLeader(UserId userId) {
@@ -222,7 +236,6 @@ public class CollaborationSessionView extends SessionView {
         // deactivate the local ones since we won't receive the message
         TransferRoleCommand trc = new TransferRoleCommand();
         trc.setUser(userId);
-        session.setCurrentSessionLeader(userId);
         trc.setRole(SharedDisplayRole.SESSION_LEADER);
         try {
             session.sendObjectToVenue(trc);
@@ -303,9 +316,11 @@ public class CollaborationSessionView extends SessionView {
                     .getSelection();
             IRosterEntry selectedUser = (IRosterEntry) selection
                     .getFirstElement();
-            if (!selectedUser.getUser().equals(session.getUserID())) {
+            if (!IDConverter.convertFrom(selectedUser.getUser()).equals(
+                    session.getUserID())) {
                 manager.add(switchToAction);
             }
+
             if (session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
                 manager.add(new Separator());
                 manager.add(colorChangeAction);
