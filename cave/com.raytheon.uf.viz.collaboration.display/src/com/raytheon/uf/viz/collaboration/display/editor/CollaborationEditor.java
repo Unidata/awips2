@@ -19,7 +19,19 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.editor;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ScrollBar;
+
 import com.raytheon.uf.viz.collaboration.display.editor.input.CollaborationInputHandler;
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -50,11 +62,48 @@ public class CollaborationEditor extends AbstractEditor {
 
     private String sessionId;
 
+    private Composite canvasComp;
+
+    private ScrolledComposite scrollable;
+
     private CollaborationInputHandler inputHandler = new CollaborationInputHandler();
 
     @Override
     protected PaneManager getNewPaneManager() {
-        return new PaneManager();
+        return new PaneManager() {
+            @Override
+            public IDisplayPane addPane(IRenderableDisplay renderableDisplay) {
+                // // scrollable composite
+                scrollable = new ScrolledComposite(composite, SWT.H_SCROLL
+                        | SWT.V_SCROLL);
+                scrollable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+                        true));
+                // Sets background color of scrollable composite to white
+                scrollable.setBackground(scrollable.getDisplay()
+                        .getSystemColor(SWT.COLOR_WHITE));
+
+                // Composite for canvas (fixed size)
+                canvasComp = new Composite(scrollable, SWT.NONE);
+                GridLayout gl = new GridLayout(1, false);
+                gl.marginHeight = 0;
+                gl.marginWidth = 0;
+                canvasComp.setLayout(gl);
+                canvasComp.setSize(1000, 1000);
+
+                // Set canvasComp as content on scrollable
+                scrollable.setContent(canvasComp);
+                scrollable.addListener(SWT.Resize, new Listener() {
+                    @Override
+                    public void handleEvent(Event event) {
+                        setCanvasSize(canvasComp.getBounds());
+                    }
+                });
+
+                IDisplayPane pane = addPane(renderableDisplay, canvasComp);
+                canvasComp.layout();
+                return pane;
+            }
+        };
     }
 
     @Override
@@ -78,6 +127,26 @@ public class CollaborationEditor extends AbstractEditor {
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
+    }
+
+    public void setCanvasSize(Rectangle bounds) {
+        canvasComp.setSize(bounds.width, bounds.height);
+
+        // This code centers the GLCanvas in the scrollable composite
+        ScrollBar vertical = scrollable.getVerticalBar();
+        ScrollBar horizon = scrollable.getHorizontalBar();
+        Rectangle scrollableBounds = scrollable.getBounds();
+        if (vertical.isVisible()) {
+            scrollableBounds.width -= vertical.getSize().x;
+        }
+        if (horizon.isVisible()) {
+            scrollableBounds.height -= horizon.getSize().y;
+        }
+
+        canvasComp.setLocation(
+                Math.max(0, (scrollableBounds.width - bounds.width) / 2),
+                Math.max(0, (scrollableBounds.height - bounds.height) / 2));
+        canvasComp.layout();
     }
 
 }
