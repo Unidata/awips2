@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.remote.graphics.events.rendering;
 
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -51,6 +52,9 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
     @DynamicSerializeElement
     private RGB color;
 
+    @DynamicSerializeElement
+    private Rectangle bounds;
+
     /*
      * (non-Javadoc)
      * 
@@ -68,6 +72,9 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         }
         if (color.equals(diffEvent.color) == false) {
             diffObject.color = diffEvent.color;
+        }
+        if (bounds.equals(diffEvent.bounds) == false) {
+            diffObject.bounds = diffEvent.bounds;
         }
         return diffObject;
     }
@@ -87,6 +94,9 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         }
         if (event.color != null) {
             color = event.color;
+        }
+        if (event.bounds != null) {
+            bounds = event.bounds;
         }
     }
 
@@ -120,6 +130,21 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         this.color = color;
     }
 
+    /**
+     * @return the bounds
+     */
+    public Rectangle getBounds() {
+        return bounds;
+    }
+
+    /**
+     * @param bounds
+     *            the bounds to set
+     */
+    public void setBounds(Rectangle bounds) {
+        this.bounds = bounds;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -134,6 +159,11 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsRenderEvent {
         if (getClass() != obj.getClass())
             return false;
         BeginFrameEvent other = (BeginFrameEvent) obj;
+        if (bounds == null) {
+            if (other.bounds != null)
+                return false;
+        } else if (!bounds.equals(other.bounds))
+            return false;
         if (color == null) {
             if (other.color != null)
                 return false;
