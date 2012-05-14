@@ -62,9 +62,15 @@ public class CollaborationEditor extends AbstractEditor {
 
     private String sessionId;
 
+    private Composite wrapperComp;
+
     private Composite canvasComp;
 
     private ScrolledComposite scrollable;
+
+    private Rectangle scrollableBounds;
+
+    private Rectangle canvasBounds;
 
     private CollaborationInputHandler inputHandler = new CollaborationInputHandler();
 
@@ -78,29 +84,36 @@ public class CollaborationEditor extends AbstractEditor {
                         | SWT.V_SCROLL);
                 scrollable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
                         true));
-                // Sets background color of scrollable composite to white
-                scrollable.setBackground(scrollable.getDisplay()
-                        .getSystemColor(SWT.COLOR_WHITE));
 
-                // Composite for canvas (fixed size)
-                canvasComp = new Composite(scrollable, SWT.NONE);
+                // Composite for canvas comp
+                wrapperComp = new Composite(scrollable, SWT.NONE);
                 GridLayout gl = new GridLayout(1, false);
                 gl.marginHeight = 0;
                 gl.marginWidth = 0;
+                // Sets background color of wrapper composite to white
+                wrapperComp.setBackground(wrapperComp.getDisplay()
+                        .getSystemColor(SWT.COLOR_WHITE));
+                wrapperComp.setSize(1000, 1000);
+
+                canvasComp = new Composite(wrapperComp, SWT.NONE);
                 canvasComp.setLayout(gl);
                 canvasComp.setSize(1000, 1000);
 
                 // Set canvasComp as content on scrollable
-                scrollable.setContent(canvasComp);
+                scrollable.setContent(wrapperComp);
                 scrollable.addListener(SWT.Resize, new Listener() {
                     @Override
                     public void handleEvent(Event event) {
-                        setCanvasSize(canvasComp.getBounds());
+                        scrollableBounds = ((Composite) event.widget)
+                                .getBounds();
+                        setCanvasSize(canvasBounds);
                     }
                 });
 
                 IDisplayPane pane = addPane(renderableDisplay, canvasComp);
                 canvasComp.layout();
+                scrollableBounds = scrollable.getBounds();
+                canvasBounds = canvasComp.getBounds();
                 return pane;
             }
         };
@@ -130,12 +143,16 @@ public class CollaborationEditor extends AbstractEditor {
     }
 
     public void setCanvasSize(Rectangle bounds) {
+        canvasBounds = bounds;
         canvasComp.setSize(bounds.width, bounds.height);
 
-        // This code centers the GLCanvas in the scrollable composite
+        Rectangle scrollableBounds = new Rectangle(this.scrollableBounds.x,
+                this.scrollableBounds.y, this.scrollableBounds.width,
+                this.scrollableBounds.height);
+
+        // Subtract size of scroll bars if visible
         ScrollBar vertical = scrollable.getVerticalBar();
         ScrollBar horizon = scrollable.getHorizontalBar();
-        Rectangle scrollableBounds = scrollable.getBounds();
         if (vertical.isVisible()) {
             scrollableBounds.width -= vertical.getSize().x;
         }
@@ -143,10 +160,13 @@ public class CollaborationEditor extends AbstractEditor {
             scrollableBounds.height -= horizon.getSize().y;
         }
 
+        wrapperComp.setSize(
+                Math.max(canvasBounds.width, scrollableBounds.width),
+                Math.max(canvasBounds.height, scrollableBounds.height));
         canvasComp.setLocation(
                 Math.max(0, (scrollableBounds.width - bounds.width) / 2),
                 Math.max(0, (scrollableBounds.height - bounds.height) / 2));
+        wrapperComp.layout();
         canvasComp.layout();
     }
-
 }
