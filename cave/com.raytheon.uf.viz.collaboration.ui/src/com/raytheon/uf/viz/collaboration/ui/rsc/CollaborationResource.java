@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.google.common.eventbus.EventBus;
@@ -35,6 +34,8 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.FrameDisposed;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
@@ -45,9 +46,8 @@ import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameN
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.UpdateRenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -103,8 +103,6 @@ public class CollaborationResource extends
 
     private MouseLocationEvent latestMouseLocation;
 
-    private IExtent providerWindow;
-
     private Set<Integer> waitingOnObjects = new HashSet<Integer>();
 
     private Set<Integer> waitingOnFrames = new HashSet<Integer>();
@@ -128,15 +126,6 @@ public class CollaborationResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (previousBounds == null
-                || previousBounds.equals(paintProps.getCanvasBounds()) == false) {
-            if (previousBounds != null && providerWindow != null) {
-                adjustView(providerWindow);
-            }
-            previousBounds = paintProps.getCanvasBounds();
-            issueRefresh();
-            return;
-        }
         List<AbstractDispatchingObjectEvent> currentDataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
         synchronized (dataChangeEvents) {
             if (waitingOnObjects.size() == 0) {
@@ -150,16 +139,6 @@ public class CollaborationResource extends
                 }
                 dataChangeEvents.removeAll(currentDataChangeEvents);
             }
-        }
-
-        if (providerWindow != null) {
-            IExtent clippingPane = paintProps.getClippingPane();
-            clippingPane = new PixelExtent(Math.max(providerWindow.getMinX(),
-                    clippingPane.getMinX()), Math.min(providerWindow.getMaxX(),
-                    clippingPane.getMaxX()), Math.max(providerWindow.getMinY(),
-                    clippingPane.getMinY()), Math.min(providerWindow.getMaxY(),
-                    clippingPane.getMaxY()));
-            paintProps.setClippingPane(clippingPane);
         }
 
         dataManager.beginRender(target, paintProps);
@@ -180,29 +159,6 @@ public class CollaborationResource extends
             if (latestMouseLocation != null) {
                 renderingRouter.post(latestMouseLocation);
             }
-        }
-
-        if (providerWindow != null) {
-            // Render yellow box to show data provider visible area
-            target.clearClippingPlane();
-            IExtent currExtent = paintProps.getView().getExtent();
-            float size = 1.0f;
-            double xOffset = size
-                    * (currExtent.getWidth() / paintProps.getCanvasBounds().width);
-            double yOffset = size
-                    * (currExtent.getHeight() / paintProps.getCanvasBounds().height);
-            double minX = Math.max(currExtent.getMinX(),
-                    providerWindow.getMinX());
-            double maxX = Math.min(currExtent.getMaxX(),
-                    providerWindow.getMaxX());
-            double minY = Math.max(currExtent.getMinY(),
-                    providerWindow.getMinY());
-            double maxY = Math.min(currExtent.getMaxY(),
-                    providerWindow.getMaxY());
-            target.drawRect(new PixelExtent(minX - xOffset, maxX + xOffset,
-                    minY - yOffset, maxY + yOffset), new RGB(255, 255, 0),
-                    size + 1, 1.0f);
-            target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 
@@ -227,10 +183,24 @@ public class CollaborationResource extends
                 .createRenderingHandlers(dataManager)) {
             renderingRouter.register(handler);
         }
+
+        ISharedDisplaySession session = resourceData.getSession();
+        ParticipantInitializedEvent event = new ParticipantInitializedEvent();
+        event.setUserId(session.getUserID().getFQName());
+        try {
+            session.sendObjectToPeer(session.getCurrentDataProvider(), event);
+        } catch (CollaborationException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     @Subscribe
     public void updateRenderFrameEvent(UpdateRenderFrameEvent event) {
+        if (dataManager == null) {
+            // Haven't initialized yet, don't process
+            return;
+        }
         int objectId = event.getObjectId();
         RenderFrameEvent frame = dataManager.getRenderableObject(objectId,
                 RenderFrameEvent.class, false);
@@ -349,11 +319,29 @@ public class CollaborationResource extends
                         if (renderable instanceof BeginFrameEvent) {
                             // Handle begin frame event immediately before next
                             // paint occurs
-                            IRenderableDisplay display = descriptor
+                            final IRenderableDisplay display = descriptor
                                     .getRenderableDisplay();
-                            BeginFrameEvent bfe = (BeginFrameEvent) renderable;
-                            adjustView(bfe.getExtent());
+                            final BeginFrameEvent bfe = (BeginFrameEvent) renderable;
                             display.setBackgroundColor(bfe.getColor());
+                            final CollaborationEditor editor = SharedDisplaySessionMgr
+                                    .getSessionContainer(
+                                            resourceData.getSession()
+                                                    .getSessionId())
+                                    .getCollaborationEditor();
+                            if (previousBounds == null
+                                    || previousBounds.equals(bfe.getBounds()) == false) {
+                                previousBounds = bfe.getBounds();
+                                VizApp.runAsync(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        editor.setCanvasSize(bfe.getBounds());
+                                        display.getView().setExtent(
+                                                bfe.getExtent());
+                                    }
+                                });
+                            } else {
+                                display.getView().setExtent(bfe.getExtent());
+                            }
                         } else {
                             // Add to list for processing in paintInternal
                             currentRenderables.add(renderable);
@@ -379,31 +367,6 @@ public class CollaborationResource extends
                     "Could not handle event type: "
                             + event.getClass().getSimpleName());
         }
-    }
-
-    /**
-     * @param frameExtent
-     */
-    private void adjustView(IExtent frameExtent) {
-        IRenderableDisplay display = descriptor.getRenderableDisplay();
-        providerWindow = frameExtent;
-        Rectangle bounds = display.getBounds();
-        double width = frameExtent.getWidth();
-        double height = frameExtent.getHeight();
-        if (width / height > bounds.width / (double) bounds.height) {
-            double neededHeight = (width / bounds.width) * bounds.height;
-            double padding = (neededHeight - height) / 2;
-            frameExtent = new PixelExtent(frameExtent.getMinX(),
-                    frameExtent.getMaxX(), frameExtent.getMinY() - padding,
-                    frameExtent.getMaxY() + padding);
-        } else {
-            double neededWidth = (height / bounds.height) * bounds.width;
-            double padding = (neededWidth - width) / 2;
-            frameExtent = new PixelExtent(frameExtent.getMinX() - padding,
-                    frameExtent.getMaxX() + padding, frameExtent.getMinY(),
-                    frameExtent.getMaxY());
-        }
-        display.getView().setExtent(frameExtent);
     }
 
     /*
