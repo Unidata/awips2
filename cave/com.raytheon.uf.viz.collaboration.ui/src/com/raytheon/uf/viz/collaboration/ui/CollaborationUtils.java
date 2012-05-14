@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.ecf.core.user.User;
 import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
@@ -98,7 +99,8 @@ public class CollaborationUtils {
     public static Collection<Object> readAliases() {
         UserId[] ids = getIds();
         Roster roster = (Roster) CollaborationDataManager.getInstance()
-                .getCollaborationConnection(true).getRosterManager().getRoster();
+                .getCollaborationConnection(true).getRosterManager()
+                .getRoster();
         Collection<?> rosterObjects = new ArrayList<Object>();
         rosterObjects.addAll(roster.getItems());
         for (Object ob : rosterObjects) {
@@ -177,17 +179,33 @@ public class CollaborationUtils {
                     if (ob instanceof IRosterEntry) {
                         IRosterEntry entry = (IRosterEntry) ob;
                         IUser id = entry.getUser();
-                        if (id.getNickname() != null
-                                && !id.getNickname().isEmpty()) {
-                            ids.add(IDConverter.convertFrom(id));
+                        if (id instanceof User) {
+                            if (id.getNickname() != null
+                                    && !id.getNickname().isEmpty()) {
+                                ids.add(IDConverter.convertFrom(id));
+                            }
+                        } else if (id instanceof UserId) {
+                            UserId uid = (UserId) id;
+                            if (uid.getAlias() != null
+                                    && !uid.getAlias().isEmpty()) {
+                                ids.add(uid);
+                            }
                         }
                     } else if (ob instanceof IRosterGroup) {
                         for (Object entryOb : ((IRosterGroup) ob).getEntries()) {
                             IRosterEntry entry = (IRosterEntry) entryOb;
-                            IUser user = entry.getUser();
-                            if (user.getNickname() != null
-                                    && !user.getNickname().isEmpty()) {
-                                ids.add(IDConverter.convertFrom(user));
+                            IUser id = entry.getUser();
+                            if (id instanceof User) {
+                                if (id.getNickname() != null
+                                        && !id.getNickname().isEmpty()) {
+                                    ids.add(IDConverter.convertFrom(id));
+                                }
+                            } else if (id instanceof UserId) {
+                                UserId uid = (UserId) id;
+                                if (uid.getAlias() != null
+                                        && !uid.getAlias().isEmpty()) {
+                                    ids.add(uid);
+                                }
                             }
                         }
                     }
