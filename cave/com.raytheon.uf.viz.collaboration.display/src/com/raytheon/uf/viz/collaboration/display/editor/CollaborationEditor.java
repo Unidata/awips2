@@ -153,11 +153,11 @@ public class CollaborationEditor extends AbstractEditor {
         // Subtract size of scroll bars if visible
         ScrollBar vertical = scrollable.getVerticalBar();
         ScrollBar horizon = scrollable.getHorizontalBar();
-        if (vertical.isVisible()) {
-            scrollableBounds.width -= vertical.getSize().x;
-        }
-        if (horizon.isVisible()) {
+        if (scrollableBounds.width <= canvasBounds.width) {
             scrollableBounds.height -= horizon.getSize().y;
+        }
+        if (scrollableBounds.height <= canvasBounds.height) {
+            scrollableBounds.width -= vertical.getSize().x;
         }
 
         wrapperComp.setSize(
