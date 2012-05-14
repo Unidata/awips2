@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IRenderFrame
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.MouseLocationEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrame;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameNeededEvent;
+import com.raytheon.uf.viz.collaboration.ui.rsc.ParticipantInitializedEvent;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -151,8 +152,15 @@ public class CollaborationDispatcher extends Dispatcher {
                 // Remove and dispose to reset frame
                 previousFrames.remove(needed);
                 needed.dispose();
+                display.refresh();
             }
         }
+    }
+
+    @Subscribe
+    public void handleParticipantInitialized(ParticipantInitializedEvent event) {
+        // Force repaint when participant initializes
+        display.refresh();
     }
 
     /*
