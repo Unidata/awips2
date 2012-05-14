@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -68,6 +69,12 @@ public class SharedEditorData implements ISerializableObject {
     /** the view's extent, i.e. the current zoom/pan */
     private Envelope envelope;
 
+    @XmlAttribute
+    private int width;
+
+    @XmlAttribute
+    private int height;
+
     @XmlElement
     @XmlJavaTypeAdapter(value = GridGeometryAdapter.class)
     public GeneralGridGeometry getGeometry() {
@@ -94,6 +101,36 @@ public class SharedEditorData implements ISerializableObject {
 
     public void setEnvelope(Envelope envelope) {
         this.envelope = envelope;
+    }
+
+    /**
+     * @return the width
+     */
+    public int getWidth() {
+        return width;
+    }
+
+    /**
+     * @param width
+     *            the width to set
+     */
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    /**
+     * @return the height
+     */
+    public int getHeight() {
+        return height;
+    }
+
+    /**
+     * @param height
+     *            the height to set
+     */
+    public void setHeight(int height) {
+        this.height = height;
     }
 
 }
