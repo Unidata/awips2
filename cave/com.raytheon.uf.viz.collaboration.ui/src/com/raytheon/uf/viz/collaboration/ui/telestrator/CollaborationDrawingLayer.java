@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.eclipse.swt.graphics.RGB;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.LinkedHashMultimap;
@@ -220,8 +221,12 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             while (itr.hasNext()) {
                 lastElement = itr.next();
             }
-            deletedCollaboratorShapes.put(userName, lastElement);
-            collaboratorShapes.get(userName).remove(lastElement);
+            synchronized (deletedCollaboratorShapes) {
+                deletedCollaboratorShapes.put(userName, lastElement);
+            }
+            synchronized (collaboratorShapes) {
+                collaboratorShapes.get(userName).remove(lastElement);
+            }
             break;
         case REDO:
             userName = event.getUserName();
@@ -234,8 +239,12 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             while (itr.hasNext()) {
                 lastElement = itr.next();
             }
-            collaboratorShapes.put(userName, lastElement);
-            deletedCollaboratorShapes.get(userName).remove(lastElement);
+            synchronized (collaboratorShapes) {
+                collaboratorShapes.put(userName, lastElement);
+            }
+            synchronized (deletedCollaboratorShapes) {
+                deletedCollaboratorShapes.get(userName).remove(lastElement);
+            }
             break;
         case CLEAR:
             resetTemp();
@@ -300,8 +309,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                         containers.put(userName, cont);
                     }
                 }
+                collaboratorShapes.clear();
+                collaboratorShapes.putAll(containers);
             }
-            collaboratorShapes = containers;
             break;
         }
         issueRefresh();
@@ -320,7 +330,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
                 for (ShapeContainer shape : map.get(cont)) {
                     shape.getShape().dispose();
                 }
-                collaboratorShapes.removeAll(cont);
+                synchronized (collaboratorShapes) {
+                    collaboratorShapes.removeAll(cont);
+                }
             }
         }
 
@@ -328,7 +340,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         // for (ShapeContainer cont : collaboratorShapes.get(userName)) {
         // cont.getShape().dispose();
         // }
-        collaboratorShapes.removeAll(userName);
+        synchronized (collaboratorShapes) {
+            collaboratorShapes.removeAll(userName);
+        }
     }
 
     /*
@@ -528,5 +542,17 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         // collaboratorShapes.clear();
         // deletedCollaboratorShapes.clear();
         // }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.drawing.DrawingLayer#project(org.opengis.referencing
+     * .crs.CoordinateReferenceSystem)
+     */
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        super.project(crs);
     }
 }
