@@ -28,8 +28,6 @@ import org.eclipse.ecf.core.ContainerConnectException;
 import org.eclipse.ecf.core.ContainerCreateException;
 import org.eclipse.ecf.core.ContainerFactory;
 import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.IContainerListener;
-import org.eclipse.ecf.core.events.IContainerEvent;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.identity.IDFactory;
@@ -58,6 +56,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.UsernamePasswordException;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
@@ -167,16 +166,6 @@ public class CollaborationConnection implements IEventPublisher {
             container = ContainerFactory.getDefault().createContainer(PROVIDER);
 
             if (container != null) {
-                container.addListener(new IContainerListener() {
-
-                    @Override
-                    public void handleEvent(IContainerEvent event) {
-                        // TODO?
-                        System.out.println("ContainerEvent.Type = "
-                                + event.getClass().getName());
-                    }
-                });
-
                 // add the listeners before we connect so we don't potentially
                 // miss something
                 presenceAdapter = Tools.getPresenceContainerAdapter(container,
@@ -195,7 +184,7 @@ public class CollaborationConnection implements IEventPublisher {
             connectToContainer();
         } catch (ContainerConnectException e) {
             closeInternals();
-            throw new CollaborationException(
+            throw new UsernamePasswordException(
                     "Login failed.  Invalid username or password", e);
         }
         ID id = container.getConnectedID();
@@ -204,6 +193,7 @@ public class CollaborationConnection implements IEventPublisher {
             String host = Tools.parseHost(id.getName());
             String resource = Tools.parseResource(id.getName());
             user = new UserId(name, host, resource);
+            user.setId(id);
         }
 
         setupAccountManager();
@@ -513,10 +503,13 @@ public class CollaborationConnection implements IEventPublisher {
 
                         UserId id = IDConverter.convertFrom(fromId);
                         if (rosterManager != null) {
-                            IRosterEntry entry = contactsMgr.getUsersMap().get(
-                                    id);
-                            ((RosterEntry) entry).setPresence(presence);
-                            eventBus.post(entry);
+                            if (contactsMgr != null
+                                    && contactsMgr.getUsersMap() != null) {
+                                IRosterEntry entry = contactsMgr.getUsersMap()
+                                        .get(id);
+                                ((RosterEntry) entry).setPresence(presence);
+                                eventBus.post(entry);
+                            }
                         }
                     }
                 });
