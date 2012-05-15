@@ -28,46 +28,24 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            jkorman     Initial creation
+ * May 15, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author mnash
  * @version 1.0
  */
 
-public class CollaborationException extends Exception {
+public class UsernamePasswordException extends CollaborationException {
 
-    private static final long serialVersionUID = 2897604473798379699L;
-
-    /**
-     * 
-     */
-    public CollaborationException() {
-
-    }
+    private static final long serialVersionUID = 3124620509180835631L;
 
     /**
-     * @param message
-     */
-    public CollaborationException(String message) {
-        super(message);
-    }
-
-    /**
-     * 
      * @param message
      * @param cause
      */
-    public CollaborationException(String message, Throwable cause) {
+    public UsernamePasswordException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    /**
-     * @param cause
-     */
-    public CollaborationException(Throwable cause) {
-        super(cause);
     }
 
 }
