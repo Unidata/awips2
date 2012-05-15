@@ -49,6 +49,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.UsernamePasswordException;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -373,9 +374,25 @@ public class LoginDialog extends CaveSWTDialog {
                                             };
                                         });
                                     } catch (CollaborationException e) {
-                                        statusHandler.handle(Priority.PROBLEM,
-                                                "Unable to create connection",
-                                                e);
+                                        if (e instanceof UsernamePasswordException) {
+                                            VizApp.runAsync(new Runnable() {
+                                                public void run() {
+                                                    MessageBox messageBox = new MessageBox(
+                                                            getShell(),
+                                                            SWT.ERROR);
+                                                    messageBox
+                                                            .setText("Login Error");
+                                                    messageBox
+                                                            .setMessage("Wrong username/password entered");
+                                                    messageBox.open();
+                                                };
+                                            });
+                                        } else {
+                                            statusHandler
+                                                    .handle(Priority.PROBLEM,
+                                                            "Unable to create connection",
+                                                            e);
+                                        }
                                     }
                                     return Status.OK_STATUS;
                                 };
