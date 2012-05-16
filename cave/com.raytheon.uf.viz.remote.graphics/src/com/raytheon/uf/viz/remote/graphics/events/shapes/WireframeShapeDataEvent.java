@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.wireframe;
+package com.raytheon.uf.viz.remote.graphics.events.shapes;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +30,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent.WireframeShapeDataAdapter;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent.WireframeShapeDataAdapter;
 
 /**
  * Wireframe shape data event which contains coordinates and labels to add to
@@ -169,6 +169,9 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
     @DynamicSerializeElement
     private List<Label> labels = new LinkedList<Label>();
 
+    @DynamicSerializeElement
+    private boolean compile = false;
+
     /**
      * @return the labels
      */
@@ -197,6 +200,21 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
      */
     public void setCoordinates(List<double[][]> coordinates) {
         this.coordinates = coordinates;
+    }
+
+    /**
+     * @return the compile
+     */
+    public boolean isCompile() {
+        return compile;
+    }
+
+    /**
+     * @param compile
+     *            the compile to set
+     */
+    public void setCompile(boolean compile) {
+        this.compile = compile;
     }
 
     public void addLabel(String text, double[] point) {

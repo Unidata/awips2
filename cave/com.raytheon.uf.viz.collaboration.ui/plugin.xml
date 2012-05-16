@@ -160,7 +160,7 @@
             class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.OffscreenRenderingHandler">
       </renderingExtension>
       <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.WireframeShapeRenderingHandler">
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.ShapeRenderingHandler">
       </renderingExtension>
       <renderingExtension
             class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.StringRenderingHandler">
