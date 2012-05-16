@@ -53,6 +53,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Sep 1, 2010            jsanchez     Initial creation
  * Aug 22, 2011  10631   njensen  Major refactor
+ * May 3, 2012	DR 14741  porricel	   Stop setting end time of orig.
+ *                                     warning to start time of update.
  * 
  * </pre>
  * 
@@ -88,13 +90,20 @@ public class WarningsResource extends AbstractWarningResource {
                                 && rec.getEtn().equals(warnrec.getEtn())) {
 
                             if (!entry.altered) {
-                                // if it's a con, can, exp, or ext set the
-                                // original
-                                // one's end time to this one's start time
-                                entry.record.setEndTime((Calendar) warnrec
-                                        .getStartTime().clone());
+                                // if it's a con, can, exp, or ext mark the
+                            	// original one as altered
                                 entry.altered = true;
-
+                                //make note of alteration time without 
+                                //changing end time
+                                entry.timeAltered = warnrec.getStartTime().getTime();
+                                
+                                //if cancellation, set end time to start time 
+                                //of this action
+                                if(act == WarningAction.CAN) {
+                                    entry.record.setEndTime((Calendar) warnrec
+                                            .getStartTime().clone());
+                                }
+                                
                                 if (!rec.getCountyheader().equals(
                                         warnrec.getCountyheader())
                                         && act == WarningAction.CAN) {

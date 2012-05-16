@@ -80,7 +80,7 @@ public class SimpleDetailsComp extends Composite {
         setLayout(new GridLayout(1, false));
         setLayoutData(gd);
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.heightHint = 250;
         st = new StyledText(this, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
         st.setEditable(false);

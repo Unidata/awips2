@@ -30,14 +30,13 @@ import com.raytheon.uf.common.dataplugin.radar.level3.DataLevelThreshold;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.core.units.PiecewisePixel;
-import com.raytheon.viz.radar.Activator;
+import com.raytheon.viz.radar.units.DigitalVilUnit;
 
 /**
  * TODO Add Description
@@ -56,7 +55,9 @@ import com.raytheon.viz.radar.Activator;
  */
 
 public class DataUtilities {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DataUtilities.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DataUtilities.class);
+
     /**
      * Returns dataUnit with scale/offset accounted for.
      * 
@@ -155,6 +156,9 @@ public class DataUtilities {
             } else {
                 rval = new PiecewisePixel(record.getUnitObject(), pix, std);
             }
+        } else if (record.getProductCode() == 134) {
+            // Digital Vil is all messy in the spec.
+            rval = new DigitalVilUnit(record.getThresholds());
         } else if (record.getThreshold(5) == 0) {
             // The offset and scale are set as ints
             double offset = record.getThreshold(0);
