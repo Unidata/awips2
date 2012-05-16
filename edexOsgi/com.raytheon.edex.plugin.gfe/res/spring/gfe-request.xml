@@ -480,7 +480,7 @@
 		<endpoint id="exportDigitalDataCron"
 			uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}" />
 		<endpoint id="gfeLogPurgeCron"
-			uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.cron}" />
+			uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.logs.cron}" />
 
 		<route id="exportDigitalData">
 			<from uri="exportDigitalDataCron" />

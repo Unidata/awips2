@@ -108,7 +108,11 @@ public class TabControlDlg extends Dialog {
      */
     private StyledText detailsText;
 
+    private static Rectangle bounds;
+
     private static int[] weights = { 50, 50 };
+
+    private static boolean visible = false;
 
     /**
      * Get the instance of the TabControl dialog
@@ -148,6 +152,10 @@ public class TabControlDlg extends Dialog {
 
         shell = new Shell(parent, SWT.TITLE | SWT.RESIZE);
 
+        if (bounds != null) {
+            shell.setBounds(bounds);
+            shell.setFocus();
+        }
         GridLayout mainLayout = new GridLayout(1, false);
         shell.setLayout(mainLayout);
 
@@ -161,15 +169,34 @@ public class TabControlDlg extends Dialog {
         mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(new GridLayout(1, false));
 
+        shell.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                cacheDimensions();
+            }
+        });
+
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 800;
+        if (bounds == null) {
+            gd.widthHint = 800;
+            gd.heightHint = 285;
+        } else {
+            gd.widthHint = bounds.width;
+            gd.heightHint = bounds.height;
+        }
         mainComp.setLayoutData(gd);
 
         topComp = new SashForm(mainComp, SWT.HORIZONTAL);
         topComp.setLayout(new GridLayout(2, false));
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.widthHint = 400;
-        gd.heightHint = 285;
+        if (bounds == null) {
+            gd.widthHint = 400;
+            gd.heightHint = 285;
+        } else {
+            gd.widthHint = bounds.width;
+            gd.heightHint = bounds.height;
+        }
         topComp.setLayoutData(gd);
 
         tabFolder = new TabFolder(topComp, SWT.BORDER);
@@ -205,8 +232,12 @@ public class TabControlDlg extends Dialog {
         detailsText.setLayoutData(gd);
         detailsText.setEditable(false);
 
-        detailsText.setVisible(false);
+        detailsText.setVisible(visible);
         ((GridData) detailsText.getLayoutData()).exclude = true;
+
+        if (visible) {
+            topComp.setWeights(weights);
+        }
 
         createBottomButtons();
     }
@@ -281,24 +312,21 @@ public class TabControlDlg extends Dialog {
         showHide.setLayoutData(gd);
         // TODO: Make this work, right now not working
         showHide.addSelectionListener(new SelectionAdapter() {
-            boolean visible = false;
 
             @Override
             public void widgetSelected(SelectionEvent e) {
+                // if now visible then use cache weights
+                // if NOT visible, save weights, set to hidden
                 visible = !visible;
+                detailsText.setVisible(visible);
+                SashForm sf = (SashForm) topComp;
                 if (visible == true) {
                     showHide.setText("Hide Details...");
+                    sf.setWeights(weights);
                 } else {
                     showHide.setText("Show Details");
-                }
-                detailsText.setVisible(visible);
-
-                SashForm sf = (SashForm) topComp;
-                if (!visible) {
-                    cacheCurrentWeights();
+                    cacheDimensions();
                     sf.setWeights(new int[] { 100, 0 });
-                } else {
-                    sf.setWeights(weights);
                 }
                 topComp.layout();
                 mainComp.layout();
@@ -306,10 +334,13 @@ public class TabControlDlg extends Dialog {
         });
     }
 
-    private void cacheCurrentWeights() {
+    private void cacheDimensions() {
         int[] currentWeights = topComp.getWeights();
         weights[0] = currentWeights[0];
         weights[1] = currentWeights[1];
+        bounds = topComp.getParent().getBounds();
+        bounds.x = shell.getParent().getBounds().x;
+        bounds.y = shell.getParent().getBounds().y;
     }
 
     /**

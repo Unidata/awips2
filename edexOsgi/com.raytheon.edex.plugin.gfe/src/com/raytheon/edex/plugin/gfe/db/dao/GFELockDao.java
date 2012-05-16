@@ -21,13 +21,18 @@
 package com.raytheon.edex.plugin.gfe.db.dao;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.Lock;
+import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.time.TimeRange;
@@ -98,36 +103,6 @@ public class GFELockDao extends CoreDao {
     }
 
     /**
-     * Gets all locks
-     * 
-     * @return All locks currently held
-     * @throws DataAccessLayerException
-     *             If database errors occur
-     */
-    @SuppressWarnings("unchecked")
-    public List<Lock> getAllLocks() throws DataAccessLayerException {
-        Session s = this.getHibernateTemplate().getSessionFactory()
-                .openSession();
-        List<Lock> locks = null;
-        try {
-            // Until cluster-safe caching is in place, this line is necessary to
-            // maintain consistency in a cluster and prevent phantom locks
-            // s.setCacheMode(CacheMode.IGNORE);
-
-            Criteria c = s.createCriteria(daoClass);
-            locks = c.list();
-            if (locks == null) {
-                locks = new ArrayList<Lock>();
-            }
-        } finally {
-            if (s != null) {
-                s.close();
-            }
-        }
-        return locks;
-    }
-
-    /**
      * Gets a specific lock
      * 
      * @param parmId
@@ -159,6 +134,95 @@ public class GFELockDao extends CoreDao {
             return locks.get(0);
         } else {
             return locks.get(0);
+        }
+    }
+
+    /**
+     * Gets locks for the provided list of ParmIDs. The locks are retrieved,
+     * lock tables are constructed and assigned the provided workstation ID
+     * 
+     * @param parmIds
+     *            The ParmIDs to get the lock tables for
+     * @param wsId
+     *            The workstation ID to assign to the lock tables
+     * @return A map of the ParmID and its associated lock table
+     * @throws DataAccessLayerException
+     *             If errors occur during database interaction
+     */
+    @SuppressWarnings("unchecked")
+    public Map<ParmID, LockTable> getLocks(List<ParmID> parmIds, WsId wsId)
+            throws DataAccessLayerException {
+        // The return variable
+        Map<ParmID, LockTable> lockMap = new HashMap<ParmID, LockTable>();
+
+        // Variable to hold the results of the lock table query
+        List<Lock> queryResult = null;
+
+        // Return if no parmIDs are provided
+        if (parmIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        DatabaseQuery query = new DatabaseQuery(daoClass.getName());
+        query.addQueryParam("parmId", parmIds, QueryOperand.IN);
+        queryResult = (List<Lock>) queryByCriteria(query);
+
+        ParmID lockParmID = null;
+        for (Lock lock : queryResult) {
+            lockParmID = lock.getParmId();
+            LockTable lockTable = lockMap.get(lockParmID);
+            if (lockTable == null) {
+                lockTable = new LockTable(lockParmID, new ArrayList<Lock>(),
+                        wsId);
+                lockMap.put(lockParmID, lockTable);
+            }
+            lockTable.addLock(lock);
+        }
+        /*
+         * Do a check to make sure all required lock tables are present in the
+         * map
+         */
+        if (parmIds != null) {
+            for (ParmID requiredParmId : parmIds) {
+                if (!lockMap.containsKey(requiredParmId)) {
+                    lockMap.put(requiredParmId, new LockTable(requiredParmId,
+                            new ArrayList<Lock>(0), wsId));
+                }
+            }
+        }
+        return lockMap;
+    }
+
+    /**
+     * Updates additions and deletions to the lock table in a single transaction
+     * 
+     * @param locksToDelete
+     *            The locks to delete
+     * @param locksToAdd
+     *            The locks to add
+     */
+    public void updateCombinedLocks(Collection<Lock> locksToDelete,
+            Collection<Lock> locksToAdd) throws DataAccessLayerException {
+        if (!locksToDelete.isEmpty() || !locksToAdd.isEmpty()) {
+            Session s = this.getHibernateTemplate().getSessionFactory()
+                    .openSession();
+            Transaction tx = s.beginTransaction();
+            try {
+                for (Lock lock : locksToAdd) {
+                    s.save(lock);
+                }
+                for (Lock lock : locksToDelete) {
+                    s.delete(lock);
+                }
+                tx.commit();
+            } catch (Throwable e) {
+                tx.rollback();
+                throw new DataAccessLayerException("Error combining locks", e);
+            } finally {
+                if (s != null) {
+                    s.close();
+                }
+            }
         }
     }
 }

@@ -59,6 +59,8 @@ public class ScaleWidget extends Widget {
     private int range;
 
     private float resolution;
+    
+    private int precision;
 
     private DecimalFormat format;
 
@@ -71,7 +73,6 @@ public class ScaleWidget extends Widget {
     public ScaleWidget(String label) {
         this();
         setLabel(label);
-        setResolution(1.0f);
     }
 
     /**
@@ -85,6 +86,7 @@ public class ScaleWidget extends Widget {
 
         range = 100;
         resolution = 1;
+        precision = 3;
     }
 
     /*
@@ -111,15 +113,18 @@ public class ScaleWidget extends Widget {
         minValue = ((Number) (getOptions().get(0))).floatValue();
         maxValue = ((Number) (getOptions().get(1))).floatValue();
 
-        range = (int) ((maxValue - minValue) / getResolution());
-
+        range = Math.round((maxValue - minValue) / getResolution());
+        
+        format = new DecimalFormat();
+        format.setMaximumFractionDigits(precision);
+        
         scale.setMinimum(0);
         scale.setMaximum(range);
         scale.setIncrement(1);
         scale.setPageIncrement(1);
 
         if (getValue() == null) {
-            setValue(new Float(minValue));
+        	setValue(new Float(minValue));
         }
 
         setInitialScaleValue(((Number) (getValue())).floatValue());
@@ -145,7 +150,7 @@ public class ScaleWidget extends Widget {
      * @return the scaleValue
      */
     private float getScaleValue() {
-        return scale.getSelection() * resolution + minValue;
+    	return scale.getSelection() * resolution + minValue;
     }
 
     /**
@@ -159,14 +164,14 @@ public class ScaleWidget extends Widget {
      */
     private void setInitialScaleValue(float scaleValue) {
 
-        int position = (int) ((scaleValue - minValue) / resolution);
+        int position = Math.round((scaleValue - minValue) / resolution);
         scale.setSelection(position);
     }
 
     /**
      * @return the resolution
      */
-    public double getResolution() {
+    public float getResolution() {
         return resolution;
     }
 
@@ -182,17 +187,14 @@ public class ScaleWidget extends Widget {
     public void setResolution(float resolution) {
         if (resolution != 0.0f) {
             this.resolution = resolution;
-            int digits = 0;
-            double log = Math.log10(resolution);
-            if (log < 0) {
-                digits = (int) Math.ceil(-log);
-            }
-            format = new DecimalFormat();
-            format.setMaximumFractionDigits(digits);
         }
     }
 
-    /*
+    public int getPrecision() {
+		return precision;
+	}
+
+	/*
      * (non-Javadoc)
      * 
      * @see com.raytheon.viz.gfe.ui.runtimeui.widgets.Widget#toString()
@@ -232,5 +234,9 @@ public class ScaleWidget extends Widget {
     public void setOptions(Object[] options) {
         super.setOptions(options);
     }
+
+	public void setPrecision(int precision) {
+		this.precision = precision;		
+	}
 
 }

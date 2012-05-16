@@ -87,7 +87,7 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  * @version 1.0
  */
 public class DataListsProdTableComp extends Composite implements
-        IDataMenuAction, IDataListProdTable {
+        IDataMenuAction {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataListsProdTableComp.class);
 
@@ -172,8 +172,6 @@ public class DataListsProdTableComp extends Composite implements
         private Combo find;
 
         private final DataSelection data;
-
-        private final boolean performAutoSelect = true;
 
         public boolean hasSelectedIndexes() {
             if (list != null && list.getSelectedIndexes() != null) {
@@ -550,7 +548,6 @@ public class DataListsProdTableComp extends Composite implements
      * Clear the Fields list and re-enable the menu items. Also clear the
      * products table.
      */
-    @Override
     public void clearFieldsList(boolean updateMenu) {
         currentDataSelection = DataSelection.FIELDS;
         fieldControl.list.clearList();
@@ -565,7 +562,6 @@ public class DataListsProdTableComp extends Composite implements
      * Clear the Planes list and re-enable the menu items. Also clear the
      * products table.
      */
-    @Override
     public void clearPlanesList(boolean updateMenu) {
         currentDataSelection = DataSelection.PLANES;
         planeControl.list.clearList();
@@ -580,7 +576,6 @@ public class DataListsProdTableComp extends Composite implements
      * Deselect all of the items in the Sources, Fields, and Planes lists. Also
      * clear the products table.
      */
-    @Override
     public void deselectAllListItems() {
         sourceControl.list.deselectAll();
         fieldControl.list.deselectAll();
@@ -591,7 +586,6 @@ public class DataListsProdTableComp extends Composite implements
     /**
      * Select all of the items in the Sources, Fields, and Planes lists.
      */
-    @Override
     public void selectAllListItems() {
         sourceControl.list.selectAll();
         fieldControl.list.selectAll();
@@ -919,41 +913,6 @@ public class DataListsProdTableComp extends Composite implements
     }
 
     /**
-     * Pack the table.
-     */
-    @Override
-    public void packTable() {
-        prodTable.packTable();
-    }
-
-    /**
-     * Resize the table columns.
-     */
-    @Override
-    public void resizeTableColumns() {
-        prodTable.resizeTableColumns();
-    }
-
-    /**
-     * Clear the product table.
-     */
-    @Override
-    public void clearProductTable() {
-        prodTable.clearProductTable();
-    }
-
-    /**
-     * Remove a product from the product table.
-     * 
-     * @param key
-     *            Key to remove the product from the product table.
-     */
-    @Override
-    public void removeProduct(String key) {
-        prodTable.removeProduct(key);
-    }
-
-    /**
      * Add product to the products table.
      */
     public void addProductsToTable() {
@@ -961,16 +920,8 @@ public class DataListsProdTableComp extends Composite implements
         final ArrayList<SelectedData> selectedDataArray = getSelectedData();
 
         if (selectedDataArray.isEmpty() == false) {
-            for (final SelectedData selectedData : selectedDataArray) {
-                getDisplay().asyncExec(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        prodTable.addProduct(selectedData);
-
-                    }
-
-                });
+            for (SelectedData selectedData : selectedDataArray) {
+                prodTable.addProduct(selectedData);
             }
         }
 
@@ -1005,24 +956,16 @@ public class DataListsProdTableComp extends Composite implements
                     uniqueKey = createUniqueKey(sourcesSelIdx[i],
                             fieldsSelIdx[j], planesSelIdx[k]);
 
-                    /*
-                     * If the product table does not contain the product key
-                     * then we need to add the information to the selected data
-                     * array.
-                     */
-                    if (prodTable.containsProduct(uniqueKey) == false) {
-                        selData = new SelectedData(
-                                sourceControl.list
-                                        .getItemText(sourcesSelIdx[i]),
-                                sourceControl.list.getKey(sourcesSelIdx[i]),
-                                fieldControl.list.getItemText(fieldsSelIdx[j]),
-                                fieldControl.list.getKey(fieldsSelIdx[j]),
-                                planeControl.list.getItemText(planesSelIdx[k]),
-                                planeControl.list.getKey(planesSelIdx[k]),
-                                uniqueKey);
+                    selData = new SelectedData(
+                            sourceControl.list.getItemText(sourcesSelIdx[i]),
+                            sourceControl.list.getKey(sourcesSelIdx[i]),
+                            fieldControl.list.getItemText(fieldsSelIdx[j]),
+                            fieldControl.list.getKey(fieldsSelIdx[j]),
+                            planeControl.list.getItemText(planesSelIdx[k]),
+                            planeControl.list.getKey(planesSelIdx[k]),
+                            uniqueKey);
 
-                        selectedData.add(selData);
-                    }
+                    selectedData.add(selData);
                 }
             }
         }
@@ -1094,17 +1037,6 @@ public class DataListsProdTableComp extends Composite implements
                 }
             }
         }
-    }
-
-    /**
-     * Check if the product table contains a product that matched a key.
-     * 
-     * @param key
-     *            Unique key used to check for existing products.
-     */
-    @Override
-    public boolean containsProduct(String key) {
-        return prodTable.containsProduct(key);
     }
 
     /**
@@ -1220,13 +1152,8 @@ public class DataListsProdTableComp extends Composite implements
         markAvailableData(plane, planeControl);
     }
 
-    /**
-     * 
-     * @return a list of currently selected products, an empty list if nothing
-     *         is selected.
-     */
-    public List<ProductTableData> getSelectedProducts() {
-        return prodTable.getSelectedData();
+    public ProductTableComp getProductTable() {
+        return prodTable;
     }
 
 }

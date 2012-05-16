@@ -807,14 +807,17 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
         return pointsToFillIn;
     }
 
+    @Override
     public Object[] getNumPy() {
         return new Object[] { this.getGrid().getBuffer().array() };
     }
 
+    @Override
     public int getNumpyX() {
         return this.getGrid().getXdim();
     }
 
+    @Override
     public int getNumpyY() {
         return this.getGrid().getYdim();
     }
@@ -897,8 +900,7 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
                     if (points.get(i, j) == 1) {
                         WeatherKey combined = new WeatherKey(key.get(values
                                 .get(i, j)));
-                        combined.addAll(doGetWeatherValue(grid, key, new Point(
-                                i, j)));
+                        combined.addAll(doGetWeatherValue(i, j));
                         grid.set(i, j, lookupKeyValue(combined));
                     }
                 }
@@ -908,10 +910,9 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
         setGrid(grid);
     }
 
-    protected WeatherKey doGetWeatherValue(Grid2DByte grid,
-            List<WeatherKey> key, Point gridLoc) {
-        byte gridValue = grid.get(gridLoc.x, gridLoc.y);
-        return key.get(gridValue);
+    protected WeatherKey doGetWeatherValue(int x, int y) {
+        byte gridValue = getGrid().get(x, y);
+        return getKeys()[gridValue];
     }
 
     /*

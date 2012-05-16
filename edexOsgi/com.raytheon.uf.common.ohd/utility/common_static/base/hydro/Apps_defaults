@@ -165,6 +165,14 @@ hydro_publicbin    : $(apps_dir)/public/bin
 sqlcmd_bin_dir     : /usr/local/sqlcmd/bin      # location of sqlcmd executable on both HP and
                                                 #   Linux beginning in OB3
 
+#################################################################################
+#  Default Display Maps - comma separated list of maps with no spaces
+#      Map names can be found in the localization perspective under 
+#      CAVE->Bundles->Maps.  Use the filename without the extension.
+#      statesCounties.xml -> statesCounties
+display_maps       : statesCounties
+#################################################################################
+
 #  database selection tokens
 server_name        : ONLINE      # Informix database server name
 db_name            : hd_ob92lwx # IHFS database name
