@@ -75,6 +75,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -716,7 +717,10 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 */
 	private void drawGhost( IGraphicsTarget target, PaintProperties paintProps,
 			DisplayElementFactory df ){
-		
+        if (target instanceof DispatchGraphicsTarget) {
+            // Ensure ghosting is painted to our own target only
+            target = ((DispatchGraphicsTarget) target).getWrappedObject();
+        }
 		df.setLayerDisplayAttr( false, null, false );
 		
 		Iterator<DrawableElement> iterator = ghost.createDEIterator();
