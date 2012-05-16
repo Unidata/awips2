@@ -79,6 +79,15 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PointDataCatalog.class);
 
+    protected static final Comparator<SurfaceObsLocation> locComparator = new Comparator<SurfaceObsLocation>() {
+
+        @Override
+        public int compare(SurfaceObsLocation o1, SurfaceObsLocation o2) {
+            return Double.compare(o1.getLatitude(), o2.getLatitude());
+        }
+
+    };
+
     protected Map<String, SurfaceObsLocation[]> availableStations = new HashMap<String, SurfaceObsLocation[]>();
 
     @Override
@@ -180,16 +189,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         target.setLatitude(coordinate.y);
         target.setLongitude(coordinate.x);
         int index = Arrays.binarySearch(availableStations, target,
-                new Comparator<SurfaceObsLocation>() {
-
-                    @Override
-                    public int compare(SurfaceObsLocation o1,
-                            SurfaceObsLocation o2) {
-                        return Double.compare(o1.getLatitude(),
-                                o2.getLongitude());
-                    }
-
-                });
+                locComparator);
         if (index < 1) {
             index = -index;
         }

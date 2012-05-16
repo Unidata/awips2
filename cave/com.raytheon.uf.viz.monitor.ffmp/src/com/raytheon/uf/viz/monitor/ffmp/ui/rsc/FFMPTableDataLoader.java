@@ -125,7 +125,7 @@ public class FFMPTableDataLoader implements Runnable {
                             }
                             if (drawable.getTableData(iHuc) != null) {
 
-                                System.out.println(" Cache HITTTTTTTTT!!!!!");
+                                //System.out.println(" Cache HITTTTTTTTT!!!!!");
                                 tData = drawable.getTableData(iHuc);
                             }
                         }
@@ -140,8 +140,8 @@ public class FFMPTableDataLoader implements Runnable {
                                     iHuc = "ALL";
                                 }
 
-                                System.out
-                                        .println(" Cache MISSSSSSSSSSSS!!!!!");
+                                //System.out
+                                //       .println(" Cache MISSSSSSSSSSSS!!!!!");
                                 FFMPDataGenerator dg = new FFMPDataGenerator(
                                         ffmp, resource);
                                 tData = dg.generateFFMPData();

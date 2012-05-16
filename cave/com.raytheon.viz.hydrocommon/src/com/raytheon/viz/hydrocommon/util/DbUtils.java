@@ -22,6 +22,7 @@ package com.raytheon.viz.hydrocommon.util;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 
@@ -43,9 +44,9 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 public class DbUtils {
     private static final String SHEF_PROCOBS = "shef_procobs";
 
-    private static Map<String, String> tableMap = null;
+    private static ConcurrentHashMap<String, String> tableMap = null;
 
-    private static Map<String, String> fcstTableMap = null;
+    private static ConcurrentHashMap<String, String> fcstTableMap = null;
 
     public static String getTableName(String pe, String ts) {
         populateMaps();
@@ -149,7 +150,7 @@ public class DbUtils {
 
     private static void populateMaps() {
         if (tableMap == null) {
-            tableMap = new HashMap<String, String>();
+            tableMap = new ConcurrentHashMap<String, String>();
             tableMap.put("a", "Agricultural");
             tableMap.put("e", "Evaporation");
             tableMap.put("f", "Fishcount");
@@ -175,7 +176,7 @@ public class DbUtils {
         }
 
         if (fcstTableMap == null) {
-            fcstTableMap = new HashMap<String, String>();
+            fcstTableMap = new ConcurrentHashMap<String, String>();
             fcstTableMap.put("h", "Fcstheight");
             fcstTableMap.put("p", "Fcstprecip");
             fcstTableMap.put("q", "Fcstdischarge");
