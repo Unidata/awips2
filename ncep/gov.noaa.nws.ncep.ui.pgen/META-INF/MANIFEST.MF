@@ -40,10 +40,8 @@ Export-Package: gov.noaa.nws.ncep.ui.pgen,
  gov.noaa.nws.ncep.ui.pgen.tools
 Import-Package: com.raytheon.edex.meteoLib,
  gov.noaa.nws.ncep.viz.localization,
- com.raytheon.uf.viz.remote.graphics,
  com.raytheon.viz.core.gl,
  com.raytheon.viz.core.gl.images,
  gov.noaa.nws.ncep.common.staticdata,
- gov.noaa.nws.ncep.staticdataprovider,
  javax.measure.unit
 Bundle-ClassPath: .
