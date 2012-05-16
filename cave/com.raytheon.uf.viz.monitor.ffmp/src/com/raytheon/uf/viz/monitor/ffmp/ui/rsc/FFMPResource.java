@@ -207,7 +207,7 @@ public class FFMPResource extends
     private IShadedShape streamShadedShape = null;
 
     /** always the same vertexes, one for each CWA **/
-    private FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
+	private FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
 
     /** Basin shaded shape **/
     protected ConcurrentHashMap<DataTime, FFMPDrawable> drawables = new ConcurrentHashMap<DataTime, FFMPDrawable>();
@@ -297,6 +297,9 @@ public class FFMPResource extends
 
     /** show ffmp color display */
     private boolean showFfmpData = true;
+    
+    /** qpf split window */
+    private boolean isSplit = false;
 
     /** aggregation for centering **/
     public Object centeredAggregationKey = null;
@@ -470,7 +473,7 @@ public class FFMPResource extends
         }
         issueRefresh();
     }
-
+     
     @Override
     public void hucChanged() {
 
@@ -1275,7 +1278,7 @@ public class FFMPResource extends
                     }
 
                     // the product string
-                    if (isFfmpDataToggle()) {
+                    if (isFfmpDataToggle() && fieldDescString != null) {
                         paintProductString(aTarget, paintProps);
                     }
                 }
@@ -1463,7 +1466,13 @@ public class FFMPResource extends
 
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
-        clear();
+    	  
+        if (shadedShapes != null) {
+        	shadedShapes.clear();
+        }
+        
+        setQuery(true);
+        refresh();
     }
 
     protected String getGeometryType() {
@@ -1534,8 +1543,13 @@ public class FFMPResource extends
         try {
             FFMPBasinMetaData metaBasin = monitor.getTemplates(getSiteKey())
                     .findBasinByLatLon(getSiteKey(), coord.asLatLon());
-            if (getHuc().equals("ALL") || (centeredAggregationKey != null)) {
+            if (getHuc().equals("ALL") || centeredAggregationKey != null) {
                 pfaf = metaBasin.getPfaf();
+                if (isMaintainLayer) {
+                	pfaf = monitor.getTemplates(getSiteKey()).findAggregatedPfaf(
+                            pfaf, getSiteKey(), getHuc());
+                	aggregate = true;
+                }
             } else {
                 pfaf = monitor.getTemplates(getSiteKey()).findAggregatedPfaf(
                         metaBasin.getPfaf(), getSiteKey(), getHuc());
@@ -1956,6 +1970,8 @@ public class FFMPResource extends
             for (Entry<DataTime, FFMPDrawable> entry : drawables.entrySet()) {
                 entry.getValue().dispose();
             }
+            
+            drawables.clear();
         }
     }
 
@@ -2502,11 +2518,11 @@ public class FFMPResource extends
                         // the
                         // the basin when the color map changes.
                         if (globalRegen || drawable.genCwa(cwa)) {
-                            // System.out
-                            // .println("Regenerating the entire image: CWA: +"
-                            // + cwa
-                            // + " Table:"
-                            // + resourceData.tableLoad);
+                             //System.out
+                             //.println("Regenerating the entire image: CWA: +"
+                             //+ cwa
+                             //+ " Table:"
+                             //+ resourceData.tableLoad);
                             // get base aggr basins that are in screen area
                             Set<Long> cwaPfafs = null;
                             cwaPfafs = getAreaBasins(cwa, req, phuc);
@@ -2980,7 +2996,6 @@ public class FFMPResource extends
         }
 
         updateDialog();
-
     }
 
     @Override
@@ -2990,18 +3005,25 @@ public class FFMPResource extends
         centeredAggregationKey = null;
         centeredAggregatePfafList = null;
 
-        hucChanged();
+        if (isAutoRefresh) {
+        	hucChanged();
+        	refresh();
+        }
 
         updateDialog();
+        
     }
 
     @Override
     public void timeChanged(FFMPTimeChangeEvent fhce, FFMPRecord.FIELDS fieldArg)
             throws VizException {
 
-        if ((Double) fhce.getSource() != time) {
+    	FFMPTime ffmpTime = (FFMPTime) fhce.getSource();
+    	
+        if (ffmpTime.getTime() != time || isSplit != ffmpTime.isSplit()) {
 
-            setTime((Double) fhce.getSource());
+        	isSplit = ffmpTime.isSplit();
+            setTime(ffmpTime.getTime());
             setTableTime();
             if (interpolationMap != null) {
                 interpolationMap.clear();
@@ -3822,6 +3844,10 @@ public class FFMPResource extends
 
     public boolean isLinkToFrame() {
         return isLinkToFrame;
+    }
+    
+    public boolean isSplit() {
+    	return isSplit;
     }
 
     /**

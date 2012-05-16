@@ -1154,14 +1154,20 @@ public class FFMPProcessor {
             for (int j = 0; j < dataVals.length; j++) {
 
                 float fval = (float) ScanUtils.getDecodedDHRValue(dataVals[j]);
-
-                val += ScanUtils.getZRvalue(fval,
-                        dhrMap.get(DHRValues.ZRMULTCOEFF),
-                        dhrMap.get(DHRValues.MAXPRECIPRATEALLOW),
-                        dhrMap.get(DHRValues.ZRPOWERCOEFF),
-                        dhrMap.get(DHRValues.BIAS_TO_USE))
-                        * areas[j];
-                area += areas[j];
+                
+				try {
+					val += ScanUtils.getZRvalue(fval,
+							dhrMap.get(DHRValues.ZRMULTCOEFF),
+							dhrMap.get(DHRValues.MAXPRECIPRATEALLOW),
+							dhrMap.get(DHRValues.ZRPOWERCOEFF),
+							dhrMap.get(DHRValues.BIAS_TO_USE))
+							* areas[j];
+					area += areas[j];
+				} catch (Exception e) {
+					statusHandler
+							.error("DHR parameters are NULL, can't process!"
+									+ e.getMessage());
+				}
             }
 
         } else if (radarRec.getMnemonic().equals("DPR")) {

@@ -269,15 +269,23 @@ public class GribSpatialCache {
 				List<? extends GridCoverage> baseCoverages = dao
 						.loadBaseGrids();
 
-				for (Object obj : baseCoverages) {
-					try {
-						putGrid((GridCoverage) obj, false, false);
-					} catch (Exception e) {
-						// Log error but do not throw exception, technically is
-						// only from initialize which isn't being called
-						logger.error("Unable to load grid coverage into cache "
-								+ obj, e);
+				if (baseCoverages != null && baseCoverages.size() > 0) {
+					for (Object obj : baseCoverages) {
+						try {
+							putGrid((GridCoverage) obj, false, false);
+						} catch (Exception e) {
+							// Log error but do not throw exception, technically
+							// is
+							// only from initialize which isn't being called
+							logger.error(
+									"Unable to load grid coverage into cache "
+											+ obj, e);
+						}
 					}
+				} else {
+					// database wiped/plugin re-initialized need to repopulate
+					processBaseGridsChanged(dao, currentFdl);
+					saveFileDataList(currentFdl);
 				}
 			}
 
@@ -467,7 +475,7 @@ public class GribSpatialCache {
 		for (GridCoverage cov : unknownGrids) {
 			try {
 				GridCoverage dbCov = getGrid(cov);
-				if (cov.equals(dbCov) && !cov.getName().equals(dbCov.getName())) {
+				if (!cov.getName().equals(dbCov.getName())) {
 					logger.info("Unknown grid " + cov.getName()
 							+ " is now mapped by " + dbCov.getName()
 							+ ".  Deleting unknown grid");
@@ -509,63 +517,73 @@ public class GribSpatialCache {
 
 						GridCoverage gridCoverage = getGrid(referenceModel);
 
-						Coordinate wfoCenter = MapUtil.latLonToGridCoordinate(
-								wfoCenterPoint, PixelOrientation.CENTER,
-								gridCoverage);
+						if (gridCoverage == null) {
+							Coordinate wfoCenter = MapUtil
+									.latLonToGridCoordinate(wfoCenterPoint,
+											PixelOrientation.CENTER,
+											gridCoverage);
 
-						double xCenterPoint = wfoCenter.x;
-						double yCenterPoint = wfoCenter.y;
+							double xCenterPoint = wfoCenter.x;
+							double yCenterPoint = wfoCenter.y;
 
-						double xDistance = subGridDef.getNx() / 2;
-						double yDistance = subGridDef.getNy() / 2;
-						Coordinate lowerLeftPosition = new Coordinate(
-								xCenterPoint - xDistance, yCenterPoint
-										+ yDistance);
-						Coordinate upperRightPosition = new Coordinate(
-								xCenterPoint + xDistance, yCenterPoint
-										- yDistance);
+							double xDistance = subGridDef.getNx() / 2;
+							double yDistance = subGridDef.getNy() / 2;
+							Coordinate lowerLeftPosition = new Coordinate(
+									xCenterPoint - xDistance, yCenterPoint
+											+ yDistance);
+							Coordinate upperRightPosition = new Coordinate(
+									xCenterPoint + xDistance, yCenterPoint
+											- yDistance);
 
-						lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
-								lowerLeftPosition, PixelOrientation.CENTER,
-								gridCoverage);
-						upperRightPosition = MapUtil.gridCoordinateToLatLon(
-								upperRightPosition, PixelOrientation.CENTER,
-								gridCoverage);
+							lowerLeftPosition = MapUtil.gridCoordinateToLatLon(
+									lowerLeftPosition, PixelOrientation.CENTER,
+									gridCoverage);
+							upperRightPosition = MapUtil
+									.gridCoordinateToLatLon(upperRightPosition,
+											PixelOrientation.CENTER,
+											gridCoverage);
 
-						subGridDef.setLowerLeftLon(lowerLeftPosition.x);
-						subGridDef.setLowerLeftLat(lowerLeftPosition.y);
-						subGridDef.setUpperRightLon(upperRightPosition.x);
-						subGridDef.setUpperRightLat(upperRightPosition.y);
+							subGridDef.setLowerLeftLon(lowerLeftPosition.x);
+							subGridDef.setLowerLeftLat(lowerLeftPosition.y);
+							subGridDef.setUpperRightLon(upperRightPosition.x);
+							subGridDef.setUpperRightLat(upperRightPosition.y);
 
-						// verify numbers in -180 -> 180 range
-						subGridDef.setLowerLeftLon(MapUtil
-								.correctLon(subGridDef.getLowerLeftLon()));
-						subGridDef.setUpperRightLon(MapUtil
-								.correctLon(subGridDef.getUpperRightLon()));
+							// verify numbers in -180 -> 180 range
+							subGridDef.setLowerLeftLon(MapUtil
+									.correctLon(subGridDef.getLowerLeftLon()));
+							subGridDef.setUpperRightLon(MapUtil
+									.correctLon(subGridDef.getUpperRightLon()));
 
-						// do a reverse lookup of the model name to get its
-						// associated grid id
+							// do a reverse lookup of the model name to get its
+							// associated grid id
 
-						for (String modelName : subGridDef.getModelNames()) {
-							GridModel model = gribModelLUT
-									.getModelByName(modelName);
-							if (model != null) {
-								GridCoverage baseCoverage = spatialNameMap
-										.get(model.getGrid().toString());
+							for (String modelName : subGridDef.getModelNames()) {
+								GridModel model = gribModelLUT
+										.getModelByName(modelName);
+								if (model != null) {
+									GridCoverage baseCoverage = spatialNameMap
+											.get(model.getGrid().toString());
 
-								if (baseCoverage != null) {
-									SubGrid subGrid = new SubGrid();
-									subGrid.setModelName(modelName);
-									GridCoverage subGridCoverage = baseCoverage
-											.trim(subGridDef, subGrid);
-									if (subGridCoverage != null) {
-										subGrids.put(subGridCoverage.getName(),
-												subGridCoverage);
-										definedSubGridMap.put(modelName,
-												subGrid);
+									if (baseCoverage != null) {
+										SubGrid subGrid = new SubGrid();
+										subGrid.setModelName(modelName);
+										GridCoverage subGridCoverage = baseCoverage
+												.trim(subGridDef, subGrid);
+										if (subGridCoverage != null) {
+											subGrids.put(
+													subGridCoverage.getName(),
+													subGridCoverage);
+											definedSubGridMap.put(modelName,
+													subGrid);
+										}
 									}
 								}
 							}
+						} else {
+							logger.error("Failed to generate sub grid for "
+									+ fd.getFilePath()
+									+ ".  Unable to determine coverage for referenceModel ["
+									+ referenceModel + "]");
 						}
 					}
 				} catch (Exception e) {

@@ -39,6 +39,9 @@ public class DialogConfiguration implements ISerializableObject {
 
     @XmlElement
     private long followupListRefeshDelay;
+    
+    @XmlElement
+    private GridSpacing gridSpacing;
 
     public static DialogConfiguration loadDialogConfig(String localSite)
             throws FileNotFoundException, IOException, JAXBException {
@@ -109,4 +112,13 @@ public class DialogConfiguration implements ISerializableObject {
     public void setFollowupListRefeshDelay(long followupListRefeshDelay) {
         this.followupListRefeshDelay = followupListRefeshDelay;
     }
+
+    public GridSpacing getGridSpacing() {
+        return gridSpacing;
+    }
+
+    public void setGridSpacing(GridSpacing gridSpacing) {
+        this.gridSpacing = gridSpacing;
+    }
+    
 }

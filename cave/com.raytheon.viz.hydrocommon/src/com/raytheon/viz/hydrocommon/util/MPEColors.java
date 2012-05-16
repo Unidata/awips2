@@ -319,7 +319,7 @@ public class MPEColors {
 
         pColorSetGroup.add(pColorUseSet);
 
-        /* Multi-sensor Mosaic */
+        /* Multi-sensor Mosaic or Multi-sensor Precip */
         pColorUseSet = new NamedColorUseSet("MMOSAIC", "Multisensor Mosaic",
                 precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
 

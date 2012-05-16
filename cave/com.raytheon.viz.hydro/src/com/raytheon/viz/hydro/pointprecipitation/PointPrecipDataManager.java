@@ -590,7 +590,7 @@ public class PointPrecipDataManager extends HydroDataManager {
         ArrayList<Object[]> rs = runQuery(query);
         if ((rs != null) && (rs.size() > 0)) {
             Object[] oa = rs.get(0);
-            if (((String) oa[0]).equalsIgnoreCase("ALERT")) {
+            if (oa[0] != null && ((String) oa[0]).equalsIgnoreCase("ALERT")) {
                 alert = true;
             }
         }
