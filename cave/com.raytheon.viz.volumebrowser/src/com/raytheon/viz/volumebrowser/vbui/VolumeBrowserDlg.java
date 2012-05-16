@@ -168,7 +168,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         shell.addControlListener(new ControlAdapter() {
             @Override
             public void controlResized(ControlEvent e) {
-                listTableComp.resizeTableColumns();
+                getProductTable().resizeTableColumns();
             }
 
         });
@@ -196,7 +196,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     @Override
     protected void preOpened() {
         // Resize the product table columns.
-        listTableComp.resizeTableColumns();
+        getProductTable().resizeTableColumns();
 
         // Set the shell's minimum size so the controls cannot be hidden.
         shell.setMinimumSize(shell.getSize());
@@ -255,8 +255,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
 
-                List<ProductTableData> selectedProducts = (listTableComp)
-                        .getSelectedProducts();
+                List<ProductTableData> selectedProducts = getProductTable()
+                        .getSelectedData();
                 new CloneDialog(new Shell(SWT.MODELESS), selectedProducts)
                         .open();
             }
@@ -560,7 +560,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         /*
          * Clear the Times/Product Selection/Inventory lists.
          */
-        listTableComp.clearProductTable();
+        getProductTable().clearProductTable();
     }
 
     /**
@@ -575,7 +575,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         /*
          * Clear the Times/Product Selection/Inventory lists.
          */
-        listTableComp.clearProductTable();
+        getProductTable().clearProductTable();
     }
 
     /**
@@ -590,7 +590,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         /*
          * Clear the Times/Product Selection/Inventory lists.
          */
-        listTableComp.clearProductTable();
+        getProductTable().clearProductTable();
     }
 
     /**
@@ -605,7 +605,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         /*
          * Clear the Times/Product Selection/Inventory lists.
          */
-        listTableComp.clearProductTable();
+        getProductTable().clearProductTable();
     }
 
     /**
@@ -613,7 +613,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
      * selection table.
      */
     private void selectNone() {
-        listTableComp.clearProductTable();
+        getProductTable().clearProductTable();
 
         listTableComp.deselectAllListItems();
         listTableComp.updateMenuInventory();
@@ -822,9 +822,9 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
                     MenuItem mi = (MenuItem) event.getSource();
                     updateMenu(mi);
                     dialogSettings.setPointsSelection(mi);
-                    VbUtil.getDataListsProdTableComp().clearProductTable();
-                    VbUtil.getDataListsProdTableComp().addProductsToTable();
-                    VbUtil.getDataListsProdTableComp().updateMenuInventory();
+                    getProductTable().clearProductTable();
+                    listTableComp.addProductsToTable();
+                    listTableComp.updateMenuInventory();
                 }
             });
         }
@@ -871,12 +871,12 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
         if (packShellFlag == true) {
 
-            listTableComp.packTable();
+            getProductTable().packTable();
 
             shell.layout();
             shell.pack();
 
-            listTableComp.resizeTableColumns();
+            getProductTable().resizeTableColumns();
 
             shell.setMinimumSize(shell.getSize());
         }
@@ -893,6 +893,10 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
     public DataListsProdTableComp getListTableComp() {
         return listTableComp;
+    }
+
+    protected ProductTableComp getProductTable() {
+        return getListTableComp().getProductTable();
     }
 
     @Override

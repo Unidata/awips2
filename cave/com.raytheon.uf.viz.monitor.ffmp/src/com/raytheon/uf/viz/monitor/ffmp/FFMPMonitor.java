@@ -137,7 +137,6 @@ public class FFMPMonitor extends ResourceMonitor implements
 
     public ArrayList<Date> dataTimes = null;
 
-    private FFMPTimeWindow rateWindow = null;
     private FFMPTimeWindow qpfWindow = null;
     private FFMPTimeWindow qpeWindow = null;
     //DR 14511: Data retrieval uses Job. VizApp.runAsync() uses GUI thread
@@ -1606,18 +1605,10 @@ public class FFMPMonitor extends ResourceMonitor implements
             String siteKey) {
         FFMPTimeWindow window = new FFMPTimeWindow();
         long lwindow = getSourceTimeWindow(sourceName, siteKey);
-        window.setAfterTime(new Date(date.getTime() + lwindow));
-        window.setBeforeTime(new Date(date.getTime() - lwindow));
+        window.setAfterTime(new Date(date.getTime() - lwindow));
+        window.setBeforeTime(new Date(date.getTime() + lwindow));
 
         return window;
-    }
-
-    public FFMPTimeWindow getRateWindow() {
-        return rateWindow;
-    }
-
-    public void setRateWindow(FFMPTimeWindow rateWindow) {
-        this.rateWindow = rateWindow;
     }
 
     public FFMPTimeWindow getQpfWindow() {

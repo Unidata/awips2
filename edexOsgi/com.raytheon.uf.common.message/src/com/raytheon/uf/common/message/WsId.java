@@ -32,16 +32,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 /**
  * The WsId contains the work station identification for the user. *
  * 
- * Only the IP network address and lock key are used to identify locks (if the
- * lockKey is non-zero), otherwise the other identifiers must be unique. The
- * function equalForLockComparison() is used to enforce this rule.
- * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 10, 2009            randerso     Initial creation
+ * Apr 25, 2012       545  randerso     Repurposed the lockKey field as threadId
  * 
  * </pre>
  * 
@@ -62,13 +59,17 @@ public class WsId implements Serializable, ISerializableObject {
 
     private int pid;
 
-    private final long lockKey;
+    // replaced A1 lockKey with threadId for A2.
+    // lockKey was not used in A2. This allows A2 to retain
+    // compatibility with A1 for ISC purposes by not chaning
+    // the format of the WsId
+    private final long threadId;
 
     /**
      * Constructs an default wsid. Only for use by serialization
      */
     public WsId() {
-        this(null, null, null, 0);
+        this(null, null, null);
     }
 
     /**
@@ -104,12 +105,12 @@ public class WsId implements Serializable, ISerializableObject {
             throw new IllegalArgumentException(
                     "pid argument not of proper format for WsId");
         }
-        this.lockKey = Long.parseLong(token[4]);
+        this.threadId = Long.parseLong(token[4]);
 
     }
 
     /**
-     * Constructor for WsId taking the networkId, user name, progName, pid.
+     * Constructor for WsId taking the networkId, user name, progName.
      * 
      * @param networkId
      *            If null local IP address will be used if available, otherwise
@@ -120,34 +121,9 @@ public class WsId implements Serializable, ISerializableObject {
      * @param progName
      *            if null "unknown" will be used
      * 
-     * @param pid
-     *            if 0 current process id will be used
      */
     public WsId(InetAddress networkId, final String userName,
-            final String progName, int pid) {
-        this(networkId, userName, progName, pid, 0);
-    }
-
-    /**
-     * Constructor for WsId taking the networkId, user name, progName, pid, and
-     * lockKey.
-     * 
-     * @param networkId
-     *            If null local IP address will be used if available, otherwise
-     *            will use 0.0.0.0
-     * @param userName
-     *            if null current login name will be used
-     * 
-     * @param progName
-     *            if null "unknown" will be used
-     * 
-     * @param pid
-     *            if 0 current process id will be used
-     * 
-     * @param lockKey
-     */
-    public WsId(InetAddress networkId, final String userName,
-            final String progName, int pid, long lockKey) {
+            final String progName) {
 
         if (userName != null) {
             this.userName = userName;
@@ -161,14 +137,10 @@ public class WsId implements Serializable, ISerializableObject {
             this.progName = "unknown";
         }
 
-        if (pid != 0) {
-            this.pid = pid;
-        } else {
-            this.pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean()
-                    .getName().split("@")[0]);
-        }
+        this.pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean()
+                .getName().split("@")[0]);
 
-        this.lockKey = lockKey;
+        this.threadId = Thread.currentThread().getId();
 
         if (networkId != null) {
             this.networkId = networkId;
@@ -188,23 +160,6 @@ public class WsId implements Serializable, ISerializableObject {
 
     }
 
-    /**
-     * Returns true if two WsIDs are equal for locking comparison.
-     * 
-     * If lockKey is non-zero and equal to the other wsId, return true.
-     * Otherwise, returns the results from equals().
-     * 
-     * @param wsId
-     * @return see above
-     */
-    public boolean equalForLockComparison(WsId wsId) {
-        if (lockKey != 0 && lockKey == wsId.lockKey) {
-            return true;
-        } else {
-            return equals(wsId);
-        }
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -222,7 +177,7 @@ public class WsId implements Serializable, ISerializableObject {
 
         o.append(addr).append(':').append(userName).append(':')
                 .append(progName).append(':').append(pid).append(':')
-                .append(lockKey);
+                .append(threadId);
         return o.toString();
     }
 
@@ -236,7 +191,7 @@ public class WsId implements Serializable, ISerializableObject {
         StringBuilder o = new StringBuilder();
         o.append(userName).append('@').append(networkId.getHostName())
                 .append(':').append(progName).append(':').append(pid)
-                .append(':').append(lockKey);
+                .append(':').append(threadId);
 
         return o.toString();
     }
@@ -270,10 +225,10 @@ public class WsId implements Serializable, ISerializableObject {
     }
 
     /**
-     * @return the lockKey
+     * @return the threadId
      */
-    public long getLockKey() {
-        return lockKey;
+    public long getThreadId() {
+        return threadId;
     }
 
     /*
@@ -285,7 +240,7 @@ public class WsId implements Serializable, ISerializableObject {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (int) (lockKey ^ (lockKey >>> 32));
+        result = prime * result + (int) (threadId ^ (threadId >>> 32));
         result = prime * result
                 + ((networkId == null) ? 0 : networkId.hashCode());
         result = prime * result + pid;
@@ -313,7 +268,7 @@ public class WsId implements Serializable, ISerializableObject {
             return false;
         }
         WsId other = (WsId) obj;
-        if (lockKey != other.lockKey) {
+        if (threadId != other.threadId) {
             return false;
         }
         if (networkId == null) {

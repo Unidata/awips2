@@ -19,6 +19,9 @@
  **/
 package com.raytheon.edex.plugin.text.impl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -58,6 +61,8 @@ public class TextSeparatorFactory {
 
     private static final TextDBStaticData staticData = TextDBStaticData
             .instance(siteId);
+
+    private static Pattern TAF_PTRN = Pattern.compile("[\n\r]?TAF");
 
     /**
      * 
@@ -179,6 +184,11 @@ public class TextSeparatorFactory {
             // check for binary data types
             if (startOfMessage.indexOf("GRIB") >= 0) {
                 msgType = WMOMessageType.MSG_DISCARD;
+            }
+
+            Matcher m = TAF_PTRN.matcher(startOfMessage);
+            if (m.find()) {
+                msgType = WMOMessageType.STD_COLLECTIVE;
             }
 
             if (msgType == null) {

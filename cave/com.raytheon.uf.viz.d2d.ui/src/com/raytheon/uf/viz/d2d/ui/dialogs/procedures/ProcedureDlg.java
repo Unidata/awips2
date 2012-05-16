@@ -50,7 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -78,7 +77,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureComm.BundlePair;
-import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.HistoryList;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.actions.SaveBundle;
@@ -380,13 +378,6 @@ public class ProcedureDlg extends CaveSWTDialog {
             int i = 0;
             for (BundlePair b : bp) {
                 Bundle bundle = Bundle.unmarshalBundle(b.xml, null);
-
-                // check if loop properties need to be saved
-                IEditorPart editorPart = EditorUtil.getActiveEditor();
-                if (editorPart instanceof AbstractEditor) {
-                    bundle.setLoopProperties(((AbstractEditor) editorPart)
-                            .getLoopProperties());
-                }
 
                 if (!frozen) {
                     for (AbstractRenderableDisplay display : bundle

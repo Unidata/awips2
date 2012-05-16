@@ -746,7 +746,7 @@ public class FFTI implements Runnable {
     }
 
     /**
-     * Get value for an individual peice of the puzzle
+     * Get value for an individual piece of the puzzle
      * 
      * @param fftiSourceKey
      * @param fftiSiteKey
@@ -800,6 +800,7 @@ public class FFTI implements Runnable {
 
             double amount = fdc.getMaxValue(pfafs, backDate, config.getDate(),
                     expirationTime, false);
+            //System.out.println("Amount "+accumulator.getName()+ " : "+amount);
             // max value for monitored area
             accumulator.setAccumulation(amount);
 
