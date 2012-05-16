@@ -24,17 +24,25 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
+import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.IShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.AllocatePointsEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.SimpleWireframeShapeEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEvent.Label;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.AllocatePointsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateShadedShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateWireframeShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.DrawShadedShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.DrawShadedShapesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.RenderWireframeShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.SetShadedShapeFillPattern;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.DataSpace;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.ShadedShapeData;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent.Label;
 
 /**
- * Handles render events for wireframe shapes
+ * Handles render events for IShapes
  * 
  * <pre>
  * 
@@ -50,8 +58,7 @@ import com.raytheon.uf.viz.remote.graphics.events.wireframe.WireframeShapeDataEv
  * @version 1.0
  */
 
-public class WireframeShapeRenderingHandler extends
-        CollaborationRenderingHandler {
+public class ShapeRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
     public void createWireframeShape(CreateWireframeShapeEvent event) {
@@ -78,6 +85,15 @@ public class WireframeShapeRenderingHandler extends
     }
 
     @Subscribe
+    public void createShadedShape(CreateShadedShapeEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
+        int shapeId = event.getObjectId();
+        IShadedShape shape = target.createShadedShape(event.isMutable(),
+                event.getTargetGeometry(), event.isTesselate());
+        dataManager.putRenderableObject(shapeId, shape);
+    }
+
+    @Subscribe
     public void allocatePointsForShape(AllocatePointsEvent event) {
         IWireframeShape shape = dataManager.getRenderableObject(
                 event.getObjectId(), IWireframeShape.class);
@@ -98,25 +114,39 @@ public class WireframeShapeRenderingHandler extends
             for (double[][] coords : event.getCoordinates()) {
                 shape.addLineSegment(coords);
             }
+            if (event.isCompile()) {
+                shape.compile();
+            }
         }
     }
 
     @Subscribe
-    public void handleSimpleWireframeShapeEvent(SimpleWireframeShapeEvent event) {
-        IWireframeShape shape = dataManager.getRenderableObject(
-                event.getObjectId(), IWireframeShape.class);
+    public void shadedShapeDataArrived(ShadedShapeDataEvent event) {
+        IShadedShape shape = dataManager.getRenderableObject(
+                event.getObjectId(), IShadedShape.class);
         if (shape != null) {
-            switch (event.getAction()) {
-            case CLEAR_LABELS:
-                shape.clearLabels();
-                break;
-            case COMPILE:
-                shape.compile();
-                break;
-            case RESET:
-                shape.reset();
-                break;
+            shape.reset();
+            for (ShadedShapeData data : event.getShapeData()) {
+                if (data.getDataSpace() == DataSpace.PIXEL) {
+                    shape.addPolygonPixelSpace(data.getData(),
+                            data.getDataColor());
+                } else if (data.getDataSpace() == DataSpace.WORLD) {
+                    shape.addPolygon(data.getData(), data.getDataColor());
+                }
             }
+            if (event.isCompile()) {
+                shape.compile();
+            }
+        }
+    }
+
+    @Subscribe
+    public void setShadedShapeFillPattern(SetShadedShapeFillPattern event) {
+        int shapeId = event.getObjectId();
+        IShadedShape shape = dataManager.getRenderableObject(shapeId,
+                IShadedShape.class);
+        if (shape != null) {
+            shape.setFillPattern(event.getFillPattern());
         }
     }
 
@@ -148,8 +178,25 @@ public class WireframeShapeRenderingHandler extends
     }
 
     @Subscribe
-    public void disposeWireframeShape(IWireframeShape shape) {
-        shape.dispose();
+    public void renderShadedShapes(DrawShadedShapesEvent event) {
+        DrawShadedShapeEvent[] shapeEvents = event.getShapes();
+        float alpha = event.getAlpha();
+        float brightness = event.getBrightness();
+        IShadedShape[] shapes = new IShadedShape[shapeEvents.length];
+        for (int i = 0; i < shapes.length; ++i) {
+            shapes[i] = dataManager.getRenderableObject(
+                    shapeEvents[i].getObjectId(), IShadedShape.class);
+        }
+        try {
+            getGraphicsTarget().drawShadedShapes(alpha, brightness, shapes);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
+    @Subscribe
+    public void disposeShape(IShape shape) {
+        shape.dispose();
+    }
 }

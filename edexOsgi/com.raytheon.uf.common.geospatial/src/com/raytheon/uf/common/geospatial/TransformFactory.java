@@ -23,6 +23,8 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeneralDerivedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -162,5 +164,37 @@ public class TransformFactory {
                 gridGeometryDest, destOrientation);
 
         return factory.createConcatenatedTransform(mt1, mt2);
+    }
+
+    /**
+     * Constructs a transform from the "world" CRS of the target geometry to the
+     * grid of the targetGeometry. Null is a valid return and indicates there is
+     * no "world" CRS to convert from and all conversions should be from
+     * targetGeometry CRS to grid
+     * 
+     * @param targetGeometry
+     * @param cellType
+     * @return
+     * @throws FactoryException
+     */
+    public static MathTransform worldToGrid(GeneralGridGeometry targetGeometry,
+            PixelInCell cellType) throws FactoryException {
+        CoordinateReferenceSystem crs = targetGeometry.getEnvelope()
+                .getCoordinateReferenceSystem();
+        if (crs instanceof GeneralDerivedCRS) {
+            GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
+            CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
+            MathTransform worldToCRS = CRSCache.getInstance()
+                    .findMathTransform(worldCRS, crs);
+            try {
+                MathTransform crsToPixel = targetGeometry
+                        .getGridToCRS(cellType).inverse();
+                return factory.createConcatenatedTransform(worldToCRS,
+                        crsToPixel);
+            } catch (Exception e) {
+                throw new FactoryException(e);
+            }
+        }
+        return null;
     }
 }

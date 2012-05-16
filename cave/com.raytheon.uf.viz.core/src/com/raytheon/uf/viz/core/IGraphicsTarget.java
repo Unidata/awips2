@@ -41,8 +41,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.PixelCoordinate;
-import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * 
@@ -432,22 +430,6 @@ public interface IGraphicsTarget extends IImagingExtension {
             byte[] pattern) throws VizException;
 
     /**
-     * Draw a shaded polygon, not high performance, for singularly used and
-     * rapidly changing shapes
-     * 
-     * @param poly
-     *            the polygon to be drawn in world coordinates
-     * @param color
-     *            the color to fill with
-     * @param alpha
-     *            the alpha blending factor
-     * @param pattern
-     *            the fill pattern or null for solid fill
-     */
-    public abstract void drawShadedPolygon(LinearRing poly, RGB color,
-            double alpha, byte[] pattern) throws VizException;
-
-    /**
      * Draws a cicle with parameters about the circle
      * 
      * @param circle
@@ -464,25 +446,10 @@ public interface IGraphicsTarget extends IImagingExtension {
     public abstract void drawLine(DrawableLine... lines) throws VizException;
 
     /**
+     * DEPRECATED: Use {@link #drawCircle(DrawableCircle...)}
      * 
-     * @param x1
-     *            x location of arc start.
-     * @param y1
-     *            y location of arc start.
-     * @param z1
-     *            z location of arc start
-     * @param radius
-     *            radius (if was a complete circle.
-     * @param color
-     *            color of arc
-     * @param width
-     *            width of arc
-     * @param startAzimuth
-     *            angle at where to draw the arc.
-     * @param endAzimuth
-     *            angle at where to end arc.
-     * @throws VizException
      */
+    @Deprecated
     public void drawArc(double x1, double y1, double z1, double radius,
             RGB color, float width, int startAzimuth, int arcWidth,
             LineStyle lineStyle, boolean includeSides) throws VizException;
@@ -570,18 +537,27 @@ public interface IGraphicsTarget extends IImagingExtension {
             boolean spatialChopFlag, IExtent extent);
 
     /**
+     * DEPRECATED: Use
+     * {@link #createShadedShape(boolean, GeneralGridGeometry, boolean)} instead
+     * 
+     */
+    @Deprecated
+    public abstract IShadedShape createShadedShape(boolean mutable,
+            IDescriptor descriptor, boolean tesselate);
+
+    /**
      * Create a shaded shape object
      * 
      * @param mutable
      *            whether the shape changes after creation
-     * @param descriptor
-     *            the map descriptor
+     * @param targetGeometry
+     *            the geometry the shape is made for
      * @param tesselate
      *            whether a shape requires tesselation to be convex
      * @return a shaded shape object
      */
     public abstract IShadedShape createShadedShape(boolean mutable,
-            IDescriptor descriptor, boolean tesselate);
+            GeneralGridGeometry targetGeometry, boolean tesselate);
 
     /**
      * Initialization
@@ -696,24 +672,6 @@ public interface IGraphicsTarget extends IImagingExtension {
      * @return the default font object
      */
     public abstract IFont getDefaultFont();
-
-    /**
-     * Draw a cylinder.
-     * 
-     * @param coord
-     * @param color
-     * @param alpha
-     * @param height
-     * @param baseRadius
-     * @param topRadius
-     * @param sideCount
-     * @param sliceCount
-     * @param rotation
-     * @param lean
-     */
-    public void drawCylinder(PixelCoordinate coord, RGB color, float alpha,
-            double height, double baseRadius, double topRadius, int sideCount,
-            int sliceCount, double rotation, double lean);
 
     /**
      * DEPRECATED: Should not be used for anything
