@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -134,11 +135,6 @@ public class ContinuousColorbar implements IColorBarDisplay {
         PixelExtent pe = colorbarResource.getExtent();
         float center = (float) ((pe.getMinY() + pe.getMaxY()) / 2.0);
 
-        DrawableColorMap dcm = new DrawableColorMap(cmap);
-        dcm.alpha = 1.0f;
-        dcm.extent = pe;
-        target.drawColorRamp(dcm);
-
         ResourcePair rscPair = spatialDisplayManager.getResourcePair(parm);
         if (rscPair == null) {
             // spatial display manager deactivated since we got the color map?
@@ -146,6 +142,14 @@ public class ContinuousColorbar implements IColorBarDisplay {
                     + parm.getParmID().getCompositeName() + ", exiting paint()");
             return;
         }
+
+        DrawableColorMap dcm = new DrawableColorMap(cmap);
+        dcm.alpha = 1.0f;
+        dcm.extent = pe;
+        dcm.interpolate = rscPair.getResource()
+                .getCapability(ImagingCapability.class).isInterpolationState();
+        target.drawColorRamp(dcm);
+
         GFEResource rsc = (GFEResource) rscPair.getResource();
         float minParm = rsc.getCapability(ColorMapCapability.class)
                 .getColorMapParameters().getColorMapMin();

@@ -27,6 +27,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
@@ -197,7 +198,11 @@ public class GLMesh2DStrips extends AbstractGLMesh {
                         maxHorzDiv, mt);
                 horzDiv = Math.max(horzDiv, horzDivTest);
             }
-
+            ReferencedEnvelope latLonEnv = envelope.transform(
+                    MapUtil.LATLON_PROJECTION, true, 100);
+            if (latLonEnv.getWidth() > 180) {
+                horzDiv = Math.max(horzDiv, 4);
+            }
             return new SharedCoordinateKey(vertDiv, horzDiv);
         } catch (Exception e) {
             Activator.statusHandler

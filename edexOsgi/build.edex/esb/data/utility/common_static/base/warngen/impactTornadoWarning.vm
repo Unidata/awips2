@@ -4,6 +4,7 @@
 ## CREATED BY PHIL KURIMSKI - WFO DTX                         ##
 ## VERSION AWIPS II 1.0 -- 2-21-2012 OB12.1.1-1               ##
 ## VERSION AWIPS II 1.1 -- 2-29-2012 OB12.2.1-4               ##
+## VERSION AWIPS II 1.2 -- 4-20-2012                          ##
 ################################################################
 ## ESTABLISH SOME INITIAL VARIABLES
 #set ($preAmble = "")
@@ -16,9 +17,10 @@
 #set ($pdstor = "")
 #set ($confirmed = "")
 #set ($torHazard = "POTENTIAL TORNADO")
+#set ($torGround = "ON THE GROUND")
 #set ($source = "RADAR INDICATED ROTATION.")
 #set ($extrasource = "")
-#set ($impact = "EXTENSIVE DAMAGE TO ROOFS AND WINDOWS. TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+#set ($impact = "SIGNIFICANT HOUSE AND BUILDING DAMAGE POSSIBLE. MOBILE HOMES COMPLETELY DESTROYED IF HIT. SOME TREES UPROOTED OR SNAPPED. VEHICLES WILL LIKELY BE THROWN BY TORNADIC WINDS.")
 #if(${stormType} == "line")
   #set($reportType = "A LINE OF TORNADO PRODUCING STORMS WAS REPORTED")
   #set($pathcastLead = "THESE TORNADIC STORMS")
@@ -165,7 +167,6 @@
 #end
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 TOR${siteId}
-
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.TO.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 
@@ -207,31 +208,33 @@ THIS IS A TEST MESSAGE. ##
 
 #if(${list.contains($bullets, "doppler")})
   #if(${stormType} == "line")
-    #set ($reportType = "A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO ARE LOCATED")
+    #set ($reportType = "A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO WAS LOCATED")
     #set ($pathcastLead = "THESE DANGEROUS STORMS")
   #else
-    #set ($reportType = "A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO IS LOCATED")
+    #set ($reportType = "A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO WAS LOCATED")
     #set ($pathcastLead = "THIS DANGEROUS STORM")   
   #end
   #set ($moveLead = "..AND MOVING")
+  #set ($torGround = "DEVELOPING")
 #end
 #if(${list.contains($bullets, "dopplerSquall")})
-  #set ($reportType = "A SEVERE SQUALL LINE CAPABLE OF PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE WIND DAMAGE ARE LOCATED")
-  #set ($pathcastLead = "THIS DANGEROUS STORM")   
+  #set ($reportType = "A SEVERE SQUALL LINE CAPABLE OF PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE WIND DAMAGE WAS LOCATED")
+  #set ($pathcastLead = "THESE DANGEROUS STORMS")   
   #set ($moveLead = "..AND MOVING")
+  #set ($torGround = "DEVELOPING")
 #end
 #if(${list.contains($bullets, "confirmedDoppler")})
   #set ($torTag = "OBSERVED")
   #set ($torHazard = "DAMAGING TORNADO")
   #set ($confirmed = "CONFIRMED ")
-  #set ($source = "STORM SPOTTERS CONFIRMED TORNADO.")
-  #set ($impact = "EXTENSIVE DAMAGE TO HOMES AND BUILDINGS. TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+  #set ($source = "RADAR CONFIRMED TORNADO.")
+  #set ($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ")
   #if(${stormType} == "line")
-    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS ARE LOCATED")
+    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS WAS LOCATED")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
   #else
-    #set ($reportType = "A TORNADO PRODUCING STORM IS LOCATED")
+    #set ($reportType = "A TORNADO PRODUCING STORM WAS LOCATED")
     #set ($pathcastLead = "THIS TORNADIC STORM")
     #set ($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
   #end
@@ -249,7 +252,7 @@ THIS IS A TEST MESSAGE. ##
     #set ($pathcastLead = "THE TORNADO")
     #set ($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
   #end 
-  #set ($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TAKE IMMEDIATE ACTION TO PROTECT YOUR LIFE.")
+  #set ($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...")
 #end
 *#
 #if(${list.contains($bullets, "spotter")})
@@ -257,78 +260,75 @@ THIS IS A TEST MESSAGE. ##
   #set ($torHazard = "DAMAGING TORNADO")
   #set ($confirmed = "CONFIRMED ")
   #set ($source = "WEATHER SPOTTERS CONFIRMED TORNADO.")
-  #set ($impact = "EXTENSIVE DAMAGE TO HOMES AND BUILDINGS. TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
   #if(${stormType} == "line")
-    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS ARE LOCATED")
+    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS WAS LOCATED")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
   #else
-    #set ($reportType = "A CONFIRMED TORNADO IS LOCATED")
+    #set ($reportType = "A CONFIRMED TORNADO WAS LOCATED")
     #set ($pathcastLead = "THE TORNADO")
     #set ($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
   #end 
-  #set ($preAmble = "TO REPEAT...A TORNADO HAS BEEN CONFIRMED BY STORM SPOTTERS.")
+  #set ($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ")
 #end
 #if(${list.contains($bullets, "lawEnforcement")})
   #set ($torTag = "OBSERVED")
   #set ($torHazard = "DAMAGING TORNADO")
   #set ($confirmed = "CONFIRMED ")
   #set ($source = "LAW ENFORCEMENT CONFIRMED TORNADO.")
-  #set ($impact = "EXTENSIVE DAMAGE TO HOMES AND BUILDINGS. TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
   #if(${stormType} == "line")
-    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS ARE LOCATED")
+    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS WAS LOCATED")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
   #else
-    #set ($reportType = "A CONFIRMED TORNADO IS LOCATED")
+    #set ($reportType = "A CONFIRMED TORNADO WAS LOCATED")
     #set ($pathcastLead = "THE TORNADO")
     #set ($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
   #end 
-  #set ($preAmble = "TO REPEAT...A TORNADO HAS BEEN CONFIRMED BY LOCAL LAW ENFORCEMENT.") 
+  #set ($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ") 
 #end
 #if(${list.contains($bullets, "emergencyManagement")})
   #set ($torTag = "OBSERVED")
   #set ($torHazard = "DAMAGING TORNADO")
   #set ($confirmed = "CONFIRMED ")
   #set ($source = "EMERGENCY MANAGEMENT CONFIRMED TORNADO.")
-  #set ($impact = "EXTENSIVE DAMAGE TO HOMES AND BUILDINGS. TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
   #if(${stormType} == "line")
-    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS ARE LOCATED")
+    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS WAS LOCATED")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
   #else
-    #set ($reportType = "A CONFIRMED TORNADO IS LOCATED")
+    #set ($reportType = "A CONFIRMED TORNADO WAS LOCATED")
     #set ($pathcastLead = "THE TORNADO")
     #set ($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
   #end 
-  #set ($preAmble = "TO REPEAT...A TORNADO HAS BEEN CONFIRMED BY EMERGENCY MANAGEMENT OFFICIALS.") 
+  #set ($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ") 
 #end
 #if(${list.contains($bullets, "public")})
   #set ($torTag = "OBSERVED")
   #set ($torHazard = "DAMAGING TORNADO")
   #set ($confirmed = "CONFIRMED ")
   #set ($source = "PUBLIC CONFIRMED TORNADO.")
-  #set ($impact = "EXTENSIVE DAMAGE TO HOMES AND BUILDINGS. TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
   #if(${stormType} == "line")
-    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS ARE LOCATED")
+    #set ($reportType = "A LINE OF TORNADO PRODUCING STORMS WAS LOCATED")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
   #else
-    #set ($reportType = "A CONFIRMED TORNADO IS LOCATED")
+    #set ($reportType = "A CONFIRMED TORNADO WAS LOCATED")
     #set ($pathcastLead = "THE TORNADO")
     #set ($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
   #end 
-  #set ($preAmble = "TO REPEAT...A TORNADO HAS BEEN SIGHTED.")
+  #set ($preAmble = "TO REPEAT...A TORNADO IS ON THE GROUND. ")
 #end
 #if(${list.contains($bullets, "spotterFunnelCloud")})
   ##set ($reportType = "TRAINED WEATHER SPOTTERS REPORTED A FUNNEL CLOUD")
   #set ($source = "WEATHER SPOTTERS REPORTED FUNNEL CLOUD.")
+  #set ($torGround = "DEVELOPING")
   #if(${stormType} == "line")
-    #set ($reportType = "A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO ARE LOCATED")
+    #set ($reportType = "A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO WAS LOCATED")
     #set ($pathcastLead = "THESE DANGEROUS STORMS")
     #set ($moveLead = " A TORNADO MAY DEVELOP AT ANY TIME. DOPPLER RADAR SHOWED THESE DANGEROUS STORMS MOVING")
   #else
-    #set ($reportType = "A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO IS LOCATED")
+    #set ($reportType = "A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO WAS LOCATED")
     #set ($pathcastLead = "THIS DANGEROUS STORM")
     #set ($moveLead = " A TORNADO MAY DEVELOP AT ANY TIME. DOPPLER RADAR SHOWED THIS DANGEROUS STORM MOVING")
   #end  
@@ -343,7 +343,7 @@ THIS IS A TEST MESSAGE. ##
   #set ($torHazard = "DAMAGING TORNADO")
   #set ($torThreat = "<L>TORNADO DAMAGE THREAT...SIGNIFICANT</L>")
   #set ($pdstor = "THIS IS A PARTICULARLY DANGEROUS SITUATION.")
-  #set ($impact = "EXTENSIVE DAMAGE TO HOMES AND BUILDINGS. TREES TO BE UPROOTED BLOCKING ROADS...DAMAGING BUILDINGS...HOMES AND DOWNING POWER LINES.")
+  #set ($impact = "MAJOR HOUSE AND BUILDING DAMAGE LIKELY AND COMPLETE DESTRUCTION POSSIBLE. NUMEROUS TREES SNAPPED. MAJOR POWER OUTAGES IN PATH OF TORNADO HIGHLY LIKELY. SOME ROADS POSSIBLY BLOCKED BY TORNADO DEBRIS. COMPLETE DESTRUCTION OF VEHICLES LIKELY.")
   #if(${stormType} == "line")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
@@ -351,7 +351,7 @@ THIS IS A TEST MESSAGE. ##
     #set ($pathcastLead = "THE TORNADO")
     #set ($moveLead = " DOPPLER RADAR SHOWED THIS TORNADO MOVING")
   #end 
-  #set ($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TAKE IMMEDIATE ACTION TO PROTECT YOUR LIFE.")
+  #set ($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND POTENTIALLY DEADLY TORNADO IS ${torGround}. TO PROTECT YOUR LIFE...")
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN
@@ -359,11 +359,12 @@ THIS IS A TEST MESSAGE. ##
 ############################################################################
 #if(${list.contains($bullets, "torEmergency")})
   #set ($reportType = "TORNADO EMERGENCY FOR !** LOCATION **!. A CONFIRMED LARGE AND DESTRUCTIVE TORNADO") 
+  #set ($ctaSelected = "YES")
   #set ($torTag = "OBSERVED")
   #set ($torHazard = "DEADLY TORNADO")
   #set ($torThreat = "<L>TORNADO DAMAGE THREAT...CATASTROPHIC</L>")
   #set ($pdstor = "THIS IS A PARTICULARLY DANGEROUS SITUATION.")
-  #set ($impact = "LIFE THREATENING SITUATION. EXTENSIVE DAMAGE TO HOMES AND BUILDINGS...UPROOTED TREES AND DEBRIS WILL RESTRICT ACCESS INTO MANY AREAS.")
+  #set ($impact = "THIS IS A LIFE THREATENING SITUATION. YOU COULD BE KILLED IF NOT UNDERGROUND OR IN A TORNADO SHELTER. COMPLETE DESTRUCTION OF ENTIRE NEIGHBORHOODS IS LIKELY. MANY WELL BUILT HOMES AND BUSINESSES WILL BE COMPLETELY SWEPT FROM THEIR FOUNDATIONS. DEBRIS WILL BLOCK MOST ROADWAYS. MASS DEVASTATION IS HIGHLY LIKELY MAKING THE AREA UNRECOGNIZABLE TO SURVIVORS.")
   #if(${stormType} == "line")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
@@ -374,7 +375,7 @@ THIS IS A TEST MESSAGE. ##
   #if(${list.contains($bullets, "doppler")}||${list.contains($bullets, "dopplerSquall")})
     #set ($source = "WEATHER SPOTTERS CONFIRMED TORNADO.")
   #end
-  #set ($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TAKE IMMEDIATE ACTION TO PROTECT YOUR LIFE.")
+  #set ($preAmble = "TO REPEAT...A LARGE...EXTREMELY DANGEROUS AND DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...")
 #end
 
 ####################################################
@@ -394,20 +395,22 @@ THIS IS A TEST MESSAGE. ##
 #end
 ##########################################################
 ## Check to see if wind is selected for the hazard phrase
+## and make sure hail is at least 1 inch
 ##########################################################
-#if (${windSpeed} >= 60)
+#if (${windSpeed} >= 60 && ${hailSize} >= 1)
   #set ($hazard = "${torHazard}...${hailHazard} AND ${windHazard}")
-#else
+#elseif (${windSpeed} >= 60 && ${hailSize} < 1)
+  #set ($hazard = "${torHazard} AND ${windHazard}") 
+#elseif (${windSpeed} < 60 && ${hailSize} >= 1)
   #set ($hazard = "${torHazard} AND ${hailHazard}") 
+#else
+  #set ($hazard = "${torHazard}") 
 #end
 #########################################################
 ## If a significant or catastrophic tornado are selected
 ## do not include any wind or hail informadion
 #########################################################
-#if(${list.contains($bullets, "significantTornado")})
-  #set ($hazard = "${torHazard}")
-#end
-#if(${list.contains($bullets, "torEmergency")})
+#if(${list.contains($bullets, "significantTornado")} || ${list.contains($bullets, "torEmergency")})
   #set ($hazard = "${torHazard}")
 #end
 ######################################################
@@ -556,16 +559,25 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 ##
+#if(${list.contains($bullets, "torEmergencyCTA")} || ${list.contains($bullets, "torEmergency")})
+#if(${list.contains($bullets, "torEmergency")})
+THIS IS AN EXTREMELY DANGEROUS TORNADO WITH COMPLETE DEVASTATION LIKELY. YOU COULD BE KILLED IF NOT UNDERGROUND OR IN A TORNADO SHELTER. DO NOT DELAY...SEEK SHELTER NOW! IF NO UNDERGROUND SHELTER IS AVAILABLE SEEK SHELTER IN AN INTERIOR ROOM OF THE LOWEST LEVEL OF A STRUCTURE...OR IF TIME ALLOWS...CONSIDER MOVING TO AN UNDERGROUND SHELTER ELSEWHERE. MOBILE HOMES AND OUTBUILDINGS WILL OFFER NO SHELTER FROM THIS TORNADO.
+
+#else
+!** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
+
+#end
+#end
 #if(${list.contains($bullets, "replacesSVRCTA")})
 THIS TORNADO WARNING REPLACES THE SEVERE THUNDERSTORM WARNING ISSUED FOR THE SAME AREA.
 
 #end
 #if(${list.contains($bullets, "defaultMobileCTA")})
-TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #end
 #if(${list.contains($bullets, "defaultUrbanCTA")})
-TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #end
 #if(${list.contains($bullets, "motoristsCTA")})

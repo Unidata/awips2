@@ -20,7 +20,7 @@
 
 import logging
 import Avn
-import PointDataRetrieve, NoDataException
+import ForecastPointDataRetrieve, NoDataException
 
 #
 # Retrieves mos lightning data through pointdata interfaces
@@ -31,6 +31,7 @@ import PointDataRetrieve, NoDataException
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/15/09                      njensen       Initial Creation.
+#    26APR2012       14688         rferrel       Use ForecastPointDataRetrieve.
 #    
 # 
 #
@@ -43,7 +44,7 @@ _Logger = logging.getLogger(Avn.CATEGORY)
 
 def retrieve(siteID):        
     try:    
-        pdc = PointDataRetrieve.retrieve('bufrmosLAMP', siteID, PARAMETERS)
+        pdc = ForecastPointDataRetrieve.retrieve('bufrmosLAMP', siteID, PARAMETERS)
     except NoDataException.NoDataException: 
         return None
     pots = []

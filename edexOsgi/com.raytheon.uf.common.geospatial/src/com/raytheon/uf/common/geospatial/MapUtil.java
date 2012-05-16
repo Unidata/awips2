@@ -355,8 +355,7 @@ public class MapUtil {
         ReferencedEnvelope newEnv = new ReferencedEnvelope(JTS.getEnvelope2D(
                 newTargetREnv.intersection(newSourceEnv), LATLON_PROJECTION),
                 LATLON_PROJECTION);
-        newEnv = newEnv.transform(targetCRS, false);
-
+        newEnv = newEnv.transform(targetCRS, false, 500);
         // Calculate nx and ny, start with the number of original grid
         // points in the intersection and then adjust to the new aspect
         // ratio

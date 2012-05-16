@@ -335,14 +335,14 @@ public class TimeSeriesDataManager extends HydroDataManager {
 	 * @throws ClassNotFoundException
 	 */
 	public ArrayList<Object[]> getGraphData(String tablename, String lid,
-			String pe, String ts, String dur, Date startTime, Date endTime)
+			String pe, String ts, String dur, String extremum, Date startTime, Date endTime)
 			throws VizException, ClassNotFoundException {
 
 		StringBuilder graphQuery = new StringBuilder(
 				"select lid,obstime,value,product_id from ");
 		graphQuery.append(tablename + " where lid = '" + lid + "' and pe = '"
 				+ pe + "' " + "and dur = '" + dur + "' ");
-		graphQuery.append("and ts = '" + ts + "' and obstime ");
+		graphQuery.append("and ts = '" + ts + "' and extremum = '" + extremum + "' and obstime ");
 		graphQuery.append("between '"
 				+ HydroConstants.DATE_FORMAT.format(startTime) + "' ");
 		graphQuery.append("and '" + HydroConstants.DATE_FORMAT.format(endTime)
