@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.wireframe;
+package com.raytheon.uf.viz.remote.graphics.events.shapes;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
