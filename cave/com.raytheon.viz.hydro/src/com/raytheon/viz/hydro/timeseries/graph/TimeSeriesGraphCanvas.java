@@ -87,14 +87,20 @@ public class TimeSeriesGraphCanvas extends Canvas {
 	protected int canvasHeight = 475;// 675;
 
 	/**
-	 * Border around the graph in pixels.
+	 * Border around the top and bottom of graph in pixels.
 	 */
-	protected static final int GRAPHBORDER = 100;
+	protected static final int GRAPHBORDER = 75;
+	
+	/** Right side graph border in pixels. */
+	protected static final int GRAPHBORDER_RIGHT = 70;
+	
+	/** Left side graph border in pixels. */
+	protected static final int GRAPHBORDER_LEFT = 60;
 
 	/**
 	 * Graph Area Width in pixels.
 	 */
-	protected int graphAreaWidth = canvasWidth - GRAPHBORDER * 2;
+	protected int graphAreaWidth = canvasWidth - GRAPHBORDER_LEFT - GRAPHBORDER_RIGHT;
 
 	/**
 	 * Graph Area Height in pixels.
@@ -195,7 +201,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
 
 	protected int bottomBorder;
 
-	protected int leftBorder = GRAPHBORDER;
+	protected int leftBorder = GRAPHBORDER_LEFT;
 
 	protected int rightBorder;
 
@@ -232,7 +238,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
 	protected void drawYAxis(GC gc, GraphData gd, String label) {
 		/* xoffset for left axis, xoffset2 for right axis */
 		int xoffset = 40;
-		int xoffset2 = 20;
+		int xoffset2 = 10;
 		int swtColor = SWT.COLOR_WHITE;
 		if (this.parentDialog.isInverseVideo()) {
 			swtColor = SWT.COLOR_BLACK;
@@ -484,6 +490,11 @@ public class TimeSeriesGraphCanvas extends Canvas {
 			}
 			daysCount = daysSkip;
 		}
+		
+		// Check canvas width.  if small then need to skip extra days
+		if (this.canvasWidth < 600) {
+			daysSkip++;
+		}
 
 		int x = -999;
 		int dy = 5;
@@ -498,15 +509,16 @@ public class TimeSeriesGraphCanvas extends Canvas {
 			dy = 5;
 			Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 			c.setTime(d);
-			if (c.get(Calendar.HOUR_OF_DAY) == 0) {
+			int hour = c.get(Calendar.HOUR_OF_DAY);
+			if (hour == 0) {
+				dy = 12;
 				if (daysCount++ % daysSkip == 0) {
-					dy = 12;
-					gc.drawText(c.get(Calendar.HOUR_OF_DAY) + "", x
-							+ GRAPHBORDER - dx, bottomBorder + 22);
+					gc.drawText("00", x
+							+ GRAPHBORDER_LEFT - dx, bottomBorder + 22);
 					gc.drawText(
 							c.get(Calendar.MONTH) + 1 + "/"
 									+ c.get(Calendar.DAY_OF_MONTH), x
-									+ GRAPHBORDER - 8, bottomBorder + 40);
+									+ GRAPHBORDER_LEFT - 8, bottomBorder + 40);
 
 					if (displayGridLines) {
 						gc.setLineStyle(SWT.LINE_DOT);
@@ -514,20 +526,28 @@ public class TimeSeriesGraphCanvas extends Canvas {
 								bottomBorder);
 						gc.setLineStyle(SWT.LINE_SOLID);
 					}
+				} else {
+					if (ndays < 8) {
+						gc.drawText("00", x
+								+ GRAPHBORDER_LEFT - dx, bottomBorder + 22);
+					}
 				}
 			} else {
-				if (c.get(Calendar.HOUR_OF_DAY) % majorTicks == 0) {
+				if (hour % majorTicks == 0) {
 					/* ******************** */
 					/* Hour annotation */
 					/* ******************** */
 					dy = 10;
 					if (ndays < 4) {
-					    gc.drawText(c.get(Calendar.HOUR_OF_DAY) + "", x
-					            + leftBorder - dx, bottomBorder + 22);
+						if (hour < 10) {
+							gc.drawText("0" + hour, x + leftBorder - dx, bottomBorder + 22);
+						} else {
+							gc.drawText(c.get(Calendar.HOUR_OF_DAY) + "", x
+									+ leftBorder - dx, bottomBorder + 22);
+						}
 					} else {
-					    int hour = c.get(Calendar.HOUR_OF_DAY);
 					    if (hour == 12) {
-					        gc.drawText(c.get(Calendar.HOUR_OF_DAY) + "", x
+					        gc.drawText(hour + "", x
 	                                + leftBorder - dx, bottomBorder + 22);
 					    }
 					}
@@ -539,15 +559,15 @@ public class TimeSeriesGraphCanvas extends Canvas {
 			/* ******************************** */
 			if ((c.get(Calendar.HOUR_OF_DAY) % minorTicks) == 0) {
 			    // Don't draw minor ticks for short time periods
-			    if ((ndays > 10) && (dy == 10)) {
-    				int[] tickArray = { x + leftBorder, bottomBorder,
-    						x + leftBorder, bottomBorder + dy };
-    				gc.drawPolyline(tickArray);
-			    } else {
+//			    if ((ndays > 10) && (dy == 10)) {
+//    				int[] tickArray = { x + leftBorder, bottomBorder,
+//    						x + leftBorder, bottomBorder + dy };
+//    				gc.drawPolyline(tickArray);
+//			    } else {
                     int[] tickArray = { x + leftBorder, bottomBorder,
                             x + leftBorder, bottomBorder + dy };
                     gc.drawPolyline(tickArray);
-			    }
+//			    }
 			}
 		}
 
@@ -561,9 +581,9 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		Date d = SimulatedTime.getSystemTime().getTime();
 		if ((d.getTime() > gd.getXMin().getTime())
 				&& (d.getTime() < gd.getXMax().getTime())) {
-			int curTimeLoc = GRAPHBORDER + x2pixel(gd, d.getTime());
+			int curTimeLoc = GRAPHBORDER_LEFT + x2pixel(gd, d.getTime());
 			if ((curTimeLoc < (canvasWidth - GRAPHBORDER))
-					&& (curTimeLoc > GRAPHBORDER)) {
+					&& (curTimeLoc > GRAPHBORDER_LEFT)) {
 				int[] curTimeLine = { curTimeLoc, topBorder, curTimeLoc,
 						bottomBorder };
 				gc.setLineStyle(SWT.LINE_DOT);
@@ -647,7 +667,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		long xMax = gd.getXMax().getTime();
 		long xDiff = xMax - xMin;
 		long millisPerPixel = xDiff / graphAreaWidth;
-		long millisTime = (xpix - GRAPHBORDER) * millisPerPixel + xMin;
+		long millisTime = (xpix - GRAPHBORDER_LEFT) * millisPerPixel + xMin;
 
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.setTimeInMillis(millisTime);
@@ -707,7 +727,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
 
 		char[] ca = label.toCharArray();
 		for (int i = 0; i < ca.length; i++) {
-			gc.drawText(Character.toString(ca[i]), 15, 10 * i + yoffset, true);
+			gc.drawText(Character.toString(ca[i]), 1, 10 * i + yoffset, true);
 		}
 	}
 
@@ -746,8 +766,8 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		yoffset = ((graphAreaHeight + GRAPHBORDER * 2) - 10 * label.length()) / 2;
 
 		for (int i = 0; i < ca.length; i++) {
-			gc.drawText(Character.toString(ca[i]), graphAreaWidth + GRAPHBORDER
-					* 2 - 20, 10 * i + yoffset, true);
+			gc.drawText(Character.toString(ca[i]), graphAreaWidth + GRAPHBORDER_LEFT + 
+					GRAPHBORDER_RIGHT - 20, 10 * i + yoffset, true);
 		}
 	}
 
@@ -761,11 +781,11 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		canvasHeight = rect.height / 2 * verticalSpan;
 		canvasWidth = rect.width / 6 * horizontalSpan;
 
-		graphAreaWidth = canvasWidth - GRAPHBORDER * 2;
+		graphAreaWidth = canvasWidth - GRAPHBORDER_LEFT - GRAPHBORDER_RIGHT;
 		graphAreaHeight = canvasHeight - GRAPHBORDER * 2;
 		lowerAxis = canvasHeight - GRAPHBORDER;
 		bottomBorder = lowerAxis;
-		rightBorder = canvasWidth - GRAPHBORDER;
+		rightBorder = canvasWidth - GRAPHBORDER_RIGHT;
 	}
 
 	/**
@@ -818,7 +838,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
     
     		if ((y <= (graphData.getY() + graphData.getH()))
     				&& (y >= graphData.getY())) {
-    			gc.drawLine(GRAPHBORDER, y + GRAPHBORDER, GRAPHBORDER
+    			gc.drawLine(GRAPHBORDER_LEFT, y + GRAPHBORDER, GRAPHBORDER_LEFT
     					+ graphAreaWidth, y + GRAPHBORDER);
     		}
 		}
@@ -840,7 +860,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
     
     		if ((y <= (graphData.getY() + graphData.getH()))
     				&& (y >= graphData.getY())) {
-    			gc.drawLine(GRAPHBORDER, y + GRAPHBORDER, GRAPHBORDER
+    			gc.drawLine(GRAPHBORDER_LEFT, y + GRAPHBORDER, GRAPHBORDER_LEFT
     					+ graphAreaWidth, y + GRAPHBORDER);
     		}
 		}
@@ -862,7 +882,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
     
     		if ((y <= (graphData.getY() + graphData.getH()))
     				&& (y >= graphData.getY())) {
-    			gc.drawLine(GRAPHBORDER, y + GRAPHBORDER, GRAPHBORDER
+    			gc.drawLine(GRAPHBORDER_LEFT, y + GRAPHBORDER, GRAPHBORDER_LEFT
     					+ graphAreaWidth, y + GRAPHBORDER);
     		}
 		}
@@ -886,7 +906,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
 
     		if ((y <= (graphData.getY() + graphData.getH()))
     				&& (y >= graphData.getY())) {
-    			gc.drawLine(GRAPHBORDER, y + GRAPHBORDER, GRAPHBORDER
+    			gc.drawLine(GRAPHBORDER_LEFT, y + GRAPHBORDER, GRAPHBORDER_LEFT
     					+ graphAreaWidth, y + GRAPHBORDER);
     		}
 		}
@@ -907,7 +927,7 @@ public class TimeSeriesGraphCanvas extends Canvas {
     
     		if ((y <= (graphData.getY() + graphData.getH()))
     				&& (y >= graphData.getY())) {
-    			gc.drawLine(GRAPHBORDER, y + GRAPHBORDER, GRAPHBORDER
+    			gc.drawLine(GRAPHBORDER_LEFT, y + GRAPHBORDER, GRAPHBORDER_LEFT
     					+ graphAreaWidth, y + GRAPHBORDER);
     		}
 		}
@@ -1033,14 +1053,14 @@ public class TimeSeriesGraphCanvas extends Canvas {
 		//	pointArray[i + 1].setPixely(secondaryY2pixel(graphData,
 			//		pointArray[i + 1].getY()));
 			
-			int x = pointArray[i].getPixelX() + GRAPHBORDER;
+			int x = pointArray[i].getPixelX() + GRAPHBORDER_LEFT;
 
-			if ((x < 100) || (x > GRAPHBORDER + graphAreaWidth)) {
+			if ((x < 100) || (x > GRAPHBORDER_LEFT + graphAreaWidth)) {
 				continue;
 			}
 
 			int x2 = x2pixel(graphData,
-					pointArray[i].getX().getTime() + 3600000) + GRAPHBORDER;
+					pointArray[i].getX().getTime() + 3600000) + GRAPHBORDER_LEFT;
 
 			double change = pointArray[i + 1].getY() - pointArray[i].getY();			
 			
