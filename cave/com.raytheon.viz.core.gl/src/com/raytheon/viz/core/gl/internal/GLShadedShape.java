@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.vividsolutions.jts.geom.LineString;
 
@@ -56,9 +56,9 @@ public class GLShadedShape extends GLShadedShapeBase implements IShadedShape {
 
     private List<RGB> colors = new ArrayList<RGB>();
 
-    public GLShadedShape(IDescriptor descriptor, boolean mutable,
+    public GLShadedShape(GeneralGridGeometry targetGeometry, boolean mutable,
             boolean tessellate) {
-        super(descriptor, tessellate);
+        super(targetGeometry, tessellate);
         this.mutable = mutable;
     }
 
