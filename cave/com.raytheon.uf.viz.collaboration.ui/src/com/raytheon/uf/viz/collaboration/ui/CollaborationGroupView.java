@@ -20,6 +20,9 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
+import gov.noaa.nws.ncep.staticdataprovider.StaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -177,6 +180,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     private Action changePasswordAction;
 
     private Action drawToolbarAction;
+
+    private Action pgenAction;
 
     private Action collapseAllAction;
 
@@ -474,6 +479,20 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         drawToolbarAction.setImageDescriptor(IconUtil.getImageDescriptor(
                 com.raytheon.uf.viz.drawing.Activator.getDefault().getBundle(),
                 "draw.gif"));
+
+        pgenAction = new Action("PGEN") {
+            @Override
+            public void run() {
+                StaticDataProvider.getInstance();
+                try {
+                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                            .getActivePage().showView(PgenUtil.VIEW_ID);
+                } catch (PartInitException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to open PGEN palette", e);
+                }
+            }
+        };
     }
 
     /**
@@ -514,6 +533,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         mgr.add(new Separator());
 
         mgr.add(drawToolbarAction);
+        mgr.add(pgenAction);
 
         mgr.add(new Separator());
         if (CollaborationDataManager.getInstance().isConnected()) {
