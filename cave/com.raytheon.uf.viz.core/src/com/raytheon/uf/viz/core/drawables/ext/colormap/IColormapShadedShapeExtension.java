@@ -23,8 +23,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -114,7 +114,7 @@ public interface IColormapShadedShapeExtension extends
      * @return a shaded shape object
      */
     public IColormapShadedShape createColormapShadedShape(
-            IDescriptor descriptor, boolean tesselate);
+            GeneralGridGeometry targetGeometry, boolean tesselate);
 
     /**
      * Create a shaded shape object
