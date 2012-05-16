@@ -215,19 +215,23 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
     @Override
     public LegendParameters getLegendParameters() {
         LegendParameters legendParams = new LegendParameters();
-        legendParams.model = gribModel;
         List<PluginDataObject> pdos = getCurrentPluginDataObjects();
         if (pdos != null && !pdos.isEmpty()) {
             gribModel = ((GribRecord) pdos.get(0)).getModelInfo();
         }
+        legendParams.model = gribModel;
         if (stylePreferences != null) {
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
         }
-        if (legendParams.unit == null || legendParams.unit.isEmpty()) {
-            legendParams.unit = legendParams.model.getParameterUnit();
+
+        List<DisplayType> displayTypes = null;
+        if (gribModel != null) {
+            if (legendParams.unit == null || legendParams.unit.isEmpty()) {
+                legendParams.unit = gribModel.getParameterUnit();
+            }
+            displayTypes = FieldDisplayTypesFactory.getInstance()
+                    .getDisplayTypes(gribModel.getParameterAbbreviation());
         }
-        List<DisplayType> displayTypes = FieldDisplayTypesFactory.getInstance()
-                .getDisplayTypes(gribModel.getParameterAbbreviation());
         DisplayType displayType = getDisplayType();
         if (displayTypes != null && !displayTypes.isEmpty()
                 && displayTypes.get(0).equals(displayType)) {

@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.core.RGBColors;
  *                                     Using the RGB class instead of the list from A1.  
  *                                     I ran across a group config file using a color not in 
  *                                     the list which caused errors.
+ * May 08, 2012 14958      wkwock      prevent go over the list in getGroupModeColor
  *
  * </pre>
  *
@@ -68,7 +69,7 @@ public class HydroUtils {
             initializeGroupModeColorList();
         }
         
-        return TS_GROUP_COLOR_LIST.get(index);
+        return TS_GROUP_COLOR_LIST.get(index % TS_GROUP_COLOR_LIST.size()); //not to go over the list
     } 
     
     private static void initializeGroupModeColorList() {           

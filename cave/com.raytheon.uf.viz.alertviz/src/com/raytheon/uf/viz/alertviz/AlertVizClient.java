@@ -33,6 +33,7 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.apache.activemq.command.ActiveMQTextMessage;
@@ -87,6 +88,8 @@ public class AlertVizClient implements MessageListener {
 
     private CopyOnWriteArrayList<IAlertVizMessageCallback> listeners;
 
+    private Marshaller marshaller;
+
     private static AlertVizClient instance;
 
     public AlertVizClient(String host, boolean retry) {
@@ -131,7 +134,12 @@ public class AlertVizClient implements MessageListener {
             this.consumer.setMessageListener(this);
             reconnect = false;
             lastReconnectTime = System.currentTimeMillis();
+            JAXBContext context = JAXBContext.newInstance(StatusMessage.class);
+            marshaller = context.createMarshaller();
         } catch (JMSException e) {
+            reconnect = true;
+            throw new AlertvizException("Unable to connect to notification", e);
+        } catch (JAXBException e) {
             reconnect = true;
             throw new AlertvizException("Unable to connect to notification", e);
         }
@@ -151,10 +159,6 @@ public class AlertVizClient implements MessageListener {
             printToConsole(statusMessage);
         } else {
             try {
-                JAXBContext context = JAXBContext
-                        .newInstance(StatusMessage.class);
-                Marshaller marshaller = context.createMarshaller();
-
                 StringWriter sw = new StringWriter();
                 marshaller.marshal(statusMessage, sw);
                 ActiveMQTextMessage message = new ActiveMQTextMessage();

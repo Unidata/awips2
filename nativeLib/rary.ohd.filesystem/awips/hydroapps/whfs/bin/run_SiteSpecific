@@ -30,5 +30,5 @@ mv $SSHPTMPFILE $SSHPLOGFILE
 
 # set up an X Terminal window to write stdout and run the SiteSpecific
 # application using java
-xterm -T "SiteSpecific standard output window" -iconic -hold \
+xterm -T "SiteSpecific standard output window" -iconic \
 -e $JBINDIR/java ohd.hseb.sshp.SSHP $JDBCURL $SSHP_LOG_DIR $LID_PASSED_IN &

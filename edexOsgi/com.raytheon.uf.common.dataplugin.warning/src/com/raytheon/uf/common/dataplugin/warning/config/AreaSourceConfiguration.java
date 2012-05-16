@@ -59,6 +59,9 @@ public class AreaSourceConfiguration {
 
     @XmlElement
     private String areaNotationTranslationFile;
+    
+    @XmlElement
+    private String timeZoneField;
 
     @XmlElementWrapper(name = "sortBy")
     @XmlElement(name = "sort")
@@ -95,6 +98,7 @@ public class AreaSourceConfiguration {
         setAreaField(areaConfig.getAreaField());
         setAreaNotationField(areaConfig.getAreaNotationField());
         setFeAreaField(areaConfig.getFeAreaField());
+        setTimeZoneField(areaConfig.getTimeZoneField());
         setAreaNotationTranslationFile(areaConfig
                 .getAreaNotationTranslationFile());
         setFipsField(areaConfig.getFipsField());
@@ -125,6 +129,7 @@ public class AreaSourceConfiguration {
         areaConfig.setSortBy(sortBy);
         areaConfig.setVariable(variable);
         areaConfig.setAreaSource(areaSource);
+        areaConfig.setTimeZoneField(timeZoneField);
 
         return areaConfig;
     }
@@ -257,5 +262,13 @@ public class AreaSourceConfiguration {
     public void setVariable(String variable) {
         this.variable = variable;
     }
+
+	public String getTimeZoneField() {
+		return timeZoneField;
+	}
+
+	public void setTimeZoneField(String timeZoneField) {
+		this.timeZoneField = timeZoneField;
+	}
 
 }

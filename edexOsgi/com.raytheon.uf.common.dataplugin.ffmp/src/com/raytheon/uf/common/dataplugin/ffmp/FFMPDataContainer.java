@@ -181,24 +181,25 @@ public class FFMPDataContainer {
                                 && (basin
                                         .getValue(date, source.getSourceName()) >= 0.0f && !basin
                                         .getValue(date, source.getSourceName())
-                                        .isNaN())) {
+                                        .isNaN()) && source.isMosaic()) {
+					
+								if (((FFMPGuidanceBasin) newbasin).getValue(
+										date, source.getSourceName()) >= 0.0f
+										&& !((FFMPGuidanceBasin) newbasin)
+												.getValue(date,
+														source.getSourceName())
+												.isNaN()) {
 
-                            if (((FFMPGuidanceBasin) newbasin).getValue(date,
-                                    source.getSourceName()) >= 0.0f
-                                    && !((FFMPGuidanceBasin) newbasin)
-                                            .getValue(date,
-                                                    source.getSourceName())
-                                            .isNaN()) {
+									float val = (float) (basin.getValue(date,
+											source.getSourceName()) + ((FFMPGuidanceBasin) newbasin)
+											.getValue(
+													source.getSourceName(),
+													source.getExpirationMinutes(siteKey) * 60 * 1000) / 2.0);
 
-                                float val = (float) (basin.getValue(date,
-                                        source.getSourceName()) + ((FFMPGuidanceBasin) newbasin)
-                                        .getValue(
-                                                source.getSourceName(),
-                                                source.getExpirationMinutes(siteKey) * 60 * 1000) / 2.0);
-
-                                basin.setValue(source.getSourceName(), date,
-                                        val);
-                            }
+									basin.setValue(source.getSourceName(),
+											date, val);
+								}
+				
                         } else {
 
                             if (!basin
@@ -214,27 +215,29 @@ public class FFMPDataContainer {
                     } else {
                         // meaning, it's a brand new file, we don't cast
                         // those out
-                        if (newbasin.getValue(date) != null
-                                && newbasin.getValue(date) >= 0.0f
-                                && !newbasin.getValue(date).isNaN()
-                                && ((FFMPGuidanceBasin) basin).getValue(date,
-                                        source.getSourceName()) >= 0.0f
-                                && !((FFMPGuidanceBasin) basin).getValue(date,
-                                        source.getSourceName()).isNaN()) {
 
-                            float val = (float) ((basin.getValue(date,
-                                    source.getSourceName()) + newbasin
-                                    .getValue()) / 2);
+						if (newbasin.getValue(date) != null
+								&& newbasin.getValue(date) >= 0.0f
+								&& !newbasin.getValue(date).isNaN()
+								&& ((FFMPGuidanceBasin) basin).getValue(date,
+										source.getSourceName()) >= 0.0f
+								&& !((FFMPGuidanceBasin) basin).getValue(date,
+										source.getSourceName()).isNaN()
+								&& source.isMosaic()) {
 
-                            basin.setValue(source.getSourceName(), date, val);
+							float val = (float) ((basin.getValue(date,
+									source.getSourceName()) + newbasin
+									.getValue()) / 2);
 
-                        } else {
+							basin.setValue(source.getSourceName(), date, val);
 
-                            basin.setValue(source.getSourceName(), date,
-                                    newbasin.getValue(date));
-                        }
-                    }
-                }
+						} else {
+
+							basin.setValue(source.getSourceName(), date,
+									newbasin.getValue(date));
+						}
+					}
+				}
 
             } else {
 
@@ -256,21 +259,22 @@ public class FFMPDataContainer {
 
                 } else {
 
-                    if (basin.getValue(date) != null
-                            && !basin.getValue(date).isNaN()
-                            && basin.getValue(date) != 0.0) {
-                        if (newbasin.getValue(date) != null
-                                && !newbasin.getValue(date).isNaN()
-                                && newbasin.getValue(date) != 0.0) {
+					if (basin.getValue(date) != null
+							&& !basin.getValue(date).isNaN()
+							&& basin.getValue(date) != 0.0 && source.isMosaic()) {
+						if (newbasin.getValue(date) != null
+								&& !newbasin.getValue(date).isNaN()
+								&& newbasin.getValue(date) != 0.0) {
 
-                            val = (float) ((basin.getValue(date) + newbasin
-                                    .getValue(date)) / 2);
-                        }
-                    } else {
-                        val = newbasin.getValue(date);
+							val = (float) ((basin.getValue(date) + newbasin
+									.getValue(date)) / 2);
+						}
 
-                        if (val.isNaN()) {
-                            val = 0.0f;
+					} else {
+						val = newbasin.getValue(date);
+
+						if (val.isNaN()) {
+							val = 0.0f;
                         }
                     }
 
