@@ -19,10 +19,8 @@
  **/
 package com.raytheon.edex.plugin.grib.notify;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 
@@ -44,38 +42,36 @@ import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 
 public class GribNotifyTransform {
 
-    /**
-     * Translates the grib records into messages that have specific readable
-     * data about what was ingested.
-     * 
-     * @param gribs
-     * @return
-     */
-    public static GribNotifyContainer transformToMessages(
-            PluginDataObject[] gribs) {
-        GribNotifyContainer container = new GribNotifyContainer();
-        List<GribNotifyMessage> msgList = new ArrayList<GribNotifyMessage>();
-        for (PluginDataObject pdo : gribs) {
-            GribRecord grib = (GribRecord) pdo;
-            GribModel modelInfo = grib.getModelInfo();
-            // String level = GridTranslator.getShortLevelName(
-            // modelInfo.getLevelName(), modelInfo.getLevelOneValue(),
-            // modelInfo.getLevelTwoValue());
+	/**
+	 * Translates the grib records into messages that have specific readable
+	 * data about what was ingested.
+	 * 
+	 * @param gribs
+	 * @return
+	 */
+	public static GribNotifyContainer transformToMessages(List<GribRecord> gribs) {
+		GribNotifyContainer container = new GribNotifyContainer();
+		GribNotifyMessage[] msgs = new GribNotifyMessage[gribs.size()];
+		int index = 0;
+		for (GribRecord grib : gribs) {
+			GribModel modelInfo = grib.getModelInfo();
+			// String level = GridTranslator.getShortLevelName(
+			// modelInfo.getLevelName(), modelInfo.getLevelOneValue(),
+			// modelInfo.getLevelTwoValue());
 
-            GribNotifyMessage msg = new GribNotifyMessage();
-            msg.setInsertTime(grib.getInsertTime().getTime());
-            msg.setDataTime(grib.getDataTime());
-            msg.setModel(modelInfo.getModelName());
-            msg.setLevelName(modelInfo.getLevelName());
-            msg.setLevelOne(modelInfo.getLevelOneValue());
-            msg.setLevelTwo(modelInfo.getLevelTwoValue());
-            msg.setParamAbbreviation(grib.getModelInfo()
-                    .getParameterAbbreviation());
-            msg.setDataURI(grib.getDataURI());
-            msgList.add(msg);
-        }
-        container.setMessages(msgList.toArray(new GribNotifyMessage[msgList
-                .size()]));
-        return container;
-    }
+			GribNotifyMessage msg = new GribNotifyMessage();
+			msg.setInsertTime(grib.getInsertTime().getTime());
+			msg.setDataTime(grib.getDataTime());
+			msg.setModel(modelInfo.getModelName());
+			msg.setLevelName(modelInfo.getLevelName());
+			msg.setLevelOne(modelInfo.getLevelOneValue());
+			msg.setLevelTwo(modelInfo.getLevelTwoValue());
+			msg.setParamAbbreviation(grib.getModelInfo()
+					.getParameterAbbreviation());
+			msg.setDataURI(grib.getDataURI());
+			msgs[index++] = msg;
+		}
+		container.setMessages(msgs);
+		return container;
+	}
 }

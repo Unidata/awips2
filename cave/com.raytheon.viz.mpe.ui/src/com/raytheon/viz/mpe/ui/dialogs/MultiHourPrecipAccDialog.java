@@ -503,6 +503,7 @@ public class MultiHourPrecipAccDialog extends Dialog {
             public void widgetSelected(SelectionEvent e) {
                 retval = 1;
                 displayMgr.clearMPEData();
+                MPEDisplayManager.getCurrent().setAccum_interval(accum_interval);
                 MPEDisplayManager.getCurrent().setCurrentDate(cal.getTime());
                 displayMgr.setAccum_interval(accum_interval);
                 displayMgr.setOtherDispType(DisplayFieldData.multiHour);

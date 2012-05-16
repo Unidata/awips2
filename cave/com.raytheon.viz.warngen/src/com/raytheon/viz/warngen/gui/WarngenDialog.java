@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.warngen.Activator;
 import com.raytheon.viz.warngen.WarngenConstants;
 import com.raytheon.viz.warngen.comm.WarningSender;
+import com.raytheon.viz.warngen.gis.PolygonUtil;
 import com.raytheon.viz.warngen.template.TemplateRunner;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
 import com.raytheon.viz.warngen.util.CurrentWarnings.IWarningsArrivedListener;
@@ -1313,6 +1314,7 @@ public class WarngenDialog extends CaveSWTDialog implements
                         damBreakInstruct = "Lat/Lon pair for dam break threat area is less than three";
                     } else {
                         coordinates.add(coordinates.get(0));
+                        PolygonUtil.truncate(coordinates, 2);
                         warngenLayer.createDamThreatArea(coordinates
                                 .toArray(new Coordinate[coordinates.size()]));
                         setPolygonLocked(true);
