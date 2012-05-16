@@ -50,8 +50,8 @@ import com.vividsolutions.jts.geom.Point;
 public class GfeImageUtil {
 
     public static GridGeometry2D getLocationGeometry(GridLocation gloc,
-            com.vividsolutions.jts.geom.Envelope env, float width,
-            float height, float percentLeft, float percentRight,
+            com.vividsolutions.jts.geom.Envelope env, Integer width,
+            Integer height, float percentLeft, float percentRight,
             float percentTop, float percentBottom) {
 
         Envelope envelope = null;
@@ -88,9 +88,33 @@ public class GfeImageUtil {
                 envelope.getMaximum(0) + dRight);
         newEnvelope.setRange(1, envelope.getMinimum(1) - dBottom,
                 envelope.getMaximum(1) + dTop);
+
+        org.eclipse.swt.graphics.Point p = adjustAspect(width, height,
+                newEnvelope);
+
         newGridGeometry = new GridGeometry2D(new GeneralGridEnvelope(new int[] {
-                0, 0 }, new int[] { (int) width, (int) height }), newEnvelope);
+                0, 0 }, new int[] { p.x, p.y }), newEnvelope);
 
         return newGridGeometry;
+    }
+
+    private static org.eclipse.swt.graphics.Point adjustAspect(Integer width,
+            Integer height, GeneralEnvelope wd) {
+        // Calculate the correct aspect ratio and adjust the width
+        // and height to fit.
+        if (width == null && height == null) {
+            width = 400; // The default
+        }
+
+        org.eclipse.swt.graphics.Point p = new org.eclipse.swt.graphics.Point(
+                0, 0);
+        if (width != null) {
+            p.x = width;
+            p.y = (int) ((width * wd.getSpan(1)) / wd.getSpan(0));
+        } else {
+            p.x = (int) ((height * wd.getSpan(0)) / wd.getSpan(1));
+            p.y = height;
+        }
+        return p;
     }
 }
