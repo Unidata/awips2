@@ -678,6 +678,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				scheduleDataRetrieval();
+				updateSelectedLocInfoLabel();
+				updateStationLabel();
+				updateFloodStageLabel();
 			}
 		});
 	}
@@ -1206,33 +1209,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 			}
 
 			updateSelectedLocInfoLabel();
-
-			/* Find the flood stg/flow if a river station */
-			ArrayList<Object[]> floodList = (ArrayList<Object[]>) dataManager
-					.getFloodStage(lid);
-
-			/* Should only be one here, lid is primary key */
-			if (floodList.size() > 0) {
-				Object[] oa = floodList.get(0);
-				String floodStage = null;
-				String floodFlow = null;
-				if (oa != null) {
-					if (oa[1] != null) {
-						floodStage = String.format("%.1f", oa[1]);
-					}
-
-					if (oa[2] != null) {
-						floodFlow = String.format("%.0f", oa[2]);
-					}
-				}
-				selectedFloodLbl.setText("Flood Stg/Flow:  " + floodStage + "/"
-						+ floodFlow);
-			} else {
-				StringBuilder sb = new StringBuilder("Flood Stg/Flow:  ");
-				sb.append("0.0/");
-				sb.append("0");
-				selectedFloodLbl.setText(sb.toString());
-			}
+			updateFloodStageLabel();
 
 			if (updateFlag) {
 				topDataList.setSelection(indexSelected);
@@ -2608,29 +2585,35 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 	 */
 	private void updateStationLabel() {
 		TimeSeriesDataManager dataManager = TimeSeriesDataManager.getInstance();
+		String selectedLid = lid;
+		if (topDataList.getSelectionCount() > 0) {
+			String selection = topDataList.getItem(topDataList.getSelectionIndex());
+			String[] parts = selection.split("\\s+", 2);
+			selectedLid = parts[0];
+		}
 		try {
 			/* append the river name info */
-			String[] sa = dataManager.getStnRiverName(lid);
+			String[] sa = dataManager.getStnRiverName(selectedLid);
 
 			if ((sa != null) && (sa[0] != null) && (sa[1] != null)) {
 				if (sa[0].equalsIgnoreCase(HydroConstants.UNDEFINED)
 						&& sa[1].equalsIgnoreCase(HydroConstants.UNDEFINED)) {
-					siteLabel = lid;
+					siteLabel = selectedLid;
 				} else if (!sa[0].equals(HydroConstants.UNDEFINED)
 						&& !sa[1].equals(HydroConstants.UNDEFINED)) {
-					siteLabel = lid + " (" + sa[0] + " - " + sa[1] + ")";
+					siteLabel = selectedLid + " (" + sa[0] + " - " + sa[1] + ")";
 				} else if (!sa[0].equals(HydroConstants.UNDEFINED)
 						&& sa[1].equals(HydroConstants.UNDEFINED)) {
-					siteLabel = lid + " (" + sa[0] + ")";
+					siteLabel = selectedLid + " (" + sa[0] + ")";
 				} else {
-					siteLabel = lid;
+					siteLabel = selectedLid;
 				}
 			} else {
-				siteLabel = lid;
+				siteLabel = selectedLid;
 			}
 		} catch (VizException e) {
 			e.printStackTrace();
-			siteLabel = lid;
+			siteLabel = selectedLid;
 		}
 
 		selectedLocNameLbl.setText(siteLabel);
@@ -2652,6 +2635,46 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 					+ parts[4]);
 		}
 
+	}
+	
+	private void updateFloodStageLabel() {
+		TimeSeriesDataManager dataManager = TimeSeriesDataManager.getInstance();
+		String selection = topDataList.getItem(topDataList.getSelectionIndex());
+		String[] parts = selection.split("\\s+", 2);
+		String selectedLid = parts[0];
+
+		/* Find the flood stg/flow if a river station */
+		ArrayList<Object[]> floodList = null;
+		try {
+			floodList = (ArrayList<Object[]>) dataManager
+					.getFloodStage(selectedLid);
+		} catch (VizException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		/* Should only be one here, lid is primary key */
+		if (floodList != null && floodList.size() > 0) {
+			Object[] oa = floodList.get(0);
+			String floodStage = "0.0";
+			String floodFlow = "0";
+			if (oa != null) {
+				if (oa[1] != null) {
+					floodStage = String.format("%.1f", oa[1]);
+				}
+
+				if (oa[2] != null) {
+					floodFlow = String.format("%.0f", oa[2]);
+				}
+			}
+			selectedFloodLbl.setText("Flood Stg/Flow:  " + floodStage + "/"
+					+ floodFlow);
+		} else {
+			StringBuilder sb = new StringBuilder("Flood Stg/Flow:  ");
+			sb.append("0.0/");
+			sb.append("0");
+			selectedFloodLbl.setText(sb.toString());
+		}
 	}
 
 	/**

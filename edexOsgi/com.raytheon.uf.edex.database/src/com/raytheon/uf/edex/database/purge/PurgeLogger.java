@@ -88,8 +88,34 @@ public class PurgeLogger {
      * @param e
      *            The exception to log
      */
-    public static void logError(String message, String plugin, Exception e) {
+    public static void logError(String message, String plugin, Throwable e) {
         logMsg(Priority.ERROR, message, plugin, e);
+    }
+
+    /**
+     * Logs a fatal message for the given plugin
+     * 
+     * @param message
+     *            The fatal message to log
+     * @param plugin
+     *            The plugin this message applies to
+     */
+    public static void logFatal(String message, String plugin) {
+        logMsg(Priority.FATAL, message, plugin, null);
+    }
+
+    /**
+     * Logs a fatal message with an exception for the given plugin
+     * 
+     * @param message
+     *            The fatal message to log
+     * @param plugin
+     *            The plugin this message applies to
+     * @param e
+     *            The exception to log
+     */
+    public static void logFatal(String message, String plugin, Throwable e) {
+        logMsg(Priority.FATAL, message, plugin, e);
     }
 
     /**
@@ -128,7 +154,7 @@ public class PurgeLogger {
      *            The exception, if any, to log
      */
     private static void logMsg(Priority priority, String message,
-            String plugin, Exception e) {
+            String plugin, Throwable e) {
         if (plugin == null) {
             plugin = StatusConstants.CATEGORY_PURGE;
         }

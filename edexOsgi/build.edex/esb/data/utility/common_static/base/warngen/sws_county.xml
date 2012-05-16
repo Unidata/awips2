@@ -71,6 +71,7 @@
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <feAreaField>FE_AREA</feAreaField>
+  <timeZoneField>TIME_ZONE</timeZoneField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
   <pointField>NAME</pointField>

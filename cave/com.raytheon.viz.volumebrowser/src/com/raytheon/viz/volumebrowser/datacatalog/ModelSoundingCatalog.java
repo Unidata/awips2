@@ -20,18 +20,26 @@
 package com.raytheon.viz.volumebrowser.datacatalog;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.viz.pointdata.StaticPlotInfoPV;
+import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
+import com.raytheon.viz.volumebrowser.xml.VbSource;
+import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
  * Catalog for model sounding data
@@ -169,26 +177,83 @@ public class ModelSoundingCatalog extends PointDataCatalog {
         if (typeMap == null) {
             long t0 = System.currentTimeMillis();
             typeMap = new HashMap<String, String>();
-            DbQueryRequest request = new DbQueryRequest();
-            request.setDistinct(true);
-            Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
-            constraints.put("pluginName", new RequestConstraint(pluginName));
-            request.addRequestField(typeKey);
-            request.setConstraints(constraints);
             try {
-                DbQueryResponse response = (DbQueryResponse) ThriftClient
-                        .sendRequest(request);
-                for (Map<String, Object> result : response.getResults()) {
-                    String type = String.valueOf(result.get(typeKey));
-                    typeMap.put(pluginName + type, type);
+                // The code in this try block is an optimization for the current
+                // version of postgres. Currently there are only two types, GFS
+                // and ETA, if you query for all distinct types it can take as
+                // long as 12 seconds. If you query for the types one at a time
+                // then it takes less than 100ms for each of the two queries.
+                DbQueryRequest request = new DbQueryRequest();
+                request.setDistinct(true);
+                request.setLimit(1);
+                request.addConstraint("pluginName", new RequestConstraint(
+                        pluginName));
+                request.addRequestField(typeKey);
+                for (VbSource source : VbSourceList.getInstance().getEntries()) {
+                    if (source.getKey().startsWith(pluginName)) {
+                        String type = source.getKey().replace(pluginName, "");
+                        request.addConstraint(typeKey, new RequestConstraint(
+                                type));
+                        DbQueryResponse response = (DbQueryResponse) ThriftClient
+                                .sendRequest(request);
+                        if (!response.getResults().isEmpty()) {
+                            typeMap.put(source.getKey(), type);
+                        }
+                    }
                 }
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                // If something went wrong try to just query for all distinct
+                // types.
+                DbQueryRequest request = new DbQueryRequest();
+                request.setDistinct(true);
+                request.addConstraint("pluginName", new RequestConstraint(
+                        pluginName));
+                request.addRequestField(typeKey);
+                try {
+                    DbQueryResponse response = (DbQueryResponse) ThriftClient
+                            .sendRequest(request);
+                    for (Map<String, Object> result : response.getResults()) {
+                        String type = String.valueOf(result.get(typeKey));
+                        typeMap.put(pluginName + type, type);
+                    }
+                } catch (VizException e1) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e1.getLocalizedMessage(), e1);
+                }
             }
             System.out.println("Time to populate typeMap = "
                     + (System.currentTimeMillis() - t0) + "ms");
         }
         return typeMap;
     }
+
+    @Override
+    protected SurfaceObsLocation[] getStationLocations(String sourceKey) {
+        if (availableStations.containsKey(sourceKey)) {
+            return availableStations.get(sourceKey);
+        }
+        if (!Arrays.asList(getPlugins(null)).contains(getPlugin(sourceKey))) {
+            availableStations.put(sourceKey, null);
+            return null;
+        }
+        StaticPlotInfoPV spipv = StaticPlotInfoPV
+                .readStaticPlotInfoPV("basemaps/modelBufr.spi");
+        if (spipv == null) {
+            return super.getStationLocations(sourceKey);
+        }
+        List<SurfaceObsLocation> locs = new ArrayList<SurfaceObsLocation>();
+        for (Entry<String, SPIEntry> entry : spipv.getSpiList().entrySet()) {
+            SurfaceObsLocation loc = new SurfaceObsLocation();
+            loc.setStationId(entry.getKey());
+            loc.setLatitude(entry.getValue().latlon.y);
+            loc.setLongitude(entry.getValue().latlon.x);
+            locs.add(loc);
+        }
+        Collections.sort(locs, locComparator);
+        SurfaceObsLocation[] result = locs.toArray(new SurfaceObsLocation[0]);
+        availableStations.put(sourceKey, result);
+        return result;
+
+    }
+
 }

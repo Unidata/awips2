@@ -26,16 +26,12 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 
 import com.raytheon.edex.util.Util;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -126,10 +122,6 @@ public class GridDataHistory implements Cloneable, Serializable,
     @Column
     @DynamicSerializeElement
     private Date lastSentTime;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @Transient
-    private GFERecord parent;
 
     /**
      * Default constructor (all fields initialized null)
@@ -517,50 +509,68 @@ public class GridDataHistory implements Cloneable, Serializable,
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GridDataHistory other = (GridDataHistory) obj;
         if (lastSentTime == null) {
-            if (other.lastSentTime != null)
+            if (other.lastSentTime != null) {
                 return false;
-        } else if (!lastSentTime.equals(other.lastSentTime))
+            }
+        } else if (!lastSentTime.equals(other.lastSentTime)) {
             return false;
-        if (origin != other.origin)
+        }
+        if (origin != other.origin) {
             return false;
+        }
         if (originParm == null) {
-            if (other.originParm != null)
+            if (other.originParm != null) {
                 return false;
-        } else if (!originParm.equals(other.originParm))
+            }
+        } else if (!originParm.equals(other.originParm)) {
             return false;
+        }
         if (originTimeRange == null) {
-            if (other.originTimeRange != null)
+            if (other.originTimeRange != null) {
                 return false;
-        } else if (!originTimeRange.equals(other.originTimeRange))
+            }
+        } else if (!originTimeRange.equals(other.originTimeRange)) {
             return false;
+        }
         if (publishTime == null) {
-            if (other.publishTime != null)
+            if (other.publishTime != null) {
                 return false;
-        } else if (!publishTime.equals(other.publishTime))
+            }
+        } else if (!publishTime.equals(other.publishTime)) {
             return false;
+        }
         if (timeModified == null) {
-            if (other.timeModified != null)
+            if (other.timeModified != null) {
                 return false;
-        } else if (!timeModified.equals(other.timeModified))
+            }
+        } else if (!timeModified.equals(other.timeModified)) {
             return false;
+        }
         if (updateTime == null) {
-            if (other.updateTime != null)
+            if (other.updateTime != null) {
                 return false;
-        } else if (!updateTime.equals(other.updateTime))
+            }
+        } else if (!updateTime.equals(other.updateTime)) {
             return false;
+        }
         if (whoModified == null) {
-            if (other.whoModified != null)
+            if (other.whoModified != null) {
                 return false;
-        } else if (!whoModified.equals(other.whoModified))
+            }
+        } else if (!whoModified.equals(other.whoModified)) {
             return false;
+        }
         return true;
     }
 }

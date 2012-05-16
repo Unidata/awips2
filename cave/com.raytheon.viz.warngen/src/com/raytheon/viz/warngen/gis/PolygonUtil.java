@@ -144,6 +144,7 @@ public class PolygonUtil {
             Coordinate[] coords = contour;
             coords = Arrays.copyOf(coords, coords.length + 1);
             coords[coords.length - 1] = new Coordinate(coords[0]);
+            truncate(coords, 2);
             rval = gf.createPolygon(gf.createLinearRing(coords), null);
         }
         // Convert back to lat/lon
@@ -401,6 +402,7 @@ public class PolygonUtil {
 
         GeometryFactory gf = new GeometryFactory();
         points.add(new Coordinate(points.get(0)));
+        truncate(points, 2);
         Polygon rval = gf.createPolygon(gf.createLinearRing(points
                 .toArray(new Coordinate[points.size()])), null);
 
@@ -927,5 +929,28 @@ public class PolygonUtil {
                 }
             }
         }
+    }
+    
+    public static void truncate(List<Coordinate >coordinates, int decimalPlaces) {
+        for (Coordinate coordinate : coordinates) {
+            truncate(coordinate, decimalPlaces);
+        }
+    }
+    
+    public static void truncate(Coordinate[] coordinates, int decimalPlaces) {
+        for (Coordinate coordinate : coordinates) {
+            truncate(coordinate, decimalPlaces);
+        }
+    }
+    
+    public static void truncate(Coordinate coordinate, int decimalPlaces) {
+        double x = coordinate.x * Math.pow(10, decimalPlaces);
+        double y = coordinate.y * Math.pow(10, decimalPlaces);
+        
+        x = x >= 0 ? Math.floor(x) : Math.ceil(x);
+        y = y >= 0 ? Math.floor(y) : Math.ceil(y);
+        
+        coordinate.x = x / Math.pow(10, decimalPlaces);
+        coordinate.y = y / Math.pow(10, decimalPlaces);
     }
 }

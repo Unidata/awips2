@@ -80,9 +80,15 @@ public class Container implements IConfigurationChangedListener {
 
     private static final int UI_FLOOD_THRESHOLD = 50;
 
+    private static final int SHOTGUN_MESSAGE_MILLISECOND_THRESHOLD = 1000;
+
     private String lastErrorDialogMessage;
 
     private long lastErrorDialogTime;
+
+    private int shotgunMessageCount;
+
+    private long shotgunMessageStartTime;
 
     public Container(Set<IAlertArrivedCallback> callbacks) {
         configurationChanged();
@@ -179,7 +185,7 @@ public class Container implements IConfigurationChangedListener {
      * @param message
      * @return
      */
-    public boolean isShotGun(StatusMessage message) {
+    private boolean isShotGun(StatusMessage message) {
         boolean retVal = false;
         if (lastMessage != null) {
             if (this.lastMessage.getCategory().equals(message.getCategory())
@@ -187,8 +193,33 @@ public class Container implements IConfigurationChangedListener {
                     && this.lastMessage.getMessage().equals(
                             message.getMessage())
                     && Math.abs(this.lastMessage.getEventTime().getTime()
-                            - message.getEventTime().getTime()) < 1000) {
+                            - message.getEventTime().getTime()) < SHOTGUN_MESSAGE_MILLISECOND_THRESHOLD) {
                 retVal = true;
+                ++this.shotgunMessageCount;
+                if (this.shotgunMessageStartTime == 0) {
+                    this.shotgunMessageStartTime = message.getEventTime()
+                            .getTime();
+                }
+            } else {
+                if (this.shotgunMessageCount != 0) {
+                    StringBuilder sb = new StringBuilder("Received ")
+                            .append(this.shotgunMessageCount)
+                            .append(" duplicate messages in ")
+                            .append(message.getEventTime().getTime()
+                                    - this.shotgunMessageStartTime)
+                            .append(" milliseconds. For message: ")
+                            .append(this.lastMessage.getCategory()).append(":")
+                            .append(this.lastMessage.getSourceKey())
+                            .append(" ").append(this.lastMessage.getMessage());
+                    this.shotgunMessageStartTime = 0;
+                    this.shotgunMessageCount = 0;
+                    StatusMessage sm = new StatusMessage(
+                            this.lastMessage.getSourceKey(), "GDN_ADMIN",
+                            this.lastMessage.getPriority(),
+                            this.lastMessage.getPlugin(), sb.toString(), null);
+                    sm.setEventTime(SimulatedTime.getSystemTime().getTime());
+                    messageReceived(sm);
+                }
             }
         }
 

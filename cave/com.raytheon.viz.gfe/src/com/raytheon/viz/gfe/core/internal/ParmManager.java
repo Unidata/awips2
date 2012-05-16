@@ -71,6 +71,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 08/19/09     2547       rjpeter     Implement Test/Prac database display.
  * 02/23/12     #346       dgilling    Call Parm's dispose method when removing
  *                                     a Parm.
+ * 04/25/12     14495      ryu         Query EDEX only when db is available.
  * </pre>
  * 
  * @author bphillip
@@ -358,12 +359,14 @@ public class ParmManager extends AbstractParmManager {
             synchronized (this.parmIDCacheServer) {
                 cacheParmIDs = this.parmIDCacheServer.get(dbID);
             }
-            if ((cacheParmIDs == null) && (dbID.getDbType().equals("V"))) {
-                ParmID[] vcParms = getAvailableParms(dbID);
-                parmIDs.addAll(Arrays.asList(vcParms));
-            } else if ((cacheParmIDs == null)
-                    && (!dbID.getDbType().equals("V"))) {
-                uncachedDbs.add(dbID);
+
+            if (cacheParmIDs == null) {
+                if (dbID.getDbType().equals("V")) {
+                    ParmID[] vcParms = getAvailableParms(dbID);
+                    parmIDs.addAll(Arrays.asList(vcParms));
+                } else if (availableServerDatabases.contains(dbID)) {
+                    uncachedDbs.add(dbID);
+                }
             } else {
                 parmIDs.addAll(cacheParmIDs);
 
@@ -448,8 +451,7 @@ public class ParmManager extends AbstractParmManager {
         if (cacheParmIDs != null) {
             parmIds = new ArrayList<ParmID>(cacheParmIDs);
         } else {
-            if ((!dbID.getDbType().endsWith("TMP"))
-                    && (!dbID.getDbType().equals("V"))) {
+            if (availableServerDatabases.contains(dbID)) {
                 try {
                     parmIds = dataManager.getClient().getParmList(dbID);
                 } catch (GFEServerException e) {
