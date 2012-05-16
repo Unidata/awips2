@@ -70,7 +70,6 @@ import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtensionManager;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.clipping.ClearClippingPane;
 import com.raytheon.uf.viz.remote.graphics.events.clipping.SetupClippingPane;
@@ -80,16 +79,19 @@ import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateShadedShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateWireframeShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.DrawShadedShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.DrawShadedShapesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.RenderWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.strings.DrawStringEvent;
 import com.raytheon.uf.viz.remote.graphics.events.strings.DrawStringsEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
-import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingFont;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage.DispatchingRenderedImageCallback;
+import com.raytheon.uf.viz.remote.graphics.objects.DispatchingShadedShape;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
-import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * Graphics target that uses a dispatcher for dispatching graphics events. These
@@ -379,7 +381,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawShadedShape(IShadedShape shape, float alpha)
             throws VizException {
-        wrappedObject.drawShadedShape(shape, alpha);
+        drawShadedShape(shape, alpha, 1.0f);
     }
 
     /**
@@ -392,7 +394,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawShadedShape(IShadedShape shape, float alpha,
             float brightness) throws VizException {
-        wrappedObject.drawShadedShape(shape, alpha, brightness);
+        drawShadedShapes(alpha, brightness, shape);
     }
 
     /**
@@ -405,7 +407,24 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawShadedShapes(float alpha, float brightness,
             IShadedShape... shapes) throws VizException {
-        wrappedObject.drawShadedShapes(alpha, brightness, shapes);
+        IShadedShape[] actualShapes = new IShadedShape[shapes.length];
+        DrawShadedShapeEvent[] shapeEvents = new DrawShadedShapeEvent[shapes.length];
+        DrawShadedShapesEvent event = RemoteGraphicsEventFactory.createEvent(
+                DrawShadedShapesEvent.class, this);
+        event.setAlpha(alpha);
+        event.setBrightness(brightness);
+        for (int i = 0; i < shapes.length; ++i) {
+            DispatchingShadedShape shape = (DispatchingShadedShape) shapes[i];
+            shape.flushState();
+            shapeEvents[i] = RemoteGraphicsEventFactory.createEvent(
+                    DrawShadedShapeEvent.class, (DispatchingShadedShape) shape);
+            actualShapes[i] = shape.getWrappedObject();
+        }
+        event.setShapes(shapeEvents);
+        dispatch(event);
+
+        // Actual draw
+        wrappedObject.drawShadedShapes(alpha, brightness, actualShapes);
     }
 
     /**
@@ -559,20 +578,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawShadedRect(IExtent pe, RGB color, double alpha,
             byte[] pattern) throws VizException {
         wrappedObject.drawShadedRect(pe, color, alpha, pattern);
-    }
-
-    /**
-     * @param poly
-     * @param color
-     * @param alpha
-     * @param pattern
-     * @throws VizException
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawShadedPolygon(com.vividsolutions.jts.geom.LinearRing,
-     *      org.eclipse.swt.graphics.RGB, double, byte[])
-     */
-    public void drawShadedPolygon(LinearRing poly, RGB color, double alpha,
-            byte[] pattern) throws VizException {
-        wrappedObject.drawShadedPolygon(poly, color, alpha, pattern);
     }
 
     /**
@@ -794,9 +799,34 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @see com.raytheon.uf.viz.core.IGraphicsTarget#createShadedShape(boolean,
      *      com.raytheon.uf.viz.core.drawables.IDescriptor, boolean)
      */
+    @Deprecated
     public IShadedShape createShadedShape(boolean mutable,
             IDescriptor descriptor, boolean tesselate) {
-        return wrappedObject.createShadedShape(mutable, descriptor, tesselate);
+        return createShadedShape(mutable, descriptor.getGridGeometry(),
+                tesselate);
+    }
+
+    /**
+     * @param mutable
+     * @param descriptor
+     * @param tesselate
+     * @return
+     * @see com.raytheon.uf.viz.core.IGraphicsTarget#createShadedShape(boolean,
+     *      com.raytheon.uf.viz.core.drawables.IDescriptor, boolean)
+     */
+    public IShadedShape createShadedShape(boolean mutable,
+            GeneralGridGeometry targetGeometry, boolean tesselate) {
+        DispatchingShadedShape shape = new DispatchingShadedShape(
+                wrappedObject.createShadedShape(mutable, targetGeometry,
+                        tesselate), getDispatcher(), targetGeometry);
+        // Send creation event
+        CreateShadedShapeEvent event = RemoteGraphicsEventFactory.createEvent(
+                CreateShadedShapeEvent.class, shape);
+        event.setTargetGeometry(targetGeometry);
+        event.setMutable(mutable);
+        event.setTesselate(tesselate);
+        dispatch(event);
+        return shape;
     }
 
     /**
@@ -939,28 +969,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public IFont getDefaultFont() {
         return defaultFont;
-    }
-
-    /**
-     * @param coord
-     * @param color
-     * @param alpha
-     * @param height
-     * @param baseRadius
-     * @param topRadius
-     * @param sideCount
-     * @param sliceCount
-     * @param rotation
-     * @param lean
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawCylinder(com.raytheon.uf.viz.core.geom.PixelCoordinate,
-     *      org.eclipse.swt.graphics.RGB, float, double, double, double, int,
-     *      int, double, double)
-     */
-    public void drawCylinder(PixelCoordinate coord, RGB color, float alpha,
-            double height, double baseRadius, double topRadius, int sideCount,
-            int sliceCount, double rotation, double lean) {
-        wrappedObject.drawCylinder(coord, color, alpha, height, baseRadius,
-                topRadius, sideCount, sliceCount, rotation, lean);
     }
 
     /**
