@@ -1963,6 +1963,12 @@ public abstract class Parm implements Comparable<Parm> {
         int i;
         for (i = 0; i < this.undoBuffers.size(); i++) {
             UndoBuffer undoBuffer = this.undoBuffers.get(i);
+
+            String msg = "Undoing " + getParmID() + " tr="
+                    + undoBuffer.getUndoTimeRange();
+            statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
+                    + msg));
+
             baffectedTR[i] = undoBuffer.getUndoTimeRange();
             bgridCopies[i] = new ArrayList<IGridData>();
 

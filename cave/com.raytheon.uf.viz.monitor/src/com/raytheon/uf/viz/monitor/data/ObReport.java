@@ -175,11 +175,11 @@ public class ObReport {
 
     // Public constructor
     public ObReport() {
-
+    	init();
     }
 
     // Initializer of report
-    public void init() {
+    private void init() {
 
         Date now = SimulatedTime.getSystemTime().getTime();
         Calendar deltaTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));

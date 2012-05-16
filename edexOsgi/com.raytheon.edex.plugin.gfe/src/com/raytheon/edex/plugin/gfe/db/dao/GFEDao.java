@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -155,6 +154,7 @@ public class GFEDao extends DefaultPluginDao {
     public int purgeDatabaseForSite(final String siteID)
             throws DataAccessLayerException {
         return (Integer) txTemplate.execute(new TransactionCallback() {
+            @Override
             public Integer doInTransaction(TransactionStatus status) {
                 List<DatabaseID> dbs = getDatabaseInventoryForSite(siteID);
                 if (dbs.isEmpty()) {
@@ -353,6 +353,7 @@ public class GFEDao extends DefaultPluginDao {
             throws DataAccessLayerException {
         GFERecord retVal = (GFERecord) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     @SuppressWarnings("unchecked")
                     public GFERecord doInTransaction(TransactionStatus status) {
                         DetachedCriteria criteria = DetachedCriteria
@@ -376,6 +377,7 @@ public class GFEDao extends DefaultPluginDao {
         }
         List<GFERecord> retVal = (List<GFERecord>) txTemplate
                 .execute(new TransactionCallback() {
+                    @Override
                     public List<GFERecord> doInTransaction(
                             TransactionStatus status) {
                         List<DataTime> dataTimes = new ArrayList<DataTime>();
@@ -383,25 +385,14 @@ public class GFEDao extends DefaultPluginDao {
                             dataTimes.add(new DataTime(tr.getStart().getTime(),
                                     tr));
                         }
+
                         DetachedCriteria criteria = DetachedCriteria
                                 .forClass(GFERecord.class)
                                 .add(Property.forName("parmId").eq(parmId))
                                 .add(Property.forName("dataTime").in(dataTimes));
                         List<GFERecord> list = getHibernateTemplate()
                                 .findByCriteria(criteria);
-                        list = new ArrayList<GFERecord>(
-                                new LinkedHashSet<GFERecord>(list));
-                        if (list.size() > 0) {
-                            for (GFERecord rec : list) {
-                                Set<GridDataHistory> set = new LinkedHashSet<GridDataHistory>(
-                                        rec.getGridHistory());
-                                rec.setGridHistory(new ArrayList<GridDataHistory>(
-                                        set));
-                            }
-                            return list;
-                        } else {
-                            return Collections.emptyList();
-                        }
+                        return list;
                     }
                 });
         return retVal;
@@ -463,11 +454,40 @@ public class GFEDao extends DefaultPluginDao {
                         + range);
             } else if (result.size() == 1) {
                 GFERecord returnedRecord = result.get(0);
-                returnedRecord.setGridHistory(history.get(range));
+
+                List<GridDataHistory> existHist = returnedRecord
+                        .getGridHistory();
+                List<GridDataHistory> newHist = history.get(range);
+                consolidateHistories(existHist, newHist);
+
                 this.update(returnedRecord);
             } else {
                 logger.error("MORE THAN 1 RESULT WAS RETURNED: "
                         + result.size());
+            }
+        }
+    }
+
+    public void consolidateHistories(List<GridDataHistory> existHist,
+            List<GridDataHistory> newHist) {
+        for (int i = 0; i < newHist.size(); i++) {
+            if (i < existHist.size()) {
+                existHist.get(i).replaceValues(newHist.get(i));
+            } else {
+                existHist.add(newHist.get(i));
+            }
+        }
+
+        if (existHist.size() > newHist.size()) {
+            // not sure if we will ever have a case where the updated
+            // record has fewer history records than existing record
+
+            // log a message as this has the potential to cause orphaned
+            // history records
+            statusHandler.handle(Priority.WARN,
+                    "Updated record has fewer history records.");
+            for (int i = newHist.size(); i < existHist.size(); i++) {
+                existHist.remove(i);
             }
         }
     }

@@ -225,6 +225,7 @@ public class GeospatialDataGenerator {
                 }
 
                 if (dataSet == null) {
+                	// If the file does not exist, then geoms need to be deleted.
                     deleteGeomFiles(site, lastRunTime);
                 } else {
                     generate = false;
@@ -299,12 +300,17 @@ public class GeospatialDataGenerator {
         GeospatialConfiguration geoConfig = template.getGeospatialConfig();
         AreaConfiguration areaConfig = template.getAreaConfig();
         rval.setAreaSource(geoConfig.getAreaSource());
-        List<String> areaFields = new ArrayList<String>(4);
+        List<String> areaFields = new ArrayList<String>();
         areaFields.add(WarningConstants.GID);
         areaFields.add(areaConfig.getAreaField());
         areaFields.add(areaConfig.getFipsField());
         areaFields.add(areaConfig.getAreaNotationField());
-        areaFields.add(areaConfig.getFeAreaField());
+        if (areaConfig.getFeAreaField() != null) {
+            areaFields.add(areaConfig.getFeAreaField());
+        }
+        if (areaConfig.getTimeZoneField() != null) {
+            areaFields.add(areaConfig.getTimeZoneField());
+        }
         rval.setFipsField(areaConfig.getFipsField());
         rval.setAreaFields(areaFields);
         rval.setTimeZoneSource(geoConfig.getTimezoneSource());
