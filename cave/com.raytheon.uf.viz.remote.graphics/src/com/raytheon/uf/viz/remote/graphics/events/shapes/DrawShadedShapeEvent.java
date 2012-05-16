@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.wireframe;
+package com.raytheon.uf.viz.remote.graphics.events.shapes;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
 /**
- * TODO Add Description
+ * Event for drawing a single shaded shape
  * 
  * <pre>
  * 
@@ -32,7 +32,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            mschenke     Initial creation
+ * May 15, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -40,24 +40,31 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class AllocatePointsEvent extends AbstractDispatchingObjectEvent {
+public class DrawShadedShapeEvent extends AbstractDispatchingObjectEvent
+        implements IRenderEvent {
 
-    @DynamicSerializeElement
-    private int numberOfPoints;
-
-    /**
-     * @return the numberOfPoints
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent#
+     * createDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent)
      */
-    public int getNumberOfPoints() {
-        return numberOfPoints;
+    @Override
+    public DrawShadedShapeEvent createDiffObject(IRenderEvent event) {
+        return (DrawShadedShapeEvent) event;
     }
 
-    /**
-     * @param numberOfPoints
-     *            the numberOfPoints to set
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent#
+     * applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent)
      */
-    public void setNumberOfPoints(int numberOfPoints) {
-        this.numberOfPoints = numberOfPoints;
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        setObjectId(((DrawShadedShapeEvent) diffEvent).getObjectId());
     }
 
 }
