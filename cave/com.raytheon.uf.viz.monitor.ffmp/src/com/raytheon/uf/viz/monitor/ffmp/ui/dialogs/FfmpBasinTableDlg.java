@@ -569,6 +569,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             });
             if (sourceMenuItems.contains(guidMenu.getText()) == false) {
                 sourceMenuItems.add(guidMenu);
+                // selects at least one as default
+                ffmpConfig.getFFMPConfigData().setGuidSrc(guidMenu.getText());
+                fireConfigUpdateEvent();
             }
         }
     }
@@ -1186,7 +1189,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         updateTimeDurationLabel(val, split);
         if (dialogInitialized) {
-            fireTimeChangedEvent(val);
+            fireTimeChangedEvent(val, split);
         }
         updateD2DRefresh();
     }
@@ -1314,7 +1317,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         ffmpListeners.remove(fl);
     }
 
-    public void fireTimeChangedEvent(double newTime) {
+    public void fireTimeChangedEvent(double newTime, boolean split) {
 
         FFMPRecord.FIELDS field = FFMPRecord.FIELDS.QPE;
 
@@ -1326,7 +1329,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         }
 
         if (time != newTime) {
-            FFMPTimeChangeEvent ftce = new FFMPTimeChangeEvent(newTime);
+            FFMPTimeChangeEvent ftce = new FFMPTimeChangeEvent(newTime, split);
             Iterator<FFMPListener> iter = ffmpListeners.iterator();
             while (iter.hasNext()) {
                 try {
@@ -1404,7 +1407,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if (!selected) {
             cwas.remove(cwa);
         } else {
-            cwas.add(cwa);
+        	if (!cwas.contains(cwa)) {
+        		cwas.add(cwa);
+        	}
         }
 
         FFMPCWAChangeEvent fcce = new FFMPCWAChangeEvent(cwas);
@@ -1654,20 +1659,20 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         if (!ffmpTable.isDisposed()) {
             this.mainTableData = tData;
-            System.out.println("---" + tData.getTableRows().size());
+            //System.out.println("---" + tData.getTableRows().size());
             ffmpTable.clearTableSelection();
-            long time = System.currentTimeMillis();
+            //long time = System.currentTimeMillis();
             ffmpTable
                     .setCenteredAggregationKey(resource.centeredAggregationKey);
             ffmpTable.setTableData(mainTableData);
-            long time1 = System.currentTimeMillis();
+            //long time1 = System.currentTimeMillis();
 
             resetCursor();
             shell.pack();
             shell.redraw();
 
-            System.out
-                    .println("Time to load Data into table " + (time1 - time));
+            //System.out
+            //        .println("Time to load Data into table " + (time1 - time));
         }
     }
 
@@ -1764,7 +1769,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
          */
         timeDurScale.setTimeDurationAndUpdate(ffmpConfig.getFFMPConfigData()
                 .getTimeFrame());
-        fireTimeChangedEvent(ffmpConfig.getFFMPConfigData().getTimeFrame());
+        fireTimeChangedEvent(ffmpConfig.getFFMPConfigData().getTimeFrame(), false);
 
         /*
          * Layer

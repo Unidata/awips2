@@ -22,7 +22,7 @@ package com.raytheon.edex.plugin.gfe.db.dao;
 import java.util.Date;
 
 import com.raytheon.edex.plugin.gfe.isc.IscSendRecord;
-import com.raytheon.edex.plugin.gfe.isc.IscSendRecordPK.IscSendState;
+import com.raytheon.edex.plugin.gfe.isc.IscSendRecord.IscSendState;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -40,6 +40,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2011            bphillip     Initial creation
  * Apr 06, 2012  #457      dgilling     Added deleteForSite().
+ * May 08, 2012  #600      dgilling     Refactor to match IscSendRecord
+ *                                      changes.
  * 
  * </pre>
  * 
@@ -55,17 +57,17 @@ public class IscSendRecordDao extends CoreDao {
 
     public int purgeExpiredPending() throws DataAccessLayerException {
         DatabaseQuery deleteStmt = new DatabaseQuery(this.daoClass);
-        deleteStmt.addQueryParam("id.timeRange.end", new Date(),
+        deleteStmt.addQueryParam("timeRange.end", new Date(),
                 QueryOperand.LESSTHAN);
-        deleteStmt.addQueryParam("id.state", IscSendState.PENDING);
+        deleteStmt.addQueryParam("state", IscSendState.PENDING);
         return this.deleteByCriteria(deleteStmt);
     }
 
     public int deleteForSite(String siteId) throws DataAccessLayerException {
         DatabaseQuery deleteStmt = new DatabaseQuery(this.daoClass);
-        deleteStmt.addQueryParam("id.state", IscSendState.RUNNING,
+        deleteStmt.addQueryParam("state", IscSendState.RUNNING,
                 QueryOperand.NOTEQUALS);
-        deleteStmt.addQueryParam("id.parmID", "%:" + siteId + "_%",
+        deleteStmt.addQueryParam("parmID", "%:" + siteId + "_%",
                 QueryOperand.LIKE);
         return deleteByCriteria(deleteStmt);
     }
