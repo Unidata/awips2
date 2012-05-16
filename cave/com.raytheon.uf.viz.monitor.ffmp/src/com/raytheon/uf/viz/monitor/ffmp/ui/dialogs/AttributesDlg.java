@@ -309,6 +309,8 @@ public class AttributesDlg extends CaveSWTDialog {
                 for (Button button: qpfRdoBtns) {
                     if (button.getSelection()) {
                         qpfType = button.getText();
+                        // split window requires redraw on change 
+                        updateData = true;
                         break;
                     }
                 }

@@ -406,24 +406,22 @@ public class TAFChangeGroupFactory {
         } else {
             // No issue time found, so we'll have to create one from
             // the WMOHeader data.
-            int iDay = wmoHeader.getDay();
-            int iHour = wmoHeader.getHour();
-            int iMin = wmoHeader.getMinute();
-
-            issueTime = TimeTools.getSystemCalendar(wmoHeader.getYear(),
-                    wmoHeader.getMonth(), wmoHeader.getDay());
-            issueTime.add(Calendar.DAY_OF_MONTH, -1);
-            for (int i = 0; i < 3; i++) {
-                int sDay = issueTime.get(Calendar.DAY_OF_MONTH);
-                if (sDay == iDay) {
-                    issueTime.set(Calendar.HOUR_OF_DAY, iHour);
-                    issueTime.set(Calendar.MINUTE, iMin);
-                    issueTime.set(Calendar.SECOND, 0);
-                    issueTime.set(Calendar.MILLISECOND, 0);
-                    success = true;
-                    break;
-                }
-            }
+            issueTime = wmoHeader.getHeaderDate();
+            
+//            issueTime = TimeTools.getSystemCalendar(wmoHeader.getYear(),
+//                    wmoHeader.getMonth(), wmoHeader.getDay());
+//            issueTime.add(Calendar.DAY_OF_MONTH, -1);
+//            for (int i = 0; i < 3; i++) {
+//                int sDay = issueTime.get(Calendar.DAY_OF_MONTH);
+//                if (sDay == iDay) {
+//                    issueTime.set(Calendar.HOUR_OF_DAY, iHour);
+//                    issueTime.set(Calendar.MINUTE, iMin);
+//                    issueTime.set(Calendar.SECOND, 0);
+//                    issueTime.set(Calendar.MILLISECOND, 0);
+//                    success = true;
+//                    break;
+//                }
+//            }
         }
 
         return success;
@@ -538,6 +536,9 @@ public class TAFChangeGroupFactory {
             }
 
             record.setIssue_time(issueTime.getTime());
+            if(issueTimeString == null) {
+                issueTimeString = String.format("%1$td%1$tH%1$tMZ",issueTime);
+            }
             record.setIssue_timeString(issueTimeString);
             record.setDataTime(new DataTime(issueTime.getTime().getTime(),
                     record.getDataTime().getValidPeriod()));

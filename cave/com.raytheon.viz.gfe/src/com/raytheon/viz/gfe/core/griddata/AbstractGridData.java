@@ -242,6 +242,7 @@ public abstract class AbstractGridData implements IGridData {
      * Resets the fields, then notifies the parm that history has updated.
      * 
      */
+    @Override
     public void resetSavePublishHistory() {
         for (GridDataHistory history : this.gridSlice.getHistory()) {
             history.setUpdateTime(null);
@@ -256,6 +257,7 @@ public abstract class AbstractGridData implements IGridData {
      * 
      * @return true if the method succeeded
      */
+    @Override
     public boolean setSaveHistory() {
         Date current = SimulatedTime.getSystemTime().getTime();
         for (int i = 0; i < this.getHistory().length; i++) {
@@ -274,6 +276,7 @@ public abstract class AbstractGridData implements IGridData {
      *            the modifier
      * 
      */
+    @Override
     public void updateHistoryToModified(WsId modifier) {
         Date now = SimulatedTime.getSystemTime().getTime();
         for (int i = 0; i < getHistory().length; i++) {
@@ -295,6 +298,7 @@ public abstract class AbstractGridData implements IGridData {
      * @param sourceGrid
      *            the original grid
      */
+    @Override
     public boolean copyGridValues(final IGridData sourceGrid) {
         populate();
 
@@ -587,6 +591,7 @@ public abstract class AbstractGridData implements IGridData {
         return false;
     }
 
+    @Override
     public boolean smooth(final Date time, Grid2DBit pointsToSmooth) {
         populate();
 
@@ -730,6 +735,7 @@ public abstract class AbstractGridData implements IGridData {
     // ---------------------------------------------------------
     // Checks ok to edit. If okay, then calls virtual doMoveCopy.
     // ---------------------------------------------------------------------------
+    @Override
     public boolean moveCopyArea(final Date time,
             final Grid2DBit pointsToMoveCopy, final Point delta, boolean copyOp) {
         populate();
@@ -857,6 +863,10 @@ public abstract class AbstractGridData implements IGridData {
             if (!this.isPopulated()) {
                 return;
             }
+            String msg = "Depopulating " + getParm().getParmID() + " tr="
+                    + getGridTime();
+            statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
+                    + msg));
 
             this.lastAccessTime = SimulatedTime.getSystemTime().getTime();
             setGridSliceDataToNull();
@@ -865,6 +875,7 @@ public abstract class AbstractGridData implements IGridData {
 
     protected abstract void setGridSliceDataToNull();
 
+    @Override
     public List<String> getHistorySites() {
         GridDataHistory[] h = this.getHistory();
         List<String> sites = new ArrayList<String>();

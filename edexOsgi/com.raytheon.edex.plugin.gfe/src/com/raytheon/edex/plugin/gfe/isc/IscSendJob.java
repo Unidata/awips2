@@ -139,9 +139,9 @@ public class IscSendJob implements Runnable {
 
     private void runIscSend(IscSendRecord request) {
         try {
-            ParmID id = request.getId().getParmID();
-            TimeRange tr = request.getId().getTimeRange();
-            String xmlDest = request.getId().getXmlDest();
+            ParmID id = request.getParmID();
+            TimeRange tr = request.getTimeRange();
+            String xmlDest = request.getXmlDest();
             String siteId = id.getDbId().getSiteId();
 
             if (!GFESiteActivation.getInstance().getActiveSites()
@@ -215,8 +215,7 @@ public class IscSendJob implements Runnable {
                     return;
                 }
 
-                WsId wsId = new WsId(InetAddress.getLocalHost(), "ISC", "ISC",
-                        0);
+                WsId wsId = new WsId(InetAddress.getLocalHost(), "ISC", "ISC");
                 List<TimeRange> inventory = sr.getPayload();
                 List<TimeRange> overlapTimes = new ArrayList<TimeRange>();
                 for (TimeRange range : inventory) {
