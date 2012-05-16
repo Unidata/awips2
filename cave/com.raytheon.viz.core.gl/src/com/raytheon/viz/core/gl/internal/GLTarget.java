@@ -41,7 +41,6 @@ import java.util.Set;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
-import javax.vecmath.Vector3d;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -92,7 +91,6 @@ import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
 import com.raytheon.viz.core.gl.GLContextBridge;
 import com.raytheon.viz.core.gl.GLDisposalManager;
@@ -108,7 +106,6 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
 import com.sun.opengl.util.Screenshot;
 import com.sun.opengl.util.j2d.TextRenderer;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * 
@@ -437,13 +434,27 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
+     * @see com.raytheon.uf.viz.core.IGraphicsTarget#createShadedShape(boolean,
+     * org.geotools.coverage.grid.GeneralGridGeometry, boolean)
+     */
+    @Override
+    public IShadedShape createShadedShape(boolean mutable,
+            GeneralGridGeometry targetGeometry, boolean tesselate) {
+        return new GLShadedShape(targetGeometry, mutable, tesselate);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.core.IGraphicsTarget#createShadedShape(boolean,
      * com.raytheon.viz.core.map.IMapDescriptor, boolean)
      */
     @Override
+    @Deprecated
     public IShadedShape createShadedShape(boolean mutable,
             IDescriptor descriptor, boolean tesselate) {
-        return new GLShadedShape(descriptor, mutable, tesselate);
+        return createShadedShape(mutable, descriptor.getGridGeometry(),
+                tesselate);
     }
 
     /*
@@ -583,6 +594,7 @@ public class GLTarget implements IGLTarget {
      * com.raytheon.viz.core.IGraphicsTarget.LineStyle, boolean)
      */
     @Override
+    @Deprecated
     public void drawArc(double x1, double y1, double z1, double radius,
             RGB color, float width, int startAzimuth, int endAzimuth,
             LineStyle lineStyle, boolean includeSides) throws VizException {
@@ -612,6 +624,7 @@ public class GLTarget implements IGLTarget {
      * double, double, org.eclipse.swt.graphics.RGB, float)
      */
     @Override
+    @Deprecated
     public void drawCircle(double x1, double y1, double z1, double radius,
             RGB color, float width) throws VizException {
         DrawableCircle circle = new DrawableCircle();
@@ -702,8 +715,8 @@ public class GLTarget implements IGLTarget {
 
             GLShaderProgram program = null;
             if (capabilities.cardSupportsShaders) {
-                program = GLSLFactory.getInstance().getShaderProgram(this,
-                        null, "colormap");
+                program = GLSLFactory.getInstance().getShaderProgram(gl, null,
+                        "colormap");
                 if (program != null) {
                     program.startShader();
                     program.setUniform("alphaVal", blendAlpha);
@@ -832,6 +845,7 @@ public class GLTarget implements IGLTarget {
      * double, double, double, org.eclipse.swt.graphics.RGB)
      */
     @Override
+    @Deprecated
     public void drawFilledCircle(double x, double y, double z, double radius,
             RGB color) throws VizException {
         DrawableCircle circle = new DrawableCircle();
@@ -2124,96 +2138,6 @@ public class GLTarget implements IGLTarget {
         return this.canvasSize;
     }
 
-    public void drawCylinder(PixelCoordinate coord, RGB color, float alpha,
-            double height, double baseRadius, double topRadius, int sideCount,
-            int sliceCount, double rotation, double lean) {
-
-        gl.glPushMatrix();
-
-        if (quadric == null) {
-            quadric = glu.gluNewQuadric();
-        }
-
-        gl.glEnable(GL.GL_BLEND);
-        gl.glBlendFunc(GL.GL_ONE_MINUS_SRC_ALPHA, GL.GL_SRC_ALPHA);
-
-        glu.gluQuadricDrawStyle(quadric, GLU.GLU_FILL);
-        glu.gluQuadricNormals(quadric, GL.GL_SMOOTH);
-
-        // Translate to coordinate position
-        gl.glTranslated(coord.getX(), coord.getY(), coord.getZ());
-
-        // azimuth (rotate azimuth)
-        gl.glRotated(-rotation, coord.getX(), coord.getY(), coord.getZ());
-
-        // Orient the cylinder on the orientation vector.
-        Vector3d zAxis = new Vector3d(0, 0, 1);
-        Vector3d orientationVector = new Vector3d(coord.getCoordinateArray());
-        double orientationAngle = Math
-                .toDegrees(zAxis.angle(orientationVector)) - lean;
-        Vector3d crossVector = new Vector3d();
-
-        // orient the cylinder
-        crossVector.cross(zAxis, orientationVector);
-        gl.glRotated(orientationAngle, crossVector.x, crossVector.y,
-                crossVector.z);
-
-        // draw the cylinder
-        gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-        gl.glBegin(GL.GL_LINES);
-        gl.glShadeModel(GL.GL_SMOOTH);
-        gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                color.blue / 255.0, alpha);
-        glu.gluCylinder(quadric, baseRadius, topRadius, height, sideCount,
-                sliceCount);
-        if (baseRadius != 0) {
-            glu.gluDisk(quadric, 0, baseRadius, 30, 5);
-        }
-        if (topRadius != 0) {
-            gl.glTranslated(0, 0, height);
-            glu.gluDisk(quadric, 0, topRadius, 30, 5);
-        }
-        gl.glEnd();
-
-        gl.glDisable(GL.GL_BLEND);
-
-        // Cleanup
-        glu.gluDeleteQuadric(quadric);
-        gl.glPopMatrix();
-    }
-
-    @Override
-    public void drawShadedPolygon(LinearRing poly, RGB color, double alpha,
-            byte[] stipple) throws VizException {
-        this.pushGLState();
-        try {
-            // set the shading and alpha
-            gl.glEnable(GL.GL_BLEND);
-            gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-            gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                    color.blue / 255.0, alpha);
-
-            if (stipple != null) {
-                gl.glEnable(GL.GL_POLYGON_STIPPLE);
-
-                gl.glPolygonStipple(stipple, 0);
-            }
-
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-
-            gl.glBegin(GL.GL_POLYGON);
-
-            for (Coordinate coord : poly.getCoordinates()) {
-                gl.glVertex2d(coord.x, coord.y);
-            }
-            gl.glEnd();
-            gl.glDisable(GL.GL_BLEND);
-            gl.glDisable(GL.GL_SRC_ALPHA);
-        } finally {
-            this.popGLState();
-        }
-    }
-
     @Override
     @Deprecated
     public String getViewType() {
@@ -2433,20 +2357,39 @@ public class GLTarget implements IGLTarget {
                     gl.glLogicOp(GL.GL_XOR);
                 }
 
+                float startAzm = circle.startAzimuth;
+                float endAzm = circle.endAzimuth;
+
+                if (endAzm < startAzm) {
+                    endAzm += 360.0;
+                }
+
+                boolean includeSides = circle.includeSides && !fill
+                        && ((endAzm - startAzm) < 360.0);
+
                 if (fill) {
                     gl.glBegin(GL.GL_TRIANGLE_FAN);
                     gl.glVertex3d(x, y, z);
                 } else {
+                    handleLineStyle(circle.lineStyle);
                     gl.glBegin(GL.GL_LINE_STRIP);
+                    if (includeSides) {
+                        gl.glVertex3d(x, y, z);
+                    }
                 }
 
-                double step = 360.0 / (circle.numberOfPoints);
-                for (double i = 0; i <= circle.numberOfPoints; i++) {
+                double step = (endAzm - startAzm) / (circle.numberOfPoints);
+                for (double azm = startAzm; azm <= endAzm; azm += step) {
                     double[] pointOnCircle = getPointOnCircle(x, y, z, radius,
-                            i * step);
+                            azm);
                     gl.glVertex3d(pointOnCircle[0], pointOnCircle[1],
                             pointOnCircle[2]);
                 }
+
+                if (includeSides) {
+                    gl.glVertex3d(x, y, z);
+                }
+
                 gl.glEnd();
 
                 if (xOr) {

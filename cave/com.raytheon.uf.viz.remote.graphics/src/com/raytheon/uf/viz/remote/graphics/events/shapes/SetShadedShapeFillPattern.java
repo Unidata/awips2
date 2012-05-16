@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.wireframe;
+package com.raytheon.uf.viz.remote.graphics.events.shapes;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
- * TODO Add Description
+ * Event for setting the fill pattern on a shaded shape
  * 
  * <pre>
  * 
@@ -32,7 +32,7 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            mschenke     Initial creation
+ * May 15, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -40,28 +40,24 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * @version 1.0
  */
 @DynamicSerialize
-public class SimpleWireframeShapeEvent extends AbstractDispatchingObjectEvent {
-
-    public static enum EventAction {
-        RESET, CLEAR_LABELS, COMPILE;
-    }
+public class SetShadedShapeFillPattern extends AbstractDispatchingObjectEvent {
 
     @DynamicSerializeElement
-    private EventAction action;
+    private byte[] fillPattern;
 
     /**
-     * @return the action
+     * @return the fillPattern
      */
-    public EventAction getAction() {
-        return action;
+    public byte[] getFillPattern() {
+        return fillPattern;
     }
 
     /**
-     * @param action
-     *            the action to set
+     * @param fillPattern
+     *            the fillPattern to set
      */
-    public void setAction(EventAction action) {
-        this.action = action;
+    public void setFillPattern(byte[] fillPattern) {
+        this.fillPattern = fillPattern;
     }
 
 }
