@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
  javax.vecmath;bundle-version="1.3.1",
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.remote.graphics,
@@ -27,7 +28,7 @@ Export-Package: com.raytheon.uf.viz.remote.graphics,
  com.raytheon.uf.viz.remote.graphics.events.offscreen,
  com.raytheon.uf.viz.remote.graphics.events.points,
  com.raytheon.uf.viz.remote.graphics.events.rendering,
+ com.raytheon.uf.viz.remote.graphics.events.shapes,
  com.raytheon.uf.viz.remote.graphics.events.strings,
- com.raytheon.uf.viz.remote.graphics.events.wireframe,
  com.raytheon.uf.viz.remote.graphics.extensions,
  com.raytheon.uf.viz.remote.graphics.objects
