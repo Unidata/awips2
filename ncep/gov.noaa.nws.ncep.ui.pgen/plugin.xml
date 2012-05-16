@@ -510,7 +510,7 @@
            <view
             category="gov.noaa.nws.ncep.viz.ui.nmap"
             allowMultiple="false"
-            restorable="true"
+            restorable="false"
             class="gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow"
             id="gov.noaa.nws.ncep.ui.PGEN"
             name="PGEN"/>
