@@ -6,6 +6,7 @@
 ## EDITED BY MIKE DANGELO 1-25-2012 at CRH TIM ##
 ## EDITED BY EVAN BOOKBINDER 2-24-2012  ##
 ## EDITED BY PHIL KURIMSKI   2-28-2012  ##
+## EDITED BY MIKE REGA       5-02-2012 DR 14885 MND blank line ##
 #################################### SET SOME VARs ###################################
 #set ($hycType = "")
 #set ($floodReason = "")
@@ -39,6 +40,7 @@
 ######################################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
+
 #if(${productClass}=="T")
 TEST...FLOOD STATEMENT...TEST
 #else

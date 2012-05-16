@@ -371,6 +371,14 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     private TimeSeriesDlg parentDialog = null;
     
     private int showCatValue = 0;
+    
+    /** 
+     * Zoom reset flag
+     * 
+     * true when click the zoom reset menu, then false 
+     * when a graph has been reset
+     */
+    private boolean reset = false;
 
     /**
      * Constructor.
@@ -960,7 +968,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 setZoom(false);
                 setZoomAction(false);
                 setSelectZoom(false);
-                displayCanvas.redraw();
+                reset = true;
+//                displayCanvas.redraw();
             }
         });
     }
@@ -1255,7 +1264,14 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 graphList.trimToSize();
 
                 Composite pageComp = new Composite(stackGridComp, SWT.NONE);
-                pageComp.setLayout(new GridLayout(6, true));
+                GridLayout pageGL = new GridLayout(6, true);
+                pageGL.verticalSpacing = 1;
+                pageGL.horizontalSpacing = 1;
+                pageGL.marginHeight = 0;
+                pageGL.marginWidth = 0;
+
+                pageComp.setLayout(pageGL);
+                
                 GridData pageGridData = new GridData(SWT.FILL, SWT.FILL, true,
                         true);
                 pageComp.setLayoutData(pageGridData);
@@ -2220,4 +2236,18 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             return shell.getBounds();
         }
     }
+
+	/**
+	 * @param reset the reset to set
+	 */
+	public void setReset(boolean reset) {
+		this.reset = reset;
+	}
+
+	/**
+	 * @return the reset
+	 */
+	public boolean isReset() {
+		return reset;
+	}
 }

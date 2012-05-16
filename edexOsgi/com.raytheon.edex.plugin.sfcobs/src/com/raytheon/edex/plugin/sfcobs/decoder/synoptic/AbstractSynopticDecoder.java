@@ -19,14 +19,17 @@
  **/
 package com.raytheon.edex.plugin.sfcobs.decoder.synoptic;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.decodertools.time.ITimeService;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
@@ -482,10 +485,10 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
                 }
             }
         }
-        if ((obsYear != null) && (obsMonth != null)) {
-            obsTime.set(Calendar.YEAR, obsYear);
-            obsTime.set(Calendar.MONTH, obsMonth - 1);
-        }
+//        if ((obsYear != null) && (obsMonth != null)) {
+//            obsTime.set(Calendar.YEAR, obsYear);
+//            obsTime.set(Calendar.MONTH, obsMonth - 1);
+//        }
 
         return obsTime;
     }
@@ -518,4 +521,51 @@ public abstract class AbstractSynopticDecoder extends AbstractSfcObsDecoder {
         }
         return builder.toString();
     }
+
+
+    public static final void main(String [] args) {
+        
+        ITimeService service = new ITimeService() {
+            @Override
+            public Calendar getCalendar() {
+                final Calendar c = Calendar.getInstance();
+                c.setTimeZone(TimeZone.getTimeZone("GMT"));
+                c.set(Calendar.YEAR, 2012);
+                c.set(Calendar.MONTH, Calendar.JANUARY);
+                c.set(Calendar.DAY_OF_MONTH,1);
+                c.set(Calendar.HOUR_OF_DAY, 2);
+                c.set(Calendar.MINUTE, 15);
+                c.set(Calendar.SECOND, 32);
+                c.set(Calendar.MILLISECOND, 268);
+
+                return c;
+            }
+        };
+        TimeTools.setTimeService(service);
+        
+        
+        SimpleDateFormat TMFMT = new SimpleDateFormat(
+        "yyyy-MM-dd HH:mm:ss");
+        TMFMT.setTimeZone(TimeZone.getTimeZone("GMT"));
+        
+        Integer obsYear = 2012;
+        Integer obsMonth = 1; 
+        Integer obsDay = 31;
+        Integer obsHour = 21;
+        
+        Calendar currentClock = TimeTools.getSystemCalendar(obsYear, obsMonth, obsDay);
+        System.out.println(TMFMT.format(currentClock.getTime()));
+        
+        Calendar c = calculateObsDateTime(currentClock,obsDay,obsHour,obsYear,obsMonth); 
+        System.out.println(TMFMT.format(c.getTime()));
+        
+        
+        
+        
+        
+        
+    }
+
+
+
 }
