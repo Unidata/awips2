@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.xy.timeheight.display;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,6 +30,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -145,6 +148,17 @@ public class TimeHeightRenderableDisplay extends AbstractHeightDisplay {
                     "Error constructing CS Graph", e);
         }
         resourceList.addPostAddListener(new ImageCombiner(getDescriptor()));
+    }
+
+    @Override
+    public Map<String, Object> getGlobalsMap() {
+        Map<String, Object> globals = super.getGlobalsMap();
+        if (globals
+                .get(VizConstants.FRAMES_ID)
+                .equals(TimeHeightDescriptor.REAL_FRAME_COUNT_TO_USE_WHEN_FRAME_COUNT_IS_ONE)) {
+            globals.put(VizConstants.FRAMES_ID, 1);
+        }
+        return globals;
     }
 
 }

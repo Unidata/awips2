@@ -55,7 +55,13 @@ public class PrecipRate {
             for (int radial = 0; radial < rec.getNumRadials(); radial++) {
                 for (int bin = 0; bin < rec.getNumBins(); bin++) {
                     Float val = precipRate[(rec.getNumBins() * radial) + bin] * 10;
-                    bytes[(rec.getNumBins() * radial) + bin] = val.byteValue();
+                    byte b = (int)0;
+					if (val > 0.0) {
+						val = val + 1;
+						b = val.byteValue();
+					}
+					
+					bytes[(rec.getNumBins() * radial) + bin] = b;
                 }
             }
 
