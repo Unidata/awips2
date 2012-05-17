@@ -30,6 +30,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Color;
@@ -87,6 +89,8 @@ public abstract class AbstractSessionView extends ViewPart {
 
     private UserId[] userIds = null;
 
+    private SessionMsgArchive msgArchive = new SessionMsgArchive();
+
     protected abstract String getSessionImageName();
 
     protected abstract String getSessionName();
@@ -139,6 +143,16 @@ public abstract class AbstractSessionView extends ViewPart {
         messagesText = new StyledText(messagesComp, SWT.MULTI | SWT.WRAP
                 | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         messagesText.setLayoutData(new GridData(GridData.FILL_BOTH));
+        messagesText.addFocusListener(new FocusListener() {
+            @Override
+            public void focusLost(FocusEvent e) {
+            }
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                composeText.setFocus();
+            }
+        });
     }
 
     protected void createComposeComp(Composite parent) {
@@ -267,6 +281,8 @@ public abstract class AbstractSessionView extends ViewPart {
         styleAndAppendText(sb, offset, name, userId, ranges);
         // room for other fun things here, such as sounds and such
         executeSightsSounds();
+        msgArchive.archive(sb.toString(), timestamp, getName(),
+                userId.getHost());
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
@@ -312,6 +328,7 @@ public abstract class AbstractSessionView extends ViewPart {
         }
         imageMap.clear();
         imageMap = null;
+        msgArchive.save();
         super.dispose();
     }
 
@@ -351,4 +368,6 @@ public abstract class AbstractSessionView extends ViewPart {
     public void setUserIds(UserId[] userIds) {
         this.userIds = userIds;
     }
+
+    protected abstract String getName();
 }
