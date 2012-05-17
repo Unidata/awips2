@@ -242,4 +242,16 @@ public class PaintImageEvent extends AbstractDispatchingObjectEvent implements
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() {
+        PaintImageEvent newInstance = new PaintImageEvent();
+        newInstance.applyDiffObject(this);
+        return newInstance;
+    }
+
 }

@@ -57,7 +57,7 @@ public class StringRenderingHandler extends CollaborationRenderingHandler {
     @Subscribe
     public void drawStrings(DrawStringsEvent event) {
         IGraphicsTarget target = getGraphicsTarget();
-        DrawStringEvent[] events = event.getStrings();
+        DrawStringEvent[] events = event.getObjects();
         DrawableString[] strings = new DrawableString[events.length];
         for (int i = 0; i < events.length; ++i) {
             strings[i] = events[i].getDrawableString();

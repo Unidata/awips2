@@ -112,4 +112,16 @@ public class RenderOffscreenEvent extends AbstractDispatchingObjectEvent
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() {
+        RenderOffscreenEvent newInstance = new RenderOffscreenEvent();
+        newInstance.applyDiffObject(this);
+        return newInstance;
+    }
+
 }

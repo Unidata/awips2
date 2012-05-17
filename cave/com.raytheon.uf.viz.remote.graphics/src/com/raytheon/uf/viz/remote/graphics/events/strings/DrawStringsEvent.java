@@ -19,12 +19,8 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.strings;
 
-import java.util.Arrays;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
-import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsBulkRenderEvent;
 
 /**
  * Event for drawing multiple strings in bulk
@@ -43,99 +39,18 @@ import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class DrawStringsEvent extends AbstractRemoteGraphicsRenderEvent {
-
-    @DynamicSerializeElement
-    private DrawStringEvent[] strings;
+public class DrawStringsEvent extends
+        AbstractRemoteGraphicsBulkRenderEvent<DrawStringEvent> {
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent#getObjectClass()
      */
     @Override
-    public DrawStringsEvent createDiffObject(IRenderEvent event) {
-        DrawStringsEvent diff = (DrawStringsEvent) event;
-        DrawStringsEvent diffEvent = new DrawStringsEvent();
-        if (diff.strings != null) {
-            if (strings != null && diff.strings.length == strings.length) {
-                diffEvent.strings = new DrawStringEvent[diff.strings.length];
-                for (int i = 0; i < strings.length; ++i) {
-                    DrawStringEvent paintEvent = strings[i];
-                    DrawStringEvent diffPaintEvent = diff.strings[i];
-                    if (paintEvent.equals(diffPaintEvent) == false) {
-                        diffEvent.strings[i] = paintEvent
-                                .createDiffObject(diffPaintEvent);
-                    }
-                }
-            } else {
-                diffEvent.strings = diff.strings;
-            }
-        }
-        return diffEvent;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
-     */
-    @Override
-    public void applyDiffObject(IRenderEvent diffEvent) {
-        DrawStringsEvent event = (DrawStringsEvent) diffEvent;
-        DrawStringEvent[] diffImageEvents = event.strings;
-        if (diffImageEvents == null) {
-            strings = null;
-        } else if (strings == null) {
-            strings = event.strings;
-        } else if (strings.length != diffImageEvents.length) {
-            strings = event.strings;
-        } else {
-            for (int i = 0; i < strings.length; ++i) {
-                DrawStringEvent diffPaintEvent = diffImageEvents[i];
-                if (diffPaintEvent != null) {
-                    strings[i].applyDiffObject(diffPaintEvent);
-                }
-            }
-        }
-    }
-
-    /**
-     * @return the strings
-     */
-    public DrawStringEvent[] getStrings() {
-        return strings;
-    }
-
-    /**
-     * @param strings
-     *            the strings to set
-     */
-    public void setStrings(DrawStringEvent[] strings) {
-        this.strings = strings;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        DrawStringsEvent other = (DrawStringsEvent) obj;
-        if (!Arrays.equals(strings, other.strings))
-            return false;
-        return true;
+    protected Class<DrawStringEvent> getObjectClass() {
+        return DrawStringEvent.class;
     }
 
 }
