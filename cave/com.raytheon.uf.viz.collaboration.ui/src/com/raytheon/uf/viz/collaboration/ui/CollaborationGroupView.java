@@ -98,6 +98,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
@@ -257,8 +258,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         };
         createSessionAction.setImageDescriptor(IconUtil.getImageDescriptor(
                 bundle, "add_collaborate.gif"));
-        createSessionAction.setEnabled(CollaborationDataManager.getInstance()
-                .isConnected());
+        createSessionAction.setDisabledImageDescriptor(IconUtil
+                .getImageDescriptor(bundle, "add_collaborate_disabled.png"));
+        this.disableOrEnableSessionAction(false);
 
         linkToEditorAction = new Action("Link Editor to Chat Session",
                 Action.AS_CHECK_BOX) {
@@ -609,7 +611,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         // enable the tree, and then refresh it just to be safe
         usersTreeViewer.getTree().setEnabled(true);
         usersTreeViewer.refresh(topLevel, true);
-        createSessionAction.setEnabled(true);
+        this.disableOrEnableSessionAction(false);
     }
 
     /**
@@ -1332,6 +1334,51 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
     }
 
+    @Subscribe
+    public void handleHttpdConfigurationEvent(
+            IHttpdCollaborationConfigurationEvent configurationEvent) {
+
+        // Add the httpd collaboration url to the CAVE configuration.
+        Activator
+                .getDefault()
+                .getPreferenceStore()
+                .setValue(
+                        CollabPrefConstants.HttpCollaborationConfiguration.P_HTTP_SESSION_URL,
+                        configurationEvent.getHttpdCollaborationURL());
+        Activator
+                .getDefault()
+                .getPreferenceStore()
+                .setValue(
+                        CollabPrefConstants.HttpCollaborationConfiguration.P_SESSION_CONFIGURED,
+                        true);
+
+        // Allow the user to create sessions.
+        this.disableOrEnableSessionAction(true);
+    }
+
+    /**
+     * @param async
+     */
+    private void disableOrEnableSessionAction(boolean async) {
+        boolean sessionConfigured = Activator
+                .getDefault()
+                .getPreferenceStore()
+                .getBoolean(
+                        CollabPrefConstants.HttpCollaborationConfiguration.P_SESSION_CONFIGURED);
+        final boolean isSessionEnabled = sessionConfigured
+                && CollaborationDataManager.getInstance().isConnected();
+        if (async) {
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    createSessionAction.setEnabled(isSessionEnabled);
+                }
+            });
+        } else {
+            createSessionAction.setEnabled(isSessionEnabled);
+        }
+    }
+    
     /**
      * Adds users to groups if necessary
      * 
