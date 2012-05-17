@@ -165,6 +165,9 @@
       <renderingExtension
             class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.StringRenderingHandler">
       </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.PrimitiveRenderingHandler">
+      </renderingExtension>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
