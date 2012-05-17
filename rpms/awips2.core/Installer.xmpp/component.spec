@@ -13,7 +13,7 @@
 Name: awips2-%{_xmpp_server}
 Summary: AWIPS II XMPP Server
 Version: %{_xmpp_software_version}
-Release: 1
+Release: 2
 Group: AWIPSII
 BuildRoot: /tmp
 BuildArch: noarch
