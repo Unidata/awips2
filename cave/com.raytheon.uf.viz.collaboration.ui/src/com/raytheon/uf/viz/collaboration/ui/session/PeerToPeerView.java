@@ -112,10 +112,11 @@ public class PeerToPeerView extends AbstractSessionView {
             try {
                 CollaborationDataManager manager = CollaborationDataManager
                         .getInstance();
-                appendMessage(manager.getCollaborationConnection(true).getUser(),
-                        System.currentTimeMillis(), message);
+                appendMessage(manager.getCollaborationConnection(true)
+                        .getUser(), System.currentTimeMillis(), message);
                 IPeerToPeer p2p = (IPeerToPeer) manager
-                        .getCollaborationConnection(true).getPeerToPeerSession();
+                        .getCollaborationConnection(true)
+                        .getPeerToPeerSession();
                 p2p.sendPeerToPeer(peer, message);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -164,6 +165,17 @@ public class PeerToPeerView extends AbstractSessionView {
             }
         }
         return getViewSite().getSecondaryId();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * getName()
+     */
+    @Override
+    protected String getName() {
+        return peer.getName();
     }
 
     public void setPeer(IQualifiedID peer) {
