@@ -171,11 +171,13 @@ public class PeerToPeerView extends AbstractSessionView {
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
-     * getName()
+     * getMessageArchive()
      */
     @Override
-    protected String getName() {
-        return peer.getName();
+    protected SessionMsgArchive getMessageArchive() {
+        UserId me = CollaborationDataManager.getInstance()
+                .getCollaborationConnection(true).getUser();
+        return new SessionMsgArchive(me.getHost(), me.getName(), peer.getName());
     }
 
     public void setPeer(IQualifiedID peer) {
