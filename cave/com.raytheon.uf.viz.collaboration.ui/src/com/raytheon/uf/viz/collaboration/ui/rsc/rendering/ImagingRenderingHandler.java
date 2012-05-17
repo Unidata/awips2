@@ -84,7 +84,7 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     public void renderImages(PaintImagesEvent event) {
         PaintProperties paintProps = getPaintProperties();
         IGraphicsTarget target = getGraphicsTarget();
-        PaintImageEvent[] events = event.getImageEvents();
+        PaintImageEvent[] events = event.getObjects();
         DrawableImage[] images = toDrawableImages(events, dataManager);
         if (images.length > 0) {
             PaintProperties imageProps = new PaintProperties(paintProps);

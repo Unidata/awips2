@@ -179,7 +179,7 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
 
     @Subscribe
     public void renderShadedShapes(DrawShadedShapesEvent event) {
-        DrawShadedShapeEvent[] shapeEvents = event.getShapes();
+        DrawShadedShapeEvent[] shapeEvents = event.getObjects();
         float alpha = event.getAlpha();
         float brightness = event.getBrightness();
         IShadedShape[] shapes = new IShadedShape[shapeEvents.length];
