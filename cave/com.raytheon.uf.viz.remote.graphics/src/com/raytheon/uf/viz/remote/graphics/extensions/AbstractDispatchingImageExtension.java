@@ -72,7 +72,7 @@ public abstract class AbstractDispatchingImageExtension extends
             DrawableImage... images) throws VizException {
         PaintImagesEvent bulkRender = RemoteGraphicsEventFactory.createEvent(
                 PaintImagesEvent.class, target);
-        bulkRender.setImageEvents(PaintImagesEvent.toPaintEvents(images));
+        bulkRender.setObjects(PaintImagesEvent.toPaintEvents(images));
         DrawableImage[] targeted = PaintImagesEvent.extractTargetImages(images);
         bulkRender.setAlpha(paintProps.getAlpha());
         boolean rval = target.getWrappedObject().drawRasters(paintProps,

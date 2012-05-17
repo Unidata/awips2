@@ -19,10 +19,14 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.jface.action.Action;
@@ -46,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.RenderFrameN
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.UpdateRenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingDataManager;
 import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -109,6 +114,26 @@ public class CollaborationResource extends
 
     private Rectangle previousBounds = null;
 
+    private Map<IExtent, List<IRenderEvent>> renderableMap = new LinkedHashMap<IExtent, List<IRenderEvent>>() {
+
+        private static final long serialVersionUID = 1L;
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
+         */
+        @Override
+        protected boolean removeEldestEntry(
+                Entry<IExtent, List<IRenderEvent>> eldest) {
+            if (size() > 30) {
+                return true;
+            }
+            return false;
+        }
+
+    };
+
     public CollaborationResource(CollaborationResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -126,6 +151,19 @@ public class CollaborationResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        // Get the renderables for my extent
+        List<IRenderEvent> currentRenderables = null;
+        synchronized (renderableMap) {
+            currentRenderables = renderableMap.get(paintProps.getView()
+                    .getExtent());
+            if (currentRenderables == null) {
+                synchronized (this.currentRenderables) {
+                    currentRenderables = new ArrayList<IRenderEvent>(
+                            this.currentRenderables);
+                }
+            }
+        }
+
         List<AbstractDispatchingObjectEvent> currentDataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
         synchronized (dataChangeEvents) {
             if (waitingOnObjects.size() == 0) {
@@ -143,17 +181,12 @@ public class CollaborationResource extends
 
         dataManager.beginRender(target, paintProps);
 
-        List<IRenderEvent> toRender = new LinkedList<IRenderEvent>();
-        synchronized (currentRenderables) {
-            toRender.addAll(currentRenderables);
-        }
-
         synchronized (renderingRouter) {
             for (AbstractRemoteGraphicsEvent event : currentDataChangeEvents) {
                 renderingRouter.post(event);
             }
 
-            for (IRenderEvent event : toRender) {
+            for (IRenderEvent event : currentRenderables) {
                 renderingRouter.post(event);
             }
             if (latestMouseLocation != null) {
@@ -262,7 +295,7 @@ public class CollaborationResource extends
             // Not an update event, new frame
             int objectId = event.getObjectId();
             for (IRenderEvent re : event.getRenderEvents()) {
-                renderableArrived((AbstractRemoteGraphicsEvent) re);
+                renderableArrived((AbstractRemoteGraphicsEvent) re.clone());
             }
             dataManager.putRenderableObject(objectId, event);
         }
@@ -313,6 +346,7 @@ public class CollaborationResource extends
                 activeRenderables.add((IRenderEvent) event);
             } else if (event instanceof EndFrameEvent) {
                 synchronized (currentRenderables) {
+                    IExtent current = null;
                     currentRenderables.clear();
                     // Frame over, process BeginFrameEvent now to keep in sync
                     for (IRenderEvent renderable : activeRenderables) {
@@ -342,12 +376,15 @@ public class CollaborationResource extends
                             } else {
                                 display.getView().setExtent(bfe.getExtent());
                             }
+                            current = bfe.getExtent();
                         } else {
                             // Add to list for processing in paintInternal
                             currentRenderables.add(renderable);
                         }
                     }
                     activeRenderables.clear();
+                    renderableMap.put(current, new ArrayList<IRenderEvent>(
+                            currentRenderables));
                 }
                 issueRefresh();
             } else if (event instanceof MouseLocationEvent) {
