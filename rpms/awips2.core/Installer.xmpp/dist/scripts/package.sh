@@ -14,6 +14,7 @@ RPM_BUILD_ROOT="${2}"
 srcdir="${baseline_workspace}/Installer.rpm/awips2.core/Installer.xmpp/dist"
 source_tar="${srcdir}/openfire_3_7_1.tar.gz"
 patch_file0="${srcdir}/openfire.patch0"
+patch_file1="${srcdir}/openfire.patch1"
 
 # Prepare the installation directory.
 if [ -d ${RPM_BUILD_ROOT} ]; then
@@ -41,6 +42,22 @@ patch -p1 -i ${patch_file0}
 if [ $? -ne 0 ]; then
    exit 1
 fi
+
+patch -p1 -i ${patch_file1}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 popd
+
+# Build and include any openfire plugins.
+cd ${baseline_workspace}/build.openfire.plugin
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/awips2/ant/bin/ant -f build.xml \
+   -Ddestination.directory=${RPM_BUILD_ROOT}/awips2/openfire/plugins
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 exit 0
