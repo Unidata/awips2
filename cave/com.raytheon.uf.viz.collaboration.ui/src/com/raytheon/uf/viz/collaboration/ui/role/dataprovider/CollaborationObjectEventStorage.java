@@ -69,10 +69,6 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 public class CollaborationObjectEventStorage implements
         IObjectEventPersistance, IObjectEventRetrieval {
 
-    private static final String SESSION_DATA_URL_FORMAT_STRING = "http://%s:%d/session_data/";
-
-    private static final int SESSION_DATA_PORT = 80;
-
     private static NetworkStatistics stats = com.raytheon.uf.viz.collaboration.comm.Activator
             .getDefault().getNetworkStats();
 
@@ -95,13 +91,12 @@ public class CollaborationObjectEventStorage implements
 
     private CollaborationObjectEventStorage(ISharedDisplaySession session) {
         this.client = HttpClient.getInstance();
-        String collaborationServer = Activator.getDefault()
-                .getPreferenceStore().getString(CollabPrefConstants.P_SERVER);
-        if (collaborationServer != null) {
-            sessionDataURL = String.format(SESSION_DATA_URL_FORMAT_STRING,
-                    collaborationServer, SESSION_DATA_PORT);
-            sessionDataURL += session.getSessionId() + "/";
-        }
+        this.sessionDataURL = Activator
+                .getDefault()
+                .getPreferenceStore()
+                .getString(
+                        CollabPrefConstants.HttpCollaborationConfiguration.P_HTTP_SESSION_URL);
+        this.sessionDataURL += session.getSessionId() + "/";
     }
 
     /*
