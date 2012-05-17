@@ -204,4 +204,16 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
         return true;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() {
+        RenderWireframeShapeEvent newInstance = new RenderWireframeShapeEvent();
+        newInstance.applyDiffObject(this);
+        return newInstance;
+    }
+
 }

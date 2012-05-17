@@ -17,12 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.rendering;
+package com.raytheon.uf.viz.remote.graphics.events.drawables;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsBulkRenderEvent;
 
 /**
- * Interface for objects that events for actually rendering an object. These
- * types of events can be skipped over unlike data events which are required to
- * execute at some point. Render events must implements equals
+ * Event for drawing a series of circles
  * 
  * <pre>
  * 
@@ -30,22 +31,26 @@ package com.raytheon.uf.viz.remote.graphics.events.rendering;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 9, 2012            mschenke     Initial creation
+ * May 17, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
+@DynamicSerialize
+public class DrawCirclesEvent extends
+        AbstractRemoteGraphicsBulkRenderEvent<DrawCircleEvent> {
 
-public interface IRenderEvent {
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent#getObjectClass()
+     */
     @Override
-    public abstract boolean equals(Object obj);
+    protected Class<DrawCircleEvent> getObjectClass() {
+        return DrawCircleEvent.class;
+    }
 
-    public abstract Object clone();
-
-    public abstract IRenderEvent createDiffObject(IRenderEvent event);
-
-    public abstract void applyDiffObject(IRenderEvent diffEvent);
 }
