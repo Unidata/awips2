@@ -1,0 +1,114 @@
+<project default="build" basedir=".">
+	<!-- private static variables -->
+	<property name="openfire.src"
+		value="openfire_src_3_7_1.tar.gz" />
+	<property name="openfire.src.dir"
+		value="${basedir}/tmp/build/openfire_src" />	
+	<property name="baseline.dir"
+		value="${basedir}/../" />
+	
+	<!-- optional command-line parameters -->
+	<property name="destination.directory"
+		value="" />
+	
+	<target name="clean">
+		<!-- Remove artifacts from a previous build, if they exist. -->
+		<if>
+			<available file="${basedir}/tmp" type="dir" />
+			<then>
+				<delete quiet="true" includeemptydirs="true">
+					<fileset dir="${basedir}/tmp" />
+				</delete>
+			</then>
+		</if>
+	</target>
+	
+	<target name="init" depends="clean">
+		<!-- Unpack the source in a temporary directory. -->
+		<mkdir dir="${basedir}/tmp/build" />
+		<!-- since untar is not working in this version of ant. -->
+		<exec executable="/bin/tar">
+			<arg value="-xf" />
+			<arg value="${basedir}/src/${openfire.src}" />
+			<arg value="-C" />
+			<arg value="${basedir}/tmp/build" />
+		</exec>
+	</target>
+	
+	<target name="build" depends="init">
+		<!-- Build openfire -->
+		<ant antfile="${openfire.src.dir}/build/build.xml"
+			dir="${openfire.src.dir}" />
+		
+		<!-- List plugins to build here. -->
+		<build.openfire.plugin
+			plugin.name="com.raytheon.openfire.plugin.configuration.collaboration" />
+		
+		<antcall target="clean" />
+	</target>
+	
+	<macrodef name="build.openfire.plugin">
+		<attribute name="plugin.name" />
+		
+		<sequential>
+			<!-- ensure that the plugin exists -->
+			<if>
+				<not>
+					<available file="${baseline.dir}/@{plugin.name}"
+						type="dir" />
+				</not>
+				<then>
+					<fail message="Error: the specified plugin '@{plugin.name}' does not exist." />
+				</then>
+			</if>
+			
+			<echo message="Building Openfire Plugin: @{plugin.name}" />
+			<!-- setup -->
+			<ant antfile="${baseline.dir}/@{plugin.name}/setup.xml" 
+				dir="${baseline.dir}/@{plugin.name}">
+				<property name="plugin.name"
+					value="@{plugin.name}" />
+				<property name="openfire.src.dir"
+					value="${openfire.src.dir}" />
+				<property name="baseline.dir"
+					value="${baseline.dir}" />
+			</ant>
+			
+			<!-- build the plugin -->
+			<ant antfile="${openfire.src.dir}/build/build.xml"
+				dir="${openfire.src.dir}" target="plugin">
+				<property name="plugin"
+					value="@{plugin.name}" />
+			</ant>
+			
+			<!-- verify that the plugin exists now. -->
+			<if>
+				<not>
+					<available 
+						file="${openfire.src.dir}/target/openfire/plugins/@{plugin.name}.jar" />
+				</not>
+				<then>
+					<fail 
+						message="Error: the plugin '@{plugin.name}.jar' cannot be found at the expected location." />
+				</then>
+			</if>
+			
+			
+			<!-- if specified, copy the plugin to the destination directory. -->
+			<if>
+				<not>
+					<equals arg1="${destination.directory}" arg2="" />
+				</not>
+				<then>
+					<copy todir="${destination.directory}">
+						<fileset
+							file="${openfire.src.dir}/target/openfire/plugins/@{plugin.name}.jar" />
+					</copy>
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/ant/lib/ant-contrib-1.0b3.jar" />
+</project>
