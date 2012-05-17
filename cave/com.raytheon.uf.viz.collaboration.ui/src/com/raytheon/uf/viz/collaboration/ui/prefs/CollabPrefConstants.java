@@ -46,4 +46,9 @@ public class CollabPrefConstants {
 
     public static final String P_MESSAGE = "message";
 
+    public class HttpCollaborationConfiguration {
+        public static final String P_SESSION_CONFIGURED = "http.sessionConfigured";
+        
+        public static final String P_HTTP_SESSION_URL = "http.sessionURL";
+    }
 }
