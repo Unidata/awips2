@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
-import java.util.Arrays;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -28,7 +26,7 @@ import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsBulkRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingMesh;
@@ -50,86 +48,40 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingMesh;
  * @version 1.0
  */
 @DynamicSerialize
-public class PaintImagesEvent extends AbstractRemoteGraphicsRenderEvent {
+public class PaintImagesEvent extends
+        AbstractRemoteGraphicsBulkRenderEvent<PaintImageEvent> {
 
     @DynamicSerializeElement
     private float alpha;
 
-    @DynamicSerializeElement
-    private PaintImageEvent[] imageEvents;
-
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent
+     * #createDiffObject(com.raytheon.uf.viz
+     * .remote.graphics.events.rendering.IRenderEvent)
      */
     @Override
     public PaintImagesEvent createDiffObject(IRenderEvent event) {
-        PaintImagesEvent diff = (PaintImagesEvent) event;
-        PaintImagesEvent diffEvent = new PaintImagesEvent();
-        diffEvent.alpha = diff.alpha;
-        if (diff.imageEvents != null) {
-            if (imageEvents != null
-                    && diff.imageEvents.length == imageEvents.length) {
-                diffEvent.imageEvents = new PaintImageEvent[diff.imageEvents.length];
-                for (int i = 0; i < imageEvents.length; ++i) {
-                    PaintImageEvent paintEvent = imageEvents[i];
-                    PaintImageEvent diffPaintEvent = diff.imageEvents[i];
-                    if (paintEvent.equals(diffPaintEvent) == false) {
-                        diffEvent.imageEvents[i] = paintEvent
-                                .createDiffObject(diffPaintEvent);
-                    }
-                }
-            } else {
-                diffEvent.imageEvents = diff.imageEvents;
-            }
-        }
-        return diffEvent;
+        PaintImagesEvent diffObject = (PaintImagesEvent) super
+                .createDiffObject(event);
+        diffObject.alpha = ((PaintImagesEvent) event).alpha;
+        return diffObject;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent
+     * #applyDiffObject(com.raytheon.uf.viz.
+     * remote.graphics.events.rendering.IRenderEvent)
      */
     @Override
     public void applyDiffObject(IRenderEvent diffEvent) {
-        PaintImagesEvent event = (PaintImagesEvent) diffEvent;
-        PaintImageEvent[] diffImageEvents = event.imageEvents;
-        alpha = event.alpha;
-        if (diffImageEvents == null) {
-            imageEvents = null;
-        } else if (imageEvents == null) {
-            imageEvents = event.imageEvents;
-        } else if (imageEvents.length != diffImageEvents.length) {
-            imageEvents = event.imageEvents;
-        } else {
-            for (int i = 0; i < imageEvents.length; ++i) {
-                PaintImageEvent diffPaintEvent = diffImageEvents[i];
-                if (diffPaintEvent != null) {
-                    imageEvents[i].applyDiffObject(diffPaintEvent);
-                }
-            }
-        }
-    }
-
-    /**
-     * @return the imageEvents
-     */
-    public PaintImageEvent[] getImageEvents() {
-        return imageEvents;
-    }
-
-    /**
-     * @param imageEvents
-     *            the imageEvents to set
-     */
-    public void setImageEvents(PaintImageEvent[] imageEvents) {
-        this.imageEvents = imageEvents;
+        super.applyDiffObject(diffEvent);
+        this.alpha = ((PaintImagesEvent) diffEvent).alpha;
     }
 
     /**
@@ -216,22 +168,44 @@ public class PaintImagesEvent extends AbstractRemoteGraphicsRenderEvent {
     /*
      * (non-Javadoc)
      * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent#getObjectClass()
+     */
+    @Override
+    protected Class<PaintImageEvent> getObjectClass() {
+        return PaintImageEvent.class;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
             return false;
         PaintImagesEvent other = (PaintImagesEvent) obj;
         if (Float.floatToIntBits(alpha) != Float.floatToIntBits(other.alpha))
             return false;
-        if (!Arrays.equals(imageEvents, other.imageEvents))
-            return false;
         return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent#clone()
+     */
+    @Override
+    public Object clone() {
+        PaintImagesEvent event = (PaintImagesEvent) super.clone();
+        event.alpha = alpha;
+        return event;
     }
 
 }

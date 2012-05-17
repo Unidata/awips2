@@ -75,6 +75,8 @@ import com.raytheon.uf.viz.remote.graphics.events.clipping.ClearClippingPane;
 import com.raytheon.uf.viz.remote.graphics.events.clipping.SetupClippingPane;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.DispatchingColorMapManager;
 import com.raytheon.uf.viz.remote.graphics.events.colormap.DrawColorRampEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCircleEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCirclesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
@@ -336,7 +338,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             strings[i].setDrawableString(param);
             ++i;
         }
-        event.setStrings(strings);
+        event.setObjects(strings);
         dispatch(event);
     }
 
@@ -420,7 +422,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
                     DrawShadedShapeEvent.class, (DispatchingShadedShape) shape);
             actualShapes[i] = shape.getWrappedObject();
         }
-        event.setShapes(shapeEvents);
+        event.setObjects(shapeEvents);
         dispatch(event);
 
         // Actual draw
@@ -587,6 +589,16 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawCircle(DrawableCircle... circles) throws VizException {
         wrappedObject.drawCircle(circles);
+        DrawCirclesEvent event = RemoteGraphicsEventFactory.createEvent(
+                DrawCirclesEvent.class, this);
+        DrawCircleEvent[] events = new DrawCircleEvent[circles.length];
+        for (int i = 0; i < circles.length; ++i) {
+            events[i] = RemoteGraphicsEventFactory.createEvent(
+                    DrawCircleEvent.class, this);
+            events[i].setDrawableCircle(circles[i]);
+        }
+        event.setObjects(events);
+        dispatch(event);
     }
 
     /**
@@ -606,7 +618,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      * @param color
      * @param width
      * @param startAzimuth
-     * @param arcWidth
+     * @param endAzimuth
      * @param lineStyle
      * @param includeSides
      * @throws VizException
@@ -614,11 +626,24 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      *      double, double, org.eclipse.swt.graphics.RGB, float, int, int,
      *      com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle, boolean)
      */
+    @Deprecated
     public void drawArc(double x1, double y1, double z1, double radius,
-            RGB color, float width, int startAzimuth, int arcWidth,
+            RGB color, float width, int startAzimuth, int endAzimuth,
             LineStyle lineStyle, boolean includeSides) throws VizException {
-        wrappedObject.drawArc(x1, y1, z1, radius, color, width, startAzimuth,
-                arcWidth, lineStyle, includeSides);
+        DrawableCircle dc = new DrawableCircle();
+        dc.setCoordinates(x1, y1, z1);
+        dc.basics.color = color;
+        dc.lineStyle = lineStyle;
+        dc.startAzimuth = startAzimuth;
+        dc.endAzimuth = endAzimuth;
+        if (startAzimuth > endAzimuth) {
+            endAzimuth += 360;
+        }
+        dc.numberOfPoints = endAzimuth - startAzimuth;
+        dc.includeSides = includeSides;
+        dc.lineWidth = width;
+        dc.radius = radius;
+        drawCircle(dc);
     }
 
     /**
