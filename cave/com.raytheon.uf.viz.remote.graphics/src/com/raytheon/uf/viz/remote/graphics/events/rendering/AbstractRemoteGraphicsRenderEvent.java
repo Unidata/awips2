@@ -53,6 +53,23 @@ public abstract class AbstractRemoteGraphicsRenderEvent extends
         return event;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() {
+        try {
+            AbstractRemoteGraphicsRenderEvent newInstance = getClass()
+                    .newInstance();
+            newInstance.applyDiffObject(this);
+            return newInstance;
+        } catch (Exception e) {
+            throw new RuntimeException("Error cloning render event", e);
+        }
+    }
+
     @Override
     public abstract boolean equals(Object obj);
 

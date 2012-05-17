@@ -598,23 +598,21 @@ public class GLTarget implements IGLTarget {
     public void drawArc(double x1, double y1, double z1, double radius,
             RGB color, float width, int startAzimuth, int endAzimuth,
             LineStyle lineStyle, boolean includeSides) throws VizException {
-        this.pushGLState();
-        try {
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
-            handleLineStyle(lineStyle);
-            gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                    color.blue / 255.0, 1.0);
-            gl.glLineWidth(width);
-            gl.glBegin(GL.GL_LINE_STRIP);
-
-            for (double i = startAzimuth; i <= endAzimuth; i++) {
-                double[] pointOnCircle = getPointOnCircle(x1, y1, z1, radius, i);
-                gl.glVertex2d(pointOnCircle[0], pointOnCircle[1]);
-            }
-            gl.glEnd();
-        } finally {
-            this.popGLState();
+        DrawableCircle dc = new DrawableCircle();
+        dc.setCoordinates(x1, y1, z1);
+        dc.basics.color = color;
+        dc.lineStyle = lineStyle;
+        dc.startAzimuth = startAzimuth;
+        dc.endAzimuth = endAzimuth;
+        if (startAzimuth > endAzimuth) {
+            dc.numberOfPoints = (endAzimuth + 360) - startAzimuth;
+        } else {
+            dc.numberOfPoints = endAzimuth - startAzimuth;
         }
+        dc.includeSides = includeSides;
+        dc.lineWidth = width;
+        dc.radius = radius;
+        drawCircle(dc);
     }
 
     /*
@@ -2184,7 +2182,7 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void setView(IView view) {
-        this.targetView = view;
+        this.targetView = (IView) view.clone();
         this.targetView.setupView(this);
     }
 
