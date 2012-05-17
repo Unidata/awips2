@@ -89,7 +89,7 @@ public abstract class AbstractSessionView extends ViewPart {
 
     private UserId[] userIds = null;
 
-    private SessionMsgArchive msgArchive = new SessionMsgArchive();
+    private SessionMsgArchive msgArchive;
 
     protected abstract String getSessionImageName();
 
@@ -281,8 +281,10 @@ public abstract class AbstractSessionView extends ViewPart {
         styleAndAppendText(sb, offset, name, userId, ranges);
         // room for other fun things here, such as sounds and such
         executeSightsSounds();
-        msgArchive.archive(sb.toString(), timestamp, getName(),
-                userId.getHost());
+        if (msgArchive == null) {
+            msgArchive = getMessageArchive();
+        }
+        msgArchive.archive(sb.toString());
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
@@ -328,7 +330,10 @@ public abstract class AbstractSessionView extends ViewPart {
         }
         imageMap.clear();
         imageMap = null;
-        msgArchive.save();
+        if (msgArchive != null) {
+            msgArchive.close();
+            msgArchive = null;
+        }
         super.dispose();
     }
 
@@ -369,5 +374,5 @@ public abstract class AbstractSessionView extends ViewPart {
         this.userIds = userIds;
     }
 
-    protected abstract String getName();
+    protected abstract SessionMsgArchive getMessageArchive();
 }
