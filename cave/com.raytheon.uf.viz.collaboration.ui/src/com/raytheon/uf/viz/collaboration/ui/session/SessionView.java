@@ -674,4 +674,9 @@ public class SessionView extends AbstractSessionView {
             }
         }
     }
+
+    @Override
+    protected String getName() {
+        return getSessionName() + "{" + sessionId + "}";
+    }
 }
