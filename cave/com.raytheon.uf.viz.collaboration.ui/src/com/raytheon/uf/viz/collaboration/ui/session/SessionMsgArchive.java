@@ -19,10 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -33,7 +30,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 /**
  * Message archiver for a collaboration session. Archives messages to
@@ -54,79 +52,42 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
  */
 
 public class SessionMsgArchive {
-    Calendar archiveDate = null;
 
-    LocalizationFile logFile = null;
+    private static final String LOG_DIR = "collaboration"
+            + IPathManager.SEPARATOR + "logs";
 
-    synchronized private LocalizationFile getLocalizationLogFile(
-            long timestamp, String sessionId, String host) {
-        boolean createNew = (archiveDate == null || logFile == null);
+    private LocalizationFile logFile;
+
+    private StringBuffer log;
+
+    public SessionMsgArchive(String hostName, String userId, String sessionName) {
+        String logFilePath = LOG_DIR + IPathManager.SEPARATOR + hostName
+                + IPathManager.SEPARATOR + userId + IPathManager.SEPARATOR
+                + sessionName;
         Calendar gmtTimestamp = Calendar.getInstance(TimeZone
                 .getTimeZone("GMT"));
-        gmtTimestamp.setTimeInMillis(timestamp);
+        String logFileName = new SimpleDateFormat("yyyy-MM-dd.hhmmss")
+                .format(gmtTimestamp.getTime()) + ".txt";
 
-        if (archiveDate != null
-                && archiveDate.get(Calendar.DAY_OF_YEAR) != gmtTimestamp
-                        .get(Calendar.DAY_OF_YEAR)) {
-            // roll log to new date
-            if (logFile != null) {
-                try {
-                    logFile.save();
-                } catch (LocalizationOpFailedException e) {
-                    e.printStackTrace();
-                }
-                archiveDate = gmtTimestamp;
-                createNew = true;
-            }
-        }
-
-        if (createNew) {
-            String dirName = "collaboration" + File.separator + sessionId + "@"
-                    + host + File.separator;
-            // 2012-05-16.txt
-            String date = String.format("%1$tY-%1$tm-%1$td", gmtTimestamp);
-            String fileName = dirName + date + ".txt";
-
-            IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext ctx = pm.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-            logFile = pm.getLocalizationFile(ctx, fileName);
-        }
-        return logFile;
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext ctx = pm.getContext(LocalizationType.CAVE_STATIC,
+                LocalizationLevel.USER);
+        logFile = pm.getLocalizationFile(ctx, logFilePath
+                + IPathManager.SEPARATOR + logFileName);
+        log = new StringBuffer();
     }
 
-    public void save() {
-        if (logFile != null) {
-            try {
-                logFile.save();
-            } catch (LocalizationOpFailedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void archive(String string, long timestamp, String sessionId,
-            String host) {
-        LocalizationFile outFile = getLocalizationLogFile(timestamp, sessionId,
-                host);
-        OutputStream os = null;
+    public void close() {
+        // Write log contents to logFile
         try {
-            os = outFile.openOutputStream(true);
-            os.write(string.getBytes());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            logFile.write(log.toString().getBytes());
         } catch (LocalizationException e) {
-            e.printStackTrace();
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    "Error writing log file: " + e.getLocalizedMessage(), e);
         }
+    }
+
+    public void archive(String string) {
+        log.append(string).append('\n');
     }
 }
