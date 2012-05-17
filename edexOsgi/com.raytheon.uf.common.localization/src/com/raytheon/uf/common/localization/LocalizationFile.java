@@ -323,11 +323,7 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
      * @throws LocalizationException
      */
     public OutputStream openOutputStream() throws LocalizationException {
-        try {
-            return new LocalizationFileOutputStream(this);
-        } catch (FileNotFoundException e) {
-            throw new LocalizationException("Error opening input stream", e);
-        }
+        return openOutputStream(false);
     }
 
     /**
