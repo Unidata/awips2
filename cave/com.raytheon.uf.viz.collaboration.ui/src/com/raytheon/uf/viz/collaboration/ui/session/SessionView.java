@@ -675,8 +675,17 @@ public class SessionView extends AbstractSessionView {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * getMessageArchive()
+     */
     @Override
-    protected String getName() {
-        return getSessionName() + "{" + sessionId + "}";
+    protected SessionMsgArchive getMessageArchive() {
+        String sessionName = getSessionName();
+        UserId me = session.getUserID();
+        return new SessionMsgArchive(me.getHost(), me.getName(), sessionName);
     }
+
 }
