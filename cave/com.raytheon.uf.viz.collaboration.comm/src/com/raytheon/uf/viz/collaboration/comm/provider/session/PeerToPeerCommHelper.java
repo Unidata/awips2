@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.eclipse.ecf.presence.IIMMessageEvent;
 import org.eclipse.ecf.presence.IIMMessageListener;
@@ -38,6 +39,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.HttpdCollaborationConfigurationEvent;
 
 /**
  * Listens for peer to peer messages and routes them appropriately.
@@ -87,6 +90,8 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
             if (body != null) {
                 if (body.startsWith(Tools.CMD_PREAMBLE)) {
                     routeData(msg);
+                } else if (body.startsWith(Tools.CONFIG_PREAMBLE)) {
+                    this.handleConfiguration(body);
                 } else {
                     // anything else pass to the normal text
                     routeMessage(msg);
@@ -165,5 +170,47 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
                 session.getEventPublisher().post(chatEvent);
             }
         }
+    }
+
+    private void handleConfiguration(String body) {
+        final String parameterName = "sessionDataHttpURL";
+        final String suffix = "]]";
+        // Validate the configuration.
+        final String configPatternRegex = Tools.CONFIG_PREAMBLE.replace("[", "\\[")
+                + parameterName + " : .+" + suffix;
+        Pattern configPattern = Pattern.compile(configPatternRegex);
+        if (configPattern.matcher(body).matches() == false) {
+            statusHandler.handle(UFStatus.Priority.PROBLEM,
+                    "Received invalid configuration from openfire.");
+        }
+
+        // Eliminate the preamble.
+        String encodedConfiguration = body.replace(Tools.CONFIG_PREAMBLE, "");
+        // Eliminate the suffix: ]]
+        encodedConfiguration = encodedConfiguration.substring(0,
+                encodedConfiguration.length() - 2);
+
+        // Currently, we are only receiving one configurable element.
+
+        // JSON would be preferable.
+        // sessionDataHttpURL : [URL]
+
+        // Remove the parameter name.
+        String httpdCollaborationURL = encodedConfiguration.replace(
+                parameterName + " :", "").trim();
+        final String collaborationURLRegex = "http://.+:[1-9][0-9]*/session_data/";
+        // validate the url.
+        Pattern urlPattern = Pattern.compile(collaborationURLRegex);
+        if (urlPattern.matcher(httpdCollaborationURL).matches() == false) {
+            statusHandler.handle(UFStatus.Priority.PROBLEM,
+                    "Received an invalid http url from openfire - "
+                            + httpdCollaborationURL + ".");
+            return;
+        }
+
+        // configuration is valid; publish it.
+        IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
+                httpdCollaborationURL);
+        manager.getEventPublisher().post(configurationEvent);
     }
 }
