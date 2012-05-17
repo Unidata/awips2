@@ -19,11 +19,9 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.shapes;
 
-import java.util.Arrays;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
+import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsBulkRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 
 /**
@@ -43,7 +41,8 @@ import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class DrawShadedShapesEvent extends AbstractRemoteGraphicsRenderEvent {
+public class DrawShadedShapesEvent extends
+        AbstractRemoteGraphicsBulkRenderEvent<DrawShadedShapeEvent> {
 
     @DynamicSerializeElement
     private float alpha;
@@ -51,67 +50,38 @@ public class DrawShadedShapesEvent extends AbstractRemoteGraphicsRenderEvent {
     @DynamicSerializeElement
     private float brightness;
 
-    @DynamicSerializeElement
-    private DrawShadedShapeEvent[] shapes;
-
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#createDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent
+     * #createDiffObject(com.raytheon.uf.viz
+     * .remote.graphics.events.rendering.IRenderEvent)
      */
     @Override
     public DrawShadedShapesEvent createDiffObject(IRenderEvent event) {
-        DrawShadedShapesEvent diff = (DrawShadedShapesEvent) event;
-        DrawShadedShapesEvent diffEvent = new DrawShadedShapesEvent();
-        if (diff.shapes != null) {
-            if (shapes != null && diff.shapes.length == shapes.length) {
-                diffEvent.shapes = new DrawShadedShapeEvent[diff.shapes.length];
-                for (int i = 0; i < shapes.length; ++i) {
-                    DrawShadedShapeEvent paintEvent = shapes[i];
-                    DrawShadedShapeEvent diffPaintEvent = diff.shapes[i];
-                    if (paintEvent.equals(diffPaintEvent) == false) {
-                        diffEvent.shapes[i] = paintEvent
-                                .createDiffObject(diffPaintEvent);
-                    }
-                }
-            } else {
-                diffEvent.shapes = diff.shapes;
-            }
-        }
-        diffEvent.alpha = diff.alpha;
-        diffEvent.brightness = diff.brightness;
-        return diffEvent;
+        DrawShadedShapesEvent diffEvent = (DrawShadedShapesEvent) event;
+        DrawShadedShapesEvent diffObject = (DrawShadedShapesEvent) super
+                .createDiffObject(diffEvent);
+        diffObject.alpha = diffEvent.alpha;
+        diffObject.brightness = diffEvent.brightness;
+        return diffObject;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.remote.graphics.events.IRenderEvent#applyDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.IRenderEvent)
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent
+     * #applyDiffObject(com.raytheon.uf.viz.
+     * remote.graphics.events.rendering.IRenderEvent)
      */
     @Override
     public void applyDiffObject(IRenderEvent diffEvent) {
-        DrawShadedShapesEvent event = (DrawShadedShapesEvent) diffEvent;
-        DrawShadedShapeEvent[] diffImageEvents = event.shapes;
-        if (diffImageEvents == null) {
-            shapes = null;
-        } else if (shapes == null) {
-            shapes = event.shapes;
-        } else if (shapes.length != diffImageEvents.length) {
-            shapes = event.shapes;
-        } else {
-            for (int i = 0; i < shapes.length; ++i) {
-                DrawShadedShapeEvent diffPaintEvent = diffImageEvents[i];
-                if (diffPaintEvent != null) {
-                    shapes[i].applyDiffObject(diffPaintEvent);
-                }
-            }
-        }
-        alpha = event.alpha;
-        brightness = event.brightness;
+        super.applyDiffObject(diffEvent);
+        DrawShadedShapesEvent diffObject = (DrawShadedShapesEvent) diffEvent;
+        this.alpha = diffObject.alpha;
+        this.brightness = diffObject.brightness;
     }
 
     /**
@@ -144,19 +114,15 @@ public class DrawShadedShapesEvent extends AbstractRemoteGraphicsRenderEvent {
         this.brightness = brightness;
     }
 
-    /**
-     * @return the shapes
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent#getObjectClass()
      */
-    public DrawShadedShapeEvent[] getShapes() {
-        return shapes;
-    }
-
-    /**
-     * @param shapes
-     *            the shapes to set
-     */
-    public void setShapes(DrawShadedShapeEvent[] shapes) {
-        this.shapes = shapes;
+    @Override
+    protected Class<DrawShadedShapeEvent> getObjectClass() {
+        return DrawShadedShapeEvent.class;
     }
 
     /*
@@ -168,7 +134,7 @@ public class DrawShadedShapesEvent extends AbstractRemoteGraphicsRenderEvent {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (!super.equals(obj))
             return false;
         if (getClass() != obj.getClass())
             return false;
@@ -178,9 +144,21 @@ public class DrawShadedShapesEvent extends AbstractRemoteGraphicsRenderEvent {
         if (Float.floatToIntBits(brightness) != Float
                 .floatToIntBits(other.brightness))
             return false;
-        if (!Arrays.equals(shapes, other.shapes))
-            return false;
         return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.
+     * AbstractRemoteGraphicsBulkRenderEvent#clone()
+     */
+    @Override
+    public Object clone() {
+        DrawShadedShapesEvent event = (DrawShadedShapesEvent) super.clone();
+        event.alpha = alpha;
+        event.brightness = brightness;
+        return event;
     }
 
 }
