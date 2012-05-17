@@ -55,6 +55,8 @@ public abstract class Tools {
     public static final String PROP_SESSION_ID = "sessionId";
 
     public static final String CMD_PREAMBLE = "[[COMMAND#";
+    
+    public static final String CONFIG_PREAMBLE = "[[CONFIG#";
 
     private static final String ENV_THRIFT = CMD_PREAMBLE
             + SerializationMode.THRIFT.name() + "]]";
