@@ -77,6 +77,8 @@ import com.raytheon.uf.viz.remote.graphics.events.colormap.DispatchingColorMapMa
 import com.raytheon.uf.viz.remote.graphics.events.colormap.DrawColorRampEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCircleEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCirclesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLineEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLinesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
@@ -608,6 +610,16 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawLine(DrawableLine... lines) throws VizException {
         wrappedObject.drawLine(lines);
+        DrawLinesEvent event = RemoteGraphicsEventFactory.createEvent(
+                DrawLinesEvent.class, this);
+        DrawLineEvent[] events = new DrawLineEvent[lines.length];
+        for (int i = 0; i < lines.length; ++i) {
+            events[i] = RemoteGraphicsEventFactory.createEvent(
+                    DrawLineEvent.class, this);
+            events[i].setDrawableLine(lines[i]);
+        }
+        event.setObjects(events);
+        dispatch(event);
     }
 
     /**
@@ -978,13 +990,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         wrappedObject.drawColorRamp(colorMap);
         DrawColorRampEvent event = RemoteGraphicsEventFactory.createEvent(
                 DrawColorRampEvent.class, this);
-        event.setColorMapId(DispatchingColorMapManager.getInstance(
-                getDispatcher()).getColorMapId(colorMap.getColorMapParams()));
-        event.setAlpha(colorMap.alpha);
-        event.setBrightness(colorMap.brightness);
-        event.setContrast(colorMap.contrast);
-        event.setInterpolate(colorMap.interpolate);
-        event.setExtent(colorMap.extent);
+        event.setDrawableColorMap(colorMap,
+                DispatchingColorMapManager.getInstance(getDispatcher())
+                        .getColorMapId(colorMap.getColorMapParams()));
         dispatch(event);
     }
 
@@ -1334,7 +1342,13 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawLine(double x1, double y1, double z1, double x2, double y2,
             double z2, RGB color, float width, LineStyle lineStyle)
             throws VizException {
-        wrappedObject.drawLine(x1, y1, z1, x2, y2, z2, color, width, lineStyle);
+        DrawableLine dl = new DrawableLine();
+        dl.addPoint(x1, y1, z1);
+        dl.addPoint(x2, y2, z2);
+        dl.basics.color = color;
+        dl.width = width;
+        dl.lineStyle = lineStyle;
+        drawLine(dl);
     }
 
     /**
@@ -1353,7 +1367,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawLine(double x1, double y1, double z1, double x2, double y2,
             double z2, RGB color, float width) throws VizException {
-        wrappedObject.drawLine(x1, y1, z1, x2, y2, z2, color, width);
+        drawLine(x1, y1, z1, x2, y2, z2, color, width, LineStyle.DEFAULT);
     }
 
     /*
