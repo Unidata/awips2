@@ -53,61 +53,6 @@ import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 @DynamicSerialize
 public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
 
-    @DynamicSerialize
-    public static class Point {
-
-        @DynamicSerializeElement
-        private double[] point;
-
-        /**
-         * @return the point
-         */
-        public double[] getPoint() {
-            return point;
-        }
-
-        /**
-         * @param point
-         *            the point to set
-         */
-        public void setPoint(double[] point) {
-            this.point = point;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Object#hashCode()
-         */
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + Arrays.hashCode(point);
-            return result;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Object#equals(java.lang.Object)
-         */
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Point other = (Point) obj;
-            if (!Arrays.equals(point, other.point))
-                return false;
-            return true;
-        }
-
-    }
-
     @DynamicSerializeElement
     private Set<Point> points = new HashSet<Point>();
 
