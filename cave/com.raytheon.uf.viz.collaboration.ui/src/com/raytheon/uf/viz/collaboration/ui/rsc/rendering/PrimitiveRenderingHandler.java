@@ -24,14 +24,16 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCircleEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCirclesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLineEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLinesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawRectEvent;
 
 /**
- * Rendering handler for primitive shapes (lines, rectangles, circles, etc)
+ * Rendering handler for primitive shapes (lines, rectangles, circles)
  * 
  * <pre>
  * 
@@ -73,6 +75,23 @@ public class PrimitiveRenderingHandler extends CollaborationRenderingHandler {
         }
         try {
             getGraphicsTarget().drawLine(lines);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Subscribe
+    public void drawRect(DrawRectEvent event) {
+        IGraphicsTarget target = getGraphicsTarget();
+        try {
+            if (event.getFilled()) {
+                target.drawShadedRect(event.getExtent(), event.getColor(),
+                        event.getAlpha(), event.getFillPattern());
+            } else {
+                target.drawRect(event.getExtent(), event.getColor(),
+                        event.getLineWidth(), event.getAlpha());
+            }
         } catch (VizException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
