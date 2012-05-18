@@ -179,5 +179,10 @@
             class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationPreferencePage"
             id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"
             name="Collaboration"/>
+      <page
+            class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationAlertWordsPreferencePage"
+            id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationalertwordspreferencepage"
+            name="Significant Words"
+            category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
    </extension>
 </plugin>
