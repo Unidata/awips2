@@ -23,9 +23,12 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.DrawableCircle;
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCircleEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCirclesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLineEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLinesEvent;
 
 /**
  * Rendering handler for primitive shapes (lines, rectangles, circles, etc)
@@ -55,6 +58,21 @@ public class PrimitiveRenderingHandler extends CollaborationRenderingHandler {
         }
         try {
             getGraphicsTarget().drawCircle(circles);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Subscribe
+    public void drawLines(DrawLinesEvent event) {
+        DrawLineEvent[] events = event.getObjects();
+        DrawableLine[] lines = new DrawableLine[events.length];
+        for (int i = 0; i < events.length; ++i) {
+            lines[i] = events[i].getDrawableLine();
+        }
+        try {
+            getGraphicsTarget().drawLine(lines);
         } catch (VizException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);

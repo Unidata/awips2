@@ -102,29 +102,29 @@ public class DrawCircleEvent extends AbstractRemoteGraphicsRenderEvent {
         DrawCircleEvent diffObject = new DrawCircleEvent();
         if (Arrays.equals(location, diffEvent.location) == false)
             diffObject.location = diffEvent.location;
-        if (color.equals(diffEvent.color) == false)
+        if (!equals(color, diffObject.color))
             diffObject.color = diffEvent.color;
-        if (alpha != diffEvent.alpha)
+        if (!equals(alpha, diffObject.alpha))
             diffObject.alpha = diffEvent.alpha;
-        if (xorColors != diffEvent.xorColors)
+        if (!equals(xorColors, diffObject.xorColors))
             diffObject.xorColors = diffEvent.xorColors;
-        if (filled != diffEvent.filled)
+        if (!equals(filled, diffObject.filled))
             diffObject.filled = diffEvent.filled;
-        if (startAzimuth != diffEvent.startAzimuth)
+        if (!equals(startAzimuth, diffObject.startAzimuth))
             diffObject.startAzimuth = diffEvent.startAzimuth;
-        if (endAzimuth != diffEvent.endAzimuth)
+        if (!equals(endAzimuth, diffObject.endAzimuth))
             diffObject.endAzimuth = diffEvent.endAzimuth;
-        if (numberOfPoints != diffEvent.numberOfPoints)
+        if (!equals(numberOfPoints, diffObject.numberOfPoints))
             diffObject.numberOfPoints = diffEvent.numberOfPoints;
-        if (radius != diffEvent.radius)
+        if (!equals(radius, diffObject.radius))
             diffObject.radius = diffEvent.radius;
-        if (screenRadius != diffEvent.screenRadius)
+        if (!equals(screenRadius, diffEvent.screenRadius))
             diffObject.screenRadius = diffEvent.screenRadius;
-        if (lineStyle != diffEvent.lineStyle)
+        if (!equals(lineStyle, diffObject.lineStyle))
             diffObject.lineStyle = diffEvent.lineStyle;
-        if (lineWidth != diffEvent.lineWidth)
+        if (!equals(lineWidth, diffObject.lineWidth))
             diffObject.lineWidth = diffEvent.lineWidth;
-        if (includeSides != diffEvent.includeSides)
+        if (!equals(includeSides, diffObject.includeSides))
             diffObject.includeSides = diffEvent.includeSides;
         return diffObject;
     }

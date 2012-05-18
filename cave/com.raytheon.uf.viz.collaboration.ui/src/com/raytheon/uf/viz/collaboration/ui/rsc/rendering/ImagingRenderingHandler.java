@@ -27,7 +27,6 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
@@ -369,14 +368,8 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
         IColorMap colorMap = dataManager.getRenderableObject(
                 event.getColorMapId(), IColorMap.class);
         if (colorMap != null) {
-            DrawableColorMap cmap = new DrawableColorMap(colorMap);
-            cmap.alpha = event.getAlpha();
-            cmap.brightness = event.getBrightness();
-            cmap.contrast = event.getContrast();
-            cmap.interpolate = event.isInterpolate();
-            cmap.extent = event.getExtent();
             try {
-                target.drawColorRamp(cmap);
+                target.drawColorRamp(event.getDrawableColorMap(colorMap));
             } catch (VizException e) {
                 Activator.statusHandler.handle(Priority.PROBLEM,
                         e.getLocalizedMessage(), e);
