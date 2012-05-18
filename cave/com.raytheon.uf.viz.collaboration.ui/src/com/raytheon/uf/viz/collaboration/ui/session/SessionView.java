@@ -667,7 +667,8 @@ public class SessionView extends AbstractSessionView {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
         if (users != null) {
             for (IRosterEntry entry : users) {
-                if (entry.getUser().equals(participant)) {
+                UserId id = IDConverter.convertFrom(entry.getUser());
+                if (id.equals(participant)) {
                     ((RosterEntry) entry).setPresence(presence);
                     usersTable.refresh(entry);
                 }
