@@ -20,8 +20,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  * further licensing information.
  **/
 
-import java.util.Collection;
-
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.jface.action.Action;
@@ -258,24 +256,6 @@ public class CollaborationSessionView extends SessionView {
     @Override
     protected String getSessionImageName() {
         return COLLABORATION_SESSION_IMAGE_NAME;
-    }
-
-    @Override
-    protected Collection<String> findAlertWords(StringBuilder builder,
-            int offset) {
-        // TODO
-        // 1) if needed read in localized list of key words/sounds
-        // 2) search builder starting at offset for key works. besides the key
-        // words found may also want to return the location(s) of where they are
-        // found along with the sound to used.
-        return super.findAlertWords(builder, offset);
-    }
-
-    @Override
-    protected void executeSightsSounds() {
-        // TODO From the alert words found determine what sound to play and for
-        // how long?
-        super.executeSightsSounds();
     }
 
     /*
