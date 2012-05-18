@@ -25,6 +25,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -105,6 +106,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionContainer;
@@ -1223,6 +1225,18 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 }
             }
         });
+    }
+
+    @Subscribe
+    public void addAlertWords(AlertWordWrapper words) {
+        for (IViewReference ref : getViewSite().getWorkbenchWindow()
+                .getActivePage().getViewReferences()) {
+            IViewPart viewPart = ref.getView(false);
+            if (viewPart instanceof AbstractSessionView) {
+                ((AbstractSessionView) viewPart).setAlertWords(Arrays
+                        .asList(words.getAlertWords()));
+            }
+        }
     }
 
     @Subscribe

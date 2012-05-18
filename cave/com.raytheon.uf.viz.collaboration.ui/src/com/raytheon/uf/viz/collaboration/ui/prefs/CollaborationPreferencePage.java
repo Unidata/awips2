@@ -19,9 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -50,11 +47,8 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 public class CollaborationPreferencePage extends FieldEditorPreferencePage
         implements IWorkbenchPreferencePage {
 
-    private List<FieldEditor> editors = null;
-
     public CollaborationPreferencePage() {
         super(GRID);
-        editors = new ArrayList<FieldEditor>();
     }
 
     /*
@@ -72,52 +66,14 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.jface.preference.FieldEditorPreferencePage#performOk()
-     */
-    @Override
-    public boolean performOk() {
-        for (FieldEditor editor : editors) {
-            editor.store();
-        }
-        return super.performOk();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors
      * ()
      */
     @Override
     protected void createFieldEditors() {
-
         FieldEditor notifications = new BooleanFieldEditor("notifications",
                 "Show Notifications", getFieldEditorParent());
         this.addField(notifications);
-
-        // ListEditor significant = new ListEditor("significantwords",
-        // "Significant Words", getFieldEditorParent()) {
-        //
-        // @Override
-        // protected String[] parseString(String stringList) {
-        // return new String[0];
-        // }
-        //
-        // @Override
-        // protected String getNewInputObject() {
-        // return "STRING";
-        // }
-        //
-        // @Override
-        // protected String createList(String[] items) {
-        // return "TEST";
-        // }
-        // };
-        // significant.getButtonBoxControl(getFieldEditorParent()).getChildren()[2]
-        // .setVisible(false);
-        // significant.getButtonBoxControl(getFieldEditorParent()).getChildren()[3]
-        // .setVisible(false);
-        // this.addField(significant);
     }
 }
