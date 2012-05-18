@@ -73,4 +73,12 @@ public abstract class AbstractRemoteGraphicsRenderEvent extends
     @Override
     public abstract boolean equals(Object obj);
 
+    protected static boolean equals(Object one, Object two) {
+        if (one == two) {
+            return true;
+        } else if (one != null && one.equals(two)) {
+            return true;
+        }
+        return false;
+    }
 }
