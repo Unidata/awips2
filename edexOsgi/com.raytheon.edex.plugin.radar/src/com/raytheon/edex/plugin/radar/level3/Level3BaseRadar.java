@@ -38,6 +38,7 @@ import org.apache.tools.bzip2.CBZip2InputStream;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
+import com.raytheon.edex.plugin.radar.util.RadarEdexTextProductUtil;
 import com.raytheon.uf.common.dataplugin.radar.RadarStation;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertAdaptationParameters;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertMessage;
@@ -822,7 +823,7 @@ public class Level3BaseRadar {
                 AFOSProductId afos = new AFOSProductId(afosId);
                 if (afos.isFilled()) {
                     try {
-                        RadarTextProductUtil.storeTextProduct(afos, header,
+                        RadarEdexTextProductUtil.storeTextProduct(afos, header,
                                 tabularBlock.getString(), true,
                                 Calendar.getInstance());
                     } catch (Exception e) {
@@ -913,7 +914,7 @@ public class Level3BaseRadar {
             AFOSProductId afos = new AFOSProductId(afosId);
             if (afos.isFilled()) {
                 try {
-                    RadarTextProductUtil.storeTextProduct(afos, header,
+                    RadarEdexTextProductUtil.storeTextProduct(afos, header,
                             tabularBlock.getString(), true,
                             Calendar.getInstance());
                 } catch (Exception e) {
