@@ -117,9 +117,6 @@ public class PathToolbar extends CaveSWTDialog {
     protected PathToolbar(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | CAVE.DO_NOT_BLOCK);
         setText("Drawing");
-        lastTool = VizPerspectiveListener.getCurrentPerspectiveManager()
-                .getToolManager().getSelectedModalTool(EDIT_TOOL_CATEGY);
-
     }
 
     /*
@@ -131,6 +128,8 @@ public class PathToolbar extends CaveSWTDialog {
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        lastTool = VizPerspectiveListener.getCurrentPerspectiveManager()
+                .getToolManager().getSelectedModalTool(EDIT_TOOL_CATEGY);
         shell.addShellListener(new ShellAdapter() {
             @Override
             public void shellClosed(ShellEvent e) {
