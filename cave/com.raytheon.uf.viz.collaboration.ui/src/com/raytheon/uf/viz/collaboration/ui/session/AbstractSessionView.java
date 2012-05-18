@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -112,7 +111,7 @@ public abstract class AbstractSessionView extends ViewPart {
     private UserId[] userIds = null;
 
     private SessionMsgArchive msgArchive;
-    
+
     private List<AlertWord> alertWords = null;
 
     private AudioDataStream ads = null;
@@ -390,32 +389,6 @@ public abstract class AbstractSessionView extends ViewPart {
             as = new AudioStream(in);
             data = as.getData();
             ads = new AudioDataStream(data);
-            Field field = null;
-            try {
-                field = AudioPlayer.player.getClass().getDeclaredField("DEBUG");
-                field.setAccessible(true);
-                field.setBoolean(field, true);
-            } catch (SecurityException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (NoSuchFieldException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
             AudioPlayer.player.start(ads);
         } catch (FileNotFoundException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to find sound file",
@@ -424,7 +397,6 @@ public abstract class AbstractSessionView extends ViewPart {
             statusHandler.handle(Priority.PROBLEM, "Unable to read sound file",
                     e);
         }
-        System.out.println("\n\nNew\n\n");
     }
 
     /*
@@ -458,7 +430,7 @@ public abstract class AbstractSessionView extends ViewPart {
         imageMap.clear();
         imageMap = null;
         alertWords = null;
-      if (msgArchive != null) {
+        if (msgArchive != null) {
             msgArchive.close();
             msgArchive = null;
         }
@@ -503,9 +475,9 @@ public abstract class AbstractSessionView extends ViewPart {
         this.userIds = userIds;
     }
 
-     public void setAlertWords(List<AlertWord> words) {
+    public void setAlertWords(List<AlertWord> words) {
         alertWords = words;
     }
-   
+
     protected abstract SessionMsgArchive getMessageArchive();
 }
