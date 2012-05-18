@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCircleEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawCirclesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLineEvent;
 import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawLinesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.drawables.DrawRectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.CreateIImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.points.DrawPointsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
@@ -568,6 +569,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawRect(IExtent pe, RGB color, float lineWidth, double alpha)
             throws VizException {
         wrappedObject.drawRect(pe, color, lineWidth, alpha);
+        drawRect(pe, color, (float) alpha, 1.0f, false, null);
     }
 
     /**
@@ -582,6 +584,20 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawShadedRect(IExtent pe, RGB color, double alpha,
             byte[] pattern) throws VizException {
         wrappedObject.drawShadedRect(pe, color, alpha, pattern);
+        drawRect(pe, color, (float) alpha, 1.0f, true, pattern);
+    }
+
+    private void drawRect(IExtent pe, RGB color, float alpha, float lineWidth,
+            boolean filled, byte[] pattern) {
+        DrawRectEvent event = RemoteGraphicsEventFactory.createEvent(
+                DrawRectEvent.class, this);
+        event.setExtent(pe);
+        event.setColor(color);
+        event.setAlpha(alpha);
+        event.setLineWidth(lineWidth);
+        event.setFilled(filled);
+        event.setFillPattern(pattern);
+        dispatch(event);
     }
 
     /**
