@@ -19,13 +19,19 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
@@ -35,7 +41,11 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -44,8 +54,17 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
+import sun.audio.AudioData;
+import sun.audio.AudioDataStream;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
+
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.data.AlertWord;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
@@ -71,6 +90,9 @@ import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
  */
 
 public abstract class AbstractSessionView extends ViewPart {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractSessionView.class);
+
     private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
     /**
@@ -90,6 +112,14 @@ public abstract class AbstractSessionView extends ViewPart {
     private UserId[] userIds = null;
 
     private SessionMsgArchive msgArchive;
+    
+    private List<AlertWord> alertWords = null;
+
+    private AudioDataStream ads = null;
+
+    private Map<String, Font> fonts = null;
+
+    private Map<RGB, Color> colors = null;
 
     protected abstract String getSessionImageName();
 
@@ -102,6 +132,8 @@ public abstract class AbstractSessionView extends ViewPart {
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
         userIds = CollaborationUtils.getIds();
+        fonts = new HashMap<String, Font>();
+        colors = new HashMap<RGB, Color>();
     }
 
     protected void initComponents(Composite parent) {
@@ -262,25 +294,59 @@ public abstract class AbstractSessionView extends ViewPart {
         // here is the place to put the font and color changes for keywords
         // read in localization file once and then don't read in again, per
         // chat room?
-        Collection<String> alertWords = findAlertWords(sb,
-                offset + name.length() + 2);
+        List<AlertWord> alertWords = retrieveAlertWords();
         List<StyleRange> ranges = new ArrayList<StyleRange>();
         if (alertWords != null) {
-            for (String keyword : alertWords) {
-                if (sb.toString().toLowerCase().contains(keyword.toLowerCase())) {
-                    StyleRange keywordRange = new StyleRange(
-                            messagesText.getCharCount()
-                                    + sb.toString().toLowerCase()
-                                            .indexOf(keyword.toLowerCase()),
-                            keyword.length(), null, null, SWT.BOLD | SWT.ITALIC);
+            for (AlertWord keyword : alertWords) {
+                if (sb.toString().toLowerCase()
+                        .contains(keyword.getText().toLowerCase())) {
+                    Font font = null;
+                    if (fonts.containsKey(keyword.getFont())) {
+                        font = fonts.get(keyword.getFont());
+                    } else {
+                        FontData fd = StringConverter.asFontData(keyword
+                                .getFont());
+                        font = new Font(Display.getCurrent(), fd);
+                        fonts.put(keyword.getFont(), font);
+                    }
+                    RGB rgb = new RGB(keyword.getRed(), keyword.getGreen(),
+                            keyword.getBlue());
+                    Color color = null;
+                    if (colors.containsKey(rgb)) {
+                        color = colors.get(rgb);
+                    } else {
+                        color = new Color(Display.getCurrent(), rgb);
+                        colors.put(rgb, color);
+                    }
+                    TextStyle style = new TextStyle(font, color, null);
+                    StyleRange keywordRange = new StyleRange(style);
+                    keywordRange.start = messagesText.getCharCount()
+                            + sb.toString().toLowerCase()
+                                    .indexOf(keyword.getText().toLowerCase());
+                    keywordRange.length = keyword.getText().length();
+
+                    // compare to see if this position is already styled
+                    // List<StyleRange> rnges = new ArrayList<StyleRange>();
+                    // rnges.addAll(ranges);
+                    // for (StyleRange range : rnges) {
+                    // if (range.start >= keywordRange.start
+                    // && (range.start + range.length) >= (keywordRange.start))
+                    // {
+                    // if (range.length < keywordRange.length) {
+                    // ranges.remove(range);
+                    // ranges.add(keywordRange);
+                    // } else {
+                    // ranges.add(keywordRange);
+                    // }
+                    // }
+                    // }
                     ranges.add(keywordRange);
+                    executeSightsSounds(keyword);
                 }
             }
         }
 
         styleAndAppendText(sb, offset, name, userId, ranges);
-        // room for other fun things here, such as sounds and such
-        executeSightsSounds();
         if (msgArchive == null) {
             msgArchive = getMessageArchive();
         }
@@ -297,16 +363,68 @@ public abstract class AbstractSessionView extends ViewPart {
      * @param offset
      * @return alertWords
      */
-    protected Collection<String> findAlertWords(StringBuilder builder,
-            int offset) {
-        return null;
+    protected List<AlertWord> retrieveAlertWords() {
+        if (alertWords == null) {
+            alertWords = CollaborationUtils.getAlertWords();
+        }
+        return alertWords;
     }
 
     /**
      * Place holder must override to do something.
      */
-    protected void executeSightsSounds() {
-        // placeholder for future things
+    protected void executeSightsSounds(AlertWord word) {
+        String filename = word.getSoundPath();
+        if (filename == null || filename.isEmpty()) {
+            return;
+        }
+        File soundFile = new File(filename);
+        InputStream in;
+        AudioStream as = null;
+        AudioData data = null;
+        try {
+            if (ads != null) {
+                AudioPlayer.player.stop(ads);
+            }
+            in = new FileInputStream(soundFile);
+            as = new AudioStream(in);
+            data = as.getData();
+            ads = new AudioDataStream(data);
+            Field field = null;
+            try {
+                field = AudioPlayer.player.getClass().getDeclaredField("DEBUG");
+                field.setAccessible(true);
+                field.setBoolean(field, true);
+            } catch (SecurityException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } catch (NoSuchFieldException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } catch (IllegalArgumentException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+            AudioPlayer.player.start(ads);
+        } catch (FileNotFoundException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to find sound file",
+                    e);
+        } catch (IOException e) {
+            statusHandler.handle(Priority.PROBLEM, "Unable to read sound file",
+                    e);
+        }
+        System.out.println("\n\nNew\n\n");
     }
 
     /*
@@ -328,12 +446,23 @@ public abstract class AbstractSessionView extends ViewPart {
         for (Image im : imageMap.values()) {
             im.dispose();
         }
+
+        for (Font font : fonts.values()) {
+            font.dispose();
+        }
+
+        for (Color color : colors.values()) {
+            color.dispose();
+        }
+
         imageMap.clear();
         imageMap = null;
-        if (msgArchive != null) {
+        alertWords = null;
+      if (msgArchive != null) {
             msgArchive.close();
             msgArchive = null;
         }
+
         super.dispose();
     }
 
@@ -374,5 +503,9 @@ public abstract class AbstractSessionView extends ViewPart {
         this.userIds = userIds;
     }
 
+     public void setAlertWords(List<AlertWord> words) {
+        alertWords = words;
+    }
+   
     protected abstract SessionMsgArchive getMessageArchive();
 }
