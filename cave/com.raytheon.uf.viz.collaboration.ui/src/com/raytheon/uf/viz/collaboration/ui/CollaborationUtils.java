@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.xml.bind.JAXB;
@@ -55,6 +56,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserIdWrapper;
+import com.raytheon.uf.viz.collaboration.data.AlertWord;
+import com.raytheon.uf.viz.collaboration.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
@@ -242,5 +245,47 @@ public class CollaborationUtils {
         }
 
         return result.toString();
+    }
+
+    public static List<AlertWord> getAlertWords() {
+        LocalizationFile file = null;
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        file = PathManagerFactory.getPathManager().getLocalizationFile(context,
+                "collaboration" + File.separator + "alertWords.xml");
+        if (file.exists()) {
+            AlertWordWrapper words = (AlertWordWrapper) JAXB.unmarshal(
+                    file.getFile(), AlertWordWrapper.class);
+            if (words.getAlertWords() == null) {
+                return new ArrayList<AlertWord>();
+            } else {
+                List<AlertWord> alertWords = new ArrayList<AlertWord>();
+                for (int i = 0; i < words.getAlertWords().length; i++) {
+                    alertWords.add(words.getAlertWords()[i]);
+                }
+                return alertWords;
+            }
+        } else {
+            return new ArrayList<AlertWord>();
+        }
+    }
+
+    public static void saveAlertWords(List<AlertWord> words) {
+        LocalizationFile file = null;
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        file = PathManagerFactory.getPathManager().getLocalizationFile(context,
+                "collaboration" + File.separator + "alertWords.xml");
+        AlertWordWrapper wrapper = new AlertWordWrapper();
+        wrapper.setAlertWords(words.toArray(new AlertWord[0]));
+        JAXB.marshal(wrapper, file.getFile());
+        try {
+            file.save();
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to save alert words to localization", e);
+        }
     }
 }
