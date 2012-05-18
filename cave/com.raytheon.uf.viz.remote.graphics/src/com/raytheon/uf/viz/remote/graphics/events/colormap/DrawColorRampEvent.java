@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.colormap;
 
+import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.AbstractRemoteGraphicsRenderEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
@@ -45,42 +47,22 @@ import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
 
     @DynamicSerializeElement
-    private int colorMapId;
+    private Integer colorMapId;
 
     @DynamicSerializeElement
-    private float alpha = 1.0f;
+    private Float alpha;
 
     @DynamicSerializeElement
-    private float brightness = 1.0f;
+    private Float brightness;
 
     @DynamicSerializeElement
-    private float contrast = 1.0f;
+    private Float contrast;
 
     @DynamicSerializeElement
-    private boolean interpolate = true;
+    private Boolean interpolate;
 
     @DynamicSerializeElement
     private IExtent extent;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent#
-     * applyDiffObject
-     * (com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent)
-     */
-    @Override
-    public void applyDiffObject(IRenderEvent diffEvent) {
-        DrawColorRampEvent diffObject = (DrawColorRampEvent) diffEvent;
-        colorMapId = diffObject.colorMapId;
-        alpha = diffObject.alpha;
-        brightness = diffObject.brightness;
-        contrast = diffObject.contrast;
-        interpolate = diffObject.interpolate;
-        if (diffObject.extent != null) {
-            extent = diffObject.extent;
-        }
-    }
 
     /*
      * (non-Javadoc)
@@ -94,21 +76,68 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
     public IRenderEvent createDiffObject(IRenderEvent event) {
         DrawColorRampEvent diffEvent = (DrawColorRampEvent) event;
         DrawColorRampEvent diffObject = new DrawColorRampEvent();
-        diffObject.colorMapId = diffEvent.colorMapId;
-        diffObject.alpha = diffEvent.alpha;
-        diffObject.brightness = diffEvent.brightness;
-        diffObject.contrast = diffEvent.contrast;
-        diffObject.interpolate = diffEvent.interpolate;
-        if (extent.equals(diffEvent.extent) == false) {
+        if (!equals(colorMapId, diffEvent.colorMapId))
+            diffObject.colorMapId = diffEvent.colorMapId;
+        if (!equals(alpha, diffEvent.alpha))
+            diffObject.alpha = diffEvent.alpha;
+        if (!equals(brightness, diffEvent.brightness))
+            diffObject.brightness = diffEvent.brightness;
+        if (!equals(contrast, diffEvent.contrast))
+            diffObject.contrast = diffEvent.contrast;
+        if (!equals(interpolate, diffEvent.interpolate))
+            diffObject.interpolate = diffEvent.interpolate;
+        if (!equals(extent, diffEvent.extent))
             diffObject.extent = diffEvent.extent;
-        }
         return diffObject;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent#
+     * applyDiffObject
+     * (com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent)
+     */
+    @Override
+    public void applyDiffObject(IRenderEvent diffEvent) {
+        DrawColorRampEvent diffObject = (DrawColorRampEvent) diffEvent;
+        if (diffObject.colorMapId != null)
+            colorMapId = diffObject.colorMapId;
+        if (diffObject.alpha != null)
+            alpha = diffObject.alpha;
+        if (diffObject.brightness != null)
+            brightness = diffObject.brightness;
+        if (diffObject.contrast != null)
+            contrast = diffObject.contrast;
+        if (diffObject.interpolate != null)
+            interpolate = diffObject.interpolate;
+        if (diffObject.extent != null)
+            extent = diffObject.extent;
+    }
+
+    public void setDrawableColorMap(DrawableColorMap colorMap, int colorMapId) {
+        this.colorMapId = colorMapId;
+        this.alpha = colorMap.alpha;
+        this.brightness = colorMap.brightness;
+        this.contrast = colorMap.contrast;
+        this.interpolate = colorMap.interpolate;
+        this.extent = colorMap.extent;
+    }
+
+    public DrawableColorMap getDrawableColorMap(IColorMap cmap) {
+        DrawableColorMap colorMap = new DrawableColorMap(cmap);
+        colorMap.alpha = alpha;
+        colorMap.brightness = brightness;
+        colorMap.contrast = contrast;
+        colorMap.interpolate = interpolate;
+        colorMap.extent = extent;
+        return colorMap;
     }
 
     /**
      * @return the colorMapId
      */
-    public int getColorMapId() {
+    public Integer getColorMapId() {
         return colorMapId;
     }
 
@@ -116,14 +145,14 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
      * @param colorMapId
      *            the colorMapId to set
      */
-    public void setColorMapId(int colorMapId) {
+    public void setColorMapId(Integer colorMapId) {
         this.colorMapId = colorMapId;
     }
 
     /**
      * @return the alpha
      */
-    public float getAlpha() {
+    public Float getAlpha() {
         return alpha;
     }
 
@@ -131,14 +160,14 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
      * @param alpha
      *            the alpha to set
      */
-    public void setAlpha(float alpha) {
+    public void setAlpha(Float alpha) {
         this.alpha = alpha;
     }
 
     /**
      * @return the brightness
      */
-    public float getBrightness() {
+    public Float getBrightness() {
         return brightness;
     }
 
@@ -146,14 +175,14 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
      * @param brightness
      *            the brightness to set
      */
-    public void setBrightness(float brightness) {
+    public void setBrightness(Float brightness) {
         this.brightness = brightness;
     }
 
     /**
      * @return the contrast
      */
-    public float getContrast() {
+    public Float getContrast() {
         return contrast;
     }
 
@@ -161,14 +190,14 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
      * @param contrast
      *            the contrast to set
      */
-    public void setContrast(float contrast) {
+    public void setContrast(Float contrast) {
         this.contrast = contrast;
     }
 
     /**
      * @return the interpolate
      */
-    public boolean isInterpolate() {
+    public Boolean getInterpolate() {
         return interpolate;
     }
 
@@ -176,7 +205,7 @@ public class DrawColorRampEvent extends AbstractRemoteGraphicsRenderEvent {
      * @param interpolate
      *            the interpolate to set
      */
-    public void setInterpolate(boolean interpolate) {
+    public void setInterpolate(Boolean interpolate) {
         this.interpolate = interpolate;
     }
 
