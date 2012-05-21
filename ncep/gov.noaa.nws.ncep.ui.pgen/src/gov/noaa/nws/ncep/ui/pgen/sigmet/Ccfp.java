@@ -14,7 +14,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 
 import java.util.Iterator;
 

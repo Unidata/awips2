@@ -27,7 +27,6 @@ import gov.noaa.nws.ncep.ui.nsharp.maprsc.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpShowTextDialog;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDisplay;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 
 import org.eclipse.swt.SWT;
@@ -38,6 +37,8 @@ import org.eclipse.swt.widgets.Event;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 import com.raytheon.uf.common.status.UFStatus;
@@ -163,12 +164,12 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
     	//System.out.println("key down="+(char)keyCode+ " code ="+keyCode);
     	if ((keyCode & SWT.SHIFT) != 0)  {
             shiftDown = true;
-           // System.out.println("shift pressed");
+            //System.out.println("shift pressed");
             return true;
         } else if (shiftDown && keyCode == KEY_Z ) {
         	zDownWhileShiftDown=true;
         	 return true;
-        }
+        } 
     	return false;
     }
 
@@ -176,7 +177,27 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
     public boolean handleKeyUp(int keyCode) {
     	//String s = "key up="+(char)keyCode;
     	//System.out.println(s+ " code ="+keyCode);
-    	if (keyCode == SWT.SHIFT) {
+    	if (keyCode == SWT.ARROW_DOWN)  {
+            //System.out.println("Arrow down");
+    		NsharpSkewTResource skewRsc = getDescriptor().getSkewtResource();
+            skewRsc.setSteppingStnIdList(FrameChangeOperation.NEXT) ;
+            return true;
+        }else if (keyCode == SWT.ARROW_UP)  {
+            //System.out.println("Arrow up");
+        	NsharpSkewTResource skewRsc = getDescriptor().getSkewtResource();
+            skewRsc.setSteppingStnIdList(FrameChangeOperation.PREVIOUS) ;
+            return true;
+        }else if (keyCode == SWT.ARROW_LEFT)  {
+            //System.out.println("Arrow left");
+        	NsharpSkewTResource skewRsc = getDescriptor().getSkewtResource();
+            skewRsc.setSteppingTimeLine(FrameChangeOperation.PREVIOUS, FrameChangeMode.TIME_ONLY) ;
+            return true;
+        }else if (keyCode == SWT.ARROW_RIGHT)  {
+            //System.out.println("Arrow right");
+            NsharpSkewTResource skewRsc = getDescriptor().getSkewtResource();
+            skewRsc.setSteppingTimeLine(FrameChangeOperation.NEXT, FrameChangeMode.TIME_ONLY) ;
+            return true;
+        } else if (keyCode == SWT.SHIFT) {
             shiftDown = false;
             return true;
         }else if (zDownWhileShiftDown && keyCode == KEY_Z ) {
@@ -370,12 +391,17 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
     @Override
     public boolean handleMouseHover(int x, int y) {
         //System.out.println("mouseHandler handleMouseHover");
+    	if(editor != null) {
+         	editor.setFocus();
+    	}
         return true;
     }
 
     @Override
     public boolean handleMouseMove(int x, int y) {
-    	
+    	if(editor != null) {
+         	editor.setFocus();
+    	}
         if (getSkewtDisplay() == null) {
             return false;
         }
@@ -465,7 +491,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
     			}
     			else if(bkRsc.getDataTimelineBackground().contains(c) == true && this.mode == Mode.TIMELINE_DOWN) {
     				//data time line has been touched, and may be changed
-    				skewRsc.setUserPickedDataTimeLine(c);
+    				skewRsc.handleUserClickOnTimeLine(c);
     				handleMouseMove(x,y);
 
     				NsharpShowTextDialog textarea =  NsharpShowTextDialog.getAccess();
@@ -476,7 +502,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
     			}
     			else if(bkRsc.getStationIdBackground().contains(c) == true && this.mode == Mode.STATIONID_DOWN) {
     				//data time line has been touched, and may be changed
-    				skewRsc.setUserPickedStationId(c);
+    				skewRsc.handleUserClickOnStationId(c);
     				handleMouseMove(x,y);
 
     				
@@ -531,7 +557,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
 
  	@Override
 	public boolean handleMouseExit(Event event) {
-		// TODO Auto-generated method stub
+ 		System.out.println("skewtRsc handleMouseExit");
 		return false;
 	}
  	

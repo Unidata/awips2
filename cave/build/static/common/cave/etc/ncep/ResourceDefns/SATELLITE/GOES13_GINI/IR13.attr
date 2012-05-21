@@ -3,3 +3,6 @@ colorMapName=lingray
 colorBar=@dfltMcidasColorBar.xml
 imageType=Imager 13 micron (IR)
 displayUnitStr=IRPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

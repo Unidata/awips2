@@ -8,8 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.VolcanoCreateDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.VolcanoCreateDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;

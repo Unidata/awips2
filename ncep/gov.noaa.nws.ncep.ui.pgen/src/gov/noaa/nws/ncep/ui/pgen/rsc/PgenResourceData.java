@@ -34,10 +34,10 @@ import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringControlDialog;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductManageDialog;
 import gov.noaa.nws.ncep.ui.pgen.tools.AbstractPgenDrawingTool;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
@@ -242,7 +243,8 @@ public class PgenResourceData extends AbstractResourceData
 
     	initializeProducts();
     	
-    	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+//    	AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+    	AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
 	   	   	    
     	if ( productManageDlg == null ) {   	    
             
@@ -649,7 +651,8 @@ public class PgenResourceData extends AbstractResourceData
     		productManageDlg.close();
     	}
    	
-    	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+//    	AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+    	AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
 	   	
     	if ( layeringControlDlg == null ) {   	    
             

@@ -9,10 +9,9 @@ package gov.noaa.nws.ncep.ui.pgen.gfa;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaSnap;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -61,9 +60,7 @@ public class ReduceGfaPointsUtil {
 	static StationTable stationTable;
 	
 	public static StationTable getStationTable()  {
-		stationTable = new StationTable(
-				NcPathManager.getInstance().getStaticFile(
-						   NcPathConstants.VORS_STN_TBL ).getAbsolutePath() );
+		stationTable = PgenStaticDataProvider.getProvider().getVorTbl();
 		return stationTable;
 	}
 	
