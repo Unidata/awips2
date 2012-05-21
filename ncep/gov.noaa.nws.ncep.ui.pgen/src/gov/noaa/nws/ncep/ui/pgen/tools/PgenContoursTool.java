@@ -34,7 +34,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.ContoursAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.ContoursAttrDlg;
 
 /**
  * Implements a modal map tool for PGEN Contours drawing.

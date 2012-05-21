@@ -12,6 +12,8 @@
 !
 GLEVEL=850                !850  !30:0                 !850         
 GVCORD=pres               !pres !pdly                 !pres            
+SKIP=
+FILTER=y
 SCALE=2                  !-1/2 !0                    !2           
 GDPFUN=mag(smul(mixr;wnd))!hght !thte(pres;tmpc;dwpc) !smul(mixr;wnd)          
 TYPE=c/f                !c    !c                    !a               

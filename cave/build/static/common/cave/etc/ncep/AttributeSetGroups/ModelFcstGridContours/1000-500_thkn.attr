@@ -6,6 +6,8 @@
 !
 GLEVEL=500:1000!500:1000
 GVCORD=pres!pres
+SKIP=
+FILTER=y
 SCALE=-1 ! -1
 GDPFUN=ldf(hght)!ldf(hght)
 TYPE=c

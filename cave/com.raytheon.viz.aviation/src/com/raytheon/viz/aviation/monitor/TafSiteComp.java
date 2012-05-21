@@ -117,14 +117,14 @@ public class TafSiteComp {
      * DR14717: When Metar is 2 hours old, the persistence indicators turn gray. 
      * This is the timeout in milliseconds for 2 hours.
      */
-    public final static long METAR_TIMEOUT_2HR = 1L * 60L * 60L * 1000L;
+    public final static long METAR_TIMEOUT_2HR = 2L * 60L * 60L * 1000L;
     
     /**
-     * DR14717: When Metar is 4 hours old, Metar Time Label is replaced by "None",
+     * DR14717: When Metar is 4 hours plus 10 minutes old, Metar Time Label is replaced by "None",
      * and the current observation and persistence indicators turn gray.
-     * This is the timeout in milliseconds for 4 hours.
+     * This is the timeout in milliseconds for 4 hours plus 10 minutes.
      */
-    public final static long METAR_TIMEOUT_4HR = 4L * 60L * 60L * 1000L;
+    public final static long METAR_TIMEOUT_4HR = (4L * 60L + 10L) * 60L * 1000L;
     
     /**
      * DR14717:
@@ -653,7 +653,7 @@ public class TafSiteComp {
             
             if ( currentTime > ( metarTime + METAR_TIMEOUT_4HR ) ) {
             	mtrTimeLbl.setText("None");
-                mtrTimeLbl.setBackground(getWarningColor());
+                mtrTimeLbl.setBackground(getBackgroundColor());
             	if ( persistMonitorProcessedFirst ) {
                 	SiteMonitor psstMonitor = monitorArray.get(1);
                 	Color grayColor = psstMonitor.getGraySeverityColor();

@@ -7,7 +7,7 @@
  */
 
 package gov.noaa.nws.ncep.gempak.parameters.dlines;
-import gov.noaa.nws.ncep.gempak.parameters.util.StringUtil;
+import gov.noaa.nws.ncep.gempak.parameters.core.util.StringUtil;
 
 /**<pre>
 * Parses an input <tt>String</tt> of the form <tt> yes or no;yes or no [ | epsilon ]</tt>

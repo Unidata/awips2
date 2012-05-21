@@ -14,13 +14,12 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ITrack;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Cloud;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Turbulence;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Cloud;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Turbulence;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.ConvSigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 
@@ -67,8 +66,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class DrawableElementFactory {
 
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(DrawableElementFactory.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(DrawableElementFactory.class);
 	
 	public AbstractDrawableComponent create( DrawableType typeName, IAttribute attr,
 						String pgenCategory, String pgenType, 
@@ -224,7 +223,7 @@ public class DrawableElementFactory {
 			/*
 			 * Do nothing.
 			 */
-			log.info( typeName + " is not supported.");
+//			log.info( typeName + " is not supported.");
 	        break;
 		}
 		
