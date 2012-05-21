@@ -7,6 +7,8 @@
 !
 GLEVEL=500:1000                  !0    ! 850
 GVCORD=pres                      !none ! pres
+SKIP=
+FILTER=y
 SCALE=-1                        ! 0
 GDPFUN=(sub(hght@500,hght@1000)) !sm5s(pmsl) ! kntv(wnd@850%pres)
 TYPE=c ! c ! b

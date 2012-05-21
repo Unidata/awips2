@@ -86,6 +86,16 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * @author chammack
  * 
+ * <pre>
+ * 
+ *    SOFTWARE HISTORY
+ *   
+ *    Date         Ticket#     Engineer    Description
+ *    ------------ ----------  ----------- --------------------------
+ *    05/16/2012   14993       D. Friedman Add oversampling option to
+ *                                         reprojectGeometry.
+ * 
+ * </pre>
  */
 @SuppressWarnings("unchecked")
 public class MapUtil {
@@ -330,6 +340,27 @@ public class MapUtil {
     public static GeneralGridGeometry reprojectGeometry(
             GeneralGridGeometry sourceGeometry, Envelope targetEnvelope,
             boolean addBorder) throws FactoryException, TransformException {
+        return reprojectGeometry(sourceGeometry, targetEnvelope, addBorder, 1);
+    }
+
+    /**
+     * Builds a new grid geometry that can be used to reproject sourceGeometry
+     * into target envelope with about the same number of points (multiplied by
+     * an oversample factor.)
+     * 
+     * @param sourceGeometry
+     * @param targetEnvelope
+     * @param addBorder
+     *            expand envelope to include a 1 grid cell border after
+     *            reprojection
+     * @param oversampleFactor oversample factor for new grid
+     * @return the reprojected grid geometry
+     * @throws FactoryException
+     *             , TransformException
+     */
+    public static GeneralGridGeometry reprojectGeometry(
+            GeneralGridGeometry sourceGeometry, Envelope targetEnvelope,
+            boolean addBorder, int oversampleFactor) throws FactoryException, TransformException {
         CoordinateReferenceSystem targetCRS = targetEnvelope
                 .getCoordinateReferenceSystem();
         ReferencedEnvelope targetREnv = null;
@@ -366,6 +397,8 @@ public class MapUtil {
         double count = intersectingEnv.getWidth() * intersectingEnv.getHeight();
         int nx = (int) Math.sqrt(count / aspectRatio);
         int ny = (int) (nx * aspectRatio);
+        nx *= oversampleFactor;
+        ny *= oversampleFactor;
 
         if (addBorder) {
             newEnv.expandBy(newEnv.getWidth() / nx, newEnv.getHeight() / ny);

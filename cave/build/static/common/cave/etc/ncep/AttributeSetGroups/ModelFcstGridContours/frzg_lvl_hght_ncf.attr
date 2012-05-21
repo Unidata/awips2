@@ -6,6 +6,8 @@
 !
 GLEVEL=0                   !30:0
 GVCORD=FRZL                !pdly
+SKIP=
+FILTER=y
 SCALE=-2                  !0
 GDPFUN=sm5s(mul(3.28,hght))!sm5s(tmpc)
 TYPE=c                   !c 

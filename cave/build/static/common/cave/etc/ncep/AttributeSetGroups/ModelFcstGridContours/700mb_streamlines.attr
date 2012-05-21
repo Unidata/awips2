@@ -6,6 +6,8 @@
 !
 GLEVEL=700
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=0!0
 GDPFUN=mag(kntv(wnd))!kntv(wnd)
 TYPE=c/f!s
