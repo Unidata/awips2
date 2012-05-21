@@ -9,16 +9,16 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.CloudAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TurbAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.CloudAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TurbAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 
 import java.util.ArrayList;
 

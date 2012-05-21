@@ -28,6 +28,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
 
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.CornerPatternApplicator.CornerPattern;
@@ -52,13 +53,12 @@ import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmWindQuarter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.tca.BPGeography;
 import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tca.WaterBreakpoint;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;//SigmetInfo;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.PatternSegment.PatternType;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
@@ -419,7 +419,7 @@ public class DisplayElementFactory {
          */
         ArrayList<IDisplayable> dlist = new ArrayList<IDisplayable>();
 	    
-        List<County> counties = watchBox.getCountyList();
+        List<SPCCounty> counties = watchBox.getCountyList();
         if ( counties != null && !counties.isEmpty()){
         	if ( watchBox.getFillFlag() ){
         		
@@ -429,7 +429,7 @@ public class DisplayElementFactory {
         		Collection<Geometry> gCollection = new ArrayList<Geometry>();
 
         		//draw county border
-        		for ( County cnty : counties ){
+        		for ( SPCCounty cnty : counties ){
 	    			Geometry countyGeo = cnty.getShape();
 	    			
 	    			colors = watchBox.getColors();
@@ -492,7 +492,7 @@ public class DisplayElementFactory {
 				}
         	}
         	else {
-        		for ( County cnty : counties ){
+        		for ( SPCCounty cnty : counties ){
 
         			Symbol cSymbol = new Symbol(null, watchBox.getColors(), 
         					watchBox.getWatchSymbolWidth(), watchBox.getWatchSymbolSize(), false,

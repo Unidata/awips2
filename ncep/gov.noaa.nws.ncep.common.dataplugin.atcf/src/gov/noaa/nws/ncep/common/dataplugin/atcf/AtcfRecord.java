@@ -51,6 +51,8 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06/23/10        208    F. J. Yen    Initial Coding.
+ * 03/10/12        606    G. Hull      added reportType to URI
+ * 
  * </pre>
  * 
  * @author F. J. Yen, SIB
@@ -68,6 +70,7 @@ public class AtcfRecord extends PluginDataObject {
 	private static final Integer IMISSD = IDecoderConstantsN.INTEGER_MISSING;
 
 	/** Report type */
+	@DataURI(position = 8)
 	@Column(length = 32)
 	@XmlElement
 	@DynamicSerializeElement

@@ -77,6 +77,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 3/2/2009     2047       grichard    Added stationName array.
  * 10/7/2009    ****       dhladky     reworked
  * 11/30/2009   3424       Zhidong/Slav/Wen Adds stationTableData to keep station info.
+ * May 15, 2012 14510      zhao        Modified processing at startup
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -157,7 +159,8 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
             monitor.createDataStructures();
             monitor.getAdjAreas();
 			monitor.processProductAtStartup("fog");
-        }
+			monitor.fireMonitorEvent(monitor);
+	    }
 
         return monitor;
     }
@@ -584,5 +587,13 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     public void setGeoAdjAreas(Geometry geoAdjAreas) {
         this.geoAdjAreas = geoAdjAreas;
     }
+
+	@Override
+	protected void processAtStartup(ObReport report) {
+		obData.addReport(report);
+        String zone = findZone(report.getPlatformId());
+        getTableData().getArea(zone).addReport(report.getObservationTime(),
+                report);
+	}
 
 }

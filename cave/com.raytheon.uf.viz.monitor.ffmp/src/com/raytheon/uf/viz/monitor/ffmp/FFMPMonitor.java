@@ -87,7 +87,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 04/03/10     4494        D. Hladky   Initial release
- * 16/04/12		DR 14511 	G. Zhang	Data retrieval uses Job  
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -138,9 +138,8 @@ public class FFMPMonitor extends ResourceMonitor implements
     public ArrayList<Date> dataTimes = null;
 
     private FFMPTimeWindow qpfWindow = null;
+
     private FFMPTimeWindow qpeWindow = null;
-    //DR 14511: Data retrieval uses Job. VizApp.runAsync() uses GUI thread
-    private DataJob dj1=new DataJob(), dj2=new DataJob(), dj3=new DataJob(), dj4=new DataJob();
 
     /** The infamous templates **/
     private FFMPTemplates templates = null;
@@ -455,7 +454,7 @@ public class FFMPMonitor extends ResourceMonitor implements
         final String fsource = source;
         final String fhuc = huc;
 
-        /*VizApp.runAsync*/dj1.request(new Runnable() {
+        VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
 
@@ -506,7 +505,7 @@ public class FFMPMonitor extends ResourceMonitor implements
         final String fsource = source;
         final FFMPBasin fbasin = basin;
 
-        /*VizApp.runAsync*/dj2.request(new Runnable() {
+        VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
 
@@ -1804,7 +1803,7 @@ public class FFMPMonitor extends ResourceMonitor implements
         final String fsourceName = sourceName;
         final String fhuc = phuc;
 
-        /*VizApp.runAsync*/dj3.request(new Runnable() {
+        VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
 
@@ -1856,7 +1855,7 @@ public class FFMPMonitor extends ResourceMonitor implements
             final Date fbarrierTime = barrierTime;
             final String fhuc = phuc;
 
-            /*VizApp.runAsync*/dj4.request(new Runnable() {
+            VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
 
@@ -2581,45 +2580,6 @@ public class FFMPMonitor extends ResourceMonitor implements
                 }
             }
         }
-    }
-    
-    /**
-     * DR 14511: Using Eclipse Job for data retrieval since 
-     * the original VizApp.runAsync() is using the GUI thread.    
-     */    
-    private class DataJob extends org.eclipse.core.runtime.jobs.Job {
-    	
-        private static final int QUEUE_LIMIT = 1;
-
-        private java.util.concurrent.ArrayBlockingQueue<Runnable> requestQueue = new java.util.concurrent.ArrayBlockingQueue<Runnable>(
-                QUEUE_LIMIT);
-
-        public DataJob() {    super("Retrieving FFMP Graph Data...");       }  
-
-        public void request(Runnable r) {
-            
-        	if (requestQueue.size() == QUEUE_LIMIT) {
-        		requestQueue.poll();
-            }
-                
-            requestQueue.add(r);
-            this.schedule();            
-        }
-
-        @SuppressWarnings({ "unchecked" })
-        @Override
-        protected org.eclipse.core.runtime.IStatus run(org.eclipse.core.runtime.IProgressMonitor progMonitor) {
-
-            Runnable r = requestQueue.poll();
-            while (r != null) {
-
-            	r.run();
-
-                r= requestQueue.poll();
-            }
-
-            return org.eclipse.core.runtime.Status.OK_STATUS;
-        } 
     }
 
 }

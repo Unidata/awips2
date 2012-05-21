@@ -48,7 +48,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 06/21/2009   2521       dhladky    Initial Creation.
- * 18/04/2012   DR14619/20 dhladky    Replace setMatchURIs()
+ * 
  * </pre>
  * 
  * @author dhladky
@@ -244,7 +244,7 @@ public class FFMPURIFilter extends URIFilter {
         }
         return newKey.toString();
     }
-/*2012-04-18: Old code keep for refefence. Gang Zhang
+
     @Override
     public void setMatchURIs() {
         FFMPSourceConfigurationManager sourceConfig = FFMPSourceConfigurationManager
@@ -272,17 +272,22 @@ public class FFMPURIFilter extends URIFilter {
                     for (String dataKey : sicx.getDataKey()) {
 
                         String matcher = null;
-                        // RFC FFG, special matching criteria
-                        if (source.isRfc()) {
-                            matcher = replaceWildCard(
-                                    "FFG-" + dataKey.substring(1),
-                                    source.getDataPath(),
-                                    sicx.getUriSubLocation());
-                        }
-                        // All others use this pattern
-                        else {
-                            matcher = replaceWildCard(dataKey,
-                                    source.getDataPath(),
+						// RFC FFG, special matching criteria and override potentials
+						if (source.isRfc()) {
+							String pathReplace = source.getDataPath(dataKey);
+							if (pathReplace.equals(source.getDataPath())) {
+								matcher = replaceWildCard(
+										"FFG-" + dataKey.substring(1),
+										source.getDataPath(),
+										sicx.getUriSubLocation());
+							} else {
+								matcher = pathReplace;
+							}
+						}
+						// All others use this pattern
+						else {
+							matcher = replaceWildCard(dataKey,
+                                    source.getDataPath(dataKey),
                                     sicx.getUriSubLocation());
                         }
                         // take care of time match
@@ -311,7 +316,7 @@ public class FFMPURIFilter extends URIFilter {
             }
         }
     }
-*/
+
     /**
      * Grab the most recent XMRG file time by HPE file type
      * 
@@ -555,78 +560,4 @@ public class FFMPURIFilter extends URIFilter {
         return new FFMPURIGenerateMessage(this);
     }
 
-    /**
-     * 2012-04-18: Code from David Hladky in Omaha.
-     */
-    @Override
-    public void setMatchURIs() {
-        FFMPSourceConfigurationManager sourceConfig = FFMPSourceConfigurationManager
-                .getInstance();
-        FFMPRunConfigurationManager runConfig = FFMPRunConfigurationManager
-                .getInstance();
-        FFMPRunXML runner = runConfig.getRunner(PropertiesFactory.getInstance()
-                .getEnvProperties().getEnvValue("SITENAME"));
-
-        for (SourceXML source : sourceConfig.getSources()) {
-
-            SourceIngestConfigXML sicx = runner.getSourceIngest(source
-                    .getSourceName());
-            // just use an average time, not the expiration
-            long duration = 60 * 1000l * 10;
-            // setup URI filtering for PDO/RADAR types, multiple RADAR sites
-            // possible, don't process gages
-
-            if (!source.getSourceType().equals(
-                    FFMPSourceConfigurationManager.SOURCE_TYPE.GAGE
-                            .getSourceType())) {
-
-                if (sicx != null && sicx.getDataKey().size() > 0) {
-
-                    for (String dataKey : sicx.getDataKey()) {
-
-                        String matcher = null;
-                        // RFC FFG, special matching criteria and   override potentials
-                        if (source.isRfc()) {
-                            String pathReplace = source.getDataPath(dataKey);
-                            if (pathReplace.equals(source.getDataPath())) {
-                                matcher = replaceWildCard(
-                                        "FFG-" + dataKey.substring(1),
-                                        source.getDataPath(),
-                                        sicx.getUriSubLocation());
-                            } else {
-                                matcher = pathReplace;
-                            }
-                        }
-                        // All others use this pattern
-                        else {
-                            matcher = replaceWildCard(dataKey,
-                                    source.getDataPath(dataKey),
-                                    sicx.getUriSubLocation());
-                        }
-                        // take care of time match
-                        matcher = replaceWildCard(URIFilter.wildCard, matcher,
-                                2);
-                        Pattern pattern = Pattern.compile(matcher);
-                        patternKeys.put(source.getSourceName() + ":" + dataKey,
-                                pattern);
-                        getMatchURIs().put(pattern, duration);
-                    }
-                } else {
-                    // XMRG dosen't use the URI Filtering
-                    if (source.getDataType().equals(
-                            FFMPSourceConfigurationManager.DATA_TYPE.XMRG
-                                    .getDataType())) {
-                        sourceFileTimes.put(source,
-                                getMostRecentXMRGTime(source));
-                    } else {
-                        // only the time has a match replace
-                        String matcher = replaceWildCard(URIFilter.wildCard,
-                                source.getDataPath(), 2);
-                        Pattern pattern = Pattern.compile(matcher);
-                        getMatchURIs().put(pattern, duration);
-                    }
-                }
-            }
-        }
-    }
 }
