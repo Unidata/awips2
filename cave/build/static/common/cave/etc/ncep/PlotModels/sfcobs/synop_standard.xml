@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<PlotModel svgTemplate="standardPlotModelTemplate.svg" plugin="sfcobs" name="synop_standard">
+<PlotModel svgTemplate="standardPlotModelTemplate.svg" plugin="sfcobs" name="synop_standard" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TMPF">
         <Position>UL</Position>
         <Color red="255" green="0" blue="0"/>
@@ -12,31 +12,32 @@
         <Position>LL</Position>
         <Color red="0" green="205" blue="0"/>
     </PlotModelElement>
-    
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="SKYC">
         <Position>SC</Position>
         <Color red="0" green="238" blue="238"/>
     </PlotModelElement>
-    
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="BRBK">
         <Position>WD</Position>
         <Color red="0" green="238" blue="238"/>
-    </PlotModelElement>    
-    
+    </PlotModelElement>
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="SMSL">
         <Position>UR</Position>
         <Color red="30" green="144" blue="255"/>
     </PlotModelElement>
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="P03C">
-        <Position>MR</Position>
-        <Color red="238" green="238" blue="0"/>
-    </PlotModelElement>
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="STID">
-        <Position>LR</Position>
+        <Position>MR</Position>
         <Color red="205" green="133" blue="0"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="PTSY">
+        <Position>LR</Position>
+        <Color red="238" green="238" blue="0"/>
     </PlotModelElement>
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="VSBY">
         <Position>BC</Position>
         <Color red="16" green="78" blue="139"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="P03C">
+        <Position>LC</Position>
+        <Color red="238" green="238" blue="0"/>
     </PlotModelElement>
 </PlotModel>

@@ -6,6 +6,8 @@
 !
 GLEVEL=9950
 GVCORD=SGMA
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=dwpc    !dwpc  !dwpc !kntv(wnd@9950%SGMA)
 TYPE=c       !c     !c    !b

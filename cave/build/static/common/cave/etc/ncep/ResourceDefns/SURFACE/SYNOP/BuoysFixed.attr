@@ -4,3 +4,4 @@ legendString=Fixed Buoy Synop
 plotModelName=bouys
 reportType=1005
 plotDensity=15
+conditionalFilterName=

@@ -10,7 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.gfa;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
@@ -38,7 +38,7 @@ public class PreloadGfaDataThread extends Thread {
 	
 	public boolean started;
 	
-	private final static Logger logger = Logger.getLogger(PreloadGfaDataThread.class);
+//	private final static Logger logger = Logger.getLogger(PreloadGfaDataThread.class);
 	
 	private String [] toLoad = {LocalizationManager.class.getName(), 
 			PgenCycleTool.class.getName(), 
@@ -69,11 +69,12 @@ public class PreloadGfaDataThread extends Thread {
 			ReduceGfaPointsUtil.getStationTable(); //put here because Gfa uses canFormatted
 			
 		} catch (Exception e) {
-			logger.error(e);
-			logger.debug("LoadGfaClassesThread loading time: " + (System.currentTimeMillis() - time) + " ms");
+//			logger.error(e);
+			e.printStackTrace();
+//			logger.debug("LoadGfaClassesThread loading time: " + (System.currentTimeMillis() - time) + " ms");
 		}
 		
-		logger.debug("LoadGfaClassesThread loading time: " + (System.currentTimeMillis() - time) + " ms");
+//		logger.debug("LoadGfaClassesThread loading time: " + (System.currentTimeMillis() - time) + " ms");
 		
 		loaded = true;
 	}

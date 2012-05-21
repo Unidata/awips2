@@ -9,10 +9,10 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.CloudAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TurbAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.CloudAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TurbAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAvnText.AviationTextType;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
@@ -28,10 +28,10 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.MidCloudText;
 import gov.noaa.nws.ncep.ui.pgen.elements.SinglePointElement;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Label;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Label;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import java.awt.Color;
 import java.awt.Polygon;
@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
@@ -59,7 +60,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 	
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	private PgenResource drawingLayer;
 	
 	//"labeled line drawing tool" or "labeled line modify tool"
@@ -82,7 +84,8 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 	 * @param prevTool
 	 * @param dlg
 	 */
-	public PgenAddLabelHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+//	public PgenAddLabelHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+	public PgenAddLabelHandler(AbstractEditor mapEditor, PgenResource drawingLayer,
 			ILabeledLine prevTool, AttrDlg dlg ){
 		this.mapEditor= mapEditor;
 		this.drawingLayer = drawingLayer;

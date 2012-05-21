@@ -22,8 +22,8 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp;
 
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpGraphConfigDialog;
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpLineConfigDialog;
+import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpParametersSelectionConfigDialog;
+import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpDataDisplayConfigDialog;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
@@ -124,8 +124,8 @@ public class NsharpConfigManager {
 		if(nsharpConfigStore== null){
 			// could not find configuration nsharpConfig.xml file 
 			nsharpConfigStore = new NsharpConfigStore();
-			nsharpConfigStore = NsharpGraphConfigDialog.setDefaultGraphConfig(nsharpConfigStore);
-			nsharpConfigStore=NsharpLineConfigDialog.setDefaultLineConfig(nsharpConfigStore);
+			nsharpConfigStore = NsharpParametersSelectionConfigDialog.setDefaultGraphConfig(nsharpConfigStore);
+			nsharpConfigStore=NsharpDataDisplayConfigDialog.setDefaultLineConfig(nsharpConfigStore);
 		}	
 		return nsharpConfigStore;
 	}

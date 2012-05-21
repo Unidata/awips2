@@ -20,6 +20,7 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
@@ -50,25 +51,25 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
 import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlgFactory;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.ContoursAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.GfaAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.JetAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.LabeledSymbolAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SymbolAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TextAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackExtrapPointInfoDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.OutlookAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlgFactory;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.ContoursAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.GfaAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.LabeledSymbolAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.OutlookAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.SymbolAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TextAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TrackAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TrackExtrapPointInfoDlg;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Implements a modal map tool for PGEN selecting functions.
@@ -142,7 +143,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     	if ( PgenSession.getInstance().getPgenPalette() == null ) return;
     	
     	IEditorPart ep = EditorUtil.getActiveEditor();
-        if (!(ep instanceof NCMapEditor) ){
+        if (!(ep instanceof AbstractEditor) ){
             return;
         }
     	attrDlg = null;

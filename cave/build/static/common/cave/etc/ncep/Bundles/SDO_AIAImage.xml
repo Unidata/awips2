@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle editor="gov.noaa.nws.ncep.viz.rsc.fits.SolarImageEditor">
+	<displayList>
+	<displays xsi:type="defaultNonMapDisplay" tabTitle="SDO/AIA" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="xyGraphDescriptor">
+                 <resource>
+	                <loadProperties loadWithoutData="true">
+	                	<capabilities>
+                            <capability xsi:type="colorMapCapability">
+                                <colorMapParameters colorMapName="solar/Gray"/>
+                            </capability>
+	                    	<capability xsi:type="imagingCapability" interpolationState="true" brightness="1.0" contrast="1.0" alpha="1.0"/>
+	                    	<capability xsi:type="colorableCapability" colorAsString="#FFFFFF"/>
+	                    </capabilities>
+	                </loadProperties>
+					<properties isSystemResource="false"
+						isBlinking="false" isMapLayer="false" isHoverOn="false"
+						isVisible="true" />
+					<resourceData xsi:type="fitsResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+						<metadataMap>
+					    	<mapping key="pluginName">
+								<constraint constraintValue="fits" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="telescope">
+								<constraint constraintValue="SDO/AIA" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="instrument">
+								<constraint constraintValue="${instrument}" constraintType="EQUALS" />
+							</mapping>
+							<mapping key="wavelength">
+								<constraint constraintValue="${wavelength}" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+                <!--timeMatcher xsi:type="d2dTimeMatcher" deltaFilter="0" forecastFilter="0"/-->
+            </descriptor>
+        </displays>
+	</displayList>
+</bundle>

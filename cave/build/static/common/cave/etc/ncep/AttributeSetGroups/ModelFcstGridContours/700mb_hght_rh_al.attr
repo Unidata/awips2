@@ -7,6 +7,8 @@
 !
 GLEVEL=700
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=0              !0              !-1    
 GDPFUN=relh           !(relh)         !(hght)
 TYPE=c              !c/f            ! c
