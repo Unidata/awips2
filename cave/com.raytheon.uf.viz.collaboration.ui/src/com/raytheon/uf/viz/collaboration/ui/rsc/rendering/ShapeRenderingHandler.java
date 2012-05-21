@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.Da
 import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.ShadedShapeData;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent.Label;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Handles render events for IShapes
@@ -111,7 +112,10 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
             for (Label label : event.getLabels()) {
                 shape.addLabel(label.getText(), label.getPoint());
             }
-            for (double[][] coords : event.getCoordinates()) {
+            for (double[][] coords : event.getPixelCoordinates()) {
+                shape.addLineSegment(coords);
+            }
+            for (Coordinate[] coords : event.getWorldCoordiantes()) {
                 shape.addLineSegment(coords);
             }
             if (event.isCompile()) {
