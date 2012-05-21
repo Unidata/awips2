@@ -24,18 +24,22 @@ import java.util.List;
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
-import org.eclipse.jface.preference.FontFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FontDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -109,13 +113,50 @@ public class CollaborationAlertWordsPreferencePage extends
         this.addField(colorEditor);
         colorEditor.loadDefault();
 
-        final FontFieldChangeEditor fontEditor = new FontFieldChangeEditor(
-                "fonts", "Font", getFieldEditorParent());
-        this.addField(fontEditor);
+        Composite fontComp = new Composite(getFieldEditorParent(), SWT.NONE);
+        GridLayout layout = new GridLayout(3, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        fontComp.setLayout(layout);
+        data = new GridData(SWT.FILL, SWT.FILL, true, true);
+        data.horizontalSpan = 3;
+
+        fontComp.setLayoutData(data);
+
+        Label fontName = new Label(fontComp, SWT.NONE);
+        fontName.setText("Font");
+        data = new GridData(SWT.FILL, SWT.NONE, true, false);
+        fontName.setLayoutData(data);
+
+        final Label fontLabel = new Label(fontComp, SWT.NONE);
+        fontLabel.setText(StringConverter.asString(Display.getCurrent()
+                .getSystemFont().getFontData()[0]));
+        data = new GridData(SWT.FILL, SWT.NONE, true, true);
+        fontLabel.setLayoutData(data);
+
+        Button fontButton = new Button(fontComp, SWT.PUSH);
+        fontButton.setText("Change...");
+        data = new GridData(SWT.FILL, SWT.NONE, true, true);
 
         final FileFieldEditor fileEditor = new FileFieldEditor("fileeditor",
                 "Sound File", getFieldEditorParent());
         this.addField(fileEditor);
+
+        fontButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                FontDialog dialog = new FontDialog(Display.getCurrent()
+                        .getActiveShell());
+                dialog.setFontList(StringConverter.asFontDataArray(fontLabel
+                        .getText()));
+                FontData data = dialog.open();
+                if (data != null) {
+                    fontLabel.setText(StringConverter.asString(data));
+                }
+            }
+        });
+        data = new GridData(SWT.NONE, SWT.NONE, false, true);
+        fontButton.setLayoutData(data);
 
         Composite buttonComp = new Composite(getFieldEditorParent(), SWT.NONE);
         buttonComp.setLayout(new GridLayout(3, false));
@@ -132,10 +173,9 @@ public class CollaborationAlertWordsPreferencePage extends
                     AlertWord word = new AlertWord(stringEditor
                             .getStringValue(), colorEditor.getColorSelector()
                             .getColorValue());
+                    word.setFont(fontLabel.getText());
                     int index = viewer.getTable().getSelectionIndex();
                     word.setSoundPath(fileEditor.getStringValue());
-                    word.setFont(fontEditor
-                            .getFontValue(getFieldEditorParent()));
                     ((List<AlertWord>) viewer.getInput()).set(index, word);
                     viewer.refresh();
                 }
@@ -153,9 +193,7 @@ public class CollaborationAlertWordsPreferencePage extends
                     AlertWord word = new AlertWord(stringEditor
                             .getStringValue(), colorEditor.getColorSelector()
                             .getColorValue());
-                    word.setSoundPath(fileEditor.getStringValue());
-                    word.setFont(fontEditor
-                            .getFontValue(getFieldEditorParent()));
+                    word.setFont(fontLabel.getText());
                     word.setSoundPath(fileEditor.getStringValue());
                     ((List<AlertWord>) viewer.getInput()).add(word);
                     viewer.refresh();
@@ -191,25 +229,10 @@ public class CollaborationAlertWordsPreferencePage extends
                                 new RGB(word.getRed(), word.getGreen(), word
                                         .getBlue()));
                 stringEditor.setStringValue(word.getText());
-                fontEditor.setFontValue(word.getFont(), getFieldEditorParent());
+                fontLabel.setText(word.getFont());
                 fileEditor.setStringValue(word.getSoundPath());
             }
         });
-    }
-
-    private class FontFieldChangeEditor extends FontFieldEditor {
-        public FontFieldChangeEditor(String name, String text, Composite parent) {
-            super(name, text, parent);
-        }
-
-        public String getFontValue(Composite parent) {
-            return getValueControl(parent).getText();
-        }
-
-        public void setFontValue(String string, Composite parent) {
-            getValueControl(parent).setText(string);
-            doLoad();
-        }
     }
 
     public boolean performOk() {
@@ -220,6 +243,7 @@ public class CollaborationAlertWordsPreferencePage extends
         CollaborationConnection connection = CollaborationDataManager
                 .getInstance().getCollaborationConnection(false);
         if (connection != null && connection.isConnected()) {
+            // refresh any open chats or sessions
             connection.getEventPublisher().post(wrapper);
         }
         return true;
