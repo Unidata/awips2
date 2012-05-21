@@ -19,18 +19,7 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.objects;
 
-import java.util.Arrays;
-
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
-
-import com.raytheon.uf.common.geospatial.TransformFactory;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.IShape;
-import com.raytheon.uf.viz.remote.graphics.Activator;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
@@ -56,24 +45,14 @@ import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 public abstract class AbstractDispatchingShape<T extends IShape> extends
         DispatchingObject<T> implements IShape {
 
-    private MathTransform worldToTargetGrid;
-
     private boolean dirty = true;
 
     /**
      * @param targetObject
      * @param dispatcher
      */
-    public AbstractDispatchingShape(T targetObject, Dispatcher dispatcher,
-            GeneralGridGeometry targetGeometry) {
+    public AbstractDispatchingShape(T targetObject, Dispatcher dispatcher) {
         super(targetObject, dispatcher);
-        try {
-            worldToTargetGrid = TransformFactory.worldToGrid(targetGeometry,
-                    PixelInCell.CELL_CENTER);
-        } catch (FactoryException e) {
-            Activator.statusHandler.handle(Priority.PROBLEM,
-                    "Error getting transform from base crs to target grid", e);
-        }
     }
 
     /**
@@ -144,21 +123,4 @@ public abstract class AbstractDispatchingShape<T extends IShape> extends
      */
     protected abstract void flushInternalState();
 
-    /**
-     * Convert a "world" pixel to the target geometry grid space
-     * 
-     * @param world
-     * @return
-     * @throws TransformException
-     */
-    protected double[] worldToPixel(double[] world) throws TransformException {
-        if (worldToTargetGrid != null) {
-            double[] out = new double[world.length];
-            worldToTargetGrid.transform(world, 0, out, 0, 1);
-            return out;
-        } else {
-            return Arrays.copyOf(world, world.length);
-        }
-
-    }
 }

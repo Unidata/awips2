@@ -871,7 +871,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
             GeneralGridGeometry targetGeometry, boolean tesselate) {
         DispatchingShadedShape shape = new DispatchingShadedShape(
                 wrappedObject.createShadedShape(mutable, targetGeometry,
-                        tesselate), getDispatcher(), targetGeometry);
+                        tesselate), getDispatcher());
         // Send creation event
         CreateShadedShapeEvent event = RemoteGraphicsEventFactory.createEvent(
                 CreateShadedShapeEvent.class, shape);
