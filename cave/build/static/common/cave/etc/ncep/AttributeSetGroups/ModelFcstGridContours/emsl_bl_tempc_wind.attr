@@ -9,6 +9,8 @@
 !
 GLEVEL=30:0!30:0!30:0!0   !30:0
 GVCORD=pdly!pdly!pdly!none!pdly
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=tmpc!tmpc!tmpc!sm5s(emsl) ! kntv(wnd)
 TYPE=c/f !c   !c   !c           ! b
