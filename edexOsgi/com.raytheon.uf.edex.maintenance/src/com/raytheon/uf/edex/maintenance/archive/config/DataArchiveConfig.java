@@ -54,6 +54,9 @@ public class DataArchiveConfig {
     @XmlElement
     private Boolean archivingEnabled;
 
+    @XmlElement
+    private Boolean compressionEnabled;
+
     /**
      * @return the pluginName
      */
@@ -99,11 +102,30 @@ public class DataArchiveConfig {
         this.archivingEnabled = archivingEnabled;
     }
 
+    /**
+     * @param compressionEnabled
+     *            the compressionEnabled to set
+     */
+    public void setCompressionEnabled(Boolean compressionEnabled) {
+        this.compressionEnabled = compressionEnabled;
+    }
+
+    /**
+     * @return the compressionEnabled
+     */
+    public Boolean getCompressionEnabled() {
+        return compressionEnabled;
+    }
+
     public boolean isArchivingEnabledSet() {
         return archivingEnabled != null;
     }
 
     public boolean isHoursToKeepSet() {
         return hoursToKeep != null;
+    }
+
+    public boolean isCompressionEnabledSet() {
+        return (compressionEnabled != null);
     }
 }
