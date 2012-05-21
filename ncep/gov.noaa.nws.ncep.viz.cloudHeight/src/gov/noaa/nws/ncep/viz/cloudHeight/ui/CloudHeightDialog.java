@@ -84,6 +84,8 @@ public class CloudHeightDialog extends Dialog {
     private CloudHeightAction associatedCloudHeightAction;
     
 	private static CloudHeightDialog INSTANCE = null;
+	
+	private boolean closedOnce = false;
     
     public enum SoundingDataSourceType {
     	STANDARD_ATM,
@@ -481,7 +483,11 @@ public class CloudHeightDialog extends Dialog {
 
         opts_btn.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
-       	    	// 
+       	    	//
+       			if (closedOnce) {
+       				optsDlg = null;
+       				init();
+       			}
        			if( optsDlg != null && !optsDlg.isOpen() ) {
        				optsDlg.open();
        			}
@@ -814,6 +820,7 @@ public class CloudHeightDialog extends Dialog {
     public void close() {
     	if ( shell != null) shell.dispose();
     	isOpen = false;
+    	closedOnce = true;
     }
     
    public int getMaxValidIntervalInHoursForStationData(){

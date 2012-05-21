@@ -154,7 +154,7 @@ public class D2DNSharpResource extends
             // current frame.
             while (picked != null
                     && !skewRsc.getPickedStnInfoStr().equals(picked)) {
-                skewRsc.setSteppingDataTimeLine(FrameChangeOperation.NEXT,
+                skewRsc.setSteppingTimeLine(FrameChangeOperation.NEXT,
                         FrameChangeMode.TIME_AND_SPACE);
             }
             issueRefresh();

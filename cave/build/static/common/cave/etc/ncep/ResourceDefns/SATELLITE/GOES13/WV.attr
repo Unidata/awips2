@@ -3,3 +3,6 @@ colorMapName=watvap
 colorBar=@dfltMcidasColorBar.xml
 imageType=WV
 displayUnitStr=BRIT
+alpha=1.0
+brightness=1.0
+contrast=1.0

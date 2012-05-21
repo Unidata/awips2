@@ -7,8 +7,7 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 
 import java.awt.Color;
 import java.io.File;
@@ -101,8 +100,8 @@ public class GfaInfo {
 	 * Read the menu configuration from gfa.xml file
 	 */
 	private static void readOptions() {
-		File gfainfoFile = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_GFA_ATTR_FILE );   	    
+		File gfainfoFile = PgenStaticDataProvider.getProvider().getStaticFile( 
+				PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "gfa.xml");   	    
 
 		try {
 			SAXReader reader = new SAXReader();
