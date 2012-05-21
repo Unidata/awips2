@@ -3,4 +3,5 @@
     <pluginName>default</pluginName>
     <hoursToKeep>6</hoursToKeep>
     <archivingEnabled>true</archivingEnabled>
+    <compressionEnabled>true</compressionEnabled>
 </dataArchiveConfig>
