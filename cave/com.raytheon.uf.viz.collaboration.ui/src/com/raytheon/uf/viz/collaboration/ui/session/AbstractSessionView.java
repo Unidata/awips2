@@ -354,13 +354,9 @@ public abstract class AbstractSessionView extends ViewPart {
                         if (!myUser.equals(userId)) {
                             executeSightsSounds(keyword);
                         }
-                        System.out.println("index before : " + index);
                         // need to handle all instances of the keyword within
                         // the chat
                         index = lowerCase.indexOf(text, text.length() + index);
-                        System.out.println("index after : " + index);
-                        System.out.println("messagesText.getCharCount() : "
-                                + messagesText.getCharCount());
                     }
                 }
             }
