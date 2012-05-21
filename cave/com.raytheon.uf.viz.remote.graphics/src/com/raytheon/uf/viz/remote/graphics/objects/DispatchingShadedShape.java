@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.remote.graphics.objects;
 import java.util.ArrayList;
 
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
@@ -60,8 +59,8 @@ public class DispatchingShadedShape extends
      * @param dispatcher
      */
     public DispatchingShadedShape(IShadedShape targetObject,
-            Dispatcher dispatcher, GeneralGridGeometry targetGeometry) {
-        super(targetObject, dispatcher, targetGeometry);
+            Dispatcher dispatcher) {
+        super(targetObject, dispatcher);
         updateEvent = createNewUpdateEvent();
     }
 
