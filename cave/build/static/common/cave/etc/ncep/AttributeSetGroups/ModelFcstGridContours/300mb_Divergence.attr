@@ -1,5 +1,7 @@
 GLEVEL=300
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=5
 GDPFUN=div(obs)
 TYPE=c

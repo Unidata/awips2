@@ -2,3 +2,4 @@
 !
 plotModelName=gfsmos_fosb
 plotDensity=10
+conditionalFilterName=

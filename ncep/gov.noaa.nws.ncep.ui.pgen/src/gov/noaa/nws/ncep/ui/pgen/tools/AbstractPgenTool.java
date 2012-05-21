@@ -10,11 +10,13 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
+//import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.tools.AbstractModalTool;
 
 /**
  * The abstract super class for all PGEN tools.
@@ -33,7 +35,11 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
  * @author	B. Yin
  */
 
-public abstract class AbstractPgenTool extends AbstractNCModalMapTool{
+  public abstract class AbstractPgenTool extends AbstractModalTool{
+  //public abstract class AbstractPgenTool extends AbstractNCModalMapTool{
+	
+//	protected String buttonName = null;
+	protected AbstractEditor mapEditor = null;
 	
 	protected String buttonName = null;
 	private static boolean delObjFlag;
@@ -52,7 +58,13 @@ public abstract class AbstractPgenTool extends AbstractNCModalMapTool{
     @Override
     protected void activateTool( ) {
     	if ( PgenSession.getInstance().getPgenPalette() == null ) return;
-    	super.activateTool(event);
+//    	super.activateTool(event);
+//    	super.activateTool();
+    	
+        if( editor instanceof AbstractEditor ) {
+        	this.mapEditor = (AbstractEditor)super.editor;
+        }
+
     	
     	String param;
     	param = event.getParameter("name");

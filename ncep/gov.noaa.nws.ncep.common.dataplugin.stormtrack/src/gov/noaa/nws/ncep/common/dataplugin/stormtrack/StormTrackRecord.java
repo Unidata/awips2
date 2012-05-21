@@ -73,6 +73,7 @@ public class StormTrackRecord extends PluginDataObject {
 	@Column(length = 32)
 	@XmlElement
 	@DynamicSerializeElement
+	@DataURI(position = 7)
 	private String reportType;
 
 	/**

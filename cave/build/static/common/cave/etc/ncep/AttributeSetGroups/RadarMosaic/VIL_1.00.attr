@@ -2,3 +2,6 @@ colorMapName=nids_vil
 colorBar=@dfltMosaicColorBar.xml
 productCode=209
 prodName=VIL
+alpha=1.0
+brightness=1.0
+contrast=1.0
