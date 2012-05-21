@@ -31,6 +31,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent.WireframeShapeDataAdapter;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Wireframe shape data event which contains coordinates and labels to add to
@@ -73,12 +74,23 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
                 serializer.writeString(l.getText());
                 serializer.writeDoubleArray(l.getPoint());
             }
-            serializer.writeI32(object.coordinates.size());
-            for (double[][] coords : object.coordinates) {
+            serializer.writeI32(object.pixelCoordinates.size());
+            for (double[][] coords : object.pixelCoordinates) {
                 serializer.writeI32(coords.length);
                 for (double[] coord : coords) {
                     serializer.writeDoubleArray(coord);
                 }
+            }
+            serializer.writeI32(object.worldCoordiantes.size());
+            for (Coordinate[] coordArray : object.worldCoordiantes) {
+                double[] packedCoords = new double[coordArray.length * 3];
+                int i = 0;
+                for (Coordinate coord : coordArray) {
+                    packedCoords[i++] = coord.x;
+                    packedCoords[i++] = coord.y;
+                    packedCoords[i++] = coord.z;
+                }
+                serializer.writeDoubleArray(packedCoords);
             }
         }
 
@@ -101,6 +113,7 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
                 data.addLabel(deserializer.readString(),
                         deserializer.readDoubleArray());
             }
+
             size = deserializer.readI32();
             for (int i = 0; i < size; ++i) {
                 int size2 = deserializer.readI32();
@@ -108,8 +121,20 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
                 for (int j = 0; j < size2; ++j) {
                     coords[j] = deserializer.readDoubleArray();
                 }
-                data.addCoordinates(coords);
+                data.addPixelCoordinates(coords);
             }
+
+            size = deserializer.readI32();
+            for (int i = 0; i < size; ++i) {
+                double[] packedCoords = deserializer.readDoubleArray();
+                Coordinate[] worldCoords = new Coordinate[packedCoords.length / 3];
+                for (int j = 0, k = 0; j < worldCoords.length; j++) {
+                    worldCoords[j] = new Coordinate(packedCoords[k++],
+                            packedCoords[k++], packedCoords[k++]);
+                }
+                data.addWorldCoordinates(worldCoords);
+            }
+
             return data;
         }
     }
@@ -164,7 +189,10 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
     }
 
     @DynamicSerializeElement
-    private List<double[][]> coordinates = new LinkedList<double[][]>();
+    private List<double[][]> pixelCoordinates = new LinkedList<double[][]>();
+
+    @DynamicSerializeElement
+    private List<Coordinate[]> worldCoordiantes = new LinkedList<Coordinate[]>();
 
     @DynamicSerializeElement
     private List<Label> labels = new LinkedList<Label>();
@@ -188,18 +216,33 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
     }
 
     /**
-     * @return the coordinates
+     * @return the pixelCoordinates
      */
-    public List<double[][]> getCoordinates() {
-        return coordinates;
+    public List<double[][]> getPixelCoordinates() {
+        return pixelCoordinates;
     }
 
     /**
-     * @param coordinates
-     *            the coordinates to set
+     * @param pixelCoordinates
+     *            the pixelCoordinates to set
      */
-    public void setCoordinates(List<double[][]> coordinates) {
-        this.coordinates = coordinates;
+    public void setPixelCoordinates(List<double[][]> pixelCoordinates) {
+        this.pixelCoordinates = pixelCoordinates;
+    }
+
+    /**
+     * @return the worldCoordiantes
+     */
+    public List<Coordinate[]> getWorldCoordiantes() {
+        return worldCoordiantes;
+    }
+
+    /**
+     * @param worldCoordiantes
+     *            the worldCoordiantes to set
+     */
+    public void setWorldCoordiantes(List<Coordinate[]> worldCoordiantes) {
+        this.worldCoordiantes = worldCoordiantes;
     }
 
     /**
@@ -221,7 +264,11 @@ public class WireframeShapeDataEvent extends AbstractDispatchingObjectEvent {
         labels.add(new Label(text, point));
     }
 
-    public void addCoordinates(double[][] points) {
-        coordinates.add(points);
+    public void addPixelCoordinates(double[][] points) {
+        pixelCoordinates.add(points);
+    }
+
+    public void addWorldCoordinates(Coordinate[] points) {
+        worldCoordiantes.add(points);
     }
 }
