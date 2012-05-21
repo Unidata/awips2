@@ -9,6 +9,8 @@
 !
 GLEVEL=700!700!30:0!0
 GVCORD=pres!pres!pdly!none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sub(add(add(dwpc@850,dwpc),sub(tmpc@850,tmpc@500)),tmpc)!tmpc!dwpf!emsl
 TYPE=c/f!c

@@ -23,6 +23,7 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
@@ -30,7 +31,6 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 //import gov.noaa.nws.ncep.ui.pgen.attrDialog.OutlookAttrDlg;
@@ -459,7 +459,7 @@ public class Outlook extends Contours {
 			
 		String lnInfo = "";
 		
-		List<Station> anchors = StationTableUtil.getAnchorTbl().getStationList();
+		List<Station> anchors = PgenStaticDataProvider.getProvider().getAnchorTbl().getStationList();
 
 		Iterator<AbstractDrawableComponent> it = this.getComponentIterator();
 		while( it.hasNext() ){
@@ -754,7 +754,7 @@ public class Outlook extends Contours {
 		String rainTxt = "RISK OF RAINFALL EXCEEDING FFG TO THE RIGHT OF A LINE FROM";
 		String fiveInch = "TOTAL RAINFALL AMOUNTS OF FIVE INCHES WILL BE POSSIBLE TO THE RIGHT OF A LINE FROM";
 		
-		List<Station> sfstns = StationTableUtil.getSfstnTbl().getStationList();
+		List<Station> sfstns = PgenStaticDataProvider.getProvider().getSfStnTbl().getStationList();
 
 		Iterator<AbstractDrawableComponent> it = this.getComponentIterator();
 		while( it.hasNext() ){

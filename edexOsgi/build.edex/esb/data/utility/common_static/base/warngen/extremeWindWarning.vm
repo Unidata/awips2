@@ -21,7 +21,6 @@ TEST...EXTREME WIND WARNING...TEST
 #else
 EXTREME WIND WARNING
 #end
-
 NATIONAL WEATHER SERVICE ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}

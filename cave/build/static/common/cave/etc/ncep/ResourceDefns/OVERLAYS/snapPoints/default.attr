@@ -1,0 +1,7 @@
+legend_color= RGB {200,71,38}
+color= RGB {139,71,38}
+markerState=MARKER_PLUS_TEXT
+markerType=PLUS_SIGN
+markerSize=1
+markerWidth=1
+markerTextSize=MEDIUM
