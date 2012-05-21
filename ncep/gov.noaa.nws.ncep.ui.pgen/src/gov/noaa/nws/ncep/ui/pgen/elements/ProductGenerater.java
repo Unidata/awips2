@@ -13,6 +13,7 @@ import java.awt.Color;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
@@ -30,7 +31,6 @@ import gov.noaa.nws.ncep.ui.pgen.display.LinePatternManager;
 import gov.noaa.nws.ncep.ui.pgen.display.SymbolPatternManager;
 import gov.noaa.nws.ncep.ui.pgen.display.TrackPoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 
 /**
@@ -758,7 +758,7 @@ class AttributeGenerator implements IArc, IAvnText, ICombo, IKink, IMidCloudText
 	}
 
 	@Override
-	public List<County> getCountyList() {
+	public List<SPCCounty> getCountyList() {
 		// TODO Auto-generated method stub
 		return null;
 	}

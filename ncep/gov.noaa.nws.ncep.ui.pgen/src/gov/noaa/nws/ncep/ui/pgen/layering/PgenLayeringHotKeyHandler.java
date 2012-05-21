@@ -7,7 +7,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -30,7 +30,8 @@ public class PgenLayeringHotKeyHandler extends AbstractHandler {
          }
          
          int layerIndex = Integer.parseInt(layerIndexStr);
-          PgenResource pgenResource = PgenUtil.findPgenResource(NmapUiUtils.getActiveNatlCntrsEditor());
+//          PgenResource pgenResource = PgenUtil.findPgenResource(NmapUiUtils.getActiveNatlCntrsEditor());
+          PgenResource pgenResource = PgenUtil.findPgenResource(PgenUtil.getActiveEditor());
           if(pgenResource != null && layerIndex > 0){
         	  Product activeProduct = pgenResource.getActiveProduct();
         	  int layerListSize = activeProduct.getLayers().size();

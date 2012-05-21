@@ -16,6 +16,9 @@ import javax.measure.converter.ConversionException;
 import javax.measure.quantity.Quantity;
 import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.DataTime.FLAG;
+
 /**
  * An abstract class for all metParameters. This will hold the value of the parameter and 
  * its units.
@@ -35,7 +38,9 @@ import javax.measure.unit.Unit;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 11/20/2006              brockwoo    Initial creation
+ * 05/05/2011              Greg Hull    Initial creation
+ * 06/05/2011              Greg Hull    Added check for infinite recursion in derive method.
+ * 10/05/2011              Greg Hull    add dataTime 
  * 
  * </pre>
  * 
@@ -60,13 +65,21 @@ public abstract class AbstractMetParameter extends Amount implements Quantity {
 	// just these parameters.
 	protected ArrayList<String> preferedDeriveParameters;
 	
+	protected DataTime dataTime;
 	
-	protected AbstractMetParameter( Unit<?> u ) { // String ncPrmName ) {
+	protected AbstractMetParameter( Unit<?> u ) {
 		super( u );
 		valueString = null;
 		standardUnit = u;
 	}
 	
+	protected AbstractMetParameter( Unit<?> u, DataTime dt ) { 
+		super( u );
+		valueString = null;
+		standardUnit = u;
+		dataTime = dt;
+	}
+
 	// Override for real Description information
 	public String getParameterDescription( ) {
 		return getMetParamName();
@@ -87,6 +100,31 @@ public abstract class AbstractMetParameter extends Amount implements Quantity {
 	public String getStringValue() {
 		return (valueString == null ? "" : valueString);
 	
+	}
+	
+	public Boolean hasValidTime( ) {
+		return ( dataTime != null );
+	}
+	
+	public DataTime getValidTime() {
+		return dataTime;
+	}
+	
+	public Boolean isValidAtTime( DataTime dt ) {
+		if( dataTime == null ) {
+			return null;
+		}
+			
+		if( dataTime.getUtilityFlags().contains( FLAG.PERIOD_USED ) ) {
+			return dataTime.getValidPeriod().contains( dt.getValidTime().getTime() );
+		}
+		else {
+			return dataTime.compareTo( dt ) == 0; 
+		}
+	}
+	
+	public void setValidTime( DataTime dt ) {
+		dataTime = dt;
 	}
 	
 	@Override

@@ -28,11 +28,9 @@ import java.lang.reflect.*;
 import org.w3c.dom.*;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
-
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * The class for Volcano info storage and utilities 
@@ -395,8 +393,8 @@ public class VaaInfo {
 		
 		try {
 			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  File vaaFile = NcPathManager.getInstance().getStaticFile( 
-					  NcPathConstants.PGEN_VAA_FILE );
+			  File vaaFile = PgenStaticDataProvider.getProvider().getStaticFile( 
+					  PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "vaa.xml" );
 			  
 			  doc = builder.parse( vaaFile.getAbsoluteFile() );
 		} catch (Exception e) { 
@@ -1180,7 +1178,7 @@ public class VaaInfo {
 						return sb.toString();
 					
 					if(fhr.substring(0, 3).contains(hour)){
-						String txt = getParsedTxt(fhr,fromLine, vac.getType(), Integer.toString((int)(vac.getWidth()/PgenUtil.NM2M)));											
+						String txt = getParsedTxt(fhr,fromLine, vac.getType(), Integer.toString((int) (vac.getWidth())));											
 
 						//OBS takes ONLY the first element if NotSeen is present
 						if( ! VaaInfo.LAYERS[2].equals(hour )
