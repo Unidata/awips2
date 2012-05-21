@@ -40,8 +40,8 @@ import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
  * */
 public class TrackConverter {
 
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(TrackConverter.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(TrackConverter.class);
 	
 	/*
 	 *  Convert a XML file DrawableElement object to a list of PGEN in-memory 
@@ -236,7 +236,7 @@ public class TrackConverter {
     		indexOffSet++; 
     	List<TrackPoint> trackPointElementList = getTrackPointElementListByTrackPointBeanList(trackBean.getInitialPoints()); 
     	if(trackPointElementList == null || trackPointElementList.size() < 2) {
-    		log.error("Retrieved List<TrackPoint> trackPointElementList is NULL or the initial points are less than 2 points"); 
+//    		log.error("Retrieved List<TrackPoint> trackPointElementList is NULL or the initial points are less than 2 points"); 
     		return null; 
     	}
     	int listSize = 	trackPointElementList.size(); 
@@ -310,7 +310,7 @@ public class TrackConverter {
             	XMLGregorianCalendar xmlGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
             	trackPointBean.setTime(xmlGregorianCalendar); 
         	} catch(DatatypeConfigurationException dce) {
-        		log.error("Error, instantiating XMLGregorianCalendar failed, error="+dce.getMessage()); 
+//        		log.error("Error, instantiating XMLGregorianCalendar failed, error="+dce.getMessage()); 
         	}
     	}
     	if(trackPointElement.getLocation() != null) {

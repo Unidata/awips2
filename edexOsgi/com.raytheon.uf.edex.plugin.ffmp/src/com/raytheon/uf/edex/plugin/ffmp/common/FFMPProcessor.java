@@ -257,6 +257,8 @@ public class FFMPProcessor {
                     dhrMap = RadarRecordUtil.getDHRValues(radarRec);
                     statusHandler.handle(Priority.INFO,
                             "DHR Bias: " + dhrMap.get(DHRValues.BIAS_TO_USE));
+                    statusHandler.handle(Priority.INFO,
+                            "DHR HailCap: " + dhrMap.get(DHRValues.MAXPRECIPRATEALLOW));
                 }
 
                 recdate = radarRec.getDataTime().getRefTime();

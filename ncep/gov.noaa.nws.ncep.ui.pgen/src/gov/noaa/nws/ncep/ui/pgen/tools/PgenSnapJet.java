@@ -12,9 +12,10 @@ import java.awt.Color;
 import java.util.Iterator;
 
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.JetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.CurveFitter;
 import gov.noaa.nws.ncep.ui.pgen.display.ISinglePoint;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType;
@@ -28,7 +29,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet.JetHash;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet.JetText;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Implements snap functions for jet.
@@ -58,7 +59,8 @@ public class PgenSnapJet implements IJetTools{
 	// Map editor is needed for zooming.
 	// Map descriptor  is needed when projection changes
 	private IMapDescriptor descriptor;
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	private JetAttrDlg jetDlg;
 	private JetHash hashTmp;
 	private static final double defaultZoomLevel = 0.24;
@@ -67,7 +69,8 @@ public class PgenSnapJet implements IJetTools{
 	 * public constructor
 	 * @param mapEditor
 	 */
-	public PgenSnapJet( IMapDescriptor des, NCMapEditor editor, JetAttrDlg dlg ){
+//	public PgenSnapJet( IMapDescriptor des, NCMapEditor editor, JetAttrDlg dlg ){
+	public PgenSnapJet( IMapDescriptor des, AbstractEditor editor, JetAttrDlg dlg ){
 		this.descriptor = des;
 		this.mapEditor = editor;
 		this.jetDlg = dlg;
@@ -578,7 +581,8 @@ public class PgenSnapJet implements IJetTools{
 	 */
 	public Coordinate relative2LatLon(Coordinate relativeLoc, Vector barb) {
 		
-		double scaleFactor = mapEditor.getSelectedPane().getZoomLevel() / defaultZoomLevel;
+//		double scaleFactor = mapEditor.getSelectedPane().getZoomLevel() / defaultZoomLevel;
+		double scaleFactor = mapEditor.getActiveDisplayPane().getZoomLevel() / defaultZoomLevel;
 		
 		double [] pt0 = descriptor.worldToPixel( new double[]{barb.getPoints().get(0).x, barb.getPoints().get(0).y});
 
@@ -618,7 +622,8 @@ public class PgenSnapJet implements IJetTools{
 		
 		//get radius in the polar coordinate system
 		polar.x = Math.sqrt(deltaX*deltaX+deltaY*deltaY);
-		double scaleFactor = mapEditor.getSelectedPane().getZoomLevel() / defaultZoomLevel;
+//		double scaleFactor = mapEditor.getSelectedPane().getZoomLevel() / defaultZoomLevel;
+		double scaleFactor = mapEditor.getActiveDisplayPane().getZoomLevel() / defaultZoomLevel;
 
 		polar.x /= scaleFactor;
 		//get angular wind barb and flight text
