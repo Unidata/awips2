@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.remote.graphics.objects;
 import java.util.ArrayList;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
@@ -61,7 +60,7 @@ public class DispatchingWireframeShape extends
      */
     public DispatchingWireframeShape(IWireframeShape targetObject,
             Dispatcher dispatcher, GeneralGridGeometry targetGeometry) {
-        super(targetObject, dispatcher, targetGeometry);
+        super(targetObject, dispatcher);
         this.updateEvent = createNewUpdateEvent();
     }
 
@@ -71,8 +70,10 @@ public class DispatchingWireframeShape extends
             WireframeShapeDataEvent toSend = updateEvent;
             if (wrappedObject.isMutable()) {
                 toSend = createNewUpdateEvent();
-                toSend.setCoordinates(new ArrayList<double[][]>(updateEvent
-                        .getCoordinates()));
+                toSend.setPixelCoordinates(new ArrayList<double[][]>(
+                        updateEvent.getPixelCoordinates()));
+                toSend.setWorldCoordiantes(new ArrayList<Coordinate[]>(
+                        updateEvent.getWorldCoordiantes()));
                 toSend.setLabels(new ArrayList<Label>(updateEvent.getLabels()));
             } else {
                 updateEvent = null;
@@ -104,16 +105,10 @@ public class DispatchingWireframeShape extends
      */
     public void addLineSegment(Coordinate[] latLong) {
         wrappedObject.addLineSegment(latLong);
-        double[][] points = new double[latLong.length][];
-        for (int i = 0; i < latLong.length; ++i) {
-            try {
-                points[i] = worldToPixel(new double[] { latLong[i].x,
-                        latLong[i].y });
-            } catch (TransformException e) {
-                // Ignore...
-            }
+        if (updateEvent != null) {
+            updateEvent.addWorldCoordinates(latLong);
+            markDirty();
         }
-        addLineSegment(points);
     }
 
     /**
@@ -123,7 +118,7 @@ public class DispatchingWireframeShape extends
     public void addLineSegment(double[][] screenCoordinates) {
         wrappedObject.addLineSegment(screenCoordinates);
         if (updateEvent != null) {
-            updateEvent.addCoordinates(screenCoordinates);
+            updateEvent.addPixelCoordinates(screenCoordinates);
             markDirty();
         }
     }
