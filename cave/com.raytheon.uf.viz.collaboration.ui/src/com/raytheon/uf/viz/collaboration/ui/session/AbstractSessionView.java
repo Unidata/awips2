@@ -331,24 +331,22 @@ public abstract class AbstractSessionView extends ViewPart {
                         keywordRange.start = currentLength + index;
                         keywordRange.length = keyword.getText().length();
 
-                        // compare to see if this position is already styled
-                        // List<StyleRange> rnges = new ArrayList<StyleRange>();
-                        // rnges.addAll(ranges);
-                        // for (StyleRange range : rnges) {
-                        // if (range.start >= keywordRange.start
-                        // && (range.start + range.length) >=
-                        // (keywordRange.start))
-                        // {
-                        // if (range.length < keywordRange.length) {
-                        // ranges.remove(range);
-                        // ranges.add(keywordRange);
-                        // } else {
-                        // ranges.add(keywordRange);
-                        // }
-                        // }
-                        // }
-
                         ranges.add(keywordRange);
+                        // compare to see if this position is already styled
+                        List<StyleRange> rnges = new ArrayList<StyleRange>();
+                        rnges.addAll(ranges);
+                        for (StyleRange range : rnges) {
+                            if (range.start <= keywordRange.start
+                                    && (range.start + range.length) >= keywordRange.start) {
+                                if (keywordRange != range) {
+                                    if (range.length < keywordRange.length) {
+                                        ranges.remove(range);
+                                    } else {
+                                        ranges.remove(keywordRange);
+                                    }
+                                }
+                            }
+                        }
 
                         // only execute things if the same user didn't type it
                         if (!myUser.equals(userId)) {
