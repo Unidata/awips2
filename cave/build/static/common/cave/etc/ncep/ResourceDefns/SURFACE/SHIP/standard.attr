@@ -1,3 +1,4 @@
 ! Parameters and Attributes for the default UAIR Resource
 plotModelName=ship_standard
 plotDensity=12
+conditionalFilterName=

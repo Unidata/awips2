@@ -7,6 +7,8 @@
 !
 GLEVEL=0
 GVCORD=none
+SKIP=
+FILTER=y
 SCALE=0!0!0
 GDPFUN=sm9s(pwtr) !sm9s(pwtr)!sm9s(pwtr)     !kntv(wnd@850%PRES)
 TYPE=c          !c         !c              !b

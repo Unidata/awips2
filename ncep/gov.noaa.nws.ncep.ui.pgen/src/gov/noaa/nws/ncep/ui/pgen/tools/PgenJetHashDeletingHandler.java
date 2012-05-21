@@ -10,10 +10,11 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import java.awt.Color;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.JetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.ISinglePoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.IJetTools;
@@ -21,7 +22,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet.JetHash;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Mouse handler to delete hash when drawing jet.
@@ -39,7 +40,8 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
  */
 public class PgenJetHashDeletingHandler extends InputHandlerDefaultImpl {
 	
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	private PgenResource drawingLayer;
 	private IJetBarb prevTool;
 	private AbstractDrawableComponent hashSelected;
@@ -52,7 +54,8 @@ public class PgenJetHashDeletingHandler extends InputHandlerDefaultImpl {
 	 * @param prevTool
 	 * @param jet
 	 */
-	public PgenJetHashDeletingHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+//	public PgenJetHashDeletingHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+	public PgenJetHashDeletingHandler(AbstractEditor mapEditor, PgenResource drawingLayer,
 			IJetBarb prevTool,  JetAttrDlg jetDlg){
 		this.mapEditor= mapEditor;
 		this.drawingLayer = drawingLayer;
