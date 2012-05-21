@@ -226,6 +226,10 @@ public class DataArchiver {
             defaultConf.setArchivingEnabled(Boolean.TRUE);
         }
 
+        if (!defaultConf.isCompressionEnabledSet()) {
+            defaultConf.setCompressionEnabled(Boolean.TRUE);
+        }
+
         if (!defaultConf.isHoursToKeepSet()) {
             defaultConf.setHoursToKeep(6);
         } else if (defaultConf.getHoursToKeep() < 0) {
@@ -241,6 +245,11 @@ public class DataArchiver {
 
             if (!pluginConf.isArchivingEnabledSet()) {
                 pluginConf.setArchivingEnabled(defaultConf
+                        .getArchivingEnabled());
+            }
+
+            if (!pluginConf.isCompressionEnabledSet()) {
+                pluginConf.setCompressionEnabled(defaultConf
                         .getArchivingEnabled());
             }
 
