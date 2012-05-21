@@ -55,6 +55,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -823,9 +824,10 @@ public class Level3BaseRadar {
                 AFOSProductId afos = new AFOSProductId(afosId);
                 if (afos.isFilled()) {
                     try {
+                        Calendar cal = (TimeTools.allowArchive() ? theMsgTimestamp
+                                : Calendar.getInstance());
                         RadarEdexTextProductUtil.storeTextProduct(afos, header,
-                                tabularBlock.getString(), true,
-                                Calendar.getInstance());
+                                tabularBlock.getString(), true, cal);
                     } catch (Exception e) {
                         theHandler.handle(Priority.ERROR,
                                 "Could not store text product", e);
@@ -914,9 +916,10 @@ public class Level3BaseRadar {
             AFOSProductId afos = new AFOSProductId(afosId);
             if (afos.isFilled()) {
                 try {
+                    Calendar cal = (TimeTools.allowArchive() ? theMsgTimestamp
+                            : Calendar.getInstance());
                     RadarEdexTextProductUtil.storeTextProduct(afos, header,
-                            tabularBlock.getString(), true,
-                            Calendar.getInstance());
+                            tabularBlock.getString(), true, cal);
                 } catch (Exception e) {
                     theHandler.handle(Priority.ERROR,
                             "Could not store text product", e);
