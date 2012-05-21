@@ -29,7 +29,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -97,13 +96,10 @@ public class RadarEdexTextProductUtil {
                     textProd.setHdrtime(wmoId.getYYGGgg());
                     textProd.setBbbid(wmoId.getBBBIndicator());
                 }
+                textProd.setRefTime(cal.getTimeInMillis());
                 textProd.setCccid(afosId.getCcc());
                 textProd.setNnnid(afosId.getNnn());
                 textProd.setXxxid(afosId.getXxx());
-                Long refTime = (TimeTools.allowArchive() ? wmoId
-                        .getHeaderDate().getTimeInMillis() : System
-                        .currentTimeMillis());
-                textProd.setRefTime(refTime);
                 textProd.setProduct(text);
                 EDEXUtil.getMessageProducer()
                         .sendAsync(TEXT_ENDPOINT, textProd);
