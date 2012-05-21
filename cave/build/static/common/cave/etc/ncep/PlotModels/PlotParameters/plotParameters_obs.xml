@@ -17,7 +17,7 @@
 
  <PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres"  
                      dbParamName="seaLevelPress" plotUnit="mb" 
-                     plotFormat="%2.2f"/>
+                     plotFormat="%4.0f"/>
 
  <PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"  
                      dbParamName="pressChange3Hour" plotUnit="mb" 
@@ -176,7 +176,7 @@ p24m
         
     <!-- CLOUD -->
  <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
-                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="skyCover" 
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="cloud_chars.txt" />

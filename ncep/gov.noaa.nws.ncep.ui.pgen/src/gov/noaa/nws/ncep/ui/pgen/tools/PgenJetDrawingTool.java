@@ -12,8 +12,8 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 import java.util.ArrayList;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.JetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;

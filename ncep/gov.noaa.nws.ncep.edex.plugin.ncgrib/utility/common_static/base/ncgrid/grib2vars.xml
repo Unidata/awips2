@@ -2475,6 +2475,42 @@
           <missing>-9999.00</missing>
      </grib2vars>
      <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>10</discipline>
+          <category>3</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Hurricane Storm Surge</name>
+          <units>m</units>
+          <gnam>SURGE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>10</discipline>
+          <category>3</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Extra Tropical Storm Surge</name>
+          <units>m</units>
+          <gnam>ETSRG</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>10</discipline>
+          <category>3</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Ocean Surface Elevation Relative to Geoid</name>
+          <units>m</units>
+          <gnam>ELEV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
           <g2varsid>250</g2varsid>
           <discipline>0</discipline>
           <category>0</category>
