@@ -267,8 +267,9 @@ public abstract class AbstractSessionView extends ViewPart {
         cal.setTimeInMillis(timestamp);
         String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
 
-        if (!CollaborationDataManager.getInstance()
-                .getCollaborationConnection(true).getUser().equals(userId)
+        UserId myUser = CollaborationDataManager.getInstance()
+                .getCollaborationConnection(true).getUser();
+        if (!myUser.equals(userId)
                 && Activator.getDefault().getPreferenceStore()
                         .getBoolean("notifications")) {
             createNotifier(userId, time, body);
@@ -297,50 +298,70 @@ public abstract class AbstractSessionView extends ViewPart {
         List<StyleRange> ranges = new ArrayList<StyleRange>();
         if (alertWords != null) {
             for (AlertWord keyword : alertWords) {
-                if (sb.toString().toLowerCase()
-                        .contains(keyword.getText().toLowerCase())) {
-                    Font font = null;
-                    if (fonts.containsKey(keyword.getFont())) {
-                        font = fonts.get(keyword.getFont());
-                    } else {
-                        FontData fd = StringConverter.asFontData(keyword
-                                .getFont());
-                        font = new Font(Display.getCurrent(), fd);
-                        fonts.put(keyword.getFont(), font);
-                    }
-                    RGB rgb = new RGB(keyword.getRed(), keyword.getGreen(),
-                            keyword.getBlue());
-                    Color color = null;
-                    if (colors.containsKey(rgb)) {
-                        color = colors.get(rgb);
-                    } else {
-                        color = new Color(Display.getCurrent(), rgb);
-                        colors.put(rgb, color);
-                    }
-                    TextStyle style = new TextStyle(font, color, null);
-                    StyleRange keywordRange = new StyleRange(style);
-                    keywordRange.start = messagesText.getCharCount()
-                            + sb.toString().toLowerCase()
-                                    .indexOf(keyword.getText().toLowerCase());
-                    keywordRange.length = keyword.getText().length();
+                String text = keyword.getText().toLowerCase();
+                if (sb.toString().toLowerCase().contains(text)) {
+                    String lowerCase = sb.toString().toLowerCase();
+                    // getting the current length of the text
+                    int currentLength = messagesText.getCharCount();
+                    int index = lowerCase.indexOf(text);
+                    while (index >= 0) {
+                        Font font = null;
+                        // storing off fonts so we don't leak
+                        if (fonts.containsKey(keyword.getFont())) {
+                            font = fonts.get(keyword.getFont());
+                        } else {
+                            FontData fd = StringConverter.asFontData(keyword
+                                    .getFont());
+                            font = new Font(Display.getCurrent(), fd);
+                            fonts.put(keyword.getFont(), font);
+                        }
 
-                    // compare to see if this position is already styled
-                    // List<StyleRange> rnges = new ArrayList<StyleRange>();
-                    // rnges.addAll(ranges);
-                    // for (StyleRange range : rnges) {
-                    // if (range.start >= keywordRange.start
-                    // && (range.start + range.length) >= (keywordRange.start))
-                    // {
-                    // if (range.length < keywordRange.length) {
-                    // ranges.remove(range);
-                    // ranges.add(keywordRange);
-                    // } else {
-                    // ranges.add(keywordRange);
-                    // }
-                    // }
-                    // }
-                    ranges.add(keywordRange);
-                    executeSightsSounds(keyword);
+                        RGB rgb = new RGB(keyword.getRed(), keyword.getGreen(),
+                                keyword.getBlue());
+                        Color color = null;
+                        // using the stored colors so we don't leak
+                        if (colors.containsKey(rgb)) {
+                            color = colors.get(rgb);
+                        } else {
+                            color = new Color(Display.getCurrent(), rgb);
+                            colors.put(rgb, color);
+                        }
+                        TextStyle style = new TextStyle(font, color, null);
+                        StyleRange keywordRange = new StyleRange(style);
+                        keywordRange.start = currentLength + index;
+                        keywordRange.length = keyword.getText().length();
+
+                        // compare to see if this position is already styled
+                        // List<StyleRange> rnges = new ArrayList<StyleRange>();
+                        // rnges.addAll(ranges);
+                        // for (StyleRange range : rnges) {
+                        // if (range.start >= keywordRange.start
+                        // && (range.start + range.length) >=
+                        // (keywordRange.start))
+                        // {
+                        // if (range.length < keywordRange.length) {
+                        // ranges.remove(range);
+                        // ranges.add(keywordRange);
+                        // } else {
+                        // ranges.add(keywordRange);
+                        // }
+                        // }
+                        // }
+
+                        ranges.add(keywordRange);
+
+                        // only execute things if the same user didn't type it
+                        if (!myUser.equals(userId)) {
+                            executeSightsSounds(keyword);
+                        }
+                        System.out.println("index before : " + index);
+                        // need to handle all instances of the keyword within
+                        // the chat
+                        index = lowerCase.indexOf(text, text.length() + index);
+                        System.out.println("index after : " + index);
+                        System.out.println("messagesText.getCharCount() : "
+                                + messagesText.getCharCount());
+                    }
                 }
             }
         }
