@@ -11,7 +11,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 import static java.lang.Math.*;
 
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackExtrapPointInfoDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TrackExtrapPointInfoDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.ISinglePoint;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;

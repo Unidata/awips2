@@ -5,7 +5,7 @@
     <resourceCategory>OVERLAY</resourceCategory>
 	<resourceParameters>
 dbName=ncep
-tableName=bounds.ascartcc
+tableName=bounds.awcartcc
 labelField=area
 mapName=ARTCC Boundaries</resourceParameters>    
     <filterLabels></filterLabels>

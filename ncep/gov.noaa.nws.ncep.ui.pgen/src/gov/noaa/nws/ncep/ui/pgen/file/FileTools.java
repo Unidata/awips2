@@ -9,9 +9,10 @@ package gov.noaa.nws.ncep.ui.pgen.file;
 
 import java.net.URL;
 
-import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductTypes;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductTypes;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -21,9 +22,6 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 import java.io.File;
-
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Define a file tool for reading/writing PGEN products using JAXB.
@@ -49,7 +47,7 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
  */
 public class FileTools {
 	
-	private static Logger log = Logger.getLogger(FileTools.class);
+//	private static Logger log = Logger.getLogger(FileTools.class);
     
 	/**
 	 * Reads product in a file into a JAXB-based Products object
@@ -95,7 +93,8 @@ public class FileTools {
 			SerializationUtil.jaxbMarshalToXmlFile(products, fileName);
 
 		} catch (SerializationException e) {
-			log.error("SerializationException thrown", e);
+//			log.error("SerializationException thrown", e);
+			e.printStackTrace();
 		}
 
 	}
@@ -111,7 +110,8 @@ public class FileTools {
 			types = (ProductTypes) SerializationUtil.jaxbUnmarshalFromXmlFile(fileName);
 			
 		} catch (SerializationException e) {
-			log.error("SerializationException thrown", e);
+//			log.error("SerializationException thrown", e);
+			e.printStackTrace();
 		}
 
 		return types;
@@ -128,7 +128,8 @@ public class FileTools {
 			SerializationUtil.jaxbMarshalToXmlFile(types, fileName);
 
 		} catch (SerializationException e) {
-			log.error("SerializationException thrown", e);
+//			log.error("SerializationException thrown", e);
+			e.printStackTrace();
 		}
 
 	}
@@ -143,8 +144,8 @@ public class FileTools {
 		boolean valid = true;
 		
 		if ( xsdFile == null ) {
-			   xsdFile = NcPathManager.getInstance().getStaticFile(
-					   NcPathConstants.PGEN_PROD_SCHEMA ).getAbsolutePath();
+			   xsdFile = PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+					   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "product.xsd" );
 		}
 		
 		File xsdf = new File( fileName );

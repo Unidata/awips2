@@ -6,6 +6,8 @@
 !
 GLEVEL=9823!9823:0!9823:0
 GVCORD=sgma!sgma!sgma
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=thte(mul(.9823;pres@0%none),tmpc,dwpc)//te!te!te
 TYPE=c

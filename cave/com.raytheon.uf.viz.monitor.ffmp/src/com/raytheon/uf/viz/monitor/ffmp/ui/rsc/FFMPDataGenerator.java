@@ -129,8 +129,6 @@ public class FFMPDataGenerator {
 		this.resource = resource;
 		this.monitor = monitor;
 		this.ft = monitor.getTemplates(resource.getSiteKey());
-		// this.time = resource.getTableTime();
-		// this.recentTime = resource.getPaintTime().getRefTime();
 		this.primarySource = resource.getResourceData().getPrimarySourceXML();
 		this.isRate = primarySource.isRate();
 		this.expirationTime = primarySource.getExpirationMinutes(resource
@@ -849,7 +847,6 @@ public class FFMPDataGenerator {
 							new FFMPTableCellData(FIELDS.RATE, virtualBasin
 									.get(cBasin.getPfaf()).getValue(
 											resource.getPaintTime().getRefTime())));
-											
 				} else {
 					trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
 							Float.NaN));
@@ -945,7 +942,6 @@ public class FFMPDataGenerator {
 			if (pfafs.size() > 0) {
 				if (rateBasin != null) {
 					rate = rateBasin.getMaxValue(pfafs, resource.getPaintTime().getRefTime());
-
 					trd.setTableCellData(1, new FFMPTableCellData(FIELDS.RATE,
 							rate));
 				} else {

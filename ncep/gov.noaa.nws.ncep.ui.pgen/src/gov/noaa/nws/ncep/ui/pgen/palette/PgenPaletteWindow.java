@@ -76,12 +76,12 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.filter.CategoryFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
 import gov.noaa.nws.ncep.ui.pgen.palette.Activator;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductDialogStarter;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductDialogStarter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * The PGEN View is used for all interaction with the objects in the PGEN Resource,
@@ -161,7 +161,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 	private List<String> buttonList = null;     // Names of items that should appear on the palette
 	private IContextActivation pgenContextActivation;
 	
-	private NCMapEditor currentIsMultiPane = null;
+	private AbstractEditor currentIsMultiPane = null;
 	
 	/**
 	 * Constructor
@@ -247,10 +247,6 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		 * change the title to show cycle day and cycle hour 
 		 */
 		PgenCycleTool.updateTitle();
-		if( !PreloadGfaDataThread.loaded ) {
-			// preload the classes to reduce the first GFA format time 
-			new PreloadGfaDataThread().start();
-		}
 
 	}
 
@@ -296,7 +292,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
         /*
          * change the title back to "CAVE"
          */
-        NmapUiUtils.resetCaveTitle();
+//        NmapUiUtils.resetCaveTitle();
+        PgenUtil.resetCaveTitle();
 	}
 
 	/**
@@ -536,7 +533,7 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 	public void widgetSelected( SelectionEvent se ) {
 		
 		IEditorPart editor = VizWorkbenchManager.getInstance().getActiveEditor();
-		if( editor instanceof NCMapEditor ){//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
+		if( editor instanceof AbstractEditor ){//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
 
 
 
@@ -735,19 +732,20 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Activated: "+part.getClass().getCanonicalName() );
 		//if ( part instanceof NCMapEditor &&((NCMapEditor) part).getApplicationName().equals("NA")) {
-		if ( part instanceof NCMapEditor ) {
+		if ( part instanceof AbstractEditor ) {
 			
-			PgenResource rsc = PgenUtil.findPgenResource((NCMapEditor)part);
+			PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor)part);
 			if ( (rsc==null) && (PgenUtil.getPgenMode()==PgenMode.SINGLE) ) rsc = PgenUtil.createNewResource();
 			if ( rsc != null )rsc.setCatFilter(new CategoryFilter((currentCategory==null)?"Any":currentCategory));
 			PgenSession.getInstance().setResource(rsc);
 
-			NCMapEditor editor = (NCMapEditor)part;
-			if ( editor.getNumberofPanes() > 1 ) {
+			AbstractEditor editor = (AbstractEditor)part;
+//			if ( editor.getNumberofPanes() > 1 ) {
+		    if ( PgenUtil.getNumberofPanes( editor) > 1 ) {
 				currentIsMultiPane = editor;
-				editor.addSelectedPaneChangedListener( this );
+//				editor.addSelectedPaneChangedListener( this );
+			    PgenUtil.addSelectedPaneChangedListener( editor, this );
 			}
-
 			activatePGENContext();
 		} 
 		
@@ -755,7 +753,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 			activatePGENContext();
 			
 			//found NCMapEditor
-			NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); 
+//			AbstractEditor editor = NmapUiUtils.getActiveNatlCntrsEditor(); 
+			AbstractEditor editor = PgenUtil.getActiveEditor(); 
 			if( editor != null ) {
 		    	IRenderableDisplay display = editor.getActiveDisplayPane().getRenderableDisplay();
 		    	ResourceList rscList = display.getDescriptor().getResourceList();
@@ -785,13 +784,14 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		//System.out.println("Something BroughtToTop: "+part.getClass().getCanonicalName() );
 		partActivated(partRef);
 		
-		if ( part instanceof NCMapEditor ) {
-			NCMapEditor editor = (NCMapEditor)part;
-			PgenResource rsc = PgenUtil.findPgenResource((NCMapEditor)part);
+		if ( part instanceof AbstractEditor ) {
+			AbstractEditor editor = (AbstractEditor)part;
+			PgenResource rsc = PgenUtil.findPgenResource((AbstractEditor)part);
 
 			if ( (rsc != null) && (PgenUtil.getPgenMode()==PgenMode.SINGLE) 
 					&& (PgenUtil.doesLayerLink() ) ) {
-				int id = NmapUiUtils.getNcDisplayID( editor.getDisplayName() );
+//				int id = NmapUiUtils.getNcDisplayID( editor.getDisplayName() );
+				int id = PgenUtil.getDisplayID( PgenUtil.getDisplayName( editor ) );
 				
 				if ( id > 0  &&  rsc != null ) {
 					
@@ -831,10 +831,13 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 				}
 			}
 			
-			if ( currentIsMultiPane != null ) currentIsMultiPane.removeSelectedPaneChangedListener( this );
+//			if ( currentIsMultiPane != null ) currentIsMultiPane.removeSelectedPaneChangedListener( this );
+			if ( currentIsMultiPane != null ) {
+				PgenUtil.removeSelectedPaneChangedListener( currentIsMultiPane, this );
+			}
 		}
-		else if ( part instanceof NCMapEditor ) {
-			PgenResource pgen = PgenUtil.findPgenResource( (NCMapEditor) part );
+		else if ( part instanceof AbstractEditor ) {
+			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
 				pgen.closeDialogs();
 			}
@@ -846,21 +849,23 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Deactivated: "+part.getClass().getCanonicalName() );
 		
-		if ( part instanceof NCMapEditor ) {
+		if ( part instanceof AbstractEditor ) {
 			
-			PgenResource pgen = PgenUtil.findPgenResource( (NCMapEditor) part );
+			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
 				pgen.removeGhostLine();
 				pgen.removeSelected();
 				//pgen.closeDialogs();
 				deactivatePGENContext();
-				((NCMapEditor) part).refresh();
+				((AbstractEditor) part).refresh();
 			}
 			
-			NCMapEditor editor = (NCMapEditor)part;
-			 if ( editor.getNumberofPanes() > 1 ) {
+			AbstractEditor editor = (AbstractEditor)part;
+//			 if ( editor.getNumberofPanes() > 1 ) {
+		     if ( PgenUtil.getNumberofPanes( editor) > 1 ) {
 				 currentIsMultiPane = null;
-				 editor.removeSelectedPaneChangedListener( this );
+//				 editor.removeSelectedPaneChangedListener( this );
+				 PgenUtil.removeSelectedPaneChangedListener(editor, this );
 			 }
 
 		}
@@ -873,8 +878,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 
 	@Override
 	public void partOpened(IWorkbenchPartReference partRef) {
-		//IWorkbenchPart part = partRef.getPart(false);
-		//System.out.println("Something Opened: "+part.getClass().getCanonicalName() );
+//		IWorkbenchPart part = partRef.getPart(false);
+//		System.out.println("Something Opened: "+part.getClass().getCanonicalName() );
 	}
 	
 	@Override
@@ -882,8 +887,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IWorkbenchPart part = partRef.getPart(false);
 		//System.out.println("Something Hidden: "+part.getClass().getCanonicalName() );
 		
-		if ( part instanceof NCMapEditor ) {
-			PgenResource pgen = PgenUtil.findPgenResource( (NCMapEditor) part );
+		if ( part instanceof AbstractEditor ) {
+			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
 				pgen.closeDialogs();
 			}
@@ -897,8 +902,14 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 
 	@Override
 	public void partVisible(IWorkbenchPartReference partRef) {
-		// TODO Auto-generated method stub
-	}   
+		IWorkbenchPart part = partRef.getPart(false);
+		//System.out.println("Something Opened: "+part.getClass().getCanonicalName() );
+		if(part instanceof AbstractEditor && !PreloadGfaDataThread.loaded ) {
+			// preload the classes to reduce the first GFA format time 
+			new PreloadGfaDataThread().start();
+		}
+
+	}	   
 
 	private void unloadPgenResource(AbstractEditor editor) {
 		

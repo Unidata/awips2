@@ -29,9 +29,6 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -54,6 +51,7 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 25, 2010 4759       dhladky     Initial creation.
+ * Mar 15, 2012 14510      zhao        modified processProductAtStartup()
  * 
  * </pre>
  * 
@@ -63,8 +61,6 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  */
 
 public abstract class ObsMonitor extends Monitor {
-    private static final IUFStatusHandler statusHandler = UFStatus.getHandler(
-            ObsMonitor.class, "ObsMonitor");
     @Override
     protected abstract boolean filterNotifyMessage(NotificationMessage alertMessage);
 
@@ -90,6 +86,8 @@ public abstract class ObsMonitor extends Monitor {
      */
     protected abstract void process(ObReport result)
 			throws Exception;
+    
+    protected abstract void processAtStartup(ObReport report);
 
     @Override
     protected abstract void processNotifyMessage(NotificationMessage filtered);
@@ -246,30 +244,19 @@ public abstract class ObsMonitor extends Monitor {
                 final Object[] resp = Connector.getInstance().connect(script,
                         null,
 						60000);
-				System.out.println("ObsMonitor: Retriving data for monitor: "
-						+ monitorUse);
+				System.out.println("ObsMonitor: Retriving data for monitor: " + monitorUse);
 				if ((resp != null) && (resp.length > 0)) {
 
-                    Display.getDefault().syncExec(new Runnable() {
-                        public void run() {
+                   //Display.getDefault().syncExec(new Runnable() {
+                        //public void run() {
                             for (int j = 0; j < resp.length; j++) {
                                 PluginDataObject objectToSend = (PluginDataObject) resp[j];
-                                // ObReport obReport = new ObReport();
-                                // obReport.init();
-                                ObReport result = GenerateFSSObReport
-                                        .generateObReport(objectToSend);
-                                try {
-                                    process(result);
-                                } catch (Exception e) {
-                                    // TODO Auto-generated catch block. Please
-                                    // revise as appropriate.
-                                    statusHandler.handle(Priority.PROBLEM,
-                                            e.getLocalizedMessage(), e);
-                                }
+                                ObReport result = GenerateFSSObReport.generateObReport(objectToSend);
+                                processAtStartup(result);
                             }
-                        }
+                        //}
 
-                    });
+                    //});
 
 				} else if (resp == null) {
 					System.out
