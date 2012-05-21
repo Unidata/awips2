@@ -53,6 +53,7 @@ import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -99,6 +100,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    01/31/12   14306        kshresth     Cursor readout as you sample the dispay
  *    02/10/12     14472       mhuang      Fixed VB 'Height' field legend display error
  *                                         when click 'Diff' button.
+ *    05/08/2012   14828       D. Friedman Use nearest-neighbor interpolation for
+ *                                         reprojected grids.
+ *    05/16/2012   14993       D. Friedman Fix "blocky" contours  
  * 
  * </pre>
  * 
@@ -231,7 +235,7 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                 GridGeometry2D remappedImageGeometry = GridGeometry2D
                         .wrap(MapUtil.reprojectGeometry(gridGeometry,
                                 descriptor.getGridGeometry().getEnvelope(),
-                                true));
+                                true, 2));
                 IDataRecord[] newData = new IDataRecord[results.length];
                 BilinearInterpolation interp = new BilinearInterpolation(
                         gridGeometry, remappedImageGeometry, -9998,

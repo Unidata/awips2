@@ -152,7 +152,7 @@
 	<!-- =================================================================== -->
 	<target name="deploy.for.developer">
 		<echo message="Generating deployment list for feature: ${feature}" />
-		<includegen providerfilter="raytheon|noaa\.nws" basedirectory="${projects.dir}" featurefile="${feature}" cotsout="${includes.dir}/cots.includes" plugsout="${includes.dir}/plugins.includes" coreout="${includes.dir}/core.includes" />
+		<includegen providerfilter="raytheon|noaa\.nws|edu\.wisc" basedirectory="${projects.dir}" featurefile="${feature}" cotsout="${includes.dir}/cots.includes" plugsout="${includes.dir}/plugins.includes" coreout="${includes.dir}/core.includes" />
 		
 		<if>
 			<equals arg1="${update.python}" arg2="true" />

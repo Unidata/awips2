@@ -154,7 +154,8 @@ else
    site=$(echo ${1} | tr '[A-Z]' '[a-z]')
 fi
 
-. /awips2/GFESuite/ServiceBackup/configuration/svcbu.env
+IFPS_DATA="/awips2/GFESuite/ServiceBackup/data"
+GFESUITE_BIN="/awips2/GFESuite/bin"
 
 ################################################################################
 #    Configuration Section                                                     #

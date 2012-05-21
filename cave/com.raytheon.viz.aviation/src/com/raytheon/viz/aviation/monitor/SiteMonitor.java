@@ -453,7 +453,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                          * DR14717: Metar monitor indicators should turn gray when Metar is outdated
                          */
                         if ( latestMetarTime > 0 ) {
-                        	if ( currentTime > latestMetarTime + TafSiteComp.METAR_TIMEOUT_4HR 
+                        	if ( ( currentTime > ( latestMetarTime + TafSiteComp.METAR_TIMEOUT_4HR ) )
                         			&& ( thisMonitor.equals("MetarMonitor") || thisMonitor.equals("PersistMonitor") ) ) {
                         		/**
                         		 * both Current observation monitoring indicators 
@@ -461,7 +461,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                         		 */
                         		GRAY_LABEL = true;
                         		msg = "METAR outdated";
-                        	} else if ( currentTime > latestMetarTime + TafSiteComp.METAR_TIMEOUT_2HR 
+                        	} else if ( ( currentTime > ( latestMetarTime + TafSiteComp.METAR_TIMEOUT_2HR ) )  
                         			&& thisMonitor.equals("PersistMonitor") ) {
                         		/**
                         		 *  Persistence indicators should turn gray
@@ -471,7 +471,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                         	}
                         }
                         
-                        if ( latestMetarTime < 0 && thisMonitor.equals("PersistMonitor") ) {
+                        if ( ( latestMetarTime < 0 ) && thisMonitor.equals("PersistMonitor") ) {
                         	parentSiteComp.setPersistMonitorProcessedFirst(true);
                         }
                         

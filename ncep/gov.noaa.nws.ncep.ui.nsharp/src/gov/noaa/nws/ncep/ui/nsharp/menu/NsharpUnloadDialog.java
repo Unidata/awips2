@@ -25,8 +25,7 @@ import java.util.List;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource.ElementStateProperty;
-
+import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSoundingElementStateProperty;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -113,9 +112,9 @@ public class NsharpUnloadDialog extends Dialog {
 	private void createDiaContents(Composite parent) {
 		//create file widget list 
 		Group sndTimeListGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
-		sndTimeListGp.setText("Loaded Sounding Times:");
+		//sndTimeListGp.setText("Loaded Sounding Times:");
 		sndTimeList = new org.eclipse.swt.widgets.List(sndTimeListGp, SWT.BORDER | SWT.MULTI| SWT.V_SCROLL  );
-		sndTimeList.setBounds(0,0, 2*NsharpConstants.listWidth, NsharpConstants.listHeight );
+		sndTimeList.setBounds(0,0, 2*NsharpConstants.listWidth, NsharpConstants.listHeight * 8);
 		createSndList();
         //create a selection listener to handle user's selection on list		
 		sndTimeList.addListener ( SWT.Selection, new Listener () {
@@ -189,9 +188,17 @@ public class NsharpUnloadDialog extends Dialog {
 			return;
 		//after checking, rsc is not null guaranteed.
 		NsharpSkewTResource rsc = NsharpSkewTEditor.getActiveNsharpEditor().getNsharpSkewTDescriptor().getSkewtResource();
-		List<ElementStateProperty>  timeLineElementList = rsc.getDataTimelineList();
-		for(ElementStateProperty elm: timeLineElementList){
-			sndTimeList.add(elm.getElementDescription());
+		//List<ElementStateProperty>  timeLineElementList = rsc.getDataTimelineList();
+		List<List<NsharpSoundingElementStateProperty>> stnTmTable = rsc.getStnTimeTable();
+		//for(ElementStateProperty elm: timeLineElementList){
+		//	sndTimeList.add(elm.getElementDescription());
+		//}
+		for(List<NsharpSoundingElementStateProperty> stnTmList: stnTmTable){
+			for(NsharpSoundingElementStateProperty tm: stnTmList){
+				if(tm.getElementState() != NsharpSkewTResource.State.NOTAVAIL){
+					sndTimeList.add(tm.getElementDescription());
+				}
+			}
 		}
 	}
 }

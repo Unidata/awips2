@@ -104,7 +104,7 @@
     
     <!-- CLOUD -->
  <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
-                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="clouds_bestCat" 
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="mos_clouds_gfs_s2s.txt" />                   

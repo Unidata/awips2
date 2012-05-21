@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.monitor.data;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -41,6 +42,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
  * Feb 12, 2009 1999       grichard    Initial creation.
  * Dec  9, 2009 3424       zhao        Added member waveHeight and method get(varName)
  * Jan 22, 2010 3888       zhao        Removed member waveHeight, which is the same as highResWaveHeight
+ * May 15, 2012 14510      zhao        added setTimesFromFssobsDataURI()
  * 
  * </pre>
  * 
@@ -694,5 +696,22 @@ public class ObReport {
     public void setSeaLevelPress(float seaLevelPress) {
         this.seaLevelPress = seaLevelPress;
     }
-
+/**
+ * When obs time is missing; set obs time and ref time from fssobs dataURI
+ * Format of fssobs dataURI:
+ * /fssobs/2012-05-14_16:35:00.0/METAR/OAX/KSDA/40.75/-95.41999816894531/ss
+ */
+    public void setTimesFromFssobDataURI(String dataURI) {
+    	String str = dataURI.substring(8, 24);
+    	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'_'hh:mm");
+    	try {
+    		Date obsTime = df.parse(str);
+    		Date refTime = TableUtil.getNominalTime(obsTime);
+    		this.observationTime = obsTime;
+    		this.refHour = refTime;
+    	} catch (java.text.ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
 }
