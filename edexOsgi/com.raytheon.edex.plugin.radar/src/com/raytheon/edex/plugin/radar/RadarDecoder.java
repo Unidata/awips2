@@ -166,8 +166,10 @@ public class RadarDecoder extends AbstractDecoder {
                         AFOSProductId afos = new AFOSProductId("WSR", "ROB",
                                 siteId);
                         // store the product ROB that is barely do-able
+                        Calendar cal = (TimeTools.allowArchive() ? header
+                                .getHeaderDate() : Calendar.getInstance());
                         RadarEdexTextProductUtil.storeTextProduct(afos, header,
-                                dataString, true, Calendar.getInstance());
+                                dataString, true, cal);
                         return new PluginDataObject[0];
                     }
                 }
@@ -492,8 +494,10 @@ public class RadarDecoder extends AbstractDecoder {
                 RadarTextProductUtil.createAfosId(75, splits[1].substring(1)));
 
         // store the product to the text database
-        RadarEdexTextProductUtil.storeTextProduct(afos, header, temp, true,
-                Calendar.getInstance());
+        Calendar cal = (TimeTools.allowArchive() ? header.getHeaderDate()
+                : Calendar.getInstance());
+        RadarEdexTextProductUtil
+                .storeTextProduct(afos, header, temp, true, cal);
 
         // send message to alertviz
         EDEXUtil.sendMessageAlertViz(Priority.VERBOSE,
