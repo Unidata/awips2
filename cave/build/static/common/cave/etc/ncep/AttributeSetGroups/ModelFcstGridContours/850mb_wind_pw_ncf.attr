@@ -8,6 +8,8 @@
 !
 GLEVEL=0
 GVCORD=none
+SKIP=
+FILTER=y
 SCALE=0!0!0
 GDPFUN=quo(pwtr;25.4)//pw!pw !pw! kntv(wnd@850%PRES)
 TYPE=c!c !c! b

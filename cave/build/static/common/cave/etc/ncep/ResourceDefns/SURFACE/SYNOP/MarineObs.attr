@@ -4,3 +4,4 @@ legendString=Marine Synop
 plotModelName=synop_standard
 reportType=1007
 plotDensity=15
+conditionalFilterName=

@@ -8,6 +8,8 @@
 !
 GLEVEL=0
 GVCORD=none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm9s(quo(mul(quo(pwtr;25.4),relh@4700:10000%sgma),100))
 TYPE=c/f 

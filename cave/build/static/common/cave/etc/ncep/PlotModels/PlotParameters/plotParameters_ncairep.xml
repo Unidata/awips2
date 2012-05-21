@@ -64,11 +64,14 @@ wtop              top of wx in ft
                       plotMode="table" symbolFont="WxSymbolFont" 
 					  plotLookupTable="icing_intens_trans.txt"/> 
 
- <PlotParameterDefn   plotParamName="TPOI" metParamName="IcingTypeSymbol"  
+ <PlotParameterDefn   plotParamName="TPOI" metParamName="IceType"  
                       dbParamName="iceType"                     
                       plotMode="table" symbolFont="WxSymbolFont" 
 					  plotLookupTable="icing_type_trans.txt"/> 
-
+  <PlotParameterDefn   plotParamName="ITSY" metParamName="IcingTypeSymbol"  
+                      dbParamName="iceType"                    
+                      plotMode="table" symbolFont="WxSymbolFont" 
+					  plotLookupTable="icing_type2_trans.txt"/> 
 <!-- 
 this references a raytheon lookupTable but in their airepTurbDesign.svg file the plotParam is FLT_HZD??? 
 here we are using turbInten from ncairep instead of flightHazard. Is this correct?
@@ -76,15 +79,18 @@ here we are using turbInten from ncairep instead of flightHazard. Is this correc
   <PlotParameterDefn   plotParamName="TBSY" metParamName="TurbulenceIntensitySymbol"  
                       dbParamName="turbInten"                     
                       plotMode="table" symbolFont="WxSymbolFont" 
-					  plotLookupTable="turb_intens_trans.txt"/> 
-					  
+					  plotLookupTable="turb_intens_trans.txt"/> 					  
   <PlotParameterDefn   plotParamName="TFSY" metParamName="TurbulenceFrequencySymbol"  
                       dbParamName="turbFreq"                     
                       plotMode="table" symbolFont="WxSymbolFont" 
 					  plotLookupTable="turb_freq_trans.txt"/> 
+  <PlotParameterDefn   plotParamName="TTSY" metParamName="TurbulenceTypeSymbol"  
+                      dbParamName="turbType"                     
+                      plotMode="table" symbolFont="WxSymbolFont" 
+					  plotLookupTable="turb_type_trans.txt"/> 
 <!-- SKYC -->
  <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
-                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="skyCover" 
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="cloud_chars.txt" />

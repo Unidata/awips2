@@ -102,7 +102,7 @@ public class D2DNSharpDescriptor extends NsharpSkewTDescriptor {
                 IDescriptor.FrameChangeMode dmode = IDescriptor.FrameChangeMode
                         .valueOf(mode.name());
                 // Just hand this off to the resource.
-                getSkewtResource().setSteppingDataTimeLine(dop, dmode);
+                getSkewtResource().setSteppingTimeLine(dop, dmode);
             }
         };
     }

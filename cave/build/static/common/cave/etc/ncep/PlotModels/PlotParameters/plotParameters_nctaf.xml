@@ -63,7 +63,7 @@
                                   
  <!-- CLOUD -->
  <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
-                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="SCVR_TYPE" 
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="cloud_chars.txt" />
@@ -74,7 +74,7 @@
                      /> 
 
  <PlotParameterDefn  plotParamName="TSKC" metParamName="ProbableSkyCoverage" 
-                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     plotMode="table" symbolFont="WxSymbolFont" 
                      dbParamName="PROBABLE_SCVR_TYPE" 
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="cloud_chars.txt" />
