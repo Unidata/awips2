@@ -287,7 +287,6 @@ public class GFEResource extends
      * @param dataManager
      *            the datamanager responsible for it
      */
-    @SuppressWarnings("unchecked")
     public GFEResource(Parm parm, DataManager dataManager) {
         super(new GFEResourceData(), new LoadProperties());
         this.resourceData.addChangeListener(this);
@@ -312,11 +311,6 @@ public class GFEResource extends
         GridParmInfo info = this.parm.getGridInfo();
         this.gridGeometry = MapUtil.getGridGeometry(info.getGridLoc());
 
-        parm.getListeners().addGridChangedListener(this.gridChanged);
-        parm.getListeners().addParmInventoryChangedListener(
-                this.parmInventoryChanged);
-        parm.getListeners().addParmIDChangedListener(this.parmIdChanged);
-
         lastIscMode = dataManager.getParmManager().iscMode();
 
         updateRightClickMenu();
@@ -338,10 +332,6 @@ public class GFEResource extends
                 }
             }
         };
-
-        dataManager.getNotificationRouter().addObserver(notificationObserver);
-
-        Message.registerInterest(this, ShowISCGridsMsg.class);
     }
 
     public void reset() {
@@ -393,6 +383,7 @@ public class GFEResource extends
             for (IWireframeShape shape : outlineShapes.values()) {
                 shape.dispose();
             }
+            outlineShapes.clear();
         }
 
         if (shadedShapes != null) {
@@ -402,6 +393,7 @@ public class GFEResource extends
                     shadedShape.dispose();
                 }
             }
+            shadedShapes.clear();
         }
 
         dataManager.getNotificationRouter()
@@ -414,13 +406,16 @@ public class GFEResource extends
 
         if (this.gridDisplay != null) {
             this.gridDisplay.dispose();
+            this.gridDisplay = null;
         }
 
         if (this.contourDisplay != null) {
             this.contourDisplay.dispose();
+            this.contourDisplay = null;
         }
 
         clearVectorDisplays();
+        lastDisplayedTime = null;
     }
 
     private void clearVectorDisplays() {
@@ -448,8 +443,17 @@ public class GFEResource extends
      * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        parm.getListeners().addGridChangedListener(this.gridChanged);
+        parm.getListeners().addParmInventoryChangedListener(
+                this.parmInventoryChanged);
+        parm.getListeners().addParmIDChangedListener(this.parmIdChanged);
+
+        dataManager.getNotificationRouter().addObserver(notificationObserver);
+
+        Message.registerInterest(this, ShowISCGridsMsg.class);
 
         // Get the font configured for this parm type
         String fontPrefName = "";
@@ -459,10 +463,6 @@ public class GFEResource extends
             fontPrefName = "Contour_font";
         } else {
             fontPrefName = "BoundedArea_font";
-        }
-
-        if (gfeFont != null) {
-            gfeFont.dispose();
         }
 
         gfeFont = GFEFonts.makeGFEIFont(target, fontPrefName, 2);
