@@ -78,6 +78,9 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
     private RGB boxColor;
 
     @DynamicSerializeElement
+    private RGB shadowColor;
+
+    @DynamicSerializeElement
     private double magnification = 1.0f;
 
     @DynamicSerializeElement
@@ -103,6 +106,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         DrawStringEvent diffObject = new DrawStringEvent();
         diffObject.alpha = diffEvent.alpha;
         diffObject.boxColor = diffEvent.boxColor;
+        diffObject.shadowColor = diffEvent.shadowColor;
         diffObject.xOrColors = diffEvent.xOrColors;
         diffObject.fontId = diffEvent.fontId;
         diffObject.magnification = diffEvent.magnification;
@@ -140,6 +144,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         DrawStringEvent diffObject = (DrawStringEvent) diffEvent;
         alpha = diffObject.alpha;
         boxColor = diffObject.boxColor;
+        shadowColor = diffObject.shadowColor;
         xOrColors = diffObject.xOrColors;
         if (diffObject.colors != null) {
             colors = diffObject.colors;
@@ -169,6 +174,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         this.colors = string.getColors();
         this.alpha = string.basics.alpha;
         this.boxColor = string.boxColor;
+        this.shadowColor = string.shadowColor;
         this.xOrColors = string.basics.xOrColors;
         this.horizontalAlignment = string.horizontalAlignment;
         this.verticalAlignment = string.verticallAlignment;
@@ -187,6 +193,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         ds.basics.alpha = alpha;
         ds.basics.xOrColors = xOrColors;
         ds.boxColor = boxColor;
+        ds.shadowColor = shadowColor;
         ds.horizontalAlignment = horizontalAlignment;
         ds.verticallAlignment = verticalAlignment;
         ds.textStyle = textStyle;
@@ -314,6 +321,21 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
      */
     public void setBoxColor(RGB boxColor) {
         this.boxColor = boxColor;
+    }
+
+    /**
+     * @return the shadowColor
+     */
+    public RGB getShadowColor() {
+        return shadowColor;
+    }
+
+    /**
+     * @param shadowColor
+     *            the shadowColor to set
+     */
+    public void setShadowColor(RGB shadowColor) {
+        this.shadowColor = shadowColor;
     }
 
     /**
