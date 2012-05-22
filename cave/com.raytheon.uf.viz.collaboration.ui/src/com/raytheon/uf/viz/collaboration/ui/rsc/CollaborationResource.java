@@ -291,6 +291,11 @@ public class CollaborationResource extends
 
     @Subscribe
     public void renderFrameEvent(RenderFrameEvent event) {
+        if (dataManager == null) {
+            // Haven't initialized yet, don't process
+            return;
+        }
+
         if (event instanceof UpdateRenderFrameEvent == false) {
             // Not an update event, new frame
             int objectId = event.getObjectId();
