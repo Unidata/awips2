@@ -106,6 +106,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
+import com.raytheon.uf.viz.collaboration.data.InvitationGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
@@ -144,6 +145,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             .getHandler(CollaborationGroupView.class);
 
     private SessionGroupContainer activeSessionGroup;
+
+    private InvitationGroupContainer activeInvitationGroup;
 
     private TreeViewer usersTreeViewer;
 
@@ -298,6 +301,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 .getInfo().getVenueSubject(), "");
                     }
                     session.sendInvitation(ids, invite);
+                    activeInvitationGroup.addObject(invite);
                 } catch (CollaborationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error sending invitiation", e);
@@ -604,6 +608,12 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         // populates the sessions that the user currently is involved with
         populateActiveSessions();
 
+        activeInvitationGroup = new InvitationGroupContainer();
+        topLevel.addObject(activeInvitationGroup);
+        // populates the active invitations in case a user leaves and wants to
+        // rejoin
+        populateActiveInvitations();
+
         // populates the groups that the user is a part of
         populateGroups();
 
@@ -635,6 +645,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             statusHandler.handle(Priority.ERROR,
                     "Unable to populate active sessions", e);
         }
+    }
+
+    private void populateActiveInvitations() {
+        activeInvitationGroup.clear();
     }
 
     /**
@@ -781,8 +795,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
                     UserId id = IDConverter.convertFrom(entry.getUser());
                     id.setAlias(treeEditor.getItem().getText());
-                    ((User) entry.getUser()).setNickname(treeEditor.getItem()
-                            .getText());
+                    if (entry.getUser() instanceof User) {
+                        ((User) entry.getUser()).setNickname(treeEditor
+                                .getItem().getText());
+                    }
                     CollaborationUtils.addAlias();
                     CollaborationDataManager.getInstance()
                             .getCollaborationConnection(true)
@@ -824,8 +840,13 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 case SWT.FocusOut:
                     item.setText(modText.getText());
                     composite.dispose();
-                    ((User) entry.getUser()).setNickname(treeEditor.getItem()
-                            .getText());
+                    if (entry.getUser() instanceof User) {
+                        ((User) entry.getUser()).setNickname(treeEditor
+                                .getItem().getText());
+                    } else if (entry.getUser() instanceof UserId) {
+                        IDConverter.convertFrom(entry.getUser()).setAlias(
+                                treeEditor.getItem().getText());
+                    }
                     CollaborationUtils.addAlias();
                     CollaborationDataManager.getInstance()
                             .getCollaborationConnection(true)
@@ -950,6 +971,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 result.getSubject(), b);
                     }
                     session.sendInvitation(usersList, invite);
+                    activeInvitationGroup.addObject(invite);
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
