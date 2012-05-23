@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc.rendering;
 
+import java.util.HashMap;
+
+import org.eclipse.swt.graphics.RGB;
+
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -27,20 +31,28 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension;
+import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension.IColormapShadedShape;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.AbstractShadedShapeData.DataSpace;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.AllocatePointsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.ColormappedShadedShapeDataEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.ColormappedShadedShapeDataEvent.ColormappedShadedGeometryData;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.ColormappedShadedShapeDataEvent.ColormappedShadedShapeData;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateColormappedShadedShape;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateShadedShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.DrawShadedShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.DrawShadedShapesEvent;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.RenderColormappedShadedShape;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.RenderWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.SetShadedShapeFillPattern;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent;
-import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.DataSpace;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.ShadedShapeData;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.WireframeShapeDataEvent.Label;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
 
 /**
  * Handles render events for IShapes
@@ -95,6 +107,21 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
     }
 
     @Subscribe
+    public void createColormapShadedShape(CreateColormappedShadedShape event) {
+        IGraphicsTarget target = getGraphicsTarget();
+        try {
+            IColormapShadedShapeExtension ext = target
+                    .getExtension(IColormapShadedShapeExtension.class);
+            IColormapShadedShape shape = ext.createColormapShadedShape(
+                    event.getTargetGeometry(), event.isTesselate());
+            dataManager.putRenderableObject(event.getObjectId(), shape);
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Subscribe
     public void allocatePointsForShape(AllocatePointsEvent event) {
         IWireframeShape shape = dataManager.getRenderableObject(
                 event.getObjectId(), IWireframeShape.class);
@@ -132,11 +159,36 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
             shape.reset();
             for (ShadedShapeData data : event.getShapeData()) {
                 if (data.getDataSpace() == DataSpace.PIXEL) {
-                    shape.addPolygonPixelSpace(data.getData(),
-                            data.getDataColor());
+                    shape.addPolygonPixelSpace(data.getContour(),
+                            data.getInfo());
                 } else if (data.getDataSpace() == DataSpace.WORLD) {
-                    shape.addPolygon(data.getData(), data.getDataColor());
+                    shape.addPolygon(data.getContour(), data.getInfo());
                 }
+            }
+            if (event.isCompile()) {
+                shape.compile();
+            }
+        }
+    }
+
+    @Subscribe
+    public void colormapShadedShapeDataArrived(
+            ColormappedShadedShapeDataEvent event) {
+        IColormapShadedShape shape = dataManager.getRenderableObject(
+                event.getObjectId(), IColormapShadedShape.class);
+        if (shape != null) {
+            shape.reset();
+            for (ColormappedShadedShapeData data : event.getShapeData()) {
+                LineString[] contour = data.getContour();
+                Integer key = data.getInfo();
+                if (data.getDataSpace() == DataSpace.WORLD) {
+                    shape.addPolygon(contour, key);
+                } else {
+                    shape.addPolygonPixelSpace(contour, key);
+                }
+            }
+            for (ColormappedShadedGeometryData data : event.getGeometryData()) {
+                shape.addGeometry(data.getGeometry(), data.getColorKey());
             }
             if (event.isCompile()) {
                 shape.compile();
@@ -196,6 +248,25 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
         } catch (VizException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
+        }
+    }
+
+    @Subscribe
+    public void renderColormapShadedShape(RenderColormappedShadedShape event) {
+        IColormapShadedShape shape = dataManager.getRenderableObject(
+                event.getObjectId(), IColormapShadedShape.class);
+        if (shape != null) {
+            try {
+                IGraphicsTarget target = getGraphicsTarget();
+                IColormapShadedShapeExtension extension = target
+                        .getExtension(IColormapShadedShapeExtension.class);
+                extension.drawColormapShadedShape(shape,
+                        new HashMap<Object, RGB>(event.getColorMap()),
+                        event.getAlpha(), event.getBrightness());
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        e.getLocalizedMessage(), e);
+            }
         }
     }
 
