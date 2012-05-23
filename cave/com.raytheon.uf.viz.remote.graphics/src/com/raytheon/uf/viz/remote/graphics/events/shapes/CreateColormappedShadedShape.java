@@ -19,19 +19,15 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.events.shapes;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.eclipse.swt.graphics.RGB;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
-import com.raytheon.uf.viz.remote.graphics.events.shapes.AbstractShadedShapeData.DataSpace;
-import com.vividsolutions.jts.geom.LineString;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
- * Event for shaded shape data for display
+ * Event to create a new colormapped shaded shape
  * 
  * <pre>
  * 
@@ -39,7 +35,7 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 15, 2012            mschenke     Initial creation
+ * May 22, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -47,54 +43,43 @@ import com.vividsolutions.jts.geom.LineString;
  * @version 1.0
  */
 @DynamicSerialize
-public class ShadedShapeDataEvent extends AbstractDispatchingObjectEvent {
-
-    @DynamicSerialize
-    public static class ShadedShapeData extends AbstractShadedShapeData<RGB> {
-
-    }
+public class CreateColormappedShadedShape extends
+        AbstractDispatchingObjectEvent implements ICreationEvent {
 
     @DynamicSerializeElement
-    private List<ShadedShapeData> shapeData = new LinkedList<ShadedShapeData>();
+    private GeneralGridGeometry targetGeometry;
 
     @DynamicSerializeElement
-    private boolean compile = false;
+    private boolean tesselate;
 
     /**
-     * @return the shapeData
+     * @return the targetGeometry
      */
-    public List<ShadedShapeData> getShapeData() {
-        return shapeData;
-    }
-
-    /**
-     * @param shapeData
-     *            the shapeData to set
-     */
-    public void setShapeData(List<ShadedShapeData> shapeData) {
-        this.shapeData = shapeData;
+    public GeneralGridGeometry getTargetGeometry() {
+        return targetGeometry;
     }
 
     /**
-     * @return the compile
+     * @param targetGeometry
+     *            the targetGeometry to set
      */
-    public boolean isCompile() {
-        return compile;
+    public void setTargetGeometry(GeneralGridGeometry targetGeometry) {
+        this.targetGeometry = targetGeometry;
     }
 
     /**
-     * @param compile
-     *            the compile to set
+     * @return the tesselate
      */
-    public void setCompile(boolean compile) {
-        this.compile = compile;
+    public boolean isTesselate() {
+        return tesselate;
     }
 
-    public void addShapeData(DataSpace dataSpace, LineString[] data, RGB color) {
-        ShadedShapeData shapeDataItem = new ShadedShapeData();
-        shapeDataItem.setDataSpace(dataSpace);
-        shapeDataItem.setContour(data);
-        shapeDataItem.setInfo(color);
-        shapeData.add(shapeDataItem);
+    /**
+     * @param tesselate
+     *            the tesselate to set
+     */
+    public void setTesselate(boolean tesselate) {
+        this.tesselate = tesselate;
     }
+
 }
