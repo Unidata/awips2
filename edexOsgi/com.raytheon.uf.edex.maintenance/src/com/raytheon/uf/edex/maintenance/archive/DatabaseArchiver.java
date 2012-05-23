@@ -323,7 +323,10 @@ public class DatabaseArchiver implements IPluginArchiver {
                         + " records from disk");
 
                 // merge records by data URI
-                Map<Object, PersistableDataObject> dataMap = new LinkedHashMap<Object, PersistableDataObject>();
+                int mapInitialSize = (int) (1.3f * (prev.size() + pdosToSerialize
+                        .size()));
+                Map<Object, PersistableDataObject> dataMap = new LinkedHashMap<Object, PersistableDataObject>(
+                        mapInitialSize);
                 for (PersistableDataObject pdo : prev) {
                     dataMap.put(pdo.getIdentifier(), pdo);
                 }
