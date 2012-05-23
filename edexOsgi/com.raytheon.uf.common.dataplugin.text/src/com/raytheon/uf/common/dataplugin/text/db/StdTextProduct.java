@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
  * 04/06/2010   4734       mhuang      Moved from edex server
  * 17May2010    2187       cjeanbap    Change class to be Abstract
+ * 27 May 2012  #647       dgilling    Implement getIdentifier/setIdentifier.
  * </pre>
  * 
  * @author jkorman
@@ -162,6 +163,32 @@ public abstract class StdTextProduct extends PersistableDataObject implements
     public StdTextProduct(StdTextProduct aProductToCopy) {
         this(aProductToCopy.getProdId(), aProductToCopy.getBbbid(),
                 aProductToCopy.getRefTime(), aProductToCopy.getProduct());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.dataplugin.persist.PersistableDataObject#getIdentifier
+     * ()
+     */
+    @Override
+    public StdTextProductId getIdentifier() {
+        return this.prodId;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.dataplugin.persist.PersistableDataObject#setIdentifier
+     * (java.lang.Object)
+     */
+    @Override
+    public void setIdentifier(Object identifier) {
+        if (identifier instanceof StdTextProductId) {
+            setProdId((StdTextProductId) identifier);
+        }
     }
 
     public String getBbbid() {
