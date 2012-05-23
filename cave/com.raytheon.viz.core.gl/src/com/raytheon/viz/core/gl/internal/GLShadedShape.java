@@ -73,21 +73,6 @@ public class GLShadedShape extends GLShadedShapeBase implements IShadedShape {
     }
 
     @Override
-    public boolean isDrawable() {
-        return true;
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-    }
-
-    @Override
-    public void reset() {
-        super.dispose();
-    }
-
-    @Override
     public void addPolygon(LineString[] lineString, RGB color) {
         colors.add(color);
         super.addPolygon(lineString);
