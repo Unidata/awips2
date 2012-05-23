@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.extensions;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
@@ -29,9 +30,13 @@ import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormapShadedShapeExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
+import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.CreateColormappedShadedShape;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.RenderColormappedShadedShape;
+import com.raytheon.uf.viz.remote.graphics.objects.DispatchingColormappedShadedShape;
 
 /**
- * TODO Add Description
+ * Dispatching implementation of IColormapShadedShapeExtension
  * 
  * <pre>
  * 
@@ -51,6 +56,8 @@ public class DispatchingColormappedShadedShapeExtension extends
         GraphicsExtension<DispatchGraphicsTarget> implements
         IColormapShadedShapeExtension {
 
+    private IColormapShadedShapeExtension wrappedExt;
+
     /*
      * (non-Javadoc)
      * 
@@ -63,8 +70,16 @@ public class DispatchingColormappedShadedShapeExtension extends
     @Override
     public IColormapShadedShape createColormapShadedShape(
             GeneralGridGeometry targetGeometry, boolean tesselate) {
-        // TODO Auto-generated method stub
-        return null;
+        DispatchingColormappedShadedShape wrapper = new DispatchingColormappedShadedShape(
+                wrappedExt.createColormapShadedShape(targetGeometry, tesselate),
+                target.getDispatcher());
+        // Send creation event
+        CreateColormappedShadedShape event = RemoteGraphicsEventFactory
+                .createEvent(CreateColormappedShadedShape.class, wrapper);
+        event.setTargetGeometry(targetGeometry);
+        event.setTesselate(tesselate);
+        target.dispatch(event);
+        return wrapper;
     }
 
     /*
@@ -78,7 +93,7 @@ public class DispatchingColormappedShadedShapeExtension extends
     @Override
     public IShadedShape createShadedShape(IColormapShadedShape baseShape,
             Map<Object, RGB> colors) {
-        // TODO Auto-generated method stub
+        // TODO Implement this
         return null;
     }
 
@@ -95,8 +110,24 @@ public class DispatchingColormappedShadedShapeExtension extends
     public void drawColormapShadedShape(IColormapShadedShape shape,
             Map<Object, RGB> colors, float alpha, float brightness)
             throws VizException {
-        // TODO Auto-generated method stub
-
+        DispatchingColormappedShadedShape wrapper = (DispatchingColormappedShadedShape) shape;
+        IColormapShadedShape wrapped = wrapper.getWrappedObject();
+        // Draw to screen
+        wrappedExt.drawColormapShadedShape(wrapped, colors, alpha, brightness);
+        // Draw remote
+        wrapper.flushState();
+        Map<Object, Integer> keyMap = wrapper.getKeyMap();
+        Map<Integer, RGB> colorMap = new HashMap<Integer, RGB>();
+        for (Object key : colors.keySet()) {
+            Integer keyId = keyMap.get(key);
+            colorMap.put(keyId, colors.get(key));
+        }
+        RenderColormappedShadedShape event = RemoteGraphicsEventFactory
+                .createEvent(RenderColormappedShadedShape.class, wrapper);
+        event.setColorMap(colorMap);
+        event.setAlpha(alpha);
+        event.setBrightness(brightness);
+        target.dispatch(event);
     }
 
     /*
@@ -107,7 +138,13 @@ public class DispatchingColormappedShadedShapeExtension extends
      */
     @Override
     public int getCompatibilityValue(DispatchGraphicsTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE;
+        try {
+            wrappedExt = target.getWrappedObject().getExtension(
+                    IColormapShadedShapeExtension.class);
+            return Compatibilty.TARGET_COMPATIBLE;
+        } catch (VizException e) {
+            return Compatibilty.INCOMPATIBLE;
+        }
     }
 
 }
