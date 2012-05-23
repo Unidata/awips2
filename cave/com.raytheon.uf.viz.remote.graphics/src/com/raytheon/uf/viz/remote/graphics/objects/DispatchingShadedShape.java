@@ -26,9 +26,9 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.shapes.AbstractShadedShapeData.DataSpace;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.SetShadedShapeFillPattern;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent;
-import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.DataSpace;
 import com.raytheon.uf.viz.remote.graphics.events.shapes.ShadedShapeDataEvent.ShadedShapeData;
 import com.vividsolutions.jts.geom.LineString;
 

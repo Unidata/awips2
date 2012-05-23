@@ -41,11 +41,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.drawables.IShape;
 import com.raytheon.viz.core.gl.Activator;
-import com.raytheon.viz.core.gl.GLCapabilities;
-import com.raytheon.viz.core.gl.glsl.GLSLFactory;
-import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
@@ -66,7 +63,7 @@ import com.vividsolutions.jts.geom.LineString;
  * @author bsteffen
  * @version 1.0
  */
-public class GLShadedShapeBase {
+public class GLShadedShapeBase implements IShape {
 
     public boolean tessellate;
 
@@ -379,7 +376,7 @@ public class GLShadedShapeBase {
         }
     }
 
-    protected synchronized void dispose() {
+    public synchronized void dispose() {
         polygons = new ArrayList<FloatBuffer[]>();
         vertexBuffer = null;
         polygonLengthBuffer = null;
@@ -463,5 +460,35 @@ public class GLShadedShapeBase {
             // Not necessary for type of tesselation
         }
 
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IShape#isMutable()
+     */
+    @Override
+    public boolean isMutable() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IShape#isDrawable()
+     */
+    @Override
+    public boolean isDrawable() {
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IShape#reset()
+     */
+    @Override
+    public void reset() {
+        dispose();
     }
 }
