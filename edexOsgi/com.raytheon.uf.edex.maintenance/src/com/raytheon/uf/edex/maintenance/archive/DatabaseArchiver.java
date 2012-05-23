@@ -26,10 +26,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -320,8 +322,17 @@ public class DatabaseArchiver implements IPluginArchiver {
                 statusHandler.debug(pluginName + ": Read in " + prev.size()
                         + " records from disk");
 
-                prev.addAll(pdosToSerialize);
-                pdosToSerialize = prev;
+                // merge records by data URI
+                Map<Object, PersistableDataObject> dataMap = new LinkedHashMap<Object, PersistableDataObject>();
+                for (PersistableDataObject pdo : prev) {
+                    dataMap.put(pdo.getIdentifier(), pdo);
+                }
+                for (PersistableDataObject pdo : pdosToSerialize) {
+                    dataMap.put(pdo.getIdentifier(), pdo);
+                }
+
+                pdosToSerialize = new ArrayList<PersistableDataObject>(
+                        dataMap.values());
             }
 
             statusHandler.debug(pluginName + ": Serializing "
