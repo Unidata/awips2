@@ -120,7 +120,6 @@ import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -477,7 +476,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         drawToolbarAction = new Action("Drawing Toolbar") {
             @Override
             public void run() {
-                CollaborationPathToolbar.getToolbar().open();
+                // TODO: What is this?
+                System.err.println("What is this method!?");
             }
         };
         drawToolbarAction.setImageDescriptor(IconUtil.getImageDescriptor(
@@ -1378,7 +1378,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             createSessionAction.setEnabled(isSessionEnabled);
         }
     }
-    
+
     /**
      * Adds users to groups if necessary
      * 

@@ -17,19 +17,19 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.telestrator;
+package com.raytheon.uf.viz.collaboration.ui.rsc;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.drawing.DrawingLayer;
-import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
 
 /**
- * Extends PathDrawingResourceData and holds the session id
+ * Resource data for the dataprovider resource
  * 
  * <pre>
  * 
@@ -37,58 +37,38 @@ import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 3, 2012            mnash     Initial creation
+ * May 25, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author mschenke
  * @version 1.0
  */
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class CollaborationPathDrawingResourceData extends
-        PathDrawingResourceData {
+public class DataProviderRscData extends AbstractResourceData {
 
+    @XmlAttribute
     private String sessionId;
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.drawing.PathDrawingResourceData#construct(com.raytheon
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
      * .uf.viz.core.rsc.LoadProperties,
      * com.raytheon.uf.viz.core.drawables.IDescriptor)
      */
     @Override
-    public DrawingLayer construct(LoadProperties loadProperties,
+    public DataProviderRsc construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        CollaborationDrawingLayer layer = new CollaborationDrawingLayer(this,
-                loadProperties);
-        layer.initSession(sessionId);
-        return layer;
+        return new DataProviderRsc(this, loadProperties);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData#setClassT
-     * (java.lang.String)
+    /**
+     * @return the sessionId
      */
-    @Override
-    public String getClassT() {
-        return this.getClass().getCanonicalName();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData#setClassT
-     * (java.lang.String)
-     */
-    @Override
-    public void setClassT(String classT) {
+    public String getSessionId() {
+        return sessionId;
     }
 
     /**
@@ -99,10 +79,32 @@ public class CollaborationPathDrawingResourceData extends
         this.sessionId = sessionId;
     }
 
-    /**
-     * @return the sessionId
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
+     * )
      */
-    public String getSessionId() {
-        return sessionId;
+    @Override
+    public void update(Object updateData) {
+
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        return true;
+    }
+
 }
