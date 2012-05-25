@@ -19,11 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator.event;
 
+import java.util.List;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.ShapeContainer;
-import com.raytheon.uf.viz.drawing.events.DrawingEvent;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * TODO Add Description
@@ -43,14 +44,14 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
  */
 
 @DynamicSerialize
-public class CollaborationDrawingEvent extends DrawingEvent {
+public class CollaborationDrawingEvent {
 
     public static enum CollaborationEventType {
-        DRAW, ERASE, REDO, UNDO, CLEAR, DISABLE;
+        DRAW, ERASE, REDO, UNDO, CLEAR, TOGGLE_LOCK;
     }
 
     @DynamicSerializeElement
-    private ShapeContainer container;
+    private List<Coordinate> coordinates;
 
     @DynamicSerializeElement
     private UserId userName;
@@ -58,26 +59,19 @@ public class CollaborationDrawingEvent extends DrawingEvent {
     @DynamicSerializeElement
     private CollaborationEventType type;
 
-    public CollaborationDrawingEvent() {
-    }
-
-    public CollaborationDrawingEvent(ShapeContainer cont) {
-        this.container = cont;
+    /**
+     * @return the coordinates
+     */
+    public List<Coordinate> getCoordinates() {
+        return coordinates;
     }
 
     /**
-     * @return the container
+     * @param coordinates
+     *            the coordinates to set
      */
-    public ShapeContainer getContainer() {
-        return container;
-    }
-
-    /**
-     * @param container
-     *            the container to set
-     */
-    public void setContainer(ShapeContainer container) {
-        this.container = container;
+    public void setCoordinates(List<Coordinate> coordinates) {
+        this.coordinates = coordinates;
     }
 
     /**
