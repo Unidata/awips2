@@ -19,12 +19,29 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IWorkbenchPart;
+
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingTool;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.drawing.PathToolbar;
-import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResourceData;
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Abstract role event controller that shares fields and methods that are common
@@ -45,11 +62,13 @@ import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
  */
 
 public abstract class AbstractRoleEventController implements
-        IRoleEventController {
+        IRoleEventController, IPartListener, RemoveListener {
 
     protected ISharedDisplaySession session;
 
-    private PathDrawingTool tool;
+    protected List<ResourcePair> resourcesAdded = new ArrayList<ResourcePair>();
+
+    private List<AbstractEditor> resourceEditors = new CopyOnWriteArrayList<AbstractEditor>();
 
     protected AbstractRoleEventController(ISharedDisplaySession session) {
         this.session = session;
@@ -63,34 +82,133 @@ public abstract class AbstractRoleEventController implements
     @Override
     public void shutdown() {
         session.unRegisterEventHandler(this);
-    }
 
-    protected void activateTelestrator() {
-        VizApp.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                // activate the drawing tool by default for the session leader
-                tool = new CollaborationPathDrawingTool();
-                ((CollaborationPathDrawingTool) tool).setSession(session
-                        .getSessionId());
-                tool.activate();
-
-                session.registerEventHandler(tool);
-
-                // open the path drawing toolbar
-                PathToolbar toolbar = CollaborationPathToolbar.getToolbar();
-                toolbar.open();
-            }
-        });
-    }
-
-    protected void deactivateTelestrator() {
-        // TODO this must be handled better
-        CollaborationPathToolbar.getToolbar().close();
-        if (tool != null) {
-            tool.deactivate();
-            session.unRegisterEventHandler(tool);
+        // Orphaned tellestrators, not sure what to do yet about clear
+        for (AbstractEditor editor : resourceEditors) {
+            partClosed(editor);
         }
+        for (ResourcePair rp : resourcesAdded) {
+            CollaborationDrawingResource resource = (CollaborationDrawingResource) rp
+                    .getResource();
+            if (resource != null) {
+                resource.getDescriptor().getResourceList()
+                        .removePostRemoveListener(this);
+                resource.unload();
+            }
+        }
+        resourcesAdded.clear();
+        resourceEditors.clear();
+    }
+
+    protected void activateResources(AbstractEditor editor) {
+        for (IDisplayPane pane : editor.getDisplayPanes()) {
+            try {
+                IDescriptor descriptor = pane.getDescriptor();
+                for (ResourcePair resource : getResourcesToAdd()) {
+                    if (resource.getResource() == null) {
+                        resource.setResource(resource.getResourceData()
+                                .construct(resource.getLoadProperties(),
+                                        descriptor));
+                    }
+                    descriptor.getResourceList().add(resource);
+                    descriptor.getResourceList().addPostRemoveListener(this);
+                    resourcesAdded.add(resource);
+                }
+            } catch (VizException e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        "Error adding drawing resource to pane", e);
+            }
+        }
+        resourceEditors.add(editor);
+        editor.getSite().getPage().addPartListener(this);
+    }
+
+    protected void deactivateResources(AbstractEditor editor) {
+        partClosed(editor);
+        editor.getSite().getPage().removePartListener(this);
+    }
+
+    protected List<ResourcePair> getResourcesToAdd() {
+        List<ResourcePair> resources = new ArrayList<ResourcePair>();
+        CollaborationDrawingResourceData resourceData = new CollaborationDrawingResourceData();
+        resourceData.setSessionId(session.getSessionId());
+        ResourcePair resource = new ResourcePair();
+        resource.setResourceData(resourceData);
+        resource.setProperties(new ResourceProperties());
+        resource.setLoadProperties(new LoadProperties());
+        resources.add(resource);
+        return resources;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener#notifyRemove
+     * (com.raytheon.uf.viz.core.drawables.ResourcePair)
+     */
+    @Override
+    public void notifyRemove(ResourcePair rp) throws VizException {
+        if (resourcesAdded.contains(rp)) {
+            try {
+                Class<?> clazz = rp.getResource().getClass();
+                Constructor<?> constructor = clazz.getConstructor(clazz);
+                ResourcePair newPair = new ResourcePair();
+                newPair.setLoadProperties(rp.getLoadProperties());
+                newPair.setProperties(rp.getProperties());
+                newPair.setResourceData(rp.getResourceData());
+                newPair.setResource((AbstractVizResource<?, ?>) constructor
+                        .newInstance(rp.getResource()));
+                rp.getResource().getDescriptor().getResourceList().add(newPair);
+            } catch (Exception e) {
+                Activator.statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Cannot manage resources from being unloaded that do not have copy constructor",
+                                e);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partClosed(IWorkbenchPart part) {
+        for (AbstractEditor editor : resourceEditors) {
+            if (editor == part) {
+                for (IDisplayPane pane : editor.getDisplayPanes()) {
+                    ResourceList list = pane.getDescriptor().getResourceList();
+                    list.removePostRemoveListener(this);
+                    for (ResourcePair rp : list) {
+                        if (resourcesAdded.contains(rp)) {
+                            resourcesAdded.remove(rp);
+                            list.remove(rp);
+                        }
+                    }
+                }
+                resourceEditors.remove(editor);
+            }
+        }
+    }
+
+    // Unneeded part events
+    @Override
+    public void partActivated(IWorkbenchPart part) {
+    }
+
+    @Override
+    public void partBroughtToTop(IWorkbenchPart part) {
+    }
+
+    @Override
+    public void partDeactivated(IWorkbenchPart part) {
+    }
+
+    @Override
+    public void partOpened(IWorkbenchPart part) {
     }
 
 }
