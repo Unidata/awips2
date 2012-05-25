@@ -22,10 +22,13 @@ package com.raytheon.uf.viz.drawing;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
 import com.raytheon.viz.ui.input.InputAdapter;
@@ -58,6 +61,8 @@ public class DrawingToolUIManager extends InputAdapter {
 
     private Cursor normal;
 
+    private boolean handlingInput = false;
+
     protected IDisplayPaneContainer container;
 
     private Shell currentShell = null;
@@ -65,19 +70,30 @@ public class DrawingToolUIManager extends InputAdapter {
     public DrawingToolUIManager(DrawingToolLayer drawingLayer,
             IDisplayPaneContainer container) {
         this.drawingLayer = drawingLayer;
-
-        // Create erasor cursor
-        ImageData data = IconUtil.getImageDescriptor(
-                Activator.getDefault().getBundle(), "eraser_box.gif")
-                .getImageData();
-        data.alpha = 255;
-        erasor = new Cursor(Display.getCurrent(), data, 8, 8);
-
-        // Create pencil cursor
-        pencil = new Cursor(Display.getCurrent(), SWT.CURSOR_HAND);
-
         this.container = container;
-        container.registerMouseHandler(this);
+
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                // Create erasor cursor
+                ImageData data = IconUtil.getImageDescriptor(
+                        Activator.getDefault().getBundle(), "eraser_box.gif")
+                        .getImageData();
+                data.alpha = 255;
+                erasor = new Cursor(Display.getCurrent(), data, 8, 8);
+
+                // Create pencil cursor
+                data = IconUtil.getImageDescriptor(
+                        Activator.getDefault().getBundle(), "draw.gif")
+                        .getImageData();
+                pencil = new Cursor(Display.getCurrent(), data, 1, 15);
+
+                normal = Display.getCurrent().getSystemCursor(SWT.CURSOR_ARROW);
+
+                DrawingToolUIManager.this.container
+                        .registerMouseHandler(DrawingToolUIManager.this);
+            }
+        });
     }
 
     public void dispose() {
@@ -90,21 +106,58 @@ public class DrawingToolUIManager extends InputAdapter {
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.viz.ui.input.InputAdapter#handleMouseExit(org.eclipse.swt
+     * .widgets.Event)
+     */
+    @Override
+    public boolean handleMouseExit(Event event) {
+        if (!handlingInput) {
+            if (currentShell != null) {
+                currentShell.setCursor(normal);
+            }
+        }
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.input.InputAdapter#handleMouseEnter(org.eclipse.swt
+     * .widgets.Event)
+     */
+    @Override
+    public boolean handleMouseEnter(Event event) {
+        if (handlingInput == false) {
+            currentShell = ((Control) event.widget).getShell();
+            switch (drawingLayer.getDrawMode()) {
+            case DRAW:
+                currentShell.setCursor(pencil);
+                break;
+            case ERASE:
+                currentShell.setCursor(erasor);
+                break;
+            default:
+                currentShell.setCursor(normal);
+            }
+        }
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.input.InputAdapter#handleMouseDown(int, int,
      * int)
      */
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
         if (mouseButton != 1 || drawingLayer.getDrawMode() == DrawMode.NONE
-                || currentShell != null) {
+                || handlingInput) {
             return false;
         }
-        currentShell = Display.getCurrent().getActiveShell();
-        if (drawingLayer.getDrawMode() == DrawMode.DRAW) {
-            currentShell.setCursor(pencil);
-        } else {
-            currentShell.setCursor(erasor);
-        }
+        handlingInput = true;
         return handleMouseDownMove(x, y, mouseButton);
     }
 
@@ -116,7 +169,7 @@ public class DrawingToolUIManager extends InputAdapter {
      */
     @Override
     public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-        if (currentShell == null) {
+        if (handlingInput == false) {
             return false;
         }
 
@@ -135,18 +188,17 @@ public class DrawingToolUIManager extends InputAdapter {
      */
     @Override
     public boolean handleMouseUp(int x, int y, int mouseButton) {
-        if (currentShell == null) {
+        if (handlingInput == false) {
             return false;
         }
 
-        currentShell.setCursor(normal);
         if (drawingLayer.getDrawMode() == DrawMode.DRAW) {
             drawingLayer.doneDrawing();
         } else {
             drawingLayer.doneErasing();
         }
         container.refresh();
-        currentShell = null;
+        handlingInput = false;
         return true;
     }
 
