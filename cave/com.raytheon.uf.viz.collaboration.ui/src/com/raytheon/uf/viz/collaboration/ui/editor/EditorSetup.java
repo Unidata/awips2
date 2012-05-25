@@ -28,13 +28,9 @@ import org.eclipse.swt.graphics.Rectangle;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.display.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
-import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRsc;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -44,7 +40,6 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.PlainMapRenderableDisplay;
-import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Envelope;
@@ -151,51 +146,6 @@ public class EditorSetup {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         return editor;
-    }
-
-    /**
-     * Initializes the resources necessary to share the editor with others
-     * connected to the collaboration session.
-     * 
-     * @param session
-     *            the session to share the editor with
-     * @param editor
-     *            the editor to share
-     * @throws CollaborationException
-     */
-    public static void shareEditor(ISharedDisplaySession session,
-            AbstractEditor editor) throws CollaborationException {
-        if (!session.getUserID().equals(session.getCurrentDataProvider())) {
-            throw new CollaborationException(
-                    "Incorrect role to share an editor");
-        } else if (editor instanceof CollaborationEditor) {
-            throw new CollaborationException(
-                    "Cannot share a CollaborationEditor");
-        }
-
-        addIndicator(editor, session);
-
-        // TODO this method should be called by the ShareEditorAction
-
-        // TODO should max's target injection be over here too?
-
-    }
-
-    private static void addIndicator(AbstractEditor editor,
-            ISharedDisplaySession session) {
-        IDescriptor desc = editor.getActiveDisplayPane().getRenderableDisplay()
-                .getDescriptor();
-        GenericResourceData grd = new GenericResourceData(DataProviderRsc.class);
-        ResourcePair rp = new ResourcePair();
-        rp.setResourceData(grd);
-        desc.getResourceList().add(rp);
-        desc.getResourceList().instantiateResources(desc, true);
-        DataProviderRsc rsc = (DataProviderRsc) rp.getResource();
-        rsc.setRoomName(((IVenueSession) session).getVenue().getInfo()
-                .getVenueDescription());
-        rsc.setSubject(((IVenueSession) session).getVenue().getInfo()
-                .getVenueSubject());
-        rsc.setSession(session);
     }
 
 }
