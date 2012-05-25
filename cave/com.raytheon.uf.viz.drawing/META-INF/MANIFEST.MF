@@ -11,16 +11,11 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- com.raytheon.viz.awipstools;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.google.guava;bundle-version="1.0.0",
- org.geotools
+ org.geotools,
+ com.raytheon.viz.core;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.time,
- com.raytheon.viz.ui.cmenu,
  com.vividsolutions.jts.geom
-Export-Package: com.raytheon.uf.viz.drawing,
- com.raytheon.uf.viz.drawing.actions,
- com.raytheon.uf.viz.drawing.events,
- com.raytheon.uf.viz.drawing.tools
+Export-Package: com.raytheon.uf.viz.drawing
