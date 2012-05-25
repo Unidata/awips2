@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,17 +48,17 @@ import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.CollaborationDispatcher;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
-import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRsc;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingLayer;
+import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRscData;
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
 import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
@@ -239,16 +238,17 @@ public class DataProviderEventController extends AbstractRoleEventController {
     public void startup() {
         super.startup();
 
-        SessionColorManager manager = SharedDisplaySessionMgr
-                .getSessionContainer(session.getSessionId()).getColorManager();
+        SessionContainer sessionContainer = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId());
+        SessionColorManager manager = sessionContainer.getColorManager();
         manager.addUser(session.getCurrentDataProvider());
-        super.activateTelestrator();
         wrappingListener = new ResourceWrapperListener();
-        for (IDisplayPaneContainer container : SharedDisplaySessionMgr
-                .getSessionContainer(session.getSessionId()).getSharedEditors()) {
+        for (AbstractEditor editor : sessionContainer.getSharedEditors()) {
+            super.activateResources(editor);
+
             // Replace pane resources that will be shared with
             // CollaborationWrapperResource objects
-            for (IDisplayPane pane : container.getDisplayPanes()) {
+            for (IDisplayPane pane : editor.getDisplayPanes()) {
                 ResourceList list = pane.getDescriptor().getResourceList();
                 for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                     wrapResourcePair(rp);
@@ -258,7 +258,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
             }
 
             // Inject remote graphics functionality in container
-            DispatchingGraphicsFactory.injectRemoteFunctionality(container,
+            DispatchingGraphicsFactory.injectRemoteFunctionality(editor,
                     new DispatcherFactory() {
                         @Override
                         public Dispatcher createNewDispatcher(
@@ -276,15 +276,27 @@ public class DataProviderEventController extends AbstractRoleEventController {
                             }
                         }
                     });
-            try {
-                EditorSetup.shareEditor(session, (AbstractEditor) container);
-            } catch (CollaborationException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
+     * #getResourcesToAdd()
+     */
+    @Override
+    protected List<ResourcePair> getResourcesToAdd() {
+        List<ResourcePair> resources = super.getResourcesToAdd();
+        ResourcePair resource = new ResourcePair();
+        DataProviderRscData resourceData = new DataProviderRscData();
+        resourceData.setSessionId(session.getSessionId());
+        resource.setResourceData(resourceData);
+        resource.setProperties(new ResourceProperties());
+        resource.setLoadProperties(new LoadProperties());
+        resources.add(resource);
+        return resources;
     }
 
     private void sendSharedResource(ResourcePair rp, boolean remove) {
@@ -358,29 +370,20 @@ public class DataProviderEventController extends AbstractRoleEventController {
     @Override
     public void shutdown() {
         super.shutdown();
-        super.deactivateTelestrator();
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
         if (sc != null) {
-            for (IDisplayPaneContainer container : sc.getSharedEditors()) {
-                for (IDisplayPane pane : container.getDisplayPanes()) {
+            for (AbstractEditor editor : sc.getSharedEditors()) {
+                super.deactivateResources(editor);
+                for (IDisplayPane pane : editor.getDisplayPanes()) {
                     ResourceList list = pane.getDescriptor().getResourceList();
-                    List<ResourcePair> rscToRemoveList = new ArrayList<ResourcePair>();
                     for (ResourcePair rp : list) {
                         unwrapResourcePair(rp);
-                        if (rp.getResource() instanceof DataProviderRsc
-                                || rp.getResource() instanceof CollaborationDrawingLayer) {
-                            rscToRemoveList.add(rp);
-                        }
                     }
                     list.removePreAddListener(wrappingListener);
                     list.removePostRemoveListener(wrappingListener);
-                    for (ResourcePair remove : rscToRemoveList) {
-                        list.remove(remove);
-                    }
                 }
-                DispatchingGraphicsFactory
-                        .extractRemoteFunctionality(container);
+                DispatchingGraphicsFactory.extractRemoteFunctionality(editor);
             }
         }
 
