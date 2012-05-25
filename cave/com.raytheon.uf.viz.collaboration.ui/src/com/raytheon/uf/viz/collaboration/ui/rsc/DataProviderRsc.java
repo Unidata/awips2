@@ -24,6 +24,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.ReprojectEditor;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -31,7 +34,6 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
@@ -54,17 +56,29 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  */
 
 public class DataProviderRsc extends
-        AbstractVizResource<GenericResourceData, IDescriptor> {
+        AbstractVizResource<DataProviderRscData, IDescriptor> {
 
-    protected String roomName;
+    private String roomName;
 
-    protected String subject;
+    private String subject;
 
-    protected ISharedDisplaySession session;
+    private ISharedDisplaySession session;
 
-    public DataProviderRsc(GenericResourceData resourceData,
+    public DataProviderRsc(DataProviderRscData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
+        SessionContainer container = SharedDisplaySessionMgr
+                .getSessionContainer(resourceData.getSessionId());
+        if (container != null) {
+            session = container.getSession();
+            IVenueInfo info = session.getVenue().getInfo();
+            roomName = info.getVenueDescription();
+            subject = info.getVenueDescription();
+        }
+    }
+
+    public DataProviderRsc(DataProviderRsc rsc) {
+        this(rsc.getResourceData(), rsc.getLoadProperties());
     }
 
     @Override
@@ -122,6 +136,17 @@ public class DataProviderRsc extends
 
     public void setSession(ISharedDisplaySession session) {
         this.session = session;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#okToUnload()
+     */
+    @Override
+    public boolean okToUnload() {
+        // Though I hate this methods exists, it serves its purpose
+        return false;
     }
 
 }
