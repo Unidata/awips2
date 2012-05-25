@@ -20,9 +20,6 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
-import gov.noaa.nws.ncep.staticdataprovider.StaticDataProvider;
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -181,9 +178,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     private Action changePasswordAction;
 
-    private Action drawToolbarAction;
-
-    private Action pgenAction;
+    // Drawing *will* be activated in collaboration views
+    // private Action drawToolbarAction;
+    //
+    // private Action pgenAction;
 
     private Action collapseAllAction;
 
@@ -473,30 +471,32 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         };
         changeStatusAction.setMenuCreator(creator);
 
-        drawToolbarAction = new Action("Drawing Toolbar") {
-            @Override
-            public void run() {
-                // TODO: What is this?
-                System.err.println("What is this method!?");
-            }
-        };
-        drawToolbarAction.setImageDescriptor(IconUtil.getImageDescriptor(
-                com.raytheon.uf.viz.drawing.Activator.getDefault().getBundle(),
-                "draw.gif"));
-
-        pgenAction = new Action("PGEN") {
-            @Override
-            public void run() {
-                StaticDataProvider.getInstance();
-                try {
-                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                            .getActivePage().showView(PgenUtil.VIEW_ID);
-                } catch (PartInitException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to open PGEN palette", e);
-                }
-            }
-        };
+        // TODO: Delete once drawing is activated in collaboration shared
+        // dispaly views
+        // drawToolbarAction = new Action("Drawing Toolbar") {
+        // @Override
+        // public void run() {
+        // // TODO: What should this do now?
+        // System.err.println("What should this method do now!?");
+        // }
+        // };
+        // drawToolbarAction.setImageDescriptor(IconUtil.getImageDescriptor(
+        // com.raytheon.uf.viz.drawing.Activator.getDefault().getBundle(),
+        // "draw.gif"));
+        //
+        // pgenAction = new Action("PGEN") {
+        // @Override
+        // public void run() {
+        // StaticDataProvider.getInstance();
+        // try {
+        // PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+        // .getActivePage().showView(PgenUtil.VIEW_ID);
+        // } catch (PartInitException e) {
+        // statusHandler.handle(Priority.PROBLEM,
+        // "Unable to open PGEN palette", e);
+        // }
+        // }
+        // };
     }
 
     /**
@@ -536,10 +536,10 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         mgr.add(changePasswordAction);
         mgr.add(new Separator());
 
-        mgr.add(drawToolbarAction);
-        mgr.add(pgenAction);
+        // mgr.add(drawToolbarAction);
+        // mgr.add(pgenAction);
+        // mgr.add(new Separator());
 
-        mgr.add(new Separator());
         if (CollaborationDataManager.getInstance().isConnected()) {
             mgr.add(logoutAction);
         } else {
@@ -578,7 +578,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             addUserAction.setEnabled(false);
             selectGroups.setEnabled(false);
             changeStatusAction.setEnabled(false);
-            drawToolbarAction.setEnabled(false);
+            // drawToolbarAction.setEnabled(false);
             changeStatusMessageAction.setEnabled(false);
             changePasswordAction.setEnabled(false);
             return;
@@ -589,7 +589,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         addUserAction.setEnabled(true);
         selectGroups.setEnabled(true);
         changeStatusAction.setEnabled(true);
-        drawToolbarAction.setEnabled(true);
+        // drawToolbarAction.setEnabled(true);
         changeStatusMessageAction.setEnabled(true);
         changePasswordAction.setEnabled(true);
 
