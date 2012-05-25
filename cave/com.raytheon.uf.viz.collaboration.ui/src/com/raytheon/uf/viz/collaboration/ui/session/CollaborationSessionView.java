@@ -21,10 +21,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -32,10 +29,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Menu;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -45,7 +40,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
@@ -79,8 +73,6 @@ public class CollaborationSessionView extends SessionView {
 
     private static final String COLLABORATION_SESSION_IMAGE_NAME = "messages.gif";
 
-    private Action switchToAction;
-
     private Action colorChangeAction;
 
     private ISharedDisplaySession session;
@@ -101,78 +93,6 @@ public class CollaborationSessionView extends SessionView {
 
     protected void createActions() {
         super.createActions();
-        switchToAction = new Action("Transfer Role...",
-                Action.AS_DROP_DOWN_MENU) {
-            public void run() {
-                // do nothing
-            };
-        };
-
-        IMenuCreator creator = new IMenuCreator() {
-            Menu menu;
-
-            @Override
-            public Menu getMenu(Menu parent) {
-                if (menu == null || menu.isDisposed()) {
-                    menu = new Menu(parent);
-                }
-                if (session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
-                    Action leaderAction = new Action("Session Leader") {
-                        public void run() {
-                            IStructuredSelection selection = (IStructuredSelection) usersTable
-                                    .getSelection();
-                            IRosterEntry selectedUser = (IRosterEntry) selection
-                                    .getFirstElement();
-                            usersTable.remove(selectedUser);
-                            UserId id = IDConverter.convertFrom(selectedUser
-                                    .getUser());
-                            selectedUser = new RosterEntry(
-                                    selectedUser.getParent(), id,
-                                    selectedUser.getPresence());
-                            switchLeader(id);
-                            usersTable.refresh(selectedUser);
-                        };
-                    };
-                    ActionContributionItem leaderItem = new ActionContributionItem(
-                            leaderAction);
-                    leaderItem.fill(menu, -1);
-                }
-
-                if (session.hasRole(SharedDisplayRole.DATA_PROVIDER)) {
-                    Action dataProviderAction = new Action("Data Provider") {
-                        public void run() {
-                            IStructuredSelection selection = (IStructuredSelection) usersTable
-                                    .getSelection();
-                            IRosterEntry selectedUser = (IRosterEntry) selection
-                                    .getFirstElement();
-                            usersTable.remove(selectedUser);
-                            UserId id = IDConverter.convertFrom(selectedUser
-                                    .getUser());
-                            selectedUser = new RosterEntry(
-                                    selectedUser.getParent(), id,
-                                    selectedUser.getPresence());
-                            switchDataProvider(id);
-                            usersTable.refresh(selectedUser);
-                        };
-                    };
-                    ActionContributionItem dataProviderItem = new ActionContributionItem(
-                            dataProviderAction);
-                    dataProviderItem.fill(menu, -1);
-                }
-                return menu;
-            }
-
-            @Override
-            public void dispose() {
-                menu.dispose();
-            }
-
-            @Override
-            public Menu getMenu(Control parent) {
-                return getMenu(parent.getMenu());
-            }
-        };
-        switchToAction.setMenuCreator(creator);
 
         colorChangeAction = new Action("Change Color...") {
             @Override
@@ -206,41 +126,6 @@ public class CollaborationSessionView extends SessionView {
     protected void initColorManager() {
         manager = SharedDisplaySessionMgr.getSessionContainer(sessionId)
                 .getColorManager();
-    }
-
-    private void switchDataProvider(UserId userId) {
-        System.out.println("Send switchDataProvider request. "
-                + userId.getFQName());
-        // TODO need to send invite/request for transfer, and then if successful
-        // deactivate the local ones since we won't receive the message
-        SharedDisplayVenueInvite invite = new SharedDisplayVenueInvite();
-        invite.setMessage(session.getUserID().getName()
-                + " has requested you become the data provider...");
-        invite.setSessionId(session.getSessionId());
-        invite.setSubject(session.getVenue().getInfo().getVenueSubject());
-        invite.setDataProvider(session.getCurrentDataProvider());
-        invite.setSessionLeader(session.getCurrentSessionLeader());
-        try {
-            session.sendInvitation(userId, invite);
-        } catch (CollaborationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to switch data providers", e);
-        }
-    }
-
-    private void switchLeader(UserId userId) {
-        System.out.println("Send switchLeader request. " + userId.getFQName());
-        // TODO need to send invite/request for transfer, and then if successful
-        // deactivate the local ones since we won't receive the message
-        TransferRoleCommand trc = new TransferRoleCommand();
-        trc.setUser(userId);
-        trc.setRole(SharedDisplayRole.SESSION_LEADER);
-        try {
-            session.sendObjectToVenue(trc);
-        } catch (CollaborationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to send message to transfer role", e);
-        }
     }
 
     @Subscribe
@@ -292,15 +177,6 @@ public class CollaborationSessionView extends SessionView {
         super.fillContextMenu(manager);
         if (session.hasRole(SharedDisplayRole.DATA_PROVIDER)
                 || session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
-            IStructuredSelection selection = (IStructuredSelection) usersTable
-                    .getSelection();
-            IRosterEntry selectedUser = (IRosterEntry) selection
-                    .getFirstElement();
-            if (!IDConverter.convertFrom(selectedUser.getUser()).equals(
-                    session.getUserID())) {
-                manager.add(switchToAction);
-            }
-
             if (session.hasRole(SharedDisplayRole.SESSION_LEADER)) {
                 manager.add(new Separator());
                 manager.add(colorChangeAction);
