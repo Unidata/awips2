@@ -27,9 +27,13 @@ import java.util.Set;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.ContextManager;
@@ -114,6 +118,36 @@ public class CollaborationDrawingToolbar extends DrawingToolbar implements
     protected void opened() {
         super.opened();
         ContextManager.getInstance(window).activateContexts(this);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.drawing.DrawingToolbar#initializeComponents(org.eclipse
+     * .swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
+        super.initializeComponents(shell);
+        Listener activateDeactivate = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                switch (event.type) {
+                case SWT.Activate:
+                    ContextManager.getInstance(PlatformUI.getWorkbench())
+                            .activateContexts(CollaborationDrawingToolbar.this);
+                    break;
+                case SWT.Deactivate:
+                    ContextManager.getInstance(PlatformUI.getWorkbench())
+                            .deactivateContexts(
+                                    CollaborationDrawingToolbar.this);
+                    break;
+                }
+            }
+        };
+        shell.addListener(SWT.Activate, activateDeactivate);
+        shell.addListener(SWT.Deactivate, activateDeactivate);
     }
 
     /*
