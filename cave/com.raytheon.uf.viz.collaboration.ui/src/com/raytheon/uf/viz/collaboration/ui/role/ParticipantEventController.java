@@ -106,9 +106,10 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 }
                 initializeResources(editor.getActiveDisplayPane()
                         .getDescriptor());
+
+                activateResources(editor);
             }
         });
-        super.activateTelestrator(); // TODO should this be elsewhere?
     }
 
     @Subscribe
@@ -191,7 +192,11 @@ public class ParticipantEventController extends AbstractRoleEventController {
     @Override
     public void shutdown() {
         super.shutdown();
-        super.deactivateTelestrator(); // TODO should this be here?
+        SessionContainer container = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId());
+        if (container != null) {
+            super.deactivateResources(container.getCollaborationEditor());
+        }
         if (this.collabRsc != null) {
             this.session.unRegisterEventHandler(collabRsc);
         }

@@ -17,21 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.drawing.actions;
+package com.raytheon.uf.viz.collaboration.ui.telestrator.handlers;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.drawing.DrawingLayer;
-import com.raytheon.uf.viz.drawing.events.DrawingEvent;
-import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingToolbar;
 
 /**
- * Removes the last shape that was drawn
+ * Action for invoking undo/redo on the CollaborationDrawingToolbar
  * 
  * <pre>
  * 
@@ -39,28 +34,42 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 23, 2012            mnash     Initial creation
+ * May 24, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
+ * @author mschenke
  * @version 1.0
  */
 
-public class UndoAddAction extends AbstractHandler {
+public class UndoRedoHandler extends AbstractHandler {
 
+    private static final String ACTION_ID = "com.raytheon.uf.viz.collaboration.tellestrator.action";
+
+    private static final String UNDO_ID = "UNDO";
+
+    private static final String REDO_ID = "REDO";
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
+     * ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        ResourceList list = ((AbstractEditor) EditorUtil
-                .getActiveEditorAs(AbstractEditor.class))
-                .getActiveDisplayPane().getDescriptor().getResourceList();
-        for (ResourcePair pair : list) {
-            if (pair.getResource() instanceof DrawingLayer) {
-                ((DrawingLayer) pair.getResource()).undoAdd();
-                ((DrawingLayer) pair.getResource()).getEventBus().post(
-                        new DrawingEvent());
-                break;
+        CollaborationDrawingToolbar toolbar = CollaborationDrawingToolbar
+                .getInstance();
+        if (toolbar != null) {
+            String action = event.getParameter(ACTION_ID);
+            if (UNDO_ID.equals(action)) {
+                toolbar.undo();
+            } else if (REDO_ID.equals(action)) {
+                toolbar.redo();
             }
         }
         return null;
     }
+
 }
