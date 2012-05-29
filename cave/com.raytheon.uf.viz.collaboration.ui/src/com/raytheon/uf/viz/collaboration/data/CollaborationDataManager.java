@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
@@ -57,9 +58,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
@@ -437,5 +440,24 @@ public class CollaborationDataManager {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+    
+    @Subscribe
+    public void handleHttpdConfigurationEvent(
+            IHttpdCollaborationConfigurationEvent configurationEvent) {
+        
+        // Add the httpd collaboration url to the CAVE configuration.
+        Activator
+                .getDefault()
+                .getPreferenceStore()
+                .setValue(
+                        CollabPrefConstants.HttpCollaborationConfiguration.P_HTTP_SESSION_URL,
+                        configurationEvent.getHttpdCollaborationURL());
+        Activator
+                .getDefault()
+                .getPreferenceStore()
+                .setValue(
+                        CollabPrefConstants.HttpCollaborationConfiguration.P_SESSION_CONFIGURED,
+                        true);
     }
 }
