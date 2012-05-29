@@ -176,12 +176,13 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         final String parameterName = "sessionDataHttpURL";
         final String suffix = "]]";
         // Validate the configuration.
-        final String configPatternRegex = Tools.CONFIG_PREAMBLE.replace("[", "\\[")
-                + parameterName + " : .+" + suffix;
+        final String configPatternRegex = Tools.CONFIG_PREAMBLE.replace("[",
+                "\\[") + parameterName + " : .+" + suffix;
         Pattern configPattern = Pattern.compile(configPatternRegex);
         if (configPattern.matcher(body).matches() == false) {
-            statusHandler.handle(UFStatus.Priority.PROBLEM,
-                    "Received invalid configuration from openfire.");
+            statusHandler
+                    .handle(UFStatus.Priority.PROBLEM,
+                            "Received invalid configuration from openfire. Shared Display Sessions have been disabled.");
         }
 
         // Eliminate the preamble.
@@ -204,7 +205,7 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         if (urlPattern.matcher(httpdCollaborationURL).matches() == false) {
             statusHandler.handle(UFStatus.Priority.PROBLEM,
                     "Received an invalid http url from openfire - "
-                            + httpdCollaborationURL + ".");
+                            + httpdCollaborationURL + ". Shared Display Sessions have been disabled.");
             return;
         }
 
