@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -70,7 +71,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
 
     private Text subjectTF;
 
-    private Button publicCollaboration;
+    private Button sharedSessionDisplay;
 
     private Button inviteUsers;
 
@@ -113,12 +114,12 @@ public class CreateSessionDialog extends CaveSWTDialog {
         label.setText("Subject: ");
         subjectTF = new Text(body, SWT.BORDER);
         subjectTF.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        publicCollaboration = new Button(body, SWT.CHECK);
+        sharedSessionDisplay = new Button(body, SWT.CHECK);
+        this.enableOrDisableSharedDisplays();
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
         gd.horizontalSpan = 2;
-        publicCollaboration.setLayoutData(gd);
-        publicCollaboration.setSelection(true);
-        publicCollaboration.setText("Create Collaboration");
+        sharedSessionDisplay.setLayoutData(gd);
+        sharedSessionDisplay.setText("Create Shared Display Session");
 
         if (showInvite) {
             inviteUsers = new Button(body, SWT.CHECK);
@@ -254,7 +255,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
                         CreateSessionData result = new CreateSessionData();
                         result.setName(name);
                         result.setSubject(subject);
-                        result.setCollaborationSessioh(publicCollaboration
+                        result.setCollaborationSessioh(sharedSessionDisplay
                                 .getSelection());
                         if (inviteUsers == null) {
                             result.setInviteUsers(false);
@@ -325,7 +326,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
             err = "Name contains invalid characters.";
         } else {
             Collection<IVenueInfo> info = CollaborationDataManager
-                    .getInstance().getCollaborationConnection(true).getVenueInfo();
+                    .getInstance().getCollaborationConnection(true)
+                    .getVenueInfo();
             for (IVenueInfo i : info) {
                 if (name.equals(i.getVenueName())) {
                     err = "Session already exists. Pick a different name.";
@@ -334,5 +336,15 @@ public class CreateSessionDialog extends CaveSWTDialog {
             }
         }
         return err;
+    }
+
+    private void enableOrDisableSharedDisplays() {
+        boolean sharedSessionsEnabled = Activator
+                .getDefault()
+                .getPreferenceStore()
+                .getBoolean(
+                        CollabPrefConstants.HttpCollaborationConfiguration.P_SESSION_CONFIGURED);
+        this.sharedSessionDisplay.setSelection(sharedSessionsEnabled);
+        this.sharedSessionDisplay.setEnabled(sharedSessionsEnabled);
     }
 }
