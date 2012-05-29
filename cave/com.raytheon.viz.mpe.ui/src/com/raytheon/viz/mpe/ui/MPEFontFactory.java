@@ -28,7 +28,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEGageResource;
 import com.raytheon.viz.mpe.ui.rsc.MPELegendResource;
 
 /**
- * MPE Font manager, uses preferences to retrieve fonts. Fonts are shared
+ * MPE Font factory, uses preference ids to create fonts for a target
  * 
  * <pre>
  * 
@@ -44,7 +44,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPELegendResource;
  * @version 1.0
  */
 
-public class MPEFontManager {
+public class MPEFontFactory {
 
     private static final String DEFAULT_ID = "com.raytheon.viz.mpe.ui.defaultFont";
 
@@ -54,36 +54,45 @@ public class MPEFontManager {
         idMap.put(MPEGageResource.class, MPEGageResource.class.getName());
     }
 
-    private static Map<String, IFont> fontMap = new HashMap<String, IFont>();
+    private Map<String, IFont> fontMap;
+
+    private IGraphicsTarget target;
+
+    private String baseId = DEFAULT_ID;
+
+    public MPEFontFactory(IGraphicsTarget target, Object referenceObject) {
+        this.target = target;
+        this.fontMap = new HashMap<String, IFont>();
+        if (referenceObject != null) {
+            String id = idMap.get(referenceObject.getClass());
+            if (id != null) {
+                this.baseId = id;
+            }
+        }
+    }
+
+    public void dispose() {
+        for (IFont font : fontMap.values()) {
+            font.dispose();
+        }
+        fontMap.clear();
+    }
 
     /**
-     * Get the font using preference store values. If no preference value is
-     * defined for the object, the default mpe font will be used. WARNING: These
-     * fonts are shared, changes to them will result in changes to others using
-     * them
+     * Get the IFont with the font name, fonts are cached and should not be
+     * disposed of directly but through {@link #dispose()}
      * 
-     * @param obj
-     * @param name
-     * @param target
+     * @param fontName
      * @return
      */
-    public static IFont getFont(Object obj, String name, IGraphicsTarget target) {
-        String id = null;
-        if (obj == null) {
-            id = DEFAULT_ID + "." + name;
-        } else {
-            String clazzId = idMap.get(obj.getClass());
-            if (clazzId == null) {
-                clazzId = DEFAULT_ID;
-            }
-            id = clazzId + "." + name;
-        }
-
-        IFont font = fontMap.get(id);
+    public IFont getMPEFont(String fontName) {
+        IFont font = fontMap.get(fontName);
         if (font == null) {
-            font = target.initializeFont(id);
-            fontMap.put(id, font);
+            String fontId = baseId + "." + fontName;
+            font = target.initializeFont(fontId);
+            fontMap.put(fontName, font);
         }
         return font;
     }
+
 }
