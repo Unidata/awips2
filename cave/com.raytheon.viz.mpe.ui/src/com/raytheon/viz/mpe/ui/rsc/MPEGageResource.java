@@ -451,18 +451,17 @@ public class MPEGageResource extends AbstractMPEInputResource {
             for (ListIterator<MPEGageData> it = gages.listIterator(); it
                     .hasNext();) {
                 MPEGageData gageData = it.next();
-                Coordinate xy = gageData.getLatLon();
-                double[] pixel = descriptor.worldToPixel(new double[] { xy.x,
-                        xy.y });
-                xy = new Coordinate(pixel[0], pixel[1]);
-                dataMap.put(xy, gageData);
+                Coordinate latLon = gageData.getLatLon();
+                double[] pixel = descriptor.worldToPixel(new double[] {
+                        latLon.x, latLon.y });
+                dataMap.put(new Coordinate(pixel[0], pixel[1]), gageData);
 
                 /* Create a small envelope around the point */
-                Coordinate p1 = new Coordinate(xy.x + 10, xy.y + 10);
-                Coordinate p2 = new Coordinate(xy.x - 10, xy.y - 10);
+                Coordinate p1 = new Coordinate(latLon.x + .05, latLon.y + .05);
+                Coordinate p2 = new Coordinate(latLon.x - .05, latLon.y - .05);
                 Envelope env = new Envelope(p1, p2);
                 ArrayList<Object> data = new ArrayList<Object>();
-                data.add(xy);
+                data.add(latLon);
                 data.add("GAGE: " + gageData.getId() + " VALUE: "
                         + gageData.getGval());
                 strTree.insert(env, data);
@@ -562,7 +561,7 @@ public class MPEGageResource extends AbstractMPEInputResource {
     protected boolean handleMouseUp(int x, int y, int mouseButton) {
         if (mouseButton == 1) {
             Coordinate coord = getResourceContainer().translateClick(x, y);
-            double maxdist = 99999;
+            double mindist = Double.MAX_VALUE;
             double testdist;
             MPEGageData bestData = null;
             // Find closest gage...
@@ -573,8 +572,8 @@ public class MPEGageResource extends AbstractMPEInputResource {
                 testdist = Math.pow((coord.x - lon), 2)
                         + Math.pow((coord.y - lat), 2);
                 testdist = Math.pow(testdist, .5);
-                if (testdist < maxdist) {
-                    maxdist = testdist;
+                if (testdist < mindist) {
+                    mindist = testdist;
                     bestData = data;
                 }
             }
