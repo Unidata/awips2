@@ -2467,6 +2467,7 @@ public class GLTarget implements IGLTarget {
         // function ends up calling begin/end rendering lots which slows it down
         // to the speed of a not bulk operation
         TextRenderer textRenderer = null;
+        boolean lastXOr = false;
 
         pushGLState();
         gl.glMatrixMode(GL.GL_MODELVIEW);
@@ -2642,9 +2643,15 @@ public class GLTarget implements IGLTarget {
                 }
                 float alpha = Math.min(dString.basics.alpha, 1.0f);
 
-                if (dString.basics.xOrColors) {
-                    gl.glEnable(GL.GL_COLOR_LOGIC_OP);
-                    gl.glLogicOp(GL.GL_XOR);
+                if (lastXOr != dString.basics.xOrColors) {
+                    lastXOr = dString.basics.xOrColors;
+                    textRenderer.flush();
+                    if (lastXOr) {
+                        gl.glEnable(GL.GL_COLOR_LOGIC_OP);
+                        gl.glLogicOp(GL.GL_XOR);
+                    } else {
+                        gl.glDisable(GL.GL_COLOR_LOGIC_OP);
+                    }
                 }
 
                 for (int c = 0; c < dString.getText().length; c++) {
@@ -2717,9 +2724,6 @@ public class GLTarget implements IGLTarget {
                         yPos -= textBounds.getHeight() * getScaleY();
                     }
                 }
-                if (dString.basics.xOrColors) {
-                    gl.glDisable(GL.GL_COLOR_LOGIC_OP);
-                }
 
                 if (rotatedPoint != null) {
                     textRenderer.flush();
@@ -2731,6 +2735,9 @@ public class GLTarget implements IGLTarget {
         } finally {
             if (textRenderer != null) {
                 textRenderer.end3DRendering();
+            }
+            if (lastXOr) {
+                gl.glDisable(GL.GL_COLOR_LOGIC_OP);
             }
             gl.glDisable(GL.GL_TEXTURE_2D);
             gl.glDisable(GL.GL_BLEND);
