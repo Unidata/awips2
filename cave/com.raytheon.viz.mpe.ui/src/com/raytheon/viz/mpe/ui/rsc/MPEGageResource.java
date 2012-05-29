@@ -41,6 +41,7 @@ import javax.measure.unit.SI;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -55,7 +56,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableString;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
+import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -70,9 +74,9 @@ import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.mpe.core.MPEDataManager;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.MPEDisplayManager.GageColor;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.GageDisplay;
-import com.raytheon.viz.mpe.ui.MPEDisplayManager.GageMissingOptions;
-import com.raytheon.viz.mpe.ui.MPEFontManager;
+import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.dialogs.Display7x7Dialog;
 import com.raytheon.viz.ui.input.EditableManager;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -103,9 +107,7 @@ public class MPEGageResource extends AbstractMPEInputResource {
 
     private static final String GAGE_TRIANGLES = "GAGETRIANGLES%sz";
 
-    private static final int IMAGE_WIDTH = 10;
-
-    private static final int IMAGE_HEIGHT = 10;
+    private static final double POINT_RADIUS = 2;
 
     private final SimpleDateFormat sdf;
 
@@ -119,12 +121,6 @@ public class MPEGageResource extends AbstractMPEInputResource {
 
     private final RGB triangleColor = RGBColors.getRGBColor("YELLOW");
 
-    private double scaleWidthValue = 0.0;
-
-    private double scaleHeightValue = 0.0;
-
-    private MPEGageData gageData = null;
-
     private DataMappingPreferences dmPref;
 
     private ColorMap colorMap;
@@ -133,11 +129,9 @@ public class MPEGageResource extends AbstractMPEInputResource {
 
     private Date lastDate = null;
 
-    private DrawableCircle point;
-
-    private DrawableString string;
-
     private IWireframeShape gageTriangles;
+
+    private MPEFontFactory fontFactory;
 
     /**
      * @param resourceData
@@ -153,11 +147,9 @@ public class MPEGageResource extends AbstractMPEInputResource {
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        point = new DrawableCircle();
-        point.filled = true;
-        string = new DrawableString("", null);
         displayMgr = MPEDisplayManager.getInstance(descriptor
                 .getRenderableDisplay());
+        fontFactory = new MPEFontFactory(target, this);
         loadColors();
         lastDate = displayMgr.getCurrentDate();
         addPoints(MPEDataManager.getInstance().readGageData(lastDate));
@@ -168,6 +160,7 @@ public class MPEGageResource extends AbstractMPEInputResource {
         if (gageTriangles != null) {
             gageTriangles.dispose();
         }
+        fontFactory.dispose();
     }
 
     /**
@@ -196,14 +189,12 @@ public class MPEGageResource extends AbstractMPEInputResource {
         if (gageTriangles != null) {
             gageTriangles = null;
         }
+        lastDate = null;
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        setScaleWidth(paintProps);
-        setScaleHeight(paintProps);
-
         // set the plot draw or no draw values
         Set<MPEDisplayManager.GageDisplay> gd = displayMgr.getGageDisplay();
         if (gd.isEmpty()) {
@@ -219,30 +210,9 @@ public class MPEGageResource extends AbstractMPEInputResource {
             }
         }
 
-        // Fonts are shared and cached, no need to init or dispose
-        IFont font = MPEFontManager.getFont(this, displayMgr.getFontState(),
-                target);
-        font.setSmoothing(false);
-        string.font = font;
-
         if (gd.contains(GageDisplay.Ids) || gd.contains(GageDisplay.Values)) {
-            Iterator<Coordinate> iter = dataMap.keySet().iterator();
-            while (iter.hasNext()) {
-                try {
-                    Coordinate c = iter.next();
-                    double[] pixel = descriptor.worldToPixel(new double[] {
-                            c.x, c.y });
-                    if (paintProps.getView().getExtent().contains(pixel)) {
-                        paintPlotInfo(target, paintProps, c, dataMap.get(c),
-                                gd.contains(GageDisplay.Ids),
-                                gd.contains(GageDisplay.Values));
-                    }
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error painting gages: " + e.getLocalizedMessage(),
-                            e);
-                }
-            }
+            paintPlotInfo(target, paintProps, gd.contains(GageDisplay.Ids),
+                    gd.contains(GageDisplay.Values));
         }
 
         try {
@@ -311,132 +281,129 @@ public class MPEGageResource extends AbstractMPEInputResource {
     /**
      * Draws the plot information
      * 
-     * @param c
-     * @param gageData
-     * @throws VizException
+     * @param target
+     * @param paintProps
+     * @param isGageIdsDisplayed
+     * @param isGageValuesDisplayed
      */
     private void paintPlotInfo(IGraphicsTarget target,
-            PaintProperties paintProps, Coordinate c, MPEGageData gageData,
-            boolean isGageIdsDisplayed, boolean isGageValuesDisplayed)
-            throws VizException {
-        RGB gageColor = new RGB(255, 255, 255);
-        double[] centerpixels = descriptor
-                .worldToPixel(new double[] { c.x, c.y });
+            PaintProperties paintProps, boolean isGageIdsDisplayed,
+            boolean isGageValuesDisplayed) throws VizException {
+        Rectangle bounds = paintProps.getCanvasBounds();
+        IExtent extent = paintProps.getView().getExtent();
+        double screenToWorldWidthRatio = bounds.width / extent.getWidth();
+
+        List<DrawableString> strings = new ArrayList<DrawableString>(
+                dataMap.size());
+        List<DrawableCircle> points = new ArrayList<DrawableCircle>(
+                dataMap.size());
+
+        // Fonts are shared and cached, no need to init or dispose
+        IFont font = fontFactory.getMPEFont(displayMgr.getFontState());
+        font.setSmoothing(false);
 
         MPEDisplayManager.GageMissingOptions gm = displayMgr.getGageMissing();
+        boolean xor = displayMgr.getGageColor() == GageColor.Contrast;
 
-        boolean isReportedMissing = gageData.isReported_missing();
-        boolean isMissing = ((gageData.getGval() == -999.f || gageData
-                .getGval() == -9999.f) ? true : false);
-        if (gageData.isManedit() == true
-                && gageData.getEdit().equalsIgnoreCase("m")) {
-            isMissing = true;
+        for (Coordinate point : dataMap.keySet()) {
+            if (extent.contains(new double[] { point.x, point.y })) {
+                MPEGageData gageData = dataMap.get(point);
+                RGB gageColor = getGageColor(gageData);
+
+                boolean isReportedMissing = gageData.isReported_missing();
+                boolean isMissing = ((gageData.getGval() == -999.f || gageData
+                        .getGval() == -9999.f) ? true : false);
+                if (gageData.isManedit() == true
+                        && gageData.getEdit().equalsIgnoreCase("m")) {
+                    isMissing = true;
+                }
+
+                switch (gm) {
+                case MissingNone:
+                    if (isMissing) {
+                        break;
+                    }
+
+                case MissingReported:
+                    if ((isMissing) && (!isReportedMissing)) {
+                        break;
+                    }
+
+                case MissingAll:
+                    String gageValue = "";
+                    String gageId = "";
+                    if (isGageValuesDisplayed) {
+                        gageValue = "m";
+                        if (!isMissing) {
+                            gageValue = String.format("%5.2f",
+                                    gageData.getGval());
+                        }
+
+                        // draw the value
+                        if (!gageData.isManedit()) {
+                            if (gageData.getId().contains("PSEUDO")) {
+                                UnitConverter conv = SI.MILLIMETER
+                                        .getConverterTo(NonSI.INCH);
+                                gageValue = String.format("%5.2f",
+                                        conv.convert(gageData.getGval()));
+                            }
+                        } else {
+                            if (gageData.getId().contains("PSEUDO")
+                                    && !isMissing) {
+                                UnitConverter conv = SI.MILLIMETER
+                                        .getConverterTo(NonSI.INCH);
+                                gageValue = String.format("%5.2f",
+                                        conv.convert(gageData.getGval()));
+                            }
+                        }
+                    }
+                    if (isGageIdsDisplayed) {
+                        gageId = gageData.getId();
+
+                        DrawableCircle circle = new DrawableCircle();
+                        circle.radius = POINT_RADIUS / screenToWorldWidthRatio;
+                        circle.filled = true;
+                        circle.numberOfPoints = 8;
+                        circle.setCoordinates(point.x, point.y);
+                        circle.basics.color = gageColor;
+                        circle.basics.xOrColors = xor;
+                        points.add(circle);
+                    }
+
+                    if (isGageIdsDisplayed || isGageValuesDisplayed) {
+                        DrawableString string = new DrawableString(
+                                new String[] { gageValue, gageId, }, gageColor);
+                        string.font = font;
+                        string.basics.xOrColors = xor;
+                        string.horizontalAlignment = HorizontalAlignment.LEFT;
+                        string.verticallAlignment = VerticalAlignment.BOTTOM;
+
+                        string.setCoordinates(
+                                point.x
+                                        + (POINT_RADIUS / screenToWorldWidthRatio),
+                                point.y
+                                        + (POINT_RADIUS / screenToWorldWidthRatio));
+                        strings.add(string);
+                    }
+                }
+            }
         }
 
-        String val = null;
-
-        switch (gm) {
-        case MissingNone:
-            if (isMissing) {
-                break;
-            }
-
-        case MissingReported:
-            if ((isMissing) && (!isReportedMissing)) {
-                break;
-            }
-
-        case MissingAll:
-
-            if (gm.equals(GageMissingOptions.MissingNone)) {
-                // System.out.println(gageData.getGval()); // TODO : REMOVE
-                gageColor = setGageColor(gageData);
-            } else {
-                gageColor = RGBColors.getRGBColor("SandyBrown");
-            }
-
-            if (isGageValuesDisplayed) {
-                Coordinate stageCoor = new Coordinate(centerpixels[0]
-                        + scaleWidthValue / 3, centerpixels[1]
-                        + scaleHeightValue);
-                if (!isMissing) {
-                    val = String.format("%5.2f", gageData.getGval());
-                } else {
-                    val = "m";
-                }
-
-                string.setCoordinates(stageCoor.x, stageCoor.y);
-
-                // draw the value
-                if (!gageData.isManedit()) {
-                    if (gageData.getId().contains("PSEUDO")) {
-                        UnitConverter conv = SI.MILLIMETER
-                                .getConverterTo(NonSI.INCH);
-                        val = String.format("%5.2f",
-                                conv.convert(gageData.getGval()));
-                    }
-                    string.setText(val, gageColor);
-                    target.drawStrings(string);
-                } else {
-                    if (gageData.getId().contains("PSEUDO") && !isMissing) {
-                        UnitConverter conv = SI.MILLIMETER
-                                .getConverterTo(NonSI.INCH);
-                        val = String.format("%5.2f",
-                                conv.convert(gageData.getGval()));
-                    }
-                    string.setText(val + "e", gageColor);
-                    target.drawStrings(string);
-                }
-            }
-
-            // draw the ID
-            if (isGageIdsDisplayed) {
-                Coordinate idCoor = new Coordinate(centerpixels[0]
-                        + scaleWidthValue / 3, centerpixels[1]
-                        - scaleHeightValue);
-
-                // System.out.println(gageData.getId()); // TODO : remove
-
-                string.setText(gageData.getId(), gageColor);
-                string.setCoordinates(idCoor.x, idCoor.y);
-
-                target.drawStrings(string);
-                double[] coords = descriptor.worldToPixel(new double[] { c.x,
-                        c.y });
-                point.setCoordinates(coords[0], coords[1]);
-                point.radius = scaleWidthValue / 3;
-                if (point.basics.color == null) {
-                    setGageColor(gageData);
-                }
-                target.drawCircle(point);
-            }
-        }
+        target.drawCircle(points.toArray(new DrawableCircle[points.size()]));
+        target.drawStrings(strings);
     }
 
-    private RGB setGageColor(MPEGageData gageData) throws VizException {
+    private RGB getGageColor(MPEGageData gageData) {
         RGB gageColor = new RGB(255, 255, 255);
         if (!displayMgr.getGageDisplay().isEmpty()) {
             MPEDisplayManager.GageColor gc = displayMgr.getGageColor();
-            string.basics.xOrColors = false;
-            point.basics.xOrColors = false;
             switch (gc) {
-
             case Solid:
                 gageColor = RGBColors.getRGBColor("SandyBrown");
                 break;
 
             case Contrast:
-
-                // RGB xoc = RGBColors.getRGBColor("SandyBrown");
-                // gageColor = getXOR(bg, xoc);
                 gageColor = RGBColors.getRGBColor("SandyBrown");
-                string.basics.xOrColors = true;
-                point.basics.xOrColors = true;
-                // if (bg.equals(xmcolor)) {
-                // gageColor = getContrast(bg);
-                // } else {
-                // gageColor = getContrast(xmcolor);
-                // }
                 break;
 
             case ByQC:
@@ -468,7 +435,6 @@ public class MPEGageResource extends AbstractMPEInputResource {
             }
         }
 
-        point.basics.color = gageColor;
         return gageColor;
     }
 
@@ -478,20 +444,22 @@ public class MPEGageResource extends AbstractMPEInputResource {
      * @param gages
      */
     private void addPoints(List<MPEGageData> gages) {
-        gageData = new MPEDataManager.MPEGageData();
         dataMap = new Hashtable<Coordinate, MPEGageData>();
         strTree = new STRtree();
 
         if (!gages.isEmpty()) {
             for (ListIterator<MPEGageData> it = gages.listIterator(); it
                     .hasNext();) {
-                gageData = it.next();
+                MPEGageData gageData = it.next();
                 Coordinate xy = gageData.getLatLon();
+                double[] pixel = descriptor.worldToPixel(new double[] { xy.x,
+                        xy.y });
+                xy = new Coordinate(pixel[0], pixel[1]);
                 dataMap.put(xy, gageData);
 
                 /* Create a small envelope around the point */
-                Coordinate p1 = new Coordinate(xy.x + .05, xy.y + .05);
-                Coordinate p2 = new Coordinate(xy.x - .05, xy.y - .05);
+                Coordinate p1 = new Coordinate(xy.x + 10, xy.y + 10);
+                Coordinate p2 = new Coordinate(xy.x - 10, xy.y - 10);
                 Envelope env = new Envelope(p1, p2);
                 ArrayList<Object> data = new ArrayList<Object>();
                 data.add(xy);
@@ -556,28 +524,6 @@ public class MPEGageResource extends AbstractMPEInputResource {
     }
 
     /**
-     * Set the width scalar
-     * 
-     * @param props
-     */
-    private void setScaleWidth(PaintProperties props) {
-        double screenToWorldWidthRatio = props.getCanvasBounds().width
-                / props.getView().getExtent().getWidth();
-        scaleWidthValue = (IMAGE_WIDTH / 2.0) / screenToWorldWidthRatio;
-    }
-
-    /**
-     * Set the height scalar
-     * 
-     * @param props
-     */
-    private void setScaleHeight(PaintProperties props) {
-        double screenToWorldHeightRatio = props.getCanvasBounds().height
-                / props.getView().getExtent().getHeight();
-        scaleHeightValue = (IMAGE_HEIGHT / 2.0) / screenToWorldHeightRatio;
-    }
-
-    /**
      * Inspect method called when moused over while inspect is enabled
      * 
      * @param coord
@@ -620,10 +566,10 @@ public class MPEGageResource extends AbstractMPEInputResource {
             double testdist;
             MPEGageData bestData = null;
             // Find closest gage...
-            for (Coordinate ll : dataMap.keySet()) {
-                MPEGageData data = dataMap.get(ll);
-                float lon = (float) ll.x;
-                float lat = (float) ll.y;
+            for (MPEGageData data : dataMap.values()) {
+                Coordinate latLon = data.getLatLon();
+                float lon = (float) latLon.x;
+                float lat = (float) latLon.y;
                 testdist = Math.pow((coord.x - lon), 2)
                         + Math.pow((coord.y - lat), 2);
                 testdist = Math.pow(testdist, .5);
