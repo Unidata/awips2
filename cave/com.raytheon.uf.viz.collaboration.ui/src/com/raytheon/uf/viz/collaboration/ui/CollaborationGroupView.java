@@ -84,7 +84,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
@@ -106,7 +105,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
-import com.raytheon.uf.viz.collaboration.data.InvitationGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
@@ -120,6 +118,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
+import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
  * This class is the main view to display the user's information and allow the
@@ -138,15 +137,14 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * @author rferrel
  * @version 1.0
  */
-public class CollaborationGroupView extends ViewPart implements IPartListener {
+public class CollaborationGroupView extends CaveFloatingView implements
+        IPartListener {
     public static final String ID = "com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationGroupView.class);
 
     private SessionGroupContainer activeSessionGroup;
-
-    private InvitationGroupContainer activeInvitationGroup;
 
     private TreeViewer usersTreeViewer;
 
@@ -196,7 +194,9 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      */
     @Override
     public void createPartControl(Composite parent) {
+        super.createPartControl(parent);
         this.parent = parent;
+        this.parent.setLayout(new GridLayout());
         // build the necessary actions for the view
         createActions();
 
@@ -301,7 +301,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 .getInfo().getVenueSubject(), "");
                     }
                     session.sendInvitation(ids, invite);
-                    activeInvitationGroup.addObject(invite);
                 } catch (CollaborationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error sending invitiation", e);
@@ -608,12 +607,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         // populates the sessions that the user currently is involved with
         populateActiveSessions();
 
-        activeInvitationGroup = new InvitationGroupContainer();
-        topLevel.addObject(activeInvitationGroup);
-        // populates the active invitations in case a user leaves and wants to
-        // rejoin
-        populateActiveInvitations();
-
         // populates the groups that the user is a part of
         populateGroups();
 
@@ -645,10 +638,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             statusHandler.handle(Priority.ERROR,
                     "Unable to populate active sessions", e);
         }
-    }
-
-    private void populateActiveInvitations() {
-        activeInvitationGroup.clear();
     }
 
     /**
@@ -971,7 +960,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 result.getSubject(), b);
                     }
                     session.sendInvitation(usersList, invite);
-                    activeInvitationGroup.addObject(invite);
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
