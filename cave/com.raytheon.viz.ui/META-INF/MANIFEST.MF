@@ -30,6 +30,7 @@ Export-Package: com.raytheon.viz.ui,
  com.raytheon.viz.ui.perspectives,
  com.raytheon.viz.ui.statusline,
  com.raytheon.viz.ui.tools,
+ com.raytheon.viz.ui.views,
  com.raytheon.viz.ui.widgets
 Bundle-Vendor: Raytheon
 Import-Package: com.raytheon.uf.common.colormap,
