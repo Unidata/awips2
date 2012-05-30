@@ -254,7 +254,7 @@ public class CollaborationUtils {
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
         file = PathManagerFactory.getPathManager().getLocalizationFile(context,
                 "collaboration" + File.separator + "alertWords.xml");
-        if (file.exists()) {
+        if (file.exists() || file.getFile().exists()) {
             AlertWordWrapper words = (AlertWordWrapper) JAXB.unmarshal(
                     file.getFile(), AlertWordWrapper.class);
             if (words.getAlertWords() == null) {
