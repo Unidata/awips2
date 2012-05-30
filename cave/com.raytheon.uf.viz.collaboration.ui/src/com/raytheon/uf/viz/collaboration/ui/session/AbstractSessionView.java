@@ -50,7 +50,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import sun.audio.AudioData;
@@ -69,6 +68,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
+import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
  * This performs most of the work for creating a View for a peer-to-peer or
@@ -88,7 +88,7 @@ import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
  * @version 1.0
  */
 
-public abstract class AbstractSessionView extends ViewPart {
+public abstract class AbstractSessionView extends CaveFloatingView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractSessionView.class);
 
@@ -275,12 +275,17 @@ public abstract class AbstractSessionView extends ViewPart {
             createNotifier(userId, time, body);
         }
 
-        String name = userId.getName();
-        for (UserId id : userIds) {
-            if (id.equals(userId)) {
-                name = id.getAlias();
-                break;
+        String name = null;
+        if (userId != null) {
+            name = userId.getName();
+            for (UserId id : userIds) {
+                if (id.equals(userId)) {
+                    name = id.getAlias();
+                    break;
+                }
             }
+        } else {
+            name = getPartName();
         }
 
         StringBuilder sb = new StringBuilder();
@@ -423,6 +428,8 @@ public abstract class AbstractSessionView extends ViewPart {
      */
     @Override
     public void createPartControl(Composite parent) {
+        parent.setLayout(new GridLayout());
+        super.createPartControl(parent);
         setTitleImage(getImage());
         setPartName(getSessionName());
         initComponents(parent);
