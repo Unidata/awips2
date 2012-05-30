@@ -95,7 +95,6 @@ public class CollaborationAlertWordsPreferencePage extends
         viewer = new TableViewer(getFieldEditorParent());
         viewer.setContentProvider(new CollaborationPreferenceContentProvider());
         viewer.setLabelProvider(new CollaborationPreferencesLabelProvider());
-        viewer.setInput(CollaborationUtils.getAlertWords());
         viewer.getTable().setLayoutData(data);
 
         final StringFieldEditor stringEditor = new StringFieldEditor(
@@ -118,14 +117,14 @@ public class CollaborationAlertWordsPreferencePage extends
         layout.marginHeight = 0;
         layout.marginWidth = 0;
         fontComp.setLayout(layout);
-        data = new GridData(SWT.FILL, SWT.FILL, true, true);
+        data = new GridData(SWT.FILL, SWT.NONE, true, false);
         data.horizontalSpan = 3;
 
         fontComp.setLayoutData(data);
 
         Label fontName = new Label(fontComp, SWT.NONE);
         fontName.setText("Font");
-        data = new GridData(SWT.FILL, SWT.NONE, true, false);
+        data = new GridData(SWT.FILL, SWT.NONE, true, true);
         fontName.setLayoutData(data);
 
         final Label fontLabel = new Label(fontComp, SWT.NONE);
@@ -174,9 +173,13 @@ public class CollaborationAlertWordsPreferencePage extends
                             .getStringValue(), colorEditor.getColorSelector()
                             .getColorValue());
                     word.setFont(fontLabel.getText());
-                    int index = viewer.getTable().getSelectionIndex();
                     word.setSoundPath(fileEditor.getStringValue());
-                    ((List<AlertWord>) viewer.getInput()).set(index, word);
+                    int index = viewer.getTable().getSelectionIndex();
+                    if (index != -1) {
+                        ((List<AlertWord>) viewer.getInput()).set(index, word);
+                    } else {
+                        ((List<AlertWord>) viewer.getInput()).add(word);
+                    }
                     viewer.refresh();
                 }
             }
@@ -233,6 +236,7 @@ public class CollaborationAlertWordsPreferencePage extends
                 fileEditor.setStringValue(word.getSoundPath());
             }
         });
+        viewer.setInput(CollaborationUtils.getAlertWords());
     }
 
     public boolean performOk() {
