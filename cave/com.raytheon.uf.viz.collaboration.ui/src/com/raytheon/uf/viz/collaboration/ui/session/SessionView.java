@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -638,6 +639,9 @@ public class SessionView extends AbstractSessionView {
         }
         usersTable.setInput(users);
         usersTable.refresh();
+        IMessage message = new TextMessage(participant, participant.getName()
+                + " has entered the room.");
+        appendMessage(message);
     }
 
     @SuppressWarnings("unchecked")
@@ -652,6 +656,9 @@ public class SessionView extends AbstractSessionView {
                 break;
             }
         }
+        IMessage message = new TextMessage(participant, participant.getName()
+                + " has left the room.");
+        appendMessage(message);
     }
 
     /**
