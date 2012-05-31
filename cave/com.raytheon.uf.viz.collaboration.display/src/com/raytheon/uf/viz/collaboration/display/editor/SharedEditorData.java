@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.editor;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -33,7 +31,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.serialization.adapters.JTSEnvelopeAdapter;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -62,9 +60,8 @@ public class SharedEditorData implements ISerializableObject {
     /** The geometry of the descriptor */
     private GeneralGridGeometry geometry;
 
-    /** resources that can be recreated locally, i.e. data agnostic, e.g. maps */
     @XmlElement
-    private List<ResourcePair> localResources;
+    private AbstractRenderableDisplay display;
 
     /** the view's extent, i.e. the current zoom/pan */
     private Envelope envelope;
@@ -85,12 +82,19 @@ public class SharedEditorData implements ISerializableObject {
         this.geometry = geometry;
     }
 
-    public List<ResourcePair> getLocalResources() {
-        return localResources;
+    /**
+     * @return the display
+     */
+    public AbstractRenderableDisplay getDisplay() {
+        return display;
     }
 
-    public void setLocalResources(List<ResourcePair> localResources) {
-        this.localResources = localResources;
+    /**
+     * @param display
+     *            the display to set
+     */
+    public void setDisplay(AbstractRenderableDisplay display) {
+        this.display = display;
     }
 
     @XmlElement
