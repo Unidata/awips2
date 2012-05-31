@@ -2,15 +2,13 @@ package com.raytheon.viz.hydro.resource;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResourceData;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * TODO Add Description
@@ -30,32 +28,80 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "multiPointResourceData")
-public class MultiPointResourceData extends
-		HydroPointResourceData<MultiPointResource> {
+public class MultiPointResourceData extends AbstractResourceData {
 
-	public MultiPointResourceData() {
-		super();
-	}
+    @XmlElement
+    private String name;
 
-	public MultiPointResourceData(String string, RGB color,
-			Coordinate location, Style style) {
-		super(string, color, location, style);
-	}
+    public MultiPointResourceData() {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
-	 * .uf.viz.core.rsc.LoadProperties,
-	 * com.raytheon.uf.viz.core.drawables.IDescriptor)
-	 */
-	@Override
-	public MultiPointResource construct(LoadProperties loadProperties,
-			IDescriptor descriptor) throws VizException {
-		MultiPointResource multiPointResource = new MultiPointResource(this,
-				loadProperties);
-		return multiPointResource;
-	}
+    }
+
+    public MultiPointResourceData(String name) {
+        this.name = name;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
+     * .uf.viz.core.rsc.LoadProperties,
+     * com.raytheon.uf.viz.core.drawables.IDescriptor)
+     */
+    @Override
+    public MultiPointResource construct(LoadProperties loadProperties,
+            IDescriptor descriptor) throws VizException {
+        return new MultiPointResource(this, loadProperties);
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name
+     *            the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
+     * )
+     */
+    @Override
+    public void update(Object updateData) {
+        // TODO Auto-generated method stub
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MultiPointResourceData other = (MultiPointResourceData) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
 
 }
