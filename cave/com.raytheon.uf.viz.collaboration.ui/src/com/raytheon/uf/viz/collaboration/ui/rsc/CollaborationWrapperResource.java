@@ -184,6 +184,10 @@ public class CollaborationWrapperResource extends
         return wrappedResource.getResourceData();
     }
 
+    public CollaborationWrapperResourceData getWrapperResourceData() {
+        return (CollaborationWrapperResourceData) resourceData;
+    }
+
     /**
      * @param capability
      * @return
