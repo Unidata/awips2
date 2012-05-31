@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.drawing;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Control;
@@ -59,7 +58,8 @@ public class DrawingToolUIManager extends InputAdapter {
 
     private Cursor pencil;
 
-    private Cursor normal;
+    /** Normal will never be initialized as null tells SWT to use the default */
+    private Cursor normal = null;
 
     private boolean handlingInput = false;
 
@@ -87,8 +87,6 @@ public class DrawingToolUIManager extends InputAdapter {
                         Activator.getDefault().getBundle(), "draw.gif")
                         .getImageData();
                 pencil = new Cursor(Display.getCurrent(), data, 1, 15);
-
-                normal = Display.getCurrent().getSystemCursor(SWT.CURSOR_ARROW);
 
                 DrawingToolUIManager.this.container
                         .registerMouseHandler(DrawingToolUIManager.this);

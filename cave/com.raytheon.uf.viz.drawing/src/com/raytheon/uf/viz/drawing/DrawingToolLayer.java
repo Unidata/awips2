@@ -31,7 +31,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
@@ -625,41 +624,30 @@ public class DrawingToolLayer implements IRenderable {
      */
     public void reproject(GeneralGridGeometry targetGeometry) {
         synchronized (currentData) {
-            MathTransform concatenatedTransform = null;
             try {
-                MathTransform worldToOldGrid = worldToGrid;
-                if (worldToOldGrid != null) {
-                    concatenatedTransform = worldToOldGrid.inverse();
-                }
-                setTargetGeometry(targetGeometry);
-                if (worldToGrid != null) {
-                    if (concatenatedTransform != null) {
-                        concatenatedTransform = new DefaultMathTransformFactory()
-                                .createConcatenatedTransform(
-                                        concatenatedTransform, worldToGrid);
-                    } else {
-                        concatenatedTransform = worldToGrid;
+                MathTransform oldGridToNewGrid = TransformFactory
+                        .gridCellToGridCell(this.targetGeometry,
+                                PixelInCell.CELL_CENTER, targetGeometry,
+                                PixelInCell.CELL_CENTER);
+                if (oldGridToNewGrid != null) {
+                    Map<Geometry, Geometry> projectionMap = new HashMap<Geometry, Geometry>();
+                    for (StackFrame sf : undoStack) {
+                        sf.geometries = reprojectCollection(sf.geometries,
+                                projectionMap, oldGridToNewGrid);
                     }
+                    for (StackFrame sf : redoStack) {
+                        sf.geometries = reprojectCollection(sf.geometries,
+                                projectionMap, oldGridToNewGrid);
+                    }
+                    currentData.geometries = reprojectCollection(
+                            currentData.geometries, projectionMap,
+                            oldGridToNewGrid);
                 }
             } catch (Exception e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,
                         e.getLocalizedMessage(), e);
             }
-
-            if (concatenatedTransform != null) {
-                Map<Geometry, Geometry> projectionMap = new HashMap<Geometry, Geometry>();
-                for (StackFrame sf : undoStack) {
-                    sf.geometries = reprojectCollection(sf.geometries,
-                            projectionMap, concatenatedTransform);
-                }
-                for (StackFrame sf : redoStack) {
-                    sf.geometries = reprojectCollection(sf.geometries,
-                            projectionMap, concatenatedTransform);
-                }
-                currentData.geometries = reprojectCollection(
-                        currentData.geometries, projectionMap,
-                        concatenatedTransform);
-            }
+            setTargetGeometry(targetGeometry);
             if (wireframeShape != null) {
                 wireframeShape.dispose();
                 wireframeShape = null;

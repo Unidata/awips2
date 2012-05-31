@@ -95,15 +95,6 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 editor.disableClose("Please close the \"" + title
                         + "\" chat to exit the session.");
 
-                // initialize resources
-                if (se.getLocalResources() != null) {
-                    IDescriptor descriptor = editor.getActiveDisplayPane()
-                            .getDescriptor();
-                    for (ResourcePair rp : se.getLocalResources()) {
-                        descriptor.getResourceList().add(
-                                convertToLocalResourcePair(rp));
-                    }
-                }
                 initializeResources(editor.getActiveDisplayPane()
                         .getDescriptor());
 
