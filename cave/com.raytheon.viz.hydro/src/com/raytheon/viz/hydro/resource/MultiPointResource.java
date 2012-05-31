@@ -19,12 +19,12 @@
  **/
 package com.raytheon.viz.hydro.resource;
 
-import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -50,18 +50,24 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.app.launcher.handlers.AppLauncherHandler;
+import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
@@ -85,7 +91,6 @@ import com.raytheon.viz.hydrocommon.data.GageData;
 import com.raytheon.viz.hydrocommon.data.GageData.ThreatIndex;
 import com.raytheon.viz.hydrocommon.data.RiverStat;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResource;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorThreshold;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorThresholdArray;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
@@ -128,36 +133,86 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  */
 
 public class MultiPointResource extends
-		HydroPointResource<MultiPointResourceData> implements
+        AbstractVizResource<MultiPointResourceData, IMapDescriptor> implements
         IContextMenuContributor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MultiPointResource.class);
 
-    private static final String GRAY_ICON = "GRAY_ICON";
+    private static class HydroImageMakerCallback implements
+            IRenderedImageCallback {
 
-    private Hashtable<String, GageData> dataMap = new Hashtable<String, GageData>();
+        private String dispClass;
 
-    private Hashtable<String, GageData> newDataMap = new Hashtable<String, GageData>();
+        private RGB color;
 
-    private HashMap<String, HashMap<RGB, BufferedImage>> imageMap = new HashMap<String, HashMap<RGB, BufferedImage>>();
+        private HydroImageMakerCallback(String dispClass, RGB color) {
+            this.dispClass = dispClass;
+            this.color = color;
+        }
 
-    private HashMap<String, HashMap<RGB, BufferedImage>> newImageMap = new HashMap<String, HashMap<RGB, BufferedImage>>();
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.core.data.IRenderedImageCallback#getImage()
+         */
+        @Override
+        public RenderedImage getImage() throws VizException {
+            return HydroImageMaker.getImage(dispClass, ImageSize.MEDIUM, color);
+        }
 
-    private HashMap<String, IImage> renderables = null;
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Object#hashCode()
+         */
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((color == null) ? 0 : color.hashCode());
+            result = prime * result
+                    + ((dispClass == null) ? 0 : dispClass.hashCode());
+            return result;
+        }
 
-    private HashMap<String, IImage> grayRenderables = null;
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            HydroImageMakerCallback other = (HydroImageMakerCallback) obj;
+            if (color == null) {
+                if (other.color != null)
+                    return false;
+            } else if (!color.equals(other.color))
+                return false;
+            if (dispClass == null) {
+                if (other.dispClass != null)
+                    return false;
+            } else if (!dispClass.equals(other.dispClass))
+                return false;
+            return true;
+        }
+
+    }
+
+    private static final RGB LABEL_COLOR = RGBColors.getRGBColor("White");
+
+    private Map<String, Map<RGB, IImage>> imageMap = new HashMap<String, Map<RGB, IImage>>();
+
+    private Map<String, GageData> dataMap = new HashMap<String, GageData>();
 
     private STRtree strTree = new STRtree();
 
-    private IGraphicsTarget target;
-
-    private String selectedLid = null;
-
-    private int count = 0;
-
     private IFont font = null;
-
-    private int lastFontSize = 0;
 
     private int fontSize;
 
@@ -167,10 +222,6 @@ public class MultiPointResource extends
 
     private final SimpleDateFormat sdf2 = new SimpleDateFormat();
 
-    private RGB textColor = RGBColors.getRGBColor("White");
-
-    private final RGB labelColor = RGBColors.getRGBColor("White");
-
     private double scaleWidthValue = 0.0;
 
     private double scaleHeightValue = 0.0;
@@ -179,27 +230,11 @@ public class MultiPointResource extends
 
     private double screenToWorldHeightRatio = 0.0;
 
-    private boolean isGage = true;
-
-    private boolean isName = true;
-
-    private boolean isTime = true;
-
-    private boolean isID = true;
-
-    private boolean isElevation = false;
-
-    private boolean isPE = false;
-
-    private boolean isValue = false;
-
     private final PDCDataManager dataManager = PDCDataManager.getInstance();
 
     private HydroColorBarResource colorBarResource = null;
 
     private ColorMap colorMap = null;
-
-    private boolean isDisposed = false;
 
     private TimeSeriesDlg ts;
 
@@ -219,9 +254,9 @@ public class MultiPointResource extends
     private HydroInputManager inputManager = null;
 
     private PDCOptionData pcOptions = null;
-    
+
     private HydroDisplayManager manager = null;
-    
+
     private PointDataControlManager pdcManager = null;
 
     /**
@@ -236,17 +271,12 @@ public class MultiPointResource extends
      * @param style
      *            Resource Style
      */
-	public MultiPointResource(MultiPointResourceData resourceData,
-			LoadProperties loadProperties) {
-	    super(resourceData, loadProperties);
-		this.getCapability(ColorableCapability.class).setColor(
-				resourceData.getColor());
-
-		pdcManager = PointDataControlManager.getInstance();
+    public MultiPointResource(MultiPointResourceData resourceData,
+            LoadProperties loadProperties) {
+        super(resourceData, loadProperties);
+        pdcManager = PointDataControlManager.getInstance();
         manager = HydroDisplayManager.getInstance();
         pcOptions = PDCOptionData.getInstance();
-        
-        setDisplayBooleans();
 
         // Hide the change color and colormap menu items
         getCapability(ColorMapCapability.class).setSuppressingMenuItems(true);
@@ -263,32 +293,41 @@ public class MultiPointResource extends
         inputManager = new HydroInputManager();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
+     */
+    @Override
+    public String getName() {
+        return resourceData.getName();
+    }
+
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
             container.registerMouseHandler(inputManager);
         }
-		String colorUseName = HydroViewColors
-				.getColorUseNameFromPcOptions(pcOptions);
-		pdcManager.setColorUseName(colorUseName);
-		pdcManager.setMultiPointResource(this);
-		List<GageData> data = pdcManager.getObsReportList();
-		newDataSet();
-		if (data != null) {
-			for (GageData gage : data) {
-				/* Get the point color for this location */
-				if ((gage.getLid() != null) && gage.isUse()) {
-					addPoint(gage);
-				}
-			}
-			finalizeDataSet();
-		}
-    }
 
-    public void resetStrTree() {
-        strTree = null;
-        strTree = new STRtree();
+        fontSize = 10;
+        font = target.initializeFont("Dialog", fontSize, null);
+        font.setSmoothing(false);
+
+        String colorUseName = HydroViewColors
+                .getColorUseNameFromPcOptions(pcOptions);
+        pdcManager.setColorUseName(colorUseName);
+        pdcManager.setMultiPointResource(this);
+        List<GageData> data = pdcManager.getObsReportList();
+        resetDataMap();
+        if (data != null) {
+            for (GageData gage : data) {
+                /* Get the point color for this location */
+                if ((gage.getLid() != null) && gage.isUse()) {
+                    addPoint(gage);
+                }
+            }
+        }
     }
 
     /**
@@ -297,40 +336,35 @@ public class MultiPointResource extends
      * @param gage
      *            GageData object
      */
-    public synchronized void addPoint(GageData gage) {
-        Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
-        gage.setCoordinate(xy);
-        newDataMap.put(gage.getLid(), gage);
+    private synchronized void addPoint(GageData gage) {
+        String lid = gage.getLid();
+        GageData existing = dataMap.get(lid);
+        if (existing != gage) {
+            Coordinate xy = new Coordinate(gage.getLon(), gage.getLat());
+            gage.setCoordinate(xy);
 
-        /* Create a small envelope around the point */
-        Coordinate p1 = new Coordinate(gage.getLon() + .03, gage.getLat() + .05);
-        Coordinate p2 = new Coordinate(gage.getLon() - .03, gage.getLat() - .05);
-        Envelope env = new Envelope(p1, p2);
-        ArrayList<Object> data = new ArrayList<Object>();
-        data.add(xy);
-        data.add("GAGE: " + gage.getName() + " VALUE: " + gage.getGageValue());
-        strTree.insert(env, data);
-        addIcon(gage);
-    }
+            double latInc = .05;
+            double lonInc = .03;
 
-    /**
-     * Create a new data set.
-     */
-    public synchronized void newDataSet() {
-        this.newDataMap.clear();
-        this.newImageMap.clear();
-        strTree = new STRtree();
-    }
+            if (existing != null) {
+                Coordinate p1 = new Coordinate(existing.getLon() + lonInc,
+                        existing.getLat() + latInc);
+                Coordinate p2 = new Coordinate(existing.getLon() - lonInc,
+                        existing.getLat() - latInc);
+                Envelope oldEnv = new Envelope(p1, p2);
+                strTree.remove(oldEnv, existing);
+            }
 
-    /**
-     * Finalize the new data set. This copies the new objects into the original
-     * data objects.
-     */
-    @SuppressWarnings("unchecked")
-    public synchronized void finalizeDataSet() {
-        this.dataMap = (Hashtable<String, GageData>) newDataMap.clone();
-        this.imageMap = (HashMap<String, HashMap<RGB, BufferedImage>>) newImageMap
-                .clone();
+            /* Create a small envelope around the point */
+            Coordinate p1 = new Coordinate(gage.getLon() + lonInc,
+                    gage.getLat() + latInc);
+            Coordinate p2 = new Coordinate(gage.getLon() - lonInc,
+                    gage.getLat() - latInc);
+            Envelope newEnv = new Envelope(p1, p2);
+
+            strTree.insert(newEnv, gage);
+            dataMap.put(lid, gage);
+        }
     }
 
     /**
@@ -338,88 +372,20 @@ public class MultiPointResource extends
      * 
      * @param gage
      */
-    private void addIcon(GageData gage) {
-        if (!newImageMap.containsKey(gage.getDispClass())) {
-            HashMap<RGB, BufferedImage> images = new HashMap<RGB, BufferedImage>();
-            if (!images.containsKey(gage.getColor())) {
-                images.put(gage.getColor(),
-                        HydroImageMaker.getImage(gage, ImageSize.MEDIUM));
-                if (!images.containsKey(GRAY_ICON)) {
-                    images.put(RGBColors.getRGBColor(colorSet.get(0)
-                            .getColorname().getColorName()), HydroImageMaker
-                            .getImage(
-                                    gage,
-                                    ImageSize.MEDIUM,
-                                    RGBColors.getRGBColor(colorSet.get(0)
-                                            .getColorname().getColorName())));
-                }
-                newImageMap.put(gage.getDispClass(), images);
-            }
-        } else {
-            HashMap<RGB, BufferedImage> images = newImageMap.get(gage
-                    .getDispClass());
-            if (!images.containsKey(gage.getColor())) {
-                images.put(gage.getColor(),
-                        HydroImageMaker.getImage(gage, ImageSize.MEDIUM));
-                if (!images.containsKey(GRAY_ICON)) {
-                    images.put(RGBColors.getRGBColor(colorSet.get(0)
-                            .getColorname().getColorName()), HydroImageMaker
-                            .getImage(
-                                    gage,
-                                    ImageSize.MEDIUM,
-                                    RGBColors.getRGBColor(colorSet.get(0)
-                                            .getColorname().getColorName())));
-                }
-                newImageMap.put(gage.getDispClass(), images);
-            }
+    private IImage getIcon(IGraphicsTarget target, GageData gage, RGB color) {
+        String dispClass = gage.getDispClass();
+        Map<RGB, IImage> colorMap = imageMap.get(dispClass);
+        if (colorMap == null) {
+            colorMap = new HashMap<RGB, IImage>();
+            imageMap.put(dispClass, colorMap);
         }
-    }
-
-    /**
-     * Gets the image map
-     * 
-     * @return
-     */
-    public HashMap<String, HashMap<RGB, BufferedImage>> getImageMap() {
-        return imageMap;
-    }
-
-    public Map<String, GageData> getDataMap() {
-        return dataMap;
-    }
-
-    /**
-     * gets the renderable images cache
-     * 
-     * @return image map
-     */
-    private HashMap<String, IImage> getRenderables() {
-        Iterator<String> iter = dataMap.keySet().iterator();
-
-        renderables = new HashMap<String, IImage>();
-        grayRenderables = new HashMap<String, IImage>();
-
-        while (iter.hasNext()) {
-            String lid = iter.next();
-            GageData gage = dataMap.get(lid);
-
-            try {
-                IImage image = target.initializeRaster(new IODataPreparer(
-                        imageMap.get(gage.getDispClass()).get(gage.getColor()),
-                        gage.getLid(), 0), null);
-                renderables.put(gage.getLid(), image);
-                IImage grayImage = target.initializeRaster(
-                        new IODataPreparer(imageMap.get(gage.getDispClass())
-                                .get(RGBColors.getRGBColor(colorSet.get(0)
-                                        .getColorname().getColorName())), gage
-                                .getLid(), 0), null);
-                grayRenderables.put(gage.getLid(), grayImage);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        IImage image = colorMap.get(color);
+        if (image == null) {
+            image = target.initializeRaster(new HydroImageMakerCallback(
+                    dispClass, color));
+            colorMap.put(color, image);
         }
-
-        return renderables;
+        return image;
     }
 
     /**
@@ -502,16 +468,15 @@ public class MultiPointResource extends
      *            the graphics target
      * @throws VizException
      */
-    private void drawPlotInfo(GageData gage, double shiftWidth,
-            double shiftHeight, PaintProperties paintProps,
+    private Collection<DrawableString> drawPlotInfo(GageData gage,
+            double shiftWidth, double shiftHeight, PaintProperties paintProps,
             IGraphicsTarget target) throws VizException {
+        List<DrawableString> strings = new ArrayList<DrawableString>();
         Coordinate c = gage.getCoordinate();
 
         int floodLevel = pcOptions.getFloodLevel();
         int deriveStageFlow = pcOptions.getDeriveStageFlow();
 
-        boolean showValue1 = false;
-        boolean showValue2 = false;
         boolean isTimeStepMode = false;
 
         String valueLabel = null;
@@ -527,12 +492,8 @@ public class MultiPointResource extends
         formatStr = getDataFormat(gage.getPe());
 
         /* Logic for determining how the data values are displayed. */
-        if (isValue) {
-            showValue1 = true;
-        } else {
-            showValue1 = false;
-        }
-
+        boolean showValue1 = pdcManager.isValue();
+        boolean showValue2 = false;
         if (!showValue1) {
             showValue2 = false;
         } else {
@@ -552,7 +513,7 @@ public class MultiPointResource extends
                 .worldToPixel(new double[] { c.x, c.y });
 
         if (showValue1) {
-
+            RGB textColor = RGBColors.getRGBColor("White");
             if (gage.getGageValue() == PDCConstants.MISSING_VALUE) {
                 valueLabel = "M";
             } else {
@@ -606,9 +567,11 @@ public class MultiPointResource extends
                 textColor = RGBColors.getRGBColor("white");
             }
 
-            target.drawString(font, valueLabel, valueCoor.x, valueCoor.y, 0.0,
-                    IGraphicsTarget.TextStyle.NORMAL, textColor,
-                    IGraphicsTarget.HorizontalAlignment.RIGHT, 0.0);
+            DrawableString string = new DrawableString(valueLabel, textColor);
+            string.font = font;
+            string.horizontalAlignment = HorizontalAlignment.RIGHT;
+            string.setCoordinates(valueCoor.x, valueCoor.y);
+            strings.add(string);
 
             if (pcOptions.getTimeMode() != PDCConstants.TimeModeType.VALUE_CHANGE
                     .getTimeMode()) {
@@ -640,16 +603,16 @@ public class MultiPointResource extends
                             - getScaleWidth(), (centerpixels[1] + shiftHeight)
                             + getScaleHeight() / -0.9);
 
-                    target.drawString(font, valueLabel2, valueCoor.x,
-                            valueCoor.y, 0.0, IGraphicsTarget.TextStyle.NORMAL,
-                            textColor,
-                            IGraphicsTarget.HorizontalAlignment.RIGHT, 0.0);
-
+                    string = new DrawableString(valueLabel2, textColor);
+                    string.font = font;
+                    string.horizontalAlignment = HorizontalAlignment.RIGHT;
+                    string.setCoordinates(valueCoor.x, valueCoor.y);
+                    strings.add(string);
                 }
             }
         }
 
-        if (isTime) {
+        if (pdcManager.isTime()) {
             Coordinate dateCoor1 = new Coordinate(
                     (centerpixels[0] + shiftWidth) + getScaleWidth(),
                     (centerpixels[1] + shiftHeight) - getScaleHeight() / 0.9);
@@ -657,38 +620,45 @@ public class MultiPointResource extends
                     (centerpixels[0] + shiftWidth) + getScaleWidth(),
                     centerpixels[1] + shiftHeight + getScaleHeight() / -2);
             // draw the date and time
-            target.drawString(font, sdf1.format(gage.getValidtime().getTime()),
-                    dateCoor1.x, dateCoor1.y, 0.0,
-                    IGraphicsTarget.TextStyle.NORMAL, labelColor,
-                    IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
+            DrawableString string = new DrawableString(sdf1.format(gage
+                    .getValidtime().getTime()), LABEL_COLOR);
+            string.font = font;
+            string.setCoordinates(dateCoor1.x, dateCoor1.y);
+            strings.add(string);
 
-            target.drawString(font, sdf2.format(gage.getValidtime().getTime()),
-                    dateCoor2.x, dateCoor2.y, 0.0,
-                    IGraphicsTarget.TextStyle.NORMAL, labelColor,
-                    IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
+            string = new DrawableString(sdf2.format(gage.getValidtime()
+                    .getTime()), LABEL_COLOR);
+            string.font = font;
+            string.setCoordinates(dateCoor2.x, dateCoor2.y);
+            strings.add(string);
         }
         // draw the ID
-        if (isID) {
+        if (pdcManager.isID()) {
             Coordinate idCoor = new Coordinate(centerpixels[0] + shiftWidth
                     - getScaleWidth(), centerpixels[1] + shiftHeight
                     + getScaleHeight());
 
-            target.drawString(font, gage.getLid(), idCoor.x, idCoor.y, 0.0,
-                    IGraphicsTarget.TextStyle.NORMAL, labelColor,
-                    IGraphicsTarget.HorizontalAlignment.RIGHT, 0.0);
+            DrawableString string = new DrawableString(gage.getLid(),
+                    LABEL_COLOR);
+            string.font = font;
+            string.horizontalAlignment = HorizontalAlignment.RIGHT;
+            string.setCoordinates(idCoor.x, idCoor.y);
+            strings.add(string);
         }
-        if (isName) {
+        if (pdcManager.isName()) {
             // draw the Name
             Coordinate nameCoor = new Coordinate(centerpixels[0] + shiftWidth
                     + getScaleWidth(), centerpixels[1] + shiftHeight
                     + getScaleHeight());
 
-            target.drawString(font, gage.getName(), nameCoor.x, nameCoor.y,
-                    0.0, IGraphicsTarget.TextStyle.NORMAL, labelColor,
-                    IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
+            DrawableString string = new DrawableString(gage.getName(),
+                    LABEL_COLOR);
+            string.font = font;
+            string.setCoordinates(nameCoor.x, nameCoor.y);
+            strings.add(string);
         }
 
-        if (isPE) {
+        if (pdcManager.isPE()) {
             String shefDurCode;
             if (gage.getPe().equalsIgnoreCase("PC")) {
                 /*
@@ -705,21 +675,25 @@ public class MultiPointResource extends
             Coordinate peCoor = new Coordinate(centerpixels[0] + shiftWidth
                     + getScaleWidth(), centerpixels[1] + shiftHeight
                     - getScaleHeight() / 2);
-            target.drawString(font, pe, peCoor.x, peCoor.y, 0.0,
-                    IGraphicsTarget.TextStyle.NORMAL, labelColor,
-                    IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
+            DrawableString string = new DrawableString(pe, LABEL_COLOR);
+            string.font = font;
+            string.setCoordinates(peCoor.x, peCoor.y);
+            strings.add(string);
         }
 
-        if (isElevation) {
+        if (pdcManager.isElevation()) {
             // draw the elevation
             Coordinate elCoor = new Coordinate(centerpixels[0] + shiftWidth
                     + getScaleWidth(), centerpixels[1] + shiftHeight
                     - getScaleHeight() / 2);
 
-            target.drawString(font, df.format(gage.getElevation()), elCoor.x,
-                    elCoor.y, 0.0, IGraphicsTarget.TextStyle.NORMAL,
-                    labelColor, IGraphicsTarget.HorizontalAlignment.LEFT, 0.0);
+            DrawableString string = new DrawableString(df.format(gage
+                    .getElevation()), LABEL_COLOR);
+            string.font = font;
+            string.setCoordinates(elCoor.x, elCoor.y);
+            strings.add(string);
         }
+        return strings;
     }
 
     private void setScaleValues(PaintProperties props) {
@@ -815,23 +789,8 @@ public class MultiPointResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-
-        // Don't display the default colorbar
-        // target.setUseBuiltinColorbar(false);
-
         // Check the font size
-        fontSize = manager.getFontSize();
-        if (lastFontSize != fontSize) {
-            if (font != null) {
-                font.dispose();
-            }
-
-            font = target.initializeFont("Dialog", fontSize, null);
-            font.setSmoothing(false);
-            lastFontSize = fontSize;
-        }
-
-        this.target = target;
+        font.setMagnification((manager.getFontSize() / (float) fontSize), true);
 
         /*
          * Only display the color bar in TimeStep mode and if there are data on
@@ -853,7 +812,7 @@ public class MultiPointResource extends
                 props.setSystemResource(true);
                 rl.add(colorBarResource, props);
             }
-            
+
             manager.setDataChanged(false);
         }
 
@@ -861,56 +820,51 @@ public class MultiPointResource extends
                 .getColorUseNameFromPcOptions(pcOptions);
         pdcManager.setColorUseName(colorUseName);
         pdcManager.setMultiPointResource(this);
+        setScaleValues(paintProps);
+        IExtent extent = paintProps.getView().getExtent();
         List<GageData> data = pdcManager.getObsReportList();
-        newDataSet();
         if (data != null) {
+            List<DrawableImage> images = new ArrayList<DrawableImage>(
+                    data.size());
+            List<DrawableString> strings = new ArrayList<DrawableString>(
+                    data.size() * 3);
             for (GageData gage : data) {
                 /* Get the point color for this location */
                 if ((gage.getLid() != null) && gage.isUse()) {
                     addPoint(gage);
-                }
-            }
-            finalizeDataSet();
-        }
-        
-        renderables = getRenderables();
-
-        setScaleValues(paintProps);
-        Iterator<String> iter = dataMap.keySet().iterator();
-
-        while (iter.hasNext()) {
-            String lid = iter.next();
-            GageData gageData = dataMap.get(lid);
-            Coordinate c = gageData.getCoordinate();
-            double[] pixel = descriptor.worldToPixel(new double[] { c.x, c.y });
-
-            double shiftHeightValue = getShiftHeight(paintProps, gageData);
-            double shiftWidthValue = getShiftWidth(paintProps, gageData);
-
-            if (pixel != null) {
-                if (paintProps.getView().getExtent().contains(pixel)) {
-
-                    /* Draw the icons */
-                    if (pcOptions.getIcon() == 1) {
-                        if (pcOptions.getRiverStatus() == 1) {
-                            target.drawRaster(
-                                    renderables.get(lid),
-                                    getPixelCoverage(gageData, shiftWidthValue,
-                                            shiftHeightValue), paintProps);
-                        } else {
-                            target.drawRaster(
-                                    grayRenderables.get(lid),
-                                    getPixelCoverage(gageData, shiftWidthValue,
-                                            shiftHeightValue), paintProps);
+                    Coordinate c = gage.getCoordinate();
+                    double[] pixel = descriptor.worldToPixel(new double[] {
+                            c.x, c.y });
+                    if (pixel != null && extent.contains(pixel)) {
+                        double shiftHeightValue = getShiftHeight(paintProps,
+                                gage);
+                        double shiftWidthValue = getShiftWidth(paintProps, gage);
+                        /* Draw the icons */
+                        if (pcOptions.getIcon() == 1) {
+                            RGB color = null;
+                            if (pcOptions.getRiverStatus() == 1) {
+                                color = gage.getColor();
+                            } else {
+                                color = RGBColors.getRGBColor(colorSet.get(0)
+                                        .getColorname().getColorName());
+                            }
+                            images.add(new DrawableImage(getIcon(target, gage,
+                                    color), getPixelCoverage(gage,
+                                    shiftWidthValue, shiftHeightValue)));
                         }
+                        strings.addAll(drawPlotInfo(gage, shiftWidthValue,
+                                shiftHeightValue, paintProps, target));
                     }
-
-                    drawPlotInfo(gageData, shiftWidthValue, shiftHeightValue,
-                            paintProps, target);
                 }
             }
+            if (images.size() > 0) {
+                target.drawRasters(paintProps,
+                        images.toArray(new DrawableImage[images.size()]));
+            }
+            if (strings.size() > 0) {
+                target.drawStrings(strings);
+            }
         }
-        count++;
 
         GageData currentData = manager.getCurrentData();
         if (currentData != null) {
@@ -951,12 +905,9 @@ public class MultiPointResource extends
             if (elements.size() > 0) {
                 Iterator<?> iter = elements.iterator();
                 while (iter.hasNext()) {
-                    ArrayList<?> list = (ArrayList<?>) iter.next();
-                    if (list.get(1) instanceof String) {
-                        return (String) list.get(1);
-                    } else {
-                        return null;
-                    }
+                    GageData gage = (GageData) iter.next();
+                    return "GAGE: " + gage.getName() + " VALUE: "
+                            + gage.getGageValue();
                 }
             }
         } catch (Exception e) {
@@ -977,6 +928,7 @@ public class MultiPointResource extends
             throws VizException {
         List<GageData> gageDataList = pdcManager.getObsReportList();
         try {
+            GageData selected = null;
             Coordinate coord = rcoord.asLatLon();
             double minDistance = 9999;
 
@@ -997,15 +949,15 @@ public class MultiPointResource extends
                         double distance = Math.hypot(xDist, yDist);
                         if (distance < minDistance) {
                             minDistance = distance;
-                            selectedLid = gd.getLid();
+                            selected = gd;
                         }
                     }
                 }
             }
 
-            target.setNeedsRefresh(true);
-            if (selectedLid != null) {
-                manager.setCurrentData(dataMap.get(selectedLid));
+            issueRefresh();
+            if (selected != null) {
+                manager.setCurrentData(selected);
             }
         } catch (Exception e) {
             throw new VizException(e);
@@ -1255,16 +1207,6 @@ public class MultiPointResource extends
         pdcManager.setColorMapParameters(parameters);
     }
 
-    private void setDisplayBooleans() {
-        setGage(pdcManager.isGage());
-        setName(pdcManager.isName());
-        setElevation(pdcManager.isElevation());
-        setID(pdcManager.isID());
-        setPE(pdcManager.isPE());
-        setTime(pdcManager.isTime());
-        setValue(pdcManager.isValue());
-    }
-
     @Override
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
         menuManager.add(new Separator());
@@ -1324,141 +1266,12 @@ public class MultiPointResource extends
     }
 
     /**
-     * Get the GageData object associated with this Coordinate.
-     * 
-     * @param c
-     *            The coordinate of the GageData object
-     * @return The GageData object
-     */
-    private GageData getGageData(Coordinate c) {
-        boolean found = false;
-
-        while (!found) {
-            Iterator<String> iter = dataMap.keySet().iterator();
-            while (iter.hasNext()) {
-                String lid = iter.next();
-                GageData data = dataMap.get(lid);
-                if (c.equals(data.getCoordinate())) {
-                    return data;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * Clear the data map.
      */
     public void resetDataMap() {
         dataMap.clear();
+        strTree = new STRtree();
     }
-
-    /**
-     * @return the isGage
-     */
-    public boolean isGage() {
-        return isGage;
-    }
-
-    /**
-     * @param isGage
-     *            the isGage to set
-     */
-    public void setGage(boolean isGage) {
-        this.isGage = isGage;
-    }
-
-    /**
-     * @return the isName
-     */
-    public boolean isName() {
-        return isName;
-    }
-
-    /**
-     * @param isName
-     *            the isName to set
-     */
-    public void setName(boolean isName) {
-        this.isName = isName;
-    }
-
-    /**
-     * @return the isTime
-     */
-    public boolean isTime() {
-        return isTime;
-    }
-
-    /**
-     * @param isTime
-     *            the isTime to set
-     */
-    public void setTime(boolean isTime) {
-        this.isTime = isTime;
-    }
-
-    /**
-     * @return the isID
-     */
-    public boolean isID() {
-        return isID;
-    }
-
-    /**
-     * @param isID
-     *            the isID to set
-     */
-    public void setID(boolean isID) {
-        this.isID = isID;
-    }
-
-    /**
-     * @return the isPE
-     */
-    public boolean isPE() {
-        return isPE;
-    }
-
-    /**
-     * @param isPE
-     *            the isPE to set
-     */
-    public void setPE(boolean isPE) {
-        this.isPE = isPE;
-    }
-
-    /**
-     * @return the isElevation
-     */
-    public boolean isElevation() {
-        return isElevation;
-    }
-
-    /**
-     * @param isElevation
-     *            the isElevation to set
-     */
-    public void setElevation(boolean isElevation) {
-        this.isElevation = isElevation;
-    }
-
-    /**
-     * @return the isValue
-     */
-    public boolean isValue() {
-        return isValue;
-    }
-
-    /**
-     * @param isValue
-     *            the isValue to set
-     */
-    public void setValue(boolean isValue) {
-        this.isValue = isValue;
-    }
-
-
 
     private class TimeSeriesLaunchAction extends AbstractRightClickAction {
 
@@ -1490,16 +1303,16 @@ public class MultiPointResource extends
 
                 Envelope env = new Envelope(coord);
                 List<?> elements = strTree.query(env);
-                GageData closestGage=getNearestPoint(coord,elements);
-                if (closestGage!=null) {
+                GageData closestGage = getNearestPoint(coord, elements);
+                if (closestGage != null) {
                     if ((ts == null) || !ts.isOpen()) {
-                		Shell shell = PlatformUI.getWorkbench()
-                      .getActiveWorkbenchWindow().getShell();
-                      ts = new TimeSeriesDlg(shell, closestGage, true);
-                      ts.open();
-                  } else {
-                      ts.updateSelection(closestGage, true);
-                  }
+                        Shell shell = PlatformUI.getWorkbench()
+                                .getActiveWorkbenchWindow().getShell();
+                        ts = new TimeSeriesDlg(shell, closestGage, true);
+                        ts.open();
+                    } else {
+                        ts.updateSelection(closestGage, true);
+                    }
 
                 } else {
                     showMessage();
@@ -1542,47 +1355,42 @@ public class MultiPointResource extends
                 if (elements.size() > 0) {
                     GageData gageData = getNearestPoint(coord, elements);
                     if ((gageData != null)) {
-                            String lid = gageData.getLid();
-                            String dataType = toPEDTSEP(gageData);
-                            String fcstType = null;
-                            String ts = gageData.getTs();
-                            // Don't create a fcstType if we are already going
-                            // to display forecast data.
-                            if ((ts != null) && (!ts.startsWith("F"))) {
-                                fcstType = createFcstParm(lid);
-                            }
+                        String lid = gageData.getLid();
+                        String dataType = toPEDTSEP(gageData);
+                        String fcstType = null;
+                        String ts = gageData.getTs();
+                        // Don't create a fcstType if we are already going
+                        // to display forecast data.
+                        if ((ts != null) && (!ts.startsWith("F"))) {
+                            fcstType = createFcstParm(lid);
+                        }
 
-                            try {
-                                AppLauncherHandler alh = new AppLauncherHandler();
-                                if ((dataType != null)
-                                        && (dataType.indexOf('-') < 0)) {
-                                    if (fcstType != null) {
-                                        alh.execute(TSL_BUNDLE_LOC, lid,
-                                                dataType, fcstType);
-                                    } else {
-                                        alh.execute(TSL_BUNDLE_LOC, lid,
-                                                dataType);
-                                    }
+                        try {
+                            AppLauncherHandler alh = new AppLauncherHandler();
+                            if ((dataType != null)
+                                    && (dataType.indexOf('-') < 0)) {
+                                if (fcstType != null) {
+                                    alh.execute(TSL_BUNDLE_LOC, lid, dataType,
+                                            fcstType);
                                 } else {
-                                    Shell shell = PlatformUI.getWorkbench()
-                                            .getActiveWorkbenchWindow()
-                                            .getShell();
-
-                                    MessageBox mb = new MessageBox(shell,
-                                            SWT.ICON_INFORMATION | SWT.OK);
-                                    mb.setText("");
-                                    String msg = String
-                                            .format("This location's paramCode, %s, is incomplete.\nTimeSeriesLite cannot be launched for it.",
-                                                    dataType);
-                                    mb.setMessage(msg);
-                                    mb.open();
+                                    alh.execute(TSL_BUNDLE_LOC, lid, dataType);
                                 }
-                            } catch (ExecutionException e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        e.getLocalizedMessage(), e);
+                            } else {
+                                Shell shell = PlatformUI.getWorkbench()
+                                        .getActiveWorkbenchWindow().getShell();
+
+                                MessageBox mb = new MessageBox(shell,
+                                        SWT.ICON_INFORMATION | SWT.OK);
+                                mb.setText("");
+                                String msg = String
+                                        .format("This location's paramCode, %s, is incomplete.\nTimeSeriesLite cannot be launched for it.",
+                                                dataType);
+                                mb.setMessage(msg);
+                                mb.open();
                             }
-                        } else {
-                            showMessage();
+                        } catch (ExecutionException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
                         }
                     } else {
                         showMessage();
@@ -1590,7 +1398,10 @@ public class MultiPointResource extends
                 } else {
                     showMessage();
                 }
+            } else {
+                showMessage();
             }
+        }
     }
 
     /**
@@ -1635,8 +1446,8 @@ public class MultiPointResource extends
     }
 
     /**
-     * Return the nearest data in the elements list to the given
-     * coordinate latitude/longitude.
+     * Return the nearest data in the elements list to the given coordinate
+     * latitude/longitude.
      * 
      * @param coord
      *            Reference coordinate latitude/longitude
@@ -1646,24 +1457,23 @@ public class MultiPointResource extends
      *         null reference is returned.
      */
     private GageData getNearestPoint(Coordinate coord, List<?> elements) {
-        if (elements ==null || elements.size() <= 0) {
-        	return null;
+        if (elements == null || elements.size() <= 0) {
+            return null;
         }
-        
-        Iterator<?> iter = elements.iterator();
-        double minDistance=Double.MAX_VALUE;
-        GageData closestGage=null;
-        while (iter.hasNext()) {
-        	ArrayList<?> data = (ArrayList<?>) iter.next();
 
-        	GageData gage = getGageData((Coordinate) data.get(0));
-        	double lon=gage.getLon();
-        	double lat=gage.getLat();
-        	double distance = Math.sqrt(Math.pow((lon-coord.x),2)+Math.pow((lat-coord.y), 2));
-        	if (distance < minDistance) {
-        		minDistance=distance;
-        		closestGage=gage;
-        	}
+        Iterator<?> iter = elements.iterator();
+        double minDistance = Double.MAX_VALUE;
+        GageData closestGage = null;
+        while (iter.hasNext()) {
+            GageData gage = (GageData) iter.next();
+            double lon = gage.getLon();
+            double lat = gage.getLat();
+            double distance = Math.sqrt(Math.pow((lon - coord.x), 2)
+                    + Math.pow((lat - coord.y), 2));
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestGage = gage;
+            }
         }
         return closestGage;
     }
@@ -1675,29 +1485,20 @@ public class MultiPointResource extends
      */
     @Override
     protected void disposeInternal() {
-        super.disposeInternal();
-
-        Iterator<IImage> iter = renderables.values().iterator();
-        while (iter.hasNext()) {
-            iter.next().dispose();
+        for (Map<RGB, IImage> colorMap : imageMap.values()) {
+            for (IImage image : colorMap.values()) {
+                image.dispose();
+            }
+            colorMap.clear();
         }
-
-        Iterator<IImage> iter2 = grayRenderables.values().iterator();
-        while (iter2.hasNext()) {
-            iter2.next().dispose();
-        }
-
-        dataMap.clear();
-
-        setDisposed(true);
+        imageMap.clear();
+        font.dispose();
+        resetDataMap();
 
         manager.setDrawStation(false);
 
         pdcManager.cancelRunningJobs();
-        MultiPointResource mpr = pdcManager.getMultiPointResource();
-        mpr.resetDataMap();
-        mpr.unmap();
-        mpr.issueRefresh();
+        unmap();
 
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
@@ -1723,7 +1524,8 @@ public class MultiPointResource extends
     }
 
     /**
-     * @param ts the ts to set
+     * @param ts
+     *            the ts to set
      */
     public void setTs(TimeSeriesDlg ts) {
         this.ts = ts;
@@ -1733,15 +1535,7 @@ public class MultiPointResource extends
      * @return the isDisposed
      */
     public boolean isDisposed() {
-        return isDisposed;
-    }
-
-    /**
-     * @param isDisposed
-     *            the isDisposed to set
-     */
-    public void setDisposed(boolean isDisposed) {
-        this.isDisposed = isDisposed;
+        return getStatus() == ResourceStatus.DISPOSED;
     }
 
     /**
@@ -1749,14 +1543,10 @@ public class MultiPointResource extends
      */
     public void unmap() {
         ResourceList rl = descriptor.getResourceList();
-
         if (rl.containsRsc(colorBarResource)) {
             rl.removeRsc(colorBarResource);
             colorBarResource.dispose();
-        }
-
-        if (rl.containsRsc(this)) {
-            rl.removeRsc(this);
+            colorBarResource = null;
         }
     }
 
@@ -1791,13 +1581,10 @@ public class MultiPointResource extends
                         /* Take the first one in the list */
                         if (iter.hasNext()) {
                             /* element 0 = Coordinate, 1 = inspectString */
-                            ArrayList<?> data = (ArrayList<?>) iter.next();
+                            GageData gage = (GageData) iter.next();
 
                             Shell shell = PlatformUI.getWorkbench()
                                     .getActiveWorkbenchWindow().getShell();
-
-                            GageData gage = getGageData((Coordinate) data
-                                    .get(0));
 
                             if ((ts == null) || !ts.isOpen()) {
                                 ts = new TimeSeriesDlg(shell, gage, false);
@@ -1849,5 +1636,5 @@ public class MultiPointResource extends
             }
             return false;
         }
-	}
+    }
 }
