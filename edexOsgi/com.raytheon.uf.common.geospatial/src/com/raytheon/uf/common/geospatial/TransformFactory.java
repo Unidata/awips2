@@ -155,7 +155,7 @@ public class TransformFactory {
             throws TransformException, FactoryException {
 
         if (gridGeometrySrc.equals(gridGeometryDest)) {
-            return IdentityTransform.create(2);
+            return IdentityTransform.create(gridGeometrySrc.getDimension());
         }
 
         MathTransform mt1 = CRSCache.getInstance().getGridToCoordinateSystem(
