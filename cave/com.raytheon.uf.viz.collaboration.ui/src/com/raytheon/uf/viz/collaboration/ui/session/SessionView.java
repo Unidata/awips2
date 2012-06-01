@@ -71,7 +71,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -471,18 +470,37 @@ public class SessionView extends AbstractSessionView {
             Color col = new Color(Display.getCurrent(), rgb);
             mappedColors.put(rgb, col);
         }
+        styleAndAppendText(sb, offset, name, userId, ranges,
+                mappedColors.get(rgb));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * styleAndAppendText(java.lang.StringBuilder, int, java.lang.String,
+     * com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
+     * java.util.List, org.eclipse.swt.graphics.Color)
+     */
+    @Override
+    protected void styleAndAppendText(StringBuilder sb, int offset,
+            String name, UserId userId, List<StyleRange> ranges, Color color) {
         StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
-                mappedColors.get(rgb), null, SWT.NORMAL);
+                color, null, SWT.NORMAL);
         ranges.add(range);
-        range = new StyleRange(messagesText.getCharCount() + offset,
-                name.length() + 1, mappedColors.get(rgb), null, SWT.BOLD);
+        if (userId != null) {
+            range = new StyleRange(messagesText.getCharCount() + offset,
+                    name.length() + 1, color, null, SWT.BOLD);
+        } else {
+            range = new StyleRange(messagesText.getCharCount() + offset,
+                    sb.length() - offset, color, null, SWT.BOLD);
+        }
         ranges.add(range);
         messagesText.append(sb.toString());
         for (StyleRange newRange : ranges) {
             messagesText.setStyleRange(newRange);
         }
         messagesText.setTopIndex(messagesText.getLineCount() - 1);
-
     }
 
     public String getRoom() {
@@ -639,9 +657,10 @@ public class SessionView extends AbstractSessionView {
         }
         usersTable.setInput(users);
         usersTable.refresh();
-        IMessage message = new TextMessage(participant, participant.getName()
-                + " has entered the room.");
-        appendMessage(message);
+
+        StringBuilder builder = new StringBuilder(participant.getName()
+                + " has entered the room");
+        sendSystemMessage(builder);
     }
 
     @SuppressWarnings("unchecked")
@@ -656,9 +675,9 @@ public class SessionView extends AbstractSessionView {
                 break;
             }
         }
-        IMessage message = new TextMessage(participant, participant.getName()
-                + " has left the room.");
-        appendMessage(message);
+        StringBuilder builder = new StringBuilder(participant.getName()
+                + " has left the room");
+        sendSystemMessage(builder);
     }
 
     /**
