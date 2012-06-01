@@ -217,7 +217,7 @@ public class DamLocationResource extends
                     Coordinate nameCoor = new Coordinate(pixel[0]
                             - getScaleWidth(), pixel[1] + getScaleHeight());
 
-                    DrawableString ds = new DrawableString(dam.getNidid(),
+                    DrawableString ds = new DrawableString(dam.getDamName(),
                             LABEL_COLOR);
                     ds.setCoordinates(nameCoor.x, nameCoor.y);
                     ds.font = font;
