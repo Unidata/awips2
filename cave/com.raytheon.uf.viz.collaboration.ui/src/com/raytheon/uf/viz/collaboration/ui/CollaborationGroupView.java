@@ -87,6 +87,7 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -114,6 +115,8 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
+import com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchive;
+import com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -151,6 +154,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private CollaborationGroupContainer topLevel;
 
     private Action createSessionAction;
+
+    private Action createArchiveViewerAction;
 
     private Action linkToEditorAction;
 
@@ -268,6 +273,52 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 // TODO store to preferences
             }
         };
+        createArchiveViewerAction = new Action("View Log...") {
+            @Override
+            public void runWithEvent(Event event) {
+                IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
+                        .getSelection();
+                Object o = selection.getFirstElement();
+                String sessionName = null;
+
+                if (o instanceof IRosterEntry) {
+                    IRosterEntry otherUser = (IRosterEntry) o;
+                    if (otherUser != null) {
+                        String id = otherUser.getUser().getID().getName();
+                        sessionName = id.substring(0, id.indexOf("@"));
+                    }
+                }
+                CollaborationConnection conn = CollaborationDataManager
+                        .getInstance().getCollaborationConnection(true);
+                UserId user = conn.getUser();
+                LocalizationFile logDir = SessionMsgArchive.getArchiveDir(
+                        user.getHost(), user.getName(), sessionName);
+
+                // SessionMsgArchiveDialog smad = new SessionMsgArchiveDialog(
+                // Display.getCurrent().getActiveShell());
+                // smad.setText("Message Log");
+                // smad.open(logDir);
+
+                try {
+                    IViewPart vPart = PlatformUI
+                            .getWorkbench()
+                            .getActiveWorkbenchWindow()
+                            .getActivePage()
+                            .showView(
+                                    "com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView");
+                    ((SessionMsgArchiveView) vPart).setDir(logDir);
+                    // vPart.setPartName(name);
+                } catch (PartInitException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to open Collaboration Log View", e);
+                }
+            }
+
+        };
+        createArchiveViewerAction.setImageDescriptor(IconUtil
+                .getImageDescriptor(bundle, "browser.gif"));
+        createArchiveViewerAction.setEnabled(true);
+
         linkToEditorAction.setImageDescriptor(IconUtil.getImageDescriptor(
                 bundle, "link_to_editor.gif"));
         // TODO pull from prefs
@@ -536,6 +587,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         mgr.add(changeStatusAction);
         mgr.add(changeStatusMessageAction);
         mgr.add(changePasswordAction);
+        mgr.add(createArchiveViewerAction);
         mgr.add(new Separator());
 
         // mgr.add(drawToolbarAction);
@@ -614,6 +666,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         usersTreeViewer.getTree().setEnabled(true);
         usersTreeViewer.refresh(topLevel, true);
         this.disableOrEnableSessionAction();
+        createArchiveViewerAction.setEnabled(true);
     }
 
     /**
@@ -688,6 +741,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             return;
         } else if (o instanceof IVenueSession) {
             manager.add(joinAction);
+            manager.add(createArchiveViewerAction);
             return;
         } else if (o instanceof UserId) {
             createMenu(manager);
@@ -732,6 +786,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 manager.add(createSessionAction);
             }
             manager.add(aliasAction);
+            manager.add(createArchiveViewerAction);
         } else if (o instanceof IRosterGroup) {
             manager.add(createSessionAction);
         }
@@ -1344,15 +1399,15 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     /**
-     * Enables or disables the Creation session button / menu option
-     * depending on whether or not the user is connected to the
-     * xmpp server.
+     * Enables or disables the Creation session button / menu option depending
+     * on whether or not the user is connected to the xmpp server.
      */
     private void disableOrEnableSessionAction() {
-        final boolean isSessionEnabled = CollaborationDataManager.getInstance().isConnected();
+        final boolean isSessionEnabled = CollaborationDataManager.getInstance()
+                .isConnected();
         createSessionAction.setEnabled(isSessionEnabled);
     }
-    
+
     /**
      * Adds users to groups if necessary
      * 
