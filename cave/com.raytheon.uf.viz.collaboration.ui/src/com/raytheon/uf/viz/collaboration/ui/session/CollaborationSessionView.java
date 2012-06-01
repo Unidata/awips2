@@ -22,8 +22,10 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -31,6 +33,9 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -46,8 +51,18 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource.DrawingLayerUpdate;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.drawing.DrawingToolLayer;
+import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * TODO Add Description
@@ -75,7 +90,21 @@ public class CollaborationSessionView extends SessionView {
 
     private Action colorChangeAction;
 
+    private ActionContributionItem drawAction;
+
+    private ActionContributionItem undoAction;
+
+    private ActionContributionItem redoAction;
+
+    private ActionContributionItem eraseAction;
+
+    private ActionContributionItem clearAction;
+
+    private ActionContributionItem lockAction;
+
     private ISharedDisplaySession session;
+
+    private DrawingToolLayer layer;
 
     /*
      * (non-Javadoc)
@@ -89,6 +118,46 @@ public class CollaborationSessionView extends SessionView {
         super.createPartControl(parent);
         SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
                 .getEventPublisher().register(this);
+    }
+
+    @Subscribe
+    public void drawingLayerUpdate(DrawingLayerUpdate update) {
+        IEditorPart part = null;
+        if (SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                .getCollaborationEditor() == null) {
+            for (AbstractEditor editor : SharedDisplaySessionMgr
+                    .getSessionContainer(sessionId).getSharedEditors()) {
+                part = editor;
+            }
+        } else {
+            part = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                    .getCollaborationEditor();
+        }
+        if (part instanceof AbstractEditor) {
+            AbstractEditor editor = (AbstractEditor) part;
+            for (IDisplayPane pane : editor.getDisplayPanes()) {
+                ResourceList list = pane.getDescriptor().getResourceList();
+                for (ResourcePair pair : list) {
+                    if (pair.getResource() instanceof CollaborationDrawingResource) {
+                        CollaborationDrawingResource resource = (CollaborationDrawingResource) pair
+                                .getResource();
+                        layer = resource.getDrawingLayerFor(resource
+                                .getMyUser());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.part.ViewPart#init(org.eclipse.ui.IViewSite)
+     */
+    @Override
+    public void init(IViewSite site) throws PartInitException {
+        super.init(site);
     }
 
     protected void createActions() {
@@ -113,6 +182,119 @@ public class CollaborationSessionView extends SessionView {
                 }
             }
         };
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.views.CaveFloatingView#createToolbarButton()
+     */
+    @Override
+    protected void createToolbarButton() {
+        super.createToolbarButton();
+
+        drawAction = new ActionContributionItem(new Action("Draw", SWT.TOGGLE) {
+            @Override
+            public void run() {
+                layer.setDrawMode(DrawMode.DRAW);
+                updateToolItem();
+            }
+        });
+        drawAction.getAction().setImageDescriptor(
+                IconUtil.getImageDescriptor(
+                        com.raytheon.uf.viz.drawing.Activator.getDefault()
+                                .getBundle(), "draw.gif"));
+
+        undoAction = new ActionContributionItem(new Action("Undo") {
+            @Override
+            public void run() {
+                layer.undo();
+                updateToolItem();
+            }
+        });
+        undoAction.getAction().setImageDescriptor(
+                IconUtil.getImageDescriptor(
+                        com.raytheon.uf.viz.drawing.Activator.getDefault()
+                                .getBundle(), "undo.gif"));
+
+        redoAction = new ActionContributionItem(new Action("Redo") {
+            @Override
+            public void run() {
+                layer.redo();
+                updateToolItem();
+            }
+        });
+        redoAction.getAction().setImageDescriptor(
+                IconUtil.getImageDescriptor(
+                        com.raytheon.uf.viz.drawing.Activator.getDefault()
+                                .getBundle(), "redo.gif"));
+
+        eraseAction = new ActionContributionItem(
+                new Action("Erase", SWT.TOGGLE) {
+                    @Override
+                    public void run() {
+                        layer.setDrawMode(DrawMode.ERASE);
+                    }
+                });
+        eraseAction.getAction().setImageDescriptor(
+                IconUtil.getImageDescriptor(
+                        com.raytheon.uf.viz.drawing.Activator.getDefault()
+                                .getBundle(), "eraser.png"));
+
+        clearAction = new ActionContributionItem(new Action("Clear") {
+            public void run() {
+                layer.clear();
+            };
+        });
+        clearAction.getAction().setImageDescriptor(
+                IconUtil.getImageDescriptor(
+                        com.raytheon.uf.viz.drawing.Activator.getDefault()
+                                .getBundle(), "remove.gif"));
+
+        lockAction = new ActionContributionItem(new Action(
+                "Lock Collaborators", SWT.TOGGLE) {
+            public void run() {
+                System.out.println("Locking");
+            };
+        });
+        lockAction.getAction().setImageDescriptor(
+                IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
+                        "lock.gif"));
+
+        ToolBarManager mgr = (ToolBarManager) getViewSite().getActionBars()
+                .getToolBarManager();
+        mgr.insert(mgr.getSize() - 1, drawAction);
+
+        mgr.insert(mgr.getSize() - 1, undoAction);
+        mgr.insert(mgr.getSize() - 1, redoAction);
+        mgr.insert(mgr.getSize() - 1, clearAction);
+        mgr.insert(mgr.getSize() - 1, eraseAction);
+        mgr.insert(mgr.getSize() - 1, lockAction);
+        mgr.insert(mgr.getSize() - 1, new Separator());
+
+    }
+
+    private void updateToolItem() {
+        drawAction.getAction().setEnabled(true);
+        undoAction.getAction().setEnabled(layer.canUndo());
+        redoAction.getAction().setEnabled(layer.canRedo());
+        clearAction.getAction().setEnabled(layer.canClear());
+        eraseAction.getAction().setEnabled(true);
+        switch (layer.getDrawMode()) {
+        case DRAW:
+            drawAction.getAction().setChecked(true);
+            eraseAction.getAction().setChecked(false);
+            break;
+        case ERASE:
+            drawAction.getAction().setChecked(false);
+            eraseAction.getAction().setChecked(true);
+            break;
+        case NONE:
+            drawAction.getAction().setChecked(false);
+            eraseAction.getAction().setChecked(false);
+            break;
+        }
     }
 
     /*
