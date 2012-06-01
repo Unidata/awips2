@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.collaboration.data.AlertWord;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
 import com.raytheon.viz.ui.views.CaveFloatingView;
@@ -269,123 +270,140 @@ public abstract class AbstractSessionView extends CaveFloatingView {
         appendMessage(userId, timestamp, body);
     }
 
-    public void appendMessage(UserId userId, long timestamp, String body) {
-        IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite()
-                .getAdapter(IWorkbenchSiteProgressService.class);
-        service.warnOfContentChange();
+    public void appendMessage(final UserId userId, final long timestamp,
+            final String body) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
 
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(timestamp);
-        String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
+                IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite()
+                        .getAdapter(IWorkbenchSiteProgressService.class);
+                service.warnOfContentChange();
 
-        UserId myUser = CollaborationDataManager.getInstance()
-                .getCollaborationConnection(true).getUser();
-        if (!myUser.equals(userId)
-                && Activator.getDefault().getPreferenceStore()
-                        .getBoolean("notifications")) {
-            createNotifier(userId, time, body);
-        }
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(timestamp);
+                String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
 
-        String name = null;
-        if (userId != null) {
-            name = userId.getName();
-            for (UserId id : userIds) {
-                if (id.equals(userId)) {
-                    name = id.getAlias();
-                    break;
+                UserId myUser = CollaborationDataManager.getInstance()
+                        .getCollaborationConnection(true).getUser();
+                if (!myUser.equals(userId)
+                        && Activator.getDefault().getPreferenceStore()
+                                .getBoolean("notifications")) {
+                    createNotifier(userId, time, body);
                 }
-            }
-        } else {
-            name = getPartName();
-        }
 
-        StringBuilder sb = new StringBuilder();
-        if (messagesText.getCharCount() != 0) {
-            sb.append("\n");
-        }
-        sb.append("(").append(time).append(") ");
-        int offset = sb.length();
-
-        sb.append(name).append(": ").append(body);
-        // here is the place to put the font and color changes for keywords
-        // read in localization file once and then don't read in again, per
-        // chat room?
-        List<AlertWord> alertWords = retrieveAlertWords();
-        List<StyleRange> ranges = new ArrayList<StyleRange>();
-        if (alertWords != null) {
-            for (AlertWord keyword : alertWords) {
-                String text = keyword.getText().toLowerCase();
-                if (sb.toString().toLowerCase().contains(text)) {
-                    String lowerCase = sb.toString().toLowerCase();
-                    // getting the current length of the text
-                    int currentLength = messagesText.getCharCount();
-                    int index = lowerCase.indexOf(text);
-                    while (index >= 0) {
-                        Font font = null;
-                        // storing off fonts so we don't leak
-                        if (fonts.containsKey(keyword.getFont())) {
-                            font = fonts.get(keyword.getFont());
-                        } else {
-                            FontData fd = StringConverter.asFontData(keyword
-                                    .getFont());
-                            font = new Font(Display.getCurrent(), fd);
-                            fonts.put(keyword.getFont(), font);
+                String name = null;
+                if (userId != null) {
+                    name = userId.getName();
+                    for (UserId id : userIds) {
+                        if (id.equals(userId)) {
+                            name = id.getAlias();
+                            break;
                         }
+                    }
+                } else {
+                    name = "";
+                }
 
-                        RGB rgb = new RGB(keyword.getRed(), keyword.getGreen(),
-                                keyword.getBlue());
-                        Color color = null;
-                        // using the stored colors so we don't leak
-                        if (colors.containsKey(rgb)) {
-                            color = colors.get(rgb);
-                        } else {
-                            color = new Color(Display.getCurrent(), rgb);
-                            colors.put(rgb, color);
-                        }
-                        TextStyle style = new TextStyle(font, color, null);
-                        StyleRange keywordRange = new StyleRange(style);
-                        keywordRange.start = currentLength + index;
-                        keywordRange.length = keyword.getText().length();
+                StringBuilder sb = new StringBuilder();
+                if (messagesText.getCharCount() != 0) {
+                    sb.append("\n");
+                }
+                sb.append("(").append(time).append(") ");
+                int offset = sb.length();
 
-                        ranges.add(keywordRange);
-                        // compare to see if this position is already styled
-                        List<StyleRange> rnges = new ArrayList<StyleRange>();
-                        rnges.addAll(ranges);
-                        for (StyleRange range : rnges) {
-                            if (range.start <= keywordRange.start
-                                    && (range.start + range.length) >= keywordRange.start) {
-                                if (keywordRange != range) {
-                                    if (range.length < keywordRange.length) {
-                                        ranges.remove(range);
-                                    } else {
-                                        ranges.remove(keywordRange);
+                sb.append(name).append(": ").append(body);
+                // here is the place to put the font and color changes for
+                // keywords
+                // read in localization file once and then don't read in again,
+                // per
+                // chat room?
+                List<AlertWord> alertWords = retrieveAlertWords();
+                List<StyleRange> ranges = new ArrayList<StyleRange>();
+                if (alertWords != null) {
+                    for (AlertWord keyword : alertWords) {
+                        String text = keyword.getText().toLowerCase();
+                        if (sb.toString().toLowerCase().contains(text)) {
+                            String lowerCase = sb.toString().toLowerCase();
+                            // getting the current length of the text
+                            int currentLength = messagesText.getCharCount();
+                            int index = lowerCase.indexOf(text);
+                            while (index >= 0) {
+                                Font font = null;
+                                // storing off fonts so we don't leak
+                                if (fonts.containsKey(keyword.getFont())) {
+                                    font = fonts.get(keyword.getFont());
+                                } else {
+                                    FontData fd = StringConverter
+                                            .asFontData(keyword.getFont());
+                                    font = new Font(Display.getCurrent(), fd);
+                                    fonts.put(keyword.getFont(), font);
+                                }
+
+                                RGB rgb = new RGB(keyword.getRed(), keyword
+                                        .getGreen(), keyword.getBlue());
+                                Color color = null;
+                                // using the stored colors so we don't leak
+                                if (colors.containsKey(rgb)) {
+                                    color = colors.get(rgb);
+                                } else {
+                                    color = new Color(Display.getCurrent(), rgb);
+                                    colors.put(rgb, color);
+                                }
+                                TextStyle style = new TextStyle(font, color,
+                                        null);
+                                StyleRange keywordRange = new StyleRange(style);
+                                keywordRange.start = currentLength + index;
+                                keywordRange.length = keyword.getText()
+                                        .length();
+
+                                ranges.add(keywordRange);
+                                // compare to see if this position is already
+                                // styled
+                                List<StyleRange> rnges = new ArrayList<StyleRange>();
+                                rnges.addAll(ranges);
+                                for (StyleRange range : rnges) {
+                                    if (range.start <= keywordRange.start
+                                            && (range.start + range.length) >= keywordRange.start) {
+                                        if (keywordRange != range) {
+                                            if (range.length < keywordRange.length) {
+                                                ranges.remove(range);
+                                            } else {
+                                                ranges.remove(keywordRange);
+                                            }
+                                        }
                                     }
                                 }
+
+                                // only execute things if the same user didn't
+                                // type it
+                                if (!myUser.equals(userId)) {
+                                    executeSightsSounds(keyword);
+                                }
+                                // need to handle all instances of the keyword
+                                // within
+                                // the chat
+                                index = lowerCase.indexOf(text, text.length()
+                                        + index);
                             }
                         }
-
-                        // only execute things if the same user didn't type it
-                        if (!myUser.equals(userId)) {
-                            executeSightsSounds(keyword);
-                        }
-                        // need to handle all instances of the keyword within
-                        // the chat
-                        index = lowerCase.indexOf(text, text.length() + index);
                     }
                 }
-            }
-        }
 
-        styleAndAppendText(sb, offset, name, userId, ranges);
-        if (msgArchive == null) {
-            msgArchive = getMessageArchive();
-        }
-        msgArchive.archive(sb.toString());
+                styleAndAppendText(sb, offset, name, userId, ranges);
+                if (msgArchive == null) {
+                    msgArchive = getMessageArchive();
+                }
+                msgArchive.archive(sb.toString());
         searchComp.appendText(sb.toString());
+        });
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
             String name, UserId userId, List<StyleRange> ranges);
+
+    protected abstract void styleAndAppendText(StringBuilder sb, int offset,
+            String name, UserId userId, List<StyleRange> ranges, Color color);
 
     /**
      * Find keys words in body of message starting at offset. /**
@@ -514,4 +532,36 @@ public abstract class AbstractSessionView extends CaveFloatingView {
     }
 
     protected abstract SessionMsgArchive getMessageArchive();
+
+    protected void sendErrorMessage(StringBuilder sb) {
+        Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+        sendGenericMessage(sb, color);
+    }
+
+    protected void sendSystemMessage(StringBuilder sb) {
+        Color color = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+        sendGenericMessage(sb, color);
+    }
+
+    private void sendGenericMessage(final StringBuilder string,
+            final Color color) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                StyleRange range = new StyleRange(messagesText.getCharCount(),
+                        string.length(), color, null, SWT.BOLD);
+                if (messagesText.getCharCount() != 0) {
+                    messagesText.append("\n");
+                }
+                List<StyleRange> ranges = new ArrayList<StyleRange>();
+                ranges.add(range);
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(System.currentTimeMillis());
+                String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
+                string.insert(0, "(" + time + ") : ");
+                styleAndAppendText(string, 0, string.toString(), null, ranges,
+                        color);
+            }
+        });
+    }
 }
