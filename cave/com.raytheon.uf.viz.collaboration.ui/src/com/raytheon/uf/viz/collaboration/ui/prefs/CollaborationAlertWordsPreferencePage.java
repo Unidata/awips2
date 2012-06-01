@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.preference.ColorFieldEditor;
@@ -43,6 +44,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManager;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.data.AlertWord;
 import com.raytheon.uf.viz.collaboration.data.AlertWordWrapper;
@@ -139,6 +146,16 @@ public class CollaborationAlertWordsPreferencePage extends
 
         final FileFieldEditor fileEditor = new FileFieldEditor("fileeditor",
                 "Sound File", getFieldEditorParent());
+
+        PathManager manager = (PathManager) PathManagerFactory.getPathManager();
+        LocalizationContext context = manager.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationFile file = manager.getLocalizationFile(context,
+                "collaboration" + File.separator + "sounds" + File.separator);
+        if (!file.exists()) {
+            file.getFile().mkdirs();
+        }
+        fileEditor.setFilterPath(file.getFile());
         this.addField(fileEditor);
 
         fontButton.addSelectionListener(new SelectionAdapter() {
