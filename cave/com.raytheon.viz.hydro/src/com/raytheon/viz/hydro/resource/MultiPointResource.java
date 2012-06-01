@@ -50,14 +50,12 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.app.launcher.handlers.AppLauncherHandler;
-import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
@@ -96,6 +94,8 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.ColorThresholdArray;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.HydroViewColors;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.raytheon.viz.ui.input.InputAdapter;
@@ -212,7 +212,7 @@ public class MultiPointResource extends
 
     private STRtree strTree = new STRtree();
 
-    private IFont font = null;
+    private IFont font;
 
     private int fontSize;
 
@@ -386,38 +386,6 @@ public class MultiPointResource extends
             colorMap.put(color, image);
         }
         return image;
-    }
-
-    /**
-     * gets the pixel coverage for this image
-     * 
-     * @param gageData
-     *            the gage data
-     * @param shiftWidth
-     *            the shift width coordinate
-     * @param shiftHeight
-     *            the shift height coordinate
-     * @return PixelCoverage
-     */
-    private PixelCoverage getPixelCoverage(GageData gageData,
-            double shiftWidth, double shiftHeight) {
-        Coordinate c = gageData.getCoordinate();
-        double[] centerpixels = descriptor
-                .worldToPixel(new double[] { c.x, c.y });
-        Coordinate ul = new Coordinate((centerpixels[0] + shiftWidth)
-                - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                - getScaleHeight());
-        Coordinate ur = new Coordinate((centerpixels[0] + shiftWidth)
-                + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                - getScaleHeight());
-        Coordinate lr = new Coordinate((centerpixels[0] + shiftWidth)
-                + getScaleWidth(), (centerpixels[1] + shiftHeight)
-                + getScaleHeight());
-        Coordinate ll = new Coordinate((centerpixels[0] + shiftWidth)
-                - getScaleWidth(), (centerpixels[1] + shiftHeight)
-                + getScaleHeight());
-
-        return new PixelCoverage(ul, ur, lr, ll);
     }
 
     /**
@@ -824,8 +792,7 @@ public class MultiPointResource extends
         IExtent extent = paintProps.getView().getExtent();
         List<GageData> data = pdcManager.getObsReportList();
         if (data != null) {
-            List<DrawableImage> images = new ArrayList<DrawableImage>(
-                    data.size());
+            List<PointImage> images = new ArrayList<PointImage>(data.size());
             List<DrawableString> strings = new ArrayList<DrawableString>(
                     data.size() * 3);
             for (GageData gage : data) {
@@ -848,9 +815,10 @@ public class MultiPointResource extends
                                 color = RGBColors.getRGBColor(colorSet.get(0)
                                         .getColorname().getColorName());
                             }
-                            images.add(new DrawableImage(getIcon(target, gage,
-                                    color), getPixelCoverage(gage,
-                                    shiftWidthValue, shiftHeightValue)));
+                            PointImage image = new PointImage(getIcon(target,
+                                    gage, color), pixel[0], pixel[1]);
+                            image.setSiteId(gage.getLid());
+                            images.add(image);
                         }
                         strings.addAll(drawPlotInfo(gage, shiftWidthValue,
                                 shiftHeightValue, paintProps, target));
@@ -858,8 +826,8 @@ public class MultiPointResource extends
                 }
             }
             if (images.size() > 0) {
-                target.drawRasters(paintProps,
-                        images.toArray(new DrawableImage[images.size()]));
+                target.getExtension(IPointImageExtension.class)
+                        .drawPointImages(paintProps, images);
             }
             if (strings.size() > 0) {
                 target.drawStrings(strings);
