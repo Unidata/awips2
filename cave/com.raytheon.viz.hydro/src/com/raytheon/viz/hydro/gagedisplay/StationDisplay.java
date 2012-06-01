@@ -157,16 +157,16 @@ public class StationDisplay implements MapUpdateListener,
             String iconColor = appsDefaults.getToken("dam_icon_color");
             RGB damColor = RGBColors.getRGBColor(iconColor);
             DamLocationResourceData hydroPointResourceData = new DamLocationResourceData(
-                    "Dam Sites", damColor, null, null);
+                    "Dam Sites");
             try {
                 dlr = hydroPointResourceData.construct(new LoadProperties(),
                         EditorUtil.getActiveVizContainer()
                                 .getActiveDisplayPane().getDescriptor());
+                dlr.getCapability(ColorableCapability.class).setColor(damColor);
             } catch (VizException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
             }
-            dlr.setDisposed(false);
         }
         ResourceProperties props = new ResourceProperties();
         props.setMapLayer(true);
@@ -245,7 +245,7 @@ public class StationDisplay implements MapUpdateListener,
      * remove and restore the gage resource.
      */
     public void resetGageDisplay() {
-		mpr.resetDataMap();
+        mpr.resetDataMap();
 
         // force update
         mpr = getMultiPointResource();
