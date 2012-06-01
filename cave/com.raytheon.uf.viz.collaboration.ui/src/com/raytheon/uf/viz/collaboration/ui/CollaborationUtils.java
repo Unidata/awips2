@@ -278,6 +278,25 @@ public class CollaborationUtils {
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
         file = PathManagerFactory.getPathManager().getLocalizationFile(context,
                 "collaboration" + File.separator + "alertWords.xml");
+
+        // save the sound file in the correct place if not there
+        for (AlertWord word : words) {
+            String soundPath = word.getSoundPath();
+            if (soundPath != null && !soundPath.isEmpty()) {
+                String[] dirs = soundPath.split(File.separator);
+                String filename = dirs[dirs.length - 1];
+                LocalizationFile lFile = pm.getLocalizationFile(context,
+                        "collaboration" + File.separator + "sounds"
+                                + File.separator + filename);
+                if (!lFile.exists()) {
+                    File soundFile = new File(soundPath);
+
+                    File destination = lFile.getFile();
+                    soundFile.renameTo(destination);
+                }
+            }
+        }
+
         AlertWordWrapper wrapper = new AlertWordWrapper();
         wrapper.setAlertWords(words.toArray(new AlertWord[0]));
         JAXB.marshal(wrapper, file.getFile());
