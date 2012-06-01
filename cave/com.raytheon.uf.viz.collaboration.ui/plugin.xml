@@ -33,6 +33,14 @@
                icon="icons/browser.gif"
                name="Collaboration Information"
                restorable="false"/>
+         <view
+               allowMultiple="true"
+               category="com.raytheon.viz.ui"
+               class="com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView"
+               id="com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView"
+               icon="icons/browser.gif"
+               name="Log Browser"
+               restorable="false"/>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
