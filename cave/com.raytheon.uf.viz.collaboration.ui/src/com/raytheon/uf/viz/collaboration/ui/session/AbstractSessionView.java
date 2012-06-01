@@ -120,6 +120,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     private Map<RGB, Color> colors = null;
 
+    private SearchComposite searchComp;
+
     protected abstract String getSessionImageName();
 
     protected abstract String getSessionName();
@@ -171,6 +173,10 @@ public abstract class AbstractSessionView extends CaveFloatingView {
         GridLayout layout = new GridLayout(1, false);
         messagesComp.setLayout(layout);
         setMessageLabel(messagesComp);
+
+        searchComp = new SearchComposite(messagesComp, SWT.BORDER);
+        searchComp.hide(true);
+
         messagesText = new StyledText(messagesComp, SWT.MULTI | SWT.WRAP
                 | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         messagesText.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -184,6 +190,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                 composeText.setFocus();
             }
         });
+        messagesComp.addKeyListener(searchComp.getSearchKeyListener());
+        searchComp.setDefaultSearchView(messagesText);
     }
 
     protected void createComposeComp(Composite parent) {
@@ -216,6 +224,9 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                 }
                 if (e.keyCode == SWT.SHIFT) {
                     keyPressed = true;
+                }
+                if (searchComp != null) {
+                    searchComp.search(e);
                 }
             }
         });
@@ -370,6 +381,7 @@ public abstract class AbstractSessionView extends CaveFloatingView {
             msgArchive = getMessageArchive();
         }
         msgArchive.archive(sb.toString());
+        searchComp.appendText(sb.toString());
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
