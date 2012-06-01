@@ -61,9 +61,6 @@ public class SessionMsgArchive {
     private StringBuffer log;
 
     public SessionMsgArchive(String hostName, String userId, String sessionName) {
-        String logFilePath = LOG_DIR + IPathManager.SEPARATOR + hostName
-                + IPathManager.SEPARATOR + userId + IPathManager.SEPARATOR
-                + sessionName;
         Calendar gmtTimestamp = Calendar.getInstance(TimeZone
                 .getTimeZone("GMT"));
         String logFileName = new SimpleDateFormat("yyyy-MM-dd.hhmmss")
@@ -72,9 +69,30 @@ public class SessionMsgArchive {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext ctx = pm.getContext(LocalizationType.CAVE_STATIC,
                 LocalizationLevel.USER);
-        logFile = pm.getLocalizationFile(ctx, logFilePath
-                + IPathManager.SEPARATOR + logFileName);
+        logFile = pm.getLocalizationFile(ctx,
+                getLogFilePath(hostName, userId, sessionName)
+                        + IPathManager.SEPARATOR + logFileName);
         log = new StringBuffer();
+    }
+
+    private static String getLogFilePath(String hostName, String userId,
+            String sessionName) {
+        return LOG_DIR
+                + IPathManager.SEPARATOR
+                + hostName
+                + IPathManager.SEPARATOR
+                + userId
+                + (sessionName == null ? "" : IPathManager.SEPARATOR
+                        + sessionName);
+    }
+
+    public static LocalizationFile getArchiveDir(String hostName,
+            String userId, String sessionName) {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext ctx = pm.getContext(LocalizationType.CAVE_STATIC,
+                LocalizationLevel.USER);
+        return pm.getLocalizationFile(ctx,
+                getLogFilePath(hostName, userId, sessionName));
     }
 
     public void close() {
@@ -88,6 +106,6 @@ public class SessionMsgArchive {
     }
 
     public void archive(String string) {
-        log.append(string).append('\n');
+        log.append(string);
     }
 }
