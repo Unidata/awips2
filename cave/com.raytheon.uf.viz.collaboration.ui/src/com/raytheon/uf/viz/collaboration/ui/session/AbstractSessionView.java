@@ -191,7 +191,7 @@ public abstract class AbstractSessionView extends CaveFloatingView {
             }
         });
         messagesComp.addKeyListener(searchComp.getSearchKeyListener());
-        searchComp.setDefaultSearchView(messagesText);
+        searchComp.setSearchText(messagesText);
     }
 
     protected void createComposeComp(Composite parent) {
