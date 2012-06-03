@@ -66,17 +66,17 @@ public class SearchComposite extends Composite {
 
     private boolean searchFWD = true;
 
-    private String searchText;
+    private String search;
 
     private List<MatchResult> results = new ArrayList<MatchResult>();
 
     private ListIterator<MatchResult> resultIter;
 
-    private SearchView searchView;
+    private SearchText searchText;
 
     private KeyListener searchKeyListener;
 
-    private Text searchTextBox;
+    private Text searchBox;
 
     private Button bck;
 
@@ -97,7 +97,7 @@ public class SearchComposite extends Composite {
     // }
     // }
 
-    public static interface SearchView {
+    public static interface SearchText {
 
         void select(int start, int end);
 
@@ -110,10 +110,10 @@ public class SearchComposite extends Composite {
 
     }
 
-    public class DefaultSearchView implements SearchView {
+    public class DefaultSearchText implements SearchText {
         private StyledText searchView;
 
-        public DefaultSearchView(StyledText searchView) {
+        public DefaultSearchText(StyledText searchView) {
             this.searchView = searchView;
         }
 
@@ -146,18 +146,18 @@ public class SearchComposite extends Composite {
         // ranges[i] = new StyleRange(sel.start, sel.length,
         // FOREGROUND_COLOR, HIGHLIGHT_COLOR);
         // }
-        // searchView.setStyleRanges(ranges);
+        // searchText.setStyleRanges(ranges);
         // }
         //
         // @Override
         // public void removeHighlights() {
-        // StyleRange[] ranges = searchView.getStyleRanges();
+        // StyleRange[] ranges = searchText.getStyleRanges();
         // for (StyleRange style : ranges) {
         // if (style.background == HIGHLIGHT_COLOR) {
-        // style.background = searchView.getBackground();
+        // style.background = searchText.getBackground();
         // }
         // }
-        // searchView.setStyleRanges(ranges);
+        // searchText.setStyleRanges(ranges);
         // }
     }
 
@@ -171,12 +171,12 @@ public class SearchComposite extends Composite {
         this.setLayout(new GridLayout(6, false));
         this.setLayoutData(gd);
 
-        searchTextBox = new Text(this, SWT.RESIZE);
-        searchTextBox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
-                false));
+        searchBox = new Text(this, SWT.RESIZE);
+        searchBox
+                .setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
         gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-        searchTextBox.setLayoutData(gd);
-        searchTextBox.addKeyListener(new KeyListener() {
+        searchBox.setLayoutData(gd);
+        searchBox.addKeyListener(new KeyListener() {
             @Override
             public void keyReleased(KeyEvent e) {
             }
@@ -198,7 +198,7 @@ public class SearchComposite extends Composite {
                     result = resultIter.previous();
                 }
                 if (result != null) {
-                    searchView.select(result.start(), result.end());
+                    searchText.select(result.start(), result.end());
                 }
                 if (result == null && resultIter.hasNext()) {
                     result = resultIter.next();
@@ -217,6 +217,10 @@ public class SearchComposite extends Composite {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 searchFWD = false;
+                if (search == null || !search.equals(searchBox.getText())) {
+                    search = searchBox.getText();
+                    updateMatches();
+                }
                 nextSearchMatch();
             }
 
@@ -232,6 +236,10 @@ public class SearchComposite extends Composite {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 searchFWD = true;
+                if (search == null || !search.equals(searchBox.getText())) {
+                    search = searchBox.getText();
+                    updateMatches();
+                }
                 nextSearchMatch();
             }
 
@@ -255,7 +263,7 @@ public class SearchComposite extends Composite {
                     result = resultIter.previous();
                 }
                 if (result != null) {
-                    searchView.select(result.start(), result.end());
+                    searchText.select(result.start(), result.end());
                 }
             }
 
@@ -278,9 +286,8 @@ public class SearchComposite extends Composite {
             public void keyPressed(KeyEvent e) {
                 if (search(e)) {
                 } else if (e.keyCode == SWT.KEYPAD_CR || e.keyCode == SWT.CR) {
-                    if (searchText == null
-                            || !searchText.equals(searchTextBox.getText())) {
-                        searchText = searchTextBox.getText();
+                    if (search == null || !search.equals(searchBox.getText())) {
+                        search = searchBox.getText();
                         updateMatches();
                     }
                     if (searchFWD) {
@@ -290,13 +297,13 @@ public class SearchComposite extends Composite {
                     }
                     nextSearchMatch();
                 } else {
-                    searchTextBox.setFocus();
+                    searchBox.setFocus();
                 }
             }
         };
 
         this.addKeyListener(searchKeyListener);
-        searchTextBox.addKeyListener(searchKeyListener);
+        searchBox.addKeyListener(searchKeyListener);
         bck.addKeyListener(searchKeyListener);
         fwd.addKeyListener(searchKeyListener);
         caseSensitive.addKeyListener(searchKeyListener);
@@ -319,9 +326,13 @@ public class SearchComposite extends Composite {
         if (((e.stateMask & SWT.CTRL) == SWT.CTRL)) {
             if (e.keyCode == 'f' || e.keyCode == 'b' || e.keyCode == 'B') {
                 searchFWD = e.keyCode == 'f' ? true : false;
+                if (search == null || !search.equals(searchBox.getText())) {
+                    search = searchBox.getText();
+                    updateMatches();
+                }
                 hide(false);
                 // redraw();
-                searchTextBox.setFocus();
+                searchBox.setFocus();
                 if (searchFWD) {
                     fwd.setFocus();
                 } else {
@@ -329,11 +340,6 @@ public class SearchComposite extends Composite {
                 }
                 if (text == null) {
                     reachedLimit();
-                }
-                if (searchText == null
-                        || !searchText.equals(searchTextBox.getText())) {
-                    searchText = searchTextBox.getText();
-                    updateMatches();
                 }
                 nextSearchMatch();
                 result = true;
@@ -349,8 +355,8 @@ public class SearchComposite extends Composite {
     public void hide(boolean isHidden) {
         ((GridData) getLayoutData()).exclude = isHidden;
         setVisible(!isHidden);
-        // if (searchView != null) {
-        // searchView.removeHighlights();
+        // if (searchText != null) {
+        // searchText.removeHighlights();
         // }
         getParent().layout();
     }
@@ -373,7 +379,7 @@ public class SearchComposite extends Composite {
         if (hasNextInSequence) {
             MatchResult current = searchFWD ? resultIter.next() : resultIter
                     .previous();
-            searchView.select(current.start(), current.end());
+            searchText.select(current.start(), current.end());
         } else {
             reachedLimit();
         }
@@ -389,8 +395,8 @@ public class SearchComposite extends Composite {
             reachedLimit();
         }
 
-        if (searchText != null) {
-            Pattern pattern = Pattern.compile(searchText, patternFlags);
+        if (search != null) {
+            Pattern pattern = Pattern.compile(search, patternFlags);
             Matcher matcher = pattern.matcher(text);
 
             while (matcher.find()) {
@@ -407,7 +413,7 @@ public class SearchComposite extends Composite {
             // highlights[index] = new HighlightSelection(mr.start(), mr.end()
             // - mr.start());
             // }
-            // searchView.setHighlights(highlights);
+            // searchText.setHighlights(highlights);
 
             int index = searchFWD ? 0 : results.size();
             resultIter = results.listIterator(index);
@@ -416,18 +422,26 @@ public class SearchComposite extends Composite {
 
     private void reachedLimit() {
         if (searchFWD) {
-            searchView.reachedLast();
+            searchText.reachedLast();
         } else {
-            searchView.reachedFirst();
+            searchText.reachedFirst();
         }
     }
 
     /**
-     * @param searchView
-     *            the SearchView to set
+     * @param searchText
+     *            the SearchText to set
      */
-    public void setSearchView(SearchView searchView) {
-        this.searchView = searchView;
+    public void setSearchText(SearchText searchText) {
+        this.searchText = searchText;
+    }
+
+    /**
+     * @param styledText
+     */
+    public void setSearchText(StyledText styledText) {
+        setText(styledText.getText());
+        setSearchText(new DefaultSearchText(styledText));
     }
 
     /**
@@ -455,11 +469,6 @@ public class SearchComposite extends Composite {
      */
     public KeyListener getSearchKeyListener() {
         return searchKeyListener;
-    }
-
-    public void setDefaultSearchView(StyledText styledText) {
-        setText(styledText.getText());
-        setSearchView(new DefaultSearchView(styledText));
     }
 
     public void appendText(String newText) {
