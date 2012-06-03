@@ -56,7 +56,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.ui.session.SearchComposite.SearchView;
+import com.raytheon.uf.viz.collaboration.ui.session.SearchComposite.SearchText;
 
 /**
  * Browse, view, and search messages in the archive.
@@ -75,7 +75,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.SearchComposite.SearchView;
  * @version 1.0
  */
 
-public class SessionMsgArchiveBrowser extends Composite implements SearchView {
+public class SessionMsgArchiveBrowser extends Composite implements SearchText {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SessionMsgArchiveBrowser.class);
@@ -194,7 +194,7 @@ public class SessionMsgArchiveBrowser extends Composite implements SearchView {
         logView.setEditable(false);
 
         searchComp = new SearchComposite(logViewPart, SWT.BORDER);
-        searchComp.setSearchView(this);
+        searchComp.setSearchText(this);
         searchComp.hide(true);
 
         tree.addKeyListener(searchComp.getSearchKeyListener());
