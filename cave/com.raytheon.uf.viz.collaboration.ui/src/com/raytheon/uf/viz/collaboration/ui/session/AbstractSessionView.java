@@ -395,7 +395,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                     msgArchive = getMessageArchive();
                 }
                 msgArchive.archive(sb.toString());
-        searchComp.appendText(sb.toString());
+                searchComp.appendText(sb.toString());
+            }
         });
     }
 
