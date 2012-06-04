@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
@@ -53,16 +52,10 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource.DrawingLayerUpdate;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * TODO Add Description
@@ -120,35 +113,36 @@ public class CollaborationSessionView extends SessionView {
                 .getEventPublisher().register(this);
     }
 
-    @Subscribe
-    public void drawingLayerUpdate(DrawingLayerUpdate update) {
-        IEditorPart part = null;
-        if (SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getCollaborationEditor() == null) {
-            for (AbstractEditor editor : SharedDisplaySessionMgr
-                    .getSessionContainer(sessionId).getSharedEditors()) {
-                part = editor;
-            }
-        } else {
-            part = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                    .getCollaborationEditor();
-        }
-        if (part instanceof AbstractEditor) {
-            AbstractEditor editor = (AbstractEditor) part;
-            for (IDisplayPane pane : editor.getDisplayPanes()) {
-                ResourceList list = pane.getDescriptor().getResourceList();
-                for (ResourcePair pair : list) {
-                    if (pair.getResource() instanceof CollaborationDrawingResource) {
-                        CollaborationDrawingResource resource = (CollaborationDrawingResource) pair
-                                .getResource();
-                        layer = resource.getDrawingLayerFor(resource
-                                .getMyUser());
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    // @Subscribe
+    // public void drawingLayerUpdate(DrawingLayerUpdate update) {
+    // IEditorPart part = null;
+    // if (SharedDisplaySessionMgr.getSessionContainer(sessionId)
+    // .getCollaborationEditor() == null) {
+    // for (AbstractEditor editor : SharedDisplaySessionMgr
+    // .getSessionContainer(sessionId).getSharedEditors()) {
+    // part = editor;
+    // }
+    // } else {
+    // part = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+    // .getCollaborationEditor();
+    // }
+    // if (part instanceof AbstractEditor) {
+    // AbstractEditor editor = (AbstractEditor) part;
+    // for (IDisplayPane pane : editor.getDisplayPanes()) {
+    // ResourceList list = pane.getDescriptor().getResourceList();
+    // for (ResourcePair pair : list) {
+    // if (pair.getResource() instanceof CollaborationDrawingResource) {
+    // CollaborationDrawingResource resource = (CollaborationDrawingResource)
+    // pair
+    // .getResource();
+    // layer = resource.getDrawingLayerFor(resource
+    // .getMyUser());
+    // break;
+    // }
+    // }
+    // }
+    // }
+    // }
 
     /*
      * (non-Javadoc)
