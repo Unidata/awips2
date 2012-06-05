@@ -56,9 +56,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserIdWrapper;
-import com.raytheon.uf.viz.collaboration.data.AlertWord;
-import com.raytheon.uf.viz.collaboration.data.AlertWordWrapper;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
+import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
