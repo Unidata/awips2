@@ -23,7 +23,10 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingToolbar;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.drawing.DrawingToolLayer;
+import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * Action for invoking undo/redo on the CollaborationDrawingToolbar
@@ -59,17 +62,19 @@ public class UndoRedoHandler extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        CollaborationDrawingToolbar toolbar = CollaborationDrawingToolbar
-                .getInstance();
-        if (toolbar != null) {
-            String action = event.getParameter(ACTION_ID);
-            if (UNDO_ID.equals(action)) {
-                toolbar.undo();
-            } else if (REDO_ID.equals(action)) {
-                toolbar.redo();
-            }
+        CollaborationDrawingResource resource = (CollaborationDrawingResource) EditorUtil
+                .getActiveEditorAs(IDisplayPaneContainer.class)
+                .getActiveDisplayPane().getDescriptor().getResourceList()
+                .getResourcesByTypeAsType(CollaborationDrawingResource.class)
+                .get(0);
+        DrawingToolLayer layer = resource.getDrawingLayerFor(resource
+                .getMyUser());
+        String action = event.getParameter(ACTION_ID);
+        if (UNDO_ID.equals(action)) {
+            layer.undo();
+        } else if (REDO_ID.equals(action)) {
+            layer.redo();
         }
         return null;
     }
-
 }
