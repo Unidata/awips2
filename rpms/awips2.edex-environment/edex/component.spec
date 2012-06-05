@@ -1,9 +1,9 @@
 %define _installation_directory "/awips2"
 #
-# awips2-wes2bridge-edex
+# awips2-edex-environment
 #
-Name: awips2-wes2bridge-edex
-Summary: awips2-wes2bridge-edex
+Name: awips2-edex-environment
+Summary: awips2-edex-environment
 Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
@@ -15,7 +15,7 @@ Vendor: Raytheon
 Packager: Bryan Kowal
 
 AutoReq: no
-provides: awips2-wes2bridge-edex
+provides: awips2-edex-environment
 provides: awips2-edex-base
 provides: awips2-base-component
 provides: awips2-edex-gfe
@@ -43,10 +43,10 @@ conflicts: awips2-edex-ncep
 conflicts: awips2-edex-core
 
 %description
-The wes2bridge version of awips2-edex consists of the edex runtime and
-the AWIPS II wes2bridge manager. The wes2bridge manager exists to spawn
-and configure additional instances of the wes2bridge triad {postgresql,
-qpid, edex}. The wes2bridge version of awips2-edex is not designed to
+The edex environment version of awips2-edex consists of the edex runtime and
+the AWIPS II edex-environment manager. The edex-environment manager exists to spawn
+and configure additional instances of the AWIPS II processing triad {postgresql,
+qpid, edex}. The edex environment version of awips2-edex is not designed to
 be run in the same way that the standard awips2-edex is.
 
 # Disable byte-compiling of python and repacking of jar files.
@@ -89,15 +89,15 @@ mkdir -p %{_build_root}%{_installation_directory}/edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}%{_installation_directory}/wes2bridge/scripts
+mkdir -p %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}%{_installation_directory}/wes2bridge/macro/utilities
+mkdir -p %{_build_root}%{_installation_directory}/edex-environment/macro/utilities
 if [ $? -ne 0 ]; then
    exit 1
 fi
-mkdir -p %{_build_root}%{_installation_directory}/wes2bridge/macro/functions
+mkdir -p %{_build_root}%{_installation_directory}/edex-environment/macro/functions
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -107,7 +107,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # create the edex environment directory.
-mkdir -p %{_build_root}/usr/local/wes2bridge
+mkdir -p %{_build_root}/usr/local/edex-environment
 
 %build
 # build edex
@@ -121,7 +121,7 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null 2>&1
 
-# build the wes2bridge utilities
+# build the edex-environment utilities
 pushd . > /dev/null 2>&1
 # Run the pde build.
 cd %{_baseline_workspace}/build.wes2bridge.utility
@@ -152,7 +152,7 @@ popd > /dev/null 2>&1
 # "install" the wes2bridge utilities
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.configuration
 /awips2/ant/bin/ant -f build.xml \
-   -Ddestination.directory=%{_build_root}%{_installation_directory}/wes2bridge/macro/utilities \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
    -Drpm.build=true
 if [ $? -ne 0 ]; then
@@ -160,7 +160,7 @@ if [ $? -ne 0 ]; then
 fi
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.datalink
 /awips2/ant/bin/ant -f build.xml \
-   -Ddestination.directory=%{_build_root}%{_installation_directory}/wes2bridge/macro/utilities \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
    -Drpm.build=true
 if [ $? -ne 0 ]; then
@@ -168,7 +168,7 @@ if [ $? -ne 0 ]; then
 fi
 cd %{_baseline_workspace}/com.raytheon.wes2bridge.manager
 /awips2/ant/bin/ant -f build.xml \
-   -Ddestination.directory=%{_build_root}%{_installation_directory}/wes2bridge/macro/utilities \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/edex-environment/macro/utilities \
    -Declipse.directory=%{_uframe_eclipse} \
    -Drpm.build=true
 if [ $? -ne 0 ]; then
@@ -183,37 +183,37 @@ EDEX_INITD="${RPM_PROJECT}/awips2.edex/Installer.edex-base/scripts/init.d/edex_c
 
 # Copy the startup scripts.
 cp ${POSTGRES_INITD} \
-   %{_build_root}%{_installation_directory}/wes2bridge/scripts
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${QPID_INITD} \
-   %{_build_root}%{_installation_directory}/wes2bridge/scripts
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${QUEUE_SH} \
-   %{_build_root}%{_installation_directory}/wes2bridge/scripts
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${EDEX_INITD} \
-   %{_build_root}%{_installation_directory}/wes2bridge/scripts
+   %{_build_root}%{_installation_directory}/edex-environment/scripts
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Copy the wes2bridge macro, functions, and utilities.
-DELIVERABLES="%{_baseline_workspace}/Installer.rpm/awips2.wes2bridge/wes2bridge.files/deliverables"
+# Copy the edex-environment macro, functions, and utilities.
+DELIVERABLES="%{_baseline_workspace}/Installer.rpm/awips2.edex-environment/wes2bridge.files/deliverables"
 
 # Macro and functions.
-cp ${DELIVERABLES}/scripts/wes2bridge \
-   %{_build_root}%{_installation_directory}/wes2bridge/macro
+cp ${DELIVERABLES}/scripts/edex-environment \
+   %{_build_root}%{_installation_directory}/edex-environment/macro
 if [ $? -ne 0 ]; then
    exit 1
 fi
 cp ${DELIVERABLES}/scripts/functions/*.sh \
-   %{_build_root}%{_installation_directory}/wes2bridge/macro/functions
+   %{_build_root}%{_installation_directory}/edex-environment/macro/functions
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -274,7 +274,7 @@ popd > /dev/null 2>&1
 /awips2/edex/bin/linux-x86-32/*.conf
 /awips2/edex/bin/setup.env
 
-%dir /usr/local/wes2bridge
+%dir /usr/local/edex-environment
 
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin
@@ -283,16 +283,16 @@ popd > /dev/null 2>&1
 /awips2/edex/bin/wrapper.jar
 
 %defattr(644,root,root,755)
-%dir /awips2/wes2bridge
-%dir /awips2/wes2bridge/scripts
-/awips2/wes2bridge/scripts/*
-%dir /awips2/wes2bridge/macro
-%dir /awips2/wes2bridge/macro/utilities
-/awips2/wes2bridge/macro/utilities/*
-%dir /awips2/wes2bridge/macro/functions
-/awips2/wes2bridge/macro/functions/*
-/etc/profile.d/awips2-wes2bridge-env.sh
-/etc/profile.d/awips2-wes2bridge-env.csh
+%dir /awips2/edex-environment
+%dir /awips2/edex-environment/scripts
+/awips2/edex-environment/scripts/*
+%dir /awips2/edex-environment/macro
+%dir /awips2/edex-environment/macro/utilities
+/awips2/edex-environment/macro/utilities/*
+%dir /awips2/edex-environment/macro/functions
+/awips2/edex-environment/macro/functions/*
+/etc/profile.d/awips2-edex-env.sh
+/etc/profile.d/awips2-edex-env.csh
 
 %defattr(700,root,root,755)
-/awips2/wes2bridge/macro/wes2bridge
+/awips2/edex-environment/macro/edex-environment
