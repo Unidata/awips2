@@ -1444,18 +1444,12 @@ public class CollaborationGroupView extends CaveFloatingView implements
             if (topOb instanceof IRosterGroup) {
                 IRosterGroup topGroup = (IRosterGroup) topOb;
                 if (topGroup.getName().equals(group.getName())) {
-                    System.out.println("Created is true : " + group.getName()
-                            + " / " + topGroup.getName());
                     created = true;
                     break;
-                } else {
-                    System.out.println("Created is false : " + group.getName()
-                            + " / " + topGroup.getName());
                 }
             }
         }
         if (!created) {
-            System.out.println("creating group : " + group.getName());
             topLevel.addObject(group);
         }
     }
@@ -1523,7 +1517,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 if (assocEditor != null) {
                     IWorkbenchPage page = VizWorkbenchManager.getInstance()
                             .getCurrentWindow().getActivePage();
-                    page.closeEditor(assocEditor, false);
+                    if (page != null) {
+                        page.closeEditor(assocEditor, false);
+                    }
                 }
             }
         }
