@@ -167,7 +167,7 @@ public class CollaborationSessionView extends SessionView implements
             assigned = assignLayer();
         }
         if (assigned) {
-            updateToolItem();
+            updateToolItems();
         }
     }
 
@@ -224,7 +224,7 @@ public class CollaborationSessionView extends SessionView implements
                 } else {
                     layer.setDrawMode(DrawMode.DRAW);
                 }
-                updateToolItem();
+                updateToolItems();
             }
         });
         drawAction.getAction().setImageDescriptor(
@@ -236,7 +236,7 @@ public class CollaborationSessionView extends SessionView implements
             @Override
             public void run() {
                 layer.undo();
-                updateToolItem();
+                updateToolItems();
             }
         });
         undoAction.getAction().setImageDescriptor(
@@ -248,7 +248,7 @@ public class CollaborationSessionView extends SessionView implements
             @Override
             public void run() {
                 layer.redo();
-                updateToolItem();
+                updateToolItems();
             }
         });
         redoAction.getAction().setImageDescriptor(
@@ -265,7 +265,7 @@ public class CollaborationSessionView extends SessionView implements
                         } else {
                             layer.setDrawMode(DrawMode.ERASE);
                         }
-                        updateToolItem();
+                        updateToolItems();
                     }
                 });
         eraseAction.getAction().setImageDescriptor(
@@ -276,7 +276,7 @@ public class CollaborationSessionView extends SessionView implements
         clearAction = new ActionContributionItem(new Action("Clear") {
             public void run() {
                 layer.clear();
-                updateToolItem();
+                updateToolItems();
             };
         });
         clearAction.getAction().setImageDescriptor(
@@ -289,7 +289,7 @@ public class CollaborationSessionView extends SessionView implements
             public void run() {
                 resource.setLockingDrawing(((ToolItem) lockAction.getWidget())
                         .getSelection());
-                updateToolItem();
+                updateToolItems();
             };
         });
         lockAction.getAction().setImageDescriptor(
@@ -307,7 +307,7 @@ public class CollaborationSessionView extends SessionView implements
         mgr.insert(mgr.getSize() - 1, new Separator());
     }
 
-    private void updateToolItem() {
+    public void updateToolItems() {
         boolean assigned = true;
         if (layer == null) {
             assigned = assignLayer();
@@ -445,7 +445,7 @@ public class CollaborationSessionView extends SessionView implements
                     clearAction.getAction().setEnabled(false);
                     eraseAction.getAction().setEnabled(false);
                 } else {
-                    updateToolItem();
+                    updateToolItems();
                 }
             }
         }
