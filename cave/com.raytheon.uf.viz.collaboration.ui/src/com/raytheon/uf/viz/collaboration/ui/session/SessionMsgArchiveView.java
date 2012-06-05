@@ -50,14 +50,15 @@ public class SessionMsgArchiveView extends CaveFloatingView {
     @Override
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
+        String secondaryId = getViewSite().getSecondaryId();
+        LocalizationFile logDir = SessionMsgArchive.getArchiveDir(secondaryId);
+
         browser = new SessionMsgArchiveBrowser(parent, SWT.NONE);
+        browser.setDir(logDir);
+
+        setPartName(browser.getBrowserName());
         parent.setLayout(new GridLayout(1, false));
         parent.layout();
-    }
-
-    public void setDir(LocalizationFile dir) {
-        browser.setDir(dir);
-        setPartName(browser.getBrowserName());
     }
 
     @Override
