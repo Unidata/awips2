@@ -28,7 +28,7 @@ if [ "${BASELINE_WORKSPACE}" = "" ]; then
    export BASELINE_WORKSPACE="${U_BASELINE_WORKSPACE}"
 fi
 
-WES2BRIDGE="${BASELINE_WORKSPACE}/Installer.rpm/awips2.wes2bridge"
+EDEX_ENV="${BASELINE_WORKSPACE}/Installer.rpm/awips2.edex-environment"
 
 /usr/bin/rpmbuild -ba --target=i386 \
    --define '_topdir %(echo ${RPM_DESTINATION})' \
@@ -38,7 +38,7 @@ WES2BRIDGE="${BASELINE_WORKSPACE}/Installer.rpm/awips2.wes2bridge"
    --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
    --define '_baseline_workspace %(echo ${BASELINE_WORKSPACE})' \
    --buildroot ${BUILD_ROOT} \
-   ${WES2BRIDGE}/edex/component.spec
+   ${EDEX_ENV}/edex/component.spec
 if [ $? -ne 0 ]; then
    exit 1
 fi

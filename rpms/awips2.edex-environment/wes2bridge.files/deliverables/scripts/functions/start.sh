@@ -32,28 +32,28 @@ function startEnvironmentInternal()
    env_name="${1}"
 
    # Ensure that the environment exists.
-   if [ ! -d ${WES2BRIDGE_DIR}/${env_name} ]; then
+   if [ ! -d ${EDEX_ENV_DIR}/${env_name} ]; then
       echo "ERROR: The ${env_name} environment does not exist yet."
       return 1
    fi
 
    # Verify that the environment is not missing any startup scripts.
-   if [ ! -f ${WES2BRIDGE_DIR}/${env_name}/wes2bridge/edex_camel ]; then
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/edex_camel ]; then
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
-   if [ ! -f ${WES2BRIDGE_DIR}/${env_name}/wes2bridge/edex_postgres ]; then
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/edex_postgres ]; then
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
-   if [ ! -f ${WES2BRIDGE_DIR}/${env_name}/wes2bridge/qpidd ]; then
+   if [ ! -f ${EDEX_ENV_DIR}/${env_name}/edex-environment/qpidd ]; then
       echo "ERROR: The ${env_name} environment is corrupt. Recreate it."
       return 1
    fi
 
    # Start the environment.
    pushd . > /dev/null 2>&1
-   cd ${WES2BRIDGE_DIR}/${env_name}/wes2bridge
+   cd ${EDEX_ENV_DIR}/${env_name}/edex-environment
    # Start PostgreSQL.
    /bin/bash edex_postgres start
    echo 
