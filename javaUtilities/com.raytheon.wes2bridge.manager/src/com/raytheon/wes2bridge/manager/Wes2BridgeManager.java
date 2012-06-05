@@ -29,9 +29,9 @@ public class Wes2BridgeManager
 	private static final String AWIPSII =
 		"/awips2";
 	private static final String AWIPSII_WES2BRIDGE_SCRIPTS =
-		AWIPSII + "/wes2bridge/scripts";
+		AWIPSII + "/edex-environment/scripts";
 	private static final String WES2BRIDGE_DIRECTORY =
-		"/usr/local/wes2bridge";
+		"/usr/local/edex-environment";
 	private Wes2BridgeConfiguration configuration = null;
 	private String wes2BridgeScripts = null;
 	
@@ -104,7 +104,7 @@ public class Wes2BridgeManager
 		configuration.init();
 		this.wes2BridgeScripts = WES2BRIDGE_DIRECTORY + "/" +
 			configuration.getTestCaseName() + "/" +
-			"wes2bridge";
+			"edex-environment";
 	}
 	
 	/*
