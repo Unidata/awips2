@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -57,6 +58,7 @@ import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.actions.FormatterlauncherAction;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.GFEMapRenderableDisplay;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.internal.GFESpatialDisplayManager;
 import com.raytheon.viz.gfe.procedures.ProcedureJob;
@@ -128,7 +130,10 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         defineKeys();
 
         DataManager dm = DataManager.getInstance(perspectiveWindow);
-
+        IRenderableDisplay display = pane.getRenderableDisplay();
+        if (display instanceof GFEMapRenderableDisplay) {
+            ((GFEMapRenderableDisplay) display).setDataManager(dm);
+        }
         // Add GFE Legend
         try {
             ResourcePair legend = ResourcePair
