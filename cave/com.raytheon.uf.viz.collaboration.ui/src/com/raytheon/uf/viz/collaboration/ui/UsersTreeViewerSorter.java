@@ -28,7 +28,7 @@ import org.eclipse.jface.viewers.ViewerSorter;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
 /**
  * TODO Add Description
