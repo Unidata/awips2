@@ -17,45 +17,31 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.prefs;
+package com.raytheon.uf.viz.collaboration.ui.feed;
 
-import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
-import org.eclipse.jface.resource.StringConverter;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FontDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManager;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
-import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationPreferenceContentProvider;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationPreferencesLabelProvider;
 
 /**
  * TODO Add Description
@@ -66,7 +52,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 17, 2012            mnash     Initial creation
+ * Jun 4, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -74,16 +60,41 @@ import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
  * @version 1.0
  */
 
-public class CollaborationAlertWordsPreferencePage extends
+public class CollaborationSiteFilterPreferencePage extends
         FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    private TableViewer viewer = null;
+    private TableViewer viewer;
 
     /**
      * 
      */
-    public CollaborationAlertWordsPreferencePage() {
-        super(GRID);
+    public CollaborationSiteFilterPreferencePage() {
+    }
+
+    /**
+     * @param style
+     */
+    public CollaborationSiteFilterPreferencePage(int style) {
+        super(style);
+    }
+
+    /**
+     * @param title
+     * @param style
+     */
+    public CollaborationSiteFilterPreferencePage(String title, int style) {
+        super(title, style);
+        // TODO Auto-generated constructor stub
+    }
+
+    /**
+     * @param title
+     * @param image
+     * @param style
+     */
+    public CollaborationSiteFilterPreferencePage(String title,
+            ImageDescriptor image, int style) {
+        super(title, image, style);
     }
 
     /*
@@ -95,7 +106,6 @@ public class CollaborationAlertWordsPreferencePage extends
      */
     @Override
     protected void createFieldEditors() {
-
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
         data.horizontalSpan = 3;
 
@@ -105,7 +115,7 @@ public class CollaborationAlertWordsPreferencePage extends
         viewer.getTable().setLayoutData(data);
 
         final StringFieldEditor stringEditor = new StringFieldEditor(
-                "significantword", "Word", getFieldEditorParent()) {
+                "sitename", "Site Name", getFieldEditorParent()) {
             @Override
             protected void doLoad() {
                 super.doLoad();
@@ -118,61 +128,6 @@ public class CollaborationAlertWordsPreferencePage extends
                 "coloreditor", "Color", getFieldEditorParent());
         this.addField(colorEditor);
         colorEditor.loadDefault();
-
-        Composite fontComp = new Composite(getFieldEditorParent(), SWT.NONE);
-        GridLayout layout = new GridLayout(3, false);
-        layout.marginHeight = 0;
-        layout.marginWidth = 0;
-        fontComp.setLayout(layout);
-        data = new GridData(SWT.FILL, SWT.NONE, true, false);
-        data.horizontalSpan = 3;
-
-        fontComp.setLayoutData(data);
-
-        Label fontName = new Label(fontComp, SWT.NONE);
-        fontName.setText("Font");
-        data = new GridData(SWT.FILL, SWT.NONE, true, true);
-        fontName.setLayoutData(data);
-
-        final Label fontLabel = new Label(fontComp, SWT.NONE);
-        fontLabel.setText(StringConverter.asString(Display.getCurrent()
-                .getSystemFont().getFontData()[0]));
-        data = new GridData(SWT.FILL, SWT.NONE, true, true);
-        fontLabel.setLayoutData(data);
-
-        Button fontButton = new Button(fontComp, SWT.PUSH);
-        fontButton.setText("Change...");
-        data = new GridData(SWT.FILL, SWT.NONE, true, true);
-
-        final FileFieldEditor fileEditor = new FileFieldEditor("fileeditor",
-                "Sound File", getFieldEditorParent());
-
-        PathManager manager = (PathManager) PathManagerFactory.getPathManager();
-        LocalizationContext context = manager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        LocalizationFile file = manager.getLocalizationFile(context,
-                "collaboration" + File.separator + "sounds" + File.separator);
-        if (!file.exists()) {
-            file.getFile().mkdirs();
-        }
-        fileEditor.setFilterPath(file.getFile());
-        this.addField(fileEditor);
-
-        fontButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                FontDialog dialog = new FontDialog(Display.getCurrent()
-                        .getActiveShell());
-                dialog.setFontList(StringConverter.asFontDataArray(fontLabel
-                        .getText()));
-                FontData data = dialog.open();
-                if (data != null) {
-                    fontLabel.setText(StringConverter.asString(data));
-                }
-            }
-        });
-        data = new GridData(SWT.NONE, SWT.NONE, false, true);
-        fontButton.setLayoutData(data);
 
         Composite buttonComp = new Composite(getFieldEditorParent(), SWT.NONE);
         buttonComp.setLayout(new GridLayout(3, false));
@@ -189,8 +144,6 @@ public class CollaborationAlertWordsPreferencePage extends
                     AlertWord word = new AlertWord(stringEditor
                             .getStringValue(), colorEditor.getColorSelector()
                             .getColorValue());
-                    word.setFont(fontLabel.getText());
-                    word.setSoundPath(fileEditor.getStringValue());
                     int index = viewer.getTable().getSelectionIndex();
                     if (index != -1) {
                         ((List<AlertWord>) viewer.getInput()).set(index, word);
@@ -213,8 +166,6 @@ public class CollaborationAlertWordsPreferencePage extends
                     AlertWord word = new AlertWord(stringEditor
                             .getStringValue(), colorEditor.getColorSelector()
                             .getColorValue());
-                    word.setFont(fontLabel.getText());
-                    word.setSoundPath(fileEditor.getStringValue());
                     ((List<AlertWord>) viewer.getInput()).add(word);
                     viewer.refresh();
                 }
@@ -249,25 +200,9 @@ public class CollaborationAlertWordsPreferencePage extends
                                 new RGB(word.getRed(), word.getGreen(), word
                                         .getBlue()));
                 stringEditor.setStringValue(word.getText());
-                fontLabel.setText(word.getFont());
-                fileEditor.setStringValue(word.getSoundPath());
             }
         });
         viewer.setInput(CollaborationUtils.getAlertWords());
-    }
-
-    public boolean performOk() {
-        List<AlertWord> words = (List<AlertWord>) viewer.getInput();
-        CollaborationUtils.saveAlertWords(words);
-        AlertWordWrapper wrapper = new AlertWordWrapper();
-        wrapper.setAlertWords(words.toArray(new AlertWord[0]));
-        CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection(false);
-        if (connection != null && connection.isConnected()) {
-            // refresh any open chats or sessions
-            connection.getEventPublisher().post(wrapper);
-        }
-        return true;
     }
 
     /*
@@ -278,7 +213,8 @@ public class CollaborationAlertWordsPreferencePage extends
      */
     @Override
     public void init(IWorkbench workbench) {
-        setPreferenceStore(Activator.getDefault().getPreferenceStore());
-        setDescription("Significant Words");
+        // TODO Auto-generated method stub
+
     }
+
 }
