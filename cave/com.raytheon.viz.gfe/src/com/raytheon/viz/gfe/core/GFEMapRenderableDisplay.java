@@ -25,9 +25,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -73,19 +70,20 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
 
     private DataManager dataMgr;
 
-    @SuppressWarnings("unchecked")
     public GFEMapRenderableDisplay() {
-        super();
-        dataMgr = DataManager.getCurrentInstance();
-        dataMgr.getSpatialDisplayManager().addSpatialEditorTimeChangedListener(
-                this);
-        Message.registerInterest(this, ShowQuickViewDataMsg.class);
+    }
+
+    public GFEMapRenderableDisplay(MapDescriptor desc) {
+        super(desc);
     }
 
     @SuppressWarnings("unchecked")
-    public GFEMapRenderableDisplay(MapDescriptor desc) {
-        super(desc);
-        dataMgr = DataManager.getCurrentInstance();
+    public void setDataManager(DataManager dataManager) {
+        if (this.dataMgr != null) {
+            dataMgr.getSpatialDisplayManager()
+                    .removeSpatialEditorTimeChangedListener(this);
+        }
+        dataMgr = dataManager;
         dataMgr.getSpatialDisplayManager().addSpatialEditorTimeChangedListener(
                 this);
         Message.registerInterest(this, ShowQuickViewDataMsg.class);
@@ -118,15 +116,11 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
     @Override
     protected PaintProperties calcPaintDataTime(PaintProperties paintProps,
             AbstractVizResource<?, ?> rsc) {
-        IWorkbenchWindow window = null;
-        if (container != null) {
-            window = ((IWorkbenchPart) container).getSite()
-                    .getWorkbenchWindow();
+        if (dataMgr != null) {
+            Date date = dataMgr.getSpatialDisplayManager()
+                    .getSpatialEditorTime();
+            paintProps.setDataTime(new DataTime(date));
         }
-        Date date = DataManager.getInstance(window).getSpatialDisplayManager()
-                .getSpatialEditorTime();
-
-        paintProps.setDataTime(new DataTime(date));
 
         GFEPaintProperties gfeProps = new GFEPaintProperties(paintProps);
         if (qvTime != null) {
