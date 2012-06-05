@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.viz.collaboration.data.AlertWord;
+import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
 
 /**
  * TODO Add Description

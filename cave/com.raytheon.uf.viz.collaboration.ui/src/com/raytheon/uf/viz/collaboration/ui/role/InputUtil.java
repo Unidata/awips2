@@ -22,9 +22,9 @@ package com.raytheon.uf.viz.collaboration.ui.role;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.display.editor.input.CollaborationInputHandler;
+import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.EventForwardingInputHandler;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;

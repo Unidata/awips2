@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
