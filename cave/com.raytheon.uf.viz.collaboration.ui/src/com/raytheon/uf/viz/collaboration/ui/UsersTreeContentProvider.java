@@ -24,8 +24,8 @@ import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
-import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
 /**
  * TODO Add Description

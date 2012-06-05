@@ -40,8 +40,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
 /**
  * TODO Add Description

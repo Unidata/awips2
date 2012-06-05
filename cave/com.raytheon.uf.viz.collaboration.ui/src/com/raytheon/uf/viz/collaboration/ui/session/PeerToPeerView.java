@@ -41,7 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 
 /**
  * TODO Add Description

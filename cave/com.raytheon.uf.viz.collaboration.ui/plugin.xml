@@ -192,6 +192,11 @@
             id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationalertwordspreferencepage"
             name="Significant Words"
             category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
+	  <page
+            class="com.raytheon.uf.viz.collaboration.ui.feed.CollaborationSiteFilterPreferencePage"
+            id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationsitefilterpreferencepage"
+            name="Site Filter"
+            category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
    </extension>
 	<extension
           point="org.eclipse.ui.contexts">
@@ -240,7 +245,7 @@
    <extension
    		point="com.raytheon.uf.viz.core.classContext">
       <classContext
-            class="com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingToolbar">
+            class="com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView">
          <contextId
                id="com.raytheon.uf.viz.collaboration.tellestrator.context">
          </contextId>
