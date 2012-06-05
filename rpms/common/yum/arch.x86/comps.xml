@@ -90,7 +90,7 @@
          <packagereq type="default">awips2-maps-database</packagereq>
          <packagereq type="default">awips2-database-standalone-configuration</packagereq>
 
-		 <packagereq type="default">awips2-wes2bridge-edex</packagereq>
+		 <packagereq type="default">awips2-edex-environment</packagereq>
          <packagereq type="default">awips2-edex-native</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
          <packagereq type="default">awips2-gfesuite-server</packagereq>
