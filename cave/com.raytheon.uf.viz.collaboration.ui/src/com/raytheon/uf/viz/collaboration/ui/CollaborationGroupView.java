@@ -55,6 +55,7 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -103,13 +104,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.AlertWordWrapper;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.CollaborationGroupContainer;
-import com.raytheon.uf.viz.collaboration.data.SessionContainer;
-import com.raytheon.uf.viz.collaboration.data.SessionGroupContainer;
-import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
@@ -150,6 +151,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private SessionGroupContainer activeSessionGroup;
 
     private TreeViewer usersTreeViewer;
+
+    private StyledText messages;
+
+    private StyledText composeBox;
 
     private CollaborationGroupContainer topLevel;
 
@@ -232,7 +237,26 @@ public class CollaborationGroupView extends CaveFloatingView implements
         }
         populateTree();
         usersTreeViewer.refresh();
+
+        // createRoomFeed(parent);
         parent.layout();
+    }
+
+    /**
+     * @param parent2
+     */
+    private void createRoomFeed(Composite parent) {
+        Composite child = new Composite(parent, SWT.NONE);
+        child.setLayout(new GridLayout(1, false));
+        child.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        messages = new StyledText(child, SWT.MULTI | SWT.WRAP | SWT.H_SCROLL
+                | SWT.V_SCROLL | SWT.BORDER | SWT.READ_ONLY);
+        messages.setEnabled(false);
+        messages.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+        composeBox = new StyledText(child, SWT.MULTI | SWT.WRAP | SWT.H_SCROLL
+                | SWT.V_SCROLL | SWT.BORDER);
+        composeBox.setLayoutData(new GridData(GridData.FILL_BOTH));
     }
 
     @Override
