@@ -27,7 +27,6 @@ import java.util.Map;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -81,7 +80,13 @@ public class VTECPartners {
 
         String siteDir = pathMgr.getFile(edexStaticSite, CONFIG_PATH).getPath();
 
-        String vtecPath = GfePyIncludeUtil.getVtecIncludePath();
+        LocalizationContext commonStaticSite = pathMgr.getContextForSite(
+                LocalizationContext.LocalizationType.COMMON_STATIC, siteId);
+
+        String baseDir = pathMgr.getFile(commonStaticBase, "vtec")
+                .getAbsolutePath();
+        String vtecSiteDir = pathMgr.getFile(commonStaticSite, "vtec")
+                .getAbsolutePath();
 
         // Create a method to get the globals from VTECPartners.py, minus
         // builtins, classes, functions, and modules, as a dict.
@@ -102,7 +107,7 @@ public class VTECPartners {
         PythonScript python = null;
         try {
             python = new PythonScript(filePath, PyUtil.buildJepIncludePath(
-                    pythonPath, siteDir, vtecPath),
+                    pythonPath, siteDir, vtecSiteDir, baseDir),
                     VTECPartners.class.getClassLoader(), stmts);
             // Get the globals and store them until later for getattr
             Object obj = python.execute("moduleSimpleObjects", null);
