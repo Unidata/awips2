@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# wes2bridge environment
-dir="/awips2/wes2bridge/macro"
-export WES2BRIDGE_DIR="/usr/local/wes2bridge"
+# edex-environment environment
+dir="/awips2/edex-environment/macro"
+export EDEX_ENV_DIR="/usr/local/edex-environment"
 export UTILITIES="${dir}/utilities"
 
 # access functions
@@ -15,11 +15,11 @@ popd > /dev/null 2>&1
 
 function usage()
 {
-   echo "Usage: wes2bridge -create \${CONFIG_FILE} [--start]"
-   echo "       wes2bridge -start { \${CONFIG_FILE} | -name \${NAME} }"
-   echo "       wes2bridge -stop { \${CONFIG_FILE} | -name \${NAME} }"
-   echo "       wes2bridge -remove { \${CONFIG_FILE} | -name \${NAME} }"
-   echo "       wes2bridge --list"
+   echo "Usage: edex-environment -create \${CONFIG_FILE} [--start]"
+   echo "       edex-environment -start { \${CONFIG_FILE} | -name \${NAME} }"
+   echo "       edex-environment -stop { \${CONFIG_FILE} | -name \${NAME} }"
+   echo "       edex-environment -remove { \${CONFIG_FILE} | -name \${NAME} }"
+   echo "       edex-environment --list"
 }
 
 function parseCreate()

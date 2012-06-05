@@ -67,7 +67,7 @@ public class Wes2BridgeConfiguration
 		{
 			ConfigurationException exception =
 				new ConfigurationException(
-				"The Wes2Bridge name cannot contain spaces.");
+				"The Edex Environment name cannot contain spaces.");
 			exception.fillInStackTrace();
 			
 			throw exception;

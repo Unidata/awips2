@@ -32,13 +32,13 @@ function removeEnvironmentInternal()
    env_name="${1}"
 
    # Ensure that the environment exists.
-   if [ ! -d ${WES2BRIDGE_DIR}/${env_name} ]; then
+   if [ ! -d ${EDEX_ENV_DIR}/${env_name} ]; then
       echo "ERROR: The ${env_name} environment does not exist yet."
       return 1
    fi
 
    # Remove the environment.
-   rm -rf ${WES2BRIDGE_DIR}/${env_name}
+   rm -rf ${EDEX_ENV_DIR}/${env_name}
    if [ $? -ne 0 ]; then
       echo "ERROR: Unable to remove the ${env_name} environment."
       return 1
