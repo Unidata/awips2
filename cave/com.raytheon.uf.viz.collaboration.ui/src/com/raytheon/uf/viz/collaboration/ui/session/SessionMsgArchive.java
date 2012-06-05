@@ -75,7 +75,7 @@ public class SessionMsgArchive {
         log = new StringBuffer();
     }
 
-    private static String getLogFilePath(String hostName, String userId,
+    public static String getLogFilePath(String hostName, String userId,
             String sessionName) {
         return LOG_DIR
                 + IPathManager.SEPARATOR
@@ -86,12 +86,21 @@ public class SessionMsgArchive {
                         + sessionName);
     }
 
+    public static LocalizationContext getArchiveContext() {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        return pm.getContext(LocalizationType.CAVE_STATIC,
+                LocalizationLevel.USER);
+    }
+
+    public static LocalizationFile getArchiveDir(String logFilePath) {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        return pm.getLocalizationFile(getArchiveContext(), logFilePath);
+    }
+
     public static LocalizationFile getArchiveDir(String hostName,
             String userId, String sessionName) {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext ctx = pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.USER);
-        return pm.getLocalizationFile(ctx,
+        return pm.getLocalizationFile(getArchiveContext(),
                 getLogFilePath(hostName, userId, sessionName));
     }
 
