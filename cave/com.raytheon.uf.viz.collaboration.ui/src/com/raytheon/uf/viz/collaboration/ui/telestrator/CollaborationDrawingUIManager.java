@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+
+import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.drawing.DrawingToolUIManager;
 
@@ -44,7 +48,7 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
 
     private CollaborationDrawingResource resource;
 
-    private CollaborationDrawingToolbar toolbar;
+    private CollaborationSessionView view;
 
     public CollaborationDrawingUIManager(CollaborationDrawingResource resource) {
         super(resource.getDrawingLayerFor(resource.getMyUser()), resource
@@ -54,9 +58,12 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
             @Override
             public void run() {
                 CollaborationDrawingResource resource = CollaborationDrawingUIManager.this.resource;
-                toolbar = CollaborationDrawingToolbar.openToolbar(resource);
-                toolbar.setCurrentDrawingLayer(resource
-                        .getDrawingLayerFor(resource.getMyUser()));
+                IWorkbenchPage page = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getActivePage();
+                view = (CollaborationSessionView) page.findViewReference(
+                        CollaborationSessionView.ID,
+                        resource.getContainer().getSessionId()).getPart(false);
+                view.drawingLayerUpdate();
             }
         });
     }
@@ -69,10 +76,6 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
     @Override
     public void dispose() {
         super.dispose();
-        if (toolbar != null) {
-            // Incase disposed before async exec can run in constructor
-            toolbar.disposed(resource);
-        }
     }
 
     /*
@@ -100,7 +103,7 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
     public boolean handleMouseUp(int x, int y, int mouseButton) {
         boolean rval = super.handleMouseUp(x, y, mouseButton);
         if (rval) {
-            toolbar.resourceChanged(resource);
+            view.drawingLayerUpdate();
         }
         return rval;
     }
