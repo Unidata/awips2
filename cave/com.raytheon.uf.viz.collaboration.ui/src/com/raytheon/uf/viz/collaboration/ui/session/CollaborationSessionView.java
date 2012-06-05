@@ -20,6 +20,9 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  * further licensing information.
  **/
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -33,7 +36,11 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 
 import com.google.common.eventbus.Subscribe;
@@ -48,14 +55,22 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
+import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
+import com.raytheon.uf.viz.core.ContextManager;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * TODO Add Description
@@ -73,7 +88,8 @@ import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
  * @author rferrel
  * @version 1.0
  */
-public class CollaborationSessionView extends SessionView {
+public class CollaborationSessionView extends SessionView implements
+        IPartListener {
     public static final String ID = "com.raytheon.uf.viz.collaboration.CollaborationSession";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -99,6 +115,8 @@ public class CollaborationSessionView extends SessionView {
 
     private DrawingToolLayer layer;
 
+    private CollaborationDrawingResource resource;
+
     /*
      * (non-Javadoc)
      * 
@@ -109,40 +127,49 @@ public class CollaborationSessionView extends SessionView {
     @Override
     public void createPartControl(Composite parent) {
         super.createPartControl(parent);
-        SharedDisplaySessionMgr.getSessionContainer(sessionId).getSession()
-                .getEventPublisher().register(this);
+        assignLayer();
     }
 
-    // @Subscribe
-    // public void drawingLayerUpdate(DrawingLayerUpdate update) {
-    // IEditorPart part = null;
-    // if (SharedDisplaySessionMgr.getSessionContainer(sessionId)
-    // .getCollaborationEditor() == null) {
-    // for (AbstractEditor editor : SharedDisplaySessionMgr
-    // .getSessionContainer(sessionId).getSharedEditors()) {
-    // part = editor;
-    // }
-    // } else {
-    // part = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-    // .getCollaborationEditor();
-    // }
-    // if (part instanceof AbstractEditor) {
-    // AbstractEditor editor = (AbstractEditor) part;
-    // for (IDisplayPane pane : editor.getDisplayPanes()) {
-    // ResourceList list = pane.getDescriptor().getResourceList();
-    // for (ResourcePair pair : list) {
-    // if (pair.getResource() instanceof CollaborationDrawingResource) {
-    // CollaborationDrawingResource resource = (CollaborationDrawingResource)
-    // pair
-    // .getResource();
-    // layer = resource.getDrawingLayerFor(resource
-    // .getMyUser());
-    // break;
-    // }
-    // }
-    // }
-    // }
-    // }
+    public boolean assignLayer() {
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(sessionId);
+        ResourceList toSearch = null;
+        IEditorPart part = null;
+        if (sc.getCollaborationEditor() == null) {
+            // if the editor has not been started in the participant yet
+            if (sc.getSharedEditors() == null) {
+                return false;
+            }
+            for (AbstractEditor editor : sc.getSharedEditors()) {
+                part = editor;
+            }
+        } else {
+            part = SharedDisplaySessionMgr.getSessionContainer(sessionId)
+                    .getCollaborationEditor();
+        }
+        if (part instanceof AbstractEditor) {
+            AbstractEditor editor = (AbstractEditor) part;
+            for (IDisplayPane pane : editor.getDisplayPanes()) {
+                toSearch = pane.getDescriptor().getResourceList();
+                resource = (CollaborationDrawingResource) toSearch
+                        .getResourcesByTypeAsType(
+                                CollaborationDrawingResource.class).get(0);
+                layer = resource.getDrawingLayerFor(resource.getMyUser());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void drawingLayerUpdate() {
+        boolean assigned = true;
+        if (layer == null) {
+            assigned = assignLayer();
+        }
+        if (assigned) {
+            updateToolItem();
+        }
+    }
 
     /*
      * (non-Javadoc)
@@ -152,6 +179,7 @@ public class CollaborationSessionView extends SessionView {
     @Override
     public void init(IViewSite site) throws PartInitException {
         super.init(site);
+        site.getPage().addPartListener(this);
     }
 
     protected void createActions() {
@@ -191,7 +219,11 @@ public class CollaborationSessionView extends SessionView {
         drawAction = new ActionContributionItem(new Action("Draw", SWT.TOGGLE) {
             @Override
             public void run() {
-                layer.setDrawMode(DrawMode.DRAW);
+                if (layer.getDrawMode() == DrawMode.DRAW) {
+                    layer.setDrawMode(DrawMode.NONE);
+                } else {
+                    layer.setDrawMode(DrawMode.DRAW);
+                }
                 updateToolItem();
             }
         });
@@ -228,7 +260,12 @@ public class CollaborationSessionView extends SessionView {
                 new Action("Erase", SWT.TOGGLE) {
                     @Override
                     public void run() {
-                        layer.setDrawMode(DrawMode.ERASE);
+                        if (layer.getDrawMode() == DrawMode.ERASE) {
+                            layer.setDrawMode(DrawMode.NONE);
+                        } else {
+                            layer.setDrawMode(DrawMode.ERASE);
+                        }
+                        updateToolItem();
                     }
                 });
         eraseAction.getAction().setImageDescriptor(
@@ -239,6 +276,7 @@ public class CollaborationSessionView extends SessionView {
         clearAction = new ActionContributionItem(new Action("Clear") {
             public void run() {
                 layer.clear();
+                updateToolItem();
             };
         });
         clearAction.getAction().setImageDescriptor(
@@ -249,13 +287,14 @@ public class CollaborationSessionView extends SessionView {
         lockAction = new ActionContributionItem(new Action(
                 "Lock Collaborators", SWT.TOGGLE) {
             public void run() {
-                System.out.println("Locking");
+                resource.setLockingDrawing(((ToolItem) lockAction.getWidget())
+                        .getSelection());
+                updateToolItem();
             };
         });
         lockAction.getAction().setImageDescriptor(
                 IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
                         "lock.gif"));
-
         ToolBarManager mgr = (ToolBarManager) getViewSite().getActionBars()
                 .getToolBarManager();
         mgr.insert(mgr.getSize() - 1, drawAction);
@@ -266,29 +305,51 @@ public class CollaborationSessionView extends SessionView {
         mgr.insert(mgr.getSize() - 1, eraseAction);
         mgr.insert(mgr.getSize() - 1, lockAction);
         mgr.insert(mgr.getSize() - 1, new Separator());
-
     }
 
     private void updateToolItem() {
-        drawAction.getAction().setEnabled(true);
-        undoAction.getAction().setEnabled(layer.canUndo());
-        redoAction.getAction().setEnabled(layer.canRedo());
-        clearAction.getAction().setEnabled(layer.canClear());
-        eraseAction.getAction().setEnabled(true);
-        switch (layer.getDrawMode()) {
-        case DRAW:
-            drawAction.getAction().setChecked(true);
-            eraseAction.getAction().setChecked(false);
-            break;
-        case ERASE:
-            drawAction.getAction().setChecked(false);
-            eraseAction.getAction().setChecked(true);
-            break;
-        case NONE:
-            drawAction.getAction().setChecked(false);
-            eraseAction.getAction().setChecked(false);
-            break;
+        boolean assigned = true;
+        if (layer == null) {
+            assigned = assignLayer();
         }
+        if (assigned) {
+            drawAction.getAction().setEnabled(true);
+            undoAction.getAction().setEnabled(layer.canUndo());
+            redoAction.getAction().setEnabled(layer.canRedo());
+            clearAction.getAction().setEnabled(layer.canClear());
+            eraseAction.getAction().setEnabled(true);
+            switch (layer.getDrawMode()) {
+            case DRAW:
+                drawAction.getAction().setChecked(true);
+                eraseAction.getAction().setChecked(false);
+                break;
+            case ERASE:
+                drawAction.getAction().setChecked(false);
+                eraseAction.getAction().setChecked(true);
+                break;
+            case NONE:
+                drawAction.getAction().setChecked(false);
+                eraseAction.getAction().setChecked(false);
+                break;
+            }
+            if (!resource.isSessionLeader()) {
+                lockAction.getAction().setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * @return the redoAction
+     */
+    public ActionContributionItem getRedoAction() {
+        return redoAction;
+    }
+
+    /**
+     * @return the undoAction
+     */
+    public ActionContributionItem getUndoAction() {
+        return undoAction;
     }
 
     /*
@@ -373,6 +434,23 @@ public class CollaborationSessionView extends SessionView {
         });
     }
 
+    @Subscribe
+    public void receiveLocking(CollaborationDrawingEvent event) {
+        if (event.getType() == CollaborationEventType.TOGGLE_LOCK) {
+            if (!resource.isSessionLeader()) {
+                if (drawAction.getAction().isEnabled()) {
+                    drawAction.getAction().setEnabled(false);
+                    undoAction.getAction().setEnabled(false);
+                    redoAction.getAction().setEnabled(false);
+                    clearAction.getAction().setEnabled(false);
+                    eraseAction.getAction().setEnabled(false);
+                } else {
+                    updateToolItem();
+                }
+            }
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -406,5 +484,85 @@ public class CollaborationSessionView extends SessionView {
     public void dispose() {
         SharedDisplaySessionMgr.exitSession(session.getSessionId());
         super.dispose();
+        getSite().getPage().removePartListener(this);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partActivated(IWorkbenchPart part) {
+        // do this only if we care about the part being activated
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(sessionId);
+        List<IEditorPart> editors = new ArrayList<IEditorPart>();
+        editors.add(sc.getCollaborationEditor());
+        if (sc.getSharedEditors() != null) {
+            editors.addAll(sc.getSharedEditors());
+        }
+        if (this == part || editors.contains(part)) {
+            ContextManager
+                    .getInstance(getSite().getPage().getWorkbenchWindow())
+                    .activateContexts(this);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.IWorkbenchPart
+     * )
+     */
+    @Override
+    public void partBroughtToTop(IWorkbenchPart part) {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partClosed(IWorkbenchPart part) {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.IWorkbenchPart
+     * )
+     */
+    @Override
+    public void partDeactivated(IWorkbenchPart part) {
+        // only done if we care about the part that was deactivated
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(sessionId);
+        List<IEditorPart> editors = new ArrayList<IEditorPart>();
+        editors.add(sc.getCollaborationEditor());
+        if (sc.getSharedEditors() != null) {
+            editors.addAll(sc.getSharedEditors());
+        }
+        if (this == part || editors.contains(part)) {
+            ContextManager
+                    .getInstance(getSite().getPage().getWorkbenchWindow())
+                    .deactivateContexts(this);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partOpened(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partOpened(IWorkbenchPart part) {
+    }
+
 }

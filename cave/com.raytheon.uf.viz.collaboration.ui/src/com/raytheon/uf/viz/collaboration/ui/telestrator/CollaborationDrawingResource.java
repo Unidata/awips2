@@ -30,9 +30,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.data.SessionContainer;
-import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
@@ -126,6 +127,9 @@ public class CollaborationDrawingResource extends
             outline.setLineStyle(LineStyle.SOLID);
             outline.setOutlineWidth(4);
             outline.setSuppressingMenuItems(true);
+
+            ColorableCapability colorable = getCapability(ColorableCapability.class);
+            colorable.setSuppressingMenuItems(true);
         }
 
         manager = new CollaborationDrawingUIManager(this);
@@ -206,19 +210,23 @@ public class CollaborationDrawingResource extends
      * @return
      */
     public DrawingToolLayer getDrawingLayerFor(UserId user) {
-        synchronized (layerMap) {
-            DrawingToolLayer layer = layerMap.get(user);
-            if (layer == null) {
-                if (user == myUser) {
-                    layer = new CollaborationDrawingToolLayer(
-                            descriptor.getGridGeometry(), this);
-                } else {
-                    layer = new DrawingToolLayer(descriptor.getGridGeometry());
+        if (layerMap != null) {
+            synchronized (layerMap) {
+                DrawingToolLayer layer = layerMap.get(user);
+                if (layer == null) {
+                    if (user == myUser) {
+                        layer = new CollaborationDrawingToolLayer(
+                                descriptor.getGridGeometry(), this);
+                    } else {
+                        layer = new DrawingToolLayer(
+                                descriptor.getGridGeometry());
+                    }
+                    layerMap.put(user, layer);
                 }
-                layerMap.put(user, layer);
+                return layer;
             }
-            return layer;
         }
+        return null;
     }
 
     /*
@@ -295,6 +303,7 @@ public class CollaborationDrawingResource extends
         UserId user = event.getUserName();
         if (user.equals(myUser)) {
             // Early exit case, don't process my own events twice
+            issueRefresh();
             return;
         }
 
@@ -349,6 +358,13 @@ public class CollaborationDrawingResource extends
         }
     }
 
+    /**
+     * @return the container
+     */
+    public SessionContainer getContainer() {
+        return container;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -359,5 +375,4 @@ public class CollaborationDrawingResource extends
         // Though I hate this methods exists, it serves its purpose
         return false;
     }
-
 }

@@ -96,6 +96,7 @@ public abstract class CaveFloatingView extends ViewPart {
             public void run() {
                 // should only run when the user is currently attached to cave
                 // (or detached, but not a floating dialog)
+                this.setToolTipText("Dock");
                 detached = true;
                 WorkbenchPage page = (WorkbenchPage) PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage();
@@ -121,6 +122,7 @@ public abstract class CaveFloatingView extends ViewPart {
                     run();
                     return;
                 }
+                this.setToolTipText("Float");
                 detached = false;
                 WorkbenchPage page = (WorkbenchPage) PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage();
