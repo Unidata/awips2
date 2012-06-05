@@ -88,7 +88,6 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -117,7 +116,6 @@ import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchive;
-import com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -190,7 +188,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     // Drawing *will* be activated in collaboration views
     // private Action drawToolbarAction;
-    //
+
     // private Action pgenAction;
 
     private Action collapseAllAction;
@@ -298,8 +296,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             }
         };
         createArchiveViewerAction = new Action("View Log...") {
-            @Override
-            public void runWithEvent(Event event) {
+            private String getSessionName() {
                 IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
                         .getSelection();
                 Object o = selection.getFirstElement();
@@ -308,30 +305,45 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 if (o instanceof IRosterEntry) {
                     IRosterEntry otherUser = (IRosterEntry) o;
                     if (otherUser != null) {
-                        String id = otherUser.getUser().getID().getName();
-                        sessionName = id.substring(0, id.indexOf("@"));
+                        String otherName = otherUser.getUser().getID()
+                                .getName();
+                        sessionName = otherName.substring(0,
+                                otherName.indexOf("@"));
                     }
+                } else if (o instanceof IVenueSession) {
+                    sessionName = ((IVenueSession) o).getVenue().getInfo()
+                            .getVenueDescription();
+                } else if (o instanceof UserId) {
+                    // don't add if the userid
                 }
+                return sessionName;
+            }
+
+            // @Override
+            // public boolean isEnabled() {
+            // CollaborationConnection conn = CollaborationDataManager
+            // .getInstance().getCollaborationConnection(true);
+            // UserId user = conn.getUser();
+            // return SessionMsgArchive.getArchiveDir(user.getHost(),
+            // user.getName(), getSessionName()).exists();
+            // };
+
+            @Override
+            public void runWithEvent(Event event) {
                 CollaborationConnection conn = CollaborationDataManager
                         .getInstance().getCollaborationConnection(true);
                 UserId user = conn.getUser();
-                LocalizationFile logDir = SessionMsgArchive.getArchiveDir(
-                        user.getHost(), user.getName(), sessionName);
-
-                // SessionMsgArchiveDialog smad = new SessionMsgArchiveDialog(
-                // Display.getCurrent().getActiveShell());
-                // smad.setText("Message Log");
-                // smad.open(logDir);
+                String logDir = SessionMsgArchive.getLogFilePath(
+                        user.getHost(), user.getName(), getSessionName());
 
                 try {
-                    IViewPart vPart = PlatformUI
+                    PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
                             .getActivePage()
                             .showView(
-                                    "com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView");
-                    ((SessionMsgArchiveView) vPart).setDir(logDir);
-                    // vPart.setPartName(name);
+                                    "com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView",
+                                    logDir, IWorkbenchPage.VIEW_ACTIVATE);
                 } catch (PartInitException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Unable to open Collaboration Log View", e);
@@ -566,6 +578,19 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // public void run() {
         // StaticDataProvider.getInstance();
         // try {
+        // // cause the classloader to load StaticDataProvider and thus
+        // // to call the Activator for
+        // // gov.noaa.nws.ncep.staticdataprovider.
+        // // This is done because of an initialization order problem
+        // // in PgenStaticDataProvider
+        // StaticDataProvider.getInstance();
+        // ServiceReference ref = Activator
+        // .getDefault()
+        // .getBundle()
+        // .getBundleContext()
+        // .getServiceReference(
+        // IStaticDataProvider.class.getName());
+        //
         // PlatformUI.getWorkbench().getActiveWorkbenchWindow()
         // .getActivePage().showView(PgenUtil.VIEW_ID);
         // } catch (PartInitException e) {
@@ -616,7 +641,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
         // mgr.add(drawToolbarAction);
         // mgr.add(pgenAction);
-        // mgr.add(new Separator());
+        mgr.add(new Separator());
 
         if (CollaborationDataManager.getInstance().isConnected()) {
             mgr.add(logoutAction);
