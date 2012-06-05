@@ -38,6 +38,7 @@
 	<bean id="gfeIngestFilter" class="com.raytheon.edex.plugin.gfe.server.notify.GfeIngestNotificationFilter">
 	   <property name="smartInitQueue" ref="smartInitQueue"/>
 	</bean>
+	<bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
   	
   	<camelContext id="gfe-camel-spring"
 		xmlns="http://camel.apache.org/schema/spring"
@@ -115,6 +116,16 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to uri="log:gfeIngestFilter?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+		<route id="gfeVtecChangeNotification">
+			<from uri="jms-generic:topic:edex.alerts.vtec"/>
+			<doTry>
+				<bean ref="vtecChangeListener" method="handleNotification"/>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:vtecChangeListener?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
 				</doCatch>
 			</doTry>
 		</route>

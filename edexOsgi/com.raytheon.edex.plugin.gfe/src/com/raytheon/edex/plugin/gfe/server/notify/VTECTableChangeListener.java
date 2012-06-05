@@ -17,9 +17,8 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.activetable;
+package com.raytheon.edex.plugin.gfe.server.notify;
 
-import java.util.Date;
 import java.util.List;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
@@ -36,17 +35,17 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
- * Class to send VTEC Table Change notifications
+ * Listener to handle VTEC Table Change notifications
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 17, 2010     #2866  randerso     Initial creation
+ * Jun 5, 2012            randerso     Initial creation
  * 
  * </pre>
  * 
@@ -54,34 +53,23 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * @version 1.0
  */
 
-public class VTECTableChangeNotifier {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(VTECTableChangeNotifier.class);
-    public static void send(ActiveTableMode mode, Date modTime,
-            String modSource, List<VTECChange> changes) {
+public class VTECTableChangeListener {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VTECTableChangeListener.class);
 
-        for (VTECChange change : changes) {
-            checkDrafts(mode, change);
+    public void handleNotification(VTECTableChangeNotification notif) {
+        for (VTECChange change : notif.getChanges()) {
+            checkDrafts(notif.getMode(), change);
         }
 
-        try {
-            VTECTableChangeNotification notification = new VTECTableChangeNotification(
-                    mode, modTime, modSource,
-                    changes.toArray(new VTECChange[changes.size()]));
-            System.out.println("Sending VTECTableChangeNotification:"
-                    + notification);
-            EDEXUtil.getMessageProducer().sendAsync("vtecNotify", notification);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error Sending VTECTableChangeNotification", e);
-        }
     }
 
-    private static void checkDrafts(ActiveTableMode tableName, VTECChange change) {
+    private void checkDrafts(ActiveTableMode tableName, VTECChange change) {
         String siteid = change.getSite();
         String pil = change.getPil();
 
-        statusHandler.handle(Priority.EVENTA, "checkDrafts: " + tableName
-                        + ":" + siteid + ":" + pil);
+        statusHandler.handle(Priority.EVENTA, "checkDrafts: " + tableName + ":"
+                + siteid + ":" + pil);
         String mode = "Standard";
         if (tableName.equals(ActiveTableMode.PRACTICE)) {
             mode = "PRACTICE";
@@ -133,9 +121,9 @@ public class VTECTableChangeNotifier {
      * 
      * @param lf
      */
-    private static void markDraft(LocalizationFile lf) {
+    private void markDraft(LocalizationFile lf) {
         statusHandler.handle(Priority.PROBLEM, "Marking draft: "
-                        + lf.getFile().getName() + " as 'invalid'");
+                + lf.getFile().getName() + " as 'invalid'");
 
         try {
             DraftProduct draft = DraftProduct.load(lf);
