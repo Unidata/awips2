@@ -37,11 +37,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
-import com.raytheon.uf.viz.collaboration.data.SessionContainer;
-import com.raytheon.uf.viz.collaboration.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.SharedEditorData;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
