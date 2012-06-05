@@ -734,13 +734,11 @@ public class HydroDisplayManager {
                 }
             }
 
-            GenericResourceData legendResourceData = new GenericResourceData();
-            legendResourceData.setClazz(MPELegendResource.class.getName());
-            ResourcePair resourcePair = new ResourcePair();
-            resourcePair.setResourceData(legendResourceData);
-            md.getResourceList().add(resourcePair);
+            md.getResourceList()
+                    .add(ResourcePair
+                            .constructSystemResourcePair(new GenericResourceData(
+                                    MPELegendResource.class)));
             md.getResourceList().instantiateResources(md, true);
-            // bestEstRsc = (XmrgResource) resourcePair.getResource();
             pane.refresh();
         }
     }
