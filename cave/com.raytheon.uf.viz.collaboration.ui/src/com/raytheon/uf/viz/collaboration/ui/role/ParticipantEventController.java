@@ -33,7 +33,6 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedResource;
-import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
@@ -64,8 +63,6 @@ public class ParticipantEventController extends AbstractRoleEventController {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParticipantEventController.class);
-
-    private CollaborationResource collabRsc;
 
     public ParticipantEventController(ISharedDisplaySession session) {
         super(session);
@@ -111,21 +108,25 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 CollaborationEditor editor = SharedDisplaySessionMgr
                         .getSessionContainer(session.getSessionId())
                         .getCollaborationEditor();
-                for (IDisplayPane pane : editor.getDisplayPanes()) {
-                    IDescriptor desc = pane.getDescriptor();
-                    if (desc instanceof AbstractDescriptor) {
-                        try {
-                            ((AbstractDescriptor) desc).setGridGeometry(event
-                                    .getTargetGeometry());
-                        } catch (VizException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "Error reprojecting collaboration display: "
-                                            + e.getLocalizedMessage(), e);
+                if (editor != null) {
+                    // Only reproject if editor has been created
+                    for (IDisplayPane pane : editor.getDisplayPanes()) {
+                        IDescriptor desc = pane.getDescriptor();
+                        if (desc instanceof AbstractDescriptor) {
+                            try {
+                                ((AbstractDescriptor) desc)
+                                        .setGridGeometry(event
+                                                .getTargetGeometry());
+                            } catch (VizException e) {
+                                statusHandler.handle(Priority.PROBLEM,
+                                        "Error reprojecting collaboration display: "
+                                                + e.getLocalizedMessage(), e);
+                            }
                         }
+                        pane.setZoomLevel(1.0);
+                        pane.scaleToClientArea();
+                        pane.refresh();
                     }
-                    pane.setZoomLevel(1.0);
-                    pane.scaleToClientArea();
-                    pane.refresh();
                 }
             }
         });
@@ -169,8 +170,6 @@ public class ParticipantEventController extends AbstractRoleEventController {
         ResourcePair rp = ResourcePair.constructSystemResourcePair(crd);
         desc.getResourceList().add(rp);
         desc.getResourceList().instantiateResources(desc, true);
-        collabRsc = (CollaborationResource) rp.getResource();
-        this.session.registerEventHandler(collabRsc);
     }
 
     /*
@@ -187,9 +186,6 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 .getSessionContainer(session.getSessionId());
         if (container != null) {
             super.deactivateResources(container.getCollaborationEditor());
-        }
-        if (this.collabRsc != null) {
-            this.session.unRegisterEventHandler(collabRsc);
         }
     }
 
