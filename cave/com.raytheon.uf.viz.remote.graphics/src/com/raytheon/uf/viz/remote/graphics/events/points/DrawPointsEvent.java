@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.remote.graphics.events.points;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -80,8 +79,9 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
     public IRenderEvent createDiffObject(IRenderEvent diffEvent) {
         DrawPointsEvent event = (DrawPointsEvent) diffEvent;
         DrawPointsEvent diffObject = new DrawPointsEvent();
-        diffObject.color = color;
+        diffObject.color = event.color;
         diffObject.magnification = event.magnification;
+        diffObject.style = event.style;
 
         Set<Point> additions = new HashSet<Point>(event.points);
         additions.removeAll(points);
@@ -110,6 +110,7 @@ public class DrawPointsEvent extends AbstractRemoteGraphicsRenderEvent {
         DrawPointsEvent event = (DrawPointsEvent) diffEvent;
         color = event.color;
         magnification = event.magnification;
+        style = event.style;
 
         synchronized (points) {
             if (event.removals != null) {
