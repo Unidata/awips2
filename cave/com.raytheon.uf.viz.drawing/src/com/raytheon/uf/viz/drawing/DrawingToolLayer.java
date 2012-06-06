@@ -134,6 +134,12 @@ public class DrawingToolLayer implements IRenderable {
     private Geometry currentErasingLine;
 
     /**
+     * The collection of geometries the {@link #currentErasingLine} is operating
+     * on
+     */
+    private Collection<Geometry> currentErasingGeometries;
+
+    /**
      * Flag that erasing is finished and a new stack frame should be created
      * next time {@link #processErase(IExtent, Rectangle)} is called
      */
@@ -177,19 +183,23 @@ public class DrawingToolLayer implements IRenderable {
             processErase(paintProps.getView().getExtent(),
                     paintProps.getCanvasBounds());
 
-            if (wireframeShape == null && currentData.geometries.size() > 0) {
-                // No wireframe shape and we have data, create for drawing
-                wireframeShape = target.createWireframeShape(false,
-                        targetGeometry);
-                int totalPoints = 0;
-                for (Geometry geom : currentData.geometries) {
-                    totalPoints += geom.getNumPoints();
+            if (wireframeShape == null) {
+                Collection<Geometry> geoms = currentErasingGeometries != null ? currentErasingGeometries
+                        : currentData.geometries;
+                if (geoms.size() > 0) {
+                    // No wireframe shape and we have data, create for drawing
+                    wireframeShape = target.createWireframeShape(false,
+                            targetGeometry);
+                    int totalPoints = 0;
+                    for (Geometry geom : geoms) {
+                        totalPoints += geom.getNumPoints();
+                    }
+                    wireframeShape.allocate(totalPoints * 3 * 8);
+                    for (Geometry geom : geoms) {
+                        handle(wireframeShape, geom);
+                    }
+                    wireframeShape.compile();
                 }
-                wireframeShape.allocate(totalPoints * 3 * 8);
-                for (Geometry geom : currentData.geometries) {
-                    handle(wireframeShape, geom);
-                }
-                wireframeShape.compile();
             }
             if (wireframeShape != null) {
                 // We have data to draw, draw it
@@ -221,6 +231,11 @@ public class DrawingToolLayer implements IRenderable {
         synchronized (currentData) {
             if (currentErasingLine != null
                     && currentErasingLine.getNumPoints() > 0) {
+                if (currentErasingGeometries == null) {
+                    currentErasingGeometries = new ArrayList<Geometry>(
+                            currentData.geometries);
+                }
+
                 // Calculate world grid to canvas grid ratio
                 double ratio = extent.getWidth() / canvasSize.width;
                 // Get the size to buffer the eraser line for differencing
@@ -232,16 +247,15 @@ public class DrawingToolLayer implements IRenderable {
                 flattenGeometry(currentErasingLine, eraserLines);
 
                 boolean change = false;
-                List<Geometry> currentGeoms = new ArrayList<Geometry>(
-                        currentData.geometries);
                 List<Geometry> newGeoms = new ArrayList<Geometry>(
-                        currentGeoms.size());
+                        currentErasingGeometries.size());
 
                 // For each eraser line, run against currentData
                 for (Geometry eraserLine : eraserLines) {
                     eraserLine = eraserLine.buffer(bufferSize);
-                    newGeoms = new ArrayList<Geometry>(currentGeoms.size());
-                    for (Geometry geom : currentGeoms) {
+                    newGeoms = new ArrayList<Geometry>(
+                            currentErasingGeometries.size());
+                    for (Geometry geom : currentErasingGeometries) {
                         if (geom.intersects(eraserLine)) {
                             // Eraser line intersects, create difference
                             Geometry diff = geom.difference(eraserLine);
@@ -262,26 +276,25 @@ public class DrawingToolLayer implements IRenderable {
                         }
                     }
                     // These are the new "currentGeoms" for the next eraser line
-                    currentGeoms = newGeoms;
+                    currentErasingGeometries = newGeoms;
                 }
 
-                if (change) {
-                    if (addErasingEventToStack) {
-                        // If data changed and we should add a new frame, do it
-                        addErasingEventToStack = false;
-                        addCurrentDataToStack(undoStack);
-                        redoStack.clear();
-                    } else if (wireframeShape != null) {
-                        // In else if since addCurrentDataToStack will destroy
-                        // wireframeShape for us
-                        wireframeShape.dispose();
-                        wireframeShape = null;
-                    }
+                if (change && wireframeShape != null) {
+                    // In else if since addCurrentDataToStack will destroy
+                    // wireframeShape for us
+                    wireframeShape.dispose();
+                    wireframeShape = null;
                 }
-
-                // Current data is now what is in newGeoms
-                currentData.geometries = newGeoms;
                 currentErasingLine = null;
+            }
+
+            if (addErasingEventToStack) {
+                // If data changed and we should add a new frame, do it
+                addErasingEventToStack = false;
+                addCurrentDataToStack(undoStack);
+                redoStack.clear();
+                currentData.geometries = currentErasingGeometries;
+                currentErasingGeometries = null;
             }
         }
     }
