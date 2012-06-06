@@ -25,7 +25,6 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
-import org.hibernate.InstantiationException;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -37,7 +36,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
+import com.raytheon.uf.viz.collaboration.display.editor.ReprojectEditor;
 import com.raytheon.uf.viz.collaboration.display.editor.SharedEditorData;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
@@ -50,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.collaboration.ui.rsc.DataProviderRscData;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -66,6 +68,8 @@ import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
+ * TODO: This class is in severe need of a refactor!
+ * 
  * Handles the events of a session that are specific to the Data Provider role.
  * 
  * 
@@ -83,12 +87,30 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @version 1.0
  */
 
-public class DataProviderEventController extends AbstractRoleEventController {
+public class DataProviderEventController extends AbstractRoleEventController
+        implements IRenderableDisplayChangedListener {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataProviderEventController.class);
 
     private ResourceWrapperListener wrappingListener;
+
+    private DispatcherFactory factory = new DispatcherFactory() {
+        @Override
+        public Dispatcher createNewDispatcher(IRenderableDisplay display)
+                throws InstantiationException {
+            try {
+                CollaborationDispatcher dispatcher = new CollaborationDispatcher(
+                        session, display);
+                dispatchers.add(dispatcher);
+                return dispatcher;
+            } catch (CollaborationException e) {
+                throw new InstantiationException(
+                        "Error constructing collaboration dispatcher: "
+                                + e.getLocalizedMessage());
+            }
+        }
+    };
 
     private List<CollaborationDispatcher> dispatchers = new LinkedList<CollaborationDispatcher>();
 
@@ -249,6 +271,35 @@ public class DataProviderEventController extends AbstractRoleEventController {
             // Replace pane resources that will be shared with
             // CollaborationWrapperResource objects
             for (IDisplayPane pane : editor.getDisplayPanes()) {
+                handleNewDisplay(pane);
+                setActiveDisplay(pane.getRenderableDisplay());
+            }
+
+            editor.addRenderableDisplayChangedListener(this);
+        }
+    }
+
+    private void setActiveDisplay(IRenderableDisplay display) {
+        for (CollaborationDispatcher dispatcher : dispatchers) {
+            dispatcher.setActiveDisplay(display);
+        }
+        ReprojectEditor event = new ReprojectEditor();
+        event.setTargetGeometry(display.getDescriptor().getGridGeometry());
+        try {
+            session.sendObjectToVenue(event);
+        } catch (CollaborationException e) {
+            Activator.statusHandler.handle(
+                    Priority.PROBLEM,
+                    "Error sending reprojection event: "
+                            + e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void handleNewDisplay(IDisplayPane pane) {
+        try {
+            if (DispatchingGraphicsFactory.injectRemoteFunctionality(pane,
+                    factory)) {
+                // If we injected successfully, do resource management
                 ResourceList list = pane.getDescriptor().getResourceList();
                 for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                     wrapResourcePair(rp);
@@ -256,26 +307,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
                 list.addPreAddListener(wrappingListener);
                 list.addPostRemoveListener(wrappingListener);
             }
-
-            // Inject remote graphics functionality in container
-            DispatchingGraphicsFactory.injectRemoteFunctionality(editor,
-                    new DispatcherFactory() {
-                        @Override
-                        public Dispatcher createNewDispatcher(
-                                IRenderableDisplay display)
-                                throws InstantiationException {
-                            try {
-                                CollaborationDispatcher dispatcher = new CollaborationDispatcher(
-                                        session, display);
-                                dispatchers.add(dispatcher);
-                                return dispatcher;
-                            } catch (CollaborationException e) {
-                                throw new InstantiationException(
-                                        "Error creation collaboration dispatcher",
-                                        CollaborationDispatcher.class, e);
-                            }
-                        }
-                    });
+        } catch (InstantiationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 
@@ -383,10 +416,10 @@ public class DataProviderEventController extends AbstractRoleEventController {
                     list.removePreAddListener(wrappingListener);
                     list.removePostRemoveListener(wrappingListener);
                 }
-                DispatchingGraphicsFactory.extractRemoteFunctionality(editor);
             }
         }
 
+        // Dispatchers created are responsible for display extraction
         for (CollaborationDispatcher dispatcher : dispatchers) {
             dispatcher.dispose();
         }
@@ -408,6 +441,24 @@ public class DataProviderEventController extends AbstractRoleEventController {
                 // Send event to venue to unload
                 sendSharedResource(rp, true);
             }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.IRenderableDisplayChangedListener#
+     * renderableDisplayChanged(com.raytheon.uf.viz.core.IDisplayPane,
+     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay,
+     * com.raytheon.uf.viz
+     * .core.IRenderableDisplayChangedListener.DisplayChangeType)
+     */
+    @Override
+    public void renderableDisplayChanged(IDisplayPane pane,
+            IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+        if (type == DisplayChangeType.ADD) {
+            handleNewDisplay(pane);
+            setActiveDisplay(newRenderableDisplay);
         }
     }
 }
