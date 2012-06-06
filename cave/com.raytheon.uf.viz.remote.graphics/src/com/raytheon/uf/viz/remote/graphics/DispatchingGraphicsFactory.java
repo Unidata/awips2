@@ -27,7 +27,6 @@ import org.opengis.coverage.grid.GridEnvelope;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
@@ -154,42 +153,53 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
         return delegate.constrcutCanvas(canvasComp);
     }
 
-    public static void injectRemoteFunctionality(
-            IDisplayPaneContainer container, DispatcherFactory factory) {
-        try {
-            for (IDisplayPane pane : container.getDisplayPanes()) {
-                IRenderableDisplay display = pane.getRenderableDisplay();
-                Dispatcher dispatcher = factory.createNewDispatcher(display);
-                // Wrap the graphics adapter in dispatching one
-                display.setGraphicsAdapter(new DispatchingGraphicsFactory(
-                        display.getGraphicsAdapter(), dispatcher));
-                refreshPane(pane);
-            }
-        } catch (InstantiationException e) {
-            extractRemoteFunctionality(container);
-            throw new RuntimeException(e);
+    /**
+     * Injects the DispatchingGraphicsFactory into the given display
+     * 
+     * @param display
+     * @param factory
+     * @throws InstantiationException
+     */
+    public static boolean injectRemoteFunctionality(IDisplayPane pane,
+            DispatcherFactory factory) throws InstantiationException {
+        boolean injected = false;
+        IRenderableDisplay display = pane.getRenderableDisplay();
+        AbstractGraphicsFactoryAdapter currAdapter = display
+                .getGraphicsAdapter();
+        if (currAdapter instanceof DispatchingGraphicsFactory == false) {
+            // Wrap the graphics adapter in dispatching one
+            display.setGraphicsAdapter(new DispatchingGraphicsFactory(
+                    currAdapter, factory.createNewDispatcher(display)));
+            refreshPane(pane);
+            injected = true;
         }
+        return injected;
     }
 
     /**
-     * Removes remote graphics functionality from a display pane container
+     * Extracts the DispatchingGraphicsFactory from the given renderable display
      * 
-     * @param container
+     * @param display
      */
-    public static void extractRemoteFunctionality(
-            IDisplayPaneContainer container) {
-        for (IDisplayPane pane : container.getDisplayPanes()) {
-            IRenderableDisplay display = pane.getRenderableDisplay();
-            AbstractGraphicsFactoryAdapter adapter = display
-                    .getGraphicsAdapter();
-            if (adapter instanceof DispatchingGraphicsFactory) {
-                AbstractGraphicsFactoryAdapter wrapped = ((DispatchingGraphicsFactory) adapter).delegate;
-                display.setGraphicsAdapter(wrapped);
-                refreshPane(pane);
-            }
+    public static boolean extractRemoteFunctionality(IDisplayPane pane) {
+        boolean extracted = false;
+        IRenderableDisplay display = pane.getRenderableDisplay();
+        AbstractGraphicsFactoryAdapter adapter = display.getGraphicsAdapter();
+        if (adapter instanceof DispatchingGraphicsFactory) {
+            AbstractGraphicsFactoryAdapter wrapped = ((DispatchingGraphicsFactory) adapter).delegate;
+            display.setGraphicsAdapter(wrapped);
+            refreshPane(pane);
+            extracted = true;
         }
+        return extracted;
     }
 
+    /**
+     * Refresh the IDisplayPane and recycle the resources on the pane. Should be
+     * executed after graphics injection
+     * 
+     * @param pane
+     */
     private static void refreshPane(IDisplayPane pane) {
         IRenderableDisplay display = pane.getRenderableDisplay();
         IDescriptor descriptor = display.getDescriptor();
