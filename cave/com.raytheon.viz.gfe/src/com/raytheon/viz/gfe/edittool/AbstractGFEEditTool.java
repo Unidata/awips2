@@ -426,7 +426,7 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
             mouseDownPoint = point;
             mouseDownCoordinate = coord;
-            return false;
+            return true;
         }
 
         /*
