@@ -238,9 +238,11 @@ public class CollaborationDrawingResource extends
      */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
-        synchronized (layerMap) {
-            for (DrawingToolLayer layer : layerMap.values()) {
-                layer.reproject(descriptor.getGridGeometry());
+        if (layerMap != null) {
+            synchronized (layerMap) {
+                for (DrawingToolLayer layer : layerMap.values()) {
+                    layer.reproject(descriptor.getGridGeometry());
+                }
             }
         }
     }
