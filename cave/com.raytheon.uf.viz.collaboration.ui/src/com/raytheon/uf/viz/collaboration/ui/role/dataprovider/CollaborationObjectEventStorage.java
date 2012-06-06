@@ -308,7 +308,7 @@ public class CollaborationObjectEventStorage implements
         };
         mkcol.setURI(folderPath);
         HttpClientResponse rsp = executeRequest(mkcol);
-        if (isSuccess(rsp.code) == false) {
+        if (isSuccess(rsp.code) == false && isDirExists(rsp.code) == false) {
             throw new CollaborationException("Folder creation failed for "
                     + folderPath + ": " + new String(rsp.data));
         }
@@ -338,6 +338,10 @@ public class CollaborationObjectEventStorage implements
 
     private boolean isNotExists(int code) {
         return code == 404 || code == 410;
+    }
+
+    private boolean isDirExists(int code) {
+        return code == 405 || code == 301;
     }
 
     @DynamicSerialize
