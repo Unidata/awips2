@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
+import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
@@ -126,6 +127,8 @@ public class CollaborationDispatcher extends Dispatcher {
 
     private IRenderableDisplay display;
 
+    private IRenderableDisplay activeDisplay;
+
     public CollaborationDispatcher(ISharedDisplaySession session,
             IRenderableDisplay display) throws CollaborationException {
         this.session = session;
@@ -137,6 +140,28 @@ public class CollaborationDispatcher extends Dispatcher {
         // Not sure if we should show mouse location or not due to
         // bandwidth, messages are very small but frequent
         // display.getContainer().registerMouseHandler(mouseCapturer);
+    }
+
+    /**
+     * Update the active display to render for
+     * 
+     * @param display
+     */
+    public void setActiveDisplay(IRenderableDisplay active) {
+        if (display != active) {
+            disposeFrames();
+        }
+        this.activeDisplay = active;
+        display.refresh();
+    }
+
+    /**
+     * Returns the IRenderableDisplay this dispatcher is dispatching for
+     * 
+     * @return
+     */
+    public IRenderableDisplay getDisplay() {
+        return display;
     }
 
     @Subscribe
@@ -173,7 +198,10 @@ public class CollaborationDispatcher extends Dispatcher {
     @Override
     public void dispatch(AbstractRemoteGraphicsEvent eventObject) {
         if (eventObject instanceof IRenderFrameEvent) {
-            send(eventObject);
+            if (activeDisplay == display) {
+                // Only dispatch render frame events IF we are active
+                send(eventObject);
+            }
             return;
         }
         // Set PERSISTENCE to true if testing persisting capabilities
@@ -291,10 +319,21 @@ public class CollaborationDispatcher extends Dispatcher {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
         }
+        disposeFrames();
+        session.unRegisterEventHandler(this);
+
+        // Extract the remote functionality
+        for (IDisplayPane pane : display.getContainer().getDisplayPanes()) {
+            if (pane.getRenderableDisplay() == display) {
+                DispatchingGraphicsFactory.extractRemoteFunctionality(pane);
+            }
+        }
+    }
+
+    private void disposeFrames() {
         for (RenderFrame frame : previousFrames) {
             frame.dispose();
         }
         previousFrames.clear();
-        session.unRegisterEventHandler(this);
     }
 }

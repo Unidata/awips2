@@ -144,6 +144,7 @@ public class CollaborationResource extends
 
     @Override
     protected void disposeInternal() {
+        resourceData.getSession().unRegisterEventHandler(this);
         dataManager.dispose();
         renderingRouter = null;
     }
@@ -221,6 +222,7 @@ public class CollaborationResource extends
         ParticipantInitializedEvent event = new ParticipantInitializedEvent();
         event.setUserId(session.getUserID().getFQName());
         try {
+            session.registerEventHandler(this);
             session.sendObjectToPeer(session.getCurrentDataProvider(), event);
         } catch (CollaborationException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
