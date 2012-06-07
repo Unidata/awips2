@@ -76,6 +76,7 @@ public class DrawShadedShapeEvent extends AbstractDispatchingObjectEvent
     public Object clone() {
         DrawShadedShapeEvent newInstance = new DrawShadedShapeEvent();
         newInstance.applyDiffObject(this);
+        newInstance.setDisplayId(getDisplayId());
         return newInstance;
     }
 }

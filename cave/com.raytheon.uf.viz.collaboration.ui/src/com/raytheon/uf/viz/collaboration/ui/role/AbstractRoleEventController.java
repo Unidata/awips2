@@ -182,16 +182,20 @@ public abstract class AbstractRoleEventController implements
         for (AbstractEditor editor : resourceEditors) {
             if (editor == part) {
                 for (IDisplayPane pane : editor.getDisplayPanes()) {
-                    ResourceList list = pane.getDescriptor().getResourceList();
-                    list.removePostRemoveListener(this);
-                    for (ResourcePair rp : list) {
-                        if (resourcesAdded.contains(rp)) {
-                            resourcesAdded.remove(rp);
-                            list.remove(rp);
-                        }
-                    }
+                    deactivateResources(pane.getRenderableDisplay());
                 }
                 resourceEditors.remove(editor);
+            }
+        }
+    }
+
+    protected void deactivateResources(IRenderableDisplay display) {
+        ResourceList list = display.getDescriptor().getResourceList();
+        list.removePostRemoveListener(this);
+        for (ResourcePair rp : list) {
+            if (resourcesAdded.contains(rp)) {
+                resourcesAdded.remove(rp);
+                list.remove(rp);
             }
         }
     }

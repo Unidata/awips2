@@ -8,7 +8,7 @@
             default="true"
             id="com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor"
             icon="icons/messages.gif"
-            name="Map">
+            name="Collaboration">
       </editor>
    </extension>   
 
