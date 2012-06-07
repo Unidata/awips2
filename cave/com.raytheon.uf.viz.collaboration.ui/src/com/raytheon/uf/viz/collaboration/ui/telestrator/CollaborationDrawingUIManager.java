@@ -63,7 +63,7 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
                 view = (CollaborationSessionView) page.findViewReference(
                         CollaborationSessionView.ID,
                         resource.getContainer().getSessionId()).getPart(false);
-                view.drawingLayerUpdate();
+                view.updateToolItems();
             }
         });
     }
@@ -81,16 +81,11 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.drawing.DrawingToolUIManager#handleMouseDown(int,
-     * int, int)
+     * @see com.raytheon.uf.viz.drawing.DrawingToolUIManager#canTellestrate(int)
      */
     @Override
-    public boolean handleMouseDown(int x, int y, int mouseButton) {
-        if (resource.canTellestrate() == false) {
-            return false;
-        }
-        return super.handleMouseDown(x, y, mouseButton);
+    protected boolean canTellestrate(int mouseButton) {
+        return super.canTellestrate(mouseButton) && resource.canTellestrate();
     }
 
     /*
@@ -103,7 +98,7 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
     public boolean handleMouseUp(int x, int y, int mouseButton) {
         boolean rval = super.handleMouseUp(x, y, mouseButton);
         if (rval) {
-            view.drawingLayerUpdate();
+            view.updateToolItems();
         }
         return rval;
     }
