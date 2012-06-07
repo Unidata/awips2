@@ -113,35 +113,15 @@ public class CollaborationSessionView extends SessionView implements
 
     private ISharedDisplaySession session;
 
-    private DrawingToolLayer layer;
-
-    private CollaborationDrawingResource resource;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#createPartControl
-     * (org.eclipse.swt.widgets.Composite)
-     */
-    @Override
-    public void createPartControl(Composite parent) {
-        super.createPartControl(parent);
-        assignLayer();
-    }
-
-    public boolean assignLayer() {
+    private CollaborationDrawingResource getCurrentResource() {
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(sessionId);
         ResourceList toSearch = null;
         IEditorPart part = null;
         if (sc.getCollaborationEditor() == null) {
-            // if the editor has not been started in the participant yet
-            if (sc.getSharedEditors() == null) {
-                return false;
-            }
             for (AbstractEditor editor : sc.getSharedEditors()) {
                 part = editor;
+                break;
             }
         } else {
             part = SharedDisplaySessionMgr.getSessionContainer(sessionId)
@@ -151,24 +131,21 @@ public class CollaborationSessionView extends SessionView implements
             AbstractEditor editor = (AbstractEditor) part;
             for (IDisplayPane pane : editor.getDisplayPanes()) {
                 toSearch = pane.getDescriptor().getResourceList();
-                resource = (CollaborationDrawingResource) toSearch
-                        .getResourcesByTypeAsType(
-                                CollaborationDrawingResource.class).get(0);
-                layer = resource.getDrawingLayerFor(resource.getMyUser());
-                return true;
+                for (CollaborationDrawingResource rsc : toSearch
+                        .getResourcesByTypeAsType(CollaborationDrawingResource.class)) {
+                    return rsc;
+                }
             }
         }
-        return false;
+        return null;
     }
 
-    public void drawingLayerUpdate() {
-        boolean assigned = true;
-        if (layer == null) {
-            assigned = assignLayer();
+    private DrawingToolLayer getCurrentLayer() {
+        CollaborationDrawingResource resource = getCurrentResource();
+        if (resource != null) {
+            return resource.getDrawingLayerFor(resource.getMyUser());
         }
-        if (assigned) {
-            updateToolItems();
-        }
+        return null;
     }
 
     /*
@@ -219,6 +196,7 @@ public class CollaborationSessionView extends SessionView implements
         drawAction = new ActionContributionItem(new Action("Draw", SWT.TOGGLE) {
             @Override
             public void run() {
+                DrawingToolLayer layer = getCurrentLayer();
                 if (layer.getDrawMode() == DrawMode.DRAW) {
                     layer.setDrawMode(DrawMode.NONE);
                 } else {
@@ -235,7 +213,10 @@ public class CollaborationSessionView extends SessionView implements
         undoAction = new ActionContributionItem(new Action("Undo") {
             @Override
             public void run() {
-                layer.undo();
+                DrawingToolLayer layer = getCurrentLayer();
+                if (layer != null) {
+                    layer.undo();
+                }
                 updateToolItems();
             }
         });
@@ -247,7 +228,10 @@ public class CollaborationSessionView extends SessionView implements
         redoAction = new ActionContributionItem(new Action("Redo") {
             @Override
             public void run() {
-                layer.redo();
+                DrawingToolLayer layer = getCurrentLayer();
+                if (layer != null) {
+                    layer.redo();
+                }
                 updateToolItems();
             }
         });
@@ -260,10 +244,13 @@ public class CollaborationSessionView extends SessionView implements
                 new Action("Erase", SWT.TOGGLE) {
                     @Override
                     public void run() {
-                        if (layer.getDrawMode() == DrawMode.ERASE) {
-                            layer.setDrawMode(DrawMode.NONE);
-                        } else {
-                            layer.setDrawMode(DrawMode.ERASE);
+                        DrawingToolLayer layer = getCurrentLayer();
+                        if (layer != null) {
+                            if (layer.getDrawMode() == DrawMode.ERASE) {
+                                layer.setDrawMode(DrawMode.NONE);
+                            } else {
+                                layer.setDrawMode(DrawMode.ERASE);
+                            }
                         }
                         updateToolItems();
                     }
@@ -275,7 +262,10 @@ public class CollaborationSessionView extends SessionView implements
 
         clearAction = new ActionContributionItem(new Action("Clear") {
             public void run() {
-                layer.clear();
+                DrawingToolLayer layer = getCurrentLayer();
+                if (layer != null) {
+                    layer.clear();
+                }
                 updateToolItems();
             };
         });
@@ -287,9 +277,12 @@ public class CollaborationSessionView extends SessionView implements
         lockAction = new ActionContributionItem(new Action(
                 "Lock Collaborators", SWT.TOGGLE) {
             public void run() {
-                resource.setLockingDrawing(((ToolItem) lockAction.getWidget())
-                        .getSelection());
-                updateToolItems();
+                CollaborationDrawingResource resource = getCurrentResource();
+                if (resource != null) {
+                    resource.setLockingDrawing(((ToolItem) lockAction
+                            .getWidget()).getSelection());
+                    updateToolItems();
+                }
             };
         });
         lockAction.getAction().setImageDescriptor(
@@ -308,11 +301,8 @@ public class CollaborationSessionView extends SessionView implements
     }
 
     public void updateToolItems() {
-        boolean assigned = true;
-        if (layer == null) {
-            assigned = assignLayer();
-        }
-        if (assigned) {
+        DrawingToolLayer layer = getCurrentLayer();
+        if (layer != null) {
             drawAction.getAction().setEnabled(true);
             undoAction.getAction().setEnabled(layer.canUndo());
             redoAction.getAction().setEnabled(layer.canRedo());
@@ -332,7 +322,8 @@ public class CollaborationSessionView extends SessionView implements
                 eraseAction.getAction().setChecked(false);
                 break;
             }
-            if (!resource.isSessionLeader()) {
+            CollaborationDrawingResource resource = getCurrentResource();
+            if (resource != null && !resource.isSessionLeader()) {
                 lockAction.getAction().setEnabled(false);
             }
         }
@@ -437,7 +428,8 @@ public class CollaborationSessionView extends SessionView implements
     @Subscribe
     public void receiveLocking(CollaborationDrawingEvent event) {
         if (event.getType() == CollaborationEventType.TOGGLE_LOCK) {
-            if (!resource.isSessionLeader()) {
+            CollaborationDrawingResource resource = getCurrentResource();
+            if (resource != null && !resource.isSessionLeader()) {
                 if (drawAction.getAction().isEnabled()) {
                     drawAction.getAction().setEnabled(false);
                     undoAction.getAction().setEnabled(false);
@@ -486,6 +478,8 @@ public class CollaborationSessionView extends SessionView implements
         super.dispose();
         getSite().getPage().removePartListener(this);
     }
+
+    // =================== Context activation code ===================
 
     /*
      * (non-Javadoc)
