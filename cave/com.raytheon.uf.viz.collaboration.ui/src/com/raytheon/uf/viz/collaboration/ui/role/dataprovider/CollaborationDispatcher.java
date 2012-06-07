@@ -44,7 +44,6 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
-import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
@@ -134,7 +133,7 @@ public class CollaborationDispatcher extends Dispatcher {
         this.session = session;
         this.display = display;
         this.persistance = CollaborationObjectEventStorage
-                .createPersistanceObject(session);
+                .createPersistanceObject(session, this);
         session.registerEventHandler(this);
         // TODO:
         // Not sure if we should show mouse location or not due to
@@ -321,13 +320,6 @@ public class CollaborationDispatcher extends Dispatcher {
         }
         disposeFrames();
         session.unRegisterEventHandler(this);
-
-        // Extract the remote functionality
-        for (IDisplayPane pane : display.getContainer().getDisplayPanes()) {
-            if (pane.getRenderableDisplay() == display) {
-                DispatchingGraphicsFactory.extractRemoteFunctionality(pane);
-            }
-        }
     }
 
     private void disposeFrames() {
