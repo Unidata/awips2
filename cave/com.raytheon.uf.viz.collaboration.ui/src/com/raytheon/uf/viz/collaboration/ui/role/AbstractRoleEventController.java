@@ -30,10 +30,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResourceData;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -85,11 +85,10 @@ public abstract class AbstractRoleEventController implements
 
         // Orphaned tellestrators, not sure what to do yet about clear
         for (AbstractEditor editor : resourceEditors) {
-            partClosed(editor);
+            deactivateResources(editor);
         }
         for (ResourcePair rp : resourcesAdded) {
-            CollaborationDrawingResource resource = (CollaborationDrawingResource) rp
-                    .getResource();
+            AbstractVizResource<?, ?> resource = rp.getResource();
             if (resource != null) {
                 resource.getDescriptor().getResourceList()
                         .removePostRemoveListener(this);
@@ -102,25 +101,28 @@ public abstract class AbstractRoleEventController implements
 
     protected void activateResources(AbstractEditor editor) {
         for (IDisplayPane pane : editor.getDisplayPanes()) {
-            try {
-                IDescriptor descriptor = pane.getDescriptor();
-                for (ResourcePair resource : getResourcesToAdd()) {
-                    if (resource.getResource() == null) {
-                        resource.setResource(resource.getResourceData()
-                                .construct(resource.getLoadProperties(),
-                                        descriptor));
-                    }
-                    descriptor.getResourceList().add(resource);
-                    descriptor.getResourceList().addPostRemoveListener(this);
-                    resourcesAdded.add(resource);
-                }
-            } catch (VizException e) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
-                        "Error adding drawing resource to pane", e);
-            }
+            activateResources(pane.getRenderableDisplay());
         }
         resourceEditors.add(editor);
         editor.getSite().getPage().addPartListener(this);
+    }
+
+    protected void activateResources(IRenderableDisplay display) {
+        try {
+            IDescriptor descriptor = display.getDescriptor();
+            for (ResourcePair resource : getResourcesToAdd()) {
+                if (resource.getResource() == null) {
+                    resource.setResource(resource.getResourceData().construct(
+                            resource.getLoadProperties(), descriptor));
+                }
+                descriptor.getResourceList().add(resource);
+                descriptor.getResourceList().addPostRemoveListener(this);
+                resourcesAdded.add(resource);
+            }
+        } catch (VizException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    "Error adding drawing resource to pane", e);
+        }
     }
 
     protected void deactivateResources(AbstractEditor editor) {
