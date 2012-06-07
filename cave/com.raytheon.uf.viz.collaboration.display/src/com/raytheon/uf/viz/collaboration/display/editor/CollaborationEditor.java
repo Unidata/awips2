@@ -19,24 +19,19 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.editor;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.ISaveablePart2;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.part.EditorPart;
 
-import com.raytheon.uf.viz.collaboration.display.editor.input.CollaborationInputHandler;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.rsc.IInputHandler;
-import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.InputManager;
-import com.raytheon.viz.ui.panes.PaneManager;
 
 /**
  * A collaboration editor that displays the display of an editor shared by the
@@ -56,117 +51,132 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * @version 1.0
  */
 
-public class CollaborationEditor extends AbstractEditor {
+public class CollaborationEditor extends EditorPart implements ISaveablePart2 {
 
     public static final String EDITOR_ID = "com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor";
 
     private String sessionId;
 
-    private Composite wrapperComp;
+    private IRenderableDisplay display;
 
-    private Composite canvasComp;
+    private CollaborationPaneManager paneManager;
 
-    private ScrolledComposite scrollable;
-
-    private Rectangle scrollableBounds;
-
-    private Rectangle canvasBounds;
-
-    private CollaborationInputHandler inputHandler = new CollaborationInputHandler();
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.part.EditorPart#init(org.eclipse.ui.IEditorSite,
+     * org.eclipse.ui.IEditorInput)
+     */
     @Override
-    protected PaneManager getNewPaneManager() {
-        return new PaneManager() {
-            @Override
-            public IDisplayPane addPane(IRenderableDisplay renderableDisplay) {
-                // // scrollable composite
-                scrollable = new ScrolledComposite(composite, SWT.H_SCROLL
-                        | SWT.V_SCROLL);
-                scrollable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                        true));
-
-                // Composite for canvas comp
-                wrapperComp = new Composite(scrollable, SWT.NONE);
-                GridLayout gl = new GridLayout(1, false);
-                gl.marginHeight = 0;
-                gl.marginWidth = 0;
-                // Sets background color of wrapper composite to white
-                wrapperComp.setBackground(wrapperComp.getDisplay()
-                        .getSystemColor(SWT.COLOR_WHITE));
-                wrapperComp.setSize(1000, 1000);
-
-                canvasComp = new Composite(wrapperComp, SWT.NONE);
-                canvasComp.setLayout(gl);
-                canvasComp.setSize(1000, 1000);
-
-                // Set canvasComp as content on scrollable
-                scrollable.setContent(wrapperComp);
-                scrollable.addListener(SWT.Resize, new Listener() {
-                    @Override
-                    public void handleEvent(Event event) {
-                        scrollableBounds = ((Composite) event.widget)
-                                .getBounds();
-                        setCanvasSize(canvasBounds);
-                    }
-                });
-
-                IDisplayPane pane = addPane(renderableDisplay, canvasComp);
-                canvasComp.layout();
-                scrollableBounds = scrollable.getBounds();
-                canvasBounds = canvasComp.getBounds();
-                return pane;
-            }
-        };
+    public void init(IEditorSite site, IEditorInput input)
+            throws PartInitException {
+        setInput(input);
+        setSite(site);
+        CollaborationEditorInput cei = (CollaborationEditorInput) input;
+        setPartName(cei.getName());
+        this.sessionId = cei.getSessionId();
+        this.display = cei.getDisplay();
+        display.getDescriptor().getResourceList()
+                .instantiateResources(display.getDescriptor(), true);
+        paneManager = new CollaborationPaneManager();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets
+     * .Composite)
+     */
     @Override
-    protected void addCustomHandlers(InputManager manager) {
-        super.registerMouseHandler(inputHandler, InputPriority.SYSTEM_RESOURCE);
+    public void createPartControl(Composite parent) {
+        paneManager.initializeComponents(paneManager, parent);
+        paneManager.addPane(display);
     }
 
-    @Override
-    public void registerMouseHandler(IInputHandler handler) {
-        inputHandler.registerInputHandler(handler);
-    }
-
-    @Override
-    public void unregisterMouseHandler(IInputHandler handler) {
-        inputHandler.unregisterInputHandler(handler);
+    public InputManager getInputManager() {
+        return paneManager.getMouseManager();
     }
 
     public String getSessionId() {
         return sessionId;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public IRenderableDisplay getDisplay() {
+        return display;
+    }
+
+    public IDisplayPane getActiveDisplayPane() {
+        return paneManager.getActiveDisplayPane();
     }
 
     public void setCanvasSize(Rectangle bounds) {
-        canvasBounds = bounds;
-        canvasComp.setSize(bounds.width, bounds.height);
+        paneManager.setCanvasSize(bounds);
+    }
 
-        Rectangle scrollableBounds = new Rectangle(this.scrollableBounds.x,
-                this.scrollableBounds.y, this.scrollableBounds.width,
-                this.scrollableBounds.height);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.part.EditorPart#isDirty()
+     */
+    @Override
+    public boolean isDirty() {
+        return true;
+    }
 
-        // Subtract size of scroll bars if visible
-        ScrollBar vertical = scrollable.getVerticalBar();
-        ScrollBar horizon = scrollable.getHorizontalBar();
-        if (scrollableBounds.width <= canvasBounds.width) {
-            scrollableBounds.height -= horizon.getSize().y;
-        }
-        if (scrollableBounds.height <= canvasBounds.height) {
-            scrollableBounds.width -= vertical.getSize().x;
-        }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.part.EditorPart#doSave(org.eclipse.core.runtime.
+     * IProgressMonitor)
+     */
+    @Override
+    public void doSave(IProgressMonitor monitor) {
 
-        wrapperComp.setSize(
-                Math.max(canvasBounds.width, scrollableBounds.width),
-                Math.max(canvasBounds.height, scrollableBounds.height));
-        canvasComp.setLocation(
-                Math.max(0, (scrollableBounds.width - bounds.width) / 2),
-                Math.max(0, (scrollableBounds.height - bounds.height) / 2));
-        wrapperComp.layout();
-        canvasComp.layout();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.part.EditorPart#doSaveAs()
+     */
+    @Override
+    public void doSaveAs() {
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.part.EditorPart#isSaveAsAllowed()
+     */
+    @Override
+    public boolean isSaveAsAllowed() {
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.part.WorkbenchPart#setFocus()
+     */
+    @Override
+    public void setFocus() {
+        paneManager.setFocus();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.ISaveablePart2#promptToSaveOnClose()
+     */
+    @Override
+    public int promptToSaveOnClose() {
+        // Let the user know why we refuse to close the editor
+        MessageDialog.openError(getSite().getShell(), "Closing Disabled",
+                "Please close the \"" + getPartName()
+                        + "\" chat to exit the session.");
+        // Cancel the clsoe
+        return ISaveablePart2.CANCEL;
     }
 }

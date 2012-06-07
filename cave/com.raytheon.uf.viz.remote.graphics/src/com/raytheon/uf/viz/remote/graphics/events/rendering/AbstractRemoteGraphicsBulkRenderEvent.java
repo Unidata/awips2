@@ -165,6 +165,7 @@ public abstract class AbstractRemoteGraphicsBulkRenderEvent<T extends IRenderEve
                     newObject.objects[i] = (T) objects[i].clone();
                 }
             }
+            newObject.setDisplayId(getDisplayId());
             return newObject;
         } catch (Exception e) {
             throw new RuntimeException("Could not clone "
