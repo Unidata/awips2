@@ -47,7 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class CollaborationDrawingEvent {
 
     public static enum CollaborationEventType {
-        DRAW, ERASE, REDO, UNDO, CLEAR, TOGGLE_LOCK;
+        DRAW, ERASE, REDO, UNDO, CLEAR, TOGGLE_LOCK, CLEAR_ALL;
     }
 
     @DynamicSerializeElement
