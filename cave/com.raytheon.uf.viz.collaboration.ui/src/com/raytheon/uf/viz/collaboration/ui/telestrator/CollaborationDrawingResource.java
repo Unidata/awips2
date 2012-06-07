@@ -130,6 +130,11 @@ public class CollaborationDrawingResource extends
 
             ColorableCapability colorable = getCapability(ColorableCapability.class);
             colorable.setSuppressingMenuItems(true);
+
+            CollaborationDrawingEvent event = new CollaborationDrawingEvent();
+            event.setUserName(myUser);
+            event.setType(CollaborationEventType.CLEAR_ALL);
+            sendEvent(event);
         }
 
         manager = new CollaborationDrawingUIManager(this);
@@ -176,14 +181,18 @@ public class CollaborationDrawingResource extends
      */
     @Override
     protected void disposeInternal() {
-        for (DrawingToolLayer layer : layerMap.values()) {
-            layer.dispose();
-        }
+        disposeLayers();
         layerMap.clear();
         layerMap = null;
 
         manager.dispose();
         container.getSession().unRegisterEventHandler(this);
+    }
+
+    private void disposeLayers() {
+        for (DrawingToolLayer layer : layerMap.values()) {
+            layer.dispose();
+        }
     }
 
     /**
@@ -345,6 +354,9 @@ public class CollaborationDrawingResource extends
                 break;
             case UNDO:
                 layer.undo();
+                break;
+            case CLEAR_ALL:
+                disposeLayers();
                 break;
             }
         }
