@@ -64,8 +64,8 @@ import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingReso
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
 import com.raytheon.uf.viz.core.ContextManager;
-import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
@@ -114,28 +114,32 @@ public class CollaborationSessionView extends SessionView implements
     private ISharedDisplaySession session;
 
     private CollaborationDrawingResource getCurrentResource() {
+        CollaborationDrawingResource resource = null;
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(sessionId);
-        ResourceList toSearch = null;
-        IEditorPart part = null;
+        List<IRenderableDisplay> displays = new ArrayList<IRenderableDisplay>();
         if (sc.getCollaborationEditor() == null) {
             for (AbstractEditor editor : sc.getSharedEditors()) {
-                part = editor;
-                break;
-            }
-        } else {
-            part = SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                    .getCollaborationEditor();
-        }
-        if (part instanceof AbstractEditor) {
-            AbstractEditor editor = (AbstractEditor) part;
-            for (IDisplayPane pane : editor.getDisplayPanes()) {
-                toSearch = pane.getDescriptor().getResourceList();
-                for (CollaborationDrawingResource rsc : toSearch
-                        .getResourcesByTypeAsType(CollaborationDrawingResource.class)) {
-                    return rsc;
+                ResourceList list = editor.getActiveDisplayPane()
+                        .getDescriptor().getResourceList();
+                resource = getCurrentResource(list);
+                if (resource != null) {
+                    break;
                 }
             }
+        } else {
+            resource = getCurrentResource(SharedDisplaySessionMgr
+                    .getSessionContainer(sessionId).getCollaborationEditor()
+                    .getDisplay().getDescriptor().getResourceList());
+        }
+
+        return resource;
+    }
+
+    private CollaborationDrawingResource getCurrentResource(ResourceList rl) {
+        for (CollaborationDrawingResource resource : rl
+                .getResourcesByTypeAsType(CollaborationDrawingResource.class)) {
+            return resource;
         }
         return null;
     }
