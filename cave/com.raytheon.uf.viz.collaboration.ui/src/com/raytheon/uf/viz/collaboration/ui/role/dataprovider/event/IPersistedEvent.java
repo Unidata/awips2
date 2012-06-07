@@ -39,4 +39,6 @@ package com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event;
 
 public interface IPersistedEvent {
 
+    public int getDisplayId();
+
 }
