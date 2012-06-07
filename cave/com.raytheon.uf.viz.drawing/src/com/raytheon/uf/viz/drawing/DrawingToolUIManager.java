@@ -110,7 +110,7 @@ public class DrawingToolUIManager extends InputAdapter {
      */
     @Override
     public boolean handleMouseExit(Event event) {
-        if (!handlingInput) {
+        if (canTellestrate(event.button)) {
             if (currentShell != null) {
                 currentShell.setCursor(normal);
             }
@@ -127,7 +127,7 @@ public class DrawingToolUIManager extends InputAdapter {
      */
     @Override
     public boolean handleMouseEnter(Event event) {
-        if (handlingInput == false) {
+        if (canTellestrate(event.button)) {
             currentShell = ((Control) event.widget).getShell();
             switch (drawingLayer.getDrawMode()) {
             case DRAW:
@@ -151,8 +151,7 @@ public class DrawingToolUIManager extends InputAdapter {
      */
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
-        if (mouseButton != 1 || drawingLayer.getDrawMode() == DrawMode.NONE
-                || handlingInput) {
+        if (!canTellestrate(mouseButton)) {
             return false;
         }
         handlingInput = true;
@@ -200,4 +199,8 @@ public class DrawingToolUIManager extends InputAdapter {
         return true;
     }
 
+    protected boolean canTellestrate(int mouseButton) {
+        return handlingInput == false && mouseButton == 1
+                && drawingLayer.getDrawMode() != DrawMode.NONE;
+    }
 }

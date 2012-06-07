@@ -102,7 +102,10 @@ public class DataProviderEventController extends AbstractRoleEventController
             try {
                 CollaborationDispatcher dispatcher = new CollaborationDispatcher(
                         session, display);
-                dispatchers.add(dispatcher);
+                synchronized (dispatchers) {
+                    dispatchers.add(dispatcher);
+                    dispatcher.setActiveDisplay(activeDisplay);
+                }
                 return dispatcher;
             } catch (CollaborationException e) {
                 throw new InstantiationException(
@@ -113,6 +116,8 @@ public class DataProviderEventController extends AbstractRoleEventController
     };
 
     private List<CollaborationDispatcher> dispatchers = new LinkedList<CollaborationDispatcher>();
+
+    private IRenderableDisplay activeDisplay;
 
     public DataProviderEventController(ISharedDisplaySession session) {
         super(session);
@@ -280,8 +285,11 @@ public class DataProviderEventController extends AbstractRoleEventController
     }
 
     private void setActiveDisplay(IRenderableDisplay display) {
-        for (CollaborationDispatcher dispatcher : dispatchers) {
-            dispatcher.setActiveDisplay(display);
+        synchronized (dispatchers) {
+            this.activeDisplay = display;
+            for (CollaborationDispatcher dispatcher : dispatchers) {
+                dispatcher.setActiveDisplay(display);
+            }
         }
         ReprojectEditor event = new ReprojectEditor();
         event.setTargetGeometry(display.getDescriptor().getGridGeometry());
@@ -295,7 +303,22 @@ public class DataProviderEventController extends AbstractRoleEventController
         }
     }
 
-    private void handleNewDisplay(IDisplayPane pane) {
+    /**
+     * Handles a new display pane
+     * 
+     * @param pane
+     * @return true if the pane is not currently being handled by the controller
+     */
+    private boolean handleNewDisplay(IDisplayPane pane) {
+        boolean newDisplay = false;
+        synchronized (dispatchers) {
+            for (CollaborationDispatcher dispatcher : dispatchers) {
+                if (dispatcher.getDisplay() == pane.getRenderableDisplay()) {
+                    // We already have a dispatcher for this display
+                    return false;
+                }
+            }
+        }
         try {
             if (DispatchingGraphicsFactory.injectRemoteFunctionality(pane,
                     factory)) {
@@ -306,10 +329,12 @@ public class DataProviderEventController extends AbstractRoleEventController
                 }
                 list.addPreAddListener(wrappingListener);
                 list.addPostRemoveListener(wrappingListener);
+                newDisplay = true;
             }
         } catch (InstantiationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
+        return newDisplay;
     }
 
     /*
@@ -407,7 +432,6 @@ public class DataProviderEventController extends AbstractRoleEventController
                 .getSessionContainer(session.getSessionId());
         if (sc != null) {
             for (AbstractEditor editor : sc.getSharedEditors()) {
-                super.deactivateResources(editor);
                 for (IDisplayPane pane : editor.getDisplayPanes()) {
                     ResourceList list = pane.getDescriptor().getResourceList();
                     for (ResourcePair rp : list) {
@@ -416,12 +440,16 @@ public class DataProviderEventController extends AbstractRoleEventController
                     list.removePreAddListener(wrappingListener);
                     list.removePostRemoveListener(wrappingListener);
                 }
+                editor.removeRenderableDisplayChangedListener(this);
             }
         }
 
-        // Dispatchers created are responsible for display extraction
-        for (CollaborationDispatcher dispatcher : dispatchers) {
-            dispatcher.dispose();
+        synchronized (dispatchers) {
+            // Dispatchers created are responsible for display extraction
+            for (CollaborationDispatcher dispatcher : dispatchers) {
+                dispatcher.dispose();
+            }
+            dispatchers.clear();
         }
     }
 
@@ -457,8 +485,19 @@ public class DataProviderEventController extends AbstractRoleEventController
     public void renderableDisplayChanged(IDisplayPane pane,
             IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
         if (type == DisplayChangeType.ADD) {
-            handleNewDisplay(pane);
-            setActiveDisplay(newRenderableDisplay);
+            if (handleNewDisplay(pane)) {
+                activateResources(newRenderableDisplay);
+            }
+            if (newRenderableDisplay.getGraphicsAdapter() instanceof DispatchingGraphicsFactory) {
+                synchronized (dispatchers) {
+                    for (CollaborationDispatcher dispatcher : dispatchers) {
+                        if (dispatcher.getDisplay() == newRenderableDisplay) {
+                            setActiveDisplay(newRenderableDisplay);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
