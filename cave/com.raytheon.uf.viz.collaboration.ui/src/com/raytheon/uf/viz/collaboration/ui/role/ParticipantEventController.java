@@ -78,24 +78,19 @@ public class ParticipantEventController extends AbstractRoleEventController {
 
             @Override
             public void run() {
-                // initialize and open editor
-                CollaborationEditor editor = EditorSetup.createEditor(se);
                 String sessionId = ParticipantEventController.this.session
                         .getSessionId();
-                editor.setSessionId(sessionId);
                 SessionContainer container = SharedDisplaySessionMgr
                         .getSessionContainer(sessionId);
-                container.setCollaborationEditor(editor);
                 String title = session.getVenue().getInfo()
                         .getVenueDescription();
-                editor.setTabTitle(title);
-                editor.disableClose("Please close the \"" + title
-                        + "\" chat to exit the session.");
 
-                initializeResources(editor.getActiveDisplayPane()
-                        .getDescriptor());
-
-                activateResources(editor);
+                // initialize and open editor
+                CollaborationEditor editor = EditorSetup.createEditor(se,
+                        sessionId, title);
+                container.setCollaborationEditor(editor);
+                initializeResources(editor.getDisplay().getDescriptor());
+                activateResources(editor.getDisplay());
             }
         });
     }
@@ -110,23 +105,21 @@ public class ParticipantEventController extends AbstractRoleEventController {
                         .getCollaborationEditor();
                 if (editor != null) {
                     // Only reproject if editor has been created
-                    for (IDisplayPane pane : editor.getDisplayPanes()) {
-                        IDescriptor desc = pane.getDescriptor();
-                        if (desc instanceof AbstractDescriptor) {
-                            try {
-                                ((AbstractDescriptor) desc)
-                                        .setGridGeometry(event
-                                                .getTargetGeometry());
-                            } catch (VizException e) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        "Error reprojecting collaboration display: "
-                                                + e.getLocalizedMessage(), e);
-                            }
+                    IDisplayPane pane = editor.getActiveDisplayPane();
+                    IDescriptor desc = pane.getDescriptor();
+                    if (desc instanceof AbstractDescriptor) {
+                        try {
+                            ((AbstractDescriptor) desc).setGridGeometry(event
+                                    .getTargetGeometry());
+                        } catch (VizException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error reprojecting collaboration display: "
+                                            + e.getLocalizedMessage(), e);
                         }
-                        pane.setZoomLevel(1.0);
-                        pane.scaleToClientArea();
-                        pane.refresh();
                     }
+                    pane.setZoomLevel(1.0);
+                    pane.scaleToClientArea();
+                    pane.refresh();
                 }
             }
         });
@@ -185,7 +178,8 @@ public class ParticipantEventController extends AbstractRoleEventController {
         SessionContainer container = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
         if (container != null) {
-            super.deactivateResources(container.getCollaborationEditor());
+            super.deactivateResources(container.getCollaborationEditor()
+                    .getDisplay());
         }
     }
 
