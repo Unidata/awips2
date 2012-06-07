@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.IPersistedEvent;
+import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
@@ -73,23 +74,33 @@ public class CollaborationObjectEventStorage implements
             .getDefault().getNetworkStats();
 
     public static IObjectEventPersistance createPersistanceObject(
-            ISharedDisplaySession session) throws CollaborationException {
+            ISharedDisplaySession session, Dispatcher dispatcher)
+            throws CollaborationException {
         CollaborationObjectEventStorage persistance = new CollaborationObjectEventStorage(
-                session);
+                session, dispatcher.getDispatcherId());
+        persistance.createFolder(URI.create(persistance.sessionDataURL));
+        persistance.sessionDataURL += persistance.displayId + "/";
         persistance.createFolder(URI.create(persistance.sessionDataURL));
         return persistance;
     }
 
     public static IObjectEventRetrieval createRetrievalObject(
-            ISharedDisplaySession session) {
-        return new CollaborationObjectEventStorage(session);
+            ISharedDisplaySession session, int displayId) {
+        CollaborationObjectEventStorage persistance = new CollaborationObjectEventStorage(
+                session, displayId);
+        persistance.sessionDataURL += persistance.displayId + "/";
+        return persistance;
     }
 
     private String sessionDataURL;
 
     private HttpClient client;
 
-    private CollaborationObjectEventStorage(ISharedDisplaySession session) {
+    private int displayId;
+
+    private CollaborationObjectEventStorage(ISharedDisplaySession session,
+            int displayId) {
+        this.displayId = displayId;
         this.client = HttpClient.getInstance();
         this.sessionDataURL = Activator
                 .getDefault()
@@ -116,6 +127,7 @@ public class CollaborationObjectEventStorage implements
             deleteResource(URI.create(sessionDataURL + event.getObjectId()
                     + "/"));
             CollaborationWrappedEvent wrapped = new CollaborationWrappedEvent();
+            wrapped.setDisplayId(displayId);
             wrapped.setEvent(event);
             return wrapped;
         }
@@ -141,6 +153,7 @@ public class CollaborationObjectEventStorage implements
                                 + ") to server @ " + eventObjectURL + " : "
                                 + new String(response.data));
             }
+            wrapped.setDisplayId(displayId);
             wrapped.setResourcePath(objectPath);
             return wrapped;
         } catch (CollaborationException e) {
@@ -392,6 +405,9 @@ public class CollaborationObjectEventStorage implements
             IPersistedEvent {
 
         @DynamicSerializeElement
+        private int displayId;
+
+        @DynamicSerializeElement
         private String resourcePath;
 
         /**
@@ -408,10 +424,33 @@ public class CollaborationObjectEventStorage implements
         public void setResourcePath(String resourceURL) {
             this.resourcePath = resourceURL;
         }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.
+         * IPersistedEvent#getDisplayId()
+         */
+        @Override
+        public int getDisplayId() {
+            return displayId;
+        }
+
+        /**
+         * @param displayId
+         *            the displayId to set
+         */
+        public void setDisplayId(int displayId) {
+            this.displayId = displayId;
+        }
+
     }
 
     @DynamicSerialize
     public static class CollaborationWrappedEvent implements IPersistedEvent {
+
+        @DynamicSerializeElement
+        private int displayId;
 
         @DynamicSerializeElement
         private AbstractDispatchingObjectEvent event;
@@ -429,6 +468,25 @@ public class CollaborationObjectEventStorage implements
          */
         public void setEvent(AbstractDispatchingObjectEvent event) {
             this.event = event;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.collaboration.ui.role.dataprovider.event.
+         * IPersistedEvent#getDisplayId()
+         */
+        @Override
+        public int getDisplayId() {
+            return displayId;
+        }
+
+        /**
+         * @param displayId
+         *            the displayId to set
+         */
+        public void setDisplayId(int displayId) {
+            this.displayId = displayId;
         }
 
     }
