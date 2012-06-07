@@ -99,12 +99,15 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
 
     private CollaborationResource resource;
 
+    private int displayId;
+
     public CollaborationRenderingDataManager(ISharedDisplaySession session,
-            CollaborationResource resource) {
+            CollaborationResource resource, int displayId) {
         this.resource = resource;
         this.disposerRouter = new EventBus();
-        this.retrieval = CollaborationObjectEventStorage
-                .createRetrievalObject(session);
+        this.retrieval = CollaborationObjectEventStorage.createRetrievalObject(
+                session, displayId);
+        this.displayId = displayId;
     }
 
     /**
@@ -185,7 +188,7 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
             }
         } else if (retrieve) {
             try {
-                resource.lockObject(objectId);
+                resource.lockObject(displayId, objectId);
                 AbstractDispatchingObjectEvent[] events = retrieveObjectEvents(objectId);
                 for (AbstractDispatchingObjectEvent event : events) {
                     resource.postObjectEvent(event);
@@ -197,7 +200,7 @@ public class CollaborationRenderingDataManager implements IObjectEventRetrieval 
                         "Error retrieving object events: "
                                 + e.getLocalizedMessage(), e);
             } finally {
-                resource.unlockObject(objectId);
+                resource.unlockObject(displayId, objectId);
             }
         }
         return obj;
