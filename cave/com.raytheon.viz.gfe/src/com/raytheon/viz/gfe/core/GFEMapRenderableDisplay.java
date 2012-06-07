@@ -93,8 +93,10 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
     @Override
     public void dispose() {
         Message.unregisterInterest(this, ShowQuickViewDataMsg.class);
-        dataMgr.getSpatialDisplayManager()
-                .removeSpatialEditorTimeChangedListener(this);
+        if (dataMgr != null) {
+            dataMgr.getSpatialDisplayManager()
+                    .removeSpatialEditorTimeChangedListener(this);
+        }
         super.dispose();
     }
 
