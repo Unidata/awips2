@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -92,75 +93,119 @@ public class CollaborationResource extends
 
     private static JobPool retrievePool = new JobPool("Retriever", 1, true);
 
-    /** List of objects rendered in paint */
-    private List<IRenderEvent> currentRenderables;
+    private static class DisplayData {
+        /** List of objects rendered in paint */
+        private List<IRenderEvent> currentRenderables;
 
-    /** Active list of renderable events to add to */
-    private List<IRenderEvent> activeRenderables;
+        /** Active list of renderable events to add to */
+        private List<IRenderEvent> activeRenderables;
 
-    /** Queue of graphics data update events to process in paint */
-    private List<AbstractDispatchingObjectEvent> dataChangeEvents;
+        /** Queue of graphics data update events to process in paint */
+        private List<AbstractDispatchingObjectEvent> dataChangeEvents;
 
-    /** Internal rendering event object router */
-    private EventBus renderingRouter;
+        /** Internal rendering event object router */
+        private EventBus renderingRouter;
 
-    private CollaborationRenderingDataManager dataManager;
+        private CollaborationRenderingDataManager dataManager;
 
-    private MouseLocationEvent latestMouseLocation;
+        private MouseLocationEvent latestMouseLocation;
 
-    private Set<Integer> waitingOnObjects = new HashSet<Integer>();
+        private Set<Integer> waitingOnObjects = new HashSet<Integer>();
 
-    private Set<Integer> waitingOnFrames = new HashSet<Integer>();
+        private Set<Integer> waitingOnFrames = new HashSet<Integer>();
+
+        private Map<IExtent, List<IRenderEvent>> renderableMap = new LinkedHashMap<IExtent, List<IRenderEvent>>() {
+
+            private static final long serialVersionUID = 1L;
+
+            /*
+             * (non-Javadoc)
+             * 
+             * @see
+             * java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
+             */
+            @Override
+            protected boolean removeEldestEntry(
+                    Entry<IExtent, List<IRenderEvent>> eldest) {
+                if (size() > 10) {
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        private DisplayData(int displayId, ISharedDisplaySession session,
+                CollaborationResource resource) {
+            dataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
+            currentRenderables = new LinkedList<IRenderEvent>();
+            activeRenderables = new LinkedList<IRenderEvent>();
+            renderingRouter = new EventBus();
+
+            dataManager = new CollaborationRenderingDataManager(session,
+                    resource, displayId);
+            for (CollaborationRenderingHandler handler : CollaborationRenderingDataManager
+                    .createRenderingHandlers(dataManager)) {
+                renderingRouter.register(handler);
+            }
+        }
+
+        private void dispose() {
+            dataManager.dispose();
+            renderingRouter = null;
+        }
+    }
+
+    private Map<Integer, DisplayData> displayData;
 
     private Rectangle previousBounds = null;
 
-    private Map<IExtent, List<IRenderEvent>> renderableMap = new LinkedHashMap<IExtent, List<IRenderEvent>>() {
-
-        private static final long serialVersionUID = 1L;
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
-         */
-        @Override
-        protected boolean removeEldestEntry(
-                Entry<IExtent, List<IRenderEvent>> eldest) {
-            if (size() > 30) {
-                return true;
-            }
-            return false;
-        }
-
-    };
+    private DisplayData currentData;
 
     public CollaborationResource(CollaborationResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        dataChangeEvents = new LinkedList<AbstractDispatchingObjectEvent>();
-        currentRenderables = new LinkedList<IRenderEvent>();
-        activeRenderables = new LinkedList<IRenderEvent>();
+        displayData = new HashMap<Integer, DisplayData>();
+    }
+
+    private DisplayData getDisplayData(int displayId) {
+        DisplayData data = displayData.get(displayId);
+        if (data == null) {
+            data = new DisplayData(displayId, resourceData.getSession(), this);
+            displayData.put(displayId, data);
+        }
+        return data;
     }
 
     @Override
     protected void disposeInternal() {
         resourceData.getSession().unRegisterEventHandler(this);
-        dataManager.dispose();
-        renderingRouter = null;
+        for (DisplayData data : displayData.values()) {
+            data.dispose();
+        }
+        displayData.clear();
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        if (currentData == null) {
+            return;
+        }
+
+        Map<IExtent, List<IRenderEvent>> renderableMap = currentData.renderableMap;
+        List<AbstractDispatchingObjectEvent> dataChangeEvents = currentData.dataChangeEvents;
+        Set<Integer> waitingOnObjects = currentData.waitingOnObjects;
+        EventBus renderingRouter = currentData.renderingRouter;
+
         // Get the renderables for my extent
         List<IRenderEvent> currentRenderables = null;
         synchronized (renderableMap) {
             currentRenderables = renderableMap.get(paintProps.getView()
                     .getExtent());
             if (currentRenderables == null) {
-                synchronized (this.currentRenderables) {
+                synchronized (currentData.currentRenderables) {
                     currentRenderables = new ArrayList<IRenderEvent>(
-                            this.currentRenderables);
+                            currentData.currentRenderables);
                 }
             }
         }
@@ -180,7 +225,7 @@ public class CollaborationResource extends
             }
         }
 
-        dataManager.beginRender(target, paintProps);
+        currentData.dataManager.beginRender(target, paintProps);
 
         synchronized (renderingRouter) {
             for (AbstractRemoteGraphicsEvent event : currentDataChangeEvents) {
@@ -190,34 +235,28 @@ public class CollaborationResource extends
             for (IRenderEvent event : currentRenderables) {
                 renderingRouter.post(event);
             }
-            if (latestMouseLocation != null) {
-                renderingRouter.post(latestMouseLocation);
+            if (currentData.latestMouseLocation != null) {
+                renderingRouter.post(currentData.latestMouseLocation);
             }
         }
     }
 
-    public void lockObject(int objectId) {
-        synchronized (dataChangeEvents) {
-            waitingOnObjects.add(objectId);
+    public void lockObject(int displayId, int objectId) {
+        DisplayData data = getDisplayData(displayId);
+        synchronized (data.dataChangeEvents) {
+            data.waitingOnObjects.add(objectId);
         }
     }
 
-    public void unlockObject(int objectId) {
-        synchronized (dataChangeEvents) {
-            waitingOnObjects.remove(objectId);
+    public void unlockObject(int displayId, int objectId) {
+        DisplayData data = getDisplayData(displayId);
+        synchronized (data.dataChangeEvents) {
+            data.waitingOnObjects.remove(objectId);
         }
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        renderingRouter = new EventBus();
-        dataManager = new CollaborationRenderingDataManager(
-                resourceData.getSession(), this);
-        for (CollaborationRenderingHandler handler : CollaborationRenderingDataManager
-                .createRenderingHandlers(dataManager)) {
-            renderingRouter.register(handler);
-        }
-
         ISharedDisplaySession session = resourceData.getSession();
         ParticipantInitializedEvent event = new ParticipantInitializedEvent();
         event.setUserId(session.getUserID().getFQName());
@@ -232,15 +271,13 @@ public class CollaborationResource extends
 
     @Subscribe
     public void updateRenderFrameEvent(UpdateRenderFrameEvent event) {
-        if (dataManager == null) {
-            // Haven't initialized yet, don't process
-            return;
-        }
+        DisplayData data = getDisplayData(event.getDisplayId());
+        currentData = data;
         int objectId = event.getObjectId();
-        RenderFrameEvent frame = dataManager.getRenderableObject(objectId,
+        RenderFrameEvent frame = data.dataManager.getRenderableObject(objectId,
                 RenderFrameEvent.class, false);
         if (frame == null) {
-            if (waitingOnFrames.contains(objectId) == false) {
+            if (data.waitingOnFrames.contains(objectId) == false) {
                 RenderFrameNeededEvent needEvent = new RenderFrameNeededEvent();
                 needEvent.setDisplayId(event.getDisplayId());
                 needEvent.setObjectId(objectId);
@@ -248,7 +285,7 @@ public class CollaborationResource extends
                 try {
                     session.sendObjectToPeer(session.getCurrentDataProvider(),
                             needEvent);
-                    waitingOnFrames.add(objectId);
+                    data.waitingOnFrames.add(objectId);
                 } catch (CollaborationException e) {
                     Activator.statusHandler.handle(Priority.PROBLEM,
                             "Error sending message to data provider", e);
@@ -293,25 +330,24 @@ public class CollaborationResource extends
 
     @Subscribe
     public void renderFrameEvent(RenderFrameEvent event) {
-        if (dataManager == null) {
-            // Haven't initialized yet, don't process
-            return;
-        }
-
+        DisplayData data = getDisplayData(event.getDisplayId());
+        currentData = data;
         if (event instanceof UpdateRenderFrameEvent == false) {
             // Not an update event, new frame
             int objectId = event.getObjectId();
             for (IRenderEvent re : event.getRenderEvents()) {
                 renderableArrived((AbstractRemoteGraphicsEvent) re.clone());
             }
-            dataManager.putRenderableObject(objectId, event);
+            data.dataManager.putRenderableObject(objectId, event);
         }
+        issueRefresh();
     }
 
     @Subscribe
     public void disposeRenderFrame(FrameDisposed event) {
-        waitingOnFrames.remove(event.getObjectId());
-        dataManager.dispose(event.getObjectId());
+        DisplayData data = getDisplayData(event.getDisplayId());
+        data.waitingOnFrames.remove(event.getObjectId());
+        data.dataManager.dispose(event.getObjectId());
     }
 
     @Subscribe
@@ -320,7 +356,8 @@ public class CollaborationResource extends
             @Override
             public void run() {
                 try {
-                    AbstractDispatchingObjectEvent objectEvent = dataManager
+                    DisplayData data = getDisplayData(event.getDisplayId());
+                    AbstractDispatchingObjectEvent objectEvent = data.dataManager
                             .retrieveEvent(event);
                     if (objectEvent != null) {
                         renderableArrived(objectEvent);
@@ -334,8 +371,9 @@ public class CollaborationResource extends
     }
 
     public void postObjectEvent(AbstractDispatchingObjectEvent event) {
-        synchronized (renderingRouter) {
-            renderingRouter.post(event);
+        DisplayData data = getDisplayData(event.getDisplayId());
+        synchronized (data.renderingRouter) {
+            data.renderingRouter.post(event);
         }
     }
 
@@ -345,18 +383,19 @@ public class CollaborationResource extends
             // Skip IRenderFrameEvents, not applicable here
             return;
         }
+        DisplayData data = getDisplayData(event.getDisplayId());
         if (event instanceof IRenderEvent) {
             // Render based event
             if (event instanceof BeginFrameEvent) {
                 // If begin frame event, clear current active renderables
-                activeRenderables.clear();
-                activeRenderables.add((IRenderEvent) event);
+                data.activeRenderables.clear();
+                data.activeRenderables.add((IRenderEvent) event);
             } else if (event instanceof EndFrameEvent) {
-                synchronized (currentRenderables) {
+                synchronized (data.currentRenderables) {
                     IExtent current = null;
-                    currentRenderables.clear();
+                    data.currentRenderables.clear();
                     // Frame over, process BeginFrameEvent now to keep in sync
-                    for (IRenderEvent renderable : activeRenderables) {
+                    for (IRenderEvent renderable : data.activeRenderables) {
                         if (renderable instanceof BeginFrameEvent) {
                             // Handle begin frame event immediately before next
                             // paint occurs
@@ -386,24 +425,26 @@ public class CollaborationResource extends
                             current = bfe.getExtent();
                         } else {
                             // Add to list for processing in paintInternal
-                            currentRenderables.add(renderable);
+                            data.currentRenderables.add(renderable);
                         }
                     }
-                    activeRenderables.clear();
-                    renderableMap.put(current, new ArrayList<IRenderEvent>(
-                            currentRenderables));
+                    data.activeRenderables.clear();
+                    data.renderableMap
+                            .put(current, new ArrayList<IRenderEvent>(
+                                    data.currentRenderables));
                 }
                 issueRefresh();
             } else if (event instanceof MouseLocationEvent) {
-                latestMouseLocation = (MouseLocationEvent) event;
+                data.latestMouseLocation = (MouseLocationEvent) event;
                 issueRefresh();
             } else {
-                activeRenderables.add((IRenderEvent) event);
+                data.activeRenderables.add((IRenderEvent) event);
             }
         } else if (event instanceof AbstractDispatchingObjectEvent) {
             // If not IRenderEvent, event modifies data object
-            synchronized (dataChangeEvents) {
-                dataChangeEvents.add((AbstractDispatchingObjectEvent) event);
+            synchronized (data.dataChangeEvents) {
+                data.dataChangeEvents
+                        .add((AbstractDispatchingObjectEvent) event);
             }
             issueRefresh();
         } else {

@@ -64,6 +64,7 @@ public abstract class AbstractRemoteGraphicsRenderEvent extends
             AbstractRemoteGraphicsRenderEvent newInstance = getClass()
                     .newInstance();
             newInstance.applyDiffObject(this);
+            newInstance.setDisplayId(getDisplayId());
             return newInstance;
         } catch (Exception e) {
             throw new RuntimeException("Error cloning render event", e);

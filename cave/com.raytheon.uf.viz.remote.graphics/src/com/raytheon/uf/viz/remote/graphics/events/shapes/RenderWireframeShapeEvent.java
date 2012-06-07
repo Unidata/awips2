@@ -213,6 +213,7 @@ public class RenderWireframeShapeEvent extends AbstractDispatchingObjectEvent
     public Object clone() {
         RenderWireframeShapeEvent newInstance = new RenderWireframeShapeEvent();
         newInstance.applyDiffObject(this);
+        newInstance.setDisplayId(getDisplayId());
         return newInstance;
     }
 

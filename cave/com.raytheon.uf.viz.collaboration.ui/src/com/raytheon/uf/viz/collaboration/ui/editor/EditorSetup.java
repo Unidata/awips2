@@ -23,9 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.ui.PartInitException;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditorInput;
 import com.raytheon.uf.viz.collaboration.display.editor.SharedEditorData;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationWrapperResourceData;
 import com.raytheon.uf.viz.core.IExtent;
@@ -35,7 +39,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.ui.UiUtil;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -115,9 +119,9 @@ public class EditorSetup {
      *            the data necessary to create the editor
      * @return
      */
-    public static CollaborationEditor createEditor(SharedEditorData sharedEditor) {
+    public static CollaborationEditor createEditor(
+            SharedEditorData sharedEditor, String sessionId, String title) {
         CollaborationEditor editor = null;
-        AbstractRenderableDisplay[] displays = new AbstractRenderableDisplay[1];
         AbstractRenderableDisplay disp = sharedEditor.getDisplay();
         PixelExtent extent = new PixelExtent(sharedEditor.getEnvelope()
                 .getMinX(), sharedEditor.getEnvelope().getMaxX(), sharedEditor
@@ -136,11 +140,18 @@ public class EditorSetup {
         }
         list.removeAll(toRemove);
 
-        displays[0] = disp;
-        editor = (CollaborationEditor) UiUtil.createEditor(
-                CollaborationEditor.EDITOR_ID, displays);
-        editor.setCanvasSize(new Rectangle(0, 0, sharedEditor.getWidth(),
-                sharedEditor.getHeight()));
+        try {
+            CollaborationEditorInput input = new CollaborationEditorInput(disp,
+                    sessionId, title);
+            editor = (CollaborationEditor) VizWorkbenchManager.getInstance()
+                    .getCurrentWindow().getActivePage()
+                    .openEditor(input, CollaborationEditor.EDITOR_ID);
+            editor.setCanvasSize(new Rectangle(0, 0, sharedEditor.getWidth(),
+                    sharedEditor.getHeight()));
+        } catch (PartInitException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    "Error opening collaboration participant editor", e);
+        }
         return editor;
     }
 
