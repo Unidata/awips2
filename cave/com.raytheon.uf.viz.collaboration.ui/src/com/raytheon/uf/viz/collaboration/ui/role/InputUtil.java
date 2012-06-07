@@ -57,6 +57,27 @@ public class InputUtil {
      * @return
      */
     public static CollaborationInputHandler getCollaborationInputHandler(
+            CollaborationEditor editor) {
+        CollaborationInputHandler handler = null;
+        IInputHandler[] array = editor.getInputManager()
+                .getHandlersForPriority(InputPriority.SYSTEM_RESOURCE);
+        for (IInputHandler h : array) {
+            if (h instanceof CollaborationInputHandler) {
+                handler = (CollaborationInputHandler) h;
+                break;
+            }
+        }
+
+        return handler;
+    }
+
+    /**
+     * Gets the CollaborationInputHandler associated with an editor.
+     * 
+     * @param editor
+     * @return
+     */
+    public static CollaborationInputHandler getCollaborationInputHandler(
             AbstractEditor editor) {
         CollaborationInputHandler handler = null;
         IInputHandler[] array = editor.getMouseManager()

@@ -19,12 +19,14 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -56,11 +58,9 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
-import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
 import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
@@ -102,10 +102,8 @@ public class DataProviderEventController extends AbstractRoleEventController
             try {
                 CollaborationDispatcher dispatcher = new CollaborationDispatcher(
                         session, display);
-                synchronized (dispatchers) {
-                    dispatchers.add(dispatcher);
-                    dispatcher.setActiveDisplay(activeDisplay);
-                }
+                dispatchers.add(dispatcher);
+                dispatcher.setActiveDisplay(activeDisplay);
                 return dispatcher;
             } catch (CollaborationException e) {
                 throw new InstantiationException(
@@ -115,12 +113,16 @@ public class DataProviderEventController extends AbstractRoleEventController
         }
     };
 
-    private List<CollaborationDispatcher> dispatchers = new LinkedList<CollaborationDispatcher>();
+    private List<CollaborationDispatcher> dispatchers = new CopyOnWriteArrayList<CollaborationDispatcher>();
 
     private IRenderableDisplay activeDisplay;
 
+    private String tabTitleSuffix;
+
     public DataProviderEventController(ISharedDisplaySession session) {
         super(session);
+        tabTitleSuffix = " ("
+                + session.getVenue().getInfo().getVenueDescription() + ")";
     }
 
     @Subscribe
@@ -281,15 +283,14 @@ public class DataProviderEventController extends AbstractRoleEventController
             }
 
             editor.addRenderableDisplayChangedListener(this);
+            editor.setTabTitle(editor.getPartName() + tabTitleSuffix);
         }
     }
 
     private void setActiveDisplay(IRenderableDisplay display) {
-        synchronized (dispatchers) {
-            this.activeDisplay = display;
-            for (CollaborationDispatcher dispatcher : dispatchers) {
-                dispatcher.setActiveDisplay(display);
-            }
+        this.activeDisplay = display;
+        for (CollaborationDispatcher dispatcher : dispatchers) {
+            dispatcher.setActiveDisplay(display);
         }
         ReprojectEditor event = new ReprojectEditor();
         event.setTargetGeometry(display.getDescriptor().getGridGeometry());
@@ -311,12 +312,10 @@ public class DataProviderEventController extends AbstractRoleEventController
      */
     private boolean handleNewDisplay(IDisplayPane pane) {
         boolean newDisplay = false;
-        synchronized (dispatchers) {
-            for (CollaborationDispatcher dispatcher : dispatchers) {
-                if (dispatcher.getDisplay() == pane.getRenderableDisplay()) {
-                    // We already have a dispatcher for this display
-                    return false;
-                }
+        for (CollaborationDispatcher dispatcher : dispatchers) {
+            if (dispatcher.getDisplay() == pane.getRenderableDisplay()) {
+                // We already have a dispatcher for this display
+                return false;
             }
         }
         try {
@@ -347,13 +346,9 @@ public class DataProviderEventController extends AbstractRoleEventController
     @Override
     protected List<ResourcePair> getResourcesToAdd() {
         List<ResourcePair> resources = super.getResourcesToAdd();
-        ResourcePair resource = new ResourcePair();
         DataProviderRscData resourceData = new DataProviderRscData();
         resourceData.setSessionId(session.getSessionId());
-        resource.setResourceData(resourceData);
-        resource.setProperties(new ResourceProperties());
-        resource.setLoadProperties(new LoadProperties());
-        resources.add(resource);
+        resources.add(ResourcePair.constructSystemResourcePair(resourceData));
         return resources;
     }
 
@@ -410,8 +405,8 @@ public class DataProviderEventController extends AbstractRoleEventController
         if (rp.getResource() instanceof CollaborationWrapperResource) {
             rp.setResource(((CollaborationWrapperResource) rp.getResource())
                     .getWrappedResource());
-        }
-        if (rp.getResourceData() instanceof CollaborationWrapperResourceData) {
+            rp.setResourceData(rp.getResource().getResourceData());
+        } else if (rp.getResourceData() instanceof CollaborationWrapperResourceData) {
             rp.setResourceData(((CollaborationWrapperResourceData) rp
                     .getResourceData()).getWrappedResourceData());
         }
@@ -427,29 +422,69 @@ public class DataProviderEventController extends AbstractRoleEventController
      */
     @Override
     public void shutdown() {
+        // Dispatchers created are responsible for display extraction
+        for (CollaborationDispatcher dispatcher : dispatchers) {
+            disposeDispatcher(dispatcher);
+        }
+
         super.shutdown();
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
         if (sc != null) {
             for (AbstractEditor editor : sc.getSharedEditors()) {
-                for (IDisplayPane pane : editor.getDisplayPanes()) {
+                partClosed(editor);
+            }
+        }
+    }
+
+    private void disposeDispatcher(CollaborationDispatcher dispatcher) {
+        dispatcher.dispose();
+        if (PlatformUI.getWorkbench().isClosing() == false) {
+            // Extract the remote functionality
+            IRenderableDisplay display = dispatcher.getDisplay();
+            for (IDisplayPane pane : display.getContainer().getDisplayPanes()) {
+                if (pane.getRenderableDisplay() == display) {
+                    super.deactivateResources(display);
                     ResourceList list = pane.getDescriptor().getResourceList();
                     for (ResourcePair rp : list) {
                         unwrapResourcePair(rp);
                     }
                     list.removePreAddListener(wrappingListener);
                     list.removePostRemoveListener(wrappingListener);
+                    DispatchingGraphicsFactory.extractRemoteFunctionality(pane);
+                    break;
                 }
-                editor.removeRenderableDisplayChangedListener(this);
             }
         }
+        dispatchers.remove(dispatcher);
+    }
 
-        synchronized (dispatchers) {
-            // Dispatchers created are responsible for display extraction
-            for (CollaborationDispatcher dispatcher : dispatchers) {
-                dispatcher.dispose();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
+     * #partClosed(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partClosed(IWorkbenchPart part) {
+        super.partClosed(part);
+        if (part instanceof AbstractEditor) {
+            AbstractEditor editor = (AbstractEditor) part;
+            editor.removeRenderableDisplayChangedListener(this);
+            String partName = editor.getPartName();
+            if (partName.endsWith(tabTitleSuffix)) {
+                editor.setTabTitle(partName.substring(0, partName.length()
+                        - tabTitleSuffix.length()));
             }
-            dispatchers.clear();
+            for (IDisplayPane pane : editor.getDisplayPanes()) {
+                for (CollaborationDispatcher dispatcher : dispatchers) {
+                    if (pane.getRenderableDisplay() == dispatcher.getDisplay()) {
+                        disposeDispatcher(dispatcher);
+                        return;
+                    }
+                }
+            }
         }
     }
 
@@ -489,12 +524,10 @@ public class DataProviderEventController extends AbstractRoleEventController
                 activateResources(newRenderableDisplay);
             }
             if (newRenderableDisplay.getGraphicsAdapter() instanceof DispatchingGraphicsFactory) {
-                synchronized (dispatchers) {
-                    for (CollaborationDispatcher dispatcher : dispatchers) {
-                        if (dispatcher.getDisplay() == newRenderableDisplay) {
-                            setActiveDisplay(newRenderableDisplay);
-                            break;
-                        }
+                for (CollaborationDispatcher dispatcher : dispatchers) {
+                    if (dispatcher.getDisplay() == newRenderableDisplay) {
+                        setActiveDisplay(newRenderableDisplay);
+                        break;
                     }
                 }
             }
