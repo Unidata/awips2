@@ -152,6 +152,7 @@ public class RenderColormappedShadedShape extends
     public Object clone() {
         RenderColormappedShadedShape newInstance = new RenderColormappedShadedShape();
         newInstance.applyDiffObject(this);
+        newInstance.setDisplayId(getDisplayId());
         return newInstance;
     }
 

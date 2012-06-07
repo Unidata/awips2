@@ -251,6 +251,7 @@ public class PaintImageEvent extends AbstractDispatchingObjectEvent implements
     public Object clone() {
         PaintImageEvent newInstance = new PaintImageEvent();
         newInstance.applyDiffObject(this);
+        newInstance.setDisplayId(getDisplayId());
         return newInstance;
     }
 
