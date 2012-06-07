@@ -131,10 +131,12 @@ public class CollaborationDrawingResource extends
             ColorableCapability colorable = getCapability(ColorableCapability.class);
             colorable.setSuppressingMenuItems(true);
 
-            CollaborationDrawingEvent event = new CollaborationDrawingEvent();
-            event.setUserName(myUser);
-            event.setType(CollaborationEventType.CLEAR_ALL);
-            sendEvent(event);
+            if (isSessionLeader()) {
+                CollaborationDrawingEvent event = new CollaborationDrawingEvent();
+                event.setUserName(myUser);
+                event.setType(CollaborationEventType.CLEAR_ALL);
+                sendEvent(event);
+            }
         }
 
         manager = new CollaborationDrawingUIManager(this);
