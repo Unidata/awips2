@@ -843,6 +843,7 @@ public abstract class AbstractMapVectorResource extends
         }
 
         getDataObjectMap().clear();
+        retrievedAllData = false;
     }
 
     /*
