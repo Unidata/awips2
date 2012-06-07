@@ -200,7 +200,7 @@ public class DrawingToolUIManager extends InputAdapter {
     }
 
     protected boolean canTellestrate(int mouseButton) {
-        return handlingInput == false && mouseButton == 1
+        return handlingInput == false && mouseButton <= 1
                 && drawingLayer.getDrawMode() != DrawMode.NONE;
     }
 }
