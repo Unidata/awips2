@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -386,8 +387,7 @@ public class CollaborationSessionView extends SessionView implements
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                UserId id = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection(true).getUser();
+                UserId id = CollaborationConnection.getConnection().getUser();
                 appendMessage(id, System.currentTimeMillis(), message);
                 ((IVenueSession) session).sendChatMessage(message);
             } catch (CollaborationException e) {
