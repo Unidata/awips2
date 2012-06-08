@@ -4,16 +4,17 @@
 ## VERSION AWIPS II 1.0 -- AUG 19 2011 OB11.8   ##
 ## EDITED BY MIKE DANGELO  2-27-2012            ##
 ## EDITED BY Phil Kurimski 3-01-2012 OB12.2.1-4 ##
+##           Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND)
 ##################################################
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 NOW${siteId}
-#if(${productClass}=="T")
-TEST...SHORT TERM FORECAST...TEST##
-#else
-SHORT TERM FORECAST##
-#end
 
+#if(${productClass}=="T")
+TEST...SHORT TERM FORECAST...TEST
+#else
+SHORT TERM FORECAST
+#end
 NATIONAL WEATHER SERVICE ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}

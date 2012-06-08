@@ -25,6 +25,7 @@ import javax.media.opengl.glu.GLU;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
 
@@ -111,4 +112,10 @@ public interface IGLTarget extends IGraphicsTarget {
      */
     public abstract void handleError(int errorid);
 
+    /**
+     * Set the targets current view
+     * 
+     * @param view
+     */
+    public void setView(IView view);
 }

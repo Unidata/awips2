@@ -8,12 +8,16 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.geotools.referencing.operation.projection.ProjectionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+
+import com.raytheon.uf.common.geospatial.MapUtil;
 
 /**
  * 
@@ -64,6 +68,10 @@ public abstract class AbstractInterpolation {
     protected MathTransform transform;
 
     protected float[] transformTable = null;
+
+    // The number of grid cells needed to wrap source x coordinates around the
+    // world, or -1 if the source grid does not wrap evenly.
+    protected int sourceWrapX = -1;
 
     protected AbstractInterpolation(GeneralGridGeometry sourceGeometry,
             GeneralGridGeometry targetGeometry) {
@@ -143,6 +151,59 @@ public abstract class AbstractInterpolation {
             DefaultMathTransformFactory mtf = new DefaultMathTransformFactory();
             transform = mtf.createConcatenatedTransform(grid2crs,
                     mtf.createConcatenatedTransform(crs2crs, crs2grid));
+            checkForWrappingSource();
+
+        }
+    }
+
+    // Attempt to detect the case where a geographic coordinate reference system
+    // wraps around the world so that values out of range on the X-axis can be
+    // retrieved from the other side of the grid. If this is the case the
+    // sourceWrapX value will be set to the number of grid cells that are needed
+    // to wrap all the way around the world.
+    private void checkForWrappingSource() {
+        try {
+            MathTransform grid2crs = sourceGeometry
+                    .getGridToCRS(PixelInCell.CELL_CENTER);
+            MathTransform crs2LatLon = CRS.findMathTransform(sourceCRS,
+                    DefaultGeographicCRS.WGS84);
+            DirectPosition2D corner1 = new DirectPosition2D(sourceNx, 0);
+            DirectPosition2D corner2 = new DirectPosition2D(sourceNx,
+                    sourceNy - 1);
+            grid2crs.transform(corner1, corner1);
+            grid2crs.transform(corner2, corner2);
+            crs2LatLon.transform(corner1, corner1);
+            crs2LatLon.transform(corner2, corner2);
+            corner1.x = MapUtil.correctLon(corner1.x);
+            corner2.x = MapUtil.correctLon(corner2.x);
+            crs2LatLon.inverse().transform(corner1, corner1);
+            crs2LatLon.inverse().transform(corner2, corner2);
+            grid2crs.inverse().transform(corner1, corner1);
+            grid2crs.inverse().transform(corner2, corner2);
+            int sourceWrapX = (int) (sourceNx - corner1.x);
+            // In order to wrap then the transformed point x value should be on
+            // the other side of the grid and the y value should not have
+            // changed significantly. Additionally the wrapped x value should
+            // fall exactly on a grid cell.
+            if (corner1.x > sourceNx - 1) {
+                return;
+            } else if (Math.abs(corner1.y - 0) > 0.0001) {
+                return;
+            } else if (Math.abs(corner2.y - sourceNy + 1) > 0.0001) {
+                return;
+            } else if (Math.abs(corner1.x + sourceWrapX - sourceNx) > 0.0001) {
+                return;
+            } else if (Math.abs(corner2.x + sourceWrapX - sourceNx) > 0.0001) {
+                return;
+            } else {
+                this.sourceWrapX = sourceWrapX;
+            }
+
+        } catch (Exception e) {
+            // if anything goes wrong in this process just assume we don't
+            // wrap the x axis, thats not a big deal and it is normal for
+            // non geographic coordinate systems.
+            ;
         }
     }
 
@@ -163,7 +224,9 @@ public abstract class AbstractInterpolation {
             for (int i = 0; i < newData.length; i++) {
                 float x = transformTable[tIndex++];
                 float y = transformTable[tIndex++];
-                newData[i] = getInterpolatedValue(x, y);
+                if (!Float.isNaN(x) && !Float.isNaN(y)) {
+                    newData[i] = getInterpolatedValue(x, y);
+                }
             }
         }
         return newData;
@@ -180,8 +243,17 @@ public abstract class AbstractInterpolation {
     public float getReprojectedGridCell(int x, int y) throws FactoryException,
             TransformException {
         Validate.notNull(data);
+        Point2D.Double dp = null;
+        try {
+            dp = getReprojectDataPoint(x, y);
+        } catch (ProjectionException e) {
+            // ProjectionException is thrown when a point is outside
+            // the valid range of the source data, so we will treat
+            // it like other out of range values and set it to fill
+            // value.
+            return fillValue;
+        }
 
-        Point2D.Double dp = getReprojectDataPoint(x, y);
         return getInterpolatedValue(dp.x, dp.y);
     }
 
@@ -208,16 +280,24 @@ public abstract class AbstractInterpolation {
             // outside y range
             return Float.NaN;
         } else if (x < 0 || x > sourceNx - 1) {
-            // outside xRange
-            return Float.NaN;
-        } else {
-            float val = data[(int) (y * sourceNx + x)];
-            if (val < minValid || val > maxValid) {
-                // skip outside valid range
-                val = Float.NaN;
+            // outside x range
+            if (sourceWrapX > 0) {
+                // attempt to wrap if this is a wrapping grid.
+                x = (x + sourceWrapX) % sourceWrapX;
+                if (x < 0 || x > sourceNx - 1) {
+                    return Float.NaN;
+                }
+            } else {
+
+                return Float.NaN;
             }
-            return val;
         }
+        float val = data[(int) (y * sourceNx + x)];
+        if (val < minValid || val > maxValid) {
+            // skip outside valid range
+            val = Float.NaN;
+        }
+        return val;
     }
 
     protected Point2D.Double getReprojectDataPoint(int x, int y)
@@ -228,12 +308,13 @@ public abstract class AbstractInterpolation {
             int index = (y * targetNx + x) * 2;
             float xVal = transformTable[index];
             float yVal = transformTable[index + 1];
-            return new Point2D.Double(xVal, yVal);
-        } else {
-            DirectPosition2D dp = new DirectPosition2D(x, y);
-            transform.transform(dp, dp);
-            return dp;
+            if (!Float.isNaN(xVal) && !Float.isNaN(yVal)) {
+                return new Point2D.Double(xVal, yVal);
+            }
         }
+        DirectPosition2D dp = new DirectPosition2D(x, y);
+        transform.transform(dp, dp);
+        return dp;
     }
 
     /**
@@ -285,8 +366,13 @@ public abstract class AbstractInterpolation {
                 transformTable[index++] = j;
             }
         }
-        transform.transform(transformTable, 0, transformTable, 0, targetNy
-                * targetNx);
+        try {
+            transform.transform(transformTable, 0, transformTable, 0, targetNy
+                    * targetNx);
+        } catch (ProjectionException e) {
+            ;// Ignore, the points in the transformTable that are invalid are
+             // set to NaN, no other action is necessary.
+        }
         this.transformTable = transformTable;
         return transformTable.length * 4;
     }

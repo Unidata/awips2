@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import gov.noaa.nws.ncep.gempak.parameters.infill.FINT;
-import gov.noaa.nws.ncep.gempak.parameters.contourinterval.ContourStringParser;
+import gov.noaa.nws.ncep.gempak.parameters.core.contourinterval.ContourStringParser;
 //import gov.noaa.nws.ncep.gempak.parameters.fillinterval.FINT.ZoomLevel;
 
 /**

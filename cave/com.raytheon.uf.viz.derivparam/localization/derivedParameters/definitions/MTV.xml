@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="g·m/(kg·s)" name="Moisture Transport (Vector)" abbreviation="MTV" xmlns:ns2="group">
+<DerivedParameter unit="g·m/(kg·s)" name="Moisture Trans Vecs" abbreviation="MTV" xmlns:ns2="group">
     <Method name="Multiply">
         <Field abbreviation="Wind"/>
         <Field abbreviation="SHx"/>
