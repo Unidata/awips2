@@ -85,7 +85,7 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
     protected static final int MAX_SECND_LINE_LEN = 10;
 
     protected static final Pattern NNNXXX = Pattern
-            .compile("\\w{4,6}(?:\\s{1,2})?[\\r\\n]+(?:" + (char) 0x1e + ")?");
+            .compile("\\w{3,6}(?:\\s{1,2})?[\\r\\n]+(?:" + (char) 0x1e + ")?");
 
     private final Log logger = LogFactory.getLog(getClass());
 
@@ -406,26 +406,25 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
             endChar = msg.charAt(msg.length() - 1);
         }
     }
-    
-    
-    public static final void main(String [] args) {
-        
-        Pattern NNNXXX = Pattern.compile("\\w{4,6}(?:\\s{1,2})?[\\r\\n]+(?:" + (char) 0x1e + ")?");
-        
-        
-        Matcher m = NNNXXX.matcher("PIRUS\r\rOMA UUA /OV");
-        
-        if(m.find()) {
-            for(int i = 0;i <= m.groupCount();i++) {
-                System.out.println(m.group(i));
-            }
-        }
-      
-        
-        
-        
+
+    public static final void main(String[] args) {
+
+        StringBuilder sb = new StringBuilder(
+                "\r\r\nKOFF 1912/20/15\n\n\r     BECMG");
+
+        safeStrpbrk(sb, nl);
+
+        // Pattern NNNXXX = Pattern.compile("\\w{4,6}(?:\\s{1,2})?[\\r\\n]+(?:"
+        // + (char) 0x1e + ")?");
+        //
+        //
+        // Matcher m = NNNXXX.matcher("PIRUS\r\rOMA UUA /OV");
+        //
+        // if(m.find()) {
+        // for(int i = 0;i <= m.groupCount();i++) {
+        // System.out.println(m.group(i));
+        // }
+        // }
     }
-    
-    
 
 }

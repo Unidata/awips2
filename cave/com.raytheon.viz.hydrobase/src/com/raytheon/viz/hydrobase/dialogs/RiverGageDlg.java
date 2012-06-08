@@ -57,6 +57,7 @@ import com.raytheon.viz.hydrocommon.datamanager.DataTrashCanDataManager;
 import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
 import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
+import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -289,6 +290,12 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Value for no Forecast Group assignment
      */
     private final String NO_FCST_GROUP_SELECTED = "(Not a Forecast Point)";
+    
+    /** Original latitude value */
+    private String origLat;
+    
+    /** Original longitude value */
+    private String origLon;
 
     /**
      * States for the dialog.
@@ -936,11 +943,14 @@ public class RiverGageDlg extends CaveSWTDialog implements
                     .setText((riverGageData.getLatitude() != HydroConstants.MISSING_VALUE) ? 
                             String.valueOf(riverGageData.getLatitude())
                             : "");
+            origLat = latitudeTF.getText();
+            
             longitudeTF
                     .setText((riverGageData.getLongitude() != HydroConstants.MISSING_VALUE) ?
                     		String.valueOf(riverGageData.getLongitude())
                             : "");
-
+            origLon = longitudeTF.getText();
+            
             // Drainage Area
             drainageAreaTF.setText(HydroDataUtils
                     .getDisplayString(riverGageData.getDrainageArea()));
@@ -1150,52 +1160,60 @@ public class RiverGageDlg extends CaveSWTDialog implements
 
         // Latitude
         String latTxt = latitudeTF.getText();
-        double lat = HydroConstants.MISSING_VALUE;
-        if (!latTxt.equals("")) {
-            boolean invalidLat = false;
-
-            try {
-            	lat = Double.valueOf(latTxt);
-            } catch (Exception e) {
-                invalidLat = true;
-            }
-
-            if ((lat < -90) || (lat > 90) || invalidLat) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Invalid Value");
-                mb
-                        .setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
-                mb.open();
-
-                return successful;
-            }
+        if (!latTxt.equals(origLat)) {
+	        double lat = HydroConstants.MISSING_VALUE;
+	        if (!latTxt.equals("")) {
+	            boolean invalidLat = false;
+	
+	            try {
+	                lat = GeoUtil.getInstance().cvt_spaced_format(latTxt, 0);
+	            } catch (Exception e) {
+	                invalidLat = true;
+	            }
+	
+	            if ((lat < -90) || (lat > 90) || invalidLat) {
+	                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+	                mb.setText("Invalid Value");
+	                mb
+	                        .setMessage("Please enter a VALID (-90 to 90) Latitude\nin the form: DD MM SS");
+	                mb.open();
+	
+	                return successful;
+	            }
+	        }
+	        newData.setLatitude(lat);
+        } else {
+        	newData.setLatitude(this.riverGageData.getLatitude());
         }
-        newData.setLatitude(lat);
-
+        
         // Longitude
         String lonTxt = longitudeTF.getText();
-        double lon = HydroConstants.MISSING_VALUE;
-        if (!lonTxt.equals("")) {
-            boolean invalidLon = false;
-
-            try {
-            	lon=Double.valueOf(lonTxt);
-            } catch (Exception e) {
-                invalidLon = true;
-                e.printStackTrace();
-            }
-
-            if ((lon > 180) || (lon < -180) || invalidLon) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-                mb.setText("Invalid Value");
-                mb
-                        .setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
-                mb.open();
-
-                return successful;
-            }
+        if (!lonTxt.equals(origLon)) {
+	        double lon = HydroConstants.MISSING_VALUE;
+	        if (!lonTxt.equals("")) {
+	            boolean invalidLon = false;
+	
+	            try {
+	                lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
+	            } catch (Exception e) {
+	                invalidLon = true;
+	                e.printStackTrace();
+	            }
+	
+	            if ((lon > 180) || (lon < -180) || invalidLon) {
+	                MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+	                mb.setText("Invalid Value");
+	                mb
+	                        .setMessage("Please enter a VALID (-180 to 180) Longitude\nin the form: DD MM SS");
+	                mb.open();
+	
+	                return successful;
+	            }
+	        }
+	        newData.setLongitude(lon);
+        } else {
+        	newData.setLongitude(riverGageData.getLongitude());
         }
-        newData.setLongitude(lon);
 
         // Remarks
         newData.setRemark(remarksTF.getText());

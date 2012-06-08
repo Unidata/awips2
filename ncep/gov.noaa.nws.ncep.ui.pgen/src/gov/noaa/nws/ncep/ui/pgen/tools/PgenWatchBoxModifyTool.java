@@ -10,12 +10,12 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchInfoDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchInfoDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
 
 import java.awt.Color;
@@ -25,6 +25,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -263,7 +264,8 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
 	 * @param newBox - the result watch box (can be the input watch box)
 	 * @return - false if there is no anchor point in the input watch box.
 	 */
-	public static boolean resnapWatchBox(NCMapEditor editor, WatchBox oldBox, WatchBox newBox ){
+	public static boolean resnapWatchBox(AbstractEditor editor, WatchBox oldBox, WatchBox newBox ){
+//	public static boolean resnapWatchBox(NCMapEditor editor, WatchBox oldBox, WatchBox newBox ){
 		
 		Station anchor1 = null;
 		Station anchor2 = null;

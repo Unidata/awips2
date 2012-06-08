@@ -68,5 +68,7 @@ public class ThinClientPreferenceConstants {
 
     public static String P_DISABLE_JMS = "disableJms";
 
+    public static String P_ENABLE_REQUEST_COMPRESSION = "enableRequestCompression";
+
     public static String P_PREFERENCE_PLACEHOLDER = "placeholderPreference";
 }

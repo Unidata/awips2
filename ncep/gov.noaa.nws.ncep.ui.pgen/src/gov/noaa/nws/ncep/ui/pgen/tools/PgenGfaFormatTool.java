@@ -9,7 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.GfaFormatAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.GfaFormatAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaGenerate;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;

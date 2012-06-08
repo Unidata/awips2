@@ -9,6 +9,8 @@
 !
 GLEVEL=9823
 GVCORD=SGMA
+SKIP=
+FILTER=y
 SCALE=7!0!0
 GDPFUN=sdiv(mixr;wnd)!dwpf!dwpf!dwpf ! kntv(wnd)
 TYPE=c/f           !c   !c   !c    ! b

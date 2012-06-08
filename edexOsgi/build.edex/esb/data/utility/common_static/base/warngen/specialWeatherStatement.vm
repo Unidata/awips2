@@ -4,12 +4,12 @@
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SPS${siteId}
-#if(${productClass}=="T")
-TEST...SPECIAL WEATHER STATEMENT...TEST##
-#else
-SPECIAL WEATHER STATEMENT##
-#end
 
+#if(${productClass}=="T")
+TEST...SPECIAL WEATHER STATEMENT...TEST
+#else
+SPECIAL WEATHER STATEMENT
+#end
 NATIONAL WEATHER SERVICE ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}

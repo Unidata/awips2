@@ -63,7 +63,7 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
 
     @Override
     protected void setupServers() throws VizException {
-        HttpClient.getInstance().enableGzipHandling();
+        HttpClient.getInstance().enableGzipResponseHandling();
         if (promptUI) {
             ThinClientConnectivityDialog dlg = new ThinClientConnectivityDialog(
                     checkAlertviz);
@@ -100,6 +100,10 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                     .getString(ThinClientPreferenceConstants.P_SERVICES_PROXY));
             VizApp.setPypiesServer(store
                     .getString(ThinClientPreferenceConstants.P_PYPIES_PROXY));
+            if (store
+                    .getBoolean(ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION)) {
+                HttpClient.getInstance().enableRequestCompression();
+            }
         } else {
             GetServersRequest req = new GetServersRequest();
             GetServersResponse resp = (GetServersResponse) ThriftClient

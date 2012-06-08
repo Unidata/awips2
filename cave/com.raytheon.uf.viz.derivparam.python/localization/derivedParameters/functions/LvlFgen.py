@@ -41,7 +41,7 @@ def execute(GHxSM, TxSM, P, dx, dy, coriolis):
     # Now calculate the QG frontogensis function for this level.
     # Fgen = 2(Qx * d(theta)/dx + Qy * d(theta)/dy)
     result = slqx * dtdx
-    result += slqy * dtdy
-    result *= (-1) * t2th
+    result -= slqy * dtdy
+    result *= t2th
     
     return result  
