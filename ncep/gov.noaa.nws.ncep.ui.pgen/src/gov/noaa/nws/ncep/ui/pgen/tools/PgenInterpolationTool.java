@@ -12,14 +12,17 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 import java.awt.Color;
 import java.util.List;
 
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenInterpDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.PgenInterpDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -287,8 +290,10 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
     	/*
     	 * perform the interpolation and get back new elements
     	 */
+//    	List<AbstractDrawableComponent> deList = PgenInterpolator.interpolate(selectedEls.get(0).getPrimaryDE(), selectedEls.get(1).getPrimaryDE(), 
+//    			props, mapEditor.getDescriptor() );
     	List<AbstractDrawableComponent> deList = PgenInterpolator.interpolate(selectedEls.get(0).getPrimaryDE(), selectedEls.get(1).getPrimaryDE(), 
-    			props, mapEditor.getDescriptor() );
+    			props, getDescriptor( mapEditor ) );
 
     	/*
     	 * Add any new elements to the Pgen Resource
@@ -347,6 +352,20 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
 		
 		return false;
 	}
+	
+    // Convenience method to get the map descriptor
+    private IMapDescriptor getDescriptor( AbstractEditor editor ) {
+        // bsteffen ported this function from NCPaneManager
+        // return (IMapDescriptor) getPaneManager().getDescriptor();
+        IMapDescriptor descriptor = null;
+        IRenderableDisplay display = editor.getActiveDisplayPane()
+                .getRenderableDisplay();
+        if (display != null) {
+            descriptor = (IMapDescriptor) display.getDescriptor();
+        }
+        return descriptor;
+    }
+
 
 
 }

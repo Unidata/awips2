@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.ListIterator;
@@ -169,6 +170,8 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
 
     private static final String[] TS_LIST = { "RG", "RP", "RZ", "FF", "FX",
             "FZ" };
+    
+    private final String[] TS_ORDER = { "R", "F", "P", "M", "C" };
 
     /**
      * The TimeSeries Display Dialog.
@@ -592,10 +595,20 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
         this.standaloneMode = true;
         // Ensure That The Group Configuration File Exists.
         if (!groupConfigFile.exists()) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to locate group configuration file - "
-                            + groupConfigFile.getAbsolutePath(), null);
-            this.groupConfigFilePath = null;
+        	// if it does not, check localization for the file
+            IPathManager pm = PathManagerFactory.getPathManager();
+            groupConfigFile = pm.getStaticFile(HydroConstants.GROUP_DEFINITION);
+        	
+            if (!groupConfigFile.exists()) {
+	            statusHandler.handle(Priority.PROBLEM,
+	                    "Unable to locate group configuration file - "
+	                            + groupConfigFile.getAbsolutePath(), null);
+	            this.groupConfigFilePath = null;
+            } else {
+            	this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
+            	statusHandler.handle(Priority.PROBLEM, "Using standard AWIPS 2 group_definition.cfg file.  "
+            			+ "Unable to locate specified group configuration file.", null);
+            }
         } else {
             this.groupConfigFilePath = groupConfigFile.getAbsolutePath();
         }
@@ -2372,57 +2385,69 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
             LinkedHashMap<String, ArrayList<SiteInfo>> dataMap,
             boolean tsSelected) {
         if (dataMap.size() > 0) {
+        	final String OTHER = "OTHER";
             Set<String> peSet = dataMap.keySet();
             Iterator<String> iter = peSet.iterator();
+            Map<String, ArrayList<SiteInfo>> tsMap = new HashMap<String, ArrayList<SiteInfo>>();
+            for (String ts: TS_ORDER) {
+            	tsMap.put(ts, new ArrayList<SiteInfo>());
+            }
+            tsMap.put(OTHER, new ArrayList<SiteInfo>());
+            
             ArrayList<SiteInfo> list = null;
+            
+        	String selectedTs = tsOrderCbo.getItem(tsOrderCbo
+                    .getSelectionIndex());
 
             while (iter.hasNext()) {
                 String pe = iter.next();
                 list = dataMap.get(pe);
-
-                // Get the selected TS first
+                
+                for (String ts: TS_ORDER) {
+                	tsMap.get(ts).clear();
+                }
+                
+                tsMap.get(OTHER).clear();
+                
+                OUTER: for (SiteInfo si: list) {
+                	for (String ts: TS_ORDER) {
+                		if (si.getTs().startsWith(ts)) {
+                			tsMap.get(ts).add(si);
+                			continue OUTER;
+                		}
+                	}
+                	
+                	tsMap.get(OTHER).add(si);
+                }
+                
                 if (tsSelected) {
-                    for (int i = 0; i < list.size(); i++) {
-                        if (list.get(i)
-                                .getTs()
-                                .equals(tsOrderCbo.getItem(tsOrderCbo
-                                        .getSelectionIndex()))) {
-                            bottomDataList.add(formatDataLine(list.get(i)));
-                            siteInfoList.add(list.get(i));
-                            // Remove this item since it was already used
-                            list.remove(i);
-                            // Must decrement i since all items in the list
-                            // have been moved back one
-                            i--;
-                        }
-                    }
+                	ArrayList<SiteInfo> siList = tsMap.get(selectedTs.substring(0,1));
+                	for (SiteInfo si: siList) {
+                		// Add the selected TS
+                		if (si.getTs().equals(selectedTs)) {
+                			bottomDataList.add(formatDataLine(si));
+                			siteInfoList.add(si);
+                		}
+                	}
+                } 
+                
+                for (String ts: TS_ORDER) {
+                	ArrayList<SiteInfo> siList = tsMap.get(ts);
+                	for (SiteInfo si: siList) {
+                		if (!siteInfoList.contains(si)) {
+                    		bottomDataList.add(formatDataLine(si));
+                    		siteInfoList.add(si);                			
+                		}
+                	}
                 }
-
-                // Now get the rest of the listed ts records
-                for (int i = 0; i < TS_LIST.length; i++) {
-                    for (int j = 0; j < list.size(); j++) {
-                        if (list.get(j).getTs().equals(TS_LIST[i])) {
-                            bottomDataList.add(formatDataLine(list.get(j)));
-                            siteInfoList.add(list.get(j));
-                            // Remove this item since it was already used
-                            list.remove(j);
-                            // Must decrement j since all items in the list
-                            // have been moved back one
-                            j--;
-                        }
-                    }
-                }
-
-                for (int i = 0; i < list.size(); i++) {
-                    bottomDataList.add(formatDataLine(list.get(i)));
-                    siteInfoList.add(list.get(i));
-                    list.remove(i);
-                    i--;
-                }
-
+                
+            	ArrayList<SiteInfo> siList = tsMap.get(OTHER);
+            	for (SiteInfo si: siList) {
+            		bottomDataList.add(formatDataLine(si));
+            		siteInfoList.add(si);
+            	}
             }
         }
-
     }
 
     public void updateSelection(GageData gageData, boolean displayGraph) {

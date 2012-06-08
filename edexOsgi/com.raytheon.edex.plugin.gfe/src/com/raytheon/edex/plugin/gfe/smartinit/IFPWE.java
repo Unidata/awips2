@@ -105,7 +105,7 @@ public class IFPWE {
         parmId = parm;
         siteId = parm.getDbId().getSiteId();
         gpi = GridParmManager.getGridParmInfo(parmId).getPayload();
-        wsId = new WsId(null, userName, "EDEX", 0);
+        wsId = new WsId(null, userName, "EDEX");
     }
 
     /**

@@ -698,7 +698,7 @@ class Server(object):
       """
       Process the newly arrived profiler data
       """      
-      import PointDataRetrieve, NoDataException
+      import RefTimePointDataRetrieve, NoDataException
       PARAMETERS = ["profilerId", "validTime", "numProfLvls", "height",
                     "uComponent", "vComponent", "uvQualityCode"]
       site = AvnParser.getTafSiteCfg(ident)
@@ -706,9 +706,9 @@ class Server(object):
       if len(profilerList) > 0:
          for profilerName in profilerList:
             try :
-                pdc = PointDataRetrieve.retrieve('profiler', None, PARAMETERS,
+                pdc = RefTimePointDataRetrieve.retrieve('profiler', None, PARAMETERS,
                                                  keyId='validTime', constraint={'profilerId':profilerName},
-                                                 forecast=False, maxSize=1)
+                                                 maxSize=1)
             except NoDataException.NoDataException:
                 _Logger.info("Error reading profiler " + profilerName)
                 profilerList.remove(profilerName)

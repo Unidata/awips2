@@ -84,17 +84,6 @@ public class FFMPColorUtils {
         this.tableLoad = tableLoad;
         this.colormapparams = null;
 
-        // LocalizationFile[] files = ColorMapLoader.listColorMapFiles();
-        // for (LocalizationFile file : files) {
-        // String fn = file.getName();
-        // if (fn.startsWith("colormaps/ffmp/qpe"))
-        // {
-        // System.out.println(file.getName());
-        // String hour = fn.s
-        // }
-        //
-        // }
-
         StyleRule sr = null;
         try {
             sr = StyleManager.getInstance().getStyleRule(
@@ -178,8 +167,8 @@ public class FFMPColorUtils {
 
         double val2 = (Math.round(valueArg * 100.0)) / 100.0;
         Double value = val2;
-
-        if (value < 0.005 && field != FIELDS.DIFF) {
+        
+        if (value < 0.01 && field != FIELDS.DIFF) {
             ret = 0;
         } else if (field == FIELDS.DIFF) {
 
@@ -227,16 +216,6 @@ public class FFMPColorUtils {
                         + determineQpeToUse(time);
 
                 paramList.add(qpeName);
-                // if (time < 6.0) {
-                // paramList.add(FIELDS.QPE.getFieldName());
-                // // System.out.println("QPE: less than 6");
-                // } else if (time >= 6.0 && time < 12.0) {
-                // paramList.add(FIELDS.QPE.getFieldName() + "6");
-                // // System.out.println("QPE: greater than 6 less than 12");
-                // } else if (time >= 12.0) {
-                // paramList.add(FIELDS.QPE.getFieldName() + "12");
-                // // System.out.println("QPE: greater than 12");
-                // }
             } else {
                 if (field == FIELDS.GUIDANCE) {
                     paramList.add(FIELDS.GUIDANCE.getFieldName());

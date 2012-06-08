@@ -478,8 +478,17 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 } else {
                     gageVal = String.format("%.2f", workingGage.getGval())
                             + " in.";
-                    scaleVal = ((int) (100 * workingGage.getGval()));
-                    scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
+                    if (workingGage.getGval() == 0) {
+                    	scaleVal = (0);
+                    	scaleValLab = String.format("%4.2f", 0.0);
+                    } else {
+                    	scaleVal = ((int) (100 * workingGage.getGval() - 0.01));
+						if (scaleVal == 0) {
+							scaleValLab = String.format("%4.2f", 0.0);
+						} else {
+							scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
+						}
+                    }
                 }
             }
         }
