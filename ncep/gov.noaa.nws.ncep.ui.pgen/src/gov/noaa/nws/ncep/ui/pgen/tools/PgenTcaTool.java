@@ -21,7 +21,7 @@ import com.vividsolutions.jts.geom.Point;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TcaAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TcaAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;

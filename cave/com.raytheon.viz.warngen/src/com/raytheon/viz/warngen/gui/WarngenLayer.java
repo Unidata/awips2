@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -56,6 +57,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
 import com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.config.GridSpacing;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
@@ -84,7 +86,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -204,7 +205,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private boolean boxEditable = true;
 
-    private List<String> loadedCustomMaps;
+    private Map<MapDescriptor, Set<String>> loadedCustomMaps;
 
     protected Mode lastMode = null;
 
@@ -242,7 +243,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         super(resourceData, loadProperties, descriptor);
         displayState.displayType = DisplayType.POINT;
         getCapability(ColorableCapability.class).setColor(WHITE);
-        loadedCustomMaps = new ArrayList<String>();
+        loadedCustomMaps = new HashMap<MapDescriptor, Set<String>>();
 
         try {
             dialogConfig = DialogConfiguration
@@ -367,8 +368,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     @Override
     protected void disposeInternal() {
-        for (String map : loadedCustomMaps) {
-            MapManager.getInstance(descriptor).unloadMap(map);
+        for (Entry<MapDescriptor, Set<String>> entry : loadedCustomMaps
+                .entrySet()) {
+            for (String map : entry.getValue()) {
+                MapManager.getInstance(entry.getKey()).unloadMap(map);
+            }
         }
         loadedCustomMaps.clear();
 
@@ -671,7 +675,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     private void init(WarngenConfiguration config) {
         long t0 = System.currentTimeMillis();
-        String[] maps = config.getMaps();
 
         boolean validAreaSource = false;
         for (AreaSourceConfiguration as : config.getAreaSources()) {
@@ -741,20 +744,27 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 locals).getEnvelopeInternal();
                         IExtent localExtent = new PixelExtent(env.getMinX(),
                                 env.getMaxX(), env.getMinY(), env.getMaxY());
-
-                        // TODO: Make configurable?
-                        int nx = 400;
-                        int ny = 400;
-                        // Boolean to change the aspect ratio of the extent to
-                        // match
+                        
+                        int nx = 600;
+                        int ny = 600;
+                        // Boolean to change the aspect ratio of the extent to match
                         boolean keepAspectRatio = true;
+                        
+                        GridSpacing gridSpacing = dialogConfig.getGridSpacing();
+                        
+                        if (gridSpacing != null && gridSpacing.getNx() != null && gridSpacing != null) {
+                            nx = gridSpacing.getNx();
+                            ny = gridSpacing.getNy();
+                            keepAspectRatio = gridSpacing.isKeepAspectRatio();
+                        }
+                        
                         double xinc, yinc;
+                        double width = localExtent.getWidth();
+                        double height = localExtent.getHeight();
                         if (!keepAspectRatio) {
-                            xinc = (localExtent.getWidth() / nx);
-                            yinc = (localExtent.getHeight() / ny);
+                            xinc = (width / nx);
+                            yinc = (height / ny);
                         } else {
-                            double width = localExtent.getWidth();
-                            double height = localExtent.getHeight();
                             if (width > height) {
                                 ny = (int) ((height * nx) / width);
                             } else if (height > width) {
@@ -784,46 +794,43 @@ public class WarngenLayer extends AbstractStormTrackResource {
             String areaSource = config.getGeospatialConfig().getAreaSource();
             geoData = siteMap.get(areaSource + "." + site);
         }// end synchronize
+        loadCustomMaps(descriptor, config);
+        this.configuration = config;
+        System.out.println("Time to init warngen config: "
+                + (System.currentTimeMillis() - t0));
+    }
 
+    protected void loadCustomMaps(MapDescriptor descriptor,
+            WarngenConfiguration config) {
+        if (config == null || descriptor == null) {
+            return;
+        }
         long t1 = System.currentTimeMillis();
-        List<String> temp = new ArrayList<String>();
-        for (String s : loadedCustomMaps) {
-            if (maps != null && maps.length > 0) {
-                for (String s2 : maps) {
-                    if (s.equalsIgnoreCase(s2)) {
-                        temp.add(s);
-                    }
-                }
+        MapManager mapManager = MapManager.getInstance(descriptor);
+        List<String> maps = Arrays.asList(config.getMaps());
+        Set<String> loadedCustomMaps = this.loadedCustomMaps.get(descriptor);
+        if (loadedCustomMaps == null) {
+            loadedCustomMaps = new HashSet<String>();
+            this.loadedCustomMaps.put(descriptor, loadedCustomMaps);
+        }
+        Iterator<String> it = loadedCustomMaps.iterator();
+        while (it.hasNext()) {
+            String map = it.next();
+            if (!maps.contains(map)) {
+                it.remove();
+                mapManager.unloadMap(map);
             }
         }
-        for (String s : loadedCustomMaps) {
-            if (!temp.contains(s)) {
-                MapManager.getInstance(descriptor).unloadMap(s);
-            }
-        }
-        loadedCustomMaps.clear();
-        for (String s : temp) {
-            loadedCustomMaps.add(s);
-        }
-        if (maps != null && maps.length > 0) {
-            if (descriptor instanceof IMapDescriptor) {
-                MapManager mapManager = MapManager.getInstance(descriptor);
-                for (String map : maps) {
-                    if (!loadedCustomMaps.contains(map)) {
-                        if (! mapManager.isMapLoaded(map)) {
-                            mapManager.loadMapByName(map);
-                            loadedCustomMaps.add(map);
-                        }
-                    }
+        for (String map : maps) {
+            if (!loadedCustomMaps.contains(map)) {
+                if (!mapManager.isMapLoaded(map)) {
+                    mapManager.loadMapByName(map);
+                    loadedCustomMaps.add(map);
                 }
-
             }
         }
         System.out.println("Time to load custom maps: "
                 + (System.currentTimeMillis() - t1));
-        this.configuration = config;
-        System.out.println("Time to init warngen config: "
-                + (System.currentTimeMillis() - t0));
     }
 
     public GeospatialData[] getGeodataFeatures(String key) {
@@ -1054,15 +1061,28 @@ public class WarngenLayer extends AbstractStormTrackResource {
             dialog = new WarngenDialog(PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow().getShell(), this);
             dialog.open();
+            addDialogDisposeListener(descriptor);
+        } else {
+            showDialog(true);
+        }
+    }
+
+    public void addDialogDisposeListener(final MapDescriptor descriptor) {
+        if (dialog != null) {
             dialog.getShell().addDisposeListener(new DisposeListener() {
                 @Override
                 public void widgetDisposed(DisposeEvent e) {
                     descriptor.getResourceList().removeRsc(WarngenLayer.this);
                 }
             });
-        } else {
-            showDialog(true);
         }
+    }
+
+    @Override
+    public void setDescriptor(MapDescriptor descriptor) {
+        super.setDescriptor(descriptor);
+        addDialogDisposeListener(descriptor);
+        loadCustomMaps(descriptor, configuration);
     }
 
     /**
@@ -1115,7 +1135,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry intersection = null;
             try {
                 // Get intersection between county and hatched boundary
-                intersection = GeometryUtil.intersection(hatchedArea, prepGeom);
+                try {
+                    intersection = GeometryUtil.intersection(hatchedArea,
+                            prepGeom);
+                } catch (TopologyException e) {
+                    // side location conflict using a prepared geom
+                    // need the actual geom for this case
+                    intersection = GeometryUtil.intersection(hatchedArea, geom);
+                }
                 if (intersection.isEmpty()) {
                     continue;
                 }
@@ -1225,37 +1252,37 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
         if (newHatchedArea == null) {
-        	boolean initialWarning = false;
-        	String[] followUps = this.getConfiguration().getFollowUps();
-        	if (followUps.length == 0)
-        		initialWarning = true;
-        	else
-        		for (String followup : followUps) {
-        			if (followup.equals("NEW")) {
-        				initialWarning = true;
-        				break;
-        			}
-        	}
-        	if (initialWarning)
-        		state.clear2(); // not to hatch polygon for initial warning
+            boolean initialWarning = false;
+            String[] followUps = this.getConfiguration().getFollowUps();
+            if (followUps.length == 0)
+                initialWarning = true;
+            else
+                for (String followup : followUps) {
+                    if (followup.equals("NEW")) {
+                        initialWarning = true;
+                        break;
+                    }
+                }
+            if (initialWarning)
+                state.clear2(); // not to hatch polygon for initial warning
             else {
-            	// Snap back for follow-ups
-            	state.setWarningPolygon((Polygon) state
-            			.getMarkedWarningPolygon().clone());
-            	newHatchedArea = latLonToLocal((Geometry) state
-            			.getMarkedWarningArea().clone());
-            	state.resetMarked();
-            	updateWarnedAreas(snapHatchedAreaToPolygon, true);
+                // Snap back for follow-ups
+                state.setWarningPolygon((Polygon) state
+                        .getMarkedWarningPolygon().clone());
+                newHatchedArea = latLonToLocal((Geometry) state
+                        .getMarkedWarningArea().clone());
+                state.resetMarked();
+                updateWarnedAreas(snapHatchedAreaToPolygon, true);
             }
         } else {
-			newHatchedArea = localToLatLon(newHatchedArea);
-			state.setWarningArea(newHatchedArea);
-			state.mark(newHatchedArea);
-			newHatchedArea = buildArea(getPolygon());
-			// add "W" strings
-			if (determineInclusion) {
-				populateStrings();
-			}        	
+            newHatchedArea = localToLatLon(newHatchedArea);
+            state.setWarningArea(newHatchedArea);
+            state.mark(newHatchedArea);
+            newHatchedArea = buildArea(getPolygon());
+            // add "W" strings
+            if (determineInclusion) {
+                populateStrings();
+            }
         }
 
         // Apply new hatched area
@@ -1314,6 +1341,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         c[2] = new Coordinate(p3.getX(), p3.getY());
         c[3] = new Coordinate(p4.getX(), p4.getY());
         c[4] = c[0];
+        
+        PolygonUtil.truncate(c, 2);
 
         LinearRing lr = gf.createLinearRing(c);
         state.setWarningPolygon(gf.createPolygon(lr, null));
@@ -1477,6 +1506,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
             Coordinate[] c = new Coordinate[linearRing.size()];
             c = linearRing.toArray(c);
+            PolygonUtil.truncate(c, 2);
             LinearRing lr = gf.createLinearRing(c);
             state.setWarningPolygon(gf.createPolygon(lr, null));
 
@@ -1519,6 +1549,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             c[2] = new Coordinate(p3.getX(), p3.getY());
             c[3] = new Coordinate(p4.getX(), p4.getY());
             c[4] = c[0];
+            
+            PolygonUtil.truncate(c, 2);
 
             LinearRing lr = gf.createLinearRing(c);
             state.setWarningPolygon(gf.createPolygon(lr, null));
@@ -1702,11 +1734,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Matcher m = tmlPtrn.matcher(rawMessage);
 
         if (m.find()) {
-            int hour = Integer.parseInt(m.group(1));
-            int minute = Integer.parseInt(m.group(2));
+            Calendar issueTime = warnRecord.getIssueTime();
+            int day = issueTime.get(Calendar.DAY_OF_MONTH);
+            int tmlHour = Integer.parseInt(m.group(1));
+            // This is for the case when the warning text was created,
+            // but actually issued the next day.
+            if (tmlHour > issueTime.get(Calendar.HOUR_OF_DAY)) {
+                day--;
+            }
+            int tmlMinute = Integer.parseInt(m.group(2));
             frameTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            frameTime.set(Calendar.HOUR_OF_DAY, hour);
-            frameTime.set(Calendar.MINUTE, minute);
+            frameTime.set(Calendar.DAY_OF_MONTH, day);
+            frameTime.set(Calendar.HOUR_OF_DAY, tmlHour);
+            frameTime.set(Calendar.MINUTE, tmlMinute);
         } else {
             frameTime = warnRecord.getIssueTime();
         }
@@ -2208,6 +2248,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         displayState.geomChanged = true;
+        drawShadedPoly(state.getWarningArea());
         issueRefresh();
     }
 

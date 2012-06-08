@@ -26,22 +26,22 @@ import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlgFactory;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.FrontAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenDistanceDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenDistanceDlg.DistanceDisplayProperties;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TrackExtrapPointInfoDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetCommAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.*;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlgFactory;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.FrontAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.PgenDistanceDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.SigmetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.SigmetCommAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TrackAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TrackExtrapPointInfoDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.PgenDistanceDlg.DistanceDisplayProperties;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.*;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
 import gov.noaa.nws.ncep.viz.common.LocatorUtil;
 
@@ -74,8 +74,8 @@ import gov.noaa.nws.ncep.viz.common.LocatorUtil;
 
 public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
 	
-	private final static org.apache.log4j.Logger log = 
-		org.apache.log4j.Logger.getLogger(PgenMultiPointDrawingTool.class);
+//	private final static org.apache.log4j.Logger log = 
+//		org.apache.log4j.Logger.getLogger(PgenMultiPointDrawingTool.class);
 	
 	private TrackExtrapPointInfoDlg trackExtrapPointInfoDlg; 	
 	
@@ -193,7 +193,7 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
             	else {
             		//Use pgenType value to decide if the DrawableType should be TRACK or LINE
             		DrawableType drawableType = getDrawableType(pgenType); 
-            		log.debug("PgenMultiPointDrawingTool, before call def.create, drawableType=" + drawableType + ", pgenType="+pgenType);
+//            		log.debug("PgenMultiPointDrawingTool, before call def.create, drawableType=" + drawableType + ", pgenType="+pgenType);
 
             		/*if(drawableType == DrawableType.CONV_SIGMET && ("NCON_SIGMET".equals(pgenType))) //"CONV_SIGMET".equals(pgenType)||
             			points = SnapUtil.getSnapWithStation(points, SnapUtil.VOR_STATION_LIST, 10, 8);*/
@@ -308,7 +308,7 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
 			}else{
 				
 				if(pgenType.equalsIgnoreCase("CCFP_SIGMET")) 
-					return ((gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg)attrDlg).getLineType();
+					return ((gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg)attrDlg).getLineType();
 				
 				if(pgenType.equalsIgnoreCase("VACL_SIGMET"))
 					return ((VaaCloudDlg)attrDlg).getLineType();

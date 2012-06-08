@@ -1186,5 +1186,10 @@
             <value  prd="10800" ofs="0">
             </value>
         </entry>
+        <entry>
+            <key>PGNA00</key>
+            <value  prd="60" ofs="0">
+            </value>
+        </entry>
     </mapping>
 </redbookFcstMap>

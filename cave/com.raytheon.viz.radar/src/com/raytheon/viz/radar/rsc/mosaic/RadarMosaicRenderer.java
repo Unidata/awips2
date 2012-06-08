@@ -149,6 +149,7 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
                 writeTo.setImagesToMosaic(images
                         .toArray(new DrawableImage[images.size()]));
                 lastExtent = paintProps.getView().getExtent().clone();
+                writeTo.setImageExtent(lastExtent);
 
                 Coordinate ul = new Coordinate(lastExtent.getMinX(),
                         lastExtent.getMaxY());
@@ -180,7 +181,8 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
         writeTo = target.getExtension(IRadarMosaicImageExtension.class)
                 .initializeRaster(
                         new int[] { paintProps.getCanvasBounds().width,
-                                paintProps.getCanvasBounds().height }, params);
+                                paintProps.getCanvasBounds().height },
+                        paintProps.getView().getExtent(), params);
     }
 
     @Override

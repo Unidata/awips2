@@ -9,6 +9,8 @@
 !
 GLEVEL=850
 GVCORD=PRES
+SKIP=
+FILTER=y
 SCALE=4             !-1        !0       !0 !0 !0
 GDPFUN=adv(thte,wind)!sm5s(hght)!thte!thte!thte!kntv(wnd)
 TYPE=c/f           !c         !c       !c !c !b

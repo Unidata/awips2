@@ -14,7 +14,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;

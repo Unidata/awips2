@@ -2,3 +2,6 @@ colorMapName=nids_vel16
 colorBar=@dfltRadarColorBar.xml
 productCode=27
 elevationNumber=1
+alpha=1.0
+brightness=1.0
+contrast=1.0

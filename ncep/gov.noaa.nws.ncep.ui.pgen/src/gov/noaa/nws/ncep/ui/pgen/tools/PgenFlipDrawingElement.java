@@ -9,6 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
@@ -17,7 +18,7 @@ import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Implements a modal map tool for the PGEN flip element function.
@@ -70,11 +71,13 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
     public class PgenFlipHandler extends InputHandlerDefaultImpl {
     	
     	private PgenResource flipPgenSource; 
-    	private NCMapEditor flipNCMapEditor;
+//    	private NCMapEditor flipNCMapEditor;
+    	private AbstractEditor flipNCMapEditor;
     	private boolean preempt;
     	private OperationFilter flipFilter;
     	
-    	public PgenFlipHandler(PgenResource _flipPgenSource, NCMapEditor _flipNCMapEditor) {
+//    	public PgenFlipHandler(PgenResource _flipPgenSource, NCMapEditor _flipNCMapEditor) {
+        public PgenFlipHandler(PgenResource _flipPgenSource, AbstractEditor _flipNCMapEditor) {
     		flipPgenSource = _flipPgenSource; 
     		flipNCMapEditor = _flipNCMapEditor; 
     		flipFilter = new OperationFilter( Operation.FLIP );
@@ -153,7 +156,8 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
          * @return  
          */
         private void rightMouseButtonDownHandler(PgenResource thePpgenSource, 
-        		AbstractDrawableComponent selectedDrawableElement, NCMapEditor theNCMapEditor) {
+//        		AbstractDrawableComponent selectedDrawableElement, NCMapEditor theNCMapEditor) {
+    		    AbstractDrawableComponent selectedDrawableElement, AbstractEditor theNCMapEditor) {
         	if ( selectedDrawableElement != null ){
         		// de-select element
         		thePpgenSource.removeSelected();
