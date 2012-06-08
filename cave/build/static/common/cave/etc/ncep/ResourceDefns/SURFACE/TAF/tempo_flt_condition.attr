@@ -2,3 +2,4 @@
 !
 plotModelName=tempo_flt_condition
 plotDensity=10
+conditionalFilterName=tempo_flight_condition

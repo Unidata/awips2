@@ -294,7 +294,7 @@ public class D2DParmIdCache {
     }
 
     /**
-     * Refreshes the cache for the given site. This is called up site
+     * Refreshes the cache for the given site. This is called upon site
      * activation. Also, the cache is rebuilt when the grib plugin purges its
      * data. The grib plugin will put a message on a topic so all members of the
      * cluster will know to rebuild their caches with the updated grib
@@ -344,13 +344,20 @@ public class D2DParmIdCache {
                                 e);
                     }
 
-                    for (DatabaseID id : dbIds) {
-                        try {
-                            parmIds.addAll(dao.getD2DParmIdsFromDb(model, id));
-                        } catch (DataAccessLayerException e) {
-                            throw new PluginException(
-                                    "Error adding parmIds to D2DParmIdCache!!",
-                                    e);
+                    if (!dbIds.isEmpty()) {
+                        int versions = Math.min(
+                                config.desiredDbVersions(dbIds.get(0)),
+                                dbIds.size());
+
+                        for (int i = 0; i < versions; i++) {
+                            try {
+                                parmIds.addAll(dao.getD2DParmIdsFromDb(model,
+                                        dbIds.get(i)));
+                            } catch (DataAccessLayerException e) {
+                                throw new PluginException(
+                                        "Error adding parmIds to D2DParmIdCache!!",
+                                        e);
+                            }
                         }
                     }
 

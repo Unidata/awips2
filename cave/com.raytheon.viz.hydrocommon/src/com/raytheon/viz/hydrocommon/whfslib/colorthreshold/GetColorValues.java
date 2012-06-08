@@ -193,7 +193,8 @@ public class GetColorValues {
         closest_duration = get_closest_multihour_duration(user_id,
                 application_name, coloruse_name, duration, threshold_unit);
 
-        if (closest_duration != NO_DURATION_FOUND) {
+        // does the closest one match?
+        if (closest_duration != NO_DURATION_FOUND && duration == closest_duration) {
             cvHead = getColorValueTableEntries(user_id, application_name,
                     coloruse_name, closest_duration, threshold_unit);
         }

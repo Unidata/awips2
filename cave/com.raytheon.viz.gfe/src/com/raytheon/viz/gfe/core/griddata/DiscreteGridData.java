@@ -831,14 +831,17 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         return setIt;
     }
 
+    @Override
     public Object[] getNumPy() {
         return new Object[] { this.getGrid().getBuffer().array() };
     }
 
+    @Override
     public int getNumpyX() {
         return this.getGrid().getXdim();
     }
 
+    @Override
     public int getNumpyY() {
         return this.getGrid().getYdim();
     }
@@ -927,7 +930,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                     if (points.get(i, j) == 1) {
                         DiscreteKey combined = DiscreteKey.combine(
                                 key.get(values.get(i, j)),
-                                doGetDiscreteValue(grid, key, new Point(i, j)));
+                                doGetDiscreteValue(i, j));
                         grid.set(i, j, lookupKeyValue(combined));
                     }
                 }
@@ -937,10 +940,9 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         setGrid(grid);
     }
 
-    protected DiscreteKey doGetDiscreteValue(Grid2DByte grid,
-            List<DiscreteKey> key, Point gridLoc) {
-        byte gridValue = grid.get(gridLoc.x, gridLoc.y);
-        return key.get(gridValue);
+    protected DiscreteKey doGetDiscreteValue(int x, int y) {
+        byte gridValue = getGrid().get(x, y);
+        return getKey()[gridValue];
     }
 
     /*

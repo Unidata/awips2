@@ -41,6 +41,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -414,7 +415,7 @@ public class MPEDisplayManager {
                 .getInstance().getCurrentWindow()
                 .getService(ICommandService.class))
                 .getCommand("com.raytheon.viz.mpe.ui.actions.toggleGageColor");
-        dataSaved = true;
+//        dataSaved = true;
         currentDate = MPEDataManager.getInstance().getLatestDate();
         displayFieldType = DisplayFieldData.mMosaic;
         displayMode = EnumSet.noneOf(DisplayMode.class);
@@ -520,6 +521,9 @@ public class MPEDisplayManager {
             if (!okToProceed()) {
                 return;
             }
+        } else {
+            // if saved, then reset to false since it isn't saved for the next time
+            setDataSaved(false);
         }
 
         currentDate = newDate;
@@ -660,7 +664,8 @@ public class MPEDisplayManager {
 
         List<Colorvalue> pColorSet = GetColorValues.get_colorvalues(user_id,
                 app_name, displayFieldType.getCv_use(),
-                displayFieldType.getCv_duration(), "E", pColorSetGroup);
+                accum_interval * 60 * 60, "E", pColorSetGroup);
+//                displayFieldType.getCv_duration(), "E", pColorSetGroup);
 
         switch (displayFieldType) {
         case rMosaic:
@@ -807,7 +812,7 @@ public class MPEDisplayManager {
             }
         }
         displayedResource = null;
-        dataSaved = true;
+//        dataSaved = true;
     }
 
     /**
@@ -1280,6 +1285,15 @@ public class MPEDisplayManager {
 
     private void save_merged_RFCW(String fileName, String processFlag) {
         XmrgFile xmrg = ((XmrgResource) displayedResource).getXmrgFile();
+        if (xmrg == null) {
+        	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+            		.getShell();
+        	MessageBox box = new MessageBox(shell, SWT.ERROR);
+        	box.setText("Cannot Save");
+        	box.setMessage("No Data Available, cannot save");
+        	box.open();
+        	return;
+        }
         xmrg.setData(((XmrgResource) displayedResource).getData());
         short[] data = xmrg.getData();
 

@@ -67,9 +67,7 @@ public class FFMPDataLoader extends Thread {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FFMPDataLoader.class);
 
-    private static String sharePath = AppsDefaults.getInstance().getToken(
-            "apps_dir")
-            + File.separator + "ffmp" + File.separator;
+    private String sharePath = null;
 
     private ProductXML product = null;
 
@@ -103,6 +101,7 @@ public class FFMPDataLoader extends Thread {
 
         sharePath = AppsDefaults.getInstance().getToken("apps_dir")
                 + File.separator + "ffmp" + File.separator;
+        //sharePath = "/awips2/edex/data/share/hydroapps/ffmp/";
 
         this.product = resourceData.getProduct();
         this.siteKey = resourceData.siteKey;
@@ -309,11 +308,11 @@ public class FFMPDataLoader extends Thread {
                                         source.getSourceName(), phuc);
                             }
                         }
-                        if (isUrisProcessNeeded(qpfData,qpfURIs)) {/*DR13839*/
-                        /*if ((qpfData == null) && !qpfURIs.isEmpty()) {
+                        //if (isUrisProcessNeeded(qpfData,qpfURIs)) {/*DR13839*/
+                        if ((qpfData == null) && !qpfURIs.isEmpty()) {
                             if (phuc.equals(config.getFFMPConfigData()
-                                    .getLayer())) { old code: keep for reference*/
-                        	if (isHucProcessNeeded(phuc)) {/*DR13839*/
+                                    .getLayer())) { //old code: keep for reference*/
+                        	//if (isHucProcessNeeded(phuc)) {/*DR13839*/
                                 getMonitor().processUris(qpfURIs,
                                         isProductLoad, siteKey,
                                         product.getQpf(i), timeBack, phuc,
@@ -518,25 +517,4 @@ public class FFMPDataLoader extends Thread {
 
     }
     
-    /**
-     * DR13839:	Basin Table QPF should match independent QPFSCAN display.
-     * Old code: qpfData==null in if statement causing some uris not processed.
-     * @param qpfData:	FFMPBasinData read from file;
-     * @param qpfURIs:	qpf uris.
-     * @return:			true if qpf uris not empty.
-     */
-    private boolean isUrisProcessNeeded(FFMPBasinData qpfData, NavigableMap<Date, List<String>> qpfURIs){    	
-    	return ! qpfURIs.isEmpty();
-    }
-    
-    /**
-     * DR13839:	Basin Table QPF should match independent QPFSCAN display.
-     * with phuc is ALL allows matching independent QPFSCAN values. 
-     * @param phuc:	the huc string of a basin;
-     * @return:		true if the huc needs processing.
-     */
-    private boolean isHucProcessNeeded(String phuc){    	
-    	return "ALL".equals(phuc); 	//config.getFFMPConfigData().getLayer().equals(phuc);    	
-    }
-
 }
