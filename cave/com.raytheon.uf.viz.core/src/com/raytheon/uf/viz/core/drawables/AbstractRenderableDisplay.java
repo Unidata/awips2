@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -44,7 +43,6 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.IView.POVShiftType;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.preferences.ColorFactory;
@@ -400,18 +398,6 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay#setFocalPoint(double
-     * [])
-     */
-    @Override
-    public boolean setFocalPoint(double[] currentMouse, IGraphicsTarget target) {
-        return this.view.setFocalPoint(currentMouse, target);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
      * com.raytheon.uf.viz.core.drawables.IRenderableDisplay#shiftExtent(double
      * [], double[], com.raytheon.uf.viz.core.IGraphicsTarget)
      */
@@ -419,20 +405,6 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
     public void shiftExtent(double[] startScreen, double[] endScreen,
             IGraphicsTarget target) {
         this.view.shiftExtent(startScreen, endScreen, target);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IRenderableDisplay#shiftPOV(double[],
-     * double[], com.raytheon.uf.viz.core.IView.POVShiftType)
-     */
-    @Override
-    public boolean shiftPOV(double[] lastMouse, double[] currentMouse,
-            POVShiftType shiftType, IGraphicsTarget target) {
-        return this.view.shiftPOV(lastMouse, currentMouse,
-                IView.POVShiftType.valueOf(shiftType.toString()), target);
     }
 
     /**
@@ -453,8 +425,6 @@ public abstract class AbstractRenderableDisplay implements IRenderableDisplay {
     public void zoom(double zoomLevel) {
         this.view.zoom(zoomLevel);
     }
-
-    private final String uuid = UUID.randomUUID().toString();
 
     /*
      * (non-Javadoc)

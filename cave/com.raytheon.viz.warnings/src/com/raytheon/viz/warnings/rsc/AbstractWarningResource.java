@@ -68,6 +68,10 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Aug 5, 2011            njensen       Refactored maps
  * Aug 22, 2011  10631   njensen  Major refactor
  * 2012-04-16   DR 14866   D. Friedman Fix sampling error
+ * May 3, 2012  DR 14741  porricel      Updated matchesFrame function
+ *                                      to make SVS warning updates and
+ *                                      original warning display properly
+ *                                      in a given display frame
  * 
  * </pre>
  * 
@@ -227,6 +231,8 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
          * cancel.
          **/
         protected boolean altered = false;
+        
+        protected Date timeAltered;
 
         /**
          * was the alter a partial cancel? if it was then a matching CON should
@@ -595,6 +601,9 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
         Date centerTime = new Date(entry.record.getStartTime()
                 .getTimeInMillis() + (diff / 2));
         Date frameTime = framePeriod.getStart();
+        
+        Date frameStart = framePeriod.getStart();
+        Date refTime = entry.record.getDataTime().getRefTime();
 
         if (lastFrame) {
             // use current system time to determine what to display
@@ -610,9 +619,18 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
         // check if the warning is cancelled
         WarningAction action = WarningAction.valueOf(entry.record.getAct());
         if (action == WarningAction.CAN
-                && entry.record.getDataTime().getRefTime().equals(paintTime)) {
+                && refTime.equals(paintTime)) {
             return false;
-        } else if (entry.record.getDataTime().getRefTime().equals(paintTime)
+        // If this entry has been altered/updated, display its pre-altered version 
+        // only in the frames prior to the time it was altered
+        } else if (entry.altered){
+        	if (frameStart.getTime() >= refTime.getTime() && 
+        		    frameStart.getTime() < (entry.timeAltered.getTime()))	
+        		return true;
+        	if (frameStart.getTime() >= (entry.timeAltered.getTime())) 
+        		return false;
+        	
+        } else if (refTime.equals(paintTime)
                 || recordPeriod.contains(frameTime)
                 || (framePeriod.contains(centerTime) && (!lastFrame || !entry.altered))) {
             return true;

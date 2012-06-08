@@ -17,7 +17,6 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
 package com.raytheon.edex.plugin.shef;
 
 import static com.raytheon.uf.edex.decodertools.core.IDecoderConstants.WMO_HEADER;
@@ -62,21 +61,12 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * @author bphillip
  * @version 1
  */
-
-/**
- * Implementation of file separator for SHEF files
- * 
- * @author bphillip
- * 
- */
 public class ShefSeparator extends AbstractRecordSeparator {
 
     private enum Continuation {
-        NONE,
-        CONTINUE,
-        ERROR;
+        NONE, CONTINUE, ERROR;
     }
-    
+
     public static class ShefDecoderInput {
         public String record;
 
@@ -112,7 +102,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
     private static final Pattern P_SHEFEND = Pattern.compile(SHEFEND);
 
     private static final String LINE_FMT = "%s:%05d";
-    
+
     private static boolean removeLeadingComments = false;
 
     /** The WMO header */
@@ -195,7 +185,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
                     + wmoHeader.getWmoHeader());
         }
     }
-    
+
     public static ShefSeparator separate(byte[] data, Headers headers) {
         ShefSeparator separator = new ShefSeparator();
         try {
@@ -208,8 +198,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
         }
         return separator;
     }
-    
-    
+
     /**
      * 
      * @return
@@ -263,19 +252,19 @@ public class ShefSeparator extends AbstractRecordSeparator {
             reader.mark(0);
             StringBuilder buffer = null;
             StringBuilder bRecBuffer = null;
-            
+
             String assemble = null;
             String mRevised = " ";
             String cRevised = " ";
             Continuation continued = Continuation.NONE;
             String lineData = null;
             boolean leadingSpaces = false;
-            
+
             String currRec = null;
             // haven't seen the awips header (should be first line) so evaluate
             // for a possible awips header.
             int lineNumber = 1;
-            
+
             while ((currRec = reader.readLine()) != null) {
                 if (currRec.length() > 0) {
                     String c = currRec.substring(0, 1);
@@ -301,21 +290,20 @@ public class ShefSeparator extends AbstractRecordSeparator {
             boolean bData = false;
             while ((currRec = reader.readLine()) != null) {
                 lineNumber++;
+                currRec = removeInternalComments(currRec);
                 currLine = currRec;
                 if (currRec.length() > 0) {
                     // need to find out if this report is terminated with an '='
                     StringBuilder sb = new StringBuilder(currLine);
-                    while ((sb.length() > 0)&&('=' == sb.charAt(sb.length()-1))) {
+                    while ((sb.length() > 0)
+                            && ('=' == sb.charAt(sb.length() - 1))) {
                         endOfReport = true;
                         sb.deleteCharAt(sb.length() - 1);
                     }
                     currRec = sb.toString();
                     if ((currRec.charAt(0) == '.') || ("B".equals(assemble))) {
-                        // Now that we've established that this might be a well formed
-                        // record i.e. starts with a "." remove all internal comments.
-                        currRec = removeInternalComments(currRec);
-                        
-                        // Start by looking for a possible .END, makes it easier later
+                        // Start by looking for a possible .END, makes it easier
+                        // later
                         // when looking for .E messages!
                         m = P_SHEFEND.matcher(currRec);
                         if (m.find()) {
@@ -323,7 +311,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
                             if (m.group(1) == null) {
                                 if ("B".equals(assemble)) {
                                     // We are assembling a B Record
-                                    if(bRecBuffer != null) {
+                                    if (bRecBuffer != null) {
                                         buffer.append(bRecBuffer);
                                     }
                                     buffer.append("\n.END");
@@ -331,14 +319,17 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                 } else {
                                     // We found an .END directive and didn't
                                     // expect one.
-                                    ERR_LOGGER.warning(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                    ERR_LOGGER.warning(getClass(), String
+                                            .format(LINE_FMT, traceId,
+                                                    lineNumber));
                                     ERR_LOGGER.warning(getClass(), currLine);
                                     ERR_LOGGER.warning(getClass(), "   ?");
                                     ERR_LOGGER.warning(getClass(),
                                             SHEFErrorCodes.LOG_068);
                                 }
                             } else {
-                                ERR_LOGGER.error(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                ERR_LOGGER.error(getClass(), String.format(
+                                        LINE_FMT, traceId, lineNumber));
                                 ERR_LOGGER.error(getClass(), currLine);
                                 ERR_LOGGER.error(getClass(),
                                         String.format("%s ?", m.group(1)));
@@ -349,7 +340,9 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                     buffer.append("\n.END");
                                     records.add(buffer.toString());
                                 } else {
-                                    ERR_LOGGER.warning(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                    ERR_LOGGER.warning(getClass(), String
+                                            .format(LINE_FMT, traceId,
+                                                    lineNumber));
                                     ERR_LOGGER.warning(getClass(), currRec);
                                     ERR_LOGGER.warning(getClass(), "   ?");
                                     ERR_LOGGER.warning(getClass(),
@@ -367,12 +360,13 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                 leadingSpaces = (m.group(1) != null);
                                 // No leading spaces on the line
                                 cRevised = (m.group(5) != null) ? "R" : " ";
-                                // ss will receive the sequence number if it exists.
+                                // ss will receive the sequence number if it
+                                // exists.
                                 String ss = ("R".equals(cRevised)) ? m.group(6)
                                         : m.group(7);
-                                
+
                                 int len = (ss != null) ? ss.length() : -1;
-                                
+
                                 if ((len == 1) || (len == 2)) {
                                     continued = Continuation.CONTINUE;
                                 } else if (len > 2) {
@@ -381,7 +375,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                     continued = Continuation.NONE;
                                 }
                                 // are we starting a new record?
-                                if(assemble == null) {
+                                if (assemble == null) {
                                     mRevised = cRevised;
                                     cRevised = " ";
                                 }
@@ -395,25 +389,17 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                                 // line and had been
                                                 // assembling the B record
                                                 // data section.
-                                                ERR_LOGGER
-                                                        .warning(
-                                                                getClass(),
-                                                                String.format(
-                                                                        LINE_FMT,
-                                                                        traceId,
-                                                                        lineNumber));
-                                                ERR_LOGGER
-                                                .warning(
-                                                        getClass(),
+                                                ERR_LOGGER.warning(getClass(),
+                                                        String.format(LINE_FMT,
+                                                                traceId,
+                                                                lineNumber));
+                                                ERR_LOGGER.warning(getClass(),
                                                         buffer.toString());
-                                                ERR_LOGGER
-                                                        .warning(
-                                                                getClass(),
-                                                                bRecBuffer.toString());
-                                                ERR_LOGGER.warning(
-                                                        getClass(), "  ?");
-                                                ERR_LOGGER.warning(
-                                                        getClass(),
+                                                ERR_LOGGER.warning(getClass(),
+                                                        bRecBuffer.toString());
+                                                ERR_LOGGER.warning(getClass(),
+                                                        "  ?");
+                                                ERR_LOGGER.warning(getClass(),
                                                         SHEFErrorCodes.LOG_082);
                                                 bRecBuffer = null;
                                                 bData = false;
@@ -424,24 +410,34 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                         }
                                         // Is this continued record the same as
                                         // we are currently assembling?
-                                        if(assemble == null) {
-                                            // If we get here something is wrong.
-                                            
-                                            
+                                        if (assemble == null) {
+                                            // If we get here something is
+                                            // wrong.
+
                                         } else if (assemble.equals(m.group(2))) {
-                                            if("R".equals(mRevised)) {
+                                            if ("R".equals(mRevised)) {
                                                 buffer = assembleContinuedLines(
                                                         buffer, lineData);
-                                            } else if(" ".equals(cRevised)) {
-                                                if("R".equals(mRevised)) {
-                                                    // the revision on this continuation line is not
-                                                    // the same as the main report.
-                                                    ERR_LOGGER.error(getClass(), String.format(LINE_FMT, traceId, lineNumber));
-                                                    ERR_LOGGER.error(getClass(),
-                                                            currRec);
-                                                    ERR_LOGGER.error(getClass(), " ?");
-                                                    ERR_LOGGER.error(getClass(),
-                                                            SHEFErrorCodes.LOG_010);
+                                            } else if (" ".equals(cRevised)) {
+                                                if ("R".equals(mRevised)) {
+                                                    // the revision on this
+                                                    // continuation line is not
+                                                    // the same as the main
+                                                    // report.
+                                                    ERR_LOGGER
+                                                            .error(getClass(),
+                                                                    String.format(
+                                                                            LINE_FMT,
+                                                                            traceId,
+                                                                            lineNumber));
+                                                    ERR_LOGGER
+                                                            .error(getClass(),
+                                                                    currRec);
+                                                    ERR_LOGGER.error(
+                                                            getClass(), " ?");
+                                                    ERR_LOGGER
+                                                            .error(getClass(),
+                                                                    SHEFErrorCodes.LOG_010);
                                                 } else {
                                                     buffer = assembleContinuedLines(
                                                             buffer, lineData);
@@ -451,7 +447,9 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                             // We have a continuation line, but
                                             // its from a different record
                                             // type than we started with.
-                                            ERR_LOGGER.error(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                            ERR_LOGGER.error(getClass(), String
+                                                    .format(LINE_FMT, traceId,
+                                                            lineNumber));
                                             ERR_LOGGER.error(getClass(),
                                                     currRec);
                                             ERR_LOGGER.error(getClass(), " ?");
@@ -461,7 +459,9 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                     } else {
                                         // We have a continuation line with no
                                         // data
-                                        ERR_LOGGER.warning(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                        ERR_LOGGER.warning(getClass(), String
+                                                .format(LINE_FMT, traceId,
+                                                        lineNumber));
                                         ERR_LOGGER.warning(getClass(), currRec);
                                         ERR_LOGGER.warning(getClass(), " ?");
                                         ERR_LOGGER.warning(getClass(),
@@ -469,16 +469,20 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                     }
                                 } else if (continued.equals(Continuation.NONE)) {
                                     // Not a continuation line
-                                    
-                                    // Check to see if we were assembling a B record.
-                                    // if we get here with B then we didn't see an
-                                    // .END directive. complain, insert the .END and
+
+                                    // Check to see if we were assembling a B
+                                    // record.
+                                    // if we get here with B then we didn't see
+                                    // an
+                                    // .END directive. complain, insert the .END
+                                    // and
                                     // continue as normal
-                                    if("B".equals(assemble)) {
-                                        ERR_LOGGER.warning(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                    if ("B".equals(assemble)) {
+                                        ERR_LOGGER.warning(getClass(), String
+                                                .format(LINE_FMT, traceId,
+                                                        lineNumber));
                                         ERR_LOGGER.warning(getClass(), currRec);
-                                        ERR_LOGGER.warning(
-                                                getClass(),"  ?");
+                                        ERR_LOGGER.warning(getClass(), "  ?");
                                         ERR_LOGGER.warning(getClass(),
                                                 SHEFErrorCodes.LOG_046);
                                         buffer.append("\n");
@@ -492,7 +496,8 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                         bData = false;
                                     }
                                     assemble = m.group(2);
-                                    // need to check for revision here for the report level
+                                    // need to check for revision here for the
+                                    // report level
                                     mRevised = (m.group(5) != null) ? "R" : " ";
                                     if (!leadingSpaces) {
                                         if (buffer != null) {
@@ -500,20 +505,22 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                         }
                                         buffer = new StringBuilder(currRec);
                                     } else {
-                                        ERR_LOGGER.warning(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                        ERR_LOGGER.warning(getClass(), String
+                                                .format(LINE_FMT, traceId,
+                                                        lineNumber));
                                         ERR_LOGGER.warning(getClass(), currRec);
-                                        ERR_LOGGER.warning(
-                                                getClass(),"  ?");
+                                        ERR_LOGGER.warning(getClass(), "  ?");
                                         ERR_LOGGER.warning(getClass(),
                                                 SHEFErrorCodes.LOG_006);
                                         assemble = null;
                                     }
                                 } else {
                                     // continuation error
-                                    ERR_LOGGER.warning(getClass(), String.format(LINE_FMT, traceId, lineNumber));
+                                    ERR_LOGGER.warning(getClass(), String
+                                            .format(LINE_FMT, traceId,
+                                                    lineNumber));
                                     ERR_LOGGER.warning(getClass(), currRec);
-                                    ERR_LOGGER.warning(
-                                            getClass(),"  ?");
+                                    ERR_LOGGER.warning(getClass(), "  ?");
                                     ERR_LOGGER.warning(getClass(),
                                             SHEFErrorCodes.LOG_008);
                                     if (buffer != null) {
@@ -525,11 +532,11 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                     continued = Continuation.NONE;
                                 }
                             } else {
-                                if((currRec != null)&&(currRec.length() > 0)) {
+                                if ((currRec != null) && (currRec.length() > 0)) {
                                     if ("B".equals(assemble)) {
                                         // We are assembling a B Record
                                         if (currRec != null) {
-                                            if(bRecBuffer == null) {
+                                            if (bRecBuffer == null) {
                                                 bRecBuffer = new StringBuilder();
                                             }
                                             bRecBuffer.append("\n");
@@ -539,12 +546,14 @@ public class ShefSeparator extends AbstractRecordSeparator {
                                     } else {
                                         if ((currRec.length() >= 1)
                                                 && (currRec.charAt(0) != ':')) {
-                                            // Non-comment data embedded in 'A' or
+                                            // Non-comment data embedded in 'A'
+                                            // or
                                             // 'E' record.
                                             if ("A".equals(assemble)
                                                     || "E".equals(assemble)) {
                                                 if (buffer != null) {
-                                                    records.add(buffer.toString());
+                                                    records.add(buffer
+                                                            .toString());
                                                 }
                                             }
                                             buffer = null;
@@ -559,10 +568,10 @@ public class ShefSeparator extends AbstractRecordSeparator {
                     } else {
 
                     }
-                    if(endOfReport) {
+                    if (endOfReport) {
                         // close out anything that may have been in progress.
-                        if(buffer != null) {
-                            if("B".equals(assemble)) {
+                        if (buffer != null) {
+                            if ("B".equals(assemble)) {
                                 buffer.append("\n");
                                 buffer.append(bRecBuffer);
                             }
@@ -596,24 +605,25 @@ public class ShefSeparator extends AbstractRecordSeparator {
      * @return
      */
     private static String removeInternalComments(String dataLine) {
-        StringBuilder buffer = (dataLine != null) ? new StringBuilder(
-                dataLine.length()) : null;
-        if (buffer != null) {
-            boolean inComment = false;
-            for (int i = 0; i < dataLine.length(); i++) {
-                if (dataLine.charAt(i) != ':') {
-                    if (!inComment) {
-                        buffer.append(dataLine.charAt(i));
-                    }
-                } else {
-                    // Toggle comments
-                    inComment = !inComment;
-                }
-            }
-        }
         String s = null;
-        if ((buffer != null) && (buffer.length() > 0)) {
-            s = buffer.toString();
+        if (dataLine != null) {
+            if (dataLine.startsWith(":")) {
+                s = new String();
+            } else {
+                StringBuilder buffer = new StringBuilder(dataLine.length());
+                boolean inComment = false;
+                for (int i = 0; i < dataLine.length(); i++) {
+                    if (dataLine.charAt(i) != ':') {
+                        if (!inComment) {
+                            buffer.append(dataLine.charAt(i));
+                        }
+                    } else {
+                        // Toggle comments
+                        inComment = !inComment;
+                    }
+                }
+                s = buffer.toString();
+            }
         } else {
             s = new String();
         }
@@ -1119,10 +1129,10 @@ public class ShefSeparator extends AbstractRecordSeparator {
     }
 
     private static void test6() {
-        String testData1 = "ASUS63 KARX 271430\n" +
-            ".B:REVISION:R MCI:KANSAS CITY: 08:AUG:10:TENTH: DH12:1200Z:/HG/PPP\n" +
-            "BB02:KANSAS CITY:23:MISSOURI: 4.8/1:ONE:.06:POINT 06\n" +
-            ".E:EEE:N:NNN:D:DDD\n";
+        String testData1 = "ASUS63 KARX 271430\n"
+                + ".B:REVISION:R MCI:KANSAS CITY: 08:AUG:10:TENTH: DH12:1200Z:/HG/PPP\n"
+                + "BB02:KANSAS CITY:23:MISSOURI: 4.8/1:ONE:.06:POINT 06\n"
+                + ".E:EEE:N:NNN:D:DDD\n";
 
         ShefSeparator sep = new ShefSeparator();
         sep.setInTest(true);
@@ -1134,11 +1144,10 @@ public class ShefSeparator extends AbstractRecordSeparator {
             System.out.println(inp.record);
         }
     }
-    
+
     private static void test7() {
-        String testData1 = "ASUS63 KARX 271430\n" +
-            ".A AA0259 960714\n" +
-            ".A1  PCIRG 76.24\n";
+        String testData1 = "ASUS63 KARX 271430\n" + ".A AA0259 960714\n"
+                + ".A1  PCIRG 76.24\n";
 
         ShefSeparator sep = new ShefSeparator();
         sep.setInTest(true);
@@ -1150,12 +1159,11 @@ public class ShefSeparator extends AbstractRecordSeparator {
             System.out.println(inp.record);
         }
     }
-    
+
     private static void test8() {
 
         String testData1 = "ASUS63 KARX 271430\n"
-                + ".A AA0145 821007 DH12/HG 5.5/\n"
-                + ".AR1 PP 9.99\n";
+                + ".A AA0145 821007 DH12/HG 5.5/\n" + ".AR1 PP 9.99\n";
 
         ShefSeparator sep = new ShefSeparator();
         sep.setInTest(true);
@@ -1167,39 +1175,35 @@ public class ShefSeparator extends AbstractRecordSeparator {
             System.out.println(inp.record);
         }
     }
-    
+
     private static void test9() {
 
-        String [] testData = {
-                ".B AA0145 821007 DH12/HG 5.5/\n",
+        String[] testData = { ".B AA0145 821007 DH12/HG 5.5/\n",
                 ".BR10 AA0145 821007 DH12/HG 5.5/\n",
                 ".BR2 AA0145 821007 DH12/HG 5.5/\n",
                 ".B1 AA0145 821007 DH12/HG 5.5/\n", };
 
-        for(String s : testData) {
+        for (String s : testData) {
             Matcher m = P_SHEFTYPE.matcher(s);
-            if(m.find()) {
-                for(int i = 0;i <= m.groupCount();i++) {
-                    System.out.println(String.format("%3d  %s",i,m.group(i)));
+            if (m.find()) {
+                for (int i = 0; i <= m.groupCount(); i++) {
+                    System.out.println(String.format("%3d  %s", i, m.group(i)));
                 }
             }
             System.out.println("--------------------------------------");
         }
-        
-        
-        
-//        ShefSeparator sep = new ShefSeparator();
-//        sep.setInTest(true);
-//        Headers headers = new Headers();
-//        headers.put("ingestFileName", "DOSENTMATTER.20110315");
-//        sep.setData(testData1.getBytes(), headers);
-//        while (sep.hasNext()) {
-//            ShefDecoderInput inp = sep.next();
-//            System.out.println(inp.record);
-//        }
+
+        // ShefSeparator sep = new ShefSeparator();
+        // sep.setInTest(true);
+        // Headers headers = new Headers();
+        // headers.put("ingestFileName", "DOSENTMATTER.20110315");
+        // sep.setData(testData1.getBytes(), headers);
+        // while (sep.hasNext()) {
+        // ShefDecoderInput inp = sep.next();
+        // System.out.println(inp.record);
+        // }
     }
-    
-    
+
     /**
      * Test Function
      * 
@@ -1207,13 +1211,21 @@ public class ShefSeparator extends AbstractRecordSeparator {
      */
     public static void main(String[] args) {
         // test1();
-        test9();
+        // test9();
 
-//        Matcher m = P_SHEFTYPE.matcher(".A1 DH1430/PCIRG\t76.24==\n");
-//        if (m.find()) {
-//            for (int i = 0; i <= m.groupCount(); i++) {
-//                System.out.println(String.format("%4d   %s", i, m.group(i)));
-//            }
-//        }
+        String test = "THIS IS A TEST :=======: AND MORE DATA :================: AND THE END";
+
+        System.out.println("[" + removeInternalComments(test) + "]");
+
+        test = ":THIS IS A TEST :=======: AND MORE DATA :================: AND THE END";
+
+        System.out.println("[" + removeInternalComments(test) + "]");
+
+        // Matcher m = P_SHEFTYPE.matcher(".A1 DH1430/PCIRG\t76.24==\n");
+        // if (m.find()) {
+        // for (int i = 0; i <= m.groupCount(); i++) {
+        // System.out.println(String.format("%4d   %s", i, m.group(i)));
+        // }
+        // }
     }
 }

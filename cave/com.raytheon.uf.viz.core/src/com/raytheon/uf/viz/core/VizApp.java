@@ -94,7 +94,7 @@ public class VizApp {
                         userName);
             }
 
-            wsId = new WsId(null, null, Platform.getProduct().getName(), 0);
+            wsId = new WsId(null, null, Platform.getProduct().getName());
         }
 
         return wsId;
