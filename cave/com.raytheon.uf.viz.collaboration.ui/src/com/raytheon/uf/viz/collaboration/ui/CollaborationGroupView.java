@@ -26,17 +26,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.ecf.core.user.User;
 import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.ecf.presence.IPresence.Type;
+import org.eclipse.ecf.presence.Presence;
 import org.eclipse.ecf.presence.roster.IRoster;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.IRosterItem;
+import org.eclipse.ecf.presence.roster.IRosterManager;
 import org.eclipse.ecf.presence.roster.RosterEntry;
 import org.eclipse.ecf.presence.roster.RosterGroup;
 import org.eclipse.jface.action.Action;
@@ -228,7 +229,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
                     }
                     LoginDialog dlg = new LoginDialog(shell);
                     dlg.open();
-                    dlg.close();
                 }
             });
             connection = CollaborationConnection.getConnection();
@@ -379,8 +379,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
             @Override
             public void run() {
                 String sessionId = getId();
-                IVenueSession session = CollaborationDataManager.getInstance()
-                        .getSession(sessionId);
+                IVenueSession session = (IVenueSession) CollaborationConnection
+                        .getConnection().getSession(sessionId);
                 List<UserId> ids = new ArrayList<UserId>();
 
                 for (IRosterEntry user : getSelectedUsers()) {
@@ -746,7 +746,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 IViewPart viewPart = ref.getView(false);
                 if (viewPart instanceof SessionView) {
                     String sessionId = viewPart.getViewSite().getSecondaryId();
-                    activeSessionGroup.addObject(manager.getSession(sessionId));
+                    activeSessionGroup.addObject(CollaborationConnection
+                            .getConnection().getSession(sessionId));
                 }
             }
         } catch (NullPointerException e) {
@@ -819,13 +820,12 @@ public class CollaborationGroupView extends CaveFloatingView implements
                     && user.getPresence().getType() == Type.AVAILABLE) {
                 MenuManager inviteManager = new MenuManager("Invite to...");
                 // get current open chats
-                Map<String, IVenueSession> sessions = CollaborationDataManager
-                        .getInstance().getSessions();
-                for (String name : sessions.keySet()) {
-                    final ISession session = sessions.get(name);
-                    if (session != null) {
-                        final IVenueInfo info = sessions.get(name).getVenue()
-                                .getInfo();
+                Collection<ISession> sessions = CollaborationConnection
+                        .getConnection().getSessions();
+                for (final ISession session : sessions) {
+                    if (session != null && session instanceof IVenueSession) {
+                        final IVenueInfo info = ((IVenueSession) session)
+                                .getVenue().getInfo();
                         if (info != null) {
                             Action action = new Action(
                                     info.getVenueDescription()) {
@@ -1026,7 +1026,21 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 .getString(CollabPrefConstants.P_STATUS).toLowerCase());
         String msg = Activator.getDefault().getPreferenceStore()
                 .getString(CollabPrefConstants.P_MESSAGE);
-        CollaborationDataManager.getInstance().fireModifiedPresence(mode, msg);
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        IRosterManager manager = connection.getRosterManager();
+        IPresence presence = new Presence(Type.AVAILABLE, msg, mode);
+
+        try {
+            connection.getAccountManager().sendPresence(presence);
+            UserId id = connection.getUser();
+            RosterEntry rosterEntry = new RosterEntry(manager.getRoster(), id,
+                    presence);
+            rosterEntry.setPresence(presence);
+            connection.getEventPublisher().post(rosterEntry);
+        } catch (CollaborationException e) {
+            statusHandler.handle(Priority.PROBLEM, "Error sending presence", e);
+        }
 
         // need to refresh the local tree so that the top user shows up with the
         // current status
@@ -1057,8 +1071,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
             try {
                 if (result.isInviteUsers()) {
-                    IVenueSession session = CollaborationDataManager
-                            .getInstance().getSession(result.getSessionId());
+                    IVenueSession session = (IVenueSession) CollaborationConnection
+                            .getConnection().getSession(result.getSessionId());
                     List<UserId> usersList = new ArrayList<UserId>();
                     for (IRosterEntry user : getSelectedUsers()) {
                         usersList.add(IDConverter.convertFrom(user.getUser()));
@@ -1535,7 +1549,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         if (part instanceof SessionView) {
             SessionView sessionView = (SessionView) part;
             String sessionId = sessionView.getViewSite().getSecondaryId();
-            IVenueSession session = CollaborationDataManager.getInstance()
+            ISession session = CollaborationConnection.getConnection()
                     .getSession(sessionId);
             activeSessionGroup.addObject(session);
             session.registerEventHandler(sessionView);
