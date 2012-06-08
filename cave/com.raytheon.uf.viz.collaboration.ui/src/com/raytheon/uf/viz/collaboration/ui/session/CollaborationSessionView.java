@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
@@ -468,8 +467,8 @@ public class CollaborationSessionView extends SessionView implements
     @Override
     protected void setSession(String sessionId) {
         super.setSession(sessionId);
-        this.session = (ISharedDisplaySession) CollaborationDataManager
-                .getInstance().getSession(this.sessionId);
+        this.session = (ISharedDisplaySession) CollaborationConnection
+                .getConnection().getSession(sessionId);
     }
 
     public String getSessionId() {
@@ -479,6 +478,7 @@ public class CollaborationSessionView extends SessionView implements
     @Override
     public void dispose() {
         SharedDisplaySessionMgr.exitSession(session.getSessionId());
+        session.close();
         super.dispose();
         getSite().getPage().removePartListener(this);
     }

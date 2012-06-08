@@ -37,13 +37,14 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 
 /**
  * Generate the Participant's label and icon image.
@@ -128,8 +129,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     @Override
     public Image getImage(Object element) {
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
+        IVenueSession session = (IVenueSession) CollaborationConnection
+                .getConnection().getSession(sessionId);
 
         if (session == null) {
             return null;
@@ -218,8 +219,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
     @Override
     public Font getFont(Object element) {
         IRosterEntry user = (IRosterEntry) element;
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
+        ISession session = CollaborationConnection.getConnection().getSession(
+                sessionId);
         if (session instanceof SharedDisplaySession) {
             UserId id = IDConverter.convertFrom(user.getUser());
             boolean isSessionLeader = id
@@ -346,8 +347,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
                         .getMode())).append("\n");
         builder.append("Message : \"").append(user.getPresence().getStatus())
                 .append("\"");
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
+        ISession session = CollaborationConnection.getConnection().getSession(
+                sessionId);
         if (session instanceof SharedDisplaySession) {
             UserId id = IDConverter.convertFrom(user.getUser());
             boolean isSessionLeader = id
