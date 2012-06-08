@@ -7,6 +7,8 @@
 !
 GLEVEL=0!0!500:1000!500:1000!1000
 GVCORD=none!none!PRES!PRES!PRES
+SKIP=
+FILTER=y
 SCALE=0!0!-1!-1!0
 GDPFUN=quo(pwtr;25.4)!quo(pwtr;25.4)!ldf(hght)!ldf(hght)!sm5s(add(1000;quo(hght;8.0)))
 TYPE=c/f!c!c

@@ -8,6 +8,8 @@
 !
 GLEVEL=850!400:250!400:250!850!850!1000
 GVCORD=pres!pres!pres!pres!pres!pres
+SKIP=
+FILTER=y
 SCALE=0!6!6!0!0!0
 GDPFUN=thte!pvor(thta,wnd)!pvor(thta,wnd)!thte!thte!sm5s(add(1000;quo(hght;8.0)))!kntv(wnd@300%pres
 TYPE=c/f!c/f!c ! ! ! ! b

@@ -71,9 +71,7 @@ public class Amount {
 
 	public void setValue( Number n, Unit<?> u ) {
 		value = n;
-		unit  = u;
-		
-		setMissingDataSentinel();
+		unit  = u;		
 	}
 
 	// make sure the missing data sentinal and the stored value are of the 
@@ -102,6 +100,10 @@ public class Amount {
 		}
 	}
 	
+	public void setMissingDataSentinel( Number mds ) {
+		missing_data_value = mds;
+	}
+
 	public Number getMissingValueSentinel() {
 		return missing_data_value;
 	}
@@ -113,7 +115,8 @@ public class Amount {
 	}
 
 	public boolean hasValidValue() {
-		if( (value == null || value.equals( missing_data_value ) ) ) {
+		if( (value == null || value.equals( missing_data_value ) 
+				|| value.doubleValue() == missing_data_value.doubleValue()) ) {
 			return false;
 		}
 		return true;

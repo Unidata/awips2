@@ -101,8 +101,7 @@ public class D2DNSharpDisplay extends NsharpSkewTDisplay implements
          * handled by a separate manager or something.T
          */
         NsharpSkewTResource skewRsc = getDescriptor().getSkewtResource();
-        if (activeNativeResource != null
-                && activeNativeResource.get() != skewRsc
+        if ((activeNativeResource == null || activeNativeResource.get() != skewRsc)
                 && skewRsc.getSoundingLys() != null) {
             // TODO we need a better way of tracking what is in native.
             List<NcSoundingLayer> soundingLys = skewRsc.getSoundingLys();

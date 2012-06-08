@@ -78,15 +78,12 @@ source="ANNOUNCER"
 
 if displayerType.upper() == "RADAR":
    cat = "RADAR"
-elif displayerType.upper() == "SYSTAT":
+elif displayerType.upper() == "SYSTAT" or displayerType.upper() == "SYSTEM":
    cat = "SYSTAT"
 elif displayerType.upper() == "LOCAL":
    cat = "LOCAL"
    hostname="localhost"
    portnum=61999
-elif displayerType.upper() == "SYSTEM":
-   cat = "SVRWX_O_"
-   source="TEXT_TRIGGER"
 else:
    print 'fxaAnnounce: Invalid displayer type argument'
    usage()

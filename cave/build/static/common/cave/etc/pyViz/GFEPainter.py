@@ -21,7 +21,7 @@
 from com.raytheon.uf.viz.core import RGBColors
 from com.raytheon.uf.viz.core.map import MapDescriptor
 from com.raytheon.uf.viz.core.rsc.capabilities import ColorableCapability,\
-    OutlineCapability, LabelableCapability, MagnificationCapability
+    OutlineCapability, LabelableCapability, MagnificationCapability, ColorMapCapability
 from com.raytheon.viz.core import ColorUtil
 from com.raytheon.viz.gfe.core import DataManager, GFEMapRenderableDisplay
 from com.raytheon.viz.gfe.ifpimage import GfeImageUtil, ImageLegendResource
@@ -32,6 +32,7 @@ from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_VisualizationTy
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 
 from java.lang import Double
+from java.lang import Integer
 from javax.imageio import ImageIO
 from java.util import HashSet
 
@@ -50,13 +51,9 @@ from java.util import HashSet
 
 import VizPainter
 
-GRAPHIC = VisMode.valueOf('GRAPHIC')
-IMAGE = VisMode.valueOf('IMAGE')
-EDITOR = EditorType.valueOf('SPATIAL')
-
 class GFEPainter(VizPainter.VizPainter):
     
-    def __init__(self, imageWidth=400.0, imageHeight=400.0, expandLeft=25.0, expandRight=25.0, expandTop=25.0, expandBottom=25.0, mask=None, wholeDomain=0):    
+    def __init__(self, imageWidth=None, imageHeight=None, expandLeft=25.0, expandRight=25.0, expandTop=25.0, expandBottom=25.0, mask=None, wholeDomain=0):    
         self.dataMgr = DataManager.getInstance(None) 
         self.refId = None
         envelope = None
@@ -66,7 +63,11 @@ class GFEPainter(VizPainter.VizPainter):
             self.refId = ReferenceID(mask)
             if wholeDomain == 0:
                 envelope = self.dataMgr.getRefManager().loadRefSet(self.refId).overallDomain(CoordinateType.LATLON)
-        geom = GfeImageUtil.getLocationGeometry(gloc, envelope, float(imageWidth), float(imageHeight), expandLeft / 100.0, expandRight / 100.0, expandTop / 100.0, expandBottom / 100.0)
+        if imageWidth is not None:
+            imageWidth = Integer(int(imageWidth))
+        if imageHeight is not None:
+            imageHeight = Integer(int(imageHeight))
+        geom = GfeImageUtil.getLocationGeometry(gloc, envelope, imageWidth, imageHeight, expandLeft / 100.0, expandRight / 100.0, expandTop / 100.0, expandBottom / 100.0)
         display = GFEMapRenderableDisplay(MapDescriptor(geom))
         desc = display.getDescriptor()
         self.dataMgr.getSpatialDisplayManager().setDescriptor(desc)
@@ -103,17 +104,25 @@ class GFEPainter(VizPainter.VizPainter):
         self.addVizResource(colorBar)
         self.getDescriptor().getResourceList().getProperties(colorBar).setSystemResource(True)
     
-    def addImageResource(self, parmName, colormap=None, colorMin=None, colorMax=None, smooth=False):
-        from com.raytheon.uf.viz.core.rsc.capabilities import ColorMapCapability        
+    def __makeGFEResource(self, parmName):
+        parm = self.dataMgr.getParmManager().getParmInExpr(parmName, False)
+        parm.getParmState().setPickUpValue(None)            
+        gfeRsc = GFEResource(parm, self.dataMgr)
+        self.addVizResource(gfeRsc)
+        if not parm.getDisplayAttributes().getBaseColor():
+            from com.raytheon.viz.core import ColorUtil
+            parm.getDisplayAttributes().setBaseColor(ColorUtil.getNewColor(self.getDescriptor()))
+        return gfeRsc, parm        
+    
+    def addGfeResource(self, parmName, colormap=None, colorMin=None, colorMax=None, smooth=False, color=None, lineWidth=None):
         gfeRsc, parm = self.__makeGFEResource(parmName)
-        jvisType = VisualizationType.valueOf('IMAGE')
-        jset = HashSet()
-        jset.add(jvisType)
-        parm.getDisplayAttributes().setVisualizationType(EDITOR, IMAGE, jset)
-        parm.getDisplayAttributes().setVisMode(IMAGE)
+#        jvisType = VisualizationType.valueOf('IMAGE')
+#        jset = HashSet()
+#        jset.add(jvisType)
+#        parm.getDisplayAttributes().setVisualizationType(EDITOR, IMAGE, jset)
+#        parm.getDisplayAttributes().setVisMode(IMAGE)
         if self.refId is not None:
             parm.getDisplayAttributes().setDisplayMask(self.refId)
-        self.dataMgr.getSpatialDisplayManager().activateParm(parm)
         self.primaryRsc = gfeRsc
         params = gfeRsc.getCapability(ColorMapCapability).getColorMapParameters()
         if colormap is not None:            
@@ -127,24 +136,6 @@ class GFEPainter(VizPainter.VizPainter):
         if smooth:
             from com.raytheon.uf.viz.core.rsc.capabilities import ImagingCapability
             gfeRsc.getCapability(ImagingCapability).setInterpolationState(True)
-    
-    def __makeGFEResource(self, parmName):
-        parm = self.dataMgr.getParmManager().getParmInExpr(parmName, False)
-        parm.getParmState().setPickUpValue(None)            
-        gfeRsc = GFEResource(parm, self.dataMgr)
-        self.addVizResource(gfeRsc)
-        if not parm.getDisplayAttributes().getBaseColor():
-            from com.raytheon.viz.core import ColorUtil
-            parm.getDisplayAttributes().setBaseColor(ColorUtil.getNewColor(self.getDescriptor()))
-        return gfeRsc, parm        
-    
-    def addGraphicResource(self, parmName, visType=None, color=None, lineWidth=None):
-        gfeRsc, parm = self.__makeGFEResource(parmName)       
-        if visType is not None:
-            jvisType = VisualizationType.valueOf(visType)
-            jset = HashSet()
-            jset.add(jvisType)
-            parm.getDisplayAttributes().setVisualizationType(EDITOR, GRAPHIC, jset)
         if color is None:
             color = ColorUtil.getNewColor(self.getDescriptor())
         else:
@@ -152,7 +143,6 @@ class GFEPainter(VizPainter.VizPainter):
         gfeRsc.getCapability(ColorableCapability).setColor(color)
         if lineWidth is not None:
             gfeRsc.getCapability(OutlineCapability).setOutlineWidth(lineWidth)
-         
     
     def addMapBackground(self, mapName, color=None, lineWidth=None,
                          linePattern=None, xOffset=None, yOffset=None, 
@@ -201,7 +191,10 @@ class GFEPainter(VizPainter.VizPainter):
                 from com.raytheon.uf.viz.core.font import FontAdapter
                 graphics.setColor(Color.BLACK)
                 graphics.setFont(FontAdapter.getAWTFont(self.getTarget().getDefaultFont()))
-                graphics.drawString(logoText, (rendered.getWidth() - len(logoText) * 6) / 2, rendered.getHeight() + (noaaImage.getHeight() / 2))                
+                fm = graphics.getFontMetrics()
+                textBounds = fm.getStringBounds(logoText, graphics)
+                graphics.drawString(logoText, int((rendered.getWidth() - textBounds.getWidth()) / 2), \
+                                    int(rendered.getHeight() + (noaaImage.getHeight() / 2) + textBounds.getHeight() / 2))                
             graphics.drawImage(nwsImage, finalBuf.getWidth() - nwsImage.getWidth(), rendered.getHeight(), None)
             finalBuf.flush()
             self.outputImage(finalBuf, filename)

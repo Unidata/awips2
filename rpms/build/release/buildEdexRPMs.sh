@@ -12,6 +12,8 @@ BUILDROOT_DIR=/tmp/awips2-component
 COMPONENT=""
 COMPONENT_DIR=""
 
+#echo "DB_FILE=${DB_FILE}"
+#exit 1
 export AWIPSCM_SHARE=${SHARE_DIR}
 
 function updateEdexRepository()
@@ -65,8 +67,8 @@ function loopThroughAllEdexRPMs()
    done
 
    # Build edex-npp
-   COMPONENT_SPECS="${WORKSPACE_DIR}/Installer.rpm/awips2.edex/Installer.edex-npp/component.spec"
-   buildRPM
+#   COMPONENT_SPECS="${WORKSPACE_DIR}/Installer.rpm/awips2.edex/Installer.edex-npp/component.spec"
+#   buildRPM
 }
 
 function loopThroughSpecifiedRPMs()

@@ -6,6 +6,8 @@
 !
 GLEVEL=0!700!30:0!0
 GVCORD=none!pres!pdly!none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm9s(ctot)!sm9s(tmpc)!sm9s(dwpf)!sm9s(pmsl)
 TYPE=f!c

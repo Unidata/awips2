@@ -23,6 +23,7 @@ package com.raytheon.uf.common.monitor.scan;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -294,9 +295,13 @@ public class ScanUtils {
 
     public static String SEVERE_THUNDERSTORM_PHENSIG = "SV.W";
 
-    private static String standardResolutionLevel = null;
+    private static Map<String, String> tableStdResLevels = new HashMap<String,String>();
+    
+//    private static String standardResolutionLevel = null;
 
-    private static String highResolutionLevel = null;
+    private static Map<String, String> tableHighResLevels = new HashMap<String,String>();
+
+//    private static String highResolutionLevel = null;
 
     private static String prevTable = "";
 
@@ -1608,9 +1613,12 @@ public class ScanUtils {
 
             // hail cap check
             if (rValue > hailCap) {
-                rValue = hailCap;
+                return (float)(MM_TO_INCH * hailCap);
             }
+        } else {
+        	return (float) rValue;
         }
+        
         return (float) (MM_TO_INCH * rValue);
     }
 
@@ -1751,6 +1759,7 @@ public class ScanUtils {
             sq = SpatialQueryFactory.create();
             Object[] results = sq.dbRequest(sql, MAPS_DB);
             levels = new double[results.length];
+            Arrays.fill(levels, 9999.0);
             int i = 0;
             for (Object obj : results) {
                 if (obj instanceof Object[]) {
@@ -1773,11 +1782,11 @@ public class ScanUtils {
             return;
         }
 
-        highResolutionLevel = levelList.get(levelList.size() - 1);
+        tableHighResLevels.put(tablename, levelList.get(levelList.size() - 1));
 
         for (int i = 0; i < levels.length; i++) {
             if (levels[i] <= 0.016) {
-                standardResolutionLevel = levelList.get(i);
+                tableStdResLevels.put(tablename, levelList.get(i));
                 break;
             }
         }
@@ -1835,9 +1844,12 @@ public class ScanUtils {
      * @return the standardResolutionLevel column name
      */
     public static String getStandardResolutionLevel(String tablename) {
-        setResolutionLevels(tablename);
-
-        return standardResolutionLevel;
+        String resLevel = tableStdResLevels.get(tablename);
+        if(resLevel == null) {
+            setResolutionLevels(tablename);
+            resLevel = tableStdResLevels.get(tablename);
+        }
+        return resLevel;
     }
 
     /**
@@ -1848,9 +1860,12 @@ public class ScanUtils {
      * @return the highResolutionLevel column name
      */
     public static String getHighResolutionLevel(String tablename) {
-        setResolutionLevels(tablename);
-
-        return highResolutionLevel;
+        String resLevel = tableHighResLevels.get(tablename);
+        if(resLevel == null) {
+            setResolutionLevels(tablename);
+            resLevel = tableHighResLevels.get(tablename);
+        }
+        return resLevel;
     }
 
     /**

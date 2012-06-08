@@ -129,7 +129,7 @@ public class SimpleLogViewer extends Dialog {
         Shell parent = getParent();
         // shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
         shell = new Shell(parent.getDisplay(), SWT.DIALOG_TRIM | SWT.MIN
-                | SWT.TITLE);
+                | SWT.TITLE | SWT.RESIZE);
         shell.setText(getText());
 
         /* TODO: Max Code: */
@@ -138,7 +138,7 @@ public class SimpleLogViewer extends Dialog {
         mainLayout.marginWidth = 0;
         mainLayout.verticalSpacing = 0;
         shell.setLayout(mainLayout);
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, true);
         shell.setLayoutData(gd);
 
         // shell.setLayout(new GridLayout(1, false));
@@ -161,7 +161,7 @@ public class SimpleLogViewer extends Dialog {
         // | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL
         // | GridData.VERTICAL_ALIGN_FILL));
 
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 800;
         gd.heightHint = 400;
         table.setLayoutData(gd);

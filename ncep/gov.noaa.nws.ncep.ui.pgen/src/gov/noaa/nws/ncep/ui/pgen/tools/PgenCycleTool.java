@@ -9,7 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -188,7 +188,8 @@ public class PgenCycleTool extends AbstractPgenDrawingTool {
 	public static void updateTitle(){
 		String title = " -- Day/Cycle:  " + pad(cycleDay) + "/" + pad(cycleHour) + "Z ";
 		title += isRoutine? "Routine": "Update";
-		NmapUiUtils.setCaveTitle(title);
+//		NmapUiUtils.setCaveTitle(title);
+		PgenUtil.setCaveTitle(title);
 	}
 
 }

@@ -23,7 +23,6 @@ import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
@@ -72,9 +71,10 @@ public abstract class AbstractPrivilegedLocalizationRequestHandler<T extends Abs
         IRoleStorage roles = manager.getRoleStorage();
 
         String roleId = "";
+        boolean isValid = true;
         // First round check com.raytheon.localization.level
         // Second round check com.raytheon.localization.level.name
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 2 && isValid; ++i) {
             roleId = "com.raytheon.localization."
                     + context.getLocalizationLevel().name();
             if (i > 0) {
@@ -96,12 +96,21 @@ public abstract class AbstractPrivilegedLocalizationRequestHandler<T extends Abs
                 return new AuthorizationResponse(true);
             }
 
+            // check most specific to least specific
             // com.raytheon.localization.<level>.(<specificLevel>.)/type/path/name/
-            String[] pathParts = LocalizationUtil.splitUnique(fileName);
-            for (String part : pathParts) {
-                roleId += "/" + part;
-                if (checkRole(roles, roleId, user)) {
+            int minIndex = roleId.length();
+            roleId += "/" + fileName;
+            int index = roleId.length();
+            while (index > minIndex && isValid) {
+                roleId = roleId.substring(0, index);
+                IRole role = roles.lookupRole(roleId);
+                index = roleId.lastIndexOf("/", index - 1);
+                if (role.validForUser(user)) {
                     return new AuthorizationResponse(true);
+                } else if (!roles.isDefaultRole(role)) {
+                    // if not valid for user and is not default role then not
+                    // authorized.
+                    isValid = false;
                 }
             }
         }

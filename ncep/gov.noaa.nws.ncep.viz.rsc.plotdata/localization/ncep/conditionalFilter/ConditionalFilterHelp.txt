@@ -1,0 +1,41 @@
+
+Conditional Filtering
+-------------------------
+
+Conditional Filtering provides a generalized way of filtering/displaying plot parameters according to itself or other parameters. 
+
+Notes: 
+If more than one conditions are provided, the conditions are ANDed. 
+If any/all of the conditions are invalid, the operation is ignored.
+For "in", list items should separated by ",". 
+For "between" (inclusive), lower and upper values should be separated by "--". 
+ 
+Possible Values for Symbols:
+-------------------------------------
+
+The following is a list of values that can be specified in a conditional filter for parameters which are displayed as symbols.
+
+1.  Icing:
+
+	Intensity (ICSY)      : NEG, TRACE, TRACELGT, LGT, LGTMOD, MOD, MODSEV, SEV
+	Type (TPOI)            : RIME : 1, CLR :  2, MXD :  3
+	Type Symbol (ITSY): RIME : R, CLR :  CL, MXD :  M  
+
+2. Turbulence:
+
+	Intensity (TBSY)    : NEG, NEGLGT, LGT, LGTMOD, MOD, MODSEV, SEV, EXTRM
+	Type (TTSY)          : CHOP : CP, CAT :  CA     
+	Frequency (TFSY) : OCN, ISO , INT, CON
+
+3. Sky Coverage (SKYC / SKYCHAR / TSKC) and Cloud Cover (CLC1):
+	BLNK, SKC, CLR, FEW, SCT, BKN, OVC, OBS, VV, INT (default)
+
+5. Present Weather (WSYM):
+	-SHRA, +SHRA, SHRA, -SHSN, +SHSN, SHSN, -TSRA, +TSRA, TSRA, -TSSN, +TSSN, 
+	TSSN, FZRASN, BCBR, MIBR, BR, FZFG, BCFG, MIFG, FG, TS, +TS, FC, +FC, PO, 
+	DRSN, +DRSN, BLSN, +BLSN, FU, HZ, -SH, SH, D , SA, SS, DS, +SS, +DS, -FZRA, 
+	-FZDZ, FZRA, FZDZ, GR, IC, PE, PL, GS, DZRA, RADZ, RASN, SNRA, -RA, +RA, RA, 
+	-DZ, +DZ, DZ, -SN, +SN, SN, -UP, +UP, UP, IP, SG, VA, PRFG, SQ, BLDU
+
+6. Pressure Tendency (PTSY): 
+	0, 1, 2, 3, 4, 5, 6, 7, 8
