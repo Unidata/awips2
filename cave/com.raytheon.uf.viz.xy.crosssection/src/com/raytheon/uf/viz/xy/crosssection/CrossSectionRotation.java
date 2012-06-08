@@ -60,6 +60,14 @@ public class CrossSectionRotation {
         }
         float[] u = floatData.get(2);
         float[] v = floatData.get(3);
+        for (int i = 0; i < u.length; i += 1) {
+            if (u[i] <= -9999) {
+                u[i] = Float.NaN;
+            }
+            if (v[i] <= -9999) {
+                v[i] = Float.NaN;
+            }
+        }
         float[] result = new float[u.length];
         int width = linePoints.size();
         int height = result.length / width;

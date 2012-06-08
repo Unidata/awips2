@@ -242,7 +242,12 @@ public enum SHEF_Metar_Codes implements SHEF_Obs_Codes<MetarRecord> {
             Integer durTime = null;
             boolean processObs = false;
 
+            boolean tracePrecip = false;
             float value = report.getPrecip1Hour();
+            if(!options.isOptNoTrace()) {
+                tracePrecip = (value == 0.0f);
+            }
+
             float precip = -9999;
             if("METAR".equals(report.getReportType())) {
                 processObs = true;
@@ -306,10 +311,14 @@ public enum SHEF_Metar_Codes implements SHEF_Obs_Codes<MetarRecord> {
                 pedtsep = checkPEDTSEP(pedtsep, options);
                 if(precip > -9999) {
                     if(durTime == null) {
-                        if(precip >= 0.0f) {
-                            buffer.append(String.format(format, pedtsep, precip));
+                        if(tracePrecip) {
+                            buffer.append(String.format("%s  T", pedtsep));
                         } else {
-                            buffer.append(String.format("%s  M", pedtsep));
+                            if(precip >= 0.0f) {
+                                buffer.append(String.format(format, pedtsep, precip));
+                            } else {
+                                buffer.append(String.format("%s  M", pedtsep));
+                            }
                         }
                     } else {
                         buffer.append(String.format("DVN%02d/" + format, durTime, pedtsep, precip));

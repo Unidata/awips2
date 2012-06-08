@@ -7,10 +7,9 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.display;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
 import gov.noaa.nws.ncep.ui.pgen.display.PatternSegment.PatternType;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -72,8 +71,10 @@ public class LinePatternManager {
 	private void initialize() {
 	
 		loadInternal();
-		File patterns = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_LINE_PATTERNS );
+		File patterns = PgenStaticDataProvider.getProvider().getStaticFile( 
+				PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "linePatterns.xml");
+		
+
 		if ( patterns != null && patterns.exists() ) {
 			loadPatternsFromFile( patterns.getAbsolutePath() );
 		}		

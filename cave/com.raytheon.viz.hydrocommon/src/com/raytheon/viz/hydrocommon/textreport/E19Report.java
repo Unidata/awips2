@@ -45,6 +45,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009 2260       mpduff     Initial creation
+ * Apr 25, 2012 14499      wkwock     Refine format, query, etc
  *
  * </pre>
  *
@@ -194,7 +195,7 @@ public class E19Report extends TextReport {
         TextReportData data = TextReportDataManager.getInstance().getDataForReports(lid, 0);
         buffer.append(TextReportConstants.E19_HDR_COVER);
         buffer.append("\n\n");
-        buffer.append("                          U.S. DEPARTMENT OF COMMERCE\n");
+        buffer.append("			   U.S. DEPARTMENT OF COMMERCE\n");
         buffer.append("                 NATIONAL OCEANIC AND ATMOSPHERIC ADMINISTRATION\n");
         buffer.append("                            NATIONAL WEATHER SERVICE\n\n");
         buffer.append("                          REPORT ON RIVER GAGE STATION\n\n");
@@ -232,26 +233,26 @@ public class E19Report extends TextReport {
         }
         
         buffer.append("\nABBREVIATIONS:\n\n");
-        buffer.append("  BM  - bench mark           EPA   - Environmental Protection Agency\n");
-        buffer.append("  DS  - downstream           IBWC  - International Boundary and Water Comm.\n");
-        buffer.append("  US  - upstream             MSRC  - Mississippi River Commission\n");
-        buffer.append("  HW  - high water           MORC  - Missouri River Commission\n");
-        buffer.append("  LW  - low water            NOAA  - National Oceanic and Atmospheric Admin.\n");
-        buffer.append("  RB  - right bank           NOS   - National Ocean Survey\n");
-        buffer.append("  LB  - left bank            NWS   - National Weather Service\n");
-        buffer.append("  MGL - mean gulf level      TVA   - Tennessee Valley Authority\n");
-        buffer.append("  MLW - mean low water       USACE - U.S. Army Corps of Engineers\n");
-        buffer.append("  MSL - mean sea level       USBR  - U.S. Bureau of Reclamation\n");
-        buffer.append("  MLT - mean low tide        USGS  - U.S. Geological Survey\n");
-        buffer.append("  MT  - mean tide            USWB  - U.S. Weather Bureau\n");
-        buffer.append("  WQ  - water quality        NGVD  - National Geodetic Vertical Datum\n");
-        buffer.append("  RM  - reference mark       NAD   - North American Datum\n");
+        buffer.append("  BM  - bench mark		EPA   - Environmental Protection Agency\n");
+        buffer.append("  DS  - downstream		IBWC  - International Boundary and Water Comm.\n");
+        buffer.append("  US  - upstream		MSRC  - Mississippi River Commission\n");
+        buffer.append("  HW  - high water		MORC  - Missouri River Commission\n");
+        buffer.append("  LW  - low water		NOAA  - National Oceanic and Atmospheric Admin.\n");
+        buffer.append("  RB  - right bank		NOS   - National Ocean Survey\n");
+        buffer.append("  LB  - left bank		NWS   - National Weather Service\n");
+        buffer.append("  MGL - mean gulf level		TVA   - Tennessee Valley Authority\n");
+        buffer.append("  MLW - mean low water		USACE - U.S. Army Corps of Engineers\n");
+        buffer.append("  MSL - mean sea level		USBR  - U.S. Bureau of Reclamation\n");
+        buffer.append("  MLT - mean low tide		USGS  - U.S. Geological Survey\n");
+        buffer.append("  MT  - mean tide		USWB  - U.S. Weather Bureau\n");
+        buffer.append("  WQ  - water quality		NGVD  - National Geodetic Vertical Datum\n");
+        buffer.append("  RM  - reference mark		NAD   - North American Datum\n");
         buffer.append("  RP  - reference point\n");
         buffer.append("\n\n\n");
         
-        buffer.append(String.format("                      LOCATION IDENTIFICATION: %s\n", lid));
-        buffer.append(String.format("                         NWS INDEX NUMBER: %s\n", locData.getLocation().getSn()));
-        buffer.append(String.format("                              USGS NUMBER: %s\n", locData.getRiverstat().getGsno()));
+        buffer.append(String.format("					   LOCATION IDENTIFICATION: %s\n", lid));
+        buffer.append(String.format("						  NWS INDEX NUMBER: %s\n", locData.getLocation().getSn()));
+        buffer.append(String.format("						       USGS NUMBER: %s\n", data.getRiverstat().getGsno()));
         
         return buffer.toString();
     }
@@ -270,7 +271,7 @@ public class E19Report extends TextReport {
         buffer.append(TextReportConstants.E19_HDR_MAPPAGE);
         buffer.append("\n\n");
         
-        buffer.append(String.format("%20s: %-10s        SOURCE: %s\n", "LATITUDE", GeoUtil.getInstance().cvt_latlon_from_double(data.getRiverstat().getLat()), data.getRiverstat().getRsource()));
+        buffer.append(String.format("%20s: %-10s		SOURCE: %s\n", "LATITUDE", GeoUtil.getInstance().cvt_latlon_from_double(data.getRiverstat().getLat()), data.getRiverstat().getRsource()));
         buffer.append(String.format("%20s: %-10s", "LONGITUDE", GeoUtil.getInstance().cvt_latlon_from_double(data.getRiverstat().getLon())));
         
         // try to place FOOTER at the bottom
@@ -301,8 +302,8 @@ public class E19Report extends TextReport {
         TextReportData dataRivStat = TextReportDataManager.getInstance().getDataForReports(lid,0);
           
         String tmp = null;
-        if (data.getRiverstat().getZd() != HydroConstants.MISSING_VALUE) {
-            tmp = String.format("%8.3f", data.getRiverstat().getZd());
+        if (dataRivStat.getRiverstat().getZd() != HydroConstants.MISSING_VALUE) {
+            tmp = String.format("%8.3f", dataRivStat.getRiverstat().getZd());
         } else {
             tmp = "        ";
         }
@@ -378,13 +379,14 @@ public class E19Report extends TextReport {
                 
                 // Remove the new line from the 1st line of remark
                 lines[0] = lines[0].replace("\n", "");
-                buffer.append(String.format("          %-7s       %-74s     %s     %s\n", bm.getBnum(), lines[0], gageZero, elevation));
+                buffer.append(String.format("          %-7s       %-74s     %s    %s\n", bm.getBnum(), lines[0], gageZero, elevation));
                    
                 for (int i = 1; i < lines.length; i++) {
                     if (lines[i].length() > 1) {  // Skip blank lines
                         buffer.append(indent + lines[i]);
                     }
                 }
+                buffer.append("\n");
             } else if (needed > avail) {
                 // try to place FOOTER at the bottom 
                 buffer.append(advanceToFooter(0, buffer.toString()));
@@ -420,6 +422,7 @@ public class E19Report extends TextReport {
     private String E19Gages() {
         StringBuilder buffer = new StringBuilder();
         int numCols = 60;
+        int leftMargin = 68;
         String[] crit1 = null;
         String[] crit2 = null;
         
@@ -475,14 +478,14 @@ public class E19Report extends TextReport {
             if (crit2Size > 0) {
                 buffer.append(String.format("          %-20s", crit2[index]));
                 crit2Size--;
+                buffer.append("\n");
             }
             index++;
-            buffer.append("\n");
         }
         
         String cost = "       ";
         if (data.getTelem().getCost() > 0) {
-            cost = String.format("%-7.2lf", data.getTelem().getCost());
+            cost = String.format("%-7.2f", data.getTelem().getCost());
         }
         
         buffer.append(String.format("                 %18s     PAYOR/COST OF LINE: %s / $ %s\n\n", " ", data.getTelem().getPayor(), cost));
@@ -490,8 +493,8 @@ public class E19Report extends TextReport {
         int count1 = countNewlines(buffer.toString());
         
         // Do column header.
-        buffer.append("      GAGE TYPE   OWNER       MAINTENANCE BEGAN      ENDED      GAGE LOCATION/REMARKS\n");
-        buffer.append("      ----------- ----------- ----------- ---------- ---------- -----------------------------------------------------------\n");
+        buffer.append("          GAGE TYPE   OWNER       MAINTENANCE BEGAN      ENDED      GAGE LOCATION/REMARKS\n");
+        buffer.append("          ----------- ----------- ----------- ---------- ---------- ------------------------------------------------------------\n");
 
         int count2 = countNewlines(buffer.toString()) - count1;
         int loop = 0;
@@ -503,7 +506,7 @@ public class E19Report extends TextReport {
         ArrayList<Gage> gageList = dataGage.getGageList();
         
         String indent = "";
-        for (int i = 0; i < numCols + 4; i++) {
+        for (int i = 0; i < leftMargin; i++) {
             indent = indent.concat(" ");
         }
         
@@ -530,7 +533,7 @@ public class E19Report extends TextReport {
                     endDate = sdf.format(gage.getEnd());
                 }
                 
-                buffer.append(String.format("      %-11s %-11s %-11s %10s %10s %-23s\n", 
+                buffer.append(String.format("          %-11s %-11s %-11s %10s %10s %-23s\n", 
                         gage.getType(), gage.getOwner(), gage.getMaint(), 
                         beginDate, endDate, remarkLine));
                 
@@ -812,7 +815,6 @@ public class E19Report extends TextReport {
             if (lines != null) {
                 needed = lines.length - 1;
             }
-            if (needed <= avail) {
                 //  Formatting for Line 1.
                 if ((lines != null) && (lines[0] != null)) {
                     tmp1 = lines[0];
@@ -868,7 +870,8 @@ public class E19Report extends TextReport {
                     }
                 }
                 avail = avail - needed;
-            } else if (needed > avail) {
+            
+            if (needed > avail) {
                 // try to place FOOTER at the bottom 
                 buffer.append(advanceToFooter(loop, buffer.toString()));
                 
@@ -951,19 +954,23 @@ public class E19Report extends TextReport {
                     tmp1 = " ";
                 }
                 
+                tmp2="          ";
                 if (lw.getDate() != null) {
                     tmp2 = sdf.format(lw.getDate());
                 }
                 
+                tmp3="       ";
                 if (lw.getStage() != HydroConstants.MISSING_VALUE) {
                     tmp3 = String.format("%7.2f", lw.getStage());
                 }
                 
+                tmp4="      ";
                 if (lw.getQ() != HydroConstants.MISSING_VALUE) {
                     tmp4 = String.format("%6d", lw.getQ());
                 }
+                System.out.println("tmp4=["+tmp4+"]");
                 
-                buffer.append(String.format("     %10s  %s  %s   %-45s\n", 
+                buffer.append(String.format("     %10s  %s  %s  %-45s\n",
                         tmp2, tmp3, tmp4, tmp1));
                 
                 //  Formatting for all additional lines.
@@ -1051,96 +1058,96 @@ public class E19Report extends TextReport {
             String[] lines = TextUtil.wordWrap(data.getDescrip().getBed(), numCols, 0);
             buffer.append(lines[0] + "\n");
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].length() > 1) {
-                    tmp1.concat(indent + lines[i] + "\n");
-                }
+            	if ((i!=(lines.length-1)) && (!lines[i].trim().equalsIgnoreCase(""))) {
+            		buffer.append("                 " + lines[i] + "\n");
+            	}
             }
         }
-        buffer.append("\n\n");
+        buffer.append("\n");
         
         buffer.append("          REACH: ");
         if (data.getDescrip().getReach() != null) {
             String[] lines = TextUtil.wordWrap(data.getDescrip().getReach(), numCols, 0);
             buffer.append(lines[0] + "\n");
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].length() > 1) {
-                    tmp1.concat(indent + lines[i] + "\n");
-                }
+            	if ((i!=(lines.length-1)) && (!lines[i].trim().equalsIgnoreCase(""))) {
+            		buffer.append("                 " + lines[i] + "\n");
+            	}
             }
         } else {
             buffer.append("\n");
         }
-        buffer.append("\n\n");
+        buffer.append("\n");
         
         buffer.append("     REGULATION: ");
         if (data.getDescrip().getRes() != null) {
             String[] lines = TextUtil.wordWrap(data.getDescrip().getRes(), numCols, 0);
             buffer.append(lines[0] + "\n");
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].length() > 1) {
-                    tmp1.concat(indent + lines[i] + "\n");
-                }
+            	if ((i!=(lines.length-1)) && (!lines[i].trim().equalsIgnoreCase(""))) {
+            		buffer.append("                 " + lines[i] + "\n");
+            	}
             }
         } else {
             buffer.append("\n");
         }
-        buffer.append("\n\n");
+        buffer.append("\n");
         
         buffer.append("      DIVERSION: ");
         if (data.getDescrip().getDivert() != null) {
             String[] lines = TextUtil.wordWrap(data.getDescrip().getDivert(), numCols, 0);
             buffer.append(lines[0] + "\n");
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].length() > 1) {
-                    tmp1.concat(indent + lines[i] + "\n");
-                }
+            	if ((i!=(lines.length-1)) && (!lines[i].trim().equalsIgnoreCase(""))) {
+            		buffer.append("                 " + lines[i] + "\n");
+            	}
             }
         } else {
             buffer.append("\n");
         }
-        buffer.append("\n\n");
+        buffer.append("\n");
         
         buffer.append("         WINTER: ");
         if (data.getDescrip().getIce() != null) {
             String[] lines = TextUtil.wordWrap(data.getDescrip().getIce(), numCols, 0);
             buffer.append(lines[0] + "\n");
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].length() > 1) {
-                    tmp1.concat(indent + lines[i] + "\n");
-                }
+            	if ((i!=(lines.length-1)) && (!lines[i].trim().equalsIgnoreCase(""))) {
+            		buffer.append("                 " + lines[i] + "\n");
+            	}
             }
         } else {
             buffer.append("\n");
         }
-        buffer.append("\n\n");
+        buffer.append("\n");
         
         buffer.append("     TOPOGRAPHY: ");
         if (data.getDescrip().getTopo() != null) {
             String[] lines = TextUtil.wordWrap(data.getDescrip().getTopo(), numCols, 0);
             buffer.append(lines[0] + "\n");
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].length() > 1) {
-                    tmp1.concat(indent + lines[i] + "\n");
-                }
+            	if ((i!=(lines.length-1)) && (!lines[i].trim().equalsIgnoreCase(""))) {
+            		buffer.append("                 " + lines[i] + "\n");
+            	}
             }
         } else {
             buffer.append("\n");
         }
-        buffer.append("\n\n");
+        buffer.append("\n");
         
         buffer.append("        REMARKS: ");
         if (data.getDescrip().getRemark() != null) {
             String[] lines = TextUtil.wordWrap(data.getDescrip().getRemark(), numCols, 0);
             buffer.append(lines[0] + "\n");
             for (int i = 1; i < lines.length; i++) {
-                if (lines[i].length() > 1) {
-                    tmp1.concat(indent + lines[i] + "\n");
-                }
+            	if ((i!=(lines.length-1)) && (!lines[i].trim().equalsIgnoreCase(""))) {
+            		buffer.append("                 " + lines[i] + "\n");
+            	}
             }
         } else {
             buffer.append("\n");
         }
-        buffer.append("\n\n");
+        buffer.append("\n");
         
         // try to place FOOTER at the bottom 
         buffer.append(advanceToFooter(0, buffer.toString()));
@@ -1259,7 +1266,7 @@ public class E19Report extends TextReport {
         String tmp2 = "      ";
         String tmp3 = "      ";
 
-        int flood_filler = 95; // so flood section is space-buffered 
+        int flood_filler = 100; // so flood section is space-buffered 
         int crest_filler = 20;  // so crest section is space-buffered 
 
         int linesAvailable = 0; // ensures correct num of lines/page 
@@ -1301,7 +1308,7 @@ public class E19Report extends TextReport {
             crestList = data.getStaffData().getCrestList();
         }
             
-        if ((data.getStaffData().getCrestList() != null) || (data.getStaffData().getFloodList() != null)) {
+        if ((crestList != null && !crestList.isEmpty()) || (floodList != null && !floodList.isEmpty())) {
             // find the min and max stage values found in the Flood and Crest tables
             if (floodList != null) {
                 for (Flood flood:  floodList) {
@@ -1367,6 +1374,7 @@ public class E19Report extends TextReport {
             int crestIndex = 0;
             int lineIndex = 0;
             String[] lines = null;
+            String thisLineStr=null;
             
             for (currentTick = 0; currentTick < lines_per_page; currentTick++) {
                 if (linesNeeded <= linesAvailable) {
@@ -1376,26 +1384,34 @@ public class E19Report extends TextReport {
                     if ( (floodList.size() > floodIndex) && (floodList.get(floodIndex) != null) &&(currentStage <= floodList.get(floodIndex).getStage())) {
                         // get one line at a time from record 
                         if (lines == null) {
-                            lines = TextUtil.wordWrap(record.toString(), numCols, 0);
+                            lines = TextUtil.wordWrap(floodList.get(floodIndex).getDamage(), numCols, 0);
                             lineIndex = 0;
+
+                            tmp1="       ";
+                            if (floodList.get(floodIndex).getStage() != HydroConstants.MISSING_VALUE) {
+                                tmp1 = String.format("%7.2f", floodList.get(floodIndex).getStage());
+                            }
+
+                            thisLineStr="  " + tmp1 + " - " + lines[lineIndex];
+                        }else {
+                        	thisLineStr="            " + lines[lineIndex];
                         }
-                        int spaces = flood_filler - lines[lineIndex].length();
+                        
+                        int spaces = flood_filler - thisLineStr.length();
                         record.setLength(0);
                         
                         // Fill in the beginning of the line with spaces
-                        StringBuilder line = new StringBuilder();
+                        StringBuilder remainSpace = new StringBuilder();
                         for (int i = 0; i < spaces; i++) {
-                            line.append(" ");
+                        	remainSpace.append(" ");
                         }
-                        line.append(lines[lineIndex]);
-                        buffer.append(line.toString());
+                        buffer.append(thisLineStr);
+                        buffer.append(remainSpace.toString());
                         
                         lineIndex++;
                         
                         if (lineIndex == lines.length - 1) {  // No more lines in this record
                             floodIndex++;  // Get the next record
-                            lineIndex = 0;
-                            lines = null;
                             
                             if ((floodList.size() > floodIndex) && (floodList.get(floodIndex) != null)) {
                                 
@@ -1406,7 +1422,10 @@ public class E19Report extends TextReport {
                                     lines = TextUtil.wordWrap(record.toString(), numCols, 0);
                                     linesNeeded = countNewlines(record.toString());
                                 }
-                            }                        
+                            }
+                            
+                            lines=null;
+                            lineIndex = 0;
                         }                        
                     } else {  // no flood information on this line 
                         for (int i = 0; i < flood_filler; i++) {
@@ -1454,9 +1473,32 @@ public class E19Report extends TextReport {
             } // for currentTick
         }
         
+		data = TextReportDataManager.getInstance().getDataForReports(lid, 0);
+        buffer.append("\n\n");
+        buffer.append("          REACH: ");
+        if (data.getDescrip()!=null) {
+        	buffer.append(String.format("%-80s", data.getDescrip().getReach()));
+        } else {
+        	buffer.append(String.format("%-80s", ""));
+        }
+        
+        if (data.getRiverstat()!=null) {
+        	buffer.append(String.format("	ELEVATION ZERO: %7.2f\n\n", data.getRiverstat().getZd()));
+        } else {
+        	buffer.append(String.format("	ELEVATION ZERO: %7.2f\n\n", 0.));
+        }
+        
+        buffer.append("\n");
+        buffer.append(advanceToFooter(0,buffer.toString()));
+        Date d = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
+        String footer = createFooter(data, E19_RREVISE_TYPE, sdf.format(d), 
+                "NWS FORM E-19", E19_STAFFGAGE, "STAFF", null, E19_STANDARD_LEFT_MARGIN);
+
+        buffer.append(footer + "\n\n");        
+
         return buffer.toString();
     }
-
+    
     /**
      * Get the contacts page
      * 
@@ -1496,22 +1538,26 @@ public class E19Report extends TextReport {
                 tmp2 = String.format("         %-60s\n", contact.getEmail());
                 
                 //  Do remark.
+                tmp3 = "";
                 if (contact.getRemark() != null) {
                     String[] lines = TextUtil.wordWrap(contact.getRemark(), numCols, 0);
-                    tmp3 = "";
                     for (String s: lines) {
-                        tmp3 = tmp3.concat(String.format("           %-48s\n", s.trim()));
+                    	if (s.trim().length()>0){
+                    		tmp3 = tmp3.concat("           " + s+"\n");
+                    	} else {
+                    		tmp3 = tmp3.concat("\n");
+                    	}
                     }
-                    tmp3.concat("\n");
                 }
                 
                 int needed = (countNewlines(tmp3) + 1) + 1 + 1;
                 
-                if (needed <= avail) {
-                    buffer.append(tmp1);
-                    buffer.append(tmp2);
-                    buffer.append(tmp3);
-                } else if (needed > avail) {
+                buffer.append(tmp1);
+                buffer.append(tmp2);
+                buffer.append(tmp3);
+                avail -= needed;
+
+                if (needed > avail) {
                     // try to place FOOTER at the bottom 
                     buffer.append(advanceToFooter(loop, buffer.toString()));
 
@@ -1564,7 +1610,7 @@ public class E19Report extends TextReport {
             where = " where lid = '" + lid + "' and datcrst >= '" + date + "'";
         }
 
-        where.concat(" order by stage desc ");
+        where += " order by stage desc ";
 
         /* Create the return string and return. */
         ArrayList<Object[]> rs = TextReportDataManager.getInstance().getCrest(query + where);
@@ -1630,8 +1676,9 @@ public class E19Report extends TextReport {
             }
             buffer.append(optHeader);
         }
-        
-        String tmp = String.format("%s %s %s, %s", data.getRiverstat().getStream(), data.getDescrip().getProximity(), locData.getLocation().getName(), locData.getLocation().getState());
+
+        TextReportData dataRivStat = TextReportDataManager.getInstance().getDataForReports(lid,0);
+        String tmp = String.format("%s %s %s, %s", dataRivStat.getRiverstat().getStream(), dataRivStat.getDescrip().getProximity(), locData.getLocation().getName(), locData.getLocation().getState());
         
         String date = null;
         if (reviseType == E19_LREVISE_TYPE) {
@@ -1639,8 +1686,8 @@ public class E19Report extends TextReport {
                 date = sdf.format(locData.getLocation().getLrevise());
             }
         } else {  /* revise_type == E19_RREVISE_TYPE */
-            if (data.getRiverstat().getRrevise() != null) {
-                date = sdf.format(data.getRiverstat().getRrevise());
+            if (dataRivStat.getRiverstat().getRrevise() != null) {
+                date = sdf.format(dataRivStat.getRiverstat().getRrevise());
             }
         }
         

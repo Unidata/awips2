@@ -47,7 +47,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 import gov.noaa.nws.ncep.viz.common.ui.*;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
@@ -58,12 +58,12 @@ import gov.noaa.nws.ncep.ui.pgen.elements.ProductTime;
 import gov.noaa.nws.ncep.ui.pgen.file.*;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.VaaInfo;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 
-import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 
 
 /**
@@ -994,8 +994,10 @@ public class PgenFileManageDialog extends CaveJFACEDialog {
      */
     private void setJetTool(java.util.List<gov.noaa.nws.ncep.ui.pgen.elements.Product> prods){
     	
+//    	PgenSnapJet st = new PgenSnapJet(PgenSession.getInstance().getPgenResource().getDescriptor(), 
+//    						NmapUiUtils.getActiveNatlCntrsEditor(), null);
     	PgenSnapJet st = new PgenSnapJet(PgenSession.getInstance().getPgenResource().getDescriptor(), 
-    						NmapUiUtils.getActiveNatlCntrsEditor(), null);
+				PgenUtil.getActiveEditor(), null);
     	
     	for(gov.noaa.nws.ncep.ui.pgen.elements.Product prod : prods){
     		for ( Layer layer : prod.getLayers() ) {

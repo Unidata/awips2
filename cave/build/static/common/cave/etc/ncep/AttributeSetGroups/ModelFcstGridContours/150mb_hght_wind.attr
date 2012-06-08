@@ -6,7 +6,9 @@
 !
 GLEVEL=150
 GVCORD=pres
-SCALE=0                             !-1
+SKIP=
+FILTER=y
+SCALE=3                             !-1
 GDPFUN=knts((mag(wnd)))              !sm9s(hght)!kntv(wnd)
 TYPE=c/f                           !c         !b
 CINT=30;50;70;90;110;130;150       !12
