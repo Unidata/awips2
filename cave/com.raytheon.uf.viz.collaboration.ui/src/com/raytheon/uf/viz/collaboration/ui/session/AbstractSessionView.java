@@ -61,11 +61,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
@@ -284,8 +284,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                 cal.setTimeInMillis(timestamp);
                 String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
 
-                UserId myUser = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection(true).getUser();
+                UserId myUser = CollaborationConnection.getConnection()
+                        .getUser();
                 if (!myUser.equals(userId)
                         && Activator.getDefault().getPreferenceStore()
                                 .getBoolean("notifications")) {
