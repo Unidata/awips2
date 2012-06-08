@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.collaboration.ui.ConnectionSubscriber;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -96,8 +97,6 @@ public class LoginDialog extends CaveSWTDialog {
     private Control[] noServerList;
 
     private Control[] withServerList;
-
-    private CollaborationConnection sessionManager;
 
     private IPersistentPreferenceStore prefStore;
 
@@ -364,10 +363,12 @@ public class LoginDialog extends CaveSWTDialog {
                                 protected org.eclipse.core.runtime.IStatus run(
                                         org.eclipse.core.runtime.IProgressMonitor monitor) {
                                     try {
-                                        sessionManager = new CollaborationConnection(
-                                                new UserId(usr, srvr), passwd,
-                                                pres);
-                                        setReturnValue(sessionManager);
+                                        CollaborationConnection connection = CollaborationConnection
+                                                .connect(new UserId(usr, srvr),
+                                                        passwd, pres);
+                                        setReturnValue(connection);
+                                        ConnectionSubscriber
+                                                .subscribe(connection);
                                         VizApp.runAsync(new Runnable() {
                                             public void run() {
                                                 close();
@@ -404,9 +405,6 @@ public class LoginDialog extends CaveSWTDialog {
                             }
                             errorMessages.add("Inavlid username or password.");
                             passwordTF.setText("");
-                            if (sessionManager != null) {
-                                sessionManager.closeManager();
-                            }
                         }
                     }
                     if (focusField != null) {
@@ -437,10 +435,4 @@ public class LoginDialog extends CaveSWTDialog {
         return button;
     }
 
-    /**
-     * @return the sessionManager
-     */
-    public CollaborationConnection getSessionManager() {
-        return sessionManager;
-    }
 }
