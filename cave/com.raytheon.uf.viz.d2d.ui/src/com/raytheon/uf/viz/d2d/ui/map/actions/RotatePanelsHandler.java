@@ -42,28 +42,52 @@ public class RotatePanelsHandler extends AbstractTool {
         if (container == null) {
             return null;
         }
+        // direction is usually +1 or -1 to specify which direction to rotate
         String dirStr = arg0.getParameter("direction");
+        // start index is the index to start rotating from, for example if you
+        // want to display pane 3 then you set startIndex to 2 and direction to
+        // +1, this is done so that if pane 3 has no data it will rotate past
+        // pane 3 and the next available pane with data.
         String startStr = arg0.getParameter("startIndex");
+        // hideIndex can be set to 0 or 1 to specify which half of a blended
+        // images should be hidden.
         String hideIndexStr = arg0.getParameter("hideIndex");
-
+        boolean toggle = false;
         int dir = Integer.parseInt(dirStr);
         if (startStr == null) {
-            rotateCurrent(container, dir);
+            // If there is no startIndex rotate from the currently displayed
+            // pane
+            if (container instanceof IMultiPaneEditor) {
+                // If it is going from multiple panes to a single pain, toggle
+                // the blended image
+                toggle = ((IMultiPaneEditor) container).displayedPaneCount() > 1;
+            }
+            if (rotateCurrent(container, dir)) {
+                // if it wraps around when we rotate, toggle the blended image.
+                toggle = true;
+            }
         } else {
             int start = Integer.parseInt(startStr);
             rotate(container, start, dir);
         }
 
+        Integer hideIndex = null;
         if (hideIndexStr != null) {
-            int hideIndex = Integer.parseInt(hideIndexStr);
+            hideIndex = Integer.parseInt(hideIndexStr);
+        }
+        if (toggle || hideIndex != null) {
             for (IDisplayPane pane : container.getDisplayPanes()) {
                 for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
                     if (rp.getResource() != null
                             && rp.getResource().hasCapability(
                                     BlendableCapability.class)) {
-                        rp.getResource()
-                                .getCapability(BlendableCapability.class)
-                                .toggle(hideIndex);
+                        BlendableCapability cap = rp.getResource()
+                                .getCapability(BlendableCapability.class);
+                        if (hideIndex != null) {
+                            cap.toggle(hideIndex);
+                        } else {
+                            cap.toggle();
+                        }
                     }
                 }
             }
@@ -82,13 +106,15 @@ public class RotatePanelsHandler extends AbstractTool {
      * 
      * @param direction
      *            should be either 1, or -1
+     * @return true if the data wrapped to the other side of the pane array.
      */
-    public void rotateCurrent(IDisplayPaneContainer container, int direction) {
+    public boolean rotateCurrent(IDisplayPaneContainer container, int direction) {
         if (container instanceof IMultiPaneEditor) {
             IMultiPaneEditor mEditor = (IMultiPaneEditor) container;
             int index = getIndex(container, mEditor.getActiveDisplayPane());
-            rotate(container, index, direction);
+            return rotate(container, index, direction);
         }
+        return false;
     }
 
     public void rotate(IDisplayPaneContainer container, IDisplayPane pane,
@@ -105,9 +131,11 @@ public class RotatePanelsHandler extends AbstractTool {
      *            the index to start rotating from
      * @param direction
      *            should be either 1, or -1
+     * @return true if the data wrapped to the other side of the pane array.
      */
-    private void rotate(IDisplayPaneContainer container, int index,
+    private boolean rotate(IDisplayPaneContainer container, int index,
             int direction) {
+        boolean wrapped = false;
         IMultiPaneEditor mEditor = (IMultiPaneEditor) container;
         IDisplayPane[] panes = mEditor.getDisplayPanes();
         if (panes.length == 4) {
@@ -124,10 +152,10 @@ public class RotatePanelsHandler extends AbstractTool {
         IDisplayPane paneToShow = null;
 
         if (panes != null && index < panes.length && panes.length != 1) {
+            boolean from4To1 = mEditor.displayedPaneCount() > 1;
             for (IDisplayPane displayPane : panes) {
                 mEditor.hidePane(displayPane);
             }
-            boolean from4To1 = mEditor.displayedPaneCount() > 1;
             boolean hasProducts = false;
             if (panes[index] != null) {
                 List<D2DLegendResource> rscs = panes[index].getDescriptor()
@@ -146,9 +174,14 @@ public class RotatePanelsHandler extends AbstractTool {
             } else {
                 IDisplayPane displayedPane = null;
                 boolean done = false;
-                for (int i = (index + direction + panes.length) % panes.length; !done; i = (i
-                        + direction + panes.length)
-                        % panes.length) {
+                for (int i = index + direction; !done; i = i + direction) {
+                    if (i < 0) {
+                        i += panes.length;
+                        wrapped = true;
+                    } else if (i >= panes.length) {
+                        wrapped = true;
+                        i -= panes.length;
+                    }
                     IDisplayPane pane = panes[i];
                     if (i == index) {
                         done = true;
@@ -183,6 +216,7 @@ public class RotatePanelsHandler extends AbstractTool {
         } catch (VizException e) {
             e.printStackTrace();
         }
+        return wrapped;
     }
 
     private int getIndex(IDisplayPaneContainer container, IDisplayPane pane) {

@@ -8,6 +8,8 @@
 !
 GLEVEL=0!0:4700
 GVCORD=none!none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm9s(quo(mul(quo(pwtr;25.4),relh@4700:10000%sgma),100))//pcp!pcp!pcp
 TYPE=c        !c !c

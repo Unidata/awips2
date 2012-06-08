@@ -56,6 +56,8 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                         they're in Eastern Hemisphere; invoke
  *                                         it in convertCoords().
  *    Feb 29, 2012 #13596      Qinglu Lin  Added restoreAlaskaLon().
+ *    May  9, 2012 #14887      Qinglu Lin  Change 0.1 to 0.16875f for PORTION_OF_CENTER; 
+ *                                         0.10 to 0.0625 for EXTREME_DELTA; Added/modified code.
  * </pre>
  * 
  * @author chammack
@@ -63,13 +65,29 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class GisUtil {
 
-    private static final float PORTION_OF_CENTER = 0.1f;
-
+    private static final float PORTION_OF_CENTER = 0.16875f;
+    
     private static final float DIRECTION_DELTA = 15;
 
-    private static final float EXTREME_DELTA = 0.10f;
+    private static final float EXTREME_DELTA = 0.0625f;
 
     private static final double CONTAINS_PERCENTAGE = 0.1;
+    
+    // When both xDirection and yDirection are Direction.CENTRAL, for a rectangle
+    // polygon, MIN1 is the maximum value of either distanceX or distanceY 
+    // for EnumSet.of(xDirection,yDirection) to be returned.
+    private static final float MIN1 = 0.01f;
+    
+    // When both xDirection and yDirection are Direction.CENTRAL, for a right triangle
+    // polygon, MIN2 is the maximum value of both distanceX and distanceY 
+    // for EnumSet.of(xDirection,yDirection) to be returned.
+    private static final float MIN2 = 0.045f;
+    
+    // When yDirection is NORTH or SOUTH, in order to add CENTRAL to retval, required 
+    // minimum ratio of width of intersection envelope to that of county envelope;
+    // when xDirection is EAST or WEST,  in order to add CENTRAL to retval, required 
+    // minimum ratio of height of intersection envelope to that of county envelope;
+    private static final float RATIO = 0.5f;
 
     public static enum Direction {
         CENTRAL, NORTH, SOUTH, EAST, WEST, EXTREME
@@ -117,14 +135,17 @@ public class GisUtil {
     }
 
     public static EnumSet<Direction> calculatePortion(Geometry geom,
-            Coordinate point) {
-        return calculatePortion(geom, point, SuppressMap.NONE);
+            Geometry geom2) {
+    	return calculatePortion(geom, geom2, SuppressMap.NONE);
     }
 
     public static EnumSet<Direction> calculatePortion(Geometry geom,
-            Coordinate point, String suppressType) {
+            Geometry intersection, String suppressType) {
         Direction xDirection = null;
         Direction yDirection = null;
+
+        Coordinate point = intersection.getCentroid().getCoordinate();
+        Envelope env = intersection.getEnvelopeInternal();
 
         Coordinate centroid = geom.getCentroid().getCoordinate();
         Envelope envelope = geom.getEnvelopeInternal();
@@ -134,21 +155,28 @@ public class GisUtil {
         double distanceX = Math.abs(centroid.x - point.x);
         double distanceY = Math.abs(centroid.y - point.y);
 
-        double centerThresholdX = (approximateWidth * PORTION_OF_CENTER);
-        double centerThresholdY = (approximateHeight * PORTION_OF_CENTER);
-        double extremaThresholdX = (approximateWidth * EXTREME_DELTA);
-        double extremaThresholdY = (approximateHeight * EXTREME_DELTA);
+        double centerThresholdX = approximateWidth * PORTION_OF_CENTER;
+        double centerThresholdY = approximateHeight * PORTION_OF_CENTER;
+        double extremaThresholdX = approximateWidth * EXTREME_DELTA;
+        double extremaThresholdY = approximateHeight * EXTREME_DELTA;
 
-        if ((distanceX < centerThresholdX)) {
-            xDirection = Direction.CENTRAL;
+        if (distanceX < centerThresholdX) {
+        	xDirection = Direction.CENTRAL;
+        	if (distanceY < centerThresholdY)
+        		yDirection = Direction.CENTRAL;
         }
-        if ((distanceY < centerThresholdY)) {
-            yDirection = Direction.CENTRAL;
+
+        if (xDirection != null && yDirection != null) {
+            // Both xDirection equals Direction.CENTRAL and yDirection equals Direction.CENTRAL 
+        	// calculated above is not always correct for returning EnumSet.of(xDirection,yDirection).
+        	// The following 'if statement' filters out some cases.
+        	if (distanceX < MIN1 || distanceY < MIN1 || (distanceX < MIN2 && distanceY < MIN2))
+        		return EnumSet.of(xDirection,yDirection);
         }
-
-        if (xDirection != null && yDirection != null)
-            return EnumSet.of(xDirection, yDirection);
-
+        	
+        xDirection = null;
+        yDirection = null;
+        
         GeodeticCalculator gc = new GeodeticCalculator();
         gc.setStartingGeographicPoint(centroid.x, centroid.y);
         gc.setDestinationGeographicPoint(point.x, point.y);
@@ -190,7 +218,6 @@ public class GisUtil {
                     break;
                 }
             }
-
         }
         EnumSet<Direction> retVal = EnumSet.noneOf(Direction.class);
 
@@ -201,6 +228,28 @@ public class GisUtil {
         if (yDirection != null && !suppressType.equals(SuppressMap.NORTH_SOUTH)
                 && !suppressType.equals(SuppressMap.ALL))
             retVal.add(yDirection);
+
+        if (xDirection != null && 
+       		(xDirection.equals(Direction.WEST) || xDirection.equals(Direction.EAST))) {
+            if ( env.getHeight() < RATIO*approximateHeight) {
+                retVal.add(Direction.CENTRAL);
+            }
+        }
+
+        if (yDirection != null && 
+        		(yDirection.equals(Direction.NORTH) || yDirection.equals(Direction.SOUTH))) {
+        	if ( env.getWidth() < RATIO*approximateWidth) {
+                retVal.add(Direction.CENTRAL);
+            }
+        }
+        
+        if ((retVal.contains(Direction.NORTH) && retVal.contains(Direction.WEST)) || 
+        		(retVal.contains(Direction.NORTH) && retVal.contains(Direction.EAST)) ||
+        		(retVal.contains(Direction.SOUTH) && retVal.contains(Direction.WEST)) ||
+        		(retVal.contains(Direction.SOUTH) && retVal.contains(Direction.EAST)) ) {
+                if (retVal.contains(Direction.CENTRAL))
+        	       retVal.remove(Direction.CENTRAL);
+        }
 
         if (isExtreme && !suppressType.equals(SuppressMap.ALL))
             retVal.add(Direction.EXTREME);

@@ -5,6 +5,7 @@
 ##            Mary-Beth Schreck, Ed Plumb, Aaron Jacobs 9-22-2011 at Alaska TIM
 ##            Mike Dangelo 01-26-2012 at CRH TIM
 ##            Phil Kurimski 2-29-2012
+##           Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND)
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -64,6 +65,7 @@
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
+
 #if(${productClass}=="T")
 TEST...FLOOD ADVISORY...TEST
 #else

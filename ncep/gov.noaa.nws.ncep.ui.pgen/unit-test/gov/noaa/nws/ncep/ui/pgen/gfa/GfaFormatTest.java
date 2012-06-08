@@ -7,14 +7,13 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
-import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
@@ -29,7 +28,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 public class GfaFormatTest {
 
 	/** Logger */
-	private final static Logger log = Logger.getLogger(GfaFormatTest.class);
+//	private final static Logger log = Logger.getLogger(GfaFormatTest.class);
 
 	public static final String BASE_DIR = "../../eclipse/";
 	public static final int CYCLE_DAY = 20;
@@ -124,12 +123,13 @@ public class GfaFormatTest {
 				expected.otlkCondsEndg = otlkCondsEndg;
 				sb.append("filename=\"" + fileName + "\"\nExpected:\n");
 				sb.append(expected.toString());
-				log.info(sb.toString());
+//				log.info(sb.toString());
 				sb.setLength(0);
 				try {
 					createSmearsTest(fileName, expected, plus);
 				} catch (Exception e) {
-					log.error("\ncreateSmearsTest failed: " + fileName, e);
+//					log.error("\ncreateSmearsTest failed: " + fileName, e);
+					e.printStackTrace();
 					errors++;
 				}
 			}
@@ -137,7 +137,7 @@ public class GfaFormatTest {
 		
 		assertEquals("Number of failed files ", 0, errors);
 		
-		log.info(sb.toString());
+//		log.info(sb.toString());
 	}
 
 	private List<AbstractDrawableComponent> read(String file) throws FileNotFoundException, SerializationException {
@@ -169,9 +169,9 @@ public class GfaFormatTest {
 		field.setAccessible(true);
 		field.set(null, GfaFormatTest.CYCLE_HOUR);
 
-		NcDirectDbQuery.setHttpServer(HTTP_SERVER);
+		//?NcDirectDbQuery.setHttpServer(HTTP_SERVER);
 
-		log.debug("configure() " + (System.currentTimeMillis() - time) + " ms");
+//		log.debug("configure() " + (System.currentTimeMillis() - time) + " ms");
 
 		if(!PreloadGfaDataThread.loaded) {
 			// preload the classes to reduce the first GFA format time 
@@ -186,7 +186,8 @@ public class GfaFormatTest {
 			SAXReader reader = new SAXReader();
 			doc = reader.read(PACKAGE + rulesXml);
 		} catch (Exception e) {
-			log.error(e);
+//			log.error(e);
+			e.printStackTrace();
 		}
 	}
 	

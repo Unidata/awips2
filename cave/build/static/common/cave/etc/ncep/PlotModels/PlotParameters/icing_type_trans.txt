@@ -1,4 +1,4 @@
 s2s
-RIME : 106
-CLR : 105
-MXD : 107
+RIME : 1
+CLR :  2
+MXD :  3

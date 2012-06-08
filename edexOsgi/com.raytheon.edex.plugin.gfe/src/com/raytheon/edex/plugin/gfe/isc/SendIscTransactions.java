@@ -33,7 +33,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
-import com.raytheon.edex.plugin.gfe.isc.IscSendRecordPK.IscSendState;
+import com.raytheon.edex.plugin.gfe.isc.IscSendRecord.IscSendState;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -51,6 +51,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            dgilling     Initial creation
+ * May 08, 2012  #600      dgilling     Refactor to match IscSendRecord
+ *                                      changes.
  * 
  * </pre>
  * 
@@ -84,7 +86,7 @@ public class SendIscTransactions {
 
             // check the currently send jobs
             Criteria runningCrit = sess.createCriteria(IscSendRecord.class);
-            Criterion stateRunningCrit = Restrictions.eq("id.state",
+            Criterion stateRunningCrit = Restrictions.eq("state",
                     IscSendState.RUNNING);
             runningCrit.add(stateRunningCrit);
             runningCrit.addOrder(Order.asc("insertTime"));
@@ -99,12 +101,13 @@ public class SendIscTransactions {
                         // lock the row to ensure no one else will run the
                         // upgrade/delete the row
                         record = (IscSendRecord) sess.get(IscSendRecord.class,
-                                record.getId(), LockOptions.UPGRADE);
+                                record.getKey(), LockOptions.UPGRADE);
                         // double check to make sure another process hasn't
                         // already grabbed it and the run didn't finish
                         if (record != null
                                 && record.getInsertTime().getTime() < timeOutCheck) {
-                            handler.info("Running IscSendJob " + record.getId()
+                            handler.info("Running IscSendJob "
+                                    + record.getKey()
                                     + " timed out.  Rerunning IscSendJob.");
                             record.setInsertTime(new Date());
                             sess.update(record);
@@ -118,19 +121,18 @@ public class SendIscTransactions {
             // query the pending table for available send jobs
             Criteria queuedCrit = sess.createCriteria(IscSendRecord.class);
             queuedCrit.addOrder(Order.asc("insertTime"));
-            Criterion baseCrit = Restrictions.eq("id.state",
-                    IscSendState.QUEUED);
+            Criterion baseCrit = Restrictions.eq("state", IscSendState.QUEUED);
 
             if (!currentlyRunning.isEmpty()) {
                 // exclude the running send jobs
                 Collection<ParmID> runningInits = new ArrayList<ParmID>(
                         currentlyRunning.size());
                 for (IscSendRecord record : currentlyRunning) {
-                    runningInits.add(record.getId().getParmID());
+                    runningInits.add(record.getParmID());
                 }
 
                 baseCrit = Restrictions.and(baseCrit, Restrictions
-                        .not(Restrictions.in("id.parmID", runningInits)));
+                        .not(Restrictions.in("parmID", runningInits)));
             }
 
             queuedCrit.add(baseCrit);
@@ -141,15 +143,15 @@ public class SendIscTransactions {
             for (IscSendRecord record : queuedRecords) {
                 // lock the record
                 record = (IscSendRecord) sess.get(IscSendRecord.class,
-                        record.getId(), LockOptions.UPGRADE);
+                        record.getKey(), LockOptions.UPGRADE);
 
                 // double check its still valid
                 if (record != null) {
                     sess.delete(record);
                     // can we update primary key in place?? or do we need to
                     // delete then add
-                    record = (IscSendRecord) record.clone();
-                    record.getId().setState(IscSendState.RUNNING);
+                    record = record.clone();
+                    record.setState(IscSendState.RUNNING);
                     record.setInsertTime(new Date());
                     sess.save(record);
                     trans.commit();
@@ -195,7 +197,7 @@ public class SendIscTransactions {
             // lock the row to ensure no one else will run the
             // upgrade/delete the row
             record = (IscSendRecord) sess.get(IscSendRecord.class,
-                    record.getId(), LockOptions.UPGRADE);
+                    record.getKey(), LockOptions.UPGRADE);
 
             if (record != null) {
                 sess.delete(record);

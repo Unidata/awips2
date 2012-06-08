@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -88,6 +89,7 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  *                                      is false.
  * 05/13/2011   8611        rferrel     Added type to Site Monitor requests and update
  *                                      Viewer when a METAR changes alert status.
+ * 04/26/2012   14717       zhao        Indicator labels turn gray when Metar is outdated
  * 
  * </pre>
  * 
@@ -106,9 +108,29 @@ public class TafSiteComp {
      * A metar is good for up to one hour and can be issued up to 10 minutes
      * before they take affect. This is the time out in milliseconds for 1 hour
      * with a 10 minute grace period.
+     * 
+     * DR14717: changed grace period from 10 minutes to 5 minutes.
      */
-    private final static long METAR_TIMEOUT = (1L * 60L + 10L) * 60L * 1000L;
-
+    private final static long METAR_TIMEOUT = (1L * 60L + 5L) * 60L * 1000L;
+    
+    /**
+     * DR14717: When Metar is 2 hours old, the persistence indicators turn gray. 
+     * This is the timeout in milliseconds for 2 hours.
+     */
+    public final static long METAR_TIMEOUT_2HR = 2L * 60L * 60L * 1000L;
+    
+    /**
+     * DR14717: When Metar is 4 hours plus 10 minutes old, Metar Time Label is replaced by "None",
+     * and the current observation and persistence indicators turn gray.
+     * This is the timeout in milliseconds for 4 hours plus 10 minutes.
+     */
+    public final static long METAR_TIMEOUT_4HR = (4L * 60L + 10L) * 60L * 1000L;
+    
+    /**
+     * DR14717:
+     */
+    private boolean persistMonitorProcessedFirst = false;
+    
     /**
      * A TAF is good for up to 6 hours and can be issued up to 40 minutes before
      * they take affect. This time out is in milliseconds for 6 hours with a 40
@@ -628,8 +650,32 @@ public class TafSiteComp {
                     + timestamp.substring(4, 6));
             long currentTime = SimulatedTime.getSystemTime().getTime()
                     .getTime();
-            if (currentTime > (metarTime + METAR_TIMEOUT)) {
+            
+            if ( currentTime > ( metarTime + METAR_TIMEOUT_4HR ) ) {
+            	mtrTimeLbl.setText("None");
+                mtrTimeLbl.setBackground(getBackgroundColor());
+            	if ( persistMonitorProcessedFirst ) {
+                	SiteMonitor psstMonitor = monitorArray.get(1);
+                	Color grayColor = psstMonitor.getGraySeverityColor();
+                	Map<String, Label> psstLabelMap = psstMonitor.getLabelMap();
+                	Set<String> psstKeys = psstLabelMap.keySet();
+                	for ( String key : psstKeys ) {
+                		psstLabelMap.get(key).setBackground(grayColor);
+                	}
+            	}
+            } else if (currentTime > (metarTime + METAR_TIMEOUT)) {
                 mtrTimeLbl.setBackground(getWarningColor());
+                if ( currentTime > ( metarTime + METAR_TIMEOUT_2HR ) ) {
+                	if ( persistMonitorProcessedFirst ) {
+                    	SiteMonitor psstMonitor = monitorArray.get(1);
+                    	Color grayColor = psstMonitor.getGraySeverityColor();
+                    	Map<String, Label> psstLabelMap = psstMonitor.getLabelMap();
+                    	Set<String> psstKeys = psstLabelMap.keySet();
+                    	for ( String key : psstKeys ) {
+                    		psstLabelMap.get(key).setBackground(grayColor);
+                    	}
+                	}
+                }
             } else {
                 mtrTimeLbl.setBackground(getBackgroundColor());
             }
@@ -764,4 +810,8 @@ public class TafSiteComp {
             return org.eclipse.core.runtime.Status.OK_STATUS;
         }
     }
+
+	public void setPersistMonitorProcessedFirst(boolean b) {
+		persistMonitorProcessedFirst = b;
+	}
 }

@@ -2,3 +2,6 @@ colorMapName=nids_tops
 colorBar=@dfltMosaicColorBar.xml
 productCode=212
 prodName=TOPS30
+alpha=1.0
+brightness=1.0
+contrast=1.0

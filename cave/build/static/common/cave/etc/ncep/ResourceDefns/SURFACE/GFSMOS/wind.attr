@@ -2,3 +2,4 @@
 !
 plotModelName=gfsmos_wind
 plotDensity=10
+conditionalFilterName=
