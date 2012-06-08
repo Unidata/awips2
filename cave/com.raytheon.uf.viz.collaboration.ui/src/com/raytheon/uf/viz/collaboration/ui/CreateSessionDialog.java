@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -244,7 +245,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
                     Text focusField = null;
                     List<String> errorMessages = new ArrayList<String>();
                     String subject = subjectTF.getText().trim();
-                    String err = validateVenuName();
+                    String err = validateVenueName();
                     String name = nameTF.getText();
                     if (err != null) {
                         focusField = nameTF;
@@ -315,7 +316,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         return button;
     }
 
-    private String validateVenuName() {
+    private String validateVenueName() {
         String name = nameTF.getText().trim();
         nameTF.setText(name);
         String err = null;
@@ -325,9 +326,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
             // TODO Above else make it a test for invalid characters.
             err = "Name contains invalid characters.";
         } else {
-            Collection<IVenueInfo> info = CollaborationDataManager
-                    .getInstance().getCollaborationConnection(true)
-                    .getVenueInfo();
+            Collection<IVenueInfo> info = CollaborationConnection
+                    .getConnection().getVenueInfo();
             for (IVenueInfo i : info) {
                 if (name.equals(i.getVenueName())) {
                     err = "Session already exists. Pick a different name.";

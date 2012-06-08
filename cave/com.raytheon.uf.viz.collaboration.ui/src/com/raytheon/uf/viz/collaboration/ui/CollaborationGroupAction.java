@@ -52,7 +52,6 @@ public class CollaborationGroupAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        // this opens the product browser view
         try {
             PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getActivePage().showView(CollaborationGroupView.ID);
