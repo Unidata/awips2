@@ -6,6 +6,8 @@
 !
 GLEVEL=400:850!0
 GVCORD=pres!none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=squo(2,vadd(vlav(wnd@850:700%pres,vlav(wnd@500:400%pres)!sm9s(pmsl)
 TYPE=b!c

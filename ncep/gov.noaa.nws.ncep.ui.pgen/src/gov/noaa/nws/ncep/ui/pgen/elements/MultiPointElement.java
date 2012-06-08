@@ -299,4 +299,11 @@ public abstract class MultiPointElement extends DrawableElement implements IMult
 		
 	}
 
+	/**
+	 * Gets "filled".
+	 */
+	public boolean getFilled() {		
+		return filled;
+	}
+
 }

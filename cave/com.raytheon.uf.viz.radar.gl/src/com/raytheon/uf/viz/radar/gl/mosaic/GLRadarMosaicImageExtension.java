@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -60,10 +61,11 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
     private AbstractGLImage writeToImage;
 
     public GLMosaicImage initializeRaster(int[] imageBounds,
-            ColorMapParameters params) throws VizException {
+            IExtent imageExtent, ColorMapParameters params) throws VizException {
         return new GLMosaicImage(target.getExtension(
                 GLOffscreenRenderingExtension.class).constructOffscreenImage(
-                ByteBuffer.class, imageBounds, params), imageBounds);
+                ByteBuffer.class, imageBounds, params), imageBounds,
+                imageExtent);
     }
 
     /*
@@ -96,14 +98,23 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
                 IOffscreenRenderingExtension extension = target
                         .getExtension(IOffscreenRenderingExtension.class);
                 try {
-                    extension.renderOffscreen(mosaicImage);
+                    extension.renderOffscreen(mosaicImage,
+                            mosaicImage.getImageExtent());
                     DrawableImage[] imagesToMosaic = mosaicImage
                             .getImagesToMosaic();
                     // Make sure images are staged before we mosaic them
                     ImagingSupport.prepareImages(target, imagesToMosaic);
-                    // Need to set repaint based on if drawing completed
-                    mosaicImage.setRepaint(drawRasters(paintProps,
-                            imagesToMosaic) == false);
+
+                    boolean allPainted = true;
+                    // Each image needs to draw separately due to gl issues when
+                    // zoomed in very far, rendered parts near the corners don't
+                    // show all the pixels for each image. Pushing and popping
+                    // GL_TEXTURE_BIT before/after each render fixes this issue
+                    for (DrawableImage di : imagesToMosaic) {
+                        allPainted &= drawRasters(paintProps, di);
+                    }
+                    // Need to set repaint based on if drawing completed.
+                    mosaicImage.setRepaint(allPainted == false);
                 } finally {
                     extension.renderOnscreen();
                 }
@@ -117,7 +128,7 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
         } else {
             GL gl = target.getGl();
             // activate on texture2 as 0 is radar image and 1 is colormap
-            gl.glActiveTexture(GL.GL_TEXTURE2);
+            gl.glActiveTexture(GL.GL_TEXTURE1);
             gl.glBindTexture(writeToImage.getTextureStorageType(),
                     writeToImage.getTextureid());
             return image;
@@ -136,8 +147,8 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
     public void postImageRender(PaintProperties paintProps,
             AbstractGLImage image, Object data) throws VizException {
         GL gl = target.getGl();
-        // activate on texture2 as 0 is radar image and 1 is colormap
-        gl.glActiveTexture(GL.GL_TEXTURE2);
+        // activate on texture2 as 0 is radar image
+        gl.glActiveTexture(GL.GL_TEXTURE1);
         gl.glBindTexture(writeToImage.getTextureStorageType(), 0);
     }
 
@@ -154,7 +165,7 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
     public void loadShaderData(GLShaderProgram program, IImage image,
             PaintProperties paintProps) throws VizException {
         program.setUniform("radarData", 0);
-        program.setUniform("mosaicTexture", 2);
+        program.setUniform("mosaicTexture", 1);
 
         // pass in width and height
         program.setUniform("height", (paintProps.getCanvasBounds().height));

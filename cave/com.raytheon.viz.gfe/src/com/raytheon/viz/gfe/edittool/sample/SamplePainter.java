@@ -280,6 +280,9 @@ public class SamplePainter {
             inGrid = true;
         }
 
+        // sample label color
+        RGB labelColor = new RGB(255, 255, 255);
+        
         // get the list of samples that should be painted and in the
         // order
         for (GridID grid : grids) {
@@ -288,30 +291,6 @@ public class SamplePainter {
             // do we plot this weather element?
             if ((limitSamples.size() != 0) && !limitSamples.contains(pName)) {
                 continue; // skip
-            }
-
-            // calculate color
-            RGB labelColor;
-            // AFPSConfig.get(pName + "_Sample_color", labelColor);
-            String cfgColor = Activator.getDefault().getPreferenceStore()
-                    .getString(pName + "_Sample_color");
-            if (!cfgColor.equals("")) {
-                labelColor = RGBColors.getRGBColor(cfgColor);
-            } else {
-                labelColor = grid.getParm().getDisplayAttributes()
-                        .getBaseColor();
-                if (grid.equals(imageGrid)) {
-                    RGB color = new RGB(255, 255, 255);
-                    String imgLegColor = Activator.getDefault()
-                            .getPreferenceStore()
-                            .getString("ImageLegend_color");
-
-                    if (!imgLegColor.equals("")) {
-                        color = RGBColors.getRGBColor(imgLegColor);
-                    }
-
-                    labelColor = color;
-                }
             }
 
             // get the data value

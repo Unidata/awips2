@@ -2,3 +2,4 @@
 !
 plotModelName=gfsxmos_standard
 plotDensity=10
+conditionalFilterName=

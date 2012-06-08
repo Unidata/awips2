@@ -336,10 +336,8 @@ public class PriorityControls {
         actionChk.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 updateActionChangeButton();
-                if (actionChk.getSelection()) {
-                    needsSaveListener.saveNeeded(true);
-                    alertMetadata.setPythonEnabled(actionChk.getSelection());
-                }
+                needsSaveListener.saveNeeded(true);
+                alertMetadata.setPythonEnabled(actionChk.getSelection());
             }
         });
 
@@ -493,6 +491,7 @@ public class PriorityControls {
      * Select the audio file.
      */
     private void selectAudioFile() {
+        boolean saveNeeded = false;
         String audioFile = alertMetadata.getAudioFile();
 
         audioDlg = new FileSelectDlg(parentComp.getShell(),
@@ -501,16 +500,20 @@ public class PriorityControls {
         Boolean retVal = (Boolean) audioDlg.open("Audio Selection File",
                 audioFile);
 
-        if (retVal == null) {
+        if (retVal == null && audioFile != null) {
             audioChk.setSelection(false);
             changeAudioBtn.setEnabled(false);
             audioChk.setToolTipText("");
         } else if (retVal != null && retVal == true) {
             File selectedFile = audioDlg.getSelectedFile();
 
-            if (selectedFile != null) {
-                alertMetadata.setAudioFile(selectedFile.getName());
-                audioChk.setToolTipText(selectedFile.getName());
+            if (selectedFile == null && audioFile == null) {
+                // do nothing
+            } else if (selectedFile != null) {
+                String selectedFileName = selectedFile.getName();
+                saveNeeded = !selectedFileName.equals(audioFile);
+                alertMetadata.setAudioFile(selectedFileName);
+                audioChk.setToolTipText(selectedFileName);
             } else {
                 alertMetadata.setAudioFile(null);
                 alertMetadata.setAudioEnabled(false);
@@ -518,6 +521,9 @@ public class PriorityControls {
                 audioChk.setSelection(false);
                 changeAudioBtn.setEnabled(false);
             }
+        }
+        if (saveNeeded) {
+            needsSaveListener.saveNeeded(saveNeeded);
         }
     }
 
@@ -734,6 +740,7 @@ public class PriorityControls {
      * Select the audio file.
      */
     private void selectActionFile() {
+        boolean saveNeeded = false;
         String actionFile = alertMetadata.getPythonScript();
 
         Map<String, String> filteredExtensions = new HashMap<String, String>();
@@ -748,15 +755,19 @@ public class PriorityControls {
         Boolean retVal = (Boolean) actionDlg.open("Action Selection File",
                 actionFile);
 
-        if (retVal == null) {
+        if (retVal == null && actionFile != null) {
             actionChk.setSelection(false);
             changeActionBtn.setEnabled(false);
-        } else if (retVal == true) {
+        } else if (retVal != null && retVal == true) {
             File selectedFile = actionDlg.getSelectedFile();
 
-            if (selectedFile != null) {
-                alertMetadata.setPythonScript(selectedFile.getName());
-                actionChk.setToolTipText(selectedFile.getName());
+            if (selectedFile == null && actionFile == null) {
+                // do nothing
+            } else if (selectedFile != null) {
+                String selectedFileName = selectedFile.getName();
+                saveNeeded = !selectedFileName.equals(actionFile);
+                alertMetadata.setPythonScript(selectedFileName);
+                actionChk.setToolTipText(selectedFileName);
             } else {
                 alertMetadata.setAudioFile(null);
                 alertMetadata.setAudioEnabled(false);
@@ -764,6 +775,9 @@ public class PriorityControls {
                 actionChk.setSelection(false);
                 changeActionBtn.setEnabled(false);
             }
+        }
+        if (saveNeeded) {
+            needsSaveListener.saveNeeded(saveNeeded);
         }
     }
 

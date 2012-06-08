@@ -6,6 +6,9 @@
      EVAN BOOKBINDER WFO EAX 11-4-2011 removed bulletDefaults that prevented auto selection
      PHIL KURIMSKI   WFO DTX  2-12-2012 OB12.1.1-1 FOR IMPACT BASED TOR/SVR WARNINGS
      PHIL KURIMSKI   WFO DTX  2-29-2012 OB12.2.1-4 
+     PHIL KURIMSKI   04-20-2012
+     MIKE REGA 5-10-2012 DR 14525 added timeZoneField
+                         DR 14691 added feAreaField
 -->
 <!--
 	Velocity Variables:
@@ -171,7 +174,7 @@
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
   <bullet bulletName="dopplerSquallTOR" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
-  <bullet bulletName="confirmedDopplerTOR" bulletText="Confirmed tornado (WSR-88D was tracking a tornado)" bulletGroup="group1" parseString="SOURCE...STORM SPOTTERS"/>
+  <bullet bulletName="confirmedDopplerTOR" bulletText="Confirmed tornado (TDS sig - OBSERVED Tag)" bulletGroup="group1" parseString="SOURCE...RADAR CONFIRMED"/>
   <bullet bulletName="spotterTOR" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
   <bullet bulletName="lawEnforcementTOR" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
   <bullet bulletName="emergencyManagementTOR" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
@@ -222,6 +225,7 @@
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
   <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
@@ -279,22 +283,25 @@
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** CALL TO ACTIONS (CHOOSE 1 OR MORE) *********" bulletType="title"/>
-  <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="TOR WATCH IN EFFECT...or Possible Tornado" parseString="REMAIN ALERT FOR A POSSIBLE TORNADO"/>
-  <bullet bulletName="genericCTA" bulletText="Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
-  <bullet bulletName="canProduceTornadoesCTA" bulletText="Svr t-storms can produce tornadoes (no TOR watch)" parseString="TORNADO DEVELOPMENT IS NOT LIKELY"/>
-  <bullet bulletName="largeHailCTA" bulletText="Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
-  <bullet bulletName="veryLargeHailCTA" bulletText="Large DESTRUCTIVE Hail" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
-  <bullet bulletName="largeHailWindCTA" bulletText="Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
-  <bullet bulletName="historyHailCTA" bulletText="History of Producing Large Hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
-  <bullet bulletName="historyWindCTA" bulletText="History of Widespread Wind Damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
-  <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
+  <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
+  <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
+  <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
+  <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
+  <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
+  <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
-  <bullet bulletName="squallLineCTA" bulletText="Squall lines can produce tornadoes (no TOR watch)" parseString="INTENSE SQUALL LINES CAN SOMETIMES PRODUCE BRIEF TORNADOES AND"/>
-  <bullet bulletName="superCellsCTA" bulletText="Supercells can product all types of svr...includes tornado" parseString="THIS IS A SUPERCELL THUNDERSTORM"/>
-  <bullet bulletName="gustFrontOutflowCTA" bulletText="Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
-  <bullet bulletName="extremeWindsCTA" bulletText="Extreme damaging winds expected" parseString="TORNADO LIKE WIND SPEEDS"/>
+  <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
+  <bullet bulletName="squallLineCTA" bulletText="(E) Squall lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="INTENSE SQUALL LINES CAN SOMETIMES PRODUCE BRIEF TORNADOES AND"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can product all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS OCCURRING"/>
@@ -312,7 +319,7 @@
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="dopplerTOR" bulletText="Doppler radar indicated" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
   <bullet bulletName="dopplerSquallTOR" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
-  <bullet bulletName="confirmedDopplerTOR" bulletText="Confirmed tornado (WSR-88D was tracking a tornado)" bulletGroup="group1" parseString="SOURCE...STORM SPOTTERS"/>
+  <bullet bulletName="confirmedDopplerTOR" bulletText="Confirmed tornado (TDS sig - OBSERVED Tag)" bulletGroup="group1" parseString="SOURCE...RADAR CONFIRMED"/>
   <bullet bulletName="spotterTOR" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
   <bullet bulletName="lawEnforcementTOR" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
   <bullet bulletName="emergencyManagementTOR" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
@@ -363,6 +370,7 @@
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
   <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
@@ -424,22 +432,25 @@
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** CALL TO ACTIONS (CHOOSE 1 OR MORE) *********" bulletType="title"/>
-  <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="TOR WATCH IN EFFECT...or Possible Tornado" parseString="REMAIN ALERT FOR A POSSIBLE TORNADO"/>
-  <bullet bulletName="genericCTA" bulletText="Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
-  <bullet bulletName="canProduceTornadoesCTA" bulletText="Svr t-storms can produce tornadoes (no TOR watch)" parseString="TORNADO DEVELOPMENT IS NOT LIKELY"/>
-  <bullet bulletName="largeHailCTA" bulletText="Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
-  <bullet bulletName="veryLargeHailCTA" bulletText="Large DESTRUCTIVE Hail" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
-  <bullet bulletName="largeHailWindCTA" bulletText="Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
-  <bullet bulletName="historyHailCTA" bulletText="History of Producing Large Hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
-  <bullet bulletName="historyWindCTA" bulletText="History of Widespread Wind Damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
-  <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
+  <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
+  <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
+  <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
+  <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
+  <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
+  <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
-  <bullet bulletName="squallLineCTA" bulletText="Squall lines can produce tornadoes (no TOR watch)" parseString="INTENSE SQUALL LINES CAN SOMETIMES PRODUCE BRIEF TORNADOES AND"/>
-  <bullet bulletName="superCellsCTA" bulletText="Supercells can product all types of svr...includes tornado" parseString="THIS IS A SUPERCELL THUNDERSTORM"/>
-  <bullet bulletName="gustFrontOutflowCTA" bulletText="Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
-  <bullet bulletName="extremeWindsCTA" bulletText="Extreme damaging winds expected" parseString="TORNADO LIKE WIND SPEEDS"/>
+  <bullet bulletName="gustFrontOutflowCTA" bulletText="(B) Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR BEFORE ANY RAIN OR LIGHTNING"/>
+  <bullet bulletName="squallLineCTA" bulletText="(E) Squall lines can produce tornadoes (can use w/TOR...POSSIBLE tag)" parseString="INTENSE SQUALL LINES CAN SOMETIMES PRODUCE BRIEF TORNADOES AND"/>
+  <bullet bulletName="superCellsCTA" bulletText="(E) Supercells can product all types of svr...includes tornado" parseString="ALL TYPES OF SEVERE WEATHER...INCLUDING"/>
+  <bullet bulletText="******** MISCELLANEOUS CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET AWAY FROM THE WATER AND MOVE INDOORS"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS OCCURRING"/>
@@ -462,6 +473,8 @@
 <!--<areaField>NAME</areaField> -->
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
+  <timeZoneField>TIME_ZONE</timeZoneField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
 <!-- <fipsField>STATE_ZONE</fipsField> --> 

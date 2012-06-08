@@ -26,6 +26,7 @@ import static com.raytheon.edex.textdb.dbapi.impl.TextDB.hexToAscii;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -70,6 +71,8 @@ import com.raytheon.uf.edex.services.textdbsrv.TextViewTags;
  * 02Aug2010    2187       cjeanbap    Move AlarmAlertUtil.sendProductAlarmAlert() 
  *                                     outside of if-statement.
  * 28Sep2010    6338       cjeanbap    Added retrieval of current node by site.
+ * --------------------------------
+ * 27Apr2012     564       jkorman     Added sort to ALL times retrieval.
  * 
  * </pre>
  * 
@@ -253,7 +256,9 @@ public class TextViewAdapter implements ICommandExecutor {
 
                 List<Long> times = textDB.getAllTimes(productId,
                         operationalMode);
-
+                // sort the list first...
+                Collections.sort(times);
+                
                 Property[] msgProps = new Property[times.size()];
                 int pIndex = 0;
                 for (Long t : times) {

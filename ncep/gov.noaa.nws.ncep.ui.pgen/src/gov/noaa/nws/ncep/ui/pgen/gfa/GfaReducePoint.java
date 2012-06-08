@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -44,7 +44,7 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class GfaReducePoint {
 
-	private final static Logger logger = Logger.getLogger(GfaClip.class);
+//	private final static Logger logger = Logger.getLogger(GfaClip.class);
 
 	/**
 	 *  SMEAR_INCR_PCT - maximum percentage allowed for the increase in size

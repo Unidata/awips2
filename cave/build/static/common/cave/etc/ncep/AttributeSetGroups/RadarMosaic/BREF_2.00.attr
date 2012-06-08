@@ -2,3 +2,6 @@ colorMapName=osf_ref16
 colorBar=@dfltMosaicColorBar.xml
 productCode=140
 prodName=BREF_2
+alpha=1.0
+brightness=1.0
+contrast=1.0

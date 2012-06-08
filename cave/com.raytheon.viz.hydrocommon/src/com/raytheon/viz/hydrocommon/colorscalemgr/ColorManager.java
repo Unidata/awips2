@@ -149,10 +149,11 @@ public abstract class ColorManager {
             Map.Entry<String, NamedColorUseSet> entry = i.next();
             if (description.equals(entry.getValue()
                     .getColor_use_display_string())) {
-                rval = entry.getValue().getColor_use_db_name();
+                return entry.getValue().getColor_use_db_name();
             } else if (description.equals(entry.getValue()
                     .getColor_use_db_name())) {
-                rval = entry.getValue().getColor_use_db_name();
+            	// if passing in the data type name then just return it
+                return description;
             }
         }
 
@@ -195,9 +196,15 @@ public abstract class ColorManager {
             if (dataType.equals(entry.getValue().getColor_use_db_name())) {
                 if (entry.getValue().getColor_use_display_string() == null) {
                     rval = entry.getValue().getColor_use_db_name();
+                    break;
                 } else {
                     rval = entry.getValue().getColor_use_display_string();
+                    break;
                 }
+            } else if (dataType.equals(entry.getValue().getColor_use_display_string())) {
+            	// if the display string is passed in just return it
+            	rval = dataType;
+            	break;
             }
         }
 

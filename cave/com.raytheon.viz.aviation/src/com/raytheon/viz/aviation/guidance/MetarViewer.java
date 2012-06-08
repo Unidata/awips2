@@ -319,6 +319,7 @@ public class MetarViewer extends ViewerTab implements
             req.setSize(prevChkHrs);
             String siteObj = myGetCacheSiteObj(siteID, prevChkHrs);
             if (siteObj == null) {
+                // System.out
                 // .println("Generate cache for: " + tag + " cnt " + cnt);
                 CacheGuidanceRequest cReq = createCacheRequest(siteID,
                         prevChkHrs);
