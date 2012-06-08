@@ -54,8 +54,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.session.SearchComposite.SearchText;
 
 /**
@@ -134,8 +134,7 @@ public class SessionMsgArchiveBrowser extends Composite implements SearchText {
 
         try {
             if (logDir == null) {
-                UserId user = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection(true).getUser();
+                UserId user = CollaborationConnection.getConnection().getUser();
                 logDir = SessionMsgArchive.getArchiveDir(user.getHost(),
                         user.getName(), null);
             }
