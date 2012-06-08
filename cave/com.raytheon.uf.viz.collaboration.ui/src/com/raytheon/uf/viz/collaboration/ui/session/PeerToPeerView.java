@@ -39,9 +39,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 
 /**
  * TODO Add Description
@@ -84,8 +84,8 @@ public class PeerToPeerView extends AbstractSessionView {
         userColor = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
         chatterColor = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
         black = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-        CollaborationDataManager.getInstance().getCollaborationConnection(true)
-                .getEventPublisher().register(this);
+        CollaborationConnection.getConnection().getEventPublisher()
+                .register(this);
     }
 
     /*
@@ -97,8 +97,10 @@ public class PeerToPeerView extends AbstractSessionView {
      */
     @Override
     public void dispose() {
-        CollaborationDataManager.getInstance().getCollaborationConnection(true)
-                .getEventPublisher().unregister(this);
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        if (conn != null) {
+            conn.getEventPublisher().unregister(this);
+        }
         super.dispose();
     }
 
@@ -135,18 +137,17 @@ public class PeerToPeerView extends AbstractSessionView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                CollaborationDataManager manager = CollaborationDataManager
-                        .getInstance();
+                CollaborationConnection connection = CollaborationConnection
+                        .getConnection();
                 if (online) {
-                    appendMessage(manager.getCollaborationConnection(true)
-                            .getUser(), System.currentTimeMillis(), message);
-                    IPeerToPeer p2p = (IPeerToPeer) manager
-                            .getCollaborationConnection(true)
+                    appendMessage(connection.getUser(),
+                            System.currentTimeMillis(), message);
+                    IPeerToPeer p2p = (IPeerToPeer) connection
                             .getPeerToPeerSession();
                     p2p.sendPeerToPeer(peer, message);
                 } else {
-                    appendMessage(manager.getCollaborationConnection(true)
-                            .getUser(), System.currentTimeMillis(), message);
+                    appendMessage(connection.getUser(),
+                            System.currentTimeMillis(), message);
                     StringBuilder builder = new StringBuilder();
                     builder.append("Unable to send message. User is not online.");
                     sendErrorMessage(builder);
@@ -163,8 +164,8 @@ public class PeerToPeerView extends AbstractSessionView {
         Color color = null;
         if (userId == null) {
             color = black;
-        } else if (!userId.equals(CollaborationDataManager.getInstance()
-                .getCollaborationConnection(true).getUser())) {
+        } else if (!userId.equals(CollaborationConnection.getConnection()
+                .getUser())) {
             color = chatterColor;
         } else {
             color = userColor;
@@ -220,8 +221,7 @@ public class PeerToPeerView extends AbstractSessionView {
      */
     @Override
     protected SessionMsgArchive getMessageArchive() {
-        UserId me = CollaborationDataManager.getInstance()
-                .getCollaborationConnection(true).getUser();
+        UserId me = CollaborationConnection.getConnection().getUser();
         return new SessionMsgArchive(me.getHost(), me.getName(), peer.getName());
     }
 
