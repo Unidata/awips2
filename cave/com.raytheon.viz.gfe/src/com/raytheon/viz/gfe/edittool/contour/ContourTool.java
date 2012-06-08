@@ -1084,16 +1084,14 @@ public class ContourTool extends AbstractFreeformTool implements
             {
                 Collections.reverse(insert);
                 contour.remove(0, startIndex);
-                contour.remove(endIndex,
-                        contour.getLineString().getNumPoints() - 1);
+                contour.replace(endIndex, contour.getLineString()
+                        .getNumPoints(), insert);
             } else // startIndex > endIndex
             {
-                contour.remove(startIndex, contour.getLineString()
-                        .getNumPoints() - 1);
+                contour.replace(startIndex, contour.getLineString()
+                        .getNumPoints(), insert);
                 contour.remove(0, endIndex);
             }
-            // append the new points
-            contour.append(insert);
             contour.setModified(true);
         }
         contours.set(contourIndex, contour);

@@ -10,7 +10,6 @@ package gov.noaa.nws.ncep.ui.pgen.layering;
 import java.awt.Color;
 
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;

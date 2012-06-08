@@ -58,6 +58,12 @@
         <user id="ALL"/>
     </role>
 
+    <role roleId="com.raytheon.localization.site/cave_static/alertViz/AlertVizForced.xml">
+        <!-- delete the ALL user line and uncomment the fxa user line to limit modification rights to AlertVizForced to the fxa user -->
+        <user id="ALL"/>
+        <!--user id="fxa'/-->
+    </role>
+
     <role roleId="com.raytheon.localization.site/cave_static/alertViz">
         <user id="ALL"/>
     </role>

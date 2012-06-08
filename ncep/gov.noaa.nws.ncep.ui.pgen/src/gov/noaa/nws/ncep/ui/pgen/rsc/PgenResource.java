@@ -34,6 +34,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.SinglePointElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
+import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
@@ -42,14 +43,14 @@ import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilter;
 import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilterCollection;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringControlDialog;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductManageDialog;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -76,6 +77,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.core.gl.IGLTarget;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
 import com.vividsolutions.jts.geom.CoordinateList;
@@ -124,7 +126,7 @@ import com.vividsolutions.jts.geom.Point;
  * 										on IGLTarget after screenshot to avoid GLException:
  * 										"No OpenGL context current on this thread"; 
  * 										workaround pending RTS regression fix.
-
+ * 04/12		#705		J. Wu		TTR 542 - Draw elements in specific sequences.
  *
  * </pre>
  * 
@@ -304,7 +306,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
 			throws VizException {
 	    IDisplayPaneContainer editor = getResourceContainer();
-		if( editor instanceof NCMapEditor ) {//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
+		if( editor instanceof AbstractEditor ) {//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
 			DisplayElementFactory df = new DisplayElementFactory( target, descriptor);
 
 			drawProduct( target, paintProps );
@@ -383,10 +385,13 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	/**
 	 * Loops through all products in the PGEN drawing layer draws the
 	 * display elements.    
+	 * 
+	 * Note: This is the original drawing code - regardless of the typ eof elements.
+	 * 
 	 * @param target Graphic target from the paint() method.
 	 * @param paintProps Paint properties from the paint() method.
 	 */
-	private void drawProduct(IGraphicsTarget target, PaintProperties paintProps ) {
+	private void drawProductOriginal(IGraphicsTarget target, PaintProperties paintProps ) {
         
 		int nprds = resourceData.getProductList().size();
 		
@@ -1284,7 +1289,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		
 		double minDist = Double.MAX_VALUE;
 		
-    	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+//    	AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+    	AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
     	double [] locScreen = mapEditor.translateInverseClick(loc);
     	
 		if ( adc instanceof SinglePointElement ) {
@@ -1468,7 +1474,8 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	public double distanceFromLineSegment( Coordinate loc, Coordinate startPt, Coordinate endPt ){
 		double dist = Double.MAX_VALUE;
 		
-	  	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+//	  	AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+	  	AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
     	double [] locScreen = mapEditor.translateInverseClick(loc);
     	
     	double [] pt1 = mapEditor.translateInverseClick(startPt);
@@ -1520,5 +1527,214 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
     public String buildFileName( Product prd ) {
         return resourceData.buildFileName( prd );  
     }
+    
+    	
+	/**
+	 * Loops through all products in the PGEN drawing layer to draw display elements.  
+	 * 
+	 * The drawing sequence will be:
+	 * 
+	 * First draw all filled elements starting from those in the non-active products,
+	 * then those in non-active layers in active product, finally those in active layer.
+	 * 
+	 * Then draw non-filled elements, starting from those in the non-active products,
+	 * then those in non-active layers in active product, finally those in active layer.
+	 * However, for each layer, if there are text elements in a layer, the text elements
+	 * will be the last ones to be drawn so they could remain on the top.
+	 * 
+	 * @param target Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 */
+	private void drawProduct( IGraphicsTarget target, PaintProperties paintProps ) {
+        
+		drawFilledElements( target, paintProps );
+		
+		drawNonFilledElements( target, paintProps );
+		
+	}
+	
+	
+	/*
+	 * Loops through all products in the PGEN drawing layer to draw all filled elements
+	 *   
+	 * @param target Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 */
+	private void drawFilledElements(IGraphicsTarget target, PaintProperties paintProps ) {
+        
+		//Draw filled elements in the non-active products
+		for ( Product prod : resourceData.getProductList() ) {
+			if (  prod.isOnOff() && prod != resourceData.getActiveProduct() ) {			    
+				for ( Layer layer : prod.getLayers() ) {					
+					drawFilledElements( layer, target, paintProps );
+				}				
+			}						
+		}
+		
+		//Draw filled elements in the active product's non-active layers
+		for ( Layer layer : resourceData.getActiveProduct().getLayers() ) {
+			if ( layer != resourceData.getActiveLayer() ) {				
+				drawFilledElements( layer, target, paintProps );           
+		    }
+		}
+		
+		//Draw filled elements in the active layer
+		drawFilledElements( resourceData.getActiveLayer(), target, paintProps );
+
+	}
+	
+	/*
+	 * Draw all filled elements in a given layer.
+	 *   
+	 * @param layer  Layer to be drawn.
+	 * @param target Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 */
+	private void drawFilledElements( Layer layer, IGraphicsTarget target, PaintProperties paintProps ) {
+        
+		if ( layer != null && (layer.isOnOff() || layer == resourceData.getActiveLayer() ) ) {
+                   
+			DisplayProperties dprops = new DisplayProperties();
+            
+			if ( layer != resourceData.getActiveLayer() ) {
+			    dprops.setLayerMonoColor( layer.isMonoColor() );
+			    dprops.setLayerColor( layer.getColor() );
+			    dprops.setLayerFilled( layer.isFilled() );
+			}
+			
+			Iterator<DrawableElement> iterator = layer.createDEIterator();
+			while ( iterator.hasNext() ){    
+				DrawableElement el = iterator.next();
+
+				if ( el instanceof MultiPointElement &&
+						((MultiPointElement)el).getFilled() ) {
+					
+                    drawElement( el, target, paintProps, dprops );
+				}
+			}				
+		}
+	}
+	
+	
+	/*
+	 * Loops through all products in the PGEN drawing layer to draw all non-filled elements
+	 *   
+	 * @param target Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 */
+	private void drawNonFilledElements(IGraphicsTarget target, PaintProperties paintProps ) {
+        
+		//Draw non-filled elements in the non-active products
+		for ( Product prod : resourceData.getProductList() ) {
+			if (  prod.isOnOff() && prod != resourceData.getActiveProduct() ) {			    
+				for ( Layer layer : prod.getLayers() ) {					
+					drawNonFilledElements( layer, target, paintProps );
+				}				
+			}						
+		}
+		
+		//Draw non-filled elements in the active product's non-active layers
+		for ( Layer layer : resourceData.getActiveProduct().getLayers() ) {
+			if ( layer != resourceData.getActiveLayer() ) {				
+				drawNonFilledElements( layer, target, paintProps );           
+		    }
+		}
+		
+		//Draw non-filled elements in the active layer
+		drawNonFilledElements( resourceData.getActiveLayer(), target, paintProps );
+
+	}
+
+	
+	/*
+	 * Draw all non-filled elements in a layer. 
+	 * 
+	 * Non-text elements will drawn FIRST, then text elements - so text elements will be 
+	 * displayed on top of other element.
+	 *    
+	 * @param layer  a PGEN layer to be drawn
+	 * @param target Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 */
+	private void drawNonFilledElements( Layer layer, IGraphicsTarget target, PaintProperties paintProps ) {
+        
+		
+		if ( layer != null && ( layer.isOnOff() || layer == resourceData.getActiveLayer() ) ) {
+					
+			DisplayProperties dprops = new DisplayProperties();
+			if ( layer != resourceData.getActiveLayer() ) {
+				dprops.setLayerMonoColor( layer.isMonoColor() );
+				dprops.setLayerColor( layer.getColor() );
+				dprops.setLayerFilled( layer.isFilled() );
+			}
+
+			Iterator<DrawableElement> iterator = layer.createDEIterator();
+			
+			ArrayList<DrawableElement> filledElements = new ArrayList<DrawableElement>();
+			ArrayList<DrawableElement> textElements = new ArrayList<DrawableElement>();
+			ArrayList<DrawableElement> otherElements = new ArrayList<DrawableElement>();
+			
+			while ( iterator.hasNext()) {    
+				DrawableElement el = iterator.next();				
+				
+				if ( el instanceof Text ) {
+					textElements.add( el );
+				}
+				else if ( el instanceof MultiPointElement &&
+						  ((MultiPointElement)el).getFilled() ) {
+					filledElements.add( el );
+				}
+				else {
+					otherElements.add( el );
+				}
+			}	
+			
+			drawElements( otherElements, target, paintProps, dprops );
+			drawElements( textElements, target, paintProps, dprops );				
+		}	
+		
+	}
+
+	/*
+	 * Loops through all elements in a list to draw display elements. 
+	 *    
+	 * @param elements  List of elements to be drawn
+	 * @param target	Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 * @param dispProps  Display properties from the drawLayer() method.
+	 */
+	private void drawElements( ArrayList<DrawableElement> elements, IGraphicsTarget target, 
+			                   PaintProperties paintProps,  DisplayProperties dispProps ) {
+		
+		for ( DrawableElement de : elements ) {
+            drawElement( de, target, paintProps, dispProps );	
+		}
+	}
+
+	/*
+	 * Draw an element. 
+	 *    
+	 * @param de  		Element to be drawn
+	 * @param target	Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 * @param dispProps  Display properties from the drawLayer() method.
+	 */
+	private void drawElement( DrawableElement de, IGraphicsTarget target, 
+			                  PaintProperties paintProps,  DisplayProperties dispProps ) {
+		
+		if ( filters.acceptOnce( de )){
+			
+			if ( ! displayMap.containsKey( de ) ) {
+				AbstractElementContainer container = ElementContainerFactory.createContainer( de , descriptor, target);
+				displayMap.put( de , container);
+			}
+			
+			displayMap.get( de ).draw(target, paintProps, dispProps );				
+		}
+		
+	}
+
+	
+
 }
 

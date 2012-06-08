@@ -174,8 +174,6 @@ public class SmartToolController extends BaseGfePyController {
     public Object executeTool(Parm parmToEdit, String toolName,
             Map<String, Object> args) throws JepException {
 
-        statusHandler.handle(Priority.DEBUG, "Running smartTool: " + toolName);
-
         runToolMethod(toolName, "execute", args);
         if (parmToEdit == null) {
             return null;

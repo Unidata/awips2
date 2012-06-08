@@ -34,6 +34,7 @@ Import-Package: com.raytheon.edex.scriptfactory,
  gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements,
  gov.noaa.nws.ncep.viz.ui.display
 Export-Package: gov.noaa.nws.ncep.viz.rsc.plotdata,
+ gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter,
  gov.noaa.nws.ncep.viz.rsc.plotdata.parameters,
  gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels,
  gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements,
