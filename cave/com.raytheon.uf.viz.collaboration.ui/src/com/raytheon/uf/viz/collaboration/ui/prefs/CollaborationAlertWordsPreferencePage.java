@@ -55,7 +55,6 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 
 /**
  * TODO Add Description
@@ -261,8 +260,8 @@ public class CollaborationAlertWordsPreferencePage extends
         CollaborationUtils.saveAlertWords(words);
         AlertWordWrapper wrapper = new AlertWordWrapper();
         wrapper.setAlertWords(words.toArray(new AlertWord[0]));
-        CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection(false);
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
         if (connection != null && connection.isConnected()) {
             // refresh any open chats or sessions
             connection.getEventPublisher().post(wrapper);
