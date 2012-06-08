@@ -64,7 +64,7 @@ public class SharedDisplaySessionMgr {
         return sharedDisplaySessionMap.keySet();
     }
 
-    protected static void joinSession(ISharedDisplaySession session,
+    public static void joinSession(ISharedDisplaySession session,
             SharedDisplayRole initialRole, SessionColorManager colors) {
         SessionContainer container = new SessionContainer();
         container.setSessionId(session.getSessionId());
