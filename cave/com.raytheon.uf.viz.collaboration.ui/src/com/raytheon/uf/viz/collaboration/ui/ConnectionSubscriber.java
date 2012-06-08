@@ -48,7 +48,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
@@ -57,7 +56,8 @@ import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
- * TODO Add Description
+ * Subscribes to events that occur on the collaboration connection, ie the
+ * logged in user. This is for events not tied to a particular session.
  * 
  * <pre>
  * 
@@ -86,6 +86,12 @@ public class ConnectionSubscriber {
 
     }
 
+    /**
+     * Subscribes to events on the given connection. Should only be called on
+     * login.
+     * 
+     * @param connection
+     */
     public static void subscribe(CollaborationConnection connection) {
         if (instance == null) {
             instance = new ConnectionSubscriber();
@@ -93,6 +99,12 @@ public class ConnectionSubscriber {
         }
     }
 
+    /**
+     * Unsubscribes from events on the given connection. Should only be called
+     * on logout.
+     * 
+     * @param connection
+     */
     public static void unsubscribe(CollaborationConnection connection) {
         if (instance != null) {
             instance.dispose(connection);
@@ -187,8 +199,6 @@ public class ConnectionSubscriber {
                     IVenueSession session = connection
                             .joinCollaborationVenue(invitation);
                     String sessionId = session.getSessionId();
-                    CollaborationDataManager.getInstance().addSession(
-                            sessionId, session);
                     if (sharedDisplay) {
                         ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                         SessionColorManager man = new SessionColorManager();
