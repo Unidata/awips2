@@ -53,12 +53,12 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserIdWrapper;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
@@ -101,9 +101,8 @@ public class CollaborationUtils {
 
     public static Collection<Object> readAliases() {
         UserId[] ids = getIds();
-        Roster roster = (Roster) CollaborationDataManager.getInstance()
-                .getCollaborationConnection(true).getRosterManager()
-                .getRoster();
+        Roster roster = (Roster) CollaborationConnection.getConnection()
+                .getRosterManager().getRoster();
         Collection<?> rosterObjects = new ArrayList<Object>();
         rosterObjects.addAll(roster.getItems());
         for (Object ob : rosterObjects) {
@@ -172,9 +171,8 @@ public class CollaborationUtils {
                 LocalizationFile file = pm.getLocalizationFile(context,
                         "collaboration" + File.separator
                                 + "collaborationAliases.xml");
-                IRoster roster = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection(true).getRosterManager()
-                        .getRoster();
+                IRoster roster = CollaborationConnection.getConnection()
+                        .getRosterManager().getRoster();
                 Set<IUser> ids = new HashSet<IUser>();
 
                 // get the entries that are alone

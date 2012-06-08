@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.ecf.presence.roster.IRosterGroup;
@@ -38,9 +39,9 @@ import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
 /**
@@ -78,11 +79,13 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         }
         String key = "";
         if (element instanceof UserId) {
-            String mode = CollaborationDataManager.getInstance()
-                    .getCollaborationConnection(true).getPresence().getMode()
-                    .toString();
-            mode = mode.replaceAll("\\s+", "_");
-            key = mode;
+            IPresence presence = CollaborationConnection.getConnection()
+                    .getPresence();
+            if (presence != null) {
+                String mode = presence.getMode().toString();
+                mode = mode.replaceAll("\\s+", "_");
+                key = mode;
+            }
         } else if (element instanceof IRosterEntry) {
             IRosterEntry entry = (IRosterEntry) element;
             if (entry.getPresence() != null
