@@ -73,6 +73,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -111,6 +112,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
+import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
@@ -213,10 +215,27 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
         // add some actions to the menubar
         createMenubar();
-        CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection(true);
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
         if (connection == null) {
-            return;
+            VizApp.runSync(new Runnable() {
+
+                @Override
+                public void run() {
+                    Shell shell = Display.getDefault().getActiveShell();
+                    if (shell == null) {
+                        return;
+                    }
+                    LoginDialog dlg = new LoginDialog(shell);
+                    dlg.open();
+                    dlg.close();
+                }
+            });
+            connection = CollaborationConnection.getConnection();
+            if (connection == null) {
+                // user cancelled login
+                return;
+            }
         }
         // add a part listener so that we can check when things about the view
         // change
@@ -226,9 +245,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
         createUsersTree(parent);
         addDoubleClickListeners();
         createContextMenu();
-        if (CollaborationDataManager.getInstance().isConnected() == false) {
-            usersTreeViewer.getTree().setEnabled(false);
-        }
 
         if (connection != null) {
             connection.registerEventHandler(this);
@@ -260,8 +276,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     @Override
     public void dispose() {
         super.dispose();
-        CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection(false);
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
         if (connection != null) {
             connection.unRegisterEventHandler(this);
         }
@@ -330,9 +346,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
             @Override
             public void runWithEvent(Event event) {
-                CollaborationConnection conn = CollaborationDataManager
-                        .getInstance().getCollaborationConnection(true);
-                UserId user = conn.getUser();
+                UserId user = CollaborationConnection.getConnection().getUser();
                 String logDir = SessionMsgArchive.getLogFilePath(
                         user.getHost(), user.getName(), getSessionName());
 
@@ -433,9 +447,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 if (node instanceof IRosterEntry) {
                     IRosterEntry user = (IRosterEntry) node;
                     if (user.getPresence().getType() == Type.AVAILABLE) {
-                        UserId loginUserId = CollaborationDataManager
-                                .getInstance().getCollaborationConnection(true)
-                                .getUser();
+                        UserId loginUserId = CollaborationConnection
+                                .getConnection().getUser();
                         if (!loginUserId.equals(user)) {
                             createP2PChat(IDConverter.convertFrom(user
                                     .getUser()));
@@ -529,7 +542,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
         collapseAllAction = new Action("Collapse All") {
             public void run() {
-                usersTreeViewer.collapseAll();
+                if (usersTreeViewer != null) {
+                    usersTreeViewer.collapseAll();
+                }
             }
         };
         collapseAllAction.setImageDescriptor(IconUtil.getImageDescriptor(
@@ -643,7 +658,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // mgr.add(pgenAction);
         mgr.add(new Separator());
 
-        if (CollaborationDataManager.getInstance().isConnected()) {
+        if (CollaborationConnection.getConnection() != null) {
             mgr.add(logoutAction);
         } else {
             mgr.add(logonAction);
@@ -671,11 +686,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
     protected void populateTree() {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-        CollaborationConnection sessionManager = manager
-                .getCollaborationConnection(true);
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
         topLevel.clear();
         // set all the menu actions to false to start with
-        if (sessionManager == null) {
+        if (connection == null) {
             usersTreeViewer.getTree().setEnabled(false);
             addGroupAction.setEnabled(false);
             addUserAction.setEnabled(false);
@@ -699,7 +714,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // make the first thing to show up in the list, which happens to be the
         // user's name and gives the user options to modify status and other
         // things
-        UserId user = manager.getCollaborationConnection(true).getUser();
+        UserId user = connection.getUser();
         topLevel.addObject(user);
 
         activeSessionGroup = new SessionGroupContainer();
@@ -893,9 +908,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                                 .getItem().getText());
                     }
                     CollaborationUtils.addAlias();
-                    CollaborationDataManager.getInstance()
-                            .getCollaborationConnection(true)
-                            .getEventPublisher().post(entry.getUser());
+                    CollaborationConnection.getConnection().getEventPublisher()
+                            .post(entry.getUser());
                 }
             }
         });
@@ -941,9 +955,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                                 treeEditor.getItem().getText());
                     }
                     CollaborationUtils.addAlias();
-                    CollaborationDataManager.getInstance()
-                            .getCollaborationConnection(true)
-                            .getEventPublisher().post(entry.getUser());
+                    CollaborationConnection.getConnection().getEventPublisher()
+                            .post(entry.getUser());
                     break;
                 case SWT.Verify:
                     String newText = modText.getText();
@@ -991,10 +1004,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
         Object result = dialog.getReturnValue();
         if (result != null) {
             char[] password = result.toString().toCharArray();
-            CollaborationConnection sessionManager = CollaborationDataManager
-                    .getInstance().getCollaborationConnection(true);
             try {
-                sessionManager.getAccountManager().changePassword(password);
+                CollaborationConnection.getConnection().getAccountManager()
+                        .changePassword(password);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to change password", e);
@@ -1023,10 +1035,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     private void createSession() {
-        CollaborationDataManager manager = CollaborationDataManager
-                .getInstance();
-        CollaborationConnection sessionManager = manager
-                .getCollaborationConnection(true);
+        CollaborationConnection sessionManager = CollaborationConnection
+                .getConnection();
         if (sessionManager == null) {
             System.err.println("Unable to get session manager");
             return;
@@ -1251,7 +1261,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 statusHandler.handle(Priority.WARN,
                         "Unable to save preferences", e);
             }
-            CollaborationDataManager.getInstance().closeManager();
+            CollaborationConnection connection = CollaborationConnection
+                    .getConnection();
+            ConnectionSubscriber.unsubscribe(connection);
+            connection.closeManager();
         }
     }
 
@@ -1328,9 +1341,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 + id.getHost() + " " + rosterEntry.getPresence().getMode()
                 + "/" + rosterEntry.getPresence().getType());
 
-        ((RosterEntry) CollaborationDataManager.getInstance()
-                .getCollaborationConnection(true).getContactsManager()
-                .getUsersMap().get(id)).setPresence(rosterEntry.getPresence());
+        ((RosterEntry) CollaborationConnection.getConnection()
+                .getContactsManager().getUsersMap().get(id))
+                .setPresence(rosterEntry.getPresence());
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
@@ -1357,8 +1370,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     @Subscribe
     public void handleRosterChangeEvent(IRosterChangeEvent rosterChangeEvent) {
         final IRosterItem rosterItem = rosterChangeEvent.getItem();
-        CollaborationConnection connection = CollaborationDataManager
-                .getInstance().getCollaborationConnection(true);
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
         switch (rosterChangeEvent.getType()) {
         case MODIFY:
         case ADD:
@@ -1452,8 +1465,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
      * on whether or not the user is connected to the xmpp server.
      */
     private void disableOrEnableSessionAction() {
-        final boolean isSessionEnabled = CollaborationDataManager.getInstance()
-                .isConnected();
+        boolean isSessionEnabled = (CollaborationConnection.getConnection() != null);
         createSessionAction.setEnabled(isSessionEnabled);
     }
 
