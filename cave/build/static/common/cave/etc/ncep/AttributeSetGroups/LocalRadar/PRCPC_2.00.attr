@@ -3,3 +3,6 @@ colorBar=@dfltRadarColorBar.xml
 productCode=101
 prodName=PRCPC
 elevationNumber=0
+alpha=1.0
+brightness=1.0
+contrast=1.0

@@ -373,6 +373,13 @@
                     style="push"
                     tooltip="Plot Model Manager">
               </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.conditionalFilterMngr"
+                    label="Conditional Filter Manager"
+                    mnemonic="F"
+                    style="push"
+                    tooltip="Conditional Filter Manager">
+              </command>
               <menu
                    id="AODT"
                    label="AODT" >

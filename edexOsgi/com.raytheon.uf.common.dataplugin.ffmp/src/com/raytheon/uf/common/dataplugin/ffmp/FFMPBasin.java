@@ -153,7 +153,6 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
             long expirationTime, boolean rate) {
         float dvalue = 0.0f;
         Date prevDate = null;
-
         // map ordered newest first, so grab from newest date to oldest date
         if (afterDate.before(beforeDate) && (values.size() > 0)) {
             // if (values.containsKey(beforeDate) &&

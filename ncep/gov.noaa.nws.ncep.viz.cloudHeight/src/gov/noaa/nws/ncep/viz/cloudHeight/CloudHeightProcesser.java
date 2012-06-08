@@ -114,6 +114,9 @@ import gov.noaa.nws.ncep.gempak.parameterconversionlibrary.GempakConstants;
  * 02/03/2012   583         B. Hebbard  In getPixelValueFromTheUserClickedCoordinate remove File.exists()
  *                                      check, which will fail for non-local HDF5
  * 03/01/2012   524         B. Hebbard  When multiple cloud levels found, make "primary" the lowest
+ * 04/16/2012   524/583     B. Hebbard  Give more detailed messages when "Unable to compute Cloud Height"
+ *                                      for common cases "No sounding data available for selected location"
+ *                                      and "Cloud temperature warmer than entire sounding"
  * 
  * @version 1
  */
@@ -338,7 +341,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 
 			if( cloudHeights.size() == 0 ) {
 				cldHghtDlg.setPrimaryCloudHeight( Double.NaN, Double.NaN );
-				cldHghtDlg.displayStatusMsg("Unable to compute Cloud Height");
+				cldHghtDlg.appendStatusMsg("Unable to compute Cloud Height");
 			}
 			else {
 				cldHghtDlg.setPrimaryCloudHeight( cloudHeights.get(cloudHeights.size()-1).cloudHght,
@@ -392,7 +395,10 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 				// TODO could check that the station is actually different than the previous station.
 
 		}		
-        cldHghtDlg.displayStatusMsg("");
+        //cldHghtDlg.displayStatusMsg("");
+		if (listOfLevelValues.isEmpty()) {
+			cldHghtDlg.displayStatusMsg("No sounding data available for selected location \n");
+		}
 		return listOfLevelValues;
 	} 
 	
@@ -535,6 +541,9 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 //			   NcSoundingLayer.DataType.ALLDATA, 
 //			   true, 
 //			   "-1");	
+		if (ncSoundingLayer2List.isEmpty()) {
+            cldHghtDlg.displayStatusMsg("No sounding data found for station " + stationData.stationId + " \n");
+		}
 	return ncSoundingLayer2List;
 	}
 	
@@ -641,11 +650,11 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 				}
 			}
 			
-//            if( tempCDoubleVal > tempMax){
-//              cldHghtDlg.displayStatusMsg("The cloud temperature is warmer than the entire sounding data");
+            if( tempCDoubleVal > tempMax){
+              cldHghtDlg.displayStatusMsg("Cloud temperature warmer than entire sounding \n");
 //              cldHghtDlg.displayStatusMsg("The cloud temperature is warmer than the entire sounding data");
 //            	System.out.println("The cloud temperature is warmer than the entire sounding data");
-//            }
+            }
 //			System.out.println("Maximum temperature is: "+tempMax);
 		}
 		return cldHghts;

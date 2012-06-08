@@ -65,14 +65,16 @@ import com.raytheon.viz.ui.UiUtil;
 public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
 DisposeListener, IPartListener{
 	private MessageBox mb ;
-	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,dataEditBtn,  compareBtn, graphEditBtn,graphModeBtnSkew, graphModeBtnIcing,graphModeBtnTurb;
+	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,dataEditBtn,  compareStnBtn,compareTmBtn, graphEditBtn,graphModeBtnSkew, graphModeBtnIcing,graphModeBtnTurb;
 	private Shell shell;
-	private boolean overlayIsOn=false, compareIsOn=false;
+	private boolean overlayIsOn=false, compareStnIsOn=false, compareTmIsOn=false;
 	protected boolean interpolateIsOn=false, editGraphOn=false;
 	private static String INTP_OFF = "  Interp(off)    ";
 	private static String INTP_ON = "  Interp(on)     ";
-	private static String COMP_OFF= "Compare(off)";
-	private static String COMP_ON=  "Compare(on)  ";
+	private static String COMP_STN_OFF= "CompStn(off)";
+	private static String COMP_STN_ON=  "CompStn(on)  ";
+	private static String COMP_TM_OFF= "CompTm(off)";
+	private static String COMP_TM_ON=  "CompTm(on)  ";
 	private static String OVLY_OFF= "Ovrlay2(off)  ";
 	private static String OVLY_ON=  "Ovrlay2(on)   ";
 	protected static String EDIT_GRAPH_OFF= "EditGraph(off)";
@@ -137,13 +139,13 @@ DisposeListener, IPartListener{
 		NsharpMapResource.registerMouseHandler();
 		//Chin : to fix Ticket#11034::::
 		//get several control information back from SkewT resource, in the case that
-		//NsharpPaletteWindow view was disposed and re-constructed while SkewT resource is not.
+		//NsharpPaletteWindow view was disposed and re-constructed while SkewT resource is still alive.
 		//This case applied to D2D implementation. 
 		NsharpSkewTResource rsc = getSkewTRsc();
 		if(rsc!= null) {
 			interpolateIsOn = rsc.isInterpolateIsOn();
 			overlayIsOn = rsc.isOverlayIsOn();
-			compareIsOn = rsc.isCompareIsOn();
+			compareStnIsOn = rsc.isCompareStnIsOn();
 			editGraphOn = rsc.isEditGraphOn();				
 		}
 
@@ -202,7 +204,7 @@ DisposeListener, IPartListener{
 		}
 		NsharpSkewTResource rsc = editor.getNsharpSkewTDescriptor()
 		.getSkewtResource();
-		if (rsc == null || rsc.getDataTimelineList() == null || rsc.getDataTimelineList().size() <=0) {
+		if (rsc == null ) {
 			mb.open();
 			return false;
 		}
@@ -254,7 +256,7 @@ DisposeListener, IPartListener{
 
 		unloadBtn = new Button(textModeGp, SWT.PUSH);
 		unloadBtn.setFont(newFont);
-		unloadBtn.setText("   UnLoad       ");
+		unloadBtn.setText("     UnLoad     ");
 		unloadBtn.setEnabled( true );
 		//loadBtn.setSize(btnWidth,pushbtnHeight);
 		unloadBtn.addListener( SWT.MouseUp, new Listener() {
@@ -299,7 +301,7 @@ DisposeListener, IPartListener{
 			public void handleEvent(Event event) {           
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
 				//CHin, new develop if(checkLoadedData()) {
-					//NsharpGraphConfigDialog dia = NsharpGraphConfigDialog.getInstance(shell);
+					//NsharpParametersSelectionConfigDialog dia = NsharpParametersSelectionConfigDialog.getInstance(shell);
 					NsharpConfigDialog dia = NsharpConfigDialog.getInstance(shell);
 					if ( dia != null ) {
 						dia.open();
@@ -321,9 +323,12 @@ DisposeListener, IPartListener{
 				overlayIsOn = false;
 				overlayBtn.setText(OVLY_OFF);
 				overlayBtn.setEnabled(true);
-				compareIsOn = false;
-				compareBtn.setText(COMP_OFF);
-				compareBtn.setEnabled(true);
+				compareStnIsOn = false;
+				compareStnBtn.setText(COMP_STN_OFF);
+				compareStnBtn.setEnabled(true);
+				compareTmIsOn = false;
+				compareTmBtn.setText(COMP_TM_OFF);
+				compareTmBtn.setEnabled(true);
 				interpolateIsOn = false;
 				interpBtn.setText(INTP_OFF);
 				editGraphOn = false;
@@ -335,7 +340,7 @@ DisposeListener, IPartListener{
 				if(editor != null){
 					//note: resetRsc will reset currentPage, overlay, compare, interpolate flag in Resource
 					editor.getNsharpSkewTDescriptor().getSkewtResource().resetRsc();
-					editor.getNsharpSkewTDescriptor().getSkewtResource().resetRsc();// need to called it twice to make refresh worked...dont know why
+					//editor.getNsharpSkewTDescriptor().getSkewtResource().resetRsc();// need to called it twice to make refresh worked...dont know why
 					//know that current editor is NsharpSkewT editor, refresh it.
 					editor.refresh();
 					NsharpShowTextDialog textarea =  NsharpShowTextDialog.getAccess();
@@ -469,7 +474,7 @@ DisposeListener, IPartListener{
 		else{
 			overlayBtn.setText(OVLY_OFF);
 			//comparison and overlay is mutual exclusive
-			if((rsc!= null) && (rsc.isCompareIsOn()))
+			if((rsc!= null) && (rsc.isCompareStnIsOn() || rsc.isCompareTmIsOn()))
 				overlayBtn.setEnabled( false );
 			else
 				overlayBtn.setEnabled( true );
@@ -481,14 +486,14 @@ DisposeListener, IPartListener{
 
 					overlayIsOn = true;
 					overlayBtn.setText(OVLY_ON);
-					compareBtn.setEnabled(false);
-					//swapBtn.setEnabled( true );
+					compareStnBtn.setEnabled(false);
+					compareTmBtn.setEnabled(false);
 				}
 				else {
 					overlayIsOn = false;
 					overlayBtn.setText(OVLY_OFF);
-					compareBtn.setEnabled(true);
-					//swapBtn.setEnabled( false );
+					compareStnBtn.setEnabled(true);
+					compareTmBtn.setEnabled(true);
 				}
 				NsharpSkewTResource rsc = getSkewTRsc();
 				if(rsc!= null)
@@ -499,44 +504,81 @@ DisposeListener, IPartListener{
 				}
 			}          		            	 	
 		} );
-		// Push buttons for OVERLAY info
-		compareBtn = new Button(textModeGp, SWT.PUSH);
-		compareBtn.setFont(newFont);
-		if(compareIsOn){
-			compareBtn.setText(COMP_ON);
-			compareBtn.setEnabled( true );
+		// Push buttons for CompByStn info
+		compareStnBtn = new Button(textModeGp, SWT.PUSH);
+		compareStnBtn.setFont(newFont);
+		if(compareStnIsOn){
+			compareStnBtn.setText(COMP_STN_ON);
+			compareStnBtn.setEnabled( true );
 		}
 		else{
 			//comparison and overlay is mutual exclusive
-			compareBtn.setText(COMP_OFF);
-			if((rsc!= null) && (rsc.isOverlayIsOn()))
-				compareBtn.setEnabled( false );
+			compareStnBtn.setText(COMP_STN_OFF);
+			if((rsc!= null) && (rsc.isOverlayIsOn() || rsc.isCompareTmIsOn()))
+				compareStnBtn.setEnabled( false );
 			else
-				compareBtn.setEnabled( true );
-		}
-		
-		
-		//compareBtn.setSize(btnWidth,pushbtnHeight);		
-		
-		compareBtn.addListener( SWT.MouseUp, new Listener() {
+				compareStnBtn.setEnabled( true );
+		}		
+		compareStnBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
-				if(compareIsOn == false){
+				if(compareStnIsOn == false){
 
-					compareIsOn = true;
-					compareBtn.setText(COMP_ON);
+					compareStnIsOn = true;
+					compareStnBtn.setText(COMP_STN_ON);
 					overlayBtn.setEnabled(false);
-					//swapBtn.setEnabled( false );
+					compareTmBtn.setEnabled( false );
 				}
 				else {
-					compareIsOn = false;
-					compareBtn.setText(COMP_OFF);
+					compareStnIsOn = false;
+					compareStnBtn.setText(COMP_STN_OFF);
 					overlayBtn.setEnabled(true);
-					//swapBtn.setEnabled( true );
+					compareTmBtn.setEnabled( true );
 				}
 				NsharpSkewTResource rsc = getSkewTRsc();
 				if(rsc!= null)
-					rsc.setCompareIsOn(compareIsOn);
+					rsc.setCompareStnIsOn(compareStnIsOn);
+				
+				NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
+				if(editor != null){
+					editor.refresh();
+				}
+			}          		            	 	
+		} );
+		// Push buttons for CompByTm info
+		compareTmBtn = new Button(textModeGp, SWT.PUSH);
+		compareTmBtn.setFont(newFont);
+		if(compareTmIsOn){
+			compareTmBtn.setText(COMP_TM_ON);
+			compareTmBtn.setEnabled( true );
+		}
+		else{
+			//comparison and overlay is mutual exclusive
+			compareTmBtn.setText(COMP_TM_OFF);
+			if((rsc!= null) && (rsc.isOverlayIsOn() || rsc.isCompareStnIsOn()))
+				compareTmBtn.setEnabled( false );
+			else
+				compareTmBtn.setEnabled( true );
+		}
+		compareTmBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
+				if(compareTmIsOn == false){
+
+					compareTmIsOn = true;
+					compareTmBtn.setText(COMP_TM_ON);
+					overlayBtn.setEnabled(false);
+					compareStnBtn.setEnabled( false );
+				}
+				else {
+					compareTmIsOn = false;
+					compareTmBtn.setText(COMP_TM_OFF);
+					overlayBtn.setEnabled(true);
+					compareStnBtn.setEnabled( true );
+				}
+				NsharpSkewTResource rsc = getSkewTRsc();
+				if(rsc!= null)
+					rsc.setCompareTmIsOn(compareTmIsOn);
 				
 				NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
 				if(editor != null){

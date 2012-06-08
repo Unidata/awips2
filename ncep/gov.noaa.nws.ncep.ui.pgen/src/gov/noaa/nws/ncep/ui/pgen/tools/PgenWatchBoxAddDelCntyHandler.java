@@ -23,17 +23,19 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Filter;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
+import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
-import gov.noaa.nws.ncep.ui.pgen.maps.County;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Mouse handler to add/delete counties when editing watch box.
@@ -50,7 +52,8 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
  */
 public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
 	
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	private PgenResource drawingLayer;
 	private WatchBox wb;
 	private PgenWatchBoxModifyTool wbTool;
@@ -64,7 +67,8 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
 	 * @param drawingLayer
 	 * @param watch box
 	 */
-	public PgenWatchBoxAddDelCntyHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+//	public PgenWatchBoxAddDelCntyHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+	public PgenWatchBoxAddDelCntyHandler(AbstractEditor mapEditor, PgenResource drawingLayer,
 			WatchBox wb, PgenWatchBoxModifyTool tool){
 		
 		this.mapEditor= mapEditor;
@@ -116,14 +120,14 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     		}
     		
     		boolean gotCnty = false;
-    		County county = null;
+    		SPCCounty county = null;
     		
     		//get the county with ID
     		if ( ugc != null ){
     			
-    			List<County> cntyTbl = County.getAllCounties();
+    			List<SPCCounty> cntyTbl = PgenStaticDataProvider.getProvider().getSPCCounties();
 
-    			for ( County cnty : cntyTbl ){
+    			for ( SPCCounty cnty : cntyTbl ){
     				if (  ugc.equalsIgnoreCase(cnty.getUgcId()) ){
     					gotCnty = true;
     					county = cnty;
@@ -139,7 +143,7 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     		//or add it into the list if it is not in
     		if ( gotCnty ){
     			
-    			for ( County cnty : wb.getCountyList() ){
+    			for ( SPCCounty cnty : wb.getCountyList() ){
     				if ( ugc.equalsIgnoreCase(cnty.getUgcId() )){
     					inList = true;
     					break;
@@ -227,8 +231,8 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     	SimpleFeatureBuilder fbuild = new SimpleFeatureBuilder( POLY );
 
     	//create feature collection
-    	List<County> cntyTbl = County.getAllCounties();
-    	for ( County cnty : cntyTbl ){
+    	List<SPCCounty> cntyTbl = PgenStaticDataProvider.getProvider().getSPCCounties();
+    	for ( SPCCounty cnty : cntyTbl ){
     		if ( cnty.getShape() != null && cnty.getName() != null ){
     			Geometry countyGeo = cnty.getShape();
     			if (  countyGeo != null ){

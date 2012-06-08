@@ -1,5 +1,8 @@
 package gov.noaa.nws.ncep.viz.rsc.wavesat.rsc;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import gov.noaa.nws.ncep.viz.rsc.wavesat.rsc.WaveSatResource.WaveSatRscDataObj;
 
 import com.raytheon.uf.common.time.DataTime;
@@ -20,7 +23,10 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 // This would be much easier and more efficient if the sgwh, windSpeed.... parameters
 // were in the URI (or at least in the postgress DB) so we wouldn't have to make
 // another PointDataRequest.
+
+@XmlAccessorType(XmlAccessType.NONE)
 public class WaveSatAlertParser extends AbstractAlertMessageParser {
+
     @Override
     public Object parseAlertMessage(AlertMessage message,
             AbstractRequestableResourceData resourceData) throws VizException {

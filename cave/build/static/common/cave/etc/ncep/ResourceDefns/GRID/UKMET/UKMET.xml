@@ -4,7 +4,7 @@
     <resourceDefnName>UKMET</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=UKMET45
+GDFILE=ukmet
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

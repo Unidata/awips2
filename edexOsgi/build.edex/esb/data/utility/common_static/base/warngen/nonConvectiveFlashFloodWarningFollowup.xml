@@ -3,8 +3,8 @@
          Modified  Evan Bookbinder       09-16-2011 OB11.0.8-8
          Modified  Phil Kurimski         09-23-2011  OB 11.0.8-8 
          Modified  Phil Kurimski         01-26-2012  OB 12.1.1-1 
-                   Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.       
--->
+         Modified  Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.
+         Modified  Phil Kurimski         04-27-2012  -->
 
 <warngenConfig>
 
@@ -175,7 +175,7 @@
   <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
   <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="group2" parseString="COUNTY DISPATCH REPORTED"/>
-  <bullet bulletName="law" bulletText="Law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
   <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
@@ -242,7 +242,7 @@
   <bullet bulletText="* optionally one associated scenario and the rule of thumb. *"/>
   <bullet bulletText="****** DAM FAILURE REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="group2" parseString="COUNTY DISPATCH REPORTED"/>
-  <bullet bulletName="law" bulletText="Law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="corps" bulletText="Corps of engineers" bulletGroup="group2" parseString="CORPS OF ENGINEERS REPORTED"/>
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="group2" parseString="DAM OPERATORS REPORTED"/>
   <bullet bulletName="bureau" bulletText="Bureau of reclamation" bulletGroup="group2" parseString="BUREAU OF RECLAMATION REPORTED"/>
@@ -303,6 +303,7 @@
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <feAreaField>FE_AREA</feAreaField>
+  <timeZoneField>TIME_ZONE</timeZoneField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
   <!--  <fipsField>STATE_ZONE</fipsField> -->

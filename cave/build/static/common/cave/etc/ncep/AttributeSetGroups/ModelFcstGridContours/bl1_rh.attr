@@ -9,6 +9,8 @@
 !
 GLEVEL=30:0!30:0!90:60!30:0
 GVCORD=pdly
+SKIP=
+FILTER=y
 SCALE=0!0!3!0
 GDPFUN=relh!relh!omeg!kntv(wnd)
 TYPE=c/f!c!c ! b

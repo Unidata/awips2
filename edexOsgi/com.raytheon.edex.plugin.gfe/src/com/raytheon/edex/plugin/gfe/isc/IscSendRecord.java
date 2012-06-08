@@ -23,14 +23,18 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.Type;
 
-import com.raytheon.edex.plugin.gfe.isc.IscSendRecordPK.IscSendState;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
@@ -49,6 +53,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            dgilling     Initial creation
+ * May 08, 2012  #600      dgilling     Restructure.
  * 
  * </pre>
  * 
@@ -65,9 +70,32 @@ public class IscSendRecord implements IPersistableDataObject, Serializable,
 
     private static final long serialVersionUID = 1L;
 
+    public enum IscSendState {
+        QUEUED, PENDING, RUNNING
+    };
+
     @Id
+    @GeneratedValue()
+    private int key;
+
     @DynamicSerializeElement
-    private IscSendRecordPK id;
+    @Column(nullable = false)
+    @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.ParmIdType")
+    @Index(name = "iscParmIdIndex")
+    private ParmID parmID;
+
+    @DynamicSerializeElement
+    @Embedded
+    private TimeRange timeRange;
+
+    @DynamicSerializeElement
+    @Column(nullable = false, length = 10)
+    @Enumerated(EnumType.STRING)
+    private IscSendState state;
+
+    @Column(columnDefinition = "text")
+    @DynamicSerializeElement
+    private String xmlDest;
 
     @Column
     @DynamicSerializeElement
@@ -78,11 +106,33 @@ public class IscSendRecord implements IPersistableDataObject, Serializable,
         // no-op, needed for dynamic serialize/hibernate
     }
 
-    public IscSendRecord(ParmID parmId, TimeRange sendTR, String xmlDest,
-            boolean sendNow) {
+    public IscSendRecord(ParmID parmId, TimeRange sendTR, boolean sendNow) {
+        this.parmID = parmId;
+        this.timeRange = sendTR;
+        this.xmlDest = "";
         IscSendState state = (sendNow ? IscSendState.QUEUED
                 : IscSendState.PENDING);
-        this.id = new IscSendRecordPK(parmId, sendTR, state, xmlDest);
+        this.state = state;
+        this.insertTime = new Date();
+    }
+
+    public IscSendRecord(ParmID parmId, TimeRange sendTR, String xmlDest,
+            boolean sendNow) {
+        this.parmID = parmId;
+        this.timeRange = sendTR;
+        this.xmlDest = xmlDest;
+        IscSendState state = (sendNow ? IscSendState.QUEUED
+                : IscSendState.PENDING);
+        this.state = state;
+        this.insertTime = new Date();
+    }
+
+    public IscSendRecord(ParmID parmId, TimeRange sendTR, String xmlDest,
+            IscSendState state) {
+        this.parmID = parmId;
+        this.timeRange = sendTR;
+        this.xmlDest = xmlDest;
+        this.state = state;
         this.insertTime = new Date();
     }
 
@@ -94,23 +144,108 @@ public class IscSendRecord implements IPersistableDataObject, Serializable,
      */
     @Override
     public Object getIdentifier() {
-        return id;
+        return key;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        IscSendRecord rval = new IscSendRecord();
-        rval.id = (IscSendRecordPK) this.id.clone();
-        rval.insertTime = (Date) this.insertTime.clone();
+    public IscSendRecord clone() throws CloneNotSupportedException {
+        IscSendRecord rval = new IscSendRecord(this.parmID.clone(),
+                this.timeRange.clone(), this.xmlDest, this.state);
+        rval.setInsertTime((Date) this.insertTime.clone());
         return rval;
     }
 
-    public IscSendRecordPK getId() {
-        return id;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((insertTime == null) ? 0 : insertTime.hashCode());
+        result = prime * result + ((parmID == null) ? 0 : parmID.hashCode());
+        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        result = prime * result
+                + ((timeRange == null) ? 0 : timeRange.hashCode());
+        result = prime * result + ((xmlDest == null) ? 0 : xmlDest.hashCode());
+        return result;
     }
 
-    public void setId(IscSendRecordPK id) {
-        this.id = id;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        IscSendRecord other = (IscSendRecord) obj;
+        if (insertTime == null) {
+            if (other.insertTime != null) {
+                return false;
+            }
+        } else if (!insertTime.equals(other.insertTime)) {
+            return false;
+        }
+        if (parmID == null) {
+            if (other.parmID != null) {
+                return false;
+            }
+        } else if (!parmID.equals(other.parmID)) {
+            return false;
+        }
+        if (state != other.state) {
+            return false;
+        }
+        if (timeRange == null) {
+            if (other.timeRange != null) {
+                return false;
+            }
+        } else if (!timeRange.equals(other.timeRange)) {
+            return false;
+        }
+        if (xmlDest == null) {
+            if (other.xmlDest != null) {
+                return false;
+            }
+        } else if (!xmlDest.equals(other.xmlDest)) {
+            return false;
+        }
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("IscSendRecord [parmID=");
+        builder.append(parmID);
+        builder.append(", timeRange=");
+        builder.append(timeRange);
+        builder.append(", state=");
+        builder.append(state);
+        builder.append("]");
+        return builder.toString();
     }
 
     public Date getInsertTime() {
@@ -119,5 +254,41 @@ public class IscSendRecord implements IPersistableDataObject, Serializable,
 
     public void setInsertTime(Date insertTime) {
         this.insertTime = insertTime;
+    }
+
+    public ParmID getParmID() {
+        return parmID;
+    }
+
+    public void setParmID(ParmID parmID) {
+        this.parmID = parmID;
+    }
+
+    public TimeRange getTimeRange() {
+        return timeRange;
+    }
+
+    public void setTimeRange(TimeRange timeRange) {
+        this.timeRange = timeRange;
+    }
+
+    public IscSendState getState() {
+        return state;
+    }
+
+    public void setState(IscSendState state) {
+        this.state = state;
+    }
+
+    public String getXmlDest() {
+        return xmlDest;
+    }
+
+    public void setXmlDest(String xmlDest) {
+        this.xmlDest = xmlDest;
+    }
+
+    public int getKey() {
+        return key;
     }
 }

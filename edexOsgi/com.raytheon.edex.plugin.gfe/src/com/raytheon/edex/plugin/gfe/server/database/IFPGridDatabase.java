@@ -977,51 +977,9 @@ public class IFPGridDatabase extends GridDatabase {
             } else {
                 existing.setMessageData(rec.getMessageData());
 
-                if (!parmId.getDbId().getModelName().equals("ISC")) {
-                    GridDataHistory existHist = existing.getGridHistory()
-                            .get(0);
-                    GridDataHistory newHist = rec.getGridHistory().get(0);
-                    existHist.replaceValues(newHist);
-                } else {
-                    List<GridDataHistory> existHist = existing.getGridHistory();
-                    List<GridDataHistory> newHist = rec.getGridHistory();
-
-                    for (GridDataHistory newHistory : newHist) {
-                        boolean found = false;
-                        for (GridDataHistory existHistory : existHist) {
-                            // if the parm name + level + time range + site id
-                            // are all equal, then replace the existing history
-                            // with the updated history
-                            if (existHistory
-                                    .getOriginParm()
-                                    .getParmName()
-                                    .equals(newHistory.getOriginParm()
-                                            .getParmName())
-                                    && existHistory
-                                            .getOriginParm()
-                                            .getParmLevel()
-                                            .equals(newHistory.getOriginParm()
-                                                    .getParmLevel())
-                                    && existHistory
-                                            .getOriginParm()
-                                            .getDbId()
-                                            .getSiteId()
-                                            .equals(newHistory.getOriginParm()
-                                                    .getDbId().getSiteId())
-                                    && existHistory.getOriginTimeRange()
-                                            .equals(newHistory
-                                                    .getOriginTimeRange())) {
-                                found = true;
-                                existHistory.replaceValues(newHistory);
-                                break;
-                            }
-                        }
-
-                        if (!found) {
-                            existHist.add(newHistory);
-                        }
-                    }
-                }
+                List<GridDataHistory> existHist = existing.getGridHistory();
+                List<GridDataHistory> newHist = rec.getGridHistory();
+                dao.consolidateHistories(existHist, newHist);
 
                 consolidated.add(existing);
             }

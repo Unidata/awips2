@@ -29,7 +29,6 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.IView.POVShiftType;
 
 /**
  * This interface defines the combination of a renderable object and the area
@@ -222,26 +221,6 @@ public interface IRenderableDisplay extends IRenderable {
      * @param target
      */
     abstract public void shiftExtent(double[] startScreen, double[] endScreen,
-            IGraphicsTarget target);
-
-    /**
-     * Change the point of view based on mouse position change
-     * 
-     * @param shiftType
-     * 
-     * @param last
-     * @param current
-     */
-    public abstract boolean shiftPOV(double[] lastMouse, double[] currentMouse,
-            POVShiftType shiftType, IGraphicsTarget target);
-
-    /**
-     * Set the focus point on the map from the mouse position
-     * 
-     * @param currentMouse
-     * @return
-     */
-    public abstract boolean setFocalPoint(double[] currentMouse,
             IGraphicsTarget target);
 
     /**

@@ -4,3 +4,4 @@ legendString=Mobile Land Synop
 plotModelName=synop_standard
 reportType=1002
 plotDensity=15
+conditionalFilterName=

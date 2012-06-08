@@ -28,8 +28,7 @@ Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
-Import-Package: gov.noaa.nws.ncep.common.log.logger,
- gov.noaa.nws.ncep.common.tools,
+Import-Package: gov.noaa.nws.ncep.common.tools,
  javax.measure.converter,
  javax.measure.quantity,
  javax.measure.unit
