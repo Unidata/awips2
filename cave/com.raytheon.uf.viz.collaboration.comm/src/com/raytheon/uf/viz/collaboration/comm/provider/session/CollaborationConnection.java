@@ -114,6 +114,8 @@ public class CollaborationConnection implements IEventPublisher {
 
     private static final String PROVIDER = "ecf.xmpp.smack";
 
+    private static CollaborationConnection instance;
+
     private Map<String, ISession> sessions;
 
     private UserId account;
@@ -202,8 +204,8 @@ public class CollaborationConnection implements IEventPublisher {
         setupP2PComm(presenceAdapter);
         getPeerToPeerSession();
 
+        userPresence = initialPresence;
         if (accountManager != null && initialPresence != null) {
-            userPresence = initialPresence;
             accountManager.sendPresence(initialPresence);
         }
 
@@ -321,6 +323,7 @@ public class CollaborationConnection implements IEventPublisher {
             container.dispose();
             container = null;
         }
+        instance = null;
     }
 
     /**
@@ -669,5 +672,39 @@ public class CollaborationConnection implements IEventPublisher {
             throw new CollaborationException("Could not create id");
         }
         return id;
+    }
+
+    /**
+     * Returns the currently connected connection or null if it's not connected
+     * 
+     * @return
+     */
+    public static CollaborationConnection getConnection() {
+        return instance;
+    }
+
+    /**
+     * Connects to the collaboration server with the provided credentials.
+     * 
+     * @param account
+     *            the userid to connect as
+     * @param password
+     *            the user's password
+     * @param initialPresence
+     *            the initial presence
+     * @return
+     * @throws CollaborationException
+     *             when it cannot connect
+     */
+    public static CollaborationConnection connect(UserId account,
+            String password, IPresence initialPresence)
+            throws CollaborationException {
+        if (instance != null) {
+            throw new CollaborationException("Already connected");
+        } else {
+            instance = new CollaborationConnection(account, password,
+                    initialPresence);
+            return getConnection();
+        }
     }
 }

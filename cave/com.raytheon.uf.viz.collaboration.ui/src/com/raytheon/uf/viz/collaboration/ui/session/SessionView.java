@@ -143,8 +143,8 @@ public class SessionView extends AbstractSessionView {
     @Override
     protected void initComponents(Composite parent) {
         initColorManager();
-        CollaborationDataManager.getInstance().getCollaborationConnection(true)
-                .getEventPublisher().register(this);
+        CollaborationConnection.getConnection().getEventPublisher()
+                .register(this);
         super.initComponents(parent);
     }
 
@@ -161,9 +161,8 @@ public class SessionView extends AbstractSessionView {
             @Override
             public void run() {
                 try {
-                    CollaborationConnection sessionManager = CollaborationDataManager
-                            .getInstance().getCollaborationConnection(true);
-                    ISession session = sessionManager.getPeerToPeerSession();
+                    ISession session = CollaborationConnection.getConnection()
+                            .getPeerToPeerSession();
                     PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
@@ -222,8 +221,7 @@ public class SessionView extends AbstractSessionView {
         // so not to have delay, going to handle messages from yourself
         // separately
         if (message.getFrom().equals(
-                CollaborationDataManager.getInstance()
-                        .getCollaborationConnection(true).getUser())) {
+                CollaborationConnection.getConnection().getUser())) {
             return;
         }
         VizApp.runAsync(new Runnable() {
@@ -371,9 +369,8 @@ public class SessionView extends AbstractSessionView {
                 if (participant.equals(session.getUserID())) {
                     RosterEntry rEntry = new RosterEntry(session
                             .getConnection().getRosterManager().getRoster(),
-                            participant, CollaborationDataManager.getInstance()
-                                    .getCollaborationConnection(true)
-                                    .getPresence());
+                            participant, CollaborationConnection
+                                    .getConnection().getPresence());
                     users.add(rEntry);
                 } else if (entry != null) {
                     users.add(usersMap.get(participant));
@@ -416,8 +413,10 @@ public class SessionView extends AbstractSessionView {
         session.unRegisterEventHandler(this);
         CollaborationDataManager mgr = CollaborationDataManager.getInstance();
         mgr.closeSession(sessionId);
-        mgr.getCollaborationConnection(true).getEventPublisher()
-                .unregister(this);
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        if (conn != null) {
+            conn.getEventPublisher().unregister(this);
+        }
 
         super.dispose();
     }
@@ -439,8 +438,7 @@ public class SessionView extends AbstractSessionView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                UserId id = CollaborationDataManager.getInstance()
-                        .getCollaborationConnection(true).getUser();
+                UserId id = CollaborationConnection.getConnection().getUser();
                 appendMessage(id, System.currentTimeMillis(), message);
                 session.sendChatMessage(message);
             } catch (CollaborationException e) {
