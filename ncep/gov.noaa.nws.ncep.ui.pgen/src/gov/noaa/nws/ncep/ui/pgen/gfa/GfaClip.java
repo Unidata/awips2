@@ -7,23 +7,28 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
+import gov.noaa.nws.ncep.common.staticdata.CostalWater;
+import gov.noaa.nws.ncep.common.staticdata.FAArea;
+import gov.noaa.nws.ncep.common.staticdata.FARegion;
+import gov.noaa.nws.ncep.common.staticdata.GreatLake;
+import gov.noaa.nws.ncep.common.staticdata.USState;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
-import gov.noaa.nws.ncep.ui.pgen.display.IText.*;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
+import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.ProductInfo;
 import gov.noaa.nws.ncep.ui.pgen.elements.ProductTime;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
+import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.viz.common.SnapUtil.SnapVOR;
-
-import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -31,17 +36,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
-
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateList;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
-import com.vividsolutions.jts.io.WKBReader;
 
 /**
  * GFA clipping functionality.
@@ -80,7 +91,7 @@ public class GfaClip {
 
 	private static GfaClip instance = new GfaClip();
 	
-	private final static Logger logger = Logger.getLogger( GfaClip.class );
+//	private final static Logger logger = Logger.getLogger( GfaClip.class );
 
 	/** Factory */
 	private static GeometryFactory geometryFactory;
@@ -207,7 +218,7 @@ public class GfaClip {
 	 */
 	public ArrayList<Gfa> simpleclip(Gfa smear) {
 		
-		logger.debug("clipping started");
+//		logger.debug("clipping started");
 		
 		ArrayList<Gfa> list = new ArrayList<Gfa>();
 		for (String key : getFaRegionBounds().keySet()) {
@@ -377,9 +388,10 @@ public class GfaClip {
 	 * @throws VizException
 	 */
 	private void readFaRegionBounds() throws VizException {
-		String sql = "select t.region, AsBinary(t.the_geom) from " + SCHEMA + "." + FA_REGION_TABLE + " t";
-		faRegionBounds = readBounds( DATABASE, sql );
-		
+		faRegionBounds = new  HashMap<String, Geometry>();
+		for ( FARegion fa : PgenStaticDataProvider.getProvider().getFARegions()){
+			faRegionBounds.put(fa.getRegion(), fa.getGeometry());
+		}
 		loadFaRegionCommBounds();
 	}
 	
@@ -389,8 +401,10 @@ public class GfaClip {
 	 * @throws VizException
 	 */
 	private void readFaAreaBounds() throws VizException {
-		String sql = "select t.area, AsBinary(t.the_geom) from " + SCHEMA + "." + FA_AREA_TABLE + " t";
-		faAreaBounds = readBounds( DATABASE, sql );
+		faAreaBounds = new  HashMap<String, Geometry>();
+		for ( FAArea fa : PgenStaticDataProvider.getProvider().getFAAreas()){
+			faAreaBounds.put(fa.getArea(), fa.getGeometry());
+		}
 	}
 	
 	/**
@@ -399,8 +413,10 @@ public class GfaClip {
 	 * @throws VizException
 	 */
 	private void readFaAreaXBounds() throws VizException {
-		String sql = "select t.area, AsBinary(t.the_geom) from " + SCHEMA + "." + FA_AREAX_TABLE + " t";
-		faAreaXBounds = readBounds( DATABASE, sql );
+		faAreaXBounds = new  HashMap<String, Geometry>();
+		for ( FAArea fa : PgenStaticDataProvider.getProvider().getFAAreaX()){
+			faAreaXBounds.put(fa.getArea(), fa.getGeometry());
+		}
 	}
 	
 	/**
@@ -410,7 +426,7 @@ public class GfaClip {
 	 */
 	private void readStateBounds() throws VizException {
 		// TODO change to use SCHEMA, DATABASE, and STATE_BNDS_TABLE
-		String sql = "select t.state, AsBinary(t.the_geom) from mapdata.states t";
+//		String sql = "select t.state, AsBinary(t.the_geom) from mapdata.states t";
 //		String sql = "select t.state, AsBinary(t.the_geom_0) from mapdata.states t";
 //		String sql = "select t.state, AsBinary(t.the_geom_0_001) from mapdata.states t";
 //		String sql = "select t.state, AsBinary(t.the_geom_0_004) from mapdata.states t";
@@ -422,7 +438,11 @@ public class GfaClip {
 //		System.out.println("Time to load state bounds =  " + (System.currentTimeMillis() - l1 ) );
 
 		
-		HashMap<String, Geometry>  originalStateBounds = readBounds( "maps", sql );
+		HashMap<String, Geometry>  originalStateBounds = new HashMap<String, Geometry>();
+		
+		for ( USState st : PgenStaticDataProvider.getProvider().getAllstates()){
+			originalStateBounds.put(st.getStateAbrv(), st.getShape());
+		}
 		
 		//Exclude a few states.       
 		for ( String s : EXCLUDE_STATES ) {
@@ -439,8 +459,10 @@ public class GfaClip {
 	 * @throws VizException
 	 */
 	private void readGreatLakeBounds() throws VizException {
-		String sql = "select t.id, AsBinary(t.the_geom) from " + SCHEMA + "." + GREATE_LAKE_BNDS_TABLE + " t";
-		greatLakesBounds = readBounds( DATABASE, sql );
+		greatLakesBounds = new  HashMap<String, Geometry>();
+		for ( GreatLake lake : PgenStaticDataProvider.getProvider().getGreatLakes()){
+			greatLakesBounds.put(lake.getId(), lake.getGeometry());
+		}
 	}
 	
 	/**
@@ -449,50 +471,10 @@ public class GfaClip {
 	 * @throws VizException
 	 */
 	private void readCoastalWaterBounds() throws VizException {
-		String sql = "select t.id, AsBinary(t.the_geom) from " + SCHEMA + "." + COASTAL_WATER_BNDS_TABLE + " t";
-		coastalWaterBounds = readBounds( DATABASE, sql );
-	}
-	
-	
-	/**
-	 * Read bounds.
-	 * 
-	 * @throws VizException
-	 */
-	private HashMap<String, Geometry> readBounds(String database, String sql) throws VizException {
-		HashMap<String, Geometry> map = new HashMap<String, Geometry>();
-
-		List<Object[]> result = NcDirectDbQuery.executeQuery(sql, database, QueryLanguage.SQL);
-
-		WKBReader wkbReader = new WKBReader();
-		if (result != null && !result.isEmpty()) {
-			try {
-				for (Object[] obj : result) {
-					//Throw out if either the key or the Geometry is null.
-				    if ( obj[0] == null || obj[1] == null) continue;
-					Geometry g = wkbReader.read((byte[]) obj[1]);
-
-					if(!g.isValid()) {
-//						if ( sql.contains( GREATE_LAKE_BNDS_TABLE ) ) {
-//							System.out.println( "Get lakes found for key: " + obj[0] + " but is invalid!" );
-//						}
-//						logger.warn("Skipped an invalid shape file for " + obj[0] + ": " + sql + "");
-						continue;
-					}
-					
-					map.put( (String)obj[0], g );
-					
-				}
-			} catch (Exception e) {
-				// cannot do anything here, wrong data
-				// the same as database problem
-				throw new VizException(e);
-			}
-		} else {
-			throw new VizException("No bounds found, please check parameters");
+		coastalWaterBounds = new  HashMap<String, Geometry>();
+		for ( CostalWater water : PgenStaticDataProvider.getProvider().getCostalWaters()){
+			coastalWaterBounds.put(water.getId(), water.getGeometry());
 		}
-		
-		return map;
 	}
 
 	/**
@@ -504,7 +486,8 @@ public class GfaClip {
 			try {
 				readFaRegionBounds();
 			} catch ( VizException  e) {
-				logger.error("Error ", e);
+//				logger.error("Error ", e);
+				e.printStackTrace();
 			}
 		}
 		
@@ -520,7 +503,8 @@ public class GfaClip {
 			try {
 				readFaAreaBounds();
 			} catch ( VizException e ) {
-				logger.error("Error ", e);
+//				logger.error("Error ", e);
+				e.printStackTrace();
 			}
 		}
 		
@@ -536,7 +520,8 @@ public class GfaClip {
 			try {
 				readFaAreaXBounds();
 			} catch ( VizException e ) {
-				logger.error("Error ", e);
+//				logger.error("Error ", e);
+				e.printStackTrace();
 			}
 		}
 
@@ -553,7 +538,8 @@ public class GfaClip {
 			try {
 				readStateBounds();
 			} catch ( VizException e ) {
-				logger.error("Error ", e);
+//				logger.error("Error ", e);
+				e.printStackTrace();
 			}
 		}
 		
@@ -569,7 +555,8 @@ public class GfaClip {
 			try {
 				readGreatLakeBounds();
 			} catch ( VizException e) {
-				logger.error("Error ", e);
+//				logger.error("Error ", e);
+				e.printStackTrace();
 			}
 		}
 		
@@ -585,7 +572,8 @@ public class GfaClip {
 			try {
 				readCoastalWaterBounds();
 			} catch ( VizException e ) {
-				logger.error("Error ", e);
+//				logger.error("Error ", e);
+				e.printStackTrace();
 			}
 		}
 		
@@ -1034,8 +1022,9 @@ public class GfaClip {
 		
 		if ( mtObscTbl == null) {
 			try {
-				String mtObscFile = NcPathManager.getInstance().getStaticFile(
-						   NcPathConstants.PGEN_MNTN_OBSC_STATES ).getAbsolutePath();
+				String mtObscFile = PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+						PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + "mt_obsc_states.xml");
+
 				SAXReader reader = new SAXReader();
 				mtObscTbl = reader.read( mtObscFile );
 			} catch ( Exception e ) {

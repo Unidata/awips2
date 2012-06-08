@@ -1501,8 +1501,6 @@ public class TimeMatcher {
             loadTimes = doValTimOverlay(filteredTimes.toArray(new DataTime[0]),
                     frameTimes, deltaTime, mode, latest, tolerance);
             break;
-        case ANALYSIS_LOOP:
-            forecast = 0; // intentional fall thru
         case SLOT:
             filteredTimes = filterByForecast(depictTimes, forecast);
             if (!filteredTimes.isEmpty()) {
@@ -1512,6 +1510,8 @@ public class TimeMatcher {
                         filteredTimes.get(filteredTimes.size() - 1));
             }
             break;
+        case ANALYSIS_LOOP:
+            forecast = 0; // intentional fall thru
         case INVENTORY:
         case PROG_LOOP:
             filteredTimes = filterByForecast(depictTimes, forecast);

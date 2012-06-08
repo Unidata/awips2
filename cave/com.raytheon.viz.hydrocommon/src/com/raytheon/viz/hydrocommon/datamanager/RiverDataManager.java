@@ -668,7 +668,9 @@ public class RiverDataManager {
                         sp.setId(spid);
                         
                         // Check for missing data values
-                        if (spid.getPrimaryPe().startsWith("H")) {
+                        if (spid.getPrimaryPe() == null) {
+                        	continue;
+                        } else if (spid.getPrimaryPe().startsWith("H")) {
                             if ((spid.getFs() == null) || (spid.getWstg() == null)) {
                                 continue;
                             }

@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.measure.unit.Unit;
@@ -45,7 +44,6 @@ import com.raytheon.uf.common.dataplugin.grib.CombinedGribRecord;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -55,8 +53,7 @@ import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -81,8 +78,6 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.RemappedImage;
-import com.raytheon.viz.grid.xml.ValidType;
-import com.raytheon.viz.grid.xml.ValidTypeFile;
 import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -105,7 +100,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    01/31/12   14306        kshresth     Cursor readout as you sample the dispay
  *    02/10/12     14472       mhuang      Fixed VB 'Height' field legend display error
  *                                         when click 'Diff' button.
- *
+ *    05/08/2012   14828       D. Friedman Use nearest-neighbor interpolation for
+ *                                         reprojected grids.
+ *    05/16/2012   14993       D. Friedman Fix "blocky" contours  
+ * 
  * </pre>
  * 
  * @author chammack
@@ -115,12 +113,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
         IResourceDataChanged, IGridNameResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridVectorResource.class);
-
-    private ValidTypeFile arrowTypes;
-
-    private ValidTypeFile windTypes;
-
-    private ValidTypeFile streamlineTypes;
 
     private GridGeometry2D remappedImageGeometry;
 
@@ -183,15 +175,16 @@ public class GridVectorResource extends AbstractMapVectorResource implements
             String parameterName = modelInfo.getParameterName();
             StyleType st = null;
             if (parameterName.equals("Height")) {
-            	st = StyleType.CONTOUR;
-            } else if (parameterName.equals("Wind") || parameterName.equals("Total Wind") 
-            		|| parameterName.equals("Total Wind (Vector)")) {
-            	st = StyleType.ARROW;
+                st = StyleType.CONTOUR;
+            } else if (parameterName.equals("Wind")
+                    || parameterName.equals("Total Wind")
+                    || parameterName.equals("Total Wind (Vector)")) {
+                st = StyleType.ARROW;
             } else {
-            	st = StyleType.IMAGERY;
+                st = StyleType.IMAGERY;
             }
             StyleRule secondaryStyleRule = StyleManager.getInstance()
-    		.getStyleRule(st, match);
+                    .getStyleRule(st, match);
             if (secondaryStyleRule != null
                     && secondaryStyleRule.getPreferences()
                             .getDisplayUnitLabel() != null) {
@@ -223,7 +216,7 @@ public class GridVectorResource extends AbstractMapVectorResource implements
             StorageException, VizException {
         IDataRecord[] results = super.getDataRecord(pdo, styleRule);
         GribRecord gribRecord = (GribRecord) pdo;
-        
+
         // We need to reproject global data to prevent a gap in the data
         boolean reproject = false;
         GridCoverage location = gribRecord.getModelInfo().getLocation();
@@ -242,50 +235,53 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                 GridGeometry2D remappedImageGeometry = GridGeometry2D
                         .wrap(MapUtil.reprojectGeometry(gridGeometry,
                                 descriptor.getGridGeometry().getEnvelope(),
-                                true));
+                                true, 2));
                 IDataRecord[] newData = new IDataRecord[results.length];
                 BilinearInterpolation interp = new BilinearInterpolation(
                         gridGeometry, remappedImageGeometry, -9998,
                         Float.POSITIVE_INFINITY, -999999);
                 interp.setMissingThreshold(1.0f);
-                
+
                 /*
                  * Convert speed/dirs into U, V before interpolation.
                  */
-                int len =  ((FloatDataRecord) results[0]).getFloatData().length;
+                int len = ((FloatDataRecord) results[0]).getFloatData().length;
                 float[] uu = new float[len];
                 float[] vv = new float[len];
-                
+
                 boolean isVector = false;
                 if (displayType == DisplayType.BARB
                         || displayType == DisplayType.ARROW) {
-                	isVector = true;
-                	
+                    isVector = true;
+
                     for (int i = 0; i < len; i++) {
-                    	float spd = ((FloatDataRecord) results[0]).getFloatData()[i];
-                    	float dir = ((FloatDataRecord) results[1]).getFloatData()[i];
-                    	
-                    	if ( spd > -999999.0f && dir > -999999.0f) {
-                    		uu[i] = (float) (-spd * Math.sin(dir * Math.PI/180));
-                    		vv[i] = (float) (-spd * Math.cos(dir * Math.PI/180));
-                    	}
-                    	else {
-                    		uu[i] = -999999.0f;
-                    		vv[i] = -999999.0f;  
-                    	}
+                        float spd = ((FloatDataRecord) results[0])
+                                .getFloatData()[i];
+                        float dir = ((FloatDataRecord) results[1])
+                                .getFloatData()[i];
+
+                        if (spd > -999999.0f && dir > -999999.0f) {
+                            uu[i] = (float) (-spd * Math.sin(dir * Math.PI
+                                    / 180));
+                            vv[i] = (float) (-spd * Math.cos(dir * Math.PI
+                                    / 180));
+                        } else {
+                            uu[i] = -999999.0f;
+                            vv[i] = -999999.0f;
+                        }
                     }
                 }
-                
+
                 for (int i = 0; i < results.length; i++) {
                     if (results[i] instanceof FloatDataRecord) {
                         float[] data = new float[len];
                         if (isVector) {
-                        	data = i == 0 ? uu : vv;
+                            data = i == 0 ? uu : vv;
+                        } else {
+                            data = ((FloatDataRecord) results[i])
+                                    .getFloatData();
                         }
-                        else {
-                        	data = ((FloatDataRecord) results[i]).getFloatData();
-                        }
-                    	                    	
+
                         interp.setData(data);
                         data = interp.getReprojectedGrid();
                         newData[i] = results[i].clone();
@@ -293,38 +289,39 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                                 .setIntSizes(new int[] {
                                         remappedImageGeometry.getGridRange2D().width,
                                         remappedImageGeometry.getGridRange2D().height });
-                        ((FloatDataRecord) newData[i]).setFloatData(data);                                                
+                        ((FloatDataRecord) newData[i]).setFloatData(data);
                     }
                 }
                 uu = null;
                 vv = null;
-                
+
                 if (isVector) {
-                	/*
-                	 * Convert U, V back to speed/dirs
-                	 */
-                	len = ((FloatDataRecord) newData[0]).getFloatData().length;
+                    /*
+                     * Convert U, V back to speed/dirs
+                     */
+                    len = ((FloatDataRecord) newData[0]).getFloatData().length;
                     float[] new_spds = new float[len];
                     float[] new_dirs = new float[len];
                     for (int i = 0; i < len; i++) {
-                    	float u = ((FloatDataRecord) newData[0]).getFloatData()[i];
-                    	float v = ((FloatDataRecord) newData[1]).getFloatData()[i];
-                    	
-                    	if ( u > -999999.0f && v > -999999.0f) {
-                    		new_spds[i] = (float) Math.hypot(u, v);
-                    		new_dirs[i] = (float) (Math.atan2(u, v) * 180 / Math.PI) + 180;
-                    		
-                    		if (new_dirs[i] > 360) new_dirs[i] -= 360;
-                    		if (new_dirs[i] < 0) new_dirs[i] += 360;
-                    		
-                    	} else {
-                    		new_spds[i] = new_dirs[i] = -999999.0f;
-                    	}
+                        float u = ((FloatDataRecord) newData[0]).getFloatData()[i];
+                        float v = ((FloatDataRecord) newData[1]).getFloatData()[i];
+
+                        if (u > -999999.0f && v > -999999.0f) {
+                            new_spds[i] = (float) Math.hypot(u, v);
+                            new_dirs[i] = (float) (Math.atan2(u, v) * 180 / Math.PI) + 180;
+
+                            if (new_dirs[i] > 360)
+                                new_dirs[i] -= 360;
+                            if (new_dirs[i] < 0)
+                                new_dirs[i] += 360;
+
+                        } else {
+                            new_spds[i] = new_dirs[i] = -999999.0f;
+                        }
                     }
                     ((FloatDataRecord) newData[0]).setFloatData(new_spds);
                     new_spds = null;
-                    
-                    
+
                     // When reprojecting it is necessary to recalculate the
                     // direction of vectors based off the change in the "up"
                     // direction
@@ -353,11 +350,10 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                             }
                         }
                     }
-                    
+
                     ((FloatDataRecord) newData[1]).setFloatData(new_dirs);
                     new_dirs = null;
-                    
-                    
+
                 }
                 this.remappedImageGeometry = remappedImageGeometry;
                 results = newData;
@@ -598,25 +594,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
 
     @Override
     public boolean isStreamlineVector() {
-        if (streamlineTypes == null) {
-            String filePath = PathManagerFactory.getPathManager()
-                    .getStaticFile("vectorTypes/streamlineTypes.xml")
-                    .toString();
-
-            try {
-                streamlineTypes = (ValidTypeFile) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(filePath);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "An error was encountered while creating the type from "
-                                + filePath, e);
-            }
-        }
-
-        if (isValidType(streamlineTypes)
-                && !(displayType == DisplayType.STREAMLINE)) {
-            return true;
-        }
         return false;
     }
 
@@ -632,23 +609,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
 
     @Override
     public boolean isWindVector() {
-        if (windTypes == null) {
-            String filePath = PathManagerFactory.getPathManager()
-                    .getStaticFile("vectorTypes/windTypes.xml").toString();
-
-            try {
-                windTypes = (ValidTypeFile) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(filePath);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "An error was encountered while creating the type from "
-                                + filePath, e);
-            }
-        }
-
-        if (isValidType(windTypes) && !(displayType == DisplayType.BARB)) {
-            return true;
-        }
         return false;
     }
 
@@ -664,23 +624,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
 
     @Override
     public boolean isArrowVector() {
-        if (arrowTypes == null) {
-            String filePath = PathManagerFactory.getPathManager()
-                    .getStaticFile("vectorTypes/arrowTypes.xml").toString();
-
-            try {
-                arrowTypes = (ValidTypeFile) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(filePath);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "An error was encountered while creating the type from "
-                                + filePath, e);
-            }
-        }
-
-        if (isValidType(arrowTypes) && !(displayType == DisplayType.ARROW)) {
-            return true;
-        }
         return false;
     }
 
@@ -704,19 +647,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
 
     private void setRemappedImageGeometry(GridGeometry2D remappedImageGeometry) {
         this.remappedImageGeometry = remappedImageGeometry;
-    }
-
-    private boolean isValidType(ValidTypeFile types) {
-        ValidType type = new ValidType();
-        final String searchString = "modelInfo.parameterAbbreviation";
-        Map<String, RequestConstraint> req = ((GridResourceData) resourceData)
-                .getMetadataMap();
-
-        if (req.containsKey(searchString)) {
-            type.setName(req.get(searchString).getConstraintValue());
-            return types.contains(type);
-        }
-        return false;
     }
 
     @Override
@@ -746,9 +676,9 @@ public class GridVectorResource extends AbstractMapVectorResource implements
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         if (!((GridResourceData) resourceData).isSampling()) {
-        	if (displayType != DisplayType.ARROW){
-            return super.inspect(coord);
-        	}
+            if (displayType != DisplayType.ARROW) {
+                return super.inspect(coord);
+            }
         }
         GribRecord record = (GribRecord) getDataObjectMap().get(
                 getDisplayedDataTime());

@@ -4,7 +4,7 @@
     <resourceDefnName>GEFS</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=GEFS
+GDFILE=gefs
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

@@ -544,8 +544,11 @@ public class ListEditorWindow {
     // See AWIPS-1 D-2D/src/applications/radar/common/prod-mgmt.tcl :
     // format_product
     protected String getRequestLabel(Request req) {
+
         RadarProduct rp = ProductInfo.getInstance().getPoductForCode(
                 req.productCode);
+        Collection<RadarProduct> variants = ProductInfo.getInstance().select(
+                new ProductInfo.Selector(null, rp.mnemonic, null, null));
         StringBuilder sb = new StringBuilder();
         if (rp != null) {
             if (rp.name != null)
@@ -555,9 +558,9 @@ public class ListEditorWindow {
              * sb.append(" (").append(rp.mnemonic).append(')');
              */
 
-            if (rp.levels != null)
+            if (rp.levels != null && variants.size() > 1)
                 sb.append(", levels ").append(rp.levels);
-            if (rp.resolution != null)
+            if (rp.resolution != null && variants.size() > 1)
                 sb.append(", resol ").append(rp.resolution);
             if (rp.params.contains(Param.BASELINE)
                     || rp.params.contains(Param.CFC_BITMAP)) {
@@ -581,6 +584,20 @@ public class ListEditorWindow {
                     sb.append(", End hr ").append(req.getEndHour());
                 else
                     sb.append(", Latest");
+            }
+
+            if (rp.params.contains(Param.TIME_SPAN_MINUTES)) {
+                int thour = req.getTimeSpan() / 60;
+                int tmin = req.getTimeSpan() - thour * 60;
+                sb.append(String.format(", Time span %d:%02d", thour, tmin));
+                if (req.getEndHour() != -1) {
+                    int ehour = req.getEndHour() / 60;
+                    int emin = req.getEndHour() - ehour * 60;
+                    sb.append(String
+                            .format(", End time %02d:%02d", ehour, emin));
+                } else {
+                    sb.append(", Latest");
+                }
             }
 
             if (rp.params.contains(Param.ELEVATION)) {
