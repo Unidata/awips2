@@ -60,7 +60,7 @@ import com.raytheon.viz.grid.rsc.GribSkewTLoadProperties;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.grid.util.CoverageUtils;
-import com.raytheon.viz.volumebrowser.util.FieldDisplayTypesFactory;
+import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;

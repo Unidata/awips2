@@ -181,7 +181,7 @@ _TokList = [
     ('autocor', r'AUTO|COR|RTD'),
     ('wind', r'(VRB|\d{3})\d{2,3}(G\d{2,3})?(KT|MPS)'),
     ('wind_vrb', r'\d{3}V\d{3}'),
-    ('vsby', r'(M\d/\d|%s|\d{1,4})SM|0|50|\d{3,4}[NEWS]{0,2}' % _Fract),
+    ('vsby', r'(M\d/\d|%s|\d{1,3})SM|\d{1,4}[NEWS]{0,2}' % _Fract),
     ('rvr', r'R\w+/[MP]?\d{3,4}(V?P?\d{4})?(FT)?'),
     ('funnel', r'[+]?FC'),
     ('pcp', r'%s|TS(\s+%s)?' % (_pcptok, _pcptok)),

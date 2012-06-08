@@ -33,6 +33,7 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
     if [[ $base == 'Adjcstlbnds' \
        || $base == 'Airmetcstlbnds' \
        || $base == 'Akpsabnds' \
+       || $base == 'Artccbnds' \
        || $base == 'Ascairways' \
        || $base == 'Ascarrfa' \
        || $base == 'Ascartcc' \
@@ -45,7 +46,6 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
        || $base == 'Ascwrzones' \
        || $base == 'Awcartcc' \
        || $base == 'Awcccfcan' \
-       || $base == 'Awcfaarea' \
        || $base == 'Atlbasin' \
        || $base == 'Bwus_bnd' \
        || $base == 'Bwus_label' \
@@ -77,6 +77,7 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
        || $base == 'Mzbnds' \
        || $base == 'Mzcntybnds' \
        || $base == 'Npsabnds' \
+       || $base == 'OPC_Ssa' \
        || $base == 'Opcbnds' \
        || $base == 'Opcbnds_nomex' \
        || $base == 'PacBasin' \

@@ -12,6 +12,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.vividsolutions.jts.geom,
  com.vividsolutions.jts.io,
+ gov.noaa.nws.ncep.common.log.logger,
  javax.measure.converter,
  javax.measure.quantity,
  javax.measure.unit

@@ -7,10 +7,8 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.util.Calendar;
@@ -58,8 +56,9 @@ public class AirmetCycleInfo {
 	private static void readAirmetCycle() {
 
 		try {
-			File airmetCycleFile = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_AIRMET_CYCLE_TBL );   	    
+			File airmetCycleFile = PgenStaticDataProvider.getProvider().getStaticFile( 
+					PgenStaticDataProvider.getProvider().getPgenLocalizationRoot()+ "airmetcycle.xml" ); 	
+  	    
 			SAXReader reader = new SAXReader();
 			airmetCycleDoc = reader.read(airmetCycleFile.getAbsoluteFile() );
 		} catch (Exception e) {

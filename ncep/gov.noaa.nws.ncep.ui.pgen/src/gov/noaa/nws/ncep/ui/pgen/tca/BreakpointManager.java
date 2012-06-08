@@ -7,24 +7,15 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.tca;
 
-import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
-import gov.noaa.nws.ncep.ui.pgen.tca.BreakpointPair;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.geotools.referencing.GeodeticCalculator;
 
-import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateList;
 import com.vividsolutions.jts.geom.Envelope;
@@ -48,10 +39,11 @@ public class BreakpointManager {
 	private static BreakpointManager instance=null;;
 
 	private final double DIST = 1.0;
-	
-	//  query used to grab forecast zones from EDEX Database
-	// TODO - move column/table names to config file so query is not hardwired in code
-	private final static String zoneQuery = "select state,zone,cwa from mapdata.zone;";
+
+	private static final String PGEN_ROOT = PgenStaticDataProvider.getProvider().getPgenLocalizationRoot();
+    private static final String PGEN_ISLND_BRKPTS_TBL= PGEN_ROOT + "IslandBreakpoints.xml";
+    private static final String PGEN_WATER_BRKPTS_TBL= PGEN_ROOT + "WaterBreakpoints.xml";
+    private static final String PGEN_COAST_BRKPTS_TBL= PGEN_ROOT + "CoastBreakpoints.xml";
 	
 	private GeodeticCalculator gc;
 	
@@ -131,8 +123,8 @@ public class BreakpointManager {
 		/*
 		 * unmarshal island breakpoints from XML file
 		 */
-		String bkptfile = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_COAST_BRKPTS_TBL ).getAbsolutePath();
+		String bkptfile = PgenStaticDataProvider.getProvider().getFileAbsolutePath( 
+				PGEN_COAST_BRKPTS_TBL );
 
 		try {
 			coasts = (CoastBreakpointList)SerializationUtil.jaxbUnmarshalFromXmlFile(bkptfile);
@@ -176,8 +168,8 @@ public class BreakpointManager {
 		/*
 		 * unmarshal island breakpoints from XML file
 		 */
-		String bkptfile = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_ISLND_BRKPTS_TBL ).getAbsolutePath();
+		String bkptfile = PgenStaticDataProvider.getProvider().getFileAbsolutePath( 
+				PGEN_ISLND_BRKPTS_TBL );
 		try {
 			islands = (IslandBreakpointList)SerializationUtil.jaxbUnmarshalFromXmlFile(bkptfile);
 		}
@@ -216,8 +208,8 @@ public class BreakpointManager {
 		/*
 		 * unmarshal waterway breakpoints from XML file
 		 */
-		String bkptfile = NcPathManager.getInstance().getStaticFile( 
-				NcPathConstants.PGEN_WATER_BRKPTS_TBL ).getAbsolutePath();
+		String bkptfile = PgenStaticDataProvider.getProvider().getFileAbsolutePath( 
+				PGEN_WATER_BRKPTS_TBL );
 		try {
 			waterways = (WaterBreakpointList)SerializationUtil.jaxbUnmarshalFromXmlFile(bkptfile);
 		}
@@ -603,27 +595,7 @@ public class BreakpointManager {
 	 */
 	private void initializeZoneMap() {
 		
-		zoneMap = new HashMap<String,String>();
-		QueryResult results = null;
-		
-		try {
-		    results = NcDirectDbQuery.executeMappedQuery(zoneQuery, "maps", QueryLanguage.SQL);
-		    QueryResultRow[] rows = results.getRows();
-		    Map<String,Integer> columns = results.getColumnNames();
-		    //System.out.println("column nmaes: "+columns.keySet().toString());
-		    for ( QueryResultRow row : rows ) {
-		    	Object state = row.getColumn( columns.get("state") );
-		    	Object zone = row.getColumn( columns.get("zone") );
-		    	Object cwa = row.getColumn( columns.get("cwa") );
-		    	if ( state!=null && zone!=null && cwa!=null ) {
-		    		zoneMap.put(state.toString()+"Z"+zone.toString(), cwa.toString());
-		    	}
-		    }
-		}
-		catch ( VizException ve ) {
-			ve.printStackTrace();
-		}
-		
+		zoneMap = PgenStaticDataProvider.getProvider().getZoneMap();
 		//System.out.println("FOUND "+zoneMap.size()+" ZONES");
 		
 	}

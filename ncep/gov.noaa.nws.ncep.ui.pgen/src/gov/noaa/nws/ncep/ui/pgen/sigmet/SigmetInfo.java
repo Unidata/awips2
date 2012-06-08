@@ -10,11 +10,9 @@ package gov.noaa.nws.ncep.ui.pgen.sigmet;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.ui.pgen.stationTables.StationTableUtil;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -104,7 +102,7 @@ public class SigmetInfo {
 		
 		try {
 		
-		VOLCANO_STATION_LIST = StationTableUtil.getvolcanoTbl().getStationList();
+		VOLCANO_STATION_LIST = PgenStaticDataProvider.getProvider().getVolcanoTbl().getStationList();
 
 		VOLCANO_BUCKET_MAP = initVolBucketMap();
 		
@@ -534,9 +532,6 @@ public class SigmetInfo {
 	 */
 	private static HashMap<String,Coordinate[]>  getGeometriesFromShapefile() {		
 		
-    	String FILE_NAME =
-    		 NcPathManager.getInstance().getStaticFile( 
-    					NcPathConstants.PGEN_FIR_BOUNDS ).getAbsolutePath();
 		String[] LABEL_ATTR = new String[]{"FIR_ID"};
 				
 		FeatureIterator<SimpleFeature> featureIterator = null;	        
@@ -545,7 +540,7 @@ public class SigmetInfo {
         String shapeField=null;
         
         try{
-        	File file = new File(FILE_NAME);          
+        	File file = PgenStaticDataProvider.getProvider().getFirBoundsFile();          
             shapefileDataStore = new IndexedShapefileDataStore(file.toURI()
                     .toURL(), null, false, true, org.geotools.data.shapefile.indexed.IndexType.QIX);            
             

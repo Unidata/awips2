@@ -1,6 +1,8 @@
 <!--Fire Warning configuration -->
 <!-- MODIFIED
      Version 1.1 EVAN BOOKBINDER/MIKE DANGELO 2-07-2012 Initial creation
+     Modified MIKE REGA 5-10-2012 DR 14525 added timeZoneField
+                                  DR 14691 added feAreaField
  -->
 <warngenConfig>
 
@@ -92,6 +94,8 @@
   <areaField>COUNTYNAME</areaField>
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
+  <feAreaField>FE_AREA</feAreaField>
+  <timeZoneField>TIME_ZONE</timeZoneField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <fipsField>FIPS</fipsField>
   <sortBy>

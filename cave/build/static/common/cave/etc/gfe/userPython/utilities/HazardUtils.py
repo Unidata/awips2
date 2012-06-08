@@ -793,7 +793,7 @@ class HazardUtils(SmartScript.SmartScript):
     def _lockHazards(self):
         "Flag the hazards parm as being edited. Return the hazards parm and its grid."
         hazParm = self.getParm(MODEL, ELEMENT, LEVEL)
-        startAbsTime = current()
+        startAbsTime = AbsTime(int(current().unixTime() /3600)*3600) 
         endAbsTime = startAbsTime + LOCK_HOURS() * HOUR_SECONDS()
         timeRange = TimeRange(startAbsTime, endAbsTime)
         
