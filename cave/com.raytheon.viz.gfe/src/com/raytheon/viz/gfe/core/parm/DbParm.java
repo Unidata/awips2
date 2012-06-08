@@ -39,6 +39,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
+import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockStatus;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
@@ -471,6 +472,7 @@ public class DbParm extends Parm {
         // List<IGridData> gridsSaved = new ArrayList<IGridData>();
         List<SaveGridRequest> sgr = new ArrayList<SaveGridRequest>();
         List<LockRequest> lreq = new ArrayList<LockRequest>();
+        List<TimeRange> pendingUnlocks = new ArrayList<TimeRange>();
 
         GridLocation gloc = this.getGridInfo().getGridLoc();
         int gridSize = gloc.getNx() * gloc.getNy();
@@ -488,6 +490,7 @@ public class DbParm extends Parm {
         }
 
         boolean success = true;
+        long size = 0;
         for (int i = 0; i < trs.size(); i++) {
             // ensure we have a lock for the time period
             TimeRange lockTime = new TimeRange();
@@ -507,7 +510,6 @@ public class DbParm extends Parm {
             IGridData[] grids = this.getGridInventory(lockTime);
 
             List<GFERecord> records = new ArrayList<GFERecord>();
-            long size = 0;
             boolean allSaved = true;
 
             // time range remaining to be saved
@@ -539,7 +541,19 @@ public class DbParm extends Parm {
                             .getGridTime().getEnd());
                     sgr.add(new SaveGridRequest(getParmID(), tr, records,
                             dataManager.clientISCSendStatus()));
-                    allSaved &= doSave(sgr);
+
+                    // save this batch of grids
+                    if (doSave(sgr)) {
+                        // if successful add pending locks to unlock requests
+                        for (TimeRange t : pendingUnlocks) {
+                            lreq.add(new LockRequest(getParmID(), t,
+                                    LockMode.UNLOCK));
+                        }
+                    } else {
+                        allSaved = false;
+                    }
+
+                    pendingUnlocks.clear();
                     sgr.clear();
                     records.clear();
                     size = 0;
@@ -551,13 +565,24 @@ public class DbParm extends Parm {
             if (size > 0 || saveTime.getDuration() > 0) {
                 sgr.add(new SaveGridRequest(getParmID(), saveTime, records,
                         dataManager.clientISCSendStatus()));
-                allSaved &= doSave(sgr);
             }
 
+            // if we haven't had a failure yet add to pending locks
             if (allSaved) {
-                lreq.add(new LockRequest(getParmID(), lockTime, LockMode.UNLOCK));
+                pendingUnlocks.add(lockTime);
             }
+
             success &= allSaved;
+        }
+        // if any pending saves
+        if (sgr.size() > 0) {
+            if (doSave(sgr)) {
+                for (TimeRange t : pendingUnlocks) {
+                    lreq.add(new LockRequest(getParmID(), t, LockMode.UNLOCK));
+                }
+            } else {
+                success = false;
+            }
         }
 
         if (lreq.size() > 0) {
@@ -617,8 +642,6 @@ public class DbParm extends Parm {
         }
 
         long milliseconds = 1000L * seconds;
-        // get my locks
-        List<TimeRange> myLocks = this.getLockTable().lockedByMe();
 
         // go through each grid in existence
         // must use for i loop to avoid concurrentModification exception
@@ -646,18 +669,15 @@ public class DbParm extends Parm {
 
                 // grid is populated, is it modified?
                 final TimeRange gTime = grid.getGridTime();
-                boolean locked = false;
-                for (int j = 0; j < myLocks.size(); j++) {
-                    if (gTime.overlaps(myLocks.get(j))) {
-                        locked = true;
-                        break;
-                    }
-                }
+                boolean locked = this.getLockTable().checkLock(gTime)
+                        .equals(LockStatus.LOCKED_BY_ME);
 
                 // only deallocate unlocked grids
                 if (!locked) {
-                    // logDebug << "Deallocating " << parmID() << " tr="
-                    // << gTime << std::endl;
+                    String msg = "Deallocating " + getParmID() + " tr=" + gTime;
+                    statusHandler.handle(Priority.DEBUG, msg, new Exception(
+                            "Debug: " + msg));
+
                     grid.depopulate();
                 }
             }
@@ -679,6 +699,11 @@ public class DbParm extends Parm {
 
         List<LockRequest> lreq = new ArrayList<LockRequest>(timesToSave.size());
         for (int i = 0; i < timesToSave.size(); i++) {
+            String msg = "Reverting " + getParmID() + " tr="
+                    + timesToSave.get(i);
+            statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
+                    + msg));
+
             boolean success = true;
             IGridData[] grids = null;
             try {

@@ -624,9 +624,9 @@ class _NetCDFFile:
 #        if recno is None:
 #            return None
         
-        import PointDataRetrieve
+        import ForecastPointDataRetrieve
 #        print 'makeData: ident (%s), selfModel(%s) refTime(%s):' % (ident, self.Model, refTime)
-        pdc = PointDataRetrieve.retrieve('bufrmos' + self.Model, ident, PARAMETERS, refTime=refTime)
+        pdc = ForecastPointDataRetrieve.retrieve('bufrmos' + self.Model, ident, PARAMETERS, refTime=refTime)
         self.NumData = min(self.NumData, len(pdc.keys()))
         self.issuetime = pdc.refTime.getTime() / 1000
         fcstHrList = pdc.keys()
@@ -655,8 +655,8 @@ class _NetCDFFile:
         return result
 
     def makeReport(self, ident):    
-        import PointDataRetrieve
-        pdc = PointDataRetrieve.retrieve('bufrmos' + self.Model, ident, PARAMETERS)
+        import ForecastPointDataRetrieve
+        pdc = ForecastPointDataRetrieve.retrieve('bufrmos' + self.Model, ident, PARAMETERS)
         self.NumData = min(self.NumData, len(pdc.keys()))
         self.issuetime = pdc.refTime.getTime() / 1000
         fcstHrList = pdc.keys()
@@ -1064,8 +1064,8 @@ class _GfsLampNetCDFFile(_NetCDFFile):
         return g
 
     def makeReport(self, ident):
-        import PointDataRetrieve
-        pdc = PointDataRetrieve.retrieve('bufrmos' + self.Model, ident, PARAMETERS)
+        import ForecastPointDataRetrieve
+        pdc = ForecastPointDataRetrieve.retrieve('bufrmos' + self.Model, ident, PARAMETERS)
         self.NumData = min(self.NumData, len(pdc.keys()))
         self.issuetime = pdc.refTime.getTime() / 1000
         fcstHrList = pdc.keys()

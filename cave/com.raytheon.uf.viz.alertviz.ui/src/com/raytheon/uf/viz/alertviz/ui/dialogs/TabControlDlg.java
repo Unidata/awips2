@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -80,7 +81,7 @@ public class TabControlDlg extends Dialog {
     /**
      * The composite that holds the tabFolder and detailsText
      */
-    private Composite topComp;
+    private SashForm topComp;
 
     /**
      * The TabFolder that is in the composite
@@ -106,6 +107,12 @@ public class TabControlDlg extends Dialog {
      * Styled text for details
      */
     private StyledText detailsText;
+
+    private static Rectangle bounds;
+
+    private static int[] weights = { 50, 50 };
+
+    private static boolean visible = false;
 
     /**
      * Get the instance of the TabControl dialog
@@ -143,8 +150,12 @@ public class TabControlDlg extends Dialog {
     private void initShell() {
         Shell parent = getParent();
 
-        shell = new Shell(parent, SWT.TITLE);
+        shell = new Shell(parent, SWT.TITLE | SWT.RESIZE);
 
+        if (bounds != null) {
+            shell.setBounds(bounds);
+            shell.setFocus();
+        }
         GridLayout mainLayout = new GridLayout(1, false);
         shell.setLayout(mainLayout);
 
@@ -158,19 +169,38 @@ public class TabControlDlg extends Dialog {
         mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(new GridLayout(1, false));
 
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.widthHint = 800;
+        shell.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                cacheDimensions();
+            }
+        });
+
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        if (bounds == null) {
+            gd.widthHint = 800;
+            gd.heightHint = 285;
+        } else {
+            gd.widthHint = bounds.width;
+            gd.heightHint = bounds.height;
+        }
         mainComp.setLayoutData(gd);
 
-        topComp = new Composite(mainComp, SWT.NONE);
+        topComp = new SashForm(mainComp, SWT.HORIZONTAL);
         topComp.setLayout(new GridLayout(2, false));
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        if (bounds == null) {
+            gd.widthHint = 400;
+            gd.heightHint = 285;
+        } else {
+            gd.widthHint = bounds.width;
+            gd.heightHint = bounds.height;
+        }
         topComp.setLayoutData(gd);
 
         tabFolder = new TabFolder(topComp, SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.widthHint = 400;
-        gd.heightHint = 285;
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         tabFolder.setLayoutData(gd);
 
         tabFolder.addDisposeListener(new DisposeListener() {
@@ -189,20 +219,25 @@ public class TabControlDlg extends Dialog {
                 shell.setText("Log list for: " + log.getFullText());
                 populateClearOptionsCombo(log);
                 detailsText.setText(log.getLogText());
-                clearOptionCbo.select(logs.get(index).getClearOptionCboSelectedIndex());
+                clearOptionCbo.select(logs.get(index)
+                        .getClearOptionCboSelectedIndex());
             }
         });
 
         detailsText = new StyledText(topComp, SWT.V_SCROLL | SWT.H_SCROLL
                 | SWT.BORDER);
-        gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 400;
         gd.heightHint = 285;
         detailsText.setLayoutData(gd);
         detailsText.setEditable(false);
 
-        detailsText.setVisible(false);
+        detailsText.setVisible(visible);
         ((GridData) detailsText.getLayoutData()).exclude = true;
+
+        if (visible) {
+            topComp.setWeights(weights);
+        }
 
         createBottomButtons();
     }
@@ -223,20 +258,20 @@ public class TabControlDlg extends Dialog {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                 int index = tabFolder.getSelectionIndex();
-                 if (index < 0) {
-                     return;
-                 }
-                 if (clearOptionCbo.getItemCount() >= 2) {
-                     int position = clearOptionCbo.getSelectionIndex();
-                     String category = clearOptionCbo.getItem(position);
-                     logs.get(index).displayCategoryMessages(category);
-                     if (index == 0) {
-                         logs.get(index).populateClearOptionsCombo();
-                         clearOptionCbo.select(position);                         
-                     } 
-                     logs.get(index).setClearOptionCboSelectedIndex(position);
-                 }                 
+                int index = tabFolder.getSelectionIndex();
+                if (index < 0) {
+                    return;
+                }
+                if (clearOptionCbo.getItemCount() >= 2) {
+                    int position = clearOptionCbo.getSelectionIndex();
+                    String category = clearOptionCbo.getItem(position);
+                    logs.get(index).displayCategoryMessages(category);
+                    if (index == 0) {
+                        logs.get(index).populateClearOptionsCombo();
+                        clearOptionCbo.select(position);
+                    }
+                    logs.get(index).setClearOptionCboSelectedIndex(position);
+                }
             }
 
             @Override
@@ -277,22 +312,35 @@ public class TabControlDlg extends Dialog {
         showHide.setLayoutData(gd);
         // TODO: Make this work, right now not working
         showHide.addSelectionListener(new SelectionAdapter() {
-            boolean visible = false;
 
             @Override
             public void widgetSelected(SelectionEvent e) {
+                // if now visible then use cache weights
+                // if NOT visible, save weights, set to hidden
                 visible = !visible;
+                detailsText.setVisible(visible);
+                SashForm sf = (SashForm) topComp;
                 if (visible == true) {
                     showHide.setText("Hide Details...");
+                    sf.setWeights(weights);
                 } else {
                     showHide.setText("Show Details");
+                    cacheDimensions();
+                    sf.setWeights(new int[] { 100, 0 });
                 }
-                detailsText.setVisible(visible);
-                ((GridData) detailsText.getLayoutData()).exclude = !visible;
                 topComp.layout();
                 mainComp.layout();
             }
         });
+    }
+
+    private void cacheDimensions() {
+        int[] currentWeights = topComp.getWeights();
+        weights[0] = currentWeights[0];
+        weights[1] = currentWeights[1];
+        bounds = topComp.getParent().getBounds();
+        bounds.x = shell.getParent().getBounds().x;
+        bounds.y = shell.getParent().getBounds().y;
     }
 
     /**

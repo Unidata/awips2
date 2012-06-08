@@ -8,7 +8,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 <style type="text/css">
 <![CDATA[
         @font-face { font-family: "WindSymbolFont";
-                src: url(WindSymbols.svg#WindSymbols); }
+                src: url(../ncep/PlotModels/WindSymbols.svg#WindSymbols); }
         @font-face { font-family: "StandardFont";
                 src: url(Standard.svg#Standard); }
         @font-face { font-family: "WxSymbolFont";                
@@ -38,11 +38,11 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
     <text position="LC" x="0"      y="15px"  style="text-anchor: middle;">err</text>   <!--Lower Center-->
     <text position="BC" x="0"      y="25px"  style="text-anchor: middle;">err</text>   <!--Bottom Center-->
     
-    <text position="UR" x="10px"   y="-15px"  style="text-anchor:start;">err</text>  <!--Upper Right -->
-    <text position="MR" x="10px"   y="0"      style="text-anchor:start;">err</text>  <!--Middle Right -->
-    <text position="LR" x="10px"   y="15px"   style="text-anchor:start;">err</text> <!--Lower Right -->
+    <text position="UR" x="10px"   y="-15px" style="text-anchor:start;">err</text>  <!--Upper Right -->
+    <text position="MR" x="10px"   y="0"     style="text-anchor:start;">err</text>  <!--Middle Right -->
+    <text position="LR" x="10px"   y="15px"  style="text-anchor:start;">err</text> <!--Lower Right -->
 
-    <text position="SC" x="0"      y="0"     style="text-anchor: middle;">err</text>   
+    <text position="SC" x="0"      y="0"     style="font-family: WxSymbolFont">arrow</text>   
     <!-- a group element for a possible wind barb symbol. -->    
     <g id="windVaneText" position="WD" plotMode="barb" x="0" y="0" transform="rotate(0,0,0)">
         <text id="windArrowText" class="barb" style="font-family: WindSymbolFont" x="0" y="0">arrow</text>	    

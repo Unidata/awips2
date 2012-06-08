@@ -21,14 +21,12 @@ package com.raytheon.viz.gfe.actions;
 
 import java.util.Map;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
+import com.raytheon.viz.ui.actions.AbstractDropDownMenuHandler;
 
 /**
  * TODO Add Description
@@ -45,24 +43,15 @@ import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
  * @version 1.0
  */
 
-public class EditAreaModeButton extends AbstractHandler implements
+public class EditAreaModeButton extends AbstractDropDownMenuHandler implements
         IElementUpdater {
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands.ExecutionEvent)
-     */
-    @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.commands.IElementUpdater#updateElement(org.eclipse.ui.menus.UIElement,
-     *      java.util.Map)
+     * @see
+     * org.eclipse.ui.commands.IElementUpdater#updateElement(org.eclipse.ui.
+     * menus.UIElement, java.util.Map)
      */
     @Override
     @SuppressWarnings("unchecked")

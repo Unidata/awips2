@@ -100,8 +100,10 @@ public class ChooseHour extends AbstractHandler {
             cal.add(Calendar.HOUR_OF_DAY, increment);
             Date newDate = cal.getTime();
             dm.setCurrentDate(newDate);
-            XmrgResource xmrgRsc = (XmrgResource) dm.getDisplayedResource();
-            xmrgRsc.updateXmrg(false);
+            if (dm.getDisplayedResource() != null) {
+                XmrgResource xmrgRsc = (XmrgResource) dm.getDisplayedResource();
+                xmrgRsc.updateXmrg(false);
+            }
         }
 
         return null;

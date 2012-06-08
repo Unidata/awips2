@@ -6,6 +6,8 @@
 !
 GLEVEL=0         !0         !0         !0
 GVCORD=none      !none      !none      !none
+SKIP=
+FILTER=y
 SCALE=2         !2         !2         !2
 GDPFUN=sm5s(WXTr)!sm5s(WXTs)!sm5s(WXTp)!sm5s(WXTz)
 TYPE=f         !f         !f         !f

@@ -16,8 +16,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.ArcAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.ArcAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
 
