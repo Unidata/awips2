@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.xy.timeseries.display;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,14 +29,13 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.d2d.ui.AbstractNonMapDisplay;
-import com.raytheon.uf.viz.d2d.ui.Activator;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResource;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData.OverlayMode;
@@ -58,7 +59,9 @@ import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData.OverlayMode;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class TimeSeriesRenderableDisplay extends AbstractNonMapDisplay {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(TimeSeriesRenderableDisplay.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TimeSeriesRenderableDisplay.class);
+
     public TimeSeriesRenderableDisplay() {
         this(new PixelExtent(0, 1000, 0, 1000));
     }
@@ -95,6 +98,17 @@ public class TimeSeriesRenderableDisplay extends AbstractNonMapDisplay {
             statusHandler.handle(Priority.PROBLEM,
                     "Error constructing time series Graph", e);
         }
+    }
+
+    @Override
+    public Map<String, Object> getGlobalsMap() {
+        Map<String, Object> globals = super.getGlobalsMap();
+        if (globals
+                .get(VizConstants.FRAMES_ID)
+                .equals(TimeSeriesDescriptor.REAL_FRAME_COUNT_TO_USE_WHEN_FRAME_COUNT_IS_ONE)) {
+            globals.put(VizConstants.FRAMES_ID, 1);
+        }
+        return globals;
     }
 
 }

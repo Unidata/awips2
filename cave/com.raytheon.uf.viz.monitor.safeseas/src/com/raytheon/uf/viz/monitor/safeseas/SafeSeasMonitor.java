@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 11/30/2009   3424       Zhidong/Slav/wkwock Use real station data.
  * Dec 30, 2009 3424       zhao        use ObMultiHrsReports for obs data archive over time
  * July 20,2010 4891       skorolev    Added resource listener
+ * May 15, 2012 14510      zhao        Modified processing at startup
  * 
  * </pre>
  * 
@@ -157,6 +158,7 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
 			monitor.createDataStructures();
             monitor.getAdjAreas();
 			monitor.processProductAtStartup("ss");
+			monitor.fireMonitorEvent(monitor);
         }
         return monitor;
     }
@@ -528,5 +530,10 @@ public class SafeSeasMonitor extends ObsMonitor implements ISSResourceListener {
         });
 
     }
+
+	@Override
+	protected void processAtStartup(ObReport report) {
+		obData.addReport(report);
+	}
 
 }

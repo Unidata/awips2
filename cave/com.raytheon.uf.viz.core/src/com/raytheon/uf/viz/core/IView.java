@@ -19,12 +19,7 @@
  **/
 package com.raytheon.uf.viz.core;
 
-import javax.vecmath.Vector3d;
-
 import org.eclipse.swt.graphics.Rectangle;
-
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.Plane;
 
 /**
  * Interface that defines a view area. Methods include determining what is in
@@ -44,16 +39,10 @@ import com.raytheon.uf.viz.core.geom.Plane;
 
 public interface IView {
 
-    public static enum POVShiftType {
-        EYE, FOCUS, BOTH
-    }
-
     /**
      * @param GLTarget
      */
     public abstract void setupView(IGraphicsTarget target);
-
-    public abstract String getDisplayType();
 
     /**
      * Get Zoom
@@ -63,20 +52,6 @@ public interface IView {
     public abstract double getZoom();
 
     public double recalcZoomLevel(int[] dimensions);
-
-    /**
-     * Set elevation exaggeration factor
-     * 
-     * @param factor
-     */
-    public abstract void setElevationExaggeration(double factor);
-
-    /**
-     * Get the elevation exaggeration
-     * 
-     * @return
-     */
-    public abstract double getElevationExaggeration();
 
     /**
      * Zoom the display to the desired level
@@ -127,13 +102,6 @@ public interface IView {
     public abstract void setExtent(IExtent pe);
 
     /**
-     * Set the center of the view area
-     * 
-     * @param point
-     */
-    public abstract void setCenter(Vector3d point);
-
-    /**
      * Get the display grid coordinates under the screen point
      * 
      * @param screenCoordinate
@@ -144,78 +112,12 @@ public interface IView {
             IGraphicsTarget target);
 
     /**
-     * Change the point of view based on mouse position change
-     * 
-     * @param shiftType
-     * 
-     * @param last
-     * @param current
-     */
-    public abstract boolean shiftPOV(double[] lastMouse, double[] currentMouse,
-            POVShiftType shiftType, IGraphicsTarget target);
-
-    public abstract void setTilt(double delta);
-
-    public abstract double getTilt();
-
-    /**
-     * Set the focus point on the map from the mouse position
-     * 
-     * @param currentMouse
-     * @return
-     */
-    public abstract boolean setFocalPoint(double[] currentMouse,
-            IGraphicsTarget target);
-
-    /**
-     * Get the clipping planes
-     * 
-     * @return
-     */
-    abstract public Plane[] getClippingPlanes();
-
-    /**
-     * 
-     * @param center
-     * @return distance from the eye to the point
-     */
-    abstract public double getEyeDistance(Vector3d point);
-
-    /**
-     * Get eye in grid space
-     * 
-     * @return
-     */
-    abstract public double[] getEye();
-
-    /**
-     * Set eye in grid space
-     * 
-     * @param eye
-     */
-    abstract public void setEye(double[] eye);
-
-    /**
-     * 
-     * @return
-     */
-    abstract public double[] getFocalPoint();
-
-    /**
      * Create a specific extent for this type of view
      * 
      * @param pc
      * @return
      */
     abstract public IExtent createExtent(PixelCoverage pc);
-
-    /**
-     * Set up clipping planes to remove objects outside the view area.
-     * 
-     * @throws VizException
-     *             TODO
-     */
-    abstract public void setClippingPlanes() throws VizException;
 
     /**
      * Shift the extent by the delta

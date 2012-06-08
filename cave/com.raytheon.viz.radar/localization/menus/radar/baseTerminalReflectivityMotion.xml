@@ -34,7 +34,7 @@
 		<substitute key="product6" value="" />
 		<substitute key="product7" value="" />
 		<substitute key="product8" value="" />
-		<substitute key="mode2" value="" />
+		<substitute key="mode2" value="SRM8" />
 		<substitute key="elevation" value="${elev0}--${elev0}" />
 	</contribute>
 	<contribute xsi:type="bundleItem"
@@ -50,7 +50,7 @@
 		<substitute key="product6" value="" />
 		<substitute key="product7" value="" />
 		<substitute key="product8" value="" />
-		<substitute key="mode2" value="" />
+		<substitute key="mode2" value="SRM8" />
 		<substitute key="elevation" value="${elev1}--${elev1}" />
 	</contribute>
 	<contribute xsi:type="bundleItem"
@@ -66,7 +66,7 @@
 		<substitute key="product6" value="" />
 		<substitute key="product7" value="" />
 		<substitute key="product8" value="" />
-		<substitute key="mode2" value="" />
+		<substitute key="mode2" value="SRM8" />
 		<substitute key="elevation" value="0.0--360.0" />
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="${icao} Hi Z/SRM8 tilts"
@@ -84,7 +84,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev2}--${elev2}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -100,7 +100,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev3}--${elev3}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -116,7 +116,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev4}--${elev4}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -132,7 +132,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev5}--${elev5}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -148,7 +148,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev6}--${elev6}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -164,7 +164,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev7}--${elev7}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -180,7 +180,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev8}--${elev8}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -196,7 +196,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev9}--${elev9}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -212,7 +212,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev10}--${elev10}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -228,7 +228,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev11}--${elev11}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -244,7 +244,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev12}--${elev12}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -260,7 +260,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev13}--${elev13}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -276,7 +276,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev14}--${elev14}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -292,7 +292,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev15}--${elev15}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -308,7 +308,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev16}--${elev16}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -324,7 +324,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev17}--${elev17}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -340,7 +340,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev18}--${elev18}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -356,7 +356,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev19}--${elev19}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -372,7 +372,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev20}--${elev20}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -388,7 +388,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev21}--${elev21}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -404,7 +404,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev22}--${elev22}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -420,7 +420,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev23}--${elev23}" />
 		</contribute>
 		<contribute xsi:type="bundleItem"
@@ -436,7 +436,7 @@
 			<substitute key="product6" value="" />
 			<substitute key="product7" value="" />
 			<substitute key="product8" value="" />
-			<substitute key="mode2" value="" />
+			<substitute key="mode2" value="SRM8" />
 			<substitute key="elevation" value="${elev24}--${elev24}" />
 		</contribute>
 	</contribute>

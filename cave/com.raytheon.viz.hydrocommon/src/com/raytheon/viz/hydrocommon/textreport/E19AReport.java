@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import com.raytheon.viz.hydrocommon.HydroConstants;
+import com.raytheon.viz.hydrocommon.textreport.TextReportData.Gage;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 
 /**
@@ -36,6 +37,7 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009 2260       mpduff     Initial creation
+ * Apr 25, 2012 14499      wkwock     Refine format, query, etc
  *
  * </pre>
  *
@@ -113,7 +115,7 @@ public class E19AReport extends E19Report {
         buffer.append("\n");        
         buffer.append("                 NATIONAL OCEANIC AND ATMOSPHERIC ADMINISTRATION\n");
         buffer.append("                            NATIONAL WEATHER SERVICE\n\n");
-        buffer.append("           REPORT ON RIVER GAGE STATION\n\n");
+        buffer.append("                          REPORT ON RIVER GAGE STATION\n\n");
         buffer.append("------------------------------------  SITE  ------------------------------------\n\n");
         buffer.append(String.format("         LID: %-11s %10s PROXIMITY: %s\n", lid, " ", data.getDescrip().getProximity()));
         buffer.append(String.format("        NAME: %s\n      STREAM: %s\n", locData.getLocation().getName(), data.getRiverstat().getStream()));
@@ -179,8 +181,8 @@ public class E19AReport extends E19Report {
         }
         
         String pool = null;
-        if (data.getRiverstat().getFs() != HydroConstants.MISSING_VALUE) {
-            pool = String.format("%8.2f", data.getRiverstat().getBf());
+        if (data.getRiverstat().getPool() != HydroConstants.MISSING_VALUE) {
+            pool = String.format("%8.2f", data.getRiverstat().getPool());
         } else {
             pool = "        ";
         }
@@ -239,7 +241,7 @@ public class E19AReport extends E19Report {
 
         if ((dataO.getObserver().getLastname() != null)
                 && (dataO.getObserver().getLastname().length() > 0)) {
-            name.concat(dataO.getObserver().getLastname());
+            name += dataO.getObserver().getLastname();
         }
 
         buffer.append(String.format("  %-40s\n", name));
@@ -272,8 +274,10 @@ public class E19AReport extends E19Report {
         buffer.append(String.format("    DCP ID: %-8s%10sDCP OWNER: %s\n\n", dataDcpTelem.getDcp().getGoes(), " ", dataDcpTelem.getDcp().getOwner()));
         TextReportData dataG = TextReportDataManager.getInstance().getGageQueryList(lid);
         buffer.append("     LATEST GAGE TYPE           START DATE              OWNER OF GAGE\n");
-        if (dataG.getGage().getBegin() != null) {
-            buffer.append(String.format("       %-11s                %10s              %-11s\n", dataG.getGage().getType(), sdf.format(dataG.getGage().getBegin()), dataG.getGage().getOwner()));
+        
+        if (dataG.getGageList() != null && dataG.getGageList().size() > 0) {
+        	Gage gage=dataG.getGageList().get(dataG.getGageList().size()-1);
+            buffer.append(String.format("       %-11s                %10s              %-11s\n", gage.getType(), sdf.format(gage.getBegin()), gage.getOwner()));
         }
         
         buffer.append("\n");

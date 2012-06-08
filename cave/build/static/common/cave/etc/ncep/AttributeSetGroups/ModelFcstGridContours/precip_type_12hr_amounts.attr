@@ -8,6 +8,8 @@
 !
 GLEVEL=0!0!0!0
 GVCORD=none!none!none!none
+SKIP=
+FILTER=y
 SCALE=0!0!0!0
 GDPFUN=mul(WXTs,p12i)!mul(WXTp,p12i)!mul(WXTz,p12i)!mul(WXTr,p12i)
 TYPE=c/f  !c    !c    !c

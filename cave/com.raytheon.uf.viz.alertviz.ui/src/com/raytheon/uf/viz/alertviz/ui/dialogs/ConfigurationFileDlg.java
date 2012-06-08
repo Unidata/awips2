@@ -54,7 +54,7 @@ import com.raytheon.uf.viz.alertviz.ConfigurationManager;
  * ------------ ---------- ----------- --------------------------
  * Apr 14, 2010            mschenke     Initial creation
  * Apr 29, 2011 9069       cjeanbap     Config file list selection: Save As
- * May 31, 2011 9785       cjeanbap     Prevent selection of 0 when list is empty. 
+ * May 31, 2011 9785       cjeanbap     Prevent selection of 0 when list is empty.
  * </pre>
  * 
  * @author mschenke
@@ -76,6 +76,11 @@ public class ConfigurationFileDlg extends Dialog {
             + "the %2$s configuration?";
 
     private static final String CHANGING_DEFAULT_TITLE = "AlertViz: Default Config Action ";
+
+    private static final String INVALID_FILE_NAME_TITLE = "AlertViz: Invalid File Name ";
+
+    private static final String NO_DELIVERED_IN_NAME_MSG = "You may not Save or Delete a "
+            + "Configuration file with \"delivered\" in the name.  This is a reserved term.";
 
     private static final String CONFIRM_MSG = "Are you sure you want to %1$s the configuration, %2$s?";
 
@@ -329,15 +334,19 @@ public class ConfigurationFileDlg extends Dialog {
                         .get(configurationList.getSelectionIndex());
 
                 if (function == Function.DELETE) {
-                    if (ConfigurationManager.isDefaultConfig(rval)) {
-                        if (!confirmDefaultChange(shell, "delete",
-                                rval.toString())) {
-                            rval = null;
+                    if (validateNotDelivered(shell, rval.getName())) {
+                        if (ConfigurationManager.isDefaultConfig(rval)) {
+                            if (!confirmDefaultChange(shell, "delete",
+                                    rval.toString())) {
+                                rval = null;
+                            }
+                        } else {
+                            if (!confirm(shell, "delete", rval.toString())) {
+                                rval = null;
+                            }
                         }
                     } else {
-                        if (!confirm(shell, "delete", rval.toString())) {
-                            rval = null;
-                        }
+                        rval = null;
                     }
                 } else if (function == Function.RETRIEVE_WITH_UNSAVED_CHANGES) {
                     if (!confirmLeaveWithUnsavedChanges(shell, rval.toString())) {
@@ -353,27 +362,31 @@ public class ConfigurationFileDlg extends Dialog {
         case SAVE: {
             String name = configurationText.getText();
             String level = configurationLevel.getText();
-            rval = ("".equals(name)) ? null : new ConfigContext(name,
-                    LocalizationLevel.valueOf(level));
-            LocalizationLevel enteredLevel = LocalizationLevel.valueOf(level);
-            boolean isFound = false;
-            for (ConfigContext config : configurations) {
-                isFound = config.getName().equals(name)
-                        && enteredLevel.equals(config.getLevel());
-                if (isFound) {
-                    break;
-                }
-            }
-            if (rval != null && isFound) {
-                // we are overwriting a current configuration
-                if (ConfigurationManager.isDefaultConfig(rval)) {
-                    if (!confirmDefaultChange(shell, "overwrite",
-                            rval.toString())) {
-                        rval = null;
+
+            if (validateNotDelivered(shell, name)) {
+                rval = ("".equals(name)) ? null : new ConfigContext(name,
+                        LocalizationLevel.valueOf(level));
+                LocalizationLevel enteredLevel = LocalizationLevel
+                        .valueOf(level);
+                boolean isFound = false;
+                for (ConfigContext config : configurations) {
+                    isFound = config.getName().equals(name)
+                            && enteredLevel.equals(config.getLevel());
+                    if (isFound) {
+                        break;
                     }
-                } else {
-                    if (!confirm(shell, "overwrite", rval.toString())) {
-                        rval = null;
+                }
+                if (rval != null && isFound) {
+                    // we are overwriting a current configuration
+                    if (ConfigurationManager.isDefaultConfig(rval)) {
+                        if (!confirmDefaultChange(shell, "overwrite",
+                                rval.toString())) {
+                            rval = null;
+                        }
+                    } else {
+                        if (!confirm(shell, "overwrite", rval.toString())) {
+                            rval = null;
+                        }
                     }
                 }
             }
@@ -382,6 +395,16 @@ public class ConfigurationFileDlg extends Dialog {
         }
         if (rval != null) {
             shell.dispose();
+        }
+    }
+
+    public static boolean validateNotDelivered(Shell shell, String name) {
+        if (name.contains("delivered")) {
+            MessageDialog.openInformation(shell, INVALID_FILE_NAME_TITLE,
+                    NO_DELIVERED_IN_NAME_MSG);
+            return false;
+        } else {
+            return true;
         }
     }
 

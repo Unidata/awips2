@@ -134,8 +134,8 @@ public class GFERecord extends PluginDataObject {
     @Transient
     private GridParmInfo gridInfo;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "parent")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JoinColumn(name = "parent", nullable = false)
     @Index(name = "gfe_gridhistory_history_idx")
     @OrderBy("key")
     @XmlElement

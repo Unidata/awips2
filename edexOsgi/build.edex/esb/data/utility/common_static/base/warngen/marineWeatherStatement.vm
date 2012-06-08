@@ -9,6 +9,7 @@
 ## Added coding for no headline in Version 1.4     ##
 ## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##
 ## Added coding for dense fog in Version 1.5       ##
+##           Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND)
 #####################################################
 ## Set the visibility variable to be used for dense fog
 ## This variable can be changed by the local office and will
@@ -25,6 +26,7 @@
 #end
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
+
 #if(${productClass}=="T")
 TEST...MARINE WEATHER STATEMENT...TEST
 #else
