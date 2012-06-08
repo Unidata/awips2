@@ -458,7 +458,7 @@ public class CollaborationConnection implements IEventPublisher {
      * @param session
      */
     protected void removeSession(ISession session) {
-        sessions.remove(session);
+        sessions.remove(session.getSessionId());
     }
 
     /**
@@ -544,14 +544,7 @@ public class CollaborationConnection implements IEventPublisher {
                 });
     }
 
-    // ***************************
-    // Peer to Peer communications
-    // ***************************
-
-    /**
-     * 
-     */
-    protected ISession getSession(String sessionId) {
+    public ISession getSession(String sessionId) {
         return sessions.get(sessionId);
     }
 
@@ -674,6 +667,10 @@ public class CollaborationConnection implements IEventPublisher {
         return id;
     }
 
+    public Collection<ISession> getSessions() {
+        return sessions.values();
+    }
+
     /**
      * Returns the currently connected connection or null if it's not connected
      * 
@@ -707,4 +704,5 @@ public class CollaborationConnection implements IEventPublisher {
             return getConnection();
         }
     }
+
 }

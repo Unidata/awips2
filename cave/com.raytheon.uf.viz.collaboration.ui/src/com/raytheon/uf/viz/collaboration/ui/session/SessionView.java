@@ -75,7 +75,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -411,8 +410,7 @@ public class SessionView extends AbstractSessionView {
 
         // clean up event handlers
         session.unRegisterEventHandler(this);
-        CollaborationDataManager mgr = CollaborationDataManager.getInstance();
-        mgr.closeSession(sessionId);
+        session.close();
         CollaborationConnection conn = CollaborationConnection.getConnection();
         if (conn != null) {
             conn.getEventPublisher().unregister(this);
@@ -595,8 +593,8 @@ public class SessionView extends AbstractSessionView {
 
     protected void setSession(String sessionId) {
         this.sessionId = sessionId;
-        this.session = CollaborationDataManager.getInstance().getSession(
-                this.sessionId);
+        this.session = (IVenueSession) CollaborationConnection.getConnection()
+                .getSession(this.sessionId);
     }
 
     @Subscribe
@@ -664,18 +662,22 @@ public class SessionView extends AbstractSessionView {
     @SuppressWarnings("unchecked")
     private void participantDeparted(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
-        for (int i = 0; i < users.size(); ++i) {
-            UserId otherId = IDConverter.convertFrom(users.get(i).getUser());
-            if (users.get(i) == null
-                    || participant.getName().equals(otherId.getName())) {
-                users.remove(i);
-                usersTable.refresh();
-                break;
+        if (users != null) {
+            for (int i = 0; i < users.size(); ++i) {
+                UserId otherId = IDConverter
+                        .convertFrom(users.get(i).getUser());
+                if (users.get(i) == null
+                        || participant.getName().equals(otherId.getName())) {
+                    users.remove(i);
+                    usersTable.refresh();
+                    break;
+                }
             }
+
+            StringBuilder builder = new StringBuilder(participant.getName()
+                    + " has left the room");
+            sendSystemMessage(builder);
         }
-        StringBuilder builder = new StringBuilder(participant.getName()
-                + " has left the room");
-        sendSystemMessage(builder);
     }
 
     /**
