@@ -222,6 +222,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
         // add some actions to the menubar
         createMenubar();
+        openConnection();
+    }
+
+    private void openConnection() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
@@ -243,6 +247,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 return;
             }
         }
+
         // add a part listener so that we can check when things about the view
         // change
         getViewSite().getWorkbenchWindow().getPartService()
@@ -257,7 +262,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
         }
         populateTree();
         usersTreeViewer.refresh();
-
         parent.layout();
     }
 
@@ -288,9 +292,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
         };
         createSessionAction.setImageDescriptor(IconUtil.getImageDescriptor(
                 bundle, "add_collaborate.gif"));
-        createSessionAction.setDisabledImageDescriptor(IconUtil
-                .getImageDescriptor(bundle, "add_collaborate_disabled.png"));
-        this.disableOrEnableSessionAction();
 
         linkToEditorAction = new Action("Link Editor to Chat Session",
                 Action.AS_CHECK_BOX) {
@@ -452,7 +453,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             @Override
             public void run() {
                 if (usersTreeViewer == null) {
-                    createPartControl(parent);
+                    openConnection();
                 }
             }
         };
@@ -555,6 +556,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         };
         collapseAllAction.setImageDescriptor(IconUtil.getImageDescriptor(
                 bundle, "collapseall.gif"));
+
+        this.disableOrEnableToolbarActions();
 
         IMenuCreator creator = new IMenuCreator() {
 
@@ -736,7 +739,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // enable the tree, and then refresh it just to be safe
         usersTreeViewer.getTree().setEnabled(true);
         usersTreeViewer.refresh(topLevel, true);
-        this.disableOrEnableSessionAction();
+        this.disableOrEnableToolbarActions();
         createArchiveViewerAction.setEnabled(true);
     }
 
@@ -1482,12 +1485,14 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     /**
-     * Enables or disables the Creation session button / menu option depending
-     * on whether or not the user is connected to the xmpp server.
+     * Enables or disables the toolbar buttons based on whether or not the user
+     * is connected to the xmpp server.
      */
-    private void disableOrEnableSessionAction() {
-        boolean isSessionEnabled = (CollaborationConnection.getConnection() != null);
-        createSessionAction.setEnabled(isSessionEnabled);
+    private void disableOrEnableToolbarActions() {
+        boolean enabled = (CollaborationConnection.getConnection() != null);
+        createSessionAction.setEnabled(enabled);
+        linkToEditorAction.setEnabled(enabled);
+        collapseAllAction.setEnabled(enabled);
     }
 
     /**
