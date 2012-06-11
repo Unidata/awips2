@@ -4,3 +4,6 @@ colorBar=@dfltRadarColorBar.xml
 productCode=36
 ! check elevation
 elevationNumber=0
+alpha=1.0
+brightness=1.0
+contrast=1.0

@@ -5,6 +5,81 @@ overflow="visible"
 xmlns="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
    <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import datetime
+
+class LdadMesoPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+    	s = rec.getString("stationId")
+    	s += ","
+    	s += str(datetime.datetime.utcfromtimestamp(rec.getLong("observationTime")/1000))
+    	s += ","
+    	s += getFloatAsString(rec, "temperature", "%.2f", 1.8, -459.67)
+    	s += ","
+    	s += getFloatAsString(rec, "dewpoint", "%.2f", 1.8, -459.67)
+    	s += ","
+    	s += getFloatAsString(rec, "relHumidity", "%.0f")
+    	s += ","
+    	s += getFloatAsString(rec, "wetBulbTemperature", "%.2f")
+    	s += ","
+    	s += getFloatAsString(rec, "windDir", "%.0f")
+    	s += ","
+    	s += getFloatAsString(rec, "windSpeed", "%.2f")
+    	s += ","
+    	s += getFloatAsString(rec, "windGust", "%.2f")
+    	s += ","
+    	s += getFloatAsString(rec, "pressure", "%.2f")
+    	s += ","
+    	s += getFloatAsString(rec, "stationPressure", "%.2f")
+    	s += ","
+    	s += getFloatAsString(rec, "altimeter", "%.2f")
+    	s += ","
+    	s += getFloatAsString(rec, "seaLevelPressure", "%.2f")
+    	s += ","
+    	s += getIntAsString(rec, "pressChangeChar", "%d")
+    	s += ","
+    	s += getFloatAsString(rec, "pressChange3Hour", "%.2f")
+    	s += ","
+    	s += getFloatAsString(rec, "precipAccum", "%.2f")
+    	s += ","
+    	s += getIntAsString(rec, "precipIntensity", "%d")
+    	s += ","
+    	s += getIntAsString(rec, "precipType", "%d")
+    	s += ","
+    	s += getFloatAsString(rec, "totalCloudCover", "%.2f")
+    	s += ","
+    	s += rec.getString("skyCover")
+    	s += ","
+    	s += getFloatAsString(rec, "skyLayerBase", "%.2f")
+    	s += ","
+    	s += getIntAsString(rec, "cloudBaseHeight", "%d")
+    	s += ","
+    	s += getFloatAsString(rec, "visibility", "%.2f")
+    	s += ","
+    	s += rec.getString("visibilityStatus")
+    	s += ","
+    	s += rec.getString("presWeather")
+        return s
+        
+def getFloatAsString(rec, key, format, scale=1, offset=0):
+	f = rec.getFloat(key)
+	if f == -9999:
+	    return ""
+	f = f*scale + offset
+	return format % f
+
+def getIntAsString(rec, key, format):
+	f = rec.getInt(key)
+	if f == -9999:
+	    return ""
+	return format % f
+
+plotDelegate = LdadMesoPlotDelegate()
+
+</script>
 <style type="text/css">
 <![CDATA[
         @font-face { font-family: "WindSymbolFont";
@@ -57,15 +132,20 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
 </style>
 
 <symbol overflow="visible" id="plotData" class="info">
+  <text id="sampleParamsBasic" plotMode="sample" class="text" plotParam="stationId,observationTime" x="0" y="0"> </text> 
+  <text id="sampleParamsTemp" plotMode="sample" class="text" plotParam="temperature,dewpoint,relHumidity,wetBulbTemperature" x="0" y="0"> </text> 
+  <text id="sampleParamsWind" plotMode="sample" class="text" plotParam="windDir,windSpeed,windGust" x="0" y="0"> </text> 
+  <text id="sampleParamsPress" plotMode="sample" class="text" plotParam="pressure,stationPressure,altimeter,seaLevelPressure,pressChangeChar,pressChange3Hour" x="0" y="0"> </text> 
+  <text id="sampleParamsPrecip" plotMode="sample" class="text" plotParam="precipAccum,precipIntensity,precipType" x="0" y="0"> </text> 
+  <text id="sampleParamsOther" plotMode="sample" class="text" plotParam="totalCloudCover,skyCover,skyLayerBase,cloudBaseHeight,visibility,visibilityStatus,presWeather" x="0" y="0"> </text> 
   <g id="windVaneText" plotMode="barb" plotParam="windSpeed,windDir,windGust" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
-	<text id="windVaneText" class="arrow" x="0" y="0">0</text>
+	<text id="windVaneText" class="arrow" x="0" y="0"> </text>
     <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
-    <text id="windGustText" class="text" x="0" y="32" style="text-anchor: middle">0</text>
+    <text id="windGustText" class="text" x="0" y="32" style="text-anchor: middle"> </text>
   </g>
   <text id="tempText" plotMode="text" plotParam="temperature" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text> 
   <text id="dewText" plotMode="text" plotParam="DpT" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">59</text>
   <text id="pressure" plotMode="text" plotParam="seaLevelPressure" plotUnit="dPa" plotFormat="%5.0f" plotTrim="2" style="text-anchor: start;" x="10px" y="-10px">018</text>
-  <text id="sample" plotMode="sample" plotParam="rawMessage" x="0" y="0">018</text>
 </symbol>
 </defs>
 <use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>

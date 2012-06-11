@@ -10,7 +10,12 @@ import com.raytheon.uf.common.monitor.data.ObConst.ReportType;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 
 /**
- * @author skorolev
+ * @author skorolev (initial creation)
+ * 
+ * Change history:
+ * Date           Ticket #   Engineer     Description 
+ * ---------------------------------------------------
+ * May 15, 2012   14510      zhao         Modified generateObReport()
  *
  */
 public class GenerateFSSObReport {
@@ -28,8 +33,13 @@ public class GenerateFSSObReport {
 		// Generate the observation report.
             ObReport obReport = new ObReport();
 			FSSObsRecord metar = (FSSObsRecord) report;
-			obReport.setObservationTime(metar.getTimeObs().getTime());
-            obReport.setRefHour(metar.getRefHour().getTime());
+			try {
+				obReport.setObservationTime(metar.getTimeObs().getTime());
+	            obReport.setRefHour(metar.getRefHour().getTime());
+			} catch (Exception e) {
+				System.out.println("Warning: missing obsTime or refHour at getTimeObs() when processing obs data; " + e + "; trying to set obsTime and refHour from dataURI");
+				obReport.setTimesFromFssobDataURI(report.getDataURI());
+			}
 			obReport.setPlatformId(metar.getPlatformId());
 			obReport.setStationary(true);
 			obReport.setLatitude((float) metar.getLatitude());

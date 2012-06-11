@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Scale;
  * 08/10/2011    450        Greg Hull   use PlotParameterDefns instead of PlotParameterDefnsMngr
  * 11/01/2011    482        Greg Hull   add tooTips, move font/size/style 
  * 11/03/2011    482        Greg Hull   add unimplemented Clear and Reset, move Text Attributes
+ * 04/16/2012    615        S. Gurung   Adjusted size for PlotModelElemButton
  *  
  * </pre>
  * 
@@ -382,13 +383,13 @@ public class EditPlotModelComposite extends Composite {
 			// (the position must be set.)
 			grp = new Group ( topComp, SWT.SHADOW_ETCHED_OUT );
 			grp.setLayout(new GridLayout(2, false));
-			grp.setLayoutData(new GridData(95, 70));
+			grp.setLayoutData(new GridData(90, 65));
 
 			checkBtn = new Button(grp, SWT.CHECK | SWT.SHADOW_ETCHED_OUT);
 			checkBtn.setLayoutData(new GridData(15, 12));
 			
 			parmBtn = new Button(grp, SWT.TOGGLE);
-			parmBtn.setLayoutData(new GridData(63, 60));	
+			parmBtn.setLayoutData(new GridData(62, 57));	
 						
 			checkBtn.addSelectionListener(new SelectionAdapter() {
 				@Override

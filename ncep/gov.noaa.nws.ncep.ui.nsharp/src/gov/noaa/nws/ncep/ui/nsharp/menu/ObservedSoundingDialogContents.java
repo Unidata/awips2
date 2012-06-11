@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -49,14 +48,12 @@ public class ObservedSoundingDialogContents {
 	private  Composite parent;
 	private   org.eclipse.swt.widgets.List sndTimeList;
 	private Group  btnGp,  sndTimeListGp, topGp, midGp;
-	private   boolean timeLimit = false, newtab=false;	
+	private   boolean timeLimit = false;	
 	private   boolean rawData = false;	
-	private   Button timeBtn,  browseBtn, tamBtn,  bufruaBtn, uairBtn, rawBtn, newTabBtn;
+	private   Button timeBtn,    bufruaBtn, uairBtn, rawBtn;
 	private  String FILE_UAIR = "UAIR";
 	private  String FILE_BUFRUA = "BUFRUA";
 	//private  String FILE_DROP = "DROP";
-	private  String FILE_TAMDAR = "TAMDAR";
-	private  String FILE_BROWSE = "BROWSE";
 	private  NcSoundingProfile.ObsSndType currentSndType = NcSoundingProfile.ObsSndType.NONE;
 	private NsharpLoadDialog ldDia;
 	private  List<String> selectedTimeList = new ArrayList<String>(); 
@@ -86,7 +83,7 @@ public class ObservedSoundingDialogContents {
 					//need to format synoptictime to GMT time string.  Timestamp.toString produce a local time Not GMT time
 					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 					cal.setTimeInMillis(synoptictime.getTime());
-					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH",  cal);
+					String gmtTimeStr = String.format("%1$ty%1$tm%1$td/%1$tH %2$s",  cal, currentSndType.toString());
 					//String gmtTimeStr = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",  cal);
 					//System.out.println("GMT time " + gmtTimeStr + " msec="+ synoptictime.getTime() + " local time "+synoptictime.toString());
 					if(!timeLimit){
@@ -134,7 +131,7 @@ public class ObservedSoundingDialogContents {
 
 				//convert to Nsharp's own station info struct
 				NsharpStationInfo stn = new NsharpStationInfo();
-				stn.setStnDisplayInfo(stnInfoStr + " " + selectedSndTime);
+				stn.setStnDisplayInfo(stnInfoStr + " " + selectedSndTime+ " "+currentSndType.toString());
 				stn.setLongitude(lon);
 				stn.setLatitude(lat);
 				//stn.setElevation(elv);
@@ -305,6 +302,8 @@ public class ObservedSoundingDialogContents {
     				for(int i=0; i < sndTimeList.getSelectionCount(); i++) {
     					selectedSndTime = sndTimeList.getSelection()[i];
     					//System.out.println("selected sounding time is " + selectedSndTime);
+    					int endIndex = selectedSndTime.indexOf(" ");
+    					selectedSndTime = selectedSndTime.substring(0, endIndex);
     					queryAndMarkStn(selectedSndTime);
     					selectedTimeList.add(selectedSndTime);
     				}

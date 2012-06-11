@@ -8,6 +8,7 @@
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
 import static gov.noaa.nws.ncep.ui.pgen.gfa.Gfa.nvl;
+import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
@@ -15,8 +16,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -34,7 +33,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.vividsolutions.jts.geom.Geometry;
@@ -59,11 +58,11 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class GfaGenerate {
 
-	private final static Logger logger = Logger.getLogger(GfaGenerate.class);
+//	private final static Logger logger = Logger.getLogger(GfaGenerate.class);
 	private Transformer transformer;
-	private String XSLT_FILE = 	NcPathManager.getInstance().getStaticFile( 
-			NcPathConstants.PGEN_GFA_PROD_XSL ).getAbsolutePath();
-
+	private String XSLT_FILE = 	PgenStaticDataProvider.getProvider().getFileAbsolutePath(
+			   PgenStaticDataProvider.getProvider().getPgenLocalizationRoot()+ "xslt"+File.separator+
+			   	"airmet"+File.separator+"gfa_product.xsl");
 
 	/**
 	 * Generates product text out of the list.
@@ -203,7 +202,8 @@ public class GfaGenerate {
 				if (output != null)
 					output.close();
 			} catch ( IOException e ) {
-				logger.error( e );
+//				logger.error( e );
+				e.printStackTrace();
 			}
 		}
 	}
@@ -260,10 +260,11 @@ public class GfaGenerate {
 			res = result.getWriter().toString().trim();
 			
 		} catch ( Exception e ) {
-			logger.error( "", e );
+//			logger.error( "", e );
+			e.printStackTrace();
 		}
 		
-		logger.debug( res );
+//		logger.debug( res );
 		
 		if ( res.contains("FRZLVL...")){
 			res = wrapFrzl(res);

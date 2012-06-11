@@ -2,3 +2,6 @@ colorMapName=osf_ref16
 colorBar=@dfltRadarColorBar.xml
 productCode=19
 elevationNumber=5
+alpha=1.0
+brightness=1.0
+contrast=1.0

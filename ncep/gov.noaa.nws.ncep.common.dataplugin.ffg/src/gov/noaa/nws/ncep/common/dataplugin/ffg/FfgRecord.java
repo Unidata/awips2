@@ -53,6 +53,7 @@ public class FfgRecord extends PluginDataObject {
     /** Report type */
     @Column(length=32)    
     @DynamicSerializeElement   
+    @DataURI(position=2)    
     private String reportType;
 
     /** FFG AWIPS identifier */

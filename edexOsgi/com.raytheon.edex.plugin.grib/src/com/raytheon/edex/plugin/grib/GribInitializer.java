@@ -45,26 +45,26 @@ import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
  */
 public class GribInitializer extends DefaultPluginInitializer {
 
-    /** The logger */
-    protected transient Log logger = LogFactory.getLog(getClass());
+	/** The logger */
+	protected transient Log logger = LogFactory.getLog(getClass());
 
-    /**
-     * Creates a new GribInitializer instance
-     * 
-     * @param pluginName
-     *            "grib"
-     */
-    public GribInitializer(String pluginName) {
-        super(pluginName);
-    }
+	/**
+	 * Creates a new GribInitializer instance
+	 * 
+	 * @param pluginName
+	 *            "grib"
+	 */
+	public GribInitializer(String pluginName) {
+		super(pluginName);
+	}
 
-    @Override
-    public void initializePlugin() throws Exception {
-        super.initializePlugin();
-        logger.info("Initializing grib plugin");
-        GribSpatialCache.getInstance();
-        GribModelLookup.getInstance();
-        logger.info("Grib plugin initialized");
-    }
+	@Override
+	public void initializePlugin() throws Exception {
+		super.initializePlugin();
+		logger.info("Initializing grib plugin");
+		GribModelLookup.getInstance();
+		GribSpatialCache.getInstance();
+		logger.info("Grib plugin initialized");
+	}
 
 }

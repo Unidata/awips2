@@ -1,7 +1,7 @@
 package gov.noaa.nws.ncep.metparameters.dbquery.util;
 
-import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
-import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
+//import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
+//import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class ClimateDataDbAccessImpl implements ClimateDataDbAccess {
 
-	private NcepLogger logger = NcepLoggerManager.getNcepLogger(this.getClass()); 
+//	private NcepLogger logger = NcepLoggerManager.getNcepLogger(this.getClass()); 
 
 	@Override
 	public double getTDYF(String stationId, String monthString, String monthDayString) {
@@ -57,7 +57,7 @@ public class ClimateDataDbAccessImpl implements ClimateDataDbAccess {
 		try {
 //			objectArrayList = DirectDbQuery.executeQuery(queryString, "ncep", QueryLanguage.SQL);
 		} catch (Exception e1) {
-			logger.error("VizException is thrown when trying to do DirectDbQuery.executeQuery to query stns.climo_data table, error="+e1.getMessage()); 
+//			logger.error("VizException is thrown when trying to do DirectDbQuery.executeQuery to query stns.climo_data table, error="+e1.getMessage()); 
 			e1.printStackTrace();
 		}
 		double retrievedValue = 0.0; 

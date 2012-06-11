@@ -9,6 +9,8 @@
 !
 GLEVEL=500
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=5                  !5             !-1
 GDPFUN=abs(avor(wnd))   !abs(avor(wnd))             !sm5s(hght)
 TYPE=c/f                !c             !c
@@ -18,6 +20,7 @@ FINT=16;20;24;28;32;36;40;44
 FLINE=0;23;22;21;20;19;18;17;16
 HILO=2;6/X;N/10-99;10-99!0 
 HLSYM=
+SKIP=2
 WIND=18/1/1
 TITLE=5/-1/~ @ HEIGHT AND ABS VORTICITY!0
 COLORS=2         

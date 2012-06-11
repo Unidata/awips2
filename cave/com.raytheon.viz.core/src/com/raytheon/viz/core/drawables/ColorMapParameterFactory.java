@@ -137,10 +137,11 @@ public class ColorMapParameterFactory {
                 min = Float.POSITIVE_INFINITY;
                 max = Float.NEGATIVE_INFINITY;
                 for (Number num : numArray) {
-                    if (num.floatValue() != Util.GRID_FILL_VALUE) {
+                    if (num.floatValue() != Util.GRID_FILL_VALUE
+                            && !Float.isNaN(num.floatValue())) {
                         colormapMin = min = Math.min(min, num.floatValue());
+                        colormapMax = max = Math.max(max, num.floatValue());
                     }
-                    colormapMax = max = Math.max(max, num.floatValue());
                 }
 
                 if (min == Float.POSITIVE_INFINITY) {

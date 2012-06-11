@@ -26,7 +26,8 @@
       <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
       <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
       <!-- the PlotResourceData adds this to the metadata map for non-bufrmos plugins -->
-      <reportType>${reportType}</reportType>      
+      <reportType>${reportType}</reportType>     
+      <conditionalFilterName>${conditionalFilterName}</conditionalFilterName>     
       
       <metadataMap>
       <!-- 
