@@ -88,7 +88,7 @@ public class WarningTextHandler {
             .compile("(\\d{1,2})(\\d{2})\\s(AM|PM)\\s(\\w{3,4})\\s\\w{3}\\s(\\w{3})\\s{1,}(\\d{1,2})\\s(\\d{4})");
 
     /** The UGC line (ex. NEC003-008-010-110325) */
-    private static final Pattern ugcPtrn = Pattern
+    public static final Pattern ugcPtrn = Pattern
             .compile("((\\w{2}[CZ](\\d{3}-){1,}){1,})|(\\d{3}-){1,}");
 
     /** The VTEC line (ex. /O.NEW.KOAX.TO.W.0001.110715T1722Z-110715T1730Z) */
@@ -118,7 +118,8 @@ public class WarningTextHandler {
     private static Pattern immediateCausePtrn = null;
 
     /** ex. SARPY NE-DOUGLAS NE-WASHINGTON NE- */
-    private static final Pattern listOfAreaNamePtrn = Pattern.compile("(\\s\\w{2}-)");
+    public static final Pattern listOfAreaNamePtrn = Pattern
+            .compile("(((\\w{1,}\\s{1}){1,}\\w{2}-){0,}((\\w{1,}\\s{1}){1,}\\w{2}-))");
 
     private static final Pattern secondBulletPtrn = Pattern.compile("\\*(|\\s"
             + TEST_MSG2 + ")\\sUNTIL\\s\\d{3,4}\\s(AM|PM)\\s\\w{3,4}");
@@ -657,9 +658,8 @@ public class WarningTextHandler {
                         }
                     }
                 }
-                boolean firstSplit = true;
                 while (m.find()) {
-                    String group = m.group();
+                    String group = m.group().trim();
 
                     if (group.trim().length() == 0) {
                         break;
@@ -670,11 +670,7 @@ public class WarningTextHandler {
                         sb.append("  ");
                     }
 
-                    if (firstSplit == false && group.startsWith(" ")) {
-                        group = group.substring(1);
-                    }
                     sb.append(group);
-                    firstSplit = false;
                 }
             }
             first = false;

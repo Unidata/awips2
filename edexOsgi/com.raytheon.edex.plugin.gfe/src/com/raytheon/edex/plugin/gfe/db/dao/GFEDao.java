@@ -53,6 +53,7 @@ import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.GridTranslator;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
@@ -616,31 +617,40 @@ public class GFEDao extends DefaultPluginDao {
     public GribRecord getD2DGrid(ParmID id, TimeRange timeRange,
             GridParmInfo info) throws DataAccessLayerException {
         List<GribRecord> records = queryByD2DParmId(id);
+        List<TimeRange> gribTimes = new ArrayList<TimeRange>();
+        for (GribRecord record : records) {
+            gribTimes.add(record.getDataTime().getValidPeriod());
+        }
 
-        if (isMos(id)) {
-            for (int i = 0; i < records.size(); i++) {
-                TimeRange time = info.getTimeConstraints().constraintTime(
-                        records.get(i).getDataTime().getValidPeriod().getEnd());
-                if (timeRange.getEnd().equals(time.getEnd())
-                        || !info.getTimeConstraints().anyConstraints()) {
-                    GribRecord retVal = records.get(i);
-                    retVal.setPluginName("grib");
-                    return retVal;
+        for (int i = 0; i < records.size(); i++) {
+            TimeRange gribTime = records.get(i).getDataTime().getValidPeriod();
+            TimeRange time = info.getTimeConstraints().constraintTime(
+                    gribTime.getStart());
+            try {
+                if (D2DGridDatabase.isNonAccumDuration(id, gribTimes)
+                        && !isMos(id)) {
+                    if (timeRange.getStart().equals(gribTime.getEnd())
+                            || timeRange.equals(gribTime)) {
+                        GribRecord retVal = records.get(i);
+                        retVal.setPluginName("grib");
+                        return retVal;
+                    }
+
+                } else {
+                    if ((timeRange.getStart().equals(time.getStart()) || !info
+                            .getTimeConstraints().anyConstraints())) {
+                        GribRecord retVal = records.get(i);
+                        retVal.setPluginName("grib");
+                        return retVal;
+                    }
                 }
-            }
-        } else {
-            for (int i = 0; i < records.size(); i++) {
-                TimeRange time = info.getTimeConstraints().constraintTime(
-                        records.get(i).getDataTime().getValidPeriod()
-                                .getStart());
-                if (timeRange.getStart().equals(time.getStart())
-                        || !info.getTimeConstraints().anyConstraints()) {
-                    GribRecord retVal = records.get(i);
-                    retVal.setPluginName("grib");
-                    return retVal;
-                }
+            } catch (GfeConfigurationException e) {
+                throw new DataAccessLayerException(
+                        "Error getting configuration for "
+                                + id.getDbId().getSiteId(), e);
             }
         }
+        // }
 
         return null;
     }
@@ -804,7 +814,7 @@ public class GFEDao extends DefaultPluginDao {
 
             for (TimeRange tr : uTimeList) {
                 if (vTimeList.contains(tr)) {
-                    timeList.add(tr);
+                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
             }
 
@@ -816,7 +826,7 @@ public class GFEDao extends DefaultPluginDao {
 
             for (TimeRange tr : sTimeList) {
                 if (!timeList.contains(tr) && dTimeList.contains(tr)) {
-                    timeList.add(tr);
+                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
                 }
             }
 
@@ -829,17 +839,13 @@ public class GFEDao extends DefaultPluginDao {
         } else {
             List<DataTime> results = executeD2DParmQuery(id);
             for (DataTime o : results) {
-                TimeRange tr = o.getValidPeriod();
-                if (tr.getDuration() == 0) {
-                    tr = new TimeRange(tr.getStart(), 3600 * 1000);
-                } else if (isMos(id)) {
-                    tr = new TimeRange(tr.getEnd(), o.getValidPeriod()
-                            .getDuration());
+                if (isMos(id)) {
+                    timeList.add(new TimeRange(o.getValidPeriod().getStart(),
+                            3600 * 1000));
                 } else {
-                    tr = new TimeRange(tr.getStart(), o.getValidPeriod()
-                            .getDuration());
+                    timeList.add(o.getValidPeriod());
                 }
-                timeList.add(tr);
+
             }
         }
 
@@ -1049,7 +1055,7 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    private boolean isMos(ParmID id) {
+    public static boolean isMos(ParmID id) {
         return id.getDbId().getModelName().equals("MOSGuide")
                 && (id.getParmName().startsWith("mxt") || id.getParmName()
                         .startsWith("mnt"));
