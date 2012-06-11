@@ -169,6 +169,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private static Map<String, GeospatialDataList> siteMap = new HashMap<String, GeospatialDataList>();
+    
+    private static Map<String, Geometry> timezoneMap = new HashMap<String, Geometry>();
 
     public static final String GID = "gid";
 
@@ -784,6 +786,20 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         System.out.println("Time to lookup geospatial data "
                                 + (System.currentTimeMillis() - tq0));
                         siteMap.put(currKey, gData);
+                        
+                        GeospatialData[] timezones = GeospatialFactory.getTimezones();
+                        if (timezones != null) {
+                            for (GeospatialData timezone : timezones) {
+                                if (timezone.attributes.containsKey(gmd.getTimeZoneField())) {
+                                    String oneLetterTimezone = String.valueOf(
+                                            timezone.attributes.get(gmd.getTimeZoneField()));
+                                    if (timezoneMap.containsKey(oneLetterTimezone) == false) {
+                                        timezoneMap.put(oneLetterTimezone, timezone.geometry);
+                                    }
+                                }
+                            }
+                        }
+                        
                     } catch (Exception e) {
                         statusHandler.handle(Priority.WARN,
                                 "Error in initializing geometries.", e);
@@ -840,6 +856,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         return new GeospatialData[0];
+    }
+    
+    public Geometry getTimezoneGeom(String oneLetterTimezone) {
+        return timezoneMap.get(oneLetterTimezone);
     }
 
     /**
@@ -1135,14 +1155,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry intersection = null;
             try {
                 // Get intersection between county and hatched boundary
-                try {
-                    intersection = GeometryUtil.intersection(hatchedArea,
-                            prepGeom);
-                } catch (TopologyException e) {
-                    // side location conflict using a prepared geom
-                    // need the actual geom for this case
-                    intersection = GeometryUtil.intersection(hatchedArea, geom);
-                }
+                intersection = GeometryUtil.intersection(hatchedArea,prepGeom);
                 if (intersection.isEmpty()) {
                     continue;
                 }
@@ -1734,19 +1747,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Matcher m = tmlPtrn.matcher(rawMessage);
 
         if (m.find()) {
-            Calendar issueTime = warnRecord.getIssueTime();
-            int day = issueTime.get(Calendar.DAY_OF_MONTH);
-            int tmlHour = Integer.parseInt(m.group(1));
-            // This is for the case when the warning text was created,
-            // but actually issued the next day.
-            if (tmlHour > issueTime.get(Calendar.HOUR_OF_DAY)) {
-                day--;
-            }
-            int tmlMinute = Integer.parseInt(m.group(2));
+            int day = warnRecord.getIssueTime().get(Calendar.DAY_OF_MONTH);
+            int hour = Integer.parseInt(m.group(1));
+            int minute = Integer.parseInt(m.group(2));
             frameTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             frameTime.set(Calendar.DAY_OF_MONTH, day);
-            frameTime.set(Calendar.HOUR_OF_DAY, tmlHour);
-            frameTime.set(Calendar.MINUTE, tmlMinute);
+            frameTime.set(Calendar.HOUR_OF_DAY, hour);
+            frameTime.set(Calendar.MINUTE, minute);
         } else {
             frameTime = warnRecord.getIssueTime();
         }
@@ -2152,7 +2159,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         for (GeospatialData f : geoData.features) {
             Geometry geom = f.geometry;
             if (prefixes.contains(GeometryUtil.getPrefix(geom.getUserData()))) {
-                state.strings.put(geom.getCentroid().getCoordinate(), "W");
+                Coordinate center = GisUtil.d2dCoordinate(geom.getCentroid().getCoordinate());
+                state.strings.put(center, "W");
             }
         }
     }
