@@ -20,9 +20,7 @@
 package com.raytheon.uf.common.tafqueue;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -61,22 +59,17 @@ public class TafQueueRequest implements IServerRequest {
     private List<TafQueueRecord> records;
 
     @DynamicSerializeElement
-    private Map<String, Object> arguments;
+    private List<?> argument;
 
     @DynamicSerializeElement
     private Date xmitTime;
 
     public TafQueueRequest() {
-        this.arguments = new HashMap<String, Object>();
         this.type = Type.UNKNOWN;
     }
 
-    public void addArgument(String key, Object value) {
-        arguments.put(key, value);
-    }
-
-    public Map<String, Object> getArguments() {
-        return arguments;
+    public List<?> getArgument() {
+        return argument;
     }
 
     public Type getType() {
@@ -87,8 +80,8 @@ public class TafQueueRequest implements IServerRequest {
         return xmitTime;
     }
 
-    public void setArguments(Map<String, Object> arguments) {
-        this.arguments = arguments;
+    public void setArgument(List<?> argument) {
+        this.argument = argument;
     }
 
     public void setType(Type type) {
