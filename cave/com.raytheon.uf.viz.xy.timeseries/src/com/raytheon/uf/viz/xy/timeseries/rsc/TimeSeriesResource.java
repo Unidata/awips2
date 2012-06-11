@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -45,6 +46,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -70,7 +72,6 @@ import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.uf.viz.xy.timeseries.display.TimeSeriesDescriptor;
-import com.raytheon.uf.viz.xy.timeseries.graph.TimeSeriesGraph;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
@@ -295,8 +296,16 @@ public class TimeSeriesResource extends
 
             // draw wind Data
             if (point instanceof XYImageData) {
+                // Draw all images in a striaight line. Move the line to be able
+                // to accomodate multiple resources.
+                List<AbstractVizResource<?, ?>> tsrs = descriptor
+                        .getResourceList().getResourcesByType(
+                                TimeSeriesResource.class);
+                int index = tsrs.indexOf(this);
+                IExtent extent = graph.getExtent();
+                screen[1] = extent.getMinY() + (index + 1)
+                        * (extent.getHeight() / (tsrs.size() + 1));
                 XYImageData imageData = (XYImageData) point;
-                screen[1] = ((TimeSeriesGraph) graph).getVerticleMiddle();
                 imageData.setColor(color);
                 imageData.setTarget(target);
                 PaintProperties imagePaintProperties = new PaintProperties(

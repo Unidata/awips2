@@ -124,6 +124,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
                 units = UnitFormat.getUCUMInstance().format(dispUnit);
             }
             if (dataValue == 0) {
+                dataMap.put("numericValue", null);
                 dataValueString = "NO DATA";
             } else if (th0 instanceof Float) {
                 double f0 = (Float) th0;

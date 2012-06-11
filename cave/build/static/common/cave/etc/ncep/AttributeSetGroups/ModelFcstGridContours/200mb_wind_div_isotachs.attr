@@ -8,6 +8,8 @@
 !
 GLEVEL=200
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=0!0!5!5
 GDPFUN=mag(kntv(wnd))!mag(kntv(wnd))!div(wnd)!div(wnd) ! obs
 TYPE=c!c/f!c/f!c ! b

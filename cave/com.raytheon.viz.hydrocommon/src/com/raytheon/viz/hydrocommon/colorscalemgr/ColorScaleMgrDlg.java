@@ -747,6 +747,15 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         changeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	if (valueTF.getText() == null || valueTF.getText().equals("")) {
+                    MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING
+                            | SWT.OK);
+                    mb.setText("Choose a value");
+                    mb.setMessage("Please enter a value for the color.");
+                    mb.open();
+
+                    return;
+            	}
                 String source = getSource();
                 changeColor(currentColor.getRGB(), source);
                 updateColorValueLabelBar();
@@ -1407,8 +1416,9 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
             durationCbo.add("0");
         } else {
             // HERE is the NULL Pointer
+        	String dataType = colorManager.getDataTypeName(dataTypeCbo.getText());
             Set<String> durations = editColorData.getColorDataTypeSets(
-                    sourceKey).getDurations(dataTypeCbo.getText());
+                    sourceKey).getDurations(colorManager.getDescription(dataType));
             Iterator<String> i = durations.iterator();
             while (i.hasNext()) {
                 addDuration(i.next());
@@ -1635,7 +1645,6 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * Populate the data type combo box.
      */
     private void populateDataTypeCombo() {
-
         String source = getSource();
         ColorDataTypeSets sourceKeys = editColorData
                 .getColorDataTypeSets(source);
@@ -1780,7 +1789,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
                     // Right now last data will be only data to show up
                     // Need to incorporate duration into key for dataTypeSets
                     dataTypeSets.addDataTypeColorSets(
-                            duration + "_" + dataType, colorScaleSets);
+                            duration + "_" + colorManager.getDescription(dataType), colorScaleSets);
                 } catch (VizException e) {
                     e.printStackTrace();
                 }
@@ -1819,7 +1828,6 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
      * Creates the default color data
      */
     private void createDefaultData() {
-
         ArrayList<String> defaultDataTypes = colorManager.getDefaultDataTypes();
 
         editColorData = new EditColorData();
@@ -1869,7 +1877,7 @@ public class ColorScaleMgrDlg extends CaveSWTDialog {
         Iterator<String> i = dataTypes.iterator();
         while (i.hasNext()) {
             String dt = i.next();
-            dataTypeCbo.add(dt);
+            dataTypeCbo.add(colorManager.getDescription(dt));
         }
 
         if (dataTypeCbo.getItemCount() == 0) {

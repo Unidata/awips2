@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IllegalFormatConversionException;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
@@ -63,6 +64,7 @@ import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
 import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery2;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefns;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
@@ -90,6 +92,7 @@ import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube.QueryStatus;
 
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
+import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -123,6 +126,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/01/2011   #482       ghull       move array lookup to setMetParamFromPDV
  * 11/15/2011              bhebbard    ensure metParm units valid after query return
  * 02/21/2012              Chin Chen    Modified plotUpperAirData() for performance improvement
+ * 04/02/2012   #615       sgurung     Modified code to support conditional filtering: added conditionalFilterMap, 
+ * 									   applyConditionalFilters(), and modified constructor to take ConditionalFilter
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -173,6 +179,12 @@ public class PlotModelGenerator2 extends Job {
     private String latDbName = "latitude";
     private String lonDbName = "longitude";
     
+   private HashMap<String, RequestConstraint> conditionalFilterMap = null;
+    
+    private HashMap<String,AbstractMetParameter> allMetParamsMap = null;
+    
+    private PlotParameterDefns plotPrmDefns = null;
+    
 
     /**
      * Initializes the thread with the station's reference time and the target
@@ -192,6 +204,7 @@ public class PlotModelGenerator2 extends Job {
             IMapDescriptor mapDescriptor, PlotModel plotModel,
             String level, //String plugin,
             Map<String, RequestConstraint> constraintMap,
+            ConditionalFilter condFilter,
             IPlotModelGeneratorCaller caller) throws VizException {
         super("Creating Plots...");
         stationQueue = new ConcurrentLinkedQueue<PlotInfo>();
@@ -201,18 +214,25 @@ public class PlotModelGenerator2 extends Job {
         this.levelStr = level;
         this.constraintMap = constraintMap;
         this.caller = caller;
-
+        
+        this.conditionalFilterMap = new HashMap<String, RequestConstraint>();
+        if (condFilter != null)
+        	this.conditionalFilterMap = condFilter.getConditionalFilterMap();
+       
         paramsToPlot = new HashMap<String,AbstractMetParameter>();        
         derivedParamsList = new ArrayList<AbstractMetParameter>();
         dbParamsMap = new HashMap<String,AbstractMetParameter>();
         prioritySelectionsMap = new HashMap<String,PlotParameterDefn>();
+        allMetParamsMap =  new HashMap<String,AbstractMetParameter>();
+        
+        ArrayList<PlotParameterDefn> toBeDerivedParamsList = new ArrayList<PlotParameterDefn>();
         
     	// get the parameter definitions for this plugin. 
     	// the definitions give the list of available nmap parameters as well
     	// as a mapping to the db param name an plot mode, units...
     	//    	
-        PlotParameterDefns plotPrmDefns = 
-        	  PlotParameterDefnsMngr.getInstance().getPlotParamDefns(  plotModel.getPlugin() );
+        //PlotParameterDefns plotPrmDefns = 
+        plotPrmDefns = PlotParameterDefnsMngr.getInstance().getPlotParamDefns(  plotModel.getPlugin() );
         
         for( PlotParameterDefn plotPrmDefn : plotPrmDefns.getParameterDefns() ) { 
         	 		
@@ -245,9 +265,13 @@ public class PlotModelGenerator2 extends Job {
         	else { // if not a vector parameter
         		String   dbPrmName = plotPrmDefn.getDbParamName();
         		String[] deriveArgs = plotPrmDefn.getDeriveParams();
+        		String plotPrmName = plotPrmDefn.getPlotParamName();
         		
         		if( dbPrmName == null ) { // derived
         			//System.out.println("sanity check: can't find plotPrmDefn for :"+dbPrmName );
+        			if (deriveArgs != null && conditionalFilterMap != null && conditionalFilterMap.containsKey(plotPrmName))
+        				//needs to be derived so that it can be used when applying conditional filters
+        				toBeDerivedParamsList.add(plotPrmDefn); 
         			continue;
         		}
         		// if there is already a plot param mapped to this dbParam
@@ -272,8 +296,8 @@ public class PlotModelGenerator2 extends Job {
         			else {
         				// add this prm to a map to tell us which db params are needed  
         				// when querying the db
-        				dbParamsMap.put( plotPrmDefn.getDbParamName(), dbParam );        			
-
+        				dbParamsMap.put( plotPrmDefn.getDbParamName(), dbParam ); 
+        				
         				// for parameters that need to lookup their value from an
         				// array of values based on a priority. (ie for skyCover to
         				// determine the highest level of cloud cover at any level)
@@ -343,6 +367,12 @@ public class PlotModelGenerator2 extends Job {
         	}        	
         }
         
+        // add the plotParams from conditional filter (that needs to be derived) to derivedParamsList
+        for (PlotParameterDefn plotPrmDefn: toBeDerivedParamsList) {
+        	String[] deriveArgs = plotPrmDefn.getDeriveParams();    		
+    		addToDerivedParamsList(deriveArgs, plotPrmDefn);    		
+        }
+                
         plotCreator = new PlotModelFactory2( mapDescriptor, plotModel, plotPrmDefns  );
     }
 
@@ -356,53 +386,11 @@ public class PlotModelGenerator2 extends Job {
 		//
 		if( deriveParams != null ) { //dbParamName.equals( "derived" ) ) {
 			
-			AbstractMetParameter derivedMetParam = MetParameterFactory.getInstance().        			
-						createParameter( plotPrmDefn.getMetParamName(), plotPrmDefn.getPlotUnit() );
-
-			if( derivedMetParam == null ) {
-				System.out.println("Error creating derived metParameter "+
-							     plotPrmDefn.getMetParamName() );
+			AbstractMetParameter derivedMetParam = addToDerivedParamsList(deriveParams, plotPrmDefn);
+			if (derivedMetParam == null)
 				return;
-			}      
-			else {
-				// If all is set then all of the  
-				// available metParameters from the db query are used
-				// when attempting to derive the parameter.
-				// Otherwise, we are expecting a comma separated list of parameters
-				// 	
-				if( //deriveParams.length > 1 &&
-				    !deriveParams[0].equalsIgnoreCase("all") ) {
-					
-					ArrayList<String> preferedDeriveParameterNames = new ArrayList<String>();
-					ArrayList<AbstractMetParameter> preferedDeriveParameters = new ArrayList<AbstractMetParameter>();
-					
-					for( String dPrm : deriveParams ) {
-						AbstractMetParameter deriveInputParam = 
-							     MetParameterFactory.getInstance().createParameter( dPrm );
-
-						if( deriveInputParam != null ) {
-//								MetParameterFactory.getInstance().isValidMetParameterName( dPrm ) ) {
-							preferedDeriveParameters.add( deriveInputParam );
-							preferedDeriveParameterNames.add( dPrm );
-						}
-						else {
-							System.out.println("Warning : '"+dPrm+" is not a valid metParameter name");
-							return;
-						}
-					}
-
-					derivedMetParam.setPreferedDeriveParameters( preferedDeriveParameterNames );
-				}
-
-				if( derivedMetParam.getDeriveMethod( dbParamsMap.values() ) == null ) {
-					System.out.println("Unable to derive "+ derivedMetParam.getMetParamName() +" from available parameters.");
-					return;
-				}
-
-				derivedParamsList.add( derivedMetParam );
-
-				paramsToPlot.put( metParamName, derivedMetParam );
-			}
+			
+			paramsToPlot.put( metParamName, derivedMetParam );
 		}
 		// if this is a dbParameter then save the metParameter from the dbParamsMap
 		// in the paramsToPlot map.
@@ -419,6 +407,62 @@ public class PlotModelGenerator2 extends Job {
 		else {
 			System.out.println("Sanity check : dbParamName is not in dbParamsMap");
 		}	    			
+	}
+	
+	private AbstractMetParameter addToDerivedParamsList(String[] deriveParams, PlotParameterDefn plotPrmDefn ) {
+		
+		// if this is a derived parameter, create a metParameter to hold the derived
+		// value to be computed and plotted.
+		//
+		AbstractMetParameter derivedMetParam = MetParameterFactory.getInstance().        			
+					createParameter( plotPrmDefn.getMetParamName(), plotPrmDefn.getPlotUnit() );
+
+		if( derivedMetParam == null ) {
+			System.out.println("Error creating derived metParameter "+
+						     plotPrmDefn.getMetParamName() );
+			return null;
+		}      
+		else {
+			// If all is set then all of the  
+			// available metParameters from the db query are used
+			// when attempting to derive the parameter.
+			// Otherwise, we are expecting a comma separated list of parameters
+			// 	
+			if( //deriveParams.length > 1 &&
+			    !deriveParams[0].equalsIgnoreCase("all") ) {
+				
+				ArrayList<String> preferedDeriveParameterNames = new ArrayList<String>();
+				ArrayList<AbstractMetParameter> preferedDeriveParameters = new ArrayList<AbstractMetParameter>();
+				
+				for( String dPrm : deriveParams ) {
+					AbstractMetParameter deriveInputParam = 
+						     MetParameterFactory.getInstance().createParameter( dPrm );
+
+					if( deriveInputParam != null ) {
+						//MetParameterFactory.getInstance().isValidMetParameterName( dPrm ) ) {
+						preferedDeriveParameters.add( deriveInputParam );
+						preferedDeriveParameterNames.add( dPrm );
+					}
+					else {
+						System.out.println("Warning : '"+dPrm+" is not a valid metParameter name");
+						return null;
+					}
+				}
+
+				derivedMetParam.setPreferedDeriveParameters( preferedDeriveParameterNames );
+			}
+
+			if( derivedMetParam.getDeriveMethod( dbParamsMap.values() ) == null ) {
+				System.out.println("Unable to derive "+ derivedMetParam.getMetParamName() +" from available parameters.");
+				return null;
+			}
+			
+			if (!derivedParamsList.contains(derivedMetParam))
+				derivedParamsList.add( derivedMetParam );
+			
+		}
+		return derivedMetParam;
+			
 	}
 	
     public int getPlotModelWidth() {
@@ -611,7 +655,7 @@ public class PlotModelGenerator2 extends Job {
                 		System.out.println("param "+dbPrm +" not found.");
                 	}
 
-                	metPrm.setValueToMissing();
+                	metPrm.setValueToMissing();                	                	
                 }
 
                 // loop thru the dbparams from the point query
@@ -628,6 +672,8 @@ public class PlotModelGenerator2 extends Job {
             			AbstractMetParameter metPrm = dbParamsMap.get( dbParam );
 
             			setMetParamFromPDV( metPrm, pdv, dbParam, dataTime );
+            			
+            			allMetParamsMap.put(metPrm.getMetParamName(), metPrm);            			
                 	}
                 }
                 
@@ -638,6 +684,7 @@ public class PlotModelGenerator2 extends Job {
                 	
                 	try {
                 		derivedParam.derive( dbParamsMap.values() );
+                		allMetParamsMap.put(derivedParam.getMetParamName(), derivedParam);
 
                 	} catch( NotDerivableException e ) {
                 		e.printStackTrace();
@@ -652,7 +699,11 @@ public class PlotModelGenerator2 extends Job {
                 	System.out.println("Error looking up plotInfo for map key:"+ latLonKey );
                 }
                 else {
-                	BufferedImage bImage = plotCreator.getStationPlot( paramsToPlot ); // don't need this anymore, id);
+
+                	BufferedImage bImage = null;
+                	
+                	if (applyConditionalFilters())
+                		bImage = plotCreator.getStationPlot( paramsToPlot ); // don't need this anymore, id);
 
                 	if (bImage != null ) {
                 		image = target.initializeRaster(new IODataPreparer(
@@ -806,7 +857,6 @@ public class PlotModelGenerator2 extends Job {
                     			metPrm.setStringValue(soundingParamsMap.get(key).getStringValue() );
                     		else	
                     			 metPrm.setValue(soundingParamsMap.get(key));
-                    		
                     	}
                     	else if( metPrm.getMetParamName().equals( StationLatitude.class.getSimpleName() ) ) {
                     		metPrm.setValue( new Amount( 
@@ -839,6 +889,8 @@ public class PlotModelGenerator2 extends Job {
 //                            metPrm.setValue( new Amount( 
 //                            		sndingLayer.getOmega(),  ) );
 //                    	}
+                    	
+                    	allMetParamsMap.put(metPrm.getMetParamName(), metPrm);
                     }
                     
                     // loop thru the derived params, and derive the values using value in 
@@ -847,7 +899,8 @@ public class PlotModelGenerator2 extends Job {
                     for( AbstractMetParameter derivedParam : derivedParamsList ) {
                     	try {
                     		derivedParam.derive( dbParamsMap.values() );
-
+                    		allMetParamsMap.put(derivedParam.getMetParamName(), derivedParam);
+                    		
                     	} catch( NotDerivableException e ) {
                     		e.printStackTrace();
                     	}                		
@@ -862,7 +915,11 @@ public class PlotModelGenerator2 extends Job {
                     }
                     else {
                     	IImage image = null;
-                    	BufferedImage bImage = plotCreator.getStationPlot( paramsToPlot ); // don't need this anymore, id);
+                    	
+                    	BufferedImage bImage = null;
+                    	
+                    	if (applyConditionalFilters())
+                    		bImage = plotCreator.getStationPlot( paramsToPlot ); // don't need this anymore, id);
 
                     	if (bImage != null ) {
                     		image = target.initializeRaster(new IODataPreparer(
@@ -1053,4 +1110,90 @@ public class PlotModelGenerator2 extends Job {
 //        }
 //        return message;
 //    }
+  
+    
+    public synchronized boolean applyConditionalFilters() {
+    	   	
+    	try {
+						
+	    	List<Boolean> displayStationPlotBoolList = new ArrayList<Boolean>();
+	    	
+	    	for( PlotParameterDefn plotPrmDefn : plotPrmDefns.getParameterDefns() ) { 
+	    		String plotParamName = plotPrmDefn.getPlotParamName();
+				String metParamName = plotPrmDefn.getMetParamName(); 
+				
+				// apply filter conditions            			
+				if (conditionalFilterMap != null && conditionalFilterMap.containsKey(plotParamName) && conditionalFilterMap.get(plotParamName) != null) {
+					
+					RequestConstraint reqConstraint = conditionalFilterMap.get(plotParamName);
+					
+					AbstractMetParameter metParam = allMetParamsMap.get(metParamName);
+					
+					if (metParam == null) {
+						continue;
+					}
+					
+					if (plotPrmDefn.getPlotUnit() != null) {
+						Unit<?>  pltParamUnit = new UnitAdapter().unmarshal(plotPrmDefn.getPlotUnit().toString().trim());
+						
+						// if the units are not same, convert value to desired unit 
+			    		if( pltParamUnit != metParam.getUnit()) {			    			
+			    			try {
+			    				metParam.setValue(metParam.getValueAs( pltParamUnit), pltParamUnit );
+			    			} catch (Exception e) {
+			    				metParam.setValueToMissing();
+			    			}
+			    		}
+					}					
+					
+					if (reqConstraint != null) {
+						try {
+							String formattedPlotString = metParam.getFormattedString(
+									plotPrmDefn.getPlotFormat() );
+	
+							int plotTrim = 0;
+							if( plotPrmDefn.getPlotTrim() == null ) {
+			        			plotTrim = 0;
+			        		}
+			        		else {
+			        			plotTrim = Integer.parseInt( plotPrmDefn.getPlotTrim() );
+			        		}
+							
+							if( plotTrim != 0 ) {
+								formattedPlotString = formattedPlotString.substring(plotTrim );
+							}
+							
+							boolean result = metParam.hasStringValue() ? reqConstraint.evaluate(formattedPlotString) : reqConstraint.evaluate(Double.parseDouble(formattedPlotString));
+							if (result) {
+								displayStationPlotBoolList.add(true);
+							} else {
+								displayStationPlotBoolList.add(false);
+							}
+						}
+						catch (Exception e) {
+							displayStationPlotBoolList.add(false);
+							continue;							
+						}
+					}					
+		    	}  
+	
+	    	}
+	    	
+	    	// AND the filter results
+	        boolean displayStationPlot = true;
+	        for (Boolean b: displayStationPlotBoolList) {
+	        	displayStationPlot = displayStationPlot && b;
+	        }
+	       
+	        if (!displayStationPlot) {
+	        	return false;
+	        }
+    	} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}     
+       return true;
+    }
+
+
 }

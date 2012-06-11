@@ -102,20 +102,20 @@ be put in localization.
 			<defaultColormap>ffmp/qpe</defaultColormap>
  			<dataMapping>
 			    <entry displayValue='-9999.0' pixelValue='0' label='' />
-			    <entry displayValue='0.0' pixelValue='15'/>
-				<entry displayValue='0.1' pixelValue='31'/>
-				<entry displayValue='0.2' pixelValue='47'/>
-				<entry displayValue='0.4' pixelValue='63'/>
-				<entry displayValue='0.6' pixelValue='79'/>
-				<entry displayValue='0.8' pixelValue='95'/>
-				<entry displayValue='1.0' pixelValue='111'/>
-				<entry displayValue='1.25' pixelValue='127'/>
-				<entry displayValue='1.5' pixelValue='143'/>
-				<entry displayValue='1.75' pixelValue='159'/>
-				<entry displayValue='2.0' pixelValue='175'/>
-				<entry displayValue='2.5' pixelValue='191'/>
-				<entry displayValue='3.0' pixelValue='207'/>
-				<entry displayValue='4.0' pixelValue='223'/>
+			    <entry displayValue='0.0' pixelValue='16'/>
+				<entry displayValue='0.1' pixelValue='32'/>
+				<entry displayValue='0.2' pixelValue='48'/>
+				<entry displayValue='0.4' pixelValue='64'/>
+				<entry displayValue='0.6' pixelValue='80'/>
+				<entry displayValue='0.8' pixelValue='96'/>
+				<entry displayValue='1.0' pixelValue='112'/>
+				<entry displayValue='1.25' pixelValue='128'/>
+				<entry displayValue='1.5' pixelValue='144'/>
+				<entry displayValue='1.75' pixelValue='160'/>
+				<entry displayValue='2.0' pixelValue='176'/>
+				<entry displayValue='2.5' pixelValue='192'/>
+				<entry displayValue='3.0' pixelValue='208'/>
+				<entry displayValue='4.0' pixelValue='224'/>
 				<entry displayValue='5.0' pixelValue='240'/>
 				<entry displayValue='9999.0' pixelValue='255' label='' />
 			</dataMapping>
@@ -131,20 +131,20 @@ be put in localization.
 			<defaultColormap>ffmp/qpe6</defaultColormap>
 			<dataMapping>
 		    	<entry displayValue='-9999.0' pixelValue='0' label='' />
-			    <entry displayValue='0.0' pixelValue='15'/>
-				<entry displayValue='0.1' pixelValue='31'/>
-				<entry displayValue='0.25' pixelValue='47'/>
-				<entry displayValue='0.5' pixelValue='63'/>
-				<entry displayValue='0.75' pixelValue='79'/>
-				<entry displayValue='1.0' pixelValue='95'/>
-				<entry displayValue='1.25' pixelValue='111'/>
-				<entry displayValue='1.75' pixelValue='127'/>
-				<entry displayValue='2.0' pixelValue='143'/>
-				<entry displayValue='2.5' pixelValue='159'/>
-				<entry displayValue='3.0' pixelValue='175'/>
-				<entry displayValue='4.0' pixelValue='191'/>
-				<entry displayValue='6.0' pixelValue='207'/>
-				<entry displayValue='8.0' pixelValue='223'/>
+			    <entry displayValue='0.0' pixelValue='16'/>
+				<entry displayValue='0.1' pixelValue='32'/>
+				<entry displayValue='0.25' pixelValue='48'/>
+				<entry displayValue='0.5' pixelValue='64'/>
+				<entry displayValue='0.75' pixelValue='80'/>
+				<entry displayValue='1.0' pixelValue='96'/>
+				<entry displayValue='1.25' pixelValue='112'/>
+				<entry displayValue='1.75' pixelValue='128'/>
+				<entry displayValue='2.0' pixelValue='144'/>
+				<entry displayValue='2.5' pixelValue='160'/>
+				<entry displayValue='3.0' pixelValue='176'/>
+				<entry displayValue='4.0' pixelValue='192'/>
+				<entry displayValue='6.0' pixelValue='208'/>
+				<entry displayValue='8.0' pixelValue='224'/>
 				<entry displayValue='10.0' pixelValue='240'/>
 				<entry displayValue='9999.0' pixelValue='255' label='' />
 			</dataMapping>
@@ -160,20 +160,20 @@ be put in localization.
 			<defaultColormap>ffmp/qpe12</defaultColormap>
 			<dataMapping>
 	    		<entry displayValue='-9999.0' pixelValue='0' label='' />
-			    <entry displayValue='0.0' pixelValue='15'/>
-				<entry displayValue='0.3' pixelValue='31'/>
-				<entry displayValue='0.6' pixelValue='47'/>
-				<entry displayValue='1.0' pixelValue='63'/>
-				<entry displayValue='1.5' pixelValue='79'/>
-				<entry displayValue='2.0' pixelValue='95'/>
-				<entry displayValue='2.5' pixelValue='111'/>
-				<entry displayValue='3.0' pixelValue='127'/>
-				<entry displayValue='4.0' pixelValue='143'/>
-				<entry displayValue='5.0' pixelValue='159'/>
-				<entry displayValue='6.0' pixelValue='175'/>
-				<entry displayValue='8.0' pixelValue='191'/>
-				<entry displayValue='10.0' pixelValue='207'/>
-				<entry displayValue='12.0' pixelValue='223'/>
+			    <entry displayValue='0.0' pixelValue='16'/>
+				<entry displayValue='0.3' pixelValue='32'/>
+				<entry displayValue='0.6' pixelValue='48'/>
+				<entry displayValue='1.0' pixelValue='64'/>
+				<entry displayValue='1.5' pixelValue='80'/>
+				<entry displayValue='2.0' pixelValue='96'/>
+				<entry displayValue='2.5' pixelValue='112'/>
+				<entry displayValue='3.0' pixelValue='128'/>
+				<entry displayValue='4.0' pixelValue='144'/>
+				<entry displayValue='5.0' pixelValue='160'/>
+				<entry displayValue='6.0' pixelValue='176'/>
+				<entry displayValue='8.0' pixelValue='192'/>
+				<entry displayValue='10.0' pixelValue='208'/>
+				<entry displayValue='12.0' pixelValue='224'/>
 				<entry displayValue='15.0' pixelValue='240'/>
 				<entry displayValue='9999.0' pixelValue='255' label='' />
 			</dataMapping>
@@ -189,19 +189,19 @@ be put in localization.
 			<defaultColormap>ffmp/rate</defaultColormap>
 			<dataMapping>
 			    <entry displayValue='-9999.0' pixelValue='0' label='' />
-			    <entry displayValue='0.0' pixelValue='15'/>
-				<entry displayValue='0.1' pixelValue='31'/>
-				<entry displayValue='0.2' pixelValue='47'/>
-				<entry displayValue='0.4' pixelValue='63'/>
-				<entry displayValue='0.6' pixelValue='79'/>
-				<entry displayValue='0.8' pixelValue='95'/>
-				<entry displayValue='1.0' pixelValue='111'/>
-				<entry displayValue='1.25' pixelValue='127'/>
-				<entry displayValue='1.5' pixelValue='143'/>
-				<entry displayValue='1.75' pixelValue='159'/>
-				<entry displayValue='2.0' pixelValue='175'/>
-				<entry displayValue='3.0' pixelValue='191'/>
-				<entry displayValue='4.0' pixelValue='207'/>
+			    <entry displayValue='0.0' pixelValue='16'/>
+				<entry displayValue='0.1' pixelValue='32'/>
+				<entry displayValue='0.2' pixelValue='48'/>
+				<entry displayValue='0.4' pixelValue='64'/>
+				<entry displayValue='0.6' pixelValue='80'/>
+				<entry displayValue='0.8' pixelValue='96'/>
+				<entry displayValue='1.0' pixelValue='112'/>
+				<entry displayValue='1.25' pixelValue='128'/>
+				<entry displayValue='1.5' pixelValue='144'/>
+				<entry displayValue='1.75' pixelValue='160'/>
+				<entry displayValue='2.0' pixelValue='176'/>
+				<entry displayValue='3.0' pixelValue='192'/>
+				<entry displayValue='4.0' pixelValue='208'/>
 				<entry displayValue='5.0' pixelValue='223'/>
 				<entry displayValue='6.0' pixelValue='240'/>
 				<entry displayValue='9999.0' pixelValue='255' label='' />
@@ -218,19 +218,19 @@ be put in localization.
 			<defaultColormap>ffmp/ratio</defaultColormap>
 			<dataMapping>
 			    <entry displayValue='-9999.0' pixelValue='0' label=''/>
-			    <entry displayValue='0.0' pixelValue='15'/>
-				<entry displayValue='10.0' pixelValue='31'/>
-				<entry displayValue='20.0' pixelValue='47'/>
-				<entry displayValue='30.0' pixelValue='63'/>
-				<entry displayValue='40.0' pixelValue='79'/>
-				<entry displayValue='50.0' pixelValue='95'/>
-				<entry displayValue='60.0' pixelValue='111'/>
-				<entry displayValue='70.0' pixelValue='127'/>
-				<entry displayValue='75.0' pixelValue='143'/>
-				<entry displayValue='80.0' pixelValue='159'/>
-				<entry displayValue='85.0' pixelValue='175'/>
-				<entry displayValue='90.0' pixelValue='191'/>
-				<entry displayValue='95.0' pixelValue='207'/>
+			    <entry displayValue='0.0' pixelValue='16'/>
+				<entry displayValue='10.0' pixelValue='32'/>
+				<entry displayValue='20.0' pixelValue='48'/>
+				<entry displayValue='30.0' pixelValue='64'/>
+				<entry displayValue='40.0' pixelValue='80'/>
+				<entry displayValue='50.0' pixelValue='96'/>
+				<entry displayValue='60.0' pixelValue='112'/>
+				<entry displayValue='70.0' pixelValue='128'/>
+				<entry displayValue='75.0' pixelValue='144'/>
+				<entry displayValue='80.0' pixelValue='160'/>
+				<entry displayValue='85.0' pixelValue='176'/>
+				<entry displayValue='90.0' pixelValue='192'/>
+				<entry displayValue='95.0' pixelValue='208'/>
 				<entry displayValue='100.0' pixelValue='223'/>
 				<entry displayValue='200.0' pixelValue='240'/>
 				<entry displayValue='9999.0' pixelValue='255' label=''/>
@@ -247,20 +247,20 @@ be put in localization.
 			<defaultColormap>ffmp/diff</defaultColormap>
 			<dataMapping>
 			    <entry displayValue='-999' pixelValue='0' label=''/>
-			    <entry displayValue='-7' pixelValue='15'/>
-				<entry displayValue='-6' pixelValue='31'/>
-				<entry displayValue='-5' pixelValue='47'/>
-				<entry displayValue='-4' pixelValue='63'/>
-				<entry displayValue='-3' pixelValue='79'/>
-				<entry displayValue='-2' pixelValue='95'/>
-				<entry displayValue='-1' pixelValue='111'/>
-				<entry displayValue='0'  pixelValue='127'/>
-				<entry displayValue='1'  pixelValue='143'/>
-				<entry displayValue='2'  pixelValue='159'/>
-				<entry displayValue='3'  pixelValue='175'/>
-				<entry displayValue='4'  pixelValue='191'/>
-				<entry displayValue='5'  pixelValue='207'/>
-				<entry displayValue='6'  pixelValue='223'/>
+			    <entry displayValue='-7' pixelValue='16'/>
+				<entry displayValue='-6' pixelValue='32'/>
+				<entry displayValue='-5' pixelValue='48'/>
+				<entry displayValue='-4' pixelValue='64'/>
+				<entry displayValue='-3' pixelValue='80'/>
+				<entry displayValue='-2' pixelValue='96'/>
+				<entry displayValue='-1' pixelValue='112'/>
+				<entry displayValue='0'  pixelValue='128'/>
+				<entry displayValue='1'  pixelValue='144'/>
+				<entry displayValue='2'  pixelValue='160'/>
+				<entry displayValue='3'  pixelValue='176'/>
+				<entry displayValue='4'  pixelValue='192'/>
+				<entry displayValue='5'  pixelValue='208'/>
+				<entry displayValue='6'  pixelValue='224'/>
 				<entry displayValue='7'  pixelValue='240'/>
 				<entry displayValue='999' pixelValue='255' label=''/>
 			</dataMapping> 
@@ -294,4 +294,4 @@ be put in localization.
 		</imageStyle>
 	</styleRule>
 	
-</styleRuleset>	
+</styleRuleset>

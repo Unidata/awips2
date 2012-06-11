@@ -14,6 +14,8 @@
 !
 GLEVEL=0                                                                       
 GVCORD=none                                                                    
+SKIP=
+FILTER=y
 SCALE=0                                                                       
 GDPFUN=p06i                                                                    
 TYPE=f                                                                     
