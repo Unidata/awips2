@@ -34,7 +34,6 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
@@ -105,7 +104,7 @@ public class SessionView extends AbstractSessionView {
 
     protected String sessionId;
 
-    private IVenueSession session;
+    protected IVenueSession session;
 
     private Image downArrow;
 
@@ -208,10 +207,6 @@ public class SessionView extends AbstractSessionView {
     }
 
     protected void fillContextMenu(IMenuManager manager) {
-        IStructuredSelection selection = (IStructuredSelection) usersTable
-                .getSelection();
-        // TODO do something here!
-        Object ob = selection.getFirstElement();
     }
 
     @Subscribe
@@ -341,8 +336,7 @@ public class SessionView extends AbstractSessionView {
 
         ParticipantsContentProvider contentProvider = new ParticipantsContentProvider();
         ParticipantsLabelProvider labelProvider = new ParticipantsLabelProvider();
-        labelProvider.setSessionId(sessionId);
-        labelProvider.setManager(manager);
+        setParticipantValues(labelProvider);
         usersTable.setContentProvider(contentProvider);
 
         usersTable.setLabelProvider(labelProvider);
@@ -388,6 +382,11 @@ public class SessionView extends AbstractSessionView {
         }
         usersTable.setInput(users);
         ((GridData) usersComp.getLayoutData()).exclude = true;
+    }
+
+    protected void setParticipantValues(ParticipantsLabelProvider labelProvider) {
+        labelProvider.setSessionId(sessionId);
+        labelProvider.setManager(manager);
     }
 
     @Override
@@ -567,6 +566,8 @@ public class SessionView extends AbstractSessionView {
     @Override
     protected void setMessageLabel(Composite comp) {
         Label label = new Label(comp, SWT.WRAP);
+        GridData data = new GridData(SWT.FILL, SWT.NONE, true, false);
+        label.setLayoutData(data);
         StringBuilder labelInfo = new StringBuilder();
         if (session != null) {
             IVenueInfo info = session.getVenue().getInfo();
@@ -637,7 +638,7 @@ public class SessionView extends AbstractSessionView {
     }
 
     @SuppressWarnings("unchecked")
-    private void participantArrived(UserId participant) {
+    protected void participantArrived(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
         Map<UserId, IRosterEntry> usersMap = session.getConnection()
                 .getContactsManager().getUsersMap();
@@ -660,7 +661,7 @@ public class SessionView extends AbstractSessionView {
     }
 
     @SuppressWarnings("unchecked")
-    private void participantDeparted(UserId participant) {
+    protected void participantDeparted(UserId participant) {
         List<IRosterEntry> users = (List<IRosterEntry>) usersTable.getInput();
         if (users != null) {
             for (int i = 0; i < users.size(); ++i) {
@@ -685,7 +686,7 @@ public class SessionView extends AbstractSessionView {
      * @param presence
      */
     @SuppressWarnings("unchecked")
-    private void participantPresenceUpdated(UserId participant,
+    protected void participantPresenceUpdated(UserId participant,
             IPresence presence) {
         // Ignore the presence's mode/type. May not be the same as the user's.
         // TODO Keep as a place holder for now since it may be needed to set
