@@ -21,7 +21,6 @@ package com.raytheon.viz.texteditor.alarmalert.dialogs;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.image.WritableRaster;
 import java.io.File;
 
 import org.eclipse.swt.SWT;
@@ -52,7 +51,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmBeepJob;
 import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
 
@@ -216,9 +214,12 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
         alarmShell.setVisible(true);
         alarmShell.pack();
         alarmShell.setActive();
-        invert = false;
         active = true;
-        flasher = new FlashBellJob("FlashBell", this, FLASH_DELAY);
+        // Start a new flash job only if one isn't currently running!
+        if(flasher == null) {
+            invert = false;
+            flasher = new FlashBellJob("FlashBell", this, FLASH_DELAY);
+        }
         return null;
     }
 

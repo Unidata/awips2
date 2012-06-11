@@ -176,9 +176,9 @@ public class FFMPTableCellData {
         if (displayAsInt == true) {
             tmpVal = Math.rint(value);
         } else {
-            if (!value.isNaN()) {
-                tmpVal = (double) (((int) ((value + 0.005) * 100))) / 100;
-            }
+        	if (!value.isNaN()) {
+        		tmpVal = (double) ((Math.round(value * 100.0))/100.0);
+        	} 
         }
 
         if ((columnName == FIELDS.GUIDANCE) && this.guidForcedFlag) {
