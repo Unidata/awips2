@@ -71,6 +71,8 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
 
     protected Map<String, Image> imageMap;
 
+    private List<String> enabledUsers;
+
     protected Map<UserId, Color> colors;
 
     private SessionColorManager manager;
@@ -213,6 +215,7 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
                 break;
             }
         }
+
         return name;
     }
 
@@ -335,6 +338,10 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
         return new Point(5, 5);
     }
 
+    protected void setEnabledUsers(List<String> enabledUsers) {
+        this.enabledUsers = enabledUsers;
+    }
+
     protected String buildParticipantTooltip(IRosterEntry user) {
         StringBuilder builder = new StringBuilder();
         UserId partUser = IDConverter.convertFrom(user.getUser());
@@ -342,13 +349,18 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
             builder.append("Name : ").append(user.getUser().getName())
                     .append("\n");
         }
-        builder.append("Status : ")
-                .append(CollaborationUtils.formatMode(user.getPresence()
-                        .getMode())).append("\n");
-        builder.append("Message : \"").append(user.getPresence().getStatus())
-                .append("\"");
-        ISession session = CollaborationConnection.getConnection().getSession(
-                sessionId);
+        builder.append("Status : ").append(
+                CollaborationUtils.formatMode(user.getPresence().getMode()));
+        if (!user.getPresence().getStatus().isEmpty()) {
+            builder.append("\n").append("Message : \"")
+                    .append(user.getPresence().getStatus()).append("\"");
+        }
+        if (user.getPresence().getProperties().containsKey("UserStatus")) {
+            builder.append("\n").append(
+                    user.getPresence().getProperties().get("UserStatus"));
+        }
+        IVenueSession session = (IVenueSession) CollaborationConnection
+                .getConnection().getSession(sessionId);
         if (session instanceof SharedDisplaySession) {
             UserId id = IDConverter.convertFrom(user.getUser());
             boolean isSessionLeader = id
