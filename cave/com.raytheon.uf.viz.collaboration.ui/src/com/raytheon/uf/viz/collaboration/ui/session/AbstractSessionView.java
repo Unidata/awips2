@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -57,6 +58,7 @@ import sun.audio.AudioDataStream;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
 
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -192,6 +194,12 @@ public abstract class AbstractSessionView extends CaveFloatingView {
             }
         });
         messagesComp.addKeyListener(searchComp.getSearchKeyListener());
+
+        // here need to grab the font from preferences and use that font
+        messagesText.setFont(new Font(Display.getCurrent(), PreferenceConverter
+                .getFontData(Activator.getDefault().getPreferenceStore(),
+                        "font")));
+
         searchComp.setSearchText(messagesText);
     }
 
@@ -511,6 +519,11 @@ public abstract class AbstractSessionView extends CaveFloatingView {
         }
         String titleText = "(" + time + ") " + text;
         PopupNotifier.notify(titleText, body);
+    }
+
+    @Subscribe
+    public void changeFont(FontData data) {
+        messagesText.setFont(new Font(Display.getCurrent(), data));
     }
 
     /**
