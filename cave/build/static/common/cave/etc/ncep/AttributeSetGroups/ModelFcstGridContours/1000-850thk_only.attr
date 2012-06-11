@@ -6,6 +6,8 @@
 !
 GLEVEL=850:1000
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=-1
 GDPFUN=(sub(hght@850,hght@1000))
 TYPE=c

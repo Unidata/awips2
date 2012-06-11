@@ -25,6 +25,6 @@ else
 MONITOR_NAME="River"
 fi
 
-xterm -T $MONITOR_NAME"Monitor" -iconic -hold \
+xterm -T $MONITOR_NAME"Monitor" -iconic \
 -e $SYS_JAVA_DIR/bin/java -Xms64m -Xmx512m ohd.hseb.monitor.Monitor $JDBCURL "$MISSING_REPRESENTATION" $MONITOR_NAME &
 

@@ -4,7 +4,7 @@
     <resourceDefnName>GFS_ENS</resourceDefnName>
     <resourceCategory>ENSEMBLE</resourceCategory>
     <resourceParameters>
-availableModels=GFS
+availableModels=gfs
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

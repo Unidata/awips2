@@ -4,3 +4,4 @@ legendString=Ship Synop
 plotModelName=ship_standard
 reportType=1003
 plotDensity=15
+conditionalFilterName=

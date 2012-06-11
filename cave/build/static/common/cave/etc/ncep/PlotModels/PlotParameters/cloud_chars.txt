@@ -1,11 +1,11 @@
 s2s
-default : 32
-BLNK : 32
-SKC : 48
-CLR : 48
-FEW : 49
-SCT : 64
-BKN : 50
-OVC : 56
-OBS : 52
-VV  : 52
+default : 5
+BLNK : 5
+SKC : 14
+CLR : 14
+FEW : 16
+SCT : 19
+BKN : 1
+OVC : 3
+OBS : 4
+VV  : 4

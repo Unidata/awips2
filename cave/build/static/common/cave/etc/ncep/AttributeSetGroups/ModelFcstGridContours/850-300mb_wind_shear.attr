@@ -10,6 +10,8 @@
 !
 GLEVEL=300:850!850!300
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=mag(vldf(obs))!(wnd)!(wnd)
 TYPE=c/f ! a ! a

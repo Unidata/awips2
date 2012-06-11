@@ -40,6 +40,8 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeMode;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FrameChangeOperation;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -144,9 +146,17 @@ public class D2DNSharpResource extends
             if (stnInfo == null) {
                 return;
             }
+            String picked = skewRsc.getPickedStnInfoStr();
             // For some reason this has to happen on the UI thread, so do it in
             // paint.
             skewRsc.addRsc(myDataMap, stnInfo);
+            // Adding to nsharp changes the frame but in D2D we like to keep the
+            // current frame.
+            while (picked != null
+                    && !skewRsc.getPickedStnInfoStr().equals(picked)) {
+                skewRsc.setSteppingTimeLine(FrameChangeOperation.NEXT,
+                        FrameChangeMode.TIME_AND_SPACE);
+            }
             issueRefresh();
         }
     }

@@ -22,8 +22,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.VectorAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.VectorAttrDlg;
 
 /**
  * Implements a modal map tool for PGEN vector drawing.

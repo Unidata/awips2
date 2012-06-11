@@ -334,10 +334,6 @@ public class PostShef {
             // Check for bad data
             log.warn("No data stored for " + prodId);
             return;
-        } else {
-            if (dataLog) {
-                log.info("============================================");
-            }
         }
         prevLid = locId;
 

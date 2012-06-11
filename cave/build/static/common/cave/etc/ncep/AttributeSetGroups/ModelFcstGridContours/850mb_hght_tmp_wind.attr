@@ -7,6 +7,8 @@
 !
 GLEVEL=850
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=0         !0         !0         !-1
 GDPFUN=sm9s(tmpc)!sm9s(tmpc)!sm9s(tmpc)!sm9s(hght)!kntv(wnd)
 TYPE=c/f       !c         !c         !c         !b

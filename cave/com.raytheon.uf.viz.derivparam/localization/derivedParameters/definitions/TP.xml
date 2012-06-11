@@ -58,6 +58,12 @@
     <Method name="Supplement" models="mesoEta212 mesoEta215">
         <Field abbreviation="TP3hr"/>
     </Method>
+    <Method name="Supplement" models="HiResW-ARW-East HiResW-ARW-West HiResW-ARW-AK HiResW-ARW-SJU HiResW-ARW-HI HiResW-ARW-GU">
+        <Field abbreviation="TP3hr"/>
+    </Method>
+    <Method name="Supplement" models="HiResW-NMM-East HiResW-NMM-West HiResW-NMM-AK HiResW-NMM-SJU HiResW-NMM-HI HiResW-NMM-GU">
+        <Field abbreviation="TP3hr"/>
+    </Method>
     <Method name="Alias">
         <Field abbreviation="TP3hr"/>
     </Method>
