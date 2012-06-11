@@ -48,6 +48,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -62,6 +64,7 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -71,6 +74,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
@@ -187,6 +191,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private Action changeStatusAction;
 
+    private Action fontChangeAction;
+
     private Action changePasswordAction;
 
     // Drawing *will* be activated in collaboration views
@@ -252,25 +258,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         populateTree();
         usersTreeViewer.refresh();
 
-        // createRoomFeed(parent);
         parent.layout();
-    }
-
-    /**
-     * @param parent2
-     */
-    private void createRoomFeed(Composite parent) {
-        Composite child = new Composite(parent, SWT.NONE);
-        child.setLayout(new GridLayout(1, false));
-        child.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        messages = new StyledText(child, SWT.MULTI | SWT.WRAP | SWT.H_SCROLL
-                | SWT.V_SCROLL | SWT.BORDER | SWT.READ_ONLY);
-        messages.setEnabled(false);
-        messages.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-        composeBox = new StyledText(child, SWT.MULTI | SWT.WRAP | SWT.H_SCROLL
-                | SWT.V_SCROLL | SWT.BORDER);
-        composeBox.setLayoutData(new GridData(GridData.FILL_BOTH));
     }
 
     @Override
@@ -540,6 +528,24 @@ public class CollaborationGroupView extends CaveFloatingView implements
         };
         changeStatusAction.setEnabled(false);
 
+        fontChangeAction = new Action("Change Font...") {
+            public void run() {
+                FontDialog dialog = new FontDialog(Display.getCurrent()
+                        .getActiveShell());
+                IPreferenceStore store = Activator.getDefault()
+                        .getPreferenceStore();
+                FontData data = PreferenceConverter.getFontData(store, "font");
+                dialog.setFontList(new FontData[] { data });
+                FontData postData = dialog.open();
+                if (postData != null) {
+                    PreferenceConverter.setValue(store, "font", postData);
+                    CollaborationConnection.getConnection().getEventPublisher()
+                            .post(postData);
+                }
+            };
+        };
+        fontChangeAction.setEnabled(false);
+
         collapseAllAction = new Action("Collapse All") {
             public void run() {
                 if (usersTreeViewer != null) {
@@ -648,6 +654,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         mgr.add(addUserAction);
         mgr.add(selectGroups);
         mgr.add(new Separator());
+        mgr.add(fontChangeAction);
         mgr.add(changeStatusAction);
         mgr.add(changeStatusMessageAction);
         mgr.add(changePasswordAction);
@@ -696,7 +703,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             addUserAction.setEnabled(false);
             selectGroups.setEnabled(false);
             changeStatusAction.setEnabled(false);
-            // drawToolbarAction.setEnabled(false);
+            fontChangeAction.setEnabled(false);
             changeStatusMessageAction.setEnabled(false);
             changePasswordAction.setEnabled(false);
             return;
@@ -707,7 +714,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         addUserAction.setEnabled(true);
         selectGroups.setEnabled(true);
         changeStatusAction.setEnabled(true);
-        // drawToolbarAction.setEnabled(true);
+        fontChangeAction.setEnabled(true);
         changeStatusMessageAction.setEnabled(true);
         changePasswordAction.setEnabled(true);
 
@@ -1155,7 +1162,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                             IWorkbenchPage.VIEW_ACTIVATE);
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to open text  only chat session", e);
+                    "Unable to open text only chat session", e);
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, "Unexpected exception", e);
         }
