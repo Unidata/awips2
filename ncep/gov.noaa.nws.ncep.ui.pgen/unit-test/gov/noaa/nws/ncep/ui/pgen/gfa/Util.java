@@ -16,7 +16,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 /**
  * Utility methods
@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 public class Util {
 	
 	private static JAXBContext context;
-	private static Logger log = Logger.getLogger(Util.class);
+//	private static Logger log = Logger.getLogger(Util.class);
 	private static String jaxbPackage = "gov.noaa.nws.ncep.ui.pgen.file";
 
 	/**
@@ -77,7 +77,8 @@ public class Util {
 			try {
 				context = JAXBContext.newInstance(jaxbPackage);
 			} catch (JAXBException e) {
-				log.error("Error reading context ", e);
+//				log.error("Error reading context ", e);
+				e.printStackTrace();
 			}
 		}
 		return context;

@@ -457,15 +457,15 @@
             commandId="gov.noaa.nws.ncep.ui.pgen.layering">
        </handler>      
        <handler
-            class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageHandler"
+            class="gov.noaa.nws.ncep.ui.pgen.productmanage.ProductManageHandler"
             commandId="gov.noaa.nws.ncep.ui.pgen.activityManage">
        </handler>                 
        <handler
-            class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureHandler"
+            class="gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureHandler"
             commandId="gov.noaa.nws.ncep.ui.pgen.activityConfigure">
        </handler> 
        <handler
-            class="gov.noaa.nws.ncep.ui.pgen.productManage.PgenHelpHandler"
+            class="gov.noaa.nws.ncep.ui.pgen.productmanage.PgenHelpHandler"
             commandId="gov.noaa.nws.ncep.ui.pgen.PgenHelp">
        </handler> 
        <handler                      
@@ -550,7 +550,7 @@
        <menuContribution
            locationURI="menu:gov.noaa.nws.ncep.ui.pgen.PGEN.activityLaunch">   
            <dynamic
-              class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductLauncher"
+              class="gov.noaa.nws.ncep.ui.pgen.productmanage.ProductLauncher"
               id="gov.noaa.nws.ncep.ui.pgen.productManage.activityLauncher">
            </dynamic>                                 
        </menuContribution>               

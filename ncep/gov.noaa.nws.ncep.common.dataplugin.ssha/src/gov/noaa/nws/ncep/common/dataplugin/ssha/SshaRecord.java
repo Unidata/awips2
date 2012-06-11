@@ -561,6 +561,7 @@ public class SshaRecord extends PersistablePluginDataObject implements
 	/** Report type */
 	@Transient
 	@DynamicSerializeElement
+    @DataURI(position=6)
 	private String reportType;
 
 	@Embedded

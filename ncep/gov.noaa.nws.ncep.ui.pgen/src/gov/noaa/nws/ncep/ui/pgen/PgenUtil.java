@@ -14,15 +14,16 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Label;
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Label;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
-import gov.noaa.nws.ncep.ui.pgen.graphToGrid.CoordinateTransform;
+import gov.noaa.nws.ncep.ui.pgen.graphtogrid.CoordinateTransform;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResourceData;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,6 +55,7 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -61,6 +63,9 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.editor.EditorInput;
+import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -149,14 +154,18 @@ public class PgenUtil {
 	 */
 	public static final String FOUR_ZERO = "0000";
 	public static final String FIVE_ZERO = "00000";
+    
+	//Default CAVE window title string
+	public static final String CaveTitle = "CAVE";
 
     /**
      * Check the given editor for a PgenResource. If editor is null then the current Nmap Editor is used. If found, return it.
      * @param editor
      * @return reference to a PgenResource
      */
-    public static final PgenResource findPgenResource(NCMapEditor editor) {
-    	return (PgenResource)NmapUiUtils.findResource( PgenResource.class, editor );
+    public static final PgenResource findPgenResource(AbstractEditor editor) {
+//    	return (PgenResource)NmapUiUtils.findResource( PgenResource.class, editor );
+    	return (PgenResource)findResource( PgenResource.class, editor );
     }
 
     /**
@@ -539,7 +548,8 @@ public class PgenUtil {
     public static final PgenResource createNewResource() {
 
     	PgenResource drawingLayer = null;
-        NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+//        NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+    	AbstractEditor editor = getActiveEditor();
         if(editor != null){
         	try {	                
         		switch ( getPgenMode() ) {
@@ -585,8 +595,10 @@ public class PgenUtil {
 	 *  Refresh the PGEN drawing editor.
 	 */   
     public static final void refresh() {    	
-    	if( NmapUiUtils.getActiveNatlCntrsEditor() != null )
-    		NmapUiUtils.getActiveNatlCntrsEditor().refresh();   
+//    	if( NmapUiUtils.getActiveNatlCntrsEditor() != null )
+//    		NmapUiUtils.getActiveNatlCntrsEditor().refresh();   
+    	if( getActiveEditor() != null )
+    		getActiveEditor().refresh();   
     }
 
     /**
@@ -933,7 +945,8 @@ public class PgenUtil {
      * @param loc	- Location
      * @param me	- map editor
      */
-	static public void mergeLabels(LabeledLine ll, Coordinate loc, NCMapEditor mapEditor ){
+//	static public void mergeLabels(LabeledLine ll, Coordinate loc, NCMapEditor mapEditor ){
+    static public void mergeLabels(LabeledLine ll, Coordinate loc, AbstractEditor mapEditor ){
 		
 		//label at location loc.
 		Label testLbl = null;
@@ -1580,4 +1593,130 @@ public class PgenUtil {
 
         return wrappedLine.toString();
     }
+	
+    /**
+     * Get a reference to the current editor, if it is a AbstractEditor.
+     * 
+     * Copy from NmapUiUtils.getActiveNatlCntrsEditor() - to remove dependency on ui.display.
+     */
+    public static final AbstractEditor getActiveEditor() {
+        // bsteffen change to EditorUtils
+        // if (VizApp.getCurrentEditor() instanceof NCMapEditor) {
+        // return (NCMapEditor) VizApp.getCurrentEditor();
+        if (EditorUtil.getActiveEditor() instanceof AbstractEditor) {
+            return (AbstractEditor) EditorUtil.getActiveEditor();
+        } else {
+            return null;
+        }
+    }
+    
+    // TODO: Do we need to look in all the panes or just the active (or the
+    // selected panes)
+    //
+    public static final AbstractVizResource findResource(
+            Class<? extends AbstractVizResource> rscClass, AbstractEditor aEdit) {
+        AbstractEditor editor = (aEdit != null ? aEdit : getActiveEditor());
+        if (editor == null)
+            return null;
+
+        IRenderableDisplay disp = editor.getActiveDisplayPane()
+                .getRenderableDisplay();
+
+        if (disp == null)
+            return null;
+
+        ResourceList rscList = disp.getDescriptor().getResourceList();
+
+        for (ResourcePair rp : rscList) {
+            AbstractVizResource rsc = rp.getResource();
+
+            if (rsc.getClass() == rscClass) {
+                return rsc;
+            }
+        }
+
+        return null;
+    }
+    
+    /**
+     * Modify the title of the CAVE to "CAVE:title".
+     */
+    public static final void setCaveTitle(String title) {
+    	if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null
+    			&& PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+    			.getShell() != null) {
+    		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
+    		.setText( CaveTitle + ":" + title );
+    	}
+
+    }
+
+    /**
+     * Reset the title of the CAVE to "CAVE".
+     */
+    public static final void resetCaveTitle() {
+        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
+                .setText( CaveTitle );
+    }
+    
+    /*
+     * Get the display ID for multipane editor
+     * 
+     * Copy from NmapUiUtils.getNcDisplayID()
+     */    
+    public static int getDisplayID(String displayTitle) {
+        int indx = displayTitle.indexOf("-");
+        if (indx == -1 || indx > 3) {
+            return -1;
+        } else {
+            return Integer.parseInt(displayTitle.substring(0, indx));
+        }
+    }
+    
+    
+    /*
+     * Get an editor's name
+     * 
+     * Copy from NCMapEditor.getDisplayName()
+     */    
+    public static String getDisplayName( AbstractEditor editor ) {
+        return editor.getEditorInput().getName();
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.editor.IMultiPaneEditor#getNumberofPanes()
+     */
+    public static int getNumberofPanes( AbstractEditor editor ) {
+        return ((EditorInput)editor.getEditorInput()).getPaneManager().getNumberofPanes();
+    }
+    
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.editor.IMultiPaneEditor#addSelectedPaneChangedListener
+     * (com.raytheon.viz.ui.editor.ISelectedPanesChangedListener)
+     */
+    public static void addSelectedPaneChangedListener( AbstractEditor editor,
+            ISelectedPanesChangedListener listener) {
+    	((EditorInput)editor.getEditorInput()).getPaneManager().addSelectedPaneChangedListener(listener);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.editor.IMultiPaneEditor#removeSelectedPaneChangedListener
+     * (com.raytheon.viz.ui.editor.ISelectedPanesChangedListener)
+     */
+    public static void removeSelectedPaneChangedListener( AbstractEditor editor,
+            ISelectedPanesChangedListener listener) {
+    	((EditorInput)editor.getEditorInput()).getPaneManager().removeSelectedPaneChangedListener(listener);
+    }
+
+
+
+    
 }

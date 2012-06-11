@@ -6,6 +6,8 @@
 ! J. Carr/HPC             2/99  Changed obs to kntv(wnd)
 GLEVEL=250
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=5
 GDPFUN=(vor(wnd))            !(vor(wnd)) !kntv(wnd)
 TYPE=c/f ! c ! b

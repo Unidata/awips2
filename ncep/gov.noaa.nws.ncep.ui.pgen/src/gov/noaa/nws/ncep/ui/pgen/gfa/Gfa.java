@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.dom4j.Node;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -53,7 +53,7 @@ import com.vividsolutions.jts.geom.Polygon;
 public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 
 	/** Logger */
-	private final static Logger logger = Logger.getLogger(Gfa.class);
+//	private final static Logger logger = Logger.getLogger(Gfa.class);
 
 	private String hazard = "";
 	private String fcstHr = "";
@@ -123,7 +123,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 	public Gfa() {
 		super();
 		
-		logger.trace("Gfa created");
+//		logger.trace("Gfa created");
 	}
 
 	public Gfa(IAttribute attr, ArrayList<Coordinate> points) {
@@ -135,7 +135,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 
 		setLinePoints(points);
 		
-		logger.trace("Gfa created");
+//		logger.trace("Gfa created");
 	}
 
 	public Gfa(Coordinate[] range, Color[] colors, float lineWidth, double sizeScale,

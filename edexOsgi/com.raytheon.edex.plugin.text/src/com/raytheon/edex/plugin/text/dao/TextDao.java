@@ -51,24 +51,31 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  */
 public class TextDao extends DefaultPluginDao {
 
-    public TextDao(String pluginName) throws PluginException {
-        super(pluginName);
-    }
+	public TextDao(String pluginName) throws PluginException {
+		super(pluginName);
+	}
+
+	@Override
+	public void purgeAllData() {
+		logger.warn("purgeAllPluginData not implemented for text. No data will be purged.");
+	}
+
+	protected void loadScripts() throws PluginException {
+		// no op
+	}
 
     @Override
-    public void purgeAllData() {
-        logger.warn("purgeAllPluginData not implemented for text. No data will be purged.");
-    }
+	public void purgeExpiredData() throws PluginException {
+		int deletedRecords = 0;
 
-    protected void loadScripts() throws PluginException {
-        // no op
-    }
+		// only do full purge every few hours since incremental purge runs every
+		// minute
+		if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) % 3 == 0) {
+			TextDB.purgeStdTextProducts();
+		}
 
-    @Override
-    public void purgeExpiredData() throws PluginException {
-        int deletedRecords = TextDB.purgeStdTextProducts();
-        PurgeLogger.logInfo("Purged " + deletedRecords + " items total.",
-                "text");
+		PurgeLogger.logInfo("Purged " + deletedRecords + " items total.",
+				"text");
     }
 
     @SuppressWarnings("unchecked")
@@ -106,5 +113,5 @@ public class TextDao extends DefaultPluginDao {
         } else {
             return result.get(0).getTime();
         }
-    }
+	}
 }
