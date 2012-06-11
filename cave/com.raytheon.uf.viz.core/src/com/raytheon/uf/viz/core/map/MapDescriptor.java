@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.core.map;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -46,13 +45,10 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -249,72 +245,59 @@ public class MapDescriptor extends AbstractDescriptor implements
      */
     public MapDescriptor(GeneralGridGeometry gridGeometry) throws VizException {
         super(gridGeometry);
-        init();
     }
 
-    protected void init() throws VizException {
-        try {
-            GeneralGridGeometry gridGeometry = getGridGeometry();
-            mapToCoordinateTransform = gridGeometry
-                    .getGridToCRS(PixelInCell.CELL_CENTER);
-            coordinateToMapTransform = mapToCoordinateTransform.inverse();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.AbstractDescriptor#setupTransforms()
+     */
+    @Override
+    protected void setupTransforms() throws Exception {
+        super.setupTransforms();
+        GeneralGridGeometry gridGeometry = getGridGeometry();
+        mapToCoordinateTransform = gridGeometry
+                .getGridToCRS(PixelInCell.CELL_CENTER);
+        coordinateToMapTransform = mapToCoordinateTransform.inverse();
+        if (pixelToWorld == null && MapUtil.LATLON_PROJECTION.equals(getCRS())) {
+            pixelToWorld = mapToCoordinateTransform;
+            worldToPixel = coordinateToMapTransform;
+        }
 
-            CoordinateReferenceSystem crs = gridGeometry
-                    .getCoordinateReferenceSystem();
+        CoordinateReferenceSystem crs = gridGeometry
+                .getCoordinateReferenceSystem();
 
-            DirectPosition s1, d1, s2, d2;
-            if (crs.getCoordinateSystem().getDimension() == 2) {
-                double centerX = (gridGeometry.getGridRange().getLow(0) + gridGeometry
-                        .getGridRange().getHigh(0)) / 2;
+        DirectPosition s1, d1, s2, d2;
+        if (crs.getCoordinateSystem().getDimension() == 2) {
+            double centerX = (gridGeometry.getGridRange().getLow(0) + gridGeometry
+                    .getGridRange().getHigh(0)) / 2;
 
-                double centerY = (gridGeometry.getGridRange().getLow(1) + gridGeometry
-                        .getGridRange().getHigh(1)) / 2;
+            double centerY = (gridGeometry.getGridRange().getLow(1) + gridGeometry
+                    .getGridRange().getHigh(1)) / 2;
 
-                s1 = new DirectPosition2D(centerX, centerY);
-                d1 = new DirectPosition2D(centerX + 1, centerY);
-                s2 = new DirectPosition2D(crs);
-                d2 = new DirectPosition2D(crs);
+            s1 = new DirectPosition2D(centerX, centerY);
+            d1 = new DirectPosition2D(centerX + 1, centerY);
+            s2 = new DirectPosition2D(crs);
+            d2 = new DirectPosition2D(crs);
 
-                mapToCoordinateTransform.transform(s1, s2);
-                mapToCoordinateTransform.transform(d1, d2);
+            mapToCoordinateTransform.transform(s1, s2);
+            mapToCoordinateTransform.transform(d1, d2);
 
-                GeodeticCalculator gc = new GeodeticCalculator(crs);
-                gc.setStartingPosition(s2);
-                gc.setDestinationPosition(d2);
+            GeodeticCalculator gc = new GeodeticCalculator(crs);
+            gc.setStartingPosition(s2);
+            gc.setDestinationPosition(d2);
 
-                double distance = gc.getOrthodromicDistance();
-                // System.out.println("Azimuth: " + azimuth + ",
-                // Distance: "
-                // + distance);
-                this.mapWidth = (int) distance
-                        * gridGeometry.getGridRange().getHigh(0);
+            double distance = gc.getOrthodromicDistance();
+            // System.out.println("Azimuth: " + azimuth + ",
+            // Distance: "
+            // + distance);
+            this.mapWidth = (int) distance
+                    * gridGeometry.getGridRange().getHigh(0);
 
-            } else {
-                // TODO come up with a better way of calculating this for 3D
-                this.mapWidth = 12700000;
-            }
-
-            // reproject all resources contained in this descriptor
-            ArrayList<ResourcePair> unProjectable = new ArrayList<ResourcePair>();
-            for (ResourcePair rp : this.resourceList) {
-                AbstractVizResource<?, ?> rsc = rp.getResource();
-                if (rsc == null) {
-                    continue;
-                }
-                try {
-                    rsc.project(gridGeometry.getCoordinateReferenceSystem());
-                } catch (VizException e) {
-                    // TODO: what to do here?
-                    unProjectable.add(rp);
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error projecting resource :: " + rsc.getName(), e);
-                }
-            }
-            this.resourceList.removeAll(unProjectable);
-
-            // System.out.println("mapWidth = " + mapWidth + " meters");
-        } catch (Exception e) {
-            throw new VizException("Error setting up map transformations", e);
+        } else {
+            // TODO come up with a better way of calculating this for 3D
+            this.mapWidth = 12700000;
         }
     }
 
@@ -328,7 +311,7 @@ public class MapDescriptor extends AbstractDescriptor implements
     public double[] pixelToWorld(final double[] pixel,
             CoordinateReferenceSystem crs) {
 
-        if (crs == MapUtil.LATLON_PROJECTION) {
+        if (MapUtil.LATLON_PROJECTION.equals(crs)) {
             return pixelToWorld(pixel);
         } else if (!crs.getName().equals(
                 getGridGeometry().getCoordinateReferenceSystem().getName())) {
@@ -353,7 +336,7 @@ public class MapDescriptor extends AbstractDescriptor implements
      */
     @Override
     public double[] worldToPixel(double[] pixel, CoordinateReferenceSystem crs) {
-        if (crs == MapUtil.LATLON_PROJECTION) {
+        if (MapUtil.LATLON_PROJECTION.equals(crs)) {
             return worldToPixel(pixel);
         } else if (!crs.getName().equals(
                 getGridGeometry().getCoordinateReferenceSystem().getName())) {
@@ -518,20 +501,6 @@ public class MapDescriptor extends AbstractDescriptor implements
             VizException {
         GridGeometry2D gridGeometry = createGridGeometry(crs, ll, ur);
         setGridGeometry(gridGeometry);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.map.IMapDescriptor#setGridGeometry(org.geotools
-     * .coverage.grid.GeneralGridGeometry)
-     */
-    @Override
-    public void setGridGeometry(GeneralGridGeometry gridGeometry)
-            throws VizException {
-        super.setGridGeometry(gridGeometry);
-        init();
     }
 
     /**

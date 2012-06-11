@@ -31,5 +31,5 @@ export DAMCREST_HOME=$WHFS_BIN_DIR
 
 # set up an X Terminal window to write stdout and run the DamCrest 
 # application using java
-xterm -T "DamCrest standard output window" -iconic -hold \
+xterm -T "DamCrest standard output window" -iconic \
 -e "$SYS_JAVA_BIN_DIR/java -Ddamcrest.home=$DAMCREST_HOME gov.dambreak.menu.Launcher $1" 

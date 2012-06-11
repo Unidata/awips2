@@ -15,6 +15,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
 
+import gov.noaa.nws.ncep.staticdataprovider.StaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
 
 import java.io.File;
@@ -75,7 +76,8 @@ import gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerDialog;
  * 02/15/2012   627        Archana      Updated the call to addRbd() to accept 
  *                                      a NCMapEditor object as one of the arguments
  *                                      Removed the call to setNcEditor() and updated initFromEditor()
- *                                      to take an editor as one of the arguments      
+ *                                      to take an editor as one of the arguments    
+ * 04/16/2012	740			B. Yin		Start the static data service before opening map editor.  
  * </pre>
  * 
  * @author 
@@ -168,6 +170,9 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         		ve.printStackTrace();
         	}
         }
+        
+        //start data provider before creating ncmapeditor
+	    StaticDataProvider.start();
 
         // loop thru the rbds and load them into a new editor.
         for(  RbdBundle rbd: rbdsToLoad ) {

@@ -27,8 +27,8 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 
 /**
- * For the VIL product, extending radarResource but having a separate
- * interrogate function
+ * Use DigitalVILUnit object for conversion, this class will be removed in the
+ * future.
  * 
  * <pre>
  * 
@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
  * @author mnash
  * @version 1.0
  */
-
+@Deprecated
 public class RadarVILInterrogator extends RadarRasterInterrogator implements
         IRadarInterrogator {
 

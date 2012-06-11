@@ -35,7 +35,7 @@ public class NcUnits {
 			System.out.println("100*inHg is invalid");
 		}
 		UnitFormat.getUCUMInstance().label( NonSI.INCH_OF_MERCURY.divide(100), "centi_inHg" );
-		UnitFormat.getUCUMInstance().label( HUNDREDS_OF_FEET.divide(100), "centi_ft" );
+		UnitFormat.getUCUMInstance().label( HUNDREDS_OF_FEET, "hecto_ft" );
 //		UnitFormat.getUCUMInstance().label( GRAMS_PER_KILOGRAM, "g/kg" );
 //		UnitFormat.getUCUMInstance().label( JOULES_PER_KILOGRAM, "J/kg" );
 		UnitFormat.getUCUMInstance().label( MILLIBAR, "mb" );

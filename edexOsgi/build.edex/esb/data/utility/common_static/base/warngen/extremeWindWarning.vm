@@ -17,11 +17,10 @@ ${ugcline}
 
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
-TEST...EXTREME WIND WARNING...TEST##
+TEST...EXTREME WIND WARNING...TEST
 #else
-EXTREME WIND WARNING##
+EXTREME WIND WARNING
 #end
-
 NATIONAL WEATHER SERVICE ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}

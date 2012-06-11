@@ -7,6 +7,8 @@
 !
 GLEVEL=0!0!0!0!700:500!4700:10000
 GVCORD=none!none!none!none!PRES!sgma
+SKIP=
+FILTER=y
 SCALE=2!2!2!2!3!0
 GDPFUN=sm5s(WXTr)!sm5s(WXTs)!WXTp!WXTz!lav(omeg)!relh
 TYPE=c!c!c!c!c!c

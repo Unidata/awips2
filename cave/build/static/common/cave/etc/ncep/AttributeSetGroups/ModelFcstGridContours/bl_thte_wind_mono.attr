@@ -6,6 +6,8 @@
 !
 GLEVEL=9823
 GVCORD=sgma
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=thte(pres;tmpc;dwpc)//the!the       !the  !kntv(wnd)
 TYPE=c                        !c         !c    !b

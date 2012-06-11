@@ -113,7 +113,7 @@ class MergeGrid:
         # removal any old entry 
         if historyB is not None:
             for h in historyB:
-                index = string.find(h, self.__siteID + "_GRID")
+                index = string.find(h, ":"+ self.__siteID + "_GRID")
                 if index == -1:
                     out.append(h) 
     

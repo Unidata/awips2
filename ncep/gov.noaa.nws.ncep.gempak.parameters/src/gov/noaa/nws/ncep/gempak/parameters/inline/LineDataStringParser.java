@@ -1,6 +1,6 @@
 package gov.noaa.nws.ncep.gempak.parameters.inline;
 
-import gov.noaa.nws.ncep.gempak.parameters.util.StringUtil;
+import gov.noaa.nws.ncep.gempak.parameters.core.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;

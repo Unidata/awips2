@@ -2,3 +2,4 @@
 !
 plotModelName=maxanom
 plotDensity=10
+conditionalFilterName=

@@ -10,6 +10,8 @@
 !
 GLEVEL=8400:9800!8400:9800!90:60
 GVCORD=sgma!sgma!pdly
+SKIP=
+FILTER=y
 SCALE=0!0!3!0
 GDPFUN=relh!relh!omeg!kntv(wnd@30:0%pdly)
 TYPE=c/f!c!c ! b

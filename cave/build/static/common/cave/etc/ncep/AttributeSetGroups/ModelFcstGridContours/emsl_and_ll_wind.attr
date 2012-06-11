@@ -8,6 +8,8 @@
 !
 GLEVEL=60:30!0 
 GVCORD=pdly!none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=mag(kntv(wnd))!sm5s(emsl) ! kntv(wnd@60:30%pdly)
 TYPE=c/f!c ! b
