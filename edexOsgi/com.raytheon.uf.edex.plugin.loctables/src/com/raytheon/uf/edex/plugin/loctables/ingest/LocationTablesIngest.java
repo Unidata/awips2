@@ -20,13 +20,20 @@
 package com.raytheon.uf.edex.plugin.loctables.ingest;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
+import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
 import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.loctables.util.CommonObsSpatialBuilder;
 import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
@@ -66,7 +73,7 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
     private HashMap<String, TableHandler> handlers = null;
 
     private IDataSetIngester ingester = null;
-    
+
     private Log logger = LogFactory.getLog(getClass());
 
     @SuppressWarnings("unused")
@@ -75,8 +82,10 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
 
     public LocationTablesIngest(String pluginName, IDataSetIngester ingester) {
         this.ingester = ingester;
-        
+
         setupHandlers();
+
+        setupLocalFiles();
     }
 
     /**
@@ -108,10 +117,26 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
         for (String fileName : handlers.keySet()) {
             ingester.registerListener(fileName, this);
         }
-    }    
-    
+    }
+
+    private void setupLocalFiles() {
+        String currentSite = SiteUtil.getSite();
+
+        List<MonitorConfigurationManager> monitors = new ArrayList<MonitorConfigurationManager>();
+        monitors.add(FogMonitorConfigurationManager.getInstance());
+        monitors.add(SSMonitorConfigurationManager.getInstance());
+        monitors.add(SnowMonitorConfigurationManager.getInstance());
+        for (MonitorConfigurationManager monitor : monitors) {
+            try {
+                monitor.readConfigXml(currentSite);
+            } catch (Throwable t) {
+                logger.error("Could not configure " + monitor.getClass().getName() + " for site " + currentSite, t);
+            }
+        }
+    }
+
     /**
-     * Accept INationalDatasetSubscriber notifications. 
+     * Accept INationalDatasetSubscriber notifications.
      */
     @Override
     public void notify(String fileName, File file) {
@@ -148,7 +173,7 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
         }
         return handler;
     }
- 
+
     /**
      * 
      * @return
