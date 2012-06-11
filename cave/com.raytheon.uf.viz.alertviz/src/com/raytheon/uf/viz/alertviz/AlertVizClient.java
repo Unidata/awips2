@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.alertviz;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.jms.ExceptionListener;
@@ -88,7 +89,11 @@ public class AlertVizClient implements MessageListener {
 
     private CopyOnWriteArrayList<IAlertVizMessageCallback> listeners;
 
-    private Marshaller marshaller;
+    private static int POOL_SIZE = 5;
+
+    private java.util.Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
+
+    private JAXBContext jaxbContext;
 
     private static AlertVizClient instance;
 
@@ -134,8 +139,7 @@ public class AlertVizClient implements MessageListener {
             this.consumer.setMessageListener(this);
             reconnect = false;
             lastReconnectTime = System.currentTimeMillis();
-            JAXBContext context = JAXBContext.newInstance(StatusMessage.class);
-            marshaller = context.createMarshaller();
+            jaxbContext = JAXBContext.newInstance(StatusMessage.class);
         } catch (JMSException e) {
             reconnect = true;
             throw new AlertvizException("Unable to connect to notification", e);
@@ -158,8 +162,11 @@ public class AlertVizClient implements MessageListener {
         if (retryOnExceptions == false && reconnect == true) {
             printToConsole(statusMessage);
         } else {
+            Marshaller marshaller = null;
+
             try {
                 StringWriter sw = new StringWriter();
+                marshaller = getMarshaller();
                 marshaller.marshal(statusMessage, sw);
                 ActiveMQTextMessage message = new ActiveMQTextMessage();
                 message.setText(sw.toString());
@@ -178,7 +185,19 @@ public class AlertVizClient implements MessageListener {
             } catch (Exception e) {
                 throw new AlertvizException("Error sending message", e);
             }
+
+            if (marshaller != null && marshallers.size() < POOL_SIZE) {
+                marshallers.add(marshaller);
+            }
         }
+    }
+
+    private Marshaller getMarshaller() throws JAXBException {
+        Marshaller m = marshallers.poll();
+        if (m == null) {
+            m = jaxbContext.createMarshaller();
+        }
+        return m;
     }
 
     /**
