@@ -185,7 +185,7 @@ public class GeometryUtil {
                     prefix = getPrefix(g1Name);
                 }
                 if ((g1Name == null || g2Name == null || g2Name
-                        .startsWith(prefix)) && g1.isValid() && g2.isValid()) {
+                        .startsWith(prefix))) {
                     Geometry section = g1.intersection(g2);
                     if (section.isEmpty() == false) {
                         section = section.buffer(0);

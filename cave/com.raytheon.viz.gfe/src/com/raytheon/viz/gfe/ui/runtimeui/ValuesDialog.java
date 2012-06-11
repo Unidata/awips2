@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.python.swt.ButtonConstant;
 import com.raytheon.uf.viz.python.swt.CallbackFunctor;
-import com.raytheon.uf.viz.python.swt.DialogAreaComposite;
 import com.raytheon.uf.viz.python.swt.widgets.LabelWidget;
 import com.raytheon.uf.viz.python.swt.widgets.Widget;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -61,7 +60,9 @@ public class ValuesDialog extends CaveJFACEDialog {
 
     private String title;
 
-    private List<Widget> widgets;
+    private List<FieldDefinition> fieldDefs;
+
+    private DataManager dataMgr;
 
     private Map<Object, Object> values;
 
@@ -71,19 +72,24 @@ public class ValuesDialog extends CaveJFACEDialog {
 
     private boolean closeAfterRun;
 
+    private DialogAreaComposite composite;
+
     /**
      * Class constructor
      * 
      * @param title
      *            window title with "... Values" appended onto the end.
-     * @param widgetList
-     *            a list of widgets this dialog will display.
+     * @param fieldDefs
+     *            a list of field definitions this dialog will display.
+     * @param dataMgr
      */
-    public ValuesDialog(String title, List<FieldDefinition> widgetList) {
+    public ValuesDialog(String title, List<FieldDefinition> fieldDefs,
+            DataManager dataMgr) {
         super(new Shell());
         this.title = title + " Values";
-        this.widgets = FieldDefinition.buildWidgetList(widgetList,
-                DataManager.getCurrentInstance());
+        this.fieldDefs = fieldDefs;
+        this.dataMgr = dataMgr;
+
         this.values = new HashMap<Object, Object>();
         this.closeAfterRun = false;
 
@@ -174,7 +180,7 @@ public class ValuesDialog extends CaveJFACEDialog {
     @Override
     protected Control createDialogArea(Composite parent) {
 
-        Composite composite = new DialogAreaComposite(parent, widgets, SWT.NONE);
+        composite = new DialogAreaComposite(parent, fieldDefs, this.dataMgr);
 
         return composite;
 
@@ -187,7 +193,7 @@ public class ValuesDialog extends CaveJFACEDialog {
     private void doRun() {
 
         // get the values
-        for (Widget w : widgets) {
+        for (Widget w : composite.getWidgetList()) {
             if (!(w instanceof LabelWidget)) {
                 Object key = (w.getVariable() != null) ? w.getVariable() : w
                         .getLabel();
@@ -278,15 +284,13 @@ public class ValuesDialog extends CaveJFACEDialog {
         return ValuesDialog.class.getClassLoader();
     }
 
-    public static ValuesDialog openDialog(String title,
-            List<FieldDefinition> widgets) {
-        final String dialogTitle = title;
-        final List<FieldDefinition> widgetList = widgets;
+    public static ValuesDialog openDialog(final String title,
+            final List<FieldDefinition> fieldDefs, final DataManager dataMgr) {
         VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
-                syncedDialog = new ValuesDialog(dialogTitle, widgetList);
+                syncedDialog = new ValuesDialog(title, fieldDefs, dataMgr);
                 syncedDialog.open();
             }
         });
