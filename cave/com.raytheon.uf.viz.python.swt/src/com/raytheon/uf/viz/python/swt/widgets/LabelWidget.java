@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.python.swt.widgets;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -61,12 +62,14 @@ public class LabelWidget extends Widget {
      * .swt.widgets.Composite, int)
      */
     @Override
-    public Composite buildComposite(Composite parent, int style) {
-        Group group = new Group(parent, style);
-        group.setLayout(new GridLayout());
-        group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    public Composite buildComposite(Composite parent) {
+        Group group = new Group(parent, SWT.NONE);
+        GridLayout layout = new GridLayout();
+        layout.marginHeight = 4;
+        group.setLayout(layout);
+        group.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false));
 
-        Label label = new Label(group, style);
+        Label label = new Label(group, SWT.LEFT);
         label.setText(makeGuiLabel(getLabel()));
         Object value = getValue();
         if (value != null) {

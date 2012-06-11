@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tafqueue
-Bundle-SymbolicName: com.raytheon.edex.plugin.tafqueue
+Bundle-SymbolicName: com.raytheon.uf.edex.tafqueue
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
