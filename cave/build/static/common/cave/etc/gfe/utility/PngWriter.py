@@ -24,6 +24,7 @@ import loadConfig
 from operator import attrgetter
 from com.raytheon.uf.common.time import DataTime
 from com.raytheon.uf.viz.core import RGBColors
+from com.raytheon.viz.gfe.core.parm import ParmDisplayAttributes_VisMode as VisMode
 
 class PngWriter:
     def __init__(self, conf="testIFPImage", userName="", baseTime=None,
@@ -47,6 +48,7 @@ class PngWriter:
         self.pgons = None
         self.imgParm = None
         self.ipn = self.getConfig('Png_image', '')
+        print "ipn:",self.ipn
 
         # user named time range specified?
         if usrTimeRange is not None:
@@ -79,50 +81,10 @@ class PngWriter:
             rval.append(tparm)
         return rval
 
-    def getVisuals(self, parms, time):
-        rval = []
-        for p in parms:
-            image = AFPS.ParmDspAttr.GRAPHIC
-            if p.parmID().compositeNameUI() == self.ipn:
-                image = AFPS.ParmDspAttr.IMAGE
-                self.imgParm = p
-            for vt in p.dspAttr().visualizationType(
-              AFPS.ParmDspAttr.SPATIAL, image):
-                v = self._createVisual(vt, p, time)
-                if v is not None:
-                    rval.append(v)
-
-        return rval
-
-    def adjustAspect(self, width, height, wd):
-        # Calculate the correct aspect ratio and adjust the width
-        # and height to fit.
-        if width is None and height is None:
-            width = 400 # The default
-
-        if width is not None:
-            height = int((float(width) * wd.extent().y) / wd.extent().x)
-        else:
-            width = int((float(height) * wd.extent().x) / wd.extent().y)
-        return width, height
-
     def getBG(self):
         bgColor = self.getConfig('bgColor', "black")
         trans = self.getConfig('Png_transBG', 0, int)
         return bgColor, trans
-    
-    def paintBorder(self, i1):
-        width, height = i1.size()
-        # paint a border
-        self.white = i1.colorAllocate((255, 255, 255))
-        black = i1.colorAllocate((70, 70, 70))
-        white = i1.colorAllocate((220, 220, 220))
-        i1.rectangle((0, 0), (width - 1, height - 1), black)
-        i1.rectangle((1, 1), (width - 2, height - 2), black)
-        i1.line((0, 0), (width - 1, 0), white)
-        i1.line((1, 1), (width - 2, 1), white)
-        i1.line((0, 0), (0, height - 1), white)
-        i1.line((1, 1), (1, height - 2), white)
     
     def getFileName(self, dir, setime):
         # calculate output filename, baseTime is AbsTime
@@ -137,96 +99,9 @@ class PngWriter:
         fname = dir + "/" + prefix + timeString
         return fname
 
-    def writePng(self, dir, setime, visualInfo, i1):
-        fname = self.getFileName(dir, setime) + '.png'
-        if len(visualInfo) > 0:
-            i1.writePng(fname)
-        cbv = None
-
     def getFileType(self):
         ext = self.getConfig('Png_fileType', 'png')
         return ext
-
-    def paintVisuals(self, visuals, setime, dir, wd, maskBasedOnHistory,
-                     width=None, height=None):
-        fexten, ftype = self.getFileType()
-        omitColorBar = self.getConfig('Png_omitColorBar', 0, int)
-        width, height = self.adjustAspect(width, height, wd)
-        if self.imgParm is not None and not omitColorBar:
-            height += 25 # for colorbar
-        sd = AFPS.CD2Dint(AFPS.CC2Dint(0, 0), AFPS.CC2Dint(width, height))
-        cbv = Graphics.SEColorBarVisual(self.dbss.msgHandler(),
-          AFPS.GridID_default(), 0)
-        mapping = Graphics.Mapping_spatial(sd, wd)
-        bgColor, trans = self.getBG()
-        fname = self.getFileName(dir, setime) + '.' + fexten
-        LogStream.logEvent("painting:", setime, "fname:", fname)
-        canvas = Graphics.FileCanvas_newCanvas(mapping, fname,
-                                               ftype, bgColor, trans)
-        canvas.reg(visuals)
-
-        refMgr = self.dbss.dataManager().referenceSetMgr()
-        visualInfo = []
-        for v in visuals:
-            if hasattr(v, "parm"):
-                parm = v.parm()
-
-                gridid = AFPS.GridID(parm, setime)
-                griddata = gridid.grid()
-                if griddata is None:
-                    continue
-
-                # set up attributes for painting
-                AFPS.SETimeChangedMsg_send_mh(self.dbss.msgHandler(), setime)
-                AFPS.GridVisibilityChangedMsg_send_mh(self.dbss.msgHandler(),
-                     gridid, 1, 0)
-                if self.imgParm is not None and self.imgParm == v.parm():
-                    AFPS.DisplayTypeChangedMsg_send_mh(self.dbss.msgHandler(),
-                        AFPS.ParmDspAttr.SPATIAL, gridid,
-                        AFPS.ParmDspAttr.IMAGE)
-                if v.visualType().type() == AFPS.VisualType.IMAGE:
-                    info = (parm.parmID(), griddata.gridTime().startTime(),
-                      griddata.gridTime().endTime(),
-                      'NoColor', 1)
-                else:
-                    info = (parm.parmID(), griddata.gridTime().startTime(),
-                      griddata.gridTime().endTime(),
-                      parm.dspAttr().baseColor(), 0)
-
-                # fit to data special cases
-                if v.visualType().type() == AFPS.VisualType.IMAGE:
-                    alg = self.getConfig(parm.parmID().compositeNameUI()
-                                         + '_fitToDataColorTable', None)
-                    if alg is not None:
-                        if alg == 'Single Grid over Area':
-                            ct = parm.dspAttr().colorTable()
-                            refarea = refMgr.activeRefSet()
-                            ct.fitToData_gridarea(gridid, refarea)
-                        elif alg == 'Single Grid':
-                            ct = parm.dspAttr().colorTable()
-                            ct.fitToData_grid(gridid)
-
-                visualInfo.append(info)
-
-
-                # special masking based on Grid Data History
-                if maskBasedOnHistory:
-                    parm = v.parm()
-                    bits = refMgr.siteGridpoints(griddata.historySites(), 1)
-                    parm.dspAttr().setDisplayMask_grid2dbit(bits)
-
-        canvas.paint(mapping.domain(), 1)
-        canvas.unreg(visuals)
-        self.writeInfo(dir, setime, visualInfo)
-        if ftype != Graphics.FileCanvas.PNG:
-            canvas.close()
-        else:
-            i1 = canvas.getImage()
-            if not omitColorBar:
-                self.paintColorBar(width, bgColor, trans, setime, cbv, i1)
-            newI = self.paintLogo(i1)
-            self.paintBorder(newI)
-            self.writePng(dir, setime, visualInfo, newI)
 
     def writeInfo(self, dir, setime, visualInfo):
         if len(visualInfo) > 0:
@@ -339,8 +214,8 @@ class PngWriter:
         #mmgr = self.dm.mapMgr()
         mv = []
         mids = []
-        height = self.getConfig('Png_height', 400.0, float)
-        width = self.getConfig('Png_width', 400.0, float)
+        height = self.getConfig('Png_height', None, int)
+        width = self.getConfig('Png_width', None, int)
         localFlag = self.getConfig('Png_localTime', 0, int)
         snapshotTime = self.getConfig('Png_snapshotTime', 0, int)
         useLegend = self.getConfig('Png_legend', 1, int)
@@ -419,13 +294,18 @@ class PngWriter:
             overrideColors = {}
             for p in prms:
                 pname = p.getParmID().compositeNameUI()
+                if pname == self.ipn:
+                    overrideColors[pname] = "White"
+
                 color = self.getConfig(pname + "_Legend_color", None)
                 if color:
                     overrideColors[pname] = color
             lang = self.getConfig('Png_legendLanguage', '');
             viz.setupLegend(localTime, snapshotTime, snapshotFmt, descName, durFmt, startFmt, endFmt, overrideColors, lang)        
         
-        bgColor = self.getConfig('bgColor', None)   
+        #TODO handle transparent background
+        bgColor, trans = self.getBG()   
+        
         if not omitColorbar:
             viz.enableColorbar()
             
@@ -444,29 +324,31 @@ class PngWriter:
         fitToDataAlg = None
         for p in prms:
             pname = p.getParmID().compositeNameUI()
-            if pname == self.ipn:
-                colormap = self.getConfig(pname + '_defaultColorTable', None)
-                colorMax = self.getConfig(pname + '_maxColorTableValue', None, float)
-                colorMin = self.getConfig(pname + '_minColorTableValue', None, float)
-                viz.addImageResource(pname, colormap=colormap, colorMin=colorMin, colorMax=colorMax, smooth=smooth)
-                fitToDataAlg = self.getConfig(pname + '_fitToDataColorTable', None)
-                if fitToDataAlg is not None:
-                    from com.raytheon.viz.gfe.rsc.colorbar import FitToData
-                    fit = FitToData(self.dm, p)
-                    if fitToDataAlg == 'All Grids':
-                        fit.fitToData()
-                        fitToDataAlg = None
-                    elif fitToDataAlg == 'All Grids over Area':
-                        fit.fitToData(self.dm.getRefManager().getActiveRefSet())
-                        fitToDataAlg = None
+            colormap = self.getConfig(pname + '_defaultColorTable', None)
+            colorMax = self.getConfig(pname + '_maxColorTableValue', None, float)
+            colorMin = self.getConfig(pname + '_minColorTableValue', None, float)
+            color = self.getConfig(pname + '_graphicColor', None)    
+            lineWidth = self.getConfig(pname + '_lineWidth', None, int)
+            viz.addGfeResource(pname, colormap=colormap, colorMin=colorMin, colorMax=colorMax, \
+                               smooth=smooth, color=color, lineWidth=lineWidth)
+            fitToDataAlg = self.getConfig(pname + '_fitToDataColorTable', None)
+            if fitToDataAlg is not None:
+                from com.raytheon.viz.gfe.rsc.colorbar import FitToData
+                fit = FitToData(self.dm, p)
+                if fitToDataAlg == 'All Grids':
+                    fit.fitToData()
+                    fitToDataAlg = None
+                elif fitToDataAlg == 'All Grids over Area':
+                    fit.fitToData(self.dm.getRefManager().getActiveRefSet())
+                    fitToDataAlg = None
                     
+            if pname == self.ipn:
+                print "setting",pname,"to IMAGE"
+                p.getDisplayAttributes().setVisMode(VisMode.IMAGE)
             else:
-                graphicParms.append(pname)
-        for gp in graphicParms:        
-            color = self.getConfig(gp + '_graphicColor', None)    
-            lineWidth = self.getConfig(gp + '_lineWidth', None, int)
-            viz.addGraphicResource(gp, color=color, lineWidth=lineWidth)
-        
+                print "setting",pname,"to GRAPHIC"
+                p.getDisplayAttributes().setVisMode(VisMode.GRAPHIC)
+                
         self.initSamples()
         
         # paint once to get map retrieval started
@@ -475,26 +357,35 @@ class PngWriter:
 
         for t in times:
             paintTime = t
-            if paintTime and self.overlapsWithGrids(prms, paintTime):                          
+            if paintTime and self.overlapsWithGrids(prms, paintTime):
                 self.dm.getSpatialDisplayManager().setSpatialEditorTime(paintTime.javaDate())
-                if fitToDataAlg:
-                    from com.raytheon.viz.gfe.edittool import GridID
-                    gridid = GridID(self.dm.getSpatialDisplayManager().getActivatedParm(), )
-                    if fitToDataAlg == 'Single Grid':                                                
-                        fit.fitToData(gridid)
-                    elif fitToDataAlg == 'Single Grid over Area':                        
-                        fit.fitToData(gridid, self.dm.getRefManager().getActiveRefSet())  
-                viz.paint(paintTime, backgroundColor=bgColor)
-                fname = self.getFileName(dir, t) + '.' + fexten
-                viz.outputFiles(fname, showLogo, logoString)
                 visualInfo = []
                 for p in prms:
                     griddata = p.overlappingGrid(paintTime.javaDate())
-                    if griddata is not None:                        
-                        info = (p.getParmID().toString(), AbsTime.AbsTime(griddata.getGridTime().getStart()),
-                                AbsTime.AbsTime(griddata.getGridTime().getEnd()),                                
-                                RGBColors.getColorName(p.getDisplayAttributes().getBaseColor()), p.getDisplayAttributes().getVisMode().toString() == 'Image')                        
-                        visualInfo.append(info)
+                    if griddata is None:
+                        continue
+                                            
+                    # fit to data special cases
+                    if p.getDisplayAttributes().getVisMode().toString() == 'Image':
+                        fitToDataAlg = self.getConfig(p.getParmID().compositeNameUI() + '_fitToDataColorTable', None)
+                        if fitToDataAlg:
+                            from com.raytheon.viz.gfe.rsc.colorbar import FitToData
+                            fit = FitToData(self.dm, p)
+                            from com.raytheon.viz.gfe.edittool import GridID
+                            gridid = GridID(p, paintTime.javaDate())
+                            if fitToDataAlg == 'Single Grid':                                                
+                                fit.fitToData(gridid)
+                            elif fitToDataAlg == 'Single Grid over Area':                        
+                                fit.fitToData(gridid, self.dm.getRefManager().getActiveRefSet())  
+                            
+                    info = (p.getParmID().toString(), AbsTime.AbsTime(griddata.getGridTime().getStart()),
+                            AbsTime.AbsTime(griddata.getGridTime().getEnd()),                                
+                            RGBColors.getColorName(p.getDisplayAttributes().getBaseColor()), p.getDisplayAttributes().getVisMode().toString() == 'Image')                        
+                    visualInfo.append(info)
+
+                viz.paint(paintTime, backgroundColor=bgColor)
+                fname = self.getFileName(dir, t) + '.' + fexten
+                viz.outputFiles(fname, showLogo, logoString)
                 self.writeInfo(dir, paintTime, visualInfo)
             else:
                 LogStream.logEvent("No grids to generate for ", `t`)
@@ -520,43 +411,6 @@ class PngWriter:
             return 1
         else:
             return 0
-
-
-    def toscreen(self, point, wd, sd):
-        x = int(((float(point.x) - wd.origin().x) * float(sd[0])) \
-                / wd.extent().x)
-        y = int(((float(point.y) - wd.origin().y) * float(sd[1])) \
-                / float(wd.extent().y))
-        return (x, sd[1] - y)
-
-    def toworld(self, point, wd, sd):
-        x = (float(point[0]) * wd.extent().x) / float(sd[0])
-        y = (float(point[1]) * wd.extent().y) / float(sd[1])
-        return (wd.origin().x + x, wd.origin().y + y)
-
-    def _createVisual(self, vt, parm, gridTime):
-        visType = vt.type()
-        if visType == AFPS.VisualType.IMAGE:
-            return Graphics.ImageVisual(parm, gridTime)
-        elif visType == AFPS.VisualType.CONTOUR:
-            return Graphics.ContourVisual(parm, gridTime)
-        elif visType == AFPS.VisualType.WIND_BARB:
-            size = self.getConfig('WindBarbDefaultSize', 60, int)
-            size = self.getConfig(parm.parmID().compositeNameUI()
-                                  + '_windBarbDefaultSize', size, int)
-            return Graphics.WindBarbGridVisual(parm, gridTime, size)
-        elif visType == AFPS.VisualType.WIND_ARROW:
-            size = self.getConfig('WindArrowDefaultSize', 60, int)
-            size = self.getConfig(parm.parmID().compositeNameUI()
-                                  + '_windArrowDefaultSize', size, int)
-            return Graphics.WindArrowGridVisual(parm, gridTime, size)
-        elif visType == AFPS.VisualType.BOUNDED_AREA:
-            return Graphics.BoundedAreaVisual(parm, gridTime)
-        else:
-            LogStream.logBug("PngWriter._createVisual() : ",
-                   "Unknown visual type : ", vt)
-            return None
-
 
 def usage():
     msg = """

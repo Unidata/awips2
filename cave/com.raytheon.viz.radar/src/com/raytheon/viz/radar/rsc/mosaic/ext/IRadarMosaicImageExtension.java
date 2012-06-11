@@ -20,8 +20,9 @@
 package com.raytheon.viz.radar.rsc.mosaic.ext;
 
 import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -44,13 +45,24 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 public interface IRadarMosaicImageExtension extends IImagingExtension {
 
-    public static interface IMosaicImage extends IImage {
+    public static interface IMosaicImage extends IColormappedImage {
 
         public void setImagesToMosaic(DrawableImage... images);
 
+        public void setImageExtent(IExtent imageExtent);
+
     }
 
+    /**
+     * Creates a mosaic image with the given imageBounds and imageExtent
+     * 
+     * @param imageBounds
+     * @param imageExtent
+     * @param params
+     * @return
+     * @throws VizException
+     */
     public IMosaicImage initializeRaster(int[] imageBounds,
-            ColorMapParameters params) throws VizException;
+            IExtent imageExtent, ColorMapParameters params) throws VizException;
 
 }

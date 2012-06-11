@@ -1,0 +1,11 @@
+!
+!	lockedColorMaps.tbl
+!
+!	This table contains the list of color map files that needs to be locked down. 
+!
+!	First column  -- Colormap file name					
+!
+! 	Note: DO NOT use space(s). One file name per line ('.cmap' is optional).
+!
+! FileName	
+bd.cmap    

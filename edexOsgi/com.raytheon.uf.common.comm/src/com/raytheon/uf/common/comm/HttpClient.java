@@ -23,6 +23,7 @@ package com.raytheon.uf.common.comm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -91,6 +92,8 @@ public class HttpClient {
 
     private NetworkStatistics stats = NetworkStatistics.getInstance();
 
+    private boolean gzipRequests = false;
+
     private HttpClient() {
         connManager = new ThreadSafeClientConnManager();
         DefaultHttpClient client = new DefaultHttpClient(connManager);
@@ -130,7 +133,7 @@ public class HttpClient {
      * encoding and decompressing responses if they arrived gzipped. This should
      * only ever be called once per runtime.
      */
-    public void enableGzipHandling() {
+    public void enableGzipResponseHandling() {
         // Add gzip compression handlers
 
         // advertise we accept gzip
@@ -170,6 +173,10 @@ public class HttpClient {
                     }
 
                 });
+    }
+
+    public void enableRequestCompression() {
+        gzipRequests = true;
     }
 
     public static synchronized HttpClient getInstance() {
@@ -389,6 +396,20 @@ public class HttpClient {
             throws CommunicationException, Exception {
 
         HttpPost put = new HttpPost(address);
+        if (gzipRequests) {
+            ByteArrayOutputStream byteStream = ByteArrayOutputStreamPool
+                    .getInstance().getStream(message.length);
+            GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream);
+            gzipStream.write(message);
+            gzipStream.finish();
+            gzipStream.flush();
+            byte[] gzipMessage = byteStream.toByteArray();
+            gzipStream.close();
+            if (message.length > gzipMessage.length) {
+                message = gzipMessage;
+                put.setHeader("Content-Encoding", "gzip");
+            }
+        }
 
         put.setEntity(new ByteArrayEntity(message));
 
