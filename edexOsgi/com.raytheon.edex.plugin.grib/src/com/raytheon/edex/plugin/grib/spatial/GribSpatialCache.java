@@ -517,7 +517,7 @@ public class GribSpatialCache {
 
 						GridCoverage gridCoverage = getGrid(referenceModel);
 
-						if (gridCoverage == null) {
+						if (gridCoverage != null) {
 							Coordinate wfoCenter = MapUtil
 									.latLonToGridCoordinate(wfoCenterPoint,
 											PixelOrientation.CENTER,
