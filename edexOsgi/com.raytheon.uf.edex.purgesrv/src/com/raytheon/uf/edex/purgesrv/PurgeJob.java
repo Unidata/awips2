@@ -163,9 +163,12 @@ public class PurgeJob extends Thread {
 							PurgeLogger.logError("Purge job has failed "
 									+ status.getFailedCount()
 									+ " consecutive times.", this.pluginName);
-							// Reset the start time so we can try again as soon
-							// as possible
-							status.setStartTime(new Date(0));
+							// Back the start time off by half an hour to try to
+							// purgin soon, don't want to start immediately so
+							// it doesn't ping pong between servers in a time
+							// out scenario
+							Date startTime = status.getStartTime();
+							startTime.setTime(startTime.getTime() - (1800000));
 						}
 					} else {
 						status.setFailedCount(0);

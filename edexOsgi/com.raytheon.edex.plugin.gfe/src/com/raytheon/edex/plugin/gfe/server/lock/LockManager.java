@@ -450,7 +450,7 @@ public class LockManager {
             for (int i = 0; i < locks.size() - 1; i++) {
                 currentLock = locks.get(i);
                 nextLock = locks.get(i + 1);
-                if (currentLock.getEndTime() >= nextLock.getStartTime()) {
+                if (currentLock.getEndTime() >= nextLock.getStartTime() && currentLock.getWsId().equals(nextLock.getWsId())) {
                     lockCombined = true;
                     deleted.add(currentLock);
                     deleted.add(nextLock);
