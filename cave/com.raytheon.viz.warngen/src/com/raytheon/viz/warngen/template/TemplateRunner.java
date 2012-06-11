@@ -27,9 +27,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -105,6 +108,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * ------------ ---------- ----------- --------------------------
  * Mar 31, 2011            njensen     Initial creation
  * Oct 31, 2011            Qinglu Lin  Call convertAlaskaLons() for eventLocation.
+ * May  9, 2012   14887    Qinglu Lin  Changed one argument passed to calculatePortion().
  * 
  * </pre>
  * 
@@ -236,15 +240,25 @@ public class TemplateRunner {
             }
 
             if (areas != null && areas.length > 0) {
-                String OneLetterTimeZone = areas[0].getTimezone();
-                context.put("localtimezone", OneLetterTimeZone);
-
+            	Set<String> timeZones = new HashSet<String>();
                 for (AffectedAreas area : areas) {
-                    if (area.getTimezone() != null
-                            && !area.getTimezone().equals(OneLetterTimeZone)) {
-                        context.put("secondtimezone", area.getTimezone());
-                        break;
+                    if (area.getTimezone() != null) {
+                    	// Handles counties that span two counties
+                    	for (String oneLetterTimeZone : area.getTimezone().split("")) {
+                    		if (oneLetterTimeZone.length() != 0) {
+                    			timeZones.add(oneLetterTimeZone);
+                    		}
+                    	}
                     }
+                }
+
+                Iterator<String> iterator = timeZones.iterator();
+                while (iterator.hasNext()) {
+                	if (context.get("localtimezone") == null) {
+                		context.put("localtimezone", iterator.next());
+                	} else if (context.get("secondtimezone") == null) {
+                		context.put("secondtimezone", iterator.next());
+                	}
                 }
             }
 
@@ -693,8 +707,7 @@ public class TemplateRunner {
                             .get("Name").toString());
 
                     watch.setPartOfParentRegion(GisUtil.asStringList(GisUtil
-                            .calculatePortion(parentGeom, atr.getGeometry()
-                                    .getCentroid().getCoordinate())));
+                            .calculatePortion(parentGeom, atr.getGeometry())));
                     rval.addWaw(watch);
                 }
             }

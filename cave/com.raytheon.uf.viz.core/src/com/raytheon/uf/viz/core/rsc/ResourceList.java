@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -98,10 +98,10 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
     };
 
     public ResourceList() {
-        preAddListeners = new HashSet<AddListener>();
-        postAddListeners = new HashSet<AddListener>();
-        preRemoveListeners = new HashSet<RemoveListener>();
-        postRemoveListeners = new HashSet<RemoveListener>();
+        preAddListeners = new LinkedHashSet<AddListener>();
+        postAddListeners = new LinkedHashSet<AddListener>();
+        preRemoveListeners = new LinkedHashSet<RemoveListener>();
+        postRemoveListeners = new LinkedHashSet<RemoveListener>();
 
         addPostAddListener(new AddListener() {
             @Override
@@ -308,10 +308,12 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
 
         boolean anyModified = false;
         for (ResourcePair rp : toAdd) {
-            try {
-                firePreAddListeners(rp);
-            } catch (VizException e1) {
-                return false;
+            if (rp.getResource() != null) {
+                try {
+                    firePreAddListeners(rp);
+                } catch (VizException e1) {
+                    return false;
+                }
             }
 
             boolean modified = this.addInternal(rp);
@@ -321,10 +323,12 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
                     rp.setProperties(new ResourceProperties());
                 }
 
-                try {
-                    firePostAddListeners(rp);
-                } catch (VizException e1) {
-                    return false;
+                if (rp.getResource() != null) {
+                    try {
+                        firePostAddListeners(rp);
+                    } catch (VizException e1) {
+                        return false;
+                    }
                 }
                 anyModified = true;
             }

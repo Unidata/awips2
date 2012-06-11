@@ -71,8 +71,10 @@ public class DetachedViewListener implements Listener, IWindowListener,
             // We switched shells, add and or remove shell listeners.
             // Don't add or remove listeners from the windowShell
             if (activeShell != windowShell) {
-                activeShell.removeListener(SWT.Activate, this);
-                activeShell.removeListener(SWT.Deactivate, this);
+                if (!activeShell.isDisposed()) {
+                    activeShell.removeListener(SWT.Activate, this);
+                    activeShell.removeListener(SWT.Deactivate, this);
+                }
             }
             activeShell = partShell;
             if (partShell != windowShell) {

@@ -10,11 +10,12 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import java.awt.Color;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.JetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
@@ -27,7 +28,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet.JetBarb;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Mouse handler to add barb when drawing jet.
@@ -46,7 +47,8 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
  */
 public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
 	
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	private PgenResource drawingLayer;
 	private IJetBarb prevTool;
 	private JetAttrDlg jetDlg;
@@ -59,7 +61,8 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
 	 * @param jet
 	 * @param jetDlg
 	 */
-	public PgenJetBarbAddingHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+//	public PgenJetBarbAddingHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+	public PgenJetBarbAddingHandler(AbstractEditor mapEditor, PgenResource drawingLayer,
 			IJetBarb prevTool, JetAttrDlg jetDlg){
 		this.mapEditor= mapEditor;
 		this.drawingLayer = drawingLayer;

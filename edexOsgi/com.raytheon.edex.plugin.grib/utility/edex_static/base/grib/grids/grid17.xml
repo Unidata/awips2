@@ -27,8 +27,8 @@
     <firstGridPointCorner>UpperLeft</firstGridPointCorner>
     <nx>736</nx>
     <ny>526</ny>
-    <dx>0.067</dx>
-    <dy>0.067</dy>
+    <dx>0.066667</dx>
+    <dy>0.066667</dy>
     <spacingUnit>degree</spacingUnit>
     <la2>15.0</la2>
     <lo2>244.0</lo2>

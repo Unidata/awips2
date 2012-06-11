@@ -8,6 +8,8 @@
 !
 GLEVEL=700
 GVCORD=PRES
+SKIP=
+FILTER=y
 SCALE=0!0!-1
 GDPFUN=dwpc!dwpc!sm5s(hght) ! kntv(wnd)
 TYPE=c/f!c!c ! b
