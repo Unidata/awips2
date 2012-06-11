@@ -1064,7 +1064,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         }
 
         CreateSessionDialog dialog = new CreateSessionDialog(Display
-                .getCurrent().getActiveShell(), getSelectedUsers().size() > 0);
+                .getCurrent().getActiveShell());
         dialog.open();
 
         CreateSessionData result = (CreateSessionData) dialog.getReturnValue();
