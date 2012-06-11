@@ -548,6 +548,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     @Override
     public void setDataURI(String dataURI) {
+        super.setDataURI(dataURI);
         identifier = dataURI;
     }
 
@@ -662,33 +663,33 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
                 display = false;
             }
         } else if ("ICT".matches(paramName) && maxPirepLayerData != null) {
-            if(maxPirepLayerData == null) {
+            if (maxPirepLayerData == null) {
                 findMaxTurbcLayer();
             }
-            if(maxPirepLayerData != null) {
+            if (maxPirepLayerData != null) {
                 String type = maxPirepLayerData.getDataType();
-                if(type != null) {
-                    return new String [] { type, };
+                if (type != null) {
+                    return new String[] { type, };
                 }
             }
         } else if ("TBI".matches(paramName)) {
-            if(maxPirepLayerData == null) {
+            if (maxPirepLayerData == null) {
                 findMaxTurbcLayer();
             }
-            if(maxPirepLayerData != null) {
+            if (maxPirepLayerData != null) {
                 String intensity = getIntensity(maxPirepLayerData);
-                if(intensity != null) {
-                    return new String [] { intensity, };
+                if (intensity != null) {
+                    return new String[] { intensity, };
                 }
             }
         } else if ("TBF".matches(paramName)) {
-            if(maxPirepLayerData == null) {
+            if (maxPirepLayerData == null) {
                 findMaxTurbcLayer();
             }
-            if(maxPirepLayerData != null) {
-                String freq =  maxPirepLayerData.getFrequency();
-                if(freq != null) {
-                    return new String [] { freq, };
+            if (maxPirepLayerData != null) {
+                String freq = maxPirepLayerData.getFrequency();
+                if (freq != null) {
+                    return new String[] { freq, };
                 }
             }
         }
@@ -703,7 +704,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
         for (PirepLayerData layer : this.ancPirepData) {
             if (PirepLayerData.LAYER_TYP_TURBC.equals(layer.getLayerType())) {
                 String intensity = getIntensity(layer);
-                if(TURB_MAP.containsKey(intensity)) {
+                if (TURB_MAP.containsKey(intensity)) {
                     if (TURB_MAP.get(intensity).intValue() > rank) {
                         rank = TURB_MAP.get(intensity).intValue();
                         maxPirepLayerData = layer;
@@ -715,6 +716,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     /**
      * Get the combined intensity for a layer.
+     * 
      * @param layer
      * @return
      */
@@ -728,7 +730,7 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
         }
         return intensity;
     }
-    
+
     @Override
     public AircraftObsLocation getSpatialObject() {
         return location;
@@ -787,15 +789,10 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
         return true;
     }
 
-    
-    
-    
-    
-    
-    public static final void main(String [] args) {
-        
+    public static final void main(String[] args) {
+
         PirepRecord rec = new PirepRecord();
-        
+
         PirepLayerData layer = new PirepLayerData(rec);
         layer.setLayerType(PirepLayerData.LAYER_TYP_TURBC);
         layer.setFrequency("OCN");
@@ -814,12 +811,12 @@ public class PirepRecord extends PluginDataObject implements ISpatialEnabled,
         layer.setTopLayerHeight(22000);
         rec.addLayer(layer);
 
-        String [] data = rec.getStrings("TBF");
-        if((data != null) && (data.length > 0)) {
+        String[] data = rec.getStrings("TBF");
+        if ((data != null) && (data.length > 0)) {
             System.out.println(data[0]);
         }
         data = rec.getStrings("TBI");
-        if((data != null) && (data.length > 0)) {
+        if ((data != null) && (data.length > 0)) {
             System.out.println(data[0]);
         }
     }
