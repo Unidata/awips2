@@ -82,6 +82,14 @@
                icon="icons/chats.gif"
                name="Private Session"
                restorable="false"/>
+		<view
+               allowMultiple="true"
+               category="com.raytheon.viz.ui"
+               class="com.raytheon.uf.viz.collaboration.ui.session.SessionFeedView"
+               id="com.raytheon.uf.viz.collaboration.SessionFeedView"
+               icon="icons/chats.gif"
+               name="Text Session"
+               restorable="false"/>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -100,10 +108,6 @@
          id="com.raytheon.uf.viz.collaboration.chatView"
          name="Collaboration Browser" description="Command category for the Chat Room View">
 	  </category>
-      <command
-            id="com.raytheon.uf.viz.collaboration.ChatRoom"
-            name="Collaboration Browser">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -115,13 +119,6 @@
             id="com.raytheon.uf.viz.collaboration.CollaborationRoom"
             name="Collaboration Browser">
       </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="com.raytheon.uf.viz.collaboration.ui.session.SessionAction"
-            commandId="com.raytheon.uf.viz.collaboration.ChatRoom">
-      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -191,11 +188,6 @@
             class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationAlertWordsPreferencePage"
             id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationalertwordspreferencepage"
             name="Significant Words"
-            category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
-	  <page
-            class="com.raytheon.uf.viz.collaboration.ui.feed.CollaborationSiteFilterPreferencePage"
-            id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationsitefilterpreferencepage"
-            name="Site Filter"
             category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
    </extension>
 	<extension
