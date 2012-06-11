@@ -141,13 +141,6 @@ public class CaveDetachedWindow extends DetachedWindow implements
     private void updateTitle() {
         if (activePart != null) {
             windowShell.setText(activePart.getPartName());
-            // Uncomment to set the shell title to match the title of the active
-            // part
-            // String text = activePart.getTitle();
-            //
-            // if (!text.equals(s.getText())) {
-            // s.setText(text);
-            // }
         }
     }
 
