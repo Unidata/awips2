@@ -348,14 +348,11 @@ public class SendDialog extends CaveSWTDialog {
         // Forecaster ID
         int forecasterId = forecasterArray.get(personList.getSelectionIndex())
                 .getId();
-        // long now = System.currentTimeMillis();
         Calendar xmitTime = Calendar.getInstance();
-        // xmitTime.setTimeInMillis(now);
         xmitTime.setTimeZone(TimeZone.getTimeZone("GMT"));
         xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
         xmitTime.set(Calendar.MINUTE, minuteSpnr.getSelection());
         xmitTime.set(Calendar.SECOND, secondSpnr.getSelection());
-        // request.setXmitTime(xmitTime.getTime());
         String xmitTimestamp = String.format(TIMESTAMP_FORMAT,
                 xmitTime.get(Calendar.DAY_OF_MONTH),
                 xmitTime.get(Calendar.HOUR_OF_DAY),
@@ -363,12 +360,9 @@ public class SendDialog extends CaveSWTDialog {
         // BBB
         String in = tabComp.getTextEditorControl().getText();
         String bbb = tabComp.getBBB();
-        // request.addArgument("bbb", bbb);
         // WMO ID
         String siteWmoId = tabComp.getWmoId();
-        // request.addArgument("wmoid", siteWmoId);
         // WMO Site
-        // String siteNode = tabComp.getWmoSiteId();
         String siteNode = null;
         java.util.List<String> stationIds = new ArrayList<String>();
 
@@ -407,8 +401,6 @@ public class SendDialog extends CaveSWTDialog {
 
             // Site ID
             String siteId = fourLetterId.substring(1);
-            // Type
-            // String type = tafText.substring(0, 3);
 
             // Update Header Time to transmission time.
             tafText = TIMESTAMP_PATTERN.matcher(tafText).replaceFirst(
@@ -433,18 +425,14 @@ public class SendDialog extends CaveSWTDialog {
 
         try {
             // Enqueue TAFs for transmission
-            System.out.println("Before - " + request.toString());
             request.setRecords(records);
             ServerResponse<String> response = (ServerResponse<String>) ThriftClient
                     .sendRequest(request);
-            System.out.println(response.toString());
             if (response.isError()) {
                 statusHandler.handle(Priority.PROBLEM, response.toString());
                 tafsQeueued = false;
             }
         } catch (VizException e) {
-            // TODO Auto-generated catch block. Please revise as
-            // appropriate.
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             msgStatComp.setMessageText(e.getMessage(), shell.getDisplay()
                     .getSystemColor(SWT.COLOR_RED).getRGB());

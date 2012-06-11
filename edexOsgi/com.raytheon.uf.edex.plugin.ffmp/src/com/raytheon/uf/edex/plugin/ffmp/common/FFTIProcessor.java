@@ -73,8 +73,6 @@ public class FFTIProcessor {
 
     private FFMPGenerator ffmpgen = null;
 
-    //private SourceXML source = null;
-
     private String wfo = null;
 
     private Date barrierTime = null;
@@ -122,18 +120,28 @@ public class FFTIProcessor {
 				String sourceName = parts[1];
 				source = FFMPSourceConfigurationManager.getInstance()
 						.getSource(sourceName);
+				// check for it by displayName one last time, XMRG sources do this
+				if (source == null) {
+					source = FFMPSourceConfigurationManager.getInstance()
+					.getSourceByDisplayName(sourceName);
+				}
 			} else {
-				// mosaic source
 				source = FFMPSourceConfigurationManager.getInstance()
 						.getSourceByDisplayName(sourceString);
 			}
-
+		
 			if (!source.getSourceType().equals(
 					FFMPSourceConfigurationManager.SOURCE_TYPE.GUIDANCE
 							.getSourceType())
 					&& !source.isMosaic()) {
-				sourceString = source.getDisplayName() + "-" + iSiteKey + "-"
+				if (source.getDataType().equals(FFMPSourceConfigurationManager.DATA_TYPE.XMRG
+							.getDataType())) {
+					sourceString = source.getSourceName() + "-" + iSiteKey + "-"
+					+ iSiteKey;
+				} else {
+					sourceString = source.getDisplayName() + "-" + iSiteKey + "-"
 						+ iSiteKey;
+				}
 			} else {
 				sourceString = source.getDisplayName();
 			}
@@ -158,7 +166,7 @@ public class FFTIProcessor {
 					reload = true;
 				} else {
 					if (ffmpgen.checkBuddyFile(source.getSourceName() + "-"
-							+ iSiteKey + "-" + iSiteKey, "ALl", sourceString,
+							+ iSiteKey + "-" + iSiteKey, "ALL", sourceString,
 							barrierTime)) {
 						reload = true;
 					}
@@ -179,7 +187,7 @@ public class FFTIProcessor {
 					ProductXML product = ffmpgen.fscm.getProduct(primarySource);
 					Date ffgBackDate = new Date(ffmpRec.getDataTime()
 							.getRefTime().getTime()
-							- (3600 * 1000 * 12));
+							- (3600 * 1000 * 6));
 
 					// try to load any missing one's, other than the new one
 					for (SourceXML guidSource : product

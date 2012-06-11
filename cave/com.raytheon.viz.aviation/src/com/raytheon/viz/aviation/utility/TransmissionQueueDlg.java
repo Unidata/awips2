@@ -21,6 +21,8 @@ package com.raytheon.viz.aviation.utility;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -201,6 +203,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         createMessageControl(configMgr);
 
         populateData();
+        updateDayTransList();
     }
 
     /**
@@ -312,15 +315,15 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         if (indices.length == 0) {
             return;
         }
-        TafQueueRequest request = new TafQueueRequest();
-        request.setType(Type.RETRANSMIT);
-        request.setState(getDisplayState());
-
-        java.util.List<String> idList = new ArrayList<String>();
+        java.util.List<String> idList = new ArrayList<String>(indices.length);
         for (int index : indices) {
             idList.add(transListId.get(index));
         }
-        request.addArgument("idlist", idList);
+        TafQueueRequest request = new TafQueueRequest();
+        request.setType(Type.RETRANSMIT);
+        request.setState(getDisplayState());
+        request.setArgument(idList);
+
         try {
             ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
                     .sendRequest(request);
@@ -363,14 +366,14 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
             return;
         }
 
-        java.util.List<String> idList = new ArrayList<String>();
+        java.util.List<String> idList = new ArrayList<String>(indices.length);
         for (int index : indices) {
             idList.add(transListId.get(index));
         }
 
         TafQueueRequest request = new TafQueueRequest();
         request.setType(Type.GET_TAFS);
-        request.addArgument("idlist", idList);
+        request.setArgument(idList);
         ServerResponse<String> response = null;
         try {
             response = (ServerResponse<String>) ThriftClient
@@ -400,15 +403,19 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
      */
     @SuppressWarnings("unchecked")
     private void removeSelected() {
+        int[] indices = transList.getSelectionIndices();
+        if (indices.length == 0) {
+            return;
+        }
+        java.util.List<String> idList = new ArrayList<String>(indices.length);
+        for (int index : indices) {
+            idList.add(transListId.get(index));
+        }
         TafQueueRequest request = new TafQueueRequest();
         request.setType(Type.REMOVE_SELECTED);
         request.setState(getDisplayState());
+        request.setArgument(idList);
 
-        java.util.List<String> idList = new ArrayList<String>();
-        for (int index : transList.getSelectionIndices()) {
-            idList.add(transListId.get(index));
-        }
-        request.addArgument("idlist", idList);
         try {
             ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
                     .sendRequest(request);
@@ -573,7 +580,6 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         transStText.setEditable(false);
         transStText.setLayoutData(gd);
         configMgr.setTextEditorFontAndColors(transStText);
-        updateDayTransList();
     }
 
     /**
@@ -592,10 +598,9 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
     private void updateDayTransList() {
         TafQueueRequest request = new TafQueueRequest();
         request.setType(Type.GET_LOG);
+        List<Date> dateList = new ArrayList<Date>(2);
 
         dayLbl.setText(dayOfWeek[selectedDay - 1]);
-        StringBuilder txt = new StringBuilder();
-
         // Adjust currentDay to start of the day
         Calendar currentDay = Calendar.getInstance();
         currentDay.set(Calendar.HOUR_OF_DAY, 0);
@@ -610,19 +615,20 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         if (currentDay.compareTo(selectedDayStart) < 0) {
             selectedDayStart.add(Calendar.DAY_OF_MONTH, -7);
         }
-        request.addArgument("starttime", selectedDayStart.getTime());
+        dateList.add(selectedDayStart.getTime());
 
         // Determine start of next day.
         Calendar selectedDayEnd = Calendar.getInstance();
         selectedDayEnd.setTime(selectedDayStart.getTime());
         selectedDayEnd.add(Calendar.DAY_OF_MONTH, 1);
-        request.addArgument("endtime", selectedDayEnd.getTime());
+        dateList.add(selectedDayEnd.getTime());
+        request.setArgument(dateList);
 
         try {
             ServerResponse<String> response = (ServerResponse<String>) ThriftClient
                     .sendRequest(request);
-            txt.append(response.getPayload());
-            transStText.setText(txt.toString());
+            String text = response.getPayload();
+            transStText.setText(text);
         } catch (VizException e) {
             msgStatComp.setMessageText(e.getMessage(), getParent().getDisplay()
                     .getSystemColor(SWT.COLOR_RED).getRGB());
