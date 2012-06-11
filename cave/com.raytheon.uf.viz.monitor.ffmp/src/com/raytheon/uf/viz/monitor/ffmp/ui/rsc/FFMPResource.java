@@ -134,13 +134,13 @@ import com.vividsolutions.jts.geom.Point;
 
 /**
  * Resource to display FFMP data
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 29 June, 2009 2521          dhladky     Initial creation
  * 11 Apr.  2012 DR 14522      gzhang      Fixing invalid thread error.
- * 16 Apr.  2012 DR 14511      gzhang      Handling NullPointer in getGraphData()
  * </pre>
  * @author dhladky
  * @version 1.0
@@ -207,7 +207,7 @@ public class FFMPResource extends
     private IShadedShape streamShadedShape = null;
 
     /** always the same vertexes, one for each CWA **/
-    private FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
+	private FFMPShapeContainer shadedShapes = new FFMPShapeContainer();
 
     /** Basin shaded shape **/
     protected ConcurrentHashMap<DataTime, FFMPDrawable> drawables = new ConcurrentHashMap<DataTime, FFMPDrawable>();
@@ -297,6 +297,9 @@ public class FFMPResource extends
 
     /** show ffmp color display */
     private boolean showFfmpData = true;
+    
+    /** qpf split window */
+    private boolean isSplit = false;
 
     /** aggregation for centering **/
     public Object centeredAggregationKey = null;
@@ -470,15 +473,12 @@ public class FFMPResource extends
         }
         issueRefresh();
     }
-
+     
     @Override
     public void hucChanged() {
 
         center = null;
         lowestCenter = FFMPRecord.ZOOM.WFO;
-        // setQuery(true);
-        centeredAggregationKey = null;
-        centeredAggregatePfafList = null;
 
         if (isAutoRefresh()) {
             setQuery(true);
@@ -1275,7 +1275,7 @@ public class FFMPResource extends
                     }
 
                     // the product string
-                    if (isFfmpDataToggle()) {
+                    if (isFfmpDataToggle() && fieldDescString != null) {
                         paintProductString(aTarget, paintProps);
                     }
                 }
@@ -1463,7 +1463,13 @@ public class FFMPResource extends
 
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
-        clear();
+    	  
+        if (shadedShapes != null) {
+        	shadedShapes.clear();
+        }
+        
+        setQuery(true);
+        refresh();
     }
 
     protected String getGeometryType() {
@@ -1534,8 +1540,13 @@ public class FFMPResource extends
         try {
             FFMPBasinMetaData metaBasin = monitor.getTemplates(getSiteKey())
                     .findBasinByLatLon(getSiteKey(), coord.asLatLon());
-            if (getHuc().equals("ALL") || (centeredAggregationKey != null)) {
+            if (getHuc().equals("ALL") || centeredAggregationKey != null) {
                 pfaf = metaBasin.getPfaf();
+                if (isMaintainLayer) {
+                	pfaf = monitor.getTemplates(getSiteKey()).findAggregatedPfaf(
+                            pfaf, getSiteKey(), getHuc());
+                	aggregate = true;
+                }
             } else {
                 pfaf = monitor.getTemplates(getSiteKey()).findAggregatedPfaf(
                         metaBasin.getPfaf(), getSiteKey(), getHuc());
@@ -1730,8 +1741,10 @@ public class FFMPResource extends
         }
 
         // reset the screen as if it where a pan
-        getDescriptor().getRenderableDisplay().recenter(
-                new double[] { center.x, center.y });
+        if (center != null) {
+            getDescriptor().getRenderableDisplay().recenter(
+                    new double[] { center.x, center.y });
+        }
     }
 
     /**
@@ -1956,6 +1969,8 @@ public class FFMPResource extends
             for (Entry<DataTime, FFMPDrawable> entry : drawables.entrySet()) {
                 entry.getValue().dispose();
             }
+            
+            drawables.clear();
         }
     }
 
@@ -2502,11 +2517,11 @@ public class FFMPResource extends
                         // the
                         // the basin when the color map changes.
                         if (globalRegen || drawable.genCwa(cwa)) {
-                            // System.out
-                            // .println("Regenerating the entire image: CWA: +"
-                            // + cwa
-                            // + " Table:"
-                            // + resourceData.tableLoad);
+                             //System.out
+                             //.println("Regenerating the entire image: CWA: +"
+                             //+ cwa
+                             //+ " Table:"
+                             //+ resourceData.tableLoad);
                             // get base aggr basins that are in screen area
                             Set<Long> cwaPfafs = null;
                             cwaPfafs = getAreaBasins(cwa, req, phuc);
@@ -2980,7 +2995,6 @@ public class FFMPResource extends
         }
 
         updateDialog();
-
     }
 
     @Override
@@ -2990,7 +3004,15 @@ public class FFMPResource extends
         centeredAggregationKey = null;
         centeredAggregatePfafList = null;
 
-        hucChanged();
+        if (isAutoRefresh) {
+        	if (basinTableDlg != null) {
+        		// Gets rid of the aggregate name if it is zoomed into one
+        		basinTableDlg.blankGroupLabel();
+        	}
+        	clearTables();
+        	hucChanged();
+        	refresh();
+        }
 
         updateDialog();
     }
@@ -2999,9 +3021,12 @@ public class FFMPResource extends
     public void timeChanged(FFMPTimeChangeEvent fhce, FFMPRecord.FIELDS fieldArg)
             throws VizException {
 
-        if ((Double) fhce.getSource() != time) {
+    	FFMPTime ffmpTime = (FFMPTime) fhce.getSource();
+    	
+        if (ffmpTime.getTime() != time || isSplit != ffmpTime.isSplit()) {
 
-            setTime((Double) fhce.getSource());
+        	isSplit = ffmpTime.isSplit();
+            setTime(ffmpTime.getTime());
             setTableTime();
             if (interpolationMap != null) {
                 interpolationMap.clear();
@@ -3147,27 +3172,27 @@ public class FFMPResource extends
         Long dataId = null;
         FFMPVirtualGageBasinMetaData fvgbmd = null;
         FFMPBasin basin = null;
+
         // System.out.println("*************************************************");
-        //DR 14511: handle null pointer exceptions
-        try {    
+
+        try {
             basinPfaf = Long.parseLong(pfafString);
             dataId = basinPfaf;
-        } catch (NumberFormatException nfe) {    
+        } catch (NumberFormatException nfe) {
             // can't parse a string for VGB
-            fvgbmd = monitor.getTemplates(getSiteKey()).getVirtualGageBasinMetaData(getSiteKey(), pfafString);        
+            fvgbmd = monitor.getTemplates(getSiteKey())
+                    .getVirtualGageBasinMetaData(getSiteKey(), pfafString);
             basinPfaf = fvgbmd.getParentPfaf();
             dataId = fvgbmd.getLookupId();
-        }        
-        FFMPBasinMetaData mBasin = null;
-        try{
-        	mBasin = monitor.getTemplates(getSiteKey()).getBasin(getSiteKey(), basinPfaf);
-        }catch (Exception e){ return null;}
-                /*getSiteKey(), basinPfaf);*/ /*
+        }
+
+        FFMPBasinMetaData mBasin = monitor.getTemplates(getSiteKey()).getBasin(
+                getSiteKey(), basinPfaf); /*
                                            * TODO: mBasin is never used so it is
                                            * not clear if this should be
                                            * basinPfaf or dataId
                                            */
-        if(mBasin == null) return null;
+
         FFMPGraphData fgd = null;
         // VGB
         if (fvgbmd != null) {
@@ -3822,6 +3847,10 @@ public class FFMPResource extends
 
     public boolean isLinkToFrame() {
         return isLinkToFrame;
+    }
+    
+    public boolean isSplit() {
+    	return isSplit;
     }
 
     /**

@@ -31,13 +31,13 @@ import PointDataView, PointDataContainer, NoDataException
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/11/11                      njensen       Initial Creation.
+#    25Apr2012       14688         rferrel       Made into an abstract class.
 #    
 # 
 #
     
-class PointDataRetrieve:
-
-    def __init__(self, pluginName, site, parameters, keyId='forecastHr', refTime=None, constraint={}, forecast=True, maxSize=99):        
+class PointDataRetrieve(object):
+    def __init__(self, pluginName, site, parameters, keyId='forecastHr', refTime=None, constraint={}, maxSize=99):        
         """Initializes a python PointDataContainer which wraps the Java PointDataContainer capabilities.
             @pluginName the name of the type of data, e.g. bufrmos
             @site the name of the station, e.g. KOMA
@@ -65,31 +65,17 @@ class PointDataRetrieve:
         if not parameters.__contains__(keyId):
             parameters.append(keyId)
         self.__keyId = keyId
-        self.__initialize(parameters, forecast, int(maxSize))
+        self._query(parameters, int(maxSize))
     
-    def __initialize(self, parameters, forecast, maxSize):
-        if forecast:
-            times = self.__queryForecastTimes()
-            self.__javaPdc = self.__requestForecastData(times, parameters)
-        else:            
-            times = self.__queryRefTimes()
-            self.__javaPdc = self.__requestData(times, parameters, maxSize)            
-        pdvDict = self.__organizeData(self.__javaPdc)        
-        self.pdc = PointDataContainer.PointDataContainer(pdvDict, self.__javaPdc, self.refTime)            
-    
-    def __queryForecastTimes(self):        
-        from com.raytheon.uf.viz.core.catalog import CatalogQuery
-        return CatalogQuery.performQuery('dataTime.fcstTime', self.__buildConstraints(self.refTime))
-
-    def __queryRefTimes(self):
-        from com.raytheon.uf.viz.core.catalog import CatalogQuery                        
-        return CatalogQuery.performQuery('dataTime.refTime', self.__buildConstraints(None))
+    # Abstract method must be implemented by sub-class.    
+    def _query(self, parameters, maxSize):
+        raise NoDataException.NoDataException('_query not implemented')
     
     def __queryNewestRefTime(self):
         from com.raytheon.uf.viz.core.catalog import CatalogQuery
         from java.util import Arrays
         from com.raytheon.uf.common.time import DataTime                 
-        results = CatalogQuery.performQuery('dataTime.refTime', self.__buildConstraints(None))
+        results = CatalogQuery.performQuery('dataTime.refTime', self._buildConstraints(None))
         Arrays.sort(results)
         if len(results) == 0:
             if self.site:
@@ -99,7 +85,7 @@ class PointDataRetrieve:
         dt = DataTime(results[len(results)-1])        
         return dt.getRefTime().getTime() / 1000
     
-    def __buildConstraints(self, refTime):
+    def _buildConstraints(self, refTime):
         from java.util import HashMap        
         from com.raytheon.uf.common.dataquery.requests import RequestConstraint        
         queryTerms = HashMap()
@@ -114,54 +100,7 @@ class PointDataRetrieve:
                 queryTerms.put(k, RequestConstraint(self.constraint[k]))
         return queryTerms            
     
-    def __requestForecastData(self, availableHours, parameters):
-        from com.raytheon.viz.pointdata import PointDataRequest
-        from com.raytheon.uf.common.time import DataTime
-        from java.lang import String
-        import jep
-        dts = jep.jarray(len(availableHours), DataTime)
-        for i in range(len(availableHours)):
-            dts[i] = DataTime(self.refTime, int(availableHours[i]))
-        constraints = self.__buildConstraints(None) #times are explicitly set so we don't need to constrain those
-        params = jep.jarray(len(parameters), String)
-        for i in range(len(parameters)):
-            params[i] = String(parameters[i])
-        if self.site:
-            stations = jep.jarray(1, String)
-            stations[0] = String(self.site)
-        else:
-            stations = None
-        return PointDataRequest.requestPointData(dts,
-            self.pluginName, params, stations,
-            constraints)        
-    
-    def __requestData(self, availableTimes, parameters, maxSize):
-        from com.raytheon.viz.pointdata import PointDataRequest
-        from com.raytheon.uf.common.time import DataTime
-        from java.lang import String
-        import jep
-        length = len(availableTimes)
-        if maxSize > length:
-            sz = length
-        else:
-            sz = maxSize
-        dts = jep.jarray(sz, DataTime)
-        for i in range(sz):
-            dts[i] = DataTime(availableTimes[length-1-i])
-        constraints = self.__buildConstraints(None) #times are explicitly set so we don't need to constrain those
-        params = jep.jarray(len(parameters), String)
-        for i in range(len(parameters)):
-            params[i] = String(parameters[i])
-        if self.site:
-            stations = jep.jarray(1, String)
-            stations[0] = String(self.site)
-        else:
-            stations = None
-        return PointDataRequest.requestPointData(dts,
-            self.pluginName, params, stations,
-            constraints)
-    
-    def __organizeData(self, container):
+    def _organizeData(self, container):
         import PointDataView
         organizedData = {}
         for i in range(container.getCurrentSz()):
@@ -169,10 +108,3 @@ class PointDataRetrieve:
             fcstHr = pdv[self.__keyId]
             organizedData[fcstHr] = pdv
         return organizedData
-    
-def retrieve(pluginName, site, parameters, keyId='forecastHr', refTime=None, constraint={}, forecast=True, maxSize=99):
-    ret = PointDataRetrieve(pluginName, site, parameters, keyId, refTime, constraint, forecast, maxSize)
-    return ret.pdc
-
-    
-    

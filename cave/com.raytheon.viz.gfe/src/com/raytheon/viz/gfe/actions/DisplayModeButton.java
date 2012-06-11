@@ -21,9 +21,6 @@ package com.raytheon.viz.gfe.actions;
 
 import java.util.Map;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
@@ -32,6 +29,7 @@ import com.raytheon.viz.gfe.core.msgs.GMDisplayModeMsg;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.gridmanager.GridMode;
 import com.raytheon.viz.ui.UiUtil;
+import com.raytheon.viz.ui.actions.AbstractDropDownMenuHandler;
 
 /**
  * Display Mode Button
@@ -48,20 +46,8 @@ import com.raytheon.viz.ui.UiUtil;
  * @version 1.0
  */
 
-public class DisplayModeButton extends AbstractHandler implements
+public class DisplayModeButton extends AbstractDropDownMenuHandler implements
         IElementUpdater {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
-    @Override
-    public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        return null;
-    }
 
     /*
      * (non-Javadoc)

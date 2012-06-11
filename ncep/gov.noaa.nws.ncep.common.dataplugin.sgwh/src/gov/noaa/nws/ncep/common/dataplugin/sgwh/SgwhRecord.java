@@ -381,6 +381,7 @@ public class SgwhRecord extends PluginDataObject implements IDecoderGettable,
 	// @Column(length=8)
 	@Transient
 	@DynamicSerializeElement
+    @DataURI(position=6)
 	private String reportType;
 
 	/** Text of the WMO header */

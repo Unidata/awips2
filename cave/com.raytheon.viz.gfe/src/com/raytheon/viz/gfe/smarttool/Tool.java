@@ -441,7 +441,8 @@ public class Tool {
             // # PreProcess Tool
             handlePreAndPostProcess("preProcessTool", null, timeRange,
                     editArea, dataMode);
-
+            statusHandler.handle(Priority.DEBUG, "Running smartTool: " + toolName);
+            
             // Iterate over time range
             // Process each grid in the time range.
             int numberOfGrids = grids.length;

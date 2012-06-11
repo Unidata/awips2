@@ -3,3 +3,6 @@ colorBar=@dfltRadarColorBar.xml
 ! .25km Radial Velocity
 productCode=99
 elevationNumber=1
+alpha=1.0
+brightness=1.0
+contrast=1.0

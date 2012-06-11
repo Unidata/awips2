@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -1026,8 +1027,8 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (file != null) {
                     ILocalizationService service = LocalizationPerspectiveUtils
                             .changeToLocalizationPerspective();
-                    service.openFile(file);
                     service.selectFile(file);
+                    service.openFile(file);
                 } else {
                     MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR
                             | SWT.OK);

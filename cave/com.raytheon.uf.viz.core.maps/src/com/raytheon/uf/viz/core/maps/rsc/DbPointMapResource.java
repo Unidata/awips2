@@ -465,6 +465,7 @@ public class DbPointMapResource extends
                 font = aTarget.initializeFont(aTarget.getDefaultFont()
                         .getFontName(), (float) (10 * magnification), null);
                 font.setSmoothing(false);
+                font.setScaleFont(false);
             }
 
             Rectangle2D charSize = aTarget.getStringBounds(font, "N");

@@ -46,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/6/08       875        bphillip    Initial Creation
+ * 5/8/12       #600       dgilling    Implement clone().
  * 
  * </pre>
  * 
@@ -59,7 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = ParmIDAdapter.class)
 public class ParmID implements Comparable<ParmID>, Serializable,
-        ISerializableObject {
+        ISerializableObject, Cloneable {
 
     private static final long serialVersionUID = 6801523496768037356L;
 
@@ -100,6 +101,16 @@ public class ParmID implements Comparable<ParmID>, Serializable,
         buffer.append(dbId.toString());
 
         return buffer.toString();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public ParmID clone() throws CloneNotSupportedException {
+        return new ParmID(this.parmName, this.dbId.clone(), this.parmLevel);
     }
 
     /**
