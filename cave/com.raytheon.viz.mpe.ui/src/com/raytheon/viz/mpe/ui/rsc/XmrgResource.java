@@ -557,32 +557,37 @@ public class XmrgResource extends
                 int y = extent.height - 1 - (p.y - extent.y);
 
                 short s = data[(y * subGrid.getNx()) + x];
-
-                String tmps = "TEMP";
-                int tempsval = dataType.getCv_use().indexOf(tmps);
-                float f = 0;
-                if (s < 0) {
-                    if (s == -9999 || s == -999 || s == -99
-                            || (s == -9 && tempsval == -1)) {
-                        f = s;
-                    } else if (s == -8888 || s == -899) {
-                        f = s;
-                    } else {
-                        f = (float) parameters.getDataToDisplayConverter()
-                                .convert(s);
-                    }
+                
+                String cv_use = dataType.getCv_use();
+                if (cv_use.equalsIgnoreCase("INDEX")) {
+                	values.put("Value", parameters.getLabels().get(s + 1).getText());
                 } else {
-                    if (s < 30 && s > 24) {
-                        s = 26;
-                    } else if (s > 0 && s <= 24) {
-                        s = 0;
-                    }
-                    f = (float) parameters.getDataToDisplayConverter().convert(
-                            s);
+	                String tmps = "TEMP";
+	                int tempsval = dataType.getCv_use().indexOf(tmps);
+	                float f = 0;
+	                if (s < 0) {
+	                    if (s == -9999 || s == -999 || s == -99
+	                            || (s == -9 && tempsval == -1)) {
+	                        f = s;
+	                    } else if (s == -8888 || s == -899) {
+	                        f = s;
+	                    } else {
+	                        f = (float) parameters.getDataToDisplayConverter()
+	                                .convert(s);
+	                    }
+	                } else {
+	                    if (s < 30 && s > 24) {
+	                        s = 26;
+	                    } else if (s > 0 && s <= 24) {
+	                        s = 0;
+	                    }
+	                    f = (float) parameters.getDataToDisplayConverter().convert(
+	                            s);
+	                }
+	                float aa = (float) ((Math.floor((int) (f * 100))) / 100.0);
+	                String da = String.format("%2.2f", aa);
+	                values.put("Value", da);
                 }
-                float aa = (float) ((Math.floor((int) (f * 100))) / 100.0);
-                String da = String.format("%2.2f", aa);
-                values.put("Value", da);
             }
 
             ISpatialQuery query = SpatialQueryFactory.create();
@@ -679,6 +684,10 @@ public class XmrgResource extends
             buf.rewind();
             cbuf.rewind();
             Rectangle extent = xmrg.getHrapExtent();
+            if (extent == null) {
+            	xmrg = null;
+            	return;
+            }
             if ((extent.x == 0) && (extent.y == 0)) {
                 Rectangle coord = HRAPCoordinates.getHRAPCoordinates();
                 if ((extent.width == coord.width)

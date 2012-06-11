@@ -96,7 +96,7 @@ public class GeospatialFactory {
                         "Failed to load area geometry files from disk", e);
             }
 
-            generate = dataSet != null;
+            generate = dataSet == null;
         }
 
         if (generate) {
@@ -247,18 +247,18 @@ public class GeospatialFactory {
         AreaSourceConfiguration[] ascs = template.getAreaSources();
 
         for (AreaSourceConfiguration asc : ascs) {
-        	List<String> areaFields;
-        	String tmp = asc.getFeAreaField();
-            if (tmp == null) {
-                areaFields = new ArrayList<String>(4);
-            } else {
-            	areaFields = new ArrayList<String>(5);
-            }
+        	List<String> areaFields = new ArrayList<String>();
+        	String feAreaField = asc.getFeAreaField();
+        	String timeZoneField = asc.getTimeZoneField();
         	areaFields.add(WarningConstants.GID);
             areaFields.add(asc.getAreaField());
-            if (tmp != null) {
-            	areaFields.add(tmp);
-            }                        
+            if (feAreaField != null) {
+            	areaFields.add(feAreaField);
+            }     
+            
+            if (timeZoneField != null) {
+                areaFields.add(timeZoneField);
+            }
             areaFields.add(asc.getFipsField());
             areaFields.add(asc.getAreaNotationField());            
 

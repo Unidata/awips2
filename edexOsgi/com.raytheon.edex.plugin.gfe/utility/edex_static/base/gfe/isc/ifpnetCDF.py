@@ -21,7 +21,13 @@
 
 import string, getopt, sys, time, gzip, os, LogStream, stat, traceback
 import numpy
-import pupynere as netcdf
+#import pupynere as NetCDF
+try:
+    # dev environment
+    from Scientific.IO import NetCDF
+except:
+    # runtime we don't have the whole scientific package
+    import NetCDF
 import JUtil
 import iscUtil
 
@@ -737,7 +743,7 @@ def storeGridDataHistory(file, we, wec, trList, timeRange):
 def calcKrunchValues(we):
     #Based on the weather element, will return information pertaining
     #to the dataType, multiplier, offset, and missing value to use for this
-    #element.  Returns (dataType, multipler, offset, missingValue, pythonType)
+    #element.  Returns (dataType, multiplier, offset, missingValue, pythonType)
 
     maxV = we.getGpi().getMaxValue()
     minV = we.getGpi().getMinValue()
@@ -747,40 +753,40 @@ def calcKrunchValues(we):
 
     # check for byte possibilities
     if nentries <= pow(2, 8) - 1:
-        multipler = precision
+        multiplier = precision
         offset = 0
         minVarValue = -126
         maxVarValue = 127
-        if minV * multipler < minVarValue:
-            offset = minV - minVarValue / multipler
-        if maxV * multipler > maxVarValue:
-            offset = maxV - maxVarValue / multipler
+        if minV * multiplier < minVarValue:
+            offset = minV - minVarValue / multiplier
+        if maxV * multiplier > maxVarValue:
+            offset = maxV - maxVarValue / multiplier
         missingValue = -127
         format = "b"
         pythonType = numpy.int8
 
     # check for short possibilities
     elif nentries <= pow(2, 16) - 2:
-        multipler = precision
+        multiplier = precision
         offset = 0
         maxVarValue = pow(2, 15) - 1
         minVarValue = -(pow(2, 15) - 2)
-        if minV * multipler < minVarValue:
-            offset = minV - minVarValue / multipler
-        if maxV * multipler > maxVarValue:
-            offset = maxV - maxVarValue / multipler
+        if minV * multiplier < minVarValue:
+            offset = minV - minVarValue / multiplier
+        if maxV * multiplier > maxVarValue:
+            offset = maxV - maxVarValue / multiplier
         missingValue = minVarValue - 1
         format = "h"
         pythonType = numpy.int16
 
     # else full 32-bit float processing, no krunching needed
     else:
-        multipler = None
+        multiplier = None
         offset = None
         format = "f"
         missingValue = -30000.0
         pythonType = numpy.float32
-    return (format, multipler, offset, missingValue, pythonType)
+    return (format, multiplier, offset, missingValue, pythonType)
 
 
 ###-------------------------------------------------------------------------###
@@ -883,83 +889,87 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     # get the data and store it in a Numeric array.
     cube = []
     timeList = []
-    times  = []
     wec = WECache(we, trList)
     for t in trList:
         interTR = intersection(t, timeRange)
         if interTR is not None:
-            times.append(t)
+            grid = clipToExtrema(wec[t][0], clipArea)
+            #adjust for time changes
+            if we.getGpi().isRateParm():
+                durRatio = (float(interTR[1]-interTR[0]))/float((t[1]-t[0]))
+                grid = (grid * durRatio).astype(numpy.float32)
+            cube.append(grid)
             timeList.append(interTR[0])
             timeList.append(interTR[1])
 
-    ### Make sure we found some grids
-    varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
-    gridCount = len(timeList) / 2
+    cube = numpy.array(cube).astype(numpy.float32)
 
-    if gridCount == 0:
+    ### Make sure we found some grids
+    # make the variable name
+    varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
+
+    if len(cube) == 0:
         logVerbose("No", varName, "grids found")
 
     # clipped size
     clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
 
+    gridCount = len(timeList) / 2
+    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
+    cube = numpy.resize(cube, newsize)   # necessary when no grids
+    
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
-    dims = getDims(file,  (gridCount, clipSize[1], clipSize[0]), dimNames)
+    dims = getDims(file, cube.shape, dimNames)
 
-    for idx in range(0,len(times)):
-        cube = clipToExtrema(wec[times[idx]][0], clipArea)
-        # adjust for time changes
-        if we.getGpi().isRateParm():
-            durRatio = (float(times[idx][1] - times[idx][0])) / float((times[idx][1] - times[idx][0]))
-            cube = (cube * durRatio).astype(numpy.float32)
-        cube = numpy.resize(cube, (clipSize[1],clipSize[0]))
-        # Round the values according to the precision
-        if trim:
-            precision = pow(10, we.getGpi().getPrecision())
-    
-            if krunch:
-                format, multipler, offset, fillValue, pythonType = \
-                  calcKrunchValues(we)
-            else:
-                format, multipler, offset, fillValue, pythonType = \
-                 ('f', None, None, -30000.0, numpy.float32)
-    
-            # krunch
-            if multipler is not None:
-                cube = ((cube - offset) * multipler)
-                roundMask = numpy.where(numpy.greater(cube, 0), 1.0, -1.0)
-                cube = (cube + (0.5 * roundMask)).astype(pythonType)
-            # normal trim
-            else:
-                roundMask = numpy.where(numpy.greater(cube, 0), 1.0, -1.0)
-                trimmed = (cube * precision + (0.5 * roundMask))
-                trimmed = numpy.array(trimmed).astype(numpy.int32)
-                cube = numpy.array(trimmed).astype(numpy.float32)
-                cube = numpy.array(cube / precision).astype(numpy.float32)
-    
+    # Round the values according to the precision
+    if trim:
+        precision = pow(10, we.getGpi().getPrecision())
+
+        if krunch:
+            format, multiplier, offset, fillValue, pythonType = \
+              calcKrunchValues(we)
         else:
-            format, multipler, offset, fillValue, pythonType = \
+            format, multiplier, offset, fillValue, pythonType = \
              ('f', None, None, -30000.0, numpy.float32)
-    
-        # mask the data
-        cube = numpy.where(mask, cube, fillValue).astype(pythonType)
-    
-        if(idx == 0):
-            # create the variable
-            var = file.createVariable(varName, format, dims)
-            if multipler is not None:
-                setattr(var, "dataMultiplier", 1.0 / multipler)
-                setattr(var, "dataOffset", offset)
-        
-            # Store the attributes
-            storeWEAttributes(var, we, timeList, databaseID, clipArea)
-            setattr(var, "fillValue", fillValue)
-        
-            ## Extract the GridDataHistory info and save it
-            storeGridDataHistory(file, we, wec, trList, timeRange)
-        # Save the grids to the netCDF file
-        var[idx] = numpy.flipud(cube)
 
+        # krunch
+        if multiplier is not None:
+            cube = ((cube - offset) * multiplier)
+            roundMask = numpy.where(numpy.greater(cube, 0), 1.0, -1.0)
+            cube = (cube + (0.5 * roundMask)).astype(pythonType)
+        # normal trim
+        else:
+            roundMask = numpy.where(numpy.greater(cube, 0), 1.0, -1.0)
+            trimmed = (cube * precision + (0.5 * roundMask))
+            trimmed = numpy.array(trimmed).astype(numpy.int32)
+            cube = numpy.array(trimmed).astype(numpy.float32)
+            cube = numpy.array(cube / precision).astype(numpy.float32)
+
+    else:
+        format, multiplier, offset, fillValue, pythonType = \
+         ('f', None, None, -30000.0, numpy.float32)
+
+    # mask the data
+    cube = numpy.where(mask, cube, fillValue).astype(pythonType)
+    
+    # create the variable
+    var = file.createVariable(varName, format, dims)
+    if multiplier is not None:
+        setattr(var, "dataMultiplier", 1.0 / multiplier)
+        setattr(var, "dataOffset", offset)
+
+    # Save the grids to the netCDF file
+    for i in range(len(cube)):
+        var[i] = numpy.flipud(cube[i])
+
+    # Store the attributes
+    storeWEAttributes(var, we, timeList, databaseID, clipArea)
+    setattr(var, "fillValue", fillValue)
+
+    ## Extract the GridDataHistory info and save it
+    storeGridDataHistory(file, we, wec, trList, timeRange)
+    
     logEvent("Saved ", gridCount, " ", varName, " grids")
 
     return gridCount
@@ -975,133 +985,133 @@ def storeVectorWE(we, trList, file, timeRange,
     magCube = []
     dirCube = []
     timeList = []
-    times = []
     wec = WECache(we, trList)
     for t in trList:
         interTR = intersection(t, timeRange)
         if interTR is not None:
-            times.append(t)
+            vecData = wec[t][0]
+            mag = clipToExtrema(vecData[0], clipArea)
+            dir = clipToExtrema(vecData[1], clipArea)
+            if we.getGpi().isRateParm():
+                durRatio = (float(interTR[1]-interTR[0]))/float((t[1]-t[0]))
+                mag = (mag * durRatio).astype(numpy.float32)
+            magCube.append(mag)
+            dirCube.append(dir)
             timeList.append(interTR[0])
             timeList.append(interTR[1])
 
+    magCube = numpy.array(magCube).astype(numpy.float32)
+    dirCube = numpy.array(dirCube).astype(numpy.float32)
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
-    gridCount = len(timeList) / 2
     
     ### Make sure we found some grids
-    if gridCount == 0:
+    if len(magCube) == 0:
         logVerbose("No", varName, "grids found")
 
     # clipped size
     clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
 
+    gridCount = len(timeList) / 2
+    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
+    magCube = numpy.resize(magCube, newsize)   # necessary when no grids
+    dirCube = numpy.resize(dirCube, newsize)   # necessary when no grids
+
     # make the variable name
     magVarName = we.getParmid().getParmName() + "_Mag_" + we.getParmid().getParmLevel()
     dirVarName = we.getParmid().getParmName() + "_Dir_" + we.getParmid().getParmLevel()
-    varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
 
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
-    dims = getDims(file, (gridCount, clipSize[1], clipSize[0]), dimNames)
+    dims = getDims(file, magCube.shape, dimNames)
 
-    for idx in range(0,len(times)):
-        vecData = wec[times[idx]][0]
-        mag = clipToExtrema(vecData[0], clipArea)
-        dir = clipToExtrema(vecData[1], clipArea)
-        if we.getGpi().isRateParm():
-            durRatio = (float(times[idx][1] - times[idx][0])) / float((times[idx][1] - times[idx][0]))
-            mag = (mag * durRatio).astype(numpy.float32)
-        mag = numpy.resize(mag, (clipSize[1],clipSize[0]))
-        dir = numpy.resize(dir, (clipSize[1],clipSize[0]))
+    # Round the values according to the precision
+    if trim:
+        mprecision = pow(10, we.getGpi().getPrecision())
 
-        # Round the values according to the precision
-        if trim:
-            mprecision = pow(10, we.getGpi().getPrecision())
-    
-            if krunch:
-                mformat, mmultipler, moffset, mfillValue, mpythonType = \
-                  calcKrunchValues(we)
-                dformat, dmultipler, doffset, dfillValue, dpythonType = \
-                  ('b', 0.1, 0.0, -127, numpy.dtype(numpy.int8))
-            else:
-                mformat, mmultipler, moffset, mfillValue, mpythonType = \
-                 ('f', None, None, -30000.0, numpy.dtype(numpy.float32))
-                dformat, dmultipler, doffset, dfillValue, dpythonType = \
-                 ('f', None, None, -30000.0, numpy.dtype(numpy.float32))
-    
-            # krunch magnitude
-            if mmultipler is not None:
-                mag = ((mag - moffset) * mmultipler)
-                roundMask = numpy.where(numpy.greater(mag, 0), 1.0, -1.0)
-                mag = (mag + (0.5 * roundMask)).astype(mpythonType)
-            # normal trim for magnitude
-            else:
-                roundMask = numpy.where(numpy.greater(mag, 0), 1.0, -1.0)
-                trimmed = (mag * mprecision + (0.5 * roundMask))
-                trimmed = numpy.array(trimmed).astype(numpy.int32)
-                mag = numpy.array(trimmed).astype(numpy.float32)
-                mag = numpy.array(mag / mprecision).astype(numpy.float32)
-    
-            # krunch direction
-            if dmultipler is not None:
-                dir = ((dir - doffset) * dmultipler)
-                roundMask = numpy.where(numpy.greater(dir, 0), 1.0, -1.0)
-                dir = (dir + (0.5 * roundMask)).astype(dpythonType)
-    
-            # normal trim for direction
-            else:
-                dir = numpy.array((dir + (0.5 * 10)) / 10).astype(numpy.int32)
-                dir = numpy.array(dir * 10).astype(numpy.float32)
-                mask360 = numpy.greater_equal(dir, 360.0)
-                dir = numpy.where(mask360, dir - 360.0, dir).astype(numpy.float32)
-    
+        if krunch:
+            mformat, mmultiplier, moffset, mfillValue, mpythonType = \
+              calcKrunchValues(we)
+            dformat, dmultiplier, doffset, dfillValue, dpythonType = \
+              ('b', 0.1, 0.0, -127, numpy.int8)
         else:
-            mformat, mmultipler, moffset, mfillValue, mpythonType = \
-              ('f', None, None, -30000.0, numpy.dtype(numpy.float32))
-            dformat, dmultipler, doffset, dfillValue, dpythonType = \
-              ('f', None, None, -30000.0, numpy.dtype(numpy.float32))
+            mformat, mmultiplier, moffset, mfillValue, mpythonType = \
+             ('f', None, None, -30000.0, numpy.dtype(numpy.float32))
+            dformat, dmultiplier, doffset, dfillValue, dpythonType = \
+             ('f', None, None, -30000.0, numpy.float32)
 
-        
-        mag = numpy.where(mask, mag, mfillValue).astype(mpythonType)
-        dir = numpy.where(mask, dir, dfillValue).astype(dpythonType)
+        # krunch magnitude
+        if mmultiplier is not None:
+            magCube = ((magCube - moffset) * mmultiplier)
+            roundMask = numpy.where(numpy.greater(magCube, 0), 1.0, -1.0)
+            magCube = (magCube + (0.5 * roundMask)).astype(mpythonType)
+        # normal trim for magnitude
+        else:
+            roundMask = numpy.where(numpy.greater(magCube, 0), 1.0, -1.0)
+            trimmed = (magCube * mprecision + (0.5 * roundMask))
+            trimmed = numpy.array(trimmed).astype(numpy.int32)
+            magCube = numpy.array(trimmed).astype(numpy.float32)
+            magCube = numpy.array(magCube / mprecision).astype(numpy.float32)
 
-        if(idx == 0):
-            # create the variable
-            magVar = file.createVariable(magVarName, numpy.dtype(mpythonType), dims)
-            dirVar = file.createVariable(dirVarName, numpy.dtype(dpythonType), dims)
-            if mmultipler is not None:
-                setattr(magVar, "dataMultiplier", 1.0 / mmultipler)
-                setattr(magVar, "dataOffset", moffset)
-            if dmultipler is not None:
-                setattr(dirVar, "dataMultiplier", 1.0 / dmultipler)
-                setattr(dirVar, "dataOffset", doffset)
+        # krunch direction
+        if dmultiplier is not None:
+            dirCube = ((dirCube - doffset) * dmultiplier)
+            roundMask = numpy.where(numpy.greater(dirCube, 0), 1.0, -1.0)
+            dirCube = (dirCube + (0.5 * roundMask)).astype(dpythonType)
+
+        # normal trim for direction
+        else:
+            dirCube = numpy.array((dirCube + (0.5 * 10)) / 10).astype(numpy.int32)
+            dirCube = numpy.array(dirCube * 10).astype(numpy.float32)
+            mask360 = numpy.greater_equal(dirCube, 360.0)
+            dirCube = numpy.where(mask360, dirCube - 360.0, dirCube).astype(numpy.float32)
+
+    else:
+        mformat, mmultiplier, moffset, mfillValue, mpythonType = \
+          ('f', None, None, -30000.0, numpy.float32)
+        dformat, dmultiplier, doffset, dfillValue, dpythonType = \
+          ('f', None, None, -30000.0, numpy.float32)
+
     
-            
+    magCube = numpy.where(mask, magCube, mfillValue).astype(mpythonType)
+    dirCube = numpy.where(mask, dirCube, dfillValue).astype(dpythonType)
+
+    # create the variable
+    magVar = file.createVariable(magVarName, mformat, dims)
+    dirVar = file.createVariable(dirVarName, dformat, dims)
+    if mmultiplier is not None:
+        setattr(magVar, "dataMultiplier", 1.0 / mmultiplier)
+        setattr(magVar, "dataOffset", moffset)
+    if dmultiplier is not None:
+        setattr(dirVar, "dataMultiplier", 1.0 / dmultiplier)
+        setattr(dirVar, "dataOffset", doffset)
+
+    # Save the grid to the netCDF file
+    for i in range(len(magCube)):
+        magVar[i] = numpy.flipud(magCube[i])
+        dirVar[i] = numpy.flipud(dirCube[i])
         
-            # Store the attributes - overwrite some for mag and dir
-            storeWEAttributes(magVar, we, timeList, databaseID, clipArea)
-        
-            # Change the descriptive name
-            setattr(magVar, "descriptiveName", we.getGpi().getDescriptiveName() + " Magnitude")
-            setattr(magVar, "fillValue", mfillValue)
-            storeWEAttributes(dirVar, we, timeList, databaseID, clipArea)
-        
-            # Special case attributes for wind direction
-            setattr(dirVar, "minMaxAllowedValues", (0.0, 360.0))
-            setattr(dirVar, "descriptiveName", we.getGpi().getDescriptiveName() + " Direction")
-            setattr(dirVar, "units", "degrees")
-            if trim:
-                dirPrecision = -1
-            else:
-                dirPrecision = 0
-            setattr(dirVar, "precision", dirPrecision)
-            setattr(dirVar, "fillValue", dfillValue)
+    # Store the attributes - overwrite some for mag and dir
+    storeWEAttributes(magVar, we, timeList, databaseID, clipArea)
+
+    # Change the descriptive name
+    setattr(magVar, "descriptiveName", we.getGpi().getDescriptiveName() + " Magnitude")
+    setattr(magVar, "fillValue", mfillValue)
+    storeWEAttributes(dirVar, we, timeList, databaseID, clipArea)
+
+    # Special case attributes for wind direction
+    setattr(dirVar, "minMaxAllowedValues", (0.0, 360.0))
+    setattr(dirVar, "descriptiveName", we.getGpi().getDescriptiveName() + " Direction")
+    setattr(dirVar, "units", "degrees")
+    if trim:
+        dirPrecision = -1
+    else:
+        dirPrecision = 0
+    setattr(dirVar, "precision", dirPrecision)
+    setattr(dirVar, "fillValue", dfillValue)
+
+    ## Extract the GridDataHistory info and save it
+    storeGridDataHistory(file, we, wec, trList, timeRange)
     
-            ## Extract the GridDataHistory info and save it
-            storeGridDataHistory(file, we, wec, trList, timeRange)
-        # Save the grid to the netCDF file
-        magVar[idx] = numpy.flipud(mag)
-        dirVar[idx] = numpy.flipud(dir)
-        
     logEvent("Saved", gridCount, varName, "grids")
 
     return gridCount * 2   #vector has two grids
@@ -1148,36 +1158,54 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, mask, clipArea):
     byteCube = []
     keyList = []
     timeList = []
-    times = []
     wec = WECache(we, trList)
     for t in trList:
         interTR = intersection(t, timeRange)
         if interTR is not None:
-            times.append(t)
-            wx = wec[t]
+            wx = wec[t][0]
+            grid = clipToExtrema(wx[0], clipArea)
+            byteCube.append(grid)
             # Save times for these grids in a list 
             timeList.append(interTR[0])
             timeList.append(interTR[1])
-            keyList.append(wx[0][1])
+            keyList.append(wx[1])
+    
+    byteCube = numpy.array(byteCube).astype(numpy.int8)
 
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
-    gridCount = len(timeList) / 2
 
     ### Make sure we found some grids
-    if gridCount == 0:
+    if len(byteCube) == 0:
         logVerbose("No", varName, "grids found")
 
     # clipped size
     clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
 
+    gridCount = len(timeList) / 2
+    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
+    byteCube = numpy.resize(byteCube, newsize)
+
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
-    dims = getDims(file, (gridCount, clipSize[1], clipSize[0]), dimNames)
+    dims = getDims(file, byteCube.shape, dimNames)
     
     # create the netCDF variable - 'b' for byte type
     var = file.createVariable(varName, 'b', dims)
+
+    #  Process the weather keys so we store only what is necessary
+    
+    for g in range(byteCube.shape[0]):
+        (keyList[g], byteCube[g]) = collapseKey(keyList[g], byteCube[g])
+
+    # Mask the values
     fillValue = -127
+    byteCube = numpy.where(mask, byteCube, fillValue).astype(numpy.int8)
+
+    # Save the grids to the netCDF file
+    for i in range(len(byteCube)):
+        var[i] = numpy.flipud(byteCube[i])
+    
     # Find the max number of keys and max length for all keys
     maxKeyCount = 1
     maxKeySize = 0
@@ -1197,35 +1225,23 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, mask, clipArea):
     dims = getDims(file, wxShape, dimNames)
     keyVarName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel() + "_wxKeys"
     keyVar = file.createVariable(keyVarName, 'c', dims)
+    
     chars = numpy.zeros(wxShape, 'c')
 
-    for idx in range(0,len(times)):
-        byteCube = clipToExtrema(wec[times[idx]][0][0], clipArea)
-        byteCube = numpy.resize(byteCube, (clipSize[1],clipSize[0]))
+    # now save the weather keys in the netCDF file
+    for g in range(0, gridCount):
+        for k in range(0, len(keyList[g])):
+            for c in range(0, len(keyList[g][k])):
+                chars[g][k][c] = keyList[g][k][c]
+    if len(byteCube):
+        keyVar[:] = chars
 
-        #  Process the weather keys so we store only what is necessary
-        (keyList[idx], byteCube) = collapseKey(keyList[idx], byteCube)
+    # Store the attributes
+    storeWEAttributes(var, we, timeList, databaseID, clipArea)
+    setattr(var, "fillValue", fillValue)
 
-        # Mask the values
-        byteCube = numpy.where(mask, byteCube, fillValue).astype(numpy.int8)
-
-        # Save the grids to the netCDF file
-        var[idx] = numpy.flipud(byteCube)
-        
-        # now save the weather keys in the netCDF file
-        for k in range(0, len(keyList[idx])):
-            for c in range(0, len(keyList[idx][k])):
-                chars[idx][k][c] = keyList[idx][k][c]
-        if len(byteCube):
-            keyVar[idx:] = chars[idx]
-
-        if idx == 0:
-            # Store the attributes
-            storeWEAttributes(var, we, timeList, databaseID, clipArea)
-            setattr(var, "fillValue", fillValue)
-        
-            ## Extract the GridDataHistory info and save it
-            storeGridDataHistory(file, we, wec, trList, timeRange)
+    ## Extract the GridDataHistory info and save it
+    storeGridDataHistory(file, we, wec, trList, timeRange)
 
     logEvent("Saved", gridCount, varName, "grids")
 
@@ -1241,40 +1257,57 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, mask, clipArea):
     byteCube = []
     keyList = []
     timeList = []
-    times = []
     wec = WECache(we, trList)
     for t in trList:
         interTR = intersection(t, timeRange)
         if interTR is not None:
-            times.append(t)
             dis = wec[t][0]
+            grid = clipToExtrema(dis[0], clipArea)
+            byteCube.append(grid)
             # Save times for these grids in a list
             timeList.append(interTR[0])
             timeList.append(interTR[1])
             keyList.append(dis[1])
 
+    byteCube = numpy.array(byteCube).astype(numpy.int8)
+
     # make the variable name
     varName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel()
-    gridCount = len(timeList) / 2
 
     ### Make sure we found some grids
-    if gridCount == 0:
+    if len(byteCube) == 0:
         logVerbose("No", varName, "grids found")
 
     # clipped size
     clipSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
 
+    gridCount = len(timeList) / 2
+    newsize = (gridCount, clipSize[1], clipSize[0])  #y,x
+    byteCube = numpy.resize(byteCube, newsize)   # necessary when no grids
+
     #get the dimension List
     dimNames = ["ngrids_" + varName, "y", "x"]
-    dims = getDims(file, (gridCount, clipSize[1], clipSize[0]), dimNames)
+    dims = getDims(file, byteCube.shape, dimNames)
 
     # create the netCDF variable - 'b' for byte type
     var = file.createVariable(varName, 'b', dims)
+    
+    #  Process the discrete keys so we store only what is necessary
+
+    for g in range(byteCube.shape[0]):
+        (keyList[g], byteCube[g]) = collapseKey(keyList[g], byteCube[g])
+
+    # Mask the values
     fillValue = -127
+    byteCube = numpy.where(mask, byteCube, fillValue).astype(numpy.int8)
+
+    # Save the grids to the netCDF file
+    for i in range(len(byteCube)):
+        var[i] = numpy.flipud(byteCube[i])
+
     # Find the max number of keys and max length for all keys
     maxKeyCount = 1
     maxKeySize = 0
-    
     for k in keyList:
         if len(k) > maxKeyCount:
             maxKeyCount = len(k)
@@ -1289,34 +1322,23 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, mask, clipArea):
     dims = getDims(file, disShape, dimNames)
     keyVarName = we.getParmid().getParmName() + "_" + we.getParmid().getParmLevel() + "_keys"
     keyVar = file.createVariable(keyVarName, 'c', dims)
+
     chars = numpy.zeros(disShape, 'c')
 
-    for idx in range(0,len(times)):
-        byteCube = clipToExtrema(wec[times[idx]][0][0], clipArea)
-        byteCube = numpy.resize(byteCube, (clipSize[1],clipSize[0]))
-        #  Process the discrete keys so we store only what is necessary
-        (keyList[idx], byteCube) = collapseKey(keyList[idx], byteCube)
+    # now save the discrete keys in the netCDF file
+    for g in range(0, gridCount):
+        for k in range(0, len(keyList[g])):
+            for c in range(0, len(keyList[g][k])):
+                chars[g][k][c] = keyList[g][k][c]
+    if len(byteCube):
+        keyVar[:] = chars
 
-        # Mask the values
-        byteCube = numpy.where(mask, byteCube, fillValue).astype(numpy.int8)
+    # Store the attributes
+    storeWEAttributes(var, we, timeList, databaseID, clipArea)
+    setattr(var, "fillValue", fillValue)
 
-        # Save the grids to the netCDF file
-        var[idx] = numpy.flipud(byteCube)
-
-        # now save the discrete keys in the netCDF file
-        for k in range(0, len(keyList[idx])):
-            for c in range(0, len(keyList[idx][k])):
-                chars[idx][k][c] = keyList[idx][k][c]
-        if len(byteCube):
-            keyVar[idx:] = chars[idx]
-
-        if idx == 0:
-            # Store the attributes
-            storeWEAttributes(var, we, timeList, databaseID, clipArea)
-            setattr(var, "fillValue", fillValue)
-
-            ## Extract the GridDataHistory info and save it
-            storeGridDataHistory(file, we, wec, trList, timeRange)
+    ## Extract the GridDataHistory info and save it
+    storeGridDataHistory(file, we, wec, trList, timeRange)
 
     logEvent("Saved", gridCount, varName, "grids")
 
@@ -1495,7 +1517,7 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
     logVerbose("Sampling Definition:", samplingDef)
 
     # Open the netCDF file
-    file = netcdf.netcdf_file(argDict['outputFilename'], 'w')
+    file = NetCDF.NetCDFFile(argDict['outputFilename'], 'w')
 
     totalGrids = 0
     for p in argDict['parmList']:
@@ -1504,30 +1526,29 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
         
         #determine inventory that we want to keep
         weInv = determineSamplingValues(samplingDef, p, we.getKeys(), start)
-        if len(weInv) != 0:
-            gridType = str(we.getGpi().getGridType())
-    
-            if gridType == "SCALAR":
-                nGrids = storeScalarWE(we, weInv, file, timeRange,
-                  argDict['databaseID'], maskGrid, argDict['trim'], clipArea,
-                  argDict['krunch'])
-            elif gridType == "VECTOR":
-                nGrids = storeVectorWE(we, weInv, file, timeRange,
-                  argDict['databaseID'], maskGrid, argDict['trim'], clipArea,
-                  argDict['krunch'])
-            elif gridType == "WEATHER":
-                nGrids = storeWeatherWE(we, weInv, file, timeRange,
-                  argDict['databaseID'], maskGrid, clipArea)
-            elif gridType == "DISCRETE":
-                nGrids = storeDiscreteWE(we, weInv, file, timeRange,
-                  argDict['databaseID'], maskGrid, clipArea)
-            else:
-                s = "Grids of type: " + we.gridType + " are not supported, " + \
-                  "parm=" + p
-                logProblem(s)
-                raise Exception, s
-    
-            totalGrids = totalGrids + nGrids
+        
+        gridType = str(we.getGpi().getGridType())
+        if gridType == "SCALAR":
+            nGrids = storeScalarWE(we, weInv, file, timeRange,
+              argDict['databaseID'], maskGrid, argDict['trim'], clipArea,
+              argDict['krunch'])
+        elif gridType == "VECTOR":
+            nGrids = storeVectorWE(we, weInv, file, timeRange,
+              argDict['databaseID'], maskGrid, argDict['trim'], clipArea,
+              argDict['krunch'])
+        elif gridType == "WEATHER":
+            nGrids = storeWeatherWE(we, weInv, file, timeRange,
+              argDict['databaseID'], maskGrid, clipArea)
+        elif gridType == "DISCRETE":
+            nGrids = storeDiscreteWE(we, weInv, file, timeRange,
+              argDict['databaseID'], maskGrid, clipArea)
+        else:
+            s = "Grids of type: " + we.gridType + " are not supported, " + \
+              "parm=" + p
+            logProblem(s)
+            raise Exception, s
+
+        totalGrids = totalGrids + nGrids
 
     # store the topo and lat, lon grids if the -g was present
     if argDict["geoInfo"]:

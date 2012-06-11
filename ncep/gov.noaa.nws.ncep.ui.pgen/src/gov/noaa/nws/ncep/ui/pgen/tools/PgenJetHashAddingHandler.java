@@ -8,16 +8,17 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.JetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet.JetHash;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import java.awt.Color;
 
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -35,7 +36,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
 
-	private NCMapEditor mapEditor;
+//	private NCMapEditor mapEditor;
+	private AbstractEditor mapEditor;
 	private PgenResource drawingLayer;
 	private IJetBarb prevTool;
 	private JetAttrDlg jetDlg;
@@ -48,7 +50,8 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
 	 * @param jet
 	 * @param jetDlg
 	 */
-	public PgenJetHashAddingHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+//	public PgenJetHashAddingHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
+	public PgenJetHashAddingHandler(AbstractEditor mapEditor, PgenResource drawingLayer,
 			IJetBarb prevTool, JetAttrDlg jetDlg){
 		this.mapEditor= mapEditor;
 		this.drawingLayer = drawingLayer;

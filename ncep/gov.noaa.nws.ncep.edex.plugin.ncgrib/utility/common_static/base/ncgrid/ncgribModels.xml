@@ -62,7 +62,29 @@
 		<dt>3</dt>
 	</model>
 
-
+	<model>
+		<title>Global Ensemble Forecast System 2.5x2.5 Degree</title>
+		<name>gefs</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>2</grid>
+		<process>
+			<id>107</id>
+		</process>
+		<template>
+			gec00.*bc.*|gefscBC;
+			gec00.*anl|gefscAnal;
+			gec00.*[0-9]|gefsc;
+			gep.*anl|gefsAnal;
+			gep.*bc.*|gefsBC;
+			gep.*|gefs;
+			geavg.*bc.*|gefsMeanBC;
+			gespr.*bc.*|gefsSpreadBC;
+			gespr.*|gefsSpread		
+        </template>
+		<dt>3</dt>
+	</model>
+	
 	<model>
 		<title>Global Ensemble Forecast System 1x1 Degree</title>
 		<name>gefs</name>
@@ -97,9 +119,9 @@
 			<id>107</id>
 		</process>
 		<template>
-			gec00.*[0-9]|gefsc;
-			gec00.*anl|gefscAnal;
 			gec00.*bc.*|gefscBC;
+			gec00.*anl|gefscAnal;
+			gec00.*[0-9]|gefsc;
 			gep.*anl|gefsAnal;
 			gep.*bc.*|gefsBC;
 			gep.*|gefs;
@@ -115,14 +137,37 @@
 		<name>gefs</name>
 		<center>7</center>
 		<subcenter>2</subcenter>
-		<grid>2</grid>
+		<grid>372</grid>
 		<process>
 			<id>107</id>
 		</process>
 		<template>
-			gec00.*[0-9]|gefsc;
-			gec00.*anl|gefscAnal;
 			gec00.*bc.*|gefscBC;
+			gec00.*anl|gefscAnal;
+			gec00.*[0-9]|gefsc;
+			gep.*anl|gefsAnal;
+			gep.*bc.*|gefsBC;
+			gep.*|gefs;
+			geavg.*bc.*|gefsMeanBC;
+			gespr.*bc.*|gefsSpreadBC;
+			gespr.*|gefsSpread		
+        </template>
+		<dt>3</dt>
+	</model>
+	
+	<model>
+		<title>Global Ensemble Forecast System 2.5x2.5 Degree</title>
+		<name>gefs</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>375</grid>
+		<process>
+			<id>107</id>
+		</process>
+		<template>
+			gec00.*bc.*|gefscBC;
+			gec00.*anl|gefscAnal;
+			gec00.*[0-9]|gefsc;
 			gep.*anl|gefsAnal;
 			gep.*bc.*|gefsBC;
 			gep.*|gefs;
@@ -133,7 +178,7 @@
 		<dt>3</dt>
 	</model>
 
-	<model>
+	<model> 
 		<title>Global Wind-Wave Forecast Model</title>
 		<name>gww</name>
 		<center>7</center>
@@ -161,6 +206,54 @@
 		</process>
 		<dt>6</dt>
 	</model>
+
+	<model>
+		<title>Global Multi-Grid Wave</title>
+		<name>gww2</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>77528250</grid>
+		<process>
+			<id>11</id>
+		</process>
+		<dt>3</dt>
+	</model>
+	
+	<model>
+		<title>GlobalWave</title>
+		<name>gww3</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>408</grid>
+		<process>
+			<id>11</id>
+		</process>
+		<dt>3</dt>
+	</model>	
+		
+	<model>
+		<title>GWW</title>
+		<name>gww4</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>233</grid>
+		<process>
+			<id>10</id>
+		</process>
+		<dt>6</dt>
+	</model>
+		
+	<model>
+		<title>Global Wind-Wave Forecast Model</title>
+		<name>gww5</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>372</grid>
+		<process>
+			<id>10</id>
+		</process>
+		<dt>6</dt>
+	</model>
 		
 	<model>
 		<title>NAEFS ensemble BC</title>
@@ -173,6 +266,28 @@
 		</process>
 		<template>			
 			naefs_geavg.*bc.*|naefsMeanBC;
+			naefs_geavg.*anv.*|naefsMean;					
+			naefs_gespr.*bc.*|naefsSpreadBC;			
+			naefs_ge10pt.*bc.*|naefs10ptBC;
+			naefs_ge50pt.*bc.*|naefs50ptBC;
+			naefs_ge90pt.*bc.*|naefs90ptBC;
+			naefs_gemode.*bc.*|naefsModeBC;
+        </template>
+		<dt>3</dt>
+	</model>
+	
+	<model>
+		<title>NAEFS ensemble BC</title>
+		<name>naefsBC</name>
+		<center>7</center>
+		<subcenter>2</subcenter>
+		<grid>372</grid>
+		<process>
+			<id>114</id>
+		</process>
+		<template>			
+			naefs_geavg.*bc.*|naefsMeanBC;
+			naefs_geavg.*anv.*|naefsMean;			
 			naefs_gespr.*bc.*|naefsSpreadBC;			
 			naefs_ge10pt.*bc.*|naefs10ptBC;
 			naefs_ge50pt.*bc.*|naefs50ptBC;
@@ -328,6 +443,30 @@
 		<dt>3</dt>
 	</model>
 
+	<model>
+		<title>GFS Global 1x1 Degree Analysis</title>
+		<name>gfsAnl</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>372</grid>
+		<process>
+			<id>81</id>
+		</process>
+		<dt>3</dt>
+	</model>
+	
+	<model>
+		<title>GDAS</title>
+		<name>gdas</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>372</grid>
+		<process>
+			<id>82</id>
+		</process>
+		<dt>3</dt>
+	</model>
+	
 	<model>
 		<title>ECMWF Global 1x1 Degree</title>
 		<name>ecmwf</name>
@@ -538,6 +677,18 @@
 			<id>77</id>
 			<id>81</id>
 			<id>255</id>
+		</process>
+		<dt>3</dt>
+	</model>
+	
+	<model>
+		<title>GFS PGRB 1.0 DEGREE</title>
+		<name>gfs</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>372</grid>
+		<process>
+			<id>96</id>
 		</process>
 		<dt>3</dt>
 	</model>
@@ -1635,19 +1786,7 @@
 
 	<model>
 		<title>GWW</title>
-		<name>GWW233</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>233</grid>
-		<process>
-			<id>10</id>
-		</process>
-		<dt>6</dt>
-	</model>
-
-	<model>
-		<title>GWW</title>
-		<name>GWW375</name>
+		<name>gww375</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>375</grid>
@@ -2038,8 +2177,8 @@
 	</model>
 
 	<model>
-		<title>Grid over CONUS(Lat/Lon) 1 degree</title>
-		<name>CCPA</name>
+		<title>Climatological Calibrated Precipitation Analysis (360x181)</title>
+		<name>ccpa</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>3</grid>
@@ -2050,8 +2189,8 @@
 	</model>
 	
 		<model>
-		<title>Grid over CONUS(Lat/Lon) 1 degree</title>
-		<name>CCPA</name>
+		<title>CCPA global 1.0 degree (360x181)</title>
+		<name>ccpa</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>229</grid>
@@ -2062,11 +2201,23 @@
 	</model>
 	
 		<model>
-		<title>LDAS Grid over CONUS(Lat/Lon)</title>
-		<name>CCPA110</name>
+		<title>Climatological Calibrated Precipitation Analysis 2.5km</title>
+		<name>ccpa2P5</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>110</grid>
+		<process>
+			<id>184</id>
+		</process>
+		<dt>1</dt>
+	</model>
+	
+	<model>
+		<title>Climatological Calibrated Precipitation Analysis 5km</title>
+		<name>ccpa5K</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>197</grid>
 		<process>
 			<id>184</id>
 		</process>
@@ -2086,20 +2237,8 @@
 	</model>
 
 	<model>
-		<title>Grid over CONUS- 16X Resolution(5 Km) Lambert Conformal</title>
-		<name>CCPA197</name>
-		<center>7</center>
-		<subcenter>4</subcenter>
-		<grid>197</grid>
-		<process>
-			<id>184</id>
-		</process>
-		<dt>1</dt>
-	</model>
-
-	<model>
-		<title>HRAP Grid over the Contiguous United States and Puerto Rico (polar stereographic)</title>
-		<name>CCPAHRAPPR</name>
+		<title>Climatological Calibrated Precipitation Analysis over US and Puerto Rico</title>
+		<name>ccpaUS</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>240</grid>
@@ -2111,7 +2250,7 @@
 
 	<model>
 		<title>CCPA over conus 0.5 DEGREE</title>
-		<name>CCPA0.5</name>
+		<name>ccpaP5</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>402</grid>
@@ -2122,8 +2261,8 @@
 	</model>
 
 	<model>
-		<title>ECMWF Analysis from CCPA System 1.0 DEGREE</title>
-		<name>CCPA</name>
+		<title>CCPA global 1.0 degree (361x181)</title>
+		<name>ccpa2</name>
 		<center>7</center>
 		<subcenter>4</subcenter>
 		<grid>375</grid>
@@ -4045,19 +4184,7 @@
 
 	<model>
 		<title>Global Multi-Grid Wave</title>
-		<name>GMGWGLO</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>77528250</grid>
-		<process>
-			<id>11</id>
-		</process>
-		<dt>3</dt>
-	</model>
-	
-	<model>
-		<title>Global Multi-Grid Wave</title>
-		<name>GMGWAO</name>
+		<name>wave30mAO</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>90042500</grid>
@@ -4069,7 +4196,7 @@
 	
 	<model>
 		<title>GlobalWave</title>
-		<name>WAVEGLOBAL</name>
+		<name>gwwP5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>11</grid>
@@ -4079,18 +4206,6 @@
 		<dt>3</dt>
 	</model>
 
-	<model>
-		<title>GlobalWave</title>
-		<name>WAVEGLOBAL</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>408</grid>
-		<process>
-			<id>11</id>
-		</process>
-		<dt>3</dt>
-	</model>
-	
 	<model>
 		<title>AKwave 0.25X0.167 degree Lan/Lon grid - Alaska</title>
 		<name>wave10mAK</name>
@@ -4129,7 +4244,7 @@
 
 	<model>
 		<title>Wave 0.167 degree Lan/Lon grid - US Eastern Pacific</title>
-		<name>WAVEEP</name>
+		<name>wave10mEP</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>14</grid>
@@ -4177,7 +4292,7 @@
 
 	<model>
 		<title>Global Multi-Grid Wave Model 0.167 degree -- US East Coast</title>
-		<name>WAVEGLOBALE</name>
+		<name>gww10mEC</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>12</grid>
@@ -4190,7 +4305,7 @@
 
 	<model>
 		<title>Global Multi-Grid Wave Model 0.167 degree-- Hawaii</title>
-		<name>WAVEGLOBALHI</name>
+		<name>gww10mHI</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>14</grid>
@@ -4202,7 +4317,7 @@
 
 	<model>
 		<title>Global Multi-Grid Wave Model 0.133X0.067 degree-- Alaska</title>
-		<name>WAVEGLOBALAK</name>
+		<name>gww4mAK</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>16</grid>
@@ -4214,7 +4329,7 @@
 
 	<model>
 		<title>Global Multi-Grid Wave Model 0.067 degree-- US West Coast</title>
-		<name>WAVEGLOBALW</name>
+		<name>gww4mWC</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>17</grid>
@@ -4226,7 +4341,7 @@
 
 	<model>
 		<title>Global Multi-Grid Wave Model 0.067 degree-- US East Coast</title>
-		<name>WAVEGLOBALE18</name>
+		<name>gww4mEC</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>18</grid>
@@ -4238,7 +4353,7 @@
 			
 	<model>
 		<title>Global Multi-Grid Wave Model 0.067 degree-- US East Coast</title>
-		<name>WAVEGLOBALE18</name>
+		<name>gww4mEC</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>18</grid>
@@ -4385,7 +4500,7 @@
 
 	<model>
 		<title>ARW-Guam</title>
-		<name>ARWGUAM</name>
+		<name>hireswArwGuam</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>11731129</grid>
@@ -4397,10 +4512,22 @@
 
 	<model>
 		<title>ARW-PR</title>
-		<name>ARWPR</name>
+		<name>hireswArwPR</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>13560489</grid>
+		<process>
+			<id>116</id>
+		</process>
+		<dt>3</dt>
+	</model>
+
+	<model>
+		<title>HiResW-ARW-PR</title>
+		<name>hireswArwPR</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>255004</grid>
 		<process>
 			<id>116</id>
 		</process>
@@ -4437,18 +4564,6 @@
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>255003</grid>
-		<process>
-			<id>116</id>
-		</process>
-		<dt>3</dt>
-	</model>
-
-	<model>
-		<title>HiResW-ARW-PR</title>
-		<name>hireswArwPR</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>255004</grid>
 		<process>
 			<id>116</id>
 		</process>
@@ -5072,5 +5187,31 @@
 			<id>70</id>
 		</process>
 		<dt>3</dt>
-        </model>
+	</model>
+
+	<model>
+		<title>Extratropical Storm Surge and Tide Operational Forecast System
+			(US)</title>
+		<name>estofsUS</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>1971</grid>
+		<process>
+			<id>14</id>
+		</process>
+		<dt>1</dt>
+	</model>
+
+	<model>
+		<title>Extratropical Storm Surge and Tide Operational Forecast System
+			(PR)</title>
+		<name>estofsPR</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>339227-95</grid>
+		<process>
+			<id>14</id>
+		</process>
+		<dt>1</dt>
+	</model>
 </ncgribModelSet>

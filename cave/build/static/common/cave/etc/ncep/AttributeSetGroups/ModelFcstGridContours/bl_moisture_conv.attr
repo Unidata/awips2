@@ -7,6 +7,8 @@
 !
 GLEVEL=0
 GVCORD=none
+SKIP=
+FILTER=y
 SCALE=7 ! 0
 GDPFUN=sdiv(mixr;wnd%SGMA@9950)! kntv(wnd%sgma@9950)
 TYPE=c/f                     ! b

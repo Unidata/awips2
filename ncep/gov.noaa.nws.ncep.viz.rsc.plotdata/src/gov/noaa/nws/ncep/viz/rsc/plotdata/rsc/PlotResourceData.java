@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilterMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 
@@ -47,6 +49,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * 10/18/2011              sgurung     Modified setReportType() to set constrainttype as ConstraintType.IN 
  * 10/19/2011              ghull       add TafPlotResource
  * 11/01/2011    #482      ghull       added plotDensity, comment out unimplemented plugins
+ * 04/09/2012    #615      sgurung     Added conditionalFilterName and conditionalFilter
  *                           
  * </pre>
  * 
@@ -84,8 +87,8 @@ INatlCntrsResourceData {
     protected String levelKey = null;
 
 	@XmlElement
-    protected Integer plotDensity = 10;
-
+    protected Integer plotDensity = 10;	
+	
 // This is for the 'range' plotMode which we currently aren't. We'll need similar 
 // functionality in the future but this will need to be on a per parameter basis and
 // not set by the resource.
@@ -100,6 +103,12 @@ INatlCntrsResourceData {
 
     @XmlElement
     protected AbstractDbPlotInfoRetriever plotInfoRetriever;
+    
+    @XmlElement
+	protected String conditionalFilterName = null;
+	
+    //@XmlElement
+	protected ConditionalFilter conditionalFilter = null;
 
     private static HashSet<String> pluginNames = new HashSet<String>();
     
@@ -335,8 +344,40 @@ INatlCntrsResourceData {
 
     public boolean isSurfaceOnly() {
 		return sfcPlugins.contains( getPluginName() );
+	}    
+    
+    public String getConditionalFilterName() {
+		return conditionalFilterName;
+	}
+
+	public void setConditionalFilterName(String name) {
+		this.conditionalFilterName = name;
+	}
+
+    public ConditionalFilter getConditionalFilter( ) {
+		// if the conditionalFilter has not been set yet (from xml file
+		// or from the conditionalFilterName attribute) then get it from the manager
+		if( conditionalFilter == null ) {			
+			conditionalFilter = ConditionalFilterMngr.getInstance().getConditionalFilter( getPluginName(), getConditionalFilterName() );
+			
+			if( conditionalFilter == null ) {
+				System.out.println("Unable to find ConditionalFilter for plugin '"+getPluginName()+
+						            "' for '"+ getConditionalFilterName() +"'.");
+				conditionalFilter = ConditionalFilterMngr.getInstance().getDefaultConditionalFilter();
+				conditionalFilter.setName( getConditionalFilterName() );
+				conditionalFilter.setPlugin( getPluginName() );
+				conditionalFilter.setDescription( "" );
+				conditionalFilter.getConditionalFilterElements();
+				return conditionalFilter;
+			}
+		}
+		return new ConditionalFilter( conditionalFilter );
 	}
     
+	public void setConditionalFilter(ConditionalFilter conds) {
+		this.conditionalFilter = conds;	
+	}    
+	
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {

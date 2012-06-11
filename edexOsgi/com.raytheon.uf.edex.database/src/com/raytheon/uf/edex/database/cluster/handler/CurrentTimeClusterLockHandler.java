@@ -100,35 +100,33 @@ public class CurrentTimeClusterLockHandler implements IClusterLockHandler {
     public LockState handleLock(ClusterTask ct) {
         LockState ls = null;
         checkTime = System.currentTimeMillis();
-        if (checkTime > ct.getLastExecution()) {
-            boolean override = checkTime > ct.getLastExecution()
-                    + timeOutOverride;
-            if (!ct.isRunning() || override) {
-                if (override && ct.isRunning()) {
 
-                    if (handler.isPriorityEnabled(Priority.INFO)) {
-                        handler.handle(
-                                Priority.INFO,
-                                "Overriding lock for cluster task ["
-                                        + ct.getId().getName()
-                                        + "/"
-                                        + ct.getId().getDetails()
-                                        + "] time out ["
-                                        + timeOutOverride
-                                        + "] exceeded by "
-                                        + (checkTime - (ct.getLastExecution() + timeOutOverride))
-                                        + " ms.");
-                    }
+        if (ct.isRunning()) {
+            ls = LockState.ALREADY_RUNNING;
+            // Override
+            if (checkTime > ct.getLastExecution() + timeOutOverride) {
+                if (handler.isPriorityEnabled(Priority.INFO)) {
+                    handler.handle(
+                            Priority.INFO,
+                            "Overriding lock for cluster task ["
+                                    + ct.getId().getName()
+                                    + "/"
+                                    + ct.getId().getDetails()
+                                    + "] time out ["
+                                    + timeOutOverride
+                                    + "] exceeded by "
+                                    + (checkTime - (ct.getLastExecution() + timeOutOverride))
+                                    + " ms.");
                 }
                 ls = LockState.SUCCESSFUL;
-            } else {
-                // it's newer but currently locked
-                ls = LockState.ALREADY_RUNNING;
             }
         } else {
-            ls = LockState.OLD;
+            if (checkTime > ct.getLastExecution()) {
+                ls = LockState.SUCCESSFUL;
+            } else {
+                ls = LockState.OLD;
+            }
         }
-
         return ls;
     }
 
