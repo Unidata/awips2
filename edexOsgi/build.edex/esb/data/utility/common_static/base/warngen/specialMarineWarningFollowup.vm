@@ -40,10 +40,14 @@
 ## HEADER FOR NON-CAN/CON PRODUCTS
 #######################################################################
 ##
-#if(${action}!="CANCON")
+#if(${action}=="COR" && ${cancelareas})
+#set($CORCAN = "true")
+#else
+#set($CORCAN = "false")
+#end
+#if(${action}!="CANCON" && ${CORCAN}!="true")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
-
 #if(${productClass}=="T")
 TEST...MARINE WEATHER STATEMENT...TEST
 #else
@@ -147,7 +151,7 @@ ${canwarning}
 ## Removed Strong and Severe Thunderstorm selections and placed logic in the
 ## wind and hail selections that will change wording for Severe Thunderstorms.
 #######################################################################
-#if(${action}=="CON" || ${action}=="COR")
+#if(${action}=="CON" || (${action}=="COR" && ${CORCAN}=="false"))
 #set ($eventType = "THUNDERSTORM")
 #if(${list.contains($bullets, "thunderstorm")})
 	#set ($eventType = "THUNDERSTORM")
@@ -479,7 +483,6 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #if(${action}=="CANCON")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
-
 #if(${productClass}=="T")
 TEST...MARINE WEATHER STATEMENT...TEST
 #else
@@ -568,6 +571,419 @@ $$
 
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.MA.W.${oldvtec}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#######################################################################
+## List of Event Types. Added several events such as Shower...Cloud and Front.
+## Removed Strong and Severe Thunderstorm selections and placed logic in the
+## wind and hail selections that will change wording for Severe Thunderstorms.
+#######################################################################
+#set ($eventType = "THUNDERSTORM")
+#if(${list.contains($bullets, "thunderstorm")})
+	#set ($eventType = "THUNDERSTORM")
+	#set ($severeType = "STRONG")
+#end
+#if(${list.contains($bullets, "shower")})
+	#set ($eventType = "SHOWER")
+#end
+#if(${list.contains($bullets, "cloud")})
+	#set ($eventType = "CLOUD")
+#end
+#if(${list.contains($bullets, "front")})
+	#set ($eventType = "FRONT")
+#end
+#if(${list.contains($bullets, "volcano")})
+	#set ($eventType = "VOLCANO")
+#end
+#######################################################################
+## Added a Threat Section to template that includes Wind...Hail and Waterspout selections.
+## Strong Thunderstorm will change to Severe Thunderstorm automatically based on 
+## selections in Wind...Hail and Waterspout sections.
+#######################################################################
+#set ($windTag = "<34")
+#if(${list.contains($bullets, "34ktWind")})
+	#set ($windTag = ">34")
+	#set ($windType = "STRONG WINDS 34 KNOTS OR GREATER")
+#end
+#if(${list.contains($bullets, "40ktWind")})
+	#set ($windTag = "40")
+	#set ($windType = "STRONG WINDS TO 40 KNOTS")
+#end
+#if(${list.contains($bullets, "40ktplusWind")})
+	#set ($windTag = "40")
+	#set ($windType = "STRONG WINDS TO NEARLY 50 KNOTS")
+#end
+#if(${list.contains($bullets, "50ktWind")})
+	#set ($windTag = "50")
+	#set ($windType = "DANGEROUS WINDS IN EXCESS OF 50 KNOTS")
+	#set ($severeType = "SEVERE")
+#end
+#if(${list.contains($bullets, "65ktWind")})
+	#set ($windTag = "65")
+	#set ($windType = "DANGEROUS CAPSIZING WINDS IN EXCESS OF 65 KNOTS")
+	#set ($severeType = "SEVERE")
+#end
+#set ($hailTag = "0.00")
+#if(${list.contains($bullets, "smallHail")})
+	#set ($hailTag = "<.75")
+	#set ($hailType = "SMALL HAIL")
+#end
+#if(${list.contains($bullets, "largeHail")})
+	#set ($hailTag = ">.75")
+	#set ($hailType = "LARGE HAIL")
+	#set ($severeType = "SEVERE")
+#end
+#if(${list.contains($bullets, "destructiveHail")})
+	#set ($hailTag = ">2.0")
+	#set ($hailType = "LARGE DESTRUCTIVE HAIL")
+	#set ($severeType = "SEVERE")
+#end
+#if(${list.contains($bullets, "sightedSpout")})
+	#set ($spoutType = "WATERSPOUTS")
+	#set ($severeType = "SEVERE")
+#end
+#if(${list.contains($bullets, "possibleSpout")})
+	#set ($spoutType = "WATERSPOUTS")
+	#set ($capable = "CAPABLE OF ")
+#end
+################################################
+## Threat section for Volcanic Situations
+################################################
+#if(${list.contains($bullets, "ashfall")})
+	#set ($ashfallType = "ASHFALL")
+	#set ($ashfallPath = "VOLCANIC ASH")
+	#set ($ctaSelected = "YES")
+	#set ($ashfallCTA = "ASH IS AN EYE AND RESPIRATORY IRRITANT AND IS ABRASIVE. THOSE WITH RESPIRATORY SENSITIVITIES SHOULD TAKE EXTRA PRECAUTIONS TO MINIMIZE EXPOSURE. PROTECT ELECTRONICS AND COVER AIR INTAKES IF ASHFALL IS EXPECTED OR CONFIRMED. REMOVE ASH FROM SURFACES WITH WATER IF POSSIBLE TO PREVENT EXCESSIVE ACCUMULATION.")
+	#set ($ashfallInfo = "AN ASHFALL WARNING MEANS THAT THE VOLCANO IS UNDERGOING A MAJOR ERUPTION. IT IS VERY LIKELY THAT MARINERS WILL BE AFFECTED BY VOLCANIC HAZARDS IN THE WARNING AREAS SUCH AS SIGNIFICANT DEBRIS...ASHFALL ONE QUARTER INCH OR GREATER...LAVA...OR LAHAR AND DEBRIS FLOWS.")
+#end
+#if(${list.contains($bullets, "debrisFlow")})
+	#set ($debrisflowType = "DEBRIS FLOW")
+	#set ($debrisflowPath = "DEBRIS FLOW")
+	#set ($debrisflowInfo = "THE ERUPTION OF THE VOLCANO CAN CAUSE A SUDDEN MELTING OF SNOW AND ICE ON THE MOUNTAIN. THIS WILL RESULT IN A TORRENT OF MUD...ASH...ROCK...AND HOT WATER TO FLOW DOWN THE MOUNTAIN AND INTO THE NEARBY WATERS.")
+#end
+#######################################################################
+## Logic to create the Wind/Hail Tags used by CR.
+#######################################################################
+#set ($windhailTag = "WIND...HAIL ${windTag}KTS ${hailTag}IN")
+#######################################################################
+## Logic to put together the threats based on Wind...Hail and Waterspout sections.
+#######################################################################
+#if(${spoutType} && ${windType} && ${hailType})
+	#set ($threat = "${spoutType}...${windType} AND ${hailType}")
+#elseif(${spoutType} && ${hailType})
+	#set ($threat = "${spoutType} AND ${hailType}")
+#elseif(${spoutType} && ${windType})
+	#set ($threat = "${spoutType} AND ${windType}")
+#elseif(${windType} && ${hailType})
+	#set ($threat = "${windType} AND ${hailType}")
+#elseif(${spoutType})
+	#set ($threat = "${spoutType}")
+#elseif(${windType})
+	#set ($threat = "${windType}")
+#elseif(${hailType})
+	#set ($threat = "${hailType}")
+#else
+	#set ($threat = "!**YOU DID NOT SELECT ANY THREATS. PLEAST RE-GENERATE THIS WARNING!**!")
+#end
+#######################################################################
+## Logic for Volcanic Threats. If selected this will override any 
+## other selections for wind/hail/spouts.
+#######################################################################
+#if(${ashfallType} && ${debrisflowType})
+	#set ($threat = "${ashfallType} AND ${debrisflowType}")
+	#set ($volcanoPath = "${ashfallPath} AND ${debrisflowPath}")
+#elseif(${ashfallType})
+	#set ($threat = "${ashfallType}")
+	#set ($volcanoPath = "${ashfallPath}")
+#elseif(${debrisflowType})
+	#set ($threat = "${debrisflowType}")
+	#set ($volcanoPath = "${debrisflowPath}")
+#else
+#end
+#######################################################################
+## Section to determine Thunderstorm Severity based on Threat Selections.
+#######################################################################
+#if(${eventType} == "THUNDERSTORM")
+	#set($thunderstormType = "${severeType} ${eventType}")
+	#set($eventType = "${thunderstormType}")
+#end
+#######################################################################
+## Section to create line wording based on track type.
+#######################################################################
+#set($stormline = "A ${eventType}")
+#set($pathheader = "${eventType}")
+#if(${stormType} == "line")
+	#set($stormline = "A LINE OF ${eventType}S")
+	#set($pathheader = "${eventType}S")
+#end
+#######################################################################
+##Corrective coding to prevent the use of "Line of Fronts" in the Product.
+#######################################################################
+#if(${eventType} == "FRONT")
+	#set($stormline = "A ${eventType}")
+	#set($pathheader = "${eventType}")
+##	#set($stormType = "")
+#end
+#######################################################################
+## Coding for volcanos...this will override all other selections.
+#######################################################################
+#set($impacted = "LOCATIONS IMPACTED INCLUDE...")
+#if(${eventType} == "VOLCANO")
+	#set($stormline = "!** NAME OF VOLCANO**! ${eventType}")
+	#set($pathheader = "THE ${volcanoPath}")
+##	#set($stormType = "")
+	#set($impacted = "LOCATIONS IMPACTED BY ${volcanoPath} INCLUDE...")
+#end
+#######################################################################
+## Basis section that incorporates line phenomena...capable vs producing
+## and threat based on selections above. Added Satellite Imagery to basis.
+#######################################################################
+#set ($report = "!** YOU DIDN'T SELECT A REPORTER **! ${eventType}")
+#if(${list.contains($bullets, "doppler")})
+  #set ($capable = "CAPABLE OF ")
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${stormline}...${capable}PRODUCING ${threat}...")
+#end
+#if(${list.contains($bullets, "marineSpotter")})
+  #set ($report = "MARINE WEATHER SPOTTERS REPORTED ${stormline}...${capable}PRODUCING ${threat}...") 
+#end
+#if(${list.contains($bullets, "mariner")})
+  #set ($report = "A MARINER REPORTED ${stormline}...${capable}PRODUCING ${threat}...") 
+#end
+#if(${list.contains($bullets, "public")})
+  #set ($report = "THE PUBLIC REPORTED ${stormline}...${capable}PRODUCING ${threat}...") 
+#end
+#if(${list.contains($bullets, "pilot")})
+  #set ($report = "A PILOT REPORTED ${stormline}...${capable}PRODUCING ${threat}...") 
+#end
+#if(${list.contains($bullets, "satellite")})
+  #set ($capable = "CAPABLE OF ")
+  #set ($report = "SATELLITE IMAGERY INDICATED ${stormline}...${capable}PRODUCING ${threat}...")
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+########################################################################
+## Altered continuation headline for cleaner wording and to match NWS Directive 10-314
+########################################################################
+...A${ashCON} ${warningType} REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})...
+
+FOR THE FOLLOWING AREAS...
+#foreach (${area} in ${areas}) 
+${area.name}...
+#end
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}... ${report} LOCATED ##
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "OVER", 4, "NM", true)
+#if(${eventType} == "VOLCANO")
+.
+#elseif($movementSpeed < 3 || ${stationary})
+. ${reportType2} NEARLY STATIONARY.
+#else
+...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} KNOTS.
+#end
+
+${ashfallInfo}
+
+${debrisflowInfo}
+
+#############################################
+######## GENERATE ADDITIONAL REPORTS  #######
+#############################################
+#if(${list.contains($bullets, "addlRpt")})
+IN ADDITION...AT !**enter time, phenomena**! WAS REPORTED !**enter location**!.
+#end
+
+###################################################
+######## GENERATE PATHCAST OR CITIES LIST #########
+###################################################
+#set ($eventType = "${pathheader}")
+#set ($warningType = "WARNING") 
+#if(${list.contains($bullets, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("${eventType} WILL BE NEAR..." ${eventType} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+
+#elseif(${list.contains($bullets, "listoflocations")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("${impacted}" "${eventType}" 0 ${locationList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+
+#end
+
+##############################################
+###### SPECIAL VENUE/EVENT CASE ##############
+##############################################
+
+#if(${list.contains($bullets, "specialEvent")})
+#if(${stormType} == "line")
+THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+
+#else
+THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+
+#end
+#end
+#####################
+## CALL TO ACTIONS ##
+#####################
+#######################################################################
+## Check to see if we've selected any calls to action. In our .cfg file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#######################################################################
+#foreach ($bullet in $bullets)
+#if ($bullet.endsWith("CTA"))
+#set ($ctaSelected = "YES")
+#end
+#end
+##
+#if (${ctaSelected} == "YES")
+
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+#end
+##
+
+${ashfallCTA}
+
+#if(${list.contains($bullets, "genericCTA")})
+AS THUNDERSTORMS MOVE OVER THE WATER...BOATERS CAN EXPECT GUSTY WIND AND HIGH WAVES.  MOVE TO SAFE HARBOR OR STAY CLOSE TO SHORE UNTIL THE STORM PASSES.
+
+#end
+#if(${list.contains($bullets, "gustyWindsCTA")})
+MARINERS CAN EXPECT GUSTY WINDS...HIGH WAVES...DANGEROUS LIGHTNING...AND HEAVY RAINS.  BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY...UNTIL THIS STORM PASSES.
+
+#end
+#if(${list.contains($bullets, "nonThunderstormCTA")})
+MARINERS CAN EXPECT GUSTY WINDS...AND INCREASING WAVES. BOATERS...ESPECIALLY THOSE UNDER SAIL...SHOULD SEEK SAFE HARBOR IMMEDIATELY...UNTIL THE HIGH WINDS SUBSIDE.
+
+#end
+#if(${list.contains($bullets, "waterspoutCTA")})
+THUNDERSTORMS CAN PRODUCE SUDDEN WATERSPOUTS.  WATERSPOUTS CAN EASILY OVERTURN BOATS AND CREATE LOCALLY HAZARDOUS SEAS.  SEEK SAFE HARBOR IMMEDIATELY.  
+
+#end
+#if(${list.contains($bullets, "lightningCTA")})
+FREQUENT LIGHTNING IS OCCURRING WITH THIS STORM.  IF CAUGHT ON THE OPEN WATER STAY BELOW DECK IF POSSIBLE...KEEP AWAY FROM UNGROUNDED METAL OBJECTS.
+
+#end
+#if(${list.contains($bullets, "reportCTA")})
+REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE.
+
+#end
+#if (${ctaSelected} == "YES")
+&&
+#end
+#############
+## WATCHES ##
+#############
+#if(${list.contains($includedWatches, "torWatches")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains($includedWatches, "svrWatches")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#elseif(${CORCAN} == "true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+MWS${siteId}
+#if(${productClass}=="T")
+TEST...MARINE WEATHER STATEMENT...TEST
+#else
+MARINE WEATHER STATEMENT
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.MA.W.${oldvtec}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${warningType} IS CANCELLED... 
+
+THE AFFECTED AREAS WERE...
+#foreach (${area} in ${cancelareas}) 
+${area.name}...
+#end
+
+######################################################################
+## Setup eventType for wording in the End of Warning Statement
+######################################################################
+#set($stormline = " HAS")
+#set($pose = "POSES")
+#if(${stormType} == "line")
+	#set($stormline = "S HAVE")
+        #set($pose = "POSE")
+#end
+#set ($eventType = "!**STORMS**! HAVE")
+#if(${list.contains($bullets, "event1")})
+	#set ($eventType = "THUNDERSTORM${stormline}")
+#end
+#if(${list.contains($bullets, "event3")})
+	#set ($eventType = "SHOWER${stormline}")
+#end
+#if(${list.contains($bullets, "event4")})
+	#set ($eventType = "CLOUD${stormline}")
+#end
+#if(${list.contains($bullets, "event5")})
+	#set ($eventType = "FRONT HAS")
+        #set ($pose = "POSES")
+#end
+#######################################################################
+## Replaced default end of warning wording.
+#######################################################################
+
+THE ${eventType} !**WEAKENED/MOVED OUT OF THE AREA**! AND NO LONGER ${pose} A SIGNIFICANT THREAT TO BOATERS.
+
+#############
+## WATCHES ##
+#############
+#if(${list.contains($includedWatches, "torWatches")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains($includedWatches, "svrWatches")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+TIME...MOT...LOC ##
+${dateUtil.format(${event}, ${timeFormat.time})}Z ##
+${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.round(${movementInKnots})}KT ##
+#foreach(${eventCoord} in ${eventLocation})
+#llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
+#end
+
+
+$$
+
+${ugcline}
+/${productClass}.COR.${vtecOffice}.MA.W.${oldvtec}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${productClass}=="T")
