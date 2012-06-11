@@ -82,6 +82,7 @@ function buildLocalizationRPMs()
       export LOCALIZATION_DIRECTORY="${dir}"
       export COMPONENT_NAME="awips2-localization-${site}"
       echo "site: ${site}"
+      export site="${site}"
 
       rm -rf ${BUILDROOT_DIR}
 
@@ -94,6 +95,7 @@ echo "AAAAAA the release in localization is ${AWIPSII_RELEASE}"
          --define '_component_release %(echo ${AWIPSII_RELEASE})' \
          --define '_component_name %(echo ${COMPONENT_NAME})' \
          --define '_baseline_workspace %(echo ${WORKSPACE})' \
+         --define '_localization_site %(echo ${site})' \
          --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
          --buildroot ${BUILDROOT_DIR} \
          ${WORKSPACE}/Installer.rpm/awips2.core/Installer.localization/component.spec

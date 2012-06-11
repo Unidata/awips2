@@ -63,7 +63,6 @@ RTMA:com.raytheon.edex.plugin.grib.decoderpostprocessors.RTMAGribPostProcessor
 LAPS:com.raytheon.edex.plugin.grib.decoderpostprocessors.LapsPostProcessor
 
 #TPC grids
-TPCWindProb:com.raytheon.edex.plugin.grib.decoderpostprocessors.TPCWindPostProcessor
 CPCoutlook211:com.raytheon.edex.plugin.grib.decoderpostprocessors.CPCoutlookGribPostProcessor
 
 #MSAS grids
@@ -75,10 +74,6 @@ HPCqpfNDFD:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPost
 
 #TPCSurgeProb grids
 TPCSurgeProb:com.raytheon.edex.plugin.grib.decoderpostprocessors.TPCSurgeProbPostProcessor
-
-#SREF grids
-SREF212:com.raytheon.edex.plugin.grib.decoderpostprocessors.SREFProbPostProcessor
-SREF243:com.raytheon.edex.plugin.grib.decoderpostprocessors.SREFProbPostProcessor
 
 #Canadian GEM grids
 Canadian-Reg:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianRegPostProcessor

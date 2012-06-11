@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tafqueue
+Bundle-SymbolicName: com.raytheon.edex.plugin.tafqueue
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dissemination;bundle-version="1.12.1174",
+ com.raytheon.uf.common.tafqueue;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0"
