@@ -1734,13 +1734,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Matcher m = tmlPtrn.matcher(rawMessage);
 
         if (m.find()) {
-            int day = warnRecord.getIssueTime().get(Calendar.DAY_OF_MONTH);
-            int hour = Integer.parseInt(m.group(1));
-            int minute = Integer.parseInt(m.group(2));
+            Calendar issueTime = warnRecord.getIssueTime();
+            int day = issueTime.get(Calendar.DAY_OF_MONTH);
+            int tmlHour = Integer.parseInt(m.group(1));
+            // This is for the case when the warning text was created,
+            // but actually issued the next day.
+            if (tmlHour > issueTime.get(Calendar.HOUR_OF_DAY)) {
+                day--;
+            }
+            int tmlMinute = Integer.parseInt(m.group(2));
             frameTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             frameTime.set(Calendar.DAY_OF_MONTH, day);
-            frameTime.set(Calendar.HOUR_OF_DAY, hour);
-            frameTime.set(Calendar.MINUTE, minute);
+            frameTime.set(Calendar.HOUR_OF_DAY, tmlHour);
+            frameTime.set(Calendar.MINUTE, tmlMinute);
         } else {
             frameTime = warnRecord.getIssueTime();
         }
