@@ -133,6 +133,7 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable,
 	// @Column(length=8)
 	@Transient
 	@DynamicSerializeElement
+    @DataURI(position=5)
 	private String reportType;
 
 	@Embedded

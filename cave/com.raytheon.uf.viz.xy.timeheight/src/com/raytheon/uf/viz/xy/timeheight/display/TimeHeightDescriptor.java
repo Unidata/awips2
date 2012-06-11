@@ -55,6 +55,8 @@ import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 @XmlAccessorType(XmlAccessType.NONE)
 public class TimeHeightDescriptor extends XyGraphDescriptor {
 
+    public static final int REAL_FRAME_COUNT_TO_USE_WHEN_FRAME_COUNT_IS_ONE = 999;
+
     @XmlAttribute
     public TimeDirection timeDirection;
 
@@ -136,6 +138,18 @@ public class TimeHeightDescriptor extends XyGraphDescriptor {
             return thOther.heightScale.equals(this.heightScale);
         }
         return false;
+    }
+
+    @Override
+    public int getNumberOfFrames() {
+        int numFrames = super.getNumberOfFrames();
+        if (numFrames == 1) {
+            // reset to a different number because A1 did
+            numFrames = Math.min(
+                    REAL_FRAME_COUNT_TO_USE_WHEN_FRAME_COUNT_IS_ONE,
+                    limitedNumberOfFrames);
+        }
+        return numFrames;
     }
 
 }

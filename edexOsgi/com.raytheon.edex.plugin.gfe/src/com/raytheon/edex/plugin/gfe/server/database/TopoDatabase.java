@@ -161,7 +161,7 @@ public class TopoDatabase extends IFPGridDatabase {
 
             ServerResponse<?> sr = saveGridData(parmId, TR,
                     new ArrayList<GFERecord>(), new WsId(null,
-                            "initialization", "TopoDatabase", 0));
+                            "initialization", "TopoDatabase"));
             if (!sr.isOkay()) {
                 StringBuilder tmp = new StringBuilder();
                 ArrayList<ServerMsg> messages = sr.getMessages();

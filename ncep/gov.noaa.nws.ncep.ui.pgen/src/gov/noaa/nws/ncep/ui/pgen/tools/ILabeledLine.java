@@ -8,7 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
-import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 
 
 /**

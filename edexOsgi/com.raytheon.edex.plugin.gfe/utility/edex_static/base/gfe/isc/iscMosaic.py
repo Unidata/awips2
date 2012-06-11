@@ -21,7 +21,13 @@
 
 import os, stat, time, string, bisect, getopt, sys, traceback
 import LogStream, iscTime, iscUtil, mergeGrid
-import pupynere as netcdf
+#import pupynere as netcdf
+try:
+    # dev environment
+    from Scientific.IO import NetCDF
+except:
+    # runtime we don't have the whole scientific package
+    import NetCDF
 import numpy
 import JUtil
 
@@ -367,11 +373,7 @@ class IscMosaic:
                 unzippedFile.close()
                 os.remove(unzippedFile.name)
         
-        # TODO: Remove False flag passed to constructor to resolve memory 
-        # allocation error found in #7788. If AWIPS2 ever moves to 64-bit
-        # we'll probably have enough address space to allow the file to be
-        # memory-mapped.
-        file = netcdf.netcdf_file(filename, "r", False)
+        file = NetCDF.NetCDFFile(filename, "r")
         
         # check version
         fileV = getattr(file, 'fileFormatVersion')

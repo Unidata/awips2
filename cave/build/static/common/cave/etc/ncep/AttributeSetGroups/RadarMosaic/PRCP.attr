@@ -2,3 +2,6 @@ colorMapName=nids_pre
 colorBar=@dfltMosaicColorBar.xml
 productCode=101
 prodName=PRCP
+alpha=1.0
+brightness=1.0
+contrast=1.0
