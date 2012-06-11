@@ -93,7 +93,7 @@
     </TableColumn>
     <TableColumn>
         <ColumnName>GUID</ColumnName>
-        <ReverseFilter>false</ReverseFilter>
+        <ReverseFilter>true</ReverseFilter>
         <Filter>6.0</Filter>
         <Low>1.0</Low>
         <Mid>3.0</Mid>

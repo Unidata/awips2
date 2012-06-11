@@ -8,6 +8,8 @@
 !
 GLEVEL=0   !0   !0   !0   !30:0
 GVCORD=FRZL!FRZL!FRZL!FRZL!pdly
+SKIP=
+FILTER=y
 SCALE=0!-3!-2!0!0
 GDPFUN=(relh)   !mul(3.28,hght) !mul(3.28,hght) !sub(hght,hght@0%none) !tmpc
 TYPE=c/f      ! c             !c              !c/f                   !c

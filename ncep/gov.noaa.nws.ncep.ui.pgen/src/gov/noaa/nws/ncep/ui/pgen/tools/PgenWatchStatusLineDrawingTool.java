@@ -9,8 +9,8 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.LineAttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.LineAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;

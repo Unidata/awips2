@@ -127,9 +127,9 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     /** The frame coordination object */
     protected IFrameCoordinator frameCoordinator;
 
-    private MathTransform worldToPixel;
+    protected MathTransform worldToPixel;
 
-    private MathTransform pixelToWorld;
+    protected MathTransform pixelToWorld;
 
     /** The spatial grid for the descriptor */
     private GeneralGridGeometry gridGeometry;
@@ -685,20 +685,46 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     }
 
     private void init() {
+        try {
+            setupTransforms();
+
+            // reproject all resources contained in this descriptor
+            ArrayList<ResourcePair> unProjectable = new ArrayList<ResourcePair>();
+            for (ResourcePair rp : this.resourceList) {
+                AbstractVizResource<?, ?> rsc = rp.getResource();
+                if (rsc == null) {
+                    continue;
+                }
+                try {
+                    rsc.project(gridGeometry.getCoordinateReferenceSystem());
+                } catch (VizException e) {
+                    // TODO: what to do here?
+                    unProjectable.add(rp);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error projecting resource :: " + rsc.getName(), e);
+                }
+            }
+            this.resourceList.removeAll(unProjectable);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error setting up Math Transforms,"
+                            + " this descriptor may not work properly", e);
+        }
+    }
+
+    protected void setupTransforms() throws Exception {
         GeneralGridGeometry gridGeometry = getGridGeometry();
         MathTransform worldToCRS = getWorldToCRSTransform(gridGeometry);
         if (worldToCRS != null) {
-            try {
-                MathTransform crsToPixel = gridGeometry.getGridToCRS(
-                        PixelInCell.CELL_CENTER).inverse();
-                worldToPixel = new DefaultMathTransformFactory()
-                        .createConcatenatedTransform(worldToCRS, crsToPixel);
-                pixelToWorld = worldToPixel.inverse();
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error setting up Math Transforms,"
-                                + " this descriptor may not work properly", e);
-            }
+            MathTransform crsToPixel = gridGeometry.getGridToCRS(
+                    PixelInCell.CELL_CENTER).inverse();
+            worldToPixel = new DefaultMathTransformFactory()
+                    .createConcatenatedTransform(worldToCRS, crsToPixel);
+            pixelToWorld = worldToPixel.inverse();
+
+        } else {
+            pixelToWorld = null;
+            worldToPixel = null;
         }
     }
 

@@ -49,6 +49,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
  * Dec 2, 2010            jsanchez     Initial creation
  * Aug 29, 2011 10719      rferrel     applyLocks no longer allows removal of
  *                                     required blank lines.
+ * May 10, 2012 14681     Qinglu Lin   Updated regex string for Pattern listOfAreaNamePtrn, etc.
  * 
  * </pre>
  * 
@@ -78,11 +79,6 @@ public class WarningTextHandler {
             .compile("(\\S\\S&&([^\\.][^\\.][^\\.]){" + (MAX_WIDTH - 3)
                     + ",}|.{1," + (MAX_WIDTH - 3) + "})(" + LOCK_START + "|"
                     + LOCK_END + "|-|\\s+|(\\.\\.\\.)|$)");
-
-    private static final Pattern locationsWrapRE = Pattern.compile("(.{1,"
-            + (MAX_WIDTH - 2) + "} TO )|(.{1," + (MAX_WIDTH - 20)
-            + "}\\.\\.\\.\\s{0,1}AND\\s.{1,20}\\.)|(.{1," + (MAX_WIDTH - 5)
-            + "}\\.\\.\\.)|(.{1," + MAX_WIDTH + "}(\\s+|$))");
 
     /** Strictly wraps only after hyphens */
     private static final Pattern hyphenWrapRE = Pattern.compile("(.{1,"
@@ -122,8 +118,7 @@ public class WarningTextHandler {
     private static Pattern immediateCausePtrn = null;
 
     /** ex. SARPY NE-DOUGLAS NE-WASHINGTON NE- */
-    private static final Pattern listOfAreaNamePtrn = Pattern
-            .compile("(((\\w{1,}\\s{1}){1,}\\w{2}-){0,}((\\w{1,}\\s{1}){1,}\\w{2}-))");
+    private static final Pattern listOfAreaNamePtrn = Pattern.compile("(\\s\\w{2}-)");
 
     private static final Pattern secondBulletPtrn = Pattern.compile("\\*(|\\s"
             + TEST_MSG2 + ")\\sUNTIL\\s\\d{3,4}\\s(AM|PM)\\s\\w{3,4}");
@@ -132,11 +127,11 @@ public class WarningTextHandler {
             + TEST_MSG2 + ")(.*)");
 
     private static final Pattern latLonPtrn = Pattern
-            .compile("LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");
+            .compile("^LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");
 
     private static final Pattern subLatLonPtrn = Pattern
-            .compile("\\s{1,}\\d{3,4}\\s\\d{3,5}(|(\\s\\d{3,4}\\s\\d{3,5}){1,})");
-
+            .compile("^((?!TIME...MOT... LOC))\\s{1,}\\d{3,4}\\s\\d{3,5}(|(\\s\\d{3,4}\\s\\d{3,5}){1,})");
+    
     private static final Pattern tmlPtrn = Pattern
             .compile("TIME...MOT...LOC \\d{3,4}Z\\s\\d{1,3}DEG\\s\\d{1,3}KT((\\s\\d{3,4}\\s\\d{3,5}){1,})");
 
@@ -270,8 +265,15 @@ public class WarningTextHandler {
 
         boolean startLines = true;
 
+        // Set before to false if the line is beyond "THE NATIONAL WEATHER SERVICE IN" line.
+        boolean before = true;
+        
         for (int lineIndex = 0; lineIndex < seperatedLines.length; ++lineIndex) {
             String line = seperatedLines[lineIndex];
+
+            if (line.contains("THE NATIONAL WEATHER SERVICE IN") || line.contains("OTHER LOCATIONS IMPACTED")) {
+                before = false;
+            }
 
             // This prevents blank line(s) after the header from being locked.
             if (startLines && lineIndex > 1) {
@@ -316,10 +318,14 @@ public class WarningTextHandler {
                     continue;
                 }
 
-                m = listOfAreaNamePtrn.matcher(line);
-                if (m.matches()) {
-                    sb.append(LOCK_START + line + "\n" + LOCK_END);
-                    continue;
+                if (before) {
+                	m = listOfAreaNamePtrn.matcher(line);
+                	if (m.find()) {
+                		if (!(line.contains("!**") || line.contains("**!") || line.contains("OTHER LOCATIONS"))) {
+                			sb.append(LOCK_START + line + "\n" + LOCK_END);
+                			continue;
+                		}
+                	}
                 }
 
                 // Locking Date in the MND header
@@ -635,7 +641,9 @@ public class WarningTextHandler {
                 }
 
                 if (inLocations) {
-                    m = locationsWrapRE.matcher(v);
+                    sb.append("\n");
+                    sb.append(wrapLocations(v));
+                    continue;
                 } else {
                     m = ugcPtrn.matcher(v);
                     if (m.find()) {
@@ -672,6 +680,33 @@ public class WarningTextHandler {
             first = false;
         }
 
+        return sb.toString();
+    }
+    
+    private static String wrapLocations(String locationsLine) {
+        StringBuffer sb = new StringBuffer();
+        
+        String line = "  ";
+        String[] locations = locationsLine.split("\\.\\.\\.");
+        
+        for (int i = 0; i < locations.length; i++) {
+            String location = locations[i];
+            int size = (i == locations.length - 1)? location.length() : location.length() + 3;
+            
+            if (line.length() + size >= MAX_WIDTH - 2) {
+                sb.append(line + "\n");
+                line = "  ";
+            } 
+            
+            if (i == locations.length - 1) {
+                line += location;
+            } else {
+                line += location + "...";
+            }
+        }
+        
+        sb.append(line + "\n");
+        
         return sb.toString();
     }
 
