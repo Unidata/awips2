@@ -23,15 +23,20 @@ package com.raytheon.uf.viz.collaboration.ui;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.ui.session.SessionFeedView;
 
 /**
- * TODO Add Description
+ * Action to open the group view, as well as the default chat room
  * 
  * <pre>
  * 
@@ -52,9 +57,32 @@ public class CollaborationGroupAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
+        // this opens the collaboration group view
         try {
             PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getActivePage().showView(CollaborationGroupView.ID);
+
+            // if autojoin is selected (to join the default room)
+            if (Activator.getDefault().getPreferenceStore()
+                    .getBoolean("autojoin")) {
+                CollaborationConnection connection = CollaborationConnection
+                        .getConnection();
+                try {
+                    // TODO, make this configurable?
+                    IVenueSession session = connection
+                            .joinTextOnlyVenue("nws-collaboration");
+                    PlatformUI
+                            .getWorkbench()
+                            .getActiveWorkbenchWindow()
+                            .getActivePage()
+                            .showView(SessionFeedView.ID,
+                                    session.getSessionId(),
+                                    IWorkbenchPage.VIEW_ACTIVATE);
+                } catch (CollaborationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to join the collaboration feed", e);
+                }
+            }
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open collaboration contact list", e);
