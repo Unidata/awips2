@@ -17,36 +17,27 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours;
+package com.raytheon.viz.gfe.core.msgs;
 
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.viz.gfe.core.parm.Parm;
 
 /**
- * TODO Add Description
+ * History updated listener
  * 
  * <pre>
- * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 6, 2009            mschenke     Initial creation
+ * Date			Ticket#		Engineer	Description
+ * ------------	----------	-----------	--------------------------
+ * May 22, 2012     #598    randerso    Initial creation
  * 
  * </pre>
  * 
- * @author mschenke
+ * @author chammack
  * @version 1.0
  */
+public interface IGridHistoryUpdatedListener {
 
-public interface ILoadableAsArrows {
-    /**
-     * Return the corresponding imagery resource
-     * 
-     * @return an imagery resource
-     * @throws VizException
-     */
-    public abstract AbstractVizResource<?, ?> getArrowResource()
-            throws VizException;
+    public void gridHistoryUpdated(Parm parm, TimeRange timeRange);
 
-    public abstract boolean isArrowVector();
 }
