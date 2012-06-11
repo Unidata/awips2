@@ -174,6 +174,7 @@ public class PurgeManager {
 					iter.remove();
 				}
 			}
+
 			Calendar purgeTimeOutLimit = Calendar.getInstance();
 			purgeTimeOutLimit.setTimeZone(TimeZone.getTimeZone("GMT"));
 			purgeTimeOutLimit.add(Calendar.MINUTE, -deadPurgeJobAge);
@@ -218,7 +219,7 @@ public class PurgeManager {
 					PurgeJobStatus job = dao.getJobForPlugin(plugin);
 
 					if (job == null) {
-						// no job on server, generate empty job
+						// no job in database, generate empty job
 
 						try {
 							job = new PurgeJobStatus();
@@ -245,26 +246,33 @@ public class PurgeManager {
 										plugin);
 					}
 
-					if (job.isRunning()) {
-						// check if job has timed out
-						if (purgeTimeOutLimit.getTimeInMillis() > job
-								.getStartTime().getTime()) {
-							// if no one else sets canPurge = false will start
-							// purging on this server
-							if (jobThread != null) {
-								// job currently running on our server, don't
-								// start another
-								canPurge = false;
-								jobThread.printTimedOutMessage(deadPurgeJobAge);
-							}
+					// is purge job currently running on this server
+					if (jobThread != null) {
+						// job currently running on our server, don't start
+						// another
+						canPurge = false;
+
+						if (purgeTimeOutLimit.getTimeInMillis() > jobThread
+								.getStartTime()) {
+							jobThread.printTimedOutMessage(deadPurgeJobAge);
 						}
 					} else {
-						// not currently running, check if need to be purged
-						Date startTime = job.getStartTime();
-						if (startTime != null
-								&& startTime.getTime() >= purgeFrequencyLimit
-										.getTimeInMillis()) {
-							canPurge = false;
+						if (job.isRunning()) {
+							// check if job has timed out
+							if (purgeTimeOutLimit.getTime().before(
+									job.getStartTime())) {
+								canPurge = false;
+							}
+							// else if no one else sets canPurge = false will
+							// start purging on this server
+						} else {
+							// not currently running, check if need to be purged
+							Date startTime = job.getStartTime();
+							if (startTime != null
+									&& startTime.after(purgeFrequencyLimit
+											.getTime())) {
+								canPurge = false;
+							}
 						}
 					}
 
