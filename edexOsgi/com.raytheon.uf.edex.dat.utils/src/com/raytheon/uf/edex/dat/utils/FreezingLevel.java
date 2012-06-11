@@ -122,26 +122,40 @@ public class FreezingLevel {
             Integer jtopLevel = null;
             Integer ktopLevel = null;
 
-            for (Integer level : ghValues.keySet()) {
+			System.out
+					.println("********** Starting Freezing Level Calculations *****************");
+			for (Integer level : ghValues.keySet()) {
 
-                Double tValue = tValues.get(level);
-                Double ghValue = ghValues.get(level);
+				Double tValue = tValues.get(level);
+				Double ghValue = ghValues.get(level);
+				System.out.println("GH Value: "+ghValue+" TValue: "+tValue);
 
-                if (ghValue != null && ghValue > -9000) {
-                    if (tValue != null && tValue > 273.16) {
-                        fLevel = (ghValues.get(ktopLevel) - ((ghValues
-                                .get(ktopLevel) - ghValue) * ((273.16 - tValues
-                                .get(jtopLevel)
-                                / (tValue - tValues.get(jtopLevel)))))) * .00328;
-                        freezingMap.put(coor, fLevel.floatValue());
-                        break;
-                    } else {
-                        jtopLevel = level;
-                        ktopLevel = level;
-                    }
-                }
-            }
-        }
+				if (ghValue != null && ghValue > -9000) {
+					if (tValue != null && tValue > 273.16) {
+
+						fLevel = (ghValues.get(ktopLevel) - ((ghValues
+								.get(ktopLevel) - ghValue) * ((273.16 - tValues
+								.get(jtopLevel)
+								/ (tValue - tValues.get(jtopLevel)))))) * .00328;
+						System.out.println("Formula:");
+						System.out.println("(" + ghValues.get(ktopLevel)
+								+ " - ((" + ghValues.get(ktopLevel) + " - "
+								+ ghValue + ") * ((273.16 - "
+								+ tValues.get(jtopLevel) + " / (" + tValue
+								+ " - " + tValues.get(jtopLevel)
+								+ "))))) * .00328)");
+						System.out.println("*** FreezingLevel = " + fLevel);
+						freezingMap.put(coor, fLevel.floatValue());
+						break;
+					} else {
+						jtopLevel = level;
+						ktopLevel = level;
+					}
+				}
+			}
+			System.out
+					.println("********** Finished Freezing Level Calculations *****************");
+		}
 
         return freezingMap;
     }

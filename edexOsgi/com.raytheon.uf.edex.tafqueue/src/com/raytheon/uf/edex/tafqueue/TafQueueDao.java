@@ -17,14 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.tafqueue;
+package com.raytheon.uf.edex.tafqueue;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.concurrent.locks.Lock;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
@@ -54,7 +53,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
 public class TafQueueDao extends CoreDao {
 
     public TafQueueDao() {
-        super(DaoConfig.forClass(Lock.class));
+        super(DaoConfig.forClass(TafQueueRecord.class));
     }
 
     /**
@@ -62,28 +61,62 @@ public class TafQueueDao extends CoreDao {
      * 
      * @return number of records purged
      * @throws PluginException
+     * @throws DataAccessLayerException
      */
-    public int purgeExpiredData() throws PluginException {
-        String sql = "DELETE FROM taf_queue where xmitTime < (CURRENT_TIMESTAMP - (interval '7 days'));";
-        return executeSQLUpdate(sql);
+    public int purgeExpiredData() throws PluginException,
+            DataAccessLayerException {
+        DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, -7);
+        query.addQueryParam("xmitTime", cal.getTime(), QueryOperand.LESSTHAN);
+        return deleteByCriteria(query);
+    }
+
+    /**
+     * Generate a query by state common components.
+     * 
+     * @param state
+     * @return query
+     */
+    private DatabaseQuery createByStateQuery(TafQueueState state) {
+        DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
+        query.addQueryParam("state", state.toString(), QueryOperand.EQUALS);
+        query.addQueryParam("display", Boolean.TRUE, QueryOperand.EQUALS);
+        query.addOrder("xmitTime", true);
+        return query;
     }
 
     /**
      * Obtain all the records with the given TafQueueState in order by xmitTime.
      * 
      * @param state
-     * @return obs
+     * @return records
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
     public List<TafQueueRecord> getRecordsByState(
             TafQueueRecord.TafQueueState state) throws DataAccessLayerException {
-        DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
-        query.addQueryParam("state", state.toString(), QueryOperand.EQUALS);
-        query.addQueryParam("display", Boolean.TRUE, QueryOperand.EQUALS);
-        query.addOrder("xmitTime", true);
-        List<TafQueueRecord> obs = (List<TafQueueRecord>) queryByCriteria(query);
-        return obs;
+        DatabaseQuery query = createByStateQuery(state);
+        List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
+        return records;
+    }
+
+    /**
+     * Get the time to transmit the next pending record.
+     * 
+     * @return xmitTime - Transmit time of next pending record or null if none.
+     * @throws DataAccessLayerException
+     */
+    @SuppressWarnings("unchecked")
+    public Date nextXmitTime() throws DataAccessLayerException {
+        Date xmitTime = null;
+        DatabaseQuery query = createByStateQuery(TafQueueState.PENDING);
+        query.setMaxResults(1);
+        List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
+        if (records.size() > 0) {
+            xmitTime = records.get(0).getXmitTime();
+        }
+        return xmitTime;
     }
 
     /**
@@ -108,59 +141,42 @@ public class TafQueueDao extends CoreDao {
     }
 
     /**
-     * Obtain list of records in the PENDING state ordered by xmitTime.
+     * Obtain records that need to be transmitted ordered by xmitTime.
      * 
-     * @return obs
+     * @return records
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
     public List<TafQueueRecord> getRecordsToSend()
             throws DataAccessLayerException {
+        DatabaseQuery query = createByStateQuery(TafQueueState.PENDING);
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
-        query.addQueryParam("state",
-                TafQueueRecord.TafQueueState.PENDING.toString());
-        query.addQueryParam("display", Boolean.TRUE, QueryOperand.EQUALS);
         query.addQueryParam("xmitTime", cal.getTime(),
                 QueryOperand.LESSTHANEQUALS);
-        List<TafQueueRecord> obs = (List<TafQueueRecord>) queryByCriteria(query);
-        return obs;
+        List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
+        return records;
     }
 
     /**
      * Change the state of records and if the state is SENT or ERROR update the
-     * status message of all obs.
+     * status message of all records.
      * 
-     * @param obs
+     * @param records
      * @param state
      */
-    public int updateState(List<TafQueueRecord> obs,
+    public int updateState(List<TafQueueRecord> records,
             TafQueueRecord.TafQueueState state) {
-        if (obs == null) {
+        if (records == null) {
             return -1;
-        } else if (obs.size() == 0) {
+        } else if (records.size() == 0) {
             return 0;
         }
-
-        StringBuilder sb = new StringBuilder("UPDATE taf_queue SET state = '")
-                .append(state.toString()).append("' where id IN (");
-        String prefix = "";
-        for (TafQueueRecord ob : obs) {
-            sb.append(prefix).append(ob.getId());
-            ob.setState(state);
-            prefix = ", ";
+        for (TafQueueRecord record : records) {
+            record.setState(state);
         }
-        sb.append(");");
-        if (state == TafQueueState.SENT || state == TafQueueState.BAD) {
-            // update the messages
-            for (TafQueueRecord ob : obs) {
-                sb.append("\nUPDATE taf_queue SET statusMessage = '")
-                        .append(ob.getStatusMessage()).append("' where id = ")
-                        .append(ob.getId()).append(";");
-            }
-        }
-        return executeSQLUpdate(sb.toString());
+        persistAll(records);
+        return records.size();
     }
 
     /**
@@ -174,13 +190,14 @@ public class TafQueueDao extends CoreDao {
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
-    public String getLogMessages(Date startTime, Date endTime)
+    public String getLogMessages(List<Date> dateList)
             throws DataAccessLayerException {
+        Date[] dates = new Date[dateList.size()];
+        dateList.toArray(dates);
         DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
         query.addQueryParam("state", TafQueueRecord.TafQueueState.PENDING,
                 QueryOperand.NOTEQUALS);
-        query.addQueryParam("xmitTime", new Object[] { startTime, endTime },
-                QueryOperand.BETWEEN);
+        query.addQueryParam("xmitTime", dates, QueryOperand.BETWEEN);
         query.addOrder("xmitTime", true);
         List<TafQueueRecord> obs = (List<TafQueueRecord>) queryByCriteria(query);
         StringBuilder sb = new StringBuilder();
@@ -200,35 +217,37 @@ public class TafQueueDao extends CoreDao {
      * Remove list of ids from lists.
      * 
      * @param idList
-     *            - List of ids tor remove
+     *            - List of ids to remove
      * @param state
      *            - The state of list idList came from.
-     * @return
+     * @return numRecords - number of records affected
+     * @throws DataAccessLayerException
      */
+    @SuppressWarnings("unchecked")
     public int removeSelected(List<String> idList,
-            TafQueueRecord.TafQueueState state) {
-        StringBuilder sb = new StringBuilder();
+            TafQueueRecord.TafQueueState state) throws DataAccessLayerException {
+        List<Integer> ids = new ArrayList<Integer>();
+        for (String id : idList) {
+            ids.add(new Integer(id));
+        }
+        DatabaseQuery query = new DatabaseQuery(TafQueueRecord.class.getName());
+        query.addQueryParam("id", ids, QueryOperand.IN);
+
+        int numRecords = -999;
 
         if (state == TafQueueState.PENDING) {
-            // No need to keep around for the logs so really remove the data
-            sb.append("DELETE from taf_queue WHERE id IN (");
-            String prefix = "";
-            for (String id : idList) {
-                sb.append(prefix).append(id);
-                prefix = ", ";
-            }
-            sb.append(") and state = 'PENDING';");
+            numRecords = deleteByCriteria(query);
         } else {
             // SENT and BAD need to be kept around for the logs
-            sb.append("UPDATE taf_queue set display = FALSE where id in (");
-            String prefix = "";
-            for (String id : idList) {
-                sb.append(prefix).append(id);
-                prefix = ", ";
+            query.addQueryParam("state", state.toString(), QueryOperand.EQUALS);
+            List<TafQueueRecord> records = (List<TafQueueRecord>) queryByCriteria(query);
+            for (TafQueueRecord record : records) {
+                record.setDisplay(false);
             }
-            sb.append(") and state = '").append(state).append("';");
+            persistAll(records);
+            numRecords = records.size();
         }
-        return executeSQLUpdate(sb.toString());
+        return numRecords;
     }
 
     /**
@@ -253,6 +272,6 @@ public class TafQueueDao extends CoreDao {
             record.setXmitTime(xmitTime);
             create(record);
         }
-        return idList.size();
+        return records.size();
     }
 }
