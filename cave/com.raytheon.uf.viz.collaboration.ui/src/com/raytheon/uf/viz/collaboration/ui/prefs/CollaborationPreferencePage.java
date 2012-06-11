@@ -25,6 +25,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 /**
@@ -75,5 +76,24 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
         FieldEditor notifications = new BooleanFieldEditor("notifications",
                 "Show Notifications", getFieldEditorParent());
         this.addField(notifications);
+        FieldEditor autojoinColl = new BooleanFieldEditor("autojoin",
+                "Join Discussion On Login", getFieldEditorParent());
+        this.addField(autojoinColl);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.preference.FieldEditorPreferencePage#performOk()
+     */
+    @Override
+    public boolean performOk() {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        if (connection != null && connection.isConnected()) {
+            CollaborationConnection.getConnection().getEventPublisher()
+                    .post(Activator.getDefault().getPreferenceStore());
+        }
+        return super.performOk();
     }
 }
