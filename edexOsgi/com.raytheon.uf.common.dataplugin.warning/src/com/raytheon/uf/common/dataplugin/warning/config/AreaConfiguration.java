@@ -72,6 +72,9 @@ public class AreaConfiguration {
 
     @XmlElement
     private String feAreaField;
+    
+    @XmlElement
+    private String timeZoneField;
 
     @XmlElement
     private String fipsField;
@@ -267,5 +270,13 @@ public class AreaConfiguration {
     public void setAreaSource(String areaSource) {
         this.areaSource = areaSource;
     }
+
+	public String getTimeZoneField() {
+		return timeZoneField;
+	}
+
+	public void setTimeZoneField(String timeZoneField) {
+		this.timeZoneField = timeZoneField;
+	}
 
 }

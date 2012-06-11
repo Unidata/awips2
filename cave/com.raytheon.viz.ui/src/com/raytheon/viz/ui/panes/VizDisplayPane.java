@@ -60,7 +60,6 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener.DisplayChangeType;
-import com.raytheon.uf.viz.core.IView.POVShiftType;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -589,17 +588,6 @@ public class VizDisplayPane implements IDisplayPane {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.gl.IDisplayPane#shiftPOV(double, double)
-     */
-    public void shiftPOV(double[] start, double[] end, POVShiftType type) {
-        if (renderableDisplay.shiftPOV(start, end, type, this.target)) {
-            this.target.setNeedsRefresh(true);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * com.raytheon.viz.core.gl.IDisplayPane#setRenderableDisplay(com.raytheon
      * .viz.core.drawables.IRenderableDisplay)
@@ -883,16 +871,6 @@ public class VizDisplayPane implements IDisplayPane {
     @Override
     public Display getDisplay() {
         return this.canvas.getDisplay();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IDisplayPane#setLookAt(double[])
-     */
-    @Override
-    public void setLookAt(double[] point) {
-        renderableDisplay.setFocalPoint(point, this.target);
     }
 
     /**

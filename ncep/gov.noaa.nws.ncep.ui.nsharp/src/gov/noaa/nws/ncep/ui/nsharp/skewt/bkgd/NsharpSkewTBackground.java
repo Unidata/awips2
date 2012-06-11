@@ -26,7 +26,6 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigManager;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpWxMath;
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpGraphConfigDialog;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor;
 
 import java.awt.geom.Line2D;
@@ -48,8 +47,6 @@ import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.common.sounding.WxMath;
-import com.raytheon.uf.common.sounding.util.SoundingPrefs;
 import com.raytheon.viz.core.graphing.WGraphics;
 import com.vividsolutions.jts.geom.Coordinate;
 

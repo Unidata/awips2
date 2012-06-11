@@ -8,6 +8,7 @@
 ## Modified by MIKE DANGELO  2-23-2012
 ## Modified by EVAN BOOKBINDER 2-24-2012  
 ## Modified by Phil Kurimski   2-29-2012
+## Modified by Mike Rega  05-02-2012 - DR 14885 MND blank line
 #################################### SET SOME VARs ###################################
 #set ($hycType = "")
 #set ($snowMelt = "")
@@ -23,6 +24,7 @@
 ######################################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFS${siteId}
+
 #if(${productClass}=="T")
 TEST...FLASH FLOOD STATEMENT...TEST
 #else

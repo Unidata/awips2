@@ -48,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * ------------ ---------- ----------- --------------------------
  * 3/6/08       875        bphillip    Initial Creation
  * 8/19/09     2899       njensen   Rewrote equals() for performance
+ * 5/08/12     #600       dgilling  Implement clone().
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = DatabaseIDAdapter.class)
 public class DatabaseID implements Serializable, Comparable<DatabaseID>,
-        ISerializableObject {
+        ISerializableObject, Cloneable {
 
     private static final long serialVersionUID = 5792890762609478694L;
 
@@ -559,6 +560,17 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
 
         int time = -this.getModelTimeAsDate().compareTo(o.getModelTimeAsDate());
         return time;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    protected DatabaseID clone() throws CloneNotSupportedException {
+        return new DatabaseID(this.siteId, this.format, this.dbType,
+                this.modelName, this.modelTime);
     }
 
 }
