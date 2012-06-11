@@ -4,6 +4,7 @@
 
 <project default="deploy.all" basedir=".">	
 	<property environment="user" />
+	<property name="git.working.dir" value="" />
 	<property name="component.to.deploy" value="" />
 	<property name="update.python" value="true" />
 	<property name="localization.sites" value="" />
@@ -13,7 +14,6 @@
 	<property name="props.dir" location="${basedir}/properties" />
 	<property name="component-includes.dir" 
 		location="rpm/component/edex/includes" />
-
 
 	<available file="${basedir}/tmp" property="tmp.ready" />
 
@@ -42,7 +42,34 @@
 		<echo message="BUILD DATE   = ${build.date}" />
 		<echo message="BUILD TIME   = ${build.time}" />
 		<echo message="BUILD SYSTEM = ${build.system}" />
-		<var name="projects.dir" value="../" />
+
+                <if>
+                	<equals arg1="${installer}" arg2="false" />
+			<then>
+			<!-- Ensure the git working directory has been set. -->
+			<if>
+				<equals arg1="${git.working.dir}" arg2="" />
+				<then>
+					<fail 
+						message="The git working directory has not been specified: use -Dgit.working.dir=" />
+				</then>
+			</if>
+			<!-- Ensure that the specified git working directory exists. -->
+			<if>
+				<available file="${git.working.dir}" 
+					type="dir" />
+				<then>
+					<!-- Continue -->
+				</then>
+				<else>
+					<fail message="The specified git working directory does not exist." />
+				</else>
+			</if>
+			</then>
+		</if>
+		
+		<var name="projects.dirs" 
+			value="${git.working.dir}/cots;${git.working.dir}/edexOsgi;${git.working.dir}/ncep;${git.working.dir}/RadarServer" />
 
 		<for param="propFile">
 			<path id="propertyset">
@@ -53,26 +80,8 @@
 
 			<sequential>
 				<var file="@{propFile}" />
-				<!-- directory in which projects are located -->
-				<if>
-					<equals arg1="${local.build}" arg2="true" />
-					<then>
-						<var name="projects.dir" value="${basedir}/.." />
-					</then>
-					<else>
-						<if>
-							<equals arg1="${installer}" arg2="true" />
-							<then>
-								<var name="projects.dir" value="${working.dir}" />
-							</then>
-							<else>
-								<var name="projects.dir" value="${basedir}/.." />
-							</else>
-						</if>
-					</else>
-				</if>
 				<echo message="working dir: ${working.dir}" />
-				<echo message="projects.dir: ${projects.dir}" />
+				<echo message="projects.dirs: ${projects.dirs}" />
 
 				<property name="includes.dir" location="${basedir}/tmp/includes" />
 				<mkdir dir="${includes.dir}" />
@@ -94,6 +103,15 @@
 				</if>
 			</sequential>
 		</for>
+		
+		<if>
+			<available file="${basedir}/tmp" type="dir" />
+			<then>
+				<delete quiet="true" includeemptydirs="true">
+					<fileset dir="${basedir}/tmp" />
+				</delete>
+			</then>
+		</if>
 	</target>
 	
 	<target name="cleanup">
@@ -152,7 +170,12 @@
 	<!-- =================================================================== -->
 	<target name="deploy.for.developer">
 		<echo message="Generating deployment list for feature: ${feature}" />
-		<includegen providerfilter="raytheon|noaa\.nws|edu\.wisc" basedirectory="${projects.dir}" featurefile="${feature}" cotsout="${includes.dir}/cots.includes" plugsout="${includes.dir}/plugins.includes" coreout="${includes.dir}/core.includes" />
+		<includegen providerfilter="raytheon|noaa\.nws" 
+			basedirectories="${projects.dirs}" 
+			featurefile="${feature}" 
+			cotsout="${includes.dir}/cots.includes" 
+			plugsout="${includes.dir}/plugins.includes" 
+			coreout="${includes.dir}/core.includes" />
 		
 		<if>
 			<equals arg1="${update.python}" arg2="true" />
@@ -162,9 +185,9 @@
 		</if>
 		<antcall target="deploy.esb" />
 		<antcall target="deploy.esb.configuration" />
-		<antcall target="deploy.cots" />
-		<antcall target="deploy.plugins" />
-		<antcall target="deploy.core" />
+		<antcall target="deploy.cots.developer" />
+		<antcall target="deploy.plugins.developer" />
+		<antcall target="deploy.core.developer" />
 		<if>
 			<equals arg1="${localization.sites}" arg2="" />
 			<then>
@@ -178,9 +201,23 @@
 	</target>
 	
 	<!-- deploys core components to ${esbDir}/lib/plugins -->
-	<target name="deploy.core">
+	<target name="deploy.core.developer">
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${projects.dir}" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
+			<fileset dir="${git.working.dir}/edexOsgi" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
+			<target name="deploy" />
+			<property name="dest.dir" value="${esbDir}/lib/plugins" />
+			<!-- This following propetry turns on individual component utility deployment -->
+			<property name="util.dest.dir" location="${utilDir}" />
+		</subant>
+		<subant failonerror="true" inheritAll="false" inheritRefs="false">
+			<fileset dir="${git.working.dir}/ncep" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
+			<target name="deploy" />
+			<property name="dest.dir" value="${esbDir}/lib/plugins" />
+			<!-- This following propetry turns on individual component utility deployment -->
+			<property name="util.dest.dir" location="${utilDir}" />
+		</subant>
+		<subant failonerror="true" inheritAll="false" inheritRefs="false">
+			<fileset dir="${git.working.dir}/RadarServer" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
 			<!-- This following propetry turns on individual component utility deployment -->
@@ -189,20 +226,54 @@
 	</target>
 	
 	<!-- deploy third party jars to ${esbDir}/lib/dependencies -->
-	<target name="deploy.cots">
+	<target name="deploy.cots.developer">
 
 		<!-- OSGi cots that have their own projects -->
 		<copy todir="${esbDir}/lib/dependencies" flatten="false">
-			<fileset dir="${projects.dir}">
+			<fileset dir="${git.working.dir}/cots">
+				<includesfile name="${includes.dir}/cots.includes" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="deploy.cots.installer">
+		
+		<!-- OSGi cots that have their own projects -->
+		<copy todir="${esbDir}/lib/dependencies" flatten="false">
+			<fileset dir="${working.dir}">
 				<includesfile name="${includes.dir}/cots.includes" />
 			</fileset>
 		</copy>
 	</target>
 		
 	<!-- deploys plugins to ${esbDir}/lib/plugins -->
-	<target name="deploy.plugins">
+	<target name="deploy.plugins.developer">
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${projects.dir}" includesfile="${includes.dir}/plugins.includes" />
+			<fileset dir="${git.working.dir}/edexOsgi" includesfile="${includes.dir}/plugins.includes" />
+			<target name="deploy" />
+			<property name="dest.dir" value="${esbDir}/lib/plugins" />
+			<!-- This following propetry turns on individual component utility deployment -->
+			<property name="util.dest.dir" location="${utilDir}" />
+		</subant>
+		<subant failonerror="true" inheritAll="false" inheritRefs="false">
+			<fileset dir="${git.working.dir}/ncep" includesfile="${includes.dir}/plugins.includes" />
+			<target name="deploy" />
+			<property name="dest.dir" value="${esbDir}/lib/plugins" />
+			<!-- This following propetry turns on individual component utility deployment -->
+			<property name="util.dest.dir" location="${utilDir}" />
+		</subant>
+		<subant failonerror="true" inheritAll="false" inheritRefs="false">
+			<fileset dir="${git.working.dir}/RadarServer" includesfile="${includes.dir}/plugins.includes" />
+			<target name="deploy" />
+			<property name="dest.dir" value="${esbDir}/lib/plugins" />
+			<!-- This following propetry turns on individual component utility deployment -->
+			<property name="util.dest.dir" location="${utilDir}" />
+		</subant>
+	</target>
+	
+	<target name="deploy.plugins.installer">
+		<subant failonerror="true" inheritAll="false" inheritRefs="false">
+			<fileset dir="${working.dir}" includesfile="${includes.dir}/plugins.includes" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
 			<!-- This following propetry turns on individual component utility deployment -->
@@ -214,7 +285,7 @@
 	<target name="deploy.python">
 		<!-- Ensure That The pythonPackages Project Is In The Workspace. -->
 		<if>
-			<available file="${basedir}/../pythonPackages/ufpy" type="dir" />
+			<available file="${git.working.dir}/pythonPackages/ufpy" type="dir" />
 			<then>
 				<!-- Continue -->
 			</then>
@@ -224,7 +295,7 @@
 		</if>
 		
 		<if>
-			<available file="${basedir}/../pythonPackages/dynamicserialize" 
+			<available file="${git.working.dir}/pythonPackages/dynamicserialize" 
 				type="dir" />
 			<then>
 				<!-- Continue -->
@@ -235,7 +306,7 @@
 		</if>
 		
 		<if>
-			<available file="${basedir}/../pythonPackages/pypies"
+			<available file="${git.working.dir}/pythonPackages/pypies"
 				type="dir" />
 			<then>
 				<!-- Continue -->
@@ -298,17 +369,17 @@
 		<!-- Update ufpy, dynamicserialize, and pypies -->
 		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/ufpy" 
 			flatten="false">
-			<fileset dir="${basedir}/../pythonPackages/ufpy" />
+			<fileset dir="${git.working.dir}/pythonPackages/ufpy" />
 		</copy>		
 		
 		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/dynamicserialize" 
 			flatten="false">
-			<fileset dir="${basedir}/../pythonPackages/dynamicserialize" />
+			<fileset dir="${git.working.dir}/pythonPackages/dynamicserialize" />
 		</copy>
 		
 		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/pypies"
 			flatten="false">
-			<fileset dir="${basedir}/../pythonPackages/pypies/pypies" />
+			<fileset dir="${git.working.dir}/pythonPackages/pypies/pypies" />
 		</copy>
 	</target>
 	
@@ -387,7 +458,7 @@
 		in the localization project. -->
 		<if>
 			<not>
-				<available file="${basedir}/../localization.${site}"
+				<available file="${git.working.dir}/localization/localization.${site}"
 					type="dir" />
 			</not>
 			<then>
@@ -401,7 +472,7 @@
 			<try>
 				<copy todir="${install.dir}/data/utility"
 				flatten="false" verbose="true">
-					<fileset dir="${basedir}/../localization.${site}/utility" />
+					<fileset dir="${git.working.dir}/localization/localization.${site}/utility" />
 				</copy>
 			</try>
 			
@@ -505,20 +576,20 @@
 				</filterchain>
 			</copy>
 			
-			<antcall target="deploy.plugins" />
+			<antcall target="deploy.plugins.installer" />
 			<delete file="${includes.dir}/plugins.includes" />
 		</sequential>
 	</macrodef>
 
 	<target name="deploy.edex-cots">
-		<echo message="projects.dir=${projects.dir}" />
+		<echo message="working.dir=${working.dir}" />
 		
 		<includegen providerfilter="raytheon|noaa\.nws" 
-			basedirectory="${projects.dir}" 
+			basedirectories="${working.dir}" 
 			featurefile="${feature}" 
 			cotsout="${includes.dir}/cots.includes" />
 
-		<antcall target="deploy.cots" />
+		<antcall target="deploy.cots.installer" />
 		<delete file="${includes.dir}/cots.includes" />
 	</target>
 	
