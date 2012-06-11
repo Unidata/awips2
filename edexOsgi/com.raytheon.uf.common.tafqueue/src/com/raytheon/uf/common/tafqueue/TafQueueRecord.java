@@ -31,6 +31,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Index;
+
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -74,6 +76,7 @@ public class TafQueueRecord implements IPersistableDataObject,
 
     @DynamicSerializeElement
     @Column(columnDefinition = "timestamp without time zone", nullable = false)
+    @Index(name = "xmitTime_Index")
     private Date xmitTime;
 
     @DynamicSerializeElement
@@ -102,6 +105,7 @@ public class TafQueueRecord implements IPersistableDataObject,
 
     @DynamicSerializeElement
     @Column(nullable = false, length = 10)
+    @Index(name = "state_Index")
     @Enumerated(EnumType.STRING)
     private TafQueueState state;
 

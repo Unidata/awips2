@@ -17,18 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.tafqueue;
+package com.raytheon.uf.edex.tafqueue;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.tafqueue.ServerResponse;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord;
 import com.raytheon.uf.common.tafqueue.TafQueueRecord.TafQueueState;
 import com.raytheon.uf.common.tafqueue.TafQueueRequest;
+import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
@@ -48,9 +52,6 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * @version 1.0
  */
 public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> {
-    private ServerResponse<?> response;
-
-    private TafQueueDao dao;
 
     /*
      * (non-Javadoc)
@@ -63,8 +64,10 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
     @Override
     public Object handleRequest(TafQueueRequest request) {
         List<String> idList = null;
-        Map<String, Object> arguments = request.getArguments();
         TafQueueState state = request.getState();
+        TafQueueDao dao = null;
+        ServerResponse<?> response = null;
+
         try {
             dao = new TafQueueDao();
             switch (request.getType()) {
@@ -74,27 +77,28 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
                     dao.create(record);
                     response.addMessage(record.getInfo());
                 }
+                sendNotification(Type.CREATE);
                 break;
             case GET_LIST:
                 response = new ServerResponse<List<String>>();
-                makeList(request.getState());
+                makeList(request.getState(), dao, response);
                 break;
             case GET_LOG:
                 response = new ServerResponse<String>();
-                Date startTime = (Date) arguments.get("starttime");
-                Date endTime = (Date) arguments.get("endtime");
-                String log = dao.getLogMessages(startTime, endTime);
+                List<Date> dateList = (List<Date>) request.getArgument();
+                String log = dao.getLogMessages(dateList);
                 ((ServerResponse<String>) response).setPayload(log);
                 break;
             case GET_TAFS:
                 response = new ServerResponse<String>();
+                idList = (List<String>) request.getArgument();
                 List<TafQueueRecord> records = (List<TafQueueRecord>) dao
-                        .getRecordsById((List<String>) arguments.get("idlist"));
-                makeTafs(records);
+                        .getRecordsById(idList);
+                makeTafs(records, response);
                 break;
             case REMOVE_SELECTED:
                 response = new ServerResponse<List<String>>();
-                idList = (List<String>) arguments.get("idlist");
+                idList = (List<String>) request.getArgument();
                 int numRemoved = dao.removeSelected(idList, state);
                 if (idList.size() != numRemoved) {
                     response.setError(true);
@@ -106,11 +110,14 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
                             + state.toString().toLowerCase()
                             + " forecast(s) removed.");
                 }
-                makeList(state);
+                makeList(state, dao, response);
+                if (state == TafQueueState.PENDING && numRemoved > 0) {
+                    sendNotification(Type.REMOVE_SELECTED);
+                }
                 break;
             case RETRANSMIT:
                 response = new ServerResponse<List<String>>();
-                idList = (List<String>) arguments.get("idlist");
+                idList = (List<String>) request.getArgument();
                 int retransNum = dao.retransmit(idList);
                 if (retransNum == idList.size()) {
                     response.addMessage("Forecast(s) queued for immediate transmission.");
@@ -118,14 +125,25 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
                     response.setError(true);
                     response.addMessage("Unable queue all forecast(s) for immediate transmission.");
                 }
-                makeList(request.getState());
+                makeList(request.getState(), dao, response);
+
+                if (retransNum > 0) {
+                    sendNotification(Type.RETRANSMIT);
+                }
                 break;
             default:
                 response = new ServerResponse<String>();
                 response.addMessage("Unknown type: " + request.getType());
                 response.setError(true);
+                break;
             }
         } catch (DataAccessLayerException e) {
+            response.addMessage(e.getMessage());
+            response.setError(true);
+        } catch (SerializationException e) {
+            response.addMessage(e.getMessage());
+            response.setError(true);
+        } catch (EdexException e) {
             response.addMessage(e.getMessage());
             response.setError(true);
         }
@@ -140,8 +158,8 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
-    private void makeList(TafQueueRecord.TafQueueState state)
-            throws DataAccessLayerException {
+    private void makeList(TafQueueRecord.TafQueueState state, TafQueueDao dao,
+            ServerResponse<?> response) throws DataAccessLayerException {
         List<TafQueueRecord> records = dao.getRecordsByState(state);
         List<String> recordsList = new ArrayList<String>();
         StringBuilder sb = new StringBuilder();
@@ -154,13 +172,14 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
     }
 
     /**
-     * Place in the response payload a string displayin all the TAFs in the
+     * Place in the response payload a string displaying all the TAFs in the
      * records.
      * 
      * @param records
      */
     @SuppressWarnings("unchecked")
-    private void makeTafs(List<TafQueueRecord> records) {
+    private void makeTafs(List<TafQueueRecord> records,
+            ServerResponse<?> response) {
         StringBuilder sb = new StringBuilder();
         String prefix = "";
         for (TafQueueRecord record : records) {
@@ -168,5 +187,12 @@ public class TafQueueRequestHandler implements IRequestHandler<TafQueueRequest> 
             prefix = "\n\n";
         }
         ((ServerResponse<String>) response).setPayload(sb.toString());
+    }
+
+    private void sendNotification(TafQueueRequest.Type type)
+            throws SerializationException, EdexException {
+        byte[] message = SerializationUtil.transformToThrift(type.toString());
+        EDEXUtil.getMessageProducer().sendAsyncUri(
+                "jms-generic:topic:tafQueueChanged", message);
     }
 }
