@@ -128,8 +128,7 @@ public class TimeTools {
 
     /**
      * Get a calendar that expresses the current system time based from specified
-     * date information only if the archive flag is set. Otherwise the current
-     * system time is returned. 
+     * date information if the 
      * @param year Year to set.
      * @param month
      * @param day

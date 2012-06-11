@@ -21,6 +21,7 @@
 package com.raytheon.uf.common.dataplugin.gfe.server.lock;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -218,14 +219,14 @@ public class LockTable implements Cloneable, ISerializableObject {
         for (int i = 0; i < locks.size(); i++) {
             if (timeRange.overlaps(locks.get(i).getTimeRange())) {
 
-                if (!requestorId.equalForLockComparison(locks.get(i).getWsId())) {
+                if (!requestorId.equals(locks.get(i).getWsId())) {
                     return LockStatus.LOCKED_BY_OTHER;
-                } else if (locks.get(i).getTimeRange().contains(
-                        timeRange.getStart())
-                        && (locks.get(i).getTimeRange().getEnd().after(
-                                timeRange.getEnd()) || locks.get(i)
-                                .getTimeRange().getEnd().equals(
-                                        timeRange.getEnd()))) {
+                } else if (locks.get(i).getTimeRange()
+                        .contains(timeRange.getStart())
+                        && (locks.get(i).getTimeRange().getEnd()
+                                .after(timeRange.getEnd()) || locks.get(i)
+                                .getTimeRange().getEnd()
+                                .equals(timeRange.getEnd()))) {
                     return LockStatus.LOCKED_BY_ME;
                 }
             }
@@ -245,6 +246,10 @@ public class LockTable implements Cloneable, ISerializableObject {
         }
     }
 
+    public void removeLocks(Collection<Lock> locksToRemove) {
+        this.locks.removeAll(locksToRemove);
+    }
+
     public void resetWsId(WsId wsId) {
         setWsId(wsId);
     }
@@ -258,7 +263,17 @@ public class LockTable implements Cloneable, ISerializableObject {
     }
 
     public void addLock(Lock lock) {
+        if (this.locks == null) {
+            this.locks = new ArrayList<Lock>();
+        }
         this.locks.add(lock);
+    }
+
+    public void addLocks(Collection<Lock> locks) {
+        if (this.locks == null) {
+            this.locks = new ArrayList<Lock>();
+        }
+        this.locks.addAll(locks);
     }
 
     public WsId getWsId() {
@@ -292,14 +307,15 @@ public class LockTable implements Cloneable, ISerializableObject {
         return Enum.valueOf(LockMode.class, modeName);
     }
 
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("ParmID:");
         buffer.append(parmId.toString());
         buffer.append(" LockTable WsId: ");
-        if(wsId == null){
+        if (wsId == null) {
             buffer.append("null");
-        }else{
+        } else {
             buffer.append(wsId.toPrettyString());
         }
         for (int i = 0; i < locks.size(); i++) {

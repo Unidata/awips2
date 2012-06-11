@@ -86,6 +86,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 06/28/2010   4639        cjeanbap    Allow user to create a new text product.
  * 
  * 01/26/2012   14468       D.Friedman  Fix initial BBB field selection.
+ * 05/30/2012   15046       D.Friedman  Always set addressee field to ALL.
  * </pre>
  * 
  * @author lvenable
@@ -448,7 +449,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         addresseeTF.setTextLimit(4);
         addresseeTF.setLayoutData(rd);
         // Set the "default" addressee to "ALL".
-        addresseeTF.setText(parentEditor.getAddressee());
+        addresseeTF.setText("ALL");
 
         // When the number of characters enter reaches the max limit and
         // the caret position is at the end then switch focus to the next
@@ -459,16 +460,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                         .getTextLimit()) {
                     wmoTtaaiiTF.setFocus();
                 }
-
-                // If the user changes the text in the addressee text field
-                // then "untoggle" the toggle buttons.
-                if (addresseeTF.getText().compareTo("000") != 0
-                        && addresseeTF.getText().compareTo("DEF") != 0
-                        && addresseeTF.getText().compareTo("ALL") != 0) {
-                    zerosBtn.setSelection(false);
-                    defBtn.setSelection(false);
-                    allBtn.setSelection(false);
-                }
+                
+                handleAddresseeModified();
             }
         });
 
@@ -518,6 +511,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 addresseeTF.setText("ALL");
             }
         });
+        handleAddresseeModified();
 
         Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
         sepLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -944,5 +938,17 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 checkEnableEnter();
             }
         });
+    }
+
+    private void handleAddresseeModified() {
+        // If the user changes the text in the addressee text field
+        // then update the toggle buttons.
+        String addressee = addresseeTF.getText();
+        if (zerosBtn != null)
+            zerosBtn.setSelection("000".equals(addressee));
+        if (defBtn != null)
+            defBtn.setSelection("DEF".equals(addressee));
+        if (allBtn != null)
+            allBtn.setSelection("ALL".equals(addressee));
     }
 }

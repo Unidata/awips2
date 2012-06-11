@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ConditionalFilter plugin="nctaf" description="" name="taf_tempo_prob" xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <ConditionalFilterElement value="50" constraintType="LESS_THAN" paramName="PPRB"/>
+</ConditionalFilter>
