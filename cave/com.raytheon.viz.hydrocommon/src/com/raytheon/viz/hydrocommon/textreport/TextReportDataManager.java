@@ -47,6 +47,7 @@ import com.raytheon.viz.hydrocommon.textreport.TextReportData.StaffGageData;
  * Sep 18, 2009 2260       mpduff     Initial creation
  * Nov 09, 2010 5416       lbousaid   changed gageQuery
  * Dec 08, 2011 11728      lbousaidi  changed the routines that retrieve data
+ * Apr 25, 2012 14499      wkwock     Refine format, query, etc
  * 
  * </pre>
  * 
@@ -260,7 +261,7 @@ public class TextReportDataManager extends HydroDataManager {
 	}
 	
 	private TextReportData getObsList(String lid) {
-		String observerQuery = "select dos, gn, a1, a2, a3, hphone, phone, recip, city, state, zip, comm, email, rprt, spons, ornr, rate, tsk from Observer where lid = '"
+		String observerQuery = "select dos, gn, a1, a2, a3, hphone, phone,firstname,lastname, recip, city, state, zip, comm, email, rprt, spons, ornr, rate, tsk from Observer where lid = '"
 				+ lid + "'";
 		ArrayList<Object[]> rs = runQuery(observerQuery);
 		TextReportData data = new TextReportData();
@@ -275,6 +276,8 @@ public class TextReportDataManager extends HydroDataManager {
 			data.getObserver().setA3((String) oa[++i]);
 			data.getObserver().setHphone((String) oa[++i]);
 			data.getObserver().setPhone((String) oa[++i]);
+			data.getObserver().setFirstname((String) oa[++i]);
+			data.getObserver().setLastname((String) oa[++i]);
 			data.getObserver().setRecip((String) oa[++i]);
 			data.getObserver().setCity((String) oa[++i]);
 			data.getObserver().setState((String) oa[++i]);
@@ -384,7 +387,7 @@ public class TextReportDataManager extends HydroDataManager {
 	private TextReportData getRefList(String lid) {
 
 		String referQuery = "select reference from refer where lid = '" + lid
-				+ "'";
+				+ "' ORDER BY reference";
 		ArrayList<Object[]> rs = runQuery(referQuery);
 		TextReportData data = new TextReportData();
 
@@ -454,7 +457,7 @@ public class TextReportDataManager extends HydroDataManager {
 		}
 		
 		String datumQuery = "select ddate, elev from datum where lid = '" + lid
-				+ "' order by ddate desc";
+				+ "' order by ddate asc";
 		rs = runQuery(datumQuery);
 
 		ArrayList<Datum> datumList = new ArrayList<Datum>();
@@ -479,13 +482,13 @@ public class TextReportDataManager extends HydroDataManager {
 		TextReportData data = new TextReportData();
 
 		//String crestQuery = "select datcrst, cremark, hw, jam, olddatum, q, stage, suppress, timcrst, prelim from crest where lid = '"
-		//		+ lid + "' order by datcrst desc";
+		//		+ lid + "' order by datcrst";
 		
-		String where = "where lid = '" + lid + "' order by datcrst desc";
+		String where = "where lid = '" + lid + "' order by datcrst, timcrst";
 		ArrayList<Crest> crestList = getCrestList(where);
 		data.setCrestList(crestList);
 
-		where = "where lid = '" + lid + "'";
+		where = "where lid = '" + lid + "' order by stage";
 		ArrayList<Flood> floodList = getFloodList(where);
 		data.setFloodList(floodList);
 		
@@ -495,7 +498,7 @@ public class TextReportDataManager extends HydroDataManager {
 	private TextReportData getLowWaterList(String lid) {
 		TextReportData data = new TextReportData();
 		String lwQuery = "select lwdat, q, stage, lwrem from lowwater where lid = '"
-				+ lid + "' order by lwdat desc";
+				+ lid + "' order by lwdat";
 		ArrayList<Object[]> rs = runQuery(lwQuery);
 
 		int i = 0;
@@ -535,7 +538,7 @@ public class TextReportDataManager extends HydroDataManager {
 		sgd.setCrestList(staffCrestList);
 		sgd.setFloodList(staffFloodList);
 		data.setStaffData(sgd);
-	  
+
 		return data;
     }
 	public TextReportData getStaffGageData(String lid) {
@@ -547,7 +550,7 @@ public class TextReportDataManager extends HydroDataManager {
 	private TextReportData getContactList(String lid) {
 		TextReportData data = new TextReportData();
 		String contactsQuery = "select contact, phone, email, remark, priority from contacts where lid = '"
-				+ lid + "' order by priority desc";
+				+ lid + "' order by priority";
 		ArrayList<Object[]> rs = runQuery(contactsQuery);
 
 		int i = 0;

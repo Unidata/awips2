@@ -256,6 +256,65 @@ public class ClusterLockUtils {
     }
 
     /**
+     * Updates the extra info field for a cluster task
+     * 
+     * @param taskName
+     *            The name of the task
+     * @param details
+     *            The details associated with the task
+     * @param extraInfo
+     *            The new extra info to set
+     * @return True if the update was successful, else false if the update
+     *         failed
+     */
+    public static boolean updateExtraInfo(String taskName, String details,
+            String extraInfo) {
+        CoreDao cd = new CoreDao(DaoConfig.DEFAULT);
+        Session s = null;
+        Transaction tx = null;
+        ClusterTask ct = null;
+        boolean rval = true;
+
+        try {
+            s = cd.getHibernateTemplate().getSessionFactory().openSession();
+            tx = s.beginTransaction();
+            ClusterTaskPK pk = new ClusterTaskPK();
+            pk.setName(taskName);
+            pk.setDetails(details);
+
+            ct = getLock(s, pk, true);
+            ct.setExtraInfo(extraInfo);
+            s.update(ct);
+            tx.commit();
+        } catch (Throwable t) {
+            handler.handle(Priority.ERROR,
+                    "Error processing update lock time for cluster task ["
+                            + taskName + "/" + details + "]", t);
+            rval = false;
+
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (HibernateException e) {
+                    handler.handle(Priority.ERROR,
+                            "Error rolling back cluster task lock transaction",
+                            e);
+                }
+            }
+        } finally {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (HibernateException e) {
+                    handler.handle(Priority.ERROR,
+                            "Error closing cluster task lock session", e);
+                }
+            }
+        }
+        return rval;
+    }
+
+    /**
      * 
      * @param taskName
      * @param details

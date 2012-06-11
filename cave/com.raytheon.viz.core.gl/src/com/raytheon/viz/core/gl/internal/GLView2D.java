@@ -20,25 +20,22 @@
 package com.raytheon.viz.core.gl.internal;
 
 import javax.media.opengl.GL;
+import javax.media.opengl.glu.GLU;
 import javax.vecmath.Vector3d;
 
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.Plane;
 import com.raytheon.uf.viz.core.geom.Ray;
 import com.raytheon.viz.core.gl.IGLTarget;
 
 /**
- * @author estrabal
- * 
- */
-/**
- * TODO Add Description
+ * View that represents a 2 dimensional GL world
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -51,21 +48,14 @@ import com.raytheon.viz.core.gl.IGLTarget;
  * @author estrabal
  * @version 1.0
  */
-public class GLView2D extends GLAbstractView {
-    private final Plane mapPlane = new Plane(0.0, 0.0, 1.0, 0.0, false);
+public class GLView2D implements IView {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IView#getDisplayType()
-     */
-    @Override
-    public String getDisplayType() {
-        return "2D";
-    }
+    private static final Plane mapPlane = new Plane(0.0, 0.0, 1.0, 0.0, false);
+
+    private IExtent extent;
 
     public GLView2D() {
-
+        this(0, 0, 0, 0);
     }
 
     /**
@@ -75,20 +65,27 @@ public class GLView2D extends GLAbstractView {
      * @param maxY
      */
     public GLView2D(double minX, double maxX, double minY, double maxY) {
-        super(new PixelExtent(minX, maxX, minY, maxY));
+        this.extent = new PixelExtent(minX, maxX, minY, maxY);
     }
 
     /**
      * @param rect
      */
     public GLView2D(Rectangle rect) {
-
         this(rect.x, rect.x + rect.width, rect.y, rect.y + rect.height);
-
     }
 
-    public GLView2D(PixelExtent pe) {
-        super(pe);
+    public GLView2D(IExtent pe) {
+        this.extent = pe;
+    }
+
+    protected IGLTarget asIGLTarget(IGraphicsTarget target) {
+        if (target instanceof IGLTarget) {
+            return (IGLTarget) target;
+        } else {
+            throw new IllegalArgumentException("Require type IGLTarget got "
+                    + target);
+        }
     }
 
     /**
@@ -117,20 +114,6 @@ public class GLView2D extends GLAbstractView {
 
         return Math.min((extent.getMaxX() - extent.getMinX()) / worldWidth,
                 (extent.getMaxY() - extent.getMinY()) / worldHeight);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object arg0) {
-        if (arg0 == null || !(arg0 instanceof GLView2D)) {
-            return false;
-        }
-
-        return this.getExtent().equals(((GLView2D) arg0).getExtent());
     }
 
     public boolean isVisible(double[] pixel) {
@@ -165,81 +148,6 @@ public class GLView2D extends GLAbstractView {
     @Override
     public String toString() {
         return "GLView2D { " + this.getExtent().toString() + " }";
-    }
-
-    // /**
-    // * Serialize a pixel extent
-    // *
-    // * @param view
-    // * @return the serialized form
-    // */
-    // public static String serialize(DisplayView view) {
-    // if (view == null)
-    // return null;
-    //
-    // StringBuffer sb = new StringBuffer();
-    // sb.append(view.getMinX());
-    // sb.append(" ");
-    // sb.append(view.getMaxX());
-    // sb.append(" ");
-    // sb.append(view.getMinY());
-    // sb.append(" ");
-    // sb.append(view.getMaxY());
-    // return sb.toString();
-    // }
-    //
-    // /**
-    // * Deserialize a pixel extent from a string
-    // *
-    // * @param data
-    // * the serialized form fo the pixel extent
-    // * @return the pixel extent object
-    // */
-    // public static DisplayView deserialize(String data) {
-    // if (data == null) {
-    // return null;
-    // }
-    //		
-    // String[] parts = data.split(" ");
-    // if (parts.length != 4) {
-    // return null;
-    // }
-    //
-    // double[] vals = new double[4];
-    // for (int i = 0; i < vals.length; i++) {
-    // vals[i] = Double.parseDouble(parts[i]);
-    // }
-    //
-    // return new DisplayView(vals[0], vals[1], vals[2], vals[3]);
-    //
-    // }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.internal.GLAbstractView#setProjectionMatrix()
-     */
-    @Override
-    protected void setProjectionMatrix(IGLTarget target) {
-
-        // We "flip" y-axis for sanity reasons
-        target.getGlu().gluOrtho2D(this.extent.getMinX(),
-                this.extent.getMaxX(), this.extent.getMaxY(),
-                this.extent.getMinY());
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.internal.GLAbstractView#setModelViewMatrix(IGLTarget
-     * )
-     */
-    @Override
-    protected void setModelViewMatrix(IGLTarget target) {
-
     }
 
     /*
@@ -296,32 +204,42 @@ public class GLView2D extends GLAbstractView {
             return null;
         }
 
-        Vector3d i = this.mapPlane.intersection(r);
+        Vector3d i = mapPlane.intersection(r);
         if (i == null) {
             return null;
         }
         return new double[] { i.x, i.y, i.z };
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Create a Ray starting a the near plane with direction towards the far
      * 
-     * @see com.raytheon.viz.core.IView#setClippingPlanes()
+     * @param mouse
+     *            mouse x,y
+     * @return Ray
      */
-    @Override
-    public void setClippingPlanes() throws VizException {
+    public Ray computeRay(double[] mouse, IGraphicsTarget target) {
+        Vector3d far = new Vector3d(screenToGrid(mouse[0], mouse[1], 1, target));
+        Vector3d near = new Vector3d(
+                screenToGrid(mouse[0], mouse[1], 0, target));
+        if (near == null || far == null) {
+            return null;
+        }
 
+        far.sub(near);
+        far.normalize();
+
+        return new Ray(near, far);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.View#getClippingPlanes()
+     * @see com.raytheon.uf.viz.core.IView#getExtent()
      */
     @Override
-    public Plane[] getClippingPlanes() {
-        // TODO Auto-generated method stub
-        return null;
+    public IExtent getExtent() {
+        return extent;
     }
 
     /*
@@ -331,42 +249,7 @@ public class GLView2D extends GLAbstractView {
      */
     @Override
     public void setExtent(IExtent e) {
-        extent = e;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
-     */
-    @Override
-    public Object clone() {
-
-        GLView2D v = new GLView2D((PixelExtent) this.extent.clone());
-        return v;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IView#shiftPOV(double[], double[])
-     */
-    @Override
-    public boolean shiftPOV(double[] lastMouse, double[] currentMouse,
-            POVShiftType shiftType, IGraphicsTarget target) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.IView#setMapCenter(javax.vecmath.Vector3d)
-     */
-    @Override
-    public void setCenter(Vector3d point) {
-        // TODO Auto-generated method stub
-
+        this.extent = e;
     }
 
     /*
@@ -378,8 +261,8 @@ public class GLView2D extends GLAbstractView {
      */
     @Override
     public IExtent createExtent(PixelCoverage pc) {
-        return new PixelExtent(pc.getMinX(), pc.getMaxX(), pc.getMinY(), pc
-                .getMaxY());
+        return new PixelExtent(pc.getMinX(), pc.getMaxX(), pc.getMinY(),
+                pc.getMaxY());
     }
 
     /*
@@ -394,7 +277,6 @@ public class GLView2D extends GLAbstractView {
         double[] end = screenToGrid(endScreen[0], endScreen[1], 0, target);
 
         this.extent.shift(end[0] - start[0], end[1] - start[1]);
-
     }
 
     /*
@@ -430,18 +312,78 @@ public class GLView2D extends GLAbstractView {
 
         this.extent.shift((f_worldWidth - extent.getWidth()) / 2,
                 (f_worldHeight - extent.getHeight()) / 2);
-
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.gl.internal.GLAbstractView#setViewArea()
+     * @see com.raytheon.uf.viz.core.IView#setupView(com.raytheon.uf.viz.core.
+     * IGraphicsTarget)
      */
     @Override
-    protected void setViewArea(IGLTarget target) {
-        target.getGl().glDisable(GL.GL_DEPTH_TEST);
+    public void setupView(IGraphicsTarget target) {
+        IGLTarget glTarget = asIGLTarget(target);
+        GL gl = glTarget.getGl();
+        GLU glu = glTarget.getGlu();
 
+        boolean release = glTarget.makeContextCurrent();
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glLoadIdentity();
+        // We "flip" y-axis for sanity reasons
+        glu.gluOrtho2D(this.extent.getMinX(), this.extent.getMaxX(),
+                this.extent.getMaxY(), this.extent.getMinY());
+
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glLoadIdentity();
+
+        gl.glDisable(GL.GL_DEPTH_TEST);
+        if (release) {
+            glTarget.releaseContext();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.IView#getZoom()
+     */
+    @Override
+    public double getZoom() {
+        return extent.getScale();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.IView#zoom(double)
+     */
+    @Override
+    public void zoom(double zoomLevel) {
+        this.extent.scale(zoomLevel);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object arg0) {
+        if (arg0 == null || !(arg0 instanceof GLView2D)) {
+            return false;
+        }
+
+        return this.getExtent().equals(((GLView2D) arg0).getExtent());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public Object clone() {
+        return new GLView2D((PixelExtent) this.extent.clone());
     }
 
 }

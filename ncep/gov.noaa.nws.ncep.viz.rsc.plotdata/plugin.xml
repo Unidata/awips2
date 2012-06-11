@@ -26,6 +26,16 @@
             attributeClass="java.lang.Integer"
             attributeName="plotDensity"
             ncResourceName="PlotData">
+      </nc-resourceAttribute>    
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="conditionalFilterName"
+            ncResourceName="PlotData">
+      </nc-resourceAttribute>          
+      <nc-resourceAttribute
+            attributeClass="ConditionalFilter"
+            attributeName="conditionalFilter"
+            ncResourceName="PlotData">
       </nc-resourceAttribute>
    </extension>
    
@@ -51,5 +61,16 @@
 	         extensionFilter=".xml">
        </path>
     </extension>
-
+ 	<extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Conditional Filters"
+             recursive="false"
+             value="ncep/PlotModels/ConditionalFilters"
+	         extensionFilter=".xml">
+       </path>
+    </extension> 
+    
 </plugin>

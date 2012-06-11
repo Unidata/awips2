@@ -75,6 +75,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 09Aug2010    3944       cjeanbap    Add new method, queryAllWatchWarn.
  * 8Nov2010     7294       cjeanbap    Update logic in executeAFOSCommand.
  *                                     Removed committed out code.
+ * ------------------------------------
+ * 18 Apr 2012         479 jkorman     Modified to pad xxxid to 3 characters in queries.                                     
  * </pre>
  * 
  * @author jkorman
@@ -587,6 +589,11 @@ public class TextDB {
         String ccc = productId.substring(0, 3);
         String nnn = productId.substring(3, 6);
         String xxx = productId.substring(6);
+        if(xxx.length() == 1) {
+            xxx = xxx + "  ";
+        } else if (xxx.length() == 2) {
+            xxx = xxx + " ";
+        }
 
         AFOSProductId afosId = new AFOSProductId(ccc, nnn, xxx);
 
@@ -621,6 +628,11 @@ public class TextDB {
         String ccc = productId.substring(0, 3);
         String nnn = productId.substring(3, 6);
         String xxx = productId.substring(6);
+        if(xxx.length() == 1) {
+            xxx = xxx + "  ";
+        } else if (xxx.length() == 2) {
+            xxx = xxx + " ";
+        }
 
         return getAllTimes(ccc, nnn, xxx, operationalMode);
     }

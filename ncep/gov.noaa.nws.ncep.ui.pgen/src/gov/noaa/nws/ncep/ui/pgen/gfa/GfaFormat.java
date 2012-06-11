@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -64,7 +64,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * @version 1
  */
 public class GfaFormat {
-	private final static Logger logger = Logger.getLogger(GfaFormat.class);
+//	private final static Logger logger = Logger.getLogger(GfaFormat.class);
 
 	PgenResource drawingLayer; 
 	private static GeometryFactory geometryFactory;
@@ -92,7 +92,7 @@ public class GfaFormat {
 			}
 		}
 		
-		logger.debug("formatting time: " + (System.currentTimeMillis() - time) + " ms");
+//		logger.debug("formatting time: " + (System.currentTimeMillis() - time) + " ms");
 	}
 
 	/**
@@ -960,7 +960,8 @@ public class GfaFormat {
 				else
 					return 1;
 			} catch (RuntimeException e) {
-				logger.error("Comparator problem", e);
+//				logger.error("Comparator problem", e);
+				e.printStackTrace();
 				return -1;
 			}
 		}

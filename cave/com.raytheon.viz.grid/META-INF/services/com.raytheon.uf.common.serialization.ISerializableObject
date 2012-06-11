@@ -1,7 +1,5 @@
 com.raytheon.viz.grid.xml.ParameterList
 com.raytheon.viz.grid.xml.ParameterMapping
-com.raytheon.viz.grid.xml.ValidTypeFile
-com.raytheon.viz.grid.xml.ValidType
 com.raytheon.viz.grid.rsc.GridResourceData
 com.raytheon.viz.grid.rsc.FfgVizGroupResourceData
 com.raytheon.viz.grid.rsc.RcmResourceData

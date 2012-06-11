@@ -6,6 +6,8 @@
 !
 GLEVEL=2!2!2 
 GVCORD=hght!hght!hght
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm9s(tmpc)!sm9s(tmpc)
 TYPE=c

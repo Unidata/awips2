@@ -78,6 +78,12 @@ public abstract class AbstractGLMesh implements IMesh {
 
     protected SharedCoordinateKey key;
 
+    // For world wrapping we maintain a set of triangle strips that fill in any
+    // cut segements.
+    private GLGeometryObject2D wwcVertexCoords;
+
+    private GLGeometryObject2D wwcTextureCoords;
+
     private Runnable calculate = new Runnable() {
         @Override
         public void run() {
@@ -147,12 +153,22 @@ public abstract class AbstractGLMesh implements IMesh {
                 // We finished calculating the mesh, compile it
                 sharedTextureCoords = SharedCoordMap.get(key, glTarget);
                 vertexCoords.compile(glTarget.getGl());
+                if (wwcTextureCoords != null && wwcVertexCoords != null) {
+                    wwcTextureCoords.compile(glTarget.getGl());
+                    wwcVertexCoords.compile(glTarget.getGl());
+                }
                 this.internalState = internalState = State.COMPILED;
             }
 
             if (internalState == State.COMPILED) {
                 GLGeometryPainter.paintGeometries(glTarget.getGl(),
                         vertexCoords, sharedTextureCoords.getTextureCoords());
+                if (wwcTextureCoords != null && wwcVertexCoords != null) {
+                    glTarget.getGl().glColor3f(1.0f, 0.0f, 0.0f);
+                    GLGeometryPainter.paintGeometries(glTarget.getGl(),
+                            wwcVertexCoords, wwcTextureCoords);
+                    glTarget.getGl().glColor3f(0.0f, 1.0f, 0.0f);
+                }
                 return PaintStatus.PAINTED;
             } else if (internalState == State.CALCULATING) {
                 target.setNeedsRefresh(true);
@@ -180,6 +196,14 @@ public abstract class AbstractGLMesh implements IMesh {
             if (sharedTextureCoords != null) {
                 SharedCoordMap.remove(key);
                 sharedTextureCoords = null;
+            }
+            if (wwcTextureCoords != null) {
+                wwcTextureCoords.dispose();
+                wwcTextureCoords = null;
+            }
+            if (wwcVertexCoords != null) {
+                wwcVertexCoords.dispose();
+                wwcVertexCoords = null;
             }
             internalState = State.INVALID;
         }
@@ -227,21 +251,21 @@ public abstract class AbstractGLMesh implements IMesh {
                     * worldCoordinates[0].length);
             // Check for world wrapping
             WorldWrapChecker wwc = new WorldWrapChecker(targetGeometry);
-
             for (int i = 0; i < worldCoordinates.length; ++i) {
                 double[][] strip = worldCoordinates[i];
                 List<double[]> vSegment = new ArrayList<double[]>();
                 double[] prev1 = null, prev2 = null;
                 for (int j = 0; j < strip.length; ++j) {
                     double[] next = strip[j];
-
                     if ((prev1 != null && wwc.check(prev1[0], next[0]))
                             || (prev2 != null && wwc.check(prev2[0], next[0]))) {
-                        vertexCoords.addSegment(vSegment
-                                .toArray(new double[vSegment.size()][]));
-                        vSegment = new ArrayList<double[]>();
-                        prev1 = null;
-                        prev2 = null;
+                        fixWorldWrap(wwc, prev2, prev1, next, i, j);
+                        if ((prev1 != null && wwc.check(prev1[0], next[0]))
+                                || vSegment.size() > 1) {
+                            vertexCoords.addSegment(vSegment
+                                    .toArray(new double[vSegment.size()][]));
+                            vSegment = new ArrayList<double[]>();
+                        }
                     }
                     vSegment.add(worldToPixel(next));
 
@@ -258,6 +282,123 @@ public abstract class AbstractGLMesh implements IMesh {
                     "Error calculating mesh", e);
         }
         return false;
+    }
+
+    private void fixWorldWrap(WorldWrapChecker wwc, double[] p2, double[] p1,
+            double[] n, int i, int j) {
+        // make sure we have all 3 points
+        if (p2 == null || p1 == null || n == null) {
+            return;
+        }
+        // figure out texture coordinates
+        float dX = (1.0f / (key.horizontalDivisions));
+        float dY = (1.0f / (key.verticalDivisions));
+        double[] tp2 = { (i + ((j - 2) % 2)) * dX, (j - 2) / 2 * dY };
+        double[] tp1 = { (i + ((j - 1) % 2)) * dX, (j - 1) / 2 * dY };
+        double[] tn = { (i + (j % 2)) * dX, j / 2 * dY };
+        // find which two sides are cut
+        boolean wwcp1n = wwc.check(p1[0], n[0]);
+        boolean wwcp2n = wwc.check(p2[0], n[0]);
+        boolean wwcp1p2 = wwc.check(p1[0], p2[0]);
+        double[] a = null;
+        double[] b = null;
+        double[] c = null;
+        double[] ta = null;
+        double[] tb = null;
+        double[] tc = null;
+        if (wwcp1n && wwcp2n && !wwcp1p2) {
+            a = n;
+            b = p1;
+            c = p2;
+            ta = tn;
+            tb = tp1;
+            tc = tp2;
+        } else if (wwcp1n && !wwcp2n && wwcp1p2) {
+            a = p1;
+            b = p2;
+            c = n;
+            ta = tp1;
+            tb = tp2;
+            tc = tn;
+        } else if (!wwcp1n && wwcp2n && wwcp1p2) {
+            a = p2;
+            b = n;
+            c = p1;
+            ta = tp2;
+            tb = tn;
+            tc = tp1;
+        } else {
+            // this occurs when a pole is within the triangle, maybe we should
+            // try to cut these triangles, but its hard.
+            return;
+        }
+        if (wwcTextureCoords == null || wwcVertexCoords == null) {
+            wwcVertexCoords = new GLGeometryObject2D(new GLGeometryObjectData(
+                    GL.GL_TRIANGLE_STRIP, GL.GL_VERTEX_ARRAY));
+            wwcTextureCoords = new GLGeometryObject2D(new GLGeometryObjectData(
+                    GL.GL_TRIANGLE_STRIP, GL.GL_TEXTURE_COORD_ARRAY));
+        }
+        // at this point triangle abc is a triangle in which sides ab and ac
+        // are cut by the inverse central meridian. We need to find the two
+        // points of intersection and use them to make a triangle with a ion one
+        // side and a quad with bc on the other side. ta, tb, tc represent the
+        // texture coordinates for their respective points.
+        double ax = wwc.toProjectionRange(a[0]);
+        double bx = wwc.toProjectionRange(b[0]);
+        double cx = wwc.toProjectionRange(c[0]);
+        // Get various x distances to use as weights in interpolating
+        double abDist = 360 - Math.abs(ax - bx);
+        double acDist = 360 - Math.abs(ax - cx);
+        double amDist = 360 + ax - wwc.getInverseCentralMeridian();
+        if (amDist > 360) {
+            amDist = amDist - 360;
+        }
+        // x location to use for midpoints on the triangle side, should be on
+        // same side of central meridian as a
+        double tx = wwc.getInverseCentralMeridian() - 360 + 0.00001;
+        // x location to use for midpoints on the quad side, should be on
+        // same side of central meridian as b and c
+        double qx = wwc.getInverseCentralMeridian() - 0.00001;
+        // If a is closer to the central meridian on the other side then switch
+        // amDist, tx, and qx
+        if (amDist > 180) {
+            amDist = 360 - amDist;
+            double tmp = tx;
+            tx = qx;
+            qx = tmp;
+        }
+        // interpolated y coordinate and texture coordinates along the ab line.
+        double aby = a[1] + amDist * (b[1] - a[1]) / abDist;
+        double abtx = ta[0] + amDist * (tb[0] - ta[0]) / abDist;
+        double abty = ta[1] + amDist * (tb[1] - ta[1]) / abDist;
+        // interpolated y coordinate and texture coordinates along the ac line.
+        double acy = a[1] + amDist * (c[1] - a[1]) / acDist;
+        double actx = ta[0] + amDist * (tc[0] - ta[0]) / acDist;
+        double acty = ta[1] + amDist * (tc[1] - ta[1]) / acDist;
+        // all done with math, assemble everything into a triangle and a quad to
+        // set in the geometry.
+        double[][] tri = new double[3][];
+        double[][] triTex = new double[3][];
+        tri[0] = worldToPixel(a);
+        triTex[0] = ta;
+        tri[1] = worldToPixel(new double[] { tx, aby });
+        triTex[1] = new double[] { abtx, abty };
+        tri[2] = worldToPixel(new double[] { tx, acy });
+        triTex[2] = new double[] { actx, acty };
+        double[][] quad = new double[4][];
+        double[][] quadTex = new double[4][];
+        quad[0] = worldToPixel(b);
+        quadTex[0] = tb;
+        quad[1] = worldToPixel(c);
+        quadTex[1] = tc;
+        quad[2] = worldToPixel(new double[] { qx, aby });
+        quadTex[2] = new double[] { abtx, abty };
+        quad[3] = worldToPixel(new double[] { qx, acy });
+        quadTex[3] = new double[] { actx, acty };
+        wwcVertexCoords.addSegment(tri);
+        wwcTextureCoords.addSegment(triTex);
+        wwcVertexCoords.addSegment(quad);
+        wwcTextureCoords.addSegment(quadTex);
     }
 
     protected final double[] worldToPixel(double[] world) {

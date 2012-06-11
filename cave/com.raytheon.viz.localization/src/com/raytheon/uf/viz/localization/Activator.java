@@ -97,6 +97,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
      */
     @Override
     public void stop(BundleContext context) throws Exception {
+        ResourcesPlugin.getWorkspace().save(true, null);
         plugin = null;
         super.stop(context);
     }

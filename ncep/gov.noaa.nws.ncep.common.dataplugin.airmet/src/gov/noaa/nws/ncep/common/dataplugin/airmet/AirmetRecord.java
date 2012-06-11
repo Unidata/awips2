@@ -60,6 +60,7 @@ public class AirmetRecord extends PluginDataObject{
 
 	// reportType is AIRMET.
 	@Column(length=32)
+	@DataURI(position=4)
 	@DynamicSerializeElement
 	private String reportType;
 	

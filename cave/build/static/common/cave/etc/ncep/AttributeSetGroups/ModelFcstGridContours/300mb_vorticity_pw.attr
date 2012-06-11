@@ -8,6 +8,8 @@
 !
 GLEVEL=0!0!300 !300
 GVCORD=none   !none   !PRES!PRES
+SKIP=
+FILTER=y
 SCALE=0                 !0  !5        !5        !-1        !-1
 GDPFUN=quo(pwtr;25.4)//pw!pw !avor(obs)!avor(obs)!sm5s(hght)!kntv(wnd@850%PRES)
 TYPE=c                 !c/f!c        !c        !c         !b

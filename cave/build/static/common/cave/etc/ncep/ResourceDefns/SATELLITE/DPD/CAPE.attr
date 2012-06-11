@@ -3,3 +3,6 @@ colorMapName=gdpicape
 colorBar=@dfltMcidasColorBar.xml
 imageType=CAPE
 displayUnitStr=BRIT
+alpha=1.0
+brightness=1.0
+contrast=1.0
