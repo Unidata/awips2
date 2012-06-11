@@ -50,6 +50,12 @@ import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
  * Aug 29, 2011 10719      rferrel     applyLocks no longer allows removal of
  *                                     required blank lines.
  * May 10, 2012 14681     Qinglu Lin   Updated regex string for Pattern listOfAreaNamePtrn, etc.
+ * May 30, 2012 14749     Qinglu Lin   Handled CAN in a CANCON specifically.
+ * Jun  6, 2012 14749     Qinglu Lin   Added code to lock "...THE" in "...THE CITY OF", etc. 
+ *                                     (David's concise approach was used. A quicker but 
+ *                                     lengthy code snippet is available) and to resolve issue with 
+ *                                     empty areaNotation and areasNotation which occurs when,
+ *                                     for example, District of Columbia is followed by a county.
  * 
  * </pre>
  * 
@@ -107,13 +113,18 @@ public class WarningTextHandler {
             .compile("\\*\\s(.*)\\s(WARNING|ADVISORY)(\\sFOR(.*)|\\.\\.\\.)");
 
     private static final Pattern cancelPtrn = Pattern
-            .compile("(|(.*))(IS CANCELLED...)");
+            .compile("(|(.*))(IS CANCELLED\\.\\.\\.)");
+
+    private static final Pattern cancelOnlyPtrn = Pattern
+            .compile("(CANCELLED<\\/L>\\.\\.\\.)");
 
     private static final Pattern expirePtrn = Pattern
             .compile("(|(.*))((EXPIRED|WILL EXPIRE)\\sAT\\s\\d{3,4}\\s(AM|PM)\\s\\w{3}...)");
 
     private static final Pattern headlinePtrn = Pattern
             .compile("(\\.\\.\\.((A|THE)\\s(.*)\\s(WARNING|ADVISORY))\\s(FOR|(REMAINS IN EFFECT (|(UNTIL\\s\\d{3,4}\\s(AM|PM)\\s\\w{3})))))(|(.*))");
+
+    private static final Pattern canVtecPtrn = Pattern.compile("(\\.CAN\\.)");
 
     private static Pattern immediateCausePtrn = null;
 
@@ -141,6 +152,9 @@ public class WarningTextHandler {
 
     private static final Pattern lockedBlankLinesPattern = Pattern.compile(
             "<L>(\\s*+)</L>", Pattern.MULTILINE);
+    
+    private static final String LOCK_REPLACEMENT_TEXT = LOCK_START + "$0" + LOCK_END;
+    private static final Pattern extraTokensPattern = Pattern.compile("\\b(?:THE|IS|CANCELLED)\\b");
     
     static {
         String pattern = "";
@@ -194,7 +208,7 @@ public class WarningTextHandler {
             List<AffectedAreas> canceledAreasArr = canceledAreas != null ? Arrays
                     .asList(canceledAreas) : null;
             originalMessage = applyLocks(originalMessage, areasArr,
-                    canceledAreasArr, initialWarning);
+                    canceledAreasArr, initialWarning, action);
         }
 
         originalMessage = removeExtraLines(originalMessage);
@@ -236,11 +250,13 @@ public class WarningTextHandler {
 
     private static String applyLocks(String originalMessage,
             List<AffectedAreas> areas, List<AffectedAreas> canceledAreas,
-            boolean initialWarning) {
+            boolean initialWarning, WarningAction action) {
         boolean firstBulletFound = false;
         boolean insideFirstBullet = false;
         boolean secondBulletFound = false;
         boolean headlineFound = false;
+        // for CAN in a CANCON
+        boolean cancelVtecLineFound = false;
         boolean insideLatLon = false;
         boolean insideTML = false;
         boolean checkForMND = true;
@@ -269,6 +285,7 @@ public class WarningTextHandler {
         // Set before to false if the line is beyond "THE NATIONAL WEATHER SERVICE IN" line.
         boolean before = true;
         
+        ArrayList<String> usedAreaNotations = new ArrayList<String>();
         for (int lineIndex = 0; lineIndex < seperatedLines.length; ++lineIndex) {
             String line = seperatedLines[lineIndex];
 
@@ -309,6 +326,12 @@ public class WarningTextHandler {
                 m = vtecPtrn.matcher(line);
                 if (m.find()) {
                     sb.append(LOCK_START + line + "\n" + LOCK_END);
+                    // check out if .CAN. is in VTEC line of a CANCON product.
+                    m = canVtecPtrn.matcher(line);
+                    if (action == WarningAction.CANCON && m.find()) {
+                        cancelVtecLineFound = true;
+                    } else 
+                    	cancelVtecLineFound = false;
                     continue;
                 }
 
@@ -445,77 +468,120 @@ public class WarningTextHandler {
                         continue;
                     }
                 } else {
-                    // head line pattern
-                    m = headlinePtrn.matcher(line);
-                    if (m.find()) {
-                        checkForMND = false;
-                        headlineFound = true;
-                        line = line.replace(m.group(2), LOCK_START + m.group(2)
-                                + LOCK_END);
-                    }
+                	usedAreaNotations.clear();
+                	// head line pattern
+                	m = headlinePtrn.matcher(line);
+                	if (m.find()) {
+                		checkForMND = false;
+                		headlineFound = true;
+                		line = line.replace(m.group(2), LOCK_START + m.group(2)
+                				+ LOCK_END);
+                	}
+                	// CAN portion in a CANCON
+                	if (cancelVtecLineFound) {
+                		for (AffectedAreas area : canceledAreas) {
+                			String areaName = area.getName();
+                			if (areaName != null) {
+                                areaName = areaName.toUpperCase();
+                				String[] tokens = areaName.split(" ");
+                				for (String s: tokens)
+                					if (line.contains(s))
+                						line = line.replaceAll(s, LOCK_START
+                								+ s + LOCK_END);
+                			}
+                			// areaNotation, e.g., COUNTY
+                			String areaNotation = area.getAreaNotation().toUpperCase();
+                			if (areaNotation != null && areaNotation.length()>0
+                					&& !usedAreaNotations.contains(areaNotation)
+                					&& line.contains(areaNotation)) {
+                				line = line.replaceAll(areaNotation, LOCK_START
+                						+ areaNotation + LOCK_END);
+                				usedAreaNotations.add(areaNotation);
+                			}
+                			// areasNotation, e.g., COUNTIES
+                			String areasNotation = area.getAreasNotation().toUpperCase();
+                			if (areasNotation != null && areasNotation.length()>0
+                					&& !usedAreaNotations.contains(areasNotation)
+                					&& line.contains(areasNotation)) {
+                				line = line.replaceAll(areasNotation, LOCK_START
+                						+ areasNotation + LOCK_END);
+                				usedAreaNotations.add(areasNotation);
+                			}
+                		}
+                		// locking "THE" in "THE CITY OF MANASSAS", "...THE" in "...THE CITY",
+                		// and "IS" or "CANCELLED" in "IS CANCELLED...".
+        				line = extraTokensPattern.matcher(line).replaceAll(
+                                LOCK_REPLACEMENT_TEXT);
 
-                    if (headlineFound) {
-                        ArrayList<String> usedAreaNotations = new ArrayList<String>();
-                        if (areas != null && !marineProduct) {
-                            for (AffectedAreas area : areas) {
-                                if (area.getName() != null
-                                        && line.contains(area.getName()
-                                                .toUpperCase())) {
-                                    line = line.replaceFirst(area.getName()
-                                            .toUpperCase(), LOCK_START
-                                            + area.getName().toUpperCase()
-                                            + LOCK_END);
-                                }
+        				m = cancelOnlyPtrn.matcher(line);
+                		if (m.find())
+                			cancelVtecLineFound = false;
+                		
+                		sb.append(line + "\n");
+                		continue;
+                	} else {
+                		// follow-ups other than CAN in a CANCON
+                		if (headlineFound) {
+                			usedAreaNotations.clear();
+                			if (areas != null && !marineProduct) {
+                				for (AffectedAreas area : areas) {
+                					if (area.getName() != null
+                							&& line.contains(area.getName()
+                									.toUpperCase())) {
+                						line = line.replaceFirst(area.getName()
+                								.toUpperCase(), LOCK_START
+                								+ area.getName().toUpperCase()
+                								+ LOCK_END);
+                					}
 
-                                if (area.getAreaNotation() != null
-                                        && !usedAreaNotations.contains(area
-                                                .getAreaNotation()
-                                                .toUpperCase())
-                                        && line.contains(area.getAreaNotation())) {
-                                    line = line.replaceAll(" "
-                                            + area.getAreaNotation()
-                                                    .toUpperCase(), LOCK_START
-                                            + " " + area.getAreaNotation()
-                                            + LOCK_END);
-                                    usedAreaNotations.add(area
-                                            .getAreaNotation().toUpperCase());
-                                }
-                            }
-                        }
+                					if (area.getAreaNotation() != null
+                							&& !usedAreaNotations.contains(area
+                									.getAreaNotation()
+                									.toUpperCase())
+                									&& line.contains(area.getAreaNotation())) {
+                						line = line.replaceAll(" "
+                								+ area.getAreaNotation()
+                								.toUpperCase(), LOCK_START
+                								+ " " + area.getAreaNotation()
+                								+ LOCK_END);
+                						usedAreaNotations.add(area
+                								.getAreaNotation().toUpperCase());
+                					}
+                				}
+                			}
 
-                        m = cancelPtrn.matcher(line);
-                        if (m.find()) {
-                            line = line.replaceFirst(m.group(3),
-                                    LOCK_START + m.group(3) + LOCK_END);
+                			m = cancelPtrn.matcher(line);
+                			if (m.find()) {
+                				line = line.replaceFirst(m.group(3),
+                						LOCK_START + m.group(3) + LOCK_END);
+                				if (canceledAreas != null) {
+                					for (AffectedAreas canceledArea : canceledAreas) {
+                						if (line.contains(canceledArea.getName()
+                								.toUpperCase())) {
+                							line = line.replaceFirst(canceledArea
+                									.getName().toUpperCase(),
+                									LOCK_START
+                									+ canceledArea
+                									.getName()
+                									.toUpperCase()
+                									+ LOCK_END);
+                						}
+                					}
+                				}
+                				headlineFound = false;
+                			}
 
-                            if (canceledAreas != null) {
-                                for (AffectedAreas canceledArea : canceledAreas) {
-                                    if (line.contains(canceledArea.getName()
-                                            .toUpperCase())) {
-                                        line = line.replaceFirst(canceledArea
-                                                .getName().toUpperCase(),
-                                                LOCK_START
-                                                        + canceledArea
-                                                                .getName()
-                                                                .toUpperCase()
-                                                        + LOCK_END);
-                                    }
-                                }
-                            }
-                            headlineFound = false;
-                        }
-
-                        m = expirePtrn.matcher(line);
-                        if (m.find()) {
-                            line = line.replaceFirst(m.group(3),
-                                    LOCK_START + m.group(3) + LOCK_END);
-                            headlineFound = false;
-                        }
-
-                        sb.append(line + "\n");
-                        continue;
-                    }
-
+                			m = expirePtrn.matcher(line);
+                			if (m.find()) {
+                				line = line.replaceFirst(m.group(3),
+                						LOCK_START + m.group(3) + LOCK_END);
+                				headlineFound = false;
+                			}
+                			
+                			sb.append(line + "\n");
+                			continue;
+                		}
+                	}
                 }
 
                 // Locking LAT...LON
@@ -543,7 +609,6 @@ public class WarningTextHandler {
                     sb.append(LOCK_START + line + "\n" + LOCK_END);
                     continue;
                 }
-
                 // Locking TIME...MOT..LOC
                 m = tmlPtrn.matcher(line);
                 if (m.find()) {
@@ -566,23 +631,22 @@ public class WarningTextHandler {
 
                 // Test lines
                 if (line.equals(TEST_MSG3)
-                        || line.equals(TEST_MSG1)
-                        || (line.startsWith("TEST...") && line
-                                .endsWith("...TEST"))) {
-                    sb.append(LOCK_START + line + LOCK_END + "\n");
-                    continue;
-                }
-
+                		|| line.equals(TEST_MSG1)
+                		|| (line.startsWith("TEST...") && line
+                				.endsWith("...TEST"))) {
+                	sb.append(LOCK_START + line + LOCK_END + "\n");
+                	continue;
+                }                
                 m = testMessagePtrn.matcher(line);
                 if (m.find()) {
-                    line = line.replace(m.group(2), LOCK_START + m.group(2)
-                            + LOCK_END);
+                	line = line.replace(m.group(2), LOCK_START + m.group(2)
+                			+ LOCK_END);
                 }
             } catch (Exception e) {
-                // If an exception is thrown,
-                // log the exception but continue locking text
-                statusHandler.handle(Priority.PROBLEM, "Error locking line: "
-                        + line + "\n", e);
+            	// If an exception is thrown,
+            	// log the exception but continue locking text
+            	statusHandler.handle(Priority.PROBLEM, "Error locking line: "
+            			+ line + "\n", e);
             }
             sb.append(line + "\n");
             insideLatLon = false;
