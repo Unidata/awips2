@@ -230,8 +230,6 @@ public class PurgeDao extends CoreDao {
 					sess.save(queryResult);
 				}
 
-				// any changes to PurgeJobStatus will be commited at end of
-				// transaction
 				if (queryResult.isRunning()) {
 					// query was previously running, update failed count
 					queryResult.incrementFailedCount();
@@ -240,7 +238,7 @@ public class PurgeDao extends CoreDao {
 				queryResult.setStartTime(Calendar.getInstance(
 						TimeZone.getTimeZone("GMT")).getTime());
 				queryResult.setRunning(true);
-
+				sess.update(queryResult);
 				return queryResult;
 			}
 		});
