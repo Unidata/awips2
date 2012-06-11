@@ -17,21 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.core.contours.cmenu;
+package com.raytheon.viz.ui.cmenu;
 
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.swt.widgets.Display;
+import javax.xml.bind.JAXBException;
 
-import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.ResourceGroup;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
-import com.raytheon.viz.core.contours.ILoadableAsArrows;
-import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
  * TODO Add Description
@@ -41,15 +42,18 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 6, 2009            mschenke     Initial creation
+ * Apr 26, 2010            bsteffen     Initial creation
+ * Aug 10, 2011           njensen      Added runWithEvent
  * 
  * </pre>
  * 
- * @author mschenke
+ * @author bsteffen
  * @version 1.0
  */
 
-public class ConvertToArrows extends AbstractRightClickAction {
+public abstract class LoadAsDisplayTypeAction extends AbstractRightClickAction {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LoadAsDisplayTypeAction.class);
 
     /*
      * (non-Javadoc)
@@ -58,21 +62,27 @@ public class ConvertToArrows extends AbstractRightClickAction {
      */
     @Override
     public void run() {
-        System.out.println("Converting image to Arrows");
         try {
-            IGraphicsTarget activeTarget = container.getActiveDisplayPane()
-                    .getTarget();
-
-            AbstractVizResource<?, ?> arrowRsc = ((ILoadableAsArrows) this
-                    .getSelectedRsc()).getArrowResource();
-            this.getDescriptor().getResourceList().add(arrowRsc);
+            ResourcePair rp = selectedRsc;
+            ResourceGroup group = new ResourceGroup();
+            group.getResourceList().add(rp);
+            String xml = SerializationUtil.marshalToXml(group);
+            group = (ResourceGroup) SerializationUtil.unmarshalFromXml(xml);
+            rp = group.getResourceList().get(0);
+            rp.setProperties(new ResourceProperties());
+            rp.getLoadProperties()
+                    .getCapabilities()
+                    .getCapability(rp.getResourceData(),
+                            DisplayTypeCapability.class)
+                    .setDisplayType(getDisplayType());
+            rp.instantiateResource(getDescriptor());
+            getDescriptor().getResourceList().add(rp);
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unexpected error cloning resource", e);
         } catch (VizException e) {
-            ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-                    "Error converting to imagery",
-                    "Error converting contour resource to imagery resource",
-                    new Status(Status.ERROR,
-                            com.raytheon.viz.core.contours.Activator.PLUGIN_ID,
-                            "Error creating imagery resource", e));
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unexpected error cloning resource", e);
         }
     }
 
@@ -83,15 +93,23 @@ public class ConvertToArrows extends AbstractRightClickAction {
      */
     @Override
     public String getText() {
-        return "Load as Arrows";
+        String typeString = getDisplayType().toString();
+        typeString = typeString.substring(0, 1).toUpperCase()
+                + typeString.substring(1).toLowerCase();
+        return "Load as " + typeString;
     }
 
     @Override
     public boolean isHidden() {
-        if (getSelectedRsc() instanceof ILoadableAsArrows) {
-            return !((ILoadableAsArrows) getSelectedRsc()).isArrowVector();
+        AbstractVizResource<?, ?> rsc = getSelectedRsc();
+        if (rsc == null) {
+            return true;
         }
-        return false;
+        DisplayTypeCapability cap = rsc
+                .getCapability(DisplayTypeCapability.class);
+
+        return cap.getDisplayType() == getDisplayType()
+                || !cap.getAlternativeDisplayTypes().contains(getDisplayType());
     }
 
     @Override
@@ -105,7 +123,7 @@ public class ConvertToArrows extends AbstractRightClickAction {
                         && rsc2 != rsc
                         && rrd.equals(rsc2.getResourceData()) == true
                         && rsc2.getCapability(DisplayTypeCapability.class)
-                                .getDisplayType() == DisplayType.ARROW) {
+                                .getDisplayType() == getDisplayType()) {
                     return false;
                 }
             }
@@ -114,4 +132,7 @@ public class ConvertToArrows extends AbstractRightClickAction {
             return false;
         }
     }
+
+    protected abstract DisplayType getDisplayType();
+
 }

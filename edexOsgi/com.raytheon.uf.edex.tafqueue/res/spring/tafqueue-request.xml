@@ -5,10 +5,12 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean id="TafQueueRequestHandler"
-		class="com.raytheon.edex.plugin.tafqueue.TafQueueRequestHandler" />
+		class="com.raytheon.uf.edex.tafqueue.TafQueueRequestHandler" />
 		
 	<bean id="TafQueueManager"
-		class="com.raytheon.edex.plugin.tafqueue.TafQueueManager" />
+		class="com.raytheon.uf.edex.tafqueue.TafQueueManager" factory-method="getInstance">
+        <property name="destinationUri" value="jms-generic:topic:tafQueueChanged"/> 
+	</bean>
 
     <bean id="tafQueueProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
 		<property name="pluginFQN" value="com.raytheon.uf.common.tafqueue" />
@@ -32,25 +34,24 @@
 		errorHandlerRef="errorHandler" autoStartup="false">
 		
 		<route id="tafQueueSendJobAggr">
-            <from uri="timer://tafQueueTimer?fixedRate=true&amp;period=1000"/>
+            <from uri="quartz://tafQueueQuartz?trigger.repeatInterval=1"/>
             <doTry>
-			    <bean ref="TafQueueManager" method="prossessSendJobs" />
+			    <bean ref="TafQueueManager" method="startManager" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to uri="log:tafSendQueue?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
                 </doCatch>
             </doTry>
 		</route>
-		<route id="tafQueuePurgeAggr">
-			<!-- 12 hours 12 * 60 * 60 * 1000 is 43200000 msec -->
-            <from uri="timer://tafQueueTimer?fixedRate=true&amp;period=43200000"/>
-            <doTry>
-			    <bean ref="TafQueueManager" method="purgeExpiredData" />
+		<route id="tafQueueChangedJob">
+			<from uri="jms-generic:topic:tafQueueChanged"/>
+			<doTry>
+			    <bean ref="TafQueueManager" method="queueChanged" />
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to uri="log:tafSendQueue?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
                 </doCatch>
-            </doTry>
+			</doTry>
 		</route>
 	</camelContext>
 	

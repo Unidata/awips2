@@ -75,7 +75,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 8Nov2010     7294       cjeanbap    Update logic in executeAFOSCommand.
  *                                     Removed committed out code.
  * ------------------------------------
- * 18 Apr 2012         479 jkorman     Modified to pad xxxid to 3 characters in queries.                                     
+ * 18 Apr 2012         479 jkorman     Modified to pad xxxid to 3 characters in queries.
+ * 23 May 2012       14952 rferrel     Allow queries with refTime.
  * </pre>
  * 
  * @author jkorman
@@ -588,7 +589,7 @@ public class TextDB {
         String ccc = productId.substring(0, 3);
         String nnn = productId.substring(3, 6);
         String xxx = productId.substring(6);
-        if(xxx.length() == 1) {
+        if (xxx.length() == 1) {
             xxx = xxx + "  ";
         } else if (xxx.length() == 2) {
             xxx = xxx + " ";
@@ -627,7 +628,7 @@ public class TextDB {
         String ccc = productId.substring(0, 3);
         String nnn = productId.substring(3, 6);
         String xxx = productId.substring(6);
-        if(xxx.length() == 1) {
+        if (xxx.length() == 1) {
             xxx = xxx + "  ";
         } else if (xxx.length() == 2) {
             xxx = xxx + " ";
@@ -739,13 +740,20 @@ public class TextDB {
         return products;
     }
 
+    public List<StdTextProduct> executeAFOSCommand(String afosCommand,
+            String locale, boolean operationalMode) {
+        return executeAFOSCommand(afosCommand, locale, operationalMode, false,
+                null);
+    }
+
     /**
      * 
      * @param afosCommand
      * @return
      */
     public List<StdTextProduct> executeAFOSCommand(String afosCommand,
-            String locale, boolean operationalMode) {
+            String locale, boolean operationalMode, boolean refTimeMode,
+            Long refTime) {
         List<StdTextProduct> products = null;
 
         AFOSParser parser = null;
@@ -763,6 +771,9 @@ public class TextDB {
             if (parser.isStateQuery()) {
                 products = stateNNNRead(parser.getState(), parser.getNnn(),
                         operationalMode);
+            } else if (refTimeMode) {
+                products = (new StdTextProductDao(operationalMode))
+                        .cccnnnxxxByRefTime(ccc, nnn, xxx, refTime);
             } else {
                 int versionNo = 0; // default version number; read the latest
                 // version
