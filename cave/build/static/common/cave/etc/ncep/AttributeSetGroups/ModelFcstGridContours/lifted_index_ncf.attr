@@ -8,6 +8,8 @@
 !
 GLEVEL=180:0
 GVCORD=pdly
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm5s(lft4)      !sm5s(lft4) !sm5s(lft4) !kntv(wnd@30:0%pdly)
 TYPE=c               !c          !c          !b

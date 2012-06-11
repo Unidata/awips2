@@ -31,6 +31,7 @@ import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
 import com.raytheon.edex.plugin.gfe.cache.ifpparms.IFPParmIdCache;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
+import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IRTManager;
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
@@ -74,6 +75,8 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * ------------ ---------- ----------- --------------------------
  * Jul 9, 2009            njensen     Initial creation
  * Oct 26, 2010  #6811    jclark      changed listener type
+ * Apr 06, 2012  #457     dgilling    Clear site's ISCSendRecords on
+ *                                    site deactivation.
  * 
  * </pre>
  * 
@@ -216,6 +219,7 @@ public class GFESiteActivation implements ISiteActivationListener {
      * 
      * @param siteID
      */
+    @Override
     public void activateSite(String siteID) throws Exception {
 
         sendActivationBeginNotification(siteID);
@@ -475,6 +479,7 @@ public class GFESiteActivation implements ISiteActivationListener {
      * 
      * @param siteID
      */
+    @Override
     public void deactivateSite(String siteID) throws Exception {
 
         sendDeactivationBeginNotification(siteID);
@@ -502,6 +507,14 @@ public class GFESiteActivation implements ISiteActivationListener {
                     .getServerConfig(siteID);
             if (config.requestISC()) {
                 IRTManager.getInstance().disableISC(config.getMhsid(), siteID);
+            }
+
+            try {
+                new IscSendRecordDao().deleteForSite(siteID);
+            } catch (DataAccessLayerException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Could not clear IscSendRecords for site " + siteID
+                                + " from queue.", e);
             }
 
             TopoDatabaseManager.removeTopoDatabase(siteID);
@@ -538,6 +551,7 @@ public class GFESiteActivation implements ISiteActivationListener {
      * 
      * @return the active sites
      */
+    @Override
     public Set<String> getActiveSites() {
         return IFPServerConfigManager.getActiveSites();
     }

@@ -42,7 +42,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
-//import org.eclipse.ui.contexts.IContextActivation;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -163,16 +162,16 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
         Composite drawingComposite = new Composite(baseComposite, SWT.NONE);
         drawingComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
                 true));
-        GridLayout drawGL = new GridLayout();
+        GridLayout drawGL = new GridLayout(1, true);
         drawGL.marginWidth = 0;
         drawGL.marginHeight = 0;
         drawGL.horizontalSpacing = 0;
         drawingComposite.setLayout(drawGL);
-        GridLayout gl = new GridLayout(1, true);
+        /*GridLayout gl = new GridLayout(1, true);
         gl.horizontalSpacing = 3;
         gl.verticalSpacing = 3;
         gl.marginHeight = 0;
-        gl.marginWidth = 0;
+        gl.marginWidth = 0;*/
 
         try {
             if (displayPane[0] == null ) {
@@ -191,6 +190,15 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
             final String errMsg = "Error setting up NsharpSkewTEditor";
             UFStatus.getHandler().handle(Priority.SIGNIFICANT,  errMsg, e);
         }
+        /*Button browse = new Button(drawingComposite, SWT.PUSH);
+		browse.setText("Browse...");
+		GridData gridData = new GridData(GridData.FILL, GridData.CENTER, true, false);
+		gridData.horizontalIndent = 5;
+		browse.setLayoutData(gridData);
+		
+		Label label = new Label(drawingComposite, SWT.NONE);
+		label.setText("Categories");
+		label.setLayoutData(new GridData(GridData.CENTER, GridData.CENTER, true, false));*/
         
         contributePerspectiveActions();
 

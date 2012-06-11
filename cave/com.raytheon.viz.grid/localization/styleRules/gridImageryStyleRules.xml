@@ -4723,4 +4723,12 @@
 			<displayUnits>K/hPa/s*1.0E-5</displayUnits>
 		</imageStyle>
 	</styleRule>
+	<styleRule>
+	  <paramLevelMatches>
+	    <parameter>Mmag</parameter>
+	  </paramLevelMatches>
+	  <imageStyle>
+	    <displayUnits label="gm/kgs">g*m/(kg*s)</displayUnits>
+	  </imageStyle>
+	</styleRule>
 </styleRuleset>

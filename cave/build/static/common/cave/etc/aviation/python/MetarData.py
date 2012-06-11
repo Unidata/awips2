@@ -19,8 +19,9 @@
 ##
 
 import Avn, MetarDecoder
-import PointDataRetrieve
 import NoDataException
+import HoursRefTimePointDataRetrieve
+
 
 #
 # Retrieves metar data through pointdata interfaces
@@ -31,6 +32,7 @@ import NoDataException
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    08/26/09                      njensen       Initial Creation.
+#    26APR2012       14688         rferrel       Use HoursRefTimePointDataRetrieve.
 #    
 # 
 #
@@ -41,7 +43,7 @@ def retrieve(siteID, size=1):
     if type(siteID) is str:
         siteID = [siteID]
     try :
-        pdc = PointDataRetrieve.retrieve('obs', siteID[0], PARAMETERS, keyId='timeObs', maxSize=size, forecast=False)
+        pdc = HoursRefTimePointDataRetrieve.retrieve('obs', siteID[0], PARAMETERS, keyId='timeObs', maxSize=size)
     except NoDataException.NoDataException:
         raise NoDataException.NoDataException('No METAR data available for site %s' % siteID[0])
     decoder = MetarDecoder.Decoder()

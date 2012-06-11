@@ -10,7 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.FromAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.FromAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
 

@@ -9,6 +9,8 @@
 !
 GLEVEL=9823!9823!9823:0!9823:0!9823
 GVCORD=sgma!sgma!sgma!sgma!sgma
+SKIP=
+FILTER=y
 SCALE=7!0
 GDPFUN=sdiv(mixr,obs)!thte(mul(.9823;pres@0%none),tmpc,dwpc)//te!te!te!kntv(wnd)
 TYPE=c             !c                                         !c  !c    !b

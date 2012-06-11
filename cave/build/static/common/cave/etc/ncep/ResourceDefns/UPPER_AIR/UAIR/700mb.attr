@@ -3,3 +3,4 @@ levelKey=700
 !resourceName=UAIR
 plotModelName=standard
 plotDensity=10
+conditionalFilterName=

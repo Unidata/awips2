@@ -4,3 +4,4 @@ legendString=Synop (All Reports)
 plotModelName=synop_standard
 reportType=1001,1002,1003,1004,1005,1006,1007
 plotDensity=10
+conditionalFilterName=

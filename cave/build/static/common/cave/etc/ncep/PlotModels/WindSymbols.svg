@@ -60,7 +60,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink">
 <glyph unicode="15" horiz-adv-x="1500" d="M0 5L0 25M0 25L7 27M0 22L4 23"/>
 <glyph unicode="10" horiz-adv-x="1500" d="M0 5L0 25M0 25L7 27"/>
 <glyph unicode="5" horiz-adv-x="1500" d="M0 5L0 25M4 23L0 22"/>
-<glyph unicode="0" horiz-adv-x="1500" d="M6 0L4 4L0 6L-4 4L-6 0L-4 -4L0 -6L4 -4L6 0"/>
+<glyph unicode="0" horiz-adv-x="1500" d="M0,6 C-8,6 -8,-6 0,-6 S8,6 0,6"/>
 <glyph unicode="arrow" horiz-adv-x="1500" d="M0 -5L0 -25L5 -20M0 -25L-5 -20"/>
 </font>
 </defs>
