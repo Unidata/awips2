@@ -30,4 +30,6 @@
     <request> <productCode>34</productCode> <pdw20>16</pdw20> </request>
     <request> <productCode>34</productCode> <pdw20>32</pdw20> </request>
   </cronOTR>
+  <cronOTR cron="0 0 * * * ?"         productCode="173" randomWait="600" hoursBack="3" wmo="SDUS8" nnn="DU3"/>
+  <cronOTR cron="0 0 12 * * ?"        productCode="173" randomWait="600" hoursBack="24" wmo="SDUS8" nnn="DU6"/>  
 </cronOTRConfiguration>

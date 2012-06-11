@@ -42,11 +42,15 @@ import org.eclipse.swt.widgets.Spinner;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.tafqueue.ServerResponse;
+import com.raytheon.uf.common.tafqueue.TafQueueRecord;
+import com.raytheon.uf.common.tafqueue.TafQueueRequest;
+import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.aviation.AviationDialog;
 import com.raytheon.viz.aviation.editor.EditorTafTabComp;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
-import com.raytheon.viz.aviation.utility.TafMessageData;
-import com.raytheon.viz.aviation.utility.TransmissionQueue;
 import com.raytheon.viz.aviation.xml.ForecasterConfig;
 import com.raytheon.viz.avnconfig.IStatusSettable;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
@@ -321,104 +325,7 @@ public class SendDialog extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                TransmissionQueue queue = TransmissionQueue.getInstance();
-                // Forecaster ID
-                int forecasterId = forecasterArray.get(
-                        personList.getSelectionIndex()).getId();
-                // Transmit time
-                long now = System.currentTimeMillis();
-                Calendar xmitTime = Calendar.getInstance();
-                xmitTime.setTimeInMillis(now);
-                xmitTime.setTimeZone(TimeZone.getTimeZone("GMT"));
-                xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
-                xmitTime.set(Calendar.MINUTE, minuteSpnr.getSelection());
-                xmitTime.set(Calendar.SECOND, secondSpnr.getSelection());
-
-                String xmitTimestamp = String.format(TIMESTAMP_FORMAT,
-                        xmitTime.get(Calendar.DAY_OF_MONTH),
-                        xmitTime.get(Calendar.HOUR_OF_DAY),
-                        xmitTime.get(Calendar.MINUTE));
-                // BBB
-                String in = tabComp.getTextEditorControl().getText();
-                String bbb = tabComp.getBBB();
-                // WMO ID
-                String siteWmoId = tabComp.getWmoId();
-                // WMO Site
-                String siteNode = tabComp.getWmoSiteId();
-
-                ArrayList<String> tafs = new ArrayList<String>();
-                ArrayList<String> updatedTafs = new ArrayList<String>();
-
-                // Split the text into individual TAFs if necessary
-                if (sendCollective) {
-                    tafs.add(in.trim());
-                } else {
-                    int idx = 0;
-                    int idx2 = 0;
-
-                    while (idx > -1 && idx2 > -1) {
-                        idx = in.indexOf("TAF", idx);
-                        idx2 = in.indexOf("TAF", (idx + 3));
-                        String tafStr;
-
-                        if (idx > -1 && idx2 > -1) {
-                            tafStr = in.substring(idx, idx2);
-                            idx += 3;
-                        } else {
-                            tafStr = in.substring(idx);
-                        }
-
-                        tafs.add(tafStr.trim());
-                    }
-                }
-
-                for (String tafText : tafs) {
-                    String fourLetterId = tafText.substring(
-                            tafText.indexOf('\n') + 1,
-                            tafText.indexOf(' ', tafText.indexOf('\n')));
-
-                    // Site ID
-                    String siteId = fourLetterId.substring(1);
-                    // Type
-                    String type = tafText.substring(0, 3);
-
-                    // Update Header Time to transmission time.
-                    tafText = TIMESTAMP_PATTERN.matcher(tafText).replaceFirst(
-                            xmitTimestamp);
-                    updatedTafs.add(tafText);
-                    try {
-                        ITafSiteConfig config = TafSiteConfigFactory
-                                .getInstance();
-                        TafSiteData siteData = config.getSite(fourLetterId);
-                        siteWmoId = siteData.wmo.split(" ")[0];
-                        siteNode = siteData.wmo.split(" ")[1];
-                    } catch (Exception e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error reading site configuration for "
-                                        + siteId
-                                        + ", attempting to proceed anyway", e);
-                    }
-
-                    // Enqueue TAF for transmission
-                    queue.enqueue(new TafMessageData(forecasterId, xmitTime,
-                            tafText, bbb, siteId, siteWmoId, siteNode, type,
-                            xmitTime));
-                }
-                tabComp.setTafSent(true);
-
-                // Update the TAF display with transmission time.
-                StringBuilder sb = new StringBuilder();
-                String prefix = "";
-                for (String taf : updatedTafs) {
-                    sb.append(prefix).append(taf);
-                    prefix = "\n\n";
-                }
-                tabComp.getTextEditorControl().setText(sb.toString());
-                msgStatComp.setMessageText(
-                        "The TAF has been sent to the transmission queue.",
-                        shell.getDisplay().getSystemColor(SWT.COLOR_GREEN)
-                                .getRGB());
-                shell.dispose();
+                sendAction();
             }
         });
 
@@ -431,5 +338,133 @@ public class SendDialog extends CaveSWTDialog {
                 shell.dispose();
             }
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void sendAction() {
+        TafQueueRequest request = new TafQueueRequest();
+        request.setType(Type.CREATE);
+
+        // Forecaster ID
+        int forecasterId = forecasterArray.get(personList.getSelectionIndex())
+                .getId();
+        // long now = System.currentTimeMillis();
+        Calendar xmitTime = Calendar.getInstance();
+        // xmitTime.setTimeInMillis(now);
+        xmitTime.setTimeZone(TimeZone.getTimeZone("GMT"));
+        xmitTime.set(Calendar.HOUR_OF_DAY, hourSpnr.getSelection());
+        xmitTime.set(Calendar.MINUTE, minuteSpnr.getSelection());
+        xmitTime.set(Calendar.SECOND, secondSpnr.getSelection());
+        // request.setXmitTime(xmitTime.getTime());
+        String xmitTimestamp = String.format(TIMESTAMP_FORMAT,
+                xmitTime.get(Calendar.DAY_OF_MONTH),
+                xmitTime.get(Calendar.HOUR_OF_DAY),
+                xmitTime.get(Calendar.MINUTE));
+        // BBB
+        String in = tabComp.getTextEditorControl().getText();
+        String bbb = tabComp.getBBB();
+        // request.addArgument("bbb", bbb);
+        // WMO ID
+        String siteWmoId = tabComp.getWmoId();
+        // request.addArgument("wmoid", siteWmoId);
+        // WMO Site
+        // String siteNode = tabComp.getWmoSiteId();
+        String siteNode = null;
+        java.util.List<String> stationIds = new ArrayList<String>();
+
+        ArrayList<String> tafs = new ArrayList<String>();
+        ArrayList<String> updatedTafs = new ArrayList<String>();
+
+        // Split the text into individual TAFs if necessary
+        if (sendCollective) {
+            tafs.add(in.trim());
+        } else {
+            int idx = 0;
+            int idx2 = 0;
+
+            while (idx > -1 && idx2 > -1) {
+                idx = in.indexOf("TAF", idx);
+                idx2 = in.indexOf("TAF", (idx + 3));
+                String tafStr;
+
+                if (idx > -1 && idx2 > -1) {
+                    tafStr = in.substring(idx, idx2);
+                    idx += 3;
+                } else {
+                    tafStr = in.substring(idx);
+                }
+
+                tafs.add(tafStr.trim());
+            }
+        }
+
+        boolean tafsQeueued = true;
+        java.util.List<TafQueueRecord> records = new ArrayList<TafQueueRecord>();
+
+        for (String tafText : tafs) {
+            String fourLetterId = tafText.substring(tafText.indexOf('\n') + 1,
+                    tafText.indexOf(' ', tafText.indexOf('\n')));
+
+            // Site ID
+            String siteId = fourLetterId.substring(1);
+            // Type
+            // String type = tafText.substring(0, 3);
+
+            // Update Header Time to transmission time.
+            tafText = TIMESTAMP_PATTERN.matcher(tafText).replaceFirst(
+                    xmitTimestamp);
+            updatedTafs.add(tafText);
+            try {
+                ITafSiteConfig config = TafSiteConfigFactory.getInstance();
+                TafSiteData siteData = config.getSite(fourLetterId);
+                siteWmoId = siteData.wmo.split(" ")[0];
+                siteNode = siteData.wmo.split(" ")[1];
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error reading site configuration for " + siteId
+                                + ", attempting to proceed anyway", e);
+            }
+
+            TafQueueRecord record = new TafQueueRecord(forecasterId,
+                    xmitTime.getTime(), tafText, bbb, siteId, siteWmoId,
+                    siteNode, xmitTime.getTime());
+            records.add(record);
+        }
+
+        try {
+            // Enqueue TAFs for transmission
+            System.out.println("Before - " + request.toString());
+            request.setRecords(records);
+            ServerResponse<String> response = (ServerResponse<String>) ThriftClient
+                    .sendRequest(request);
+            System.out.println(response.toString());
+            if (response.isError()) {
+                statusHandler.handle(Priority.PROBLEM, response.toString());
+                tafsQeueued = false;
+            }
+        } catch (VizException e) {
+            // TODO Auto-generated catch block. Please revise as
+            // appropriate.
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            msgStatComp.setMessageText(e.getMessage(), shell.getDisplay()
+                    .getSystemColor(SWT.COLOR_RED).getRGB());
+        }
+
+        if (tafsQeueued) {
+            // Update the TAF display with transmission time.
+            StringBuilder sb = new StringBuilder();
+            String prefix = "";
+            for (String taf : updatedTafs) {
+                sb.append(prefix).append(taf);
+                prefix = "\n\n";
+            }
+            tabComp.getTextEditorControl().setText(sb.toString());
+            msgStatComp.setMessageText(
+                    "The TAF has been sent to the transmission queue.", shell
+                            .getDisplay().getSystemColor(SWT.COLOR_GREEN)
+                            .getRGB());
+        }
+        tabComp.setTafSent(tafsQeueued);
+        shell.dispose();
     }
 }

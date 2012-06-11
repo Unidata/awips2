@@ -1066,10 +1066,6 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         FFMPDataContainer container = ffmpData.get(sourceName);
 
-        if (container == null) {
-            container = new FFMPDataContainer(sourceName);
-            ffmpData.put(sourceName, container);
-        }
         return container;
     }
 
@@ -1188,11 +1184,11 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     .getSiteKey());
         }
 
-        // add current record data
-        for (String huc : ffmpRec.getBasinsMap().keySet()) {
-            fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(), source,
-                    ffmpRec.getBasinData(huc), huc, ffmpRec.getSiteKey());
-        }
+		// add current record data
+		for (String huc : ffmpRec.getBasinsMap().keySet()) {
+			fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(), source,
+					ffmpRec.getBasinData(huc), huc, ffmpRec.getSiteKey());
+		}
 
         fdc.writeDataContainer(sourceSiteDataKey, sharePath, ffmpRec.getWfo());
         fdc.purge(backDate);
@@ -1265,6 +1261,29 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         return basinData;
 
     }
+    
+    /**
+     * Load existing buddy file
+     * 
+     * @param sourceSiteDataKey
+     * @param huc
+     * @param wfo
+     * @return
+     */
+    public boolean checkBuddyFile(String sourceSiteDataKey,
+            String huc, String wfo, Date backDate) {
+
+        File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + "-"
+                + huc + ".bin");
+
+        if (file.exists() && (file.lastModified() > backDate.getTime())) {
+            return true;
+        }
+
+        return false;
+
+    }
+
 
     @Override
     public synchronized void configChanged(MonitorConfigEvent fce) {
