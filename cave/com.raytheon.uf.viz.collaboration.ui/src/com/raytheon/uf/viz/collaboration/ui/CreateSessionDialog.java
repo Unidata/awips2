@@ -76,15 +76,12 @@ public class CreateSessionDialog extends CaveSWTDialog {
 
     private Button inviteUsers;
 
-    private boolean showInvite;
-
     private StyledText inviteMessageTF;
 
     private Label inviteLabel;
 
-    public CreateSessionDialog(Shell parentShell, boolean showInvite) {
+    public CreateSessionDialog(Shell parentShell) {
         super(parentShell);
-        this.showInvite = showInvite;
         setText("Create Session");
     }
 
@@ -122,49 +119,47 @@ public class CreateSessionDialog extends CaveSWTDialog {
         sharedSessionDisplay.setLayoutData(gd);
         sharedSessionDisplay.setText("Create Shared Display Session");
 
-        if (showInvite) {
-            inviteUsers = new Button(body, SWT.CHECK);
-            inviteUsers.setSelection(true);
-            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
-            gd.horizontalSpan = 2;
-            inviteUsers.setLayoutData(gd);
-            inviteUsers.setText("Invite Selected Users");
-            // inviteUsers.setSelection(true);
-            inviteUsers.setVisible(true);
-            // label = new Label(body, SWT.NONE);
-            // label.setText("");
-            // label.setVisible(showInvite);
-            inviteLabel = new Label(body, SWT.NONE);
-            inviteLabel.setText("Message: ");
-            inviteLabel.setToolTipText("Message to send to invited users");
-            inviteMessageTF = new StyledText(body, SWT.BORDER | SWT.MULTI
-                    | SWT.WRAP | SWT.V_SCROLL);
-            inviteMessageTF.setLayoutData(new GridData(GridData.FILL_BOTH));
-            inviteMessageTF.pack();
-            inviteMessageTF.setToolTipText("Message to send to invited users");
-            Point p = inviteMessageTF.getSize();
-            gd = (GridData) inviteMessageTF.getLayoutData();
-            gd.heightHint = p.y * 3;
-            inviteUsers.addSelectionListener(new SelectionListener() {
+        inviteUsers = new Button(body, SWT.CHECK);
+        inviteUsers.setSelection(true);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.horizontalSpan = 2;
+        inviteUsers.setLayoutData(gd);
+        inviteUsers.setText("Invite Selected Users");
+        // inviteUsers.setSelection(true);
+        inviteUsers.setVisible(true);
+        // label = new Label(body, SWT.NONE);
+        // label.setText("");
+        // label.setVisible(showInvite);
+        inviteLabel = new Label(body, SWT.NONE);
+        inviteLabel.setText("Message: ");
+        inviteLabel.setToolTipText("Message to send to invited users");
+        inviteMessageTF = new StyledText(body, SWT.BORDER | SWT.MULTI
+                | SWT.WRAP | SWT.V_SCROLL);
+        inviteMessageTF.setLayoutData(new GridData(GridData.FILL_BOTH));
+        inviteMessageTF.pack();
+        inviteMessageTF.setToolTipText("Message to send to invited users");
+        Point p = inviteMessageTF.getSize();
+        gd = (GridData) inviteMessageTF.getLayoutData();
+        gd.heightHint = p.y * 3;
+        inviteUsers.addSelectionListener(new SelectionListener() {
 
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    boolean selected = ((Button) e.widget).getSelection();
-                    inviteLabel.setVisible(selected);
-                    inviteMessageTF.setVisible(selected);
-                }
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                boolean selected = ((Button) e.widget).getSelection();
+                inviteLabel.setVisible(selected);
+                inviteMessageTF.setVisible(selected);
+            }
 
-                @Override
-                public void widgetDefaultSelected(SelectionEvent e) {
-                    boolean selected = ((Button) e.widget).getSelection();
-                    inviteLabel.setVisible(selected);
-                    inviteMessageTF.setVisible(selected);
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                boolean selected = ((Button) e.widget).getSelection();
+                inviteLabel.setVisible(selected);
+                inviteMessageTF.setVisible(selected);
 
-                }
-            });
-            inviteLabel.setVisible(true);
-            inviteMessageTF.setVisible(true);
-        }
+            }
+        });
+        inviteLabel.setVisible(true);
+        inviteMessageTF.setVisible(true);
         return body;
     }
 
