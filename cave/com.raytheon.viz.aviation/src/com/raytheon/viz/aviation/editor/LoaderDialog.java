@@ -49,8 +49,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.viz.aviation.monitor.TafUtil;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
-import com.raytheon.viz.aviation.utility.TafMessageData;
-import com.raytheon.viz.aviation.utility.TransmissionQueue;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
@@ -509,44 +507,47 @@ public class LoaderDialog extends CaveSWTDialog {
             sb.append(TafUtil.LINE_BREAK);
             sb.append(TafUtil.LINE_BREAK);
             // Always retrieve pending TAF from the queue
-            TafMessageData pendingTaf = TransmissionQueue.getInstance()
-                    .getPendingBySiteId(ident);
+            // TafQueueRecord pendingTaf = TransmissionQueue.getInstance()
+            // .getPendingBySiteId(ident);
+            // TODO get this working with database
+            Object pendingTaf = null;
             if (pendingTaf != null) {
                 // Only ask one time if pending TAF(s) should be removed.
-                if (removePendingTags == false) {
-                    String tafType = "Routine";
-                    String pbbb = pendingTaf.getBBB();
-                    if (pbbb.startsWith("A")) {
-                        tafType = "Amended";
-                    } else if (pbbb.startsWith("C")) {
-                        tafType = "Correctetd";
-                    } else if (pbbb.startsWith("R")) {
-                        tafType = "Delayed";
-                    }
-                    String msg = tafType
-                            + " TAF(s) in pending queue will be removed!\n"
-                            + "Is this what you want to do? If not, press \'No\' and re-check\n"
-                            + "TAF forecast type for editing.";
-                    MessageBox msgBox = new MessageBox(getParent(), SWT.YES
-                            | SWT.NO);
-                    msgBox.setMessage(msg);
-                    msgBox.setText("Pending TAF");
-                    if (SWT.YES == msgBox.open()) {
-                        removePendingTags = true;
-                    } else {
-                        return;
-                    }
-                }
-
-                String text = pendingTaf.getTafText();
-                sb.append(text);
-                TransmissionQueue.getInstance().remove(pendingTaf.getInfo());
-
-                if (i == 0) {
-                    wmoId = pendingTaf.getWmoId();
-                    siteId = pendingTaf.getSiteId();
-                    bbb = pendingTaf.getBBB();
-                }
+                // if (removePendingTags == false) {
+                // String tafType = "Routine";
+                // String pbbb = pendingTaf.getBBB();
+                // if (pbbb.startsWith("A")) {
+                // tafType = "Amended";
+                // } else if (pbbb.startsWith("C")) {
+                // tafType = "Correctetd";
+                // } else if (pbbb.startsWith("R")) {
+                // tafType = "Delayed";
+                // }
+                // String msg = tafType
+                // + " TAF(s) in pending queue will be removed!\n"
+                // +
+                // "Is this what you want to do? If not, press \'No\' and re-check\n"
+                // + "TAF forecast type for editing.";
+                // MessageBox msgBox = new MessageBox(getParent(), SWT.YES
+                // | SWT.NO);
+                // msgBox.setMessage(msg);
+                // msgBox.setText("Pending TAF");
+                // if (SWT.YES == msgBox.open()) {
+                // removePendingTags = true;
+                // } else {
+                // return;
+                // }
+                // }
+                //
+                // String text = pendingTaf.getTafText();
+                // sb.append(text);
+                // TransmissionQueue.getInstance().remove(pendingTaf.getInfo());
+                //
+                // if (i == 0) {
+                // wmoId = pendingTaf.getWmoId();
+                // siteId = pendingTaf.getSiteId();
+                // bbb = pendingTaf.getBBB();
+                // }
             } else {
                 TafRecord taf = null;
                 if (order.equals("template") == false) {
