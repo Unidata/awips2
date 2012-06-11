@@ -95,5 +95,5 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.acars;bundle-version="1.12.117
  com.raytheon.uf.common.dataplugin.airep;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.pirep;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.obs;bundle-version="1.0.0",
- com.raytheon.edex.plugin.tafqueue;bundle-version="1.0.0"
+ com.raytheon.uf.edex.tafqueue;bundle-version="1.0.0"
 
