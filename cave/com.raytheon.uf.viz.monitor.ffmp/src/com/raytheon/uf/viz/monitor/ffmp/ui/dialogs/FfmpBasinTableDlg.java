@@ -95,7 +95,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 30, 2009            lvenable     Initial creation
- * Apr 16, 2012 DR 14511   gzhang		No use GUI thread for Graph data
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -186,9 +186,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private ArrayList<MenuItem> sourceMenuItems = new ArrayList<MenuItem>();
 
     private Date date = null;
-
-    // @SuppressWarnings("unused")
-    // private FFMPGraphData graphData = null;
 
     private BasinTrendDlg basinTrendDlg;
 
@@ -569,6 +566,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             });
             if (sourceMenuItems.contains(guidMenu.getText()) == false) {
                 sourceMenuItems.add(guidMenu);
+                // selects at least one as default
+                ffmpConfig.getFFMPConfigData().setGuidSrc(guidMenu.getText());
+                fireConfigUpdateEvent();
             }
         }
     }
@@ -1186,7 +1186,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         updateTimeDurationLabel(val, split);
         if (dialogInitialized) {
-            fireTimeChangedEvent(val);
+            fireTimeChangedEvent(val, split);
         }
         updateD2DRefresh();
     }
@@ -1314,7 +1314,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         ffmpListeners.remove(fl);
     }
 
-    public void fireTimeChangedEvent(double newTime) {
+    public void fireTimeChangedEvent(double newTime, boolean split) {
 
         FFMPRecord.FIELDS field = FFMPRecord.FIELDS.QPE;
 
@@ -1326,7 +1326,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         }
 
         if (time != newTime) {
-            FFMPTimeChangeEvent ftce = new FFMPTimeChangeEvent(newTime);
+            FFMPTimeChangeEvent ftce = new FFMPTimeChangeEvent(newTime, split);
             Iterator<FFMPListener> iter = ffmpListeners.iterator();
             while (iter.hasNext()) {
                 try {
@@ -1404,7 +1404,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if (!selected) {
             cwas.remove(cwa);
         } else {
-            cwas.add(cwa);
+        	if (!cwas.contains(cwa)) {
+        		cwas.add(cwa);
+        	}
         }
 
         FFMPCWAChangeEvent fcce = new FFMPCWAChangeEvent(cwas);
@@ -1608,19 +1610,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
      */
     private void fireGraphDataEvent(final String pfaf,
             final boolean differentPfaf, final Date ffmpDate) {
-    	if((pfaf==null) || pfaf.isEmpty()){ resetCursor(); return; }
+
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
-        //DR 14511: GUI thread should not be used for Graph Data retrieval
-        FFMPGraphData fgd = null; 
-        try{
-        	fgd = resource.getGraphData(pfaf);
-        }catch (VizException e) { 
-        	shell.setCursor(null); 
-        	statusHandler.handle(Priority.PROBLEM,"Graph Data request failed ", e);
-        }
-        final FFMPGraphData fgd2 = fgd;        
-        if(fgd2 == null) { resetCursor(); return; }
         // This needs to be in sync
         Display.getDefault().asyncExec(new Runnable() {
             @Override
@@ -1632,9 +1624,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                     return;
                 }
                 try {
-                    setGraphData(/*resource.getGraphData(pfaf)*/fgd2, pfaf,
+                    setGraphData(resource.getGraphData(pfaf), pfaf,
                             differentPfaf, ffmpDate);
-                } catch (/*Viz*/Exception e) {
+                } catch (VizException e) {
                     shell.setCursor(null);
                     statusHandler.handle(Priority.PROBLEM,
                             "Graph Data request failed in resource", e);
@@ -1654,20 +1646,20 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         if (!ffmpTable.isDisposed()) {
             this.mainTableData = tData;
-            System.out.println("---" + tData.getTableRows().size());
+            //System.out.println("---" + tData.getTableRows().size());
             ffmpTable.clearTableSelection();
-            long time = System.currentTimeMillis();
+            //long time = System.currentTimeMillis();
             ffmpTable
                     .setCenteredAggregationKey(resource.centeredAggregationKey);
             ffmpTable.setTableData(mainTableData);
-            long time1 = System.currentTimeMillis();
+            //long time1 = System.currentTimeMillis();
 
             resetCursor();
             shell.pack();
             shell.redraw();
 
-            System.out
-                    .println("Time to load Data into table " + (time1 - time));
+            //System.out
+            //        .println("Time to load Data into table " + (time1 - time));
         }
     }
 
@@ -1764,7 +1756,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
          */
         timeDurScale.setTimeDurationAndUpdate(ffmpConfig.getFFMPConfigData()
                 .getTimeFrame());
-        fireTimeChangedEvent(ffmpConfig.getFFMPConfigData().getTimeFrame());
+        fireTimeChangedEvent(ffmpConfig.getFFMPConfigData().getTimeFrame(), false);
 
         /*
          * Layer
@@ -2087,5 +2079,15 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 }
             });
         }
+    }
+    
+    /**
+     * used to blank the group label when channging HUC
+     * while in an aggregate.
+     */
+    public void blankGroupLabel() {
+    	if (groupLbl != null) {
+    		groupLbl.setText("");
+    	}
     }
 }

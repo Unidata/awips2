@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 10, 2009            randerso     Initial creation
+ * Apr 25, 2012       545  randerso     Repurposed the lockKey field as threadId
  * 
  * </pre>
  * 

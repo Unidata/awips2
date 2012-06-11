@@ -8,6 +8,8 @@
 !
 GLEVEL=700!700!700!850!850!30:0!30:0
 GVCORD=PRES!PRES!PRES!PRES!PRES!pdly!pdly
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=relh !tmpc !tmpc  !tmpc !tmpc  !tmpc !tmpc
 TYPE=c/f        ! c

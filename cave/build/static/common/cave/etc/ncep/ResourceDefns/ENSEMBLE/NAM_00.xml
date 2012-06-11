@@ -4,7 +4,7 @@
     <resourceDefnName>NAM_00</resourceDefnName>
     <resourceCategory>ENSEMBLE</resourceCategory>
         <resourceParameters>
-availableModels=NAM;GEFS:01,02,03,04,05,07,09;GFS;RUC80
+availableModels=nam;gefs:01,02,03,04,05,07,09;gfs;ruc80
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

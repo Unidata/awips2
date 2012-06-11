@@ -87,7 +87,6 @@ public class ObStnHourReports {
 		ObReport report = null; 
 		if ( stnReports.isEmpty() ) {  // empty report for empty/default row in station table 
 			report = new ObReport();
-			report.init();
 		} else {
 			report = stnReports.get(stnReports.lastKey());
 		}
