@@ -24,16 +24,18 @@ import java.io.File;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ILayoutContainer;
 import org.eclipse.ui.internal.PartPane;
-import org.eclipse.ui.internal.PartPlaceholder;
 import org.eclipse.ui.internal.ViewPane;
 import org.eclipse.ui.internal.ViewSite;
 import org.eclipse.ui.internal.WorkbenchPage;
@@ -91,29 +93,52 @@ public abstract class CaveFloatingView extends ViewPart {
      */
     protected void createToolbarButton() {
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
-        Action floatAction = new Action("Float", SWT.TOGGLE) {
+        final Action floatAction = new Action("Float", SWT.TOGGLE) {
             @Override
             public void run() {
                 // should only run when the user is currently attached to cave
                 // (or detached, but not a floating dialog)
                 this.setToolTipText("Dock");
+                setChecked(true);
                 detached = true;
                 WorkbenchPage page = (WorkbenchPage) PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage();
                 bounds = ((ViewSite) ((ViewPart) getPart()).getViewSite())
                         .getPane().getBounds();
+
                 container = ((ViewSite) ((ViewPart) getPart()).getViewSite())
                         .getPane().getStack();
-                container.add(new PartPlaceholder("temp "));
                 window = new CaveDetachedWindow(page);
                 window.create();
                 window.open();
 
+                bounds.x += PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell().getMonitor()
+                        .getBounds().x;
                 ViewPane pane = (ViewPane) ((ViewSite) getPart().getViewSite())
                         .getPane();
                 container = pane.getContainer();
                 window.drop(pane);
                 window.getShell().setBounds(bounds);
+                window.getShell().addShellListener(new ShellAdapter() {
+                    @Override
+                    public void shellDeactivated(ShellEvent e) {
+                        detached = false;
+                        setChecked(false);
+                        setToolTipText("Float");
+                    }
+                });
+                window.getShell().addListener(SWT.Modify, new Listener() {
+                    @Override
+                    public void handleEvent(Event event) {
+                        if (window.getChildren().length == 0) {
+                            window.getShell().setVisible(false);
+                            setChecked(false);
+                            setToolTipText("Float");
+                            detached = false;
+                        }
+                    }
+                });
             };
 
             @Override
@@ -122,7 +147,8 @@ public abstract class CaveFloatingView extends ViewPart {
                     run();
                     return;
                 }
-                this.setToolTipText("Float");
+                setToolTipText("Float");
+                setChecked(false);
                 detached = false;
                 WorkbenchPage page = (WorkbenchPage) PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage();
@@ -131,6 +157,7 @@ public abstract class CaveFloatingView extends ViewPart {
                 Point point = new Point(bounds.x + bounds.width / 2, bounds.y
                         + bounds.height / 2);
                 window.getShell().setVisible(false);
+                window = null;
                 DragUtil.dragTo(Display.getCurrent(), layoutPart, point, bounds);
             }
         };
