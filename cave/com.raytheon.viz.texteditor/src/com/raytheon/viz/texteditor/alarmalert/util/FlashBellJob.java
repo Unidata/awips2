@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.widgets.Button;
 
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.texteditor.alarmalert.dialogs.AlarmAlertBell;
@@ -53,7 +52,7 @@ public class FlashBellJob extends Job {
     private boolean disposed = false;
     
     /**
-     * 
+     * Set up the job and schedule the first run.
      * @param name
      * @param bell
      * @param delay
@@ -77,11 +76,9 @@ public class FlashBellJob extends Job {
             VizApp.runSync(new Runnable() {
                 @Override
                 public void run() {
-                    System.out.println("Flashing bell");
                     bell.flash();
                 }
             });
-            System.out.println("Scheduling bell");
             schedule(delay);
         } else {
             dispose();
@@ -93,7 +90,6 @@ public class FlashBellJob extends Job {
      * Cancel this job and release its reference to the DataManager
      */
     public void dispose() {
-        System.out.println("Disposing bell job");
         disposed = true;
         bell = null;
         this.cancel();
