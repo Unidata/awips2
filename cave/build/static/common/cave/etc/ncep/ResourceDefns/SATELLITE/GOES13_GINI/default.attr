@@ -2,6 +2,7 @@ legend_color=RGB {200, 200, 200}
 colorMapName=lingray
 colorBar=@dfltMcidasColorBar.xml
 imageType=Imager 11 micron IR
-displayUnitStr=C
-!Should this be BRIT?
-
+displayUnitStr=IRPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

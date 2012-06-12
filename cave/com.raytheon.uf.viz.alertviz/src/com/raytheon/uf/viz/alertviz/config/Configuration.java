@@ -47,6 +47,9 @@ import com.raytheon.uf.viz.alertviz.config.TrayConfiguration.TrayMode;
  * ------------ ---------- ----------- --------------------------
  * Sep 9, 2008  1433       chammack    Initial creation
  * May 3, 2011  9067       cjeanbap    Add isMonitorLayoutChanged() method.
+ * Apr 27 2012  13744	   Xiaochuan   Update isMonitorLayoutChanged() to compare
+ * 									   source size in Previous and current.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -409,57 +412,70 @@ public class Configuration implements ISerializableObject {
      * @param configData the current save Configuration Data.
      * @return boolean, true if either Monitor and/or Layout was changed otherwise false.
      */
-    public boolean isMonitorLayoutChanged(Configuration configData) {
-        boolean modified = false;
-        
-        TrayMode prevLayoutMode = configData.getGlobalConfiguration().getMode();
-        if (!prevLayoutMode.equals(this.getGlobalConfiguration().getMode())) {
-            modified = true;            
-        }
-             
-        Map<String, Category> prevCategoryMap = configData.getCategories();
-        for (Iterator<String> categories = this.getCategories().keySet().iterator(); categories.hasNext() && !modified;) {
-            String categoryName = categories.next();           
-            Category prevCategory = prevCategoryMap.get(categoryName);
-            Category newCategory = this.getCategories().get(categoryName);
-            if (prevCategory != null && newCategory == null) {
-                modified = true;
-            } else if (prevCategory == null && newCategory != null) {
-                modified = true;
-            } else if (prevCategory != null && newCategory != null) {
-                if (prevCategory.getTextBox() != newCategory.getTextBox()) {
-                    modified = true;
-                }
-            }
-        }
-                
-        Map<String, Source> prevSources = configData.getSources();
-        for (Iterator<String> sources = this.getSources().keySet().iterator(); sources.hasNext() && !modified; ) {
-            String sourceName = sources.next();
-            Source prevSource = prevSources.get(sourceName);
-            Source newSource = this.getSources().get(sourceName);
-            if (prevSource != null && newSource == null) {
-                modified = true;
-            } 
-            
-           if (prevSource != null && newSource != null) {
-               MonitorMetadata newMonitorMetadata = newSource.getConfigurationMonitor().getMonitorMetadata();
-               MonitorMetadata prevMonitorMetadata = prevSource.getConfigurationMonitor().getMonitorMetadata();
-               
-               if (newMonitorMetadata != null && prevMonitorMetadata == null) {
-                   modified = true;
-               } else if ((newMonitorMetadata.getOmit()) && (prevMonitorMetadata.getOmit() == false)) {
-                   modified = true;  
-               } if ((newMonitorMetadata.getOmit() == false) && (prevMonitorMetadata.getOmit() == true)) {
-                   modified = true;
-               } else if (newMonitorMetadata.getImageFile() != null && prevMonitorMetadata.getImageFile() == null) {
-                   modified = true;
-               } else if (newMonitorMetadata.getImageFile() == null && prevMonitorMetadata.getImageFile() != null) {
-                   modified = true;
-               }
-           }
-        }
-        
-        return modified;
-    }
+	public boolean isMonitorLayoutChanged(Configuration configData) {
+		boolean modified = false;
+
+		TrayMode prevLayoutMode = configData.getGlobalConfiguration().getMode();
+		if (!prevLayoutMode.equals(this.getGlobalConfiguration().getMode())) {
+			modified = true;
+		}
+
+		Map<String, Category> prevCategoryMap = configData.getCategories();
+		for (Iterator<String> categories = this.getCategories().keySet()
+				.iterator(); categories.hasNext() && !modified;) {
+			String categoryName = categories.next();
+			Category prevCategory = prevCategoryMap.get(categoryName);
+			Category newCategory = this.getCategories().get(categoryName);
+			if (prevCategory != null && newCategory == null) {
+				modified = true;
+			} else if (prevCategory == null && newCategory != null) {
+				modified = true;
+			} else if (prevCategory != null && newCategory != null) {
+				if (prevCategory.getTextBox() != newCategory.getTextBox()) {
+					modified = true;
+				}
+			}
+		}
+
+		Map<String, Source> prevSources = configData.getSources();
+
+		if (prevSources.size() != this.getSources().size()) {
+			modified = true;
+		} else {
+			for (Iterator<String> sources = this.getSources().keySet()
+					.iterator(); sources.hasNext() && !modified;) {
+				String sourceName = sources.next();
+				Source prevSource = prevSources.get(sourceName);
+				Source newSource = this.getSources().get(sourceName);
+				if (prevSource == null) {
+					modified = true;
+				} else if (prevSource != null && newSource != null) {
+					MonitorMetadata newMonitorMetadata = newSource
+							.getConfigurationMonitor().getMonitorMetadata();
+					MonitorMetadata prevMonitorMetadata = prevSource
+							.getConfigurationMonitor().getMonitorMetadata();
+
+					if (newMonitorMetadata != null
+							&& prevMonitorMetadata == null) {
+						modified = true;
+					} else if ((newMonitorMetadata.getOmit())
+							&& (prevMonitorMetadata.getOmit() == false)) {
+						modified = true;
+					}
+					if ((newMonitorMetadata.getOmit() == false)
+							&& (prevMonitorMetadata.getOmit() == true)) {
+						modified = true;
+					} else if (newMonitorMetadata.getImageFile() != null
+							&& prevMonitorMetadata.getImageFile() == null) {
+						modified = true;
+					} else if (newMonitorMetadata.getImageFile() == null
+							&& prevMonitorMetadata.getImageFile() != null) {
+						modified = true;
+					}
+				}
+			}
+		}
+
+		return modified;
+	}
 }

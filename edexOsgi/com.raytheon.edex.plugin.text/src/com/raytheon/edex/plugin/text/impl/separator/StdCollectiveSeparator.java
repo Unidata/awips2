@@ -20,6 +20,7 @@
 package com.raytheon.edex.plugin.text.impl.separator;
 
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,6 +50,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 public class StdCollectiveSeparator extends WMOMessageSeparator {
     private final Log logger = LogFactory.getLog(getClass());
+
+    private static final Pattern P_TAF = Pattern.compile("(TAF +AMD)|(TAF +COR)|(TAF...[\r\n])|(TAF ?)");
 
     private StringBuilder fouHeader = new StringBuilder();
 
@@ -91,7 +94,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                 productId = new AFOSProductId("CCC", "MTR", "XXX");
             } else if ("FR".equals(tt)) {
                 productId = new AFOSProductId("CCC", "TWB", "XXX");
-            } else if ("FT".equals(tt)) {
+            } else if (("FT".equals(tt))||("FC".equals(tt))) {
                 productId = new AFOSProductId("CCC", "TAF", "XXX");
             } else {
                 productId = NOAFOSPIL;
@@ -123,6 +126,19 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
         if ((rawMsg.indexOf(METAR) == 0) || (rawMsg.indexOf(SPECI) == 0)) {
             productType = (rawMsg.indexOf(METAR) == 0 ? METAR : SPECI);
+        }
+
+        StringBuilder sb = null;
+        if ("TAF".equals(afos_id.getNnn())) {
+            sb = new StringBuilder(rawMsg);
+            Matcher m = P_TAF.matcher(sb);
+            while (m.find()) {
+                sb.delete(m.start(), m.end());
+                m = P_TAF.matcher(sb);
+            }
+            sb.insert(0, "\n");
+            sb.insert(0, "TAFXXX\nTAF");
+            rawMsg = sb.toString();
         }
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
         if (nnnxxxMatcher.find()) {
@@ -317,59 +333,43 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
             reportType = blank;
         } else if (blank.startsWith("TAF")) {
-            // Lines commented out for DR 6251 -- modifed decoding of TAF
-            // messages
-            // tmp = strpbrk (tmp, CSPL);
-            // tmp++;
-            // blank = tmp;
-
-            tmp = new StringBuilder(buffer.toString());
-
-            // Check the first lines of the TAF message to see if they contain
-            // only strings such as "TAF" or "TAFxxx" or "TAF <bbb>". If so,
-            // skip these to get to the data. (Revised for DR 6251)
+            // Delete "TAF" that starts the data
+            safeStrpbrk(buffer, rnl);
+            // then any remaining leading carriage control.
             while (buffer.length() > 0) {
-                getTextSegment(buffer, tmp, rnl);
-                if (tmp.length() >= MIN_COLL_DATA_LEN) {
+                char c = buffer.charAt(0);
+                if ((c == '\n') || (c == '\r')) {
+                    buffer.deleteCharAt(0);
+                } else {
                     break;
                 }
-
-                if (safeStrpbrk(buffer, nl)) {
-                    buffer.deleteCharAt(0);
-                }
-            }
-
-            // If the data begins with "TAF", skip it also (DR 6251) in order to
-            // get to the first product.
-            if (buffer.toString().startsWith("TAF")) {
-                if (safeStrpbrk(buffer, CSPC))
-                    buffer.deleteCharAt(0);
             }
 
             // The next test on blank uses at most three characters
             blank = buffer.substring(0, buffer.length() < 3 ? buffer.length()
                     : 3);
         } else if (pirFlag) {
-            if(buffer != null) {
-                for(int i = 0;i < buffer.length();i++) {
-                    if(buffer.charAt(i) == '\r') {
-                        buffer.setCharAt(i,'\n');
+            if (buffer != null) {
+                for (int i = 0; i < buffer.length(); i++) {
+                    if (buffer.charAt(i) == '\r') {
+                        buffer.setCharAt(i, '\n');
                     }
                 }
-                
-                // If the pirflag is set, skip the first line of the message, as it
+
+                // If the pirflag is set, skip the first line of the message, as
+                // it
                 // is not an id or part of the first collective.
                 // safeStrpbrk(buffer, CSPL);
-                
-                while(buffer.length() > 0) {
+
+                while (buffer.length() > 0) {
                     char c = buffer.charAt(0);
-                    if((c == ' ') || (c == '\n')) {
+                    if ((c == ' ') || (c == '\n')) {
                         buffer.deleteCharAt(0);
                     } else {
                         break;
                     }
                 }
-                
+
             }
             pirFlag = false;
         }

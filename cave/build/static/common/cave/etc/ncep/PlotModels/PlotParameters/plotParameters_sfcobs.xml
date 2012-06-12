@@ -117,7 +117,7 @@
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="cloud_chars.txt" />
 -->
-<PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" plotMode="table" symbolFont="SpecialSymbolFont" dbParamName="totCloudAmount" prioritySelectTable="cloud_select.txt" plotLookupTable="cloud_chars.txt" />	   
+<PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" plotMode="table" symbolFont="WxSymbolFont" dbParamName="totCloudAmount" prioritySelectTable="cloud_select.txt" plotLookupTable="cloud_chars.txt" />	   
 
  <PlotParameterDefn  plotParamName="BRGK" metParamName="WindDirection,WindGust" 
                      plotMode="barb" symbolFont="WindSymbolFont" 
@@ -185,7 +185,7 @@
     <PlotParameterDefn  plotParamName="HOS2" metParamName="SecondarySwellWaveHeight"    plotMode="text" dbParamName="secondarySwellWaveHeight" plotUnit="m" plotFormat="%.2f"/>
     <PlotParameterDefn  plotParamName="POS2" metParamName="SecondarySwellWavePeriod"    plotMode="text" dbParamName="secondarySwellWavePeriod" plotUnit="s"/>    
     <PlotParameterDefn  plotParamName="WHGT" metParamName="WaveHeight"    plotMode="text" dbParamName="waveHeight" plotUnit="m"  plotFormat="%.2f" />
-    <PlotParameterDefn  plotParamName="WHFT" metParamName="WaveHeight"    plotMode="text" dbParamName="waveHeight" plotUnit="ft" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="WHFT" metParamName="WaveHeight"    plotMode="text" dbParamName="waveHeight" plotUnit="ft" plotFormat="%3.0f" />
     <PlotParameterDefn  plotParamName="WPER" metParamName="WavePeriod"    plotMode="text" dbParamName="wavePeriod" plotUnit="s"/>
 
     

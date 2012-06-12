@@ -169,7 +169,8 @@ def buildWidgetList(pythonWidgetList):
     
     for widget in pythonWidgetList:
         
-        res = None
+        res = 1.0   # Default resolution
+        prec = 3    # Default precision
         valueList = []
         
         # unpack the tuple
@@ -179,22 +180,17 @@ def buildWidgetList(pythonWidgetList):
             name,defaultValue,entType,valueList = widget 
         if len(widget) == 5:
             name,defaultValue,entType,valueList,res = widget
-        
+        if len(widget) == 6:
+            name,defaultValue,entType,valueList,res,prec = widget
         # Handle possibility of (label, variable) tuple
         if type(name) is types.TupleType:
             desc = name[0]
         else:
             desc = name
                     
-        w = FieldDefinition()
-        w.setName(JUtil.pyValToJavaObj(name))
-        w.setDescription(desc)
-        w.setType(FieldType.convertPythonType(entType))
-        w.setDefaultValue(JUtil.pyValToJavaObj(defaultValue))
-        w.setValueList(JUtil.pyValToJavaObj(valueList))
-        if res is not None:
-            w.setResolution(float(res))
-        
+        w = FieldDefinition(JUtil.pyValToJavaObj(name),desc,FieldType.convertPythonType(entType),
+                            JUtil.pyValToJavaObj(defaultValue),JUtil.pyValToJavaObj(valueList),
+                            float(res),int(prec))
         widgetList.add(w)
         
     

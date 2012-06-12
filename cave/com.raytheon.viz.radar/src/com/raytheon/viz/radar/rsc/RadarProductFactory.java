@@ -28,8 +28,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.radar.Activator;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarDMDInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarDefaultInterrogator;
@@ -38,7 +36,6 @@ import com.raytheon.viz.radar.interrogators.RadarGraphicInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarPrecipInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarRadialInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarRasterInterrogator;
-import com.raytheon.viz.radar.interrogators.RadarVILInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarVelocityInterrogator;
 import com.raytheon.viz.radar.interrogators.RadarXsectInterrogator;
 import com.raytheon.viz.radar.rsc.graphic.RadarGraphicsResource;
@@ -68,7 +65,8 @@ import com.raytheon.viz.radar.ui.xy.RadarXsectXYResource;
  */
 
 public class RadarProductFactory {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(RadarProductFactory.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarProductFactory.class);
 
     private static final List<Integer> velocities = Arrays.asList(183, 182,
             154, 99, 56, 55, 27, 26, 25, 24, 23, 22);
@@ -86,8 +84,6 @@ public class RadarProductFactory {
             interrogator = new RadarXsectInterrogator();
         } else if (precips.contains(productCode)) {
             interrogator = new RadarPrecipInterrogator();
-        } else if (productCode == 134) {
-            interrogator = new RadarVILInterrogator();
         } else if (productCode == 135) {
             interrogator = new RadarEETInterrogator();
         } else if ("Radial".equals(format)) {
@@ -142,8 +138,8 @@ public class RadarProductFactory {
                         interrogator);
             }
         } else if ("Text".equals(format)) {
-            statusHandler.handle(Priority.EVENTA, format
-                            + " product #" + productCode);
+            statusHandler.handle(Priority.EVENTA, format + " product #"
+                    + productCode);
         } else {
             resource = new AbstractRadarResource<MapDescriptor>(rrd, loadProps,
                     interrogator);

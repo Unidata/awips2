@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.jobs.IRequestCompleteListener;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
@@ -60,6 +61,7 @@ import com.raytheon.viz.aviation.xml.MonitorCfg;
  * Oct  6, 2010 7229       rferrel      Update to Metar/Taf's set time methods.
  * Nov  4, 2010 6866       rferrel      Impact statements no longer malformed.
  * May 13, 2011 8611       rferrel      Added type to help determine blink state.
+ * Apr 30, 2012 14717      zhao         Indicators turn gray when Metar is outdated
  * 
  * </pre>
  * 
@@ -68,7 +70,16 @@ import com.raytheon.viz.aviation.xml.MonitorCfg;
  */
 public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
 
-    /**
+	/**
+	 * For DR14717: 
+	 * check if Metar is outdated
+	 * and turn indicator labels gray when Metar is outdated
+	 */
+	private static long latestMetarTime = -1; 
+	private final int GRAY_COLOR_SEVERITY = 1;
+	private boolean GRAY_LABEL = false;
+
+	/**
      * False while monitor is running a query otherwise true.
      */
     private final AtomicBoolean requestCompleted = new AtomicBoolean(true);
@@ -389,6 +400,11 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
     @SuppressWarnings("unchecked")
     @Override
     public void requestComplete(Map<?, ?> result) {
+    	/**
+    	 * DR14717: Outdated Metar should turn gray
+    	 */
+    	String thisMonitor = this.getMonitorClassName();
+    	
         if (!parent.isDisposed()) {
             Object obj = result.get("fatal");
             if (obj != null) {
@@ -409,6 +425,19 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                     alertMap.clear();
                 }
 
+                /**
+                 * DR14717: for checking if Metar is outdated. 
+                 */
+                if ( thisMonitor.equals("MetarMonitor") ) {
+                	Map<?, ?> mtrdcdMap = (Map<?, ?>) statusMap.get("dcd");
+                	if ( mtrdcdMap != null ) {
+                		Map<?, ?> mtrItimeMap = (Map<?, ?>) mtrdcdMap.get("itime");
+                		latestMetarTime = ((Float) mtrItimeMap.get("value")).longValue() * 1000;
+                	}
+                }
+                
+                long currentTime = SimulatedTime.getSystemTime().getTime().getTime();
+                
                 for (Object key : keys) {
                     Label label = labelMap.get(key);
                     if (label != null && !label.isDisposed()) {
@@ -417,7 +446,42 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                         if (severity > maxSeverity) {
                             maxSeverity = severity;
                         }
-                        label.setBackground(colors[severity]);
+                        
+                        String msg = (String) valueMap.get("msg");
+                        
+                        /**
+                         * DR14717: Metar monitor indicators should turn gray when Metar is outdated
+                         */
+                        if ( latestMetarTime > 0 ) {
+                        	if ( ( currentTime > ( latestMetarTime + TafSiteComp.METAR_TIMEOUT_4HR ) )
+                        			&& ( thisMonitor.equals("MetarMonitor") || thisMonitor.equals("PersistMonitor") ) ) {
+                        		/**
+                        		 * both Current observation monitoring indicators 
+                        		 * and persistence indicators should turn gray
+                        		 */
+                        		GRAY_LABEL = true;
+                        		msg = "METAR outdated";
+                        	} else if ( ( currentTime > ( latestMetarTime + TafSiteComp.METAR_TIMEOUT_2HR ) )  
+                        			&& thisMonitor.equals("PersistMonitor") ) {
+                        		/**
+                        		 *  Persistence indicators should turn gray
+                        		 */
+                        		GRAY_LABEL = true;
+                        		msg = "METAR outdated for persistence monitoring";
+                        	}
+                        }
+                        
+                        if ( ( latestMetarTime < 0 ) && thisMonitor.equals("PersistMonitor") ) {
+                        	parentSiteComp.setPersistMonitorProcessedFirst(true);
+                        }
+                        
+                        if ( GRAY_LABEL ) {
+                        	label.setBackground(colors[GRAY_COLOR_SEVERITY]);
+                        	GRAY_LABEL = false; 
+                        } else {
+                        	label.setBackground(colors[severity]);
+                        }
+                        
                         String toolTip = null;
                         String taf = (String) tafMap.get("text");
                         Object text = statusMap.get("text");
@@ -428,7 +492,6 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                             }
                         }
 
-                        String msg = (String) valueMap.get("msg");
                         toolTip = toolTipFormat(taf, text, msg,
                                 impactPlacement.toLowerCase());
 
@@ -567,4 +630,17 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
         return cfg.getClassName();
     }
 
+    /**
+     * for DR14717:
+     */
+    public Map<String, Label> getLabelMap() {
+    	return labelMap;
+    }
+    
+    /**
+     * for DR14717:
+     */
+    public Color getGraySeverityColor() {
+    	return getSeverityColors()[GRAY_COLOR_SEVERITY];
+    }
 }

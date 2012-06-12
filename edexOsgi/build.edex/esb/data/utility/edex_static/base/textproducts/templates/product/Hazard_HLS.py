@@ -5167,17 +5167,16 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _surge_Watch_Impact_stmt(self, info, segment):
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
-        if info.surgeHtPlusTide  > water_dict.get("Extreme", 8):
+        if info.surgeHtPlusTide  > water_dict.get("Extreme", 7):
             damage="WIDESPREAD MAJOR"
             
-        elif info.surgeHtPlusTide > water_dict.get("High", 6):
+        elif info.surgeHtPlusTide > water_dict.get("High", 5):
             damage="AREAS OF MAJOR"
             
-        elif info.surgeHtPlusTide  > water_dict.get("Moderate", 4):
+        elif info.surgeHtPlusTide  > water_dict.get("Moderate", 3):
             damage="AREAS OF MODERATE"
             
-        elif info.surgeHtPlusTide  > water_dict.get("Low", 2) or \
-             info.surgeHtPlusTide  > water_dict.get("VeryLow", 1):
+        elif info.surgeHtPlusTide  > water_dict.get("Low", 1):
             damage="AREAS OF MINOR"
         else:
             damage = None
@@ -5190,17 +5189,16 @@ READINESS ACTIONS AS RECOMMENDED."""),
     def _surge_Impact_stmt(self, info, segment):
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
-        if info.surgeHtPlusTide  > water_dict.get("Extreme", 8):
+        if info.surgeHtPlusTide  > water_dict.get("Extreme", 7):
             damage= self._totalWaterLevel_Extreme_stmt(info, segment)
             
-        elif info.surgeHtPlusTide > water_dict.get("High", 6):
+        elif info.surgeHtPlusTide > water_dict.get("High", 5):
             damage= self._totalWaterLevel_High_stmt(info, segment)
             
-        elif info.surgeHtPlusTide  > water_dict.get("Moderate", 4):
+        elif info.surgeHtPlusTide  > water_dict.get("Moderate", 3):
             damage= self._totalWaterLevel_Moderate_stmt(info, segment)
             
-        elif info.surgeHtPlusTide  > water_dict.get("Low", 2) or \
-             info.surgeHtPlusTide  > water_dict.get("VeryLow", 1):
+        elif info.surgeHtPlusTide  > water_dict.get("Low", 1):
             damage= self._totalWaterLevel_Low_stmt(info, segment)
         else:
             damage ="MINOR COASTAL FLOOD DAMAGE"
@@ -5211,18 +5209,16 @@ READINESS ACTIONS AS RECOMMENDED."""),
         # Enter customized values for land and marine zones
         return {
             "zone1": {
-                "Extreme": 8,
-                "High": 6,
-                "Moderate": 4,
-                "Low": 2,
-                "VeryLow": 1,
+                "Extreme": 7,
+                "High": 5,
+                "Moderate": 3,
+                "Low": 1,
                 },            
             "default": {
-                "Extreme": 8,
-                "High": 6,
-                "Moderate": 4,
-                "Low": 2,
-                "VeryLow": 1,
+                "Extreme": 7,
+                "High": 5,
+                "Moderate": 3,
+                "Low": 1,
                 },
             }
         
@@ -5344,26 +5340,6 @@ DISPLACED.
 MODERATE BEACH EROSION WILL OCCUR...WHICH MAY BECOME SUBSTANTIAL
 IF CONDITIONS EXTEND THROUGH MULTIPLE HIGH TIDES. SEVERAL ROADS
 IN FLOOD-PRONE AREAS WILL LIKELY BE CLOSED.
-"""
-        return t
-
-    def _totalWaterLevel_VeryLow_stmt(self, info, segment):
-        t = ""
-        t+= """
-THERE IS A LIMITED THREAT TO LIFE AND PROPERTY FROM COASTAL
-FLOODING...POTENTIALLY HAVING A VERY LOW BUT NOTABLE IMPACT. THE
-CONCERN IS FOR THE CHANCE OF LOCALIZED MINOR COASTAL FLOODING TO
-OCCUR WITHIN THE SURGE ZONE...RESULTING IN SHALLOW INUNDATION IN
-SPOTS. IF REALIZED...PEOPLE WITHIN THE THREATENED AREAS WHO
-FAILED TO ACT ACCORDING TO THEIR PERSONAL DISASTER PLAN WILL HAVE
-PLACED THEMSELVES AT SOME MEASURE OF RISK. 
-
-A FEW HOMES AND BUSINESSES ALONG THE SHORELINE...OR IN FLOOD-
-PRONE AREAS...MAY EXPERIENCE SOME WATER ENTERING INSIDE...
-ESPECIALLY IN PLACES SUBJECT TO TIDAL RUN-UP OR OVERWASH...AND
-PARTICULARLY DURING HIGH TIDE. ENHANCED WAVE ACTION IN EXPOSED
-AREAS MAY CAUSE SOME DAMAGE TO PIERS...DOCKS...AND MARINAS. A FEW
-ROADS IN FLOOD-PRONE AREAS MAY BE TEMPORARILY CLOSED.
 """
         return t
 
@@ -7197,7 +7173,4 @@ class HLS_Scenario(HLS_Dialog):
        # close window and set status "Ok"
        self._status = "Ok"
        self.ok()
-       
-
     
-

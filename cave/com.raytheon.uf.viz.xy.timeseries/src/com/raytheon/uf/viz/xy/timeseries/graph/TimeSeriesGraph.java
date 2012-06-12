@@ -77,10 +77,6 @@ public class TimeSeriesGraph extends AbstractGraph {
         xLabels = new ArrayList<IGraphLabel<DataTime>>();
     }
 
-    public double getVerticleMiddle() {
-        return xAxes[5].getCoordinates()[0].y;
-    }
-
     @Override
     protected void createAxes() {
         // Create the Axis if they do not exist

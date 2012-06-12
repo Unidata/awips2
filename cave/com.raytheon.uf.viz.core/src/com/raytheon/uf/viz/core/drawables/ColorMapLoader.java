@@ -35,6 +35,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -133,6 +134,27 @@ public class ColorMapLoader {
                         .getStaticLocalizationFile(
                                 "colormaps" + IPathManager.SEPARATOR + name
                                         + ".cmap");
+                if (f == null || !f.exists()) {
+                    // If the file was not found check to see if the
+                    // localization context is encoded as part of the path.
+                    String[] split = name.split(IPathManager.SEPARATOR, 3);
+                    for (LocalizationLevel level : LocalizationLevel.values()) {
+                        if (level.name().equals(split[0])) {
+                            LocalizationContext context = new LocalizationContext(
+                                    LocalizationType.CAVE_STATIC, level,
+                                    split[1]);
+                            f = PathManagerFactory.getPathManager()
+                                    .getLocalizationFile(
+                                            context,
+                                            "colormaps"
+                                                    + IPathManager.SEPARATOR
+                                                    + split[2] + ".cmap");
+                            if (f == null) {
+                                return loadColorMap(split[2]);
+                            }
+                        }
+                    }
+                }
                 cm = loadColorMap(name, f);
                 if (cm != null) {
                     cmo = new IColorMapObserver(name, cm, f);
@@ -179,8 +201,17 @@ public class ColorMapLoader {
     }
 
     public static String shortenName(LocalizationFile file) {
-        return file.getName().replace("colormaps" + IPathManager.SEPARATOR, "")
+        String name = file.getName()
+                .replace("colormaps" + IPathManager.SEPARATOR, "")
                 .replace(".cmap", "");
+        if (!file.getContext().getLocalizationLevel()
+                .equals(LocalizationLevel.BASE)) {
+            String level = file.getContext().getLocalizationLevel().name();
+            String context = file.getContext().getContextName();
+            name = level + PathManager.SEPARATOR + context
+                    + PathManager.SEPARATOR + name;
+        }
+        return name;
     }
 
     /**

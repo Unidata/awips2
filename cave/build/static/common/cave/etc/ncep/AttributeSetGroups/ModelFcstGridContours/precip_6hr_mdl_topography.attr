@@ -7,6 +7,8 @@
 !
 GLEVEL=0                                                                       
 GVCORD=none                                                                    
+SKIP=
+FILTER=y
 SCALE=0                                                                       
 GDPFUN=quo(p06m);25.4)//p06!p06!sm5s(pmsl)!hght
 TYPE=c/f!c!c!c
