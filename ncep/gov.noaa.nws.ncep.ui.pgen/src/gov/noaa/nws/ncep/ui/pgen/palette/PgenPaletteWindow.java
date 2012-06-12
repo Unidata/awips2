@@ -76,7 +76,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.filter.CategoryFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
 import gov.noaa.nws.ncep.ui.pgen.palette.Activator;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductDialogStarter;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductDialogStarter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;

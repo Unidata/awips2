@@ -37,12 +37,15 @@ import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeneralDerivedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.geospatial.TransformFactory;
 import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -124,9 +127,9 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     /** The frame coordination object */
     protected IFrameCoordinator frameCoordinator;
 
-    private MathTransform worldToPixel;
+    protected MathTransform worldToPixel;
 
-    private MathTransform pixelToWorld;
+    protected MathTransform pixelToWorld;
 
     /** The spatial grid for the descriptor */
     private GeneralGridGeometry gridGeometry;
@@ -682,17 +685,46 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     }
 
     private void init() {
-        GeneralGridGeometry gridGeometry = getGridGeometry();
         try {
-            worldToPixel = TransformFactory.worldToGrid(gridGeometry,
-                    PixelInCell.CELL_CENTER);
-            if (worldToPixel != null) {
-                pixelToWorld = worldToPixel.inverse();
+            setupTransforms();
+
+            // reproject all resources contained in this descriptor
+            ArrayList<ResourcePair> unProjectable = new ArrayList<ResourcePair>();
+            for (ResourcePair rp : this.resourceList) {
+                AbstractVizResource<?, ?> rsc = rp.getResource();
+                if (rsc == null) {
+                    continue;
+                }
+                try {
+                    rsc.project(gridGeometry.getCoordinateReferenceSystem());
+                } catch (VizException e) {
+                    // TODO: what to do here?
+                    unProjectable.add(rp);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error projecting resource :: " + rsc.getName(), e);
+                }
             }
+            this.resourceList.removeAll(unProjectable);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error setting up Math Transforms,"
                             + " this descriptor may not work properly", e);
+        }
+    }
+
+    protected void setupTransforms() throws Exception {
+        GeneralGridGeometry gridGeometry = getGridGeometry();
+        MathTransform worldToCRS = getWorldToCRSTransform(gridGeometry);
+        if (worldToCRS != null) {
+            MathTransform crsToPixel = gridGeometry.getGridToCRS(
+                    PixelInCell.CELL_CENTER).inverse();
+            worldToPixel = new DefaultMathTransformFactory()
+                    .createConcatenatedTransform(worldToCRS, crsToPixel);
+            pixelToWorld = worldToPixel.inverse();
+
+        } else {
+            pixelToWorld = null;
+            worldToPixel = null;
         }
     }
 
@@ -832,4 +864,28 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                         false), envelope);
     }
 
+    /**
+     * Get the world to CRS transform used for {@link #worldToPixel(double[])}
+     * and {@link #pixelToWorld(double[])}
+     * 
+     * @param gridGeometry
+     * @return The world to gridGeometry CRS transform or null if there is none
+     */
+    public static MathTransform getWorldToCRSTransform(
+            GeneralGridGeometry gridGeometry) {
+        CoordinateReferenceSystem crs = gridGeometry.getEnvelope()
+                .getCoordinateReferenceSystem();
+        if (crs instanceof GeneralDerivedCRS) {
+            GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
+            CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
+            try {
+                return CRS.findMathTransform(worldCRS, crs);
+            } catch (FactoryException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error setting up Math Transforms,"
+                                + " this descriptor may not work properly", e);
+            }
+        }
+        return null;
+    }
 }

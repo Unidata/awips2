@@ -35,6 +35,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009 2260       mpduff     Initial creation
+ * Apr 10, 2012 14499      wkwock     correct algorithm in countNewlines
  * 
  * </pre>
  * 
@@ -88,15 +89,19 @@ public abstract class TextReport {
      *      The number of lines in the String
      */
     protected int countNewlines(String s) {
-        String[] lines = null;
-
+        int newLineCount = 0;
         if ((s != null) && (s.length() > 0)) {
-            lines = s.split("\\n");
+            byte bStr[]=s.getBytes();
+            for (byte b : bStr) {
+            	if (b=='\n') {
+            		newLineCount++;
+            	}
+            }
         } else {
             return 0;
         }
 
-        return lines.length;
+        return newLineCount;
     }
 
     /**

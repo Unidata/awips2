@@ -58,7 +58,7 @@ import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tca.WaterBreakpoint;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;//SigmetInfo;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.CcfpAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.vaadialog.CcfpAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.PatternSegment.PatternType;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;

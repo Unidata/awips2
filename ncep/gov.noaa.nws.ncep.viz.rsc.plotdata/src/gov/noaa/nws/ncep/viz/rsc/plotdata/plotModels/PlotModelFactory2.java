@@ -92,6 +92,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 11/11/2011              ghull       fix for wind barbs
  * 01/19/2012     #539     qzhou       Fixed southern hemisphere wind barbs
  * 02/27/2012     #694     qzhou       Fixed center symbol positions not overlap
+ * 04/02/2012     #615     sgurung     Fixed a NullPointerException bug in processTableDirective()
  * </pre>
  * 
  * @author BRock97
@@ -1008,7 +1009,12 @@ public class PlotModelFactory2 {
         }
         else {
         	Number dispValue = metParam.getValueAs( element.getUnit() );
-        	displayStr = dispValue.toString();        	
+        	if (dispValue != null) {     	       
+	        	displayStr = dispValue.toString();
+        	} else {
+        		displayStr = "";
+        	}
+        	
         }
 // move this functionality to the Generator where the metParameter value is set.
 ////        element.domNode.setNodeValue(" ");

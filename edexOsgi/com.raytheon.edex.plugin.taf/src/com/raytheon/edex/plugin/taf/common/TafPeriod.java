@@ -506,8 +506,9 @@ public class TafPeriod implements Serializable, ISerializableObject {
         target.set(Calendar.SECOND, 0);
         target.set(Calendar.MILLISECOND, 0);
 
-        for (int i = 0; i < 3; i++) {
-
+        // Back up at most 1 day.
+        target.add(Calendar.DAY_OF_MONTH, -1);
+        for (int i = 0; i < 4; i++) {
             int sDay = target.get(Calendar.DAY_OF_MONTH);
             if (sDay == day) {
                 cal = TimeTools.copy(target);
@@ -519,5 +520,27 @@ public class TafPeriod implements Serializable, ISerializableObject {
             }
         }
         return cal;
+    }    
+    
+    public static final void main(String [] args) {
+        
+        
+        Calendar cA = TimeTools.getBaseCalendar(2012, 4, 1);
+        
+        Calendar cB = setDayHourMin(cA, 31, 23, 0);
+        
+        System.out.println(formatDate(cA));
+        System.out.println(formatDate(cB));
+        
+        
+        
+        
     }
+    
+    
+    
+    
+    
+    
+    
 }

@@ -4,3 +4,4 @@ legendString=Fixed Land Synop
 plotModelName=synop_standard
 reportType=1001
 plotDensity=15
+conditionalFilterName=

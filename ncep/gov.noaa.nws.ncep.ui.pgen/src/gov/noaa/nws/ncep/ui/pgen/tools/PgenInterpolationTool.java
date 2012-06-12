@@ -22,7 +22,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenInterpDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.PgenInterpDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;

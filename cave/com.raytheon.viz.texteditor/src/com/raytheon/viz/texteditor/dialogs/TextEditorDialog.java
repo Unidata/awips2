@@ -275,6 +275,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 11Nov2011   11552        rferrel     Product no longer needs to be a RESEND in order to be sent.
  * 14Nov2011   11203        rferrel     Header included when exporting a file while in edit mode.
  * 08Mar2012   14553        mhuang      Add blank line between product header and body.
+ * 23Apr2012   14783        rferrel     Allow line wrap at white space or hyphen.
+ * 24Apr2012   14548        rferrel     Merging lines for wrap places a space beween words when needed.
+ * 27Apr2012   14902        rferrel     No longer have blank line between AWIPS ID and UGC line.
  * </pre>
  * 
  * @author lvenable
@@ -335,6 +338,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
     private static final Pattern datePtrn = Pattern
             .compile("((\\d{1,2}\\d{2})(\\s(AM|PM)\\s(\\w{3})\\s\\w{3}\\s\\w{3}\\s{1,}\\d{1,2}\\s\\d{4}))");
+
+    private static final Pattern noSeparatorPattern = Pattern
+            .compile("[^-\\s]");
+
+    private static final Pattern UGC_FIRST_LINE_PATTERN = Pattern
+            .compile("^[A-Z][A-Z0-9][CZ]\\d{3}[->].*-\\s*$");
 
     public static final String SAVED_SESSION_DIR = Activator.PLUGIN_ID
             + "/savedSession/";
@@ -594,11 +603,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private int charWrapCol = -1;
 
     private Integer otherCharWrapCol;
-
-    /**
-     * Num of blanks to add/remove to start of text.
-     */
-    private int numberOfBlankLines;
 
     /**
      * Font size sub-menu.
@@ -3417,6 +3421,22 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         });
 
+        // TODO - Use this to convert tabs to spaces and extra spaces in the
+        // middle of a line to a single space?
+        // textEditor.addVerifyListener(new VerifyListener() {
+        //
+        // @Override
+        // public void verifyText(VerifyEvent e) {
+        // // TODO Auto-generated method stub
+        // if (performingWrap) {
+        // return;
+        // }
+        // System.out.println("start: " + e.start + ", end: " + e.end
+        // + " text:'" + e.text + "'");
+        //
+        // }
+        // });
+
         sizeTextEditor();
 
         textEditor.addVerifyKeyListener(new VerifyKeyListener() {
@@ -4388,9 +4408,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (!Boolean.TRUE.equals(wgcd.getReturnValue())) {
             return;
         }
-        
+
         // DR14553 (make upper case in product)
-        String body = textEditor.getText().toUpperCase();        
+        String body = textEditor.getText().toUpperCase();
         if (result) {
             removeOptionalFields();
 
@@ -4398,8 +4418,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 /* update the vtec string in the message */
                 // DR14553 (make upper case in product)
                 if (!resend) {
-                    body = VtecUtil.getVtec(
-                            removeSoftReturns(textEditor.getText().toUpperCase()), true);
+                    body = VtecUtil.getVtec(removeSoftReturns(textEditor
+                            .getText().toUpperCase()), true);
                 }
                 updateTextEditor(body);
                 if ((inEditMode || resend) && saveEditedProduct(false, resend)) {
@@ -4495,8 +4515,22 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         } else if (textEditor.getCharCount() == 0) {
             return headerTF.getText();
         }
-        return headerTF.getText() + "\n"
-                + textEditor.getText().toUpperCase().trim();
+        StringBuilder body = new StringBuilder();
+        body.append(headerTF.getText()).append("\n");
+        String line = null;
+        for (int i = 0; i < textEditor.getLineCount(); ++i) {
+            line = textEditor.getLine(i).trim();
+            if (line.length() > 0) {
+                break;
+            }
+        }
+        if (!UGC_FIRST_LINE_PATTERN.matcher(line).matches()) {
+            // DR_14902 Only add blank line when not a UGC line.
+            body.append("\n");
+        }
+        body.append(textEditor.getText().trim());
+
+        return body.toString();
     }
 
     /**
@@ -4522,10 +4556,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             replaceWorkProductId();
             originalText = combineOriginalMessage();
             if (warnGenFlag == true) {
-                originalText = headerTF.getText() + "\n";
-                for (int i = 0; i < numberOfBlankLines; i++)
-                    originalText += "\n";
-                originalText += removeSoftReturns(textEditor.getText());
+                originalText = removeSoftReturns(originalText);
             }
         }
     }
@@ -4582,10 +4613,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 : combineOriginalMessage();
 
         if (warnGenFlag == true && resend == false) {
-            productText = headerTF.getText() + "\n";
-            for (int i = 0; i < numberOfBlankLines; i++)
-                productText += "\n";
-            productText += removeSoftReturns(textEditor.getText());
+            productText = removeSoftReturns(productText);
         }
 
         if (!isAutoSave) {
@@ -4623,27 +4651,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     + statusBarLabel.getText().substring(startIndex);
         }
 
-        // DR_14553: Add blank line between product header and body if it
-        // does not exist in curren product
-        String[] results = productText.split("\n");
-        int numLines = results.length;
-        String wmoHead = results[0];
-        String awipsId = results[1];
-        String thirdLine = results[2].trim();
-        char[] charLine = thirdLine.toCharArray();
-        int thirdLineSize = charLine.length;
-        String body = "";
-        String line = "";
-        if (thirdLineSize != 0) {	
-        	String header = wmoHead + "\n" + awipsId + "\n\n";
-        	body = header;
-        	for (int i = 2; i< numLines; ++i) {
-        		line = results[i];
-        		line += "\n";
-        		body = body.concat(line); 
-        	}
-        	productText = body;
-        }
         storedProduct.setProduct(productText.trim());
 
         /*
@@ -5014,7 +5021,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // consists of the rest of the text product beyond the line(s)
         // of text in the header.
         try {
-            numberOfBlankLines = -1;
+            int numberOfBlankLines = -1;
             String line = null;
             do {
                 numberOfBlankLines++;
@@ -6552,6 +6559,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         return rval;
     }
 
+    // Allow the verify listener on the text editor to ignore wrapping.
+    // private boolean performingWrap = false;
+
     /**
      * rewrap the paragraph(s) starting from the line containing the character
      * at the offset start and ending in the pargraph with the line containing
@@ -6567,6 +6577,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (this.standardWrapRegex == null) {
             recompileRegex();
         }
+        // performingWrap = true;
         int lineNumber = textEditor.getLineAtOffset(start);
         endWrapLine = textEditor.getLineAtOffset(end);
         rewrapInternal(lineNumber);
@@ -6584,6 +6595,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         // but make sure current caret position is visible.
         textEditor.setCaretOffset(caret);
         textEditor.showSelection();
+        // performingWrap = false;
     }
 
     /**
@@ -6621,7 +6633,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         if (inLocations && paragraphStartLineNumber == lineNumber) {
-            // Keep LOCATIONS frist line short & don't paste more to it.
+            // Keep LOCATIONS first line short & don't paste more to it.
             if (line.indexOf("...") == line.lastIndexOf("...")) {
                 return;
             }
@@ -6743,7 +6755,19 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         deleteLen += padding.length();
                     }
                     String beforeReplace = textEditor.getText();
-                    textEditor.replaceTextRange(newlinePosition, deleteLen, "");
+                    String endLine = textEditor.getText(newlinePosition - 1,
+                            newlinePosition - 1);
+                    String startNextLine = textEditor.getText(newlinePosition
+                            + deleteLen, newlinePosition + deleteLen);
+                    String wordSpace = "";
+                    if (noSeparatorPattern.matcher(endLine).matches()
+                            && noSeparatorPattern.matcher(startNextLine)
+                                    .matches()) {
+                        // Put a space between words when merging the lines.
+                        wordSpace = " ";
+                    }
+                    textEditor.replaceTextRange(newlinePosition, deleteLen,
+                            wordSpace);
                     String afterReplace = textEditor.getText();
 
                     // if the textEditor (StyledText) did not make the change
@@ -6953,7 +6977,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private void recompileRegex() {
         this.standardWrapRegex = Pattern.compile("(  |..).{1,"
-                + (charWrapCol - 3) + "}\\s");
+                + (charWrapCol - 3) + "}(\\s|-)");
         this.locationsFirstRegex = Pattern.compile("^\\* LOCATIONS [^\\.]{1,"
                 + (charWrapCol - 13) + "}\\s");
         this.locationsBodyRegex = Pattern.compile("((  |..).{1,"

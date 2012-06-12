@@ -264,8 +264,8 @@ public class NsharpConstants {
 
     public static final int DATA_TIMELINE_REC_X_ORIG = HODO_VIEW_X_END;
     public static final int DATA_TIMELINE_REC_Y_ORIG = HODO_REC_Y_ORIG;
-    public static final int DATA_TIMELINE_REC_WIDTH =330;//280;
-    public static final int DATA_TIMELINE_REC_HEIGHT = SKEWT_REC_HEIGHT-90;
+    public static final int DATA_TIMELINE_REC_WIDTH =350;//280;
+    public static final int DATA_TIMELINE_REC_HEIGHT = SKEWT_REC_HEIGHT-100;
     public static final int DATA_TIMELINE_VIEW_X_END = DATA_TIMELINE_REC_X_ORIG+DATA_TIMELINE_REC_WIDTH;
     public static final int DATA_TIMELINE_VIEW_Y_END = DATA_TIMELINE_REC_Y_ORIG+DATA_TIMELINE_REC_HEIGHT;
     public static final int DATA_TIMELINE_NEXT_PAGE_END = DATA_TIMELINE_REC_Y_ORIG+ 30;

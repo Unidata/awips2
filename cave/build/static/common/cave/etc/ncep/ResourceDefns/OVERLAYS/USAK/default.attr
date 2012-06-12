@@ -1,0 +1,4 @@
+legend_color= RGB {50,50,50}
+color= RGB {50,50,50}
+lineStyle=SOLID
+lineWidth=2 

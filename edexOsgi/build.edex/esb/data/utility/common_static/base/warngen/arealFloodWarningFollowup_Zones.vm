@@ -3,6 +3,7 @@
 #######################################################################
 ## Created BY MIKE DANGELO 9-19-2011 at Alaska TIM  for zones coding ##
 ## Edited by Phil kurimski 2-29-2012
+## Edited by Mike Rega     5-02-2012 DR 14885-MND blank line
 #################################### SET SOME VARs ###################################
 #set ($hycType = "")
 #set ($floodReason = "")
@@ -63,6 +64,7 @@
 ######################################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
+
 #if(${productClass}=="T")
 TEST...FLOOD STATEMENT...TEST
 #else

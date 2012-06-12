@@ -4,7 +4,7 @@
     <resourceDefnName>RUC</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=RUC80
+GDFILE=ruc80
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

@@ -8,6 +8,8 @@
 !
 GLEVEL=0
 GVCORD=none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=tmpc!tmpc!tmpc!sm5s(pmsl) ! kntv(wnd)
 TYPE=c/f!c!c!! b
