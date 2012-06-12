@@ -54,7 +54,6 @@ import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.comm.JMSConnection;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
-import com.raytheon.uf.viz.core.preferences.JMSPreferences;
 
 /**
  * Job to monitor the JMS topic containing notification messages, delegating the
@@ -506,11 +505,10 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
             disconnect();
             session = manager.connection.createSession(false,
                     Session.AUTO_ACKNOWLEDGE);
-
             if (session != null) {
                 String topicName = id;
-                Topic t = session.createTopic(JMSPreferences
-                        .getPolicyString(topicName));
+                Topic t = session.createTopic(topicName);
+
                 if (queryString != null) {
                     consumer = session.createConsumer(t, queryString);
                 } else {

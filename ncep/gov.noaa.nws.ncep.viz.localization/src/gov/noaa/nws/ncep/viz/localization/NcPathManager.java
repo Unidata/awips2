@@ -29,6 +29,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
  * 12/19/11                 Q.Zhou       Added PGEN_FILTER_HOUR
  * 03/06/11       #707      Q.Zhou       Added PGEN_FORECASTER
  * 03/15/2012     #621      S. Gurung    Added LOCKED_CMAP_TBL
+ * 04/12/2012     #615      S. Gurung    Added CONDITIONAL_FILTERS_DIR, CONDITIONAL_FILTER_HELP_FILE, 
+ * 										 CONDITIONAL_FILTER_MINUS_IMG and CONDITIONAL_FILTER_PLUS_IMG
  * </pre>
  * 
  * @author ghull 
@@ -82,6 +84,12 @@ public class NcPathManager {
 												     "gempak"+File.separator+"geog.xml";
 		public static final String SFSTNS_TBL = STATIONS_DIR+File.separator+"sfstns.xml";
 		
+		// help file for conditional filters 
+		public static final String CONDITIONAL_FILTER_HELP_FILE       = NCEP_ROOT + "conditionalFilter" + File.separator  + "ConditionalFilterHelp.txt";
+		public static final String CONDITIONAL_FILTER_MINUS_IMG       = NCEP_ROOT + "conditionalFilter" + File.separator  + "minus_red.gif";
+		public static final String CONDITIONAL_FILTER_PLUS_IMG        = NCEP_ROOT + "conditionalFilter" + File.separator  + "plus_green.gif";
+		
+		public static final String CONDITIONAL_FILTERS_DIR = PLOT_MODELS_DIR + File.separator+"ConditionalFilters";
 		
 		// migrating code which looked for these filenames
 		public static final String VORS_STN_TBL  = STATIONS_DIR + File.separator+"vors.xml";

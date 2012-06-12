@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;

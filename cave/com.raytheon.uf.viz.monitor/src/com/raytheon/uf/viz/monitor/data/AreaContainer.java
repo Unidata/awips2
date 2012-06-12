@@ -113,7 +113,6 @@ public class AreaContainer {
         
         if (report == null) {
             report = new ObReport();
-            report.init();
         }
 
         return report;

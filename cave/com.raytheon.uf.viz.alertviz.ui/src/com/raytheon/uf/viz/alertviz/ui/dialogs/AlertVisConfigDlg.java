@@ -1344,13 +1344,16 @@ public class AlertVisConfigDlg extends Dialog implements
     }
 
     private void saveWithConfirmDlg() {
-        if (ConfigurationManager.isDefaultConfig(configContext)) {
-            if (!ConfigurationFileDlg.confirmDefaultChange(shell, "save",
-                    configContext.toString())) {
-                return;
+        if (ConfigurationFileDlg.validateNotDelivered(shell,
+                configContext.getName())) {
+            if (ConfigurationManager.isDefaultConfig(configContext)) {
+                if (!ConfigurationFileDlg.confirmDefaultChange(shell, "save",
+                        configContext.toString())) {
+                    return;
+                }
             }
+            save();
         }
-        save();
     }
 
     private void save() {
@@ -1445,7 +1448,7 @@ public class AlertVisConfigDlg extends Dialog implements
         saveNeeded(false);
 
         if (fetchLog) {
-//            System.err.println("Need to fetch log here");
+            // System.err.println("Need to fetch log here");
             fetchLog = false;
             alertMsgDlg.resetTabControl();
         }

@@ -96,6 +96,10 @@
           id="gov.noaa.nws.ncep.viz.plotModelMngr"
           name="Plot Model Manager">
       </command>
+     <command
+          id="gov.noaa.nws.ncep.viz.conditionalFilterMngr"
+          name="Conditional Filter Manager">
+      </command>
       <command
             id="gov.noaa.nws.ncep.viz.colorMapEditor"
             name="Colormap editor">
@@ -210,6 +214,10 @@
       <handler
             class="gov.noaa.nws.ncep.viz.tools.plotModelMngr.PlotModelMngrAction"
             commandId="gov.noaa.nws.ncep.viz.plotModelMngr">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.conditionalfilter.ConditionalFilterMngrAction"
+            commandId="gov.noaa.nws.ncep.viz.conditionalFilterMngr">
       </handler>
       <handler
             class="gov.noaa.nws.ncep.viz.tools.colorMapEditor.ColormapEditAction"

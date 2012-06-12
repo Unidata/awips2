@@ -46,6 +46,8 @@ import com.raytheon.uf.viz.xy.timeseries.graph.TimeSeriesGraph;
 @XmlAccessorType(XmlAccessType.NONE)
 public class TimeSeriesDescriptor extends XyGraphDescriptor {
 
+    public static final int REAL_FRAME_COUNT_TO_USE_WHEN_FRAME_COUNT_IS_ONE = 999;
+
     public TimeSeriesDescriptor() {
         super();
     }
@@ -62,6 +64,18 @@ public class TimeSeriesDescriptor extends XyGraphDescriptor {
     @Override
     public IGraph constructGraph() {
         return new TimeSeriesGraph(this);
+    }
+
+    @Override
+    public int getNumberOfFrames() {
+        int numFrames = super.getNumberOfFrames();
+        if (numFrames == 1) {
+            // reset to a different number because A1 did
+            numFrames = Math.min(
+                    REAL_FRAME_COUNT_TO_USE_WHEN_FRAME_COUNT_IS_ONE,
+                    limitedNumberOfFrames);
+        }
+        return numFrames;
     }
 
 }
