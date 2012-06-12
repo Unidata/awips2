@@ -10,7 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.file;
 import java.net.URL;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
-import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductTypes;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductTypes;
 
 //import org.apache.log4j.Logger;
 

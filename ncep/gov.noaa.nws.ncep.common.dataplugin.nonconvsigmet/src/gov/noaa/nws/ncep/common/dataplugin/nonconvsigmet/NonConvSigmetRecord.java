@@ -54,6 +54,7 @@ public class NonConvSigmetRecord extends PluginDataObject{
 
 	// reportType is "non-convective sigmet".
 	@Column(length=32)
+	@DataURI(position=5)
 	@DynamicSerializeElement
 	private String reportType;
 	

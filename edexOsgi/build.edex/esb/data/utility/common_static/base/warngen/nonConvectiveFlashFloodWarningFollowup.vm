@@ -6,6 +6,7 @@
 ##                      -- AUG 18 2011  OB11.0.8-4 ##
 ##      Evan Bookbinder -- SEP 16 2011  OB11.0.8-8 ##
 ##      Phil Kurimski   -- SEP 23 2011  OB11.0.8-8 ##
+##      Mike Rega      -- MAY 03 2012 DR 14885 MND ##
 #####################################################
 ##
 #set($headline = "")
@@ -176,6 +177,7 @@
 #if(${action}!="CANCON")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFS${siteId}
+
 #if(${productClass}=="T")
 TEST...FLASH FLOOD STATEMENT...TEST
 #else

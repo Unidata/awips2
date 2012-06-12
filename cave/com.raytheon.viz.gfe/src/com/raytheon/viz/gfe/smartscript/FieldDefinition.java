@@ -111,6 +111,8 @@ public class FieldDefinition {
     private List<? extends Object> valueList;
 
     private float resolution;
+    
+    private int precision;
 
     public FieldDefinition() {
         valueList = new ArrayList<Object>();
@@ -125,13 +127,15 @@ public class FieldDefinition {
      * @param resolution
      */
     public FieldDefinition(Object name, String description, FieldType type,
-            Object defaultValue, List<Object> valueList, float resolution) {
+            Object defaultValue, List<Object> valueList, float resolution,
+            int precision) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.defaultValue = defaultValue;
         this.valueList = valueList;
         this.resolution = resolution;
+        this.precision = precision;
     }
 
     public Object getName() {
@@ -181,6 +185,14 @@ public class FieldDefinition {
     public void setResolution(float resolution) {
         this.resolution = resolution;
     }
+    
+    public void setPrecision(int precision) {
+		this.precision = precision;
+	}
+    
+    private int getPrecision() {
+		return precision;
+	}
 
     public static List<Widget> buildWidgetList(List<FieldDefinition> fieldDefs,
             DataManager dataMgr) {
@@ -208,7 +220,7 @@ public class FieldDefinition {
             } else if (fieldDef.getType() == FieldType.SCALE) {
                 widget = makeScale(fieldDef.getDescription(),
                         fieldDef.getValueList(), fieldDef.getDefaultValue(),
-                        fieldDef.getResolution());
+                        fieldDef.getResolution(), fieldDef.getPrecision());
             } else if (fieldDef.getType() == FieldType.SCROLLBAR) {
                 widget = makeScrollbar(fieldDef.getDescription(),
                         fieldDef.getDefaultValue());
@@ -345,14 +357,12 @@ public class FieldDefinition {
     }
 
     private static ScaleWidget makeScale(String labelText,
-            List<? extends Object> valueList, Object initialValue, float res) {
+            List<? extends Object> valueList, Object initialValue, float res, int precision) {
         ScaleWidget scale = new ScaleWidget(labelText);
         scale.setOptions(valueList);
         scale.setValue(initialValue);
-
-        if (res != 0.0f) {
-            scale.setResolution(res);
-        }
+        scale.setResolution(res);
+        scale.setPrecision(precision);
 
         return scale;
     }

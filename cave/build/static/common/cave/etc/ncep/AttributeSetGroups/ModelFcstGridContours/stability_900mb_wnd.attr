@@ -6,6 +6,8 @@
 !
 GLEVEL=900!900!900:0!0
 GVCORD=pres!pres!pres!none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=mag(kntv(wnd))!sm9s(sub(thta,thta@0%none))//stb!stb!emsl!kntv(wnd@900%pres)
 TYPE=c/f!c!c!c ! b
