@@ -3,3 +3,6 @@ colorMapName=gdpili
 colorBar=@dfltMcidasColorBar.xml
 imageType=LI
 displayUnitStr=C
+alpha=1.0
+brightness=1.0
+contrast=1.0

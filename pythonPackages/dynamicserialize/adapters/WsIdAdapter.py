@@ -28,6 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/16/10                      dgilling       Initial Creation.
+#    04/25/12              545     randerso       Repurposed the lockKey field as threadId
 #    
 # 
 #
@@ -51,7 +52,7 @@ def deserialize(context):
     wsId.setUserName(wsIdParts[1])
     wsId.setProgName(wsIdParts[2])
     wsId.setPid(wsIdParts[3])
-    wsId.setLockKey(long(wsIdParts[4]))
+    wsId.setThreadId(long(wsIdParts[4]))
     
     return wsId
 

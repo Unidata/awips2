@@ -293,9 +293,12 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
                 close();
                 displayMgr.setHrFirstTime(false);
                 displayMgr.setCurrentDate(cal.getTime());
-                XmrgResource xmrgRsc = (XmrgResource) displayMgr
-                        .getDisplayedResource();
-                xmrgRsc.updateXmrg(false);
+                
+                if (displayMgr.getDisplayedResource() != null) {
+                    XmrgResource xmrgRsc = (XmrgResource) displayMgr
+                            .getDisplayedResource();
+                    xmrgRsc.updateXmrg(false);
+                }
             }
         });
 

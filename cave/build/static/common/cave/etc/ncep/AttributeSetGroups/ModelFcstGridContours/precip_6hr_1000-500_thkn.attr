@@ -10,6 +10,8 @@
 !
 GLEVEL=0   !500:1000       !500:1000       !0
 GVCORD=none!pres           !pres           !none
+SKIP=
+FILTER=y
 SCALE=0   !-1             !-1             !0
 GDPFUN=p06i!sm5s(ldf(hght))!sm5s(ldf(hght))!sm5s(pmsl)
 TYPE=f   !c

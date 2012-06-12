@@ -174,6 +174,8 @@ public class ObsToSHEFOptions {
 
     public static final String OPT_CENTURY = "optCentury";
 
+    public static final String OPT_NO_HR_TRACE = "optNoHourTrace";
+    
     // private static class PCReset {
     //
     // private final String stationId;
@@ -355,6 +357,10 @@ public class ObsToSHEFOptions {
         // -y2k
         // output century in SHEF output
         CMDS.put("-y2k", new CmdLineData("-y2k", OPT_CENTURY, 0, Boolean.class));
+        
+        // -notrace
+        // turn off trace precip for 1 hour data.
+        CMDS.put("-notrace", new CmdLineData("-notrace", OPT_NO_HR_TRACE, 0, Boolean.class));
     }
 
     private Log logger = LogFactory.getLog(getClass());
@@ -705,6 +711,15 @@ public class ObsToSHEFOptions {
         return (Boolean) options.get(OPT_CENTURY);
     }
 
+    /**
+     * -notrace 
+     * 
+     * @return Should trace precip not be reported for hourly metars.
+     */
+    public boolean isOptNoTrace() {
+        return (Boolean) options.get(OPT_NO_HR_TRACE);
+    }
+    
     // *****************************************************
 
     /**

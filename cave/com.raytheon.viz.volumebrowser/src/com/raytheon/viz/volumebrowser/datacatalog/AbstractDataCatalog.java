@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -306,9 +307,15 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         name.append(String.format(" %s %s", catalogEntry.getSelectedData()
                 .getPlanesText(), catalogEntry.getSelectedData()
                 .getFieldsText()));
-
-        String displayTypeAbbreviation = DisplayType
-                .getAbbreviation(displayType);
+        List<DisplayType> displayTypes = catalogEntry.getSelectedData()
+                .getDisplayTypes();
+        String displayTypeAbbreviation = null;
+        if (displayTypes == null || displayTypes.isEmpty()
+                || !displayTypes.get(0).equals(displayType)) {
+            // If this is the first display type in the list then it is the
+            // default and should not show up in the legend.
+            displayTypeAbbreviation = DisplayType.getAbbreviation(displayType);
+        }
         if (displayTypeAbbreviation != null
                 && displayTypeAbbreviation.length() > 0) {
             name.append(" " + displayTypeAbbreviation);
@@ -389,12 +396,12 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
                 styleType = StyleManager.StyleType.IMAGERY;
             }
 
-            if (displayType.equals(DisplayType.BARB) 
-            		|| displayType.equals(DisplayType.DUALARROW)
-            		|| displayType.equals(DisplayType.ARROW)) {
+            if (displayType.equals(DisplayType.BARB)
+                    || displayType.equals(DisplayType.DUALARROW)
+                    || displayType.equals(DisplayType.ARROW)) {
                 styleType = StyleManager.StyleType.ARROW;
             }
-            
+
             if (catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.TIMESERIES
                     || catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.VARVSHGT) {
                 styleType = StyleManager.StyleType.GRAPH;

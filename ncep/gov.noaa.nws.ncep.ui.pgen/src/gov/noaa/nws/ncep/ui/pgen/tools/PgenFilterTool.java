@@ -9,7 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenFilterDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.PgenFilterDlg;
 
 import org.eclipse.ui.PlatformUI;
 

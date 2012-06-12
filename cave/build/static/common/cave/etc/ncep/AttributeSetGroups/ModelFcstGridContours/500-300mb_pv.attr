@@ -8,6 +8,8 @@
 !
 GLEVEL=9950!500:300!500:300!0:9950!0:9950!0:9950!0   !500:300
 GVCORD=SGMA!pres   !pres   !none  !none  !none  !none!pres
+SKIP=
+FILTER=y
 SCALE=0!6!6!0
 GDPFUN=thte(pres@0%none;tmpc;dwpc)//te!pvor(thta,wnd)//pv!pv!te!te!te!sm5s(pmsl)!kntv(wnd@400%pres)
 TYPE=c/f!c/f!c ! c ! c ! c ! c ! b
