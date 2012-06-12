@@ -29,9 +29,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.TextAttrDlg;
-//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.TextAttrDlg;
 
 /**
  * Implements a modal map tool for PGEN text drawing.

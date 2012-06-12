@@ -30,7 +30,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -94,6 +96,16 @@ public abstract class D2DNSharpResourceData extends
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
         D2DNSharpResource skewRsc = new D2DNSharpResource(this, loadProperties);
+        // sort the objects so that the latest datatime gets loaded first.
+        Arrays.sort(objects, new Comparator<PluginDataObject>() {
+
+            @Override
+            public int compare(PluginDataObject o1, PluginDataObject o2) {
+                Long v1 = o1.getDataTime().getMatchValid();
+                Long v2 = o2.getDataTime().getMatchValid();
+                return v2.compareTo(v1);
+            }
+        });
         for (PluginDataObject pdo : objects) {
             if (pdo instanceof D2DNSharpDataObject) {
                 skewRsc.addDataObject((D2DNSharpDataObject) pdo);

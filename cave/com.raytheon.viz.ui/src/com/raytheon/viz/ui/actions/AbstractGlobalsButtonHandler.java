@@ -21,9 +21,6 @@ package com.raytheon.viz.ui.actions;
 
 import java.util.Map;
 
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
@@ -48,8 +45,9 @@ import com.raytheon.viz.ui.UiUtil;
  * @author mschenke
  * @version 1.0
  */
-public abstract class AbstractGlobalsButtonHandler extends AbstractHandler
-        implements IGlobalChangedListener, IElementUpdater {
+public abstract class AbstractGlobalsButtonHandler extends
+        AbstractDropDownMenuHandler implements IGlobalChangedListener,
+        IElementUpdater {
 
     private UIElement lastElement;
 
@@ -60,19 +58,6 @@ public abstract class AbstractGlobalsButtonHandler extends AbstractHandler
     protected AbstractGlobalsButtonHandler(String globalsId) {
         this.globalId = globalsId;
         VizGlobalsManager.addListener(globalsId, this);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.
-     * ExecutionEvent)
-     */
-    @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        // Default execute does nothing
-        return null;
     }
 
     /*

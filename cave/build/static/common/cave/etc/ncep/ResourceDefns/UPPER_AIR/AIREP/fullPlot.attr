@@ -1,3 +1,4 @@
 ! Parameters and Attributes for the default AIREP Resource
 plotModelName=fullPlot
 plotDensity=10
+conditionalFilterName=

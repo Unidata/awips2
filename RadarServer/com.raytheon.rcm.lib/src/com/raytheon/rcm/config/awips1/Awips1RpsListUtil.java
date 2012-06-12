@@ -32,6 +32,20 @@ import com.raytheon.rcm.message.GSM;
 import com.raytheon.rcm.request.Request;
 import com.raytheon.rcm.request.RpsList;
 
+/**
+ * Utility class for dealing with AWIPS 1 RPS lists.
+ * 
+ * <pre>
+ *  SOFTWARE HISTORY
+ * 
+ *  Date         Ticket#     Engineer    Description
+ *  ------------ ----------  ----------- --------------------------
+ *  2009                     dfriedma    Initial version
+ *  2012-04-30   DR 14908    D. Friedman Require radar name for valid RPS
+ *                                       file names.
+ * </pre>
+ *
+ */
 public class Awips1RpsListUtil {
     // is 'maint' an opMode??
     public static class Selector {
@@ -187,7 +201,7 @@ public class Awips1RpsListUtil {
     }
 
     protected static final Pattern selectorPattern = Pattern
-            .compile("^(?:(.+)\\.)?(.+)\\.VCP(\\d+)(?:\\.(.*))?$");
+            .compile("^(.+)\\.(.+)\\.VCP(\\d+)(?:\\.(.*))?$");
 
     protected static final Pattern maintPattern = Pattern
             .compile("^([^\\.]+)\\.maint(?:\\.(.*))?$");
@@ -197,9 +211,7 @@ public class Awips1RpsListUtil {
         if (m.matches()) {
             Selector sel = new Selector();
 
-            if (m.group(1) != null) {
-                sel.radar = m.group(1).toLowerCase();
-            }
+            sel.radar = m.group(1).toLowerCase();
 
             String opModeString = m.group(2).toLowerCase();
             if (opModeString.equals("clear-air"))
