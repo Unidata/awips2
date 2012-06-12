@@ -6,6 +6,8 @@
 !
 GLEVEL=250
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=0                             ! -1
 GDPFUN=knts((mag(wnd)))              !(hght)  ! kntv(wnd)
 TYPE=c                             !c       !b

@@ -42,6 +42,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.warngen.Activator;
+import com.raytheon.viz.warngen.gis.PolygonUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineSegment;
@@ -249,6 +250,15 @@ public class WarngenUIManager extends InputAdapter {
 
         if (moveType != null || pointDeleted || pointCreated) {
             try {
+                if (moveType == MoveType.ALL_POINTS) {
+                    WarngenUIState state = warngenLayer.getWarngenState();
+                    Coordinate[] coordinates = state.getWarningPolygon().getCoordinates();
+                    PolygonUtil.truncate(coordinates, 2);
+                    
+                    GeometryFactory gf = new GeometryFactory();
+                    LinearRing lr = gf.createLinearRing(coordinates);
+                    state.setWarningPolygon(gf.createPolygon(lr, null));
+                }
                 warngenLayer.updateWarnedAreas(true, true);
             } catch (VizException e) {
                 e.printStackTrace();
@@ -322,6 +332,7 @@ public class WarngenUIManager extends InputAdapter {
         int insertionPoint = 0;
         Coordinate[] coords = state.getWarningPolygon().getCoordinates();
         Coordinate mouse = container.translateClick(x, y);
+        PolygonUtil.truncate(mouse, 2);
         for (int i = 1; i < coords.length; i++) {
             LineSegment segment = new LineSegment(coords[i - 1], coords[i]);
             double distance = segment.distance(mouse);
@@ -366,6 +377,7 @@ public class WarngenUIManager extends InputAdapter {
             break;
         }
         case SINGLE_POINT: {
+            PolygonUtil.truncate(c2, 2);
             if (warngenLayer.isModifiedVertexNeedsToBeUpdated()) {
                 int i = StormTrackUIManager.getCoordinateIndex(warngenLayer,
                         state.getWarningPolygon().getCoordinates(), c2);
@@ -429,6 +441,11 @@ public class WarngenUIManager extends InputAdapter {
                 LinearRing lr = gf.createLinearRing(coordList
                         .toArray(new Coordinate[coordList.size()]));
                 Polygon newPoly = gf.createPolygon(lr, null);
+                
+                if (newPoly.isValid() == false) {
+                    return;
+                }
+                
                 warngenLayer.getWarngenState().setWarningPolygon(newPoly);
                 try {
                     warngenLayer.updateWarnedAreas(true, true);
@@ -520,6 +537,7 @@ public class WarngenUIManager extends InputAdapter {
             }
 
             Coordinate c = new Coordinate(lastMouseX, lastMouseY);
+            PolygonUtil.truncate(c, 2);
             Polygon poly = warngenLayer.getPolygon();
 
             if (StormTrackUIManager.getCoordinateIndex(warngenLayer,
@@ -550,7 +568,7 @@ public class WarngenUIManager extends InputAdapter {
 
                     Coordinate coLinearCoord = container.translateClick(
                             coLinearPoint.getX(), coLinearPoint.getY());
-
+                    PolygonUtil.truncate(coLinearCoord, 2);
                     Coordinate[] coords2 = new Coordinate[coords.length + 1];
                     int k = 0;
                     for (k = 0; k < i; k++) {

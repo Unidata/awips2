@@ -7,6 +7,8 @@
 !
 GLEVEL=1000
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=0      !0        !0               !-1
 GDPFUN=tmpc   !tmpc     !tmpc            !hght            !kntv(wnd)
 TYPE=c/f    !c        !c               !c               !b

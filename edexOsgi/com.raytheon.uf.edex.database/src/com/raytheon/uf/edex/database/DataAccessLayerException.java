@@ -59,7 +59,7 @@ public class DataAccessLayerException extends EdexException {
      * @param aCause
      * @param anException
      */
-    public DataAccessLayerException(String aCause, Exception anException) {
+    public DataAccessLayerException(String aCause, Throwable anException) {
         super(aCause, anException);
     }
 

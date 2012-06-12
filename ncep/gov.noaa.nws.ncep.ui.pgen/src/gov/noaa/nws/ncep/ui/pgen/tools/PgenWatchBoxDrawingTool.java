@@ -25,7 +25,7 @@ import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;

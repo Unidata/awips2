@@ -7,6 +7,7 @@
 ##         BY PHIL KURIMSKI              9-22-2011  OB11.8.0-8 ##
 ##         BY EVAN BOOKBINDER           11-04-2011  OB11.9-3   ##
 ##         BY EVAN BOOKBINDER            2-24-2012  OB12.2.1   ##
+##         BY MIKE REGA       5-3-2012 DR 14885 MND blank line ##
 #################################################################
 ##
 ###################################################################
@@ -46,6 +47,7 @@
 ######################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVS${siteId}
+
 #if(${productClass}=="T")
 TEST...SEVERE WEATHER STATEMENT...TEST
 #else

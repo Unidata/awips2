@@ -8,6 +8,8 @@
 !
 GLEVEL=2!2!2 
 GVCORD=hght!hght!hght
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm9s(add(mul((sub(tmnk12,273),1.8)32)!sm9s(add(mul((sub(tmnk12,273),1.8)32)
 TYPE=c

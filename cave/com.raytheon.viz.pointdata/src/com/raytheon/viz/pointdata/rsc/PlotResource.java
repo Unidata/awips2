@@ -376,6 +376,8 @@ public class PlotResource extends
                     .getGridRange().getHigh(0), 0, descriptor.getGridGeometry()
                     .getGridRange().getHigh(1));
             hasInited = true;
+            getCapability(MagnificationCapability.class);
+            getCapability(DensityCapability.class);
         }
     }
 
