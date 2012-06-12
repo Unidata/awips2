@@ -24,14 +24,11 @@ import java.io.File;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ILayoutContainer;
@@ -120,25 +117,6 @@ public abstract class CaveFloatingView extends ViewPart {
                 container = pane.getContainer();
                 window.drop(pane);
                 window.getShell().setBounds(bounds);
-                window.getShell().addShellListener(new ShellAdapter() {
-                    @Override
-                    public void shellDeactivated(ShellEvent e) {
-                        detached = false;
-                        setChecked(false);
-                        setToolTipText("Float");
-                    }
-                });
-                window.getShell().addListener(SWT.Modify, new Listener() {
-                    @Override
-                    public void handleEvent(Event event) {
-                        if (window.getChildren().length == 0) {
-                            window.getShell().setVisible(false);
-                            setChecked(false);
-                            setToolTipText("Float");
-                            detached = false;
-                        }
-                    }
-                });
             };
 
             @Override
