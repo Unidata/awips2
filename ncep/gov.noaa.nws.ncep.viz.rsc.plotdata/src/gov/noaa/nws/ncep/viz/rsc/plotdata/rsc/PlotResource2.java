@@ -100,6 +100,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     stations, due to undesirable "blinking" effect
  *  02/16/2012     #555    sgurung     Changed setPopulated() to setPopulated(true) in populateFrame().
  *  02/16/2012     #639    Q.Zhou      Changed maxDensity to 3.0(Could do 4 or 5 if needed)
+ *  04/02/2012     #615    sgurung     Use modified version of PlotModelGenerator2 constructor
+ *  
  * </pre>
  * 
  * @author brockwoo
@@ -846,10 +848,10 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     		generator.cleanImages();
     	}
     	
-        generator = new PlotModelGenerator2(aTarget, descriptor,
+      generator = new PlotModelGenerator2(aTarget, descriptor,
                 plotRscData.getPlotModel(), 
                 (plotRscData.isSurfaceOnly() ? null : plotRscData.getLevelKey() ), 
-                plotRscData.getMetadataMap(), this);
+                plotRscData.getMetadataMap(),  plotRscData.getConditionalFilter(), this);       
         
         this.generator.setPlotMissingData(
         					plotRscData.isPlotMissingData() );

@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -121,7 +122,8 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 25 July 2011 10082    djingtao     modify makeRegions()
  * 10 August 2011 10457  djingtao     allow red rubberband box to be draw for setMissing in Edit
  * 27 March 20112 14527  wkwock       Fix incomplete time series selection issue
- * 
+ * 24 April 2012 14669   wkwock       Handle invalid color name
+ * 08 May   2012 14958   wkwock       Fix overcrowded TS list
  * @author lvenable
  * @version 1.0
  * 
@@ -346,8 +348,10 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
     private Boolean inDataRetreival = Boolean.FALSE;
 
     private TimeSeriesDataJobManager tsDataJobManager = null;
+    
+    private boolean zoomed = false;
 
-    /**
+	/**
      * Constructor.
      * 
      * @param parent
@@ -539,8 +543,17 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             num_of_fcstTraces = 0;
             num_of_fcstTs = 0;
 
+            HashSet <String> uniqueList = new HashSet <String> ();
+            graphData.setTraces(new ArrayList<TraceData>());
             for (int i = 0; i < clonedList.size(); i++) {
                 if (clonedList.get(i).isForecast()) {
+                	TraceData td=clonedList.get(i);
+                	String traceKey = td.getLid()+td.getPe()+td.getTs()+td.getDur()+td.getExtremum();
+                	if (uniqueList.contains(traceKey))
+                		continue;
+                	else {
+                		uniqueList.add(traceKey);
+                	}
 
                     int return_fcst_num = getFcstData(clonedList.get(i));
 
@@ -560,6 +573,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
 
                 } else {
+                	graphData.addTrace(clonedList.get(i));
                     getData(clonedList.get(i));
                     validGraph.set(i, noDataAvailable);
                 }
@@ -581,7 +595,6 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
      *            Graphics Context.
      */
     protected void drawCanvas(GC gc) {
-
         gc.setFont(canvasFont);
 
         fontHeight = (gc.getFontMetrics().getHeight());
@@ -722,7 +735,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 gc.setBackground(this.white);
             }
             gc.drawString(NO_DATA_AVAILABLE, tmpX, tmpY);
-            gc.drawString(siteLabel +" fs=" + floodStage, GRAPHBORDER,
+            gc.drawString(siteLabel +" fs=" + floodStage, GRAPHBORDER - 15,
                     GRAPHBORDER - fontHeight * 2);
 
             this.dialog.getParentDialog().enableGraphButton();
@@ -739,16 +752,22 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
 
             setForegroundColor(gc, SWT.COLOR_CYAN);
             if (pointString != null) {
-                gc.drawString(pointString, GRAPHBORDER, fontHeight * 2);
+                gc.drawString(pointString, GRAPHBORDER_LEFT - 55, fontHeight * 2);
             }
 
             if (this.dialog.isInverseVideo()) {
                 gc.setBackground(this.white);
             }
-            gc.drawString(siteLabel + " fs=" + floodStage, GRAPHBORDER,
+            gc.drawString(siteLabel + " fs=" + floodStage, GRAPHBORDER_LEFT - 10,
                     GRAPHBORDER - fontHeight * 2);
 
-            int index = GRAPHBORDER;
+            int index = GRAPHBORDER_LEFT - 10;
+            // If labels run off the right of the canvas then need to stack them
+            boolean stackLabels = false;
+            int stackCount = 2; // This should start as 2 because the first stack will be above a line
+            int labelStartX = 0;
+            int labelStartY = 0;
+            
             for (int j = 0; j < traceArray.size(); j++) {
                 TraceData td = traceArray.get(j);
                 boolean traceValid = true;
@@ -850,7 +869,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         && !dialog.isCancel()) { // if in edit mode
                     traceArray.get(selectedTraceId).setSelected(true);
                     gc.drawString("Active Trace:  " + dataString,
-                            (GRAPHBORDER * 2 + graphAreaWidth) / 2,
+                            (GRAPHBORDER_LEFT + GRAPHBORDER_RIGHT + graphAreaWidth) / 2,
                             GRAPHBORDER / 2);
                 }
 
@@ -877,13 +896,13 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         /* Top left point of bar */
                         int x = pointArray[i].getPixelX() + GRAPHBORDER;// - 20;
 
-                        if ((x < 100) || (x > GRAPHBORDER + graphAreaWidth)) {
+                        if ((x < GRAPHBORDER_LEFT) || (x > GRAPHBORDER_LEFT + graphAreaWidth)) {
                             continue;
                         }
 
                         int x2 = x2pixel(graphData, pointArray[i].getX()
                                 .getTime() + 3600000)
-                                + GRAPHBORDER;// - 20;
+                                + GRAPHBORDER_LEFT;// - 20;
                         int y = pointArray[i].getPixelY() + GRAPHBORDER;
                         ia[0] = x;
                         ia[1] = y;
@@ -938,20 +957,41 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
 
                 setForegroundColor(td, j, gc);
 
-                if (graphData.getTraces().size() > 1) {
-
+                if (graphData.getTraces().size() > 1) {                
                     if (traceValid) {
                         if (td.isTraceOn()) {
-                            gc.drawString(dataString, index, GRAPHBORDER
-                                    - fontHeight);
-                            index += (dataString.length() + 2) * fontAveWidth;
+                        	if (stackLabels || ((dataString.length() * fontAveWidth) + 50 + index > canvasWidth)) {
+                        		int[] xy = getLabelLocation(index, dataString, stackCount);
+                        		stackCount++;
+                        		labelStartX = xy[0];
+                        	    labelStartY = xy[1];
+                        		stackLabels = true;
+                        	} else {
+                        		labelStartX = index;
+                        		labelStartY = GRAPHBORDER - fontHeight;
+                        	}
+                            gc.drawString(dataString, labelStartX, labelStartY);
+                            if (!stackLabels) {
+                            	index += (dataString.length() + 2) * fontAveWidth;
+                            }
                         }
                     } else {
                         // setForegroundColor(td, 23, gc);
                         setForegroundColor(gc, SWT.COLOR_WHITE);
-                        gc.drawString(noDataString, index, GRAPHBORDER
-                                - fontHeight);
-                        index += (noDataString.length() + 2) * fontAveWidth;
+                    	if (stackLabels || ((dataString.length() * fontAveWidth) + 50 + index > canvasWidth)) {
+                    		int[] xy = getLabelLocation(index, dataString, stackCount);
+                    		stackCount++;
+                    		labelStartX = xy[0];
+                    	    labelStartY = xy[1];
+                    		stackLabels = true;
+                    	} else {
+                    		labelStartX = index;
+                    		labelStartY = GRAPHBORDER - fontHeight;
+                    	}
+                        gc.drawString(noDataString, labelStartX, labelStartY);
+                        if (!stackLabels) {
+                        	index += (noDataString.length() + 2) * fontAveWidth;
+                        }
                         setForegroundColor(td, j, gc);
                     }
                 } else {
@@ -971,7 +1011,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                                         .format(max / 1000)
                                                 + " "
                                                 + graphFormat.format(dateMax),
-                                        GRAPHBORDER
+                                        GRAPHBORDER_LEFT
                                                 + (dataString.length()
                                                         * fontAveWidth * j),
                                         GRAPHBORDER - fontHeight);
@@ -983,7 +1023,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                         + graphFormat.format(dateMin) + " max="
                                         + twoDecimalFormat.format(max) + " "
                                         + graphFormat.format(dateMax),
-                                        GRAPHBORDER
+                                        GRAPHBORDER_LEFT
                                                 + (dataString.length()
                                                         * fontAveWidth * j),
                                         GRAPHBORDER - fontHeight);
@@ -1004,7 +1044,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                         + graphFormat.format(dateMin) + " max="
                                         + twoDecimalFormat.format(max) + " "
                                         + graphFormat.format(dateMax),
-                                        GRAPHBORDER
+                                        GRAPHBORDER_LEFT
                                                 + (dataString.length()
                                                         * fontAveWidth * j),
                                         GRAPHBORDER - fontHeight);
@@ -1018,10 +1058,17 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 if (!pe.equalsIgnoreCase("PP")) {
 
                     /* Draw the floodstage lines if needed */
-                    if ((pe.toUpperCase().startsWith("H") || pe.toUpperCase()
-                            .startsWith("Q")) && (isFloodLineDisplay())) {
-                        displayFloodCatLines(gc, graphData);
-                    }
+                	if (groupMode) {
+	                    if ((pe.toUpperCase().startsWith("H") || pe.toUpperCase()
+	                    		.startsWith("Q")) && (graphData.getShowcat())) {
+	                        displayFloodCatLines(gc, graphData);
+	                    }
+                	} else {
+	                    if ((pe.toUpperCase().startsWith("H") || pe.toUpperCase()
+	                    		.startsWith("Q")) && (isFloodLineDisplay())) {
+	                        displayFloodCatLines(gc, graphData);
+	                    }
+                	}
 
                     /* Draw points and lines */
                     if (pe.equalsIgnoreCase("PP")) {
@@ -1046,7 +1093,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             drawXAxis(gc, graphData);
 
             /* Graph Area Rectangle */
-            graphAreaRectangle = new Rectangle(GRAPHBORDER, GRAPHBORDER,
+            graphAreaRectangle = new Rectangle(GRAPHBORDER_LEFT, GRAPHBORDER,
                     graphAreaWidth, graphAreaHeight);
 
             gc.drawRectangle(graphAreaRectangle);
@@ -1068,6 +1115,15 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         this.dialog.getParentDialog().enableGraphButton();
         this.dialog.getParentDialog().enableBothButton();
     }
+    
+    private int[] getLabelLocation(int index, String dataString, int stackCount) {
+    	int[] xy = new int[2];
+    	
+		xy[0] = canvasWidth - GRAPHBORDER_RIGHT - 75;
+		xy[1] = GRAPHBORDER - (stackCount * fontHeight);
+		
+    	return xy;
+    }
 
     /**
      * Scales the data points.
@@ -1079,7 +1135,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         // Scale the data to match the graph area
         double yLowest = Integer.MAX_VALUE;
         double yHighest = Integer.MIN_VALUE;
-        if (!dialog.isZoomSet()) {
+//      if (!dialog.isZoomSet()) {
+      if (!zoomed) {
             gd.setYmin(yLowest);
             gd.setYmax(yHighest);
         }
@@ -1098,10 +1155,10 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             td = gd.getTraceData(i);
             if (td != null) {
                 TimeSeriesPoint[] points = null;
-                if (dialog.isZoomSet() == false) {
-                    points = td.getTsData();
+                if (zoomed) {
+                	points = td.getZoomedTsData();
                 } else {
-                    points = td.getZoomedTsData();
+                	points = td.getTsData();
                 }
 
                 if (points != null) {
@@ -1167,7 +1224,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 .toArray(new TimeSeriesPoint[pointList.size()]));
                         insertedPoint = null;
                     }
-                    if (!dialog.isZoomSet()) {
+                    if (!zoomed) {
                         TimeSeriesPoint[] pointArray = td.getTsData();
                         if (pointArray != null) {
                             for (int j = 0; j < pointArray.length; j++) {
@@ -1199,7 +1256,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             }
         } // end for
 
-        if (dialog.isZoomSet()) {
+        if (zoomed) {
             if (!dialog.isZoomAction() && dialog.isSelectZoom()) {
                 if (rubberBandY1 > rubberBandY2) {
                     swapPoints(rubberBandX1, rubberBandX2, rubberBandY1,
@@ -1258,7 +1315,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         }
         
         /* Add the flood stages if selected */
-        if (dialog.getBatchDataAndCategoriesMI().getSelection() && useFloodStage) {
+        if (dialog.getBatchDataAndCategoriesMI().getSelection() && useFloodStage && !zoomed) {
             // Get the stages
             double floodCatMinor = gd.getMinorStage();
             double floodCatMajor = gd.getMajorStage();
@@ -1328,10 +1385,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             scalingManager.setMaxDataValue(gd.getYmax());
         }
 
-        scalingManager.setZoomFlag(dialog.isZoomSet());
+        scalingManager.setZoomFlag(zoomed);
         gd.setYmin(scalingManager.getMinScaleValue());
         gd.setYmax(scalingManager.getMaxScaleValue());
-
     }
 
     private ForecastData createPoint(TraceData td, TimeSeriesPoint point) {
@@ -1386,13 +1442,14 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         ts = td.getTs().toUpperCase();
         pe = td.getPe().toUpperCase();
         dur = td.getDur();
+        String ext = td.getExtremum();
 
         String tablename = DbUtils.getTableName(pe, ts);
 
         /* Get the data from IHFS and store in TimeSeriesPoint object */
         try {
             List<Object[]> data = dataManager.getGraphData(tablename, lid, pe,
-                    ts, dur, beginDate, endDate);
+                    ts, dur, ext, beginDate, endDate);
 
             if ((data != null) && (data.size() > 0)) {
                 for (int i = 0; i < data.size(); i++) {
@@ -1534,20 +1591,22 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         }
 
         if (isRiverData) {
-            sb.append("  value=" + twoDecimalFormat.format(yValue) + " "
-                    + units + "   ");
+            sb.append(" value=" + twoDecimalFormat.format(yValue) + " "
+                    + units + " ");
 
             double q = StageDischargeUtils.stage2discharge(lid, yValue);
-            units = CFS;
-            if (q > 10000) {
-                units = KCFS;
-                q = q / 1000;
+            if (q != HydroConstants.MISSING_VALUE) {
+	            units = CFS;
+	            if (q > 10000) {
+	                units = KCFS;
+	                q = q / 1000;
+	            }
+	            sb.append(String.format("%8.1f", q) + " " + units);
             }
-            sb.append(String.format("%10.1f", q) + " " + units);
         } else {
             units = INCH;
             sb.append("  value=" + twoDecimalFormat.format(yValue) + " "
-                    + units + "   ");
+                    + units + " ");
         }
 
         return sb.toString();
@@ -1724,7 +1783,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 pointString = buildPointString(selectedX, e.y);
                 GC gc = new GC(tsCanvas);
                 Point extent = gc.stringExtent(pointString);
-                tsCanvas.redraw(GRAPHBORDER, fontHeight * 2, extent.x,
+                tsCanvas.redraw(GRAPHBORDER_LEFT, fontHeight * 2, extent.x,
                         extent.y, true);
                 redraw();
             } else {
@@ -1869,10 +1928,10 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
 
             TraceData td = graphData.getTraceData(selectedTraceId);
             TimeSeriesPoint[] points = null;
-            if (dialog.isZoomSet() == false) {
-                points = td.getTsData();
+            if (zoomed) {
+            	points = td.getZoomedTsData();
             } else {
-                points = td.getZoomedTsData();
+            	points = td.getTsData();
             }
 
             for (int j = 0; j < points.length; j++) {
@@ -1893,6 +1952,11 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             } else {
                 setCursor(crossHairCursor);
             }
+            
+            if (dialog.isReset()) {
+            	zoomed = false;
+            	dialog.setReset(false);
+            }
         }
     }
 
@@ -1912,6 +1976,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
 
         if (dialog.isZoomAction()) {
             dialog.setZoom(true);
+            zoomed = true;
             dialog.setZoomAction(false);
         } else if (pointSelected) {
             int[] dataPts = graphData.getTraceData(selectedTraceId)
@@ -2000,7 +2065,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         TimeSeriesPoint[] pa = null;
         TimeSeriesPoint tsp = null;
 
-        if (dialog.isZoomSet()) {
+        if (zoomed) {
             pa = td.getZoomedTsData();
             tsp = pa[selectionIndex];
             tsp.setY(pixel2y(graphData, value));
@@ -2053,7 +2118,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             pointList.clear();
             listRegionList.clear();
 
-            int dy = 10;
+            int dy = 15;
 
             for (TraceData td : traceList) {
                 if (td.isTraceOn()) {
@@ -2149,9 +2214,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         ArrayList<Integer> al = new ArrayList<Integer>();
         for (int i = 0; i < pointArray.length; i++) {
             if (pointArray[i].getY() != HydroConstants.MISSING_VALUE) {
-                if (!dialog.isZoomSet()) {
+                if (!zoomed) {
                     dataPtList
-                            .add(GRAPHBORDER
+                            .add(GRAPHBORDER_LEFT
                                     + x2pixel(graphData, pointArray[i].getX()
                                             .getTime()));
                     pointArray[i].setPixelX(dataPtList.get(dataIndex));
@@ -2176,7 +2241,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                             && ((pointArray[i].getY() > graphData.getYmin()) && (pointArray[i]
                                     .getY() < graphData.getYmax()))) {
                         zoomedPointList.add(pointArray[i]);
-                        al.add(GRAPHBORDER
+                        al.add(GRAPHBORDER_LEFT
                                 + x2pixel(graphData, pointArray[i].getX()
                                         .getTime()));
                         al.add(GRAPHBORDER
@@ -2264,7 +2329,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                         HydroUtils.getColor(traceIndex));
                 gc.setForeground(currentTraceColor);
             } else if (groupMode) {
-                if (td.getColorName() != null) {
+                if (td.getColorName() != null && HydroUtils.getColor(td.getColorName()) != null) {
                     currentTraceColor = new Color(parentComp.getDisplay(),
                             HydroUtils.getColor(td.getColorName()));
                 } else {
@@ -2630,4 +2695,12 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
     public ArrayList<TraceData> getTraceArray() {
         return traceArray;
     }
+    
+    public boolean isZoomed() {
+		return zoomed;
+	}
+
+	public void setZoomed(boolean zoomed) {
+		this.zoomed = zoomed;
+	}
 }

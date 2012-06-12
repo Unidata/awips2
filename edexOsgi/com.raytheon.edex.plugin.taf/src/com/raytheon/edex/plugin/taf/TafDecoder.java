@@ -90,6 +90,13 @@ public class TafDecoder extends AbstractDecoder {
                 record.setTraceId(traceId);
                 record.setPluginName("taf");
                 record.constructDataURI();
+            } else {
+                TAFParts parts = input.tafParts;
+                if(parts.getTafHeader() != null) {
+                    logger.error("Could not parse TAF for input " + parts.getTafHeader() + " in file " + traceId);
+                } else {
+                    logger.error("Could not parse file " + traceId);
+                }
             }
         } catch (DecoderException de) {
             logger.info(traceId + " -" + de.getMessage());

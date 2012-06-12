@@ -45,6 +45,7 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 9, 2010            njensen     Initial creation
+ * 4/26/2012    14748     ryu         Use edit area and time range from preview info
  * 
  * </pre>
  * 
@@ -84,8 +85,8 @@ public class ProcedureUtil {
         final ProcedureRequest req = new ProcedureRequest();
         req.setProcedureName(procName);
         req.setPreview(pi);
-        req.setRefSet(editArea);
-        req.setTimeRange(timeRange);
+        req.setRefSet(pi.getEditAction().getRefSet());
+        req.setTimeRange(pi.getEditAction().getTimeRange());
 
         if (varDict != null) {
             req.setVarDict(varDict);

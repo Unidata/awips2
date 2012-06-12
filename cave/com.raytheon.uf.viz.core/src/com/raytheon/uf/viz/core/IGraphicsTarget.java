@@ -732,6 +732,12 @@ public interface IGraphicsTarget extends IImagingExtension {
     public IView getView();
 
     /**
+     * 
+     * @return
+     */
+    public IView getView();
+
+    /**
      * Use getExtension(IOffscreenRenderingExtension.class).renderOffscreen(
      * offscreenImage) instead;
      */

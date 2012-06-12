@@ -131,6 +131,8 @@ import com.vividsolutions.jts.io.WKTReader;
  *    Feb 28, 2007             chammack    Initial Creation.
  *    02/12/09                 njensen     Refactored to new rsc architecture
  *    04/03/2012   14774/14775 D. Friedman Fixed tiling and lockup problem
+ *    05/08/2012   14828       D. Friedman Use nearest-neighbor interpolation for
+ *                                         reprojected grids.
  * 
  * </pre>
  * 
@@ -291,10 +293,10 @@ public class GridResource extends
                     .getLocation().getGridGeometry();
             GridGeometry2D expectedGridGeometry = this.gridGeometry[0];
             if (!realGridGeometry.equals(expectedGridGeometry)) {
-                BilinearInterpolation interp = new BilinearInterpolation(
+                AbstractInterpolation interp = new NearestNeighborInterpolation(
                         realGridGeometry, expectedGridGeometry, -9998,
                         Float.POSITIVE_INFINITY, -999999);
-                interp.setMissingThreshold(1.0f);
+                //interp.setMissingThreshold(1.0f); // Should be used for bi-linear interpolation
                 if (record instanceof FloatDataRecord) {
                     float[] data = ((FloatDataRecord) record).getFloatData();
                     record = record.clone();

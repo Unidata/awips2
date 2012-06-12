@@ -1,9 +1,9 @@
 gov.noaa.nws.ncep.ui.pgen.display.LinePatternList
 gov.noaa.nws.ncep.ui.pgen.display.LinePattern
 gov.noaa.nws.ncep.ui.pgen.display.PatternSegment
-gov.noaa.nws.ncep.ui.pgen.attrDialog.TcaAttrInfo
+gov.noaa.nws.ncep.ui.pgen.attrdialog.TcaAttrInfo
 gov.noaa.nws.ncep.ui.pgen.tca.IslandBreakpointList
 gov.noaa.nws.ncep.ui.pgen.tca.WaterBreakpointList
 gov.noaa.nws.ncep.ui.pgen.tca.CoastBreakpointList
 gov.noaa.nws.ncep.ui.pgen.file.Products
-gov.noaa.nws.ncep.ui.pgen.productTypes.ProductTypes
+gov.noaa.nws.ncep.ui.pgen.producttypes.ProductTypes

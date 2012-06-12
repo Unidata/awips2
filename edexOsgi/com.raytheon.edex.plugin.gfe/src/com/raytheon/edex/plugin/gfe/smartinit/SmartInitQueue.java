@@ -48,7 +48,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2008            njensen     Initial creation
- * Oct 6, 2009    3172    njensen    Based on GribNotifyMessages
+ * Oct 6, 2009    3172     njensen    Based on GribNotifyMessages
  * </pre>
  * 
  * @author njensen
@@ -56,131 +56,140 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  */
 
 public class SmartInitQueue {
-    private int smartInitTimeoutMillis = 60000;
+	private int smartInitTimeoutMillis = 60000;
 
-    private Map<SmartInitRecordPK, SmartInitRecord> initSet = new HashMap<SmartInitRecordPK, SmartInitRecord>();
+	private Map<SmartInitRecordPK, SmartInitRecord> initSet = new HashMap<SmartInitRecordPK, SmartInitRecord>();
 
-    protected static final transient IUFStatusHandler handler = UFStatus
-            .getHandler(SmartInitQueue.class);
+	protected static final transient IUFStatusHandler handler = UFStatus
+			.getHandler(SmartInitQueue.class);
 
-    public void addInits(Collection<SmartInitRecord> initsToAdd) {
-        // event driven start route etc
-        mergeInits(initsToAdd);
-    }
+	public void addInits(Collection<SmartInitRecord> initsToAdd) {
+		// event driven start route etc
+		mergeInits(initsToAdd);
+	}
 
-    private void mergeInits(Collection<SmartInitRecord> inits) {
-        synchronized (this) {
-            for (SmartInitRecord record : inits) {
-                try {
-                    DatabaseID toAdd = new DatabaseID(record.getDbName());
-                    IFPServerConfig config = IFPServerConfigManager
-                            .getServerConfig(toAdd.getSiteId());
-                    Calendar modelTime = Calendar.getInstance();
-                    modelTime.setTime(toAdd.getModelTimeAsDate());
-                    if (config.initSkip(toAdd.getModelName(),
-                            modelTime.get(Calendar.HOUR_OF_DAY))) {
-                        continue;
-                    }
+	private void mergeInits(Collection<SmartInitRecord> inits) {
+		for (SmartInitRecord record : inits) {
+			try {
+				DatabaseID toAdd = new DatabaseID(record.getDbName());
+				IFPServerConfig config = IFPServerConfigManager
+						.getServerConfig(toAdd.getSiteId());
+				Calendar modelTime = Calendar.getInstance();
+				modelTime.setTime(toAdd.getModelTimeAsDate());
+				if (config.initSkip(toAdd.getModelName(),
+						modelTime.get(Calendar.HOUR_OF_DAY))) {
+					continue;
+				}
+			} catch (GfeConfigurationException e) {
+				handler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
+				continue;
+			}
 
-                } catch (GfeConfigurationException e) {
-                    handler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
-                    continue;
-                }
+			synchronized (this) {
+				SmartInitRecordPK id = record.getId();
+				SmartInitRecord oldRecord = initSet.get(id);
+				if (oldRecord == null) {
+					initSet.put(id, record);
+				} else {
+					Date newInsertTime = record.getInsertTime();
+					if (newInsertTime.getTime() > oldRecord.getInsertTime()
+							.getTime()) {
+						oldRecord.setInsertTime(newInsertTime);
+					}
+					oldRecord.setManual(oldRecord.isManual()
+							|| record.isManual());
+					oldRecord.setPriority(Math.min(oldRecord.getPriority(),
+							record.getPriority()));
+				}
+			}
+		}
+	}
 
-                SmartInitRecordPK id = record.getId();
-                SmartInitRecord oldRecord = initSet.get(id);
-                if (oldRecord == null) {
-                    initSet.put(id, record);
-                } else {
-                    Date newInsertTime = record.getInsertTime();
-                    if (newInsertTime.getTime() > oldRecord.getInsertTime()
-                            .getTime()) {
-                        oldRecord.setInsertTime(newInsertTime);
-                    }
-                    oldRecord.setManual(oldRecord.isManual()
-                            || record.isManual());
-                }
-            }
-        }
-    }
+	public void addManualInit(String init) {
+		Collection<SmartInitRecord> manualInits = InitModules.splitManual(init);
+		mergeInits(manualInits);
+		// force update the tables
+		fireSmartInit();
+	}
 
-    public void addManualInit(String init) {
-        Collection<SmartInitRecord> manualInits = InitModules.splitManual(init);
-        mergeInits(manualInits);
-        // force update the tables
-        fireSmartInit();
-    }
+	public void fireSmartInit() {
+		Map<SmartInitRecordPK, SmartInitRecord> initsToStore = null;
 
-    public void fireSmartInit() {
-        synchronized (this) {
-            if (initSet.size() > 0) {
-                CoreDao cd = new CoreDao(DaoConfig.DEFAULT);
-                Session s = null;
-                Transaction tx = null;
-                SmartInitRecord oldRecord = null;
+		// copy off inits to store, allowing other threads to continue
+		// accumulating
+		synchronized (this) {
+			if (initSet.size() > 0) {
+				initsToStore = initSet;
+				initSet = new HashMap<SmartInitRecordPK, SmartInitRecord>(
+						(int) (initsToStore.size() * 1.25) + 1);
+			}
+		}
 
-                for (SmartInitRecord record : initSet.values()) {
-                    try {
-                        s = cd.getHibernateTemplate().getSessionFactory()
-                                .openSession();
-                        tx = s.beginTransaction();
+		if (initsToStore != null) {
+			CoreDao cd = new CoreDao(DaoConfig.DEFAULT);
+			Session s = null;
+			Transaction tx = null;
+			SmartInitRecord oldRecord = null;
 
-                        oldRecord = (SmartInitRecord) s.get(
-                                SmartInitRecord.class, record.getId(),
-                                LockOptions.UPGRADE);
+			for (SmartInitRecord record : initsToStore.values()) {
+				try {
+					s = cd.getHibernateTemplate().getSessionFactory()
+							.openSession();
+					tx = s.beginTransaction();
 
-                        if (oldRecord == null) {
-                            s.save(record);
-                        } else {
-                            Date newInsertTime = record.getInsertTime();
-                            if (oldRecord.getInsertTime().getTime() < newInsertTime
-                                    .getTime()) {
-                                oldRecord.setInsertTime(newInsertTime);
-                            }
-                            oldRecord.setManual(oldRecord.isManual()
-                                    || record.isManual());
-                            s.update(oldRecord);
-                        }
-                        tx.commit();
-                    } catch (Throwable t) {
-                        handler.handle(Priority.ERROR,
-                                "Error adding smartInit [" + record.getId()
-                                        + "] to database queue", t);
+					oldRecord = (SmartInitRecord) s.get(SmartInitRecord.class,
+							record.getId(), LockOptions.UPGRADE);
 
-                        if (tx != null) {
-                            try {
-                                tx.rollback();
-                            } catch (HibernateException e) {
-                                handler.handle(
-                                        Priority.ERROR,
-                                        "Error rolling back smart init lock transaction",
-                                        e);
-                            }
-                        }
-                    } finally {
-                        if (s != null) {
-                            try {
-                                s.close();
-                            } catch (HibernateException e) {
-                                handler.handle(
-                                        Priority.ERROR,
-                                        "Error closing smart init lock session",
-                                        e);
-                            }
-                        }
-                    }
-                }
-                initSet.clear();
-            }
-        }
-    }
+					if (oldRecord == null) {
+						s.save(record);
+					} else {
+						Date newInsertTime = record.getInsertTime();
+						oldRecord.setPriority(Math.min(oldRecord.getPriority(),
+								record.getPriority()));
+						if (oldRecord.getInsertTime().getTime() < newInsertTime
+								.getTime()) {
+							oldRecord.setInsertTime(newInsertTime);
+						}
+						oldRecord.setManual(oldRecord.isManual()
+								|| record.isManual());
+						s.update(oldRecord);
+					}
+					tx.commit();
+				} catch (Throwable t) {
+					handler.handle(Priority.ERROR, "Error adding smartInit ["
+							+ record.getId() + "] to database queue", t);
 
-    public int getSmartInitTimeoutMillis() {
-        return smartInitTimeoutMillis;
-    }
+					if (tx != null) {
+						try {
+							tx.rollback();
+						} catch (HibernateException e) {
+							handler.handle(
+									Priority.ERROR,
+									"Error rolling back smart init lock transaction",
+									e);
+						}
+					}
+				} finally {
+					if (s != null) {
+						try {
+							s.close();
+						} catch (HibernateException e) {
+							handler.handle(Priority.ERROR,
+									"Error closing smart init lock session", e);
+						}
+					}
+				}
+			}
+		}
 
-    public void setSmartInitTimeoutMillis(int smartInitTimeoutMillis) {
-        this.smartInitTimeoutMillis = smartInitTimeoutMillis;
-    }
+	}
+
+	public int getSmartInitTimeoutMillis() {
+		return smartInitTimeoutMillis;
+	}
+
+	public void setSmartInitTimeoutMillis(int smartInitTimeoutMillis) {
+		this.smartInitTimeoutMillis = smartInitTimeoutMillis;
+	}
 
 }
