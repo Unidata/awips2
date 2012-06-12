@@ -9,9 +9,9 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
-import gov.noaa.nws.ncep.ui.pgen.productTypes.ProdType;
-import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProdType;
+import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 
 import java.io.File;
 import java.io.FileWriter;

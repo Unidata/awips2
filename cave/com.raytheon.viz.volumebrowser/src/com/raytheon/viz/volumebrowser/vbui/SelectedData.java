@@ -22,7 +22,7 @@ package com.raytheon.viz.volumebrowser.vbui;
 import java.util.List;
 
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.viz.volumebrowser.util.FieldDisplayTypesFactory;
+import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 
 /**
  * 

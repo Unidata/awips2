@@ -49,7 +49,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.warngen.gui.WarngenLayer;
 import com.raytheon.viz.warngen.suppress.SuppressMap;
 import com.raytheon.viz.warngen.util.Abbreviation;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -70,6 +69,8 @@ import com.vividsolutions.jts.geom.Geometry;
  *    Apr 11, 2012 #14691      Qinglu lin  Extra code were added to handle marine warnings as
  *                                         MarineZones shapefiles have no FE_AREA.
  *    Apr 13, 2012 #14691      Qinglu lin  Added code for two more fe_area: er and nr.
+ *    May  4, 2012 #14887      Qinglu lin  Changed 0.25 to 0.60 for DEFAULT_PORTION_TOLERANCE; 
+ *                                         added code to pass a Envelope calculatePortion(). 
  * 
  * </pre>
  * 
@@ -84,7 +85,7 @@ public class Area {
      * If an area greater than this percentage of the area is covered, no
      * direction is included
      */
-    public static final double DEFAULT_PORTION_TOLERANCE = 0.25;
+    public static final double DEFAULT_PORTION_TOLERANCE = 0.60;
 
     private Area() {
 
@@ -215,11 +216,8 @@ public class Area {
             double tolerCheck = regionGeom.getArea()
                     * DEFAULT_PORTION_TOLERANCE;
             if (areaIntersection < tolerCheck) {
-                Coordinate centroidOfIntersection = intersection.getCentroid()
-                        .getCoordinate();
                 area.partOfArea = GisUtil.asStringList(GisUtil
-                        .calculatePortion(regionGeom, centroidOfIntersection,
-                                area.suppress));
+                        .calculatePortion(regionGeom, intersection, area.suppress));
             }
 
             // Search the parent region

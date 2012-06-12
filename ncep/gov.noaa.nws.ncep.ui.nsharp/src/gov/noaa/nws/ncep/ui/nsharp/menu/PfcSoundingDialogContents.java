@@ -47,8 +47,8 @@ public class PfcSoundingDialogContents {
 	private  Composite parent;
 	private org.eclipse.swt.widgets.List availablefileList, sndTimeList;
 	private Group  topGp, fileTypeGp, bottomGp, availableFileGp, sndTimeListGp;
-	private Button namBtn, gfsBtn, newTabBtn,timeBtn;
-	private boolean timeLimit = false, newtab=false;
+	private Button namBtn, gfsBtn, timeBtn;
+	private boolean timeLimit = false;
 	private List<String> selectedFileList = new ArrayList<String>(); 
 	private List<String> queriedTimeList = new ArrayList<String>(); 
 	private List<NsharpStationInfo> stnPoints = new ArrayList<NsharpStationInfo>();
@@ -334,7 +334,6 @@ public class PfcSoundingDialogContents {
 		if(sndStnInfoCol != null && sndStnInfoCol.getStationInfo() != null){
 
 			NcSoundingStnInfo[] stnInfoAry = sndStnInfoCol.getStationInfo();
-			NsharpMapResource nsharpMapResource = NsharpMapResource.getOrCreateNsharpMapResource();//NsharpLoadDialog.getAccess().getNsharpMapResource();
 			//System.out.println("queryAndMarkStn stn num ="+ stnInfoAry.length+ " for pfc refTime(file) "+refTimeStr);
 			for(int i=0; i < stnInfoAry.length; i++){
 				NcSoundingStnInfo stnInfo = stnInfoAry[i];

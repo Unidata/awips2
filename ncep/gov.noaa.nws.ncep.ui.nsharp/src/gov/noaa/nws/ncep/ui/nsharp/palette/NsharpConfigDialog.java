@@ -35,10 +35,12 @@ import org.eclipse.ui.PlatformUI;
 
 
 public class NsharpConfigDialog extends Dialog {
-	private Button graphBtn, lineBtn;
+	private Button parameterBtn, dataDisplayBtn, timeLineBtn, stnBtn;
 	private static NsharpConfigDialog thisDialog=null;
-	private static NsharpGraphConfigDialog graphDialog = null;
-	private static NsharpLineConfigDialog lineDialog = null;
+	private static NsharpParametersSelectionConfigDialog parameterSelDialog = null;
+	private static NsharpDataDisplayConfigDialog dataDislpayDialog = null;
+	private static NsharpTimeLineConfigDialog timelineDialog = null;
+	private static NsharpStnConfigDialog stnDialog = null;
 	public NsharpConfigDialog(Shell parentShell) {
 		super(parentShell);
 		// TODO Auto-generated constructor stub
@@ -57,41 +59,81 @@ public class NsharpConfigDialog extends Dialog {
 		return thisDialog;
 
 	}
+	
 	public void createDialogContents(Composite parent){
-		
-		graphBtn = new Button(parent, SWT.PUSH);
-		graphBtn.setText("Parameters Selection");
-		graphBtn.setEnabled( true );
+		parameterBtn = new Button(parent, SWT.PUSH);
+		parameterBtn.setText("Parameters Selection");
+		parameterBtn.setEnabled( true );
 		//graphBtn.setSize(btnWidth,pushbtnHeight);
-		graphBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {           
-				
+		parameterBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           				
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
-				graphDialog = NsharpGraphConfigDialog.getInstance(shell);
-
-				if ( graphDialog != null ) {
-					
-					lineBtn.setEnabled(false);
-					graphDialog.open();
-					lineBtn.setEnabled(true);
+				parameterSelDialog = NsharpParametersSelectionConfigDialog.getInstance(shell);
+				if ( parameterSelDialog != null ) {
+					timeLineBtn.setEnabled( false );
+					dataDisplayBtn.setEnabled(false);
+					stnBtn.setEnabled( false );
+					parameterSelDialog.open();
+					dataDisplayBtn.setEnabled(true);
+					timeLineBtn.setEnabled( true );
+					stnBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
-		lineBtn = new Button(parent, SWT.PUSH);
-		lineBtn.setText("Data Display");
-		lineBtn.setEnabled( true );
+		dataDisplayBtn = new Button(parent, SWT.PUSH);
+		dataDisplayBtn.setText("Data Display");
+		dataDisplayBtn.setEnabled( true );
 		//lineBtn.setSize(btnWidth,pushbtnHeight);
-		lineBtn.addListener( SWT.MouseUp, new Listener() {
+		dataDisplayBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
-
-				lineDialog =  NsharpLineConfigDialog.getInstance(shell);
-
-				if ( lineDialog != null ) {
-					
-					graphBtn.setEnabled(false);
-					lineDialog.open();
-					graphBtn.setEnabled(true);
+				dataDislpayDialog =  NsharpDataDisplayConfigDialog.getInstance(shell);
+				if ( dataDislpayDialog != null ) {
+					timeLineBtn.setEnabled( false );
+					parameterBtn.setEnabled(false);
+					stnBtn.setEnabled( false );
+					dataDislpayDialog.open();
+					parameterBtn.setEnabled(true);
+					timeLineBtn.setEnabled( true );
+					stnBtn.setEnabled( true );
+				}	
+			}          		            	 	
+		} );
+		timeLineBtn = new Button(parent, SWT.PUSH);
+		timeLineBtn.setText("Time Line");
+		timeLineBtn.setEnabled( true );
+		//lineBtn.setSize(btnWidth,pushbtnHeight);
+		timeLineBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
+				timelineDialog =  NsharpTimeLineConfigDialog.getInstance(shell);
+				if ( timelineDialog != null ) {
+					dataDisplayBtn.setEnabled(false);
+					parameterBtn.setEnabled(false);
+					stnBtn.setEnabled( false );
+					timelineDialog.open();
+					parameterBtn.setEnabled(true);
+					dataDisplayBtn.setEnabled(true);
+					stnBtn.setEnabled( true );
+				}	
+			}          		            	 	
+		} );
+		stnBtn = new Button(parent, SWT.PUSH);
+		stnBtn.setText("Station");
+		stnBtn.setEnabled( true );
+		//lineBtn.setSize(btnWidth,pushbtnHeight);
+		stnBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
+				stnDialog =  NsharpStnConfigDialog.getInstance(shell);
+				if ( stnDialog != null ) {
+					dataDisplayBtn.setEnabled(false);
+					parameterBtn.setEnabled(false);
+					timeLineBtn.setEnabled( false );
+					stnDialog.open();
+					parameterBtn.setEnabled(true);
+					dataDisplayBtn.setEnabled(true);
+					timeLineBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -102,7 +144,7 @@ public class NsharpConfigDialog extends Dialog {
 		top = (Composite) super.createDialogArea(parent);
 
 		// Create the main layout for the shell.
-		GridLayout mainLayout = new GridLayout(1, false);
+		GridLayout mainLayout = new GridLayout(1, true);
 		mainLayout.marginHeight = 3;
 		mainLayout.marginWidth = 3;
 		top.setLayout(mainLayout);
@@ -130,7 +172,7 @@ public class NsharpConfigDialog extends Dialog {
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
         shell.setText( "Nsharp Configuration" );
-        shell.setSize(250, 200);
+        shell.setSize(250, 250);
     }
 	@Override
     public int open( ) {

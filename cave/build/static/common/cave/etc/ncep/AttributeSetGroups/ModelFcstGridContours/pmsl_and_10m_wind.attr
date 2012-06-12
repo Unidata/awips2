@@ -7,6 +7,8 @@
 !
 GLEVEL=10!0
 GVCORD=hght!none
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=mag(kntv(wnd))!sm5s(pmsl) ! kntv(wnd@10%hght)
 TYPE=c/f!c ! b

@@ -4,7 +4,7 @@
     <resourceDefnName>GFS</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=GFS
+GDFILE=gfs
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

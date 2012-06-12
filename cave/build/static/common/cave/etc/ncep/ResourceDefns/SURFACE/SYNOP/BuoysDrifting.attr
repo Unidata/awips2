@@ -4,3 +4,4 @@ legendString=Drifting Buoy Synop
 plotModelName=bouys
 reportType=1006
 plotDensity=15
+conditionalFilterName=

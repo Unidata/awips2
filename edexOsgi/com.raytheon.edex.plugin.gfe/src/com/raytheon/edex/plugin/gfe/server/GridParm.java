@@ -346,7 +346,7 @@ public class GridParm {
         trs = ssr.getPayload();
 
         // Get the lock table
-        WsId wsId = new WsId(null, "timePurge", "EDEX", 0);
+        WsId wsId = new WsId(null, "timePurge", "EDEX");
         List<LockTable> lts = new ArrayList<LockTable>();
 
         LockTableRequest lockreq = new LockTableRequest(this.id);
