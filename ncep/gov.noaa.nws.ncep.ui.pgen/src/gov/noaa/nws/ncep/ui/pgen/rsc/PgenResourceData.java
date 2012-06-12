@@ -34,7 +34,7 @@ import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringControlDialog;
-import gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductManageDialog;
 import gov.noaa.nws.ncep.ui.pgen.tools.AbstractPgenDrawingTool;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 //import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;

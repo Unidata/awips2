@@ -91,7 +91,6 @@ public class ObZoneHourReports {
 	
 	private void InitWorstValues() {
 		worstValues = new ObReport();
-		worstValues.init();
 		worstValues.setZoneId(zone); // the ObReport's init() sets "zone id" to "" !!!
 	}
 

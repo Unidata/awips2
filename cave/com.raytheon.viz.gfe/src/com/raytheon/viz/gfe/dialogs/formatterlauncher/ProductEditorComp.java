@@ -149,8 +149,6 @@ public class ProductEditorComp extends Composite implements
 
     private static final String EMPTY = "";
 
-    private static final String SPC = " ";
-
     /**
      * Parent composite.
      */
@@ -320,8 +318,6 @@ public class ProductEditorComp extends Composite implements
      */
     private ITransmissionState transmissionCB;
 
-    private String productTime = null;
-
     private SimpleDateFormat purgeTimeFmt = new SimpleDateFormat("ddHHmm");
 
     private SimpleDateFormat vtecTimeFmt = new SimpleDateFormat(
@@ -442,6 +438,7 @@ public class ProductEditorComp extends Composite implements
         init();
 
         visibilityListener = new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 switch (e.type) {
                 case SWT.Hide:
@@ -643,8 +640,8 @@ public class ProductEditorComp extends Composite implements
         });
         menuItems.add(storeMI);
 
-        // TODO : we can't color the background of the menu item so
-        // we may want to use an image like the tab folder.
+        // we can't color the background of the menu item so
+        // we use an image like the tab folder.
         transmitMI = new MenuItem(fileMenu, SWT.PUSH);
         transmitMI.setText("Transmit...");
         transmitMI.setImage(transLiveImg);
@@ -952,11 +949,8 @@ public class ProductEditorComp extends Composite implements
         });
         buttons.add(transmitBtn);
 
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.widthHint = 35;
         Button checkBtn = new Button(bottomComp, SWT.PUSH);
         checkBtn.setImage(checkImg);
-        checkBtn.setLayoutData(gd);
         checkBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -964,8 +958,9 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        gd = new GridData(30, 20);
         Label sepLbl = new Label(bottomComp, SWT.SEPARATOR | SWT.VERTICAL);
+        gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        gd.heightHint = 1;
         sepLbl.setLayoutData(gd);
 
         Label typeLbl = new Label(bottomComp, SWT.NONE);
@@ -979,8 +974,9 @@ public class ProductEditorComp extends Composite implements
             }
         });
 
-        gd = new GridData(30, 20);
         Label sepLbl2 = new Label(bottomComp, SWT.SEPARATOR | SWT.VERTICAL);
+        gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        gd.heightHint = 1;
         sepLbl2.setLayoutData(gd);
 
         Label prodExpiresLbl = new Label(bottomComp, SWT.NONE);
@@ -1011,6 +1007,7 @@ public class ProductEditorComp extends Composite implements
 
     private void updateExpireTimeFromTimer() {
         VizApp.runAsync(new Runnable() {
+            @Override
             public void run() {
                 updateExpireTime();
             }

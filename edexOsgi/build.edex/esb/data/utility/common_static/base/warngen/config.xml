@@ -26,4 +26,10 @@
   <defaultTemplate>severeThunderstormWarning</defaultTemplate>
   <mainWarngenProducts>Tornado/tornadoWarning,Severe Thunderstorm/severeThunderstormWarning,Severe Weather Statement/severeWeatherStatement,Significant Weather Advisory/significantWeatherAdvisory,Flash Flood Warning/flashFloodWarning</mainWarngenProducts>
   <otherWarngenProducts>Flash Flood Statement/flashFloodWarningFollowup,Non-Convective FFW (incl. Dam Break)/nonConvectiveFlashFloodWarning,Non-Convective Flash Flood Statement/nonConvectiveFlashFloodWarningFollowup,Areal Flood Warning/arealFloodWarning,Areal Flood Warning Followup/arealFloodWarningFollowup,Areal Flood Advisory/arealFloodAdvisory,Areal Flood Advisory Followup/arealFloodAdvisoryFollowup,Special Weather Statement/specialWeatherStatement,Short Term Forecast/shortTermForecast</otherWarngenProducts>
+  <!-- Sites should override nx, ny with the values found in their site .gelt file -->
+  <gridSpacing>
+  	<nx>600</nx>
+  	<ny>600</ny>
+  	<keepAspectRatio>true</keepAspectRatio>
+  </gridSpacing>
 </configuration>

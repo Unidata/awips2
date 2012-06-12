@@ -3,3 +3,6 @@ colorBar=@dfltRadarColorBar.xml
 ! 1km Storm Relative Motion
 productCode=56
 elevationNumber=4
+alpha=1.0
+brightness=1.0
+contrast=1.0

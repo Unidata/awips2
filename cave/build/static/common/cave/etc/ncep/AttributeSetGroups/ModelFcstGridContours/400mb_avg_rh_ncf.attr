@@ -6,6 +6,8 @@
 !
 GLEVEL=500:300 ! 500:300 !500:300 
 GVCORD=pres ! pres !pres 
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=lav(relh) ! lav(relh) !lav(relh) 
 TYPE=c ! c ! c

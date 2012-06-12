@@ -52,16 +52,15 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "FileListings")
 public class FileDataList {
-    @XmlElements({ @XmlElement(name = "CoverageFiles", type = FileData.class) })
     private List<FileData> coverageFileList;
 
-    @XmlElements({ @XmlElement(name = "SubGridFiles", type = FileData.class) })
     private List<FileData> subGridFileList;
 
     private Map<String, FileData> coverageFileMap;
 
     private Map<String, FileData> subGridFileMap;
 
+    @XmlElements({ @XmlElement(name = "CoverageFiles", type = FileData.class) })
     public List<FileData> getCoverageFileList() {
         if (coverageFileList == null && coverageFileMap != null) {
             coverageFileList = new ArrayList<FileData>(coverageFileMap.values());
@@ -75,6 +74,7 @@ public class FileDataList {
         coverageFileMap = null;
     }
 
+    @XmlElements({ @XmlElement(name = "SubGridFiles", type = FileData.class) })
     public List<FileData> getSubGridFileList() {
         if (subGridFileList == null && subGridFileMap != null) {
             subGridFileList = new ArrayList<FileData>(subGridFileMap.values());
@@ -172,8 +172,11 @@ public class FileDataList {
 
         for (LocalizationFile lf : subGridFiles) {
             File f = lf.getFile();
-            FileData data = new FileData(f);
-            subGridFileMap.put(f.getName(), data);
+
+            if (!subGridFileMap.containsKey(f.getName())) {
+            	FileData data = new FileData(f);
+            	subGridFileMap.put(f.getName(), data);
+            }
         }
     }
 
