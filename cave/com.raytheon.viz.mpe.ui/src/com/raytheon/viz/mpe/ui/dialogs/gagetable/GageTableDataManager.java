@@ -941,10 +941,12 @@ public class GageTableDataManager {
                 return returnValue;
             }
 
-            x = x - extent.x;
-            y = y - extent.y;
-            short value = data[y][x];
-
+            int gridX = x - extent.x;
+            // int gridY = y - extent.y;
+            // Needed to flip the grid
+            int gridY = extent.height - (y - extent.y) - 1;
+            short value = data[gridY][gridX];
+            
             // Any value < 0 is considered missing
             if ((value == -899.0) || (value == -999.0) || (value < 0)) {
                 returnValue = -999.0;
@@ -980,6 +982,7 @@ public class GageTableDataManager {
      * Reload the data.
      */
     public void reloadData() {
+    	getTableData();
         getTableRowData();
     }
 

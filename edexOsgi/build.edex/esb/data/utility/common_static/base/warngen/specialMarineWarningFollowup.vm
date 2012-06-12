@@ -43,6 +43,7 @@
 #if(${action}!="CANCON")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
+
 #if(${productClass}=="T")
 TEST...MARINE WEATHER STATEMENT...TEST
 #else
@@ -478,6 +479,7 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #if(${action}=="CANCON")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
+
 #if(${productClass}=="T")
 TEST...MARINE WEATHER STATEMENT...TEST
 #else

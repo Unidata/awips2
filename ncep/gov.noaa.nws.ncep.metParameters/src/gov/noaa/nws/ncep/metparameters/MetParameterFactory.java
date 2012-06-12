@@ -8,6 +8,7 @@ import java.util.HashMap;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 // TODO : this class can be enhanced to read AbstractNcParameter objects either from an extension point or to read
@@ -41,16 +42,33 @@ public class MetParameterFactory {
 		ncParamsMap.put( BruntVaisalaFreq.class.getSimpleName(),  new BruntVaisalaFreq() );
 		ncParamsMap.put( BruntVaisalaPeriod.class.getSimpleName(),  new BruntVaisalaPeriod() );
 //		ncParamsMap.put( BruntVaisalaFrequencySquared.class.getSimpleName(),  new BruntVaisalaFrequencySquared() );
+		ncParamsMap.put( CatFcstCeilingHeightCond.class.getSimpleName(),  new CatFcstCeilingHeightCond() );
+		ncParamsMap.put( CatFcstObstructionsVision.class.getSimpleName(),  new CatFcstObstructionsVision() );
+		ncParamsMap.put( CatFcstPrecipitation.class.getSimpleName(),  new CatFcstPrecipitation() );
+		ncParamsMap.put( CatFcstSnowAmountFalling24hr.class.getSimpleName(),  new CatFcstSnowAmountFalling24hr() );
+		ncParamsMap.put( CatFcstVisibilityCond.class.getSimpleName(),  new CatFcstVisibilityCond() );
 		ncParamsMap.put( CeilingFromSurface.class.getSimpleName(),  new CeilingFromSurface() );
 		ncParamsMap.put( CeilingFromSeaLevel.class.getSimpleName(),  new CeilingFromSeaLevel() );
+		ncParamsMap.put( CloudCover.class.getSimpleName(),  new CloudCover() );
 		ncParamsMap.put( ClimDayTemp.class.getSimpleName(),  new ClimDayTemp() );
 		ncParamsMap.put( ClimNightTemp.class.getSimpleName(),  new ClimNightTemp() );
 		ncParamsMap.put( Clim12HrPOP.class.getSimpleName(),  new Clim12HrPOP() );
 		ncParamsMap.put( Clim24HrPOP.class.getSimpleName(),  new Clim24HrPOP() );
 		ncParamsMap.put( CloudBase1.class.getSimpleName(),  new CloudBase1() );
 		ncParamsMap.put( CloudBase2.class.getSimpleName(),  new CloudBase2() );
+//		ncParamsMap.put( CloudFractionInLayer.class.getSimpleName(),  new CloudFractionInLayer() );
+//		ncParamsMap.put( CloudWater.class.getSimpleName(),  new CloudWater() );
 		ncParamsMap.put( CloudTop1.class.getSimpleName(),  new CloudTop1() );
 		ncParamsMap.put( CloudTop2.class.getSimpleName(),  new CloudTop2() );
+		ncParamsMap.put( CondProbOf6HrSevereWeather.class.getSimpleName(),  new CondProbOf6HrSevereWeather() );
+		ncParamsMap.put( CondProbOf12HrSevereWeather.class.getSimpleName(),  new CondProbOf12HrSevereWeather() );
+		ncParamsMap.put( CondProbOf12HrFreezingPrecip.class.getSimpleName(),  new CondProbOf12HrFreezingPrecip() );
+		ncParamsMap.put( CondProbOf12HrRain.class.getSimpleName(),  new CondProbOf12HrRain() );
+		ncParamsMap.put( CondFcstPrecip12HrType.class.getSimpleName(),  new CondFcstPrecip12HrType() );
+		ncParamsMap.put( CondProbOf12HrSnow.class.getSimpleName(),  new CondProbOf12HrSnow() );
+		ncParamsMap.put( CondProbOf24HrSevereWeather.class.getSimpleName(),  new CondProbOf24HrSevereWeather() );
+		ncParamsMap.put( CondProbOfFreezingPrecip.class.getSimpleName(),  new CondProbOfFreezingPrecip() );
+		ncParamsMap.put( CondProbOfSnow.class.getSimpleName(),  new CondProbOfSnow() );
 		ncParamsMap.put( ShipCourse.class.getSimpleName(), new ShipCourse() );
 		ncParamsMap.put( DayTempAnomaly.class.getSimpleName(),  new DayTempAnomaly() );
 		ncParamsMap.put( DayTempFcst.class.getSimpleName(),  new DayTempFcst() );
@@ -80,6 +98,7 @@ public class MetParameterFactory {
 		ncParamsMap.put( FlightLevel.class.getSimpleName(), new FlightLevel() );
 		ncParamsMap.put( FosbergFireWxIndex.class.getSimpleName(), new FosbergFireWxIndex() );
 		ncParamsMap.put( FZRainWatchThresh.class.getSimpleName(), new FZRainWatchThresh() );
+//		ncParamsMap.put( GenericDimensionlessParameter.class.getSimpleName(), new GenericDimensionlessParameter() );
 //		ncParamsMap.put( GustBarb.class.getSimpleName(), new GustBarb() );
 		ncParamsMap.put( HailSize.class.getSimpleName(), new HailSize() );
 		ncParamsMap.put( HeatIndex.class.getSimpleName(), new HeatIndex() );
@@ -109,10 +128,12 @@ public class MetParameterFactory {
 		ncParamsMap.put( MaxDailyWeatherMapTemp.class.getSimpleName(), new MaxDailyWeatherMapTemp() );
 		ncParamsMap.put( MaxDayTemp.class.getSimpleName(), new MaxDayTemp() );
 		ncParamsMap.put( MaxEditedTemp.class.getSimpleName(), new MaxEditedTemp() );
+		ncParamsMap.put( MaxCloudCover.class.getSimpleName(), new MaxCloudCover() );
 		ncParamsMap.put( MaxPrecipPR6X.class.getSimpleName(), new MaxPrecipPR6X() ); //remove??		
 		ncParamsMap.put( MaxMidnightTemp.class.getSimpleName(), new MaxMidnightTemp() );
 		ncParamsMap.put( MaxOrMinTemp.class.getSimpleName(), new MaxOrMinTemp() );
 		ncParamsMap.put( Max12HrPrecipFcst.class.getSimpleName(), new Max12HrPrecipFcst() );
+		ncParamsMap.put( MaxWindSpeed.class.getSimpleName(), new MaxWindSpeed() );
 		ncParamsMap.put( MeanSeaLevelPres.class.getSimpleName(), new MeanSeaLevelPres() );	
 		ncParamsMap.put( Min24HrTemp.class.getSimpleName(), new Min24HrTemp() );	
 		ncParamsMap.put( Min6HrTemp.class.getSimpleName(), new Min6HrTemp() );
@@ -128,6 +149,7 @@ public class MetParameterFactory {
 		ncParamsMap.put( NightTempFcst.class.getSimpleName(), new NightTempFcst() );
 		ncParamsMap.put( NumInterWinds.class.getSimpleName(), new NumInterWinds() );
 		ncParamsMap.put( AirParcelTemp.class.getSimpleName(), new AirParcelTemp() );
+//		ncParamsMap.put( Omega.class.getSimpleName(), new Omega() );
 		ncParamsMap.put( PeakWindDir.class.getSimpleName(), new PeakWindDir() );
 		ncParamsMap.put( PeakWindSpeed.class.getSimpleName(), new PeakWindSpeed() );
 		ncParamsMap.put( PeakWindSpeedTime.class.getSimpleName(), new PeakWindSpeedTime() );
@@ -156,13 +178,13 @@ public class MetParameterFactory {
 		ncParamsMap.put( PressChange3Hr.class.getSimpleName(), new PressChange3Hr() );
 		ncParamsMap.put( PressChange24Hr.class.getSimpleName(), new PressChange24Hr() );
 		ncParamsMap.put( PressTendency.class.getSimpleName(), new PressTendency() );
+		ncParamsMap.put( POPAnomalyIn12hrs.class.getSimpleName(), new POPAnomalyIn12hrs() );
+		ncParamsMap.put( POPAnomalyIn24hrs.class.getSimpleName(), new POPAnomalyIn24hrs() );
 		ncParamsMap.put( POPFcst06Hrs.class.getSimpleName(), new POPFcst06Hrs() );
 		ncParamsMap.put( POPFcst12Hrs.class.getSimpleName(), new POPFcst12Hrs() );
 		ncParamsMap.put( POPFcst24Hrs.class.getSimpleName(), new POPFcst24Hrs() );
-		ncParamsMap.put( POP12Hrs.class.getSimpleName(), new POP12HrsAnomaly() );
-		ncParamsMap.put( POP12HrsAnomaly.class.getSimpleName(), new POP12HrsAnomaly() );
+		ncParamsMap.put( POP12Hrs.class.getSimpleName(), new POP12Hrs() );
 		ncParamsMap.put( POP24Hrs.class.getSimpleName(), new POP24Hrs() );
-		ncParamsMap.put( POP24HrsAnomaly.class.getSimpleName(), new POP24HrsAnomaly() );	
 		ncParamsMap.put( RateOfIceAccretionOnVesselInSaltWater.class.getSimpleName(), new RateOfIceAccretionOnVesselInSaltWater() );
 		ncParamsMap.put( RelativeHumidity.class.getSimpleName(), new RelativeHumidity() );
 		ncParamsMap.put( RichardsonNumber.class.getSimpleName(), new RichardsonNumber() );
@@ -186,12 +208,13 @@ public class MetParameterFactory {
 		ncParamsMap.put( StationName.class.getSimpleName(), new StationName() );
 		ncParamsMap.put( SurfacePressure.class.getSimpleName(), new SurfacePressure() );
 		ncParamsMap.put( StormMotionSpeed.class.getSimpleName(), new StormMotionSpeed() );	
-//		ncParamsMap.put( SumOfFour6HrPrecipitation.class.getSimpleName(), new SumOfFour6HrPrecipitation() );
+//		ncParamsMap.put( StormMotionDirection.class.getSimpleName(), new StormMotionDirection() );
+		//		ncParamsMap.put( SumOfFour6HrPrecipitation.class.getSimpleName(), new SumOfFour6HrPrecipitation() );
 		ncParamsMap.put( SunshineDuration.class.getSimpleName(), new SunshineDuration() );
 		ncParamsMap.put( SurfaceEquivPotentialTemp.class.getSimpleName(), new SurfaceEquivPotentialTemp() );
 		ncParamsMap.put( SurfaceMixingRatio.class.getSimpleName(), new SurfaceMixingRatio() );
 		ncParamsMap.put( SurfacePotentialTemp.class.getSimpleName(), new SurfacePotentialTemp() );		
-//		ncParamsMap.put( SurfacePressure.class.getSimpleName(), new SurfacePressure() );
+		ncParamsMap.put( SurfacePressure.class.getSimpleName(), new SurfacePressure() );
 		ncParamsMap.put( SurfaceSatEquivPotentialTemp.class.getSimpleName(), new SurfaceSatEquivPotentialTemp() );
 		ncParamsMap.put( SurfaceSatMixingRatio.class.getSimpleName(), new SurfaceSatMixingRatio() );
         ncParamsMap.put( AirTemperature.class.getSimpleName(), new AirTemperature() );
@@ -204,16 +227,22 @@ public class MetParameterFactory {
 		ncParamsMap.put( TemporaryOrProbabilityWindDirection.class.getSimpleName(), new TemporaryOrProbabilityWindDirection() );
 		ncParamsMap.put( TemporaryOrProbabilityWindGust.class.getSimpleName(), new TemporaryOrProbabilityWindGust() );
 		ncParamsMap.put( TemporaryOrProbabilityWindSpeed.class.getSimpleName(), new TemporaryOrProbabilityWindSpeed() );
+//		ncParamsMap.put( ThunderstormOccurring2hr.class.getSimpleName(), new ThunderstormOccurring2hr() );
+//		ncParamsMap.put( ThunderstormOccurring6hr.class.getSimpleName(), new ThunderstormOccurring6hr() );
+//		ncParamsMap.put( ThunderstormOccurring12hr.class.getSimpleName(), new ThunderstormOccurring12hr() );
+//		ncParamsMap.put( ThunderstormOccurring24hr.class.getSimpleName(), new ThunderstormOccurring24hr() );
 		ncParamsMap.put( ShipIceThickness.class.getSimpleName(), new ShipIceThickness() );
 		ncParamsMap.put( TopOfIcing.class.getSimpleName(), new TopOfIcing() );
 		ncParamsMap.put( TopOfTurbulence.class.getSimpleName(), new TopOfTurbulence() );
 		ncParamsMap.put( TopOfWeather.class.getSimpleName(), new TopOfWeather() );
 		ncParamsMap.put( TurbulenceFrequencySymbol.class.getSimpleName(), new TurbulenceFrequencySymbol() );
 		ncParamsMap.put( TurbulenceIntensitySymbol.class.getSimpleName(), new TurbulenceIntensitySymbol() );
+//		ncParamsMap.put( TurbulentKineticEnergy.class.getSimpleName(), new TurbulentKineticEnergy() );
 		ncParamsMap.put( EstStormDirectionUComp.class.getSimpleName(), new EstStormDirectionUComp() );
-		ncParamsMap.put( UncondProbabilityOfTstorms06Hour.class.getSimpleName(), new UncondProbabilityOfTstorms06Hour() );	
-		ncParamsMap.put( UncondProbabilityOfTstorms12Hour.class.getSimpleName(), new UncondProbabilityOfTstorms12Hour() );	
-		ncParamsMap.put( UncondProbabilityOfTstorms24Hour.class.getSimpleName(), new UncondProbabilityOfTstorms24Hour() );	
+		ncParamsMap.put( UncondProbOfTstorms2hr.class.getSimpleName(), new UncondProbOfTstorms2hr() );	
+		ncParamsMap.put( UncondProbOfTstorms6hr.class.getSimpleName(), new UncondProbOfTstorms6hr() );	
+		ncParamsMap.put( UncondProbOfTstorms12hr.class.getSimpleName(), new UncondProbOfTstorms12hr() );	
+		ncParamsMap.put( UncondProbOfTstorms24hr.class.getSimpleName(), new UncondProbOfTstorms24hr() );	
 		ncParamsMap.put( WindDirectionUComp.class.getSimpleName(), new WindDirectionUComp() );	
 		ncParamsMap.put( VaporPressure.class.getSimpleName(), new VaporPressure() );
 		ncParamsMap.put( EstStormDirectionVComp.class.getSimpleName(), new EstStormDirectionVComp() );	
@@ -304,6 +333,19 @@ public class MetParameterFactory {
 		return newParam;
 	}
 	
+	public AbstractMetParameter createParameter( String prmName, DataTime dt ) {
+		AbstractMetParameter newParam = createParameter( prmName );
+		newParam.setValidTime( dt );
+		return newParam;
+	}
+	
+	public AbstractMetParameter createParameter( String prmName, Unit<?> u, DataTime dt ) {
+		AbstractMetParameter newParam = createParameter( prmName );
+		newParam.setValidTime( dt );
+		newParam.setUnit( u );
+		return newParam;
+	}
+
 	public boolean alias( String prmName, String alias ) {
 		
 		if( ncParamsAliasMap.containsKey( alias ) &&

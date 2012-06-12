@@ -25,6 +25,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javax.measure.converter.MultiplyConverter;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
 import javax.xml.bind.JAXB;
 
 import com.raytheon.uf.common.colormap.ColorMap;
@@ -54,23 +58,21 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
+import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.viz.preciprate.xml.PrecipRateXML;
 import com.raytheon.uf.viz.preciprate.xml.SCANConfigPrecipRateXML;
 import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.viz.core.units.PiecewisePixel;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.RadarTextResource.IRadarTextGeneratingResource;
 import com.raytheon.viz.radar.rsc.image.RadarRadialResource;
+import com.raytheon.viz.radar.util.DataUtilities;
 
 public class PrecipRateResource extends RadarRadialResource implements
         IRadarTextGeneratingResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PrecipRateResource.class);
-
-    // max and min preciprate english unit vals
-    private static final float prmax = 7.0f;
-
-    private static final float prmin = 0.0f;
 
     /* formatter */
     private DecimalFormat df = new DecimalFormat();
@@ -78,11 +80,15 @@ public class PrecipRateResource extends RadarRadialResource implements
     private SCANConfigPrecipRateXML cfgMXL = null;
 
     private PrecipRateRecord precipRecord;
+    
+    private PrecipRateResourceData data = null;
 
     public PrecipRateResource(PrecipRateResourceData data,
             LoadProperties props, IRadarInterrogator interrogator)
             throws VizException {
+
         super(data, props, interrogator);
+        this.data = data;
     }
 
     /*
@@ -211,7 +217,7 @@ public class PrecipRateResource extends RadarRadialResource implements
      * raytheon.uf.viz.core.IGraphicsTarget,
      * com.raytheon.uf.viz.core.drawables.ColorMapParameters,
      * com.raytheon.uf.common.dataplugin.radar.RadarRecord, java.awt.Rectangle)
-     */
+    
     @Override
     protected IImage createImage(IGraphicsTarget target,
             ColorMapParameters params, final RadarRecord record,
@@ -221,6 +227,7 @@ public class PrecipRateResource extends RadarRadialResource implements
                         new RadarImageDataRetrievalAdapter(record, null, rect) {
                         }, params);
     }
+     */
 
     @Override
     protected ColorMapParameters getColorMapParameters(IGraphicsTarget target,
@@ -245,6 +252,11 @@ public class PrecipRateResource extends RadarRadialResource implements
         colorMapParameters.setDataMin(0);
         colorMapParameters.setDataMapping(((ImagePreferences) sr
                 .getPreferences()).getDataMapping());
+        double[] d1 = {1,255};
+        double[] d2 = {0,25.4};
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		PiecewisePixel pw = new PiecewisePixel(NonSI.INCH.divide(NonSI.HOUR), d1, d2);
+        colorMapParameters.setDataUnit(pw);
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
         return colorMapParameters;
@@ -346,6 +358,10 @@ public class PrecipRateResource extends RadarRadialResource implements
         try {
             dataVal = new RadarDataInterrogator(record).getDataValue(latLon
                     .asLatLon());
+            if (dataVal == 0) {
+            	return "NO DATA";
+            }
+            
         } catch (Exception e) {
             UFStatus.getHandler().handle(
                     Priority.PROBLEM,
@@ -353,13 +369,10 @@ public class PrecipRateResource extends RadarRadialResource implements
                             + e.getLocalizedMessage(), e);
         }
 
-        if (dataVal == null || dataVal == 0) {
-            return "NO DATA";
-        }
-
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
-        double val = params.getImageToDisplayConverter().convert(dataVal);
+        double val = params.getDataToDisplayConverter().convert(dataVal);
+                       
         if (val >= ScanUtils.MM_TO_INCH * precipRecord.getHailcap()
                 || Double.isNaN(val)) {
             return String.format(
@@ -376,6 +389,82 @@ public class PrecipRateResource extends RadarRadialResource implements
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
         return null;
+    }
+    
+    protected byte[] createConversionTable(ColorMapParameters params,
+            RadarRecord record) {
+    	
+        UnitConverter dataToImage = params.getDataToImageConverter();;
+        Unit<?> dataUnit = params.getDataUnit();
+        // precompute the converted value for every possible value in the
+        // record.
+        byte[] table = new byte[record.getNumLevels()];
+        for (int i = 0; i < record.getNumLevels(); i++) {
+            double image = dataToImage.convert(i);
+            if (Double.isNaN(image)) {
+                double d = dataUnit.getConverterTo(params.getDisplayUnit())
+                        .convert(i);
+                if (Double.isNaN(d)) {
+                    // This means that the data is a non-numeric value, most
+                    // likely a flag of some sort
+                    if (record.getNumLevels() <= 16) {
+                        // For 3 and 4 bit products products try to match the
+                        // flag value to a string value in the params
+                        String value = record.getDecodedThreshold(i).toString();
+                        for (DataMappingEntry entry : params.getDataMapping()
+                                .getEntries()) {
+                            if (value.equals(entry.getLabel())
+                                    || value.equals(entry.getSample())) {
+                                table[i] = entry.getPixelValue().byteValue();
+                                break;
+                            }
+                        }
+                    } else {
+                        // For 8 bit products the flag value should be
+                        // specifically handled in the style rules. For example
+                        // if 1 is a flag for RF than pixel value 1 in the style
+                        // rules will need to be RF. This is not
+                        // a graceful seperation of data and representation but
+                        // it works
+                        table[i] = (byte) i;
+                    }
+                } else {
+                    // the data value is outside the range of the colormap
+                    UnitConverter image2disp = params
+                            .getImageToDisplayConverter();
+                    if (image2disp == null) {
+                        continue;
+                    }
+                    for (int j = 0; j < 256; j++) {
+                        double disp = image2disp.convert(j);
+                        if (Double.isNaN(disp)) {
+                            continue;
+                        }
+                        if (d < disp) {
+                            // Map data values smaller than the colormap min to
+                            // 0, which should be no data.
+                            // table[i] = (byte) 0;
+                            // If we want small values to appear as the lowest
+                            // data value than do this next line instead
+                            // This was changed for the DUA product so
+                            // differences less than -5 get mapped to a data
+                            // value.
+                            table[i] = (byte) j;
+                            break;
+                        }
+                        if (d > disp) {
+                            // map data values larger than the colormap max to
+                            // the highest value
+                            table[i] = (byte) j;
+                        }
+
+                    }
+                }
+            } else {
+                table[i] = (byte) Math.round(image);
+            }
+        }
+        return table;
     }
 
 }

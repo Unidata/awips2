@@ -162,7 +162,7 @@ public class ClimoDatabase extends IFPGridDatabase {
 
                 ServerResponse<?> sr = saveGridData(parmId,
                         TimeRange.allTimes(), new ArrayList<GFERecord>(),
-                        new WsId(null, "initialization", "ClimoDatabase", 0));
+                        new WsId(null, "initialization", "ClimoDatabase"));
                 if (!sr.isOkay()) {
                     StringBuilder tmp = new StringBuilder(200);
                     tmp.append("Error occurred saving climo parm:");

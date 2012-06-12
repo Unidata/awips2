@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
 <styleRuleset>
 	<styleRule>
 		<paramLevelMatches>
@@ -25,17 +6,26 @@
 		</paramLevelMatches>
 		<imageStyle>
 		    <displayUnits>in/hr</displayUnits>
-			<defaultColormap>scan/16 Level Reflectivity (DHR)</defaultColormap>
+			<defaultColormap>Radar/OSF/16 Level Reflectivity</defaultColormap>
 			<dataMapping>
-			    <entry displayValue='0.0' pixelValue='1' label='0.0'/>
-				<entry displayValue='0.2' pixelValue='8' label='0.2'/>
-				<entry displayValue='0.6' pixelValue='22' label='0.6'/>
-				<entry displayValue='1.0' pixelValue='36' label='1.0'/>
-				<entry displayValue='1.5' pixelValue='54' label='1.5'/>
-				<entry displayValue='2.0' pixelValue='71' label='2.0'/>
-				<entry displayValue='4.0' pixelValue='133' label='4.0'/>
-				<entry displayValue='6.0' pixelValue='195' label='6.0'/>
+			    <entry sample='NO DATA' pixelValue="0" label=''/>
+			    <entry displayValue="0.0" pixelValue="16" label='0.0'/>
+				<entry displayValue='0.1' pixelValue='32'/>
+				<entry displayValue='0.2' pixelValue='48'/>
+				<entry displayValue='0.4' pixelValue='64'/>
+				<entry displayValue='0.6' pixelValue='80'/>
+				<entry displayValue='0.8' pixelValue='96'/>
+				<entry displayValue='1.0' pixelValue='112'/>
+				<entry displayValue='1.25' pixelValue='118'/>
+				<entry displayValue='1.5' pixelValue='144'/>
+				<entry displayValue='1.75' pixelValue='160'/>
+				<entry displayValue='2.0' pixelValue='176'/>
+				<entry displayValue='3.0' pixelValue='192'/>
+				<entry displayValue='4.0' pixelValue='208'/>
+				<entry displayValue='5.0' pixelValue='223'/>
+				<entry displayValue='6.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label=''/>
 			</dataMapping>
 		</imageStyle>
 	</styleRule>
-</styleRuleset>	
+</styleRuleset>

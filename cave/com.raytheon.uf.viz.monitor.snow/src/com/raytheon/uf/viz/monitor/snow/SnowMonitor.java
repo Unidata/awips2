@@ -66,6 +66,7 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * Dec 18, 2009 3424       zhao        use ObMultiHrsReports for obs data archive over time
  * Dec 22, 2009 3424       zhao        revised processProductAtStartup method to retrieve all data
  * July 20,2010 4891       skorolev    Added resource listener
+ * May 15, 2012 14510      zhao        Modified processing at startup
  * 
  * </pre>
  * 
@@ -131,12 +132,13 @@ public class SnowMonitor extends ObsMonitor {
         obData = new ObMultiHrsReports(CommonConfig.AppName.SNOW);
         obData.setThresholdMgr(SnowThresholdMgr.getInstance());
         // Pre-populate dialog with an observation (METAR) for KOMA
-		processProductAtStartup("snow");
-    }
+        }
 
     public static synchronized SnowMonitor getInstance() {
         if (monitor == null) {
             monitor = new SnowMonitor();
+    		monitor.processProductAtStartup("snow");
+    		monitor.fireMonitorEvent(monitor);
         }
         return monitor;
     }
@@ -382,4 +384,9 @@ public class SnowMonitor extends ObsMonitor {
     public void setZoneDialog(SnowZoneTableDlg zoneDialog) {
         this.zoneDialog = zoneDialog;
     }
+
+	@Override
+	protected void processAtStartup(ObReport report) {
+		obData.addReport(report);
+	}
 }
