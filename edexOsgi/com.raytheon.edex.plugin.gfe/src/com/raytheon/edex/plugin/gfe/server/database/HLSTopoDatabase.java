@@ -182,7 +182,7 @@ public class HLSTopoDatabase extends IFPGridDatabase {
 
                 ServerResponse<?> sr = saveGridData(parmId, allTimes,
                         new ArrayList<GFERecord>(), new WsId(null,
-                                "initialization", "HLSTopoDatabase", 0));
+                                "initialization", "HLSTopoDatabase"));
                 if (!sr.isOkay()) {
                     StringBuilder tmp = new StringBuilder();
                     ArrayList<ServerMsg> messages = sr.getMessages();

@@ -241,12 +241,29 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
                 while (dataLists.size() < results.length) {
                     dataLists.add(new ArrayList<XYData>());
                 }
+                double speed = Float.NaN;
+                double direction = Double.NaN;
                 for (int c = 0; c < results.length; c++) {
                     FloatDataRecord xRec = (FloatDataRecord) results[c];
                     float xVal = InterpUtils.getInterpolatedData(requestArea,
                             point.x, point.y, xRec.getFloatData());
                     if (xVal <= -9999) {
                         continue;
+                    }
+                    // these cases handle rotating a vector to be oriented
+                    // towards the north pole rather than the up direction of a
+                    // grid.
+                    if (c == 0) {
+                        speed = xVal;
+                    } else if (c == 1) {
+                        direction = xVal - 180
+                                + MapUtil.rotation(coordinates[i], area);
+                        xVal = (float) direction;
+                        direction = Math.toRadians(direction);
+                    } else if (c == 2) {
+                        xVal = (float) (-speed * Math.sin(direction));
+                    } else if (c == 3) {
+                        xVal = (float) (-speed * Math.cos(direction));
                     }
                     dataLists.get(c).add(new XYData(xVal, yVal));
                 }

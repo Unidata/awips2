@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -76,6 +77,7 @@ public class Lock extends PersistableDataObject implements Cloneable,
     @Column
     @Type(type = "com.raytheon.uf.common.dataplugin.gfe.db.type.ParmIdType")
     @XmlElement
+    @Index(name = "lock_parmId_idx")
     @DynamicSerializeElement
     private ParmID parmId;
 

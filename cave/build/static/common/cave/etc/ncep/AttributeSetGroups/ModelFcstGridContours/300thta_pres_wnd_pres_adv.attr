@@ -7,6 +7,8 @@
 !
 GLEVEL=300
 GVCORD=THTA
+SKIP=
+FILTER=y
 SCALE=3!3!0
 GDPFUN=ADV(pres,obs)!ADV(pres,obs)!sm5s(pres)!obs
 TYPE=c/f                !c   !c         !b

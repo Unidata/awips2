@@ -334,6 +334,7 @@ public class MapManager {
         for (ShapeFile map : maps) {
             File shapePath = map.getFile().getParentFile().getAbsoluteFile();
             File[] shapeFiles = shapePath.listFiles(new FileFilter() {
+                @Override
                 public boolean accept(File file) {
                     return file.isFile();
                 }
@@ -362,6 +363,7 @@ public class MapManager {
         File dir = new File(directory);
         if (dir.exists()) {
             editAreaFiles = dir.listFiles(new FileFilter() {
+                @Override
                 public boolean accept(File file) {
                     return file.isFile();
                 }
@@ -371,6 +373,7 @@ public class MapManager {
         if (editAreaFiles != null) {
             if (editAreaFiles.length > 0) {
                 Arrays.sort(editAreaFiles, new Comparator<File>() {
+                    @Override
                     public int compare(File f1, File f2) {
                         return Long.valueOf(f1.lastModified()).compareTo(
                                 f2.lastModified());
@@ -397,8 +400,7 @@ public class MapManager {
         @SuppressWarnings("unused")
         WsId fakeBase = null;
         try {
-            fakeBase = new WsId(InetAddress.getLocalHost(), "BASE",
-                    "ifpServer", 0);
+            fakeBase = new WsId(InetAddress.getLocalHost(), "BASE", "ifpServer");
         } catch (UnknownHostException e1) {
             theLogger.error("Unable to get IP address for localhost");
         }
