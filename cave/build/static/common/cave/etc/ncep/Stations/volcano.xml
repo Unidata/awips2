@@ -8,7 +8,7 @@
           <stnname>Acatenango</stnname>
           <state></state>
           <country></country>
-          <latitude>14.50</latitude>
+          <latitude> 14.50</latitude>
           <longitude>-90.88</longitude>
           <elevation>3976</elevation>
           <priority>0</priority>
@@ -20,8 +20,8 @@
           <stnname>Adams</stnname>
           <state></state>
           <country></country>
-          <latitude>46.13</latitude>
-          <longitude>-121.29</longitude>
+          <latitude> 46.20</latitude>
+          <longitude>-121.49</longitude>
           <elevation>3742</elevation>
           <priority>0</priority>
           <location>US-Washington</location>
@@ -32,7 +32,7 @@
           <stnname>Adatara</stnname>
           <state></state>
           <country></country>
-          <latitude>37.62</latitude>
+          <latitude> 37.62</latitude>
           <longitude>140.28</longitude>
           <elevation>1718</elevation>
           <priority>0</priority>
@@ -44,7 +44,7 @@
           <stnname>Agrigan</stnname>
           <state></state>
           <country></country>
-          <latitude>18.77</latitude>
+          <latitude> 18.77</latitude>
           <longitude>145.67</longitude>
           <elevation>965</elevation>
           <priority>0</priority>
@@ -56,7 +56,7 @@
           <stnname>Agung</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.34</latitude>
+          <latitude> -8.34</latitude>
           <longitude>115.51</longitude>
           <elevation>3142</elevation>
           <priority>0</priority>
@@ -68,7 +68,7 @@
           <stnname>Akademia_Nauk</stnname>
           <state></state>
           <country></country>
-          <latitude>53.98</latitude>
+          <latitude> 53.98</latitude>
           <longitude>159.45</longitude>
           <elevation>1180</elevation>
           <priority>0</priority>
@@ -80,7 +80,7 @@
           <stnname>Akan</stnname>
           <state></state>
           <country></country>
-          <latitude>43.38</latitude>
+          <latitude> 43.38</latitude>
           <longitude>144.02</longitude>
           <elevation>1499</elevation>
           <priority>0</priority>
@@ -92,7 +92,7 @@
           <stnname>Akita-Komaga-take</stnname>
           <state></state>
           <country></country>
-          <latitude>39.75</latitude>
+          <latitude> 39.75</latitude>
           <longitude>140.80</longitude>
           <elevation>1637</elevation>
           <priority>0</priority>
@@ -104,7 +104,7 @@
           <stnname>Akita-Yake-yama</stnname>
           <state></state>
           <country></country>
-          <latitude>39.97</latitude>
+          <latitude> 39.97</latitude>
           <longitude>140.77</longitude>
           <elevation>1366</elevation>
           <priority>0</priority>
@@ -116,7 +116,7 @@
           <stnname>Akutan</stnname>
           <state></state>
           <country></country>
-          <latitude>54.13</latitude>
+          <latitude> 54.13</latitude>
           <longitude>-165.97</longitude>
           <elevation>1303</elevation>
           <priority>0</priority>
@@ -128,7 +128,7 @@
           <stnname>Alaid</stnname>
           <state></state>
           <country></country>
-          <latitude>50.86</latitude>
+          <latitude> 50.86</latitude>
           <longitude>155.55</longitude>
           <elevation>2339</elevation>
           <priority>0</priority>
@@ -140,8 +140,8 @@
           <stnname>Alayta</stnname>
           <state></state>
           <country></country>
-          <latitude>12.88</latitude>
-          <longitude>40.57</longitude>
+          <latitude> 12.88</latitude>
+          <longitude> 40.57</longitude>
           <elevation>1501</elevation>
           <priority>0</priority>
           <location>Ethiopia</location>
@@ -152,7 +152,7 @@
           <stnname>Alcedo,_Volcan</stnname>
           <state></state>
           <country></country>
-          <latitude>-.43</latitude>
+          <latitude> -0.43</latitude>
           <longitude>-91.12</longitude>
           <elevation>1130</elevation>
           <priority>0</priority>
@@ -176,7 +176,7 @@
           <stnname>Amukta</stnname>
           <state></state>
           <country></country>
-          <latitude>52.50</latitude>
+          <latitude> 52.50</latitude>
           <longitude>-171.25</longitude>
           <elevation>1066</elevation>
           <priority>0</priority>
@@ -188,11 +188,11 @@
           <stnname>Anatahan</stnname>
           <state></state>
           <country></country>
-          <latitude>16.35</latitude>
+          <latitude> 16.35</latitude>
           <longitude>145.67</longitude>
           <elevation>788</elevation>
           <priority>0</priority>
-          <location>Mariana</location>
+          <location>Mariana_Islands</location>
      </station>
      <station>
           <stid>1102-09</stid>
@@ -200,7 +200,7 @@
           <stnname>Aniakchak</stnname>
           <state></state>
           <country></country>
-          <latitude>56.88</latitude>
+          <latitude> 56.88</latitude>
           <longitude>-158.17</longitude>
           <elevation>1341</elevation>
           <priority>0</priority>
@@ -236,8 +236,8 @@
           <stnname>Ardoukoba</stnname>
           <state></state>
           <country></country>
-          <latitude>11.58</latitude>
-          <longitude>42.47</longitude>
+          <latitude> 11.58</latitude>
+          <longitude> 42.47</longitude>
           <elevation>298</elevation>
           <priority>0</priority>
           <location>Djibouti</location>
@@ -248,7 +248,7 @@
           <stnname>Arenal</stnname>
           <state></state>
           <country></country>
-          <latitude>10.46</latitude>
+          <latitude> 10.46</latitude>
           <longitude>-84.70</longitude>
           <elevation>1657</elevation>
           <priority>0</priority>
@@ -260,7 +260,7 @@
           <stnname>Arjuno-Welirang</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.73</latitude>
+          <latitude> -7.73</latitude>
           <longitude>112.58</longitude>
           <elevation>3339</elevation>
           <priority>0</priority>
@@ -272,7 +272,7 @@
           <stnname>Asama</stnname>
           <state></state>
           <country></country>
-          <latitude>36.40</latitude>
+          <latitude> 36.40</latitude>
           <longitude>138.53</longitude>
           <elevation>2560</elevation>
           <priority>0</priority>
@@ -284,7 +284,7 @@
           <stnname>Askja</stnname>
           <state></state>
           <country></country>
-          <latitude>65.03</latitude>
+          <latitude> 65.03</latitude>
           <longitude>-16.75</longitude>
           <elevation>1516</elevation>
           <priority>0</priority>
@@ -296,7 +296,7 @@
           <stnname>Aso</stnname>
           <state></state>
           <country></country>
-          <latitude>32.88</latitude>
+          <latitude> 32.88</latitude>
           <longitude>131.10</longitude>
           <elevation>1592</elevation>
           <priority>0</priority>
@@ -308,11 +308,23 @@
           <stnname>Asuncion</stnname>
           <state></state>
           <country></country>
-          <latitude>19.67</latitude>
+          <latitude> 19.67</latitude>
           <longitude>145.40</longitude>
           <elevation>857</elevation>
           <priority>0</priority>
           <location>Mariana_Is-C_Pacific</location>
+     </station>
+     <station>
+          <stid>1402-06</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Atitlan</stnname>
+          <state></state>
+          <country></country>
+          <latitude> 14.58</latitude>
+          <longitude>-91.19</longitude>
+          <elevation>3535</elevation>
+          <priority>0</priority>
+          <location>Guatemala</location>
      </station>
      <station>
           <stid>1101-16</stid>
@@ -320,7 +332,7 @@
           <stnname>Atka</stnname>
           <state></state>
           <country></country>
-          <latitude>52.38</latitude>
+          <latitude> 52.38</latitude>
           <longitude>-174.15</longitude>
           <elevation>1533</elevation>
           <priority>0</priority>
@@ -332,7 +344,7 @@
           <stnname>Atsonupuri</stnname>
           <state></state>
           <country></country>
-          <latitude>44.80</latitude>
+          <latitude> 44.80</latitude>
           <longitude>147.13</longitude>
           <elevation>1205</elevation>
           <priority>0</priority>
@@ -344,7 +356,7 @@
           <stnname>Augustine</stnname>
           <state></state>
           <country></country>
-          <latitude>59.37</latitude>
+          <latitude> 59.37</latitude>
           <longitude>-153.42</longitude>
           <elevation>1252</elevation>
           <priority>0</priority>
@@ -356,7 +368,7 @@
           <stnname>Avachinsky</stnname>
           <state></state>
           <country></country>
-          <latitude>53.26</latitude>
+          <latitude> 53.26</latitude>
           <longitude>158.83</longitude>
           <elevation>2741</elevation>
           <priority>0</priority>
@@ -368,7 +380,7 @@
           <stnname>Awu</stnname>
           <state></state>
           <country></country>
-          <latitude>3.67</latitude>
+          <latitude>  3.67</latitude>
           <longitude>125.50</longitude>
           <elevation>1320</elevation>
           <priority>0</priority>
@@ -380,7 +392,7 @@
           <stnname>Axial_Seamount</stnname>
           <state></state>
           <country></country>
-          <latitude>45.95</latitude>
+          <latitude> 45.95</latitude>
           <longitude>-130.00</longitude>
           <elevation>-1500</elevation>
           <priority>0</priority>
@@ -392,7 +404,7 @@
           <stnname>Azul,_Cerro</stnname>
           <state></state>
           <country></country>
-          <latitude>-.90</latitude>
+          <latitude> -0.90</latitude>
           <longitude>-91.42</longitude>
           <elevation>1690</elevation>
           <priority>0</priority>
@@ -416,7 +428,7 @@
           <stnname>Azuma</stnname>
           <state></state>
           <country></country>
-          <latitude>37.73</latitude>
+          <latitude> 37.73</latitude>
           <longitude>140.25</longitude>
           <elevation>2024</elevation>
           <priority>0</priority>
@@ -428,11 +440,11 @@
           <stnname>Babuyan_Claro</stnname>
           <state></state>
           <country></country>
-          <latitude>19.52</latitude>
+          <latitude> 19.52</latitude>
           <longitude>121.94</longitude>
           <elevation>1180</elevation>
           <priority>0</priority>
-          <location>Luzon-N_of</location>
+          <location>Luzon</location>
      </station>
      <station>
           <stid>0505-02</stid>
@@ -440,7 +452,7 @@
           <stnname>Bagana</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.14</latitude>
+          <latitude> -6.14</latitude>
           <longitude>155.20</longitude>
           <elevation>1750</elevation>
           <priority>0</priority>
@@ -452,7 +464,7 @@
           <stnname>Baker</stnname>
           <state></state>
           <country></country>
-          <latitude>41.57</latitude>
+          <latitude> 41.57</latitude>
           <longitude>-122.54</longitude>
           <elevation>3285</elevation>
           <priority>0</priority>
@@ -464,11 +476,11 @@
           <stnname>Bam</stnname>
           <state></state>
           <country></country>
-          <latitude>-3.60</latitude>
+          <latitude> -3.60</latitude>
           <longitude>144.85</longitude>
           <elevation>685</elevation>
           <priority>0</priority>
-          <location>New_Guinea-NE_of</location>
+          <location>New_Guinea</location>
      </station>
      <station>
           <stid>0605-09</stid>
@@ -476,7 +488,7 @@
           <stnname>Banda_Api</stnname>
           <state></state>
           <country></country>
-          <latitude>-4.53</latitude>
+          <latitude> -4.53</latitude>
           <longitude>129.87</longitude>
           <elevation>640</elevation>
           <priority>0</priority>
@@ -488,11 +500,11 @@
           <stnname>Banua_Wuhu</stnname>
           <state></state>
           <country></country>
-          <latitude>3.14</latitude>
+          <latitude>  3.14</latitude>
           <longitude>125.49</longitude>
           <elevation>-5</elevation>
           <priority>0</priority>
-          <location>Sangihe_Is-Indonesia</location>
+          <location>Sangihe_Is_Indonesia</location>
      </station>
      <station>
           <stid>0900-08</stid>
@@ -500,7 +512,7 @@
           <stnname>Baransky</stnname>
           <state></state>
           <country></country>
-          <latitude>45.10</latitude>
+          <latitude> 45.10</latitude>
           <longitude>148.02</longitude>
           <elevation>1132</elevation>
           <priority>0</priority>
@@ -512,7 +524,7 @@
           <stnname>Barcena</stnname>
           <state></state>
           <country></country>
-          <latitude>19.30</latitude>
+          <latitude> 19.30</latitude>
           <longitude>-110.82</longitude>
           <elevation>332</elevation>
           <priority>0</priority>
@@ -524,7 +536,7 @@
           <stnname>Bardarbunga</stnname>
           <state></state>
           <country></country>
-          <latitude>64.63</latitude>
+          <latitude> 64.63</latitude>
           <longitude>-17.53</longitude>
           <elevation>2000</elevation>
           <priority>0</priority>
@@ -536,8 +548,8 @@
           <stnname>Barren_Island</stnname>
           <state></state>
           <country></country>
-          <latitude>12.29</latitude>
-          <longitude>93.88</longitude>
+          <latitude> 12.29</latitude>
+          <longitude> 93.88</longitude>
           <elevation>354</elevation>
           <priority>0</priority>
           <location>Andaman_Is-Indian_O</location>
@@ -548,8 +560,8 @@
           <stnname>Barrier,_The</stnname>
           <state></state>
           <country></country>
-          <latitude>2.32</latitude>
-          <longitude>36.57</longitude>
+          <latitude>  2.32</latitude>
+          <longitude> 36.57</longitude>
           <elevation>1032</elevation>
           <priority>0</priority>
           <location>Africa-E</location>
@@ -560,7 +572,7 @@
           <stnname>Batur</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.24</latitude>
+          <latitude> -8.24</latitude>
           <longitude>115.38</longitude>
           <elevation>1717</elevation>
           <priority>0</priority>
@@ -572,7 +584,7 @@
           <stnname>Bayonnaise_Rocks</stnname>
           <state></state>
           <country></country>
-          <latitude>31.92</latitude>
+          <latitude> 31.92</latitude>
           <longitude>139.92</longitude>
           <elevation>10</elevation>
           <priority>0</priority>
@@ -584,7 +596,7 @@
           <stnname>Besar</stnname>
           <state></state>
           <country></country>
-          <latitude>-4.43</latitude>
+          <latitude> -4.43</latitude>
           <longitude>103.67</longitude>
           <elevation>1899</elevation>
           <priority>0</priority>
@@ -596,7 +608,7 @@
           <stnname>Bezymianny</stnname>
           <state></state>
           <country></country>
-          <latitude>55.98</latitude>
+          <latitude> 55.98</latitude>
           <longitude>160.59</longitude>
           <elevation>2882</elevation>
           <priority>0</priority>
@@ -608,7 +620,7 @@
           <stnname>Biliran</stnname>
           <state></state>
           <country></country>
-          <latitude>11.52</latitude>
+          <latitude> 11.52</latitude>
           <longitude>124.53</longitude>
           <elevation>1187</elevation>
           <priority>0</priority>
@@ -620,11 +632,11 @@
           <stnname>Bogoslof</stnname>
           <state></state>
           <country></country>
-          <latitude>53.93</latitude>
+          <latitude> 53.93</latitude>
           <longitude>-168.03</longitude>
           <elevation>101</elevation>
           <priority>0</priority>
-          <location>Aleutian_Is</location>
+          <location>Aleutians</location>
      </station>
      <station>
           <stid>1900-08</stid>
@@ -644,7 +656,7 @@
           <stnname>Bulusan</stnname>
           <state></state>
           <country></country>
-          <latitude>12.77</latitude>
+          <latitude> 12.77</latitude>
           <longitude>124.05</longitude>
           <elevation>1565</elevation>
           <priority>0</priority>
@@ -692,8 +704,8 @@
           <stnname>Cameroon,_Mt.</stnname>
           <state></state>
           <country></country>
-          <latitude>4.20</latitude>
-          <longitude>9.17</longitude>
+          <latitude>  4.20</latitude>
+          <longitude>  9.17</longitude>
           <elevation>4095</elevation>
           <priority>0</priority>
           <location>Africa-W</location>
@@ -716,7 +728,7 @@
           <stnname>Canlaon</stnname>
           <state></state>
           <country></country>
-          <latitude>10.41</latitude>
+          <latitude> 10.41</latitude>
           <longitude>123.13</longitude>
           <elevation>2435</elevation>
           <priority>0</priority>
@@ -740,7 +752,7 @@
           <stnname>Cendres,_Ile_des</stnname>
           <state></state>
           <country></country>
-          <latitude>10.16</latitude>
+          <latitude> 10.16</latitude>
           <longitude>109.01</longitude>
           <elevation>-20</elevation>
           <priority>0</priority>
@@ -752,7 +764,7 @@
           <stnname>Cereme</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.89</latitude>
+          <latitude> -6.89</latitude>
           <longitude>108.40</longitude>
           <elevation>3078</elevation>
           <priority>0</priority>
@@ -764,11 +776,23 @@
           <stnname>Chichon,_El</stnname>
           <state></state>
           <country></country>
-          <latitude>17.36</latitude>
+          <latitude> 17.36</latitude>
           <longitude>-93.23</longitude>
           <elevation>1150</elevation>
           <priority>0</priority>
           <location>Mexico</location>
+     </station>
+     <station>
+          <stid>1508-041</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Chaiten</stnname>
+          <state></state>
+          <country></country>
+          <latitude>-42.83</latitude>
+          <longitude>-72.65</longitude>
+          <elevation>962</elevation>
+          <priority>0</priority>
+          <location>Chile-S</location>
      </station>
      <station>
           <stid>1102-11</stid>
@@ -776,11 +800,11 @@
           <stnname>Chiginagak</stnname>
           <state></state>
           <country></country>
-          <latitude>57.13</latitude>
+          <latitude> 57.13</latitude>
           <longitude>-157.00</longitude>
           <elevation>2075</elevation>
           <priority>0</priority>
-          <location>Alaska_Peninsula</location>
+          <location>Alaska</location>
      </station>
      <station>
           <stid>0900-36</stid>
@@ -788,7 +812,7 @@
           <stnname>Chikurachki</stnname>
           <state></state>
           <country></country>
-          <latitude>50.33</latitude>
+          <latitude> 50.33</latitude>
           <longitude>155.46</longitude>
           <elevation>1816</elevation>
           <priority>0</priority>
@@ -812,7 +836,7 @@
           <stnname>Chirinkotan</stnname>
           <state></state>
           <country></country>
-          <latitude>48.98</latitude>
+          <latitude> 48.98</latitude>
           <longitude>153.48</longitude>
           <elevation>724</elevation>
           <priority>0</priority>
@@ -824,7 +848,7 @@
           <stnname>Chirpoi</stnname>
           <state></state>
           <country></country>
-          <latitude>46.53</latitude>
+          <latitude> 46.53</latitude>
           <longitude>150.88</longitude>
           <elevation>742</elevation>
           <priority>0</priority>
@@ -836,7 +860,7 @@
           <stnname>Chokai</stnname>
           <state></state>
           <country></country>
-          <latitude>39.08</latitude>
+          <latitude> 39.08</latitude>
           <longitude>140.03</longitude>
           <elevation>2237</elevation>
           <priority>0</priority>
@@ -848,7 +872,7 @@
           <stnname>Cleft_Segment</stnname>
           <state></state>
           <country></country>
-          <latitude>44.83</latitude>
+          <latitude> 44.83</latitude>
           <longitude>-130.30</longitude>
           <elevation>-2140</elevation>
           <priority>0</priority>
@@ -860,7 +884,7 @@
           <stnname>Cleveland</stnname>
           <state></state>
           <country></country>
-          <latitude>52.82</latitude>
+          <latitude> 52.82</latitude>
           <longitude>-169.95</longitude>
           <elevation>1730</elevation>
           <priority>0</priority>
@@ -872,7 +896,7 @@
           <stnname>CoAxial_Segment</stnname>
           <state></state>
           <country></country>
-          <latitude>46.52</latitude>
+          <latitude> 46.52</latitude>
           <longitude>-129.58</longitude>
           <elevation>-2400</elevation>
           <priority>0</priority>
@@ -884,7 +908,7 @@
           <stnname>Colima</stnname>
           <state></state>
           <country></country>
-          <latitude>19.51</latitude>
+          <latitude> 19.51</latitude>
           <longitude>-103.62</longitude>
           <elevation>3850</elevation>
           <priority>0</priority>
@@ -896,7 +920,7 @@
           <stnname>Colo_[Una_Una]</stnname>
           <state></state>
           <country></country>
-          <latitude>-.17</latitude>
+          <latitude> -0.17</latitude>
           <longitude>121.61</longitude>
           <elevation>507</elevation>
           <priority>0</priority>
@@ -908,7 +932,7 @@
           <stnname>Concepcion</stnname>
           <state></state>
           <country></country>
-          <latitude>11.54</latitude>
+          <latitude> 11.54</latitude>
           <longitude>-85.62</longitude>
           <elevation>1700</elevation>
           <priority>0</priority>
@@ -944,7 +968,7 @@
           <stnname>Cotopaxi</stnname>
           <state></state>
           <country></country>
-          <latitude>-.68</latitude>
+          <latitude> -0.68</latitude>
           <longitude>-78.44</longitude>
           <elevation>5911</elevation>
           <priority>0</priority>
@@ -956,7 +980,7 @@
           <stnname>Crater_Lake</stnname>
           <state></state>
           <country></country>
-          <latitude>42.56</latitude>
+          <latitude> 42.56</latitude>
           <longitude>-122.07</longitude>
           <elevation>2487</elevation>
           <priority>0</priority>
@@ -968,7 +992,7 @@
           <stnname>Cumbal</stnname>
           <state></state>
           <country></country>
-          <latitude>.98</latitude>
+          <latitude>  0.98</latitude>
           <longitude>-77.88</longitude>
           <elevation>4764</elevation>
           <priority>0</priority>
@@ -992,8 +1016,8 @@
           <stnname>Dallol</stnname>
           <state></state>
           <country></country>
-          <latitude>14.24</latitude>
-          <longitude>40.30</longitude>
+          <latitude> 14.24</latitude>
+          <longitude> 40.30</longitude>
           <elevation>-48</elevation>
           <priority>0</priority>
           <location>Ethiopia</location>
@@ -1016,7 +1040,7 @@
           <stnname>Dempo</stnname>
           <state></state>
           <country></country>
-          <latitude>-4.03</latitude>
+          <latitude> -4.03</latitude>
           <longitude>103.13</longitude>
           <elevation>3173</elevation>
           <priority>0</priority>
@@ -1040,8 +1064,8 @@
           <stnname>Dhamar,_Harras_of</stnname>
           <state></state>
           <country></country>
-          <latitude>14.57</latitude>
-          <longitude>44.67</longitude>
+          <latitude> 14.57</latitude>
+          <longitude> 44.67</longitude>
           <elevation>3500</elevation>
           <priority>0</priority>
           <location>Arabia-S</location>
@@ -1052,11 +1076,11 @@
           <stnname>Didicas</stnname>
           <state></state>
           <country></country>
-          <latitude>19.08</latitude>
+          <latitude> 19.08</latitude>
           <longitude>122.20</longitude>
           <elevation>244</elevation>
           <priority>0</priority>
-          <location>Luzon-N_of</location>
+          <location>Luzon</location>
      </station>
      <station>
           <stid>0603-20</stid>
@@ -1064,7 +1088,7 @@
           <stnname>Dieng_Volc_Complex</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.20</latitude>
+          <latitude> -7.20</latitude>
           <longitude>109.92</longitude>
           <elevation>2565</elevation>
           <priority>0</priority>
@@ -1076,7 +1100,7 @@
           <stnname>Dona_Juana</stnname>
           <state></state>
           <country></country>
-          <latitude>1.47</latitude>
+          <latitude>  1.47</latitude>
           <longitude>-76.92</longitude>
           <elevation>4150</elevation>
           <priority>0</priority>
@@ -1088,7 +1112,7 @@
           <stnname>Dukono</stnname>
           <state></state>
           <country></country>
-          <latitude>1.68</latitude>
+          <latitude>  1.68</latitude>
           <longitude>127.88</longitude>
           <elevation>1185</elevation>
           <priority>0</priority>
@@ -1112,7 +1136,7 @@
           <stnname>Ebeko</stnname>
           <state></state>
           <country></country>
-          <latitude>50.68</latitude>
+          <latitude> 50.68</latitude>
           <longitude>156.02</longitude>
           <elevation>1156</elevation>
           <priority>0</priority>
@@ -1124,7 +1148,7 @@
           <stnname>Ebulobo</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.81</latitude>
+          <latitude> -8.81</latitude>
           <longitude>121.18</longitude>
           <elevation>2124</elevation>
           <priority>0</priority>
@@ -1136,7 +1160,7 @@
           <stnname>Egon</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.67</latitude>
+          <latitude> -8.67</latitude>
           <longitude>122.45</longitude>
           <elevation>1703</elevation>
           <priority>0</priority>
@@ -1148,7 +1172,7 @@
           <stnname>Ekarma</stnname>
           <state></state>
           <country></country>
-          <latitude>48.96</latitude>
+          <latitude> 48.96</latitude>
           <longitude>153.93</longitude>
           <elevation>1170</elevation>
           <priority>0</priority>
@@ -1160,8 +1184,8 @@
           <stnname>Emuruangogolak</stnname>
           <state></state>
           <country></country>
-          <latitude>1.50</latitude>
-          <longitude>36.33</longitude>
+          <latitude>  1.50</latitude>
+          <longitude> 36.33</longitude>
           <elevation>1328</elevation>
           <priority>0</priority>
           <location>Africa-E</location>
@@ -1196,8 +1220,8 @@
           <stnname>Erta_Ale</stnname>
           <state></state>
           <country></country>
-          <latitude>13.60</latitude>
-          <longitude>40.67</longitude>
+          <latitude> 13.60</latitude>
+          <longitude> 40.67</longitude>
           <elevation>613</elevation>
           <priority>0</priority>
           <location>Ethiopia</location>
@@ -1208,7 +1232,7 @@
           <stnname>Esjufjoll</stnname>
           <state></state>
           <country></country>
-          <latitude>64.27</latitude>
+          <latitude> 64.27</latitude>
           <longitude>-16.65</longitude>
           <elevation>1760</elevation>
           <priority>0</priority>
@@ -1220,11 +1244,23 @@
           <stnname>Etna</stnname>
           <state></state>
           <country></country>
-          <latitude>37.73</latitude>
-          <longitude>15.00</longitude>
+          <latitude> 37.73</latitude>
+          <longitude> 15.00</longitude>
           <elevation>3350</elevation>
           <priority>0</priority>
           <location>Italy</location>
+     </station>
+     <station>
+          <stid>1702-02</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Eyjafjoll</stnname>
+          <state></state>
+          <country></country>
+          <latitude> 63.63</latitude>
+          <longitude>-19.62</longitude>
+          <elevation>1666</elevation>
+          <priority>0</priority>
+          <location>Iceland-S</location>
      </station>
      <station>
           <stid>0403-05</stid>
@@ -1244,7 +1280,7 @@
           <stnname>Farallon_de_Pajaros</stnname>
           <state></state>
           <country></country>
-          <latitude>20.53</latitude>
+          <latitude> 20.53</latitude>
           <longitude>144.90</longitude>
           <elevation>360</elevation>
           <priority>0</priority>
@@ -1256,7 +1292,7 @@
           <stnname>Fayal</stnname>
           <state></state>
           <country></country>
-          <latitude>38.60</latitude>
+          <latitude> 38.60</latitude>
           <longitude>-28.73</longitude>
           <elevation>1043</elevation>
           <priority>0</priority>
@@ -1268,7 +1304,7 @@
           <stnname>Fernandina</stnname>
           <state></state>
           <country></country>
-          <latitude>-.37</latitude>
+          <latitude> -0.37</latitude>
           <longitude>-91.55</longitude>
           <elevation>1495</elevation>
           <priority>0</priority>
@@ -1280,7 +1316,7 @@
           <stnname>Fogo</stnname>
           <state></state>
           <country></country>
-          <latitude>14.95</latitude>
+          <latitude> 14.95</latitude>
           <longitude>-24.35</longitude>
           <elevation>2829</elevation>
           <priority>0</priority>
@@ -1305,10 +1341,22 @@
           <state></state>
           <country></country>
           <latitude>-21.23</latitude>
-          <longitude>55.71</longitude>
+          <longitude> 55.71</longitude>
           <elevation>2631</elevation>
           <priority>0</priority>
           <location>Indian_O-W</location>
+     </station>
+     <station>
+          <stid>1102-26</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Fourpeaked</stnname>
+          <state>Vo</state>
+          <country></country>
+          <latitude>  0.00</latitude>
+          <longitude> 58.77</longitude>
+          <elevation>-15368</elevation>
+          <priority>2104</priority>
+          <location>0</location>
      </station>
      <station>
           <stid>1402-09</stid>
@@ -1316,7 +1364,7 @@
           <stnname>Fuego</stnname>
           <state></state>
           <country></country>
-          <latitude>14.47</latitude>
+          <latitude> 14.47</latitude>
           <longitude>-90.88</longitude>
           <elevation>3763</elevation>
           <priority>0</priority>
@@ -1328,7 +1376,7 @@
           <stnname>Fukujin</stnname>
           <state></state>
           <country></country>
-          <latitude>21.93</latitude>
+          <latitude> 21.93</latitude>
           <longitude>143.44</longitude>
           <elevation>-217</elevation>
           <priority>0</priority>
@@ -1340,7 +1388,7 @@
           <stnname>Fukutoku-okanoba</stnname>
           <state></state>
           <country></country>
-          <latitude>24.28</latitude>
+          <latitude> 24.28</latitude>
           <longitude>141.52</longitude>
           <elevation>-14</elevation>
           <priority>0</priority>
@@ -1352,7 +1400,7 @@
           <stnname>Galapagos_Rift</stnname>
           <state></state>
           <country></country>
-          <latitude>.79</latitude>
+          <latitude>  0.79</latitude>
           <longitude>-86.15</longitude>
           <elevation>-2430</elevation>
           <priority>0</priority>
@@ -1364,7 +1412,7 @@
           <stnname>Galeras</stnname>
           <state></state>
           <country></country>
-          <latitude>1.22</latitude>
+          <latitude>  1.22</latitude>
           <longitude>-77.37</longitude>
           <elevation>4276</elevation>
           <priority>0</priority>
@@ -1376,7 +1424,7 @@
           <stnname>Galunggung</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.25</latitude>
+          <latitude> -7.25</latitude>
           <longitude>108.05</longitude>
           <elevation>2168</elevation>
           <priority>0</priority>
@@ -1388,7 +1436,7 @@
           <stnname>Gamalama</stnname>
           <state></state>
           <country></country>
-          <latitude>.80</latitude>
+          <latitude>  0.80</latitude>
           <longitude>127.33</longitude>
           <elevation>1715</elevation>
           <priority>0</priority>
@@ -1400,7 +1448,7 @@
           <stnname>Gamkonora</stnname>
           <state></state>
           <country></country>
-          <latitude>1.38</latitude>
+          <latitude>  1.38</latitude>
           <longitude>127.52</longitude>
           <elevation>1635</elevation>
           <priority>0</priority>
@@ -1412,7 +1460,7 @@
           <stnname>Gareloi</stnname>
           <state></state>
           <country></country>
-          <latitude>51.78</latitude>
+          <latitude> 51.78</latitude>
           <longitude>-178.80</longitude>
           <elevation>1573</elevation>
           <priority>0</priority>
@@ -1436,7 +1484,7 @@
           <stnname>Gede</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.78</latitude>
+          <latitude> -6.78</latitude>
           <longitude>106.98</longitude>
           <elevation>2958</elevation>
           <priority>0</priority>
@@ -1448,8 +1496,8 @@
           <stnname>Geureudong</stnname>
           <state></state>
           <country></country>
-          <latitude>4.81</latitude>
-          <longitude>96.82</longitude>
+          <latitude>  4.81</latitude>
+          <longitude> 96.82</longitude>
           <elevation>2885</elevation>
           <priority>0</priority>
           <location>Sumatra</location>
@@ -1460,7 +1508,7 @@
           <stnname>Glacier_Peak</stnname>
           <state></state>
           <country></country>
-          <latitude>41.57</latitude>
+          <latitude> 41.57</latitude>
           <longitude>-122.54</longitude>
           <elevation>3213</elevation>
           <priority>0</priority>
@@ -1472,7 +1520,7 @@
           <stnname>Gorely</stnname>
           <state></state>
           <country></country>
-          <latitude>52.56</latitude>
+          <latitude> 52.56</latitude>
           <longitude>158.03</longitude>
           <elevation>1829</elevation>
           <priority>0</priority>
@@ -1484,7 +1532,7 @@
           <stnname>Goriaschaia_Sopka</stnname>
           <state></state>
           <country></country>
-          <latitude>46.83</latitude>
+          <latitude> 46.83</latitude>
           <longitude>151.75</longitude>
           <elevation>891</elevation>
           <priority>0</priority>
@@ -1496,7 +1544,7 @@
           <stnname>Great_Sitkin</stnname>
           <state></state>
           <country></country>
-          <latitude>52.08</latitude>
+          <latitude> 52.08</latitude>
           <longitude>-176.13</longitude>
           <elevation>1740</elevation>
           <priority>0</priority>
@@ -1508,7 +1556,7 @@
           <stnname>Grimsvotn</stnname>
           <state></state>
           <country></country>
-          <latitude>64.42</latitude>
+          <latitude> 64.42</latitude>
           <longitude>-17.33</longitude>
           <elevation>1725</elevation>
           <priority>0</priority>
@@ -1520,7 +1568,7 @@
           <stnname>Grozny_Group</stnname>
           <state></state>
           <country></country>
-          <latitude>45.02</latitude>
+          <latitude> 45.02</latitude>
           <longitude>147.87</longitude>
           <elevation>1211</elevation>
           <priority>0</priority>
@@ -1532,7 +1580,7 @@
           <stnname>Guagua_Pichincha</stnname>
           <state></state>
           <country></country>
-          <latitude>-.17</latitude>
+          <latitude> -0.17</latitude>
           <longitude>-78.60</longitude>
           <elevation>4784</elevation>
           <priority>0</priority>
@@ -1557,10 +1605,10 @@
           <state></state>
           <country></country>
           <latitude>-53.11</latitude>
-          <longitude>73.51</longitude>
+          <longitude> 73.51</longitude>
           <elevation>2745</elevation>
           <priority>0</priority>
-          <location>Indian_O-S</location>
+          <location>Indian_O</location>
      </station>
      <station>
           <stid>1702-07</stid>
@@ -1568,11 +1616,11 @@
           <stnname>Hekla</stnname>
           <state></state>
           <country></country>
-          <latitude>63.98</latitude>
+          <latitude> 63.98</latitude>
           <longitude>-19.70</longitude>
           <elevation>1491</elevation>
           <priority>0</priority>
-          <location>Iceland-S</location>
+          <location>Iceland</location>
      </station>
      <station>
           <stid>0701-08</stid>
@@ -1580,7 +1628,7 @@
           <stnname>Hibok-Hibok</stnname>
           <state></state>
           <country></country>
-          <latitude>9.20</latitude>
+          <latitude>  9.20</latitude>
           <longitude>124.67</longitude>
           <elevation>1332</elevation>
           <priority>0</priority>
@@ -1604,7 +1652,7 @@
           <stnname>Hood</stnname>
           <state></state>
           <country></country>
-          <latitude>45.23</latitude>
+          <latitude> 45.23</latitude>
           <longitude>-121.42</longitude>
           <elevation>3426</elevation>
           <priority>0</priority>
@@ -1633,6 +1681,18 @@
           <elevation>1318</elevation>
           <priority>0</priority>
           <location>Chile-S</location>
+     </station>
+     <station>
+          <stid>1501-05</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Huila</stnname>
+          <state></state>
+          <country></country>
+          <latitude>  2.92</latitude>
+          <longitude>-76.05</longitude>
+          <elevation>5365</elevation>
+          <priority>0</priority>
+          <location>Colombia</location>
      </station>
      <station>
           <stid>0403-04</stid>
@@ -1664,7 +1724,7 @@
           <stnname>Ibu</stnname>
           <state></state>
           <country></country>
-          <latitude>1.48</latitude>
+          <latitude>  1.48</latitude>
           <longitude>127.64</longitude>
           <elevation>1325</elevation>
           <priority>0</priority>
@@ -1676,7 +1736,7 @@
           <stnname>Ijen</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.06</latitude>
+          <latitude> -8.06</latitude>
           <longitude>114.24</longitude>
           <elevation>2799</elevation>
           <priority>0</priority>
@@ -1688,7 +1748,7 @@
           <stnname>Iliamna</stnname>
           <state></state>
           <country></country>
-          <latitude>60.03</latitude>
+          <latitude> 60.03</latitude>
           <longitude>-153.08</longitude>
           <elevation>3053</elevation>
           <priority>0</priority>
@@ -1700,7 +1760,7 @@
           <stnname>Iliboleng</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.34</latitude>
+          <latitude> -8.34</latitude>
           <longitude>123.26</longitude>
           <elevation>1659</elevation>
           <priority>0</priority>
@@ -1712,7 +1772,7 @@
           <stnname>Iliwerung</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.54</latitude>
+          <latitude> -8.54</latitude>
           <longitude>123.59</longitude>
           <elevation>1018</elevation>
           <priority>0</priority>
@@ -1724,7 +1784,7 @@
           <stnname>Ilyinsky</stnname>
           <state></state>
           <country></country>
-          <latitude>51.49</latitude>
+          <latitude> 51.49</latitude>
           <longitude>157.20</longitude>
           <elevation>1578</elevation>
           <priority>0</priority>
@@ -1736,7 +1796,7 @@
           <stnname>Inielika</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.73</latitude>
+          <latitude> -8.73</latitude>
           <longitude>120.98</longitude>
           <elevation>1559</elevation>
           <priority>0</priority>
@@ -1748,7 +1808,7 @@
           <stnname>Irazu</stnname>
           <state></state>
           <country></country>
-          <latitude>9.98</latitude>
+          <latitude>  9.98</latitude>
           <longitude>-83.85</longitude>
           <elevation>3432</elevation>
           <priority>0</priority>
@@ -1760,7 +1820,7 @@
           <stnname>Iriomote-jima</stnname>
           <state></state>
           <country></country>
-          <latitude>24.56</latitude>
+          <latitude> 24.56</latitude>
           <longitude>124.00</longitude>
           <elevation>-200</elevation>
           <priority>0</priority>
@@ -1796,7 +1856,7 @@
           <stnname>Iwate</stnname>
           <state></state>
           <country></country>
-          <latitude>39.85</latitude>
+          <latitude> 39.85</latitude>
           <longitude>141.00</longitude>
           <elevation>2041</elevation>
           <priority>0</priority>
@@ -1808,7 +1868,7 @@
           <stnname>Iwo-Tori-shima</stnname>
           <state></state>
           <country></country>
-          <latitude>27.85</latitude>
+          <latitude> 27.85</latitude>
           <longitude>128.25</longitude>
           <elevation>217</elevation>
           <priority>0</priority>
@@ -1820,7 +1880,7 @@
           <stnname>Iwo-jima</stnname>
           <state></state>
           <country></country>
-          <latitude>24.75</latitude>
+          <latitude> 24.75</latitude>
           <longitude>141.33</longitude>
           <elevation>161</elevation>
           <priority>0</priority>
@@ -1832,7 +1892,7 @@
           <stnname>Iya</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.88</latitude>
+          <latitude> -8.88</latitude>
           <longitude>121.63</longitude>
           <elevation>637</elevation>
           <priority>0</priority>
@@ -1844,7 +1904,7 @@
           <stnname>Izalco</stnname>
           <state></state>
           <country></country>
-          <latitude>13.81</latitude>
+          <latitude> 13.81</latitude>
           <longitude>-89.63</longitude>
           <elevation>1950</elevation>
           <priority>0</priority>
@@ -1856,7 +1916,7 @@
           <stnname>Izu-Tobu</stnname>
           <state></state>
           <country></country>
-          <latitude>34.92</latitude>
+          <latitude> 34.92</latitude>
           <longitude>139.12</longitude>
           <elevation>1406</elevation>
           <priority>0</priority>
@@ -1868,8 +1928,8 @@
           <stnname>Jan_Mayen</stnname>
           <state></state>
           <country></country>
-          <latitude>71.08</latitude>
-          <longitude>-8.17</longitude>
+          <latitude> 71.08</latitude>
+          <longitude> -8.17</longitude>
           <elevation>2277</elevation>
           <priority>0</priority>
           <location>Atlantic-N-Jan_Mayen</location>
@@ -1880,7 +1940,7 @@
           <stnname>Jefferson</stnname>
           <state></state>
           <country></country>
-          <latitude>44.42</latitude>
+          <latitude> 44.42</latitude>
           <longitude>-121.48</longitude>
           <elevation>3199</elevation>
           <priority>0</priority>
@@ -1892,7 +1952,7 @@
           <stnname>Kaba</stnname>
           <state></state>
           <country></country>
-          <latitude>-3.52</latitude>
+          <latitude> -3.52</latitude>
           <longitude>102.62</longitude>
           <elevation>1952</elevation>
           <priority>0</priority>
@@ -1904,7 +1964,7 @@
           <stnname>Kagamil</stnname>
           <state></state>
           <country></country>
-          <latitude>52.97</latitude>
+          <latitude> 52.97</latitude>
           <longitude>-169.72</longitude>
           <elevation>893</elevation>
           <priority>0</priority>
@@ -1916,11 +1976,23 @@
           <stnname>Kaitoku_Seamount</stnname>
           <state></state>
           <country></country>
-          <latitude>26.12</latitude>
+          <latitude> 26.12</latitude>
           <longitude>141.10</longitude>
           <elevation>-10</elevation>
           <priority>0</priority>
           <location>Volcano_Is-Japan</location>
+     </station>
+     <station>
+          <stid>1101-13</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Kasatochi</stnname>
+          <state></state>
+          <country></country>
+          <latitude> 52.18</latitude>
+          <longitude>-175.50</longitude>
+          <elevation>314</elevation>
+          <priority>0</priority>
+          <location>Aleutian_Is</location>
      </station>
      <station>
           <stid>1101-11</stid>
@@ -1928,7 +2000,7 @@
           <stnname>Kanaga</stnname>
           <state></state>
           <country></country>
-          <latitude>51.92</latitude>
+          <latitude> 51.92</latitude>
           <longitude>-177.17</longitude>
           <elevation>1307</elevation>
           <priority>0</priority>
@@ -1940,7 +2012,7 @@
           <stnname>Karangetang_[Api_Siau]</stnname>
           <state></state>
           <country></country>
-          <latitude>2.78</latitude>
+          <latitude>  2.78</latitude>
           <longitude>125.48</longitude>
           <elevation>1784</elevation>
           <priority>0</priority>
@@ -1952,11 +2024,11 @@
           <stnname>Karkar</stnname>
           <state></state>
           <country></country>
-          <latitude>-4.65</latitude>
+          <latitude> -4.65</latitude>
           <longitude>145.96</longitude>
           <elevation>1839</elevation>
           <priority>0</priority>
-          <location>New_Guinea-NE_of</location>
+          <location>New_Guinea</location>
      </station>
      <station>
           <stid>0900-35</stid>
@@ -1964,7 +2036,7 @@
           <stnname>Karpinsky_Group</stnname>
           <state></state>
           <country></country>
-          <latitude>50.13</latitude>
+          <latitude> 50.13</latitude>
           <longitude>155.37</longitude>
           <elevation>1345</elevation>
           <priority>0</priority>
@@ -1977,7 +2049,7 @@
           <state></state>
           <country></country>
           <latitude>-11.75</latitude>
-          <longitude>43.38</longitude>
+          <longitude> 43.38</longitude>
           <elevation>2361</elevation>
           <priority>0</priority>
           <location>Indian_O-W</location>
@@ -1988,7 +2060,7 @@
           <stnname>Karymsky</stnname>
           <state></state>
           <country></country>
-          <latitude>54.05</latitude>
+          <latitude> 54.05</latitude>
           <longitude>159.43</longitude>
           <elevation>1536</elevation>
           <priority>0</priority>
@@ -2000,7 +2072,7 @@
           <stnname>Katla</stnname>
           <state></state>
           <country></country>
-          <latitude>63.63</latitude>
+          <latitude> 63.63</latitude>
           <longitude>-19.05</longitude>
           <elevation>1512</elevation>
           <priority>0</priority>
@@ -2012,7 +2084,7 @@
           <stnname>Katmai</stnname>
           <state></state>
           <country></country>
-          <latitude>58.27</latitude>
+          <latitude> 58.27</latitude>
           <longitude>-154.98</longitude>
           <elevation>2047</elevation>
           <priority>0</priority>
@@ -2024,7 +2096,7 @@
           <stnname>Kavachi</stnname>
           <state></state>
           <country></country>
-          <latitude>-9.02</latitude>
+          <latitude> -9.02</latitude>
           <longitude>157.95</longitude>
           <elevation>-20</elevation>
           <priority>0</priority>
@@ -2036,7 +2108,7 @@
           <stnname>Kelimutu</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.76</latitude>
+          <latitude> -8.76</latitude>
           <longitude>121.83</longitude>
           <elevation>1640</elevation>
           <priority>0</priority>
@@ -2048,7 +2120,7 @@
           <stnname>Kelut</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.93</latitude>
+          <latitude> -7.93</latitude>
           <longitude>112.31</longitude>
           <elevation>1731</elevation>
           <priority>0</priority>
@@ -2060,7 +2132,7 @@
           <stnname>Kerinci</stnname>
           <state></state>
           <country></country>
-          <latitude>-1.81</latitude>
+          <latitude> -1.81</latitude>
           <longitude>101.26</longitude>
           <elevation>3800</elevation>
           <priority>0</priority>
@@ -2072,7 +2144,7 @@
           <stnname>Ketoi</stnname>
           <state></state>
           <country></country>
-          <latitude>47.35</latitude>
+          <latitude> 47.35</latitude>
           <longitude>152.48</longitude>
           <elevation>1172</elevation>
           <priority>0</priority>
@@ -2084,7 +2156,7 @@
           <stnname>Kharimkotan</stnname>
           <state></state>
           <country></country>
-          <latitude>49.12</latitude>
+          <latitude> 49.12</latitude>
           <longitude>154.51</longitude>
           <elevation>1145</elevation>
           <priority>0</priority>
@@ -2096,7 +2168,7 @@
           <stnname>Kiaraberes-Gagak</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.73</latitude>
+          <latitude> -6.73</latitude>
           <longitude>106.65</longitude>
           <elevation>1511</elevation>
           <priority>0</priority>
@@ -2108,7 +2180,7 @@
           <stnname>Kick-'em-Jenny</stnname>
           <state></state>
           <country></country>
-          <latitude>12.30</latitude>
+          <latitude> 12.30</latitude>
           <longitude>-61.63</longitude>
           <elevation>-177</elevation>
           <priority>0</priority>
@@ -2120,7 +2192,7 @@
           <stnname>Kikai</stnname>
           <state></state>
           <country></country>
-          <latitude>30.78</latitude>
+          <latitude> 30.78</latitude>
           <longitude>130.28</longitude>
           <elevation>717</elevation>
           <priority>0</priority>
@@ -2132,7 +2204,7 @@
           <stnname>Kilauea</stnname>
           <state></state>
           <country></country>
-          <latitude>19.43</latitude>
+          <latitude> 19.43</latitude>
           <longitude>-155.29</longitude>
           <elevation>1222</elevation>
           <priority>0</priority>
@@ -2144,7 +2216,7 @@
           <stnname>Kirishima</stnname>
           <state></state>
           <country></country>
-          <latitude>31.93</latitude>
+          <latitude> 31.93</latitude>
           <longitude>130.87</longitude>
           <elevation>1700</elevation>
           <priority>0</priority>
@@ -2156,7 +2228,7 @@
           <stnname>Kiska</stnname>
           <state></state>
           <country></country>
-          <latitude>52.10</latitude>
+          <latitude> 52.10</latitude>
           <longitude>177.60</longitude>
           <elevation>1220</elevation>
           <priority>0</priority>
@@ -2168,7 +2240,7 @@
           <stnname>Kita-Iwo-jima</stnname>
           <state></state>
           <country></country>
-          <latitude>25.43</latitude>
+          <latitude> 25.43</latitude>
           <longitude>141.23</longitude>
           <elevation>792</elevation>
           <priority>0</priority>
@@ -2180,7 +2252,7 @@
           <stnname>Kizimen</stnname>
           <state></state>
           <country></country>
-          <latitude>55.13</latitude>
+          <latitude> 55.13</latitude>
           <longitude>160.32</longitude>
           <elevation>2485</elevation>
           <priority>0</priority>
@@ -2192,7 +2264,7 @@
           <stnname>Kliuchevskoi</stnname>
           <state></state>
           <country></country>
-          <latitude>56.06</latitude>
+          <latitude> 56.06</latitude>
           <longitude>160.64</longitude>
           <elevation>4835</elevation>
           <priority>0</priority>
@@ -2204,7 +2276,7 @@
           <stnname>Kolokol_Group</stnname>
           <state></state>
           <country></country>
-          <latitude>46.04</latitude>
+          <latitude> 46.04</latitude>
           <longitude>150.05</longitude>
           <elevation>1328</elevation>
           <priority>0</priority>
@@ -2216,7 +2288,7 @@
           <stnname>Komaga-take</stnname>
           <state></state>
           <country></country>
-          <latitude>42.07</latitude>
+          <latitude> 42.07</latitude>
           <longitude>140.68</longitude>
           <elevation>1140</elevation>
           <priority>0</priority>
@@ -2228,7 +2300,7 @@
           <stnname>Koryaksky</stnname>
           <state></state>
           <country></country>
-          <latitude>53.32</latitude>
+          <latitude> 53.32</latitude>
           <longitude>158.69</longitude>
           <elevation>3456</elevation>
           <priority>0</priority>
@@ -2240,7 +2312,7 @@
           <stnname>Krafla</stnname>
           <state></state>
           <country></country>
-          <latitude>65.73</latitude>
+          <latitude> 65.73</latitude>
           <longitude>-16.78</longitude>
           <elevation>650</elevation>
           <priority>0</priority>
@@ -2252,7 +2324,7 @@
           <stnname>Krakatau</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.10</latitude>
+          <latitude> -6.10</latitude>
           <longitude>105.42</longitude>
           <elevation>813</elevation>
           <priority>0</priority>
@@ -2264,7 +2336,7 @@
           <stnname>Kronotsky</stnname>
           <state></state>
           <country></country>
-          <latitude>54.75</latitude>
+          <latitude> 54.75</latitude>
           <longitude>160.53</longitude>
           <elevation>3528</elevation>
           <priority>0</priority>
@@ -2276,7 +2348,7 @@
           <stnname>Ksudach</stnname>
           <state></state>
           <country></country>
-          <latitude>51.80</latitude>
+          <latitude> 51.80</latitude>
           <longitude>157.53</longitude>
           <elevation>1079</elevation>
           <priority>0</priority>
@@ -2288,7 +2360,7 @@
           <stnname>Kuchinoerabu-jima</stnname>
           <state></state>
           <country></country>
-          <latitude>30.43</latitude>
+          <latitude> 30.43</latitude>
           <longitude>130.22</longitude>
           <elevation>649</elevation>
           <priority>0</priority>
@@ -2300,7 +2372,7 @@
           <stnname>Kuju_Group</stnname>
           <state></state>
           <country></country>
-          <latitude>33.08</latitude>
+          <latitude> 33.08</latitude>
           <longitude>131.25</longitude>
           <elevation>1788</elevation>
           <priority>0</priority>
@@ -2312,8 +2384,8 @@
           <stnname>Kunlun_Volc_Group</stnname>
           <state></state>
           <country></country>
-          <latitude>35.52</latitude>
-          <longitude>80.20</longitude>
+          <latitude> 35.52</latitude>
+          <longitude> 80.20</longitude>
           <elevation>5808</elevation>
           <priority>0</priority>
           <location>China-W</location>
@@ -2324,7 +2396,7 @@
           <stnname>Kupreanof</stnname>
           <state></state>
           <country></country>
-          <latitude>56.02</latitude>
+          <latitude> 56.02</latitude>
           <longitude>-159.80</longitude>
           <elevation>1895</elevation>
           <priority>0</priority>
@@ -2336,7 +2408,7 @@
           <stnname>Kurikoma</stnname>
           <state></state>
           <country></country>
-          <latitude>38.95</latitude>
+          <latitude> 38.95</latitude>
           <longitude>140.78</longitude>
           <elevation>1628</elevation>
           <priority>0</priority>
@@ -2348,7 +2420,7 @@
           <stnname>Kusatsu-Shirane</stnname>
           <state></state>
           <country></country>
-          <latitude>36.62</latitude>
+          <latitude> 36.62</latitude>
           <longitude>138.55</longitude>
           <elevation>2176</elevation>
           <priority>0</priority>
@@ -2372,7 +2444,7 @@
           <stnname>Kverkfjoll</stnname>
           <state></state>
           <country></country>
-          <latitude>64.65</latitude>
+          <latitude> 64.65</latitude>
           <longitude>-16.72</longitude>
           <elevation>1920</elevation>
           <priority>0</priority>
@@ -2384,7 +2456,7 @@
           <stnname>La_Palma</stnname>
           <state></state>
           <country></country>
-          <latitude>28.58</latitude>
+          <latitude> 28.58</latitude>
           <longitude>-17.83</longitude>
           <elevation>2426</elevation>
           <priority>0</priority>
@@ -2396,7 +2468,7 @@
           <stnname>Lamington</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.95</latitude>
+          <latitude> -8.95</latitude>
           <longitude>148.15</longitude>
           <elevation>1680</elevation>
           <priority>0</priority>
@@ -2408,7 +2480,7 @@
           <stnname>Langila</stnname>
           <state></state>
           <country></country>
-          <latitude>-5.53</latitude>
+          <latitude> -5.53</latitude>
           <longitude>148.42</longitude>
           <elevation>1330</elevation>
           <priority>0</priority>
@@ -2432,7 +2504,7 @@
           <stnname>Lassen_Volc_Center</stnname>
           <state></state>
           <country></country>
-          <latitude>40.49</latitude>
+          <latitude> 40.49</latitude>
           <longitude>-121.51</longitude>
           <elevation>3187</elevation>
           <priority>0</priority>
@@ -2456,8 +2528,8 @@
           <stnname>Lengai,_Ol_Doinyo</stnname>
           <state></state>
           <country></country>
-          <latitude>-2.75</latitude>
-          <longitude>35.90</longitude>
+          <latitude> -2.75</latitude>
+          <longitude> 35.90</longitude>
           <elevation>2890</elevation>
           <priority>0</priority>
           <location>Africa-E</location>
@@ -2468,7 +2540,7 @@
           <stnname>Lewotobi</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.53</latitude>
+          <latitude> -8.53</latitude>
           <longitude>122.78</longitude>
           <elevation>1703</elevation>
           <priority>0</priority>
@@ -2480,7 +2552,7 @@
           <stnname>Lewotolo</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.27</latitude>
+          <latitude> -8.27</latitude>
           <longitude>123.51</longitude>
           <elevation>1423</elevation>
           <priority>0</priority>
@@ -2504,11 +2576,11 @@
           <stnname>Loihi</stnname>
           <state></state>
           <country></country>
-          <latitude>18.92</latitude>
+          <latitude> 18.92</latitude>
           <longitude>-155.27</longitude>
           <elevation>-975</elevation>
           <priority>0</priority>
-          <location>Hawaiian_Is</location>
+          <location>Hawaii</location>
      </station>
      <station>
           <stid>1703-02</stid>
@@ -2516,7 +2588,7 @@
           <stnname>Loki-Fogrufjoll</stnname>
           <state></state>
           <country></country>
-          <latitude>64.48</latitude>
+          <latitude> 64.48</latitude>
           <longitude>-17.80</longitude>
           <elevation>1570</elevation>
           <priority>0</priority>
@@ -2528,7 +2600,7 @@
           <stnname>Lokon-Empung</stnname>
           <state></state>
           <country></country>
-          <latitude>1.36</latitude>
+          <latitude>  1.36</latitude>
           <longitude>124.79</longitude>
           <elevation>1580</elevation>
           <priority>0</priority>
@@ -2540,11 +2612,11 @@
           <stnname>Lolobau</stnname>
           <state></state>
           <country></country>
-          <latitude>-4.92</latitude>
+          <latitude> -4.92</latitude>
           <longitude>151.16</longitude>
           <elevation>858</elevation>
           <priority>0</priority>
-          <location>New_Britain-SW_Pac</location>
+          <location>New_Britain-Pacific</location>
      </station>
      <station>
           <stid>0501-05</stid>
@@ -2552,11 +2624,23 @@
           <stnname>Long_Island</stnname>
           <state></state>
           <country></country>
-          <latitude>-5.36</latitude>
+          <latitude> -5.36</latitude>
           <longitude>147.12</longitude>
           <elevation>1280</elevation>
           <priority>0</priority>
-          <location>New_Guinea-NE_of</location>
+          <location>New_Guinea</location>
+     </station>
+     <station>
+          <stid>1203-14</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Long_Valley</stnname>
+          <state></state>
+          <country></country>
+          <latitude> 43.44</latitude>
+          <longitude>-121.14</longitude>
+          <elevation>3390</elevation>
+          <priority>0</priority>
+          <location>US-California</location>
      </station>
      <station>
           <stid>1507-10</stid>
@@ -2569,18 +2653,6 @@
           <elevation>2865</elevation>
           <priority>0</priority>
           <location>Chile-C</location>
-     </station>
-     <station>
-          <stid>1203-14</stid>
-          <stnnum>999999</stnnum>
-          <stnname>Long_Valley</stnname>
-          <state></state>
-          <country></country>
-          <latitude>43.44</latitude>
-          <longitude>-121.14</longitude>
-          <elevation>3390</elevation>
-          <priority>0</priority>
-          <location>US-California</location>
      </station>
      <station>
           <stid>0507-05</stid>
@@ -2612,7 +2684,7 @@
           <stnname>Machin</stnname>
           <state></state>
           <country></country>
-          <latitude>04.48</latitude>
+          <latitude>  4.48</latitude>
           <longitude>-75.40</longitude>
           <elevation>2650</elevation>
           <priority>0</priority>
@@ -2624,7 +2696,7 @@
           <stnname>Mageik</stnname>
           <state></state>
           <country></country>
-          <latitude>58.20</latitude>
+          <latitude> 58.20</latitude>
           <longitude>-155.25</longitude>
           <elevation>2165</elevation>
           <priority>0</priority>
@@ -2636,7 +2708,7 @@
           <stnname>Mahawu</stnname>
           <state></state>
           <country></country>
-          <latitude>1.36</latitude>
+          <latitude>  1.36</latitude>
           <longitude>124.86</longitude>
           <elevation>1324</elevation>
           <priority>0</priority>
@@ -2660,7 +2732,7 @@
           <stnname>Makian</stnname>
           <state></state>
           <country></country>
-          <latitude>.32</latitude>
+          <latitude>  0.32</latitude>
           <longitude>127.40</longitude>
           <elevation>1357</elevation>
           <priority>0</priority>
@@ -2672,7 +2744,7 @@
           <stnname>Makushin</stnname>
           <state></state>
           <country></country>
-          <latitude>53.90</latitude>
+          <latitude> 53.90</latitude>
           <longitude>-166.93</longitude>
           <elevation>2036</elevation>
           <priority>0</priority>
@@ -2684,7 +2756,7 @@
           <stnname>Maly_Semiachik</stnname>
           <state></state>
           <country></country>
-          <latitude>54.13</latitude>
+          <latitude> 54.13</latitude>
           <longitude>159.67</longitude>
           <elevation>1560</elevation>
           <priority>0</priority>
@@ -2696,11 +2768,11 @@
           <stnname>Manam</stnname>
           <state></state>
           <country></country>
-          <latitude>-4.10</latitude>
+          <latitude> -4.10</latitude>
           <longitude>145.06</longitude>
           <elevation>1807</elevation>
           <priority>0</priority>
-          <location>New_Guinea-NE_of</location>
+          <location>New_Guinea</location>
      </station>
      <station>
           <stid>0201-122</stid>
@@ -2708,8 +2780,8 @@
           <stnname>Manda-Inakir</stnname>
           <state></state>
           <country></country>
-          <latitude>12.38</latitude>
-          <longitude>42.20</longitude>
+          <latitude> 12.38</latitude>
+          <longitude> 42.20</longitude>
           <elevation>600</elevation>
           <priority>0</priority>
           <location>Ethiopia</location>
@@ -2720,7 +2792,7 @@
           <stnname>Marapi</stnname>
           <state></state>
           <country></country>
-          <latitude>-.38</latitude>
+          <latitude> -0.38</latitude>
           <longitude>100.47</longitude>
           <elevation>2891</elevation>
           <priority>0</priority>
@@ -2732,7 +2804,7 @@
           <stnname>Marchena</stnname>
           <state></state>
           <country></country>
-          <latitude>.33</latitude>
+          <latitude>  0.33</latitude>
           <longitude>-90.47</longitude>
           <elevation>343</elevation>
           <priority>0</priority>
@@ -2745,7 +2817,7 @@
           <state></state>
           <country></country>
           <latitude>-46.90</latitude>
-          <longitude>37.75</longitude>
+          <longitude> 37.75</longitude>
           <elevation>1230</elevation>
           <priority>0</priority>
           <location>Indian_O-S</location>
@@ -2756,7 +2828,7 @@
           <stnname>Martin</stnname>
           <state></state>
           <country></country>
-          <latitude>58.17</latitude>
+          <latitude> 58.17</latitude>
           <longitude>-155.35</longitude>
           <elevation>1860</elevation>
           <priority>0</priority>
@@ -2768,7 +2840,7 @@
           <stnname>Masaya</stnname>
           <state></state>
           <country></country>
-          <latitude>11.98</latitude>
+          <latitude> 11.98</latitude>
           <longitude>-86.16</longitude>
           <elevation>635</elevation>
           <priority>0</priority>
@@ -2792,7 +2864,7 @@
           <stnname>Mauna_Loa</stnname>
           <state></state>
           <country></country>
-          <latitude>19.48</latitude>
+          <latitude> 19.48</latitude>
           <longitude>-155.61</longitude>
           <elevation>4170</elevation>
           <priority>0</priority>
@@ -2804,7 +2876,7 @@
           <stnname>Mayon</stnname>
           <state></state>
           <country></country>
-          <latitude>13.26</latitude>
+          <latitude> 13.26</latitude>
           <longitude>123.69</longitude>
           <elevation>2462</elevation>
           <priority>0</priority>
@@ -2817,7 +2889,7 @@
           <state></state>
           <country></country>
           <latitude>-53.03</latitude>
-          <longitude>72.60</longitude>
+          <longitude> 72.60</longitude>
           <elevation>186</elevation>
           <priority>0</priority>
           <location>Indian_O-S</location>
@@ -2828,7 +2900,7 @@
           <stnname>Medicine_Lake</stnname>
           <state></state>
           <country></country>
-          <latitude>41.35</latitude>
+          <latitude> 41.35</latitude>
           <longitude>-121.34</longitude>
           <elevation>2412</elevation>
           <priority>0</priority>
@@ -2840,7 +2912,7 @@
           <stnname>Medvezhia</stnname>
           <state></state>
           <country></country>
-          <latitude>45.38</latitude>
+          <latitude> 45.38</latitude>
           <longitude>148.83</longitude>
           <elevation>1124</elevation>
           <priority>0</priority>
@@ -2852,7 +2924,7 @@
           <stnname>Merapi</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.54</latitude>
+          <latitude> -7.54</latitude>
           <longitude>110.44</longitude>
           <elevation>2947</elevation>
           <priority>0</priority>
@@ -2864,8 +2936,8 @@
           <stnname>Meru</stnname>
           <state></state>
           <country></country>
-          <latitude>-3.25</latitude>
-          <longitude>36.75</longitude>
+          <latitude> -3.25</latitude>
+          <longitude> 36.75</longitude>
           <elevation>4565</elevation>
           <priority>0</priority>
           <location>Africa-E</location>
@@ -2888,7 +2960,7 @@
           <stnname>Michoacan-Guanajuato</stnname>
           <state></state>
           <country></country>
-          <latitude>19.48</latitude>
+          <latitude> 19.48</latitude>
           <longitude>-102.25</longitude>
           <elevation>3860</elevation>
           <priority>0</priority>
@@ -2900,7 +2972,7 @@
           <stnname>Minami-Hiyoshi</stnname>
           <state></state>
           <country></country>
-          <latitude>23.51</latitude>
+          <latitude> 23.51</latitude>
           <longitude>141.91</longitude>
           <elevation>-30</elevation>
           <priority>0</priority>
@@ -2912,7 +2984,7 @@
           <stnname>Miravalles</stnname>
           <state></state>
           <country></country>
-          <latitude>10.75</latitude>
+          <latitude> 10.75</latitude>
           <longitude>-85.15</longitude>
           <elevation>2028</elevation>
           <priority>0</priority>
@@ -2924,7 +2996,7 @@
           <stnname>Miyake-jima</stnname>
           <state></state>
           <country></country>
-          <latitude>34.08</latitude>
+          <latitude> 34.08</latitude>
           <longitude>139.53</longitude>
           <elevation>815</elevation>
           <priority>0</priority>
@@ -2948,7 +3020,7 @@
           <stnname>Momotombo</stnname>
           <state></state>
           <country></country>
-          <latitude>12.42</latitude>
+          <latitude> 12.42</latitude>
           <longitude>-86.54</longitude>
           <elevation>1297</elevation>
           <priority>0</priority>
@@ -2960,7 +3032,7 @@
           <stnname>Monaco_Bank</stnname>
           <state></state>
           <country></country>
-          <latitude>37.60</latitude>
+          <latitude> 37.60</latitude>
           <longitude>-25.88</longitude>
           <elevation>-197</elevation>
           <priority>0</priority>
@@ -2984,7 +3056,7 @@
           <stnname>Mutnovsky</stnname>
           <state></state>
           <country></country>
-          <latitude>52.45</latitude>
+          <latitude> 52.45</latitude>
           <longitude>158.20</longitude>
           <elevation>2322</elevation>
           <priority>0</priority>
@@ -2996,7 +3068,7 @@
           <stnname>Nakano-shima</stnname>
           <state></state>
           <country></country>
-          <latitude>29.85</latitude>
+          <latitude> 29.85</latitude>
           <longitude>129.87</longitude>
           <elevation>979</elevation>
           <priority>0</priority>
@@ -3008,7 +3080,7 @@
           <stnname>Nasu</stnname>
           <state></state>
           <country></country>
-          <latitude>37.12</latitude>
+          <latitude> 37.12</latitude>
           <longitude>139.97</longitude>
           <elevation>1917</elevation>
           <priority>0</priority>
@@ -3020,7 +3092,7 @@
           <stnname>Negra,_Sierra</stnname>
           <state></state>
           <country></country>
-          <latitude>-.83</latitude>
+          <latitude> -0.83</latitude>
           <longitude>-91.17</longitude>
           <elevation>1490</elevation>
           <priority>0</priority>
@@ -3032,7 +3104,7 @@
           <stnname>Negro_de_Mayasquer,_Cerro</stnname>
           <state></state>
           <country></country>
-          <latitude>.83</latitude>
+          <latitude>  0.83</latitude>
           <longitude>-77.96</longitude>
           <elevation>4445</elevation>
           <priority>0</priority>
@@ -3044,7 +3116,7 @@
           <stnname>Negro,_Cerro</stnname>
           <state></state>
           <country></country>
-          <latitude>12.51</latitude>
+          <latitude> 12.51</latitude>
           <longitude>-86.70</longitude>
           <elevation>728</elevation>
           <priority>0</priority>
@@ -3056,7 +3128,7 @@
           <stnname>Nemo_Peak</stnname>
           <state></state>
           <country></country>
-          <latitude>49.57</latitude>
+          <latitude> 49.57</latitude>
           <longitude>154.81</longitude>
           <elevation>1018</elevation>
           <priority>0</priority>
@@ -3068,7 +3140,7 @@
           <stnname>Newberry_Volcano</stnname>
           <state></state>
           <country></country>
-          <latitude>43.44</latitude>
+          <latitude> 43.44</latitude>
           <longitude>-121.14</longitude>
           <elevation>2434</elevation>
           <priority>0</priority>
@@ -3080,7 +3152,7 @@
           <stnname>Niigata-Yake-yama</stnname>
           <state></state>
           <country></country>
-          <latitude>36.92</latitude>
+          <latitude> 36.92</latitude>
           <longitude>138.03</longitude>
           <elevation>2400</elevation>
           <priority>0</priority>
@@ -3092,7 +3164,7 @@
           <stnname>Nila</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.73</latitude>
+          <latitude> -6.73</latitude>
           <longitude>129.50</longitude>
           <elevation>781</elevation>
           <priority>0</priority>
@@ -3104,7 +3176,7 @@
           <stnname>Nishino-shima</stnname>
           <state></state>
           <country></country>
-          <latitude>27.24</latitude>
+          <latitude> 27.24</latitude>
           <longitude>140.88</longitude>
           <elevation>52</elevation>
           <priority>0</priority>
@@ -3128,7 +3200,7 @@
           <stnname>North_Gorda_Ridge</stnname>
           <state></state>
           <country></country>
-          <latitude>42.67</latitude>
+          <latitude> 42.67</latitude>
           <longitude>-126.78</longitude>
           <elevation>-3000</elevation>
           <priority>0</priority>
@@ -3140,7 +3212,7 @@
           <stnname>Novarupta</stnname>
           <state></state>
           <country></country>
-          <latitude>58.27</latitude>
+          <latitude> 58.27</latitude>
           <longitude>-155.16</longitude>
           <elevation>841</elevation>
           <priority>0</priority>
@@ -3152,11 +3224,11 @@
           <stnname>Nyamuragira</stnname>
           <state></state>
           <country></country>
-          <latitude>-1.41</latitude>
-          <longitude>29.20</longitude>
+          <latitude> -1.41</latitude>
+          <longitude> 29.20</longitude>
           <elevation>3058</elevation>
           <priority>0</priority>
-          <location>Africa-C</location>
+          <location>Africa</location>
      </station>
      <station>
           <stid>0203-03</stid>
@@ -3164,11 +3236,11 @@
           <stnname>Nyiragongo</stnname>
           <state></state>
           <country></country>
-          <latitude>-1.52</latitude>
-          <longitude>29.25</longitude>
+          <latitude> -1.52</latitude>
+          <longitude> 29.25</longitude>
           <elevation>3470</elevation>
           <priority>0</priority>
-          <location>Africa-C</location>
+          <location>Africa</location>
      </station>
      <station>
           <stid>0401-05</stid>
@@ -3188,7 +3260,7 @@
           <stnname>Okmok</stnname>
           <state></state>
           <country></country>
-          <latitude>53.42</latitude>
+          <latitude> 53.42</latitude>
           <longitude>-168.13</longitude>
           <elevation>1073</elevation>
           <priority>0</priority>
@@ -3200,7 +3272,7 @@
           <stnname>On-take</stnname>
           <state></state>
           <country></country>
-          <latitude>35.90</latitude>
+          <latitude> 35.90</latitude>
           <longitude>137.48</longitude>
           <elevation>3063</elevation>
           <priority>0</priority>
@@ -3212,7 +3284,7 @@
           <stnname>Oshima</stnname>
           <state></state>
           <country></country>
-          <latitude>34.73</latitude>
+          <latitude> 34.73</latitude>
           <longitude>139.38</longitude>
           <elevation>758</elevation>
           <priority>0</priority>
@@ -3224,7 +3296,7 @@
           <stnname>Pacaya</stnname>
           <state></state>
           <country></country>
-          <latitude>14.38</latitude>
+          <latitude> 14.38</latitude>
           <longitude>-90.60</longitude>
           <elevation>2552</elevation>
           <priority>0</priority>
@@ -3236,7 +3308,7 @@
           <stnname>Pagan</stnname>
           <state></state>
           <country></country>
-          <latitude>18.13</latitude>
+          <latitude> 18.13</latitude>
           <longitude>145.80</longitude>
           <elevation>570</elevation>
           <priority>0</priority>
@@ -3248,7 +3320,7 @@
           <stnname>Pago</stnname>
           <state></state>
           <country></country>
-          <latitude>-5.58</latitude>
+          <latitude> -5.58</latitude>
           <longitude>150.52</longitude>
           <elevation>742</elevation>
           <priority>0</priority>
@@ -3260,7 +3332,7 @@
           <stnname>Paluweh</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.32</latitude>
+          <latitude> -8.32</latitude>
           <longitude>121.71</longitude>
           <elevation>875</elevation>
           <priority>0</priority>
@@ -3272,7 +3344,7 @@
           <stnname>Papandayan</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.32</latitude>
+          <latitude> -7.32</latitude>
           <longitude>107.73</longitude>
           <elevation>2665</elevation>
           <priority>0</priority>
@@ -3284,7 +3356,7 @@
           <stnname>Pavlof</stnname>
           <state></state>
           <country></country>
-          <latitude>55.42</latitude>
+          <latitude> 55.42</latitude>
           <longitude>-161.90</longitude>
           <elevation>2519</elevation>
           <priority>0</priority>
@@ -3296,7 +3368,7 @@
           <stnname>Pelee</stnname>
           <state></state>
           <country></country>
-          <latitude>14.82</latitude>
+          <latitude> 14.82</latitude>
           <longitude>-61.17</longitude>
           <elevation>1397</elevation>
           <priority>0</priority>
@@ -3320,8 +3392,8 @@
           <stnname>Peuet_Sague</stnname>
           <state></state>
           <country></country>
-          <latitude>4.91</latitude>
-          <longitude>96.33</longitude>
+          <latitude>  4.91</latitude>
+          <longitude> 96.33</longitude>
           <elevation>2801</elevation>
           <priority>0</priority>
           <location>Sumatra</location>
@@ -3332,7 +3404,7 @@
           <stnname>Pilas,_Las</stnname>
           <state></state>
           <country></country>
-          <latitude>12.50</latitude>
+          <latitude> 12.50</latitude>
           <longitude>-86.69</longitude>
           <elevation>1088</elevation>
           <priority>0</priority>
@@ -3344,7 +3416,7 @@
           <stnname>Pinatubo</stnname>
           <state></state>
           <country></country>
-          <latitude>15.13</latitude>
+          <latitude> 15.13</latitude>
           <longitude>120.35</longitude>
           <elevation>1486</elevation>
           <priority>0</priority>
@@ -3356,7 +3428,7 @@
           <stnname>Pinta</stnname>
           <state></state>
           <country></country>
-          <latitude>.58</latitude>
+          <latitude>  0.58</latitude>
           <longitude>-90.75</longitude>
           <elevation>780</elevation>
           <priority>0</priority>
@@ -3380,7 +3452,7 @@
           <stnname>Poas</stnname>
           <state></state>
           <country></country>
-          <latitude>10.20</latitude>
+          <latitude> 10.20</latitude>
           <longitude>-84.23</longitude>
           <elevation>2708</elevation>
           <priority>0</priority>
@@ -3392,7 +3464,7 @@
           <stnname>Popocatepetl</stnname>
           <state></state>
           <country></country>
-          <latitude>19.02</latitude>
+          <latitude> 19.02</latitude>
           <longitude>-98.62</longitude>
           <elevation>5426</elevation>
           <priority>0</priority>
@@ -3416,7 +3488,7 @@
           <stnname>Purace</stnname>
           <state></state>
           <country></country>
-          <latitude>2.32</latitude>
+          <latitude>  2.32</latitude>
           <longitude>-76.40</longitude>
           <elevation>4650</elevation>
           <priority>0</priority>
@@ -3440,7 +3512,7 @@
           <stnname>Rabaul</stnname>
           <state></state>
           <country></country>
-          <latitude>-4.27</latitude>
+          <latitude> -4.27</latitude>
           <longitude>152.20</longitude>
           <elevation>688</elevation>
           <priority>0</priority>
@@ -3452,7 +3524,7 @@
           <stnname>Ragang</stnname>
           <state></state>
           <country></country>
-          <latitude>7.67</latitude>
+          <latitude>  7.67</latitude>
           <longitude>124.50</longitude>
           <elevation>2815</elevation>
           <priority>0</priority>
@@ -3464,7 +3536,7 @@
           <stnname>Raikoke</stnname>
           <state></state>
           <country></country>
-          <latitude>48.29</latitude>
+          <latitude> 48.29</latitude>
           <longitude>153.25</longitude>
           <elevation>551</elevation>
           <priority>0</priority>
@@ -3476,8 +3548,8 @@
           <stnname>Rainier</stnname>
           <state></state>
           <country></country>
-          <latitude>46.52</latitude>
-          <longitude>-121.46</longitude>
+          <latitude> 46.85</latitude>
+          <longitude>-121.76</longitude>
           <elevation>4392</elevation>
           <priority>0</priority>
           <location>US-Washington</location>
@@ -3488,7 +3560,7 @@
           <stnname>Ranakah</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.62</latitude>
+          <latitude> -8.62</latitude>
           <longitude>120.52</longitude>
           <elevation>2100</elevation>
           <priority>0</priority>
@@ -3512,7 +3584,7 @@
           <stnname>Rasshua</stnname>
           <state></state>
           <country></country>
-          <latitude>47.77</latitude>
+          <latitude> 47.77</latitude>
           <longitude>153.02</longitude>
           <elevation>956</elevation>
           <priority>0</priority>
@@ -3524,7 +3596,7 @@
           <stnname>Raung</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.13</latitude>
+          <latitude> -8.13</latitude>
           <longitude>114.04</longitude>
           <elevation>3332</elevation>
           <priority>0</priority>
@@ -3536,7 +3608,7 @@
           <stnname>Redoubt</stnname>
           <state></state>
           <country></country>
-          <latitude>60.48</latitude>
+          <latitude> 60.48</latitude>
           <longitude>-152.75</longitude>
           <elevation>3108</elevation>
           <priority>0</priority>
@@ -3548,7 +3620,7 @@
           <stnname>Reventador</stnname>
           <state></state>
           <country></country>
-          <latitude>-0.08</latitude>
+          <latitude> -0.08</latitude>
           <longitude>-77.66</longitude>
           <elevation>3562</elevation>
           <priority>0</priority>
@@ -3560,7 +3632,7 @@
           <stnname>Reykjaneshryggur</stnname>
           <state></state>
           <country></country>
-          <latitude>63.67</latitude>
+          <latitude> 63.67</latitude>
           <longitude>-23.33</longitude>
           <elevation>80</elevation>
           <priority>0</priority>
@@ -3572,7 +3644,7 @@
           <stnname>Rincon_de_la_Vieja</stnname>
           <state></state>
           <country></country>
-          <latitude>10.83</latitude>
+          <latitude> 10.83</latitude>
           <longitude>-85.32</longitude>
           <elevation>1916</elevation>
           <priority>0</priority>
@@ -3584,7 +3656,7 @@
           <stnname>Rinjani</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.42</latitude>
+          <latitude> -8.42</latitude>
           <longitude>116.47</longitude>
           <elevation>3726</elevation>
           <priority>0</priority>
@@ -3596,11 +3668,11 @@
           <stnname>Ritter_Island</stnname>
           <state></state>
           <country></country>
-          <latitude>-5.52</latitude>
+          <latitude> -5.52</latitude>
           <longitude>148.12</longitude>
           <elevation>140</elevation>
           <priority>0</priority>
-          <location>New_Guinea-NE_of</location>
+          <location>New_Guinea</location>
      </station>
      <station>
           <stid>0607-01</stid>
@@ -3608,7 +3680,7 @@
           <stnname>Ruang</stnname>
           <state></state>
           <country></country>
-          <latitude>2.28</latitude>
+          <latitude>  2.28</latitude>
           <longitude>125.43</longitude>
           <elevation>725</elevation>
           <priority>0</priority>
@@ -3632,7 +3704,7 @@
           <stnname>Ruby</stnname>
           <state></state>
           <country></country>
-          <latitude>15.62</latitude>
+          <latitude> 15.62</latitude>
           <longitude>145.57</longitude>
           <elevation>-230</elevation>
           <priority>0</priority>
@@ -3644,7 +3716,7 @@
           <stnname>Ruiz</stnname>
           <state></state>
           <country></country>
-          <latitude>4.89</latitude>
+          <latitude>  4.89</latitude>
           <longitude>-75.32</longitude>
           <elevation>5321</elevation>
           <priority>0</priority>
@@ -3680,7 +3752,7 @@
           <stnname>Sakura-jima</stnname>
           <state></state>
           <country></country>
-          <latitude>31.58</latitude>
+          <latitude> 31.58</latitude>
           <longitude>130.67</longitude>
           <elevation>1117</elevation>
           <priority>0</priority>
@@ -3692,7 +3764,7 @@
           <stnname>Salak</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.72</latitude>
+          <latitude> -6.72</latitude>
           <longitude>106.73</longitude>
           <elevation>2211</elevation>
           <priority>0</priority>
@@ -3704,7 +3776,7 @@
           <stnname>San_Cristobal</stnname>
           <state></state>
           <country></country>
-          <latitude>12.70</latitude>
+          <latitude> 12.70</latitude>
           <longitude>-87.00</longitude>
           <elevation>1745</elevation>
           <priority>0</priority>
@@ -3716,7 +3788,7 @@
           <stnname>San_Jorge</stnname>
           <state></state>
           <country></country>
-          <latitude>38.65</latitude>
+          <latitude> 38.65</latitude>
           <longitude>-28.08</longitude>
           <elevation>1053</elevation>
           <priority>0</priority>
@@ -3740,7 +3812,7 @@
           <stnname>San_Miguel</stnname>
           <state></state>
           <country></country>
-          <latitude>13.43</latitude>
+          <latitude> 13.43</latitude>
           <longitude>-88.27</longitude>
           <elevation>2130</elevation>
           <priority>0</priority>
@@ -3764,7 +3836,7 @@
           <stnname>San_Salvador</stnname>
           <state></state>
           <country></country>
-          <latitude>13.74</latitude>
+          <latitude> 13.74</latitude>
           <longitude>-89.29</longitude>
           <elevation>1893</elevation>
           <priority>0</priority>
@@ -3776,7 +3848,7 @@
           <stnname>Sangay</stnname>
           <state></state>
           <country></country>
-          <latitude>-2.03</latitude>
+          <latitude> -2.03</latitude>
           <longitude>-78.33</longitude>
           <elevation>5230</elevation>
           <priority>0</priority>
@@ -3788,7 +3860,7 @@
           <stnname>Sangeang_Api</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.18</latitude>
+          <latitude> -8.18</latitude>
           <longitude>119.06</longitude>
           <elevation>1949</elevation>
           <priority>0</priority>
@@ -3800,7 +3872,7 @@
           <stnname>Santa_Ana</stnname>
           <state></state>
           <country></country>
-          <latitude>13.85</latitude>
+          <latitude> 13.85</latitude>
           <longitude>-89.63</longitude>
           <elevation>2365</elevation>
           <priority>0</priority>
@@ -3812,11 +3884,11 @@
           <stnname>Santa_Isabel</stnname>
           <state></state>
           <country></country>
-          <latitude>3.58</latitude>
-          <longitude>8.75</longitude>
+          <latitude>  3.58</latitude>
+          <longitude>  8.75</longitude>
           <elevation>2972</elevation>
           <priority>0</priority>
-          <location>Africa-W</location>
+          <location>Africa</location>
      </station>
      <station>
           <stid>1402-03</stid>
@@ -3824,7 +3896,7 @@
           <stnname>Santa_Maria</stnname>
           <state></state>
           <country></country>
-          <latitude>14.76</latitude>
+          <latitude> 14.76</latitude>
           <longitude>-91.55</longitude>
           <elevation>3772</elevation>
           <priority>0</priority>
@@ -3836,7 +3908,7 @@
           <stnname>Santiago</stnname>
           <state></state>
           <country></country>
-          <latitude>-.22</latitude>
+          <latitude> -0.22</latitude>
           <longitude>-90.77</longitude>
           <elevation>920</elevation>
           <priority>0</priority>
@@ -3848,11 +3920,23 @@
           <stnname>Santorini</stnname>
           <state></state>
           <country></country>
-          <latitude>36.40</latitude>
-          <longitude>25.40</longitude>
+          <latitude> 36.40</latitude>
+          <longitude> 25.40</longitude>
           <elevation>329</elevation>
           <priority>0</priority>
           <location>Greece</location>
+     </station>
+     <station>
+          <stid>0804-191</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Sarigan</stnname>
+          <state></state>
+          <country></country>
+          <latitude> 16.71</latitude>
+          <longitude>145.78</longitude>
+          <elevation>538</elevation>
+          <priority>0</priority>
+          <location>Mariana_Is-C_Pacific</location>
      </station>
      <station>
           <stid>0900-24</stid>
@@ -3860,7 +3944,7 @@
           <stnname>Sarychev_Peak</stnname>
           <state></state>
           <country></country>
-          <latitude>48.09</latitude>
+          <latitude> 48.09</latitude>
           <longitude>153.20</longitude>
           <elevation>1496</elevation>
           <priority>0</priority>
@@ -3884,7 +3968,7 @@
           <stnname>Seguam</stnname>
           <state></state>
           <country></country>
-          <latitude>52.32</latitude>
+          <latitude> 52.32</latitude>
           <longitude>-172.52</longitude>
           <elevation>1054</elevation>
           <priority>0</priority>
@@ -3896,7 +3980,7 @@
           <stnname>Semeru</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.11</latitude>
+          <latitude> -8.11</latitude>
           <longitude>112.92</longitude>
           <elevation>3676</elevation>
           <priority>0</priority>
@@ -3908,7 +3992,7 @@
           <stnname>Semisopochnoi</stnname>
           <state></state>
           <country></country>
-          <latitude>51.95</latitude>
+          <latitude> 51.95</latitude>
           <longitude>179.62</longitude>
           <elevation>1221</elevation>
           <priority>0</priority>
@@ -3920,7 +4004,7 @@
           <stnname>Serua</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.30</latitude>
+          <latitude> -6.30</latitude>
           <longitude>130.00</longitude>
           <elevation>641</elevation>
           <priority>0</priority>
@@ -3932,7 +4016,7 @@
           <stnname>Shasta</stnname>
           <state></state>
           <country></country>
-          <latitude>41.25</latitude>
+          <latitude> 41.25</latitude>
           <longitude>-122.12</longitude>
           <elevation>4317</elevation>
           <priority>0</priority>
@@ -3944,7 +4028,7 @@
           <stnname>Shikotsu</stnname>
           <state></state>
           <country></country>
-          <latitude>42.70</latitude>
+          <latitude> 42.70</latitude>
           <longitude>141.33</longitude>
           <elevation>1320</elevation>
           <priority>0</priority>
@@ -3956,7 +4040,7 @@
           <stnname>Shiretoko-Iwo-zan</stnname>
           <state></state>
           <country></country>
-          <latitude>44.13</latitude>
+          <latitude> 44.13</latitude>
           <longitude>145.17</longitude>
           <elevation>1563</elevation>
           <priority>0</priority>
@@ -3968,7 +4052,7 @@
           <stnname>Shishaldin</stnname>
           <state></state>
           <country></country>
-          <latitude>54.75</latitude>
+          <latitude> 54.75</latitude>
           <longitude>-163.97</longitude>
           <elevation>2857</elevation>
           <priority>0</priority>
@@ -3977,10 +4061,10 @@
      <station>
           <stid>1000-27</stid>
           <stnnum>999999</stnnum>
-          <stnname>Shiveluch</stnname>
+          <stnname>Sheveluch</stnname>
           <state></state>
           <country></country>
-          <latitude>56.65</latitude>
+          <latitude> 56.65</latitude>
           <longitude>161.36</longitude>
           <elevation>3283</elevation>
           <priority>0</priority>
@@ -3992,7 +4076,7 @@
           <stnname>Sirung</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.51</latitude>
+          <latitude> -8.51</latitude>
           <longitude>124.15</longitude>
           <elevation>862</elevation>
           <priority>0</priority>
@@ -4004,7 +4088,7 @@
           <stnname>Slamet</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.24</latitude>
+          <latitude> -7.24</latitude>
           <longitude>109.21</longitude>
           <elevation>3432</elevation>
           <priority>0</priority>
@@ -4016,7 +4100,7 @@
           <stnname>Smith_Rock</stnname>
           <state></state>
           <country></country>
-          <latitude>31.32</latitude>
+          <latitude> 31.32</latitude>
           <longitude>140.05</longitude>
           <elevation>136</elevation>
           <priority>0</priority>
@@ -4028,7 +4112,7 @@
           <stnname>Socorro</stnname>
           <state></state>
           <country></country>
-          <latitude>18.78</latitude>
+          <latitude> 18.78</latitude>
           <longitude>-110.95</longitude>
           <elevation>1050</elevation>
           <priority>0</priority>
@@ -4040,7 +4124,7 @@
           <stnname>Soputan</stnname>
           <state></state>
           <country></country>
-          <latitude>1.11</latitude>
+          <latitude>  1.11</latitude>
           <longitude>124.73</longitude>
           <elevation>1784</elevation>
           <priority>0</priority>
@@ -4052,8 +4136,8 @@
           <stnname>Sorikmarapi</stnname>
           <state></state>
           <country></country>
-          <latitude>.69</latitude>
-          <longitude>99.54</longitude>
+          <latitude>  0.69</latitude>
+          <longitude> 99.54</longitude>
           <elevation>2145</elevation>
           <priority>0</priority>
           <location>Sumatra</location>
@@ -4064,7 +4148,7 @@
           <stnname>Soufriere_Guadeloupe</stnname>
           <state></state>
           <country></country>
-          <latitude>16.05</latitude>
+          <latitude> 16.05</latitude>
           <longitude>-61.67</longitude>
           <elevation>1467</elevation>
           <priority>0</priority>
@@ -4076,7 +4160,7 @@
           <stnname>Soufriere_Hills</stnname>
           <state></state>
           <country></country>
-          <latitude>16.72</latitude>
+          <latitude> 16.72</latitude>
           <longitude>-62.18</longitude>
           <elevation>915</elevation>
           <priority>0</priority>
@@ -4085,10 +4169,10 @@
      <station>
           <stid>1600-15</stid>
           <stnnum>999999</stnnum>
-          <stnname>Soufriere_St._Vincent</stnname>
+          <stnname>Soufriere_St_Vincent</stnname>
           <state></state>
           <country></country>
-          <latitude>13.33</latitude>
+          <latitude> 13.33</latitude>
           <longitude>-61.18</longitude>
           <elevation>1220</elevation>
           <priority>0</priority>
@@ -4100,7 +4184,7 @@
           <stnname>Spurr</stnname>
           <state></state>
           <country></country>
-          <latitude>61.30</latitude>
+          <latitude> 61.30</latitude>
           <longitude>-152.25</longitude>
           <elevation>3374</elevation>
           <priority>0</priority>
@@ -4112,11 +4196,11 @@
           <stnname>St._Andrew_Strait</stnname>
           <state></state>
           <country></country>
-          <latitude>-2.38</latitude>
+          <latitude> -2.38</latitude>
           <longitude>147.35</longitude>
           <elevation>270</elevation>
           <priority>0</priority>
-          <location>Admiralty_Is-SW_Paci</location>
+          <location>Admiralty_Is-SW_Pac</location>
      </station>
      <station>
           <stid>1201-05</stid>
@@ -4124,7 +4208,7 @@
           <stnname>St._Helens</stnname>
           <state></state>
           <country></country>
-          <latitude>46.20</latitude>
+          <latitude> 46.20</latitude>
           <longitude>-122.18</longitude>
           <elevation>2549</elevation>
           <priority>0</priority>
@@ -4136,8 +4220,8 @@
           <stnname>Stromboli</stnname>
           <state></state>
           <country></country>
-          <latitude>38.79</latitude>
-          <longitude>15.21</longitude>
+          <latitude> 38.79</latitude>
+          <longitude> 15.21</longitude>
           <elevation>926</elevation>
           <priority>0</priority>
           <location>Italy</location>
@@ -4148,7 +4232,7 @@
           <stnname>Sumbing</stnname>
           <state></state>
           <country></country>
-          <latitude>-2.41</latitude>
+          <latitude> -2.41</latitude>
           <longitude>101.73</longitude>
           <elevation>2507</elevation>
           <priority>0</priority>
@@ -4160,7 +4244,7 @@
           <stnname>Sundoro</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.30</latitude>
+          <latitude> -7.30</latitude>
           <longitude>109.99</longitude>
           <elevation>3136</elevation>
           <priority>0</priority>
@@ -4172,7 +4256,7 @@
           <stnname>Suoh</stnname>
           <state></state>
           <country></country>
-          <latitude>-5.25</latitude>
+          <latitude> -5.25</latitude>
           <longitude>104.27</longitude>
           <elevation>1000</elevation>
           <priority>0</priority>
@@ -4184,7 +4268,7 @@
           <stnname>Supply_Reef</stnname>
           <state></state>
           <country></country>
-          <latitude>20.13</latitude>
+          <latitude> 20.13</latitude>
           <longitude>145.10</longitude>
           <elevation>-8</elevation>
           <priority>0</priority>
@@ -4208,7 +4292,7 @@
           <stnname>Suwanose-jima</stnname>
           <state></state>
           <country></country>
-          <latitude>29.53</latitude>
+          <latitude> 29.53</latitude>
           <longitude>129.72</longitude>
           <elevation>799</elevation>
           <priority>0</priority>
@@ -4220,7 +4304,7 @@
           <stnname>Taal</stnname>
           <state></state>
           <country></country>
-          <latitude>14.00</latitude>
+          <latitude> 14.00</latitude>
           <longitude>120.99</longitude>
           <elevation>400</elevation>
           <priority>0</priority>
@@ -4232,7 +4316,7 @@
           <stnname>Tacana</stnname>
           <state></state>
           <country></country>
-          <latitude>15.13</latitude>
+          <latitude> 15.13</latitude>
           <longitude>-92.11</longitude>
           <elevation>4110</elevation>
           <priority>0</priority>
@@ -4244,7 +4328,7 @@
           <stnname>Talang</stnname>
           <state></state>
           <country></country>
-          <latitude>-.98</latitude>
+          <latitude> -0.98</latitude>
           <longitude>100.68</longitude>
           <elevation>2597</elevation>
           <priority>0</priority>
@@ -4256,7 +4340,7 @@
           <stnname>Tambora</stnname>
           <state></state>
           <country></country>
-          <latitude>-8.25</latitude>
+          <latitude> -8.25</latitude>
           <longitude>118.00</longitude>
           <elevation>2850</elevation>
           <priority>0</priority>
@@ -4268,7 +4352,7 @@
           <stnname>Tanaga</stnname>
           <state></state>
           <country></country>
-          <latitude>51.88</latitude>
+          <latitude> 51.88</latitude>
           <longitude>-178.13</longitude>
           <elevation>1806</elevation>
           <priority>0</priority>
@@ -4280,7 +4364,7 @@
           <stnname>Tandikat</stnname>
           <state></state>
           <country></country>
-          <latitude>-.43</latitude>
+          <latitude> -0.43</latitude>
           <longitude>100.32</longitude>
           <elevation>2438</elevation>
           <priority>0</priority>
@@ -4292,7 +4376,7 @@
           <stnname>Tangkubanparahu</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.77</latitude>
+          <latitude> -6.77</latitude>
           <longitude>107.60</longitude>
           <elevation>2084</elevation>
           <priority>0</priority>
@@ -4304,7 +4388,7 @@
           <stnname>Tao-Rusyr_Caldera</stnname>
           <state></state>
           <country></country>
-          <latitude>49.35</latitude>
+          <latitude> 49.35</latitude>
           <longitude>154.70</longitude>
           <elevation>1325</elevation>
           <priority>0</priority>
@@ -4316,7 +4400,7 @@
           <stnname>Telica</stnname>
           <state></state>
           <country></country>
-          <latitude>12.60</latitude>
+          <latitude> 12.60</latitude>
           <longitude>-86.85</longitude>
           <elevation>1061</elevation>
           <priority>0</priority>
@@ -4328,7 +4412,7 @@
           <stnname>Tenerife</stnname>
           <state></state>
           <country></country>
-          <latitude>28.27</latitude>
+          <latitude> 28.27</latitude>
           <longitude>-16.64</longitude>
           <elevation>3715</elevation>
           <priority>0</priority>
@@ -4340,7 +4424,7 @@
           <stnname>Tengger_Caldera</stnname>
           <state></state>
           <country></country>
-          <latitude>-7.94</latitude>
+          <latitude> -7.94</latitude>
           <longitude>112.95</longitude>
           <elevation>2329</elevation>
           <priority>0</priority>
@@ -4352,7 +4436,7 @@
           <stnname>Teon</stnname>
           <state></state>
           <country></country>
-          <latitude>-6.92</latitude>
+          <latitude> -6.92</latitude>
           <longitude>129.13</longitude>
           <elevation>655</elevation>
           <priority>0</priority>
@@ -4364,11 +4448,23 @@
           <stnname>Terceira</stnname>
           <state></state>
           <country></country>
-          <latitude>38.73</latitude>
+          <latitude> 38.73</latitude>
           <longitude>-27.32</longitude>
           <elevation>1023</elevation>
           <priority>0</priority>
           <location>Azores</location>
+     </station>
+     <station>
+          <stid>9999-99</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Test</stnname>
+          <state></state>
+          <country></country>
+          <latitude> 37.00</latitude>
+          <longitude>-77.00</longitude>
+          <elevation>9999</elevation>
+          <priority>0</priority>
+          <location>Test</location>
      </station>
      <station>
           <stid>1900-07</stid>
@@ -4388,7 +4484,7 @@
           <stnname>Tiatia</stnname>
           <state></state>
           <country></country>
-          <latitude>44.36</latitude>
+          <latitude> 44.36</latitude>
           <longitude>146.27</longitude>
           <elevation>1819</elevation>
           <priority>0</priority>
@@ -4416,7 +4512,7 @@
           <longitude>-70.35</longitude>
           <elevation>4280</elevation>
           <priority>0</priority>
-          <location>Chile-C</location>
+          <location>Chile</location>
      </station>
      <station>
           <stid>0403-06</stid>
@@ -4436,7 +4532,7 @@
           <stnname>Tokachi</stnname>
           <state></state>
           <country></country>
-          <latitude>43.42</latitude>
+          <latitude> 43.42</latitude>
           <longitude>142.68</longitude>
           <elevation>2077</elevation>
           <priority>0</priority>
@@ -4448,7 +4544,7 @@
           <stnname>Tolbachik</stnname>
           <state></state>
           <country></country>
-          <latitude>55.83</latitude>
+          <latitude> 55.83</latitude>
           <longitude>160.33</longitude>
           <elevation>3682</elevation>
           <priority>0</priority>
@@ -4460,7 +4556,7 @@
           <stnname>Tolima</stnname>
           <state></state>
           <country></country>
-          <latitude>4.67</latitude>
+          <latitude>  4.67</latitude>
           <longitude>-75.33</longitude>
           <elevation>5200</elevation>
           <priority>0</priority>
@@ -4484,7 +4580,7 @@
           <stnname>Tori-shima</stnname>
           <state></state>
           <country></country>
-          <latitude>30.48</latitude>
+          <latitude> 30.48</latitude>
           <longitude>140.32</longitude>
           <elevation>403</elevation>
           <priority>0</priority>
@@ -4496,7 +4592,7 @@
           <stnname>Trident</stnname>
           <state></state>
           <country></country>
-          <latitude>58.23</latitude>
+          <latitude> 58.23</latitude>
           <longitude>-155.08</longitude>
           <elevation>1864</elevation>
           <priority>0</priority>
@@ -4520,8 +4616,8 @@
           <stnname>Tullu_Moje</stnname>
           <state></state>
           <country></country>
-          <latitude>8.16</latitude>
-          <longitude>39.13</longitude>
+          <latitude>  8.16</latitude>
+          <longitude> 39.13</longitude>
           <elevation>2349</elevation>
           <priority>0</priority>
           <location>Ethiopia</location>
@@ -4532,7 +4628,7 @@
           <stnname>Tungurahua</stnname>
           <state></state>
           <country></country>
-          <latitude>-1.47</latitude>
+          <latitude> -1.47</latitude>
           <longitude>-78.44</longitude>
           <elevation>5023</elevation>
           <priority>0</priority>
@@ -4549,6 +4645,18 @@
           <elevation>6000</elevation>
           <priority>0</priority>
           <location>Chile-C</location>
+     </station>
+     <station>
+          <stid>1405-07</stid>
+          <stnnum>999999</stnnum>
+          <stnname>Turrialba</stnname>
+          <state></state>
+          <country></country>
+          <latitude> 10.03</latitude>
+          <longitude>-83.77</longitude>
+          <elevation>3340</elevation>
+          <priority>0</priority>
+          <location>Costa_Rica</location>
      </station>
      <station>
           <stid>1504-04</stid>
@@ -4580,7 +4688,7 @@
           <stnname>Ukinrek_Maars</stnname>
           <state></state>
           <country></country>
-          <latitude>57.83</latitude>
+          <latitude> 57.83</latitude>
           <longitude>-156.52</longitude>
           <elevation>91</elevation>
           <priority>0</priority>
@@ -4592,7 +4700,7 @@
           <stnname>Ulawun</stnname>
           <state></state>
           <country></country>
-          <latitude>-5.05</latitude>
+          <latitude> -5.05</latitude>
           <longitude>151.33</longitude>
           <elevation>2334</elevation>
           <priority>0</priority>
@@ -4604,7 +4712,7 @@
           <stnname>Unnamed</stnname>
           <state></state>
           <country></country>
-          <latitude>88.27</latitude>
+          <latitude> 88.27</latitude>
           <longitude>-65.60</longitude>
           <elevation>-1500</elevation>
           <priority>0</priority>
@@ -4616,7 +4724,7 @@
           <stnname>Unnamed</stnname>
           <state></state>
           <country></country>
-          <latitude>23.58</latitude>
+          <latitude> 23.58</latitude>
           <longitude>-163.83</longitude>
           <elevation>-4000</elevation>
           <priority>0</priority>
@@ -4628,7 +4736,7 @@
           <stnname>Unnamed</stnname>
           <state></state>
           <country></country>
-          <latitude>48.08</latitude>
+          <latitude> 48.08</latitude>
           <longitude>153.33</longitude>
           <elevation>-150</elevation>
           <priority>0</priority>
@@ -4652,7 +4760,7 @@
           <stnname>Unnamed</stnname>
           <state></state>
           <country></country>
-          <latitude>46.47</latitude>
+          <latitude> 46.47</latitude>
           <longitude>151.28</longitude>
           <elevation>-502</elevation>
           <priority>0</priority>
@@ -4676,7 +4784,7 @@
           <stnname>Unnamed</stnname>
           <state></state>
           <country></country>
-          <latitude>9.82</latitude>
+          <latitude>  9.82</latitude>
           <longitude>-104.30</longitude>
           <elevation>-2500</elevation>
           <priority>0</priority>
@@ -4688,7 +4796,7 @@
           <stnname>Unnamed</stnname>
           <state></state>
           <country></country>
-          <latitude>-3.03</latitude>
+          <latitude> -3.03</latitude>
           <longitude>147.78</longitude>
           <elevation>-1300</elevation>
           <priority>0</priority>
@@ -4724,7 +4832,7 @@
           <stnname>Unzen</stnname>
           <state></state>
           <country></country>
-          <latitude>32.75</latitude>
+          <latitude> 32.75</latitude>
           <longitude>130.30</longitude>
           <elevation>1500</elevation>
           <priority>0</priority>
@@ -4736,7 +4844,7 @@
           <stnname>Usu</stnname>
           <state></state>
           <country></country>
-          <latitude>42.53</latitude>
+          <latitude> 42.53</latitude>
           <longitude>140.83</longitude>
           <elevation>731</elevation>
           <priority>0</priority>
@@ -4748,7 +4856,7 @@
           <stnname>Veniaminof</stnname>
           <state></state>
           <country></country>
-          <latitude>56.17</latitude>
+          <latitude> 56.17</latitude>
           <longitude>-159.38</longitude>
           <elevation>2507</elevation>
           <priority>0</priority>
@@ -4760,7 +4868,7 @@
           <stnname>Vestmannaeyjar</stnname>
           <state></state>
           <country></country>
-          <latitude>63.43</latitude>
+          <latitude> 63.43</latitude>
           <longitude>-20.28</longitude>
           <elevation>279</elevation>
           <priority>0</priority>
@@ -4772,8 +4880,8 @@
           <stnname>Vesuvius</stnname>
           <state></state>
           <country></country>
-          <latitude>40.82</latitude>
-          <longitude>14.43</longitude>
+          <latitude> 40.82</latitude>
+          <longitude> 14.43</longitude>
           <elevation>1281</elevation>
           <priority>0</priority>
           <location>Italy</location>
@@ -4784,7 +4892,7 @@
           <stnname>Victory</stnname>
           <state></state>
           <country></country>
-          <latitude>-9.20</latitude>
+          <latitude> -9.20</latitude>
           <longitude>149.07</longitude>
           <elevation>1925</elevation>
           <priority>0</priority>
@@ -4820,8 +4928,8 @@
           <stnname>Visoke</stnname>
           <state></state>
           <country></country>
-          <latitude>-1.47</latitude>
-          <longitude>29.49</longitude>
+          <latitude> -1.47</latitude>
+          <longitude> 29.49</longitude>
           <elevation>3711</elevation>
           <priority>0</priority>
           <location>Africa-C</location>
@@ -4832,7 +4940,7 @@
           <stnname>Waiowa</stnname>
           <state></state>
           <country></country>
-          <latitude>-9.57</latitude>
+          <latitude> -9.57</latitude>
           <longitude>149.07</longitude>
           <elevation>640</elevation>
           <priority>0</priority>
@@ -4844,7 +4952,7 @@
           <stnname>Westdahl</stnname>
           <state></state>
           <country></country>
-          <latitude>54.52</latitude>
+          <latitude> 54.52</latitude>
           <longitude>-164.65</longitude>
           <elevation>1654</elevation>
           <priority>0</priority>
@@ -4868,7 +4976,7 @@
           <stnname>Wolf,_Volcan</stnname>
           <state></state>
           <country></country>
-          <latitude>0.02</latitude>
+          <latitude>  0.02</latitude>
           <longitude>-91.35</longitude>
           <elevation>1710</elevation>
           <priority>0</priority>
@@ -4880,7 +4988,7 @@
           <stnname>Wrangell</stnname>
           <state></state>
           <country></country>
-          <latitude>62.00</latitude>
+          <latitude> 62.00</latitude>
           <longitude>-144.02</longitude>
           <elevation>4317</elevation>
           <priority>0</priority>
@@ -4892,7 +5000,7 @@
           <stnname>Yake-dake</stnname>
           <state></state>
           <country></country>
-          <latitude>36.22</latitude>
+          <latitude> 36.22</latitude>
           <longitude>137.58</longitude>
           <elevation>2455</elevation>
           <priority>0</priority>
@@ -4916,7 +5024,7 @@
           <stnname>Yunaska</stnname>
           <state></state>
           <country></country>
-          <latitude>52.63</latitude>
+          <latitude> 52.63</latitude>
           <longitude>-170.63</longitude>
           <elevation>550</elevation>
           <priority>0</priority>
@@ -4928,7 +5036,7 @@
           <stnname>Zao</stnname>
           <state></state>
           <country></country>
-          <latitude>38.15</latitude>
+          <latitude> 38.15</latitude>
           <longitude>140.45</longitude>
           <elevation>1841</elevation>
           <priority>0</priority>
@@ -4940,7 +5048,7 @@
           <stnname>Zavaritzki_Caldera</stnname>
           <state></state>
           <country></country>
-          <latitude>46.93</latitude>
+          <latitude> 46.93</latitude>
           <longitude>151.95</longitude>
           <elevation>624</elevation>
           <priority>0</priority>
@@ -4952,7 +5060,7 @@
           <stnname>Zengyu</stnname>
           <state></state>
           <country></country>
-          <latitude>26.18</latitude>
+          <latitude> 26.18</latitude>
           <longitude>122.46</longitude>
           <elevation>-418</elevation>
           <priority>0</priority>
@@ -4964,7 +5072,7 @@
           <stnname>Zheltovsky</stnname>
           <state></state>
           <country></country>
-          <latitude>51.57</latitude>
+          <latitude> 51.57</latitude>
           <longitude>157.32</longitude>
           <elevation>1953</elevation>
           <priority>0</priority>
@@ -4976,7 +5084,7 @@
           <stnname>Zhupanovsky</stnname>
           <state></state>
           <country></country>
-          <latitude>53.59</latitude>
+          <latitude> 53.59</latitude>
           <longitude>159.15</longitude>
           <elevation>2958</elevation>
           <priority>0</priority>

@@ -66,11 +66,8 @@ public class TestWsIdAdapter {
         }
         String user = System.getProperty("user.name");
         String program = "TestWsId";
-        int pid = rnd.nextInt();
-        ;
-        long key = System.currentTimeMillis();
 
-        WsId wsId = new WsId(addr, user, program, pid, key);
+        WsId wsId = new WsId(addr, user, program);
 
         Test inTest = new Test();
         inTest.setWsId(wsId);

@@ -21,7 +21,6 @@ package com.raytheon.viz.gfe.core.parm;
 
 import org.apache.commons.lang.Validate;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
@@ -58,7 +57,6 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  *                                      multiple registration
  * Feb 23, 2012  #346       dgilling    Implement clearParmListeners.
  * Mar 01, 2012  #346       dgilling    Use identity-based ListenerLists.
- * Mar 21, 2012  14583      mli			fix invalid thread access for PickupValueChange
  * 
  * </pre>
  * 
@@ -248,13 +246,14 @@ public class ParmListeners {
         for (Object listener : this.pickupValueChangedListeners.getListeners()) {
             final IPickupValueChangedListener casted = (IPickupValueChangedListener) listener;
 
-            Display.getDefault().asyncExec( new Runnable() {
-            	
+            Runnable notTask = new Runnable() {
+
                 @Override
                 public void run() {
                     casted.pickupValueChanged(parm, pickupValue);
                 }
-            });
+            };
+            notificationPool.schedule(notTask);
         }
     }
 

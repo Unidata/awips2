@@ -19,14 +19,12 @@
  **/
 package com.raytheon.uf.viz.d2d.ui.dialogs;
 
+import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.ByteLookupTable;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
-import java.awt.image.LookupOp;
-import java.awt.image.LookupTable;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,8 +126,6 @@ public class PrintDialog extends CaveSWTDialog {
     private Button cancelButton = null;
 
     private BufferedImage bi;
-
-    private LookupTable lookupTable = null;
 
     private MagnificationInformationStorage magnificationInformationStorage = null;
 
@@ -668,8 +664,19 @@ public class PrintDialog extends CaveSWTDialog {
         }
 
         if (printerSettings.invert) {
-            reverseLUT();
-            applyFilter();
+            // Only invert gray pixels, not colored pixels, awt doesn not have a
+            // good filter for this.
+            for (int x = 0; x < bi.getWidth(); x += 1) {
+                for (int y = 0; y < bi.getHeight(); y += 1) {
+                    Color color = new Color(bi.getRGB(x, y));
+                    if (color.getRed() == color.getBlue()
+                            && color.getBlue() == color.getGreen()) {
+                        color = new Color(255 - color.getRed(),
+                                255 - color.getGreen(), 255 - color.getBlue());
+                        bi.setRGB(x, y, color.getRGB());
+                    }
+                }
+            }
         }
         ImageData imageData = convertToSWT(bi);
         Image image = null;
@@ -824,22 +831,4 @@ public class PrintDialog extends CaveSWTDialog {
         return null;
     }
 
-    /*
-     * Create reverse lookup table for image
-     */
-    private void reverseLUT() {
-        byte reverse[] = new byte[256];
-        for (int i = 0; i < 256; i++) {
-            reverse[i] = (byte) (255 - i);
-        }
-        lookupTable = new ByteLookupTable(0, reverse);
-    }
-
-    /*
-     * Apply lookup table filter to image
-     */
-    private void applyFilter() {
-        LookupOp lop = new LookupOp(lookupTable, null);
-        lop.filter(bi, bi);
-    }
 }

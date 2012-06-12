@@ -16,7 +16,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenExtrapDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.PgenExtrapDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;

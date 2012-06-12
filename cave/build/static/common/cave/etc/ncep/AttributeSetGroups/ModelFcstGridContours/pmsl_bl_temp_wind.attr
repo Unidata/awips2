@@ -8,6 +8,8 @@
 !
 GLEVEL=9950!9950!9950!0   !9950
 GVCORD=sgma!sgma!sgma!none!sgma
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=tmpc!tmpc!tmpc!sm5s(pmsl) ! kntv(wnd@9950%sgma)
 TYPE=c/f !c   !c   !c          ! b

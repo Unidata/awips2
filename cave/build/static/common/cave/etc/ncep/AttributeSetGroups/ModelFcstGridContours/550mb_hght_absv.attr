@@ -1,5 +1,7 @@
 GLEVEL=550
 GVCORD=pres
+SKIP=
+FILTER=y
 SCALE=5 ! 5 ! -1
 GDPFUN=abs(avor(wnd))! abs(avor(wnd)) !sm5s(hght)
 TYPE=c ! c ! c

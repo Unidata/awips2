@@ -6,6 +6,8 @@
 !
 GLEVEL=1000!30:0
 GVCORD=pres!pdly
+SKIP=
+FILTER=y
 SCALE=7!0!0
 GDPFUN=sdiv(mixr;wnd)!sm9s(dwpf)!sm9s(dwpf)!sm9s(dwpf)!kntv(wnd)
 TYPE=c/f!c!c!c!b

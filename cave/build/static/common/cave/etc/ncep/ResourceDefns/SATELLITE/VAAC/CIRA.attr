@@ -4,3 +4,6 @@ colorBar=@dfltMcidasColorBar.xml
 imageType=CIRA
 ! ? check that the displayUnits is correct?
 displayUnitStr=BRIT
+alpha=1.0
+brightness=1.0
+contrast=1.0
