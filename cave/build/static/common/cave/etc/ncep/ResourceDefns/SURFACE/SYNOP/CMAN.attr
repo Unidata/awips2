@@ -4,3 +4,4 @@ legendString=CMAN Synop
 plotModelName=synop_standard
 reportType=1004
 plotDensity=15
+conditionalFilterName=

@@ -8,8 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlgFactory;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlgFactory;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 import org.eclipse.jface.dialogs.MessageDialog;

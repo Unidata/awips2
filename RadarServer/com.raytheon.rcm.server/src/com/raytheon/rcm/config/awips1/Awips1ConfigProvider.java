@@ -48,6 +48,15 @@ import com.raytheon.rcm.server.Log;
  * com.raytheon.rcm.config.awips1.FXA_LOCAL_SITE property.  
  * 
  * Note: Does not recognize the FILE_SERVER_DEFAULT_PATHS environment variable.
+ * 
+ * <pre>
+ *  SOFTWARE HISTORY
+ * 
+ *  Date         Ticket#     Engineer    Description
+ *  ------------ ----------  ----------- --------------------------
+ *  2009                     dfriedma    Initial version
+ *  2012-04-30   DR 14904    D. Friedman Add backup links to dial ORPGs.
+ * </pre>
  */
 public class Awips1ConfigProvider implements ConfigurationProvider {
 	
@@ -410,10 +419,8 @@ public class Awips1ConfigProvider implements ConfigurationProvider {
 					String radarName = ls.next().toLowerCase();
 					int nexradId = ls.nextInt();
 					
-					RadarConfig rc = radars.get(radarName.toLowerCase()); //config.getConfigForRadar(radarName);
-					// so only getting entries for current purpose .. does not
-					// allow easy switching
-					if (rc == null || rc.isDedicated() != dedicated)
+					RadarConfig rc = radars.get(radarName.toLowerCase());
+					if (rc == null)
 						continue;
 					if (nexradId != rc.getNexradID()) {
 						// warn...
@@ -428,8 +435,6 @@ public class Awips1ConfigProvider implements ConfigurationProvider {
 					lr.setLinkIndex(ls.nextInt());
 					lr.setTcmPassword(ls.next());
 					lr.setDedicated(dedicated);
-					// TODO: do something with max rps size?
-					// lr.setBackup(backup);
 					
 					if (dedicated) {
 						lr.setMaxRpsListSize(ls.nextInt());
