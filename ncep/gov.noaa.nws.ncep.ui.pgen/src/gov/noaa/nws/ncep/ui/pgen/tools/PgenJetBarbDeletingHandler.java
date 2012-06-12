@@ -15,7 +15,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.JetAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.JetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.ISinglePoint;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;

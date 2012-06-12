@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.decodertools.time;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -55,32 +56,62 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  */
 public class TimeTools {
 
+    /**
+     * Time stamp that includes the receipt time
+     * format : YYYYMMDD
+     */
+    public static final Pattern FILE_TIMESTAMP = Pattern.compile("(.*\\.)(\\d{8}$)");
+    
+    public static final Pattern WMO_TIMESTAMP = Pattern.compile("([0-3][0-9])(\\d{2})(\\d{2})[Zz]?");
+
+    public static final int HOURS_DAY = 24;
+    
+    public static final int MINUTES_HOUR = 60;
+    
     public static final int SECONDS_HOUR = 3600;
 
-    public static final int SECONDS_DAY = 24 * SECONDS_HOUR;
+    public static final int SECONDS_DAY = HOURS_DAY * SECONDS_HOUR;
 
     public static final long MILLIS_HOUR = 1000L * SECONDS_HOUR;
 
-    public static final long MILLIS_DAY = MILLIS_HOUR * 24L;
+    public static final long MILLIS_DAY = MILLIS_HOUR * HOURS_DAY;
 
     public static final String ZULU_TIMEZONE = "Zulu";
 
     private static ITimeService timeService = null;
 
     private static final Log logger = LogFactory.getLog(TimeTools.class);
-
+    
+    /**
+     * 
+     * @return
+     */
+    public static boolean allowArchive() {
+        return ("true".equalsIgnoreCase(System.getenv().get("ALLOW_ARCHIVE_DATA")));
+    }
+ 
     /**
      * Get a calendar that expresses the current system time. If an ITimeService
      * provider is registered, the time is retrieved from the service.
      * 
      * @return The current time as a GMT Calendar.
      */
-    public static Calendar getSystemCalendar() {
+    public static final Calendar getSystemCalendar() {
         Calendar retCal = null;
         if (timeService != null) {
             retCal = timeService.getCalendar();
         } else {
             retCal = Calendar.getInstance(TimeZone.getTimeZone(ZULU_TIMEZONE));
+        }
+        if(retCal != null) {
+            TimeZone tz = retCal.getTimeZone();
+            if(tz != null) {
+                if (0 != tz.getRawOffset()) {
+                    retCal.setTimeZone(TimeZone.getTimeZone(ZULU_TIMEZONE));
+                }
+            } else {
+                retCal.setTimeZone(TimeZone.getTimeZone(ZULU_TIMEZONE));
+            }
         }
         return retCal;
     }
@@ -91,46 +122,74 @@ public class TimeTools {
      * 
      * @return The current time as a GMT Calendar.
      */
-    public static Calendar getSystemCalendar(int year, int month, int day) {
+    public static final Calendar getSystemCalendar(int year, int month, int day) {
+        return getSystemCalendar(year, month, day, 0, 0);
+    }
+
+    /**
+     * Get a calendar that expresses the current system time based from specified
+     * date information if the 
+     * @param year Year to set.
+     * @param month
+     * @param day
+     * @param hour
+     * @param minute
+     * @return The current time as a GMT Calendar.
+     */
+    public static final Calendar getSystemCalendar(int year, int month,
+            int day, int hour, int minute) {
         Calendar retCal = getSystemCalendar();
-        String allow = System.getenv("ALLOW_ARCHIVE_DATA");
-        if ("true".equalsIgnoreCase(allow)) {
-            if (year != -1) {
-                retCal.set(Calendar.YEAR, year);
-            }
-            if (month != -1) {
-                retCal.set(Calendar.MONTH, month - 1);
-            }
-            if (day != -1) {
-                retCal.set(Calendar.DATE, day);
+        if (allowArchive()) {
+            if (isValidDate(year, month, day)) {
+                if (hour != -1) {
+                    if (minute != -1) {
+                        retCal.set(Calendar.YEAR, year);
+                        retCal.set(Calendar.MONTH, month - 1);
+                        retCal.set(Calendar.DAY_OF_MONTH, day);
+                        retCal.set(Calendar.HOUR_OF_DAY, hour);
+                        retCal.set(Calendar.MINUTE, minute);
+                        retCal.set(Calendar.SECOND, 0);
+                        retCal.set(Calendar.MILLISECOND, 0);
+                    }
+                }
             }
         }
         return retCal;
     }
 
-    public static Calendar getSystemCalendar(String fileName) {
+    /**
+     * 
+     * @param fileName
+     * @return
+     */
+    public static final Calendar getSystemCalendar(String fileName) {
         int year = -1;
         int month = -1;
         int day = -1;
-        if (fileName != null && fileName.matches(".*\\.\\d{8}$")) {
-            Pattern pattern = Pattern.compile("(.*\\.)(\\d{8}$)");
-            Matcher matcher = pattern.matcher(fileName);
-            matcher.find();
-            String yyyymmdd = matcher.group(2);
-            year = Integer.parseInt(yyyymmdd.substring(0, 4));
-            month = Integer.parseInt(yyyymmdd.substring(4, 6));
-            day = Integer.parseInt(yyyymmdd.substring(6, 8));
-
+        if(fileName != null) {
+            Matcher matcher = FILE_TIMESTAMP.matcher(fileName);
+            if(matcher.find()) {
+                String yyyymmdd = matcher.group(2);
+                try {
+                    year = Integer.parseInt(yyyymmdd.substring(0, 4));
+                    month = Integer.parseInt(yyyymmdd.substring(4, 6));
+                    day = Integer.parseInt(yyyymmdd.substring(6, 8));
+                } catch (NumberFormatException nfe) {
+                    year = -1;
+                    month = -1;
+                    day = -1;
+                }
+            }
         }
-        return getSystemCalendar(year, month, day);
+        return getSystemCalendar(year, month, day, 0, 0);
     }
-
+    
     /**
      * Converts a ddhhmm time group to a Calendar. Adjusts the calendar as
      * follows: Any time group with a day (dd) in the future is set back one
      * month.
      * 
-     * @param baseTime
+     * @param wmoDateStamp
      *            the time to convert
      * 
      * @return the converted time
@@ -138,25 +197,52 @@ public class TimeTools {
      * @throws DataFormatException
      *             if an error occurs
      */
-    public static Calendar findCurrentTime(String baseTime, String fileName)
+    public static final Calendar findCurrentTime(String wmoDateStamp, String fileName)
             throws DataFormatException {
-        Calendar retVal = getSystemCalendar(fileName);
+        Calendar refCal = getSystemCalendar(fileName);
         try {
-            String regexe = "(\\d{2})(\\d{2})(\\d{2})[Zz]?";
-            Pattern pattern = Pattern.compile(regexe);
-            Matcher matcher = pattern.matcher(baseTime);
+            Matcher matcher = WMO_TIMESTAMP.matcher(wmoDateStamp);
             if (matcher.matches()) {
-                adjustDayHourMinute(retVal, matcher.group(1), matcher.group(2),
-                        matcher.group(3));
+                int iDay = Integer.parseInt(matcher.group(1));
+                int iHour = Integer.parseInt(matcher.group(2));
+                int iMinute = Integer.parseInt(matcher.group(3));
+                
+                refCal = adjustDayHourMinute(refCal, iDay, iHour, iMinute);
             } else {
-                throw new ParseException("Invalid format - does not match "
-                        + regexe, 0);
+                throw new ParseException("Invalid format - time does not match "
+                        + WMO_TIMESTAMP.pattern(), 0);
             }
         } catch (Exception e) {
             throw new DataFormatException("Unable to find current time for "
-                    + baseTime + ", exception was " + e.toString());
+                    + wmoDateStamp + ", exception was " + e.toString());
         }
-        return retVal;
+        return refCal;
+    }
+
+    /**
+     * Convert a string in ddhhmm format to a standard {@link Calendar} format
+     * where ddhhmm is the GMT format while the standard time is in Calendar
+     * format with Year and Month information. Usage: ddhhmm is the issue time
+     * whereas utcTime can be the MDN time. The former comes "after" the latter.
+     * 
+     * @parm ddhhmm day-hour-minute in GMT
+     * @parm local Time UTC time in Calendar
+     */
+    public static final Calendar findDataTime(String ddhhmm, Headers headers) {
+        Calendar issueTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        String fileName = null;
+        if (headers != null) {
+            fileName = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
+        }
+        try {
+            issueTime = findCurrentTime(ddhhmm, fileName);
+        } catch (DataFormatException e) {
+            if (logger.isInfoEnabled()) {
+                logger.info(" Error in processing MND time; return current time ");
+            }
+            issueTime = null;
+        }
+        return issueTime;
     }
 
     /**
@@ -174,31 +260,78 @@ public class TimeTools {
      * @param minute
      *            the new minute of the hour
      */
-    private static void adjustDayHourMinute(Calendar cal, String day,
-            String hour, String minute) {
-        int iDay = Integer.parseInt(day);
-        int iHour = Integer.parseInt(hour);
-        int iMinute = Integer.parseInt(minute);
-        int iMonth = cal.get(Calendar.MONTH);
-        int iYear = cal.get(Calendar.YEAR);
-        // adjust the month and year for roll-over situations
-        if (iDay > cal.get(Calendar.DAY_OF_MONTH)) {
-            iMonth--;
-            if (iMonth < 0) {
-                iMonth = Calendar.DECEMBER;
-                iYear--;
+    private static Calendar adjustDayHourMinute(Calendar cal, int wmoDay,
+            int wmoHour, int wmoMinute) {
+        if (cal != null) {
+
+            int cDay = cal.get(Calendar.DAY_OF_MONTH);
+
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+
+            // Range check hour/minute first. Have to wait for
+            // checking the day
+            if (isValidHour(wmoHour) && (isValidMinSec(wmoMinute))) {
+                Calendar lastMonth = copy(cal);
+                lastMonth.set(Calendar.DAY_OF_MONTH, 1);
+                lastMonth.add(Calendar.MONTH, -1);
+
+                // Get the maximum day of the current month from the reference
+                // calendar
+                int maxDayThisMonth = cal
+                        .getActualMaximum(Calendar.DAY_OF_MONTH);
+                // Set the day to one so all add/subtracts work correctly
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+                cal.set(Calendar.HOUR_OF_DAY, wmoHour);
+                cal.set(Calendar.MINUTE, wmoMinute);
+                if (wmoDay == 1) {
+                    // the wmoDay is 1
+                    // and the reference calendar is the last
+                    // day of the month
+                    if (cDay == maxDayThisMonth) {
+                        // This is potentially next month's data received early
+                        // Allow three hours into the next day
+                        if (wmoHour < 3) {
+                            // Advance to the next month
+                            cal.add(Calendar.MONTH, 1);
+                            // and set the hour, minute
+                        }
+                    }
+                } else if (wmoDay > cDay) {
+                    // Is the wmoDay valid for this month?
+                    if(wmoDay <= maxDayThisMonth) {
+                        // First allow up to 3 hours into the next day
+                        if ((cDay + 1) == wmoDay) {
+                            // This is potentially next month's data received early
+                            // Allow three hours into the next day
+                            if (wmoHour > 2) {
+                                // Back up a month
+                                cal.add(Calendar.MONTH, -1);
+                            }
+                        } else {
+                            // Back up a month
+                            cal.add(Calendar.MONTH, -1);
+                            int mDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+                            if(mDay < wmoDay) {
+                                cal.add(Calendar.MONTH, -1);
+                            }
+                        }
+                    } else {
+                        // The wmoDay is greater than the maximum number
+                        // of days for the reference month. We can't back
+                        // up one month, but can always back up two months.
+                        cal.add(Calendar.MONTH, -2);
+                    }
+                }
+                cal.set(Calendar.DAY_OF_MONTH, wmoDay);
+            } else {
+                // bad 
+                cal = null;
             }
         }
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        cal.set(Calendar.YEAR, iYear);
-        cal.set(Calendar.MONTH, iMonth);
-        cal.set(Calendar.DAY_OF_MONTH, iDay);
-        cal.set(Calendar.HOUR_OF_DAY, iHour);
-        cal.set(Calendar.MINUTE, iMinute);
-
-    }
-
+        return cal;
+    }    
+    
     /**
      * Set the time service. To clear an existing service, set a null reference.
      * 
@@ -207,7 +340,7 @@ public class TimeTools {
      *            service.
      * @return The TimeService that had been previously defined.
      */
-    public static ITimeService setTimeService(ITimeService service) {
+    public static final ITimeService setTimeService(ITimeService service) {
         ITimeService retService = null;
         // get the current service if any.
         retService = timeService;
@@ -227,7 +360,7 @@ public class TimeTools {
      *            Day of the month [1..31] varies by month rules.
      * @return
      */
-    public static Calendar getBaseCalendar(int year, int month, int day) {
+    public static final Calendar getBaseCalendar(int year, int month, int day) {
         Calendar calendar = null;
 
         calendar = getSystemCalendar();
@@ -243,7 +376,7 @@ public class TimeTools {
 
         return calendar;
     }
-
+    
     /**
      * Get a new GMT time-zone calendar set to a specified time in milliseconds.
      * 
@@ -251,7 +384,7 @@ public class TimeTools {
      *            The time to set in milliseconds.
      * @return The new calendar instance.
      */
-    public static Calendar newCalendar(long timeInMillis) {
+    public static final Calendar newCalendar(long timeInMillis) {
         Calendar calendar = getSystemCalendar();
 
         calendar.setTimeInMillis(timeInMillis);
@@ -266,22 +399,23 @@ public class TimeTools {
      *            The calendar to copy.
      * @return The copied calendar.
      */
-    public static Calendar copy(Calendar calendar) {
+    public static final Calendar copy(Calendar calendar) {
         Calendar retValue = null;
         if (calendar != null) {
-            retValue = (Calendar) calendar.clone();
+            retValue = newCalendar(calendar.getTimeInMillis());
+            retValue.setTimeZone(calendar.getTimeZone());
         }
         return retValue;
     }
 
     /**
-     * Make a copy of a calendar instance to the nearest hour.
+     * Make a copy of a calendar instance truncated to the hour.
      * 
      * @param calendar
      *            The calendar to copy.
      * @return The copied calendar.
      */
-    public static Calendar copyToNearestHour(Calendar calendar) {
+    public static final Calendar copyToNearestHour(Calendar calendar) {
         Calendar retValue = null;
         if (calendar != null) {
             retValue = (Calendar) calendar.clone();
@@ -299,7 +433,7 @@ public class TimeTools {
      *            The calendar to copy.
      * @return The copied calendar.
      */
-    public static Calendar roundToNearestHour(Calendar calendar) {
+    public static final Calendar roundToNearestHour(Calendar calendar) {
         Calendar retValue = null;
         if (calendar != null) {
             retValue = (Calendar) calendar.clone();
@@ -322,7 +456,7 @@ public class TimeTools {
      *            Number of days to add or subtract.
      * @return The modified calendar.
      */
-    public static Calendar rollByDays(Calendar calendar, int byDays) {
+    public static final Calendar rollByDays(Calendar calendar, int byDays) {
         if (calendar != null) {
             long millis = calendar.getTimeInMillis();
 
@@ -342,7 +476,7 @@ public class TimeTools {
      *            Number of hours to add or subtract.
      * @return The modified calendar.
      */
-    public static Calendar rollByHours(Calendar calendar, int byHours) {
+    public static final Calendar rollByHours(Calendar calendar, int byHours) {
         if (calendar != null) {
             long millis = calendar.getTimeInMillis();
 
@@ -354,28 +488,196 @@ public class TimeTools {
     }
 
     /**
-     * Convert a string in ddhhmm format to a standard {@link Calendar} format
-     * where ddhhmm is the GMT format while the standard time is in Calendar
-     * format with Year and Month information. Usage: ddhhmm is the issue time
-     * whereas utcTime can be the MDN time. The former comes "after" the latter.
-     * 
-     * @parm ddhhmm day-hour-minute in GMT
-     * @parm local Time UTC time in Calendar
+     * Is the year valid. This method supposes any positive year
+     * value as valid.
+     * @param year The year to check.
+     * @return Is the year valid?
      */
-    public static Calendar findDataTime(String ddhhmm, Headers headers) {
-        Calendar issueTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        String fileName = null;
-        if (headers != null) {
-            fileName = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
-        }
-        try {
-            return issueTime = findCurrentTime(ddhhmm, fileName);
-        } catch (DataFormatException e) {
-            if (logger.isInfoEnabled()) {
-                logger.info(" Error in processing MND time; return current time ");
-            }
-            return issueTime;
-        }
+    public static final boolean isValidYear(int year) {
+        return (year >= 0);
+    }
+    
+    /**
+     * The the specified month of the year valid.
+     * @param month Numeric value of the month.
+     * @return Is the month valid?
+     */
+    public static final boolean isValidMonth(int month) {
+        return ((month > 0)&&(month <= 12));
     }
 
+    /**
+     * Is the specified hour of the day valid? Range 0..23 inclusive. 
+     * @param hour The hour to check.
+     * @return Is the hour valid?
+     */
+    public static final boolean isValidHour(int hour) {
+        return ((hour > -1)&&(hour < HOURS_DAY));
+    }
+    
+    /**
+     * Is the specified minute/second valid? Range 0..59 inclusive. 
+     * @param hour The minute/second to check.
+     * @return Is the minute/second valid?
+     */
+    public static final boolean isValidMinSec(int value) {
+        return ((value > -1)&&(value < MINUTES_HOUR));
+    }
+    
+    
+    /**
+     * Is a specified date valid? This method checks an entire
+     * year, month, day timestamp.
+     * @param year The year to check.
+     * @param month Numeric value of the month.
+     * @param day Is the month valid?
+     * @return Is year, month, day timestamp valid.
+     */
+    public static final boolean isValidDate(int year, int month, int day) {
+        boolean validDay = false;
+        if(day > -1) {
+            if(isValidYear(year)) {
+                if(isValidMonth(month)) {
+                    Calendar c = getBaseCalendar(year, month, 1);
+                    int lastDay = c.getActualMaximum(Calendar.DAY_OF_MONTH) + 1;
+                    
+                    validDay = (day < lastDay);
+                }
+            }
+        }
+        return validDay;
+    }
+   
+    /**
+     * End of month, end of year
+     *
+     * @return test passed status
+     */
+    private static boolean test(String [] data) {
+        String expected = data[3];
+        System.out.print(String.format("Test Step %12s  ", data[0]));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Headers header = new Headers();
+        header.put(DecoderTools.INGEST_FILE_NAME, data[1]);
+        
+        Calendar c = findDataTime(data[2],header);
+        sdf.setTimeZone(c.getTimeZone());
+        
+        String cs = sdf.format(c.getTime());
+        System.out.print(String.format("%20s  expected %20s ",cs, expected));
+        return expected.equals(cs);
+    }
+    
+    public static final void main(String [] args) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone(ZULU_TIMEZONE));
+
+        ITimeService service = new ITimeService() {
+            @Override
+            public Calendar getCalendar() {
+                final Calendar c = Calendar.getInstance();
+                c.setTimeZone(TimeZone.getTimeZone(ZULU_TIMEZONE));
+                c.set(Calendar.YEAR, 2011);
+                c.set(Calendar.MONTH, Calendar.JULY);
+                c.set(Calendar.DAY_OF_MONTH,15);
+                c.set(Calendar.HOUR_OF_DAY, 14);
+                c.set(Calendar.MINUTE, 15);
+                c.set(Calendar.SECOND, 32);
+                c.set(Calendar.MILLISECOND, 268);
+
+                return c;
+            }
+        };
+        TimeTools.setTimeService(service);
+
+        if(allowArchive()) {
+            String [] [] archiveData = {
+                    { "test001","UANT01_CWAO_171653_225472224.20110717", "171653","2011-07-17 16:53:00", },
+                    { "test002","UANT01_CWAO_312315_225472224.20110731", "312315","2011-07-31 23:15:00", },
+                    { "test003","UANT01_CWAO_312315_225472224.20110801", "312315","2011-07-31 23:15:00", },
+                    { "test004","UANT01_CWAO_170000_225472224.20110716", "170000","2011-07-17 00:00:00", },
+                    { "test005","UANT01_CWAO_170000_225472224.20110717", "170000","2011-07-17 00:00:00", },
+                    { "test006","UANT01_CWAO_100000_225472224.20111109", "100000","2011-11-10 00:00:00", },
+                    { "test007","UANT01_CWAO_010000_225472224.20111231", "010000","2012-01-01 00:00:00", },
+                    { "test008","UANT01_CWAO_312350_225472224.20120101", "312350","2011-12-31 23:50:00", },
+                    { "test009","UANT01_CWAO_010259_225472224.20111231", "010259","2012-01-01 02:59:00", },
+                    { "test010","UANT01_CWAO_010300_225472224.20111231", "010300","2011-12-01 03:00:00", },
+                    { "test011","UANT01_CWAO_290050_225472224.20120228", "290050","2012-02-29 00:50:00", },
+                    { "test012","UANT01_CWAO_010100_225472224.20120229", "010100","2012-03-01 01:00:00", },
+            };
+            System.out.println("Performing archive mode data tests");
+            for(String [] d : archiveData) {
+                System.out.println("  status = " + (test(d) ? "passed" : "failed"));
+            }
+        }
+        if(!allowArchive()) {
+            System.out.println("Performing non-archive mode data tests");
+            
+            System.out.println(String.format("Base time = %s", sdf.format(getSystemCalendar().getTime())));
+            // 2011-07-15 14:15:32.268
+            String[][] data = {
+                    { "test001", "UANT01_CWAO_171653_225472224.20110717", "171653",
+                            "2011-06-17 16:53:00", },
+                    { "test002", "UANT01_CWAO_312315_225472224.20110731", "312315",
+                            "2011-05-31 23:15:00", },
+            };
+            for (String[] d : data) {
+                System.out.println("  status = " + (test(d) ? "passed" : "failed"));
+            }
+            //**********************************************************************
+            service = new ITimeService() {
+                @Override
+                public Calendar getCalendar() {
+                    final Calendar c = Calendar.getInstance();
+                    c.setTimeZone(TimeZone.getTimeZone(ZULU_TIMEZONE));
+                    c.set(Calendar.YEAR, 2011);
+                    c.set(Calendar.MONTH, Calendar.AUGUST);
+                    c.set(Calendar.DAY_OF_MONTH,1);
+                    c.set(Calendar.HOUR_OF_DAY, 14);
+                    c.set(Calendar.MINUTE, 15);
+                    c.set(Calendar.SECOND, 32);
+                    c.set(Calendar.MILLISECOND, 268);
+
+                    return c;
+                }
+            };
+            TimeTools.setTimeService(service);
+            System.out.println(String.format("Base time = %s", sdf.format(getSystemCalendar().getTime())));
+            
+            data = new String [][] {
+                    { "test011", "UANT01_CWAO_312353_225472224.20110717", "312353",
+                            "2011-07-31 23:53:00", },
+            };
+            for (String[] d : data) {
+                System.out.println("  status = " + (test(d) ? "passed" : "failed"));
+            }
+            //**********************************************************************
+            service = new ITimeService() {
+                @Override
+                public Calendar getCalendar() {
+                    final Calendar c = Calendar.getInstance();
+                    c.setTimeZone(TimeZone.getTimeZone(ZULU_TIMEZONE));
+                    c.set(Calendar.YEAR, 2011);
+                    c.set(Calendar.MONTH, Calendar.JULY);
+                    c.set(Calendar.DAY_OF_MONTH,31);
+                    c.set(Calendar.HOUR_OF_DAY, 22);
+                    c.set(Calendar.MINUTE, 45);
+                    c.set(Calendar.SECOND, 32);
+                    c.set(Calendar.MILLISECOND, 268);
+
+                    return c;
+                }
+            };
+            TimeTools.setTimeService(service);
+            System.out.println(String.format("Base time = %s", sdf.format(getSystemCalendar().getTime())));
+
+            data = new String [][] {
+                    { "test011", "UANT01_CWAO_010053_225472224.20110717", "010053",
+                            "2011-08-01 00:53:00", },
+            };
+            for (String[] d : data) {
+                System.out.println("  status = " + (test(d) ? "passed" : "failed"));
+            }
+        }
+    }
 }

@@ -9,6 +9,8 @@
 !
 GLEVEL=180:0
 GVCORD=pdly
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm5s(cape)//cp!cp           !cp      !sm5s(cins)//cn!cn         !cn
 TYPE=c             !c            !c       !c

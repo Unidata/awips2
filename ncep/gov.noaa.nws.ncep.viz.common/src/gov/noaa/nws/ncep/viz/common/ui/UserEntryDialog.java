@@ -46,6 +46,8 @@ import org.eclipse.swt.widgets.Text;
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2010            lvenable     Initial creation
  * 2/13/2012    #682       Q.Zhou       Make "Enter" default to OK
+ * 04/16/2012   #615       S. Gurung    Adjusted size of inputText
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -122,7 +124,7 @@ public class UserEntryDialog extends Dialog {
             messageLbl.setText(message);
         }
 
-        gd = new GridData(200, SWT.DEFAULT);
+        gd = new GridData(250, SWT.DEFAULT);
         inputTF = new Text(controlComp, SWT.BORDER);
         inputTF.setLayoutData(gd);
 

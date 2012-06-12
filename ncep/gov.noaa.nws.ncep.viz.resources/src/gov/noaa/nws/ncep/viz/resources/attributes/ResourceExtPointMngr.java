@@ -27,6 +27,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *  06/10/10     #273	    Greg Hull    read bundleFile location
  *  06/22/10     #273       Greg Hull    map attributes with rscName key instead of rscDataClass
  *  10/13/11                Xilin Guo    Enable "WOU"
+ *  04/12/2012   #615       Shova Gurung Added ConditionalFilter in readResourceAttributesExtPoint()
  *  
  * </pre>
  * 
@@ -225,6 +226,8 @@ public class ResourceExtPointMngr {
         	    } else if( rscAttrClassName.equalsIgnoreCase("ColorBar") ) {
 //        	    	rscAttrClassName = "gov.noaa.nws.ncep.viz.resources.attributes.ColorBar";
         	    	rscAttrClassName = "gov.noaa.nws.ncep.viz.ui.display.ColorBar";
+        	    } else if( rscAttrClassName.equalsIgnoreCase("ConditionalFilter") ) {
+        	    	rscAttrClassName = "gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter";
         	    }
 
             	ResourceExtPointInfo repi = rscExtPointInfoMap.get( rscName );

@@ -29,6 +29,7 @@ import javax.media.opengl.glu.GLU;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.GLContextBridge;
 import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
 import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.internal.cache.IImageCacheable;
@@ -204,6 +205,7 @@ public class GLCMTextureData implements IImageCacheable {
 
     public double getValue(int x, int y) {
         if (!isStaged() && isLoaded()) {
+            GLContextBridge.makeMasterContextCurrent();
             GL gl = GLU.getCurrentGL();
             int textureStorageType = getTextureStorageType();
             int copybackTextureType = data.getCopyBackTextureType();
@@ -219,6 +221,7 @@ public class GLCMTextureData implements IImageCacheable {
 
             data.setTextureType(copybackTextureType);
             data.setData(copybackBuffer);
+            GLContextBridge.releaseMasterContext();
         }
         ImageCache.getInstance(CacheType.MEMORY).put(this);
         return data.getValue(x, y).doubleValue();
