@@ -400,6 +400,10 @@
 		</paramLevelMatches>
 		<imageStyle>
 			<displayUnits>kg/m^2</displayUnits>
+			<samplePrefs>
+			    <!-- Number of decimal places to format the sample string to -->
+				<formatString>4</formatString>
+			</samplePrefs>
 			<defaultColormap>Radar/OSF/Digital VIL</defaultColormap>
 			<dataMapping>
 				<entry displayValue='0' pixelValue='0' label="" />

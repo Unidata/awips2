@@ -6,6 +6,8 @@
 !
 GLEVEL=0   !0   !0   !30:0
 GVCORD=none!none!none!pdly
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm9s(lft4)!sm9s(lft4)  !sm9s(lft4)
 TYPE=c

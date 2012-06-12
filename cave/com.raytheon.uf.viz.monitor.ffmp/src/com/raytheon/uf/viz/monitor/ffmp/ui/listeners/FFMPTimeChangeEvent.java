@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.monitor.ffmp.ui.listeners;
 
 import java.util.EventObject;
 
+import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPTime;
+
 /**
 * 
 * Hour slider Update Event
@@ -43,7 +45,7 @@ public class FFMPTimeChangeEvent extends EventObject {
 	    */
 	   private static final long serialVersionUID = 189898618L;
 	   
-	   public FFMPTimeChangeEvent(double time) {
-	      super(time);
+	   public FFMPTimeChangeEvent(double time, boolean split) {
+	      super(new FFMPTime(time, split));
 	   }
 }

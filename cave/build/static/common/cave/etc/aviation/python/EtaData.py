@@ -400,9 +400,9 @@ class _NetCDFFile:
 #        v = self._fh.variables['refTime']
 #        itime = int(v[records[0]])
 
-        import PointDataRetrieve
+        import ForecastPointDataRetrieve
         self.Model = 'ETA'
-        pdc = PointDataRetrieve.retrieve('modelsounding', ident, PARAMETERS, refTime=refTime, constraint={'reportType':self.Model})
+        pdc = ForecastPointDataRetrieve.retrieve('modelsounding', ident, PARAMETERS, refTime=refTime, constraint={'reportType':self.Model})
         self.NumData = min(self.MaxData, len(pdc.keys()))
         keys = pdc.keys()
         keys.sort()

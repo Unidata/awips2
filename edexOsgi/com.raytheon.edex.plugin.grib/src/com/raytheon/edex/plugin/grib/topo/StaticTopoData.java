@@ -101,6 +101,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * 10/08/2010   6394        bphillip    Rewrote sections for optimal reading and writing performance
  * 09/19/2011   10955       rferrel     Use RunProcess
  * 04/18/2012   DR 14694    D. Friedman Fixes for static topography generation
+ * 05/09/2012   DR 14939    D. Friedman Fix errors in DR 14694
  * 
  * </pre>
  * 
@@ -717,9 +718,9 @@ public class StaticTopoData {
 
         if ("world".equals(name)) {
         	if (minx - DATA_MARGIN < 0 ||
-        			minx - DATA_MARGIN >= nx ||
+        			miny - DATA_MARGIN < 0 ||
         			maxx + DATA_MARGIN >= nx ||
-        			maxx + DATA_MARGIN < 0) {
+        			maxy + DATA_MARGIN >= ny) {
                 /* TODO: Have to do quite a bit more for minimal world
                  * projection subset.  Just load the whole thing for now.
                  */
@@ -876,7 +877,7 @@ public class StaticTopoData {
     	 */
     	int oi = 0;
     	for (int y = 0; y < targetHeight; ++y) {
-    		for (int x = 0; x < targetWidth; ++x) {
+    		for (int x = 0; x < targetWidth; ++x, ++oi) {
     			coord[0] = x;
     			coord[1] = y;
     	    	try {
@@ -945,9 +946,8 @@ public class StaticTopoData {
 	    			}
 	    		}
 	    		if (tw != 0) {
-	    			output[oi++] = (float) (tv / tw);
+	    			output[oi] = (float) (tv / tw);
 	    		}
-
 	    	}
     	}
     	

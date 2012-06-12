@@ -84,18 +84,18 @@ wtop              top of wx in ft
                       dbParamName="horzVisibility" plotUnit="mi" plotFormat="%3d"/>
 
 <!--  IcingIntensitySymbol or IcingTypeSymbol -->
-<PlotParameterDefn   plotParamName="ICSY" metParamName="IcingIntensitySymbol"  
+ <PlotParameterDefn   plotParamName="ICSY" metParamName="IcingIntensitySymbol"  
                       dbParamName="iceInten"                     
                       plotMode="table" symbolFont="WxSymbolFont" 
                       prioritySelectTable="icing_select.txt"
 					  plotLookupTable="icing_intens_trans.txt"/> 
- <PlotParameterDefn   plotParamName="TPOI" metParamName="IcingTypeSymbol"  
-                      dbParamName="iceType"  
-                      plotMode="table" symbolFont="WxSymbolFont" 
-                      prioritySelectTable="icing_select.txt"
-					  plotLookupTable="icing_type_trans.txt"/>                                 
- <!-- ITSY -->
-
+ <PlotParameterDefn   plotParamName="ITSY" metParamName="IcingTypeSymbol"  
+                      dbParamName="iceType" plotMode="table"  
+                      plotLookupTable="icing_type2_trans.txt"/> 
+ <PlotParameterDefn   plotParamName="TPOI" metParamName="IceType"  
+                      dbParamName="iceType"  plotMode="table" 
+                      plotLookupTable="icing_type_trans.txt"/>                                 
+                      
 <!-- TurbulenceFrequencySymbol --> 
  <PlotParameterDefn   plotParamName="TBSY" metParamName="TurbulenceIntensitySymbol"  
                       dbParamName="turbInten"                     
@@ -107,10 +107,13 @@ wtop              top of wx in ft
                       plotMode="table" symbolFont="WxSymbolFont"
                       prioritySelectTable="turb_select.txt" 
 					  plotLookupTable="turb_freq_trans.txt"/>  
+  <PlotParameterDefn   plotParamName="TTSY" metParamName="TurbulenceTypeSymbol"  
+                      dbParamName="turbType"  plotMode="table" 
+                      plotLookupTable="turb_type_trans.txt"/>
  
  <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
                      dbParamName="skyCover1" 
-                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     plotMode="table" symbolFont="WxSymbolFont" 
                      prioritySelectTable="cloud_select.txt"
                      plotLookupTable="cloud_chars.txt" />
  <PlotParameterDefn  plotParamName="CLC1" metParamName="CloudCover" 

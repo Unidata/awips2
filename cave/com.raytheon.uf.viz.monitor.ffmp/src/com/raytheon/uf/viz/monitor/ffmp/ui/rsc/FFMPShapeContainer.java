@@ -107,5 +107,13 @@ public class FFMPShapeContainer {
 
         return shape;
     }
+    
+    /**
+     * clears the shapes
+     * @return
+     */
+    public void clear() {
+    	shadedShapes.clear();
+    }
 
 }

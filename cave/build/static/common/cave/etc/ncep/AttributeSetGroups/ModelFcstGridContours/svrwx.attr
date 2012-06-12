@@ -10,6 +10,8 @@
 !
 GLEVEL=700        !30:0       !700   !700   !0      !700
 GVCORD=pres       !pdly       !pres  !pres  !none   !pres
+SKIP=
+FILTER=y
 SCALE=0
 GDPFUN=sm9s(relh) !sm9s(dwpf)!sm9s(relh)!sm9s(tmpc)!emsl!sm9s(relh)!kntv(wnd@30:0%pdly)!kntv(wnd@700%pres)
 TYPE=c/f        !c/f       !c         !c         !c   !c         !b!a

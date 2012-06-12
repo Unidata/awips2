@@ -18,15 +18,23 @@
 
 # File auto-generated against equivalent DynamicSerialize Java class
 # Modified by njensen to add __repr__
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    04/25/12              545     randerso       Repurposed the lockKey field as threadId
+#    
 
 import struct
 import socket
 import os
 import pwd
+import thread
 
 class WsId(object):
 
-    def __init__(self, networkId=None, userName=None, progName=None, pid=None, lockKey=None):
+    def __init__(self, networkId=None, userName=None, progName=None):
         self.networkId = networkId
         if networkId is None:
             self.networkId = str(struct.unpack('<L',socket.inet_aton(socket.gethostbyname(socket.gethostname())))[0])
@@ -39,13 +47,9 @@ class WsId(object):
         if progName is None:
             self.progName = "unknown"
         
-        self.pid = pid
-        if pid is None:
-            self.pid = os.getpid()
+        self.pid = os.getpid()
         
-        self.lockKey = lockKey
-        if lockKey is None:
-            self.lockKey = 0
+        self.threadId = long(thread.get_ident())
 
     def getNetworkId(self):
         return self.networkId
@@ -71,14 +75,14 @@ class WsId(object):
     def setPid(self, pid):
         self.pid = pid
 
-    def getLockKey(self):
-        return self.lockKey
+    def getThreadId(self):
+        return self.threadId
 
-    def setLockKey(self, lockKey):
-        self.lockKey = lockKey
+    def setThreadId(self, threadId):
+        self.threadId = threadId
         
     def toString(self):
-        return self.networkId + ":" + self.userName + ":" + self.progName + ":" + str(self.pid) + ":" + str(self.lockKey)
+        return self.networkId + ":" + self.userName + ":" + self.progName + ":" + str(self.pid) + ":" + str(self.threadId)
     
     def __str__(self):
         return self.toString()
