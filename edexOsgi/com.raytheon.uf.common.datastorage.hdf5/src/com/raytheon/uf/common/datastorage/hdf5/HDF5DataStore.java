@@ -732,6 +732,7 @@ public class HDF5DataStore implements IDataStore {
         }
     }
 
+    @Override
     public String[] getDatasets(String group) throws StorageException,
             FileNotFoundException {
         String[] retVal = null;
@@ -1713,6 +1714,7 @@ public class HDF5DataStore implements IDataStore {
         throw new StorageException("Unknown state after multiple retries", null);
     }
 
+    @Override
     public void createDataset(IDataRecord rec) throws StorageException,
             FileNotFoundException {
 
@@ -1958,8 +1960,14 @@ public class HDF5DataStore implements IDataStore {
     }
 
     @Override
-    public void repack(String dirName, Compression compression)
-            throws StorageException {
+    public void repack(Compression compression) throws StorageException {
+        throw new StorageException("Operation not supported", null);
+    }
+
+    @Override
+    public void copy(String outputDir, Compression compression,
+            String timestampCheck, int minMillisSinceLastChange,
+            int maxMillisSinceLastChange) throws StorageException {
         throw new StorageException("Operation not supported", null);
     }
 }

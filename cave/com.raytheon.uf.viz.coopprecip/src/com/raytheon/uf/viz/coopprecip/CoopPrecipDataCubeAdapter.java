@@ -42,6 +42,7 @@ import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
@@ -127,6 +128,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         List<List<DataTime>> results = new ArrayList<List<DataTime>>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
+        	request.setSimDate(SimulatedTime.getSystemTime().getTime());
             DataTime[] result = timeQuery(request.getQueryTerms(),
                     request.isMaxQuery(), request.getBinOffset());
             if (result != null) {

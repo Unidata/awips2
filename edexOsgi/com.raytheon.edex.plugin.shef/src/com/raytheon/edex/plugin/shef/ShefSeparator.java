@@ -152,6 +152,7 @@ public class ShefSeparator extends AbstractRecordSeparator {
                     traceId = wmoHeader.getWmoHeader();
                     log.info("TraceId set to WMOHeader = " + traceId);
                 }
+                // TODO: DR 14 - Shef time changes.
                 Calendar c = wmoHeader.getHeaderDate();
                 if (c != null) {
                     productTime = c.getTime();

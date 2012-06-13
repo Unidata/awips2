@@ -132,14 +132,28 @@ public class MessageGenerator implements Processor {
 
     public File copyFileToArchive(File inFile) {
         String path = DIR + File.separator;
-        File dir = new File(path);
-        if (!dir.exists())
+
+        // Determine the sub-directory
+        String inputPath = inFile.getParent();
+        
+        // Split on the manual directory to get the sub-directory
+        String[] parts = inputPath.split("manual");
+        File dir = null;
+        if (parts.length > 1) {
+            dir = new File(path + parts[1]);
+        } else {
+            dir = new File(path);
+        }
+        
+        if (!dir.exists()) {
             dir.mkdirs();
+        }
 
         File newFile = new File(dir, inFile.getName());
 
         try {
             FileCopyUtils.copy(inFile, newFile);
+            statusHandler.handle(Priority.INFO, "DataManual: " + inFile.getAbsolutePath());
         } catch (IOException e) {
             statusHandler.handle(Priority.ERROR, "Failed to copy file ["
                     + inFile.getAbsolutePath() + "] to archive dir", e);
