@@ -91,8 +91,8 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection != null && connection.isConnected()) {
-            CollaborationConnection.getConnection().getEventPublisher()
-                    .post(Activator.getDefault().getPreferenceStore());
+            CollaborationConnection.getConnection().postEvent(
+                    Activator.getDefault().getPreferenceStore());
         }
         return super.performOk();
     }

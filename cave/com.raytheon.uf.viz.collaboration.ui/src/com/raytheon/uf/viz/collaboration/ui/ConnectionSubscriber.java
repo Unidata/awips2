@@ -136,7 +136,7 @@ public class ConnectionSubscriber {
                 public void postShutdown(IWorkbench workbench) {
                     dispose(connection);
                     if (connection != null) {
-                        connection.closeManager();
+                        connection.close();
                     }
                 }
             };
@@ -149,12 +149,12 @@ public class ConnectionSubscriber {
         if (connection != null) {
             try {
                 ISession p2pSession = connection.getPeerToPeerSession();
-                p2pSession.unRegisterEventHandler(this);
+                p2pSession.unregisterEventHandler(this);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error unregistering peer to peer handler", e);
             }
-            connection.unRegisterEventHandler(this);
+            connection.unregisterEventHandler(this);
         }
         PlatformUI.getWorkbench().removeWorkbenchListener(wbListener);
     }
@@ -162,7 +162,7 @@ public class ConnectionSubscriber {
     @Subscribe
     public void handleInvitationEvent(IVenueInvitationEvent event) {
         final IVenueInvitationEvent invitation = event;
-        VizApp.runSync(new Runnable() {
+        VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {

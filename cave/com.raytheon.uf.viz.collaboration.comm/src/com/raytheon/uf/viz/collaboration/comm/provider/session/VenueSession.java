@@ -378,12 +378,12 @@ public class VenueSession extends BaseSession implements IVenueSession {
                         if (IPresence.Type.AVAILABLE.equals(presence.getType())) {
                             event = new VenueParticipantEvent(vp, presence,
                                     ParticipantEventType.ARRIVED);
-                            getEventPublisher().post(event);
+                            VenueSession.this.postEvent(event);
                         } else if (IPresence.Type.UNAVAILABLE.equals(presence
                                 .getType())) {
                             event = new VenueParticipantEvent(vp, presence,
                                     ParticipantEventType.DEPARTED);
-                            getEventPublisher().post(event);
+                            VenueSession.this.postEvent(event);
                         }
                     }
                 };
@@ -459,7 +459,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     try {
                         o = Tools.unMarshallData(body);
                         if (o != null) {
-                            getEventPublisher().post(o);
+                            this.postEvent(o);
                         }
                     } catch (CollaborationException ce) {
                         statusHandler.error(
@@ -474,7 +474,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                             message.getBody());
                     msg.setFrom(message.getFrom());
 
-                    getEventPublisher().post(msg);
+                    this.postEvent(msg);
                 } else {
                     // attempt to handle outside clients as text only since the
                     // SEND_TXT won't be appended to the first portion of the
