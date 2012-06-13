@@ -64,6 +64,12 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerCommHelper.class);
 
+    private static String httpServer;
+
+    public static String getCollaborationHttpServer() {
+        return httpServer;
+    }
+
     private CollaborationConnection manager;
 
     /**
@@ -210,6 +216,7 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
             return;
         }
 
+        httpServer = httpdCollaborationURL;
         // configuration is valid; publish it.
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
                 httpdCollaborationURL);

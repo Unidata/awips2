@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -73,7 +74,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -580,22 +581,28 @@ public class SessionView extends AbstractSessionView {
     /*
      * (non-Javadoc)
      * 
+     * @see org.eclipse.ui.part.ViewPart#init(org.eclipse.ui.IViewSite)
+     */
+    @Override
+    public void init(IViewSite site) throws PartInitException {
+        super.init(site);
+        this.sessionId = site.getSecondaryId();
+        this.session = (IVenueSession) CollaborationConnection.getConnection()
+                .getSession(this.sessionId);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
      * getSessionName()
      */
     @Override
     protected String getSessionName() {
-        setSession(getViewSite().getSecondaryId());
         if (session == null) {
             return sessionId;
         }
         return session.getVenue().getInfo().getVenueDescription();
-    }
-
-    protected void setSession(String sessionId) {
-        this.sessionId = sessionId;
-        this.session = (IVenueSession) CollaborationConnection.getConnection()
-                .getSession(this.sessionId);
     }
 
     @Subscribe

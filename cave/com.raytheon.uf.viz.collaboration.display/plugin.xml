@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-      <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            class="com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor"
-            default="true"
-            id="com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor"
-            icon="icons/messages.gif"
-            name="Collaboration">
-      </editor>
-   </extension>   
-
+	<extension-point id="renderingExtension" name="renderingExtension" schema="schema/renderingExtension.exsd"/>
+	
+	<extension 
+   		point="com.raytheon.uf.viz.collaboration.display.renderingExtension">
+	  <renderingExtension
+	        class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.GeneralRenderingHandler">
+	  </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.ImagingRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.OffscreenRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.ShapeRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.StringRenderingHandler">
+      </renderingExtension>
+      <renderingExtension
+            class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.PrimitiveRenderingHandler">
+      </renderingExtension>
+   </extension>
 </plugin>
