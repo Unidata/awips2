@@ -29,9 +29,10 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI; 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -41,109 +42,112 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "sgwhv", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @DynamicSerialize
-public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, IPointData, IPersistable{
-    private static final long serialVersionUID = 1L;
+public class SgwhvRecord extends PluginDataObject implements IDecoderGettable,
+		IPointData, IPersistable {
+	private static final long serialVersionUID = 1L;
 	private static final float RMISSD = IDecoderConstantsN.FLOAT_MISSING;
 	private static final Integer IMISSD = IDecoderConstantsN.INTEGER_MISSING;
- 
-    /** Satellite Identification */
-    @Column
-    /* 
-     * Height of waves are from blended TOPEX/Poseidon, Jason-1, ERS 1,
-     * ERS 2m GPO and Envisat ocean altimetry satellites, therefore satelliteId should
-     * be a primary key.  Data is from Navoceano. SGWH is from Jason-1 and has satelliteID of
-     * 260.  SGWH2 is from Jason-2 and has satelliteId of 261.  SGWHE is from Envisat and has
-     * satelliteId of 60.
-     */
-    @DataURI(position=4)    
-    @DynamicSerializeElement
-    private Long satelliteId;
 
-    /** Observation time */
-    @Column
-    @DataURI(position=1)   
-    @DynamicSerializeElement
-    private Calendar obsTime;
-    
-    /** Latitude */
-    @Column
-    @DataURI(position=2)   
-    @DynamicSerializeElement
-    private Double lat;
+	/** Satellite Identification */
+	@Column
+	/*
+	 * Height of waves are from blended TOPEX/Poseidon, Jason-1, ERS 1, ERS 2m
+	 * GPO and Envisat ocean altimetry satellites, therefore satelliteId should
+	 * be a primary key. Data is from Navoceano. SGWH is from Jason-1 and has
+	 * satelliteID of 260. SGWH2 is from Jason-2 and has satelliteId of 261.
+	 * SGWHE is from Envisat and has satelliteId of 60.
+	 */
+	@DataURI(position = 4)
+	@DynamicSerializeElement
+	private Long satelliteId;
 
-    /** Longitude */
-    @Column
-    @DataURI(position=3)    
-    @DynamicSerializeElement
-    private Double lon;
-    
-    /** Wind speed at 10 m (m/s) */
-    @Transient    
-    @DynamicSerializeElement
-    private Double wspd10;
-    
-    /** Height of waves (m) */
-    @Transient    
-    @DynamicSerializeElement
-    private Double htwaves;
-    
-    /** Standard Deviation of significant wave height (m) */
-    @Transient    
-    @DynamicSerializeElement
-    private Double sgwhSd;
-    
-    /** Altitude (Platform to ellipsoid) (m) */
-    @Transient    
-    @DynamicSerializeElement
-    private Double altitude;
-    
-    /** Number of valid points per second used to derive previous parameters */
-    @Transient    
-    @DynamicSerializeElement
-    private Long peak;
- 
-    /** Altitude correction (ionosphere) */
-    @Transient    
-    @DynamicSerializeElement
-    private Double altCorrI;
-    
-    /** Altitude correction (dry troposphere) */
-    @Transient   
-    @DynamicSerializeElement
-    private Double altCorrD;
-    
-    /** Altitude correction (wet troposphere) */
-    @Transient   
-    @DynamicSerializeElement
-    private Double altCorrW;
- 
-    /** Open loop correction (auto gain control) in decibels for group 1 rep 2 */
-    @Transient    
-    @DynamicSerializeElement
-    private Double loopCorr;
-    
-    /** Backscatter in decibels */
-    @Transient
-    @DynamicSerializeElement
-    private Double bkst;
+	/** Observation time */
+	@Column
+	@DataURI(position = 1)
+	@DynamicSerializeElement
+	private Calendar obsTime;
 
-    /** Report type */
-    //@Column(length=8)
-    @Transient
-    @DynamicSerializeElement
+	/** Latitude */
+	@Column
+	@DataURI(position = 2)
+	@DynamicSerializeElement
+	private Double lat;
+
+	/** Longitude */
+	@Column
+	@DataURI(position = 3)
+	@DynamicSerializeElement
+	private Double lon;
+
+	/** Wind speed at 10 m (m/s) */
+	@Transient
+	@DynamicSerializeElement
+	private Double wspd10;
+
+	/** Height of waves (m) */
+	@Transient
+	@DynamicSerializeElement
+	private Double htwaves;
+
+	/** Standard Deviation of significant wave height (m) */
+	@Transient
+	@DynamicSerializeElement
+	private Double sgwhSd;
+
+	/** Altitude (Platform to ellipsoid) (m) */
+	@Transient
+	@DynamicSerializeElement
+	private Double altitude;
+
+	/** Number of valid points per second used to derive previous parameters */
+	@Transient
+	@DynamicSerializeElement
+	private Long peak;
+
+	/** Altitude correction (ionosphere) */
+	@Transient
+	@DynamicSerializeElement
+	private Double altCorrI;
+
+	/** Altitude correction (dry troposphere) */
+	@Transient
+	@DynamicSerializeElement
+	private Double altCorrD;
+
+	/** Altitude correction (wet troposphere) */
+	@Transient
+	@DynamicSerializeElement
+	private Double altCorrW;
+
+	/** Open loop correction (auto gain control) in decibels for group 1 rep 2 */
+	@Transient
+	@DynamicSerializeElement
+	private Double loopCorr;
+
+	/** Backscatter in decibels */
+	@Transient
+	@DynamicSerializeElement
+	private Double bkst;
+
+	/** Report type */
+	// @Column(length=8)
+	@Transient
+	@DynamicSerializeElement
     @DataURI(position=5)
-    private String reportType;
+	private String reportType;
 
-    @Embedded 
-	private PointDataView pdv;
-    /**
-     * Default constructor.
-     */
-    public SgwhvRecord () {
-    	Double doubleRmissd = Double.parseDouble(String.valueOf(RMISSD));
-    	Long longImissd = Long.parseLong(String.valueOf(IMISSD));
-    	this.reportType="BUFRSGWHV";
-    	this.satelliteId = longImissd; 	
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
+
+	/**
+	 * Default constructor.
+	 */
+	public SgwhvRecord() {
+		Double doubleRmissd = Double.parseDouble(String.valueOf(RMISSD));
+		Long longImissd = Long.parseLong(String.valueOf(IMISSD));
+		this.reportType = "BUFRSGWHV";
+		this.satelliteId = longImissd;
 		this.lat = doubleRmissd;
 		this.lon = doubleRmissd;
 		this.altCorrD = doubleRmissd;
@@ -157,47 +161,50 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 		this.loopCorr = doubleRmissd;
 		this.bkst = doubleRmissd;
 		this.peak = longImissd;
-    }
-    
-	/**
-     * Constructor for DataURI construction through base class. This is used by
-     * the notification service.
-     * 
-     * @param uri
-     *            A data uri applicable to this class.
-     */
-    public SgwhvRecord (String uri) {
-        super(uri);
-    }
-      
-    /**
-     * Get the observation report type.
-     * 
-     * @return the reportType
-     */
-    public String getReportType() {
-        return reportType;
-    }
+	}
 
-    /**
-     * Set the observation report type.
-     * 
-     * @param reportType the reportType to set
-     */
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
-    
-    /**
-     * Get the Satellite Identifier.
-     * 
-     * @return the Satellite ID
-     */
-    public Long getSatelliteId() {
-        return satelliteId;
-    }
 	/**
-	 * @param satelliteId the Satellite Identifier to set
+	 * Constructor for DataURI construction through base class. This is used by
+	 * the notification service.
+	 * 
+	 * @param uri
+	 *            A data uri applicable to this class.
+	 */
+	public SgwhvRecord(String uri) {
+		super(uri);
+	}
+
+	/**
+	 * Get the observation report type.
+	 * 
+	 * @return the reportType
+	 */
+	public String getReportType() {
+		return reportType;
+	}
+
+	/**
+	 * Set the observation report type.
+	 * 
+	 * @param reportType
+	 *            the reportType to set
+	 */
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
+
+	/**
+	 * Get the Satellite Identifier.
+	 * 
+	 * @return the Satellite ID
+	 */
+	public Long getSatelliteId() {
+		return satelliteId;
+	}
+
+	/**
+	 * @param satelliteId
+	 *            the Satellite Identifier to set
 	 */
 	public void setSatelliteId(Long satelliteId) {
 		this.satelliteId = satelliteId;
@@ -211,7 +218,8 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	}
 
 	/**
-	 * @param lat the latitude (coarse) to set
+	 * @param lat
+	 *            the latitude (coarse) to set
 	 */
 	public void setLat(Double lat) {
 		this.lat = lat;
@@ -225,40 +233,48 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	}
 
 	/**
-	 * @param lon the longitude (coarse) to set
+	 * @param lon
+	 *            the longitude (coarse) to set
 	 */
 	public void setLon(Double lon) {
 		this.lon = lon;
 	}
-	
+
 	/**
-	 * @param wspd10 wind speed at 10 m to return
+	 * @param wspd10
+	 *            wind speed at 10 m to return
 	 */
 	public Double getWspd10() {
 		return wspd10;
 	}
+
 	/**
-	 * @param wspd10 wind speed at 10 m to set
+	 * @param wspd10
+	 *            wind speed at 10 m to set
 	 */
 	public void setWspd10(Double wspd10) {
 		this.wspd10 = wspd10;
 	}
 
 	/**
-	 * @param htwaves height of waves to return
+	 * @param htwaves
+	 *            height of waves to return
 	 */
 	public Double getHtwaves() {
 		return htwaves;
 	}
+
 	/**
-	 * @param htwaves height of waves to set
+	 * @param htwaves
+	 *            height of waves to set
 	 */
 	public void setHtwaves(Double htwaves) {
 		this.htwaves = htwaves;
 	}
 
 	/**
-	 * @param SgwhSd  SGWH standard deviation to return
+	 * @param SgwhSd
+	 *            SGWH standard deviation to return
 	 */
 	/**
 	 * @return the SgwhSd
@@ -266,28 +282,34 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	public Double getSgwhSd() {
 		return sgwhSd;
 	}
+
 	/**
-	 * @param  SgwhSd  SGWH standard deviation to set
+	 * @param SgwhSd
+	 *            SGWH standard deviation to set
 	 */
 	public void setSgwhSd(Double sgwhSd) {
 		this.sgwhSd = sgwhSd;
 	}
 
 	/**
-	 * @param altitude altitude (platform to ellipsoid) m
+	 * @param altitude
+	 *            altitude (platform to ellipsoid) m
 	 */
 	public Double getAltitude() {
 		return altitude;
 	}
+
 	/**
-	 * @param altitude  altitude to set
+	 * @param altitude
+	 *            altitude to set
 	 */
 	public void setAltitude(Double altitude) {
 		this.altitude = altitude;
 	}
 
 	/**
-	 * @param peak peakiness to return
+	 * @param peak
+	 *            peakiness to return
 	 */
 	/**
 	 * @return the peak
@@ -295,15 +317,18 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	public Long getPeak() {
 		return peak;
 	}
+
 	/**
-	 * @param peak peakiness to set
+	 * @param peak
+	 *            peakiness to set
 	 */
 	public void setPeak(Long peak) {
 		this.peak = peak;
 	}
-	
+
 	/**
-	 * @param altCorrI altitude correction (ionosphere) to return
+	 * @param altCorrI
+	 *            altitude correction (ionosphere) to return
 	 */
 	/**
 	 * @return the altCorrI
@@ -311,15 +336,18 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	public Double getAltCorrI() {
 		return altCorrI;
 	}
+
 	/**
-	 * @param altCorrI altitude correction (ionosphere) (m) to set
+	 * @param altCorrI
+	 *            altitude correction (ionosphere) (m) to set
 	 */
 	public void setAltCorrI(Double altCorrI) {
 		this.altCorrI = altCorrI;
 	}
-	
+
 	/**
-	 * @param altCorrD altitude correction (dry troposphere) to return
+	 * @param altCorrD
+	 *            altitude correction (dry troposphere) to return
 	 */
 	/**
 	 * @return the altCorrD
@@ -327,15 +355,18 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	public Double getAltCorrD() {
 		return altCorrD;
 	}
+
 	/**
-	 * @param altCorrD altitude correction (dry troposphere) (m) to set
+	 * @param altCorrD
+	 *            altitude correction (dry troposphere) (m) to set
 	 */
 	public void setAltCorrD(Double altCorrD) {
 		this.altCorrD = altCorrD;
 	}
-	
+
 	/**
-	 * @param altCorrW altitude correction (wet troposphere) to return
+	 * @param altCorrW
+	 *            altitude correction (wet troposphere) to return
 	 */
 	/**
 	 * @return the altCorrW
@@ -343,14 +374,18 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	public Double getAltCorrW() {
 		return altCorrW;
 	}
+
 	/**
-	 * @param altCorrI altitude correction (wet troposphere) (m) to set
+	 * @param altCorrI
+	 *            altitude correction (wet troposphere) (m) to set
 	 */
 	public void setAltCorrW(Double altCorrW) {
 		this.altCorrW = altCorrW;
 	}
+
 	/**
-	 * @param loopCorr open loop correction (auto gain control) (db) to return
+	 * @param loopCorr
+	 *            open loop correction (auto gain control) (db) to return
 	 */
 	/**
 	 * @return the loopCorr
@@ -358,15 +393,18 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	public Double getLoopCorr() {
 		return loopCorr;
 	}
+
 	/**
-	 * @param loopCorr open loop correction (auto gain control) (db) to set
+	 * @param loopCorr
+	 *            open loop correction (auto gain control) (db) to set
 	 */
 	public void setLoopCorr(Double loopCorr) {
 		this.loopCorr = loopCorr;
 	}
 
 	/**
-	 * @param bkst backscatter to return
+	 * @param bkst
+	 *            backscatter to return
 	 */
 	/**
 	 * @return the bkst
@@ -374,13 +412,15 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	public Double getBkst() {
 		return bkst;
 	}
+
 	/**
-	 * @param bkst backscatter to set
+	 * @param bkst
+	 *            backscatter to set
 	 */
 	public void setBkst(Double bkst) {
 		this.bkst = bkst;
 	}
-    
+
 	/**
 	 * @return the obsTime
 	 */
@@ -389,71 +429,71 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	}
 
 	/**
-	 * @param obsTime the obsTime to set
+	 * @param obsTime
+	 *            the obsTime to set
 	 */
 	public void setObsTime(Calendar obsTime) {
 		this.obsTime = obsTime;
 	}
 
+	/**
+	 * Get the value and units of a named parameter within this observation.
+	 * 
+	 * @param paramName
+	 *            The name of the parameter value to retrieve.
+	 * @return An Amount with value and units. If the parameter is unknown, a
+	 *         null reference is returned.
+	 */
+	@Override
+	public Amount getValue(String paramName) {
+		return null;
+	}
 
-    /**
-     * Get the value and units of a named parameter within this observation. 
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return An Amount with value and units. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
+	/**
+	 * Get the value of a parameter that is represented as a String.
+	 * 
+	 * @param paramName
+	 *            The name of the parameter value to retrieve.
+	 * @return The String value of the parameter. If the parameter is unknown, a
+	 *         null reference is returned.
+	 */
+	@Override
+	public String getString(String paramName) {
+		return null;
+	}
 
-    /**
-     * Get the value of a parameter that is represented as a String.
-     *
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public String getString(String paramName) {
-    	return null;
-    }
+	/**
+	 * Get the value of a parameter that is represented as a String.
+	 * 
+	 * @param paramName
+	 *            The name of the parameter value to retrieve.
+	 * @return The String value of the parameter. If the parameter is unknown, a
+	 *         null reference is returned.
+	 */
+	@Override
+	public Collection<Amount> getValues(String paramName) {
+		return null;
+	}
 
-   
-    /**
-     * Get the value of a parameter that is represented as a String.
-     *
-     * @param paramName
-     *            The name of the parameter value to retrieve.
-     * @return The String value of the parameter. If the parameter is unknown, a
-     *         null reference is returned.
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    } 
-    
-    /**
-     * Get the IDecoderGettable reference for this record.
-     *
-     * @return The IDecoderGettable reference for this record.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }    
-    
-    @Override
-    public void setDataURI(String dataURI) {
-        identifier = dataURI;
-    }
-    
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
+	/**
+	 * Get the IDecoderGettable reference for this record.
+	 * 
+	 * @return The IDecoderGettable reference for this record.
+	 */
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return this;
+	}
+
+	@Override
+	public void setDataURI(String dataURI) {
+		identifier = dataURI;
+	}
+
+	@Override
+	public String[] getStrings(String paramName) {
+		return null;
+	}
 
 	@Override
 	public Date getPersistenceTime() {
@@ -463,7 +503,7 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	@Override
 	public void setPersistenceTime(Date persistTime) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -475,16 +515,16 @@ public class SgwhvRecord extends PluginDataObject implements IDecoderGettable, I
 	@Override
 	public void setHdfFileId(Integer hdfFileId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public PointDataView getPointDataView() {
-		return this.pdv;
+		return this.pointDataView;
 	}
 
 	@Override
-	public void setPointDataView(PointDataView pdv) {
-		this.pdv = pdv;
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
 	}
 }

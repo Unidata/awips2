@@ -58,6 +58,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -464,6 +465,7 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
         List<TimeQueryRequest> baseRequests = new ArrayList<TimeQueryRequest>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
+        	request.setSimDate(SimulatedTime.getSystemTime().getTime());
             if (!request.getQueryTerms().containsKey("DERIVED")) {
                 baseRequests.add(request);
             } else {
@@ -541,6 +543,7 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
                 DerivParamField field = (DerivParamField) ifield;
                 TimeQueryRequest newRequest = new TimeQueryRequest();
                 newRequest.setBinOffset(binOffset);
+                newRequest.setSimDate(SimulatedTime.getSystemTime().getTime());
                 newRequest.setMaxQuery(false);
                 newRequest.setQueryTerms(modifyQuery(queryParams, field));
                 newRequest.setPluginName("satellite");

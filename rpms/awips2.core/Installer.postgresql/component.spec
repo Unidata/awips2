@@ -5,7 +5,7 @@
 Name: awips2-postgresql
 Summary: AWIPS II PostgreSQL Distribution
 Version: 8.3.4
-Release: 3
+Release: 4
 Group: AWIPSII
 BuildRoot: /tmp
 Prefix: /awips2
