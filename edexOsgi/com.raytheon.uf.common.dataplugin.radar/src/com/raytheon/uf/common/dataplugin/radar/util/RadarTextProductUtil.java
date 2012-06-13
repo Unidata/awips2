@@ -19,21 +19,9 @@
  **/
 package com.raytheon.uf.common.dataplugin.radar.util;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-
-import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.db.PracticeStdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.core.EDEXUtil;
-import com.raytheon.uf.edex.wmo.message.AFOSProductId;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Utility methods for handling radar Text Products.
@@ -54,13 +42,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 
 public class RadarTextProductUtil {
-    /** The logger */
-    private static final transient IUFStatusHandler theHandler = UFStatus
-            .getHandler(RadarTextProductUtil.class);
 
     private static final int RADAR_CODED_MSG = 74;
-
-    private static final String textEndpoint = "textDirectDecodedIngestRoute";
 
     public static final HashMap<Integer, String> radarTable = new HashMap<Integer, String>() {
         private static final long serialVersionUID = 1L;
@@ -132,49 +115,6 @@ public class RadarTextProductUtil {
         // Normal case
         afosId += radarName;
         return afosId;
-    }
-
-    public static void storeTextProduct(AFOSProductId afosId, WMOHeader wmoId,
-            String text, boolean operationalMode, Calendar cal) {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
-        String temp = "";
-        if (wmoId != null && wmoId.isValid()) {
-            temp = sdf.format(wmoId.getHeaderDate().getTime());
-        } else {
-            temp = sdf.format(cal.getTime());
-        }
-        if (!text.contains("Message Date:")) {
-            text = "Message Date: " + temp + "\n\n" + text;
-        }
-        text = text.replaceAll("Page \\d+", "");
-        boolean isValid = wmoId.isValid();
-        try {
-            if (afosId != null && text != null && !afosId.toString().isEmpty()
-                    && !text.isEmpty()) {
-                StdTextProduct textProd = (operationalMode == true ? new OperationalStdTextProduct()
-                        : new PracticeStdTextProduct());
-                if (!isValid) {
-                    textProd.setWmoid(" ");
-                    textProd.setSite(" ");
-                    textProd.setBbbid(" ");
-                    textProd.setHdrtime(" ");
-                } else {
-                    textProd.setWmoid(wmoId.getTtaaii());
-                    textProd.setSite(wmoId.getCccc());
-                    textProd.setHdrtime(wmoId.getYYGGgg());
-                    textProd.setBbbid(wmoId.getBBBIndicator());
-                }
-                textProd.setCccid(afosId.getCcc());
-                textProd.setNnnid(afosId.getNnn());
-                textProd.setXxxid(afosId.getXxx());
-                textProd.setCreatetime(System.currentTimeMillis());
-                textProd.setProduct(text);
-                EDEXUtil.getMessageProducer().sendAsync(textEndpoint, textProd);
-            }
-        } catch (Exception e) {
-            theHandler.handle(Priority.ERROR,
-                    "Unable to store product to text database", e);
-        }
     }
 
     public static List<String> getRadarTableEntries() {

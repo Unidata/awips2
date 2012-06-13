@@ -2,16 +2,38 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-
+    
 	<bean id="dataStoreRepacker" class="com.raytheon.uf.edex.maintenance.DataStoreRepacker">
 		<!--  the compression to repack at, valid values are NONE or LZF -->
 		<constructor-arg value="LZF" />
 	</bean>
 
+    <bean id="dataArchiver" class="com.raytheon.uf.edex.maintenance.archive.DataArchiver">
+        <constructor-arg value="/awips2/edex/data/archive"/>
+    </bean>
+    
+    <bean id="databaseArchiver" class="com.raytheon.uf.edex.maintenance.archive.DatabaseArchiver"/>
+
+	<bean id="dataStoreArchiver" class="com.raytheon.uf.edex.maintenance.archive.DataStoreArchiver">
+		<!--  the compression to archive at, valid values are NONE or LZF -->
+		<constructor-arg value="LZF" />
+	</bean>
+
+    <bean id="databaseArchiverRegistered" factory-bean="dataArchiver" factory-method="registerPluginArchiver" depends-on="dataArchiver">
+		<constructor-arg ref="databaseArchiver"/>
+	</bean>
+
+ <!-- Need to register with databaseArchiver for archiving associated data store
+    <bean id="datastoreArchiverRegistered" factory-bean="dataArchiver" factory-method="registerPluginArchiver">
+		<constructor-arg ref="dataStoreArchiver"/>
+	</bean>	
+ -->
+
 	<camelContext id="clusteredMaintenanceContext" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler" autoStartup="false">
 
         <endpoint id="repackCron" uri="quartz://repack/repackScheduled/?cron=${repack.cron}"/>               
+        <endpoint id="archiveCron" uri="quartz://archive/archiveScheduled/?cron=${archive.cron}"/>               
 
 		<!-- Repack on Scheduled timer -->
 		<route id="repackScheduled">
@@ -24,14 +46,24 @@
 						uri="log:repack?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
 				</doCatch>
 			</doTry>
+		</route>
+
+		<!-- Archive on Scheduled timer -->
+		<route id="archiveScheduled">
+			<from uri="archiveCron" />
+			<doTry>
+				<bean ref="dataArchiver" method="archivePlugins" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:archive?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
 		</route>						
-      
 	</camelContext>
-		
+
 	<bean factory-bean="clusteredCamelContextMgr"
 		factory-method="register">
 		<constructor-arg ref="clusteredMaintenanceContext" />
   	</bean>
-   
-       
 </beans>

@@ -35,6 +35,7 @@ import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.URICatalog;
@@ -122,6 +123,7 @@ public class ThinClientURICatalog extends URICatalog implements
             TimeQueryRequest request = new TimeQueryRequest();
             request.setPluginName(pluginName);
             request.setMaxQuery(true);
+            request.setSimDate(SimulatedTime.getSystemTime().getTime());
             request.setQueryTerms(map);
             List<TimeQueryRequest> requestList = requests.get(pluginName);
             if (requestList == null) {

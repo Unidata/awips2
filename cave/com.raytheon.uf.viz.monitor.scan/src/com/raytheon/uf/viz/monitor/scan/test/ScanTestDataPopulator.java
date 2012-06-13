@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.raytheon.uf.common.util.FileUtil;
+
 /**
  * Utility to populate EDEX with Data for DAT tools
  * 
@@ -281,7 +283,8 @@ public class ScanTestDataPopulator {
          */
         private void copyFile(File file) {
 
-            File outfile = new File(MANUAL_INGEST_DIR + "/" + file.getName());
+            File outfile = new File(FileUtil.join(MANUAL_INGEST_DIR,
+                    file.getName()));
             InputStream in = null;
             try {
                 in = new FileInputStream(file);
