@@ -19,23 +19,21 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator.handlers;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
+import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingResource;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
-import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
-import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Action for invoking undo/redo on the CollaborationDrawingToolbar
@@ -73,43 +71,43 @@ public class UndoRedoHandler extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
         if (window != null) {
-            IDisplayPaneContainer container = EditorUtil.getActiveEditorAs(
-                    window, IDisplayPaneContainer.class);
-            if (container != null) {
-                Map<String, CollaborationSessionView> viewMap = new HashMap<String, CollaborationSessionView>();
-                for (IViewReference view : window.getActivePage()
-                        .getViewReferences()) {
-                    if (CollaborationSessionView.ID.equals(view.getId())) {
-                        CollaborationSessionView csv = (CollaborationSessionView) view
-                                .getPart(false);
-                        viewMap.put(csv.getSessionId(), csv);
-                    }
+            String sessionId = null;
+            IEditorPart editor = HandlerUtil.getActiveEditor(event);
+            if (editor instanceof ICollaborationEditor) {
+                sessionId = ((ICollaborationEditor) editor).getSessionId();
+            } else if (editor instanceof AbstractEditor) {
+                ISharedDisplaySession session = SharedEditorsManager
+                        .getSharedEditorSession((AbstractEditor) editor);
+                if (session != null) {
+                    sessionId = session.getSessionId();
                 }
-
-                for (IDisplayPane pane : container.getDisplayPanes()) {
-                    List<CollaborationDrawingResource> resources = pane
-                            .getDescriptor()
-                            .getResourceList()
-                            .getResourcesByTypeAsType(
-                                    CollaborationDrawingResource.class);
-                    for (CollaborationDrawingResource resource : resources) {
-                        DrawingToolLayer layer = resource
-                                .getDrawingLayerFor(resource.getMyUser());
-                        String action = event.getParameter(ACTION_ID);
-                        if (UNDO_ID.equals(action)) {
-                            layer.undo();
-                        } else if (REDO_ID.equals(action)) {
-                            layer.redo();
-                        }
-                        CollaborationSessionView view = viewMap.get(resource
-                                .getResourceData().getSessionId());
-                        if (view != null) {
-                            view.updateToolItems();
+            }
+            if (sessionId != null) {
+                for (IViewReference ref : window.getActivePage()
+                        .getViewReferences()) {
+                    if (CollaborationSessionView.ID.equals(ref.getId())) {
+                        CollaborationSessionView view = (CollaborationSessionView) ref
+                                .getView(false);
+                        if (sessionId.equals(view.getSessionId())) {
+                            CollaborationDrawingResource resource = view
+                                    .getCurrentDrawingResource();
+                            if (resource != null) {
+                                DrawingToolLayer layer = resource
+                                        .getDrawingLayerFor(resource
+                                                .getMyUser());
+                                String action = event.getParameter(ACTION_ID);
+                                if (UNDO_ID.equals(action)) {
+                                    layer.undo();
+                                } else if (REDO_ID.equals(action)) {
+                                    layer.redo();
+                                }
+                                view.updateToolItems();
+                                break;
+                            }
                         }
                     }
                 }
             }
-
         }
         return null;
     }
