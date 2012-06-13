@@ -188,7 +188,7 @@ public class CollaborationDrawingResource extends
         layerMap = null;
 
         manager.dispose();
-        container.getSession().unRegisterEventHandler(this);
+        container.getSession().unregisterEventHandler(this);
     }
 
     private void disposeLayers() {
