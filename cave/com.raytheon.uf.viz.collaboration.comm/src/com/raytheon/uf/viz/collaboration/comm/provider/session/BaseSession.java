@@ -246,10 +246,10 @@ public abstract class BaseSession implements ISession {
     /**
      * 
      * @param handler
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher#unRegisterEventHandler(java.lang.Object)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher#unregisterEventHandler(java.lang.Object)
      */
     @Override
-    public void unRegisterEventHandler(Object handler) {
+    public void unregisterEventHandler(Object handler) {
         eventSubscribers.remove(handler);
         eventBus.unregister(handler);
     }
@@ -258,8 +258,10 @@ public abstract class BaseSession implements ISession {
      * 
      */
     @Override
-    public EventBus getEventPublisher() {
-        return eventBus;
+    public void postEvent(Object event) {
+        if (event != null) {
+            eventBus.post(event);
+        }
     }
 
     @Override
