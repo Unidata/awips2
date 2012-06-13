@@ -55,7 +55,8 @@ datastoreMap = {
     DeleteRequest: (datastore.delete, "DeleteRequest"),
     DeleteFilesRequest: (datastore.deleteFiles, "DeleteFilesRequest"),
     CreateDatasetRequest: (datastore.createDataset, "CreateDatasetRequest"),
-    RepackRequest: (datastore.repack, "RepackRequest")                    
+    RepackRequest: (datastore.repack, "RepackRequest"),
+    CopyRequest: (datastore.copy, "CopyRequest")           
 }       
 
 @Request.application

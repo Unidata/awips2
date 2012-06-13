@@ -20,8 +20,6 @@
 package com.raytheon.uf.common.dataplugin.fog;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,7 +40,7 @@ import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.fog.analysis.FogRange;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
@@ -71,8 +69,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class FogRecord extends PersistablePluginDataObject implements
-        IPersistable {
+public class FogRecord extends ServerSpecificPersistablePluginDataObject
+        implements IPersistable {
 
     private static final long serialVersionUID = 76774564365671L;
 
@@ -381,32 +379,6 @@ public class FogRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
-    /**
      * Get the IDecoderGettable reference for this record.
      * 
      * @return The IDecoderGettable reference for this record. Null for this
@@ -646,7 +618,7 @@ public class FogRecord extends PersistablePluginDataObject implements
         // ir_range[i] stores range of ir
         // (2) if rangType[i] == IR_GROUP
         // then means both vis_range and ir_range store range of ir
-        //         
+        //
         // (3) if rangType[i] == VIS_GROUP
         // then means both vis_range and ir_range store range of vis
 
@@ -690,7 +662,8 @@ public class FogRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param refHour the refHour to set
+     * @param refHour
+     *            the refHour to set
      */
     public void setRefHour(Calendar refHour) {
         this.refHour = refHour;

@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -31,6 +32,7 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.io.WKTReader;
 
 /**
@@ -84,6 +86,7 @@ public class CcfpDecoder extends AbstractDecoder {
 
     private static final String SPACE = " ";
 
+    private static final PluginDataObject [] EMPTY_PDO = new PluginDataObject [0];
     /**
      * Constructor
      * 
@@ -92,9 +95,18 @@ public class CcfpDecoder extends AbstractDecoder {
     public CcfpDecoder() throws DecoderException {
     }
 
-    public PluginDataObject[] decode(String msg) throws DecoderException,
-            PluginException {
+    public PluginDataObject[] decode(String msg, Headers headers) throws PluginException {
 
+        PluginDataObject [] data = null;
+        
+        Calendar baseTime = null;
+        WMOHeader wmoHdr = new WMOHeader(msg.getBytes());
+        if (wmoHdr.isValid()) {
+            baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
+        } else {
+            baseTime = TimeTools.getSystemCalendar();
+        }
+        
         CcfpRecord record = new CcfpRecord();
         record.setMessageData(msg);
         CcfpLocation location = new CcfpLocation();
@@ -124,7 +136,7 @@ public class CcfpDecoder extends AbstractDecoder {
                 } else {
                     record.setCanadaflag(Boolean.FALSE);
                 }
-                record.setInsertTime(TimeTools.getSystemCalendar());
+                record.setInsertTime(baseTime);
             }
             if (record.getProducttype().equals("AREA")) {
                 matcher = AREA_PATTERN.matcher(msg);
@@ -205,15 +217,20 @@ public class CcfpDecoder extends AbstractDecoder {
                 }
             }
         } catch (Exception e) {
-            throw new DecoderException("Unable to decode CCFP", e);
+            record = null;
+            logger.error("Unable to decode CCFP", e);
         }
-        if (record != null) {
+        data = EMPTY_PDO;
+        if(record != null) {
             record.setPluginName(PLUGIN_NAME);
-            record.constructDataURI();
-            return new PluginDataObject[] { record };
-        } else {
-            return new PluginDataObject[0];
+            try {
+                record.constructDataURI();
+                record.setInsertTime(baseTime);
+                data = new PluginDataObject[] { record };
+            } catch (PluginException e) {
+                logger.error("Error constructing datauri", e);
+            }
         }
-
+        return data;
     }
 }
