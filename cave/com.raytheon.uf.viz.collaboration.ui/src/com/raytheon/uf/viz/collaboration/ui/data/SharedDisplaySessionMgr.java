@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.ui.IEditorPart;
+
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.ui.SessionColorManager;
@@ -65,7 +68,8 @@ public class SharedDisplaySessionMgr {
     }
 
     public static void joinSession(ISharedDisplaySession session,
-            SharedDisplayRole initialRole, SessionColorManager colors) {
+            SharedDisplayRole initialRole, SessionColorManager colors)
+            throws CollaborationException {
         SessionContainer container = new SessionContainer();
         container.setSessionId(session.getSessionId());
         container.setSession(session);
@@ -78,11 +82,18 @@ public class SharedDisplaySessionMgr {
             // TODO better way to determine which editor to start sharing?
             // or better yet, maybe we should add this elsewhere after it has
             // already been initialized with the correct target/resources
-            AbstractEditor sharedEditor = (AbstractEditor) VizWorkbenchManager
-                    .getInstance().getActiveEditor();
-            editorList.add(sharedEditor);
-            container.setSharedEditors(editorList);
+            IEditorPart part = VizWorkbenchManager.getInstance()
+                    .getActiveEditor();
+            if (part instanceof AbstractEditor) {
+                AbstractEditor sharedEditor = (AbstractEditor) part;
+                editorList.add(sharedEditor);
+                container.setSharedEditors(editorList);
+            } else {
+                throw new CollaborationException(
+                        "Cannot share a Collaboration Editor, please select a different tab");
+            }
             break;
+
         case PARTICIPANT:
             rec = new ParticipantEventController(session);
             // don't need to set the CollaborationEditor, as it won't be created

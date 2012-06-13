@@ -84,8 +84,7 @@ public class PeerToPeerView extends AbstractSessionView {
         userColor = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_BLUE);
         chatterColor = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
         black = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-        CollaborationConnection.getConnection().getEventPublisher()
-                .register(this);
+        CollaborationConnection.getConnection().registerEventHandler(this);
     }
 
     /*
@@ -99,7 +98,7 @@ public class PeerToPeerView extends AbstractSessionView {
     public void dispose() {
         CollaborationConnection conn = CollaborationConnection.getConnection();
         if (conn != null) {
-            conn.getEventPublisher().unregister(this);
+            conn.unregisterEventHandler(this);
         }
         super.dispose();
     }

@@ -319,7 +319,7 @@ public class CollaborationDispatcher extends Dispatcher {
                     e.getLocalizedMessage(), e);
         }
         disposeFrames();
-        session.unRegisterEventHandler(this);
+        session.unregisterEventHandler(this);
     }
 
     private void disposeFrames() {
