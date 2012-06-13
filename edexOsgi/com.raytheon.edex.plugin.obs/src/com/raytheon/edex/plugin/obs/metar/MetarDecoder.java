@@ -42,6 +42,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -210,8 +211,19 @@ public class MetarDecoder extends AbstractDecoder {
             throws DecoderException {
 
         MetarSeparator sep = MetarSeparator.separate(inputData, headers);
+        
         List<PluginDataObject> retVal = new ArrayList<PluginDataObject>();
 
+        Calendar baseTime = TimeTools.getSystemCalendar();
+        WMOHeader wmoHdr = sep.getWMOHeader();
+        if(TimeTools.allowArchive()) {
+            if((wmoHdr != null)&&(wmoHdr.isValid())) {
+                baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
+            } else {
+                logger.error("ARCHIVE MODE-No WMO Header found in file" + headers.get(WMOHeader.INGEST_FILE_NAME));
+            }
+        }
+        
         while (sep.hasNext()) {
             byte[] messageData = sep.next();
             Pattern thePattern;
@@ -278,17 +290,26 @@ public class MetarDecoder extends AbstractDecoder {
                                         traceId, icao));
                         continue;
                     }
-                    String fileName = null;
-                    if (headers != null) {
-                        fileName = (String) headers
-                                .get(DecoderTools.INGEST_FILE_NAME);
-                    }
-                    Calendar obsTime = TimeTools.findCurrentTime(
-                            matcher.group(3), fileName);
+                    
+                    
+                    Calendar obsTime = null;
+                    Integer da = DecoderTools.getInt(timeGroup, 0, 2);
+                    Integer hr = DecoderTools.getInt(timeGroup, 2, 4);
+                    Integer mi = DecoderTools.getInt(timeGroup, 4, 6);
+                    if ((da != null) && (hr != null) && (mi != null)) {
+                        obsTime = TimeTools.copy(baseTime);
+                        obsTime.set(Calendar.DAY_OF_MONTH, da);
+                        obsTime.set(Calendar.HOUR_OF_DAY, hr);
+                        obsTime.set(Calendar.MINUTE, mi);
+                    }                    
                     if (obsTime != null) {
                         record.setTimeObs(obsTime);
                         record.setDataTime(new DataTime(obsTime));
-                        record.setRefHour(Util.findReferenceHour(timeGroup));
+                        Calendar refHour = TimeTools.copyToNearestHour(obsTime);
+                        if(mi >= 45) {
+                            refHour.add(Calendar.HOUR_OF_DAY, 1);
+                        }
+                        record.setRefHour(refHour);
                         // TODO :
                     } else {
                         // couldn't find observation time so exit.
@@ -301,7 +322,16 @@ public class MetarDecoder extends AbstractDecoder {
                 // into the future
                 Calendar obsTime = record.getTimeObs();
                 if (obsTime != null) {
-                    Calendar currTime = TimeTools.getSystemCalendar();
+                    Calendar currTime = TimeTools.copy(baseTime);
+
+                    // Do this only for archive mode!!! Otherwise valid data will not pass if the WMO header
+                    // date/time is much less than the obstime. For instance
+                    //  WMO Header time = dd1200
+                    //  Observed   time = dd1235
+                    // To solve this will require greater precision in the file timestamp.
+                    if(TimeTools.allowArchive()) {
+                        currTime.add(Calendar.HOUR, 1);
+                    }
                     currTime.add(Calendar.MINUTE, METAR_FUTURE_LIMIT);
 
                     long diff = currTime.getTimeInMillis()

@@ -252,14 +252,45 @@ public interface IDataStore extends ISerializableObject {
             FileNotFoundException;
 
     /**
-     * Repacks all hdf5 files of a certain plugin that haven't been repacked
+     * Recursively repacks all files of a certain directory. Presumes that the
+     * IDataStore instance is tied to a directory, not a specific file.
      * 
-     * @param dirName
-     *            the name of the directory to scan for files to repack
      * @param compression
      *            the type of compression to repack with
      */
-    public void repack(String dirName, Compression compression)
-            throws StorageException;
+    public void repack(Compression compression) throws StorageException;
 
+    /**
+     * Recursively copies all files of a certain directory. If compression is
+     * specified the file will be repacked to the specified compression.
+     * Presumes that the IDataStore instance is tied to a directory, not a
+     * specific file.
+     * 
+     * @param outputDir
+     *            the output directory to put the copied files
+     * @param compression
+     *            If specified will repack the output file with a given
+     *            compression
+     * @param timestampCheck
+     *            if not null, the attribute to check on the file for a
+     *            timestamp of the last time this particular action was run.
+     *            e.g. "lastRepacked" or "lastArchived". if set, this attribute
+     *            will be set on the file when the request is made, and then
+     *            future requests for the same file will check this attribute
+     *            and if the file has not been modified since last run, the file
+     *            will be skipped.
+     * @param minMillisSinceLastChange
+     *            if greater than 0, the last modified time on the file cannot
+     *            be within minMillisSinceLastChange from current time. This is
+     *            used to not repack files that have changed within a recent
+     *            threshold.
+     * @param maxMillisSinceLastChange
+     *            if greater than 0, the last modified time on the file must be
+     *            within maxMillisSinceLastChange from current time. This is
+     *            used to ignore files that have not changed within a recent
+     *            threshold.
+     */
+    public void copy(String outputDir, Compression compression,
+            String timestampCheck, int minMillisSinceLastChange,
+            int maxMillisSinceLastChange) throws StorageException;
 }

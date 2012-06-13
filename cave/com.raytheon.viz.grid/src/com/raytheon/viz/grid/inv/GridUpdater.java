@@ -39,6 +39,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
@@ -206,98 +207,107 @@ public class GridUpdater implements IAlertObserver {
      * .core.alerts.AlertMessage[])
      */
     @Override
-    public synchronized void alertArrived(Collection<AlertMessage> alertMessages) {
-        Set<String> datauris = new HashSet<String>();
-        for (AlertMessage alert : alertMessages) {
-            if (myUpdates.remove(alert.dataURI)) {
-                // This updater triggered this alert, if it processes it now we
-                // could do this forever
-                continue;
-            }
-            GribMapKey updateKey = new GribMapKey(alert.decodedAlert);
-            GribTimeCache.getInstance().clearTimes(updateKey);
-            LevelNode lNode = null;
-            try {
-                Level level = LevelFactory.getInstance().getLevel(
-                        updateKey.masterLevel, updateKey.levelone,
-                        updateKey.leveltwo);
-                lNode = inventory.getNode(updateKey.modelName,
-                        updateKey.parameter, level);
-            } catch (CommunicationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
+	public synchronized void alertArrived(Collection<AlertMessage> alertMessages) {
+		Set<String> datauris = new HashSet<String>();
+		for (AlertMessage alert : alertMessages) {
+			DataTime dataTime = (DataTime) alert.decodedAlert.get("dataTime");
+			if (dataTime.getRefTime().before(
+					SimulatedTime.getSystemTime().getTime())) {
 
-            if (lNode == null) {
-                inventory.reinitTree();
-                // System.out.println(alert.dataURI);
-                // System.out.println("LevelId=" + level.getId());
-            } else if (!(lNode instanceof GribRequestableLevelNode)) {
-                if (lNode instanceof OrLevelNode) {
-                    DerivParamMethod method = ((OrLevelNode) lNode).getMethod();
-                    // Null means it is an alias model and supplement means
-                    // there exists a true GribNode buried under the or
-                    // node
-                    if (method == null
-                            || !method.getName().equals("Supplement")) {
-                        inventory.reinitTree();
-                        // System.out.println(((AbstractDerivedLevelNode) lNode)
-                        // .getModelName());
-                    }
-                } else {
-                    inventory.reinitTree();
-                    // System.out.println(alert.dataURI);
-                    // System.out.println(lNode.getClass());
-                }
-            }
-            Set<UpdateValue> set = updateMap.get(updateKey);
-            if (set == null) {
-                continue;
-            }
-            for (UpdateValue value : set) {
-                GribRecord fakeRec = new GribRecord();
-                fakeRec.setPluginName("grib");
-                Object obj = alert.decodedAlert.get("dataTime");
-                if (!(obj instanceof DataTime)) {
-                    throw new IllegalArgumentException(
-                            "Error processing Alerts: "
-                                    + obj.toString()
-                                    + " cannot be cast to a DataTime because it is a "
-                                    + obj.getClass().getSimpleName());
-                }
-                DataTime time = (DataTime) obj;
-                fakeRec.setDataTime(new DataTime(time.getRefTime(), time
-                        .getFcstTime() - value.timeOffset));
-                GribModel modelInfo = new GribModel();
-                modelInfo.setModelName(value.node.getModelName());
-                modelInfo.setParameterAbbreviation(value.node.getDesc()
-                        .getAbbreviation());
-                modelInfo.setLevel(value.node.getLevel());
-                if (value.node instanceof GatherLevelNode) {
-                    modelInfo.setPerturbationNumber(null);
-                } else {
-                    modelInfo
-                            .setPerturbationNumber((Integer) alert.decodedAlert
-                                    .get(GridInventory.PERT_QUERY));
-                }
-                // do I need to set this?
-                modelInfo.setTypeEnsemble(null);
-                fakeRec.setModelInfo(modelInfo);
-                try {
-                    fakeRec.constructDataURI();
-                    datauris.add(fakeRec.getDataURI());
-                } catch (PluginException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Unable to generate updates for derived product",
-                                    e);
-                }
+				if (myUpdates.remove(alert.dataURI)) {
+					// This updater triggered this alert, if it processes it now
+					// we
+					// could do this forever
+					continue;
+				}
+				GribMapKey updateKey = new GribMapKey(alert.decodedAlert);
+				GribTimeCache.getInstance().clearTimes(updateKey);
+				LevelNode lNode = null;
+				try {
+					Level level = LevelFactory.getInstance().getLevel(
+							updateKey.masterLevel, updateKey.levelone,
+							updateKey.leveltwo);
+					lNode = inventory.getNode(updateKey.modelName,
+							updateKey.parameter, level);
+				} catch (CommunicationException e) {
+					statusHandler.handle(Priority.PROBLEM,
+							e.getLocalizedMessage(), e);
+				}
 
-            }
-        }
-        myUpdates.addAll(datauris);
-        ProductAlertObserver.processDerivedAlerts(datauris);
-    }
+				if (lNode == null) {
+					inventory.reinitTree();
+					// System.out.println(alert.dataURI);
+					// System.out.println("LevelId=" + level.getId());
+				} else if (!(lNode instanceof GribRequestableLevelNode)) {
+					if (lNode instanceof OrLevelNode) {
+						DerivParamMethod method = ((OrLevelNode) lNode)
+								.getMethod();
+						// Null means it is an alias model and supplement means
+						// there exists a true GribNode buried under the or
+						// node
+						if (method == null
+								|| !method.getName().equals("Supplement")) {
+							inventory.reinitTree();
+							// System.out.println(((AbstractDerivedLevelNode)
+							// lNode)
+							// .getModelName());
+						}
+					} else {
+						inventory.reinitTree();
+						// System.out.println(alert.dataURI);
+						// System.out.println(lNode.getClass());
+					}
+				}
+				Set<UpdateValue> set = updateMap.get(updateKey);
+				if (set == null) {
+					continue;
+				}
+				for (UpdateValue value : set) {
+					GribRecord fakeRec = new GribRecord();
+					fakeRec.setPluginName("grib");
+					Object obj = alert.decodedAlert.get("dataTime");
+					if (!(obj instanceof DataTime)) {
+						throw new IllegalArgumentException(
+								"Error processing Alerts: "
+										+ obj.toString()
+										+ " cannot be cast to a DataTime because it is a "
+										+ obj.getClass().getSimpleName());
+					}
+					DataTime time = (DataTime) obj;
+					fakeRec.setDataTime(new DataTime(time.getRefTime(), time
+							.getFcstTime() - value.timeOffset));
+					GribModel modelInfo = new GribModel();
+					modelInfo.setModelName(value.node.getModelName());
+					modelInfo.setParameterAbbreviation(value.node.getDesc()
+							.getAbbreviation());
+					modelInfo.setLevel(value.node.getLevel());
+					if (value.node instanceof GatherLevelNode) {
+						modelInfo.setPerturbationNumber(null);
+					} else {
+						modelInfo
+								.setPerturbationNumber((Integer) alert.decodedAlert
+										.get(GridInventory.PERT_QUERY));
+					}
+					// do I need to set this?
+					modelInfo.setTypeEnsemble(null);
+					fakeRec.setModelInfo(modelInfo);
+					try {
+						fakeRec.constructDataURI();
+						datauris.add(fakeRec.getDataURI());
+					} catch (PluginException e) {
+						statusHandler
+								.handle(Priority.PROBLEM,
+										"Unable to generate updates for derived product",
+										e);
+					}
+				}
+			} else {
+				System.out.println("Grid after SIMULATED TIME: "+dataTime);
+			}
+		}
+		myUpdates.addAll(datauris);
+		ProductAlertObserver.processDerivedAlerts(datauris);
+	}
 
     /**
      * 

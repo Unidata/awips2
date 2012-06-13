@@ -55,16 +55,6 @@ rm -rf ${RPM_BUILD_ROOT}/awips2/awipsShare
 if [ "${1}" = "2" ]; then
    exit 0
 fi
-# Need To Ensure That We Are Lined Up With The Current Edex (Base) Installation.
-EDEX_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-edex-base`
-if [ ! "${RPM_INSTALL_PREFIX}" = "${EDEX_INSTALL}" ]; then
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-   echo -e "\e[1;31m\| ERROR: This Extension MUST Be Installed At The Same Location As EDEX!!!" 
-   echo -e "\e[1;34m\|  INFO: Use '--prefix=${EDEX_INSTALL}'.\e[m"
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-
-   exit 1
-fi
 
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 echo -e "\e[1;34m\| Installing the AWIPS II Adapt Native Libraries...\e[m"

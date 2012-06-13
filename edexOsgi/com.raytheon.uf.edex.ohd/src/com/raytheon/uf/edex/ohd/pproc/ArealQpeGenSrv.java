@@ -229,7 +229,7 @@ public class ArealQpeGenSrv {
             }
             processSingleQpe(dd, hrap, subGrid);
         }
-        if (gribout.equalsIgnoreCase("ON") && qpe_out == true) {
+        if (gribout.equalsIgnoreCase("ON") && (qpe_out == true)) {
             gribTempFiles();
         }
 
@@ -342,7 +342,8 @@ public class ArealQpeGenSrv {
                 cc.setTime(dt);
                 SimpleDateFormat ffn = new SimpleDateFormat("ddHHmmss");
                 String dString = ffn.format(cc.getTime());
-                File gribIngestFile = new File(d2d_input_dir + "/"
+                File gribIngestFile = new File(d2d_input_dir + File.separator + 
+                        "arealQpeGenSrv" + File.separator
                         + fr.getName() + "_" + dString + ".grib");
                 log.info("Move and rename grib file " + goFile + " to "
                         + mvFile);
@@ -357,11 +358,13 @@ public class ArealQpeGenSrv {
                     try {
                         FileUtil.copyFile(mvFile, gribIngestFile);
                         log.info("Copied grib file " + mvFile.getName()
-                                + " to " + d2d_input_dir
+                                + " to " + d2d_input_dir + File.separator + 
+                                "arealQpeGenSrv" 
                                 + " for ingest to D2D. ");
                     } catch (IOException e) {
                         log.error("Copy grib file " + mvFile.getName() + " to "
-                                + d2d_input_dir + " failed. ");
+                                + d2d_input_dir + File.separator + 
+                                "arealQpeGenSrv"  + " failed. ");
                         e.printStackTrace();
                     }
                 }
