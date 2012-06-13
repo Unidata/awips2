@@ -141,8 +141,7 @@ public class SessionView extends AbstractSessionView {
     @Override
     protected void initComponents(Composite parent) {
         initColorManager();
-        CollaborationConnection.getConnection().getEventPublisher()
-                .register(this);
+        CollaborationConnection.getConnection().registerEventHandler(this);
         super.initComponents(parent);
     }
 
@@ -408,11 +407,10 @@ public class SessionView extends AbstractSessionView {
         }
 
         // clean up event handlers
-        session.unRegisterEventHandler(this);
         session.close();
         CollaborationConnection conn = CollaborationConnection.getConnection();
         if (conn != null) {
-            conn.getEventPublisher().unregister(this);
+            conn.unregisterEventHandler(this);
         }
 
         super.dispose();
