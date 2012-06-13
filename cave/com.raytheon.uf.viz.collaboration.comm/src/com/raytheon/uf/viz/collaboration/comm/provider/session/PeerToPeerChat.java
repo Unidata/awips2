@@ -125,13 +125,4 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
         this.sendPeerToPeer(msg);
     }
 
-    /**
-     * 
-     * @return
-     */
-    @Override
-    public EventBus getEventPublisher() {
-        return getManagerEventPublisher();
-    }
-
 }
