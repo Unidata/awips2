@@ -99,6 +99,9 @@ public class DrawingToolUIManager extends InputAdapter {
         pencil.dispose();
 
         container.unregisterMouseHandler(this);
+        if (currentShell != null) {
+            currentShell.setCursor(null);
+        }
     }
 
     /*

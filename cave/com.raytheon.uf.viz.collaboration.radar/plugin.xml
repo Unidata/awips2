@@ -30,7 +30,7 @@
          </graphicsExtension>
       </extension>
       <extension
-      		point="com.raytheon.uf.viz.collaboration.ui.renderingExtension">
+      		point="com.raytheon.uf.viz.collaboration.display.renderingExtension">
       		<renderingExtension
               	class="com.raytheon.uf.viz.collaboration.radar.rendering.RadarGraphicsExtRenderingHandler">
       		</renderingExtension>

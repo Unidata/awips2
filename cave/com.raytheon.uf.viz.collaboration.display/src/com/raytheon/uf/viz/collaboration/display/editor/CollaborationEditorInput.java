@@ -23,8 +23,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-
 /**
  * Editor input for CollaborationEditor
  * 
@@ -44,24 +42,13 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 
 public class CollaborationEditorInput implements IEditorInput {
 
-    private IRenderableDisplay display;
-
     private String title;
 
     private String sessionId;
 
-    public CollaborationEditorInput(IRenderableDisplay display,
-            String sessionId, String title) {
-        this.display = display;
+    public CollaborationEditorInput(String sessionId, String title) {
         this.sessionId = sessionId;
         this.title = title;
-    }
-
-    /**
-     * @return the display
-     */
-    public IRenderableDisplay getDisplay() {
-        return display;
     }
 
     /**

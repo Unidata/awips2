@@ -442,9 +442,8 @@ public class DrawingToolLayer implements IRenderable {
                     UFStatus.getHandler().handle(Priority.PROBLEM,
                             "Could not add line, bad geometry", e);
                 }
-
-                currentDrawingLine = null;
             }
+            currentDrawingLine = null;
         }
     }
 

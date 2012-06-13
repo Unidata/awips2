@@ -20,6 +20,7 @@
 package com.raytheon.viz.ui.actions;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.internal.presentations.ISelfUpdatingAction;
 import org.eclipse.ui.presentations.IPresentablePart;
 
@@ -47,10 +48,33 @@ public class ContributedEditorMenuAction extends Action implements
     private IPresentablePart part;
 
     /**
- * 
- */
+     * 
+     */
     public ContributedEditorMenuAction() {
-        // TODO Auto-generated constructor stub
+        super();
+    }
+
+    /**
+     * @param text
+     * @param image
+     */
+    public ContributedEditorMenuAction(String text, ImageDescriptor image) {
+        super(text, image);
+    }
+
+    /**
+     * @param text
+     * @param style
+     */
+    public ContributedEditorMenuAction(String text, int style) {
+        super(text, style);
+    }
+
+    /**
+     * @param text
+     */
+    public ContributedEditorMenuAction(String text) {
+        super(text);
     }
 
     @Override
