@@ -74,9 +74,6 @@ public class SPIResource extends
     /** The line color */
     private static final RGB DEFAULT_COLOR = new RGB(155, 155, 155);
 
-    /** Whether the resource is ready to be drawn */
-    private boolean ready = false;
-
     private int maxLen = 0;
 
     HashMap<String, SPIEntry> entries;
@@ -98,12 +95,12 @@ public class SPIResource extends
         if (!this.getCapabilities().hasCapability(ColorableCapability.class)) {
             getCapability(ColorableCapability.class).setColor(DEFAULT_COLOR);
         }
-        resourceData.addChangeListener(this);
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
+        resourceData.addChangeListener(this);
         getCapability(LabelableCapability.class).setAvailableLabelFields(
                 "Label");
         getCapability(LabelableCapability.class).setLabelField("Label");
@@ -130,85 +127,80 @@ public class SPIResource extends
 
         }
         project(this.descriptor.getCRS());
-        ready = true;
+
+        font = target.initializeFont(target.getDefaultFont().getFontName(), 10,
+                null);
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        int displayWidth = (int) (this.descriptor.getMapWidth() * paintProps
+                .getZoomLevel());
 
-        if (ready) {
-            int displayWidth = (int) (this.descriptor.getMapWidth() * paintProps
-                    .getZoomLevel());
+        double metersPerPixel = displayWidth
+                / paintProps.getCanvasBounds().width;
 
-            double metersPerPixel = displayWidth
-                    / paintProps.getCanvasBounds().width;
+        double screenToWorldRatio = paintProps.getCanvasBounds().width
+                / paintProps.getView().getExtent().getWidth();
 
-            double screenToWorldRatio = paintProps.getCanvasBounds().width
-                    / paintProps.getView().getExtent().getWidth();
+        float magnification = getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue();
+        font.setMagnification(magnification);
+        Rectangle2D charSize = target.getStringBounds(font, "N");
+        double charWidth = charSize.getWidth();
+        double charHeight = charSize.getHeight();
 
-            double magnification = getCapability(MagnificationCapability.class)
-                    .getMagnification();
-            if (font == null) {
-                font = target.initializeFont(target.getDefaultFont()
-                        .getFontName(), (float) (10 * magnification), null);
-            }
-            Rectangle2D charSize = target.getStringBounds(font, "N");
-            double charWidth = charSize.getWidth();
-            double charHeight = charSize.getHeight();
+        double displayHintSize = this.pixelSizeHint * magnification;
+        double minSepDist = (displayHintSize * (metersPerPixel / 1000.0))
+                / getCapability(DensityCapability.class).getDensity();
+        ;
 
-            double displayHintSize = this.pixelSizeHint * magnification;
-            double minSepDist = (displayHintSize * (metersPerPixel / 1000.0))
-                    / getCapability(DensityCapability.class).getDensity();
-            ;
+        RGB color = getCapability(ColorableCapability.class).getColor();
+        double offsetX = charWidth / 2.0 / screenToWorldRatio;
+        double offsetY = charHeight / screenToWorldRatio;
+        HorizontalAlignment align = HorizontalAlignment.LEFT;
 
-            RGB color = getCapability(ColorableCapability.class).getColor();
-            double offsetX = charWidth / 2.0 / screenToWorldRatio;
-            double offsetY = charHeight / screenToWorldRatio;
-            HorizontalAlignment align = HorizontalAlignment.LEFT;
+        PointStyle pointStyle = getCapability(PointCapability.class)
+                .getPointStyle();
+        if (pointStyle.equals(PointStyle.NONE)) {
+            offsetX = 0;
+            offsetY = 0;
+            align = HorizontalAlignment.CENTER;
+        }
+        offsetX += getCapability(LabelableCapability.class).getxOffset()
+                / screenToWorldRatio;
+        offsetY -= getCapability(LabelableCapability.class).getyOffset()
+                / screenToWorldRatio;
 
-            PointStyle pointStyle = getCapability(PointCapability.class)
-                    .getPointStyle();
-            if (pointStyle.equals(PointStyle.NONE)) {
-                offsetX = 0;
-                offsetY = 0;
-                align = HorizontalAlignment.CENTER;
-            }
-            offsetX += getCapability(LabelableCapability.class).getxOffset()
-                    / screenToWorldRatio;
-            offsetY -= getCapability(LabelableCapability.class).getyOffset()
-                    / screenToWorldRatio;
+        boolean isLabeled = getCapability(LabelableCapability.class)
+                .getLabelField() != null;
 
-            boolean isLabeled = getCapability(LabelableCapability.class)
-                    .getLabelField() != null;
+        String key = null;
+        SPIEntry entry = null;
+        List<DrawableString> strings = new ArrayList<DrawableString>();
+        List<double[]> points = new ArrayList<double[]>();
+        for (Iterator<String> iterator = entries.keySet().iterator(); iterator
+                .hasNext();) {
+            key = iterator.next();
+            entry = entries.get(key);
 
-            String key = null;
-            SPIEntry entry = null;
-            List<DrawableString> strings = new ArrayList<DrawableString>();
-            List<double[]> points = new ArrayList<double[]>();
-            for (Iterator<String> iterator = entries.keySet().iterator(); iterator
-                    .hasNext();) {
-                key = iterator.next();
-                entry = entries.get(key);
-
-                if (entry.pixel != null
-                        && paintProps.getView().isVisible(entry.pixel)
-                        && (entry.distance >= minSepDist)) {
-                    points.add(entry.pixel);
-                    if (isLabeled && (magnification > 0.0)) {
-                        DrawableString string = new DrawableString(key, color);
-                        string.font = font;
-                        string.setCoordinates(entry.pixel[0] + offsetX,
-                                entry.pixel[1] + offsetY, 0.0);
-                        string.horizontalAlignment = align;
-                        strings.add(string);
-                    }
+            if (entry.pixel != null
+                    && paintProps.getView().isVisible(entry.pixel)
+                    && (entry.distance >= minSepDist)) {
+                points.add(entry.pixel);
+                if (isLabeled && (magnification > 0.0)) {
+                    DrawableString string = new DrawableString(key, color);
+                    string.font = font;
+                    string.setCoordinates(entry.pixel[0] + offsetX,
+                            entry.pixel[1] + offsetY, 0.0);
+                    string.horizontalAlignment = align;
+                    strings.add(string);
                 }
             }
-            target.drawStrings(strings);
-            target.drawPoints(points, color, pointStyle, 1.0f);
-
         }
+        target.drawStrings(strings);
+        target.drawPoints(points, color, pointStyle, 1.0f);
     }
 
     @Override
@@ -225,9 +217,7 @@ public class SPIResource extends
     @Override
     protected void disposeInternal() {
         resourceData.removeChangeListener(this);
-        if (font != null) {
-            font.dispose();
-        }
+        font.dispose();
     }
 
     /*
