@@ -25,10 +25,10 @@ import java.util.Set;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.display.Activator;
+import com.raytheon.uf.viz.collaboration.display.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.collaboration.pointdata.image.DrawPointImagesEvent;
 import com.raytheon.uf.viz.collaboration.pointdata.image.PointImageEvent;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;

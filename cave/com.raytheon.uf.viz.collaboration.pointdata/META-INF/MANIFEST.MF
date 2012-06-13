@@ -8,7 +8,7 @@ Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
- com.raytheon.uf.viz.collaboration.ui;bundle-version="1.0.0",
+ com.raytheon.uf.viz.collaboration.display;bundle-version="1.0.0",
  com.raytheon.uf.viz.remote.graphics;bundle-version="1.0.0",
  com.raytheon.viz.pointdata;bundle-version="1.12.1174",
  com.google.guava;bundle-version="1.0.0"

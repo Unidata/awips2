@@ -26,6 +26,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 
@@ -319,6 +320,15 @@ public interface IDescriptor extends IResourceGroup {
      * @return the grid geometry
      */
     public abstract GeneralGridGeometry getGridGeometry();
+
+    /**
+     * Set the geometry for the descriptor
+     * 
+     * @param geometry
+     * @throws VizException
+     */
+    public abstract void setGridGeometry(GeneralGridGeometry geometry)
+            throws VizException;
 
     /**
      * DEPRECATED, use getFrameCoordinator().changeFrame(...) with
