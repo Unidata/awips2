@@ -33,14 +33,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.HttpdCollaborationConfigurationEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Listens for peer to peer messages and routes them appropriately.
@@ -116,18 +116,18 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
             String sessionId = (String) message.getProperties().get(
                     Tools.PROP_SESSION_ID);
             if (sessionId == null) {
-                manager.getEventPublisher().post(object);
+                manager.postEvent(object);
             } else {
                 // Ok, we have a session id.
                 ISession session = manager.getSession(sessionId);
                 if (session != null) {
-                    session.getEventPublisher().post(object);
+                    session.postEvent(object);
                 } else {
                     statusHandler.handle(Priority.PROBLEM,
                             "ERROR: Unknown sessionid [" + sessionId + "]");
                 }
             }
-            manager.getEventPublisher().post(object);
+            manager.postEvent(object);
         }
     }
 
@@ -162,12 +162,12 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         // Now find out who gets the message. If the message doesn't contain
         // a session id then assume its a straight text chat message.
         if (sessionId == null) {
-            manager.getEventPublisher().post(chatEvent);
+            manager.postEvent(chatEvent);
         } else {
             // Ok, we have a session id.
             ISession session = manager.getSession(sessionId);
             if (session != null) {
-                session.getEventPublisher().post(chatEvent);
+                session.postEvent(chatEvent);
             }
         }
     }
@@ -205,13 +205,14 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         if (urlPattern.matcher(httpdCollaborationURL).matches() == false) {
             statusHandler.handle(UFStatus.Priority.PROBLEM,
                     "Received an invalid http url from openfire - "
-                            + httpdCollaborationURL + ". Shared Display Sessions have been disabled.");
+                            + httpdCollaborationURL
+                            + ". Shared Display Sessions have been disabled.");
             return;
         }
 
         // configuration is valid; publish it.
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
                 httpdCollaborationURL);
-        manager.getEventPublisher().post(configurationEvent);
+        manager.postEvent(configurationEvent);
     }
 }
