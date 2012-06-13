@@ -22,7 +22,9 @@ package com.raytheon.uf.viz.collaboration.ui.login;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -55,7 +57,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.ConnectionSubscriber;
+import com.raytheon.uf.viz.collaboration.ui.UserInformationParser;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.collaboration.ui.role.UserInformation;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -89,6 +93,8 @@ public class LoginDialog extends CaveSWTDialog {
     private Text passwordTF;
 
     private Combo statusCombo;
+
+    private List<Control> combos;
 
     private Text messageTF;
 
@@ -233,6 +239,53 @@ public class LoginDialog extends CaveSWTDialog {
         gd.horizontalSpan = 2;
         messageTF.setLayoutData(gd);
 
+        Composite comp = new Composite(body, SWT.NONE);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.horizontalSpan = 3;
+        GridLayout layout = new GridLayout(4, false);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        comp.setLayout(layout);
+        comp.setLayoutData(gd);
+
+        UserInformation information = UserInformationParser
+                .parseUserInformation();
+        combos = new ArrayList<Control>();
+        for (UserInformation.Info info : information.getInfo()) {
+            Label comboLabel = new Label(comp, SWT.NONE);
+            gd = new GridData(SWT.NONE, SWT.FILL, false, true);
+            comboLabel.setLayoutData(gd);
+            String name = info.getName();
+            final StringBuilder result = new StringBuilder(name.length());
+            String[] words = name.split("\\s");
+            for (int i = 0, l = words.length; i < l; ++i) {
+                if (i > 0)
+                    result.append(" ");
+                result.append(Character.toUpperCase(words[i].charAt(0)))
+                        .append(words[i].substring(1));
+            }
+            ;
+            comboLabel.setText(result.toString() + " :");
+            if (info.isAllowMultiple()) {
+                org.eclipse.swt.widgets.List list = new org.eclipse.swt.widgets.List(
+                        comp, SWT.MULTI);
+                list.setData(info.getName());
+                list.setItems(info.getAttibuteOptions());
+                gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+                list.setLayoutData(gd);
+                list.select(0);
+                combos.add(list);
+            } else {
+                Combo combo = new Combo(comp, SWT.DROP_DOWN | SWT.READ_ONLY);
+                combo.setData(info.getName());
+                combo.setItems(info.getAttibuteOptions());
+                gd = new GridData(SWT.FILL, SWT.NONE, true, true);
+                combo.setLayoutData(gd);
+                combo.select(0);
+                combos.add(combo);
+            }
+        }
+
         noServerList = new Control[] { userTF, passwordTF, statusCombo,
                 messageTF, serverButton };
         withServerList = new Control[] { userTF, serverTF, serverButton,
@@ -358,11 +411,35 @@ public class LoginDialog extends CaveSWTDialog {
                             final String usr = user;
                             final String passwd = password;
                             final IPresence pres = initialPres;
+                            final Map<String, String> nameToText = new HashMap<String, String>();
+                            for (Control control : combos) {
+                                if (control instanceof Combo) {
+                                    Combo combo = (Combo) control;
+                                    nameToText.put(combo.getData().toString(),
+                                            combo.getText());
+                                } else if (control instanceof org.eclipse.swt.widgets.List) {
+                                    org.eclipse.swt.widgets.List list = (org.eclipse.swt.widgets.List) control;
+                                    String result = "";
+                                    for (String string : list.getSelection()) {
+                                        result += string + "/";
+                                    }
+                                    result = result.substring(0,
+                                            result.length() - 1);
+                                    nameToText.put(list.getData().toString(),
+                                            result);
+                                }
+                            }
                             Job job = new Job(
                                     "Creating the server connection...") {
                                 protected org.eclipse.core.runtime.IStatus run(
                                         org.eclipse.core.runtime.IProgressMonitor monitor) {
                                     try {
+                                        // add all the values from the combo
+                                        // boxes into the presence
+                                        for (String name : nameToText.keySet()) {
+                                            pres.getProperties().put(name,
+                                                    nameToText.get(name));
+                                        }
                                         CollaborationConnection connection = CollaborationConnection
                                                 .connect(new UserId(usr, srvr),
                                                         passwd, pres);
@@ -434,5 +511,4 @@ public class LoginDialog extends CaveSWTDialog {
         }
         return button;
     }
-
 }
