@@ -66,248 +66,234 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class SigWxData extends PersistablePluginDataObject implements
-        IDecoderGettable, IPointData, IPersistable {
+		IDecoderGettable, IPointData, IPersistable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Column
-    @DataURI(position = 1)
-    @XmlElement
-    @DynamicSerializeElement
-    private SigWxLayer wxLayer;
+	@Column
+	@DataURI(position = 1)
+	@XmlElement
+	@DynamicSerializeElement
+	private SigWxLayer wxLayer;
 
-    @Column
-    @DataURI(position = 2)
-    @XmlElement
-    @DynamicSerializeElement
-    private SigWxType wxType;
+	@Column
+	@DataURI(position = 2)
+	@XmlElement
+	@DynamicSerializeElement
+	private SigWxType wxType;
 
-    @Column
-    @DataURI(position = 3)
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer key;
+	@Column
+	@DataURI(position = 3)
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Integer key;
 
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer baseHeight;
+	@Column
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Integer baseHeight;
 
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer topHeight;
+	@Column
+	@XmlAttribute
+	@DynamicSerializeElement
+	private Integer topHeight;
 
-    @Embedded
-    private PointDataView pdv;
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    // Text of the WMO header
-    @Column(length = 32)
-    @DynamicSerializeElement
-    @XmlElement
-    private String wmoHeader;
+	// Text of the WMO header
+	@Column(length = 32)
+	@DynamicSerializeElement
+	@XmlElement
+	private String wmoHeader;
 
-    @Transient
-    @DynamicSerializeElement
-    @XmlElement
-    private TropopauseLayerData tropData;
+	@Transient
+	@DynamicSerializeElement
+	@XmlElement
+	private TropopauseLayerData tropData;
 
-    /**
-     * Empty constructor.
-     */
-    public SigWxData() {
-    }
+	/**
+	 * Empty constructor.
+	 */
+	public SigWxData() {
+	}
 
-    /**
-     * Constructor for DataURI construction through base class. This is used by
-     * the notification service.
-     * 
-     * @param uri
-     *            A data uri applicable to this class.
-     * @param tableDef
-     *            The table definitions for this class.
-     */
-    public SigWxData(String uri) {
-        super(uri);
-    }
+	/**
+	 * Constructor for DataURI construction through base class. This is used by
+	 * the notification service.
+	 * 
+	 * @param uri
+	 *            A data uri applicable to this class.
+	 * @param tableDef
+	 *            The table definitions for this class.
+	 */
+	public SigWxData(String uri) {
+		super(uri);
+	}
 
-    /**
-     * @return the wxLayer
-     */
-    public SigWxLayer getWxLayer() {
-        return wxLayer;
-    }
+	/**
+	 * @return the wxLayer
+	 */
+	public SigWxLayer getWxLayer() {
+		return wxLayer;
+	}
 
-    /**
-     * @param wxLayer
-     *            the wxLayer to set
-     */
-    public void setWxLayer(SigWxLayer wxLayer) {
-        this.wxLayer = wxLayer;
-    }
+	/**
+	 * @param wxLayer
+	 *            the wxLayer to set
+	 */
+	public void setWxLayer(SigWxLayer wxLayer) {
+		this.wxLayer = wxLayer;
+	}
 
-    /**
-     * @return the wxType
-     */
-    public SigWxType getWxType() {
-        return wxType;
-    }
+	/**
+	 * @return the wxType
+	 */
+	public SigWxType getWxType() {
+		return wxType;
+	}
 
-    /**
-     * @param wxType
-     *            the wxType to set
-     */
-    public void setWxType(SigWxType wxType) {
-        this.wxType = wxType;
-    }
+	/**
+	 * @param wxType
+	 *            the wxType to set
+	 */
+	public void setWxType(SigWxType wxType) {
+		this.wxType = wxType;
+	}
 
-    /**
-     * @return the baseHeight
-     */
-    public Integer getBaseHeight() {
-        return baseHeight;
-    }
+	/**
+	 * @return the baseHeight
+	 */
+	public Integer getBaseHeight() {
+		return baseHeight;
+	}
 
-    /**
-     * @param baseHeight
-     *            the baseHeight to set
-     */
-    public void setBaseHeight(Integer baseHeight) {
-        this.baseHeight = baseHeight;
-    }
+	/**
+	 * @param baseHeight
+	 *            the baseHeight to set
+	 */
+	public void setBaseHeight(Integer baseHeight) {
+		this.baseHeight = baseHeight;
+	}
 
-    /**
-     * @return the topHeight
-     */
-    public Integer getTopHeight() {
-        return topHeight;
-    }
+	/**
+	 * @return the topHeight
+	 */
+	public Integer getTopHeight() {
+		return topHeight;
+	}
 
-    /**
-     * @param topHeight
-     *            the topHeight to set
-     */
-    public void setTopHeight(Integer topHeight) {
-        this.topHeight = topHeight;
-    }
+	/**
+	 * @param topHeight
+	 *            the topHeight to set
+	 */
+	public void setTopHeight(Integer topHeight) {
+		this.topHeight = topHeight;
+	}
 
-    /**
-     * @return the wmoHeader
-     */
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	/**
+	 * @return the wmoHeader
+	 */
+	public String getWmoHeader() {
+		return wmoHeader;
+	}
 
-    /**
-     * @param wmoHeader
-     *            the wmoHeader to set
-     */
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	/**
+	 * @param wmoHeader
+	 *            the wmoHeader to set
+	 */
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
+	}
 
-    /**
-     * @return the tropData
-     */
-    public TropopauseLayerData getTropData() {
-        return tropData;
-    }
+	/**
+	 * @return the tropData
+	 */
+	public TropopauseLayerData getTropData() {
+		return tropData;
+	}
 
-    /**
-     * @param tropData
-     *            the tropData to set
-     */
-    public void setTropData(TropopauseLayerData tropData) {
-        this.tropData = tropData;
-    }
+	/**
+	 * @param tropData
+	 *            the tropData to set
+	 */
+	public void setTropData(TropopauseLayerData tropData) {
+		this.tropData = tropData;
+	}
 
-    /**
-     * @return the key
-     */
-    public Integer getKey() {
-        return key;
-    }
+	/**
+	 * @return the key
+	 */
+	public Integer getKey() {
+		return key;
+	}
 
-    /**
-     * @param key
-     *            the key to set
-     */
-    public void setKey(Integer key) {
-        this.key = key;
-    }
+	/**
+	 * @param key
+	 *            the key to set
+	 */
+	public void setKey(Integer key) {
+		this.key = key;
+	}
 
-    /**
-     * @return the pdv
-     */
-    public PointDataView getPdv() {
-        return pdv;
-    }
+	@Override
+	public IDecoderGettable getDecoderGettable() {
+		return null;
+	}
 
-    /**
-     * @param pdv
-     *            the pdv to set
-     */
-    public void setPdv(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	@Override
+	public String getString(String paramName) {
+		return null;
+	}
 
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
+	@Override
+	public String[] getStrings(String paramName) {
+		return null;
+	}
 
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
+	@Override
+	public Amount getValue(String paramName) {
+		return null;
+	}
 
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
+	@Override
+	public Collection<Amount> getValues(String paramName) {
+		return null;
+	}
 
-    @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    /**
+	/**
      * 
      */
-    @Override
-    public PointDataView getPointDataView() {
-        return pdv;
-    }
+	@Override
+	public PointDataView getPointDataView() {
+		return pointDataView;
+	}
 
-    /**
+	/**
      * 
      */
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 
-    /**
-     * 
-     * @return
-     */
-    public final SigWxData copyObs() {
-        SigWxData obs = new SigWxData();
+	/**
+	 * 
+	 * @return
+	 */
+	public final SigWxData copyObs() {
+		SigWxData obs = new SigWxData();
 
-        obs.dataTime = dataTime.clone();
-        obs.pluginName = pluginName;
+		obs.dataTime = dataTime.clone();
+		obs.pluginName = pluginName;
 
-        obs.baseHeight = baseHeight;
-        obs.topHeight = topHeight;
-        obs.wxLayer = wxLayer;
-        obs.wxType = wxType;
-        obs.wmoHeader = wmoHeader;
+		obs.baseHeight = baseHeight;
+		obs.topHeight = topHeight;
+		obs.wxLayer = wxLayer;
+		obs.wxType = wxType;
+		obs.wmoHeader = wmoHeader;
 
-        return obs;
-    }
+		return obs;
+	}
 }

@@ -7,7 +7,6 @@ package gov.noaa.nws.ncep.common.dataplugin.nctaf;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -24,12 +23,12 @@ import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
+import com.raytheon.uf.common.pointdata.IPointData;
+import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.pointdata.IPointData;
-import com.raytheon.uf.common.pointdata.PointDataView;
 
 /**
  * Record implementation for a taf message
@@ -42,7 +41,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
  * ------------ ----------  ----------- --------------------------
  * 09/22/2011   458			sgurung	    Initial Creation
  * 09/29/2011               sgurung     Added reportType
- * 10/26/2011               sgurung     Added tafValidPeriod 
+ * 10/26/2011               sgurung     Added tafValidPeriod
  * 
  * </pre>
  * 
@@ -52,365 +51,367 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class NcTafBulletinRecord implements ISpatialEnabled, IDecoderGettable, IPointData {
+public class NcTafBulletinRecord implements ISpatialEnabled, IDecoderGettable,
+		IPointData {
 
-    private static final long serialVersionUID = 1L;
-    
-    /** The data time for this record */
-    @Embedded
-    @XmlElement
-    @DynamicSerializeElement
-    @DataURI(position = 0)
-    protected DataTime dataTime;
+	private static final long serialVersionUID = 1L;
 
-    /** The raw data from the message */
-    @Transient
-    @DynamicSerializeElement
-    protected Object messageData;
+	/** The data time for this record */
+	@Embedded
+	@XmlElement
+	@DynamicSerializeElement
+	@DataURI(position = 0)
+	protected DataTime dataTime;
 
-    @DynamicSerializeElement
-    @XmlElement
-    @Column
-    private String wmoHeader;
+	/** The raw data from the message */
+	@Transient
+	@DynamicSerializeElement
+	protected Object messageData;
 
-    @DynamicSerializeElement
-    @XmlElement
-    @Column(length = 1024)
-    private String tafText;
+	@DynamicSerializeElement
+	@XmlElement
+	@Column
+	private String wmoHeader;
 
-    // The observation report type
-    @DataURI(position = 1)
-    @XmlElement
-    @Column
-    @DynamicSerializeElement
-    private String reportType;
+	@DynamicSerializeElement
+	@XmlElement
+	@Column(length = 1024)
+	private String tafText;
 
-    // Station Identifier for the data
-    @DynamicSerializeElement
-    @XmlElement
-    @Column
-    @Index(name = "nctaf_stationIndex")
-    @DataURI(position = 2)
-    private String stationId;
+	// The observation report type
+	@DataURI(position = 1)
+	@XmlElement
+	@Column
+	@DynamicSerializeElement
+	private String reportType;
 
-    @DynamicSerializeElement
-    @XmlElement
-    @Column
-    @DataURI(position = 3)
-    private String corIndicator;
+	// Station Identifier for the data
+	@DynamicSerializeElement
+	@XmlElement
+	@Column
+	@Index(name = "nctaf_stationIndex")
+	@DataURI(position = 2)
+	private String stationId;
 
-    @DynamicSerializeElement
-    @XmlElement
-    @Column
-    @DataURI(position = 4)
-    private String amdIndicator;
+	@DynamicSerializeElement
+	@XmlElement
+	@Column
+	@DataURI(position = 3)
+	private String corIndicator;
 
-    /** Issue date */
-    @DynamicSerializeElement
-    @XmlElement
-    @Column
-    // @DataURI(position = 4)
-    private Date issue_time;
+	@DynamicSerializeElement
+	@XmlElement
+	@Column
+	@DataURI(position = 4)
+	private String amdIndicator;
 
-    /** Issue date string */
-    @DynamicSerializeElement
-    @XmlElement
-    @Column
-    @DataURI(position = 5)
-    private String issue_timeString;
+	/** Issue date */
+	@DynamicSerializeElement
+	@XmlElement
+	@Column
+	// @DataURI(position = 4)
+	private Date issue_time;
 
-    /** Bulletin issuance time */
-    @DynamicSerializeElement
-    @XmlElement
-	@Transient  
-    private Date bulletin_time;
+	/** Issue date string */
+	@DynamicSerializeElement
+	@XmlElement
+	@Column
+	@DataURI(position = 5)
+	private String issue_timeString;
 
-    /** Any remarks contained in the TAF record */
-    @DynamicSerializeElement
-    @XmlElement
-    @Column
-    private String remarks;
-    
-    /**
-     * The valid period for the TAF record.
-     */
-    @DynamicSerializeElement
-    @XmlElement
-    @Embedded
-    @Transient
-    private NcTafPeriod tafValidPeriod;
+	/** Bulletin issuance time */
+	@DynamicSerializeElement
+	@XmlElement
+	@Transient
+	private Date bulletin_time;
 
-    /** List of change groups (FM, BECMG, etc.) */
-    @DynamicSerializeElement
-    @XmlElement
+	/** Any remarks contained in the TAF record */
+	@DynamicSerializeElement
+	@XmlElement
+	@Column
+	private String remarks;
+
+	/**
+	 * The valid period for the TAF record.
+	 */
+	@DynamicSerializeElement
+	@XmlElement
+	@Embedded
+	@Transient
+	private NcTafPeriod tafValidPeriod;
+
+	/** List of change groups (FM, BECMG, etc.) */
+	@DynamicSerializeElement
+	@XmlElement
 	@Transient
 	private Set<NcTafChangeGroup> changeGroups = new LinkedHashSet<NcTafChangeGroup>();
 
-    @Embedded
-    @XmlElement
-    @DynamicSerializeElement
-    private SurfaceObsLocation location;
-    
-    @Embedded 
-	private PointDataView pdv;
-	
-    public NcTafBulletinRecord() {
-    }
+	@Embedded
+	@XmlElement
+	@DynamicSerializeElement
+	private SurfaceObsLocation location;
 
-    public DataTime getDataTime() {
-        return dataTime;
-    }
+	@Embedded
+	@DynamicSerializeElement
+	private PointDataView pointDataView;
 
-    public void setDataTime(DataTime dataTime) {
-        this.dataTime = dataTime;
-    }
+	public NcTafBulletinRecord() {
+	}
 
-    public Object getMessageData() {
-        return messageData;
-    }
+	public DataTime getDataTime() {
+		return dataTime;
+	}
 
-    public void setMessageData(Object messageData) {
-        this.messageData = messageData;
-    }
-    
-    /**
-     * Get the WMO header for the enclosing WMO message.
-     * 
-     * @return The wmoHeader.
-     */
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	public void setDataTime(DataTime dataTime) {
+		this.dataTime = dataTime;
+	}
 
-    /**
-     * Set the WMO header for the enclosing WMO message.
-     * 
-     * @param wmoHeader
-     *            The WMOHeader to set.
-     */
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	public Object getMessageData() {
+		return messageData;
+	}
 
-    /**
-     * Get the text of this terminal forecast.
-     * 
-     * @return The terminal forecast text.
-     */
-    public String getTafText() {
-        return tafText;
-    }
+	public void setMessageData(Object messageData) {
+		this.messageData = messageData;
+	}
 
-    /**
-     * Set the text of this terminal forecast.
-     * 
-     * @param tafText
-     *            The terminal forecast text.
-     */
-    public void setTafText(String tafText) {
-        this.tafText = tafText;
-    }
+	/**
+	 * Get the WMO header for the enclosing WMO message.
+	 * 
+	 * @return The wmoHeader.
+	 */
+	public String getWmoHeader() {
+		return wmoHeader;
+	}
 
-    /**
-     * Get the observation report type.
-     * 
-     * @return the reportType
-     */
-    public String getReportType() {
-        return reportType;
-    }
+	/**
+	 * Set the WMO header for the enclosing WMO message.
+	 * 
+	 * @param wmoHeader
+	 *            The WMOHeader to set.
+	 */
+	public void setWmoHeader(String wmoHeader) {
+		this.wmoHeader = wmoHeader;
+	}
 
-    /**
-     * Set the observation report type.
-     * 
-     * @param reportType
-     *            the reportType to set
-     */
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
+	/**
+	 * Get the text of this terminal forecast.
+	 * 
+	 * @return The terminal forecast text.
+	 */
+	public String getTafText() {
+		return tafText;
+	}
 
-    /**
-     * 
-     * @return
-     */
-    public String getStationId() {
-        return stationId;
-    }
+	/**
+	 * Set the text of this terminal forecast.
+	 * 
+	 * @param tafText
+	 *            The terminal forecast text.
+	 */
+	public void setTafText(String tafText) {
+		this.tafText = tafText;
+	}
 
-    /**
-     * 
-     * @param stationID
-     */
-    public void setStationId(String stationID) {
-        stationId = stationID;
-    }
+	/**
+	 * Get the observation report type.
+	 * 
+	 * @return the reportType
+	 */
+	public String getReportType() {
+		return reportType;
+	}
 
-    /**
-     * 
-     * @return the corIndicator
-     */
-    public String getCorIndicator() {
-        return corIndicator;
-    }
+	/**
+	 * Set the observation report type.
+	 * 
+	 * @param reportType
+	 *            the reportType to set
+	 */
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
 
-    /**
-     * 
-     * @param corIndicator
-     *            the corIndicator to set
-     */
-    public void setCorIndicator(String corIndicator) {
-        this.corIndicator = corIndicator;
-    }
+	/**
+	 * 
+	 * @return
+	 */
+	public String getStationId() {
+		return stationId;
+	}
 
-    /**
-     * 
-     * @return the amdIndicator
-     */
-    public String getAmdIndicator() {
-        return amdIndicator;
-    }
+	/**
+	 * 
+	 * @param stationID
+	 */
+	public void setStationId(String stationID) {
+		stationId = stationID;
+	}
 
-    /**
-     * 
-     * @param amdIndicator
-     *            the amdIndicator to set
-     */
-    public void setAmdIndicator(String amdIndicator) {
-        this.amdIndicator = amdIndicator;
-    }
+	/**
+	 * 
+	 * @return the corIndicator
+	 */
+	public String getCorIndicator() {
+		return corIndicator;
+	}
 
-    /**
-     * 
-     * @return the bulletin_time
-     */
-    public Date getBulletin_time() {
-        return bulletin_time;
-    }
+	/**
+	 * 
+	 * @param corIndicator
+	 *            the corIndicator to set
+	 */
+	public void setCorIndicator(String corIndicator) {
+		this.corIndicator = corIndicator;
+	}
 
-    /**
-     * 
-     * @param bulletin_time
-     *            the bulletin_time to set
-     */
-    public void setBulletin_time(Date bulletin_time) {
-        this.bulletin_time = bulletin_time;
-    }
+	/**
+	 * 
+	 * @return the amdIndicator
+	 */
+	public String getAmdIndicator() {
+		return amdIndicator;
+	}
 
-    /**
-     * @return the changeGroups
-     */
-    public Set<NcTafChangeGroup> getChangeGroups() {
-        return changeGroups;
-    }
+	/**
+	 * 
+	 * @param amdIndicator
+	 *            the amdIndicator to set
+	 */
+	public void setAmdIndicator(String amdIndicator) {
+		this.amdIndicator = amdIndicator;
+	}
 
-    /**
-     * @param changeGroups
-     *            the changeGroups to set
-     */
-    public void setChangeGroups(Set<NcTafChangeGroup> changeGroups) {
-        this.changeGroups = changeGroups;
-    }
+	/**
+	 * 
+	 * @return the bulletin_time
+	 */
+	public Date getBulletin_time() {
+		return bulletin_time;
+	}
 
-    /**
-     * @return the issue_time
-     */
-    public Date getIssue_time() {
-        return issue_time;
-    }
+	/**
+	 * 
+	 * @param bulletin_time
+	 *            the bulletin_time to set
+	 */
+	public void setBulletin_time(Date bulletin_time) {
+		this.bulletin_time = bulletin_time;
+	}
 
-    /**
-     * @param issue_time
-     *            the issue_time to set
-     */
-    public void setIssue_time(Date issue_time) {
-        this.issue_time = issue_time;
-    }
+	/**
+	 * @return the changeGroups
+	 */
+	public Set<NcTafChangeGroup> getChangeGroups() {
+		return changeGroups;
+	}
 
-    /**
-     * @return the issue_timeString
-     */
-    public String getIssue_timeString() {
-        return issue_timeString;
-    }
+	/**
+	 * @param changeGroups
+	 *            the changeGroups to set
+	 */
+	public void setChangeGroups(Set<NcTafChangeGroup> changeGroups) {
+		this.changeGroups = changeGroups;
+	}
 
-    /**
-     * @param issue_timeString
-     *            the issue_time to set
-     */
-    public void setIssue_timeString(String issue_timeString) {
-        this.issue_timeString = issue_timeString;
-    }
+	/**
+	 * @return the issue_time
+	 */
+	public Date getIssue_time() {
+		return issue_time;
+	}
 
-    /**
-     * @return the remarks
-     */
-    public String getRemarks() {
-        return remarks;
-    }
+	/**
+	 * @param issue_time
+	 *            the issue_time to set
+	 */
+	public void setIssue_time(Date issue_time) {
+		this.issue_time = issue_time;
+	}
 
-    /**
-     * @param remarks
-     *            the remarks to set
-     */
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-    
-    @Override
-    public SurfaceObsLocation getSpatialObject() {
-        return location;
-    }
+	/**
+	 * @return the issue_timeString
+	 */
+	public String getIssue_timeString() {
+		return issue_timeString;
+	}
 
-    public SurfaceObsLocation getLocation() {
-        return location;
-    }
+	/**
+	 * @param issue_timeString
+	 *            the issue_time to set
+	 */
+	public void setIssue_timeString(String issue_timeString) {
+		this.issue_timeString = issue_timeString;
+	}
 
-    public void setLocation(SurfaceObsLocation location) {
-        this.location = location;
-    }
-    
-    public double getLatitude() {
-        return location.getLatitude();
-    }
+	/**
+	 * @return the remarks
+	 */
+	public String getRemarks() {
+		return remarks;
+	}
 
-    public double getLongitude() {
-        return location.getLongitude();
-    }
+	/**
+	 * @param remarks
+	 *            the remarks to set
+	 */
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
 
-    public Integer getElevation() {
-        return location.getElevation();
-    }
-    
-    public NcTafPeriod getTafValidPeriod() {
-        return tafValidPeriod;
-    }
+	@Override
+	public SurfaceObsLocation getSpatialObject() {
+		return location;
+	}
 
-    public void setTafValidPeriod(NcTafPeriod tafValidPeriod) {
-        this.tafValidPeriod = tafValidPeriod;
-    }
- 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
-     */
-    @Override
-    public PointDataView getPointDataView() {
-        return this.pdv;
-    }
+	public SurfaceObsLocation getLocation() {
+		return location;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
-     * .uf.common.pointdata.PointDataView)
-     */
-    @Override
-    public void setPointDataView(PointDataView pdv) {
-        this.pdv = pdv;
-    }
+	public void setLocation(SurfaceObsLocation location) {
+		this.location = location;
+	}
+
+	public double getLatitude() {
+		return location.getLatitude();
+	}
+
+	public double getLongitude() {
+		return location.getLongitude();
+	}
+
+	public Integer getElevation() {
+		return location.getElevation();
+	}
+
+	public NcTafPeriod getTafValidPeriod() {
+		return tafValidPeriod;
+	}
+
+	public void setTafValidPeriod(NcTafPeriod tafValidPeriod) {
+		this.tafValidPeriod = tafValidPeriod;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
+	 */
+	@Override
+	public PointDataView getPointDataView() {
+		return this.pointDataView;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
+	 * .uf.common.pointdata.PointDataView)
+	 */
+	@Override
+	public void setPointDataView(PointDataView pointDataView) {
+		this.pointDataView = pointDataView;
+	}
 
 	@Override
 	public Amount getValue(String paramName) {
@@ -435,5 +436,5 @@ public class NcTafBulletinRecord implements ISpatialEnabled, IDecoderGettable, I
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 }
