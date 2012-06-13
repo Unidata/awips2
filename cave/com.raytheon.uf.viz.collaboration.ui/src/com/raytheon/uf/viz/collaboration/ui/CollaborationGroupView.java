@@ -58,7 +58,6 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TreeEditor;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -111,9 +110,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
-import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
@@ -126,7 +123,6 @@ import com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchive;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
@@ -156,10 +152,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private SessionGroupContainer activeSessionGroup;
 
     private TreeViewer usersTreeViewer;
-
-    private StyledText messages;
-
-    private StyledText composeBox;
 
     private CollaborationGroupContainer topLevel;
 
@@ -271,7 +263,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection != null) {
-            connection.unRegisterEventHandler(this);
+            connection.unregisterEventHandler(this);
         }
         getViewSite().getWorkbenchWindow().getPartService()
                 .removePartListener(this);
@@ -540,8 +532,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 FontData postData = dialog.open();
                 if (postData != null) {
                     PreferenceConverter.setValue(store, "font", postData);
-                    CollaborationConnection.getConnection().getEventPublisher()
-                            .post(postData);
+                    CollaborationConnection.getConnection().postEvent(postData);
                 }
             };
         };
@@ -694,8 +685,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
      * Get entries for all part of the Tree Viewer and enable actions.
      */
     protected void populateTree() {
-        CollaborationDataManager manager = CollaborationDataManager
-                .getInstance();
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         topLevel.clear();
@@ -748,23 +737,14 @@ public class CollaborationGroupView extends CaveFloatingView implements
      */
     private void populateActiveSessions() {
         activeSessionGroup.clear();
-        try {
-            CollaborationDataManager manager = CollaborationDataManager
-                    .getInstance();
-            for (IViewReference ref : getViewSite().getWorkbenchWindow()
-                    .getActivePage().getViewReferences()) {
-                IViewPart viewPart = ref.getView(false);
-                if (viewPart instanceof SessionView) {
-                    String sessionId = viewPart.getViewSite().getSecondaryId();
-                    activeSessionGroup.addObject(CollaborationConnection
-                            .getConnection().getSession(sessionId));
-                }
+        for (IViewReference ref : getViewSite().getWorkbenchWindow()
+                .getActivePage().getViewReferences()) {
+            IViewPart viewPart = ref.getView(false);
+            if (viewPart instanceof SessionView) {
+                String sessionId = viewPart.getViewSite().getSecondaryId();
+                activeSessionGroup.addObject(CollaborationConnection
+                        .getConnection().getSession(sessionId));
             }
-        } catch (NullPointerException e) {
-            // Ignore happens when creating view when starting CAVE.
-            // TODO bad to ignore, need to take care of
-            statusHandler.handle(Priority.ERROR,
-                    "Unable to populate active sessions", e);
         }
     }
 
@@ -918,8 +898,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                                 .getItem().getText());
                     }
                     CollaborationUtils.addAlias();
-                    CollaborationConnection.getConnection().getEventPublisher()
-                            .post(entry.getUser());
+                    CollaborationConnection.getConnection().postEvent(
+                            entry.getUser());
                 }
             }
         });
@@ -965,8 +945,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                                 treeEditor.getItem().getText());
                     }
                     CollaborationUtils.addAlias();
-                    CollaborationConnection.getConnection().getEventPublisher()
-                            .post(entry.getUser());
+                    CollaborationConnection.getConnection().postEvent(
+                            entry.getUser());
                     break;
                 case SWT.Verify:
                     String newText = modText.getText();
@@ -1047,7 +1027,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             RosterEntry rosterEntry = new RosterEntry(manager.getRoster(), id,
                     presence);
             rosterEntry.setPresence(presence);
-            connection.getEventPublisher().post(rosterEntry);
+            connection.postEvent(rosterEntry);
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM, "Error sending presence", e);
         }
@@ -1144,8 +1124,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open collaboration sesson", e);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, "Unexpected excepton", e);
         }
     }
 
@@ -1167,7 +1145,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open text only chat session", e);
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, "Unexpected exception", e);
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to open chat room view", e);
         }
     }
 
@@ -1288,7 +1267,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             CollaborationConnection connection = CollaborationConnection
                     .getConnection();
             ConnectionSubscriber.unsubscribe(connection);
-            connection.closeManager();
+            connection.close();
         }
     }
 
@@ -1361,9 +1340,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
     public void handleModifiedPresence(final IRosterEntry rosterEntry) {
         // Only need to update the usersTreeViewer.
         final UserId id = IDConverter.convertFrom(rosterEntry.getUser());
-        System.out.println("group view roster entry for:" + id.getName() + "@"
-                + id.getHost() + " " + rosterEntry.getPresence().getMode()
-                + "/" + rosterEntry.getPresence().getType());
 
         ((RosterEntry) CollaborationConnection.getConnection()
                 .getContactsManager().getUsersMap().get(id))
@@ -1564,6 +1540,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             ISession session = CollaborationConnection.getConnection()
                     .getSession(sessionId);
             activeSessionGroup.addObject(session);
+            // register here because we unregister in part closed
             session.registerEventHandler(sessionView);
             usersTreeViewer.refresh(activeSessionGroup);
         }
@@ -1579,7 +1556,13 @@ public class CollaborationGroupView extends CaveFloatingView implements
     public void partClosed(IWorkbenchPart part) {
         if (part instanceof SessionView) {
             SessionView sessionView = (SessionView) part;
+
             String sessionId = sessionView.getViewSite().getSecondaryId();
+            ISession session = CollaborationConnection.getConnection()
+                    .getSession(sessionId);
+            // unregister here because we registered in partOpened
+            session.unregisterEventHandler(sessionView);
+
             for (Object node : activeSessionGroup.getObjects()) {
                 IVenueSession group = (IVenueSession) node;
 
@@ -1590,23 +1573,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
                     activeSessionGroup.removeObject(node);
                     usersTreeViewer.refresh(activeSessionGroup);
                     break;
-                }
-            }
-        }
-
-        if (part instanceof CollaborationSessionView) {
-            String sessionId = ((CollaborationSessionView) part).getSessionId();
-            SessionContainer container = SharedDisplaySessionMgr
-                    .getSessionContainer(sessionId);
-            if (container != null) {
-                CollaborationEditor assocEditor = container
-                        .getCollaborationEditor();
-                if (assocEditor != null) {
-                    IWorkbenchPage page = VizWorkbenchManager.getInstance()
-                            .getCurrentWindow().getActivePage();
-                    if (page != null) {
-                        page.closeEditor(assocEditor, false);
-                    }
                 }
             }
         }

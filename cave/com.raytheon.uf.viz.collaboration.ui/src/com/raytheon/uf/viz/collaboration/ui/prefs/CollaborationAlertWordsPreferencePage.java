@@ -264,7 +264,7 @@ public class CollaborationAlertWordsPreferencePage extends
                 .getConnection();
         if (connection != null && connection.isConnected()) {
             // refresh any open chats or sessions
-            connection.getEventPublisher().post(wrapper);
+            connection.postEvent(wrapper);
         }
         return true;
     }
