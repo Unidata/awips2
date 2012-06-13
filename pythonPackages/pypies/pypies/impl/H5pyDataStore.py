@@ -34,6 +34,7 @@
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types
+import fnmatch
 import subprocess, stat  #for h5repack
 from pypies import IDataStore, StorageException, NotImplementedException
 from pypies import MkDirLockManager as LockManager
@@ -617,54 +618,83 @@ class H5pyDataStore(IDataStore.IDataStore):
         #id = group.id
         #id.link(dataset.name, linkName, h5py.h5g.LINK_SOFT)
         
+    def copy(self, request):
+        resp = FileActionResponse()
+        file = request.getFilename()
+        pth = os.path.split(file)[0]
+        repack = request.getRepack()
+        action = self.__doCopy if not repack else self.__doRepack
+        self.__doFileAction(file, pth, request.getOutputDir(), action, resp, request.getRepackCompression(), request.getTimestampCheck())
+        return resp
+    
+    def __doCopy(self, filepath, basePath, outputDir, compression):
+        shutil.copy(filepath, outputDir)
+        success = (os.path.isfile(os.path.join(outputDir, os.path.basename(filepath))))
+        return success
+    
     def repack(self, request):
+        resp = FileActionResponse()
         pth = request.getFilename()
+        files = self.__listHdf5Files(pth)
         compression = request.getCompression()
-        resp = RepackResponse()
-        if os.path.exists(pth):
-            self.__recurseRepack(pth, compression, resp)
+        for f in files:
+            self.__doFileAction(f, pth, None, self.__doRepack, resp, compression)
         return resp
 
-    def __recurseRepack(self, pth, compression, resp):
-        files = os.listdir(pth)
-        for f in files:
-            fullpath = pth + '/' + f
-            if os.path.isdir(fullpath):
-                self.__recurseRepack(fullpath, compression, resp)
-            elif len(f) > 3 and f[-3:] == '.h5':
-                self.__doRepack(fullpath, resp, compression)
+    def __listHdf5Files(self, pth):
+        results = []
+        for base, dirs, files in os.walk(pth):
+            goodfiles = fnmatch.filter(files, '*.h5')
+            results.extend(os.path.join(base, f) for f in goodfiles)
+        return results
     
-    def __doRepack(self, fullpath, response, compression='NONE'):
-        lock = None        
-        try:            
-            f, lock = self.__openFile(fullpath, 'a')
-            proceedWithRepack = True        
-            if 'lastRepacked' in f.attrs.keys():
-                lastRepacked = f.attrs['lastRepacked']
-                lastModified = os.stat(fullpath).st_mtime
-                if lastRepacked > lastModified:
-                    proceedWithRepack = False
+    def __doRepack(self, filepath, basePath, outDir, compression):
+        # call h5repack to repack the file
+        if outDir is None:
+            repackedFullPath = filepath + '.repacked'                    
+        else:
+            repackedFullPath = filepath.replace(basePath, outDir)
+        cmd = ['h5repack', '-f', compression, filepath, repackedFullPath]
+        ret = subprocess.call(cmd)
+        
+        success = (ret == 0)
+        if success:
+            # repack was successful, replace the old file if we did it in the
+            # same directory, otherwise leave it alone
+            if outDir is None:
+                os.remove(filepath)
+                os.rename(repackedFullPath, filepath)
+                os.chmod(filepath, stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        else:
+            # remove failed new file if there was one
+            if os.path.exists(repackedFullPath):
+                os.remove(repackedFullPath)
+            if outDir is not None:
+                # repack failed, but they wanted the data in a different
+                # directory, so just copy the original data without the repack
+                shutil.copy(filepath, repackedFullPath)
+        return success
+                
+    def __doFileAction(self, filepath, basePath, outputDir, fileAction, response, compression='NONE', timestampCheck=None):
+        lock = None
+        try:
+            f, lock = self.__openFile(filepath, 'a')
+            proceedWithRepack = True
+            if timestampCheck:
+                if timestampCheck in f.attrs.keys():
+                    lastRepacked = f.attrs[timestampCheck]
+                    lastModified = os.stat(filepath).st_mtime
+                    if lastRepacked > lastModified:
+                        proceedWithRepack = False
             if proceedWithRepack:
                 # update repack time even if repack will fail, cause if it fails at
                 # this time there's no point in retrying.  put time in the near future
                 # cause the modified time will be after the repack and rename
-                f.attrs['lastRepacked'] = time.time() + 30
+                if timestampCheck:
+                    f.attrs[timestampCheck] = time.time() + 30
                 f.close()
                 
-                # call h5repack to repack the file
-                repackedFullPath = fullpath + '.repacked'
-                cmd = ['h5repack', '-f', compression, fullpath, repackedFullPath]
-                ret = subprocess.call(cmd)
-                success = (ret == 0)
-                if success:
-                    # repack was successful, replace the old file
-                    os.remove(fullpath)
-                    os.rename(repackedFullPath, fullpath)
-                    os.chmod(fullpath, stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-                else:
-                    # remove failed new file if there was one
-                    if os.path.exists(repackedFullPath):
-                        os.remove(repackedFullPath)
+                success = fileAction(filepath, basePath, outputDir, compression)
                 
                 # update response
                 if success:
@@ -675,20 +705,20 @@ class H5pyDataStore(IDataStore.IDataStore):
                     setter = response.setFailedFiles                                    
                 responseList = getter()
                 if responseList:
-                    responseList += [fullpath]
+                    responseList += [filepath]
                 else:
-                    responseList = [fullpath]
+                    responseList = [filepath]
                 setter(responseList)
         except Exception, e:            
-            logger.warn("Error repacking file " + fullpath + ": " + str(e))
+            logger.warn("Error repacking file " + filepath + ": " + str(e))
             failed = response.getFailedFiles()
             if failed:
-                failed += [fullpath]
+                failed += [filepath]
             else:
-                failed = [fullpath]
+                failed = [filepath]
             response.setFailedFiles(failed)
         finally:
             if lock:
-                LockManager.releaseLock(lock)         
+                LockManager.releaseLock(lock)
         
         

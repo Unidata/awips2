@@ -20,11 +20,18 @@
 package com.raytheon.edex.plugin.text.dao;
 
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
+import com.raytheon.edex.textdb.dao.StdTextProductDao;
 import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
+import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * DAO for text products
@@ -57,6 +64,7 @@ public class TextDao extends DefaultPluginDao {
 		// no op
 	}
 
+    @Override
 	public void purgeExpiredData() throws PluginException {
 		int deletedRecords = 0;
 
@@ -68,5 +76,42 @@ public class TextDao extends DefaultPluginDao {
 
 		PurgeLogger.logInfo("Purged " + deletedRecords + " items total.",
 				"text");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<PersistableDataObject> getRecordsToArchive(
+            Calendar insertStartTime, Calendar insertEndTime)
+            throws DataAccessLayerException {
+        StdTextProductDao dao = new StdTextProductDao(true);
+        DatabaseQuery dbQuery = new DatabaseQuery(dao.getDaoClass());
+        dbQuery.addQueryParam("insertTime", insertStartTime,
+                QueryOperand.GREATERTHANEQUALS);
+        dbQuery.addQueryParam("insertTime", insertEndTime,
+                QueryOperand.LESSTHAN);
+        dbQuery.addOrder("insertTime", true);
+
+        return (List<PersistableDataObject>) dao.queryByCriteria(dbQuery);
+    }
+
+    @Override
+    public Date getMinInsertTime(String productKey)
+            throws DataAccessLayerException {
+        StdTextProductDao dao = new StdTextProductDao(true);
+        DatabaseQuery query = new DatabaseQuery(dao.getDaoClass());
+        List<String[]> keys = this.getProductKeyParameters(productKey);
+        for (String[] key : keys) {
+            query.addQueryParam(key[0], key[1]);
+        }
+        query.addReturnedField("insertTime");
+        query.addOrder("insertTime", true);
+        query.setMaxResults(1);
+        @SuppressWarnings("unchecked")
+        List<Calendar> result = (List<Calendar>) dao.queryByCriteria(query);
+        if (result.isEmpty()) {
+            return null;
+        } else {
+            return result.get(0).getTime();
+        }
 	}
 }

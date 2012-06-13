@@ -9,8 +9,11 @@
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 
+		<endpoint id="thriftService_from"
+			uri="jetty:http://0.0.0.0:${http.port}/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+
 		<route id="thriftService">
-			<from uri="jetty:http://0.0.0.0:9581/services/thrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+			<from uri="ref:thriftService_from" />
 			<bean ref="routeWrapper" method="executeThrift"/>
 		</route>
 
