@@ -67,10 +67,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.collaboration.ui.actions.PopupNotifier;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.uf.viz.notification.notifier.PopupNotifier;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**

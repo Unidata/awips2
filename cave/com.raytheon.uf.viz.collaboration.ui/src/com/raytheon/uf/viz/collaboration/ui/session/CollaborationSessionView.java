@@ -21,7 +21,9 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.Action;
@@ -57,26 +59,31 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.IRemoteDisplayChangedListener;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.RemoteDisplay;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.RemoteDisplayChangeType;
+import com.raytheon.uf.viz.collaboration.display.data.ColorChangeEvent;
+import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
+import com.raytheon.uf.viz.collaboration.display.rsc.SelfAddingSystemResourceListener;
+import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingEvent;
+import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingResource;
+import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingResourceData;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
-import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
-import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationDrawingResource;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent.CollaborationEventType;
 import com.raytheon.uf.viz.core.ContextManager;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
 import com.raytheon.viz.ui.VizWorkbenchManager;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
- * TODO Add Description
+ * View class for a collaboration session
  * 
  * <pre>
  * 
@@ -92,13 +99,20 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @version 1.0
  */
 public class CollaborationSessionView extends SessionView implements
-        IPartListener {
+        IPartListener, IRemoteDisplayChangedListener {
     public static final String ID = "com.raytheon.uf.viz.collaboration.CollaborationSession";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationSessionView.class);
 
     private static final String COLLABORATION_SESSION_IMAGE_NAME = "messages.gif";
+
+    private Runnable actionUpdater = new Runnable() {
+        @Override
+        public void run() {
+            updateToolItems();
+        }
+    };
 
     private Action colorChangeAction;
 
@@ -116,39 +130,33 @@ public class CollaborationSessionView extends SessionView implements
 
     private ISharedDisplaySession session;
 
-    private CollaborationDrawingResource getCurrentResource() {
-        CollaborationDrawingResource resource = null;
-        SessionContainer sc = SharedDisplaySessionMgr
-                .getSessionContainer(sessionId);
-        List<IRenderableDisplay> displays = new ArrayList<IRenderableDisplay>();
-        if (sc.getCollaborationEditor() == null) {
-            for (AbstractEditor editor : sc.getSharedEditors()) {
-                ResourceList list = editor.getActiveDisplayPane()
-                        .getDescriptor().getResourceList();
-                resource = getCurrentResource(list);
-                if (resource != null) {
-                    break;
-                }
+    private IRemoteDisplayContainer container;
+
+    private IRenderableDisplay currentDisplay;
+
+    private boolean locked = false;
+
+    private DrawMode drawMode = DrawMode.NONE;
+
+    private Map<IRenderableDisplay, SelfAddingSystemResourceListener> listeners = new IdentityHashMap<IRenderableDisplay, SelfAddingSystemResourceListener>();
+
+    public CollaborationDrawingResource getCurrentDrawingResource() {
+        CollaborationDrawingResource currentResource = null;
+        if (currentDisplay != null) {
+            for (CollaborationDrawingResource resource : currentDisplay
+                    .getDescriptor()
+                    .getResourceList()
+                    .getResourcesByTypeAsType(
+                            CollaborationDrawingResource.class)) {
+                currentResource = resource;
+                break;
             }
-        } else {
-            resource = getCurrentResource(SharedDisplaySessionMgr
-                    .getSessionContainer(sessionId).getCollaborationEditor()
-                    .getDisplay().getDescriptor().getResourceList());
         }
-
-        return resource;
-    }
-
-    private CollaborationDrawingResource getCurrentResource(ResourceList rl) {
-        for (CollaborationDrawingResource resource : rl
-                .getResourcesByTypeAsType(CollaborationDrawingResource.class)) {
-            return resource;
-        }
-        return null;
+        return currentResource;
     }
 
     private DrawingToolLayer getCurrentLayer() {
-        CollaborationDrawingResource resource = getCurrentResource();
+        CollaborationDrawingResource resource = getCurrentDrawingResource();
         if (resource != null) {
             return resource.getDrawingLayerFor(resource.getMyUser());
         }
@@ -164,6 +172,22 @@ public class CollaborationSessionView extends SessionView implements
     public void init(IViewSite site) throws PartInitException {
         super.init(site);
         site.getPage().addPartListener(this);
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(sessionId);
+        if (sc != null) {
+            session = sc.getSession();
+            if (sc.getCollaborationEditor() != null) {
+                container = sc.getCollaborationEditor();
+            } else {
+                container = SharedEditorsManager.getManager(session);
+            }
+            container.addRemoteDisplayChangedListener(this);
+            RemoteDisplay remoteDisplay = container.getActiveDisplay();
+            if (remoteDisplay != null) {
+                remoteDisplayChanged(container.getActiveDisplay(),
+                        RemoteDisplayChangeType.ACTIVATED);
+            }
+        }
     }
 
     protected void createActions() {
@@ -204,10 +228,13 @@ public class CollaborationSessionView extends SessionView implements
             @Override
             public void run() {
                 DrawingToolLayer layer = getCurrentLayer();
-                if (layer.getDrawMode() == DrawMode.DRAW) {
-                    layer.setDrawMode(DrawMode.NONE);
-                } else {
-                    layer.setDrawMode(DrawMode.DRAW);
+                if (layer != null) {
+                    if (layer.getDrawMode() == DrawMode.DRAW) {
+                        layer.setDrawMode(DrawMode.NONE);
+                    } else {
+                        layer.setDrawMode(DrawMode.DRAW);
+                    }
+                    drawMode = layer.getDrawMode();
                 }
                 updateToolItems();
             }
@@ -258,6 +285,7 @@ public class CollaborationSessionView extends SessionView implements
                             } else {
                                 layer.setDrawMode(DrawMode.ERASE);
                             }
+                            drawMode = layer.getDrawMode();
                         }
                         updateToolItems();
                     }
@@ -284,10 +312,11 @@ public class CollaborationSessionView extends SessionView implements
         lockAction = new ActionContributionItem(new Action(
                 "Lock Collaborators", SWT.TOGGLE) {
             public void run() {
-                CollaborationDrawingResource resource = getCurrentResource();
+                CollaborationDrawingResource resource = getCurrentDrawingResource();
                 if (resource != null) {
                     resource.setLockingDrawing(((ToolItem) lockAction
                             .getWidget()).getSelection());
+                    locked = resource.isLockingDrawing();
                     updateToolItems();
                 }
             };
@@ -305,11 +334,20 @@ public class CollaborationSessionView extends SessionView implements
         mgr.insert(mgr.getSize() - 1, eraseAction);
         mgr.insert(mgr.getSize() - 1, lockAction);
         mgr.insert(mgr.getSize() - 1, new Separator());
+
+        updateToolItems();
     }
 
     public void updateToolItems() {
-        DrawingToolLayer layer = getCurrentLayer();
-        if (layer != null) {
+        CollaborationDrawingResource currentResource = getCurrentDrawingResource();
+        DrawingToolLayer layer = null;
+        if (currentResource != null) {
+            layer = currentResource.getDrawingLayerFor(currentResource
+                    .getMyUser());
+        }
+        if (layer != null
+                && (currentResource.isLockingDrawing() == false || currentResource
+                        .isSessionLeader())) {
             drawAction.getAction().setEnabled(true);
             undoAction.getAction().setEnabled(layer.canUndo());
             redoAction.getAction().setEnabled(layer.canRedo());
@@ -329,10 +367,15 @@ public class CollaborationSessionView extends SessionView implements
                 eraseAction.getAction().setChecked(false);
                 break;
             }
-            CollaborationDrawingResource resource = getCurrentResource();
-            if (resource != null && !resource.isSessionLeader()) {
-                lockAction.getAction().setEnabled(false);
-            }
+            lockAction.getAction().setChecked(
+                    currentResource.isLockingDrawing());
+        } else {
+            drawAction.getAction().setEnabled(false);
+            undoAction.getAction().setEnabled(false);
+            redoAction.getAction().setEnabled(false);
+            clearAction.getAction().setEnabled(false);
+            eraseAction.getAction().setEnabled(false);
+            lockAction.getAction().setEnabled(false);
         }
     }
 
@@ -432,21 +475,8 @@ public class CollaborationSessionView extends SessionView implements
     }
 
     @Subscribe
-    public void receiveLocking(CollaborationDrawingEvent event) {
-        if (event.getType() == CollaborationEventType.TOGGLE_LOCK) {
-            CollaborationDrawingResource resource = getCurrentResource();
-            if (resource != null && !resource.isSessionLeader()) {
-                if (drawAction.getAction().isEnabled()) {
-                    drawAction.getAction().setEnabled(false);
-                    undoAction.getAction().setEnabled(false);
-                    redoAction.getAction().setEnabled(false);
-                    clearAction.getAction().setEnabled(false);
-                    eraseAction.getAction().setEnabled(false);
-                } else {
-                    updateToolItems();
-                }
-            }
-        }
+    public void collaborationEvent(CollaborationDrawingEvent event) {
+        VizApp.runAsync(actionUpdater);
     }
 
     /*
@@ -467,20 +497,13 @@ public class CollaborationSessionView extends SessionView implements
         label.setText(labelInfo.toString());
     }
 
-    @Override
-    protected void setSession(String sessionId) {
-        super.setSession(sessionId);
-        this.session = (ISharedDisplaySession) CollaborationConnection
-                .getConnection().getSession(sessionId);
-    }
-
     public String getSessionId() {
         return session.getSessionId();
     }
 
     @Override
     public void dispose() {
-        CollaborationEditor assocEditor = SharedDisplaySessionMgr
+        ICollaborationEditor assocEditor = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId())
                 .getCollaborationEditor();
         if (assocEditor != null) {
@@ -494,6 +517,9 @@ public class CollaborationSessionView extends SessionView implements
         session.close();
         super.dispose();
         getSite().getPage().removePartListener(this);
+        if (container != null) {
+            container.removeRemoteDisplayChangedListener(this);
+        }
     }
 
     // =================== Context activation code ===================
@@ -506,14 +532,17 @@ public class CollaborationSessionView extends SessionView implements
      */
     @Override
     public void partActivated(IWorkbenchPart part) {
-        // do this only if we care about the part being activated
+        // only done if we care about the part that was activated
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(sessionId);
         List<IEditorPart> editors = new ArrayList<IEditorPart>();
-        editors.add(sc.getCollaborationEditor());
-        if (sc.getSharedEditors() != null) {
-            editors.addAll(sc.getSharedEditors());
+        if (sc.getCollaborationEditor() == null) {
+            editors.addAll(SharedEditorsManager.getManager(sc.getSession())
+                    .getSharedEditors());
+        } else {
+            editors.add(sc.getCollaborationEditor());
         }
+
         if (this == part || editors.contains(part)) {
             ContextManager
                     .getInstance(getSite().getPage().getWorkbenchWindow())
@@ -555,10 +584,13 @@ public class CollaborationSessionView extends SessionView implements
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(sessionId);
         List<IEditorPart> editors = new ArrayList<IEditorPart>();
-        editors.add(sc.getCollaborationEditor());
-        if (sc.getSharedEditors() != null) {
-            editors.addAll(sc.getSharedEditors());
+        if (sc.getCollaborationEditor() == null) {
+            editors.addAll(SharedEditorsManager.getManager(sc.getSession())
+                    .getSharedEditors());
+        } else {
+            editors.add(sc.getCollaborationEditor());
         }
+
         if (this == part || editors.contains(part)) {
             ContextManager
                     .getInstance(getSite().getPage().getWorkbenchWindow())
@@ -576,4 +608,63 @@ public class CollaborationSessionView extends SessionView implements
     public void partOpened(IWorkbenchPart part) {
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.
+     * IRemoteDisplayChangedListener
+     * #remoteDisplayChanged(com.raytheon.uf.viz.core
+     * .drawables.IRenderableDisplay,
+     * com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer
+     * .RemoteDisplayChangeType)
+     */
+    @Override
+    public void remoteDisplayChanged(RemoteDisplay remoteDisplay,
+            RemoteDisplayChangeType changeType) {
+        IRenderableDisplay display = remoteDisplay.getDisplay();
+        int displayId = remoteDisplay.getDisplayId();
+        switch (changeType) {
+        case CREATED:
+            if (listeners.containsKey(display) == false) {
+                CollaborationDrawingResourceData resourceData = new CollaborationDrawingResourceData();
+                resourceData.setSessionId(sessionId);
+                resourceData.setDisplayId(displayId);
+                try {
+                    listeners.put(display,
+                            new SelfAddingSystemResourceListener(resourceData,
+                                    display.getDescriptor()));
+                    display.refresh();
+                } catch (VizException e) {
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+            break;
+        case ACTIVATED:
+            if (listeners.containsKey(display) == false) {
+                remoteDisplayChanged(remoteDisplay,
+                        RemoteDisplayChangeType.CREATED);
+            }
+            currentDisplay = display;
+            CollaborationDrawingResource resource = getCurrentDrawingResource();
+            if (resource != null && resource.isSessionLeader()) {
+                resource.setLockingDrawing(locked);
+                resource.getDrawingLayerFor(resource.getMyUser()).setDrawMode(
+                        drawMode);
+            }
+            VizApp.runAsync(actionUpdater);
+            break;
+        case DISPOSED:
+            SelfAddingSystemResourceListener listener = listeners
+                    .remove(display);
+            if (listener != null) {
+                listener.dispose();
+            }
+            if (display == currentDisplay) {
+                currentDisplay = null;
+                VizApp.runAsync(actionUpdater);
+            }
+            break;
+        }
+    }
 }
