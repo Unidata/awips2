@@ -20,8 +20,6 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
-   <extension-point id="renderingExtension" name="renderingExtension" schema="schema/renderingExtension.exsd"/>
-
    <extension
          point="org.eclipse.ui.commands">
       <category
@@ -140,30 +138,14 @@
          point="com.raytheon.viz.ui.editorMenuAddition">
       <editorMenuAddition
             class="com.raytheon.uf.viz.collaboration.ui.actions.ShareEditorAction"
-            name="Share Editor"
+            name="Share with"
             icon="icons/add_correction.gif">
       </editorMenuAddition>
-   </extension>
-   <extension 
-   		point="com.raytheon.uf.viz.collaboration.ui.renderingExtension">
-      <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.GeneralRenderingHandler">
-      </renderingExtension>
-      <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.ImagingRenderingHandler">
-      </renderingExtension>
-      <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.OffscreenRenderingHandler">
-      </renderingExtension>
-      <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.ShapeRenderingHandler">
-      </renderingExtension>
-      <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.StringRenderingHandler">
-      </renderingExtension>
-      <renderingExtension
-            class="com.raytheon.uf.viz.collaboration.ui.rsc.rendering.PrimitiveRenderingHandler">
-      </renderingExtension>
+      <editorMenuAddition
+            class="com.raytheon.uf.viz.collaboration.ui.actions.UnshareEditorAction"
+            name="Unshare"
+            icon="icons/remove_editor.gif">
+      </editorMenuAddition>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -234,4 +216,14 @@
          </contextId>
       </classContext>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor"
+            default="true"
+            id="com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor"
+            icon="icons/collab_editor.gif"
+            name="Collaboration">
+      </editor>
+   </extension>   
 </plugin>
