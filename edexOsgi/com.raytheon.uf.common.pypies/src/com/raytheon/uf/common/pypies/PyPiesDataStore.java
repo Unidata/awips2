@@ -15,6 +15,7 @@ import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pypies.request.AbstractRequest;
+import com.raytheon.uf.common.pypies.request.CopyRequest;
 import com.raytheon.uf.common.pypies.request.CreateDatasetRequest;
 import com.raytheon.uf.common.pypies.request.DatasetDataRequest;
 import com.raytheon.uf.common.pypies.request.DatasetNamesRequest;
@@ -25,7 +26,7 @@ import com.raytheon.uf.common.pypies.request.RepackRequest;
 import com.raytheon.uf.common.pypies.request.RetrieveRequest;
 import com.raytheon.uf.common.pypies.request.StoreRequest;
 import com.raytheon.uf.common.pypies.response.ErrorResponse;
-import com.raytheon.uf.common.pypies.response.RepackResponse;
+import com.raytheon.uf.common.pypies.response.FileActionResponse;
 import com.raytheon.uf.common.pypies.response.RetrieveResponse;
 import com.raytheon.uf.common.pypies.response.StoreResponse;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -374,12 +375,11 @@ public class PyPiesDataStore implements IDataStore {
     }
 
     @Override
-    public void repack(String dirName, Compression compression)
-            throws StorageException {
+    public void repack(Compression compression) throws StorageException {
         RepackRequest req = new RepackRequest();
-        req.setFilename(dirName);
+        req.setFilename(this.filename);
         req.setCompression(compression);
-        RepackResponse resp = (RepackResponse) sendRequest(req);
+        FileActionResponse resp = (FileActionResponse) sendRequest(req);
         // TODO do we really want to make this an exception?
         // reasoning is if the repack fails for some reason, the original file
         // is left as is, just isn't as efficiently packed
@@ -398,4 +398,35 @@ public class PyPiesDataStore implements IDataStore {
         }
     }
 
+    @Override
+    public void copy(String outputDir, Compression compression,
+            String timestampCheck, int minMillisSinceLastChange,
+            int maxMillisSinceLastChange) throws StorageException {
+        CopyRequest req = new CopyRequest();
+        req.setFilename(this.filename);
+        if (compression != null) {
+            req.setRepack(true);
+            req.setRepackCompression(compression);
+        } else {
+            req.setRepack(false);
+        }
+        req.setOutputDir(outputDir);
+        req.setTimestampCheck(timestampCheck);
+        req.setMinMillisSinceLastChange(minMillisSinceLastChange);
+        FileActionResponse resp = (FileActionResponse) sendRequest(req);
+
+        if (resp != null && resp.getFailedFiles() != null
+                && resp.getFailedFiles().length > 0) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Error copying the following files: ");
+            String[] failed = resp.getFailedFiles();
+            for (int i = 0; i < failed.length; i++) {
+                sb.append(failed[i]);
+                if (i < failed.length - 1) {
+                    sb.append(", ");
+                }
+            }
+            throw new StorageException(sb.toString(), null);
+        }
+    }
 }
