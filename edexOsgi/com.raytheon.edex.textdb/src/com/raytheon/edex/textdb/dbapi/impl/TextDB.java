@@ -50,6 +50,7 @@ import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -808,9 +809,11 @@ public class TextDB {
         StdTextProductDao dao = new StdTextProductDao(operationalMode);
         boolean success = false;
         try {
-            if (textProduct.getCreatetime() == null) {
-                textProduct.setCreatetime(System.currentTimeMillis());
+            if (textProduct.getRefTime() == null) {
+                textProduct.setRefTime(System.currentTimeMillis());
             }
+            textProduct.setInsertTime(Calendar.getInstance(TimeZone
+                    .getTimeZone("GMT")));
             success = dao.write(textProduct);
         } catch (Exception e) {
             logger.error(e);
@@ -866,7 +869,13 @@ public class TextDB {
         }
 
         product.append(reportData);
-        long writeTime = System.currentTimeMillis();
+
+        Long writeTime = new Long(System.currentTimeMillis());
+        if (TimeTools.allowArchive()) {
+            Calendar c = header.getHeaderDate();
+            writeTime = new Long(c.getTimeInMillis());
+
+        }
 
         StdTextProduct textProduct = (operationalMode ? new OperationalStdTextProduct()
                 : new PracticeStdTextProduct());
@@ -877,7 +886,7 @@ public class TextDB {
         textProduct.setNnnid(prodId.getNnn());
         textProduct.setHdrtime(hdrTime);
         textProduct.setBbbid(bbbIndicator);
-        textProduct.setCreatetime(writeTime);
+        textProduct.setRefTime(writeTime);
         textProduct.setProduct(product.toString());
         boolean success = writeProduct(textProduct);
         if (success) {
@@ -958,8 +967,9 @@ public class TextDB {
             boolean operationalMode, Headers headers) {
         // Look for a WMO heading on the first line
         String[] pieces = reportData.split("\r*\n", 2);
-        if (pieces.length > 1)
+        if (pieces.length > 1) {
             pieces[0] += "\n"; // WMOHeader expects this
+        }
         WMOHeader header = new WMOHeader(pieces[0].getBytes(), headers);
 
         // Need to construct an AFOSProductId from the productId

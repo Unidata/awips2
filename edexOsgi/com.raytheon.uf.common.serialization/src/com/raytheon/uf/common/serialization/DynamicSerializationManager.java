@@ -86,421 +86,415 @@ import com.vividsolutions.jts.geom.Polygon;
  * @version 1.0
  */
 public class DynamicSerializationManager {
-    private static Map<SerializationType, DynamicSerializationManager> instanceMap = new HashMap<SerializationType, DynamicSerializationManager>();
+	private static Map<SerializationType, DynamicSerializationManager> instanceMap = new HashMap<SerializationType, DynamicSerializationManager>();
 
-    private ISerializationContextBuilder builder;
+	private ISerializationContextBuilder builder;
 
-    public static class SerializationMetadata {
-        public List<String> serializedAttributes;
+	public static class SerializationMetadata {
+		public List<String> serializedAttributes;
 
-        public ISerializationTypeAdapter<?> serializationFactory;
+		public ISerializationTypeAdapter<?> serializationFactory;
 
-        public Map<String, ISerializationTypeAdapter<?>> attributesWithFactories;
+		public Map<String, ISerializationTypeAdapter<?>> attributesWithFactories;
 
-        public String adapterStructName;
+		public String adapterStructName;
 
-    }
+	}
 
-    private static Map<String, SerializationMetadata> serializedAttributes = new ConcurrentHashMap<String, SerializationMetadata>();
+	private static Map<String, SerializationMetadata> serializedAttributes = new ConcurrentHashMap<String, SerializationMetadata>();
 
-    private static final SerializationMetadata NO_METADATA = new SerializationMetadata();
+	private static final SerializationMetadata NO_METADATA = new SerializationMetadata();
 
-    static {
-        SerializationMetadata md = new SerializationMetadata();
-        md.serializationFactory = new CalendarSerializer();
-        md.adapterStructName = GregorianCalendar.class.getName();
-        serializedAttributes.put(GregorianCalendar.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new DateSerializer();
-        md.adapterStructName = Date.class.getName();
-        serializedAttributes.put(Date.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new TimestampSerializer();
-        md.adapterStructName = Timestamp.class.getName();
-        serializedAttributes.put(Timestamp.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new BuiltInTypeSupport.SqlDateSerializer();
-        md.adapterStructName = java.sql.Date.class.getName();
-        serializedAttributes.put(java.sql.Date.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new PointAdapter();
-        md.adapterStructName = java.awt.Point.class.getName();
-        serializedAttributes.put(java.awt.Point.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new CoordAdapter();
-        md.adapterStructName = Coordinate.class.getName();
-        serializedAttributes.put(Coordinate.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new BuiltInTypeSupport.BigDecimalSerializer();
-        md.adapterStructName = BigDecimal.class.getName();
-        serializedAttributes.put(BigDecimal.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new GeometryTypeAdapter();
-        md.adapterStructName = Geometry.class.getName();
-        serializedAttributes.put(Polygon.class.getName(), md);
-        serializedAttributes.put(MultiPolygon.class.getName(), md);
-        serializedAttributes.put(Point.class.getName(), md);
-        serializedAttributes.put(Geometry.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new JTSEnvelopeAdapter();
-        md.adapterStructName = Envelope.class.getName();
-        serializedAttributes.put(Envelope.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new GridGeometry2DAdapter();
-        md.adapterStructName = GridGeometry2D.class.getName();
-        serializedAttributes.put(GridGeometry2D.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new EnumSetAdapter();
-        md.adapterStructName = EnumSet.class.getName();
-        serializedAttributes.put(EnumSet.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new StackTraceElementAdapter();
-        md.adapterStructName = StackTraceElement.class.getName();
-        serializedAttributes.put(StackTraceElement.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new FloatBufferAdapter();
-        md.adapterStructName = FloatBuffer.class.getName();
-        serializedAttributes.put(FloatBuffer.class.getName(), md);
-        md = new SerializationMetadata();
-        md.serializationFactory = new ByteBufferAdapter();
-        md.adapterStructName = ByteBuffer.class.getName();
-        serializedAttributes.put(ByteBuffer.class.getName(), md);
-    }
+	static {
+		SerializationMetadata md = new SerializationMetadata();
+		md.serializationFactory = new CalendarSerializer();
+		md.adapterStructName = GregorianCalendar.class.getName();
+		serializedAttributes.put(GregorianCalendar.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new DateSerializer();
+		md.adapterStructName = Date.class.getName();
+		serializedAttributes.put(Date.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new TimestampSerializer();
+		md.adapterStructName = Timestamp.class.getName();
+		serializedAttributes.put(Timestamp.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new BuiltInTypeSupport.SqlDateSerializer();
+		md.adapterStructName = java.sql.Date.class.getName();
+		serializedAttributes.put(java.sql.Date.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new PointAdapter();
+		md.adapterStructName = java.awt.Point.class.getName();
+		serializedAttributes.put(java.awt.Point.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new CoordAdapter();
+		md.adapterStructName = Coordinate.class.getName();
+		serializedAttributes.put(Coordinate.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new BuiltInTypeSupport.BigDecimalSerializer();
+		md.adapterStructName = BigDecimal.class.getName();
+		serializedAttributes.put(BigDecimal.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new GeometryTypeAdapter();
+		md.adapterStructName = Geometry.class.getName();
+		serializedAttributes.put(Polygon.class.getName(), md);
+		serializedAttributes.put(MultiPolygon.class.getName(), md);
+		serializedAttributes.put(Point.class.getName(), md);
+		serializedAttributes.put(Geometry.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new JTSEnvelopeAdapter();
+		md.adapterStructName = Envelope.class.getName();
+		serializedAttributes.put(Envelope.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new GridGeometry2DAdapter();
+		md.adapterStructName = GridGeometry2D.class.getName();
+		serializedAttributes.put(GridGeometry2D.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new EnumSetAdapter();
+		md.adapterStructName = EnumSet.class.getName();
+		serializedAttributes.put(EnumSet.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new StackTraceElementAdapter();
+		md.adapterStructName = StackTraceElement.class.getName();
+		serializedAttributes.put(StackTraceElement.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new FloatBufferAdapter();
+		md.adapterStructName = FloatBuffer.class.getName();
+		serializedAttributes.put(FloatBuffer.class.getName(), md);
+		md = new SerializationMetadata();
+		md.serializationFactory = new ByteBufferAdapter();
+		md.adapterStructName = ByteBuffer.class.getName();
+		serializedAttributes.put(ByteBuffer.class.getName(), md);
+	}
 
-    public enum EnclosureType {
-        FIELD, COLLECTION
-    };
+	public enum EnclosureType {
+		FIELD, COLLECTION
+	};
 
-    public static enum SerializationType {
-        Thrift
-    };
+	public static enum SerializationType {
+		Thrift
+	};
 
-    /**
-     * Serialize an object to a byte array
-     * 
-     * @param obj
-     *            the object
-     * @return a byte array with a serialized version of the object
-     * @throws SerializationException
-     */
-    public byte[] serialize(Object obj) throws SerializationException {
+	/**
+	 * Serialize an object to a byte array
+	 * 
+	 * @param obj
+	 *            the object
+	 * @return a byte array with a serialized version of the object
+	 * @throws SerializationException
+	 */
+	public byte[] serialize(Object obj) throws SerializationException {
 
-        ByteArrayOutputStream baos = ByteArrayOutputStreamPool.getInstance()
-                .getStream();
+		ByteArrayOutputStream baos = ByteArrayOutputStreamPool.getInstance()
+				.getStream();
 
-        try {
-            ISerializationContext ctx = this.builder.buildSerializationContext(
-                    baos, this);
-            ctx.writeMessageStart("dynamicSerialize");
-            serialize(ctx, obj);
-            ctx.writeMessageEnd();
-            return baos.toByteArray();
-        } finally {
-            if (baos != null) {
-                try {
-                    // return stream to pool
-                    baos.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        }
-    }
+		try {
+			serialize(obj, baos);
+			return baos.toByteArray();
+		} finally {
+			if (baos != null) {
+				try {
+					// return stream to pool
+					baos.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+	}
 
-    /**
-     * Serialize an object to a byte array
-     * 
-     * @param obj
-     *            the object
-     * @return a byte array with a serialized version of the object
-     * @throws SerializationException
-     */
-    public void serialize(Object obj, OutputStream os)
-            throws SerializationException {
+	/**
+	 * Serialize an object to a byte array
+	 * 
+	 * @param obj
+	 *            the object
+	 * @return a byte array with a serialized version of the object
+	 * @throws SerializationException
+	 */
+	public void serialize(Object obj, OutputStream os)
+			throws SerializationException {
+		ISerializationContext ctx = this.builder.buildSerializationContext(os,
+				this);
+		ctx.writeMessageStart("dynamicSerialize");
+		serialize(ctx, obj);
+		ctx.writeMessageEnd();
+	}
 
-        ISerializationContext ctx = this.builder.buildSerializationContext(os,
-                this);
-        ctx.writeMessageStart("dynamicSerialize");
-        serialize(ctx, obj);
-        ctx.writeMessageEnd();
+	/**
+	 * Serialize an object using a context
+	 * 
+	 * This method is not intended to be used by end users.
+	 * 
+	 * @param ctx
+	 *            the serialization context
+	 * @param obj
+	 *            the object to serialize
+	 * @throws SerializationException
+	 */
+	public void serialize(ISerializationContext ctx, Object obj)
+			throws SerializationException {
+		BeanMap beanMap = null;
 
-    }
+		if (obj != null && !obj.getClass().isArray()) {
+			beanMap = SerializationCache.getBeanMap(obj);
+		}
+		try {
+			SerializationMetadata metadata = null;
+			if (obj != null) {
+				metadata = getSerializationMetadata(obj.getClass().getName());
+			}
 
-    /**
-     * Serialize an object using a context
-     * 
-     * This method is not intended to be used by end users.
-     * 
-     * @param ctx
-     *            the serialization context
-     * @param obj
-     *            the object to serialize
-     * @throws SerializationException
-     */
-    public void serialize(ISerializationContext ctx, Object obj)
-            throws SerializationException {
-        BeanMap beanMap = null;
+			((ThriftSerializationContext) ctx).serializeMessage(obj, beanMap,
+					metadata);
+		} finally {
+			if (beanMap != null) {
+				SerializationCache.returnBeanMap(beanMap, obj);
+			}
+		}
+	}
 
-        if (obj != null && !obj.getClass().isArray()) {
-            beanMap = SerializationCache.getBeanMap(obj);
-        }
-        try {
-            SerializationMetadata metadata = null;
-            if (obj != null) {
-                metadata = getSerializationMetadata(obj.getClass().getName());
-            }
+	/**
+	 * Deserialize an object from a stream
+	 * 
+	 * @param istream
+	 * @return
+	 * @throws SerializationException
+	 */
+	public Object deserialize(InputStream istream)
+			throws SerializationException {
+		IDeserializationContext ctx = this.builder.buildDeserializationContext(
+				istream, this);
+		ctx.readMessageStart();
+		Object obj = deserialize(ctx);
+		ctx.readMessageEnd();
+		return obj;
 
-            ((ThriftSerializationContext) ctx).serializeMessage(obj, beanMap,
-                    metadata);
-        } finally {
-            if (beanMap != null) {
-                SerializationCache.returnBeanMap(beanMap, obj);
-            }
-        }
-    }
+	}
 
-    /**
-     * Deserialize an object from a stream
-     * 
-     * @param istream
-     * @return
-     * @throws SerializationException
-     */
-    public Object deserialize(InputStream istream)
-            throws SerializationException {
-        IDeserializationContext ctx = this.builder.buildDeserializationContext(
-                istream, this);
-        ctx.readMessageStart();
-        Object obj = deserialize(ctx);
-        ctx.readMessageEnd();
-        return obj;
+	/**
+	 * Deserialize from a context
+	 * 
+	 * Not intended to be used by end users
+	 * 
+	 * @param ctx
+	 * @return
+	 * @throws SerializationException
+	 */
+	public Object deserialize(IDeserializationContext ctx)
+			throws SerializationException {
+		return ((ThriftSerializationContext) ctx).deserializeMessage();
+	}
 
-    }
+	/**
+	 * Inspect a class and return the metadata for the object
+	 * 
+	 * If the class has not been annotated, this will return null
+	 * 
+	 * The metadata is cached for performance
+	 * 
+	 * @param c
+	 *            the class
+	 * @return the metadata
+	 */
+	@SuppressWarnings("unchecked")
+	public static SerializationMetadata inspect(Class<?> c) {
 
-    /**
-     * Deserialize from a context
-     * 
-     * Not intended to be used by end users
-     * 
-     * @param ctx
-     * @return
-     * @throws SerializationException
-     */
-    public Object deserialize(IDeserializationContext ctx)
-            throws SerializationException {
-        return ((ThriftSerializationContext) ctx).deserializeMessage();
-    }
+		// Check for base types
 
-    /**
-     * Inspect a class and return the metadata for the object
-     * 
-     * If the class has not been annotated, this will return null
-     * 
-     * The metadata is cached for performance
-     * 
-     * @param c
-     *            the class
-     * @return the metadata
-     */
-    @SuppressWarnings("unchecked")
-    public static SerializationMetadata inspect(Class<?> c) {
+		SerializationMetadata attribs = serializedAttributes.get(c.getName());
+		if (attribs != null) {
+			return attribs;
+		}
 
-        // Check for base types
+		attribs = new SerializationMetadata();
+		attribs.serializedAttributes = new ArrayList<String>();
+		attribs.attributesWithFactories = new HashMap<String, ISerializationTypeAdapter<?>>();
 
-        SerializationMetadata attribs = serializedAttributes.get(c.getName());
-        if (attribs != null) {
-            return attribs;
-        }
+		DynamicSerializeTypeAdapter serializeAdapterTag = c
+				.getAnnotation(DynamicSerializeTypeAdapter.class);
 
-        attribs = new SerializationMetadata();
-        attribs.serializedAttributes = new ArrayList<String>();
-        attribs.attributesWithFactories = new HashMap<String, ISerializationTypeAdapter<?>>();
+		// Check to see if there is an adapter
+		if (serializeAdapterTag != null) {
+			Class factoryTag = (serializeAdapterTag).factory();
+			try {
+				attribs.serializationFactory = (ISerializationTypeAdapter) factoryTag
+						.newInstance();
+				attribs.adapterStructName = c.getName();
+			} catch (Exception e) {
+				throw new RuntimeException("Factory could not be constructed: "
+						+ factoryTag, e);
+			}
+		}
 
-        DynamicSerializeTypeAdapter serializeAdapterTag = c
-                .getAnnotation(DynamicSerializeTypeAdapter.class);
+		// check to see if superclass has an adapter
+		if (attribs.serializationFactory == null) {
+			Class<?> superClazz = c.getSuperclass();
+			while (superClazz != null && attribs.serializationFactory == null) {
+				SerializationMetadata superMd = serializedAttributes
+						.get(superClazz.getName());
+				if (superMd != null && superMd.serializationFactory != null) {
+					attribs.serializationFactory = superMd.serializationFactory;
+					attribs.adapterStructName = c.getName();
+				}
+				superClazz = superClazz.getSuperclass();
+			}
+		}
 
-        // Check to see if there is an adapter
-        if (serializeAdapterTag != null) {
-            Class factoryTag = (serializeAdapterTag).factory();
-            try {
-                attribs.serializationFactory = (ISerializationTypeAdapter) factoryTag
-                        .newInstance();
-                attribs.adapterStructName = c.getName();
-            } catch (Exception e) {
-                throw new RuntimeException("Factory could not be constructed: "
-                        + factoryTag, e);
-            }
-        }
+		// Make sure the object is annotated or has an adapter. If not, return
+		// null
+		DynamicSerialize serializeTag = c.getAnnotation(DynamicSerialize.class);
+		if (serializeTag == null && attribs.serializationFactory == null) {
+			return null;
+		}
 
-        // check to see if superclass has an adapter
-        if (attribs.serializationFactory == null) {
-            Class<?> superClazz = c.getSuperclass();
-            while (superClazz != null && attribs.serializationFactory == null) {
-                SerializationMetadata superMd = serializedAttributes
-                        .get(superClazz.getName());
-                if (superMd != null && superMd.serializationFactory != null) {
-                    attribs.serializationFactory = superMd.serializationFactory;
-                    attribs.adapterStructName = c.getName();
-                }
-                superClazz = superClazz.getSuperclass();
-            }
-        }
+		if (attribs.serializationFactory == null) {
+			// Go through the class and find the fields with annotations
+			Class<?> clazz = c;
+			Set<String> getters = new HashSet<String>();
+			Set<String> setters = new HashSet<String>();
+			while (clazz != null && clazz != Object.class) {
 
-        // Make sure the object is annotated or has an adapter. If not, return
-        // null
-        DynamicSerialize serializeTag = c.getAnnotation(DynamicSerialize.class);
-        if (serializeTag == null && attribs.serializationFactory == null) {
-            return null;
-        }
+				// Make sure a getter and setter has been defined, and throw an
+				// exception if they haven't been
 
-        if (attribs.serializationFactory == null) {
-            // Go through the class and find the fields with annotations
-            Class<?> clazz = c;
-            Set<String> getters = new HashSet<String>();
-            Set<String> setters = new HashSet<String>();
-            while (clazz != null && clazz != Object.class) {
+				getters.clear();
+				setters.clear();
+				Method[] methods = c.getMethods();
+				for (Method m : methods) {
+					String name = m.getName();
+					if (name.startsWith("get")) {
+						name = name.substring(3);
+						getters.add(name.toLowerCase());
+					} else if (name.startsWith("is")) {
+						name = name.substring(2);
+						getters.add(name.toLowerCase());
+					} else if (name.startsWith("set")) {
+						name = name.substring(3);
+						setters.add(name.toLowerCase());
+					}
+				}
 
-                // Make sure a getter and setter has been defined, and throw an
-                // exception if they haven't been
+				java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
+				for (java.lang.reflect.Field field : fields) {
 
-                getters.clear();
-                setters.clear();
-                Method[] methods = c.getMethods();
-                for (Method m : methods) {
-                    String name = m.getName();
-                    if (name.startsWith("get")) {
-                        name = name.substring(3);
-                        getters.add(name.toLowerCase());
-                    } else if (name.startsWith("is")) {
-                        name = name.substring(2);
-                        getters.add(name.toLowerCase());
-                    } else if (name.startsWith("set")) {
-                        name = name.substring(3);
-                        setters.add(name.toLowerCase());
-                    }
-                }
+					int modifier = field.getModifiers();
+					if (Modifier.isFinal(modifier)) {
+						continue;
+					}
 
-                java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
-                for (java.lang.reflect.Field field : fields) {
+					DynamicSerializeElement annotation = field
+							.getAnnotation(DynamicSerializeElement.class);
+					if (annotation != null) {
+						String fieldName = field.getName();
 
-                    int modifier = field.getModifiers();
-                    if (Modifier.isFinal(modifier)) {
-                        continue;
-                    }
+						attribs.serializedAttributes.add(field.getName());
+						if (serializeAdapterTag == null) {
+							serializeAdapterTag = field.getType()
+									.getAnnotation(
+											DynamicSerializeTypeAdapter.class);
+						}
+						if (serializeAdapterTag != null) {
+							try {
+								attribs.attributesWithFactories.put(fieldName,
+										serializeAdapterTag.factory()
+												.newInstance());
+							} catch (Exception e) {
+								throw new RuntimeException(
+										"Factory could not be instantiated", e);
+							}
+						}
+						// Throw a validation exception if necessary
+						boolean foundGetter = false;
+						boolean foundSetter = false;
+						String lower = fieldName.toLowerCase();
 
-                    DynamicSerializeElement annotation = field
-                            .getAnnotation(DynamicSerializeElement.class);
-                    if (annotation != null) {
-                        String fieldName = field.getName();
+						if (getters.contains(lower)) {
+							foundGetter = true;
+						}
 
-                        attribs.serializedAttributes.add(field.getName());
-                        if (serializeAdapterTag == null) {
-                            serializeAdapterTag = field.getType()
-                                    .getAnnotation(
-                                            DynamicSerializeTypeAdapter.class);
-                        }
-                        if (serializeAdapterTag != null) {
-                            try {
-                                attribs.attributesWithFactories.put(fieldName,
-                                        serializeAdapterTag.factory()
-                                                .newInstance());
-                            } catch (Exception e) {
-                                throw new RuntimeException(
-                                        "Factory could not be instantiated", e);
-                            }
-                        }
-                        // Throw a validation exception if necessary
-                        boolean foundGetter = false;
-                        boolean foundSetter = false;
-                        String lower = fieldName.toLowerCase();
+						if (setters.contains(lower)) {
+							foundSetter = true;
+						}
 
-                        if (getters.contains(lower)) {
-                            foundGetter = true;
-                        }
+						if (!foundGetter || !foundSetter) {
+							String missing = "";
+							if (!foundGetter && !foundSetter) {
+								missing = "Getter and Setter";
+							} else if (!foundGetter) {
+								missing = "Getter";
+							} else if (!foundSetter) {
+								missing = "Setter";
+							}
 
-                        if (setters.contains(lower)) {
-                            foundSetter = true;
-                        }
+							throw new RuntimeException("Required " + missing
+									+ " on " + clazz.getName() + ":"
+									+ field.getName() + " is missing");
+						}
 
-                        if (!foundGetter || !foundSetter) {
-                            String missing = "";
-                            if (!foundGetter && !foundSetter) {
-                                missing = "Getter and Setter";
-                            } else if (!foundGetter) {
-                                missing = "Getter";
-                            } else if (!foundSetter) {
-                                missing = "Setter";
-                            }
+					}
+				}
+				clazz = clazz.getSuperclass();
+			}
+		}
 
-                            throw new RuntimeException("Required " + missing
-                                    + " on " + clazz.getName() + ":"
-                                    + field.getName() + " is missing");
-                        }
+		// Sort to guarantee universal ordering
+		Collections.sort(attribs.serializedAttributes);
+		serializedAttributes.put(c.getName(), attribs);
 
-                    }
-                }
-                clazz = clazz.getSuperclass();
-            }
-        }
+		// inspect inner classes
+		Class<?>[] innerClzs = c.getClasses();
+		for (Class<?> innerClz : innerClzs) {
+			inspect(innerClz);
+		}
 
-        // Sort to guarantee universal ordering
-        Collections.sort(attribs.serializedAttributes);
-        serializedAttributes.put(c.getName(), attribs);
+		return attribs;
+	}
 
-        // inspect inner classes
-        Class<?>[] innerClzs = c.getClasses();
-        for (Class<?> innerClz : innerClzs) {
-            inspect(innerClz);
-        }
+	public static synchronized DynamicSerializationManager getManager(
+			SerializationType type) {
+		DynamicSerializationManager mgr = instanceMap.get(type);
+		if (mgr == null) {
+			mgr = new DynamicSerializationManager(type);
+			instanceMap.put(type, mgr);
+		}
 
-        return attribs;
-    }
+		return mgr;
+	}
 
-    public static synchronized DynamicSerializationManager getManager(
-            SerializationType type) {
-        DynamicSerializationManager mgr = instanceMap.get(type);
-        if (mgr == null) {
-            mgr = new DynamicSerializationManager(type);
-            instanceMap.put(type, mgr);
-        }
+	private DynamicSerializationManager(SerializationType type) {
+		if (type == SerializationType.Thrift) {
+			builder = new ThriftSerializationContextBuilder();
+		}
+	}
 
-        return mgr;
-    }
+	/**
+	 * Get the serialization metadata. Build it if not found
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public SerializationMetadata getSerializationMetadata(String name) {
+		// we can't synchronize on this because it's possible the
+		// Class.forName() will trigger code that comes back into here and
+		// then deadlocks
+		SerializationMetadata sm = serializedAttributes.get(name);
+		if (sm == null) {
+			try {
+				sm = inspect(Class.forName(name, true, getClass()
+						.getClassLoader()));
+				if (sm == null) {
+					serializedAttributes.put(name, NO_METADATA);
+				}
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
 
-    private DynamicSerializationManager(SerializationType type) {
-        if (type == SerializationType.Thrift) {
-            builder = new ThriftSerializationContextBuilder();
-        }
-    }
+		if (sm == NO_METADATA) {
+			return null;
+		}
+		return sm;
 
-    /**
-     * Get the serialization metadata. Build it if not found
-     * 
-     * @param name
-     * @return
-     */
-    public SerializationMetadata getSerializationMetadata(String name) {
-        // we can't synchronize on this because it's possible the
-        // Class.forName() will trigger code that comes back into here and
-        // then deadlocks
-        SerializationMetadata sm = serializedAttributes.get(name);
-        if (sm == null) {
-            try {
-                sm = inspect(Class.forName(name, true, getClass()
-                        .getClassLoader()));
-                if (sm == null) {
-                    serializedAttributes.put(name, NO_METADATA);
-                }
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (sm == NO_METADATA) {
-            return null;
-        }
-        return sm;
-
-    }
+	}
 
 }

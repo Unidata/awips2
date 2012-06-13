@@ -1,35 +1,22 @@
-
 package gov.noaa.nws.ncep.edex.plugin.mosaic.common;
 
+import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicConstants;
+import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicConstants.MapValues;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.DataLevelThreshold;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyBlock;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyPacket;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3.SymbologyPoint;
-import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicConstants;
-import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicConstants.MapValues;
 
-import java.awt.geom.Point2D;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
-import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.Vector;
 
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -38,15 +25,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.geotools.referencing.GeodeticCalculator;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
-//import com.raytheon.edex.map.MapUtil;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -55,7 +38,6 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
@@ -64,27 +46,22 @@ import com.raytheon.uf.common.serialization.DynamicSerializationManager;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.time.DataTime;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Decoder implementation for mosaic plugin
  * 
- * Date         Ticket#         Engineer    Description
- * ------------ ----------      ----------- --------------------------
- * 09/2009      143				L. Lin     	Initial creation
- * 11/2009      143             L. Lin      Add parameters sourceId and
- * 											trueElevationAngle in mosaic record.
- * 1/2011		143				T. Lee		Add resolution to key for AWC 1km NSSL
- *											Extracted prod name from mosaicInfo.txt
- * </pre>
+ * Date Ticket# Engineer Description ------------ ---------- -----------
+ * -------------------------- 09/2009 143 L. Lin Initial creation 11/2009 143 L.
+ * Lin Add parameters sourceId and trueElevationAngle in mosaic record. 1/2011
+ * 143 T. Lee Add resolution to key for AWC 1km NSSL Extracted prod name from
+ * mosaicInfo.txt </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
+ * 
  * @author L. Lin
  * @version 1.0
  */
-
 
 @Entity
 @Table(name = "mosaic", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -94,7 +71,7 @@ import com.vividsolutions.jts.geom.Envelope;
 @DynamicSerialize
 public class MosaicRecord extends PersistablePluginDataObject implements
         IPersistable, ISpatialEnabled, IMosaicRecord {
-	
+
     private static final long serialVersionUID = 1L;
 
     @Column
@@ -103,8 +80,8 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     @XmlElement(nillable = false)
     private Integer productCode;
 
-    @Column 
-    @DataURI(position=3)
+    @Column
+    @DataURI(position = 3)
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Integer resolution;
@@ -134,7 +111,7 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Float trueElevationAngle;
-    
+
     // 10,000 for US
     @Column
     @DynamicSerializeElement
@@ -145,22 +122,22 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Integer volumeCoveragePattern;
-    
+
     @Column
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Calendar issueTime;
-    
+
     @Column
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Calendar scanTime;
-    
+
     @Column
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private Calendar generationTime;
-    
+
     @Column
     @DynamicSerializeElement
     @XmlElement(nillable = false)
@@ -251,8 +228,8 @@ public class MosaicRecord extends PersistablePluginDataObject implements
             throws StorageException, FileNotFoundException {
 
         if ("Radial".equals(format) || "Raster".equals(format)) {
-            //ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
-              //      getDataURI(), "Data");
+            // ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
+            // getDataURI(), "Data");
             ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                     getDataURI(), "Data", Request.ALL);
             setRawData(byteData.getByteData());
@@ -262,12 +239,13 @@ public class MosaicRecord extends PersistablePluginDataObject implements
                 || "Graph".equals(format)) {
 
             try {
-                //ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
-                  //      getDataURI(), "Symbology");
+                // ByteDataRecord byteData = (ByteDataRecord)
+                // dataStore.retrieve(
+                // getDataURI(), "Symbology");
                 ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                         getDataURI(), "Symbology", Request.ALL);
-                ByteArrayInputStream bais = new ByteArrayInputStream(byteData
-                        .getByteData());
+                ByteArrayInputStream bais = new ByteArrayInputStream(
+                        byteData.getByteData());
                 Object o = DynamicSerializationManager.getManager(
                         SerializationType.Thrift).deserialize(bais);
                 setSymbologyBlock((SymbologyBlock) o);
@@ -278,8 +256,8 @@ public class MosaicRecord extends PersistablePluginDataObject implements
             try {
                 ByteDataRecord byteData = (ByteDataRecord) dataStore.retrieve(
                         getDataURI(), "ProductVals", Request.ALL);
-                ByteArrayInputStream bais = new ByteArrayInputStream(byteData
-                        .getByteData());
+                ByteArrayInputStream bais = new ByteArrayInputStream(
+                        byteData.getByteData());
                 Object o = DynamicSerializationManager.getManager(
                         SerializationType.Thrift).deserialize(bais);
                 setProductVals((HashMap<MosaicConstants.MapValues, Map<String, Map<MosaicConstants.MapValues, String>>>) o);
@@ -305,39 +283,15 @@ public class MosaicRecord extends PersistablePluginDataObject implements
         }
     }
 
-    /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
+    public String getProdName() {
+        return prodName;
+    }
 
-        return c.getTime();
+    public void setProdName(String prodName) {
+        this.prodName = prodName;
     }
 
     /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Calendar persistTime) {
-        setInsertTime(persistTime);
-    }
-
-	public String getProdName() {
-		return prodName;
-	}
-
-	public void setProdName(String prodName) {
-		this.prodName = prodName;
-	}
-
-	/**
      * @return the productCode
      */
     public Integer getProductCode() {
@@ -353,38 +307,38 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     }
 
     public Integer getNx() {
-		return nx;
-	}
+        return nx;
+    }
 
-	public void setNx(Integer nx) {
-		this.nx = nx;
-	}
+    public void setNx(Integer nx) {
+        this.nx = nx;
+    }
 
-	public Integer getNy() {
-		return ny;
-	}
+    public Integer getNy() {
+        return ny;
+    }
 
-	public void setNy(Integer ny) {
-		this.ny = ny;
-	}
+    public void setNy(Integer ny) {
+        this.ny = ny;
+    }
 
     public Integer getResolution() {
-		return resolution;
-	}
+        return resolution;
+    }
 
-	public void setResolution(Integer resolution) {
-		this.resolution = resolution;
-	}
+    public void setResolution(Integer resolution) {
+        this.resolution = resolution;
+    }
 
     public Integer getSourceId() {
-		return sourceId;
-	}
+        return sourceId;
+    }
 
-	public void setSourceId(Integer sourceId) {
-		this.sourceId = sourceId;
-	}
+    public void setSourceId(Integer sourceId) {
+        this.sourceId = sourceId;
+    }
 
-	public Float getLatitude() {
+    public Float getLatitude() {
         return latitude;
     }
 
@@ -401,22 +355,22 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     }
 
     public Float getTrueElevationAngle() {
-		return trueElevationAngle;
-	}
+        return trueElevationAngle;
+    }
 
-	public void setTrueElevationAngle(Float trueElevationAngle) {
-		this.trueElevationAngle = trueElevationAngle;
-	}
+    public void setTrueElevationAngle(Float trueElevationAngle) {
+        this.trueElevationAngle = trueElevationAngle;
+    }
 
-	public byte[] getHeaderBlock() {
-		return headerBlock;
-	}
+    public byte[] getHeaderBlock() {
+        return headerBlock;
+    }
 
-	public void setHeaderBlock(byte[] headerBlock) {
-		this.headerBlock = headerBlock;
-	}
+    public void setHeaderBlock(byte[] headerBlock) {
+        this.headerBlock = headerBlock;
+    }
 
-	public byte[] getRawData() {
+    public byte[] getRawData() {
         return rawData;
     }
 
@@ -482,28 +436,28 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     }
 
     public Calendar getIssueTime() {
-		return issueTime;
-	}
+        return issueTime;
+    }
 
-	public void setIssueTime(Calendar issueTime) {
-		this.issueTime = issueTime;
-	}
+    public void setIssueTime(Calendar issueTime) {
+        this.issueTime = issueTime;
+    }
 
-	public Calendar getScanTime() {
-		return scanTime;
-	}
+    public Calendar getScanTime() {
+        return scanTime;
+    }
 
-	public void setScanTime(Calendar scanTime) {
-		this.scanTime = scanTime;
-	}
+    public void setScanTime(Calendar scanTime) {
+        this.scanTime = scanTime;
+    }
 
-	public Calendar getGenerationTime() {
-		return generationTime;
-	}
+    public Calendar getGenerationTime() {
+        return generationTime;
+    }
 
-	public void setGenerationTime(Calendar generationTime) {
-		this.generationTime = generationTime;
-	}
+    public void setGenerationTime(Calendar generationTime) {
+        this.generationTime = generationTime;
+    }
 
     public String getFormat() {
         return format;
@@ -554,7 +508,7 @@ public class MosaicRecord extends PersistablePluginDataObject implements
     public IDecoderGettable getDecoderGettable() {
         return null;
     }
-    
+
     /**
      * @return the symbologyBlock
      */
@@ -605,7 +559,8 @@ public class MosaicRecord extends PersistablePluginDataObject implements
      * @param symbologyData
      *            the symbologyData to set
      */
-    public void setSymbologyData(Map<MosaicDataKey, MosaicDataPoint> symbologyData) {
+    public void setSymbologyData(
+            Map<MosaicDataKey, MosaicDataPoint> symbologyData) {
         this.symbologyData = symbologyData;
     }
 
@@ -627,18 +582,16 @@ public class MosaicRecord extends PersistablePluginDataObject implements
         // **********************************
         if ("Raster".equals(this.getFormat())) {
 
-        	int col = (int) (output[0] / this.getResolution() + (this
-        			.getNy() / 2));
+            int col = (int) (output[0] / this.getResolution() + (this.getNy() / 2));
 
-        	int row = (int) (output[1] / this.getResolution() + (this
-        			.getNy() / 2));
+            int row = (int) (output[1] / this.getResolution() + (this.getNy() / 2));
 
-        	row = this.getNy() - row - 1;
+            row = this.getNy() - row - 1;
 
-        	if ((row >= 0) && (row < this.getNy()) && (col >= 0)
-        			&& (col < this.getNy())) {
-        		dataValue = this.getRawDataValue(row, col);
-        	}
+            if ((row >= 0) && (row < this.getNy()) && (col >= 0)
+                    && (col < this.getNy())) {
+                dataValue = this.getRawDataValue(row, col);
+            }
         }
 
         return dataValue;
@@ -652,7 +605,7 @@ public class MosaicRecord extends PersistablePluginDataObject implements
             HashMap<MosaicConstants.MapValues, Map<String, Map<MosaicConstants.MapValues, String>>> map) {
         this.productVals = map;
     }
-    
+
     public void printSymbologyData() {
         System.out
                 .println("******************************************************************************");
@@ -784,15 +737,9 @@ public class MosaicRecord extends PersistablePluginDataObject implements
         return list;
     }
 
-	@Override
-	public void setPersistenceTime(Date persistTime) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ISpatialObject getSpatialObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ISpatialObject getSpatialObject() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

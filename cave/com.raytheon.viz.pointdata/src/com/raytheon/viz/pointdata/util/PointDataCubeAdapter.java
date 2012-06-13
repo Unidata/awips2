@@ -41,6 +41,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
@@ -369,6 +370,10 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
             throws VizException {
         TimeQueryRequestSet set = new TimeQueryRequestSet();
         set.setRequests(requests.toArray(new TimeQueryRequest[0]));
+        // boundary for time queries
+        for (TimeQueryRequest req: set.getRequests()) {
+        	req.setSimDate(SimulatedTime.getSystemTime().getTime());
+        }
         @SuppressWarnings("unchecked")
         List<List<DataTime>> result = (List<List<DataTime>>) ThriftClient
                 .sendRequest(set);

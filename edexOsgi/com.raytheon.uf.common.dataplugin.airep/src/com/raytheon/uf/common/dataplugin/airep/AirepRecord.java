@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.common.dataplugin.airep;
 
+import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,6 +66,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * 20080103            384 jkorman     Initial Coding.
  * 20080107            720 jkorman     remove default assignments from attributes.
+ * 20120405            435 dgilling    Prevent NullPointerExceptions in
+ *                                     buildMessageData().
  * </pre>
  * 
  * @author jkorman
@@ -82,17 +88,19 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     public static final Unit<Velocity> WIND_SPEED_UNIT = NonSI.KNOT;
 
     public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-    
+
     public static final Unit<Length> ALTITUDE_UNIT = NonSI.FOOT;
 
     public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-    
-    private static UnitConverter ftToHft = NonSI.FOOT.getConverterTo(SI.HECTO(NonSI.FOOT));
+
+    private static UnitConverter ftToHft = NonSI.FOOT.getConverterTo(SI
+            .HECTO(NonSI.FOOT));
 
     private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    
-    //private static final HashMap<Integer, String> WX_MAP = new HashMap<Integer, String>();
-    
+
+    // private static final HashMap<Integer, String> WX_MAP = new
+    // HashMap<Integer, String>();
+
     static {
         PARM_MAP.put("T", SFC_TEMP);
         PARM_MAP.put("WS", SFC_WNDSPD);
@@ -100,17 +108,17 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         PARM_MAP.put("NLAT", STA_LAT);
         PARM_MAP.put("NLON", STA_LON);
         PARM_MAP.put("FLT_LVL", UA_FLTLVL);
-        
-//        WX_MAP.put(0, "CLR");
-//        WX_MAP.put(1, "SCT");
-//        WX_MAP.put(2, "BKN");
-//        WX_MAP.put(3, "CONT");
-//        WX_MAP.put(4, "LIGHTNING");
-//        WX_MAP.put(5, "DZRA");
-//        WX_MAP.put(6, "CONT RA");
-//        WX_MAP.put(7, "CONT SN");
-//        WX_MAP.put(8, "SH");
-//        WX_MAP.put(9, "TSRA");
+
+        // WX_MAP.put(0, "CLR");
+        // WX_MAP.put(1, "SCT");
+        // WX_MAP.put(2, "BKN");
+        // WX_MAP.put(3, "CONT");
+        // WX_MAP.put(4, "LIGHTNING");
+        // WX_MAP.put(5, "DZRA");
+        // WX_MAP.put(6, "CONT RA");
+        // WX_MAP.put(7, "CONT SN");
+        // WX_MAP.put(8, "SH");
+        // WX_MAP.put(9, "TSRA");
     }
 
     @Column
@@ -130,7 +138,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlAttribute
     private Calendar refHour;
 
-    // 
+    //
     @DataURI(position = 1)
     @Column
     @DynamicSerializeElement
@@ -523,7 +531,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
             a = new Amount(this.getLongitude(), LOCATION_UNIT);
         } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
             a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
-            
+
         }
         return a;
     }
@@ -543,8 +551,8 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     @Override
     public String[] getStrings(String paramName) {
-        if ("FLT_HZD".matches(paramName)  && flightHazard != null) {
-            String[] flightHazards = {flightHazard.toString()};
+        if ("FLT_HZD".matches(paramName) && flightHazard != null) {
+            String[] flightHazards = { flightHazard.toString() };
             return flightHazards;
         }
         return null;
@@ -561,78 +569,89 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     public void setLocation(AircraftObsLocation location) {
         this.location = location;
-    } 
-    
+    }
+
     @Override
     public String getMessageData() {
         return getReportData();
     }
-    
-    private String buildMessageData(){
-        String s = "";
-        
-        String lat = String.valueOf(location.getLatitude());
-        String lon = String.valueOf(location.getLongitude());
-        String latDir = location.getLatitude() > 0 ? "N" : "S";
-        String lonDir = location.getLongitude() > 0 ? "E" : "W";
-        String hour = "";
-        String minute = "";
-        if(timeObs != null){
-            hour = String.valueOf(timeObs.get(Calendar.HOUR_OF_DAY));
-            minute = String.valueOf(timeObs.get(Calendar.MINUTE));
+
+    private String buildMessageData() {
+        boolean validLocation = (location != null);
+
+        StringBuilder messageData = new StringBuilder("ARP ");
+        if (validLocation && getStationId() != null) {
+            messageData.append(getStationId());
         }
-        String flightLevel = String.valueOf((int)ftToHft.convert(location.getFlightLevel()));
-        String wind = windDirection != null? 
-                String.valueOf(windDirection.intValue()) + "/" 
-                + String.valueOf(windSpeed.intValue()) + "KT": "";
-        //String wx = flightWeather != null? WX_MAP.get(flightWeather) : "";        
-        lat = formatLatLon(lat);
-        lon = formatLatLon(lon);
-        String temperature = "";
+        messageData.append(' ');
+
+        if ((validLocation) && (!Double.isNaN(getLatitude()))
+                && (!Double.isNaN(getLongitude()))) {
+            messageData.append(formatLatLon(getLatitude(), true));
+            messageData.append(' ');
+            messageData.append(formatLatLon(getLongitude(), false));
+            messageData.append(' ');
+        }
+
+        if (timeObs != null) {
+            DateFormat df = new SimpleDateFormat("HHmm");
+            messageData.append(df.format(timeObs.getTime()));
+        }
+        messageData.append(" F");
+
+        if (validLocation && getFlightLevel() != null) {
+            int flightLevel = (int) ftToHft.convert(getFlightLevel());
+            messageData.append(flightLevel);
+        }
+        messageData.append(' ');
+
         if (temp != null) {
             if (temp > 0) {
-                temperature = "P" + temp.intValue();
+                messageData.append('P');
             } else {
-                temperature = "M" + String.valueOf(temp.intValue()).substring(1);
+                messageData.append('M');
             }
+            messageData.append(Math.abs(temp.intValue()));
         }
-        if (hour.length() < 2) {
-            hour = "0" + hour;
+        messageData.append(' ');
+
+        if ((windDirection != null) && (windSpeed != null)) {
+            messageData.append(windDirection.intValue());
+            messageData.append('/');
+            messageData.append(windSpeed.intValue());
+            messageData.append("KT");
         }
-        if (minute.length() < 2) {
-            minute = "0" + minute;
-        }
-        s = "ARP " + location.getStationId() + " " 
-                + lat + latDir + " " + lon + lonDir + " " 
-                +  hour + minute + " F" + flightLevel 
-                + " " + temperature + " " + wind 
-                + "TB";
-        return s;
+        messageData.append("TB");
+
+        return messageData.toString();
     }
-    
-    private String formatLatLon(String str){
-        str = str.startsWith("-")? str.substring(1) : str;
-        
-        int decimalIndex = str.indexOf(".");
-        
-        if(decimalIndex != -1){
-            String temp = str.substring(decimalIndex + 1);
-            if(temp.length() > 3){
-                temp = temp.substring(0, 3);
-            } else if (temp.length() != 3) {
-                while(temp.length() != 3){
-                    temp += "0";
-                }
+
+    private String formatLatLon(double value, boolean isLatitude) {
+        char dir;
+        if (isLatitude) {
+            if (value > 0) {
+                dir = 'N';
+            } else {
+                dir = 'S';
             }
-            str = str.substring(0,decimalIndex) + temp;
+        } else {
+            if (value > 0) {
+                dir = 'E';
+            } else {
+                dir = 'W';
+            }
         }
-        
-        return str;
+
+        DecimalFormat df = new DecimalFormat("###.000");
+        df.setRoundingMode(RoundingMode.DOWN);
+
+        return df.format(Math.abs(value)) + dir;
     }
 
     /**
-     * Returns the hashCode for this object. This implementation
-     * returns the hashCode of the generated dataURI.
+     * Returns the hashCode for this object. This implementation returns the
+     * hashCode of the generated dataURI.
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -645,26 +664,31 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * Checks if this record is equal to another by checking the
-     * generated dataURI.
-     * @param obj 
+     * Checks if this record is equal to another by checking the generated
+     * dataURI.
+     * 
+     * @param obj
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AirepRecord other = (AirepRecord) obj;
         if (getDataURI() == null) {
             if (other.getDataURI() != null) {
                 return false;
             }
-        } else if (!getDataURI().equals(other.getDataURI()))
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
+        }
         return true;
     }
 
