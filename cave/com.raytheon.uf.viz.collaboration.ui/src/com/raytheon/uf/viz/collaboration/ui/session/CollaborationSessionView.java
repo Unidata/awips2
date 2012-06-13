@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 
@@ -56,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionContainer;
@@ -70,6 +72,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -477,6 +480,16 @@ public class CollaborationSessionView extends SessionView implements
 
     @Override
     public void dispose() {
+        CollaborationEditor assocEditor = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId())
+                .getCollaborationEditor();
+        if (assocEditor != null) {
+            IWorkbenchPage page = VizWorkbenchManager.getInstance()
+                    .getCurrentWindow().getActivePage();
+            if (page != null) {
+                page.closeEditor(assocEditor, false);
+            }
+        }
         SharedDisplaySessionMgr.exitSession(session.getSessionId());
         session.close();
         super.dispose();
