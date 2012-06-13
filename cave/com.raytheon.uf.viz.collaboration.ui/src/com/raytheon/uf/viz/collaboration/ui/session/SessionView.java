@@ -102,6 +102,8 @@ public class SessionView extends AbstractSessionView {
 
     protected TableViewer usersTable;
 
+    protected CLabel participantsLabel;
+
     protected String sessionId;
 
     protected IVenueSession session;
@@ -250,7 +252,7 @@ public class SessionView extends AbstractSessionView {
         comp.setLayout(layout);
         comp.setLayoutData(data);
 
-        final CLabel participantsLabel = new CLabel(comp, SWT.NONE);
+        participantsLabel = new CLabel(comp, SWT.NONE);
         layout = new GridLayout(1, false);
         data = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         participantsLabel.setLayout(layout);

@@ -55,7 +55,6 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeSelection;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
@@ -90,6 +89,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
@@ -119,6 +120,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
+import com.raytheon.uf.viz.collaboration.ui.session.SessionFeedView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchive;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
@@ -151,7 +153,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private SessionGroupContainer activeSessionGroup;
 
-    private TreeViewer usersTreeViewer;
+    private FilteredTree usersTreeViewer;
 
     private CollaborationGroupContainer topLevel;
 
@@ -175,10 +177,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private Action addGroupAction;
 
-    private Action addUserAction;
-
-    private Action selectGroups;
-
     private Action changeStatusMessageAction;
 
     private Action changeStatusAction;
@@ -186,6 +184,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private Action fontChangeAction;
 
     private Action changePasswordAction;
+
+    private Action displayFeedAction;
 
     // Drawing *will* be activated in collaboration views
     // private Action drawToolbarAction;
@@ -253,7 +253,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             connection.registerEventHandler(this);
         }
         populateTree();
-        usersTreeViewer.refresh();
+        usersTreeViewer.getViewer().refresh();
         parent.layout();
     }
 
@@ -295,7 +295,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         createArchiveViewerAction = new Action("View Log...") {
             private String getSessionName() {
                 IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
-                        .getSelection();
+                        .getViewer().getSelection();
                 Object o = selection.getFirstElement();
                 String sessionName = null;
 
@@ -315,15 +315,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 }
                 return sessionName;
             }
-
-            // @Override
-            // public boolean isEnabled() {
-            // CollaborationConnection conn = CollaborationDataManager
-            // .getInstance().getCollaborationConnection(true);
-            // UserId user = conn.getUser();
-            // return SessionMsgArchive.getArchiveDir(user.getHost(),
-            // user.getName(), getSessionName()).exists();
-            // };
 
             @Override
             public void runWithEvent(Event event) {
@@ -398,12 +389,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
             @Override
             public void run() {
                 TreeSelection selection = (TreeSelection) usersTreeViewer
-                        .getSelection();
+                        .getViewer().getSelection();
                 Object node = selection.getFirstElement();
                 if (node instanceof IVenueSession) {
                     // loop through all the views so that we can bring the one
-                    // that
-                    // was selected to the top...
+                    // that was selected to the top...
                     IVenueSession session = (IVenueSession) selection
                             .getFirstElement();
                     for (IViewReference ref : getViewSite()
@@ -423,7 +413,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             @Override
             public void run() {
                 TreeSelection selection = (TreeSelection) usersTreeViewer
-                        .getSelection();
+                        .getViewer().getSelection();
                 Object node = selection.getFirstElement();
                 if (node instanceof IRosterEntry) {
                     IRosterEntry user = (IRosterEntry) node;
@@ -469,16 +459,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
             };
         };
 
-        addUserAction = new Action("Add User") {
-            public void run() {
-                // addUsersToGroup();
-                nyiFeature("Add User to a Group");
-            };
-        };
-        addUserAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
-                "add_contact.gif"));
-        addUserAction.setEnabled(false);
-
         addGroupAction = new Action("Create Group") {
             public void run() {
                 System.out.println("Create Group here");
@@ -488,14 +468,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
         addGroupAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
                 "add_group.gif"));
         addGroupAction.setEnabled(false);
-
-        selectGroups = new Action("Select System Groups...") {
-            public void run() {
-                System.out.println("Select System Groups to Display...");
-                nyiFeature("Select System Groups.");
-            }
-        };
-        selectGroups.setEnabled(false);
 
         changeStatusMessageAction = new Action("Change Status Message...") {
             public void run() {
@@ -541,7 +513,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         collapseAllAction = new Action("Collapse All") {
             public void run() {
                 if (usersTreeViewer != null) {
-                    usersTreeViewer.collapseAll();
+                    usersTreeViewer.getViewer().collapseAll();
                 }
             }
         };
@@ -575,45 +547,30 @@ public class CollaborationGroupView extends CaveFloatingView implements
         };
         changeStatusAction.setMenuCreator(creator);
 
-        // TODO: Delete once drawing is activated in collaboration shared
-        // dispaly views
-        // drawToolbarAction = new Action("Drawing Toolbar") {
-        // @Override
-        // public void run() {
-        // // TODO: What should this do now?
-        // System.err.println("What should this method do now!?");
-        // }
-        // };
-        // drawToolbarAction.setImageDescriptor(IconUtil.getImageDescriptor(
-        // com.raytheon.uf.viz.drawing.Activator.getDefault().getBundle(),
-        // "draw.gif"));
-        //
-        // pgenAction = new Action("PGEN") {
-        // @Override
-        // public void run() {
-        // StaticDataProvider.getInstance();
-        // try {
-        // // cause the classloader to load StaticDataProvider and thus
-        // // to call the Activator for
-        // // gov.noaa.nws.ncep.staticdataprovider.
-        // // This is done because of an initialization order problem
-        // // in PgenStaticDataProvider
-        // StaticDataProvider.getInstance();
-        // ServiceReference ref = Activator
-        // .getDefault()
-        // .getBundle()
-        // .getBundleContext()
-        // .getServiceReference(
-        // IStaticDataProvider.class.getName());
-        //
-        // PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-        // .getActivePage().showView(PgenUtil.VIEW_ID);
-        // } catch (PartInitException e) {
-        // statusHandler.handle(Priority.PROBLEM,
-        // "Unable to open PGEN palette", e);
-        // }
-        // }
-        // };
+        displayFeedAction = new Action("Display Feed") {
+            public void run() {
+                CollaborationConnection connection = CollaborationConnection
+                        .getConnection();
+                try {
+                    // TODO, make this configurable?
+                    IVenueSession session = connection
+                            .joinTextOnlyVenue("nws-collaboration");
+                    PlatformUI
+                            .getWorkbench()
+                            .getActiveWorkbenchWindow()
+                            .getActivePage()
+                            .showView(SessionFeedView.ID,
+                                    session.getSessionId(),
+                                    IWorkbenchPage.VIEW_ACTIVATE);
+                } catch (CollaborationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to join the collaboration feed", e);
+                } catch (PartInitException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to join collaboration feed", e);
+                }
+            };
+        };
     }
 
     /**
@@ -624,6 +581,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         mgr.add(createSessionAction);
         mgr.add(collapseAllAction);
         mgr.add(linkToEditorAction);
+        // mgr.add(displayFeedAction);
     }
 
     /**
@@ -645,8 +603,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private void createMenu(IMenuManager mgr) {
         mgr.add(addGroupAction);
-        mgr.add(addUserAction);
-        mgr.add(selectGroups);
         mgr.add(new Separator());
         mgr.add(fontChangeAction);
         mgr.add(changeStatusAction);
@@ -676,9 +632,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 fillContextMenu(manager);
             }
         });
-        Menu menu = menuMgr.createContextMenu(usersTreeViewer.getControl());
-        usersTreeViewer.getControl().setMenu(menu);
-        getSite().registerContextMenu(menuMgr, usersTreeViewer);
+        Menu menu = menuMgr.createContextMenu(usersTreeViewer.getViewer()
+                .getControl());
+        usersTreeViewer.getViewer().getControl().setMenu(menu);
+        getSite().registerContextMenu(menuMgr, usersTreeViewer.getViewer());
     }
 
     /**
@@ -690,10 +647,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         topLevel.clear();
         // set all the menu actions to false to start with
         if (connection == null) {
-            usersTreeViewer.getTree().setEnabled(false);
+            usersTreeViewer.getViewer().getTree().setEnabled(false);
             addGroupAction.setEnabled(false);
-            addUserAction.setEnabled(false);
-            selectGroups.setEnabled(false);
             changeStatusAction.setEnabled(false);
             fontChangeAction.setEnabled(false);
             changeStatusMessageAction.setEnabled(false);
@@ -703,8 +658,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
         // enable all the actions
         addGroupAction.setEnabled(true);
-        addUserAction.setEnabled(true);
-        selectGroups.setEnabled(true);
         changeStatusAction.setEnabled(true);
         fontChangeAction.setEnabled(true);
         changeStatusMessageAction.setEnabled(true);
@@ -726,8 +679,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         populateGroups();
 
         // enable the tree, and then refresh it just to be safe
-        usersTreeViewer.getTree().setEnabled(true);
-        usersTreeViewer.refresh(topLevel, true);
+        usersTreeViewer.getViewer().getTree().setEnabled(true);
+        usersTreeViewer.getViewer().refresh(topLevel, true);
         this.disableOrEnableToolbarActions();
         createArchiveViewerAction.setEnabled(true);
     }
@@ -787,7 +740,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
      */
     private void fillContextMenu(IMenuManager manager) {
         IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
-                .getSelection();
+                .getViewer().getSelection();
         Object o = selection.getFirstElement();
 
         // handle the session group portion of the group view
@@ -847,18 +800,20 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     private void addDoubleClickListeners() {
-        usersTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
-            @Override
-            public void doubleClick(DoubleClickEvent event) {
-                peerToPeerChatAction.run();
-            }
-        });
-        usersTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
-            @Override
-            public void doubleClick(DoubleClickEvent event) {
-                joinAction.run();
-            }
-        });
+        usersTreeViewer.getViewer().addDoubleClickListener(
+                new IDoubleClickListener() {
+                    @Override
+                    public void doubleClick(DoubleClickEvent event) {
+                        peerToPeerChatAction.run();
+                    }
+                });
+        usersTreeViewer.getViewer().addDoubleClickListener(
+                new IDoubleClickListener() {
+                    @Override
+                    public void doubleClick(DoubleClickEvent event) {
+                        joinAction.run();
+                    }
+                });
     }
 
     /**
@@ -872,11 +827,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
         if (oldEditor != null) {
             oldEditor.dispose();
         }
-        TreeSelection selection = (TreeSelection) usersTreeViewer
+        TreeSelection selection = (TreeSelection) usersTreeViewer.getViewer()
                 .getSelection();
         final IRosterEntry entry = (IRosterEntry) selection.getFirstElement();
-        final Composite comp = new Composite(usersTreeViewer.getTree(),
-                SWT.NONE);
+        final Composite comp = new Composite(usersTreeViewer.getViewer()
+                .getTree(), SWT.NONE);
         comp.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
         final Text text = new Text(comp, SWT.NONE);
 
@@ -909,10 +864,11 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // public void handleEvent(Event event) {
         // final TreeItem item = (TreeItem) event.item;
         // if (item != null && item == lastItem[0]) {
-        final TreeItem item = usersTreeViewer.getTree().getSelection()[0];
+        final TreeItem item = usersTreeViewer.getViewer().getTree()
+                .getSelection()[0];
         boolean showBorder = true;
-        final Composite composite = new Composite(usersTreeViewer.getTree(),
-                SWT.NONE);
+        final Composite composite = new Composite(usersTreeViewer.getViewer()
+                .getTree(), SWT.NONE);
         if (showBorder)
             composite.setBackground(Display.getCurrent().getSystemColor(
                     SWT.COLOR_BLACK));
@@ -959,7 +915,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
                     size = modText.computeSize(size.x, SWT.DEFAULT);
                     treeEditor.horizontalAlignment = SWT.LEFT;
                     Rectangle itemRect = item.getBounds(),
-                    rect = usersTreeViewer.getTree().getClientArea();
+                    rect = usersTreeViewer.getViewer().getTree()
+                            .getClientArea();
                     treeEditor.minimumWidth = Math.max(size.x, itemRect.width)
                             + inset * 2;
                     int left = itemRect.x,
@@ -1035,7 +992,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // need to refresh the local tree so that the top user shows up with the
         // current status
         UserId id = (UserId) topLevel.getObjects().get(0);
-        usersTreeViewer.refresh(id);
+        usersTreeViewer.getViewer().refresh(id);
     }
 
     private void createSession() {
@@ -1161,7 +1118,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             UserId id = (UserId) peer;
             String name = peer.getFQName();
             TreeSelection selection = (TreeSelection) usersTreeViewer
-                    .getSelection();
+                    .getViewer().getSelection();
             IRosterEntry entry = (IRosterEntry) selection.getFirstElement();
             if (id.getAlias() != null && !id.getAlias().isEmpty()) {
                 name = id.getAlias();
@@ -1192,21 +1149,27 @@ public class CollaborationGroupView extends CaveFloatingView implements
         Composite child = new Composite(parent, SWT.NONE);
         child.setLayout(new GridLayout(1, false));
         child.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        usersTreeViewer = new TreeViewer(child);
-        usersTreeViewer.getTree().setLayoutData(
-                new GridData(SWT.FILL, SWT.FILL, true, true));
+        PatternFilter pFilter = new UsersTreeFilter();
+        usersTreeViewer = new FilteredTree(child, SWT.MULTI | SWT.V_SCROLL
+                | SWT.H_SCROLL | SWT.BORDER, pFilter, true);
+        usersTreeViewer.getViewer().getTree()
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        TreeColumn column = new TreeColumn(usersTreeViewer.getTree(), SWT.NONE);
+        TreeColumn column = new TreeColumn(usersTreeViewer.getViewer()
+                .getTree(), SWT.NONE);
         column.setWidth(200); // any width would work
 
-        usersTreeViewer.setContentProvider(new UsersTreeContentProvider());
-        usersTreeViewer.setLabelProvider(new UsersTreeLabelProvider());
-        usersTreeViewer.setSorter(new UsersTreeViewerSorter());
-        ColumnViewerToolTipSupport.enableFor(usersTreeViewer, ToolTip.RECREATE);
+        usersTreeViewer.getViewer().setContentProvider(
+                new UsersTreeContentProvider());
+        usersTreeViewer.getViewer().setLabelProvider(
+                new UsersTreeLabelProvider());
+        usersTreeViewer.getViewer().setSorter(new UsersTreeViewerSorter());
+        ColumnViewerToolTipSupport.enableFor(usersTreeViewer.getViewer(),
+                ToolTip.RECREATE);
         topLevel = new CollaborationGroupContainer();
-        usersTreeViewer.setInput(topLevel);
+        usersTreeViewer.getViewer().setInput(topLevel);
 
-        treeEditor = new TreeEditor(usersTreeViewer.getTree());
+        treeEditor = new TreeEditor(usersTreeViewer.getViewer().getTree());
     }
 
     /**
@@ -1280,7 +1243,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private Set<IRosterEntry> getSelectedUsers() {
         Set<IRosterEntry> selectedUsers = new HashSet<IRosterEntry>();
         IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
-                .getSelection();
+                .getViewer().getSelection();
         Object[] nodes = selection.toArray();
 
         for (Object node : nodes) {
@@ -1323,7 +1286,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         for (Object child : group.getEntries()) {
             if (child instanceof IRosterEntry) {
                 if (userId.equals(((IRosterEntry) child).getUser())) {
-                    usersTreeViewer.refresh(child, true);
+                    usersTreeViewer.getViewer().refresh(child, true);
                 }
             } else if (child instanceof IRosterGroup) {
                 refreshUser(userId, (IRosterGroup) child);
@@ -1380,7 +1343,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 VizApp.runAsync(new Runnable() {
                     @Override
                     public void run() {
-                        usersTreeViewer.refresh(rosterItem);
+                        usersTreeViewer.getViewer().refresh(rosterItem);
                     }
                 });
             } else if (rosterItem instanceof IRosterGroup) {
@@ -1399,7 +1362,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 VizApp.runAsync(new Runnable() {
                     @Override
                     public void run() {
-                        usersTreeViewer.refresh(topLevel);
+                        usersTreeViewer.getViewer().refresh(topLevel);
                     }
                 });
             }
@@ -1429,7 +1392,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
-                            usersTreeViewer.refresh(ob);
+                            usersTreeViewer.getViewer().refresh(ob);
                         }
                     });
                 }
@@ -1444,7 +1407,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                             VizApp.runAsync(new Runnable() {
                                 @Override
                                 public void run() {
-                                    usersTreeViewer.refresh(ob);
+                                    usersTreeViewer.getViewer().refresh(ob);
                                 }
                             });
                             break;
@@ -1542,7 +1505,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             activeSessionGroup.addObject(session);
             // register here because we unregister in part closed
             session.registerEventHandler(sessionView);
-            usersTreeViewer.refresh(activeSessionGroup);
+            usersTreeViewer.getViewer().refresh(activeSessionGroup);
         }
     }
 
@@ -1571,7 +1534,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 // active sessions
                 if (sessionId.equals(group.getSessionId())) {
                     activeSessionGroup.removeObject(node);
-                    usersTreeViewer.refresh(activeSessionGroup);
+                    usersTreeViewer.getViewer().refresh(activeSessionGroup);
                     break;
                 }
             }
