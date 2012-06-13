@@ -21,13 +21,13 @@ package com.raytheon.uf.viz.collaboration.radar.rendering;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.display.Activator;
+import com.raytheon.uf.viz.collaboration.display.rsc.rendering.CollaborationRenderingHandler;
+import com.raytheon.uf.viz.collaboration.display.rsc.rendering.ImagingRenderingHandler;
 import com.raytheon.uf.viz.collaboration.radar.mesh.CreateRadarRadialMesh;
 import com.raytheon.uf.viz.collaboration.radar.mosaic.CreateMosaicImageEvent;
 import com.raytheon.uf.viz.collaboration.radar.mosaic.UpdateImagesToMosaic;
 import com.raytheon.uf.viz.collaboration.radar.mosaic.UpdateMosaicExtent;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.CollaborationRenderingHandler;
-import com.raytheon.uf.viz.collaboration.ui.rsc.rendering.ImagingRenderingHandler;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
