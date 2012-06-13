@@ -8,118 +8,118 @@
 # Valley NEXRAD Configuration
 ################
 
-NNEXRAD	^(SDUS[234578].) KABR (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KABR (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KABR_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KCYS (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KCYS (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KCYS_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KDMX (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KDMX (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KDMX_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KGLD (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KGLD (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KGLD_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KGID (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KGID (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KGID_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KEAX (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KEAX (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KEAX_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KARX (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KARX (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KARX_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KMPX (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KMPX (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KMPX_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KLBF (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KLBF (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KLBF_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KDVN (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KDVN (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KDVN_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KUNR (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KUNR (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KUNR_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KFSD (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KFSD (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KFSD_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KTOP (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KTOP (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KTOP_\2\3\4_(seq).rad.%Y%m%d%H
 
 #NNEXRAD	^(SDUS[234578].) KOAX (......) /p(...)(...)
 #	FILE	-overwrite -close -edex	/data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
 
-NNEXRAD	^(SDUS[234578].) PHFO (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) PHFO (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_PHFO_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) PGUM (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) PGUM (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_PGUM_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KBTV (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KBOX (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KFWD (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KTWC (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KAKQ (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KRNK (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KLWX (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KABQ (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KPHI (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KALY (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KEPZ (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KMAF (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KOKX (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KPBZ (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KBTV (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KBTV_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KBOX (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KBOX_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KFWD (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KFWD_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KTWC (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KTWC_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KAKQ (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KAKQ_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KRNK (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KRNK_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KLWX (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KLWX_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KABQ (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KABQ_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KPHI (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KPHI_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KALY (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KALY_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KEPZ (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KEPZ_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KMAF (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KMAF_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KOKX (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KOKX_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KPBZ (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KPBZ_\2\3\4_(seq).rad.%Y%m%d%H
 
-NNEXRAD	^(SDUS[234578].) KSTO (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/experimental/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KREV (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/experimental/radar/\4/\3/\1_\4_\3_\2_(seq).rad
-NNEXRAD	^(SDUS[234578].) KLKN (......) /p(...)(...)
-	FILE	-overwrite -close -edex /data_store/experimental/radar/\4/\3/\1_\4_\3_\2_(seq).rad
+NNEXRAD	^(SDUS[234578].) KSTO (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KSTO_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KREV (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KREV_\2\3\4_(seq).rad.%Y%m%d%H
+NNEXRAD	^(SDUS[234578].) KLKN (..)(..)(..) /p(...)(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KLKN_\2\3\4_(seq).rad.%Y%m%d%H
 
 
 
-ANY	^(SDUS8.) KABR (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KABR (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KABR_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KDMX (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KDMX (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1__KDMX_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KGLD (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KGLD (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KGLD_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KGID (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KGID (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KGID_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KEAX (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KEAX (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KEAX_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KLBF (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KLBF (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KLBF_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KFSD (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KFSD (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KFSD_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KTOP (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KTOP (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/1_KTOP_\2\3\4_(seq).rad.%Y%m%d%H
 
-ANY	^(SDUS8.) KOAX (......) /pDPA(...)
-	FILE	-overwrite -close -edex /data_store/dpa/\1_\3_DPA_\2_(seq).rad
+ANY	^(SDUS8.) KOAX (..)(..)(..) /pDPA(...)
+	FILE	-overwrite -close -edex /data_store/radar/(\2:yyyy)(\2:mm)\2/\3/\1_KOAX_2\3\4_(seq).rad.%Y%m%d%H
 
 
 
@@ -183,7 +183,7 @@ ANY	^(SDUS8.) KOAX (......) /pDPA(...)
 #GRID	^([LM].M.98) KWNH (..)(..)(..).*!(grib|grib2)
 #	FILE	-overwrite -close -edex /data_store/grib/\5/KWNH/\3/\1_KWNH_\2\3\4_(seq).grb
 
-#GRID	^([LM].E...) KWBD (..)(..)(..).*!(grib|grib2)
+
 #	FILE	-overwrite -close -edex /data_store/grib/\5/KWBD/E/\3/\1_KWBD_\2\3\4_(seq).grb
 
 #GRID	^(L.U...) KWBN (..)(..)(..).*!(grib|grib2)
@@ -197,7 +197,7 @@ ANY	^(SDUS8.) KOAX (......) /pDPA(...)
 
 # not in base
 GRID	^(LDW[A-U]98) KNHC (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\5/KNHC/\3/\1_KNHC_\2\3\4_(seq).grb.%Y%m%d
+	FILE	-overwrite -close -edex /data_store/\5/(\2:yyyy)(\2:mm)\2/\3/\1_KNHC_\2\3\4_(seq).\5.%Y%m%d%H
 
 
 #GRID	^([LM]DG...) KNHC (..)(..)(..).*!(grib|grib2)
@@ -219,10 +219,10 @@ GRID	^(LDW[A-U]98) KNHC (..)(..)(..).*!(grib|grib2)
 #GRID	^(E[A-CJ-RWY])([BCDEFGH])([A-Z]88) KWBJ (..)(..)(..).*!(grib|grib2)
 #	FILE	-overwrite -close -edex /data_store/grib/\7/KWBJ/\2/\5/\1\2\3_KWBJ_\4\5\6_(seq).grb
 GRID	^(E[A-CJ-RWY])([DEF])([A-Z]88) KWBJ (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\7/KWBJ/\2/\5/\1\2\3_KWBJ_\4\5\6_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\7/(\4:yyyy)(\4:mm)\4/\5/\1\2\3_KWBJ_\4\5\6_(seq).\7.%Y%m%d%H
 
 HRS	^(YA)([WX])(A..) (KKCI) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 #HRS	^(YA)(W)([BCDGJM]..) (KKCI) (..)(..)(..).*!(grib|grib2)
 #	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
@@ -234,7 +234,7 @@ HRS	^(YA)([WX])(A..) (KKCI) (..)(..)(..).*!(grib|grib2)
 #	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
 
 HRS	^(ZV)(W)([ADGJM]..) (KKCI) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 ################
 # End Of Valley Grid Configuration
@@ -261,31 +261,31 @@ HRS	^(ZV)(W)([ADGJM]..) (KKCI) (..)(..)(..).*!(grib|grib2)
 #GRID	^(L[A-JR-SU-Y])R([B-J][0-2][0-35-68-9]) KWBQ (..)(..)(..).*!(grib|grib2)
 #	FILE	-overwrite -close -edex /data_store/grib/\6/KWBQ/R/\4/\1R\2_KWBQ_\3\4\5_(seq).grb
 GRID	^(L[CEFGIJV-Y])R([B-J][0-2][0-35-68-9]) KWBQ (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\6/KWBQ/R/\4/\1R\2_KWBQ_\3\4\5_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\6/(\4:yyyy)(\4:mm)\4/\5/\1R\2_KWBQ_\3\4\5_(seq).\6.%Y%m%d%H
 
 # PR-RTMA
 ANY	^(L[HNPRTUV])(C)(A98) (KWBR) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 # PR-NamDNG5
 ANY	^([LM][ADEHKRSTUV])(C)([A-TZ][089][068]) (KWBE) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 # PR-GFS
 ANY	^([LM][ABCEFGHMO-Y])(O)([A-Z][0-9][0-9]) (KWBC) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 #PR-SREF (SREF243)
 ANY	^([LM][DEHMNPQRTUVW])(X)([A-TZ][235789][05689]) (KWBL) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 # NAM95 Grib Data
 HRS	^([YZ][CE-HO-RT-Z])(N)([A-JM][0-9][0-9]) (KWBE) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 # NamDNG5 Grib Data no captured in above pattern
 HRS	^([LM][EKV])(M)([A-TZ][089][068]) (KWBE) (..)(..)(..).*!(grib|grib2)
-	FILE	-overwrite -close -edex /data_store/grib/\8/\4/\2/\6/\1\2\3_\4_\5\6\7_(seq).grb
+	FILE	-overwrite -close -edex /data_store/\8/(\5:yyyy)(\5:mm)\5/\6/\1\2\3_\4_\5\6\7_(seq).\8.%Y%m%d%H
 
 #NGRID	^([LMYZ][TRUVXEGHVZ][BQRU]...) (KWBE)
 #	FILE	-overwrite -close -edex /awips/edex/data/sbn/grib/\1_\2.grd
@@ -532,14 +532,14 @@ HRS	^([LM][EKV])(M)([A-TZ][089][068]) (KWBE) (..)(..)(..).*!(grib|grib2)
 #	/data_store/acars/decrypted/\1/acars
 
 ANY	^(ISXA..) (....) (..)(..)(..)
-	FILE	-overwrite -close -edex /data_store/bufrssmi/\4/\1_\2_\3\4\5_(seq).bufr
+	FILE	-overwrite -close -edex /data_store/bufrssmi/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 
 ANY	^JSXX((0[1-9])|(10)) (....) (..)(..)(..)
-	FILE	-overwrite -close -edex /data_store/bufrascat/\6/JSXX\1_\4_\5\6\7_(seq).bufr
+	FILE	-overwrite -close -edex /data_store/bufrascat/(\5:yyyy)(\5:mm)\5/\6/JSXX\1_\4_\5\6\7_(seq).bufr.%Y%m%d%H
 
 ANY	^ISXX(..) (....) (..)(..)(..)
-	FILE	-overwrite -close -edex /data_store/bufrquikscat/\4/ISXX\1_\2_\3\4\5_(seq).bufr
+	FILE	-overwrite -close -edex /data_store/bufrquikscat/(\3:yyyy)(\3:mm)\3/\4/ISXX\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 #ANY	^ZETA98 (....) (..)(..)(..)
 #	FILE	-overwrite -close -edex /data_store/grib/precip_estimate/\2/ZETA98_\1_\2\3\4_(seq).grb
@@ -554,13 +554,13 @@ ANY	^ISXX(..) (....) (..)(..)(..)
 #	FILE	-overwrite -close -edex /data_store/bufrncwf/\2/JSAT98_KKCI_\1\2\3_(seq).bufr
 
 ANY	^(J[ACEGHJKMNPQR]CX[1-9]1) (....) (..)(..)(..)
-	FILE	-overwrite -close -edex /data_store/bufrhdw/\4/\1_\2_\3\4\5_(seq).bufr
+	FILE	-overwrite -close -edex /data_store/bufrhdw/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 ANY	^(JUTX[2-4]1) (....) (..)(..)(..)
-	FILE	-overwrite -close -edex /data_store/bufrmthdw/\4/\1_\2_\3\4\5_(seq).bufr
+	FILE	-overwrite -close -edex /data_store/bufrmthdw/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 ANY	^(JUTX53) (....) (..)(..)(..)
-	FILE	-overwrite -close -edex /data_store/bufrmthdw/\4/\1_\2_\3\4\5_(seq).bufr
+	FILE	-overwrite -close -edex /data_store/bufrmthdw/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 #GPSSRC	xmrg(..........)z.gz$
 #	FILE	-overwrite -close -edex /data_store/q2/xmrg\1z.gz

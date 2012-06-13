@@ -38,8 +38,8 @@ package com.raytheon.uf.common.pointdata;
 
 public interface IPointData {
 
-    public PointDataView getPointDataView();
+	public PointDataView getPointDataView();
 
-    public void setPointDataView(PointDataView pdv);
+	public void setPointDataView(PointDataView pointDataView);
 
 }

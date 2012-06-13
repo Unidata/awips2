@@ -22,6 +22,8 @@ package com.raytheon.viz.aviation.monitor;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.aviation.guidance.MosViewer;
@@ -64,18 +66,22 @@ public class EtaMonitorObserver extends MonitorObserver implements
     public void alertArrived(Collection<AlertMessage> alertMessages) {
         ArrayList<String> siteIDs = new ArrayList<String>();
 
-        for (AlertMessage alert : alertMessages) {
-            String siteID = (String) alert.decodedAlert
-                    .get("location.stationId");
-            if (!siteIDs.contains(siteID)) {
-                for (TafSiteComp tsc : dialog.getTafSiteComps()) {
-                    if (tsc.getStationName().equals(siteID)) {
-                        siteIDs.add(siteID);
-                        break;
-                    }
-                }
-            }
-        }
+		for (AlertMessage alert : alertMessages) {
+			DataTime dataTime = (DataTime) alert.decodedAlert.get("dataTime");
+			if (dataTime.getRefTime().before(
+					SimulatedTime.getSystemTime().getTime())) {
+				String siteID = (String) alert.decodedAlert
+						.get("location.stationId");
+				if (!siteIDs.contains(siteID)) {
+					for (TafSiteComp tsc : dialog.getTafSiteComps()) {
+						if (tsc.getStationName().equals(siteID)) {
+							siteIDs.add(siteID);
+							break;
+						}
+					}
+				}
+			}
+		}
 
         if (siteIDs.size() > 0) {
             for (ViewerTab tab : dialog.getViewerTabList()) {
