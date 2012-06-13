@@ -22,26 +22,6 @@
 <plugin>
    <extension-point id="renderingExtension" name="renderingExtension" schema="schema/renderingExtension.exsd"/>
 
-   <!-- Collaboration groups -->
-   <extension
-         point="org.eclipse.ui.views">
-         <view
-               allowMultiple="false"
-               category="com.raytheon.viz.ui"
-               class="com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView"
-               id="com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView"
-               icon="icons/browser.gif"
-               name="Collaboration Information"
-               restorable="false"/>
-         <view
-               allowMultiple="true"
-               category="com.raytheon.viz.ui"
-               class="com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView"
-               id="com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView"
-               icon="icons/browser.gif"
-               name="Log Browser"
-               restorable="false"/>
-   </extension>
    <extension
          point="org.eclipse.ui.commands">
       <category
@@ -60,9 +40,9 @@
             commandId="com.raytheon.uf.viz.collaboration.collaborationBrowser">
       </handler>
    </extension>
-   <!-- Session Views -->
    <extension
          point="org.eclipse.ui.views">
+   <!-- Session Views -->
          <view
                allowMultiple="true"
                category="com.raytheon.viz.ui"
@@ -71,9 +51,6 @@
                icon="icons/messages.gif"
                name="Collaboration Session"
                restorable="false"/>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
          <view
                allowMultiple="true"
                category="com.raytheon.viz.ui"
@@ -90,9 +67,6 @@
                icon="icons/chats.gif"
                name="Text Session"
                restorable="false"/>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
          <view
                allowMultiple="true"
                category="com.raytheon.viz.ui"
@@ -100,6 +74,23 @@
                id="com.raytheon.uf.viz.collaboration.PeerToPeerView"
                icon="icons/chats.gif"
                name="Chat"
+               restorable="false"/>
+   <!-- Collaboration groups -->
+         <view
+               allowMultiple="false"
+               category="com.raytheon.viz.ui"
+               class="com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView"
+               id="com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView"
+               icon="icons/browser.gif"
+               name="Collaboration Information"
+               restorable="false"/>
+         <view
+               allowMultiple="true"
+               category="com.raytheon.viz.ui"
+               class="com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView"
+               id="com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchiveView"
+               icon="icons/browser.gif"
+               name="Log Browser"
                restorable="false"/>
    </extension>
    <extension

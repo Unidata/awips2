@@ -96,7 +96,8 @@ public class SessionFeedView extends SessionView {
     private List<String> readEnabledUsers() {
         LocalizationFile file = getLocalizationFile();
         if (file.exists()) {
-            SubscribeList list = JAXB.unmarshal(file.getFile(), SubscribeList.class);
+            SubscribeList list = JAXB.unmarshal(file.getFile(),
+                    SubscribeList.class);
             return list.getEnabledUsers();
         }
         return new ArrayList<String>();
@@ -233,6 +234,7 @@ public class SessionFeedView extends SessionView {
      */
     @Override
     protected void setParticipantValues(ParticipantsLabelProvider labelProvider) {
+        participantsLabel.setText("Subscribed");
         super.setParticipantValues(labelProvider);
         labelProvider.setEnabledUsers(enabledUsers);
     }
