@@ -119,7 +119,21 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
                 return id.getAlias();
             } else if (entry.getUser().getName() != null
                     && !entry.getUser().getName().isEmpty()) {
-                return entry.getUser().getName();
+                IPresence presence = entry.getPresence();
+                String returnVal = entry.getUser().getName();
+                if (presence != null) {
+                    if (presence.getProperties() != null) {
+                        if (presence.getProperties().get("site") != null) {
+                            returnVal += " - "
+                                    + presence.getProperties().get("site");
+                        }
+                        if (presence.getProperties().get("role") != null) {
+                            returnVal += " - "
+                                    + presence.getProperties().get("role");
+                        }
+                    }
+                }
+                return returnVal;
             } else {
                 return id.getName();
             }
@@ -128,7 +142,11 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         } else if (element instanceof SessionGroupContainer) {
             return "Active Sessions";
         } else if (element instanceof UserId) {
+            IPresence presence = CollaborationConnection.getConnection()
+                    .getPresence();
             return ((UserId) element).getName() + " - "
+                    + presence.getProperties().get("site") + " - "
+                    + presence.getProperties().get("role") + " - "
                     + ((UserId) element).getHost();
         } else if (element instanceof IVenueSession) {
             if (((IVenueSession) element).getVenue() == null) {
@@ -174,13 +192,16 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
                 builder.append(CollaborationUtils.formatMode(user.getPresence()
                         .getMode()));
 
-                // builder.append("Type: ").append(user.getType())
-                // .append("\n");
                 String message = user.getPresence().getStatus();
                 if (message != null && message.length() > 0) {
                     builder.append("\n");
                     builder.append("Message: \"").append(
                             user.getPresence().getStatus() + "\"");
+                }
+
+                for (Object ob : user.getPresence().getProperties().keySet()) {
+                    builder.append("\n").append(ob.toString()).append(" : ")
+                            .append(user.getPresence().getProperties().get(ob));
                 }
             }
             return builder.toString();

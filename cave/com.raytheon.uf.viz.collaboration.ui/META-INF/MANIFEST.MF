@@ -25,7 +25,8 @@ Require-Bundle: com.raytheon.viz.ui,
  com.raytheon.uf.viz.collaboration.display;bundle-version="1.0.0",
  gov.noaa.nws.ncep.ui.pgen;bundle-version="1.0.0",
  gov.noaa.nws.ncep.staticdataprovider;bundle-version="1.0.0",
- gov.noaa.nws.ncep.common.staticdata;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.common.staticdata;bundle-version="1.0.0",
+ org.eclipse.ecf.presence
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.viz.core.maps.display,
  com.raytheon.uf.viz.core.maps.rsc,
