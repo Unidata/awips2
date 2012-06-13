@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.viz.collaboration.ui;bundle-version="1.0.0",
+ com.raytheon.uf.viz.collaboration.display;bundle-version="1.0.0",
  com.raytheon.uf.viz.collaboration.comm;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

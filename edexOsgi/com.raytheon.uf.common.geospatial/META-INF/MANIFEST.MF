@@ -7,7 +7,7 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: ext, registered, global
 Eclipse-RegisterBuddy: com.raytheon.viz.core
-Require-Bundle: org.geotools;bundle-version="2.5.2",
+Require-Bundle: org.geotools;bundle-version="2.5.2";visibility:=reexport,
  org.apache.commons.collections;bundle-version="3.2.0",
  org.apache.commons.lang;bundle-version="2.3.0",
  javax.measure;bundle-version="1.0.0",
