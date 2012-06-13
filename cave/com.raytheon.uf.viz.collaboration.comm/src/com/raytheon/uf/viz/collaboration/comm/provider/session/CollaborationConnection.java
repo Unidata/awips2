@@ -210,7 +210,7 @@ public class CollaborationConnection implements IEventPublisher {
         }
 
         contactsMgr = new ContactsManager(this);
-        this.getEventPublisher().register(contactsMgr);
+        this.registerEventHandler(contactsMgr);
     }
 
     /**
@@ -329,10 +329,12 @@ public class CollaborationConnection implements IEventPublisher {
     /**
      *  
      */
-    public void closeManager() {
+    public void close() {
         if (container != null) {
             // Close any created sessions.
-            for (ISession session : sessions.values()) {
+            Collection<ISession> toRemove = sessions.values();
+            sessions.clear();
+            for (ISession session : toRemove) {
                 if ((chatInstance != null) && chatInstance.equals(session)) {
                     chatInstance.close();
                     chatInstance = null;
@@ -630,19 +632,18 @@ public class CollaborationConnection implements IEventPublisher {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher#unRegisterEventHandler(java.lang.Object)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher#unregisterEventHandler(java.lang.Object)
      */
     @Override
-    public void unRegisterEventHandler(Object handler) {
+    public void unregisterEventHandler(Object handler) {
         eventBus.unregister(handler);
     }
 
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher#getEventPublisher()
-     */
     @Override
-    public EventBus getEventPublisher() {
-        return eventBus;
+    public void postEvent(Object event) {
+        if (event != null) {
+            eventBus.post(event);
+        }
     }
 
     public ContactsManager getContactsManager() {

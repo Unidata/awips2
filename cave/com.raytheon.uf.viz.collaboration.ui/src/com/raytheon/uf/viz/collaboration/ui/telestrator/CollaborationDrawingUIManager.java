@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
@@ -60,9 +61,10 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager {
                 CollaborationDrawingResource resource = CollaborationDrawingUIManager.this.resource;
                 IWorkbenchPage page = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getActivePage();
-                view = (CollaborationSessionView) page.findViewReference(
-                        CollaborationSessionView.ID,
-                        resource.getContainer().getSessionId()).getPart(false);
+                IViewReference viewRef = page.findViewReference(
+                        CollaborationSessionView.ID, resource.getContainer()
+                                .getSessionId());
+                view = (CollaborationSessionView) viewRef.getPart(false);
                 view.updateToolItems();
             }
         });
