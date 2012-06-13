@@ -178,7 +178,7 @@ public class CollaborationResource extends
 
     @Override
     protected void disposeInternal() {
-        resourceData.getSession().unRegisterEventHandler(this);
+        resourceData.getSession().unregisterEventHandler(this);
         for (DisplayData data : displayData.values()) {
             data.dispose();
         }

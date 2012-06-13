@@ -81,7 +81,7 @@ public abstract class AbstractRoleEventController implements
 
     @Override
     public void shutdown() {
-        session.unRegisterEventHandler(this);
+        session.unregisterEventHandler(this);
 
         // Orphaned tellestrators, not sure what to do yet about clear
         for (AbstractEditor editor : resourceEditors) {

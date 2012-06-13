@@ -44,9 +44,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.ui.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -259,18 +262,23 @@ public class CreateSessionDialog extends CaveSWTDialog {
                             result.setInviteUsers(inviteUsers.getSelection());
                             result.setInviteMessage(inviteMessageTF.getText());
                         }
-                        CollaborationDataManager manager = CollaborationDataManager
-                                .getInstance();
-                        String sessionId = null;
+
+                        IVenueSession session = null;
                         try {
+                            CollaborationConnection connection = CollaborationConnection
+                                    .getConnection();
                             if (result.isCollaborationSession()) {
-                                sessionId = manager.createCollaborationSession(
+                                session = connection.createCollaborationVenue(
                                         result.getName(), result.getSubject());
+                                ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
+                                SharedDisplaySessionMgr.joinSession(
+                                        displaySession,
+                                        SharedDisplayRole.DATA_PROVIDER, null);
                             } else {
-                                sessionId = manager.createTextOnlySession(
+                                session = connection.createTextOnlyVenue(
                                         result.getName(), result.getSubject());
                             }
-                            result.setSessionId(sessionId);
+                            result.setSessionId(session.getSessionId());
                             setReturnValue(result);
                             CreateSessionDialog.this.getShell().dispose();
                         } catch (CollaborationException ex) {

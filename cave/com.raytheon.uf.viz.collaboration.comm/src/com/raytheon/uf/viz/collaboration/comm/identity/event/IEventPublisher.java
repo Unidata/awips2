@@ -19,45 +19,29 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import com.google.common.eventbus.EventBus;
-
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
- *
+ * Jun 12, 2012             njensen      Improved
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IEventPublisher {
 
-    /**
-     * 
-     * @param handler
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#registerEventHandler(java.lang.Object)
-     */
-    void registerEventHandler(Object handler);
-    
-    /**
-     * 
-     * @param handler
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#unRegisterEventHandler(java.lang.Object)
-     */
-    void unRegisterEventHandler(Object handler);
-    
-    /**
-     * Get the underlying event publisher. Any class implementing this interface
-     * must return a not null event publisher.
-     * @return The event publisher.
-     */
-    EventBus getEventPublisher();
+    public void registerEventHandler(Object handler);
+
+    public void unregisterEventHandler(Object handler);
+
+    public void postEvent(Object event);
 }
