@@ -137,7 +137,7 @@ public class RestoreFileSelectDlg extends Dialog {
             StdTextProduct tmp = ((StdTextProduct) (obj));
             Calendar createTime = Calendar.getInstance(TimeZone
                     .getTimeZone("GMT"));
-            createTime.setTimeInMillis(tmp.getCreatetime());
+            createTime.setTimeInMillis(tmp.getRefTime());
             String label = tmp.getCccid() + tmp.getNnnid() + tmp.getXxxid()
                     + " - " + createTime.getTime().toString();
             fileList.add(label);

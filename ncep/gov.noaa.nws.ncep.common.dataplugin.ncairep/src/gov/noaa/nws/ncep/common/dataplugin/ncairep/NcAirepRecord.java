@@ -5,6 +5,10 @@ package gov.noaa.nws.ncep.common.dataplugin.ncairep;
  * NOAA/NWS/NCEP/NCO in order to output point data in HDF5.
  **/
 
+import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -30,14 +34,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -58,6 +61,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 08/30/2011    286        qzhou      Use IDecoderConstantsN.INTEGER_MISSING instead -9999 in visibility. 
  * 08/31/2011    286        qzhou      Moved this from ~edex.plugin.airep
  * 9/20/2011     286        qzhou      Change reportType to String
+ * 04/05/2012    420        dgilling   Prevent NullPointerExceptions in
+ *                                     buildMessageData().
  * </pre>
  * 
  * @author jkorman
@@ -74,9 +79,9 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 
 	private static final long serialVersionUID = 1L;
 
-//	public static final String PLUGIN_NAME = "ncairep";
-//
-//	public static final String STATION_ID = "stationId";
+	// public static final String PLUGIN_NAME = "ncairep";
+	//
+	// public static final String STATION_ID = "stationId";
 
 	public static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
 
@@ -169,7 +174,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	// Observation wind speed in knots.
 	// Decimal(5,2)
 	@Transient
-	//@Column
+	// @Column
 	@DynamicSerializeElement
 	@XmlElement
 	private Float windSpeed;
@@ -189,75 +194,72 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	@XmlElement
 	private Integer flightConditions;
 
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private Float latitude;
-//
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private Float longitude;
-//
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private String stationId;
+	// @Transient
+	// @DynamicSerializeElement
+	// @XmlElement
+	// private Float latitude;
+	//
+	// @Transient
+	// @DynamicSerializeElement
+	// @XmlElement
+	// private Float longitude;
+	//
+	// @Transient
+	// @DynamicSerializeElement
+	// @XmlElement
+	// private String stationId;
 
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private String dataURI;
+	// @Transient
+	// @DynamicSerializeElement
+	// @XmlElement
+	// private String dataURI;
 
 	@Transient
 	@DynamicSerializeElement
-	//@XmlElement
+	// @XmlElement
 	@XmlAttribute
 	private String turbInten;
-	
 
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
 	private String iceInten;
-	
 
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
-	private String skyCover;	
+	private String skyCover;
 
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
 	private String turbType;
-	
 
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
 	private String iceType;
-	
+
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
 	private String turbFreq;
-	
+
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
 	private int skyBaseHeight;
-	
+
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
-	private int skyTopHeight;	
-	
+	private int skyTopHeight;
+
 	@Transient
 	@DynamicSerializeElement
 	@XmlElement
 	private String suspectTimeFlag;
-	
+
 	@Embedded
 	@DataURI(position = 3, embedded = true)
 	@XmlElement
@@ -265,6 +267,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	private AircraftObsLocation location;
 
 	@Embedded
+	@DynamicSerializeElement
 	private PointDataView pdv;
 
 	/**
@@ -426,8 +429,9 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	 * @return the timeObs
 	 */
 	public Calendar getTimeObs() {
-		if (this.dataTime == null)
+		if (this.dataTime == null) {
 			return null;
+		}
 		return this.dataTime.getRefTimeAsCalendar();
 	}
 
@@ -543,13 +547,14 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public void setFlightConditions(Integer flightConditions) {
 		this.flightConditions = flightConditions;
 	}
-	
+
 	/**
 	 * @return the wmoHeader
 	 */
 	public String getTurbInten() {
 		return turbInten;
 	}
+
 	public void setTurbInten(String turbInten) {
 		this.turbInten = turbInten;
 	}
@@ -557,6 +562,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public String getIceInten() {
 		return iceInten;
 	}
+
 	public void setIceInten(String iceInten) {
 		this.iceInten = iceInten;
 	}
@@ -564,6 +570,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public String getSkyCover() {
 		return skyCover;
 	}
+
 	public void setSkyCover(String skyCover) {
 		this.skyCover = skyCover;
 	}
@@ -571,6 +578,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public String getTurbType() {
 		return turbType;
 	}
+
 	public void setTurbType(String turbType) {
 		this.turbType = turbType;
 	}
@@ -578,6 +586,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public String getIceType() {
 		return iceType;
 	}
+
 	public void setIceType(String iceType) {
 		this.iceType = iceType;
 	}
@@ -585,6 +594,7 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public String getTurbFreq() {
 		return turbFreq;
 	}
+
 	public void setTurbFreq(String turbFreq) {
 		this.turbFreq = turbFreq;
 	}
@@ -592,24 +602,27 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public int getSkyBaseHeight() {
 		return skyBaseHeight;
 	}
+
 	public void setSkyBaseHeight(int skyBaseHeight) {
 		this.skyBaseHeight = skyBaseHeight;
 	}
-	
+
 	public int getSkyTopHeight() {
 		return skyTopHeight;
 	}
+
 	public void setSkyTopHeight(int skyTopHeight) {
 		this.skyTopHeight = skyTopHeight;
 	}
-	
+
 	public String getSuspectTimeFlag() {
-        return suspectTimeFlag;
-    }
+		return suspectTimeFlag;
+	}
+
 	public void setSuspectTimeFlag(String suspectTimeFlag) {
-        this.suspectTimeFlag = suspectTimeFlag;
-    }
-	
+		this.suspectTimeFlag = suspectTimeFlag;
+	}
+
 	@Override
 	public void setDataURI(String dataURI) {
 		identifier = dataURI;
@@ -713,65 +726,75 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	}
 
 	private String buildMessageData() {
-		String s = "";
+		boolean validLocation = (location != null);
 
-		String lat = String.valueOf(location.getLatitude());
-		String lon = String.valueOf(location.getLongitude());
-		String latDir = location.getLatitude() > 0 ? "N" : "S";
-		String lonDir = location.getLongitude() > 0 ? "E" : "W";
-		String hour = "";
-		String minute = "";
-		if (timeObs != null) {
-			hour = String.valueOf(timeObs.get(Calendar.HOUR_OF_DAY));
-			minute = String.valueOf(timeObs.get(Calendar.MINUTE));
+		StringBuilder messageData = new StringBuilder("ARP ");
+		if (validLocation && getStationId() != null) {
+			messageData.append(getStationId());
 		}
-		String flightLevel = String.valueOf((int) ftToHft.convert(location
-				.getFlightLevel()));
-		String wind = windDirection != null?
-				String.valueOf(windDirection.intValue()) + "/"
-				+ String.valueOf(windSpeed.intValue()) + "KT" : "";
-		// String wx = flightWeather != null? WX_MAP.get(flightWeather) : "";
-		lat = formatLatLon(lat);
-		lon = formatLatLon(lon);
-		String temperature = "";
+		messageData.append(' ');
+
+		if ((validLocation) && (!Double.isNaN(getLatitude()))
+				&& (!Double.isNaN(getLongitude()))) {
+			messageData.append(formatLatLon(getLatitude(), true));
+			messageData.append(' ');
+			messageData.append(formatLatLon(getLongitude(), false));
+			messageData.append(' ');
+		}
+
+		if (timeObs != null) {
+			DateFormat df = new SimpleDateFormat("HHmm");
+			messageData.append(df.format(timeObs.getTime()));
+		}
+		messageData.append(" F");
+
+		if (validLocation && getFlightLevel() != null) {
+			int flightLevel = (int) ftToHft.convert(getFlightLevel());
+			messageData.append(flightLevel);
+		}
+		messageData.append(' ');
+
 		if (temp != null) {
 			if (temp > 0) {
-				temperature = "P" + temp.intValue();
+				messageData.append('P');
 			} else {
-				temperature = "M"
-						+ String.valueOf(temp.intValue()).substring(1);
+				messageData.append('M');
 			}
+			messageData.append(Math.abs(temp.intValue()));
 		}
-		if (hour.length() < 2) {
-			hour = "0" + hour;
+		messageData.append(' ');
+
+		if ((windDirection != null) && (windSpeed != null)) {
+			messageData.append(windDirection.intValue());
+			messageData.append('/');
+			messageData.append(windSpeed.intValue());
+			messageData.append("KT");
 		}
-		if (minute.length() < 2) {
-			minute = "0" + minute;
-		}
-		s = "ARP " + location.getStationId() + " " + lat + latDir + " " + lon
-				+ lonDir + " " + hour + minute + " F" + flightLevel + " "
-				+ temperature + " " + wind + "TB";
-		return s;
+		messageData.append("TB");
+
+		return messageData.toString();
 	}
 
-	private String formatLatLon(String str) {
-		str = str.startsWith("-") ? str.substring(1) : str;
-
-		int decimalIndex = str.indexOf(".");
-
-		if (decimalIndex != -1) {
-			String temp = str.substring(decimalIndex + 1);
-			if (temp.length() > 3) {
-				temp = temp.substring(0, 3);
-			} else if (temp.length() != 3) {
-				while (temp.length() != 3) {
-					temp += "0";
-				}
+	private String formatLatLon(double value, boolean isLatitude) {
+		char dir;
+		if (isLatitude) {
+			if (value > 0) {
+				dir = 'N';
+			} else {
+				dir = 'S';
 			}
-			str = str.substring(0, decimalIndex) + temp;
+		} else {
+			if (value > 0) {
+				dir = 'E';
+			} else {
+				dir = 'W';
+			}
 		}
 
-		return str;
+		DecimalFormat df = new DecimalFormat("###.000");
+		df.setRoundingMode(RoundingMode.DOWN);
+
+		return df.format(Math.abs(value)) + dir;
 	}
 
 	/**
@@ -798,19 +821,23 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		NcAirepRecord other = (NcAirepRecord) obj;
 		if (getDataURI() == null) {
 			if (other.getDataURI() != null) {
 				return false;
 			}
-		} else if (!getDataURI().equals(other.getDataURI()))
+		} else if (!getDataURI().equals(other.getDataURI())) {
 			return false;
+		}
 		return true;
 	}
 
@@ -853,6 +880,5 @@ public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
 	public void setPointDataView(PointDataView pdv) {
 		this.pdv = pdv;
 	}
-
 
 }

@@ -2,5 +2,5 @@
 QPID_INST_PATH=/awips2/qpid
 # this should be done already, but just in case
 export LD_LIBRARY_PATH=${QPID_INST_PATH}/lib
-${QPID_INST_PATH}/sbin/qpidd --config /awips2/qpid/etc/qpidd.conf --no-module-dir 
+${QPID_INST_PATH}/sbin/qpidd --config ${QPID_INST_PATH}/etc/qpidd.conf --no-module-dir 
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataArchiveConfig>
+    <pluginName>default</pluginName>
+    <hoursToKeep>6</hoursToKeep>
+    <archivingEnabled>true</archivingEnabled>
+    <compressionEnabled>true</compressionEnabled>
+</dataArchiveConfig>

@@ -22,10 +22,10 @@
     <property name="connectors">
       <list>
         <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-          <property name="port" value="8080"/>
+          <property name="port" value="${web.port}"/>
           <property name="maxIdleTime" value="30000"/>
           <property name="acceptors" value="2"/>
-          <property name="confidentialPort" value="8443"/>
+          <property name="confidentialPort" value="${confidential.port}"/>
         </bean>
       </list>
     </property>
@@ -61,15 +61,19 @@
   </bean>
   
     <camelContext id="uengine-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                                           
+        <endpoint id="uEngineHttpThrift_from"
+        	uri="jetty:http://0.0.0.0:${http.port}/services/pyproductthrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+        <endpoint id="uEngineHttpJaxb_from"
+        	uri="jetty:http://0.0.0.0:${http.port}/services/pyproductjaxb" />
         
     	<!-- UEngine routes -->
         <route id="uEngineHttpThrift">
-            <from uri="jetty:http://0.0.0.0:9581/services/pyproductthrift?disableStreamCache=true&amp;chunked=false&amp;httpBindingRef=#binaryHttpBinding" />
+            <from uri="ref:uEngineHttpThrift_from" />
             <bean ref="uEngine" method="executePython" />
             <bean ref="serializationUtil" method="transformToThrift" />
         </route>
 		<route id="uEngineHttpJaxb">		
-	    	<from uri="jetty:http://0.0.0.0:9581/services/pyproductjaxb" />
+	    	<from uri="ref:uEngineHttpJaxb_from" />
             <bean ref="uEngine" method="executePython" />
             <bean ref="serializationUtil" method="marshalToXml" />
 		</route>  

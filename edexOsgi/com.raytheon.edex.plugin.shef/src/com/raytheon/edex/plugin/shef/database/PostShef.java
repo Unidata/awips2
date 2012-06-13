@@ -25,7 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
@@ -37,6 +36,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.shef.data.ShefData;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
+import com.raytheon.edex.plugin.shef.util.BitUtils;
+import com.raytheon.edex.plugin.shef.util.SHEFDate;
+import com.raytheon.edex.plugin.shef.util.ShefStats;
+import com.raytheon.edex.plugin.shef.util.ShefUtil;
+import com.raytheon.edex.plugin.shef.util.StoreDisposition;
+import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.tables.Alertalarmval;
 import com.raytheon.uf.common.dataplugin.shef.tables.AlertalarmvalId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Arealfcst;
@@ -61,24 +66,17 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Stnclass;
 import com.raytheon.uf.common.dataplugin.shef.tables.Unkstn;
 import com.raytheon.uf.common.dataplugin.shef.tables.Unkstnvalue;
 import com.raytheon.uf.common.dataplugin.shef.tables.UnkstnvalueId;
-
-import com.raytheon.edex.plugin.shef.util.BitUtils;
+import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.DataType;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Duration;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Extremum;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.PhysicalElement;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.PhysicalElementCategory;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.TypeSource;
-import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
-import com.raytheon.edex.plugin.shef.util.SHEFDate;
-import com.raytheon.edex.plugin.shef.util.ShefStats;
-import com.raytheon.edex.plugin.shef.util.ShefUtil;
-import com.raytheon.edex.plugin.shef.util.StoreDisposition;
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
-import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants.IngestSwitch;
+import com.raytheon.uf.common.dataplugin.shef.util.ShefQC;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -130,6 +128,11 @@ public class PostShef {
         QC_DEFAULT, QC_GROSSRANGE_FAILED, QC_REASONRANGE_FAILED, QC_ROC_FAILED, QC_ROC_PASSED, QC_OUTLIER_FAILED, QC_OUTLIER_PASSED, QC_SCC_FAILED, QC_SCC_PASSED, QC_MSC_FAILED, QC_MSC_PASSED, QC_EXTERN_FAILED, QC_EXTERN_QUEST, QC_MANUAL_PASSED, QC_MANUAL_QUEST, QC_MANUAL_FAILED, QC_MANUAL_NEW, QC_PASSED, QC_QUESTIONABLE, QC_FAILED, QC_NOT_PASSED, QC_NOT_FAILED
     };
 
+    private static final SimpleDateFormat DB_TIMESTAMP = new SimpleDateFormat(ShefConstants.POSTGRES_DATE_FORMAT.toPattern());
+    static {
+        DB_TIMESTAMP.setTimeZone(TimeZone.getTimeZone(ShefConstants.GMT));
+    }
+    
     private static final Pattern Q_CODES = Pattern.compile("Q[^BEF]");
     
     private static final String POST_START_MSG = "Posting process started for LID [%s] PEDTSEP [%s] value [%s]";
@@ -203,6 +206,8 @@ public class PostShef {
 
     private boolean perfLog = false;
 
+    private boolean archiveMode = false;
+    
     private HashMap<String, Location> idLocations = new HashMap<String, Location>();
 
     /**
@@ -256,6 +261,8 @@ public class PostShef {
         dataLog = appDefaults.getBoolean(ShefConstants.SHEF_DATA_LOG, false);
         // TODO need to implement this token and the performance logging
         perfLog = appDefaults.getBoolean(ShefConstants.SHEF_PERFLOG, false);
+        
+        archiveMode = appDefaults.getBoolean("ALLOW_ARCHIVE_DATA",false);
     }
 
     /**
@@ -648,7 +655,7 @@ public class PostShef {
                 start = System.currentTimeMillis();
                 // Identifier has been set from the awipsHeader.
 
-                postProductLink(locId, identifier, obsTime, postDate);
+                postProductLink(locId, identifier, obsTime);
                 // postProductLink(locId, shefRecord.getIdentifier(), obsTime);
                 stats.addElapsedTimeIngest(System.currentTimeMillis() - start);
                 
@@ -1108,9 +1115,13 @@ public class PostShef {
         String pe = null;
         String ts = null;
 
-        String query = "select lid,pe,ts " + "from " + tableName + " "
-                + "where validtime > CURRENT_TIMESTAMP and "
-                + "probability < 0.0";
+//      String query = "select lid,pe,ts " + "from " + tableName + " "
+//      + "where validtime > CURRENT_TIMESTAMP and "
+//      + "probability < 0.0";
+        
+        String query = String
+                .format("select lid,pe,ts from %s where validtime > '%s' and probability < 0.0",
+                        tableName, toTimeStamp(postDate));
 
         try {
             dao = new CoreDao(DaoConfig.forDatabase(ShefConstants.IHFS));
@@ -2549,8 +2560,7 @@ public class PostShef {
      * @param obsTime
      *            - The observation time
      */
-    private void postProductLink(String locId, String productId, Date obsTime,
-            Date postDate) {
+    private void postProductLink(String locId, String productId, Date obsTime) {
         if (log.isDebugEnabled()) {
             log.debug("PostShef.postProductLink() called...");
         }
@@ -3004,8 +3014,6 @@ public class PostShef {
                 basisTime = new Date();
             }
 
-            // TODO fix the duplicate code below:
-
             if (dataValue == "") {
                 dataValue = "-9999";
             }
@@ -3247,6 +3255,29 @@ public class PostShef {
         return dataObj;
     }
 
+    
+    /**
+     * 
+     * @param c
+     * @return
+     */
+    private static String toTimeStamp(Date d) {
+        String timeStamp = null;
+        if(d != null) {
+            timeStamp = DB_TIMESTAMP.format(d);
+        }
+        return timeStamp;
+    }
+
+    /**
+     * 
+     * @param c
+     * @return
+     */
+    private static String toTimeStamp(Calendar c) {
+        return toTimeStamp(c.getTime());
+    }
+    
     public static final void main(String[] args) {
 
         Calendar postDate = TimeTools.getBaseCalendar(2011, 1, 12);
