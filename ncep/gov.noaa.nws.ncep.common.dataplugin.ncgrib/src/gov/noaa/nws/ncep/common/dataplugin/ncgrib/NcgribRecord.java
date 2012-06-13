@@ -22,8 +22,6 @@ package gov.noaa.nws.ncep.common.dataplugin.ncgrib;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -46,7 +44,6 @@ import org.hibernate.annotations.FetchMode;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
@@ -77,7 +74,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class NcgribRecord extends PersistablePluginDataObject implements
-        IPersistable, ISpatialEnabled {
+        ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
 
@@ -424,22 +421,6 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @Override
     public IDecoderGettable getDecoderGettable() {
         return null;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     @Override

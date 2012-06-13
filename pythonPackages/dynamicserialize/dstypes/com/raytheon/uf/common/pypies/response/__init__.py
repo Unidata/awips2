@@ -23,14 +23,13 @@
 __all__ = [
             'DeleteResponse',
             'ErrorResponse',
-            'RepackResponse',
+            'FileActionResponse',
             'RetrieveResponse',
             'StoreResponse'
           ]
 
 from DeleteResponse import DeleteResponse
 from ErrorResponse import ErrorResponse
-from RepackResponse import RepackResponse
+from FileActionResponse import FileActionResponse
 from RetrieveResponse import RetrieveResponse
 from StoreResponse import StoreResponse
-

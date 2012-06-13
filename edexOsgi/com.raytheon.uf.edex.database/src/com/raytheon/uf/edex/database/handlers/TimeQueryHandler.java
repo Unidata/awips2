@@ -70,6 +70,16 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
             map.remove("pluginName");
         }
 
+        // Simulated Date is the date set in the CAVE calling this
+        if (request.getSimDate() != null) {
+            RequestConstraint timeConstraint = new RequestConstraint();
+            timeConstraint.setConstraintType(ConstraintType.LESS_THAN);
+            timeConstraint
+                    .setConstraintValue(new DataTime(request.getSimDate())
+                            .toString());
+            map.put(REF_TIME, timeConstraint);
+        }
+
         String database = PluginFactory.getInstance().getDatabase(
                 request.getPluginName());
         String classname = PluginFactory.getInstance()
@@ -101,6 +111,17 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
             DatabaseQuery query = buildQuery(classname, map,
                     request.isMaxQuery());
             times = runQuery(dao, query);
+        }
+        
+        // second check for some complex plugin requests that get by the simDate check in the query
+        ArrayList<DataTime> removes = new ArrayList<DataTime>();
+        for (DataTime time: times) {
+        	if (time.getRefTime().after(request.getSimDate())) {
+        		removes.add(time);
+        	}
+        }
+        if (removes.size() > 0) {
+        	times.removeAll(removes);
         }
 
         return times;
@@ -136,6 +157,7 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
                     constraint.getConstraintType().getOperand(), classname);
         }
 
+        //System.out.println("TimeQuery: " + query.createHQLQuery());
         return query;
     }
 
