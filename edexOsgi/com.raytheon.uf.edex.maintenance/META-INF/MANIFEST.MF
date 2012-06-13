@@ -6,11 +6,21 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.dataquery.db,
  com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time,
  com.raytheon.uf.common.util,
  com.raytheon.uf.common.util.registry,
  com.raytheon.uf.edex.core.dataplugin,
  com.raytheon.uf.edex.core.props,
- com.raytheon.uf.edex.pointdata
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.database.cluster,
+ com.raytheon.uf.edex.database.cluster.handler,
+ com.raytheon.uf.edex.database.plugin,
+ com.raytheon.uf.edex.pointdata,
+ org.springframework.orm.hibernate3.support
+Export-Package: com.raytheon.uf.edex.maintenance.archive

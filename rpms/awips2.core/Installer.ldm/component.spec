@@ -65,6 +65,9 @@ cp ${WORKSPACE_DIR}/${LDM_TAR_DIR}/ldm-6.8.1.patch0 \
 # Copy patch1 to the build directory.
 cp ${WORKSPACE_DIR}/${LDM_TAR_DIR}/ldm-6.8.1.patch1 \
    ${LDM_BUILD_DIR}
+# Copy patch2 to the build directory.
+cp ${WORKSPACE_DIR}/${LDM_TAR_DIR}/ldm-6.8.1.patch2 \
+   ${LDM_BUILD_DIR}
 cd ${LDM_BUILD_DIR}
 tar -xvf ${LDM_TAR_FILE}
 # remove the copied tar file
@@ -80,6 +83,11 @@ patch -p1 < ../ldm-6.8.1.patch1
 
 # remove the patch file
 rm -f ../ldm-6.8.1.patch1
+
+patch -p1 < ../ldm-6.8.1.patch2
+
+# remove the patch file.
+rm -f ../ldm-6.8.1.patch2
 
 %build
 LDM_BUILD_DIR="/tmp/awips2-${USER}/ldm-build"

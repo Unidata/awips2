@@ -144,7 +144,7 @@ public class TextDecoder extends AbstractDecoder {
                     pdo.setProductId(textProduct.getCccid()
                             + textProduct.getNnnid() + textProduct.getXxxid());
                     DataTime dt = new DataTime(
-                            TimeTools.newCalendar(textProduct.getCreatetime()));
+                            TimeTools.newCalendar(textProduct.getRefTime()));
                     pdo.setDataTime(dt);
                 } else {
                     // throw new Exception("product already exists");
