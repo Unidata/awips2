@@ -167,7 +167,8 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     private String profilerId;
 
     @Embedded
-    private PointDataView pdv;
+    @DynamicSerializeElement
+    private PointDataView pointDataView;
 
     // Text of the WMO header
     @XmlAttribute
@@ -510,20 +511,26 @@ public class ProfilerObs extends PersistablePluginDataObject implements
         this.location = location;
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
      */
     @Override
     public PointDataView getPointDataView() {
-        return pdv;
+        return pointDataView;
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
+     * .uf.common.pointdata.PointDataView)
      */
     @Override
-    public void setPointDataView(PointDataView view) {
-        pdv = view;
+    public void setPointDataView(PointDataView pointDataView) {
+        this.pointDataView = pointDataView;
     }
 
     private Double getWindSpeed() {
