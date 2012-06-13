@@ -109,11 +109,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
-import com.raytheon.uf.viz.collaboration.ui.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
@@ -1546,8 +1548,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         if (linkToEditorAction.isChecked()) {
             IWorkbenchPage page = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow().getActivePage();
-            if (part instanceof CollaborationEditor) {
-                String sessionId = ((CollaborationEditor) part).getSessionId();
+            if (part instanceof ICollaborationEditor) {
+                String sessionId = ((ICollaborationEditor) part).getSessionId();
                 for (IViewReference ref : page.getViewReferences()) {
                     if (ref.getPart(false) instanceof CollaborationSessionView) {
                         CollaborationSessionView view = (CollaborationSessionView) ref
@@ -1561,7 +1563,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             } else if (part instanceof CollaborationSessionView) {
                 String sessionId = ((CollaborationSessionView) part)
                         .getSessionId();
-                CollaborationEditor editor = SharedDisplaySessionMgr
+                ICollaborationEditor editor = SharedDisplaySessionMgr
                         .getSessionContainer(sessionId)
                         .getCollaborationEditor();
                 if (editor != null) {
