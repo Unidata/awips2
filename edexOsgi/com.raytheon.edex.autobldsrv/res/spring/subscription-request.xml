@@ -10,9 +10,12 @@
 	<camelContext id="subscription-camel" 
 	              xmlns="http://camel.apache.org/schema/spring" 
 	              errorHandlerRef="errorHandler">
+	    <endpoint id="subscriptionHTTP_from"
+	    	uri="jetty:http://0.0.0.0:${http.port}/services/subscribe?disableStreamCache=true" />          
+	    
 		<!-- SubscriptionSrv routes -->
 		<route id="subscriptionHTTP">
-			<from uri="jetty:http://0.0.0.0:9581/services/subscribe?disableStreamCache=true" />
+			<from uri="ref:subscriptionHTTP_from" />
 			<bean ref="subscription" method="processRequest"/>
 			<bean ref="serializationUtil" method="marshalToXml" />
 		</route>

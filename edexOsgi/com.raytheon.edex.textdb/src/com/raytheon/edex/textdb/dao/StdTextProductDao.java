@@ -106,7 +106,9 @@ public class StdTextProductDao extends CoreDao {
 
     private static final String CCC_ID = "cccid";
 
-    private static final String CREATETIME = "createtime";
+    private static final String REFTIME = "refTime";
+
+    private static final String INSERTTIME = "insertTime";
 
     private static final String ProdHDRTIME = "prodId.hdrtime";
 
@@ -128,7 +130,7 @@ public class StdTextProductDao extends CoreDao {
 
     private static final String PRACTICE_TABLE = "practicestdtextproducts";
 
-    private static final String TM_QUERY_FMT = "select createtime from table_name where cccid='%s' and nnnid='%s' and xxxid='%s';";
+    private static final String TM_QUERY_FMT = "select refTime from table_name where cccid='%s' and nnnid='%s' and xxxid='%s';";
 
     private static final String AFOS_QUERY_STMT = "from StdTextProduct prod where "
             + ProdCCC_ID
@@ -143,7 +145,7 @@ public class StdTextProductDao extends CoreDao {
             + " = :"
             + XXX_ID
             + " order by "
-            + CREATETIME + " desc";
+            + REFTIME + " desc" + ", " + INSERTTIME + " desc";
 
     private Log logger = LogFactory.getLog(getClass());
 
@@ -183,7 +185,7 @@ public class StdTextProductDao extends CoreDao {
         prodId.setXxxid(xxx);
         try {
             Query query = this.getSession().createQuery(
-                    "SELECT createtime from "
+                    "SELECT refTime from "
                             + textProduct.getClass().getSimpleName()
                             + " where prodId = :prodid");
             query.setParameter("prodid", prodId);
@@ -391,11 +393,12 @@ public class StdTextProductDao extends CoreDao {
             Criteria criteria = session
                     .createCriteria(getStdTextProductInstance().getClass());
             criteria.add(Restrictions.allEq(tmp));
-            criteria.add(Restrictions.gt(CREATETIME, new Long(searchTime)));
+            criteria.add(Restrictions.gt(REFTIME, new Long(searchTime)));
             criteria.addOrder(Order.asc(ProdCCC_ID));
             criteria.addOrder(Order.asc(ProdNNN_ID));
             criteria.addOrder(Order.asc(ProdXXX_ID));
-            criteria.addOrder(Order.desc(CREATETIME));
+            criteria.addOrder(Order.desc(REFTIME));
+            criteria.addOrder(Order.desc(INSERTTIME));
             criteria.addOrder(Order.desc(ProdHDRTIME));
 
             Iterator<?> iter = criteria.list().iterator();
@@ -467,7 +470,7 @@ public class StdTextProductDao extends CoreDao {
 
             Criteria criteria = sess.createCriteria(getStdTextProductInstance()
                     .getClass());
-            criteria.setProjection(Projections.max(CREATETIME));
+            criteria.setProjection(Projections.max(REFTIME));
             criteria.add(Restrictions.allEq(tmp));
 
             List<?> list = criteria.list();
@@ -602,8 +605,8 @@ public class StdTextProductDao extends CoreDao {
     }
 
     /**
-     * Simple purge routine. Deletes all data that has a createtime older than
-     * that specified.
+     * Simple purge routine. Deletes all data that has a refTime older than that
+     * specified.
      */
     public int versionPurge() {
         return versionPurge(null);
@@ -650,20 +653,21 @@ public class StdTextProductDao extends CoreDao {
                 String nnnid = null;
                 String xxxid = null;
 
-                String cTimeQueryString = null;
+                String refTimeQueryString = null;
                 {
-                    StringBuilder cTimeQueryBuilder = new StringBuilder(200);
-                    cTimeQueryBuilder.append("SELECT createtime FROM ");
-                    cTimeQueryBuilder.append(getStdTextProductInstance()
+                    StringBuilder refTimeQueryBuilder = new StringBuilder(200);
+                    refTimeQueryBuilder.append("SELECT refTime FROM ");
+                    refTimeQueryBuilder.append(getStdTextProductInstance()
                             .getClass().getSimpleName());
-                    cTimeQueryBuilder.append(" WHERE ");
-                    cTimeQueryBuilder.append(ProdCCC_ID).append(" = :cccid")
+                    refTimeQueryBuilder.append(" WHERE ");
+                    refTimeQueryBuilder.append(ProdCCC_ID).append(" = :cccid")
                             .append(" AND ");
-                    cTimeQueryBuilder.append(ProdNNN_ID).append(" = :nnnid")
+                    refTimeQueryBuilder.append(ProdNNN_ID).append(" = :nnnid")
                             .append(" AND ");
-                    cTimeQueryBuilder.append(ProdXXX_ID).append(" = :xxxid");
-                    cTimeQueryBuilder.append(" ORDER BY createtime DESC");
-                    cTimeQueryString = cTimeQueryBuilder.toString();
+                    refTimeQueryBuilder.append(ProdXXX_ID).append(" = :xxxid");
+                    refTimeQueryBuilder.append(" ORDER BY refTime DESC");
+                    refTimeQueryBuilder.append(", insertTime DESC");
+                    refTimeQueryString = refTimeQueryBuilder.toString();
                 }
 
                 String delQueryString = null;
@@ -679,7 +683,7 @@ public class StdTextProductDao extends CoreDao {
                             .append(" AND ");
                     delQueryBuilder.append(ProdXXX_ID).append(" = :xxxid")
                             .append(" AND ");
-                    delQueryBuilder.append("createtime < :createtime");
+                    delQueryBuilder.append("refTime < :refTime");
                     delQueryString = delQueryBuilder.toString();
                 }
 
@@ -693,29 +697,29 @@ public class StdTextProductDao extends CoreDao {
 
                     try {
                         tx = session.beginTransaction();
-                        Query cTimeQuery = session
-                                .createQuery(cTimeQueryString);
-                        cTimeQuery.setString("cccid", cccid);
-                        cTimeQuery.setString("nnnid", nnnid);
-                        cTimeQuery.setString("xxxid", xxxid);
-                        cTimeQuery.setMaxResults(prodInfo.getVersionstokeep());
-                        List<?> createTimes = cTimeQuery.list();
-                        if (createTimes.size() >= prodInfo.getVersionstokeep()) {
-                            long createTime = ((Number) createTimes
-                                    .get(prodInfo.getVersionstokeep() - 1))
-                                    .longValue();
+                        Query refTimeQuery = session
+                                .createQuery(refTimeQueryString);
+                        refTimeQuery.setString("cccid", cccid);
+                        refTimeQuery.setString("nnnid", nnnid);
+                        refTimeQuery.setString("xxxid", xxxid);
+                        refTimeQuery
+                                .setMaxResults(prodInfo.getVersionstokeep());
+                        List<?> refTimes = refTimeQuery.list();
+                        if (refTimes.size() >= prodInfo.getVersionstokeep()) {
+                            long refTime = ((Number) refTimes.get(prodInfo
+                                    .getVersionstokeep() - 1)).longValue();
                             Query delQuery = session
                                     .createQuery(delQueryString);
                             delQuery.setString("cccid", cccid);
                             delQuery.setString("nnnid", nnnid);
                             delQuery.setString("xxxid", xxxid);
-                            delQuery.setLong("createtime", createTime);
+                            delQuery.setLong("refTime", refTime);
 
                             if (PurgeLogger.isDebugEnabled()) {
                                 PurgeLogger.logDebug("Purging records for ["
                                         + cccid + nnnid + xxxid
-                                        + "] before createTime [" + createTime
-                                        + "]", PLUGIN_NAME);
+                                        + "] before refTime [" + refTime + "]",
+                                        PLUGIN_NAME);
                             }
 
                             int rowsDeleted = delQuery.executeUpdate();
@@ -876,7 +880,7 @@ public class StdTextProductDao extends CoreDao {
             ProjectionList projectionList = Projections.projectionList();
             projectionList.add(Projections.distinct(Projections
                     .property(ProdWMO_ID)));
-            projectionList.add(Projections.max(CREATETIME));
+            projectionList.add(Projections.max(REFTIME));
             projectionList.add(Projections.groupProperty(ProdWMO_ID));
             projectionList.add(Projections.groupProperty(ProdSITE));
             projectionList.add(Projections.groupProperty(ProdCCC_ID));
@@ -894,24 +898,18 @@ public class StdTextProductDao extends CoreDao {
             List<StdTextProduct> tmpProducts = new ArrayList<StdTextProduct>();
             for (int i = 0; i < products.size(); i++) {
                 StdTextProduct stdTextProduct = getStdTextProductInstance();
+                stdTextProduct.setWmoid((String) ((Object[]) (products
+                        .toArray())[i])[0]);
+                stdTextProduct.setRefTime((Long) ((Object[]) (products
+                        .toArray())[i])[1]);
                 stdTextProduct
-                        .setWmoid((String) ((Object[]) ((Object[]) products
-                                .toArray())[i])[0]);
-                stdTextProduct
-                        .setCreatetime((Long) ((Object[]) ((Object[]) products
-                                .toArray())[i])[1]);
-                stdTextProduct
-                        .setSite((String) ((Object[]) ((Object[]) products
-                                .toArray())[i])[3]);
-                stdTextProduct
-                        .setCccid((String) ((Object[]) ((Object[]) products
-                                .toArray())[i])[4]);
-                stdTextProduct
-                        .setNnnid((String) ((Object[]) ((Object[]) products
-                                .toArray())[i])[5]);
-                stdTextProduct
-                        .setXxxid((String) ((Object[]) ((Object[]) products
-                                .toArray())[i])[6]);
+                        .setSite((String) ((Object[]) (products.toArray())[i])[3]);
+                stdTextProduct.setCccid((String) ((Object[]) (products
+                        .toArray())[i])[4]);
+                stdTextProduct.setNnnid((String) ((Object[]) (products
+                        .toArray())[i])[5]);
+                stdTextProduct.setXxxid((String) ((Object[]) (products
+                        .toArray())[i])[6]);
                 tmpProducts.add(stdTextProduct);
             }
 
@@ -949,7 +947,7 @@ public class StdTextProductDao extends CoreDao {
                 projectionList.add(Projections.distinct(Projections
                         .property(BBB_ID)));
                 projectionList.add(Projections.property(ProdWMO_ID));
-                projectionList.add(Projections.property(CREATETIME));
+                projectionList.add(Projections.property(REFTIME));
                 projectionList.add(Projections.property(ProdSITE));
                 projectionList.add(Projections.property(ProdCCC_ID));
                 projectionList.add(Projections.property(ProdNNN_ID));
@@ -961,10 +959,10 @@ public class StdTextProductDao extends CoreDao {
                         .createCriteria(getStdTextProductInstance().getClass());
                 if (readAllVersions && startTimeMillis != null) {
                     criteria.add(Restrictions.and(Restrictions.allEq(map),
-                            Restrictions.ge(CREATETIME, startTimeMillis)));
+                            Restrictions.ge(REFTIME, startTimeMillis)));
                 } else {
                     criteria.add(Restrictions.and(Restrictions.allEq(map),
-                            Restrictions.eq(CREATETIME, p.getCreatetime())));
+                            Restrictions.eq(REFTIME, p.getRefTime())));
                 }
 
                 criteria.setProjection(projectionList);
@@ -977,33 +975,24 @@ public class StdTextProductDao extends CoreDao {
                 List<StdTextProduct> tmpProducts = new ArrayList<StdTextProduct>();
                 for (int i = 0; i < list.size(); i++) {
                     StdTextProduct stdTextProduct = getStdTextProductInstance();
+                    stdTextProduct.setBbbid((String) ((Object[]) (list
+                            .toArray())[i])[0]);
+                    stdTextProduct.setWmoid((String) ((Object[]) (list
+                            .toArray())[i])[1]);
+                    stdTextProduct.setRefTime((Long) ((Object[]) (list
+                            .toArray())[i])[2]);
                     stdTextProduct
-                            .setBbbid((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[0]);
-                    stdTextProduct
-                            .setWmoid((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[1]);
-                    stdTextProduct
-                            .setCreatetime((Long) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[2]);
-                    stdTextProduct
-                            .setSite((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[3]);
-                    stdTextProduct
-                            .setCccid((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[4]);
-                    stdTextProduct
-                            .setNnnid((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[5]);
-                    stdTextProduct
-                            .setXxxid((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[6]);
-                    stdTextProduct
-                            .setHdrtime((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[7]);
-                    stdTextProduct
-                            .setProduct((String) ((Object[]) ((Object[]) list
-                                    .toArray())[i])[8]);
+                            .setSite((String) ((Object[]) (list.toArray())[i])[3]);
+                    stdTextProduct.setCccid((String) ((Object[]) (list
+                            .toArray())[i])[4]);
+                    stdTextProduct.setNnnid((String) ((Object[]) (list
+                            .toArray())[i])[5]);
+                    stdTextProduct.setXxxid((String) ((Object[]) (list
+                            .toArray())[i])[6]);
+                    stdTextProduct.setHdrtime((String) ((Object[]) (list
+                            .toArray())[i])[7]);
+                    stdTextProduct.setProduct((String) ((Object[]) (list
+                            .toArray())[i])[8]);
                     tmpProducts.add(stdTextProduct);
                 }
                 list.clear();
@@ -1053,11 +1042,11 @@ public class StdTextProductDao extends CoreDao {
         int version = 0;
         final String query1 = "SELECT DISTINCT site FROM stdTextProducts "
                 + "WHERE wmoId = ? ORDER BY site ASC";
-        final String query2 = "SELECT MAX(createTime) FROM stdTextProducts "
+        final String query2 = "SELECT MAX(refTime) FROM stdTextProducts "
                 + "WHERE site = ? and wmoId = ?";
         final String query3 = "SELECT cccId, nnnId, xxxId, hdrTime, bbbId, version "
                 + "FROM stdTextProducts "
-                + "WHERE site = ? AND wmoId = ? AND createTime = ? "
+                + "WHERE site = ? AND wmoId = ? AND refTime = ? "
                 + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, hdrTime DESC, bbbId DESC";
         List<String> retVal = new ArrayList<String>();
 
@@ -1077,10 +1066,10 @@ public class StdTextProductDao extends CoreDao {
                 rs2 = ps2.executeQuery();
 
                 if (rs2.next()) {
-                    int createTime = rs2.getInt("createTime");
+                    int refTime = rs2.getInt("refTime");
                     ps3.setString(1, site);
                     ps3.setString(2, wmoId);
-                    ps3.setInt(3, createTime);
+                    ps3.setInt(3, refTime);
                     rs3 = ps3.executeQuery();
 
                     while (rs3.next()) {
@@ -1158,7 +1147,7 @@ public class StdTextProductDao extends CoreDao {
      */
     public List<String> read_wh(String site, long startTimeMillis) {
         return read_wh(site,
-                (int) (Math.round(startTimeMillis / (float) MILLIS_PER_SECOND)));
+                (Math.round(startTimeMillis / (float) MILLIS_PER_SECOND)));
     }
 
     /*
@@ -1181,8 +1170,8 @@ public class StdTextProductDao extends CoreDao {
         ResultSet rs1 = null;
         String product = null;
         final String query = "SELECT product "
-                + "FROM stdTextProducts WHERE wmoId = ? AND createTime >= ? "
-                + "ORDER BY createTime DESC";
+                + "FROM stdTextProducts WHERE wmoId = ? AND refTime >= ? "
+                + "ORDER BY refTime DESC, insertTime DESC";
         List<String> retVal = new ArrayList<String>();
 
         try {
@@ -1244,11 +1233,11 @@ public class StdTextProductDao extends CoreDao {
         int version = 0;
         final String query1 = "SELECT DISTINCT wmoId "
                 + "FROM stdTextProducts WHERE site = ? " + "ORDER BY wmoId ASC";
-        final String query2 = "SELECT MAX(createTime) "
+        final String query2 = "SELECT MAX(refTime) "
                 + "FROM stdTextProducts WHERE site = ? and wmoId = ?";
         final String query3 = "SELECT cccId, nnnId, xxxId, hdrTime, bbbId, version "
                 + "FROM stdTextProducts "
-                + "WHERE site = ? AND wmoId = ? AND createTime = ? "
+                + "WHERE site = ? AND wmoId = ? AND refTime = ? "
                 + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, hdrTime DESC, bbbId DESC";
         List<String> retVal = new ArrayList<String>();
 
@@ -1268,11 +1257,11 @@ public class StdTextProductDao extends CoreDao {
                 rs2 = ps2.executeQuery();
 
                 if (rs2.next()) {
-                    int createTime = rs2.getInt("createTime");
+                    int refTime = rs2.getInt("refTime");
                     ps3 = c.prepareStatement(query3);
                     ps3.setString(1, site);
                     ps3.setString(2, wmoId);
-                    ps3.setInt(3, createTime);
+                    ps3.setInt(3, refTime);
                     rs3 = ps3.executeQuery();
 
                     while (rs3.next()) {
@@ -1349,7 +1338,7 @@ public class StdTextProductDao extends CoreDao {
      */
     public List<String> read_sh(String site, long startTimeMillis) {
         return read_sh(site,
-                (int) (Math.round(startTimeMillis / (float) MILLIS_PER_SECOND)));
+                (Math.round(startTimeMillis / (float) MILLIS_PER_SECOND)));
     }
 
     /*
@@ -1372,8 +1361,8 @@ public class StdTextProductDao extends CoreDao {
         ResultSet rs1 = null;
         String product = null;
         final String query = "SELECT product "
-                + "FROM stdTextProducts WHERE site = ? AND createTime >= ? "
-                + "ORDER BY createTime DESC";
+                + "FROM stdTextProducts WHERE site = ? AND refTime >= ? "
+                + "ORDER BY refTime DESC, insertTime DESC";
         List<String> retVal = new ArrayList<String>();
 
         try {
@@ -1441,7 +1430,7 @@ public class StdTextProductDao extends CoreDao {
             final String query2 = "SELECT cccId, hdrTime, bbbId, version "
                     + "FROM stdTextProducts "
                     + "WHERE site = ? AND wmoId = ? AND nnnId = ? AND xxxId = ? "
-                    + "ORDER BY cccId ASC, createTime DESC";
+                    + "ORDER BY cccId ASC, refTime DESC, insertTime DESC";
 
             try {
                 session = getSession();
@@ -1519,10 +1508,9 @@ public class StdTextProductDao extends CoreDao {
      * 
      * PDL: Read the version that matches the input Return
      * 
-     * Note: The MAX function was used just in case createTimes are same. Since
-     * the product createTime is the UNIX time which has the unit of
-     * microseconds, it is assumed there should not have two products with the
-     * same createTime.
+     * Note: The MAX function was used just in case refTimes are same. Since the
+     * product refTime is the UNIX time which has the unit of microseconds, it
+     * is assumed there should not have two products with the same refTime.
      * ====================================================================
      */
     public int readLatestIntr(String wmoId, String site) {
@@ -1533,12 +1521,12 @@ public class StdTextProductDao extends CoreDao {
         ResultSet rs1 = null;
         ResultSet rs2 = null;
         int version = -1;
-        final String query1 = "SELECT MAX(createTime) "
+        final String query1 = "SELECT MAX(refTime) "
                 + "FROM stdTextProducts "
                 + "WHERE wmoId = ? AND site = ? AND cccId = 'NOA' AND nnnId = 'FOS' AND xxxId = 'PIL'";
         final String query2 = "SELECT MAX(version) "
                 + "FROM stdTextProducts "
-                + "WHERE wmoId = ? AND site = ? AND cccId = 'NOA' AND nnnId = 'FOS' AND xxxId = 'PIL' AND createTime = ?";
+                + "WHERE wmoId = ? AND site = ? AND cccId = 'NOA' AND nnnId = 'FOS' AND xxxId = 'PIL' AND refTime = ?";
 
         try {
             session = getSession();
@@ -1549,11 +1537,11 @@ public class StdTextProductDao extends CoreDao {
             rs1 = ps1.executeQuery();
 
             if (rs1.next()) {
-                int createTime = rs1.getInt("createTime");
+                int refTime = rs1.getInt("refTime");
                 ps2 = c.prepareStatement(query2);
                 ps2.setString(1, site);
                 ps2.setString(2, wmoId);
-                ps2.setInt(3, createTime);
+                ps2.setInt(3, refTime);
                 rs2 = ps2.executeQuery();
 
                 if (rs2.next()) {
@@ -1586,10 +1574,9 @@ public class StdTextProductDao extends CoreDao {
      * 
      * PDL: Read the version that matches the input Return
      * 
-     * Note: The MAX function was used just in case createTimes are same. Since
-     * the product createTime is the UNIX time which has the unit of
-     * microseconds, it is assumed there should not have two products with the
-     * same createTim
+     * Note: The MAX function was used just in case refTimes are same. Since the
+     * product refTime is the UNIX time which has the unit of microseconds, it
+     * is assumed there should not have two products with the same createTim
      * ====================================================================
      */
     public int readLatest(String wmoId, String site, String cccId,
@@ -1601,12 +1588,12 @@ public class StdTextProductDao extends CoreDao {
         ResultSet rs1 = null;
         ResultSet rs2 = null;
         int version = -1;
-        final String query1 = "SELECT MAX(createTime) "
+        final String query1 = "SELECT MAX(refTime) "
                 + "FROM stdTextProducts "
                 + "WHERE wmoId = ? AND site = ? AND cccId = ? AND nnnId = ? AND xxxId = ? AND hdrTime = ?";
         final String query2 = "SELECT MAX(version) "
                 + "FROM stdTextProducts "
-                + "WHERE wmoId = ? AND site = ? AND cccId = ? AND nnnId = ? AND xxxId = ? AND hdrTime = ? AND createTime = ?";
+                + "WHERE wmoId = ? AND site = ? AND cccId = ? AND nnnId = ? AND xxxId = ? AND hdrTime = ? AND refTime = ?";
 
         try {
             session = getSession();
@@ -1621,7 +1608,7 @@ public class StdTextProductDao extends CoreDao {
             rs1 = ps1.executeQuery();
 
             if (rs1.next()) {
-                int createTime = rs1.getInt("createTime");
+                int refTime = rs1.getInt("refTime");
                 ps2 = c.prepareStatement(query2);
                 ps2.setString(1, wmoId);
                 ps2.setString(2, site);
@@ -1629,7 +1616,7 @@ public class StdTextProductDao extends CoreDao {
                 ps2.setString(4, nnnId);
                 ps2.setString(5, xxxId);
                 ps2.setString(6, hdrTime);
-                ps2.setInt(7, createTime);
+                ps2.setInt(7, refTime);
                 rs2 = ps2.executeQuery();
 
                 if (rs2.next()) {
@@ -1696,10 +1683,10 @@ public class StdTextProductDao extends CoreDao {
         final String abbrIdQuery = "SELECT DISTINCT nnnId, xxxId "
                 + "FROM stdTextProducts "
                 + "WHERE wmoId = ? AND site = ? ORDER BY nnnId ASC, xxxId ASC";
-        final String hdrQuery = "SELECT DISTINCT cccId, hdrTime, bbbId, version, createTime "
+        final String hdrQuery = "SELECT DISTINCT cccId, hdrTime, bbbId, version, refTime "
                 + "FROM stdTextProducts "
                 + "WHERE wmoId = ? AND site = ? AND nnnId = ? AND xxxId = ? "
-                + "ORDER by cccId ASC, createTime DESC";
+                + "ORDER by cccId ASC, refTime DESC, insertTime DESC";
 
         try {
             session = getSession();
@@ -1767,10 +1754,12 @@ public class StdTextProductDao extends CoreDao {
                         bbbId = rs2.getString("bbbId");
                         version = rs2.getInt("version");
 
-                        if (bbbId == null || bbbId.length() > 0)
+                        if (bbbId == null || bbbId.length() > 0) {
                             bbbId = "-";
-                        if (cccId == null)
+                        }
+                        if (cccId == null) {
                             cccId = "";
+                        }
 
                         retVal.add(generateHeader(wmoId, site, hdrTime, bbbId,
                                 cccId, nnnId, xxxId));
@@ -1821,7 +1810,7 @@ public class StdTextProductDao extends CoreDao {
      */
     public List<String> read_wsh(String wmoId, String site, long startTimeMillis) {
         return read_wsh(wmoId, site,
-                (int) (Math.round(startTimeMillis / (float) MILLIS_PER_SECOND)));
+                (Math.round(startTimeMillis / (float) MILLIS_PER_SECOND)));
     }
 
     /*
@@ -1844,8 +1833,8 @@ public class StdTextProductDao extends CoreDao {
         ResultSet rs1 = null;
         String product = null;
         final String query = "SELECT product FROM stdTextProducts "
-                + "WHERE wmoId = ? site = ? AND createTime >= ? "
-                + "ORDER BY createTime DESC";
+                + "WHERE wmoId = ? site = ? AND refTime >= ? "
+                + "ORDER BY refTime DESC, insertTime DESC";
         List<String> retVal = new ArrayList<String>();
 
         try {
@@ -1903,7 +1892,7 @@ public class StdTextProductDao extends CoreDao {
         final String hdrQuery = "SELECT cccId, nnnId, xxxId, hdrTime, bbbId, version "
                 + "FROM stdTextProducts "
                 + "WHERE wmoId = ? AND site = ? "
-                + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, createTime DESC";
+                + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, refTime DESC, insertTime DESC";
         List<String> retVal = new ArrayList<String>();
 
         try {
@@ -1922,14 +1911,18 @@ public class StdTextProductDao extends CoreDao {
                 bbbId = rs1.getString("bbbId");
                 version = rs1.getInt("version");
 
-                if (bbbId == null || bbbId.length() > 0)
+                if (bbbId == null || bbbId.length() > 0) {
                     bbbId = "-";
-                if (cccId == null)
+                }
+                if (cccId == null) {
                     cccId = "";
-                if (nnnId == null || nnnId.length() > 0)
+                }
+                if (nnnId == null || nnnId.length() > 0) {
                     nnnId = "-";
-                if (xxxId == null)
+                }
+                if (xxxId == null) {
                     xxxId = "";
+                }
 
                 retVal.add(generateHeader(wmoId, site, hdrTime, bbbId, cccId,
                         nnnId, xxxId));
@@ -1990,7 +1983,7 @@ public class StdTextProductDao extends CoreDao {
             final String hdrQuery = "SELECT cccId, hdrTime, bbbId, version "
                     + "FROM stdTextProducts "
                     + "WHERE wmoId = ? AND site = ? AND nnnId = ? AND xxxId = ? "
-                    + "ORDER BY cccId ASC, createTime DESC";
+                    + "ORDER BY cccId ASC, refTime DESC, insertTime DESC";
 
             try {
                 session = getSession();
@@ -2008,10 +2001,12 @@ public class StdTextProductDao extends CoreDao {
                     bbbId = rs1.getString("bbbId");
                     version = rs1.getInt("version");
 
-                    if (bbbId == null || bbbId.length() > 0)
+                    if (bbbId == null || bbbId.length() > 0) {
                         bbbId = "-";
-                    if (cccId == null)
+                    }
+                    if (cccId == null) {
                         cccId = "";
+                    }
 
                     retVal.add(generateHeader(wmoId, site, hdrTime, bbbId,
                             cccId, nnnId, xxxId));
@@ -2076,12 +2071,12 @@ public class StdTextProductDao extends CoreDao {
             final String hdrQuery = "SELECT cccId, hdrTime, bbbId, version "
                     + "FROM stdTextProducts "
                     + "WHERE wmoId = ? AND site = ? AND nnnId = ? AND xxxId = ? "
-                    + "ORDER BY cccId ASC, createTime DESC";
+                    + "ORDER BY cccId ASC, refTime DESC, insertTime DESC";
 
             final String noXxxQuery = "SELECT cccId, xxxId hdrTime, bbbId, version "
                     + "FROM stdTextProducts "
                     + "WHERE wmoId = ? AND site = ? AND nnnId = ? "
-                    + "ORDER BY cccId ASC, xxxId ASC, createTime DESC";
+                    + "ORDER BY cccId ASC, xxxId ASC, refTime DESC, insertTime DESC";
 
             if (abbrId.length() > 3) {
                 xxxId = abbrId.substring(3);
@@ -2115,10 +2110,12 @@ public class StdTextProductDao extends CoreDao {
                         xxxId = rs1.getString("xxxId");
                     }
 
-                    if (bbbId == null || bbbId.length() > 0)
+                    if (bbbId == null || bbbId.length() > 0) {
                         bbbId = "-";
-                    if (cccId == null)
+                    }
+                    if (cccId == null) {
                         cccId = "";
+                    }
 
                     retVal.add(generateHeader(wmoId, site, hdrTime, bbbId,
                             cccId, nnnId, xxxId));
@@ -2184,7 +2181,7 @@ public class StdTextProductDao extends CoreDao {
             final String hdrQuery = "SELECT cccId, bbbId, version "
                     + "FROM stdTextProducts "
                     + "WHERE wmoId = ? AND site = ? AND nnnId = ? AND xxxId = ? AND hdrTime = ?"
-                    + "ORDER BY cccId ASC, createTime DESC, version DESC";
+                    + "ORDER BY cccId ASC, refTime DESC, insertTime DESC, version DESC";
 
             try {
                 session = getSession();
@@ -2204,15 +2201,17 @@ public class StdTextProductDao extends CoreDao {
                     bbbId = rs1.getString("bbbId");
                     version = rs1.getInt("version");
 
-                    if (bbbId == null || bbbId.length() > 0)
+                    if (bbbId == null || bbbId.length() > 0) {
                         bbbId = "-";
-                    if (cccId == null)
+                    }
+                    if (cccId == null) {
                         cccId = "";
+                    }
 
                     String hdr = generateHeader(wmoId, site, hdrTime, bbbId,
                             cccId, nnnId, xxxId);
 
-                    // order by ensures MAX(createTime) and MAX(version) is
+                    // order by ensures MAX(refTime) and MAX(version) is
                     // loaded first
                     if (retVal.size() > 0) {
                         if (!retVal.get(retVal.size() - 1).equals(hdr)) {
@@ -2279,7 +2278,7 @@ public class StdTextProductDao extends CoreDao {
             final String hdrQuery = "SELECT cccId, version "
                     + "FROM stdTextProducts "
                     + "WHERE wmoId = ? AND site = ? AND nnnId = ? AND xxxId = ? AND hdrTime = ? AND bbbId = ? "
-                    + "ORDER BY cccId ASC, createTime DESC, version DESC";
+                    + "ORDER BY cccId ASC, refTime DESC, insertTime DESC, version DESC";
 
             try {
                 session = getSession();
@@ -2299,13 +2298,14 @@ public class StdTextProductDao extends CoreDao {
                     cccId = rs1.getString("cccId");
                     version = rs1.getInt("version");
 
-                    if (cccId == null)
+                    if (cccId == null) {
                         cccId = "";
+                    }
 
                     String hdr = generateHeader(wmoId, site, hdrTime, bbbId,
                             cccId, nnnId, xxxId);
 
-                    // order by ensures MAX(createTime) and MAX(version) is
+                    // order by ensures MAX(refTime) and MAX(version) is
                     // loaded first
                     if (retVal.size() > 0) {
                         if (!retVal.get(retVal.size() - 1).equals(hdr)) {
@@ -2390,7 +2390,7 @@ public class StdTextProductDao extends CoreDao {
                 final String hdrQuery = "SELECT cccId, nnnId, xxxId, bbbId, version "
                         + "FROM stdTextProducts "
                         + "WHERE wmoId = ? AND site = ? AND hdrTime = ? AND cccId IS NOT NULL AND nnnId IS NOT NULL AND xxxId IS NOT NULL "
-                        + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, bbbId DESC, createTime DESC, version DESC";
+                        + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, bbbId DESC, refTime DESC, insertTime DESC, version DESC";
                 ps1 = c.prepareStatement(hdrQuery);
                 break;
             }
@@ -2398,7 +2398,7 @@ public class StdTextProductDao extends CoreDao {
                 final String hdrQuery = "SELECT version "
                         + "FROM stdTextProducts "
                         + "WHERE wmoId = ? AND site = ? AND hdrTime = ? AND cccId = 'NOA' AND nnnId = 'FOS' AND xxxId = 'PIL' "
-                        + "ORDER BY createTime DESC, version DESC";
+                        + "ORDER BY refTime DESC, insertTime DESC, version DESC";
                 ps1 = c.prepareStatement(hdrQuery);
                 break;
             }
@@ -2406,7 +2406,7 @@ public class StdTextProductDao extends CoreDao {
                 final String hdrQuery = "SELECT version "
                         + "FROM stdTextProducts "
                         + "WHERE wmoId = ? AND site = ? AND hdrTime = ? AND cccId = 'NOA' AND nnnId = 'FOS' AND xxxId = 'PIL' "
-                        + "ORDER BY createTime DESC, version DESC";
+                        + "ORDER BY refTime DESC, insertTime DESC, version DESC";
                 ps1 = c.prepareStatement(hdrQuery);
                 break;
             }
@@ -2440,7 +2440,7 @@ public class StdTextProductDao extends CoreDao {
                 String hdr = generateHeader(wmoId, site, hdrTime, bbbId, cccId,
                         nnnId, xxxId);
 
-                // order by ensures MAX(createTime) and MAX(version) is
+                // order by ensures MAX(refTime) and MAX(version) is
                 // loaded first
                 if (retVal.size() > 0) {
                     if (!retVal.get(retVal.size() - 1).equals(hdr)) {
@@ -2514,7 +2514,7 @@ public class StdTextProductDao extends CoreDao {
                 final String hdrQuery = "SELECT cccId, nnnId, xxxId, version "
                         + "FROM stdTextProducts "
                         + "WHERE wmoId = ? AND site = ? AND hdrTime = ? AND bbbId = ? AND cccId IS NOT NULL AND nnnId IS NOT NULL AND xxxId IS NOT NULL "
-                        + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, createTime DESC";
+                        + "ORDER BY cccId ASC, nnnId ASC, xxxId ASC, refTime DESC, insertTime DESC";
                 ps1 = c.prepareStatement(hdrQuery);
                 break;
             }
@@ -2522,7 +2522,7 @@ public class StdTextProductDao extends CoreDao {
                 final String hdrQuery = "SELECT version "
                         + "FROM stdTextProducts "
                         + "WHERE wmoId = ? AND site = ? AND hdrTime = ? AND bbbId = ? AND cccId = 'NOA' AND nnnId = 'FOS' AND xxxId = 'PIL' "
-                        + "ORDER BY createTime DESC";
+                        + "ORDER BY refTime DESC, insertTime DESC";
                 ps1 = c.prepareStatement(hdrQuery);
                 break;
             }
@@ -2530,7 +2530,7 @@ public class StdTextProductDao extends CoreDao {
                 final String hdrQuery = "SELECT version "
                         + "FROM stdTextProducts "
                         + "WHERE wmoId = ? AND site = ? AND hdrTime = ? AND bbbId = ? AND cccId = 'NOA' AND nnnId = 'FOS' AND xxxId = 'PIL' "
-                        + "ORDER BY createTime DESC";
+                        + "ORDER BY refTime DESC, insertTime DESC";
                 ps1 = c.prepareStatement(hdrQuery);
                 break;
             }
@@ -2560,7 +2560,7 @@ public class StdTextProductDao extends CoreDao {
                 String hdr = generateHeader(wmoId, site, hdrTime, bbbId, cccId,
                         nnnId, xxxId);
 
-                // order by ensures MAX(createTime) and MAX(version) is
+                // order by ensures MAX(refTime) and MAX(version) is
                 // loaded first
                 if (retVal.size() > 0) {
                     if (!retVal.get(retVal.size() - 1).equals(hdr)) {
@@ -2769,7 +2769,7 @@ public class StdTextProductDao extends CoreDao {
     public static final void main(String[] args) {
         long time = System.currentTimeMillis() / 1000L;
 
-        final String TM_QUERY_FMT = "delete from table_name where createtime < %d;";
+        final String TM_QUERY_FMT = "delete from table_name where refTime < %d;";
         Matcher m = Pattern.compile("table_name").matcher(TM_QUERY_FMT);
         String tempQuery = m.replaceAll(TM_QUERY_FMT);
 
