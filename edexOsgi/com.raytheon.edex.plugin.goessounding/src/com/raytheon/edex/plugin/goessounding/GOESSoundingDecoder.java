@@ -136,7 +136,6 @@ public class GOESSoundingDecoder extends AbstractDecoder implements
             WMOHeader wmoHeader = input.getWmoHeader();
 
             if ((wmoHeader != null) && (wmoHeader.isValid())) {
-
                 try {
                     byte[] messageData = input.getDocumentData();
 

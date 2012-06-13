@@ -89,8 +89,6 @@ public class GagePP {
 
     private static Log logger = LogFactory.getLog(GagePP.class);
 
-    private SimpleDateFormat minSDF = new SimpleDateFormat("mm");
-
     private GagePPWrite gagePPWrite = null;
 
     private char pOffsetCode;
@@ -100,10 +98,6 @@ public class GagePP {
     private short p6HourSlot;
     
     public GagePP() {
-        // used_value_count = 0;
-        // ignored_value_count = 0;
-        // // total_value_count = 0;
-        // group_count = 0;
     }
 
     /**
@@ -135,7 +129,6 @@ public class GagePP {
         // double elapsed_time;
 
         int prev_dur = 0;
-        // String prev_key = null;
         int use_value;
         short precip_val;
         short hour = 1;
@@ -151,11 +144,8 @@ public class GagePP {
         int status = GPP_OK;
         
         logger.info("Processing records at " + btime);
-
         
-
-        Calendar dt = Calendar.getInstance(SHEFTimezone.GMT_TIMEZONE);
-        dt.setTime(rec.getObsTime());
+        Calendar dt = TimeTools.newCalendar(rec.getObsTime().getTime());
 
         HourlyppId id = new HourlyppId(rec.getLocationId(), rec.getTypeSource()
                 .getCode(), btime);
@@ -545,8 +535,8 @@ public class GagePP {
     private void gage_pp_1hour_slot(final GagePPOptions pOptions,
             final String pPE, PrecipRecord rec) {
         Calendar dt = Calendar.getInstance(SHEFTimezone.GMT_TIMEZONE);
-        Date datetime = rec.getObsTime();
-        dt.setTime(datetime);
+        dt.setTime(rec.getObsTime());
+
         int hour = dt.get(Calendar.HOUR_OF_DAY);
 
         int minute = dt.get(Calendar.MINUTE);
@@ -656,34 +646,30 @@ public class GagePP {
             final Calendar ansi_obstime_year_sec, String ansi_date_year_day,
             short [] p6HourSlot, char[] p6HourOffsetCode) {
 
-        float ppq_window;
+        float ppq_window = pOptions.getIntppq();
+        ppq_window *= SECONDS_PER_HOUR;
+        
         int bottom_6_hour_period;
         int diff1;
         int diff2;
-        int hour;
-        int minute;
+        int hour = ansi_obstime_year_sec.get(Calendar.HOUR_OF_DAY);
+        int minute = ansi_obstime_year_sec.get(Calendar.MINUTE);
         int num_periods;
         int remainder;
         int top_6_hour_period;
-        Calendar num_seconds_since_00z = Calendar
-                .getInstance(SHEFTimezone.GMT_TIMEZONE);
+//        Calendar num_seconds_since_00z = Calendar
+//                .getInstance(SHEFTimezone.GMT_TIMEZONE);
 
-        ppq_window = pOptions.getIntppq();
-        ppq_window *= SECONDS_PER_HOUR;
+        int num_seconds_since_00z = (hour * SECONDS_PER_HOUR)
+                + (minute * SECONDS_PER_MINUTE);
 
-
-        hour = ansi_obstime_year_sec.get(Calendar.HOUR_OF_DAY);
-        minute = ansi_obstime_year_sec.get(Calendar.MINUTE);
-
-        num_seconds_since_00z.setTimeInMillis((hour * SECONDS_PER_HOUR)
-                + (minute * SECONDS_PER_MINUTE));
-
-        bottom_6_hour_period = (int) (num_seconds_since_00z.getTimeInMillis() / SECONDS_IN_6HOUR_PERIOD);
+        bottom_6_hour_period = num_seconds_since_00z / SECONDS_IN_6HOUR_PERIOD;
         top_6_hour_period = bottom_6_hour_period + 1;
 
-        diff1 = (int) (num_seconds_since_00z.getTimeInMillis() - (bottom_6_hour_period * SECONDS_IN_6HOUR_PERIOD));
+        diff1 = num_seconds_since_00z
+                - (bottom_6_hour_period * SECONDS_IN_6HOUR_PERIOD);
         diff2 = (top_6_hour_period * SECONDS_IN_6HOUR_PERIOD)
-                - (int) num_seconds_since_00z.getTimeInMillis();
+                - num_seconds_since_00z;
 
         if (diff1 < diff2) {
             /*

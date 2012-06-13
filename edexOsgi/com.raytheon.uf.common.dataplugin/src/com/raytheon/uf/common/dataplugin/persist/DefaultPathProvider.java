@@ -262,18 +262,18 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
                 refTimeString = fileNameFormat.format(refTime);
             }
             sb.append(refTimeString);
-
+            
             if (partition != null) {
-                sb.append("-");
-                sb.append(partition);
+            	sb.append("-");
+            	sb.append(partition);
             }
 
             sb.append(".h5");
             return sb.toString();
         }
-
+        
         if (partition == null) {
-            return pluginName + ".h5";
+        	return pluginName + ".h5";
         }
 
         return pluginName + "-" + partition + ".h5";
