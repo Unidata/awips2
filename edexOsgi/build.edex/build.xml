@@ -1,0 +1,139 @@
+<project name="Build EDEX" default="main">
+	<property name="uframe.eclipse" 
+		value="/opt/uframe-eclipse" />
+	<property name="build.version"
+		value="1.0.0" />
+	<property name="build.os"
+		value="linux" />
+	<property name="build.ws"
+		value="gtk" />
+	<property name="build.arch"
+		value="x86" />
+	<property name="lightning"
+		value="false" />
+	
+	<property name="pde.build.script"
+		value="org.eclipse.pde.build_3.6.1.R36x_v20100823/scripts/build.xml" />
+	<property name="eclipse.launcher.jar"
+		value="org.eclipse.equinox.launcher_1.1.0.v20100507.jar" />
+	
+	<target name="main" depends="clean">
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.cots.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.common.core.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.core.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.dataplugins.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.bufr.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.grib.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.text.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.satellite.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.gfe.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.hydro.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.radar.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.dat.feature" />
+		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.ncep.feature" />
+		</antcall>
+		<!-- SPECIAL CASE -->
+		<if>
+			<equals arg1="${lightning}" arg2="true" />
+			<then>
+				<antcall target="build">
+					<param name="feature"
+						value="com.raytheon.uf.edex.binlightning.feature" />
+				</antcall>
+			</then>
+		</if>
+		
+		<antcall target="clean" />
+	</target>
+	
+	<target name="build">		
+		<!-- Execute the eclipse pde build script. -->
+		<echo message="feature=${feature}" />
+		<java
+			classname="org.eclipse.core.launcher.Main"
+			fork="true"
+			failonerror="true">
+			
+			<arg value="-application" />
+			<arg value="org.eclipse.ant.core.antRunner" />
+			<arg value="-buildfile" />
+			<arg value="${uframe.eclipse}/plugins/${pde.build.script}" />
+			<arg value="-DbaseLocation=${uframe.eclipse}" />
+			<arg value="-Dbuilder=${basedir}/edex" />
+			<arg value="-DbuildDirectory=${basedir}/edex/tmp" />
+			<arg value="-DtopLevelElementId=${feature}" />
+			<arg value="-Dbase=${basedir}/edex" />
+			<arg value="-Dconfigs=${build.os},${build.ws},${build.arch}" />
+			
+			<classpath>
+				<pathelement 
+					location="${uframe.eclipse}/plugins/${eclipse.launcher.jar}" />
+			</classpath>
+		</java>
+	</target>
+	
+	<target name="clean">
+		<if>
+			<available file="${basedir}/edex/includes"
+				type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}/edex"
+					includes ="includes/**" />
+				</delete>
+			</then>
+		</if>
+
+		<if>
+			<available file="${basedir}/edex/tmp" 
+				type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}/edex"
+					includes ="tmp/**" />
+				</delete>
+			</then>
+		</if>
+	</target>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+</project>
