@@ -58,7 +58,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @version 1.0
  */
 
-public class DataProviderEventController extends AbstractRoleEventController {
+public class DataProviderEventController extends
+        AbstractRoleEventController<SharedEditorsManager> {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataProviderEventController.class);
@@ -72,14 +73,12 @@ public class DataProviderEventController extends AbstractRoleEventController {
         if (event.getEventType().equals(ParticipantEventType.ARRIVED)
                 && !event.getParticipant().equals(session.getUserID())) {
             try {
-                SharedEditorsManager sem = SharedEditorsManager
-                        .getManager(session);
-                AbstractEditor active = sem.getActiveSharedEditor();
+                AbstractEditor active = container.getActiveSharedEditor();
                 if (active != null) {
                     IDisplayPane activePane = active.getActiveDisplayPane();
                     if (activePane != null) {
                         ActivateRemoteDisplay arde = new ActivateRemoteDisplay();
-                        arde.setDisplayId(sem.getDisplayId(activePane
+                        arde.setDisplayId(container.getDisplayId(activePane
                                 .getRenderableDisplay()));
                         session.sendObjectToPeer(event.getParticipant(), arde);
                     }
@@ -117,7 +116,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
         if (active != null
                 && SharedEditorsManager.isBeingShared(active) == false) {
             try {
-                SharedEditorsManager.getManager(session).shareEditor(active);
+                container.shareEditor(active);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -129,13 +128,12 @@ public class DataProviderEventController extends AbstractRoleEventController {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
-     * #shutdown()
+     * com.raytheon.uf.viz.collaboration.display.roles.AbstractRoleEventController
+     * #createDisplayContainer()
      */
     @Override
-    public void shutdown() {
-        super.shutdown();
-        SharedEditorsManager.getManager(session).dispose();
+    protected SharedEditorsManager createDisplayContainer() {
+        return SharedEditorsManager.getManager(session);
     }
 
 }

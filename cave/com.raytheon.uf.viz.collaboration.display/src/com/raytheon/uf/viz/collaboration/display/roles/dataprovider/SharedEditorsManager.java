@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -370,11 +371,6 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
                 + session.getVenue().getInfo().getVenueDescription() + ")";
     }
 
-    public void registerRemoteRenderableDisplayChangedListener(
-            IRenderableDisplayChangedListener listener) {
-
-    }
-
     public int getDisplayId(IRenderableDisplay display) {
         int displayId = -1;
         DisplayData data = displayData.get(display);
@@ -480,10 +476,8 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
         }
     }
 
-    /**
-     * Disposes the object, removes all shared editors
-     */
-    public void dispose() {
+    @Override
+    public void disposeContainer() {
         List<AbstractEditor> copy = new ArrayList<AbstractEditor>(sharedEditors);
         for (AbstractEditor editor : copy) {
             try {
@@ -500,7 +494,7 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
             IRenderableDisplay display = d.display;
             IDisplayPaneContainer container = display.getContainer();
             for (IDisplayPane pane : container.getDisplayPanes()) {
-                if (pane.getDisplay() == display) {
+                if (pane.getRenderableDisplay() == display) {
                     removeDisplay(pane);
                     break;
                 }
@@ -508,6 +502,7 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
         }
 
         session.unregisterEventHandler(eventHandler);
+        managerMap.remove(session.getSessionId());
     }
 
     /**
@@ -800,5 +795,16 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
         DisplayData data = displayData.get(activeSharedEditor
                 .getActiveDisplayPane().getRenderableDisplay());
         return new RemoteDisplay(data.displayId, data.display);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer#
+     * getActiveDisplayEditor()
+     */
+    @Override
+    public IEditorPart getActiveDisplayEditor() {
+        return activeSharedEditor;
     }
 }
