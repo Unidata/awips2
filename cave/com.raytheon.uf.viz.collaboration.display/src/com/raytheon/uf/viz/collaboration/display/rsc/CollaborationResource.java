@@ -40,8 +40,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.storage.IPersistedEvent;
 import com.raytheon.uf.viz.collaboration.display.Activator;
-import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
-import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.event.FrameDisposed;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.event.IRenderFrameEvent;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.event.MouseLocationEvent;
@@ -392,20 +390,16 @@ public class CollaborationResource extends
                                     .getRenderableDisplay();
                             final BeginFrameEvent bfe = (BeginFrameEvent) renderable;
                             display.setBackgroundColor(bfe.getColor());
-                            final ICollaborationEditor editor = SharedDisplaySessionMgr
-                                    .getSessionContainer(
-                                            resourceData.getSession()
-                                                    .getSessionId())
-                                    .getCollaborationEditor();
                             if (previousBounds == null
                                     || previousBounds.equals(bfe.getBounds()) == false) {
                                 previousBounds = bfe.getBounds();
                                 VizApp.runAsync(new Runnable() {
                                     @Override
                                     public void run() {
-                                        editor.setCanvasBounds(
-                                                bfe.getDisplayId(),
-                                                bfe.getBounds());
+                                        resourceData.getEditor()
+                                                .setCanvasBounds(
+                                                        bfe.getDisplayId(),
+                                                        bfe.getBounds());
                                         display.getView().setExtent(
                                                 bfe.getExtent());
                                     }
