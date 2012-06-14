@@ -48,6 +48,26 @@
  							value="${base.directory};${basedirectories}" />
  					</then>
  				</if>
+ 				
+ 				<!-- add the associated wa directory if it exists. -->
+ 				<if>
+ 					<not>
+ 						<equals arg1="${wa.root.directory}" arg2="" />
+ 					</not>
+ 					<then>
+						<var name="wa.base.directory"
+							value="${wa.root.directory}/${variable.name}" /> 						
+ 						
+ 						<if>
+ 							<available file="${wa.base.directory}" 
+ 								type="dir" />	
+ 							<then>
+ 	 							<var name="basedirectories"
+ 	 								value="${wa.base.directory};${basedirectories}" /> 							
+ 							</then>
+ 						</if>
+ 					</then>
+ 				</if>
  			</sequential>
  		</for>
 	</target>
