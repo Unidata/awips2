@@ -1,0 +1,54 @@
+<project name="deploy.gfesuite" default="main">	
+	<target name="main">
+		<property name="gfesuite.directory"
+			value="${edex.root.directory}/../GFESuite" />
+		
+		<antcall target="cleanup" />
+		
+		<!-- Determine which directory the gfesuite project is in. -->
+		<if>
+			<available file="${awips.baseline.directory}/${gfesuite.project}" 
+				type="dir" />
+			<then>
+				<var name="gfesuite.project.path" 
+					value="${awips.baseline.directory}/${gfesuite.project}" />
+			</then>
+			<else>
+				<var name="gfesuite.project.path" 
+					value="${awips.baseline.directory}/edexOsgi/${gfesuite.project}" />
+			</else>
+		</if>
+		
+		<!-- Deploy GFESuite -->
+		<copy todir="${gfesuite.directory}">
+			<fileset dir="${gfesuite.project.path}/svcBackup">
+				<include name="*/**" />
+			</fileset>
+		</copy>
+		
+		<!-- Adjust GFESuite permissions -->
+		<chmod perm="ugo+rx">
+			<fileset dir="${gfesuite.directory}/bin">
+				<include name="*" />
+				<include name="*.py" />
+				<include name="*.sh" />
+				<exclude name="read.me" />
+			</fileset>
+		</chmod>
+		<chmod perm="ugo+rx">
+			<fileset dir="${gfesuite.directory}/ServiceBackup/scripts">
+				<include name="**/**" />
+			</fileset>
+		</chmod>
+	</target>
+	
+	<target name="cleanup">
+		<echo message="Cleaning target directory: ${gfesuite.directory}" />
+		<delete includeemptydirs="true">
+			<fileset dir="${gfesuite.directory}">
+				<include name="bin/**" />
+				<include name="ServiceBackup/**" />
+			</fileset>
+		</delete>
+	</target>
+</project>
