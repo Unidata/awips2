@@ -1,0 +1,82 @@
+<project name="deploy.esb" default="main">
+	<target name="main">
+		<antcall target="cleanup" />
+		
+		<antcall target="deploy.esb" />
+		<if>
+			<equals arg1="${deploy.data}" arg2="true" />
+			<then>
+				<antcall target="deploy.esb-data" />
+			</then>
+		</if>
+		<if>
+			<equals arg1="${deploy.web}" arg2="true" />
+			<then>
+				<antcall target="deploy.esb-web" />
+			</then>
+		</if>
+	</target>
+	
+	<target name="cleanup">
+		<!-- delete all files under ${esbDir}/lib/ -->
+        <echo message="Cleaning target directory: ${edex.root.directory}/lib/" />
+        <delete includeemptydirs="true">
+            <fileset dir="${edex.root.directory}/lib/">
+                <include name="**" />
+                <exclude name="native/**" />
+                <exclude name="lib64/**" />
+            </fileset>
+        </delete>
+
+        <!-- delete the shell scripts from ${esbDir}/bin/ -->
+        <echo message="Cleaning target directory: ${edex.root.directory}/bin/" />
+        <delete>
+            <fileset dir="${edex.root.directory}/bin/">
+                <include name="*.sh"/>
+            </fileset>
+        </delete>
+
+        <echo message="Cleaning target directory: ${edex.root.directory}/conf" />
+        <delete>
+            <fileset dir="${edex.root.directory}/conf">
+                <include name="**" />
+            </fileset>
+        </delete>
+	</target>
+	
+	<target name="deploy.esb">
+		<copy todir="${edex.root.directory}"
+		overwrite="${esb.overwrite}">
+			<fileset dir="${esb.directory}">
+				<exclude name="data/**" />
+				<exclude name="svcBackup/**" />
+				<exclude name="**/bin/setup.env" />
+			</fileset>
+		</copy>
+		
+		<!-- set executable permissions. -->
+		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />
+		<chmod file="${edex.root.directory}/bin/linux-x86-32/wrapper" 
+			perm="ugo+rx" />
+	</target>
+
+	<target name="deploy.esb-data">
+		<copy todir="${edex.root.directory}"
+		overwrite="${esb.overwrite}">
+			<fileset dir="${esb.directory}" includes="data/**" />
+		</copy>
+		
+		<!-- update directory permissions. -->
+		<chmod dir="${edex.root.directory}/data" perm="775" 
+			includes="**/*" type="both" />
+	</target>
+	
+	<target name="deploy.esb-web">
+    	<deploy.war
+    		web.project.dir="com.raytheon.edex.uengine"
+    		war.name="uEngineWeb" />
+        <deploy.war
+        	web.project.dir="gov.noaa.nws.ncep.edex.purgeutil"
+        	war.name="purgeWeb" />
+	</target>
+</project>

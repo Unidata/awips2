@@ -20,7 +20,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.ncuair,
  gov.noaa.nws.ncep.common.dataplugin.ncuair.dao
 Import-Package: com.raytheon.uf.common.pointdata,
- com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
- gov.noaa.flddb,
+ com.raytheon.uf.edex.pointdata,
  com.vividsolutions.jts.geom
