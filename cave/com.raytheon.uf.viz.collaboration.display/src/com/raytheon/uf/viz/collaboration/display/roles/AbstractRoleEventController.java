@@ -19,26 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.roles;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbenchPart;
-
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.display.Activator;
-import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
-import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
+import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 
 /**
  * Abstract role event controller that shares fields and methods that are common
@@ -58,14 +42,12 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @version 1.0
  */
 
-public abstract class AbstractRoleEventController implements
-        IRoleEventController, IPartListener, RemoveListener {
+public abstract class AbstractRoleEventController<T extends IRemoteDisplayContainer>
+        implements IRoleEventController {
 
     protected ISharedDisplaySession session;
 
-    protected List<ResourcePair> resourcesAdded = new ArrayList<ResourcePair>();
-
-    private List<AbstractEditor> resourceEditors = new CopyOnWriteArrayList<AbstractEditor>();
+    protected T container;
 
     protected AbstractRoleEventController(ISharedDisplaySession session) {
         this.session = session;
@@ -74,137 +56,18 @@ public abstract class AbstractRoleEventController implements
     @Override
     public void startup() {
         session.registerEventHandler(this);
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId());
+        container = createDisplayContainer();
+        sc.setDisplayContainer(container);
     }
 
     @Override
     public void shutdown() {
         session.unregisterEventHandler(this);
-
-        // Orphaned tellestrators, not sure what to do yet about clear
-        for (AbstractEditor editor : resourceEditors) {
-            deactivateResources(editor);
-        }
-        for (ResourcePair rp : resourcesAdded) {
-            AbstractVizResource<?, ?> resource = rp.getResource();
-            if (resource != null) {
-                resource.getDescriptor().getResourceList()
-                        .removePostRemoveListener(this);
-                resource.unload();
-            }
-        }
-        resourcesAdded.clear();
-        resourceEditors.clear();
+        container.disposeContainer();
     }
 
-    protected void activateResources(AbstractEditor editor) {
-        for (IDisplayPane pane : editor.getDisplayPanes()) {
-            activateResources(pane.getRenderableDisplay());
-        }
-        resourceEditors.add(editor);
-        editor.getSite().getPage().addPartListener(this);
-    }
-
-    protected void activateResources(IRenderableDisplay display) {
-        try {
-            IDescriptor descriptor = display.getDescriptor();
-            for (ResourcePair resource : getResourcesToAdd()) {
-                if (resource.getResource() == null) {
-                    resource.setResource(resource.getResourceData().construct(
-                            resource.getLoadProperties(), descriptor));
-                }
-                descriptor.getResourceList().add(resource);
-                descriptor.getResourceList().addPostRemoveListener(this);
-                resourcesAdded.add(resource);
-            }
-        } catch (VizException e) {
-            Activator.statusHandler.handle(Priority.PROBLEM,
-                    "Error adding drawing resource to pane", e);
-        }
-    }
-
-    protected void deactivateResources(AbstractEditor editor) {
-        partClosed(editor);
-        editor.getSite().getPage().removePartListener(this);
-    }
-
-    protected List<ResourcePair> getResourcesToAdd() {
-        List<ResourcePair> resources = new ArrayList<ResourcePair>();
-        return resources;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener#notifyRemove
-     * (com.raytheon.uf.viz.core.drawables.ResourcePair)
-     */
-    @Override
-    public void notifyRemove(ResourcePair rp) throws VizException {
-        if (resourcesAdded.contains(rp)) {
-            try {
-                Class<?> clazz = rp.getResource().getClass();
-                Constructor<?> constructor = clazz.getConstructor(clazz);
-                ResourcePair newPair = new ResourcePair();
-                newPair.setLoadProperties(rp.getLoadProperties());
-                newPair.setProperties(rp.getProperties());
-                newPair.setResourceData(rp.getResourceData());
-                newPair.setResource((AbstractVizResource<?, ?>) constructor
-                        .newInstance(rp.getResource()));
-                rp.getResource().getDescriptor().getResourceList().add(newPair);
-            } catch (Exception e) {
-                Activator.statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Cannot manage resources from being unloaded that do not have copy constructor",
-                                e);
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
-     */
-    @Override
-    public void partClosed(IWorkbenchPart part) {
-        for (AbstractEditor editor : resourceEditors) {
-            if (editor == part) {
-                for (IDisplayPane pane : editor.getDisplayPanes()) {
-                    deactivateResources(pane.getRenderableDisplay());
-                }
-                resourceEditors.remove(editor);
-            }
-        }
-    }
-
-    protected void deactivateResources(IRenderableDisplay display) {
-        ResourceList list = display.getDescriptor().getResourceList();
-        list.removePostRemoveListener(this);
-        for (ResourcePair rp : list) {
-            if (resourcesAdded.contains(rp)) {
-                resourcesAdded.remove(rp);
-                list.remove(rp);
-            }
-        }
-    }
-
-    // Unneeded part events
-    @Override
-    public void partActivated(IWorkbenchPart part) {
-    }
-
-    @Override
-    public void partBroughtToTop(IWorkbenchPart part) {
-    }
-
-    @Override
-    public void partDeactivated(IWorkbenchPart part) {
-    }
-
-    @Override
-    public void partOpened(IWorkbenchPart part) {
-    }
+    protected abstract T createDisplayContainer();
 
 }
