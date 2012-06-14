@@ -119,6 +119,16 @@ public class CollaborationEditor extends EditorPart implements
     @Override
     public void createPartControl(Composite parent) {
         paneManager.initializeComponents(paneManager, parent);
+
+        RemoteDisplayRequested request = new RemoteDisplayRequested();
+        request.setDisplayId(-1);
+        request.setUserId(session.getUserID().getFQName());
+        try {
+            session.sendObjectToPeer(session.getCurrentDataProvider(), request);
+        } catch (CollaborationException e) {
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
+        }
     }
 
     /*
