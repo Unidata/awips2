@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.display.rsc;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -46,6 +47,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 public class CollaborationResourceData extends AbstractResourceData {
 
+    private ICollaborationEditor editor;
+
     private ISharedDisplaySession session;
 
     private int displayId;
@@ -54,10 +57,11 @@ public class CollaborationResourceData extends AbstractResourceData {
      * @param session2
      * @param displayId2
      */
-    public CollaborationResourceData(ISharedDisplaySession session,
-            int displayId) {
+    public CollaborationResourceData(ICollaborationEditor editor,
+            ISharedDisplaySession session, int displayId) {
         this.session = session;
         this.displayId = displayId;
+        this.editor = editor;
     }
 
     /*
@@ -110,6 +114,13 @@ public class CollaborationResourceData extends AbstractResourceData {
         if (getClass() != obj.getClass())
             return false;
         return true;
+    }
+
+    /**
+     * @return the editor
+     */
+    public ICollaborationEditor getEditor() {
+        return editor;
     }
 
     /**
