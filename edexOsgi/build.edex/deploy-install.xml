@@ -1,796 +1,211 @@
-<!DOCTYPE project [
-<!ENTITY substitute-targets             SYSTEM "substitute.xml">
-]>
-
-<project default="deploy.all" basedir=".">	
-	<property environment="user" />
-	<property name="git.working.dir" value="" />
-	<property name="component.to.deploy" value="" />
-	<property name="update.python" value="true" />
-	<property name="localization.sites" value="" />
-	<property name="python.version.dir" value="python2.7" />
+<project default="main" basedir=".">
+	<!-- import -->
+	<import file="${basedir}/deploy-common/deploy-init.xml" />
+	<import file="${basedir}/deploy-common/deploy-setup.xml" />
+	<import file="${basedir}/deploy-common/deploy-web.xml" />
+	<import file="${basedir}/deploy-common/plugin-methods.xml" />
 	
-	<property name="native.target" value="i386-pc-linux-gnu" />
-	<property name="props.dir" location="${basedir}/properties" />
-	<property name="component-includes.dir" 
-		location="rpm/component/edex/includes" />
-
-	<available file="${basedir}/tmp" property="tmp.ready" />
-
-	<condition property="pde.not.ready">
-		<and>
-			<isset property="pde.build" />
-			<not>
-				<isset property="tmp.ready" />
-			</not>
-		</and>
-	</condition>
-
-	<property name="lib.dir" value="${basedir}/lib" />
+	<!-- public static final -->
+    <path id="ant.classpath">
+        <fileset dir="${basedir}/lib/ant">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+	<property name="esb.directory" value="${basedir}/esb" />
 	
-	<!-- deploys everything -->
-	<target name="deploy.all" depends="define">
-		<tstamp>
-			<format property="build.date"
-				pattern="MM/dd/yyyy" />
-			<format property="build.time"
-				pattern="HH:mm:ss.S z" />
-		</tstamp>
-		<exec executable="hostname" 
-			outputproperty="build.system"/>
-			
-		<echo message="BUILD DATE   = ${build.date}" />
-		<echo message="BUILD TIME   = ${build.time}" />
-		<echo message="BUILD SYSTEM = ${build.system}" />
-
-                <if>
-                	<equals arg1="${installer}" arg2="false" />
+	<target name="main" depends="init, setup">
+		<!-- deploy esb {optionally: data, web} -->
+		<ant antfile="${basedir}/deploy-common/deploy-esb.xml" />
+		<!-- deploy esb configuration -->
+		<ant antfile="${basedir}/deploy-common/deploy-esb-configuration.xml" />
+		<!-- optionally: deploy gfesuite -->
+		<if>
+			<equals arg1="${deploy.gfesuite}" arg2="true" />
 			<then>
-			<!-- Ensure the git working directory has been set. -->
-			<if>
-				<equals arg1="${git.working.dir}" arg2="" />
-				<then>
-					<fail 
-						message="The git working directory has not been specified: use -Dgit.working.dir=" />
-				</then>
-			</if>
-			<!-- Ensure that the specified git working directory exists. -->
-			<if>
-				<available file="${git.working.dir}" 
-					type="dir" />
-				<then>
-					<!-- Continue -->
-				</then>
-				<else>
-					<fail message="The specified git working directory does not exist." />
-				</else>
-			</if>
+				<ant antfile="${basedir}/deploy-common/deploy-gfesuite.xml" />
 			</then>
 		</if>
-		
-		<var name="projects.dirs" 
-			value="${git.working.dir}/cots;${git.working.dir}/edexOsgi;${git.working.dir}/ncep;${git.working.dir}/RadarServer" />
-
-		<for param="propFile">
-			<path id="propertyset">
-				<fileset dir="${props.dir}">
-					<include name="**/*.properties" />
-				</fileset>
-			</path>
-
-			<sequential>
-				<var file="@{propFile}" />
-				<echo message="working dir: ${working.dir}" />
-				<echo message="projects.dirs: ${projects.dirs}" />
-
-				<property name="includes.dir" location="${basedir}/tmp/includes" />
-				<mkdir dir="${includes.dir}" />
-				<!-- directories in EDEX -->
-				<property name="dataDir" location="${esbDir}/data" />
-				<property name="utilDir" location="${dataDir}/utility" />
-
-				<fail message="cannot run pde deploy if pde build has not run" if="pde.not.ready" />
-				<antcall target="cleanup" />
-				
-				<if>
-					<equals arg1="${installer}" arg2="true" />
-					<then>
-						<antcall target="deploy.for.installer" />
-					</then>
-					<else>
-						<antcall target="deploy.for.developer" />						
-					</else>
-				</if>
-			</sequential>
-		</for>
-		
+		<!-- deploy edex plugins -->
+		<antcall target="deploy.feature" />
+		<!-- optionally: deploy raytheon python -->
 		<if>
-			<available file="${basedir}/tmp" type="dir" />
-			<then>
-				<delete quiet="true" includeemptydirs="true">
-					<fileset dir="${basedir}/tmp" />
-				</delete>
-			</then>
-		</if>
-	</target>
-	
-	<target name="cleanup">
-		<if>
-			<equals arg1="${installer}" arg2="true" />
-			<then>
-				<echo message="Cleaning target directory: ${esbDir}" />
-				<echo message="       Removing directory: ${esbDir}/../GFESuite" />
-				<delete quiet="true" includeemptydirs="true">
-					<fileset dir="${esbDir}" includes="**/*" />
-				</delete>
-				
-				<available file="${esbDir}/../GFESuite" type="dir" 
-					property="gfe.dir.exists" />
-				<if>
-					<equals arg1="${gfe.dir.exists}" arg2="true" />
-					<then>
-						<delete quiet="true" includeemptydirs="true">
-							<fileset dir="${esbDir}/../GFESuite" />
-						</delete>
-					</then>
-				</if>
-			</then>
-			<else>
-				<echo message="Cleaning target directory: ${esbDir}/lib/" />
-
-				<!-- delete all files under ${esbDir}/lib/ -->
-				<delete quiet="true">
-					<fileset dir="${esbDir}/lib/">
-						<include name="**" />
-						<exclude name="native/**" />
-						<exclude name="lib64/**" />
-					</fileset>
-				</delete>
-		
-				<!-- delete the shell scripts from ${esbDir}/bin/ -->
-				<echo message="Cleaning target directory: ${esbDir}/bin/" />
-				<delete quiet="true">
-					<fileset dir="${esbDir}/bin/">
-						<include name="*.sh"/>
-					</fileset>
-				</delete>
-
-				<echo message="Cleaning target directory: ${esbDir}/conf" />
-				<delete quiet="true">
-					<fileset dir="${esbDir}/conf">
-						<include name="**" />
-					</fileset>
-				</delete>
-			</else>
-		</if>
-	</target>
-	
-	<!-- =================================================================== -->
-	<!-- Developer Deployment Targets                                        -->
-	<!-- =================================================================== -->
-	<target name="deploy.for.developer">
-		<echo message="Generating deployment list for feature: ${feature}" />
-		<includegen providerfilter="raytheon|noaa\.nws" 
-			basedirectories="${projects.dirs}" 
-			featurefile="${feature}" 
-			cotsout="${includes.dir}/cots.includes" 
-			plugsout="${includes.dir}/plugins.includes" 
-			coreout="${includes.dir}/core.includes" />
-		
-		<if>
-			<equals arg1="${update.python}" arg2="true" />
+			<equals arg1="${deploy.python}" arg2="true" />
 			<then>
 				<antcall target="deploy.python" />
 			</then>
 		</if>
-		<antcall target="deploy.esb" />
-		<antcall target="deploy.esb.configuration" />
-		<antcall target="deploy.cots.developer" />
-		<antcall target="deploy.plugins.developer" />
-		<antcall target="deploy.core.developer" />
+		<!-- optionally: deploy site localization -->
 		<if>
-			<equals arg1="${localization.sites}" arg2="" />
+			<not>
+				<equals arg1="${localization.sites}" arg2="" />
+			</not>
 			<then>
-				<echo 
-					message="WARNING: The localization files will not be deployed. No site(s) have been specified." />
-			</then>
-			<else>
 				<antcall target="deploy.localization" />
-			</else>
+			</then>
 		</if>
 	</target>
 	
-	<!-- deploys core components to ${esbDir}/lib/plugins -->
-	<target name="deploy.core.developer">
-		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${git.working.dir}/edexOsgi" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
-			<target name="deploy" />
-			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
-			<property name="util.dest.dir" location="${utilDir}" />
-		</subant>
-		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${git.working.dir}/ncep" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
-			<target name="deploy" />
-			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
-			<property name="util.dest.dir" location="${utilDir}" />
-		</subant>
-		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${git.working.dir}/RadarServer" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
-			<target name="deploy" />
-			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
-			<property name="util.dest.dir" location="${utilDir}" />
-		</subant>
-	</target>
-	
-	<!-- deploy third party jars to ${esbDir}/lib/dependencies -->
-	<target name="deploy.cots.developer">
-
-		<!-- OSGi cots that have their own projects -->
-		<copy todir="${esbDir}/lib/dependencies" flatten="false">
-			<fileset dir="${git.working.dir}/cots">
-				<includesfile name="${includes.dir}/cots.includes" />
-			</fileset>
-		</copy>
-	</target>
-	
-	<target name="deploy.cots.installer">
+	<!-- public -->
+	<!-- Targets specific to the developer deployment. -->
+	<target name="deploy.feature">
+		<!-- prepare to run includegen -->
+		<var name="includes.directory" value="${basedir}/tmp/includes" />
+		<if>
+			<available file="${includes.directory}" type="dir" />
+			<then>
+				<delete verbose="true" includeemptydirs="true">
+					<fileset dir="${includes.directory}" 
+						includes="*/**" />
+				</delete>
+			</then>
+		</if>
+		<mkdir dir="${includes.directory}" />
 		
-		<!-- OSGi cots that have their own projects -->
-		<copy todir="${esbDir}/lib/dependencies" flatten="false">
-			<fileset dir="${working.dir}">
-				<includesfile name="${includes.dir}/cots.includes" />
-			</fileset>
-		</copy>
-	</target>
+		<var name="feature" value="" />
+		<!-- find the feature file -->
+	 	<for list="${basedirectories}" param="directory"
+	 	delimiter=";">
+	 		<sequential>
+	 			<if>
+	 				<available file="@{directory}/${edex.feature}" />
+	 				<then>
+	 					<var name="feature"
+	 						value="@{directory}/${edex.feature}" />
+	 				</then>
+	 			</if>
+	 		</sequential>
+	 	</for>
+		<!-- run includegen -->
+        <echo message="Generating deployment list for feature: ${edex.feature}" />
+        <includegen providerfilter="${includegen.filter}" 
+            basedirectories="${basedirectories}" 
+            featurefile="${feature}" 
+            cotsout="${includes.directory}/cots.includes" 
+            plugsout="${includes.directory}/plugins.includes" 
+            coreout="${includes.directory}/core.includes" />
 		
-	<!-- deploys plugins to ${esbDir}/lib/plugins -->
-	<target name="deploy.plugins.developer">
-		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${git.working.dir}/edexOsgi" includesfile="${includes.dir}/plugins.includes" />
-			<target name="deploy" />
-			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
-			<property name="util.dest.dir" location="${utilDir}" />
-		</subant>
-		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${git.working.dir}/ncep" includesfile="${includes.dir}/plugins.includes" />
-			<target name="deploy" />
-			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
-			<property name="util.dest.dir" location="${utilDir}" />
-		</subant>
-		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${git.working.dir}/RadarServer" includesfile="${includes.dir}/plugins.includes" />
-			<target name="deploy" />
-			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
-			<property name="util.dest.dir" location="${utilDir}" />
-		</subant>
+		<var name="destination.directory"
+			value="${edex.root.directory}/lib/plugins" />
+		<mkdir dir="${destination.directory}" />
+		<processPlugins
+			includes.file="${includes.directory}/plugins.includes"
+			plugin.type="plugins"
+			plugin.directories="${basedirectories}"
+			destination.directory="${destination.directory}" />
+		<processPlugins
+			includes.file="${includes.directory}/core.includes"
+			plugin.type="core"
+			plugin.directories="${basedirectories}"
+			destination.directory="${destination.directory}" />
+		
+		<var name="destination.directory"
+			value="${edex.root.directory}/lib/dependencies" />
+		<mkdir dir="${destination.directory}" />
+		<processPlugins
+			includes.file="${includes.directory}/cots.includes"
+			plugin.type="cots"
+			plugin.directories="${basedirectories}"
+			destination.directory="${destination.directory}" />
+		
+		<!-- cleanup the temporary directories -->
+		<if>
+			<available file="${basedir}/tmp"
+				type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}"
+						includes="tmp/**" />
+				</delete>
+			</then>
+		</if>
 	</target>
 	
-	<target name="deploy.plugins.installer">
-		<subant failonerror="true" inheritAll="false" inheritRefs="false">
-			<fileset dir="${working.dir}" includesfile="${includes.dir}/plugins.includes" />
-			<target name="deploy" />
-			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
-			<property name="util.dest.dir" location="${utilDir}" />
-		</subant>
-	</target>
-	
-	<!-- deploy ufpy and dynamicserialize to awips2-python -->
 	<target name="deploy.python">
-		<!-- Ensure That The pythonPackages Project Is In The Workspace. -->
-		<if>
-			<available file="${git.working.dir}/pythonPackages/ufpy" type="dir" />
-			<then>
-				<!-- Continue -->
-			</then>
-			<else>
-				<fail message="pythonPackages/ufpy Does Not Exist In The Worskpace." />
-			</else>
-		</if>
+		<property name="site-package.directory" 
+			value="${python.root.directory}/lib/${python.version.dir}/site-packages" />
 		
-		<if>
-			<available file="${git.working.dir}/pythonPackages/dynamicserialize" 
-				type="dir" />
-			<then>
-				<!-- Continue -->
-			</then>
-			<else>
-				<fail message="pythonPackages/dynamicserialize Does Not Exist In The Worskpace." />
-			</else>
-		</if>
-		
-		<if>
-			<available file="${git.working.dir}/pythonPackages/pypies"
-				type="dir" />
-			<then>
-				<!-- Continue -->
-			</then>
-			<else>
-				<fail message="pythonPackages/pypies Does Not Exist In The Worskpace." />
-			</else>
-		</if>
-		
-		<property name="python.installation.root"
-			value="/awips2/python" />
-		<echo message="python.installation.root=${python.installation.root}" />
-		<!-- Ensure That The Python Site-Packages Directory Exists. -->
-		<if>
-			<available file="${python.installation.root}/lib/${python.version.dir}/site-packages" 
-				type="dir" />
-			<then>
-				<!-- Continue -->
-			</then>
-			<else>
-				<fail message="The Python site-packages Directory Was Not Found
-					Under ${python.installation.root}." />
-			</else>
-		</if>
-		
-		<!-- Clear The Current ufpy, dynamicserialize, and pypies Directories -->
-		<if>
-			<available file="${python.installation.root}/lib/${python.version.dir}/site-packages/ufpy"
-				type="dir" />
-			<then>
-				<delete includeemptydirs="true">
-					<fileset 
-						dir="${python.installation.root}/lib/${python.version.dir}/site-packages/ufpy" />
-				</delete>
-			</then>
-		</if>
-		
-		<if>
-			<available file="${python.installation.root}/lib/${python.version.dir}/site-packages/dynamicserialize"
-				type="dir" />
-			<then>
-				<delete includeemptydirs="true">
-					<fileset 
-						dir="${python.installation.root}/lib/${python.version.dir}/site-packages/dynamicserialize" />
-				</delete>
-			</then>
-		</if>
-		
-		<if>
-			<available file="${python.installation.root}/lib/${python.version.dir}/site-packages/pypies"
-				type="dir" />
-			<then>
-				<delete includeemptydirs="true">
-					<fileset
-						dir="${python.installation.root}/lib/${python.version.dir}/site-packages/pypies" />
-				</delete>
-			</then>
-		</if>
-		
-		<!-- Update ufpy, dynamicserialize, and pypies -->
-		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/ufpy" 
-			flatten="false">
-			<fileset dir="${git.working.dir}/pythonPackages/ufpy" />
-		</copy>		
-		
-		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/dynamicserialize" 
-			flatten="false">
-			<fileset dir="${git.working.dir}/pythonPackages/dynamicserialize" />
-		</copy>
-		
-		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/pypies"
-			flatten="false">
-			<fileset dir="${git.working.dir}/pythonPackages/pypies/pypies" />
-		</copy>
+		<echo message="Deploying the Raytheon python site-packages." />
+		<deploy.python.site-package
+			site.package="ufpy" />
+		<deploy.python.site-package
+			site.package="dynamicserialize" />
+		<deploy.python.site-package
+			site.package="pypies" />
 	</target>
 	
 	<target name="deploy.localization">
-		<echo message="INFO: Purging existing site localization files." />
-		<!-- Delete existing site localization files in cave_static -->
-		<if>
-			<available file="${install.dir}/data/utility/cave_static/site"
-			type="dir" />
-			<then>
-				<trycatch>
-					<try>
-						<delete includeemptydirs="true" verbose="true">
-							<fileset
-								dir="${install.dir}/data/utility/cave_static/site" />
-						</delete>						
-					</try>
-					
-					<catch>
-						<fail
-							message="ERROR: Unable to delete the cave_static site localization files. Verify directory permissions." />
-					</catch>
-				</trycatch>
-			</then>
-		</if>
-		<!-- Delete existing site localization files in common_static -->
-		<if>
-			<available file="${install.dir}/data/utility/common_static/site"
-			type="dir" />
-			<then>
-				<trycatch>
-					<try>
-						<delete includeemptydirs="true" verbose="true">
-							<fileset
-								dir="${install.dir}/data/utility/common_static/site" />
-						</delete>						
-					</try>
-					
-					<catch>
-						<fail
-							message="ERROR: Unable to delete the common_static site localization files. Verify directory permissions." />
-					</catch>
-				</trycatch>
-			</then>
-		</if>
-		<!-- Delete existing site localization files in edex_static -->
-		<if>
-			<available file="${install.dir}/data/utility/edex_static/site"
-				type="dir" />
-			<then>
-				<trycatch>
-					<try>
-						<delete includeemptydirs="true" verbose="true">
-							<fileset
-								dir="${install.dir}/data/utility/edex_static/site" />
-						</delete>						
-					</try>
-					
-					<catch>
-						<fail
-							message="ERROR: Unable to delete the edex_static site localization files. Verify directory permissions." />
-					</catch>
-				</trycatch>
-			</then>
-		</if>
-				
-		<echo message="INFO: Deploying Localization ..." />
-		<foreach param="site"
-			target="deploy.localization.site"
-			list="${localization.sites}"
-			delimiter=" " />
-	</target>
-	
-	<target name="deploy.localization.site">
-		<!-- Ensure that the localization directory for the specified site exists
-		in the localization project. -->
-		<if>
-			<not>
-				<available file="${git.working.dir}/localization/localization.${site}"
-					type="dir" />
-			</not>
-			<then>
-				<fail
-					message="ERROR: The localization files for site ${site} could not be found in the baseline." />
-			</then>
-		</if>
-		
-		<echo message="INFO: Deploying Localization for Site: ${site}." />
-		<trycatch>
-			<try>
-				<copy todir="${install.dir}/data/utility"
-				flatten="false" verbose="true">
-					<fileset dir="${git.working.dir}/localization/localization.${site}/utility" />
-				</copy>
-			</try>
-			
-			<catch>
-				<fail
-					message="ERROR: Unable to copy the localization files for site ${site} to ${install.dir}/data/utility. Verify directory permissions." />
-			</catch>
-		</trycatch>
-	</target>
-	
-	<!-- =================================================================== -->
-	<!-- Installer Deployment Targets                                        -->
-	<!-- =================================================================== -->	
-	<target name="deploy.for.installer">
-		<if>
-			<equals arg1="${component.to.deploy}" arg2="" />
-			<then>
-				<antcall target="deploy.esb" />
-				<antcall target="deploy.esb.configuration" />
-				<antcall target="deploy.edex-cots" /> 
-				<for param="dir">
-					<path>
-						<dirset dir="${component-includes.dir}" 
-							includes="**/*" />
-					</path>
-					<sequential>
-						<echo message="DIR = @{dir}" />
-						<var name="current.component.dir" 
-							value="@{dir}" />
-						<antcall target="process.manifest" />
-						
-						<deploy.component
-							file.includes="${component-includes.dir}/component.includes" />
-						<delete 
-							file="${component-includes.dir}/component.includes" />
-					</sequential>
-				</for>
-			</then>
-			<else>
-				<antcall target="deploy.single" />
-			</else>
-		</if>
-	</target>
-	
-	<target name="deploy.single">
-		<if>
-			<equals arg1="${component.to.deploy}" arg2="edex-base" />
-			<then>
-				<antcall target="deploy.esb" />
-			</then>
-			<else>
+	 	<for list="${localization.sites}" param="site"
+	 	delimiter="${path.separator}">
+	 		<sequential>
+	 			<echo message="Deploying localization for site: @{site}" />
+	 			
+				<!-- determine which directory the localization
+				     project should be in. -->
+	 			<var name="localization.path" value="" />
 				<if>
-					<equals arg1="${component.to.deploy}" arg2="edex-configuration" />
+	 				<available file="${awips.baseline.directory}/localization.@{site}"
+	 					type="dir" />
 					<then>
-						<antcall target="deploy.esb.configuration" />
+						<var name="localization.path"
+							value="${awips.baseline.directory}/localization.@{site}" />
 					</then>
 					<else>
-						<if>
-							<equals arg1="${component.to.deploy}" arg2="edex-cots" />
-							<then>
-								<antcall target="deploy.edex-cots" />
-							</then>
-							<else>						
-								<echo message="DIR = ${component-includes.dir}/${component.to.deploy}"/>
-								<var name="current.component.dir" 
-									value="${component-includes.dir}/${component.to.deploy}" />
-								<antcall target="process.manifest" />
-								<deploy.component
-									file.includes="${component-includes.dir}/component.includes" />
-								<delete 
-									file="${component-includes.dir}/component.includes" />
-							</else>
-						</if>
+						<var name="localization.path"
+	 						value="${awips.baseline.directory}/${localization.directory}/localization.@{site}" />
 					</else>
 				</if>
-			</else>
-		</if>
-	</target>
-
-	<target name="process.manifest">
-		<java jar="${basedir}/rpm/util/ProcessManifest.jar"
-			fork="true"
-			failonerror="true"
-			output="${component-includes.dir}/component.includes">
-			<arg 
-				value="${current.component.dir}/MANIFEST.MF" />
-		</java>
+	 			
+	 			<!-- copy the localization files. -->
+				<copy todir="${edex.root.directory}/data/utility"
+				overwrite="true">
+					<fileset dir="${localization.path}/utility"
+						includes="*/**" />
+	 			</copy>
+	 		</sequential>
+	 	</for>
 	</target>
 	
-	<macrodef name="deploy.component">
-		<attribute name="file.includes" />
+	<!-- private -->
+	<macrodef name="deploy.python.site-package">
+		<attribute name="site.package" />
 		
 		<sequential>
-			<copy file="@{file.includes}"
-				tofile="${includes.dir}/plugins.includes">
-				<filterchain>
-					<tokenfilter>
-						<replaceregex pattern="$" 
-							replace="/component-deploy.xml" />
-					</tokenfilter>
-				</filterchain>
-			</copy>
-			
-			<antcall target="deploy.plugins.installer" />
-			<delete file="${includes.dir}/plugins.includes" />
-		</sequential>
-	</macrodef>
-
-	<target name="deploy.edex-cots">
-		<echo message="working.dir=${working.dir}" />
-		
-		<includegen providerfilter="raytheon|noaa\.nws" 
-			basedirectories="${working.dir}" 
-			featurefile="${feature}" 
-			cotsout="${includes.dir}/cots.includes" />
-
-		<antcall target="deploy.cots.installer" />
-		<delete file="${includes.dir}/cots.includes" />
-	</target>
-	
-	<!-- =================================================================== -->
-	<!-- ESB Deployment Targets                                              -->
-	<!-- =================================================================== -->
-	<!-- deploys contents of esb directory to various locations in EDEX -->
-	<target name="deploy.esb">		
-		<echo>Staging esb files.</echo>
-		<if>
-			<equals arg1="${deploy.data}" arg2="true" />
-			<then>
-				<copy todir="${esbDir}" verbose="true">
-					<fileset dir="${basedir}/esb">					
-						<exclude name="svcBackup/**" />
-						<exclude name="**/bin/setup.env" />
-					</fileset>
-				</copy>
-			</then>
-			<else>
-				<copy todir="${esbDir}" verbose="true">
-					<fileset dir="${basedir}/esb">
-						<exclude name="data/**" />
-						<exclude name="svcBackup/**" />
-						<exclude name="**/bin/setup.env" />
-					</fileset>
-				</copy>
-			</else>
-		</if>
-
-		<!-- Change permissions on the Linux start file -->
-		<chmod file="${esbDir}/bin/start.sh" perm="ugo+rx" />
-		<chmod file="${esbDir}/bin/linux-x86-32/wrapper" perm="ugo+rx" />
-		<chmod dir="${esbDir}/data" perm="775" 
-			includes="**/*" verbose="true" type="both" />
-		
-		<if>
-			<equals arg1="${deploy.web}" arg2="true" />
-			<then>
-				<!-- Deploy uEngineWeb -->
-				<deploy.war
-					web.project.dir="com.raytheon.edex.uengine"
-					war.name="uEngineWeb"
-					application.name="uengine"
-					component.list="
-						com.raytheon.edex.uengine/component-deploy.xml, 
-						com.raytheon.edex.common/component-deploy.xml, 
-						com.raytheon.uf.common.serialization/component-deploy.xml" 
-					/>
-				
-				<!-- Deploy purgeWeb -->
-				<deploy.war
-					web.project.dir="gov.noaa.nws.ncep.edex.purgeutil"
-					war.name="purgeWeb"
-					application.name="purge"
-					component.list="
-						gov.noaa.nws.ncep.edex.purgeutil/component-deploy.xml, 
-						com.raytheon.edex.common/component-deploy.xml, 
-						com.raytheon.uf.common.serialization/component-deploy.xml"
-				/>
-			</then>
-			<else>
-				<echo 
-					message="Not deploying web applications to this target" />
-			</else>
-		</if>
-		
-		<exec executable="/bin/bash"
-			outputproperty="build.system.padded">
-			<arg value="${basedir}/rpm/util/PadString.sh" />
-			<arg value="${build.system}" />
-			<arg value="32" />
-		</exec>
-		
-		<!-- update the deployed banner file -->
-		<copy file="${esbDir}/conf/banner.txt"
-			tofile="${esbDir}/conf/banner.txt.update">
-			<filterchain>
-				<tokenfilter>
-					<replaceregex pattern="MM-DD-YYYY" 
-						replace="${build.date}" />
-					<replaceregex pattern="HH:MM:SS.SSS ZZZ" 
-						replace="${build.time}" />
-					<replaceregex 
-						pattern="BUILD.SYSTEMXXXXXXXXXXXXXXXXXXXXX*" 
-						replace="${build.system.padded}" />
-				</tokenfilter>
-			</filterchain>
-		</copy>
-		<delete>
-			<fileset file="${esbDir}/conf/banner.txt" />
-		</delete>
-		<move
-			file="${esbDir}/conf/banner.txt.update"
-			tofile="${esbDir}/conf/banner.txt" />
-	</target>
-	
-	<target name="deploy.esb.configuration">
-		<echo>Deploying esb configuration files.</echo>
-		<!-- Deploy: setup.env -->
-		<copy todir="${esbDir}/bin">
-			<fileset file="${basedir}/esb/bin/setup.env" />
-		</copy>
-	</target>
-	
-	<!-- =================================================================== -->
-	<!-- Generic task to build and deploy any web application.               -->
-	<!-- =================================================================== -->
-	<macrodef name="deploy.war">
-		<attribute name="web.project.dir" />
-		<attribute name="war.name" />
-		<attribute name="application.name" />
-		<attribute name="component.list" />
-		
-		<sequential>
-			<var name="esbDir" value="${install.dir}" />
-			
+			<echo message="Deploying @{site.package} ..." />
 			<if>
-				<equals arg1="${installer}" arg2="true" />
+				<available file="${site-package.directory}/@{site.package}"
+					type="dir" />
 				<then>
-					<var name="bin.dir" value="@dot" />
-					<var name="projects.dir" 
-						value="edex/tmp/plugins" />
+					<delete dir="${site-package.directory}/@{site.package}" 
+					includeemptydirs="true">
+						<fileset dir="${site-package.directory}" 
+							includes="@{site.package}/**" />
+					</delete>
 				</then>
-				<else>
-					<var name="bin.dir" value="bin" />
-					<var name="projects.dir"
-						value="${basedir}/../" />
-				</else>
 			</if>
 			
-			<property name="webapps.dir" 
-				value="${esbDir}/webapps" />
-			<property name="project.dir" 
-				value="${projects.dir}/@{web.project.dir}" />
-						
-			<property name="project.tmp.dir" 
-				location="${basedir}/tmp/@{application.name}" />
-			<delete dir="${project.tmp.dir}" quiet="true"/>
-			<mkdir dir="${project.tmp.dir}" />
-			
-			<uptodate property="project.uptodate">
-				<srcfiles dir="${project.dir}/src" 
-					includes="**/*.java" />
-				<mapper type="glob" from="**/*.java" 
-					to="${project.dir}/${bin.dir}/**/*.class" />
-			</uptodate>
-					
-			<fail message="Class files out of date, please build @{application.name}" 
-				unless="project.uptodate" />
-			
-			
-			<subant failonerror="true" inheritAll="false" inheritRefs="false">
-				<fileset dir="${projects.dir}" 
-					includes="@{component.list}"/>
-				<target name="deploy" />
-				<property name="dest.dir" value="${project.tmp.dir}" />
-			</subant>
-			
-			<var name="war.file" value="@{war.name}.war" />
-			
-			<!-- delete old war file -->
-			<delete dir="${webapps.dir}/@{war.name}" 
-				quiet="true" />
-			<delete file="${webapps.dir}/${war.file}" 
-				quiet="true" />
-			<mkdir dir="${webapps.dir}" />
-			
-			<!-- build and deploy new war -->
-			<echo message="Building and deploying war file" />
-			<war destfile="${webapps.dir}/${war.file}" 
-			webxml="${project.dir}/web/WEB-INF/web.xml">
-				<fileset dir="${project.dir}/web" 
-					excludes="**/WEB-INF/" />
-				<classes dir="${project.dir}/web/WEB-INF/classes" />
-				<!-- general -->
-				<webinf file="${project.dir}/web/WEB-INF/dwr.xml" />
-			</war>
-			
-			<unzip src="${webapps.dir}/${war.file}" 
-				dest="${webapps.dir}/@{war.name}" />
-			<delete file="${webapps.dir}/${war.file}" />
+			<if>
+				<equals arg1="@{site.package}" arg2="pypies" />
+				<then>
+					<!-- custom rule for pypies due to alternate directory layout -->
+					<copy todir="${site-package.directory}">
+						<fileset dir="${awips.baseline.directory}/pythonPackages/pypies"
+							includes="@{site.package}/**" />
+					</copy>
+				</then>
+				<else>
+					<copy todir="${site-package.directory}">
+						<fileset dir="${awips.baseline.directory}/pythonPackages"
+							includes="@{site.package}/**" />
+					</copy>
+				</else>
+			</if>
 		</sequential>
 	</macrodef>
-
-	<path id="ant.classpath">
-		<fileset dir="${basedir}/lib/ant">
-			<include name="*.jar" />
-		</fileset>
-		<fileset dir="${ant.library.dir}">
-			<include name="*.jar" />
-		</fileset>
-	</path>
-
-
-	<target name="define">
-		<taskdef name="includegen" classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature" classpathref="ant.classpath" />
-	</target>
-
-	<taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
-
-	&substitute-targets;
 	
+	<!-- static -->
+    <taskdef name="includegen" 
+    	classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature"
+    	classpathref="ant.classpath" />	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
 </project>
