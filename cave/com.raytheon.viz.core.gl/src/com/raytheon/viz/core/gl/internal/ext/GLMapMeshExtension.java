@@ -61,7 +61,7 @@ public class GLMapMeshExtension extends GraphicsExtension<IGLTarget> implements
     @Override
     public IMesh constructMesh(GridGeometry2D imageGeometry,
             GeneralGridGeometry targetGeometry) throws VizException {
-        return new GLMesh2DStrips(imageGeometry, targetGeometry);
+        return GLMesh2DStrips.getMesh(imageGeometry, targetGeometry);
     }
 
     /*
