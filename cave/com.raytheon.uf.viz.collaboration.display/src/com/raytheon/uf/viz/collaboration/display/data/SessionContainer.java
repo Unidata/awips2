@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.display.data;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.roles.IRoleEventController;
 
 /**
@@ -54,11 +54,7 @@ public class SessionContainer {
 
     private SessionColorManager colorManager;
 
-    /**
-     * the editor associated with a session, only valid if not fulfilling the
-     * Data Provider role
-     **/
-    private ICollaborationEditor collaborationEditor;
+    private IRemoteDisplayContainer displayContainer;
 
     public ISharedDisplaySession getSession() {
         return session;
@@ -76,12 +72,19 @@ public class SessionContainer {
         this.roleEventController = roleEventController;
     }
 
-    public ICollaborationEditor getCollaborationEditor() {
-        return collaborationEditor;
+    /**
+     * @return the displayContainer
+     */
+    public IRemoteDisplayContainer getDisplayContainer() {
+        return displayContainer;
     }
 
-    public void setCollaborationEditor(ICollaborationEditor collaborationEditor) {
-        this.collaborationEditor = collaborationEditor;
+    /**
+     * @param displayContainer
+     *            the displayContainer to set
+     */
+    public void setDisplayContainer(IRemoteDisplayContainer displayContainer) {
+        this.displayContainer = displayContainer;
     }
 
     public String getSessionId() {
