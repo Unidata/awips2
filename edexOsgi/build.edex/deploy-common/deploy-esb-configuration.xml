@@ -1,0 +1,9 @@
+<project name="deploy.esb" default="main">
+	<target name="main">
+		<!-- deploy setup.env -->
+		<copy todir="${edex.root.directory}/bin"
+		overwrite="${esb.overwrite}">
+			<fileset file="${esb.directory}/bin/setup.env" />
+		</copy>
+	</target>
+</project>
