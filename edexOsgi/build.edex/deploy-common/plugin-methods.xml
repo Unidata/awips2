@@ -1,0 +1,160 @@
+<project>
+	<macrodef name="processPlugins">
+		<attribute name="includes.file" />
+		<attribute name="plugin.type" />
+		<attribute name="plugin.directories" />
+		<attribute name="destination.directory" />
+		
+		<sequential>
+			<loadfile property="includefile.@{plugin.type}"
+				srcfile="@{includes.file}" />
+			<var name="index" value="1" />
+			
+			<for param="line" list="${includefile.@{plugin.type}}"
+			delimiter="${line.separator}">
+				<sequential>
+					<!-- skip the first line -->
+					<if>
+						<not>
+							<equals arg1="${index}" arg2="1" />
+						</not>
+						<then>											
+							<if>							
+								<!-- TODO: we need our own ant plugin so this
+								becomes unnecessary [SPECIAL CASE]. -->
+								<equals arg1="@{plugin.type}" arg2="cots" />
+								<then>
+									<propertyregex property="plugin.name"
+									override="true"
+									input="@{line}"
+									regexp="(.+)/(.+)"
+									select="\1"
+									casesensitive="true" />
+								</then>
+								<else>
+									<propertyregex property="plugin.name"
+									override="true"
+									input="@{line}"
+									regexp="(.+)/component-deploy.xml"
+									select="\1"
+									casesensitive="true" />
+								</else>
+							</if>
+							
+							<deployPlugins
+								plugin.name="${plugin.name}"
+								original.pattern="@{line}"
+								plugin.type="@{plugin.type}"
+								plugin.directories="@{plugin.directories}" 
+								destination.directory="@{destination.directory}" />
+						</then>
+					</if>
+					<math result="index"
+						operand1="${index}"
+						operation="+"
+						operand2="1"
+						datatype="int" />
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="deployPlugins">
+		<attribute name="plugin.name" />
+		<attribute name="original.pattern" />
+		<attribute name="plugin.type" />
+		<attribute name="plugin.directories" />
+		<attribute name="destination.directory" />
+		
+		<sequential>			
+			<var name="plugin.path" value="" />
+			<!-- first we need to find the plugin -->
+	 		<for list="${basedirectories}" param="directory"
+	 		delimiter=";">
+	 			<sequential>
+	 				<if>
+	 					<available file="@{directory}/@{plugin.name}" />
+	 					<then>
+	 						<var name="plugin.path"
+	 							value="@{directory}" />
+	 					</then>
+	 				</if>
+	 			</sequential>
+	 		</for>
+	 		
+	 		<var name="plugin.base" value="${plugin.path}/@{plugin.name}" />
+	 		<var name="plugin.bin" value="${plugin.base}/bin" />
+	 		<var name="jar.destfile"
+	 			value="${destination.directory}/@{plugin.name}.jar" />
+	 		
+	 		<!-- deploy the plugin - cots plugins are deployed differently -->
+	 		<if>
+	 			<equals arg1="@{plugin.type}" arg2="cots" />
+	 			<then>	 			
+	 				<!-- copy the cots jars to the destination -->
+	 				<copy todir="${destination.directory}"
+	 				overwrite="true" verbose="true">
+	 					<fileset dir="${plugin.path}"
+	 						includes="@{original.pattern}" />	
+	 				</copy>
+	 				
+	 				<!-- jar any compiled cots source -->
+	 				<if>
+	 					<available file="${plugin.bin}" type="dir" />
+	 					<then>
+	 						<jar destfile="${jar.destfile}">
+	 							<fileset dir="${plugin.bin}"
+	 								includes="**/*.class" />
+	 						</jar>
+	 					</then>
+	 				</if>
+	 			</then>
+	 			<else>
+	 				<var name="plugin.utility"
+	 					value="${plugin.base}/utility" />
+	 				 			
+	 				<if>
+	 					<available file="${plugin.bin}" type="dir" />
+	 					<then>
+	 						<jar destfile="${jar.destfile}"
+	 						manifest="${plugin.base}/META-INF/MANIFEST.MF">
+	 							<fileset dir="${plugin.bin}"
+	 								includes="**/*.class" />
+	 							<fileset dir="${plugin.base}"
+	 								includes="res/**/*" />
+	 							<fileset dir="${plugin.base}"
+	 								includes="META-INF/**/*" />
+	 							<fileset dir="${plugin.base}"
+	 								includes="*.py" />
+	 						</jar>
+	 					</then>
+	 					<else>
+	 						<jar destfile="${jar.destfile}"
+	 						manifest="${plugin.base}/META-INF/MANIFEST.MF">
+	 							<fileset dir="${plugin.base}"
+	 								includes="res/**/*" />
+	 							<fileset dir="${plugin.base}"
+	 								includes="META-INF/**/*" />
+	 							<fileset dir="${plugin.base}"
+	 								includes="*.py" />
+	 						</jar>
+	 					</else>
+	 				</if>
+	 			
+	 				<!-- copy the utility (localization) files. -->
+	 				<if>
+	 					<available file="${plugin.utility}"
+	 						type="dir" />
+	 					<then>
+	 						<copy todir="${edex.root.directory}/data/utility"
+	 						overwrite="true">
+	 							<fileset dir="${plugin.utility}"
+	 								includes="*/**" />
+	 						</copy>
+	 					</then>
+	 				</if>
+	 			</else>
+	 		</if>
+		</sequential>
+	</macrodef>
+</project>
