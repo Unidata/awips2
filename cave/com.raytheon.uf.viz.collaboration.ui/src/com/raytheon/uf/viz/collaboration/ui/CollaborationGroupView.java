@@ -85,6 +85,7 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
@@ -109,9 +110,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
+import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
@@ -127,6 +129,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.SessionMsgArchive;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
@@ -1548,26 +1551,37 @@ public class CollaborationGroupView extends CaveFloatingView implements
         if (linkToEditorAction.isChecked()) {
             IWorkbenchPage page = PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow().getActivePage();
-            if (part instanceof ICollaborationEditor) {
-                String sessionId = ((ICollaborationEditor) part).getSessionId();
-                for (IViewReference ref : page.getViewReferences()) {
-                    if (ref.getPart(false) instanceof CollaborationSessionView) {
-                        CollaborationSessionView view = (CollaborationSessionView) ref
-                                .getPart(false);
-                        if (view.getSessionId().equals(sessionId)) {
-                            page.bringToTop(view);
-                            break;
-                        }
+            if (part instanceof CollaborationSessionView) {
+                IRemoteDisplayContainer container = ((CollaborationSessionView) part)
+                        .getDisplayContainer();
+                if (container != null) {
+                    IEditorPart editor = container.getActiveDisplayEditor();
+                    if (editor != null) {
+                        page.bringToTop(editor);
                     }
                 }
-            } else if (part instanceof CollaborationSessionView) {
-                String sessionId = ((CollaborationSessionView) part)
-                        .getSessionId();
-                ICollaborationEditor editor = SharedDisplaySessionMgr
-                        .getSessionContainer(sessionId)
-                        .getCollaborationEditor();
-                if (editor != null) {
-                    page.bringToTop(editor);
+            } else {
+                String sessionId = null;
+                if (part instanceof ICollaborationEditor) {
+                    sessionId = ((ICollaborationEditor) part).getSessionId();
+                } else if (part instanceof AbstractEditor) {
+                    ISharedDisplaySession session = SharedEditorsManager
+                            .getSharedEditorSession((AbstractEditor) part);
+                    if (session != null) {
+                        sessionId = session.getSessionId();
+                    }
+                }
+                if (sessionId != null) {
+                    for (IViewReference ref : page.getViewReferences()) {
+                        if (CollaborationSessionView.ID.equals(ref.getId())) {
+                            CollaborationSessionView view = (CollaborationSessionView) ref
+                                    .getPart(false);
+                            if (sessionId.equals(view.getSessionId())) {
+                                page.bringToTop(view);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
