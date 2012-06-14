@@ -29,6 +29,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.ISaveablePart2;
 import org.eclipse.ui.PartInitException;
@@ -140,7 +141,7 @@ public class CollaborationEditor extends EditorPart implements
             for (ResourcePair rp : display.getDescriptor().getResourceList()) {
                 rp.getProperties().setSystemResource(true);
             }
-            CollaborationResourceData crd = new CollaborationResourceData(
+            CollaborationResourceData crd = new CollaborationResourceData(this,
                     session, displayId);
             ResourcePair rp = ResourcePair.constructSystemResourcePair(crd);
             display.getDescriptor().getResourceList().add(rp);
@@ -400,5 +401,27 @@ public class CollaborationEditor extends EditorPart implements
             return null;
         }
         return new RemoteDisplay(currentActiveDisplay, display);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer#
+     * getActiveDisplayEditor()
+     */
+    @Override
+    public IEditorPart getActiveDisplayEditor() {
+        return this;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer#
+     * disposeContainer()
+     */
+    @Override
+    public void disposeContainer() {
+        getSite().getPage().closeEditor(this, false);
     }
 }
