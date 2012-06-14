@@ -65,53 +65,8 @@
         <!-- ===================================================================== -->
         <!-- Steps to do after setup but before starting the build proper -->
         <!-- ===================================================================== -->
-        <target name="postSetup">
-
-        	
-                <echo message="${buildDirectory}"/>
-                <mkdir dir="${buildDirectory}/plugins"/>
-        
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="com.raytheon.*/**" excludes="com.raytheon.viz.*/**,com.raytheon.uf.viz.*/**"/>
-                </copy>
-        		<copy todir="${buildDirectory}/plugins">
-        		    <fileset dir="${buildDirectory}/../../../" includes="com.*/**" excludes="com.raytheon.*/**" />
-        		</copy>
-                <copy todir="${buildDirectory}/features">
-                        <fileset dir="${buildDirectory}/../../../" includes="com.raytheon.*.feature*/**"/>
-                </copy>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="ncsa.*/**"/>
-                </copy>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="org.*/**"/>
-                </copy>
-                <copy todir="${buildDirectory}/plugins">
-                        <fileset dir="${buildDirectory}/../../../" includes="net.*/**"/>
-                </copy>
-	            <copy todir="${buildDirectory}/plugins">
-	                <fileset dir="${buildDirectory}/../../../" includes="ohd*/**"/>
-	            </copy>
-	            <copy todir="${buildDirectory}/plugins">
-	                <fileset dir="${buildDirectory}/../../../" includes="meteolib*/**"/>
-	            </copy>
-            	<copy todir="${buildDirectory}/plugins">
-                	<fileset dir="${buildDirectory}/../../../" includes="build.native*/**"/>
-            	</copy>
-        		<copy todir="${buildDirectory}/plugins">
-        	    	<fileset dir="${buildDirectory}/../../../" includes="ucar.*/**"/>
-        	    </copy>
-    			<copy todir="${buildDirectory}/plugins">
-    	    		<fileset dir="${buildDirectory}/../../../" includes="edu.*/**, uk.*/**"/>
-    	    	</copy>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="javax.*/**"/>
-                </copy>
-                <copy todir="${buildDirectory}/plugins">
-                    <fileset dir="${buildDirectory}/../../../" includes="gov.*/**"/>
-                </copy>
-           
-                <antcall target="getBaseComponents" />
+        <target name="postSetup">           
+        	<antcall target="getBaseComponents" />
         </target>
 
         <!-- ===================================================================== -->
@@ -180,6 +135,37 @@
         <!-- Steps to do after the build is done. -->
         <!-- ===================================================================== -->
         <target name="postBuild">
+        	<property file="${builder}/common.properties" />
+        	<property name="build.output.directory"
+        		value="${buildDirectory}/tmp/edex" />
+        	
+        	<mkdir dir="${builder}/postBuild/${edex.root.directory}" />
+        	<copy todir="${builder}/postBuild/${edex.root.directory}">
+        		<fileset dir="${build.output.directory}">
+        			<include name="plugins/**" />
+        			<include name="utility/**" />
+        		</fileset>
+        	</copy>
+        	
+        	<!-- Create the distribution directory. -->
+        	<mkdir dir="${builder}/dist" />
+        	<zip destfile="${builder}/dist/${topLevelElementId}-edex.zip"
+        		basedir="${builder}/postBuild"
+        		includes="*/**">
+        	</zip>
+        	
+        	<delete includeemptydirs="true">
+				<fileset dir="${build.output.directory}">
+	    			<include name="**/**"/>
+				</fileset>
+			</delete>
+        	
+            <delete includeemptydirs="true">
+    			<fileset dir="${builder}/postBuild">
+    	    		<include name="**/**"/>
+    			</fileset>
+    		</delete>
+
         </target>
 
         <!-- ===================================================================== -->
