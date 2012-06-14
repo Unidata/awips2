@@ -28,7 +28,6 @@ import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.mesh.ReprojectMeshEvent;
 
 /**
  * Dispatching mesh object created from graphics mesh and forwards key events to
@@ -67,8 +66,8 @@ public class DispatchingMesh extends DispatchingObject<IMesh> implements IMesh {
     public void dispose() {
         wrappedObject.dispose();
         // Send event to dispose mesh
-        dispatch(RemoteGraphicsEventFactory.createEvent(DisposeObjectEvent.class,
-                this));
+        dispatch(RemoteGraphicsEventFactory.createEvent(
+                DisposeObjectEvent.class, this));
     }
 
     /*
@@ -90,15 +89,15 @@ public class DispatchingMesh extends DispatchingObject<IMesh> implements IMesh {
      * GeneralGridGeometry)
      */
     @Override
-    public void reproject(GeneralGridGeometry targetGeometry)
+    public IMesh reproject(GeneralGridGeometry targetGeometry)
             throws VizException {
-        wrappedObject.reproject(targetGeometry);
+        return clone(targetGeometry);
+    }
 
-        // Send event for reprojection
-        ReprojectMeshEvent event = RemoteGraphicsEventFactory.createEvent(
-                ReprojectMeshEvent.class, this);
-        event.setTargetGeometry(targetGeometry);
-        dispatch(event);
+    @Override
+    public IMesh clone(GeneralGridGeometry targetGeometry) throws VizException {
+        return new DispatchingMesh(wrappedObject.clone(targetGeometry),
+                getDispatcher());
     }
 
 }
