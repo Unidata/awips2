@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.roles.dataprovider.rsc;
 
+import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -26,15 +27,23 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.display.Activator;
+import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.ReprojectRemoteDisplay;
+import com.raytheon.uf.viz.core.DrawableString;
+import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
+import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
+import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 
 /**
  * A resource that is added to an editor that the Data Provider is sharing. It
@@ -64,6 +73,10 @@ public class DataProviderRsc extends
 
     private ISharedDisplaySession session;
 
+    private SessionColorManager colorManager;
+
+    private IFont font;
+
     public DataProviderRsc(DataProviderRscData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -71,6 +84,7 @@ public class DataProviderRsc extends
                 .getSessionContainer(resourceData.getSessionId());
         if (container != null) {
             session = container.getSession();
+            colorManager = container.getColorManager();
             IVenueInfo info = session.getVenue().getInfo();
             roomName = info.getVenueDescription();
             subject = info.getVenueDescription();
@@ -79,18 +93,39 @@ public class DataProviderRsc extends
 
     @Override
     protected void disposeInternal() {
-
+        font.dispose();
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        if (target instanceof DispatchGraphicsTarget) {
+            target = ((DispatchGraphicsTarget) target).getWrappedObject();
+        }
+        target.clearClippingPlane();
+        IExtent extent = paintProps.getView().getExtent();
+        RGB color = colorManager.getColorFromUser(session.getUserID());
+        target.drawRect(extent, color, 3.0f, 1.0f);
 
+        DrawableString string = new DrawableString(getName(), color);
+        string.horizontalAlignment = HorizontalAlignment.CENTER;
+        string.verticallAlignment = VerticalAlignment.BOTTOM;
+        string.setCoordinates(extent.getMinX() + extent.getWidth() / 2,
+                extent.getMaxY());
+        string.font = font;
+        string.textStyle = TextStyle.BLANKED;
+        target.drawStrings(string);
+
+        target.setupClippingPlane(paintProps.getClippingPane());
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-
+        if (target instanceof DispatchGraphicsTarget) {
+            target = ((DispatchGraphicsTarget) target).getWrappedObject();
+        }
+        font = target.getDefaultFont().deriveWithSize(11.0f);
+        font.setScaleFont(true);
     }
 
     /*

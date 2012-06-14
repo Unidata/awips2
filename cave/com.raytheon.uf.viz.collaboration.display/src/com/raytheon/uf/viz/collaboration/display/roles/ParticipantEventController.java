@@ -22,8 +22,6 @@ package com.raytheon.uf.viz.collaboration.display.roles;
 import org.eclipse.ui.PartInitException;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
-import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditorInput;
 import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -45,7 +43,8 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * @version 1.0
  */
 
-public class ParticipantEventController extends AbstractRoleEventController {
+public class ParticipantEventController extends
+        AbstractRoleEventController<ICollaborationEditor> {
 
     public ParticipantEventController(ISharedDisplaySession session) {
         super(session);
@@ -55,44 +54,20 @@ public class ParticipantEventController extends AbstractRoleEventController {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
-     * #startup()
+     * com.raytheon.uf.viz.collaboration.display.roles.AbstractRoleEventController
+     * #createDisplayContainer()
      */
     @Override
-    public void startup() {
-        super.startup();
+    protected ICollaborationEditor createDisplayContainer() {
         CollaborationEditorInput input = new CollaborationEditorInput(
                 session.getSessionId(), session.getVenue().getInfo()
                         .getVenueDescription());
         try {
-            ICollaborationEditor editor = (ICollaborationEditor) VizWorkbenchManager
-                    .getInstance().getCurrentWindow().getActivePage()
+            return (ICollaborationEditor) VizWorkbenchManager.getInstance()
+                    .getCurrentWindow().getActivePage()
                     .openEditor(input, ICollaborationEditor.EDITOR_ID);
-            SessionContainer sc = SharedDisplaySessionMgr
-                    .getSessionContainer(session.getSessionId());
-            sc.setCollaborationEditor(editor);
         } catch (PartInitException e) {
-            throw new RuntimeException("Unable to open collaboration editor", e);
-        }
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController
-     * #shutdown()
-     */
-    @Override
-    public void shutdown() {
-        super.shutdown();
-        SessionContainer sc = SharedDisplaySessionMgr
-                .getSessionContainer(session.getSessionId());
-        if (sc != null) {
-            sc.getCollaborationEditor().getSite().getPage()
-                    .closeEditor(sc.getCollaborationEditor(), false);
+            throw new RuntimeException("Error opening collaboration editor", e);
         }
     }
-
 }
