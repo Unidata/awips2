@@ -369,12 +369,15 @@ public class ParticipantsLabelProvider extends ColumnLabelProvider {
             boolean isDataProvider = id.equals(((SharedDisplaySession) session)
                     .getCurrentDataProvider());
             if (isSessionLeader || isDataProvider) {
-                if (isSessionLeader) {
-                    builder.append("\nSession Leader");
-                }
-                if (isDataProvider) {
-                    builder.append("\nData Provider");
-                }
+                // TODO if transferring control is ever desired and implemented
+                // we need to distinguish these. Until then, Leader works fine.
+                builder.append("\nLeader");
+                // if (isSessionLeader) {
+                // builder.append("\nSession Leader");
+                // }
+                // if (isDataProvider) {
+                // builder.append("\nData Provider");
+                // }
             }
         }
         return builder.toString();
