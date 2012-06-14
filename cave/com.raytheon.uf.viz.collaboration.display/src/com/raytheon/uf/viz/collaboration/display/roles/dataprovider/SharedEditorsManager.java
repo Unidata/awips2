@@ -97,18 +97,32 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
             for (UserId uid : session.getVenue().getParticipants()) {
                 if (uid.getFQName().equals(userId)) {
                     user = uid;
+                    break;
                 }
             }
             if (user != null) {
                 int displayId = event.getDisplayId();
+                RemoteDisplay requested = null;
                 for (DisplayData data : displayData.values()) {
                     if (data.displayId == displayId) {
-                        CreateRemoteDisplay creation = new CreateRemoteDisplay();
-                        creation.setDisplayId(displayId);
-                        creation.setDisplay(createRemoteDisplay(data.display));
-                        sendEvent(creation);
+                        requested = new RemoteDisplay(data.displayId,
+                                data.display);
                         break;
                     }
+                }
+                if (requested == null) {
+                    requested = getActiveDisplay();
+                    if (requested != null) {
+                        ActivateRemoteDisplay activate = new ActivateRemoteDisplay();
+                        activate.setDisplayId(requested.getDisplayId());
+                        sendEvent(activate);
+                    }
+                } else {
+                    CreateRemoteDisplay creation = new CreateRemoteDisplay();
+                    creation.setDisplayId(requested.getDisplayId());
+                    creation.setDisplay(createRemoteDisplay(requested
+                            .getDisplay()));
+                    sendEvent(creation);
                 }
             }
         }
