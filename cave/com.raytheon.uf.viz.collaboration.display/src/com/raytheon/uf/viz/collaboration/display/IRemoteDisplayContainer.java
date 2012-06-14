@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.display;
 
+import org.eclipse.ui.IEditorPart;
+
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 
 /**
@@ -86,4 +88,8 @@ public interface IRemoteDisplayContainer {
             IRemoteDisplayChangedListener listener);
 
     public RemoteDisplay getActiveDisplay();
+
+    public IEditorPart getActiveDisplayEditor();
+
+    public void disposeContainer();
 }
