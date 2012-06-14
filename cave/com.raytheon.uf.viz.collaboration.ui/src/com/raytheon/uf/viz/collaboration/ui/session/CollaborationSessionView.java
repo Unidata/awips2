@@ -20,9 +20,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  * further licensing information.
  **/
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.ecf.presence.roster.IRosterEntry;
@@ -39,10 +37,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 
@@ -66,8 +62,6 @@ import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.RemoteD
 import com.raytheon.uf.viz.collaboration.display.data.ColorChangeEvent;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
-import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
-import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
 import com.raytheon.uf.viz.collaboration.display.rsc.SelfAddingSystemResourceListener;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingResource;
@@ -80,7 +74,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer;
 import com.raytheon.uf.viz.drawing.DrawingToolLayer.DrawMode;
-import com.raytheon.viz.ui.VizWorkbenchManager;
 
 /**
  * View class for a collaboration session
@@ -140,6 +133,10 @@ public class CollaborationSessionView extends SessionView implements
 
     private Map<IRenderableDisplay, SelfAddingSystemResourceListener> listeners = new IdentityHashMap<IRenderableDisplay, SelfAddingSystemResourceListener>();
 
+    public IRemoteDisplayContainer getDisplayContainer() {
+        return container;
+    }
+
     public CollaborationDrawingResource getCurrentDrawingResource() {
         CollaborationDrawingResource currentResource = null;
         if (currentDisplay != null) {
@@ -176,16 +173,14 @@ public class CollaborationSessionView extends SessionView implements
                 .getSessionContainer(sessionId);
         if (sc != null) {
             session = sc.getSession();
-            if (sc.getCollaborationEditor() != null) {
-                container = sc.getCollaborationEditor();
-            } else {
-                container = SharedEditorsManager.getManager(session);
-            }
-            container.addRemoteDisplayChangedListener(this);
-            RemoteDisplay remoteDisplay = container.getActiveDisplay();
-            if (remoteDisplay != null) {
-                remoteDisplayChanged(container.getActiveDisplay(),
-                        RemoteDisplayChangeType.ACTIVATED);
+            container = sc.getDisplayContainer();
+            if (container != null) {
+                container.addRemoteDisplayChangedListener(this);
+                RemoteDisplay remoteDisplay = container.getActiveDisplay();
+                if (remoteDisplay != null) {
+                    remoteDisplayChanged(container.getActiveDisplay(),
+                            RemoteDisplayChangeType.ACTIVATED);
+                }
             }
         }
     }
@@ -503,16 +498,6 @@ public class CollaborationSessionView extends SessionView implements
 
     @Override
     public void dispose() {
-        ICollaborationEditor assocEditor = SharedDisplaySessionMgr
-                .getSessionContainer(session.getSessionId())
-                .getCollaborationEditor();
-        if (assocEditor != null) {
-            IWorkbenchPage page = VizWorkbenchManager.getInstance()
-                    .getCurrentWindow().getActivePage();
-            if (page != null) {
-                page.closeEditor(assocEditor, false);
-            }
-        }
         SharedDisplaySessionMgr.exitSession(session.getSessionId());
         session.close();
         super.dispose();
@@ -533,17 +518,7 @@ public class CollaborationSessionView extends SessionView implements
     @Override
     public void partActivated(IWorkbenchPart part) {
         // only done if we care about the part that was activated
-        SessionContainer sc = SharedDisplaySessionMgr
-                .getSessionContainer(sessionId);
-        List<IEditorPart> editors = new ArrayList<IEditorPart>();
-        if (sc.getCollaborationEditor() == null) {
-            editors.addAll(SharedEditorsManager.getManager(sc.getSession())
-                    .getSharedEditors());
-        } else {
-            editors.add(sc.getCollaborationEditor());
-        }
-
-        if (this == part || editors.contains(part)) {
+        if (container != null && container.getActiveDisplayEditor() == part) {
             ContextManager
                     .getInstance(getSite().getPage().getWorkbenchWindow())
                     .activateContexts(this);
@@ -581,17 +556,7 @@ public class CollaborationSessionView extends SessionView implements
     @Override
     public void partDeactivated(IWorkbenchPart part) {
         // only done if we care about the part that was deactivated
-        SessionContainer sc = SharedDisplaySessionMgr
-                .getSessionContainer(sessionId);
-        List<IEditorPart> editors = new ArrayList<IEditorPart>();
-        if (sc.getCollaborationEditor() == null) {
-            editors.addAll(SharedEditorsManager.getManager(sc.getSession())
-                    .getSharedEditors());
-        } else {
-            editors.add(sc.getCollaborationEditor());
-        }
-
-        if (this == part || editors.contains(part)) {
+        if (container != null && container.getActiveDisplayEditor() == part) {
             ContextManager
                     .getInstance(getSite().getPage().getWorkbenchWindow())
                     .deactivateContexts(this);
