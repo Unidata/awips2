@@ -1,0 +1,220 @@
+<project name="allElements Delegator">
+	<property name="defaultAssemblyEnabled" value="true" />
+	
+ 	<!-- ===================================================================== 	-->
+ 	<!-- Run a given ${target} on all elements being built						-->
+ 	<!-- By default ${topLevelElementType} and ${topLevelElementId} should be	--> 
+ 	<!-- defined in the builder's build.properties file.  You can customize by	--> 
+ 	<!-- setting the type/id values directly here.								-->
+	<!-- You can add additional calls to ${genericTargets} to build more top 	-->
+	<!-- level elements.									   					-->
+	<!--																		-->
+	<!-- The top level must exist in the ${buildDirectory}, ${baseLocation} or	-->
+	<!-- ${pluginPath} locations.												-->
+ 	<!-- ===================================================================== 	-->
+ 	<target name="allElementsDelegator"> 		
+ 		<property file="${builder}/common.properties" />
+ 		<!-- TODO: actually consider evaluating the result. -->
+ 		<property name="awips.baseline.directory"
+ 			value="${builder}/../../../" />
+ 		<path id="ant.classpath">
+ 			<fileset dir="${builder}/../lib/ant">
+ 		    	<include name="*.jar" />
+ 			</fileset>
+ 		</path>
+ 		
+    	<taskdef
+    		name="includegen"
+    		classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature" 
+    		classpathref="ant.classpath" />
+    	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+    		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />
+ 		<propertyselector property="baseline.variables"
+ 			delimiter="${path.separator}"
+ 			match="dir.([0-9][0-9])"
+ 			select="\1"
+ 			casesensitive="true" />
+ 		
+ 		<var name="basedirectories" value="" />
+ 		<for list="${baseline.variables}" param="index"
+ 		delimiter="${path.separator}">
+ 			<sequential>
+ 				<propertycopy property="variable.name"
+ 					override="true"
+ 					from="dir.@{index}" />
+ 				
+ 				<var name="basedirectories"
+ 					value="${awips.baseline.directory}${variable.name};${basedirectories}" />
+ 			</sequential>
+ 		</for>
+ 		
+ 		<!-- Find the feature. -->
+ 		<var name="feature.path" value="" />
+ 		<var name="feature.directory" value="" />
+ 		<for list="${basedirectories}" param="directory"
+ 		delimiter=";">
+ 			<sequential>
+ 				<if>
+ 					<available file="@{directory}/${topLevelElementId}" />
+ 					<then>
+ 						<var name="feature.directory" value="@{directory}" />
+ 						<var name="feature.path"
+ 							value="${feature.directory}/${topLevelElementId}" />
+ 					</then>
+ 				</if>
+ 			</sequential>
+ 		</for>
+ 		
+ 		<mkdir dir="${builder}/tmp/features" />
+ 		<!-- copy the feature -->
+ 		<copy todir="${builder}/tmp/features">
+ 			<fileset dir="${feature.directory}"
+ 				includes="${topLevelElementId}/**" />
+ 		</copy>
+ 		
+ 		<mkdir dir="${builder}/includes" />
+ 		<!-- Determine what plugins we need for the feature. -->
+        <includegen providerfilter="${includegen.filter}" 
+            basedirectories="${basedirectories}" 
+            featurefile="${feature.path}/feature.xml" 
+            cotsout="${builder}/includes/cots.includes" 
+            plugsout="${builder}/includes/plugins.includes" 
+            coreout="${builder}/includes/core.includes" />
+ 		
+ 		<mkdir dir="${builder}/tmp/plugins" />
+ 		<!-- iterate through and copy the plugins -->
+ 		<processPlugins
+ 			includes.file="${builder}/includes/cots.includes"
+ 			plugin.type="cots"
+ 			plugin.directories="${basedirectories}" />
+ 		
+ 		<processPlugins
+ 			includes.file="${builder}/includes/plugins.includes"
+ 			plugin.type="plugins"
+ 			plugin.directories="${basedirectories}" />
+ 		
+ 	 	<processPlugins
+ 	 		includes.file="${builder}/includes/core.includes"
+ 	 		plugin.type="core"
+ 	 		plugin.directories="${basedirectories}" />
+ 		
+        <ant antfile="${genericTargets}" target="${target}">
+        	<property name="type" value="${topLevelElementType}" />
+        	<property name="id" value="${topLevelElementId}" />
+        </ant>
+ 	</target>
+	
+	<macrodef name="processPlugins">
+		<attribute name="includes.file" />
+		<attribute name="plugin.type" />
+		<attribute name="plugin.directories" />
+		
+		<sequential>
+			<loadfile property="includefile.@{plugin.type}"
+				srcfile="@{includes.file}" />
+			<var name="index" value="1" />
+			
+			<for param="line" list="${includefile.@{plugin.type}}"
+			delimiter="${line.separator}">
+				<sequential>
+					<!-- skip the first line -->
+					<if>
+						<not>
+							<equals arg1="${index}" arg2="1" />
+						</not>
+						<then>
+							<if>
+								<!-- TODO: we need our own ant plugin so this
+								becomes unnecessary [SPECIAL CASE]. -->
+								<equals arg1="@{plugin.type}" arg2="cots" />
+								<then>
+									<propertyregex property="plugin.name"
+									override="true"
+									input="@{line}"
+									regexp="(.+)/(.+)"
+									select="\1"
+									casesensitive="true" />
+								</then>
+								<else>
+									<propertyregex property="plugin.name"
+									override="true"
+									input="@{line}"
+									regexp="(.+)/component-deploy.xml"
+									select="\1"
+									casesensitive="true" />
+								</else>
+							</if>
+							
+							<copyPlugin
+								plugin.name="${plugin.name}"
+								plugin.directories="@{plugin.directories}" />
+						</then>
+					</if>
+					<math result="index"
+						operand1="${index}"
+						operation="+"
+						operand2="1"
+						datatype="int" />
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="copyPlugin">
+		<attribute name="plugin.name" />
+		<attribute name="plugin.directories" />
+		
+		<sequential>
+			<!-- find the plugin -->
+	 		<var name="plugin.directory" value="" />
+	 		<for list="${basedirectories}" param="directory"
+	 		delimiter=";">
+	 			<sequential>
+	 				<if>
+	 					<available file="@{directory}/${plugin.name}" />
+	 					<then>
+	 						<var name="plugin.directory" value="@{directory}" />
+	 					</then>
+	 				</if>
+	 			</sequential>
+	 		</for>
+			
+			<!-- copy the plugin to the plugins directory -->
+			<copy todir="${builder}/tmp/plugins">
+				<fileset dir="${plugin.directory}"
+					includes="${plugin.name}/**" />
+			</copy>			
+		</sequential>
+	</macrodef>
+ 
+	<!-- ====================================================================== -->
+	<!--  The default assemble target, this will be called to assemble each		-->	 
+	<!--  config if a custom assemble target is not defined.					-->
+	<!-- The following properties will be defined:								-->
+	<!-- 		config : The configuration being assembled eg "win32.win32.x86"	-->
+	<!-- 		element: The element being assembled eg "org.eclipse.sdk"		-->
+	<!-- 		assembleScriptName: The assemble script to be called			-->
+	<!-- ====================================================================== -->
+	<target name="defaultAssemble">
+		<ant antfile="${assembleScriptName}" dir="${buildDirectory}" />
+	</target>	
+	
+ 	<!-- =====================================================================	-->
+ 	<!-- Custom targets to assemble the built elements for particular 			-->
+ 	<!-- configurations.  These generally call the generated assemble scripts 	-->
+ 	<!-- (named in  ${assembleScriptName}) but may also add pre and post		--> 
+ 	<!-- processing      														-->
+ 	<!-- Add one target for each root element and each configuration for which	--> 
+ 	<!-- custom processing is desired. Replace element.id with the id of the 	-->
+ 	<!-- top level element being built.  A property with a matching name must 	-->
+ 	<!-- be defined for this custom target to be called instead of the 			-->
+ 	<!-- defaultAssemble target above.											-->
+	<!--	Example:  name="assemble.org.eclipse.sdk"							-->
+	<!--	Example:  name="assemble.org.eclipse.sdk.win32.win32.x86"			-->
+ 	<!-- ====================================================================== -->
+	<property name="assemble.element.id[.config.spec]" value="true" />
+ 	<target name="assemble.element.id[.config.spec]">
+ 		<ant antfile="${assembleScriptName}" dir="${buildDirectory}"/>
+ 	</target>
+	
+</project>
