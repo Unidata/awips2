@@ -1,0 +1,57 @@
+<!--
+	Ideally, we will be able to transition the web projects to Eclipse WPT
+	projects and then will will no longer need to manually package and
+	deploy a war file.
+-->
+<project>
+    <!-- =================================================================== -->
+    <!-- Generic macro to build and deploy any web application.              -->
+    <!-- =================================================================== -->
+    <macrodef name="deploy.war">
+        <attribute name="web.project.dir" />
+        <attribute name="war.name" />
+        
+        <sequential>            
+            <property name="webapps.dir" 
+                value="${edex.root.directory}/webapps" />
+        	
+        	<!-- find the web "project" -->
+        	<var name="project.dir" value="" />        	
+	 		<for list="${basedirectories}" param="directory"
+	 		delimiter=";" trim="true">
+	 			<sequential>
+					<if>
+						<available file="@{directory}/@{web.project.dir}"
+	 						type="dir" />
+						<then>
+							<var name="project.dir"
+								value="@{directory}/@{web.project.dir}" />
+						</then>
+	 				</if>
+	 			</sequential>
+	 		</for>
+        	            
+            <var name="war.file" value="@{war.name}.war" />
+            
+            <!-- delete old war file -->
+            <delete dir="${webapps.dir}/@{war.name}" />
+            <delete file="${webapps.dir}/${war.file}" />
+            <mkdir dir="${webapps.dir}" />
+            
+            <!-- build and deploy new war -->
+            <echo message="Building and deploying war file" />
+            <war destfile="${webapps.dir}/${war.file}" 
+            webxml="${project.dir}/web/WEB-INF/web.xml">
+                <fileset dir="${project.dir}/web" 
+                    excludes="**/WEB-INF/" />
+                <classes dir="${project.dir}/web/WEB-INF/classes" />
+                <!-- general -->
+                <webinf file="${project.dir}/web/WEB-INF/dwr.xml" />
+            </war>
+            
+            <unzip src="${webapps.dir}/${war.file}" 
+                dest="${webapps.dir}/@{war.name}" />
+            <delete file="${webapps.dir}/${war.file}" />
+        </sequential>
+    </macrodef>
+</project>
