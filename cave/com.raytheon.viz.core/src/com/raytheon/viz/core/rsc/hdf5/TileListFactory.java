@@ -19,14 +19,11 @@
  **/
 package com.raytheon.viz.core.rsc.hdf5;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 /**
- * Factory for ImageTileLists.
+ * Meshs are being cached by the target which makes it unnessesary to cache
+ * ImageTileLists, they should just be constructed when needed
  * 
  * <pre>
  * 
@@ -41,32 +38,22 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * @author mschenke
  * @version 1.0
  */
-
+@Deprecated
 public class TileListFactory {
-
-    private static Map<MultiKey, ImageTileList> cacheMap = new HashMap<MultiKey, ImageTileList>();
-
     /**
-     * Get the ImageTileList for the levels/size and geometry.
-     * ImageTileList.use() will be called automatically when using this method
+     * Meshs are being cached by the target which makes it unnessesary to cache
+     * ImageTileLists, they should just be constructed when needed
      * 
      * @param levels
      * @param tileSize
      * @param geometry
      * @return
      */
+    @Deprecated
     public static synchronized ImageTileList getTileList(int levels,
             int tileSize, GeneralGridGeometry dataGeom,
             GeneralGridGeometry targetGeom) {
-        final MultiKey key = new MultiKey(levels, tileSize, dataGeom,
-                targetGeom);
-        ImageTileList list = cacheMap.get(key);
-        if (list == null) {
-            list = new ImageTileList();
-            cacheMap.put(key, list);
-        } else {
-            list.use();
-        }
+        ImageTileList list = new ImageTileList();
         return list;
     }
 

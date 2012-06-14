@@ -161,8 +161,6 @@ public class RadarRadialMesh extends AbstractGLMesh {
 
     private CacheKey cacheKey;
 
-    private int refCount;
-
     public RadarRadialMesh(RadarRecord record,
             GeneralGridGeometry targetGeometry, CacheKey cacheKey)
             throws VizException {
@@ -174,7 +172,6 @@ public class RadarRadialMesh extends AbstractGLMesh {
                         RadarUtil.calculateExtent(record),
                         Math.max(record.getNumBins(), record.getNumRadials())),
                 targetGeometry);
-        refCount = 0;
     }
 
     @Override
@@ -384,10 +381,6 @@ public class RadarRadialMesh extends AbstractGLMesh {
         }
     }
 
-    private void use() {
-        refCount += 1;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -395,10 +388,9 @@ public class RadarRadialMesh extends AbstractGLMesh {
      */
     @Override
     public synchronized void dispose() {
-        refCount -= 1;
         synchronized (cache) {
+            super.dispose();
             if (refCount == 0) {
-                super.dispose();
                 cache.remove(cacheKey);
             }
         }
@@ -427,10 +419,16 @@ public class RadarRadialMesh extends AbstractGLMesh {
                 mesh = new RadarRadialMesh(radarData, targetGeometry, key);
                 cache.put(key, mesh);
             } else {
+                mesh.use();
                 // System.out.println("Mesh Cache hit");
             }
-            mesh.use();
             return mesh;
         }
+    }
+
+    @Override
+    public RadarRadialMesh clone(GeneralGridGeometry targetGeometry)
+            throws VizException {
+        return getMesh(record, targetGeometry);
     }
 }
