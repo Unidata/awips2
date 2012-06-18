@@ -1,9 +1,0 @@
-#!/bin/csh
-foreach file(*.tag)
-    set base=`echo $file | cut -d. -f1`
-tag2vgf<<EOF
-$file
-${base}A.vgf
-EOF
-end
-
