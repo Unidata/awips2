@@ -45,13 +45,14 @@ public class LocalizationFileOutputStream extends LockingFileOutputStream {
 
     /**
      * @param file
+     * @param isAppending
      * @throws FileNotFoundException
      * @throws IOException
      * @throws LocalizationException
      */
-    public LocalizationFileOutputStream(LocalizationFile file)
+    LocalizationFileOutputStream(LocalizationFile file, boolean isAppending)
             throws FileNotFoundException, LocalizationException {
-        super(file.getFile(false));
+        super(file.getFile(false), isAppending);
     }
 
 }

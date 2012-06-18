@@ -2052,5 +2052,11 @@
              id="com.raytheon.viz.gfe.GFEShortCutContext">
        </contextId>
     </classContext>
+    <classContext
+          class="com.raytheon.viz.gfe.GridManagerView">
+       <contextId
+             id="com.raytheon.viz.ui.loopContext">
+       </contextId>
+    </classContext>
  </extension>
 </plugin>

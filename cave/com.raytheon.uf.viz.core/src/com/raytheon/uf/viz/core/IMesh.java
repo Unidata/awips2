@@ -54,10 +54,24 @@ public interface IMesh {
     public boolean intersects(IExtent extent);
 
     /**
-     * Reprojects the mesh into the new target geometry
+     * use clone instead, this method will be removed in future version.
      * 
      * @param targetGeometry
+     * @return
+     * @throws VizException
      */
-    public void reproject(GeneralGridGeometry targetGeometry)
+    @Deprecated
+    public IMesh reproject(GeneralGridGeometry targetGeometry)
             throws VizException;
+
+    /**
+     * Create a mesh identical to this mesh but for a different target geometry.
+     * If this mesh is no longer in use than dispose should be called after
+     * cloning.
+     * 
+     * @param targetGeometry
+     * @return
+     * @throws VizException
+     */
+    public IMesh clone(GeneralGridGeometry targetGeometry) throws VizException;
 }

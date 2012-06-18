@@ -1,0 +1,33 @@
+#!/bin/sh 
+
+usage(){
+    cat <<EOF
+      This scripts is used to compare *.vgf files with *A.vgf files. 
+ 
+      Usage: vgfnvgf <sourcedf> <targetdf>
+      - <sourcedf>: the source directory or the source file.
+      - <targetdf>: the target directory or the target file. Put *A.vgf files in <target>
+EOF
+    exit
+}
+
+srcpath=$1
+tgtpath=$2
+
+if [ $# -lt 2 ]; then
+     usage
+fi
+
+if [ -d $srcpath ]; then
+    
+     for file in ${srcpath}/*.vgf ; do
+         tem=`basename ${file} | cut -d. -f1`
+         java -jar compareVgf.jar ${srcpath}/${tem}.vgf ${tgtpath}/${tem}.vgf        
+     done
+fi
+
+if [ -f $srcpath ]; then
+     java -jar compareVgf.jar $srcpath $tgtpath 
+fi
+
+
