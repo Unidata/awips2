@@ -41,9 +41,9 @@ import org.eclipse.ui.PlatformUI;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -66,7 +66,7 @@ import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.resource.HydroPointResource;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.MPEFontManager;
+import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.dialogs.EditFreezeStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcFreezeOptionsDialog;
@@ -105,6 +105,8 @@ public class PointFreezePlotResource extends
     private PaintProperties paintProps;
 
     private static Coordinate selectedCoordinate;
+
+    private MPEFontFactory fontFactory;
 
     private IFont font = null;
 
@@ -478,8 +480,8 @@ public class PointFreezePlotResource extends
         PointFreezePlotResource.target = target;
         this.paintProps = paintProps;
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
-        // Fonts are shared and cached, no need to init or dispose
-        font = MPEFontManager.getFont(this, displayMgr.getFontState(), target);
+        // Fonts are shared and cached, get from factory
+        font = fontFactory.getMPEFont(displayMgr.getFontState());
 
         if (DailyQcUtils.points_flag == 1 && displayMgr.isZflag() == true) {
             Iterator<String> iter = dataMap.keySet().iterator();
@@ -684,6 +686,7 @@ public class PointFreezePlotResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        fontFactory = new MPEFontFactory(target, this);
         /* Retrieve the freezing colormap. */
         List<Colorvalue> colorSet = getResourceData().getColorSet();
         ColorMap colorMap = new ColorMap(colorSet.size());
@@ -810,6 +813,6 @@ public class PointFreezePlotResource extends
      */
     @Override
     protected void disposeInternal() {
-        // DO NOT DISPOSE OF FONT AS IT IS SHARED IN ALL OF MPE
+        fontFactory.dispose();
     }
 }
