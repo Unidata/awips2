@@ -151,10 +151,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.npp.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.collaboration.feature"
          version="0.0.0"/>
 
