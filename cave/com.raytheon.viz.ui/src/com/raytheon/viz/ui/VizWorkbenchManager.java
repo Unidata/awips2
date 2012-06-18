@@ -171,7 +171,9 @@ public class VizWorkbenchManager implements IPartListener, IPartListener2,
             }
             updateUI(partWindow);
         }
-        ContextManager.getInstance(partWindow).activateContexts(part);
+        if (part == partWindow.getActivePage().getActivePart()) {
+            ContextManager.getInstance(partWindow).activateContexts(part);
+        }
     }
 
     /*
