@@ -1,0 +1,5 @@
+com.raytheon.uf.viz.collaboration.display.editor.CreateRemoteDisplay
+com.raytheon.uf.viz.collaboration.display.roles.dataprovider.rsc.DataProviderRscData
+com.raytheon.uf.viz.collaboration.display.rsc.CollaborationWrapperResourceData
+com.raytheon.uf.viz.collaboration.display.rsc.SharedResource
+com.raytheon.uf.viz.collaboration.display.rsc.telestrator.CollaborationDrawingResourceData

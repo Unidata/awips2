@@ -122,7 +122,8 @@ public class ThriftClient {
     private static INotAuthHandler defaultHandler = UserController
             .getNotAuthHandler();
 
-    private static NetworkStatistics stats = NetworkStatistics.getInstance();
+    private static NetworkStatistics stats = HttpClient.getInstance()
+            .getStats();
 
     /**
      * Construct a thrift web service object that sends method calls to the http

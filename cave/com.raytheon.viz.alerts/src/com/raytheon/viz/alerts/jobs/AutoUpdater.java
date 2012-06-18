@@ -197,6 +197,9 @@ public class AutoUpdater implements IAlertObserver {
 				if (disp != null && disp.getRenderableDisplay() != null) {
 					IDisplayPaneContainer container = disp
 							.getRenderableDisplay().getContainer();
+                if (container == null) {
+                    continue;
+                }
 					for (IDisplayPane pane : container.getDisplayPanes()) {
 						IDescriptor desc = pane.getDescriptor();
 

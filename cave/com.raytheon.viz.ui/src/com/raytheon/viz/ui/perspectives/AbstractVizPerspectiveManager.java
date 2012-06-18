@@ -37,7 +37,6 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPageListener;
 import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -229,24 +228,27 @@ public abstract class AbstractVizPerspectiveManager implements
     protected abstract void open();
 
     public void close() {
-        // Cleanup hidden editors
-        if (perspectiveEditors.size() > 0) {
-            page.closeEditors(perspectiveEditors
-                    .toArray(new IEditorReference[perspectiveEditors.size()]),
-                    false);
-        }
+        if (opened) {
+            // Cleanup hidden editors
+            if (perspectiveEditors.size() > 0) {
+                page.closeEditors(
+                        perspectiveEditors
+                                .toArray(new IEditorReference[perspectiveEditors
+                                        .size()]), false);
+            }
 
-        perspectiveEditors.clear();
-        layoutMap.clear();
+            perspectiveEditors.clear();
+            layoutMap.clear();
 
-        opened = false;
+            opened = false;
 
-        closeDialogs();
-        deactivateContexts();
-        removeFromStatusLine();
+            closeDialogs();
+            deactivateContexts();
+            removeFromStatusLine();
 
-        if (backgroundColor != null) {
-            backgroundColor.removeListener(BGColorMode.GLOBAL, this);
+            if (backgroundColor != null) {
+                backgroundColor.removeListener(BGColorMode.GLOBAL, this);
+            }
         }
     }
 
@@ -471,27 +473,25 @@ public abstract class AbstractVizPerspectiveManager implements
         }
     }
 
-    public void activateContexts() {
-        ContextManager manager = ContextManager.getInstance(perspectiveWindow);
+    public final void activateContexts() {
+        activateContexts(ContextManager.getInstance(perspectiveWindow));
+    }
+
+    protected void activateContexts(ContextManager manager) {
         manager.activateContexts(this);
         if (page != null) {
-            manager.activateContexts(page.getActiveEditor());
-
-            for (IViewReference ref : page.getViewReferences()) {
-                manager.activateContexts(ref.getView(false));
-            }
+            manager.activateContexts(page.getActivePart());
         }
     }
 
-    public void deactivateContexts() {
-        ContextManager manager = ContextManager.getInstance(perspectiveWindow);
+    public final void deactivateContexts() {
+        deactivateContexts(ContextManager.getInstance(perspectiveWindow));
+    }
+
+    protected void deactivateContexts(ContextManager manager) {
         manager.deactivateContexts(this);
         if (page != null) {
-            manager.deactivateContexts(page.getActiveEditor());
-
-            for (IViewReference ref : page.getViewReferences()) {
-                manager.deactivateContexts(ref.getView(false));
-            }
+            manager.deactivateContexts(page.getActivePart());
         }
     }
 
