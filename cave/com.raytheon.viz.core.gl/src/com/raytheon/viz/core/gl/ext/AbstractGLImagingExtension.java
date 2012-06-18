@@ -154,8 +154,7 @@ public abstract class AbstractGLImagingExtension extends
                         if (program == null && !attemptedToLoadShader) {
                             attemptedToLoadShader = true;
                             program = GLSLFactory.getInstance()
-                                    .getShaderProgram(target, null,
-                                            shaderProgram);
+                                    .getShaderProgram(gl, null, shaderProgram);
                             if (program != null) {
                                 program.startShader();
                             }

@@ -41,7 +41,6 @@ import java.util.Set;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
-import javax.vecmath.Vector3d;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
@@ -82,7 +81,6 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.ImagingSupport;
@@ -93,7 +91,6 @@ import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
 import com.raytheon.viz.core.gl.GLContextBridge;
 import com.raytheon.viz.core.gl.GLDisposalManager;
@@ -109,7 +106,6 @@ import com.raytheon.viz.core.gl.objects.GLTextureObject;
 import com.sun.opengl.util.Screenshot;
 import com.sun.opengl.util.j2d.TextRenderer;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * 
@@ -186,8 +182,6 @@ public class GLTarget implements IGLTarget {
 
     /** The current visible extent */
     protected IView targetView;
-
-    protected IExtent updatedExtent;
 
     /** The width of the screen */
     protected final float theWidth;
@@ -378,24 +372,18 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.IGraphicsTarget#beginFrame(IRenderableDisplay,
-     * boolean)
+     * @see com.raytheon.viz.IGraphicsTarget#beginFrame(IView, boolean)
      */
     @Override
-    public void beginFrame(IRenderableDisplay display, boolean clearBackground) {
+    public void beginFrame(IView view, boolean clearBackground) {
 
         if (theCanvas != null && theCanvas.isDisposed()) {
             return;
         }
 
-        if (this.updatedExtent != null) {
-            display.setExtent(this.updatedExtent);
-            this.updatedExtent = null;
-        }
-
-        this.targetView = display.getView();
-
         makeContextCurrent();
+
+        setView(view);
 
         if (clearBackground) {
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -404,8 +392,6 @@ public class GLTarget implements IGLTarget {
         IExtent viewExtent = targetView.getExtent();
         theCurrentZoom = (viewExtent.getMaxY() - viewExtent.getMinY())
                 / theHeight;
-
-        display.setup(this);
 
         hasLoadedTextureOnLoop = false;
         synchronized (this) {
@@ -448,13 +434,27 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
+     * @see com.raytheon.uf.viz.core.IGraphicsTarget#createShadedShape(boolean,
+     * org.geotools.coverage.grid.GeneralGridGeometry, boolean)
+     */
+    @Override
+    public IShadedShape createShadedShape(boolean mutable,
+            GeneralGridGeometry targetGeometry, boolean tesselate) {
+        return new GLShadedShape(targetGeometry, mutable, tesselate);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.core.IGraphicsTarget#createShadedShape(boolean,
      * com.raytheon.viz.core.map.IMapDescriptor, boolean)
      */
     @Override
+    @Deprecated
     public IShadedShape createShadedShape(boolean mutable,
             IDescriptor descriptor, boolean tesselate) {
-        return new GLShadedShape(descriptor, mutable, tesselate);
+        return createShadedShape(mutable, descriptor.getGridGeometry(),
+                tesselate);
     }
 
     /*
@@ -520,6 +520,23 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.uf.viz.core.IGraphicsTarget#createWireframeShape(boolean,
+     * org.geotools.coverage.grid.GeneralGridGeometry, float)
+     */
+    @Override
+    public IWireframeShape createWireframeShape(boolean mutable,
+            GeneralGridGeometry geom, float simplificationLevel) {
+        if (simplificationLevel > 0.0) {
+            return new GLWireframeShape(geom, mutable, simplificationLevel);
+        } else {
+            return new GLWireframeShape2D(geom, mutable);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.core.IGraphicsTarget#createWireframeShape(boolean,
      * com.raytheon.viz.core.map.IMapDescriptor, float, boolean,
      * com.raytheon.viz.core.PixelExtent)
@@ -577,26 +594,25 @@ public class GLTarget implements IGLTarget {
      * com.raytheon.viz.core.IGraphicsTarget.LineStyle, boolean)
      */
     @Override
+    @Deprecated
     public void drawArc(double x1, double y1, double z1, double radius,
             RGB color, float width, int startAzimuth, int endAzimuth,
             LineStyle lineStyle, boolean includeSides) throws VizException {
-        this.pushGLState();
-        try {
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
-            handleLineStyle(lineStyle);
-            gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                    color.blue / 255.0, 1.0);
-            gl.glLineWidth(width);
-            gl.glBegin(GL.GL_LINE_STRIP);
-
-            for (double i = startAzimuth; i <= endAzimuth; i++) {
-                double[] pointOnCircle = getPointOnCircle(x1, y1, z1, radius, i);
-                gl.glVertex2d(pointOnCircle[0], pointOnCircle[1]);
-            }
-            gl.glEnd();
-        } finally {
-            this.popGLState();
+        DrawableCircle dc = new DrawableCircle();
+        dc.setCoordinates(x1, y1, z1);
+        dc.basics.color = color;
+        dc.lineStyle = lineStyle;
+        dc.startAzimuth = startAzimuth;
+        dc.endAzimuth = endAzimuth;
+        if (startAzimuth > endAzimuth) {
+            dc.numberOfPoints = (endAzimuth + 360) - startAzimuth;
+        } else {
+            dc.numberOfPoints = endAzimuth - startAzimuth;
         }
+        dc.includeSides = includeSides;
+        dc.lineWidth = width;
+        dc.radius = radius;
+        drawCircle(dc);
     }
 
     /*
@@ -606,6 +622,7 @@ public class GLTarget implements IGLTarget {
      * double, double, org.eclipse.swt.graphics.RGB, float)
      */
     @Override
+    @Deprecated
     public void drawCircle(double x1, double y1, double z1, double radius,
             RGB color, float width) throws VizException {
         DrawableCircle circle = new DrawableCircle();
@@ -614,19 +631,6 @@ public class GLTarget implements IGLTarget {
         circle.basics.color = color;
         circle.radius = new Double(radius);
         drawCircle(circle);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float)
-     */
-    @Override
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha) throws VizException {
-        drawColorRamp(colorMapParams, pixelExtent, blendAlpha, 1.0f, 1.0f);
     }
 
     /*
@@ -709,8 +713,8 @@ public class GLTarget implements IGLTarget {
 
             GLShaderProgram program = null;
             if (capabilities.cardSupportsShaders) {
-                program = GLSLFactory.getInstance().getShaderProgram(this,
-                        null, "colormap");
+                program = GLSLFactory.getInstance().getShaderProgram(gl, null,
+                        "colormap");
                 if (program != null) {
                     program.startShader();
                     program.setUniform("alphaVal", blendAlpha);
@@ -833,62 +837,13 @@ public class GLTarget implements IGLTarget {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float,
-     * float, float)
-     */
-    @Override
-    public void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha, float brightness,
-            float contrast) throws VizException {
-        DrawableColorMap colorMap = new DrawableColorMap(colorMapParams);
-        colorMap.extent = pixelExtent;
-        colorMap.alpha = blendAlpha;
-        colorMap.brightness = brightness;
-        colorMap.contrast = contrast;
-        drawColorRamp(colorMap);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float)
-     */
-    @Override
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha) throws VizException {
-        drawColorRamp(colorMap, pixelExtent, blendAlpha, 1.0f, 1.0f);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IGraphicsTarget#drawColorRamp(com.raytheon.uf
-     * .common.colormap.IColorMap, com.raytheon.uf.viz.core.IExtent, float,
-     * float, float)
-     */
-    @Override
-    public void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha, float brightness, float contrast)
-            throws VizException {
-        ColorMapParameters cmap = new ColorMapParameters();
-        cmap.setColorMap(colorMap);
-        drawColorRamp(cmap, pixelExtent, blendAlpha, brightness, contrast);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * Draw on the plane where Z is the z parameter.
      * 
      * @see com.raytheon.viz.core.IGraphicsTarget#drawFilledCircle(double,
      * double, double, double, org.eclipse.swt.graphics.RGB)
      */
     @Override
+    @Deprecated
     public void drawFilledCircle(double x, double y, double z, double radius,
             RGB color) throws VizException {
         DrawableCircle circle = new DrawableCircle();
@@ -1917,6 +1872,7 @@ public class GLTarget implements IGLTarget {
 
         gl.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA, glColorMap.getSize(),
                 0, GL.GL_RGBA, GL.GL_FLOAT, bb);
+        gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
         gl.glDisable(GL.GL_TEXTURE_1D);
 
         return t;
@@ -1974,7 +1930,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public BufferedImage screenshot() {
 
-        boolean release = makeContextCurrent();
+        makeContextCurrent();
         if (theCanvas != null) {
             theCanvas.swapBuffers();
         }
@@ -1984,9 +1940,8 @@ public class GLTarget implements IGLTarget {
         if (theCanvas != null) {
             theCanvas.swapBuffers();
         }
-        if (release) {
-            releaseContext();
-        }
+
+        releaseContext();
         return bi;
     }
 
@@ -2181,97 +2136,8 @@ public class GLTarget implements IGLTarget {
         return this.canvasSize;
     }
 
-    public void drawCylinder(PixelCoordinate coord, RGB color, float alpha,
-            double height, double baseRadius, double topRadius, int sideCount,
-            int sliceCount, double rotation, double lean) {
-
-        gl.glPushMatrix();
-
-        if (quadric == null) {
-            quadric = glu.gluNewQuadric();
-        }
-
-        gl.glEnable(GL.GL_BLEND);
-        gl.glBlendFunc(GL.GL_ONE_MINUS_SRC_ALPHA, GL.GL_SRC_ALPHA);
-
-        glu.gluQuadricDrawStyle(quadric, GLU.GLU_FILL);
-        glu.gluQuadricNormals(quadric, GL.GL_SMOOTH);
-
-        // Translate to coordinate position
-        gl.glTranslated(coord.getX(), coord.getY(), coord.getZ());
-
-        // azimuth (rotate azimuth)
-        gl.glRotated(-rotation, coord.getX(), coord.getY(), coord.getZ());
-
-        // Orient the cylinder on the orientation vector.
-        Vector3d zAxis = new Vector3d(0, 0, 1);
-        Vector3d orientationVector = new Vector3d(coord.getCoordinateArray());
-        double orientationAngle = Math
-                .toDegrees(zAxis.angle(orientationVector)) - lean;
-        Vector3d crossVector = new Vector3d();
-
-        // orient the cylinder
-        crossVector.cross(zAxis, orientationVector);
-        gl.glRotated(orientationAngle, crossVector.x, crossVector.y,
-                crossVector.z);
-
-        // draw the cylinder
-        gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-        gl.glBegin(GL.GL_LINES);
-        gl.glShadeModel(GL.GL_SMOOTH);
-        gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                color.blue / 255.0, alpha);
-        glu.gluCylinder(quadric, baseRadius, topRadius, height, sideCount,
-                sliceCount);
-        if (baseRadius != 0) {
-            glu.gluDisk(quadric, 0, baseRadius, 30, 5);
-        }
-        if (topRadius != 0) {
-            gl.glTranslated(0, 0, height);
-            glu.gluDisk(quadric, 0, topRadius, 30, 5);
-        }
-        gl.glEnd();
-
-        gl.glDisable(GL.GL_BLEND);
-
-        // Cleanup
-        glu.gluDeleteQuadric(quadric);
-        gl.glPopMatrix();
-    }
-
     @Override
-    public void drawShadedPolygon(LinearRing poly, RGB color, double alpha,
-            byte[] stipple) throws VizException {
-        this.pushGLState();
-        try {
-            // set the shading and alpha
-            gl.glEnable(GL.GL_BLEND);
-            gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-            gl.glColor4d(color.red / 255.0, color.green / 255.0,
-                    color.blue / 255.0, alpha);
-
-            if (stipple != null) {
-                gl.glEnable(GL.GL_POLYGON_STIPPLE);
-
-                gl.glPolygonStipple(stipple, 0);
-            }
-
-            gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-
-            gl.glBegin(GL.GL_POLYGON);
-
-            for (Coordinate coord : poly.getCoordinates()) {
-                gl.glVertex2d(coord.x, coord.y);
-            }
-            gl.glEnd();
-            gl.glDisable(GL.GL_BLEND);
-            gl.glDisable(GL.GL_SRC_ALPHA);
-        } finally {
-            this.popGLState();
-        }
-    }
-
-    @Override
+    @Deprecated
     public String getViewType() {
         return VizConstants.VIEW_2D;
     }
@@ -2297,11 +2163,6 @@ public class GLTarget implements IGLTarget {
         gl.glPopAttrib();
     }
 
-    @Override
-    public void updateExtent(IExtent updatedExtent) {
-        this.updatedExtent = updatedExtent;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -2321,7 +2182,7 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void setView(IView view) {
-        this.targetView = view;
+        this.targetView = (IView) view.clone();
         this.targetView.setupView(this);
     }
 
@@ -2494,20 +2355,39 @@ public class GLTarget implements IGLTarget {
                     gl.glLogicOp(GL.GL_XOR);
                 }
 
+                float startAzm = circle.startAzimuth;
+                float endAzm = circle.endAzimuth;
+
+                if (endAzm < startAzm) {
+                    endAzm += 360.0;
+                }
+
+                boolean includeSides = circle.includeSides && !fill
+                        && ((endAzm - startAzm) < 360.0);
+
                 if (fill) {
                     gl.glBegin(GL.GL_TRIANGLE_FAN);
                     gl.glVertex3d(x, y, z);
                 } else {
+                    handleLineStyle(circle.lineStyle);
                     gl.glBegin(GL.GL_LINE_STRIP);
+                    if (includeSides) {
+                        gl.glVertex3d(x, y, z);
+                    }
                 }
 
-                double step = 360.0 / (circle.numberOfPoints);
-                for (double i = 0; i <= circle.numberOfPoints; i++) {
+                double step = (endAzm - startAzm) / (circle.numberOfPoints);
+                for (double azm = startAzm; azm <= endAzm; azm += step) {
                     double[] pointOnCircle = getPointOnCircle(x, y, z, radius,
-                            i * step);
+                            azm);
                     gl.glVertex3d(pointOnCircle[0], pointOnCircle[1],
                             pointOnCircle[2]);
                 }
+
+                if (includeSides) {
+                    gl.glVertex3d(x, y, z);
+                }
+
                 gl.glEnd();
 
                 if (xOr) {
@@ -2587,6 +2467,7 @@ public class GLTarget implements IGLTarget {
         // function ends up calling begin/end rendering lots which slows it down
         // to the speed of a not bulk operation
         TextRenderer textRenderer = null;
+        boolean lastXOr = false;
 
         pushGLState();
         gl.glMatrixMode(GL.GL_MODELVIEW);
@@ -2762,9 +2643,15 @@ public class GLTarget implements IGLTarget {
                 }
                 float alpha = Math.min(dString.basics.alpha, 1.0f);
 
-                if (dString.basics.xOrColors) {
-                    gl.glEnable(GL.GL_COLOR_LOGIC_OP);
-                    gl.glLogicOp(GL.GL_XOR);
+                if (lastXOr != dString.basics.xOrColors) {
+                    lastXOr = dString.basics.xOrColors;
+                    textRenderer.flush();
+                    if (lastXOr) {
+                        gl.glEnable(GL.GL_COLOR_LOGIC_OP);
+                        gl.glLogicOp(GL.GL_XOR);
+                    } else {
+                        gl.glDisable(GL.GL_COLOR_LOGIC_OP);
+                    }
                 }
 
                 for (int c = 0; c < dString.getText().length; c++) {
@@ -2837,9 +2724,6 @@ public class GLTarget implements IGLTarget {
                         yPos -= textBounds.getHeight() * getScaleY();
                     }
                 }
-                if (dString.basics.xOrColors) {
-                    gl.glDisable(GL.GL_COLOR_LOGIC_OP);
-                }
 
                 if (rotatedPoint != null) {
                     textRenderer.flush();
@@ -2851,6 +2735,9 @@ public class GLTarget implements IGLTarget {
         } finally {
             if (textRenderer != null) {
                 textRenderer.end3DRendering();
+            }
+            if (lastXOr) {
+                gl.glDisable(GL.GL_COLOR_LOGIC_OP);
             }
             gl.glDisable(GL.GL_TEXTURE_2D);
             gl.glDisable(GL.GL_BLEND);

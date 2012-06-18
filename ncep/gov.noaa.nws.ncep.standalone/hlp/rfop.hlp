@@ -1,0 +1,66 @@
+*******************************************************************************
+     Reverse Flood Outlook Product (RFOP) PGen XML to fop ASCII translator 
+*******************************************************************************
+
+  RFOP converts a PGen XML NWS Flood Outlook Product file into an ASCII NWS
+  Flood Outlook Product file. Unfilled closed lines are assumed to be
+  areas of possible flooding, hatch filled areas are assumed to be areas
+  of likely flooding, solid fill areas are assumed to be areas of
+  imminent or occurring flooding.
+
+INPUT PARAMETERS
+
+  java -jar rfop.jar input_filename [output_filename]
+
+  rfop               Program name
+  input_filename     XML file to be converted
+  [output_filename]  output ASCII file, optional paramter. If this parameter 
+                     is not specified, then the output file name will be equal 
+                     to the input name without ".xml" extension. I the input 
+                     file name does not have ".xml" extension, then ".txt" will 
+                     be added to the file name instead.  
+
+PROGRAM DESCRIPTION
+
+  RFOP scans an XML file and generates a text description of each line.
+  The output file format is:
+NWS NATIONAL FLOOD OUTLOOK PRODUCT yymmdd/hhmm
+line1npts category valid_dates
+lon1, lat1
+lon2, lat2
+lon3, lat3
+...
+lonN, latN
+line2npts category valid_dates
+...
+
+  Flood categories are:
+  0 - flooding possible
+  1 - flooding likely
+  2 - flooding occurring or imminent
+
+EXAMPLES
+
+  If the XML file 'testfile.xml' contained a single 4-point line with
+  no fill, then the output would look like:
+
+NWS NATIONAL FLOOD OUTLOOK PRODUCT 020321/1223
+5 0 Mar 21 - Mar 23
+  45.53 -69.08
+  44.40 -67.62
+  44.11 -67.51
+  45.22 -69.02
+  45.53 -69.08
+
+  If the VGF file 'testfile.xml' contained a single 5-point line with
+  solid fill, then the output would look like:
+
+NWS NATIONAL FLOOD OUTLOOK PRODUCT 020321/1223
+6 2 Mar 21 - Mar 23
+  45.53 -69.08
+  44.40 -67.62
+  44.11 -67.51
+  45.22 -69.02
+  45.39 -70.07
+  45.53 -69.08
+  
