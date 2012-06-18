@@ -591,7 +591,8 @@ params = /*new ColorMapParameters();//*/ColorMapParameterFactory.build((Object) 
     public IMesh buildMesh(IGraphicsTarget target, RadarTimeRecord timeRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                timeRecord.radarCacheObject.getObjectSync(), descriptor);
+                timeRecord.radarCacheObject.getObjectSync(),
+                descriptor.getGridGeometry());
     }
 
     public PixelCoverage buildCoverage(IGraphicsTarget target,

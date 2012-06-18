@@ -20,6 +20,7 @@
 package com.raytheon.viz.pointdata;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -32,8 +33,10 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
+import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * Job separated from PlotModelGenerator2 that creates the plot images.
@@ -88,8 +91,8 @@ public class PlotModelGeneratorJob extends Job {
         while (!taskQueue.isEmpty()) {
             try {
                 PlotInfo[] infos = taskQueue.poll();
-                BufferedImage bImage = plotCreator.getStationPlot(infos[0].pdv,
-                        infos[0].latitude, infos[0].longitude);
+                final BufferedImage bImage = plotCreator.getStationPlot(
+                        infos[0].pdv, infos[0].latitude, infos[0].longitude);
                 IImage image = null;
                 if (bImage != null) {
                     if (imageCache.containsKey(bImage)) {
@@ -103,7 +106,13 @@ public class PlotModelGeneratorJob extends Job {
                     if (image == null) {
                         image = target.getExtension(
                                 ISingleColorImageExtension.class)
-                                .constructImage(bImage, null);
+                                .constructImage(new IRenderedImageCallback() {
+                                    @Override
+                                    public RenderedImage getImage()
+                                            throws VizException {
+                                        return bImage;
+                                    }
+                                }, null);
                         if (plotCreator.isCachingImages()) {
                             imageCache.put(bImage, image);
                         }
