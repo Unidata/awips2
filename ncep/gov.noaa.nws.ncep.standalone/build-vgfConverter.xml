@@ -1,0 +1,83 @@
+<project name="vgfConverter" default="build-jar" basedir=".">
+	<description>
+		This build file is for building vgfConverter application only.
+		
+		This build does not compile the projects and relies on Eclipse, which automatically compiles them.
+		All the classes and needed jar libraries are copied to the distVC folder, the references to these files 
+		are updated in manifest.mf 
+		The list of projects which this xml file uses can be found below in target "init".
+		
+		To build a jar file, right click on this file, then "Run As...", then Target, then Select "build-jar", 
+		then click "Apply", then clcik "Run"
+    </description>
+
+	<!-- set global properties for this build -->
+	<property name="project_name"   value="vgfConverter"/>
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="distVC" location="distVC" />
+	<property name="vgfConverter" location="gov/noaa/nws/ncep/standalone/vgfConverter" />
+	<property name="bin" location="bin" />
+
+	
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		
+		<!-- Copy all the needed files from the projects which eclipse already compiled -->
+		<copy todir="${build}">
+			<fileset dir="../gov.noaa.nws.ncep.standalone/bin" includes="gov/noaa/nws/ncep/standalone/vgfConverter/*.class"/>
+			<fileset dir="../gov.noaa.nws.ncep.standalone/bin" includes="gov/noaa/nws/ncep/standalone/util/*.class"/>				
+			<fileset dir="../gov.noaa.nws.ncep.ui.pgen/bin" includes="**/*.class"/>	
+			<fileset dir="../com.raytheon.uf.common.serialization/bin" includes="**/*.class"/>
+			<!--fileset dir="${bin}" includes="**/*.class"/-->
+		</copy>
+				
+		<copy todir="${distVC}/lib">
+			<fileset dir="../gov.noaa.nws.ncep.standalone" includes="*.jar"/>
+			<fileset dir="../gov.noaa.nws.ncep.standalone/script" includes="*.so"/>
+			<fileset dir="../org.geotools" includes="jts-1.10.jar"/> 	<!-- Coordinate.  gt-*, geo*, common* are not needed -->		
+		</copy>
+		
+		<copy todir="${distVC}/table">
+			<fileset dir="../gov.noaa.nws.ncep.standalone/table" includes="*.tbl"/>
+		</copy>	
+		
+		<path id="distVC.classpath">			
+			<fileset dir="${distVC}/lib" casesensitive="yes">
+				<include name="**/*.jar" />
+				<include name="**/*.so" />
+			</fileset>
+		</path>
+		
+	</target>
+
+	<target name="build-jar" depends="clean, init" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${distVC}/lib" />
+
+		<manifestclasspath property="distVC.manifest.classpath" jarfile="${distVC}/${project_name}.jar">
+			<classpath refid="distVC.classpath" />
+		</manifestclasspath>
+		
+		<jar jarfile="${distVC}/${project_name}.jar" basedir="${build}">
+			<fileset dir="${build}" includes="**/*.*" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Specification-Vendor" value="Example Organization"/>
+				<attribute name="Build-Date" value="${TODAY}"/> 
+				<attribute name="Implementation-Vendor" value="SIB"/>
+				<attribute name="Class-Path" value="${distVC.manifest.classpath}"/>
+				<attribute name="Main-Class" value="gov/noaa/nws/ncep/standalone/vgfConverter/Convert"/>
+			</manifest>
+		</jar> 
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${distVC} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${distVC}" />
+	</target>
+</project>

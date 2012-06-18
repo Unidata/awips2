@@ -1,0 +1,21 @@
+<project default="setup" basedir=".">
+	<property name="openfire.build.dir"
+		value="build.openfire.plugin" />
+	<property name="ant.abstract"
+		value="ant/abstract/abstract_setup.xml" />
+	
+	<available file="../${openfire.build.dir}" 
+		property="build.dir.location" 
+		value="../${openfire.build.dir}"/>
+	
+	<!-- Properties to share with the abstract "class". -->
+	<!--
+		TODO: if we have any reason to create additional openfire plugins,
+		we will want to replace this variable with the capability to
+		extract dependency information from the plugin manifest.
+	-->
+	<property name="plugin.dependent.libs"
+		value="org.apache.commons.configuration,org.apache.commons.collections" />
+	
+	<import file="${build.dir.location}/${ant.abstract}" />
+</project>

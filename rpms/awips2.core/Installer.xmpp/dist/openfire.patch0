@@ -1,0 +1,57 @@
+diff -crB openfire-a/bin/extra/openfired openfire-b/bin/extra/openfired
+*** openfire-a/bin/extra/openfired	2011-10-01 16:51:23.000000000 -0500
+--- openfire-b/bin/extra/openfired	2012-04-16 12:15:57.000000000 -0500
+***************
+*** 25,35 ****
+  
+  # Set this to tell this script where openfire lives
+  # If this is not set the script will look for /opt/openfire, then /usr/local/openfire
+! #export OPENFIRE_HOME=
+  
+  # If there is a different user you would like to run this script as,
+  # change the following line
+! export OPENFIRE_USER=jive
+  
+  # -----------------------------------------------------------------
+  
+--- 25,38 ----
+  
+  # Set this to tell this script where openfire lives
+  # If this is not set the script will look for /opt/openfire, then /usr/local/openfire
+! export OPENFIRE_HOME=/awips2/openfire
+  
+  # If there is a different user you would like to run this script as,
+  # change the following line
+! export OPENFIRE_USER=awips
+! 
+! # The location of the awips2-java jdk / jre.
+! export app_java_home=/awips2/java
+  
+  # -----------------------------------------------------------------
+  
+diff -crB openfire-a/bin/extra/redhat-postinstall.sh openfire-b/bin/extra/redhat-postinstall.sh
+*** openfire-a/bin/extra/redhat-postinstall.sh	2011-10-01 16:51:23.000000000 -0500
+--- openfire-b/bin/extra/redhat-postinstall.sh	2012-04-16 12:11:52.000000000 -0500
+***************
+*** 10,19 ****
+  
+  # If you used an non standard directory name of location
+  # Please specify it here
+! # OPENFIRE_HOME=
+   
+! OPENFIRE_USER="jive"
+! OPENFIRE_GROUP="jive"
+  
+  if [ ! $OPENFIRE_HOME ]; then
+  	if [ -d "/opt/openfire" ]; then
+--- 10,19 ----
+  
+  # If you used an non standard directory name of location
+  # Please specify it here
+! OPENFIRE_HOME=/awips2/openfire
+   
+! OPENFIRE_USER="awips"
+! OPENFIRE_GROUP="fxalpha"
+  
+  if [ ! $OPENFIRE_HOME ]; then
+  	if [ -d "/opt/openfire" ]; then

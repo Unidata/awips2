@@ -343,9 +343,11 @@ public class PixelExtent implements IExtent {
      */
     @Override
     public PixelExtent clone() {
-        PixelExtent pe = new PixelExtent(getMinX(), getMaxX(), getMinY(),
-                getMaxY());
-
+        double[] myCenter = getCenter();
+        PixelExtent pe = new PixelExtent(aMinX, aMaxX, aMinY, aMaxY);
+        double[] curCenter = pe.getCenter();
+        pe.shift(myCenter[0] - curCenter[0], myCenter[1] - curCenter[1]);
+        pe.scaleAndBias(getScale(), myCenter[0], myCenter[1]);
         return pe;
     }
 

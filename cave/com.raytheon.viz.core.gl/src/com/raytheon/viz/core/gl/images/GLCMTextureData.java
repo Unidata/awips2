@@ -111,15 +111,17 @@ public class GLCMTextureData implements IImageCacheable {
 
         // OK, Fetch the data
         ColorMapData cmData = callback.getColorMapData();
-        IGLColorMapDataFormatProvider glDataFormatCallback = IGLColorMapDataFormatProvider.defaultCallback;
-        if (callback instanceof IGLColorMapDataFormatProvider) {
-            glDataFormatCallback = (IGLColorMapDataFormatProvider) callback;
-        }
-        data = new GLColorMapData(cmData,
-                glDataFormatCallback.getGLColorMapDataFormat(cmData));
-        if (isStaged()) {
-            ImageCache.getInstance(CacheType.MEMORY).put(this);
-            return true;
+        if (cmData != null) {
+            IGLColorMapDataFormatProvider glDataFormatCallback = IGLColorMapDataFormatProvider.defaultCallback;
+            if (callback instanceof IGLColorMapDataFormatProvider) {
+                glDataFormatCallback = (IGLColorMapDataFormatProvider) callback;
+            }
+            data = new GLColorMapData(cmData,
+                    glDataFormatCallback.getGLColorMapDataFormat(cmData));
+            if (isStaged()) {
+                ImageCache.getInstance(CacheType.MEMORY).put(this);
+                return true;
+            }
         }
         // The data fetch didn't go well
         return false;
