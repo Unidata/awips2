@@ -355,7 +355,11 @@ public class GFEColorbarResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        // this.target = target;
+        colorbarScaleFont = GFEFonts.makeGFEIFont(target, "ColorBarScale_font",
+                1);
+        colorbarWxLabelFont = GFEFonts.makeGFEIFont(target,
+                "ColorBarWxLabel_font", 2);
+        pickupFont = GFEFonts.makeGFEIFont(target, "ColorBarPickUp_font", 3);
 
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
@@ -377,23 +381,6 @@ public class GFEColorbarResource extends
 
         if (currentParm == null) {
             return;
-        }
-
-        // int curIndex = this.descriptor.getCurrentTimeFrame();
-
-        if (colorbarScaleFont == null) {
-            colorbarScaleFont = GFEFonts.makeGFEIFont(target,
-                    "ColorBarScale_font", 1);
-        }
-
-        if (colorbarWxLabelFont == null) {
-            colorbarWxLabelFont = GFEFonts.makeGFEIFont(target,
-                    "ColorBarWxLabel_font", 2);
-        }
-
-        if (pickupFont == null) {
-            pickupFont = GFEFonts
-                    .makeGFEIFont(target, "ColorBarPickUp_font", 3);
         }
 
         IExtent screenExtent = paintProps.getView().getExtent();
@@ -424,8 +411,7 @@ public class GFEColorbarResource extends
         }
 
         if (graphicsAdapter == null) {
-            graphicsAdapter = GraphicsFactory.getGraphicsAdapter(target
-                    .getViewType());
+            graphicsAdapter = GraphicsFactory.getGraphicsAdapter();
         }
 
         target.setupClippingPlane(graphicsAdapter.constructExtent(descriptor

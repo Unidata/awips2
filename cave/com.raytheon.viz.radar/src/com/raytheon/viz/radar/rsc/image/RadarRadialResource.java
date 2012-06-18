@@ -37,7 +37,6 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
@@ -212,7 +211,7 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor> {
     public IMesh buildMesh(IGraphicsTarget target, VizRadarRecord radarRecord)
             throws VizException {
         return target.getExtension(IRadialMeshExtension.class).constructMesh(
-                radarRecord, (IMapDescriptor) descriptor);
+                radarRecord, descriptor.getGridGeometry());
     }
 
 }

@@ -241,12 +241,11 @@ public class ResourcePair implements ISerializableObject {
             this.loadProperties = new LoadProperties();
         }
 
-        setResource(this.resourceData
-                .construct(this.loadProperties, descriptor));
-        if (this.resource == null) {
+        AbstractVizResource rsc = this.resourceData.construct(
+                this.loadProperties, descriptor);
+        if (rsc == null) {
             success = false;
         } else {
-            AbstractVizResource rsc = this.resource;
             rsc.setDescriptor(descriptor);
             if (this.resourceData instanceof IResourceGroup) {
                 ResourceList rscList = ((IResourceGroup) this.resourceData)
@@ -258,6 +257,7 @@ public class ResourcePair implements ISerializableObject {
                     }
                 }
             }
+            setResource(rsc);
 
             if (fireListeners) {
                 descriptor.getResourceList().firePreAddListeners(this);

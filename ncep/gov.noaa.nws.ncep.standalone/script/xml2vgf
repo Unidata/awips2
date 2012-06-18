@@ -1,0 +1,59 @@
+#!/bin/sh
+
+usage(){
+    cat <<EOF
+      This scripts is used to convert xml file to vgf file.
+
+      Usage: xml2vgf <sourcedf> <target>
+      - <sourcedf>: the source directory or the source file.
+      - <trget>: the target directory
+      The converted file has the same name with .vgf suffix.
+      Running each conversion will overwrite the previous results
+ll
+
+EOF
+    exit
+}
+
+srcpath=$1
+tgtpath=$2
+
+if [ $# -lt 2 ]; then
+     usage
+fi
+
+export PATH=%{CONV_INSTALL}%/bin:$PATH
+
+java -jar %{CONV_INSTALL}%/distXC/xmlConverter.jar $srcpath $tgtpath
+
+cd $tgtpath
+
+run_tag2vgf(){
+    %{CONV_INSTALL}%/bin/tag2vgf<<EOF
+    ${tgtpath}/${vfile}.tag
+    ${tgtpath}/${vfile}.vgf
+EOF
+}
+
+if [ -d $srcpath ]; then
+     echo " "
+     echo "The source is a directory, any previous converted vgf files inside the target folder will be deleted "
+     for file in ${srcpath}/*.xml ; do
+        vfile=`basename $file | cut -d. -f1`
+        if [ -e ${tgtpath}/${vfile}.vgf ]; then
+            rm -f ${tgtpath}/${vfile}.vgf
+        fi
+        run_tag2vgf
+     done
+fi
+
+if [ -f $srcpath ]; then
+     echo " "
+     echo "The source is a file, the previous converted vgf file will be deleted "
+     vfile=`basename $srcpath | cut -d. -f1`
+     if [ -e ${tgtpath}/${vfile}.vgf ]; then
+        rm -f  ${tgtpath}/${vfile}.vgf
+     fi
+     run_tag2vgf
+fi
+
