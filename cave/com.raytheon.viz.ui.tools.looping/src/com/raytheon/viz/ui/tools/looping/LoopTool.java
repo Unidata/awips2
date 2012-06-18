@@ -68,14 +68,15 @@ public class LoopTool extends AbstractTool implements IGlobalChangedListener {
      */
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         super.execute(arg0);
+        if (editor != null) {
+            boolean newState = !(editor.getLoopProperties().isLooping());
+            editor.getLoopProperties().setLooping(newState);
 
-        boolean newState = !(editor.getLoopProperties().isLooping());
-        editor.getLoopProperties().setLooping(newState);
+            setEnabled(newState);
 
-        this.setEnabled(newState);
-
-        VizGlobalsManager.getCurrentInstance().updateUI(editor);
-        LoopPropertiesDialog.setLooping(newState);
+            VizGlobalsManager.getCurrentInstance().updateUI(editor);
+            LoopPropertiesDialog.setLooping(newState);
+        }
         return null;
     }
 

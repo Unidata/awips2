@@ -69,6 +69,7 @@ class GFEPainter(VizPainter.VizPainter):
             imageHeight = Integer(int(imageHeight))
         geom = GfeImageUtil.getLocationGeometry(gloc, envelope, imageWidth, imageHeight, expandLeft / 100.0, expandRight / 100.0, expandTop / 100.0, expandBottom / 100.0)
         display = GFEMapRenderableDisplay(MapDescriptor(geom))
+        display.setDataManager(self.dataMgr)
         desc = display.getDescriptor()
         self.dataMgr.getSpatialDisplayManager().setDescriptor(desc)
         VizPainter.VizPainter.__init__(self, display)
