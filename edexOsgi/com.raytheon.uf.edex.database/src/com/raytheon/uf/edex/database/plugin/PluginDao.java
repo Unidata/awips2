@@ -56,7 +56,6 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -201,7 +200,6 @@ public abstract class PluginDao extends CoreDao {
         for (PluginDataObject pdo : records) {
             if (pdo instanceof IPersistable) {
                 IPersistable persistable = (IPersistable) pdo;
-                persistable.setHdfFileId(EDEXUtil.getServerId());
 
                 // get the directory
                 String directory = HDF5_DIR
