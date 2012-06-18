@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Override this file in localization to customize the sites and roles 
+	that may be selected. Also, add any other information that you would like 
+	to make available to users from other sites. -->
+<userInformation>
+	<info name="site">
+		<attibuteOptions>OAX</attibuteOptions>
+		<attibuteOptions>DMX</attibuteOptions>
+	</info>
+	<info name="role">
+		<attibuteOptions>None</attibuteOptions>
+		<attibuteOptions>Short Term Forecaster</attibuteOptions>
+		<attibuteOptions>Long Term Forecaster</attibuteOptions>
+	</info>
+</userInformation>

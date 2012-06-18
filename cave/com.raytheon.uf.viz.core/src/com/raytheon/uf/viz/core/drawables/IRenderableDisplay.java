@@ -24,6 +24,7 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
@@ -126,13 +127,6 @@ public interface IRenderableDisplay extends IRenderable {
      * @param desc
      */
     public void setDescriptor(IDescriptor desc);
-
-    /**
-     * Get the type of the display.
-     * 
-     * @return
-     */
-    public abstract String getDisplayType();
 
     /**
      * Get the internal view representation from this display. Note, this is
@@ -336,4 +330,18 @@ public interface IRenderableDisplay extends IRenderable {
      * Notify the display to refresh
      */
     public void refresh();
+
+    /**
+     * Get the graphics adapter for the display
+     * 
+     * @return
+     */
+    public AbstractGraphicsFactoryAdapter getGraphicsAdapter();
+
+    /**
+     * Set the graphics adapter for the display
+     * 
+     * @param adapter
+     */
+    public void setGraphicsAdapter(AbstractGraphicsFactoryAdapter adapter);
 }
