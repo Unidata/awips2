@@ -3,7 +3,17 @@ package com.raytheon.viz.ui.personalities.awips;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.GroupMarker;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -28,10 +38,19 @@ import org.eclipse.ui.internal.presentations.util.ISystemMenu;
 import org.eclipse.ui.presentations.IPresentablePart;
 import org.eclipse.ui.presentations.IStackPresentationSite;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.actions.ContributedEditorMenuAction;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 public class VizEditorSystemMenu implements ISystemMenu {
+
+    private static final String EDITOR_MENU_EXTENSION_POINT = "com.raytheon.viz.ui.editorMenuAddition";
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VizEditorSystemMenu.class);
 
     private static class CustomCloseAll extends SystemMenuCloseAll {
 
@@ -139,6 +158,8 @@ public class VizEditorSystemMenu implements ISystemMenu {
 
     private SystemMenuCloseAll closeAll;
 
+    private List<ContributedEditorMenuAction> userContributionActions;
+
     private ActionFactory.IWorkbenchAction openAgain;
 
     /**
@@ -178,6 +199,43 @@ public class VizEditorSystemMenu implements ISystemMenu {
         menuManager.add(closeAll);
         menuManager.add(new Separator());
         menuManager.add(openAgain);
+
+        // grab any user contributed items using an extension point
+        IExtensionRegistry registry = Platform.getExtensionRegistry();
+        IExtensionPoint point = registry
+                .getExtensionPoint(EDITOR_MENU_EXTENSION_POINT);
+        if (point != null) {
+            menuManager.add(new Separator());
+            userContributionActions = new ArrayList<ContributedEditorMenuAction>();
+
+            for (IExtension ext : point.getExtensions()) {
+                IConfigurationElement[] element = ext
+                        .getConfigurationElements();
+                for (final IConfigurationElement el : element) {
+                    Object ob;
+                    try {
+                        ob = el.createExecutableExtension("class");
+                        ContributedEditorMenuAction action = (ContributedEditorMenuAction) ob;
+                        String icon = el.getAttribute("icon");
+                        if (icon != null) {
+                            action.setImageDescriptor(IconUtil
+                                    .getImageDescriptor(el.getContributor()
+                                            .getName(), icon));
+                        }
+                        action.setId(el.getAttribute("name"));
+                        action.setText(el.getAttribute("name"));
+                        userContributionActions.add(action);
+                    } catch (CoreException e) {
+                        statusHandler.error(
+                                "Error creating custom editor menu action", e);
+                    }
+                }
+            }
+            // loop through and add all the actions
+            for (Action act : userContributionActions) {
+                menuManager.add(act);
+            }
+        }
     }
 
     String getMoveMenuText() {
@@ -201,6 +259,36 @@ public class VizEditorSystemMenu implements ISystemMenu {
         minimize.update();
         maximize.update();
         close.setTarget(currentSelection);
+
+        // loop through all the contributed actions and update them as necessary
+        List<ContributedEditorMenuAction> shouldBeShown = new ArrayList<ContributedEditorMenuAction>();
+        List<ContributedEditorMenuAction> shouldBeHidden = new ArrayList<ContributedEditorMenuAction>();
+
+        for (ContributedEditorMenuAction action : userContributionActions) {
+            action.setPart(currentSelection);
+            if (action.shouldBeVisible()) {
+                shouldBeShown.add(action);
+            } else {
+                shouldBeHidden.add(action);
+            }
+        }
+
+        for (IContributionItem item : menuManager.getItems()) {
+            if (item instanceof ActionContributionItem) {
+                IAction action = ((ActionContributionItem) item).getAction();
+                if (shouldBeShown.contains(action)) {
+                    shouldBeShown.remove(action);
+                } else if (shouldBeHidden.contains(action)) {
+                    menuManager.remove(item);
+                }
+            }
+        }
+
+        if (shouldBeShown.size() > 0) {
+            for (ContributedEditorMenuAction action : shouldBeShown) {
+                menuManager.add(action);
+            }
+        }
 
         Menu aMenu = menuManager.createContextMenu(parent);
         menuManager.update(true);

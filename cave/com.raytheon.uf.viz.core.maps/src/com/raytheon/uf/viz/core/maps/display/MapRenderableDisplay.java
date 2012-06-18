@@ -28,12 +28,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.eclipse.swt.graphics.Rectangle;
-import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -248,16 +247,7 @@ public class MapRenderableDisplay extends AbstractRenderableDisplay implements
     }
 
     public IExtent getMapExtent() {
-        GridEnvelope range = descriptor.getGridGeometry().getGridRange();
-
-        try {
-            return GraphicsFactory.getGraphicsAdapter(getDisplayType())
-                    .constructExtent(range);
-        } catch (VizException e1) {
-            throw new RuntimeException(
-                    "MapRenderableDisplay failed to construct its map extent.",
-                    e1);
-        }
+        return new PixelExtent(descriptor.getGridGeometry().getGridRange());
     }
 
     public boolean handleClick(int x, int y, int button, IGraphicsTarget target)

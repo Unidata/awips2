@@ -44,7 +44,7 @@ public class GraphicsExtensionManager {
                                 Priority.PROBLEM,
                                 "Error getting extension "
                                         + config.getAttribute(CLASS_ATTR)
-                                        + ": " + t.getLocalizedMessage());
+                                        + ": " + t.getLocalizedMessage(), t);
                     }
 
                 }
@@ -78,8 +78,8 @@ public class GraphicsExtensionManager {
         for (Class<?> eClass : extensions) {
             if (extensionClass.isAssignableFrom(eClass)) {
                 try {
-                    GraphicsExtension<?> graphicsExt = GraphicsExtension.class.cast(eClass
-                            .newInstance());
+                    GraphicsExtension<?> graphicsExt = GraphicsExtension.class
+                            .cast(eClass.newInstance());
                     int val = graphicsExt.setTarget(target);
                     if (val > bestVal) {
                         bestVal = val;
