@@ -7,14 +7,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.swt.graphics.RGB;
-
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.hydrocommon.data.DamMaster;
-import com.raytheon.viz.hydrocommon.resource.HydroPointResourceData;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * TODO Add Description
@@ -34,40 +31,103 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "damLocationResourceData")
-public class DamLocationResourceData extends
-		HydroPointResourceData<DamLocationResource> {
-	@XmlElement
-	List<DamMaster> damList;
+public class DamLocationResourceData extends AbstractResourceData {
 
-	public DamLocationResourceData() {
-		super();
-	}
+    @XmlElement
+    private List<DamMaster> damList;
 
-	public DamLocationResourceData(String name, RGB color, Coordinate location,
-			Style style) {
-		super(name, color, location, style);
-	}
+    @XmlElement
+    private String name;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
-	 * .uf.viz.core.rsc.LoadProperties,
-	 * com.raytheon.uf.viz.core.drawables.IDescriptor)
-	 */
-	@Override
-	public DamLocationResource construct(LoadProperties loadProperties,
-			IDescriptor descriptor) throws VizException {
-		return new DamLocationResource(this, loadProperties);
-	}
+    public DamLocationResourceData() {
 
-	public void setDamList(List<DamMaster> damList) {
-		this.damList = damList;
-	}
+    }
 
-	public List<DamMaster> getDamList() {
-		return this.damList;
-	}
+    public DamLocationResourceData(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the damList
+     */
+    public List<DamMaster> getDamList() {
+        return damList;
+    }
+
+    /**
+     * @param damList
+     *            the damList to set
+     */
+    public void setDamList(List<DamMaster> damList) {
+        this.damList = damList;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name
+     *            the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
+     * .uf.viz.core.rsc.LoadProperties,
+     * com.raytheon.uf.viz.core.drawables.IDescriptor)
+     */
+    @Override
+    public DamLocationResource construct(LoadProperties loadProperties,
+            IDescriptor descriptor) throws VizException {
+        return new DamLocationResource(this, loadProperties);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
+     * )
+     */
+    @Override
+    public void update(Object updateData) {
+        // TODO Auto-generated method stub
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DamLocationResourceData other = (DamLocationResourceData) obj;
+        if (damList == null) {
+            if (other.damList != null)
+                return false;
+        } else if (!damList.equals(other.damList))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
 
 }

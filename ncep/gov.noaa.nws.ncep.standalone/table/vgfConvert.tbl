@@ -1,0 +1,36 @@
+! vgfConvert.tbl
+!
+! This is the table that contains user-specific VGF converting information. 
+! Edit each part of the table only if the default conversion is not satisfied.
+! 
+! Examples shown should be replaced with user specifications at !! comment place.
+! The editing rules are:
+! All fields within a row must be specified.
+! Entities are case sensitive.
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! 
+! Grouped line and label conversion information
+! To convert a group type to a specific type (for this example, convert LABEL 8 to Outlook FLOOD).
+!
+! If a VGF file contains grouped lines and labels, they will be checked for group type against this table.
+! If a match is found, the matching information will be used to perform the conversion. 
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!groupIndicator		groupType	convertTo	convertedTypeName
+!!group				8			outlook		FLOOD
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+! Contour conversion information
+! To get contour parameter, level, forecast hour ... according to the contour line color
+! 
+! If a VGF file contains contour lines, they will be checked against the contour color on this table. 
+! If a match is found, the information from the rest of the row will be used to convert into an XML file.
+! 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!color  	param   level1    level2    fcstHr  cint 		time1            time2
+!!5  		HGHT    1000        -1    	f000    60/0/100	20111213/1200    -1
+!!6     	HGHT    1000       500      f024     6/0/100	20111213/1200    -1
+!!2     	TEMP     850        -1      f018     3/0/100	20111213/1200    -1
+!!3     	PRES       0        -1      f012     4/0/100	20111213/1200 	 -1

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+usage(){
+    cat <<EOF
+      This scripts is used to convert colormap tbl file to cmap file.
+
+      Usage: ctbl2cmap <source> <target> <lookupTable>
+      - <source>: the source directory
+      - <target>: the target directory
+      - <lookupTable>: Registed the <source> files in types representing Satellite and Radar
+      The converted file has the same name with .cmap ending.
+      The converted files are saved to <target> sub-directories named Satellite, Radar and Other.
+EOF
+    exit
+}
+
+srcpath=$1
+tgtpath=$2
+
+if [ $# -lt 2 ];  then
+     usage
+fi
+
+mkdir -p $tgtpath
+
+java -jar %{CONV_INSTALL}%/distCol/colormapConverter.jar  $srcpath $tgtpath %{CONV_INSTALL}%/distCol/table/enhance.tbl

@@ -1,0 +1,105 @@
+<project name="xmlConverter" default="build-jar" basedir=".">
+	<description>
+		This build file is for building xmlConverter application only.
+		
+		This build does not compile the projects and relies on Eclipse, which automatically compiles them.
+		All the classes and needed jar libraries are copied to the distXC folder, the references to these files 
+		are updated in manifest.mf 
+		The list of projects which this xml file uses can be found below in target "init".
+		
+		To build a jar file, right click on this file, then "Run As...", then Target, then Select "build-jar", 
+		then click "Apply", then clcik "Run"
+    </description>
+
+	<!-- set global properties for this build -->
+	<property name="project_name"   value="xmlConverter"/>
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="distXC" location="distXC" />
+	<property name="xmlConverter" location="gov/noaa/nws/ncep/standalone/xmlConverter" />
+	<property name="bin" location="bin" />
+
+	
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		
+		<!-- Copy all the needed files from the projects which eclipse already compiled -->
+		<copy todir="${build}">			
+			<fileset dir="../com.raytheon.uf.viz.core/bin" includes="**/*.class"/>	
+			<fileset dir="../com.raytheon.uf.common.comm/bin" includes="**/*.class"/>
+			<fileset dir="../com.raytheon.uf.common.serialization/bin" includes="**/*.class"/>
+			<fileset dir="../com.raytheon.uf.common.message/bin" includes="**/*.class"/>
+			<fileset dir="../com.raytheon.edex.common/bin" includes="**/*.class"/>
+			<fileset dir="../gov.noaa.nws.ncep.standalone/bin" includes="gov/noaa/nws/ncep/standalone/xmlConverter/*.class"/>
+			<fileset dir="../gov.noaa.nws.ncep.standalone/bin" includes="gov/noaa/nws/ncep/standalone/util/*.class"/>
+			<fileset dir="../gov.noaa.nws.ncep.ui.pgen/bin" includes="**/*.class"/>
+			<fileset dir="../gov.noaa.nws.ncep.viz.common/bin" includes="**/*.class"/>			
+			<fileset dir="../gov.noaa.nws.ncep.edex.common/bin" includes="**/*.class"/> 
+		</copy>
+		
+		<copy todir="${distXC}/lib">
+			<fileset dir="../../eclipse/plugins" includes="javax.xml.bind_2.0.0.v20080604-1500.jar"/>	
+			<fileset dir="../org.geotools" includes="jts-1.10.jar"/>			
+			<fileset dir="../org.geotools" includes="geoapi-*.jar"/>
+			<fileset dir="../org.geotools" includes="gt-*.jar"/>
+			<fileset dir="../../eclipse/plugins" includes="org.eclipse.jface_3.6.1.M20100825-0800.jar"/>		
+			<fileset dir="../../eclipse/plugins" includes="org.eclipse.core.commands_3.6.0.I20100512-1500.jar"/>
+			<fileset dir="../../eclipse/plugins" includes="org.eclipse.core.runtime_3.6.0.v20100505.jar"/>
+			<fileset dir="../../eclipse/plugins" includes="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+			<fileset dir="../../eclipse/plugins" includes="org.eclipse.equinox.registry_3.5.0.v20100503.jar"/>
+			<fileset dir="../../eclipse/plugins" includes="org.eclipse.osgi_3.6.1.R36x_v20100806.jar"/>
+			
+			<!--fileset dir="../net.sf.cglib" includes="*.jar"/-->
+			<fileset dir="../javax.measure" includes="*.jar"/>	
+			<fileset dir="../org.apache.log4j" includes="*.jar"/>
+		</copy>
+		    
+		<copy todir="${distXC}/table">
+			<fileset dir="../gov.noaa.nws.ncep.standalone/table" includes="spcwatch.xml"/>
+			<fileset dir="../gov.noaa.nws.ncep.standalone/table" includes="vaa.xml"/>
+			<fileset dir="../gov.noaa.nws.ncep.standalone/table" includes="mzcntys.xml"/>
+		</copy>	
+		
+		<path id="distXC.classpath">
+			<fileset dir="${distXC}" casesensitive="yes">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+		
+	</target>
+
+	<target name="build-jar" depends="clean, init" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${distXC}/lib" /> <!--/lib-->
+		
+		<manifestclasspath property="distXC.manifest.classpath" jarfile="${distXC}/${project_name}.jar">
+			<classpath refid="distXC.classpath" />
+		</manifestclasspath>
+		
+		<fileset dir="${distXC}/lib" includes="**/*.*" />
+		<fileset dir="." includes="spcwatch.xml, mzcntys.xml, vaa.xml" />
+		
+		<jar jarfile="${distXC}/${project_name}.jar" basedir="${build}">
+			<fileset dir="${build}" includes="**/*.*" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Specification-Vendor" value="Example Organization"/>
+				<attribute name="Build-Date" value="${TODAY}"/> 
+				<attribute name="Implementation-Vendor" value="SIB"/>
+				<attribute name="Class-Path" value="${distXC.manifest.classpath}"/>
+				<attribute name="Main-Class" value="gov/noaa/nws/ncep/standalone/xmlConverter/XmlLoading"/>
+			</manifest>
+		</jar> 
+		
+		
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${distXC} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${distXC}" />
+	</target>
+</project>

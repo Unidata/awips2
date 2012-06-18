@@ -19,11 +19,12 @@
  **/
 package com.raytheon.viz.radar.rsc.image;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
+
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
 
 /**
  * Interface for constructing radial meshes for radar records
@@ -52,7 +53,7 @@ public interface IRadialMeshExtension extends IGraphicsExtensionInterface {
      * @return
      * @throws VizException
      */
-    public IMesh constructMesh(RadarRecord radarData, IMapDescriptor descriptor)
-            throws VizException;
+    public IMesh constructMesh(RadarRecord radarData,
+            GeneralGridGeometry targetGeometry) throws VizException;
 
 }
