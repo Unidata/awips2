@@ -1,0 +1,231 @@
+*******************************************************************************
+                               Convert mod_res.tbl
+*******************************************************************************
+
+PURPOSE
+
+ModresConvert ... Converts legacy NMAP2 model product selection table mod_res.tbl
+                  (and legacy restore files it references) into equivalent files
+                  for use by the AWIPS II National Centers Perspective (NCP).
+
+
+INPUT PARAMETERS
+
+  java -jar ModresConvert.jar input_file output_directory
+  or
+  <converterDir>/bin/modres2new  input_file output_directory
+
+  ModresConvert        Program name.
+  input_file           Legacy mod_res.tbl (or equivalent) file to be converted.
+                       May be referenced using an environment variable, for
+                       example:  $GEMTBL/nmap/mod_res.tbl
+  output_directory     Directory into which output files will be written.
+                       May be referenced using an environment variable.
+                       The directory must exist and be writable by the user.
+                       The output comprises one main ModelFcstGridContours.xml
+                       file, and as many individual attribute set (*.attr)
+                       files as there are valid legacy restore files referenced
+                       in the input file.
+
+
+PROGRAM DESCRIPTION
+
+  ModresConvert is one of a suite of standalone tools provided to facilitate
+  migration of existing site-, desk-, and/or user-specific preference settings
+  from the legacy NMAP2 environment to the new AWIPS II National Centers
+  Perspective (NCP).
+  
+  ModresConvert specifically converts model product selection data from the
+  model product selection table mod_res.tbl into attribute set groups used by
+  the AWIPS II NCP.
+
+
+USAGE NOTES
+
+  Typically, a site administrator and/or individual user(s) would run this
+  utility once for each existing customized version of the model product
+  selection (mod_res) table.
+  
+  After running the program, all of the output files from that run should
+  be copied from the output_directory into the particular installation target
+  subdirectory:
+    .../resources/resourceDefns/AttrSetGroups/ModelFcstGridContours
+  ...for the specific localization level (site, desk, user) being migrated.
+
+
+EXAMPLE
+
+java -jar ModresConvert.jar $GEMTBL/nmap/mod_res.tbl $HOME/modres
+
+    - The program ingests the input file, and produces attribute sets
+      definition file ModelFcstGridContours.xml and *.attr attribute files
+      corresponding to the restore files referenced in the input file.
+      All output files will be written to the "modres" subdirectory of
+      the user's home directory, which is assumed to exist.
+      
+      
+CONVERSION NOTES
+
+  1.  Table Content
+
+  The legacy model product selection (mod_res) table is a user-customizable
+  ASCII text file containing a series of lines, each of which may contain
+  four columns of information.  The table header describes this:
+  
+  !  mod_res.tbl
+  !
+  !  This table contains the information necessary for setting up the model
+  !  product selection within NMAP.  The columns are not in fixed locations.
+  !
+  !  Column 1 - product name as it is to appear in NMAP,
+  !  Column 2 - path/filename to restore file for product in column 1,
+  !  Column 3 - group name under which the product is to appear,
+  !  Column 4 - list of models (separated by semicolons, no spaces!)
+  !             to which product will apply.
+  
+  A typical (simplfied) entry line is:
+  
+  ! PRODUCT NAME   PATH/FILENAME                       GROUP     MODELS
+    ... 
+  500mb_HGHT_WIND  $NMAP_RESTORE/stnd/500mb_hght_wind  standard  dgex;gfs;gfshd;nam
+    
+  None of the entries in each of the columns need be unique to a single
+  line entry, so complex (many-to-many) relationships can be created.
+  
+  In the AWIPS II NCP, these same relationships are expressed in an XML
+  file called ModelFcstGridContours.xml; however, the hierarchy of those
+  relationships is different.  The XML file contains a list of "attribute
+  set groups", each of which essentially corresponds to a model-group
+  pair; that is, to a unique combination of entries from Columns 3 and 4
+  in the legacy table.  For example, the attribute set group expressing
+  the GFS/standard/500mb_hght_wind relationship (the "gfs" part of the
+  above legacy sample) -- with many attrSetNames omitted -- is:
+  
+    <AttrSetGroup>
+        <resource>GFS</resource>
+        <attrSetGroupName>standard</attrSetGroupName>
+        <attrSetNames>50mb_hght_wind_stnd, ... ,500mb_hght_wind_stnd, ... </attrSetNames>
+    </AttrSetGroup>
+  
+  Note that this entry contains multiple (all) products that apply
+  to a given model (resource) / group pair, whereas a legacy entry
+  line could contain all models to which a product / group pair would
+  apply.  The conversion algorithm takes care of inverting these
+  relationships appropriately.
+  
+  Note that the new attribute set name (here, "500mb_hght_wind_stnd")
+  differs slightly from the legacy restore file name and product name.
+  In the legacy system, the same restore file name ("500mb_hght_wind")
+  could appear in multiple directories, each such file having different
+  content.  In the new system, on the other hand, the new attribute
+  set files must coexist in a single directory, and therefore they
+  must have unique names.  To meet this requirement, the converter
+  determines the attribute set name to use by taking the legacy
+  PRODUCT NAME (Column 1) entry (converted to lower case, with non-
+  alphanumeric characters except "_" removed), and suffixes it with "_"
+  and the name of the immediate parent subdirectory of the legacy
+  restore file (in the example, "stnd", from Column 2).
+  
+  The attribute set file name is the attribute set name, suffixed
+  with ".attr".
+  
+  2.  Restore Files to Attribute Sets
+  
+  In addition to the main ModelFcstGridContours.xml file, the converter
+  produces attribute set (*.attr) files corresponding to the union of
+  all of the XML <attrSetNames> entries.  Each of these files is very
+  similar to the legacy restore file it replaces.  For each one, the
+  converter does the following:
+  
+    - The legacy restore file is located using the PATH/FILENAME
+      (Column 2) entry of mod_res.tbl.
+    - Comments (beginning with "!") and blank lines are copied to the
+      new attribute set file without change.
+    - Parameter assignment lines are generally moved to the new
+      file with insertion of an equal sign "=" (required in the new
+      system) with formatting otherwise preserved, except as follows:
+      o  Some legacy parameters are not used in the new system,
+         and so any assignments to them will not be carried forward.
+         Only assignments to the following will be preserved...
+           GLEVEL, GVCORD, SCALE, GDPFUN, TYPE, CINT, LINE, FINT,
+           FLINE, HILO, HLSYM, WIND, TITLE, COLORS, MARKER, GRDLBL;
+           ...any others will not appear in the new file.
+      o  Most of the parameters in the preceding list are "optional"
+         in the new files; that is, if one of them does not appear
+         in the legacy restore file, then it will also not appear
+         in the new attribute set file.
+      o  The exceptions to this are COLORS, MARKER, and GRDLBL.
+         These "required" parameters will appear in the attribute
+         set file even if they do not appear in the legacy file.
+         (Default assignment values in this case are 2, 2, and 5,
+         respectively.)
+  
+  
+SELECTED CONSOLE OUTPUT MESSAGES
+  
+  1.  Ingesting the legacy table
+  
+    [Info:  Reading legacy table <file> ...]
+    
+      The specified "mod_res" (model product selection) legacy table
+      file has been successfully opened and is being ingested.
+      
+    [Warning:  Restore file <file> could not be located]
+    
+      A line in the legacy table references a restore file, but that
+      file cannot be located (even with environment variable
+      translation).  In this case, a reference to the corresponding
+      attribute file that would have been generated WILL be inserted
+      in the output XML file, so the attribute file can be prepared
+      manually, but no automatic generation of the attribute file
+      will take place.
+      
+    [Warning:  Line <text> missing model name(s); ignored]
+    
+      The specified line in the legacy table doesn't have any models
+      listed, and so no output will be generated for this line.
+      
+    [Warning:  Line <text> has other than 4 fields; ignored]
+    
+      Similar to previous condition for more general case.
+      
+    [Error:  <I/O exception>]
+    
+      A problem has occurred reading the legacy table file.
+      
+    [Info:  ... <file> read successfully]
+    
+      The legacy table file has been ingested completely.
+  
+  2.  Generating the attribute set group list XML file
+      
+    [Info:  Writing attribute set group list as XML file <file> ...]
+    [Info:  ... <file> written successfully]
+    
+      These messages appear once, before and after (respectively)
+      the attribute set group list XML file is generated.  (This
+      XML file contains information similar to the original table
+      file.)
+      
+  3.  Converting the individual restore files to attribute files.
+  
+    [Info:  Converting legacy restore file <file> ...]
+    [       ...to new attribute file <file>]
+    
+      Output as each restore file is mapped to an attribute file.
+      
+    [Info:  Optional parameter <parm> not in legacy, so not in new either]
+    
+      One of the set of parameters recognized by the new system (but
+      not required by it) doesn't appear in the legacy restore file.
+      This message is merely informational; if the parameter were
+      required, a default value would be supplied in the generated
+      attribute file, along with a comment indicating this.
+  
+  4.  Completion
+  
+    [Success:  The file is converted.  The Conversion is finished.]
+    
+      As with the other conversion programs, this message appears
+      on completion.
+    

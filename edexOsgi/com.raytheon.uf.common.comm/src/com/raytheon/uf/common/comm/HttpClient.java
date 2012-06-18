@@ -35,6 +35,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.AbstractHttpClient;
@@ -71,6 +72,17 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  */
 public class HttpClient {
 
+    public static class HttpClientResponse {
+        public final int code;
+
+        public final byte[] data;
+
+        private HttpClientResponse(int code, byte[] data) {
+            this.code = code;
+            this.data = data != null ? data : new byte[0];
+        }
+    }
+
     private static final int SUCCESS_CODE = 200;
 
     private final org.apache.http.client.HttpClient client;
@@ -90,7 +102,7 @@ public class HttpClient {
 
     private ThreadSafeClientConnManager connManager = null;
 
-    private NetworkStatistics stats = NetworkStatistics.getInstance();
+    private NetworkStatistics stats = new NetworkStatistics();
 
     private boolean gzipRequests = false;
 
@@ -223,6 +235,18 @@ public class HttpClient {
 
     private byte[] executePostMethod(HttpPost put) throws IOException,
             HttpException, CommunicationException {
+        HttpClientResponse response = executeRequest(put);
+        if (response.code != SUCCESS_CODE) {
+            throw new CommunicationException(
+                    "Error reading server response.  Got error message: "
+                            + response.data != null ? new String(response.data)
+                            : null);
+        }
+        return response.data;
+    }
+
+    public HttpClientResponse executeRequest(HttpUriRequest request)
+            throws IOException, HttpException, CommunicationException {
         int tries = 0;
         boolean retry = true;
         // long ts = System.currentTimeMillis();
@@ -232,14 +256,10 @@ public class HttpClient {
             tries++;
 
             try {
-                HttpResponse resp = client.execute(put);
+                HttpResponse resp = client.execute(request);
                 int code = resp.getStatusLine().getStatusCode();
 
-                if (code != SUCCESS_CODE) {
-                    throw new CommunicationException(
-                            "Error reading server response.  Got error message: "
-                                    + EntityUtils.toString(resp.getEntity()));
-                } else if (previousConnectionFailed) {
+                if (previousConnectionFailed) {
                     previousConnectionFailed = false;
                     statusHandler.handle(Priority.INFO,
                             "Connection with server reestablished.");
@@ -251,70 +271,77 @@ public class HttpClient {
                 try {
                     // long t0 = System.currentTimeMillis();
                     HttpEntity entity = resp.getEntity();
-
-                    // TODO: print error if entity larger than int, won't be
-                    // able to deserialize
-                    int size = (int) entity.getContentLength();
-                    is = entity.getContent();
                     byte[] rval = null;
 
-                    if (size > 0) {
-                        rval = new byte[size];
-                        int read = 0;
-                        int index = 0;
-                        // int count = 0;
-                        do {
-                            read = is.read(rval, index, rval.length - index);
+                    if (entity != null) {
+                        // TODO: print error if entity larger than int, won't be
+                        // able to deserialize
+                        int size = (int) entity.getContentLength();
+                        is = entity.getContent();
 
-                            if (read > 0) {
-                                index += read;
-                                // count++;
-                            }
-                        } while (read > 0 && index != rval.length);
-                        // long t2 = System.currentTimeMillis();
-                        // System.out.println("ContentLength: Read " +
-                        // rval.length
-                        // + " bytes in " + count + " reads, took"
-                        // + (t2 - t0) + "ms, total round trip "
-                        // + (t2 - ts));
-                    } else {
-                        // grabbing an instance of the pool to use the
-                        // underlying array so as to not create a tmp buffer all
-                        // the time
-                        // TODO: Update edex/jetty to set chunked=false so that
-                        // it sends content length, currently broken as jetty is
-                        // scrambling -128 to 63...
-                        baos = ByteArrayOutputStreamPool.getInstance()
-                                .getStream();
-                        byte[] underlyingArray = baos.getUnderlyingArray();
-                        int read = 0;
-                        int index = 0;
-                        // int count = 0;
-                        do {
-                            read = is.read(underlyingArray, index,
-                                    underlyingArray.length - index);
+                        if (size > 0) {
+                            rval = new byte[size];
+                            int read = 0;
+                            int index = 0;
+                            // int count = 0;
+                            do {
+                                read = is
+                                        .read(rval, index, rval.length - index);
 
-                            if (read > 0) {
-                                index += read;
-                                // count++;
-                                if (index == underlyingArray.length) {
-                                    baos.setCapacity(underlyingArray.length << 1);
-                                    underlyingArray = baos.getUnderlyingArray();
+                                if (read > 0) {
+                                    index += read;
+                                    // count++;
                                 }
-                            }
-                        } while (read > 0);
+                            } while (read > 0 && index != rval.length);
+                            // long t2 = System.currentTimeMillis();
+                            // System.out.println("ContentLength: Read " +
+                            // rval.length
+                            // + " bytes in " + count + " reads, took"
+                            // + (t2 - t0) + "ms, total round trip "
+                            // + (t2 - ts));
+                        } else {
+                            // grabbing an instance of the pool to use the
+                            // underlying array so as to not create a tmp buffer
+                            // all
+                            // the time
+                            // TODO: Update edex/jetty to set chunked=false so
+                            // that
+                            // it sends content length, currently broken as
+                            // jetty is
+                            // scrambling -128 to 63...
+                            baos = ByteArrayOutputStreamPool.getInstance()
+                                    .getStream();
+                            byte[] underlyingArray = baos.getUnderlyingArray();
+                            int read = 0;
+                            int index = 0;
+                            // int count = 0;
+                            do {
+                                read = is.read(underlyingArray, index,
+                                        underlyingArray.length - index);
 
-                        baos.setCount(index);
-                        rval = new byte[index];
-                        System.arraycopy(underlyingArray, 0, rval, 0, index);
-                        // long t2 = System.currentTimeMillis();
-                        // System.out.println("Read " + rval.length +
-                        // " bytes in "
-                        // + count + " reads, took" + (t2 - t0)
-                        // + "ms, total round trip " + (t2 - ts));
+                                if (read > 0) {
+                                    index += read;
+                                    // count++;
+                                    if (index == underlyingArray.length) {
+                                        baos.setCapacity(underlyingArray.length << 1);
+                                        underlyingArray = baos
+                                                .getUnderlyingArray();
+                                    }
+                                }
+                            } while (read > 0);
+
+                            baos.setCount(index);
+                            rval = new byte[index];
+                            System.arraycopy(underlyingArray, 0, rval, 0, index);
+                            // long t2 = System.currentTimeMillis();
+                            // System.out.println("Read " + rval.length +
+                            // " bytes in "
+                            // + count + " reads, took" + (t2 - t0)
+                            // + "ms, total round trip " + (t2 - ts));
+                        }
                     }
 
-                    return rval;
+                    return new HttpClientResponse(code, rval);
                 } finally {
                     if (baos != null) {
                         try {
@@ -365,8 +392,8 @@ public class HttpClient {
 
                 previousConnectionFailed = true;
                 // close/abort connection
-                if (put != null) {
-                    put.abort();
+                if (request != null) {
+                    request.abort();
                 }
                 statusHandler.handle(Priority.EVENTA,
                         "IO error in HttpClient, aborting connection.", e);
@@ -652,6 +679,15 @@ public class HttpClient {
      */
     public void setRetryCount(int retryCount) {
         this.retryCount = retryCount;
+    }
+
+    /**
+     * Gets the network statistics for http traffic.
+     * 
+     * @return
+     */
+    public NetworkStatistics getStats() {
+        return stats;
     }
 
     /**

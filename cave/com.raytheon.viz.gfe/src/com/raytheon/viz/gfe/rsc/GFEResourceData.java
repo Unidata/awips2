@@ -19,6 +19,9 @@
  **/
 package com.raytheon.viz.gfe.rsc;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -40,7 +43,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * @author chammack
  * @version 1.0
  */
-
+@XmlAccessorType(XmlAccessType.NONE)
 public class GFEResourceData extends AbstractResourceData {
 
     @Override

@@ -36,6 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.ContextManager;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -77,7 +78,6 @@ import com.raytheon.viz.ui.cmenu.LoopingAction;
 import com.raytheon.viz.ui.cmenu.StepFrameMenuAction;
 import com.raytheon.viz.ui.cmenu.UnloadAllGraphicsAction;
 import com.raytheon.viz.ui.cmenu.ZoomMenuAction;
-import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
@@ -119,8 +119,13 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
 
     private static Map<Object, AbstractRightClickAction> legendActions = new HashMap<Object, AbstractRightClickAction>();
 
+    private D2DContextActivator contextActivator;
+
     @Override
     public void open() {
+        contextActivator = new D2DContextActivator(
+                ContextManager.getInstance(perspectiveWindow));
+        page.addPartListener(contextActivator);
         Procedure procedure = new Procedure();
         List<Bundle> bundles = new ArrayList<Bundle>();
         for (MapScale scale : MapScales.getInstance().getScales()) {
@@ -449,4 +454,54 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
             D2DLegendResource rsc) {
         return new ChangeLegendModeAction(mode, rsc);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager#
+     * activateInternal()
+     */
+    @Override
+    protected void activateInternal() {
+        super.activateInternal();
+        page.addPartListener(contextActivator);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#deactivate
+     * ()
+     */
+    @Override
+    public void deactivate() {
+        super.deactivate();
+        page.removePartListener(contextActivator);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#
+     * activateContexts(com.raytheon.uf.viz.core.ContextManager)
+     */
+    @Override
+    protected void activateContexts(ContextManager manager) {
+        super.activateContexts(manager);
+        contextActivator.partActivated(page.getActivePartReference());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#
+     * deactivateContexts(com.raytheon.uf.viz.core.ContextManager)
+     */
+    @Override
+    protected void deactivateContexts(ContextManager manager) {
+        super.deactivateContexts(manager);
+        contextActivator.partDeactivated(page.getActivePartReference());
+    }
+
 }

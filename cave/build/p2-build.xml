@@ -270,6 +270,10 @@
 		     <param name="feature"
 		          value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature"
+				  value="com.raytheon.uf.viz.collaboration.feature" />
+		</antcall>
 		
 		<antcall target="cleanup.features" />
 	</target>
