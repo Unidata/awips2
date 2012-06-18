@@ -69,7 +69,8 @@ public class FFMPShapeContainer {
 
         if (shape == null) {
             shape = target.getExtension(IColormapShadedShapeExtension.class)
-                    .createColormapShadedShape(descriptor, true);
+                    .createColormapShadedShape(descriptor.getGridGeometry(),
+                            true);
 
             ConcurrentHashMap<String, IColormapShadedShape> cwaShapes = shadedShapes
                     .get(cwa);

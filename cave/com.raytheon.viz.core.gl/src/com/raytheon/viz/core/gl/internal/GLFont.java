@@ -73,6 +73,7 @@ public class GLFont implements IGLFont {
 
     public GLFont(File font, float fontSize, Style[] styles) {
         try {
+            this.fontName = font.getName();
             this.font = Font.createFont(Font.TRUETYPE_FONT, font).deriveFont(
                     fontSize);
             this.currentFontSize = this.fontSize = fontSize;
