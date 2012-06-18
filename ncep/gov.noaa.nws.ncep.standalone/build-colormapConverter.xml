@@ -1,0 +1,78 @@
+<project name="colormapConverter" default="build-jar" basedir=".">
+	<description>
+		This build file is for building colormapConverter application only.
+		
+		This build does not compile the projects and relies on Eclipse, which automatically compiles them.
+		All the classes and needed jar libraries are copied to the distCol folder, the references to these files 
+		are updated in manifest.mf 
+		The list of projects which this xml file uses can be found below in target "init".
+		
+		To build a jar file, right click on this file, then "Run As...", then Target, then Select "build-jar", 
+		then click "Apply", then clcik "Run"
+    </description>
+
+	<!-- set global properties for this build -->
+	<property name="project_name"   value="colormapConverter"/>
+	<property name="src" location="src" />
+		<!-- <property name="srcOther" location="../com.raytheon.uf.viz.core/src" /> -->
+	<property name="build" location="build" />
+	<property name="distCol" location="distCol" />
+	<property name="colormapConverter" location="gov/noaa/nws/ncep/standalone/colormapConverter" />
+	<property name="bin" location="bin" />
+
+	
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		
+		<!-- Copy all the needed files from the projects which eclipse already compiled -->
+		<copy todir="${build}">			
+			<fileset dir="../gov.noaa.nws.ncep.standalone/bin" includes="gov/noaa/nws/ncep/standalone/colormapConverter/*.class"/>
+			<fileset dir="../com.raytheon.uf.common.colormap/bin" includes="**/*.class"/>
+			<fileset dir="../com.raytheon.uf.common.serialization/bin" includes="**/*.class"/>
+			
+		</copy>
+		
+		<!-- <mkdir dir="${distCol}/lib" /> -->
+		
+		<copy todir="${distCol}/table">
+			<fileset dir="../gov.noaa.nws.ncep.standalone/table" includes="enhance.tbl"/>					
+		</copy>
+		
+		<path id="distCol.classpath">
+			<fileset dir="${distCol}/lib" casesensitive="yes">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+		
+	</target>
+
+	<target name="build-jar" depends="clean, init" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${distCol}/lib" />
+
+		<manifestclasspath property="distCol.manifest.classpath" jarfile="${distCol}/${project_name}.jar">
+			<classpath refid="distCol.classpath" />
+		</manifestclasspath>
+		
+		<jar jarfile="${distCol}/${project_name}.jar" basedir="${build}">
+			<fileset dir="${build}" includes="**/*.*" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Specification-Vendor" value="Example Organization"/>
+				<attribute name="Build-Date" value="${TODAY}"/> 
+				<attribute name="Implementation-Vendor" value="SIB"/>
+				<attribute name="Class-Path" value="${distCol.manifest.classpath}"/>
+				<attribute name="Main-Class" value="gov/noaa/nws/ncep/standalone/colormapConverter/ColormapConvert"/>
+			</manifest>
+		</jar> 
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${distCol} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${distCol}" />
+	</target>
+</project>

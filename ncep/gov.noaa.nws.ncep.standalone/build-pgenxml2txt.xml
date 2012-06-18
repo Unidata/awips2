@@ -1,0 +1,75 @@
+<project name="pgenxml2txt" default="build-jar" basedir=".">
+	<description>
+		This build file is for building pgenxml2txt application only.
+		
+		This build does not compile the projects and relies on Eclipse, which automatically compiles them.
+		All the classes and needed jar libraries are copied to the dist folder, the references to these files 
+		are updated in manifest.mf 
+		The list of projects which this xml file uses can be found below in target "init".
+		
+		To build a jar file, right click on this file, then "Run As...", then Target, then Select "build-jar", 
+		then click "Apply", then click "Run"
+    </description>
+
+	<!-- set global properties for this build -->
+	<property name="project_name"   value="pgenxml2txt"/>
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="pgenxml2txt" location="gov/noaa/nws/ncep/standalone/pgenxml2txt" />
+	<property name="bin" location="bin" />
+
+	
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+		
+			<!-- Copy all the needed files from the projects which eclipse already compiled -->
+		<copy todir="${build}">
+			<fileset dir="${bin}" includes="**/*.class"/>
+		</copy>
+	
+	
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}/lib" />	
+		<copy todir="${dist}/lib">
+	        <fileset dir="../../eclipse/plugins" includes="javax.xml_1.3.4.v200806030440.jar"/>
+		</copy>
+
+		<copy todir="${dist}" file="hlp/${project_name}.hlp"/>		
+
+		<path id="dist.classpath">
+			<fileset dir="${dist}/lib" casesensitive="yes">
+				<include name="**/*.jar" />
+			    <exclude name="**/*common*"/>
+			</fileset>
+		</path>
+      </target>
+
+	<target name="build-jar" depends="clean, init" description="generate the distribution">
+
+		<manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/${project_name}.jar">
+			<classpath refid="dist.classpath" />
+		</manifestclasspath>
+		
+		<jar jarfile="${dist}/${project_name}.jar" basedir="${build}">
+			<fileset dir="${build}" includes="**/*.*" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+				<attribute name="Specification-Vendor" value="Example Organization"/>
+				<attribute name="Build-Date" value="${TODAY}"/> 
+				<attribute name="Implementation-Vendor" value="SIB"/>
+				<attribute name="Class-Path" value="${dist.manifest.classpath}"/>
+				<attribute name="Main-Class" value="gov/noaa/nws/ncep/standalone/pgenxml2txt/PgenXml2Txt"/>
+			</manifest>
+		</jar> 
+	</target>
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+</project>

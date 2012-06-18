@@ -276,8 +276,22 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
     public LocalizationContext[] getLocalSearchHierarchy(LocalizationType type) {
         synchronized (this.contexts) {
             LocalizationContext[] ctx = this.contexts.get(type);
+            LocalizationLevel[] levels = getAvailableLevels();
+
+            if (ctx != null) {
+                // Check for new available levels
+                Set<LocalizationLevel> levelSet = new HashSet<LocalizationLevel>(
+                        Arrays.asList(levels));
+                for (LocalizationContext context : ctx) {
+                    if (levelSet.contains(context.getLocalizationLevel()) == false) {
+                        // New level detected, regenerate search hierarchy
+                        ctx = null;
+                        break;
+                    }
+                }
+            }
+
             if (ctx == null) {
-                LocalizationLevel[] levels = getAvailableLevels();
                 Arrays.sort(levels, LocalizationLevel.REVERSE_COMPARATOR);
 
                 ctx = new LocalizationContext[levels.length];

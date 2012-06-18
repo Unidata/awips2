@@ -60,6 +60,21 @@ public class LockingFileOutputStream extends FileOutputStream {
         FileLocker.lock(this, file, Type.WRITE);
     }
 
+    /**
+     * Create a new LockingFileOuputStream, creates an exclusive lock on the
+     * file
+     * 
+     * @param file
+     * @param isAppending
+     * @throws FileNotFoundException
+     */
+    public LockingFileOutputStream(File file, boolean isAppending)
+            throws FileNotFoundException {
+        super(file, isAppending);
+        this.file = file;
+        FileLocker.lock(this, file, Type.WRITE);
+    }
+
     @Override
     public void close() throws IOException {
         try {
