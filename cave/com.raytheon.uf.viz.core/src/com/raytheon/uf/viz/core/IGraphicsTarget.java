@@ -35,15 +35,12 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.PixelCoordinate;
-import com.vividsolutions.jts.geom.LinearRing;
 
 /**
  * 
@@ -433,22 +430,6 @@ public interface IGraphicsTarget extends IImagingExtension {
             byte[] pattern) throws VizException;
 
     /**
-     * Draw a shaded polygon, not high performance, for singularly used and
-     * rapidly changing shapes
-     * 
-     * @param poly
-     *            the polygon to be drawn in world coordinates
-     * @param color
-     *            the color to fill with
-     * @param alpha
-     *            the alpha blending factor
-     * @param pattern
-     *            the fill pattern or null for solid fill
-     */
-    public abstract void drawShadedPolygon(LinearRing poly, RGB color,
-            double alpha, byte[] pattern) throws VizException;
-
-    /**
      * Draws a cicle with parameters about the circle
      * 
      * @param circle
@@ -465,25 +446,10 @@ public interface IGraphicsTarget extends IImagingExtension {
     public abstract void drawLine(DrawableLine... lines) throws VizException;
 
     /**
+     * DEPRECATED: Use {@link #drawCircle(DrawableCircle...)}
      * 
-     * @param x1
-     *            x location of arc start.
-     * @param y1
-     *            y location of arc start.
-     * @param z1
-     *            z location of arc start
-     * @param radius
-     *            radius (if was a complete circle.
-     * @param color
-     *            color of arc
-     * @param width
-     *            width of arc
-     * @param startAzimuth
-     *            angle at where to draw the arc.
-     * @param endAzimuth
-     *            angle at where to end arc.
-     * @throws VizException
      */
+    @Deprecated
     public void drawArc(double x1, double y1, double z1, double radius,
             RGB color, float width, int startAzimuth, int arcWidth,
             LineStyle lineStyle, boolean includeSides) throws VizException;
@@ -530,6 +496,20 @@ public interface IGraphicsTarget extends IImagingExtension {
             IDescriptor descriptor, float simplificationLevel);
 
     /**
+     * Create a wireframe shape object
+     * 
+     * @param mutable
+     *            whether the shape changes after creation
+     * @param descriptor
+     *            the geometry for the shape
+     * @param simplificationLevel
+     *            the simplification level
+     * @return a wireframe shape object
+     */
+    public abstract IWireframeShape createWireframeShape(boolean mutable,
+            GeneralGridGeometry geom, float simplificationLevel);
+
+    /**
      * Create a wireframe shape object with options
      * 
      * @param mutable
@@ -557,18 +537,27 @@ public interface IGraphicsTarget extends IImagingExtension {
             boolean spatialChopFlag, IExtent extent);
 
     /**
+     * DEPRECATED: Use
+     * {@link #createShadedShape(boolean, GeneralGridGeometry, boolean)} instead
+     * 
+     */
+    @Deprecated
+    public abstract IShadedShape createShadedShape(boolean mutable,
+            IDescriptor descriptor, boolean tesselate);
+
+    /**
      * Create a shaded shape object
      * 
      * @param mutable
      *            whether the shape changes after creation
-     * @param descriptor
-     *            the map descriptor
+     * @param targetGeometry
+     *            the geometry the shape is made for
      * @param tesselate
      *            whether a shape requires tesselation to be convex
      * @return a shaded shape object
      */
     public abstract IShadedShape createShadedShape(boolean mutable,
-            IDescriptor descriptor, boolean tesselate);
+            GeneralGridGeometry targetGeometry, boolean tesselate);
 
     /**
      * Initialization
@@ -580,13 +569,12 @@ public interface IGraphicsTarget extends IImagingExtension {
      * Start a frame with a given extent. Must call endFrame after drawing is
      * complete.
      * 
-     * @param display
-     *            the display area that the frame covers
+     * @param view
+     *            viewable area of the frame
      * @param isClearBackground
      *            whether background should be cleared prior to drawing
      */
-    public abstract void beginFrame(IRenderableDisplay display,
-            boolean isClearBackground);
+    public abstract void beginFrame(IView view, boolean isClearBackground);
 
     /**
      * End a frame
@@ -686,28 +674,11 @@ public interface IGraphicsTarget extends IImagingExtension {
     public abstract IFont getDefaultFont();
 
     /**
-     * Draw a cylinder.
-     * 
-     * @param coord
-     * @param color
-     * @param alpha
-     * @param height
-     * @param baseRadius
-     * @param topRadius
-     * @param sideCount
-     * @param sliceCount
-     * @param rotation
-     * @param lean
-     */
-    public void drawCylinder(PixelCoordinate coord, RGB color, float alpha,
-            double height, double baseRadius, double topRadius, int sideCount,
-            int sliceCount, double rotation, double lean);
-
-    /**
-     * Gets the view type, e.g. 2D
+     * DEPRECATED: Should not be used for anything
      * 
      * @return
      */
+    @Deprecated
     public String getViewType();
 
     /**
@@ -759,14 +730,6 @@ public interface IGraphicsTarget extends IImagingExtension {
      * @return
      */
     public IView getView();
-
-    /**
-     * Notify the Graphics Target that there are updated extents that need to be
-     * set.
-     * 
-     * @param updatedExtent
-     */
-    public void updateExtent(IExtent updatedExtent);
 
     /**
      * Use getExtension(IOffscreenRenderingExtension.class).renderOffscreen(
@@ -848,72 +811,6 @@ public interface IGraphicsTarget extends IImagingExtension {
     @Deprecated
     public abstract Rectangle2D getStringBounds(IFont font, String[] text,
             TextStyle style);
-
-    /**
-     * Draw a ramp of colors using a colormap over a specified region
-     * 
-     * @param colorMap
-     *            the colormap to apply
-     * @param pixelExtent
-     *            the pixelextent
-     * @param blendAlpha
-     *            the alpha to multiply the alpha values by
-     */
-    @Deprecated
-    public abstract void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha) throws VizException;
-
-    /**
-     * Draw a ramp of colors using a colormap over a specified region
-     * 
-     * @param colorMap
-     *            the colormap to apply
-     * @param pixelExtent
-     *            the pixelextent
-     * @param blendAlpha
-     *            the alpha to multiply the alpha values by
-     * @param brightness
-     *            the brightness to multiply the color values by
-     * @param contrast
-     *            the contrast to apply to the colorbar
-     */
-    @Deprecated
-    public abstract void drawColorRamp(IColorMap colorMap, IExtent pixelExtent,
-            float blendAlpha, float brightness, float contrast)
-            throws VizException;
-
-    /**
-     * Draw a ramp of colors using a colormap over a specified region
-     * 
-     * @param colorMapParams
-     *            the colormap to apply
-     * @param pixelExtent
-     *            the pixelextent
-     * @param blendAlpha
-     *            the alpha to multiply the alpha values by
-     */
-    @Deprecated
-    public abstract void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha) throws VizException;
-
-    /**
-     * Draw a ramp of colors using a colormap over a specified region
-     * 
-     * @param colorMap
-     *            the colormap to apply
-     * @param pixelExtent
-     *            the pixelextent
-     * @param blendAlpha
-     *            the alpha to multiply the alpha values by
-     * @param brightness
-     *            the brightness to multiply the color values by
-     * @param contrast
-     *            the contrast to apply to the colorbar
-     */
-    @Deprecated
-    public abstract void drawColorRamp(ColorMapParameters colorMapParams,
-            IExtent pixelExtent, float blendAlpha, float brightness,
-            float contrast) throws VizException;
 
     /**
      * DEPRECATED: call drawCircle(DrawableCircle...)

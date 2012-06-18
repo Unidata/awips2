@@ -121,6 +121,7 @@ public class GLMosaicImage extends GLDelegateImage<GLColormappedImage>
     @Override
     public void setImageExtent(IExtent imageExtent) {
         this.extent = imageExtent;
+        repaint = true;
     }
 
     public IExtent getImageExtent() {
