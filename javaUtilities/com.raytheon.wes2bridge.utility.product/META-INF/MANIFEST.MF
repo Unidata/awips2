@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Wes2Bridge Utility Product
-Bundle-SymbolicName: com.raytheon.wes2bridge.utility.product
-Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
