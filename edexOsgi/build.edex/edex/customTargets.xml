@@ -135,17 +135,55 @@
         <!-- Steps to do after the build is done. -->
         <!-- ===================================================================== -->
         <target name="postBuild">
+        	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+        		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" /> 	
+        	
         	<property file="${builder}/common.properties" />
         	<property name="build.output.directory"
         		value="${buildDirectory}/tmp/edex" />
         	
-        	<mkdir dir="${builder}/postBuild/${edex.root.directory}" />
-        	<copy todir="${builder}/postBuild/${edex.root.directory}">
+        	<mkdir dir="${builder}/postBuild/${edex.root.directory}/data" />
+        	<copy todir="${builder}/postBuild/${edex.root.directory}/data">
         		<fileset dir="${build.output.directory}">
-        			<include name="plugins/**" />
         			<include name="utility/**" />
         		</fileset>
         	</copy>
+        	
+        	<!-- special rule for cots -->
+        	<if>
+        		<not>
+        			<equals arg1="${topLevelElementId}" 
+        			arg2="com.raytheon.uf.edex.cots.feature" />
+        		</not>
+        		<then>
+        			<mkdir dir="${builder}/postBuild/${edex.root.directory}/lib" />
+            		<copy todir="${builder}/postBuild/${edex.root.directory}/lib">
+            			<fileset dir="${build.output.directory}">
+                			<include name="plugins/**" />
+                		</fileset>
+					</copy>
+        	
+        			<move todir="${builder}/postBuild/${edex.root.directory}/lib">
+        				<fileset dir="${builder}/postBuild/${edex.root.directory}/lib">
+        					<include name="**/*.jar" />
+        				</fileset>
+        				<mapper type="regexp" from="^(.*)_(.*).jar" to="\1.jar" />
+        			</move>
+        		</then>
+        	</if>
+        	
+        	<!-- copy the dependency stash -->
+			<mkdir
+				dir="${builder}/postBuild/${edex.root.directory}/lib/dependencies" />
+        	<copy todir="${builder}/postBuild/${edex.root.directory}/lib/dependencies">
+        		<fileset dir="${builder}/dependencies-stash">
+            		<include name="*/**" />
+            	</fileset>
+			</copy>
+        	<delete includeemptydirs="true">
+        		<fileset dir="${builder}"
+        			includes="dependencies-stash/**" />
+        	</delete>
         	
         	<!-- Create the distribution directory. -->
         	<mkdir dir="${builder}/dist" />
