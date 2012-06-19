@@ -52,6 +52,8 @@ public abstract class ServerSpecificPersistablePluginDataObject extends
 
     private static final long serialVersionUID = 1L;
 
+    private Integer hdfFileId;
+
     /**
      * Constructor
      */
@@ -64,6 +66,23 @@ public abstract class ServerSpecificPersistablePluginDataObject extends
      */
     public ServerSpecificPersistablePluginDataObject() {
         super();
+    }
+
+    // TODO Setting hdf file id on ingest has been disabled in preparation
+    // of removing it altogether since it is OBE. After deployed sites have
+    // had this version for long enough that all data with hdfFileId has null
+    // hdfFileIds, then the getters/setters should be removed everywhere
+    // and this class can be deleted from the inheritance hierarchy. An
+    // update script will be needed at that time to drop the hdfFileId column.
+
+    @Override
+    public Integer getHdfFileId() {
+        return hdfFileId;
+    }
+
+    @Override
+    public void setHdfFileId(Integer hdfFileId) {
+        this.hdfFileId = hdfFileId;
     }
 
 }
