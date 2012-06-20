@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -413,6 +414,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
         GeneralGridData data = requestData(time);
         if (data == null) {
+            updatePaintStatus(PaintStatus.INCOMPLETE);
             return;
         }
 
@@ -421,6 +423,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         if (renderable != null) {
             renderables.put(time, renderable);
             renderable.paint(target, paintProps);
+        } else {
+            updatePaintStatus(PaintStatus.INCOMPLETE);
         }
     }
 
