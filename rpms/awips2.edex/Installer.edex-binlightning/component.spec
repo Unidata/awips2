@@ -1,6 +1,7 @@
 %define CORE_DELTA_SETUP ${WORKSPACE_DIR}/Installer.rpm/delta/setup/updateSetup.sh
 %define _component_name           awips2-edex-binlightning
 %define _component_project_dir    awips2.edex/Installer.edex-binlightning
+%define _component_zip            com.raytheon.uf.edex.binlightning.feature-edex.zip
 %define _component_default_prefix /awips2
 #
 # AWIPS II Edex binlightning Spec File
@@ -55,26 +56,7 @@ copyApplicableDeltas ${RPM_BUILD_ROOT} %{_component_name} \
 #---------------------------------------------------------------------------#
 
 %install
-DEPLOY_SCRIPT="build.edex/deploy-install.xml"
 
-# Deploy Edex To Our Temporary Build Directory.
-
-# Determine which ant executable to use.
-COMMAND=`rpm -q awips2-ant`
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   echo "ERROR: awips2-ant Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
-
-ANT_EXE=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-ant`
-ANT_EXE="${ANT_EXE}/bin/ant"
-
-${ANT_EXE} -file ${WORKSPACE_DIR}/${DEPLOY_SCRIPT} \
-   -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/edex \
-   -Dinstaller=true -Dlocal.build=false \
-   -Dcomponent.to.deploy=edex-binlightning
 
 %pre
 if [ "${1}" = "2" ]; then

@@ -1,5 +1,13 @@
 <project name="deploy.esb" default="main">
+	<import file="${basedir}/deploy-common/deploy-web.xml" />
+	
 	<target name="main">
+		<!-- on a developer machine, the following directories should
+		     already exist. -->
+		<mkdir dir="${edex.root.directory}/lib" />
+		<mkdir dir="${edex.root.directory}/bin" />
+		<mkdir dir="${edex.root.directory}/conf" />
+		
 		<antcall target="cleanup" />
 		
 		<antcall target="deploy.esb" />
@@ -17,7 +25,7 @@
 		</if>
 	</target>
 	
-	<target name="cleanup">
+	<target name="cleanup">		
 		<!-- delete all files under ${esbDir}/lib/ -->
         <echo message="Cleaning target directory: ${edex.root.directory}/lib/" />
         <delete includeemptydirs="true">
@@ -79,4 +87,7 @@
         	web.project.dir="gov.noaa.nws.ncep.edex.purgeutil"
         	war.name="purgeWeb" />
 	</target>
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" 
+		classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
 </project>
