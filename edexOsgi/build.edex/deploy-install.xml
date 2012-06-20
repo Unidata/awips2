@@ -2,7 +2,6 @@
 	<!-- import -->
 	<import file="${basedir}/deploy-common/deploy-init.xml" />
 	<import file="${basedir}/deploy-common/deploy-setup.xml" />
-	<import file="${basedir}/deploy-common/deploy-web.xml" />
 	<import file="${basedir}/deploy-common/plugin-methods.xml" />
 	
 	<!-- public static final -->
