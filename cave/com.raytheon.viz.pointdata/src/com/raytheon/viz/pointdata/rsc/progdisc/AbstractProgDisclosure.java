@@ -188,6 +188,10 @@ public abstract class AbstractProgDisclosure extends Job {
         return nextTask.canvasWidth / nextTask.extent.getWidth();
     }
 
+    public boolean isDone() {
+        return getState() != Job.RUNNING && getState() != Job.WAITING;
+    }
+
     public void shutdown() {
         this.cancel();
         nextTask = new Task();
