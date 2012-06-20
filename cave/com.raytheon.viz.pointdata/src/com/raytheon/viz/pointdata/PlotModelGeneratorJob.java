@@ -145,6 +145,10 @@ public class PlotModelGeneratorJob extends Job {
         imageCache.clear();
     }
 
+    public boolean isDone() {
+        return getState() != Job.RUNNING && getState() != Job.WAITING;
+    }
+
     protected void shutdown() {
         cancel();
         taskQueue.clear();
