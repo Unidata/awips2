@@ -125,6 +125,36 @@ public class JobPool {
         return workQueue.remove(runnable);
     }
 
+    /**
+     * A JobPool is considered active if any of the jobs it contains are running
+     * or waiting to be run. When all scheduled work is run
+     * 
+     * @return
+     */
+    public boolean isActive() {
+        if (!workQueue.isEmpty()) {
+            return true;
+        }
+        for (Job job : jobList) {
+            int state = job.getState();
+            if (state == Job.RUNNING || state == Job.WAITING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * get the number of tasks(Runnables) that are waiting to be run. This does
+     * not include tasks that are currently running so even if there are no
+     * waiting tasks the pool may still be active.
+     * 
+     * @return
+     */
+    public int getWorkRemaining() {
+        return workQueue.size();
+    }
+
     protected class PooledJob extends Job {
 
         public PooledJob(String name) {
