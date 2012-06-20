@@ -289,17 +289,10 @@ public class GFEColorbarResource extends
         }.run();
     }
 
-    @SuppressWarnings("unchecked")
     public GFEColorbarResource(DataManager dManager) {
         super(new GFEResourceData(), new LoadProperties());
         this.dManager = dManager;
         fittedParms = new HashSet<ParmID>();
-        // this.lastIndex = -1;
-
-        dManager.getSpatialDisplayManager().addDisplayModeChangedListener(this);
-        dManager.getParmManager().addDisplayedParmListChangedListener(this);
-
-        Message.registerInterest(this, ShowQuickViewDataMsg.class);
     }
 
     /*
@@ -353,8 +346,14 @@ public class GFEColorbarResource extends
      * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
      * IGraphicsTarget)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        dManager.getSpatialDisplayManager().addDisplayModeChangedListener(this);
+        dManager.getParmManager().addDisplayedParmListChangedListener(this);
+
+        Message.registerInterest(this, ShowQuickViewDataMsg.class);
+
         colorbarScaleFont = GFEFonts.makeGFEIFont(target, "ColorBarScale_font",
                 1);
         colorbarWxLabelFont = GFEFonts.makeGFEIFont(target,
