@@ -1,5 +1,6 @@
 %define _component_name           awips2-edex-hydro
 %define _component_project_dir    awips2.edex/Installer.edex-hydro
+%define _component_zip            com.raytheon.uf.edex.hydro.feature-edex.zip
 #
 # AWIPS II Edex Hydro Spec File
 #
@@ -39,26 +40,20 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex
+if [ -d ${RPM_BUILD_ROOT} ]; then
+   rm -rf ${RPM_BUILD_ROOT}
+fi
+mkdir -p ${RPM_BUILD_ROOT}
 
 %build
 
 %install
-DEPLOY_SCRIPT="build.edex/deploy-install.xml"
+path_to_zip=${WORKSPACE_DIR}/Installer.rpm/awips2.edex/setup/dist
 
-# Deploy Edex To Our Temporary Build Directory.
-
-ANT_EXE="/awips2/ant/bin/ant"
-if [ ! -f ${ANT_EXE} ]; then
-   echo "ERROR: awips2-ant Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
-
-${ANT_EXE} -file ${WORKSPACE_DIR}/${DEPLOY_SCRIPT} \
-   -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/edex \
-   -Dinstaller=true -Dlocal.build=false \
-   -Dcomponent.to.deploy=edex-hydro
+pushd . > /dev/null 2>&1
+cd ${path_to_zip}
+unzip %{_component_zip} -d ${RPM_BUILD_ROOT}  
+popd > /dev/null 2>&1
 
 %pre
 if [ "${1}" = "2" ]; then
