@@ -43,7 +43,10 @@ then
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex
+if [ -d ${RPM_BUILD_ROOT} ]; then
+   rm -rf ${RPM_BUILD_ROOT}
+fi
+mkdir -p ${RPM_BUILD_ROOT}
 
 %build
 #---------------------------------------------------------------------------#
@@ -56,7 +59,12 @@ copyApplicableDeltas ${RPM_BUILD_ROOT} %{_component_name} \
 #---------------------------------------------------------------------------#
 
 %install
+path_to_zip=${WORKSPACE_DIR}/Installer.rpm/awips2.edex/setup/dist
 
+pushd . > /dev/null 2>&1
+cd ${path_to_zip}
+unzip %{_component_zip} -d ${RPM_BUILD_ROOT}  
+popd > /dev/null 2>&1
 
 %pre
 if [ "${1}" = "2" ]; then
