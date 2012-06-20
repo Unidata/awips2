@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -934,6 +935,8 @@ public abstract class AbstractMapVectorResource extends
                     if (combineOperation != CombineOperation.NONE) {
                         contourGroup.paint(target, paintProps);
                     }
+                } else {
+                    updatePaintStatus(PaintStatus.INCOMPLETE);
                 }
             } else {
                 AbstractGriddedDisplay<?> display = this.gdManagerJob
