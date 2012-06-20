@@ -49,7 +49,7 @@ copyApplicableDeltas ${RPM_BUILD_ROOT} %{_component_name} \
 #---------------------------------------------------------------------------#
 
 %install
-DEPLOY_SCRIPT="build.edex/deploy-install.xml"
+DEPLOY_SCRIPT="build.edex/deploy-common/deploy-esb-configuration.xml"
 
 # Deploy Edex To Our Temporary Build Directory.
 
@@ -62,13 +62,15 @@ if [ ! "${RC}" = "0" ]; then
    exit 1
 fi
 
-ANT_EXE=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-ant`
-ANT_EXE="${ANT_EXE}/bin/ant"
+ANT_EXE="/awips2/ant/bin/ant"
 
 ${ANT_EXE} -file ${WORKSPACE_DIR}/${DEPLOY_SCRIPT} \
-   -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/edex \
-   -Dinstaller=true -Dlocal.build=false \
-   -Dcomponent.to.deploy=edex-configuration
+   -Desb.overwrite=true \
+   -Desb.directory=${WORKSPACE_DIR}/build.edex/esb \
+   -Dedex.root.directory=${RPM_BUILD_ROOT}/awips2/edex
+if [ $? -ne 0 ]; then
+   exit 1
+fi
    
 %pre
 if [ "${1}" = "2" ]; then
