@@ -78,25 +78,17 @@ public class AzimuthRangeMapProjection extends ObliqueStereographic {
         return super.inverseTransformNormalized(x, y, dest);
     }
 
-    protected double normalizeAngle(double rangeLow, double rangeHigh,
-            double angle) {
-        while (angle < rangeLow) {
-            angle += 360;
-        }
-        while (angle > rangeHigh) {
-            angle -= 360;
-        }
-        return angle;
-    }
-
     @Override
     protected Point2D transformNormalized(double lon, double lat, Point2D dest)
             throws ProjectionException {
         Point2D tmp = new Point2D.Double();
         super.transformNormalized(lon, lat, tmp);
-        double azimuth = Math.toDegrees(Math.atan2(tmp.getX(), tmp.getY()));
-        double range = scaleFactor * semiMajor
-                * Math.hypot(tmp.getX(), tmp.getY());
+        double x = tmp.getX();
+        double y = tmp.getY();
+        double azimuth = Math.toDegrees(Math.atan2(x, y));
+        // Math.hypot is more accurate than the sqrt approach but much much
+        // slower.
+        double range = scaleFactor * semiMajor * Math.sqrt(x * x + y * y);
         if (dest != null) {
             dest.setLocation(azimuth, range);
             return dest;
