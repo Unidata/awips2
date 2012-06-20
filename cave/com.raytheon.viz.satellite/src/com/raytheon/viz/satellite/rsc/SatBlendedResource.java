@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -190,7 +191,10 @@ public class SatBlendedResource extends
                                 paintProps);
                         rscProps.setDataTime(timeForRsc);
                         rscProps.setAlpha(1.0f);
-                        rsc.paint(target, rscProps);
+                        PaintStatus paintStatus = rsc.paint(target, rscProps);
+                        if (paintStatus != PaintStatus.PAINTED) {
+                            updatePaintStatus(paintStatus);
+                        }
                     }
                 }
             }
