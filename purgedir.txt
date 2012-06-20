@@ -1,5 +1,0 @@
-edexOsgi/com.raytheon.edex.plugin.grib/src/com/raytheon/edex/plugin/grib/spatial/GribSpatialCache.java
-edexOsgi/com.raytheon.edex.plugin.text/src/com/raytheon/edex/plugin/text/dao/TextDao.java
-edexOsgi/com.raytheon.uf.edex.purgesrv/src/com/raytheon/uf/edex/purgesrv/PurgeDao.java
-edexOsgi/com.raytheon.uf.edex.purgesrv/src/com/raytheon/uf/edex/purgesrv/PurgeJob.java
-edexOsgi/com.raytheon.uf.edex.purgesrv/src/com/raytheon/uf/edex/purgesrv/PurgeManager.java
