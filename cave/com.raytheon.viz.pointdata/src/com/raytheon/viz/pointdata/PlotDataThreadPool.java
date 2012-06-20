@@ -174,6 +174,15 @@ public class PlotDataThreadPool {
         }
     }
 
+    public boolean isDone() {
+        for (PlotModelDataRequestJob job : jobList) {
+            if (!job.isDone()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void shutdown() {
         stationQueue.clear();
         for (PlotModelDataRequestJob job : jobList) {
