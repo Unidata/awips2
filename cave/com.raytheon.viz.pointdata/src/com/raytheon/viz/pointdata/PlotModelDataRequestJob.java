@@ -186,8 +186,8 @@ public class PlotModelDataRequestJob extends Job {
                 }
             }
         }
-        
-        if(!params.contains("dataURI")){
+
+        if (!params.contains("dataURI")) {
             params.add("dataURI");
         }
 
@@ -332,6 +332,11 @@ public class PlotModelDataRequestJob extends Job {
 
     public void setPlotMissingData(boolean b) {
         this.plotCreator.setPlotMissingData(b);
+    }
+
+    public boolean isDone() {
+        return getState() != Job.RUNNING && getState() != Job.WAITING
+                && generatorJob.isDone();
     }
 
     public void shutdown() {
