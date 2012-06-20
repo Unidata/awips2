@@ -337,6 +337,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
         for (IInitListener listener : initListeners) {
             listener.inited(this);
         }
+        issueRefresh();
     }
 
     /**
@@ -441,7 +442,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
                 initJob = new InitJob(target);
                 initJob.schedule();
             }
-            issueRefresh();
+            updatePaintStatus(PaintStatus.INCOMPLETE);
             break;
         }
         case LOADING: {
@@ -453,19 +454,21 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
                 initJob = null;
                 throw e;
             }
-            issueRefresh();
+            updatePaintStatus(PaintStatus.INCOMPLETE);
             break;
         }
         case INITIALIZED: {
             // We have initialized successfully, now time to paint
             try {
-                paintStatus = PaintStatus.PAINTED;
+                updatePaintStatus(PaintStatus.PAINTING);
                 paintInternal(target, paintProps);
             } catch (VizException e) {
-                paintStatus = PaintStatus.ERROR;
+                updatePaintStatus(PaintStatus.ERROR);
                 throw e;
             }
-
+            if (paintStatus == PaintStatus.PAINTING) {
+                updatePaintStatus(PaintStatus.PAINTED);
+            }
             for (IPaintListener listener : paintListeners) {
                 listener.painted(this);
             }
@@ -710,6 +713,10 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
                 listener.statusChanged(oldStatus, newStatus, this);
             }
         }
+    }
+
+    public PaintStatus getPaintStatus() {
+        return paintStatus;
     }
 
     /**
