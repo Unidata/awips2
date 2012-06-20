@@ -190,7 +190,6 @@ buildRPM "Installer.notification"
 buildRPM "Installer.pypies"
 buildRPM "Installer.rcm"
 buildRPM "Installer.localapps-environment"
-buildRPM "Installer.xmpp"
 
 unset AWIPSII_VERSION
 unset AWIPSII_RELEASE
