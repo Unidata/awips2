@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingleColorImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
@@ -206,6 +207,11 @@ public class PlotResource2 extends
                     paintProps.getDataTime(),
                     descriptor.pixelToWorld(paintProps.getView().getExtent(),
                             descriptor.getCRS()), descriptor.getCRS());
+        }
+
+        if (!progressiveDisclosure.isDone() || !generator.isDone()
+                || frameRetrievalPool.isActive()) {
+            updatePaintStatus(PaintStatus.INCOMPLETE);
         }
 
         this.updateRecords();
