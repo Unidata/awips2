@@ -43,6 +43,7 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -556,26 +557,18 @@ public class RedbookFrame implements IRenderable {
 
         if (!symbols) {
             IFont font = redbookResource.getRenderingFont();
-            Rectangle2D bounds = target.getStringBounds(font, s);
+            DrawableString dstring = new DrawableString(s, this.redbookResource
+                    .getCapability(ColorableCapability.class).getColor());
+            dstring.setCoordinates(x, y);
+            dstring.font = font;
+            dstring.horizontalAlignment = HorizontalAlignment.LEFT;
+            dstring.verticallAlignment = top ? VerticalAlignment.TOP
+                    : VerticalAlignment.BOTTOM;
+            Rectangle2D bounds = target.getStringsBounds(dstring);
             if (blanked) {
-                double yext = y + bounds.getHeight() * yRatio * (top ? 1 : -1);
-                PixelExtent pe = new PixelExtent(x, x + bounds.getWidth()
-                        * xRatio, Math.min(y, yext) + yRatio, Math.max(y, yext)
-                        + yRatio);
-                target.drawShadedRect(pe, new RGB(0, 0, 0),
-                        paintProps.getAlpha(), null);
+                dstring.textStyle = TextStyle.BLANKED;
             }
-            target.drawString(
-                    font,
-                    s,
-                    x,
-                    y,
-                    0.0,
-                    TextStyle.NORMAL,
-                    this.redbookResource.getCapability(
-                            ColorableCapability.class).getColor(),
-                    HorizontalAlignment.LEFT, top ? VerticalAlignment.TOP
-                            : VerticalAlignment.BOTTOM, null);
+            target.drawStrings(dstring);
             return bounds.getWidth() * xRatio;
         } else {
             double width = s.length() * 12 * xRatio * magnification;
