@@ -32,6 +32,7 @@ import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
@@ -86,6 +87,8 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
     protected Map<DataTime, Set<GribRecord>> yRecords = new HashMap<DataTime, Set<GribRecord>>();
 
     private Unit<?> unit;
+
+    private CoordinateReferenceSystem crs;
 
     /*
      * (non-Javadoc)
@@ -250,21 +253,6 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
                     if (xVal <= -9999) {
                         continue;
                     }
-                    // these cases handle rotating a vector to be oriented
-                    // towards the north pole rather than the up direction of a
-                    // grid.
-                    if (c == 0) {
-                        speed = xVal;
-                    } else if (c == 1) {
-                        direction = xVal - 180
-                                + MapUtil.rotation(coordinates[i], area);
-                        xVal = (float) direction;
-                        direction = Math.toRadians(direction);
-                    } else if (c == 2) {
-                        xVal = (float) (-speed * Math.sin(direction));
-                    } else if (c == 3) {
-                        xVal = (float) (-speed * Math.cos(direction));
-                    }
                     dataLists.get(c).add(new XYData(xVal, yVal));
                 }
             }
@@ -292,6 +280,7 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
         super.addRecord(pdo);
         if (pdo != null && pdo instanceof GribRecord) {
             unit = ((GribRecord) pdo).getModelInfo().getParameterUnitObject();
+            crs = ((GribRecord) pdo).getSpatialObject().getCrs();
         }
         yRecords.remove(pdo.getDataTime());
     }
@@ -353,6 +342,14 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
             yParameter = descriptor.getHeightScale().getParameter();
             yRecords.clear();
         }
+    }
+
+    @Override
+    public CoordinateReferenceSystem getDataCoordinateReferenceSystem() {
+        if (crs == null) {
+            return super.getDataCoordinateReferenceSystem();
+        }
+        return crs;
     }
 
 }
