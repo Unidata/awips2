@@ -109,6 +109,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Mar 31, 2011            njensen     Initial creation
  * Oct 31, 2011            Qinglu Lin  Call convertAlaskaLons() for eventLocation.
  * May  9, 2012   14887    Qinglu Lin  Changed one argument passed to calculatePortion().
+ * May 31, 2012   15047    Qinglu Lin  Added additional logic to canOrExpCal for CAN and EXP.
  * 
  * </pre>
  * 
@@ -348,7 +349,7 @@ public class TemplateRunner {
                 context.put("event", eventTime);
                 context.put("start", oldWarn.getStartTime().getTime());
                 context.put("expire", oldWarn.getEndTime().getTime());
-                Calendar canOrExpCal = (Calendar) oldWarn.getEndTime().clone();
+                Calendar canOrExpCal = Calendar.getInstance();
                 canOrExpCal.add(Calendar.MINUTE, 10);
                 canOrExpCal.add(Calendar.MILLISECOND, 1);
                 context.put(
@@ -576,7 +577,8 @@ public class TemplateRunner {
                 + (System.currentTimeMillis() - tz0));
 
         return WarningTextHandler.handle(script.toString().toUpperCase(),
-                areas, cancelareas, selectedAction,
+                areas, cancelareas, selectedAction, 
+                WarningAction.valueOf((String) context.get("action")),
                 config.getAutoLockText());
     }
 

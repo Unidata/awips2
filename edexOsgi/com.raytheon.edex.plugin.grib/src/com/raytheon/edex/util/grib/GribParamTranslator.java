@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
+import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
@@ -110,6 +111,11 @@ public class GribParamTranslator {
             if (newName != null) {
                 return newName;
             }
+        }
+        String newName = DataFieldTableLookup.getInstance().lookupName(
+                model.getParameterAbbreviation());
+        if (newName != null) {
+            return newName;
         }
         return model.getParameterName();
     }
