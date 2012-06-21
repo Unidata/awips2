@@ -243,7 +243,8 @@ class Procedure (SmartScript.SmartScript):
         modelTR_cum = self.getModelTimeRange(modelID, "prob34", weNames)
         weNames = ["pwsD34", "pwsD64", "pwsN34", "pwsN64"]        
         modelTR_inc = self.getModelTimeRange(modelID, "pws34", weNames)
-
+        if modelTR_cum is None or len(modelTR_cum) < 3:
+            return
         timeRange = modelTR_cum[0]
         minTime = modelTR_cum[1]
         maxTime = modelTR_cum[2]

@@ -40,6 +40,7 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
+import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -160,8 +161,10 @@ public class D2DParmIdCache {
             } else if (parmName.equalsIgnoreCase("staticCoriolis")) {
                 parmStr = parmStr.replace("staticcoriolis", "staticCoriolis");
             } else {
-                parmStr = parmStr.replaceFirst(parmId.getParmName(), parmId
-                        .getParmName().toLowerCase());
+                parmStr = parmStr.replaceFirst(
+                        parmId.getParmName(),
+                        DataFieldTableLookup.getInstance().lookupCdlName(
+                                parmId.getParmName()));
             }
             parmIds.get(parmId.getDbId().toString()).add(parmStr);
         }
