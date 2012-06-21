@@ -1855,8 +1855,10 @@
 
 
 	<extension id="com.raytheon.viz.ui.bindings" point="org.eclipse.ui.bindings">
-		<key commandId="com.raytheon.viz.gfe.toggleLegend" schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-			sequence="NUMPAD_ENTER">
+		<key commandId="com.raytheon.viz.gfe.toggleLegend" 
+		     schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+			 sequence="NUMPAD_ENTER"
+			 contextId="com.raytheon.viz.gfe.GFEShortCutContext">
 		</key>
 
 	</extension>
@@ -2048,14 +2050,17 @@
        <contextId
              id="com.raytheon.viz.gfe.GFEContext">
        </contextId>
-       <contextId
-             id="com.raytheon.viz.gfe.GFEShortCutContext">
-       </contextId>
     </classContext>
     <classContext
           class="com.raytheon.viz.gfe.GridManagerView">
        <contextId
              id="com.raytheon.viz.ui.loopContext">
+       </contextId>
+    </classContext>
+    <classContext
+          class="com.raytheon.viz.gfe.perspective.GFEContextActivator">
+       <contextId
+             id="com.raytheon.viz.gfe.GFEShortCutContext">
        </contextId>
     </classContext>
  </extension>
