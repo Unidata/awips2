@@ -21,8 +21,8 @@ package com.raytheon.viz.aviation.utility;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -35,21 +35,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.tafqueue.ServerResponse;
-import com.raytheon.uf.common.tafqueue.TafQueueRecord.TafQueueState;
-import com.raytheon.uf.common.tafqueue.TafQueueRequest;
-import com.raytheon.uf.common.tafqueue.TafQueueRequest.Type;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.avnconfig.HelpUsageDlg;
-import com.raytheon.viz.avnconfig.IStatusSettable;
 import com.raytheon.viz.avnconfig.MessageStatusComp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
-import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
  * TransmissionQueueDlg class displays the Transmission Queue dialog for AvnFPS.
@@ -59,7 +52,6 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
- * 14 MAY 2012  14715      rferrel     Use EDEX to perform requests.
  * 
  * </pre>
  * 
@@ -68,26 +60,6 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 
  */
 public class TransmissionQueueDlg extends CaveSWTDialog {
-    private static String helpText = "This dialog is used to manage transmission and transmission log files.\n\n"
-            + "The top area manages the forecast files written by the forecast editor.\n"
-            + "The 'Files' scrolled list window lists files in one of 'pending', 'sent'\n"
-            + "and 'bad' directories. The time is when the file was written. The file\n"
-            + "name is \n"
-            + "    xxx-CCCCNNNXXX-yymmddHHMM-BBB\n"
-            + "where xxx is the forecaster number. The transmission program \n"
-            + "avnxmitserv uses NNN to determine the transmission window for regular\n"
-            + "forecasts.\n\n"
-            + "The bottom area is used to view transmission log files.  There is one\n"
-            + "file for each day of the week. By default, log files for the current day\n"
-            + "are shown.\n\nButtons:\n"
-            + "   Refresh:    refreshes both the directory list and log file windows.\n"
-            + "   View:       allows to view selected transmission file(s)\n"
-            + "   Remove:     deletes transmission files\n"
-            + "   Retransmit: forces the transmission program to send selected files.\n"
-            + "               If the file is in the 'bad' or 'sent' directory, it is \n"
-            + "               moved back to 'pending'. The transmission time (the last\n"
-            + "               part of the file name) is updated to the current time.\n"
-            + "   Help:       displays this window";
 
     /**
      * Pending radio button.
@@ -105,16 +77,9 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
     private Button badRdo;
 
     /**
-     * Button to retransmit selected sent or bad records.
-     */
-    private Button retransmitBtn;
-
-    /**
      * Transmission list control.
      */
-    private ToggleSelectList transList;
-
-    private java.util.List<String> transListId;
+    private List transList;
 
     /**
      * Transmission day control.
@@ -135,19 +100,14 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
             "Wednesday", "Thursday", "Friday", "Saturday" };
 
     /**
-     * The Selected day of the week Calendar day of the week value.
+     * Selected day of the week.
      */
-    private int selectedDay;
+    private String selectedDay;
 
     /**
      * Main composite.
      */
     private Composite mainComp;
-
-    /**
-     * Message status composite.
-     */
-    private IStatusSettable msgStatComp;
 
     /**
      * Constructor.
@@ -176,8 +136,6 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         GridLayout gl = new GridLayout(1, true);
         mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(gl);
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        mainComp.setLayoutData(gd);
 
         // Initialize all of the controls and layouts
         initializeComponents();
@@ -187,7 +145,8 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
      * Initialize the components on the display.
      */
     private void initializeComponents() {
-        selectedDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        int dayInt = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+        selectedDay = dayOfWeek[dayInt - 1];
 
         ResourceConfigMgr configMgr = ResourceConfigMgr.getInstance();
         configMgr.setDefaultColors(mainComp);
@@ -203,7 +162,6 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         createMessageControl(configMgr);
 
         populateData();
-        updateDayTransList();
     }
 
     /**
@@ -240,7 +198,6 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 populateData();
-                updateDayTransList();
             }
         });
 
@@ -252,7 +209,25 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         viewBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                viewTafs();
+                int idx = transList.getSelectionIndex();
+
+                if (idx >= 0) {
+                    String tafInfo = transList.getItem(idx);
+                    TransmissionQueue queue = TransmissionQueue.getInstance();
+                    String tafText = null;
+
+                    if (pendingRdo.getSelection()) {
+                        tafText = queue.getPendingText(tafInfo);
+                    } else if (sentRdo.getSelection()) {
+                        tafText = queue.getSentText(tafInfo);
+                    } else if (badRdo.getSelection()) {
+                        tafText = queue.getErrorText(tafInfo);
+                    }
+
+                    TransmissionViewerDlg tvd = new TransmissionViewerDlg(
+                            shell, tafText, tafInfo);
+                    tvd.open();
+                }
             }
         });
 
@@ -260,33 +235,42 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         Button removeBtn = new Button(buttonComp, SWT.PUSH);
         removeBtn.setLayoutData(gd);
         removeBtn.setText("Remove");
-        removeBtn.setToolTipText("Delete selected forecast");
         configMgr.setDefaultFontAndColors(removeBtn);
         removeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                MessageBox questionMB = new MessageBox(shell, SWT.ICON_WARNING
-                        | SWT.YES | SWT.NO);
-                questionMB.setText("Remove Pending Transmission");
-                questionMB
-                        .setMessage("Are you sure you want to remove this pending transmission from the queue?");
-                int result = questionMB.open();
+                TransmissionQueue queue = TransmissionQueue.getInstance();
 
-                if (result == SWT.YES) {
-                    removeSelected();
+                if (pendingRdo.getSelection()) {
+                    MessageBox questionMB = new MessageBox(shell,
+                            SWT.ICON_WARNING | SWT.YES | SWT.NO);
+                    questionMB.setText("Remove Pending Transmission");
+                    questionMB
+                            .setMessage("Are you sure you want to remove this pending transmission from the queue?");
+                    int result = questionMB.open();
+
+                    if (result == SWT.YES) {
+                        queue.remove(transList.getItem(transList
+                                .getSelectionIndex()));
+                        populateData();
+                    }
                 }
             }
         });
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        retransmitBtn = new Button(buttonComp, SWT.PUSH);
+        Button retransmitBtn = new Button(buttonComp, SWT.PUSH);
         retransmitBtn.setLayoutData(gd);
         retransmitBtn.setText("Retransmit");
         configMgr.setDefaultFontAndColors(retransmitBtn);
         retransmitBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                retransmit();
+                TransmissionQueue queue = TransmissionQueue.getInstance();
+                queue.retransmit(
+                        transList.getItem(transList.getSelectionIndex()),
+                        badRdo.getSelection());
+                populateData();
             }
         });
 
@@ -298,138 +282,13 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         helpBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+                String text = "This dialog is used to manage transmission and to transmission log files.\n\nThe top area is to manage forecast files written by the forecast editor.\nThe 'Files' scrolled list window lists files in one of 'pending', 'sent'\nand 'bad' directories. The time is when the file was written. The file\nname is \n    xxx-CCCCNNNXXX-yymmddHHMM-BBB\nwhere xxx is the forecaster number. The transmission program \navnxmitserv uses NNN to determine the transmission window for regular \nforecasts.\n\nThe bottom area is used to view transmission log files.  There is one \nfile for each day of the week. By default, log files for the current day \nare shown.\n\nButtons:\n   Refresh:    refreshes both the directory list and log file windows.\n   View:       allows to view selected transmission file(s)\n   Remove:     deletes transmission files\n   Retransmit: forces the transmission program to send selected files.\n               If the file is in the 'bad' or 'sent' directory, it is \n               moved back to 'pending'. The transmission time (the last\n           part of the file name) is updated to the current time.\n   Help:       displays this window";
                 String description = "Help";
                 HelpUsageDlg usageDlg = new HelpUsageDlg(shell, description,
-                        helpText);
+                        text);
                 usageDlg.open();
             }
         });
-    }
-
-    /**
-     * Action method to request the selected records be immediately transmitted.
-     */
-    @SuppressWarnings("unchecked")
-    private void retransmit() {
-        int[] indices = transList.getSelectionIndices();
-        if (indices.length == 0) {
-            return;
-        }
-        java.util.List<String> idList = new ArrayList<String>(indices.length);
-        for (int index : indices) {
-            idList.add(transListId.get(index));
-        }
-        TafQueueRequest request = new TafQueueRequest();
-        request.setType(Type.RETRANSMIT);
-        request.setState(getDisplayState());
-        request.setArgument(idList);
-
-        try {
-            ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
-                    .sendRequest(request);
-            int color = SWT.COLOR_GREEN;
-            if (response.isError()) {
-                color = SWT.COLOR_RED;
-            }
-            msgStatComp.setMessageText(response.getMessages().get(0),
-                    getParent().getDisplay().getSystemColor(color).getRGB());
-            populateTransList(response.getPayload());
-        } catch (VizException e) {
-            msgStatComp.setMessageText(e.getMessage(), getParent().getDisplay()
-                    .getSystemColor(SWT.COLOR_RED).getRGB());
-        }
-
-    }
-
-    /**
-     * Determine the state of the records being viewed.
-     * 
-     * @return state
-     */
-    private TafQueueState getDisplayState() {
-        TafQueueState state = TafQueueState.PENDING;
-        if (sentRdo.getSelection()) {
-            state = TafQueueState.SENT;
-        } else if (badRdo.getSelection()) {
-            state = TafQueueState.BAD;
-        }
-        return state;
-    }
-
-    /**
-     * This brings up the TAF viewer and populates it with the selected records.
-     */
-    @SuppressWarnings("unchecked")
-    private void viewTafs() {
-        int[] indices = transList.getSelectionIndices();
-        if (indices.length == 0) {
-            return;
-        }
-
-        java.util.List<String> idList = new ArrayList<String>(indices.length);
-        for (int index : indices) {
-            idList.add(transListId.get(index));
-        }
-
-        TafQueueRequest request = new TafQueueRequest();
-        request.setType(Type.GET_TAFS);
-        request.setArgument(idList);
-        ServerResponse<String> response = null;
-        try {
-            response = (ServerResponse<String>) ThriftClient
-                    .sendRequest(request);
-            String tafText = response.getPayload();
-
-            String tafInfo = null;
-            if (indices.length == 1) {
-                tafInfo = transList.getItem(indices[0]);
-            } else {
-                tafInfo = "Viewing multiple forecasts";
-            }
-
-            TransmissionViewerDlg tvd = new TransmissionViewerDlg(shell,
-                    tafText, tafInfo);
-            tvd.open();
-        } catch (VizException e) {
-            msgStatComp.setMessageText(e.getMessage(), getParent().getDisplay()
-                    .getSystemColor(SWT.COLOR_RED).getRGB());
-        }
-
-    }
-
-    /**
-     * Action to perform to remove the selected records from being displayed.
-     * This updates the database and repopulates the list.
-     */
-    @SuppressWarnings("unchecked")
-    private void removeSelected() {
-        int[] indices = transList.getSelectionIndices();
-        if (indices.length == 0) {
-            return;
-        }
-        java.util.List<String> idList = new ArrayList<String>(indices.length);
-        for (int index : indices) {
-            idList.add(transListId.get(index));
-        }
-        TafQueueRequest request = new TafQueueRequest();
-        request.setType(Type.REMOVE_SELECTED);
-        request.setState(getDisplayState());
-        request.setArgument(idList);
-
-        try {
-            ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
-                    .sendRequest(request);
-            populateTransList(response.getPayload());
-            int color = SWT.COLOR_GREEN;
-            if (response.isError()) {
-                color = SWT.COLOR_RED;
-            }
-            msgStatComp.setMessageText(response.getMessages().get(0),
-                    getParent().getDisplay().getSystemColor(color).getRGB());
-        } catch (VizException e) {
-            msgStatComp.setMessageText(e.getMessage(), getParent().getDisplay()
-                    .getSystemColor(SWT.COLOR_RED).getRGB());
-        }
     }
 
     /**
@@ -457,36 +316,36 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         directoryGroup.setLayoutData(gd);
         configMgr.setDefaultFontAndColors(directoryGroup);
 
-        SelectionAdapter adapter = new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                Button button = (Button) event.getSource();
-                if (button.getSelection()) {
-                    retransmitBtn.setEnabled((Boolean) button.getData());
-                    populateData();
-                }
-            }
-        };
-
         gd = new GridData(85, SWT.DEFAULT);
         pendingRdo = new Button(directoryGroup, SWT.RADIO);
         configMgr.setDefaultFontAndColors(pendingRdo, "pending", gd);
-        pendingRdo.addSelectionListener(adapter);
-        pendingRdo.setData(false);
+        pendingRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                populateData();
+            }
+        });
 
         gd = new GridData(85, SWT.DEFAULT);
         sentRdo = new Button(directoryGroup, SWT.RADIO);
         sentRdo.setSelection(true);
-        retransmitBtn.setEnabled(true);
         configMgr.setDefaultFontAndColors(sentRdo, "sent", gd);
-        sentRdo.addSelectionListener(adapter);
-        sentRdo.setData(true);
+        sentRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                populateData();
+            }
+        });
 
         gd = new GridData(85, SWT.DEFAULT);
         badRdo = new Button(directoryGroup, SWT.RADIO);
         configMgr.setDefaultFontAndColors(badRdo, "bad", gd);
-        badRdo.addSelectionListener(adapter);
-        badRdo.setData(true);
+        badRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                populateData();
+            }
+        });
 
         // -------------------------------------------------
         // Create right side label and transmission list
@@ -508,11 +367,10 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.widthHint = 600;
         gd.heightHint = 150;
-        transList = new ToggleSelectList(transListComp, SWT.BORDER | SWT.MULTI
+        transList = new List(transListComp, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL | SWT.H_SCROLL);
         transList.setLayoutData(gd);
         configMgr.setListBoxFont(transList);
-        transListId = new ArrayList<String>();
     }
 
     /**
@@ -526,29 +384,22 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         dayOfWeekComp.setLayoutData(gd);
         configMgr.setDefaultColors(dayOfWeekComp);
 
-        SelectionAdapter adapter = new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                Button dayRdo = (Button) event.getSource();
-                if (dayRdo.getSelection()) {
-                    selectedDay = (Integer) dayRdo.getData();
-                    updateDayTransList();
-                }
-            }
-        };
-
-        for (int index = 0; index < dayOfWeek.length; ++index) {
-            String day = dayOfWeek[index];
+        for (String day : dayOfWeek) {
             gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-            Button dayRdo = new Button(dayOfWeekComp, SWT.RADIO);
+            final Button dayRdo = new Button(dayOfWeekComp, SWT.RADIO);
             dayRdo.setText(day);
-            // The Calendar.SUNDAY, MONDAY, etc.
-            dayRdo.setData(index + 1);
+            dayRdo.setData(day);
             dayRdo.setLayoutData(gd);
             configMgr.setDefaultFontAndColors(dayRdo);
-            dayRdo.addSelectionListener(adapter);
+            dayRdo.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent event) {
+                    selectedDay = (String) dayRdo.getData();
+                    updateDayTransList();
+                }
+            });
 
-            if (day.compareTo(dayOfWeek[selectedDay - 1]) == 0) {
+            if (day.compareTo(selectedDay) == 0) {
                 dayRdo.setSelection(true);
             }
         }
@@ -567,7 +418,7 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         dayLbl = new Label(transAttemptComp, SWT.CENTER);
-        dayLbl.setText(dayOfWeek[selectedDay - 1]);
+        dayLbl.setText(selectedDay);
         dayLbl.setLayoutData(gd);
         configMgr.setDefaultFontAndColors(dayLbl);
 
@@ -580,104 +431,83 @@ public class TransmissionQueueDlg extends CaveSWTDialog {
         transStText.setEditable(false);
         transStText.setLayoutData(gd);
         configMgr.setTextEditorFontAndColors(transStText);
+        updateDayTransList();
     }
 
     /**
      * Create the message status composite.
      */
     private void createMessageControl(ResourceConfigMgr configMgr) {
-        msgStatComp = new MessageStatusComp(mainComp,
-                configMgr.getDefaultBackgroundRGB(),
+        new MessageStatusComp(mainComp, configMgr.getDefaultBackgroundRGB(),
                 configMgr.getMsgBarBackground());
     }
 
     /**
      * Update the transmission day list.
      */
-    @SuppressWarnings("unchecked")
     private void updateDayTransList() {
-        TafQueueRequest request = new TafQueueRequest();
-        request.setType(Type.GET_LOG);
-        List<Date> dateList = new ArrayList<Date>(2);
+        TransmissionQueue queue = TransmissionQueue.getInstance();
+        ArrayList<String> display = null;
+        Calendar c = Calendar.getInstance();
+        HashMap<String, String> calendar = new HashMap<String, String>();
+        String year = Integer.toString(c.get(Calendar.YEAR));
+        String month = Integer.toString(c.get(Calendar.MONTH) + 1);
+        String day = Integer.toString(c.get(Calendar.DATE));
+        String date = year + month + day;
+        calendar.put(dayOfWeek[c.get(Calendar.DAY_OF_WEEK) - 1], date);
 
-        dayLbl.setText(dayOfWeek[selectedDay - 1]);
-        // Adjust currentDay to start of the day
-        Calendar currentDay = Calendar.getInstance();
-        currentDay.set(Calendar.HOUR_OF_DAY, 0);
-        currentDay.set(Calendar.MINUTE, 0);
-        currentDay.set(Calendar.SECOND, 0);
-        currentDay.set(Calendar.MILLISECOND, 0);
-
-        // Adjust selected day to current or previous week.
-        Calendar selectedDayStart = Calendar.getInstance();
-        selectedDayStart.setTime(currentDay.getTime());
-        selectedDayStart.set(Calendar.DAY_OF_WEEK, selectedDay);
-        if (currentDay.compareTo(selectedDayStart) < 0) {
-            selectedDayStart.add(Calendar.DAY_OF_MONTH, -7);
+        for (int i = 1; i < 7; i++) {
+            c.add(Calendar.DATE, -1);
+            year = Integer.toString(c.get(Calendar.YEAR));
+            month = Integer.toString(c.get(Calendar.MONTH) + 1);
+            day = Integer.toString(c.get(Calendar.DATE));
+            date = year + month + day;
+            calendar.put(dayOfWeek[c.get(Calendar.DAY_OF_WEEK) - 1], date);
         }
-        dateList.add(selectedDayStart.getTime());
 
-        // Determine start of next day.
-        Calendar selectedDayEnd = Calendar.getInstance();
-        selectedDayEnd.setTime(selectedDayStart.getTime());
-        selectedDayEnd.add(Calendar.DAY_OF_MONTH, 1);
-        dateList.add(selectedDayEnd.getTime());
-        request.setArgument(dateList);
+        dayLbl.setText(selectedDay);
+        System.out.println(selectedDay);
 
-        try {
-            ServerResponse<String> response = (ServerResponse<String>) ThriftClient
-                    .sendRequest(request);
-            String text = response.getPayload();
-            transStText.setText(text);
-        } catch (VizException e) {
-            msgStatComp.setMessageText(e.getMessage(), getParent().getDisplay()
-                    .getSystemColor(SWT.COLOR_RED).getRGB());
+        display = queue.getLog();
+        String txt = "";
+
+        if (display.size() == 1 && display.get(0).startsWith("Error")) {
+            txt = display.get(0);
+        } else {
+            for (String str : display) {
+                String today = calendar.get(selectedDay);
+                String[] bits = str.split(",");
+
+                if (today.equals(bits[0])) {
+                    txt += bits[1] + "\n";
+                }
+            }
         }
+
+        transStText.setText(txt);
     }
 
     /**
      * Populate the top text area with a list of TAF messages that have been
-     * successfully sent, are pending transmission, or have failed.
+     * successfuly sent, are pending transmission, or have failed.
      */
-    @SuppressWarnings("unchecked")
     private void populateData() {
+        TransmissionQueue queue = TransmissionQueue.getInstance();
         transList.removeAll();
-        transListId.clear();
+        ArrayList<String> display = null;
 
-        try {
-            TafQueueRequest request = new TafQueueRequest();
-            request.setType(Type.GET_LIST);
-
-            request.setState(getDisplayState());
-
-            ServerResponse<java.util.List<String>> response = (ServerResponse<java.util.List<String>>) ThriftClient
-                    .sendRequest(request);
-            if (response.isError()) {
-                msgStatComp.setMessageText(response.getMessages().get(0),
-                        getParent().getDisplay().getSystemColor(SWT.COLOR_RED)
-                                .getRGB());
-            }
-            populateTransList(response.getPayload());
-        } catch (VizException e) {
-            msgStatComp.setMessageText(e.getMessage(), getParent().getDisplay()
-                    .getSystemColor(SWT.COLOR_RED).getRGB());
+        if (pendingRdo.getSelection()) {
+            display = queue.getPending();
+        } else if (sentRdo.getSelection()) {
+            display = queue.getSent();
+        } else if (badRdo.getSelection()) {
+            display = queue.getErrors();
         }
-    }
 
-    /**
-     * This takes the payload list of strings and splits them up into the
-     * display list and a hidden list of record ids. Assumes each entry is of
-     * the format: record_id,record_info.
-     * 
-     * @param payload
-     */
-    private void populateTransList(java.util.List<String> payload) {
-        transList.removeAll();
-        transListId.clear();
-        for (String record : payload) {
-            String[] bits = record.split(",");
-            transListId.add(bits[0]);
-            transList.add(bits[1]);
+        Collections.sort(display);
+
+        for (String str : display) {
+            transList.add(str);
         }
     }
 }

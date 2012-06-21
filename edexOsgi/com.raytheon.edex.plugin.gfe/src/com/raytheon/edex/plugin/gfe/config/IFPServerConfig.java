@@ -137,8 +137,6 @@ public class IFPServerConfig {
 
     private GridLocation _domain;
 
-    private Map<String, String> _netCDFDirs;
-
     private Map<String, String> _satDirs;
 
     private int _tableFetchTime;
@@ -434,7 +432,6 @@ public class IFPServerConfig {
 
         _tableFetchTime = config.tableFetchTime;
         _satDirs = config.satDirs;
-        _netCDFDirs = config.netCDFDirs;
         _prdDir = config.prdDir;
         _logFilePurgeAfter = config.logFilePurgeAfter;
         _initMethods = config.initMethods;
@@ -762,10 +759,6 @@ public class IFPServerConfig {
 
     public Map<String, String> satDirs() {
         return _satDirs;
-    }
-
-    public Map<String, String> netCDFDirs() {
-        return _netCDFDirs;
     }
 
     public GridLocation dbDomain() {

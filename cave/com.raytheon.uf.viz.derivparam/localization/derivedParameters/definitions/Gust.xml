@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DerivedParameter unit="m/s" name="Wind Gust" abbreviation="Gust" xmlns:ns2="group">
+<DerivedParameter unit="kn" name="Wind Gust" abbreviation="Gust" xmlns:ns2="group">
     <Method name="Vector" levels="Surface" models="obs">
         <Field level="Station" abbreviation="windGust"/>
         <Field abbreviation="WD"/>
         <ConstantField value="1.0"/>
     </Method>
     <Method name="Vector">
-        <Field abbreviation="uGust" unit="m/s"/>
-        <Field abbreviation="vGust" unit="m/s"/>
+        <Field abbreviation="uGust"/>
+        <Field abbreviation="vGust"/>
     </Method>
     <Method name="Vector">
-        <Field abbreviation="WGS" unit="m/s"/>
+        <Field abbreviation="WGS"/>
         <Field abbreviation="WGD"/>
         <ConstantField value="1.0"/>
     </Method>
     <Method name="Vector">
-        <Field abbreviation="WGS" unit="m/s"/>
+        <Field abbreviation="WGS"/>
         <Field abbreviation="WD"/>
         <ConstantField value="1.0"/>
     </Method>
     <Method name="Vector">
         <Field abbreviation="uW"/>
         <Field abbreviation="vW"/>
-        <Field abbreviation="WGS" unit="m/s"/>
+        <Field abbreviation="WGS"/>
     </Method>
 </DerivedParameter>

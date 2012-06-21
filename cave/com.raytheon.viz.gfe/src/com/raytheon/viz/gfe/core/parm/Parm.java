@@ -929,14 +929,6 @@ public abstract class Parm implements Comparable<Parm> {
     }
 
     /**
-     * Sends a grid history updated notification to all parm clients. The time
-     * range of the updated history is given.
-     */
-    protected void sendGridHistoryUpdatedNotification(final TimeRange tr) {
-        this.parmListeners.fireGridHistoryUpdatedListener(this, tr);
-    }
-
-    /**
      * Command to start a parm edit sequence for the given time. This routine is
      * used for grid and point modification routines (GridData and PointData).
      * The programmer must call this routine before any modifications are made
@@ -4532,16 +4524,6 @@ public abstract class Parm implements Comparable<Parm> {
      */
     public abstract void inventoryArrived(final TimeRange affectedTimeRange,
             final Map<TimeRange, List<GridDataHistory>> histories);
-
-    /**
-     * Method called when notification of updated history arrives
-     * 
-     * @param histories
-     */
-    public void historyUpdateArrived(
-            Map<TimeRange, List<GridDataHistory>> histories) {
-        // do nothing default implementation
-    }
 
     /**
      * Updates the lock table with an updated version due to notifications

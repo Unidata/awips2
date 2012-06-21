@@ -54,9 +54,10 @@ class ProcessVariableList:
     ## The following arguments are no longer used but remain part of the signature for compatibility reasons
     ##  * parent - not needed
     ##  * modal - similar functionality is achieved by setting or not setting a callback
-    ##  * dataMgr - required for model and D2D_model widgets
+    ##  * dbSubsystem - not needed, see TODO
     ##  * cmdLineVarDict - not needed, see TODO
     ##
+    ##  TODO evaluate cmdLineVarDict and determine if it is really not needed
     ##  TODO dbSubsytem may be needed when implementing the model and D2D_model widgets
     ##  
     ##  @param title: str() of the title of the dialog that will appear
@@ -67,7 +68,7 @@ class ProcessVariableList:
     ##  @param argList: list() of arguments to pass to the callback function
     ## 
     def __init__(self, title, varList, varDict=None, parent=None,
-                 dataMgr=None, modal=1, runCB=None, argList=[],
+                 dbSubsystem=None, modal=1, runCB=None, argList=[],
                  cmdLineVarDict=None):
 
         self.__varDict = varDict    
@@ -79,7 +80,7 @@ class ProcessVariableList:
         widgetList = buildWidgetList(varList)
 
         # Construct the dialog
-        self.__dialog = ValuesDialog.openDialog(title, widgetList, dataMgr)
+        self.__dialog = ValuesDialog.openDialog(title, widgetList)
         #self.__dialog = ValuesDialog(title,widgetList)
         
         # since ValuesDialog blocks on open() we can set status and varDict here

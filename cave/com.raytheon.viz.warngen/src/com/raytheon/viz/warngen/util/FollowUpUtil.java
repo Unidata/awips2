@@ -21,7 +21,6 @@ package com.raytheon.viz.warngen.util;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,9 +30,6 @@ import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.warngen.gis.AffectedAreas;
-import com.raytheon.viz.warngen.gis.GisUtil;
-import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 
 /**
  * This utility will provide methods for determining what followup products are
@@ -64,7 +60,7 @@ public class FollowUpUtil {
      * This method checks whether a particular followup should be available
      * given a Warning Record, a vtec Action, and a template configuration
      */
-    public static boolean checkApplicable(String site, WarngenConfiguration config,
+    public static boolean checkApplicable(WarngenConfiguration config,
             AbstractWarningRecord record, WarningAction action) {
 
         // Current Time
@@ -83,6 +79,7 @@ public class FollowUpUtil {
             }
         }
         if (valueCheck) {
+            boolean isNewProduct = false;
             for (String s : config.getFollowUps()) {
                 WarningAction act = WarningAction.valueOf(s);
                 if (act == action
@@ -90,15 +87,37 @@ public class FollowUpUtil {
                         && act != WarningAction.COR) {
                     rval = true;
                 }
+                if (act == WarningAction.NEW) {
+                    isNewProduct = true;
+                }
             }
-            if (action == WarningAction.COR && checkCorApplicable(site, config, record)) {
-                rval = true;
+            if (action == WarningAction.COR) {
+                WarningAction recordAct = WarningAction
+                        .valueOf(record.getAct());
+                if (isNewProduct
+                        && getTimeRange(action, record).contains(cal.getTime())) {
+                    rval = true;
+                } else if (!isNewProduct && (recordAct != WarningAction.NEW)
+                        && (recordAct != WarningAction.COR)
+                        && (recordAct != WarningAction.EXT)) {
+                    rval = true;
+                }
             }
         }
         return rval;
     }
-    
-    private static boolean checkCorApplicable(String site, WarngenConfiguration config, AbstractWarningRecord warnRec) {
+
+    /**
+     * Check whether or not a given Warning Record satisfies the requirements to
+     * be correctible given the selected template
+     */
+    public static ArrayList<AbstractWarningRecord> checkCorApplicable(
+            WarngenConfiguration config,
+            List<AbstractWarningRecord> correctableWarnings,
+            List<AbstractWarningRecord> currentWarnings) {
+
+        ArrayList<AbstractWarningRecord> list = new ArrayList<AbstractWarningRecord>();
+
         boolean allowsCONProduct = false;
         boolean allowsCORProduct = false;
         for (String s : config.getFollowUps()) {
@@ -111,35 +130,43 @@ public class FollowUpUtil {
         }
 
         if (allowsCORProduct == false) {
-            return false;
+            return list;
         }
-        
-        CurrentWarnings cw = CurrentWarnings.getInstance(site);
-        List<AbstractWarningRecord> correctableWarnings = cw.getCorrectableWarnings(warnRec);
-        
-        boolean wasContinued = false;
-        for (AbstractWarningRecord w : correctableWarnings) {
-            if (WarningAction.valueOf(w.getAct()) == WarningAction.CON) {
-                wasContinued = true;
+
+        // Adding a COR option for continuation follow ups
+        if (allowsCONProduct) {
+            for (AbstractWarningRecord warnRec : correctableWarnings) {
+                if (WarningAction.valueOf(warnRec.getAct()) == WarningAction.CON) {
+                    list.add(warnRec);
+                }
+            }
+        } else {
+            for (AbstractWarningRecord warnRec : correctableWarnings) {
+                boolean valid = false;
+                if (WarningAction.valueOf(warnRec.getAct()) == WarningAction.NEW
+                        || WarningAction.valueOf(warnRec.getAct()) == WarningAction.EXT) {
+                    valid = true;
+                    for (AbstractWarningRecord w : currentWarnings) {
+                        WarningAction act = WarningAction.valueOf(w.getAct());
+                        if (warnRec.getEtn().equals(w.getEtn())
+                                && warnRec.getPhensig().equals(w.getPhensig())
+                                && (act == WarningAction.CAN
+                                        || act == WarningAction.CON || act == WarningAction.EXP)) {
+                            valid = false;
+                        }
+                    }
+                }
+
+                if (valid) {
+                    list.add(warnRec);
+                }
             }
         }
-        
-        // Adding a COR option for continuation follow ups
-        if (correctableWarnings.isEmpty() == false && ((allowsCONProduct && wasContinued) 
-                || (allowsCONProduct == false && wasContinued == false))) {
-            return true;
-        }
-        
-        return false;
+
+        return list;
     }
 
-    /**
-     * Returns the raw message of the record but removes 
-     * the first wmoid and the pil (the first two lines of the warning)
-     * @param record
-     * @return
-     */
-    public static String originalText(AbstractWarningRecord record) {
+    public static String getSpecialCorText(AbstractWarningRecord record) {
 
         String originalMessage = record.getRawmessage();
 
@@ -168,126 +195,6 @@ public class FollowUpUtil {
         }
 
         return originalMessage;
-    }
-    
-    /**
-     * Returns a list of the canceled areas from the original text
-     * @param originalText
-     * @return
-     */
-    public static ArrayList<AffectedAreas> canceledAreasFromText(String originalText) {        
-        boolean ugcdone = false;
-        boolean namedone = false;
-        boolean insideHeadline = false;
-        String ugcLine = "";
-        String namesLine = "";
-        String headline = "";
-        for (String line : originalText.trim().split("\n")) {
-            if (line.contains("TEST") || line.trim().length() == 0) {
-                continue;
-            }
-            
-            Matcher m = WarningTextHandler.ugcPtrn.matcher(line);
-            if (!ugcdone && m.find()) {
-                ugcLine += m.group();
-                continue;
-            } else if (ugcLine.length() > 0) {
-                ugcdone = true;
-            }
-            
-            m = WarningTextHandler.listOfAreaNamePtrn.matcher(line);
-            if (!namedone && m.find()) {
-                namesLine += m.group();
-                continue;
-            } else if (namesLine.length() > 0) {
-                namedone = true;
-            }
-            
-            if (line.startsWith("...")) {
-                headline += line.substring(3);
-                insideHeadline = true;
-            } else if (insideHeadline) {
-                
-                if (line.trim().endsWith("...")) {
-                    headline += line.substring(0,line.length() - 3);
-                    insideHeadline = false;
-                    break;
-                }
-                headline += line;
-            }
-        }
-        String[] ugcs = ugcLine.split("-");
-        String[] names = namesLine.split("-");
-        String[] areas = headline.split("\\.\\.\\.");
-        
-        ArrayList<AffectedAreas> al = new ArrayList<AffectedAreas>();
-        
-        String stateAbbreviation = null;
-        String areaNotation = null;
-        String areasNotation = null;
-        String fips = null;
-        String name = null;
-        List<String> partOfArea = null;
-        for (int i = 0; i < ugcs.length; i++) {
-            AffectedAreas affectedArea = new AffectedAreas();
-            String ugc = ugcs[i].trim();
-            if (ugc.length() == 6) {
-                stateAbbreviation = ugc.substring(0,2);
-                if (ugc.charAt(2) == 'Z') {
-                    areaNotation = "ZONE";
-                    areasNotation = "ZONES";
-                } else {
-                    areaNotation = "COUNTY";
-                    areasNotation = "COUNTIES";
-                }
-            }
-            
-            fips = ugc.substring(ugc.length() - 3);
-            
-            if (i < names.length) {
-                name = names[i].substring(0, names[i].length()-3);
-            }
-            
-            if (name != null) {
-                for (String area : areas) {
-                    if (area.contains(name)) {
-                        EnumSet<Direction> set = EnumSet.noneOf(Direction.class);
-                        for (Direction direction : Direction.values()) {
-                            if (area.contains(direction.name())) {
-                                set.add(direction);
-                            }
-                        }
-                        partOfArea = GisUtil.asStringList(set);
-                        break;
-                    }
-                }
-            }
-            
-            affectedArea.setFips(fips);
-            affectedArea.setStateabbr(stateAbbreviation);
-            affectedArea.setAreaNotation(areaNotation);
-            affectedArea.setAreasNotation(areasNotation);
-            affectedArea.setName(name);
-            affectedArea.setPartOfArea(partOfArea);
-            al.add(affectedArea);
-        }
-
-        return al;
-    }
-    
-    public static String getUgcLineCanFromText(String originalText) {
-        String ugcLine = "";
-        for (String line : originalText.trim().split("\n")) {            
-            Matcher m = WarningTextHandler.ugcPtrn.matcher(line);
-            if (m.find()) {
-                ugcLine += line;
-                continue;
-            } else if (ugcLine.length() > 0) {
-                break;
-            }
-        }
-        
-        return ugcLine;
     }
 
     /**

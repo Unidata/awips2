@@ -31,7 +31,6 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
@@ -103,17 +102,11 @@ public class StormTrackUIManager extends InputAdapter {
             container.registerMouseHandler(this);
         }
 
-        VizApp.runAsync(new Runnable() {
+        Display display = Display.getCurrent();
 
-            @Override
-            public void run() {
-                Display display = getShell().getDisplay();
-                movePolygon = display.getSystemCursor(SWT.CURSOR_SIZEALL);
-                movePoint = display.getSystemCursor(SWT.CURSOR_HAND);
-                arrow = display.getSystemCursor(SWT.CURSOR_ARROW);
-            }
-        });
-
+        movePolygon = new Cursor(display, SWT.CURSOR_SIZEALL);
+        movePoint = new Cursor(display, SWT.CURSOR_HAND);
+        arrow = new Cursor(display, SWT.CURSOR_ARROW);
     }
 
     public void dispose() {
@@ -122,6 +115,9 @@ public class StormTrackUIManager extends InputAdapter {
             container.unregisterMouseHandler(this);
         }
 
+        movePolygon.dispose();
+        movePoint.dispose();
+        arrow.dispose();
     }
 
     /**

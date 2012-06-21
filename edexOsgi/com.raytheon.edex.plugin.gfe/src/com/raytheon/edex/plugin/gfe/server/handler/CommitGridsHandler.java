@@ -99,26 +99,30 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
             }
 
             try {
-                // check for sending to ISC
                 IFPServerConfig serverConfig = IFPServerConfigManager
                         .getServerConfig(siteID);
                 String iscrta = serverConfig.iscRoutingTableAddress().get(
                         "ANCF");
-                if (sr.isOkay() && iscrta != null
-                        && serverConfig.sendiscOnPublish() && clientSendStatus
-                        && serverConfig.requestISC()) {
+                if (serverConfig.requestISC() && !commits.isEmpty()
+                        && iscrta != null) {
                     for (GridUpdateNotification change : changes) {
                         // ensure Official database
                         if (change.getParmId().getDbId().getModelName()
                                 .equals("Official")
                                 && change.getParmId().getDbId().getDbType()
                                         .isEmpty()) {
-                            // queue them
-                            IscSendRecord sendReq = new IscSendRecord(
-                                    change.getParmId(),
-                                    change.getReplacementTimeRange(), "",
-                                    serverConfig.sendiscOnPublish());
-                            IscSendQueue.sendToQueue(Arrays.asList(sendReq));
+                            if (clientSendStatus) {
+                                IscSendRecord sendReq = new IscSendRecord(
+                                        change.getParmId(),
+                                        change.getReplacementTimeRange(), "",
+                                        serverConfig.sendiscOnPublish());
+                                IscSendQueue
+                                        .sendToQueue(Arrays.asList(sendReq));
+                            }
+                        } else {
+                            logger.info("Not Official: "
+                                    + change.getParmId().getDbId()
+                                            .getModelName());
                         }
                     }
                 }

@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.gfe.isc;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -215,9 +214,12 @@ public class IscSendQueue {
                     JobSetQueueKey key = new JobSetQueueKey(job.getParmID(),
                             IscSendState.PENDING);
                     List<IscSendRecord> pending = jobSet.get(key);
+                    boolean found = false;
                     if (pending != null) {
-                        mergeTime(pending, job);
-                    } else {
+                        found = mergeTime(pending, job.getTimeRange());
+                    }
+
+                    if (!found) {
                         addToJobSetQueue(job);
                     }
                 }
@@ -225,35 +227,20 @@ public class IscSendQueue {
         }
     }
 
-    private void mergeTime(List<IscSendRecord> pending, IscSendRecord toMerge) {
-        // insert the time range and sort by time range
-        pending.add(toMerge);
-        Collections.sort(pending, new Comparator<IscSendRecord>() {
-
-            @Override
-            public int compare(IscSendRecord o1, IscSendRecord o2) {
-                return o1.getTimeRange().compareTo(o2.getTimeRange());
-            }
-        });
-
-        // Now combine time ranges if we can
-        int i = 0;
-        while (i <= pending.size() - 2) {
-            TimeRange time = pending.get(i).getTimeRange();
-            TimeRange time1 = pending.get(i + 1).getTimeRange();
-
-            if ((time.overlaps(time1)) || (time.isAdjacentTo(time1))) {
-                // combine the time ranges
-                TimeRange combinedTR = time.join(time1);
-                pending.get(i).setTimeRange(combinedTR);
-                pending.remove(i + 1);
-                // we don't increment i, because we want to check the new one
-                // next
-            } else {
-                // nothing to do but increment i
-                i++;
+    private boolean mergeTime(List<IscSendRecord> pending,
+            TimeRange replacementTR) {
+        for (IscSendRecord record : pending) {
+            TimeRange origTimeRange = record.getTimeRange();
+            if (replacementTR.overlaps(origTimeRange)
+                    || replacementTR.isAdjacentTo(origTimeRange)) {
+                TimeRange combinedTR = replacementTR.join(origTimeRange);
+                record.setTimeRange(combinedTR);
+                record.setInsertTime(new Date());
+                return true;
             }
         }
+
+        return false;
     }
 
     private void removeTime(List<IscSendRecord> records, TimeRange replacementTR) {
@@ -472,84 +459,68 @@ public class IscSendQueue {
         mergeCrit.add(Restrictions.allEq(critMap));
 
         List<IscSendRecord> possibleMerges = mergeCrit.list();
-        boolean continueMerging = true;
-        boolean merged = false;
-        while (continueMerging) {
-            continueMerging = false;
+        for (IscSendRecord rec : possibleMerges) {
+            TimeRange trToMerge = record.getTimeRange();
+            TimeRange trExisting = rec.getTimeRange();
+            if (trToMerge.isAdjacentTo(trExisting)
+                    || trToMerge.overlaps(trExisting)) {
+                IscSendRecord oldRecord = (IscSendRecord) s.get(
+                        IscSendRecord.class, rec.getKey(), LockOptions.UPGRADE);
+                if (oldRecord != null) {
+                    try {
+                        s.delete(oldRecord);
+                        IscSendRecord newRecord = oldRecord.clone();
+                        TimeRange mergedTR = trExisting.combineWith(trToMerge);
+                        newRecord.setTimeRange(mergedTR);
+                        newRecord.setInsertTime(record.getInsertTime());
 
-            for (int i = possibleMerges.size() - 1; i >= 0; i--) {
-                TimeRange trToMerge = record.getTimeRange();
-                TimeRange trExisting = possibleMerges.get(i).getTimeRange();
-                if ((trToMerge.isAdjacentTo(trExisting))
-                        || (trToMerge.overlaps(trExisting))) {
-                    TimeRange combinedTR = trToMerge.join(trExisting);
-                    record.setTimeRange(combinedTR);
+                        // ensure we have not created a duplicate record by
+                        // merging the time ranges
+                        Criteria dupeCrit = s
+                                .createCriteria(IscSendRecord.class);
+                        Map<String, Object> dupeCritMap = new HashMap<String, Object>(
+                                5);
+                        dupeCritMap.put("parmID", record.getParmID());
+                        dupeCritMap.put("state", record.getState());
+                        dupeCritMap.put("xmlDest", record.getXmlDest());
+                        dupeCritMap.put("timeRange.start", record
+                                .getTimeRange().getStart());
+                        dupeCritMap.put("timeRange.end", record.getTimeRange()
+                                .getEnd());
+                        dupeCrit.add(Restrictions.allEq(critMap));
+                        List<IscSendRecord> dupes = dupeCrit.list();
 
-                    // delete old record from DB and this internal list as its
-                    // time range is now merged into our new record
-                    IscSendRecord recordToDelete = (IscSendRecord) s
-                            .get(IscSendRecord.class, possibleMerges.get(i)
-                                    .getKey(), LockOptions.UPGRADE);
-                    if (recordToDelete != null) {
-                        try {
-                            s.delete(recordToDelete);
-                            possibleMerges.remove(i);
-                            merged = true;
-                            continueMerging = true;
-                        } catch (Exception e) {
-                            handler.handle(Priority.WARN,
-                                    "IscSendRecord merge failed.", e);
+                        boolean foundDupe = false;
+                        for (IscSendRecord dupe : dupes) {
+                            IscSendRecord dupeRecord = (IscSendRecord) s.get(
+                                    IscSendRecord.class, dupe.getKey(),
+                                    LockOptions.UPGRADE);
+                            if (dupeRecord != null) {
+                                Date newInsertTime = newRecord.getInsertTime();
+                                if (dupeRecord.getInsertTime().compareTo(
+                                        newInsertTime) < 0) {
+                                    dupeRecord.setInsertTime(newInsertTime);
+                                }
+                                s.update(dupeRecord);
+                                foundDupe = true;
+                            }
                         }
+
+                        if (!foundDupe) {
+                            s.save(newRecord);
+                        }
+                    } catch (Exception e) {
+                        handler.handle(Priority.WARN,
+                                "IscSendRecord merge failed.", e);
+                        return false;
                     }
+
+                    return true;
                 }
             }
         }
 
-        // ensure we haven't created a dupe record and save to the DB
-        if (merged) {
-            List<IscSendRecord> dupes = Collections.emptyList();
-            try {
-                Criteria dupeCrit = s.createCriteria(IscSendRecord.class);
-                Map<String, Object> dupeCritMap = new HashMap<String, Object>(5);
-                dupeCritMap.put("parmID", record.getParmID());
-                dupeCritMap.put("state", record.getState());
-                dupeCritMap.put("xmlDest", record.getXmlDest());
-                dupeCritMap.put("timeRange.start", record.getTimeRange()
-                        .getStart());
-                dupeCritMap
-                        .put("timeRange.end", record.getTimeRange().getEnd());
-                dupeCrit.add(Restrictions.allEq(dupeCritMap));
-                dupes = dupeCrit.list();
-            } catch (Exception e) {
-                handler.handle(Priority.WARN,
-                        "Failed to retrieve possible duplicate records.", e);
-            }
-
-            try {
-                // because of how our unique constraints are defined, there can
-                // only ever be one possible match to a record
-                if (dupes.isEmpty()) {
-                    s.save(record);
-                } else {
-                    IscSendRecord dupeRecord = (IscSendRecord) s.get(
-                            IscSendRecord.class, dupes.get(0).getKey(),
-                            LockOptions.UPGRADE);
-                    if (dupeRecord != null) {
-                        Date newInsertTime = record.getInsertTime();
-                        if (dupeRecord.getInsertTime().compareTo(newInsertTime) < 0) {
-                            dupeRecord.setInsertTime(newInsertTime);
-                        }
-                        s.update(dupeRecord);
-                    }
-                }
-            } catch (Exception e) {
-                handler.handle(Priority.WARN, "Failed to save merged record.",
-                        e);
-                merged = false;
-            }
-        }
-
-        return merged;
+        return false;
     }
 
     @SuppressWarnings("unchecked")
