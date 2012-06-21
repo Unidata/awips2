@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.rsc.capabilities;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -46,12 +49,26 @@ public class DisplayTypeCapability extends AbstractCapability {
     @XmlAttribute
     private DisplayType displayType = DisplayType.CONTOUR;
 
+    private transient List<DisplayType> alternativeDisplayTypes;
+
     public DisplayType getDisplayType() {
         return displayType;
     }
 
     public void setDisplayType(DisplayType displayType) {
         this.displayType = displayType;
+    }
+
+    public List<DisplayType> getAlternativeDisplayTypes() {
+        if (alternativeDisplayTypes == null) {
+            return Collections.emptyList();
+        }
+        return alternativeDisplayTypes;
+    }
+
+    public void setAlternativeDisplayTypes(
+            List<DisplayType> alternativeDisplayTypes) {
+        this.alternativeDisplayTypes = alternativeDisplayTypes;
     }
 
     /*
