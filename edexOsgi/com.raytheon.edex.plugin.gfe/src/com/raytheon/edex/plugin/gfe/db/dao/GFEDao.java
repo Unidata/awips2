@@ -57,6 +57,7 @@ import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.GridTranslator;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
+import com.raytheon.edex.plugin.grib.util.DataFieldTableLookup;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -718,7 +719,12 @@ public class GFEDao extends DefaultPluginDao {
                         "Error occurred looking up model name mapping", e);
             }
 
-            String abbreviation = id.getParmName().toLowerCase();
+            String abbreviation = DataFieldTableLookup.getInstance()
+                    .lookupDataName(id.getParmName());
+            if (abbreviation == null) {
+                abbreviation = id.getParmName();
+            }
+            abbreviation = abbreviation.toLowerCase();
             Criterion abbrevCrit = Restrictions
                     .and(baseCrit,
                             Restrictions.or(
@@ -969,10 +975,11 @@ public class GFEDao extends DefaultPluginDao {
                     (Double) result.getRowColumnValue(i, "levelonevalue"),
                     (Double) result.getRowColumnValue(i, "leveltwovalue"));
             if (!levelName.equals(LevelFactory.UNKNOWN_LEVEL)) {
-                ParmID newParmId = new ParmID(
-                        ((String) result.getRowColumnValue(i,
-                                "parameterabbreviation")).toLowerCase(), dbId,
-                        levelName);
+                String abbrev = (String) result.getRowColumnValue(i,
+                        "parameterabbreviation");
+                abbrev = DataFieldTableLookup.getInstance().lookupCdlName(
+                        abbrev);
+                ParmID newParmId = new ParmID(abbrev, dbId, levelName);
                 parmIds.add(newParmId);
             }
 

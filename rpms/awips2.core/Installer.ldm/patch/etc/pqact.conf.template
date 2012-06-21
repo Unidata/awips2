@@ -318,6 +318,9 @@ HDS	^(SF(US|PA)41) ([A-Z]{4}) (..)(..)(..)
 IDS|DDPLUS	^([ABCFMNRSUVW][A-Z]{3}[0-9]{2}) ([KPTMC].{3}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
 
+IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+
 
 # AWIPS1:	TEXT	^S[AP]US[78]0.*			/point/metar/Raw
 # SAUS70 KWBC 022216 RRC
