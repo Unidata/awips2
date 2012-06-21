@@ -178,7 +178,7 @@ public class WarningTextHandler {
     }
 
     public static String handle(String originalMessage, AffectedAreas[] areas,
-            AffectedAreas[] canceledAreas, WarningAction action,
+            AffectedAreas[] canceledAreas, WarningAction action, WarningAction action2,
             boolean autoLock) {
         long t0 = System.currentTimeMillis();
         if (action == WarningAction.NEW) {
@@ -208,7 +208,7 @@ public class WarningTextHandler {
             List<AffectedAreas> canceledAreasArr = canceledAreas != null ? Arrays
                     .asList(canceledAreas) : null;
             originalMessage = applyLocks(originalMessage, areasArr,
-                    canceledAreasArr, initialWarning, action);
+                    canceledAreasArr, initialWarning, action2);
         }
 
         originalMessage = removeExtraLines(originalMessage);
