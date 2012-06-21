@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.viz.python.swt.Window;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -94,37 +93,35 @@ public class WrapLengthDialog extends CaveJFACEDialog {
      * 
      * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
      */
-    protected void buttonPressed(int buttonId) {
-        if (buttonId == Window.OK) {
-            // Validate the value in the text field
-            wrapLength = null;
-            try {
-                wrapLength = Integer.valueOf(userText.getText());
-            } catch (NumberFormatException e) {
-                ; // we'll handle it below
-            }
-            String errTxt = null;
-            if (wrapLength == null) {
-                errTxt = "Not an integer.";
-            } else if (wrapLength < MIN_COLUMNS) {
-                errTxt = "Wrap Length must be at least " + MIN_COLUMNS + ".";
-            } else if (wrapLength > MAX_COLUMNS) {
-                errTxt = "Wrap Length cannot be greater than " + MAX_COLUMNS
-                        + ".";
-            }
-            if (errTxt != null) {
-                MessageBox warningDialog = new MessageBox(getShell(), SWT.OK
-                        | SWT.ICON_WARNING | SWT.APPLICATION_MODAL);
-                warningDialog.setText("Illegal value");
-                warningDialog.setMessage(errTxt + "\nPlease try again.");
-                warningDialog.open();
-                userText.selectAll();
-                userText.setFocus();
-                return;
-            }
+    @Override
+    protected void okPressed() {
+        // Validate the value in the text field
+        wrapLength = null;
+        try {
+            wrapLength = Integer.valueOf(userText.getText());
+        } catch (NumberFormatException e) {
+            ; // we'll handle it below
+        }
+        String errTxt = null;
+        if (wrapLength == null) {
+            errTxt = "Not an integer.";
+        } else if (wrapLength < MIN_COLUMNS) {
+            errTxt = "Wrap Length must be at least " + MIN_COLUMNS + ".";
+        } else if (wrapLength > MAX_COLUMNS) {
+            errTxt = "Wrap Length cannot be greater than " + MAX_COLUMNS + ".";
+        }
+        if (errTxt != null) {
+            MessageBox warningDialog = new MessageBox(getShell(), SWT.OK
+                    | SWT.ICON_WARNING | SWT.APPLICATION_MODAL);
+            warningDialog.setText("Illegal value");
+            warningDialog.setMessage(errTxt + "\nPlease try again.");
+            warningDialog.open();
+            userText.selectAll();
+            userText.setFocus();
+            return;
         }
         // If we got here, the dialog will close.
-        super.buttonPressed(buttonId);
+        super.okPressed();
     }
 
     /**
