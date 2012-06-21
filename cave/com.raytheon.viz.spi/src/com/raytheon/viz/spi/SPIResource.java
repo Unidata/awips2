@@ -130,6 +130,9 @@ public class SPIResource extends
 
         font = target.initializeFont(target.getDefaultFont().getFontName(), 10,
                 null);
+        float magnification = getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue();
+        font.setMagnification(magnification);
     }
 
     @Override
@@ -144,17 +147,15 @@ public class SPIResource extends
         double screenToWorldRatio = paintProps.getCanvasBounds().width
                 / paintProps.getView().getExtent().getWidth();
 
-        float magnification = getCapability(MagnificationCapability.class)
-                .getMagnification().floatValue();
-        font.setMagnification(magnification);
         Rectangle2D charSize = target.getStringBounds(font, "N");
         double charWidth = charSize.getWidth();
         double charHeight = charSize.getHeight();
 
+        float magnification = getCapability(MagnificationCapability.class)
+                .getMagnification().floatValue();
         double displayHintSize = this.pixelSizeHint * magnification;
         double minSepDist = (displayHintSize * (metersPerPixel / 1000.0))
                 / getCapability(DensityCapability.class).getDensity();
-        ;
 
         RGB color = getCapability(ColorableCapability.class).getColor();
         double offsetX = charWidth / 2.0 / screenToWorldRatio;
@@ -233,8 +234,8 @@ public class SPIResource extends
         if (type == ChangeType.CAPABILITY) {
             if (object instanceof MagnificationCapability) {
                 if (font != null) {
-                    font.dispose();
-                    font = null;
+                    font.setMagnification(((MagnificationCapability) object)
+                            .getMagnification().floatValue());
                 }
             }
         }
