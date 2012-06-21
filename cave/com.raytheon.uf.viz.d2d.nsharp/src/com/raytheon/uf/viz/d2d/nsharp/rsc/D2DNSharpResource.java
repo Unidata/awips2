@@ -152,10 +152,25 @@ public class D2DNSharpResource extends
             skewRsc.addRsc(myDataMap, stnInfo);
             // Adding to nsharp changes the frame but in D2D we like to keep the
             // current frame.
-            while (picked != null
+            backToPicked : while (picked != null
                     && !skewRsc.getPickedStnInfoStr().equals(picked)) {
-                skewRsc.setSteppingTimeLine(FrameChangeOperation.NEXT,
-                        FrameChangeMode.TIME_AND_SPACE);
+                String initStn = skewRsc.getPickedStnInfoStr().substring(0, 4);
+                do { // for each station...
+                    String initTimePickedStnInfoStr = skewRsc.getPickedStnInfoStr();
+                    do { // ...for each time
+                        skewRsc.setSteppingTimeLine(FrameChangeOperation.NEXT, FrameChangeMode.TIME_ONLY);
+                        // see if we're back home; if so, success
+                        if (skewRsc.getPickedStnInfoStr().equals(picked)) {
+                            break backToPicked;
+                        }
+                        // if we've cycled through all times for this station...
+                    } while (!skewRsc.getPickedStnInfoStr().equals(initTimePickedStnInfoStr));
+                    // ...then go to the next station
+                    skewRsc.setSteppingStnIdList(FrameChangeOperation.NEXT);
+                    // if we've cycled through all stations without a station/time match...
+                } while (!skewRsc.getPickedStnInfoStr().substring(0, 4).equals(initStn));
+                // ...then something is wrong
+                //TODO:  consider logging internal error here? -- original "picked" station/time not found
             }
             issueRefresh();
         }
