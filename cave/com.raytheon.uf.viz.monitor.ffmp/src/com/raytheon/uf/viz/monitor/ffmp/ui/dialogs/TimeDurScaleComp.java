@@ -111,7 +111,7 @@ public class TimeDurScaleComp extends Composite {
     /**
      * Split flag.
      */
-    public boolean split = false;
+    private boolean split = false;
 
     /**
      * Display numbers for the range.

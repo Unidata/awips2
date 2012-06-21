@@ -132,8 +132,6 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
 
         for (int idx : idxs) {
             try {
-                Boolean run = true;
-
                 String name = scriptsList.getItem(idx);
                 String cmd = scriptDict.get(name);
 
@@ -185,42 +183,14 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 // {startTime}
                 // {endTime}
 
-                // The user is prompted for a list of radio button values.
+                // The user is prompted for a list of radiobutton values.
                 // {entryButtons: <name of variable>: <list of values separated
                 // by
                 // commas>}
-                
-                int count = cmd.split("entryButtons").length - 1;                
-                if (count > 0) {
-                	int entryIdx = 0, i = 0, start = 0;
-                    HashMap<String,String[]> map = new HashMap<String,String[]>();
-                    
-                	while (entryIdx != -1) {
-                		entryIdx = cmd.indexOf("{entryButtons:",entryIdx);
-                		if (entryIdx >= 0) {
-                			int endEntryIdx = cmd.indexOf("}", entryIdx);
-                			String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
-                				.split(":");
-                			map.put(entry[1],entry[2].split(","));
-                			if (i == 0) start = entryIdx;
-                			entryIdx=endEntryIdx+1;
-                			i++;
-                		}
-                	
-                		if (entryIdx == -1) {
-                			ButtonEntryDialog buttonDlg = new ButtonEntryDialog(
-                					this.getShell(), name, map);
-                			String returnMsg = buttonDlg.open();
-                			if (returnMsg == null) {
-                				// cancel pressed
-                				run = false;
-                				continue;
-                			}
-                			start = start - 3;
-                            cmd = cmd.substring(0, start) + returnMsg;
-                		}
-                	}
-                }
+                // int entryIdx = cmd.indexOf("{entryButtons:");
+                // if (entryIdx >= 0) {
+                // int endEntryIdx = cmd.indexOf("}", entryIdx);
+                // }
 
                 // The user is prompted for a list of check box values.
                 // {entryChecks: <name of variable>: <list of values separated
@@ -246,7 +216,6 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                     String returnMsg = entryDlg.open();
                     if (returnMsg == null) {
                         // cancel pressed
-                    	run = false;
                         continue;
                     }
                     configFile = returnMsg;
@@ -255,7 +224,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                             + cmd.substring(endEntryIdx + 1);
                 }
 
-                if (run) TaskManager.getInstance().createScriptTask(name, cmd);
+                TaskManager.getInstance().createScriptTask(name, cmd);
 
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),

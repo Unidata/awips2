@@ -68,36 +68,6 @@
             name="100-------------"
             sortID="100"/>
       <contextualMenu
-            actionClass="com.raytheon.viz.ui.cmenu.LoadAsGraphicsAction"
-            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability"
-            name="Load as Graphics"
-            sortID="109">
-      </contextualMenu>
-      <contextualMenu
-            actionClass="com.raytheon.viz.ui.cmenu.LoadAsImageAction"
-            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability"
-            name="Load as Image"
-            sortID="110">
-      </contextualMenu>
-      <contextualMenu
-            actionClass="com.raytheon.viz.ui.cmenu.LoadAsStreamlinesAction"
-            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability"
-            name="Load as Streamlines"
-            sortID="111">
-      </contextualMenu>
-      <contextualMenu
-            actionClass="com.raytheon.viz.ui.cmenu.LoadAsBarbsAction"
-            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability"
-            name="Load as Wind Barbs"
-            sortID="112">
-      </contextualMenu>
-      <contextualMenu
-            actionClass="com.raytheon.viz.ui.cmenu.LoadAsArrowsAction"
-            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability"
-            name="Load as Arrows"
-            sortID="113">
-      </contextualMenu>
-      <contextualMenu
             actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
             name="200-------------"
             sortID="200"/>

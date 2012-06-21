@@ -250,52 +250,6 @@ public class FFMPBasinData implements ISerializableObject {
         }
         return tvalue;
     }
-    
-    /**
-     * Used for mosaic sources
-     * @param pfaf_ids
-     * @param date
-     * @param expiration
-     * @return
-     */
-    public float getAverageMaxValue(ArrayList<Long> pfaf_ids, Date date,
-            long expiration) {
-
-        float tvalue = 0.0f;
-        for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = basins.get(pfaf);
-            if (basin != null) {
-                Float value = basin.getAverageValue(date, expiration);
-                if (value > tvalue) {
-                    tvalue = value;
-                }
-            }
-        }
-        return tvalue;
-    }
-    
-    /**
-     * Used for mosaic sources
-     * @param pfaf_ids
-     * @param date
-     * @param expiration
-     * @return
-     */
-    public float getAverageMaxValue(ArrayList<Long> pfaf_ids, Date afterDate,
-            Date beforeDate) {
-
-        float tvalue = 0.0f;
-        for (Long pfaf : pfaf_ids) {
-            FFMPBasin basin = basins.get(pfaf);
-            if (basin != null) {
-                Float value = basin.getAverageValue(afterDate, beforeDate);
-                if (value > tvalue) {
-                    tvalue = value;
-                }
-            }
-        }
-        return tvalue;
-    }
 
     /**
      * Extracts the Max value for a specific time in an aggregation of basins

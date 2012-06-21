@@ -97,8 +97,8 @@ class Procedure (SmartScript.SmartScript):
 
         trList = []
         for g in gridInfo:
-            start = g.gridTime().startTime().unixTime() * 1000
-            end = g.gridTime().endTime().unixTime() * 1000
+            start = g.gridTime().startTime().unixTime()
+            end = g.gridTime().endTime().unixTime()
             tr = TimeRange.TimeRange(start,end)
             if tr.overlaps(timeRange):
                 trList.append(tr)   

@@ -30,9 +30,6 @@ import com.raytheon.viz.warnings.DateUtil;
  * May 3, 2011            jsanchez     Initial creation
  * Aug 5, 2011            njensen       Refactored maps
  * Aug 22, 2011  10631   njensen  Major refactor
- * May 31, 2012 DR14992  mgamazaychikov Changed the order of strings in the
- * 										String array returned from getText method
- * Jun 04, 2012 DR14992  mgamazaychikov Reversed the previous changes
  * 
  * </pre>
  * 

@@ -986,8 +986,6 @@ D2DDBVERSIONS = {
       "Satellite": 6,
       "HPCERP": 5,
       "TPCProb": 30,
-      "CRMTopo": 1,
-      "NED": 1,
       }
 
 #---------------------------------------------------------------------------
@@ -1117,6 +1115,8 @@ elif SID in CONUS_EAST_SITES:
                  ('HiResW-NMM-East', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+                 #(GFESUITE_HOME + '/data/climo/PRISM'),
+                 #(GFESUITE_HOME + '/data/climo/NCDC'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1166,57 +1166,12 @@ else:   #######DCS3501 WEST_CONUS
                  ('HiResW-NMM-West', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+                 #(GFESUITE_HOME + '/data/climo/PRISM'),
+                 #(GFESUITE_HOME + '/data/climo/NCDC'),
                ]
 
 if SID in GreatLake_SITES:
     D2DMODELS.append(('GRLKwave', 'GLWM'))
-
-#---------------------------------------------------------------------------
-#
-#  Search path for netCDF data files. 
-#  NOTE: This feature was implemented only backward compatibility with existing A1 datasets.
-#        New datasets should be generated in a from that can be ingested by A2
-#        It shoudl only be used for static datasets. 
-#        New files will not be recognized without a server restart. 
-#
-#---------------------------------------------------------------------------
-# Alaska OCONUS
-if SID in ALASKA_SITES:
-    NETCDFDIRS = []
-    
-# Hawaii OCONUS
-elif SID == "HFO":
-    NETCDFDIRS = [('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
-                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
-                  ]
-
-# San Juan OCONUS
-elif SID == "SJU":
-    NETCDFDIRS = [('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
-                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
-                  ]
-    
-
-# Guam OCONUS
-elif SID == "GUM":
-    NETCDFDIRS = []
-    
-#CONUS sites
-elif SID in CONUS_EAST_SITES:
-    NETCDFDIRS = [('/awips2/edex/data/gfe/climo/PRISM'),
-                  ('/awips2/edex/data/gfe/climo/NCDC'),
-                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
-                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
-                  ]
-        
-
-else:   #######DCS3501 WEST_CONUS
-    NETCDFDIRS = [('/awips2/edex/data/gfe/climo/PRISM'),
-                  ('/awips2/edex/data/gfe/climo/NCDC'),
-                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPO','CRMTopo'),
-                  ('/awips2/edex/data/gfe/topo/NED3ARCSTOPONEW','NED'),
-                  ]
-    
 
 #---------------------------------------------------------------------------
 #
@@ -1587,14 +1542,6 @@ if not BASELINE and siteImport('localConfig'):
     localRTMAParms = getattr(localConfig, 'parmsRTMA', localRTMAParms)
     localNamDNG5Parms = getattr(localConfig, 'parmsNamDNG5', localNamDNG5Parms)
     localTPCProbParms = getattr(localConfig, 'parmsTPCProb', localTPCProbParms)
-    localAKwave10Parms = getattr(localConfig, 'parmsAKwave10', localAKwave10Parms)
-    localAKwave4Parms = getattr(localConfig, 'parmsAKwave4', localAKwave4Parms)
-    localEPwave10Parms = getattr(localConfig, 'parmsEPwave10', localEPwave10Parms)
-    localGlobalWaveParms = getattr(localConfig, 'parmsGlobalWave', localGlobalWaveParms)
-    localWCwave10Parms = getattr(localConfig, 'parmsWCwave10', localWCwave10Parms)
-    localWCwave4Parms = getattr(localConfig, 'parmsWCwave4', localWCwave4Parms)
-    localWNAwave10Parms = getattr(localConfig, 'parmsWNAwave10', localWNAwave10Parms)
-    localWNAwave4Parms = getattr(localConfig, 'parmsWNAwave4', localWNAwave4Parms)
 
     #note that extraISCparms are not in the standard format. These
     #are a list of ([p, p, p, p], officeType)
@@ -1885,7 +1832,6 @@ def doIt():
     IFPConfigServer.siteID                  = siteId
     IFPConfigServer.timeZone                = timeZone
     IFPConfigServer.d2dModels               = doConfig.d2dParse(D2DMODELS)
-    IFPConfigServer.netCDFDirs              = doConfig.netcdfParse(NETCDFDIRS)
     IFPConfigServer.satDirs                 = doConfig.parseSat(SATDATA)
     IFPConfigServer.domain                  = domain
 

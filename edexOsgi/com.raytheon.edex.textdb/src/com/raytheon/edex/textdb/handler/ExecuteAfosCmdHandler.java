@@ -34,7 +34,6 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * Feb 2, 2010             njensen     Initial creation
  * Apri 14, 2010 4734      mhuang      Returned StdTextProductContainer object
- * May 23, 2012  14952     rferrel     Added refTime.
  * </pre>
  * 
  * @author njensen
@@ -48,9 +47,10 @@ public class ExecuteAfosCmdHandler implements
     public Object handleRequest(ExecuteAfosCmdRequest request) throws Exception {
         TextDB textdb = new TextDB();
         StdTextProductContainer resp = new StdTextProductContainer();
-        resp.setProductList(textdb.executeAFOSCommand(request.getAfosCommand(),
-                request.getAfosLocale(), request.isOperationalMode(),
-                request.isReftimeMode(), request.getRefTime()));
+        resp
+                .setProductList(textdb.executeAFOSCommand(request
+                        .getAfosCommand(), request.getAfosLocale(), request
+                        .isOperationalMode()));
         return resp;
     }
 

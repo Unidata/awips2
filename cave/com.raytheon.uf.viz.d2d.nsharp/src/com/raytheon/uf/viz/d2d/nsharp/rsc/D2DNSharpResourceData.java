@@ -178,8 +178,8 @@ public abstract class D2DNSharpResourceData extends
             stnInfo.setRangestarttime(fcstTime);
         }
         if (coordinate != null) {
-            stnInfo.setLongitude(coordinate.x);
-            stnInfo.setLatitude(coordinate.y);
+            stnInfo.setLongitude((float) coordinate.x);
+            stnInfo.setLatitude((float) coordinate.y);
         }
         if (pointName != null) {
             stnInfo.setStnDisplayInfo(pointName + " "

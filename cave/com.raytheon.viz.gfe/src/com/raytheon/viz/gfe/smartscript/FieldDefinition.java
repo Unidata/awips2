@@ -22,8 +22,20 @@ package com.raytheon.viz.gfe.smartscript;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
+import com.raytheon.uf.viz.python.swt.widgets.CheckWidget;
+import com.raytheon.uf.viz.python.swt.widgets.LabelWidget;
+import com.raytheon.uf.viz.python.swt.widgets.ListWidget;
+import com.raytheon.uf.viz.python.swt.widgets.NumberWidget;
+import com.raytheon.uf.viz.python.swt.widgets.RadioWidget;
+import com.raytheon.uf.viz.python.swt.widgets.ScaleWidget;
+import com.raytheon.uf.viz.python.swt.widgets.ScrollbarWidget;
+import com.raytheon.uf.viz.python.swt.widgets.TextWidget;
+import com.raytheon.uf.viz.python.swt.widgets.Widget;
+import com.raytheon.viz.gfe.core.DataManager;
+
 /**
- * Contains definitions of entry fields for variable list GUIs
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -99,7 +111,7 @@ public class FieldDefinition {
     private List<? extends Object> valueList;
 
     private float resolution;
-
+    
     private int precision;
 
     public FieldDefinition() {
@@ -173,13 +185,192 @@ public class FieldDefinition {
     public void setResolution(float resolution) {
         this.resolution = resolution;
     }
-
+    
     public void setPrecision(int precision) {
-        this.precision = precision;
+		this.precision = precision;
+	}
+    
+    private int getPrecision() {
+		return precision;
+	}
+
+    public static List<Widget> buildWidgetList(List<FieldDefinition> fieldDefs,
+            DataManager dataMgr) {
+        List<Widget> widgets = new ArrayList<Widget>();
+
+        for (FieldDefinition fieldDef : fieldDefs) {
+            Widget widget = null;
+
+            // TODO: handle unimplemented FieldType values--see TODOs below
+            // Refer to AWIPS 1's SelectionDialog.py body() function for details
+            if (fieldDef.getType() == FieldType.LABEL) {
+                widget = makeLabel(fieldDef.getDescription(),
+                        fieldDef.getDefaultValue());
+            } else if (fieldDef.getType() == FieldType.ALPHANUMERIC
+                    || fieldDef.getType() == FieldType.NUMERIC) {
+                widget = makeEntry(fieldDef.getDescription(),
+                        fieldDef.getDefaultValue(),
+                        (fieldDef.getType() == FieldType.NUMERIC));
+            } else if (fieldDef.getType() == FieldType.CHECK
+                    || fieldDef.getType() == FieldType.RADIO) {
+                widget = makeButtonList(
+                        (fieldDef.getType() == FieldType.RADIO),
+                        fieldDef.getDescription(), fieldDef.getValueList(),
+                        fieldDef.getDefaultValue());
+            } else if (fieldDef.getType() == FieldType.SCALE) {
+                widget = makeScale(fieldDef.getDescription(),
+                        fieldDef.getValueList(), fieldDef.getDefaultValue(),
+                        fieldDef.getResolution(), fieldDef.getPrecision());
+            } else if (fieldDef.getType() == FieldType.SCROLLBAR) {
+                widget = makeScrollbar(fieldDef.getDescription(),
+                        fieldDef.getDefaultValue());
+            } else if (fieldDef.getType() == FieldType.STARTTIME
+                    || fieldDef.getType() == FieldType.ENDTIME
+                    || fieldDef.getType() == FieldType.OUTPUT_DIRECTORY
+                    || fieldDef.getType() == FieldType.OUTPUT_FILE) {
+                // TODO: Implement "startTime", "endTime", "output file" and
+                // "output directory" AWIPS 1 smart script GUI widgets
+            } else if (fieldDef.getType() == FieldType.DATABASE
+                    || fieldDef.getType() == FieldType.DATABASES) {
+                // TODO: Implement "database" and "databases" AWIPS 1 smart
+                // script GUI widgets
+            } else if (fieldDef.getType() == FieldType.MODEL
+                    || fieldDef.getType() == FieldType.MODELS) {
+                List<DatabaseID> models = dataMgr.getParmManager()
+                        .getAvailableDbs();
+                List<String> filteredDbIdList = new ArrayList<String>();
+
+                for (DatabaseID dbId : models) {
+                    if (dbId.getDbType().equals("")
+                            && !(dbId.getModelName().contains("Fcst")
+                                    || dbId.getModelName().contains("Official") || dbId
+                                    .getModelName().contains("Slider"))) {
+                        filteredDbIdList.add(dbId.getModelId());
+                    }
+                }
+
+                widget = makeButtonList(
+                        (fieldDef.getType() == FieldType.MODEL),
+                        fieldDef.getDescription(), filteredDbIdList,
+                        fieldDef.getDefaultValue());
+            } else if (fieldDef.getType() == FieldType.D2DMODEL
+                    || fieldDef.getType() == FieldType.D2DMODELS) {
+                List<DatabaseID> models = dataMgr.getParmManager()
+                        .getAvailableDbs();
+                List<String> filteredDbIdList = new ArrayList<String>();
+
+                for (DatabaseID dbId : models) {
+                    if (dbId.getDbType().equals("D2D")
+                            && !(dbId.getModelName().contains("Fcst")
+                                    || dbId.getModelName().contains("Official") || dbId
+                                    .getModelName().contains("Slider"))) {
+                        filteredDbIdList.add(dbId.getModelId());
+                    }
+                }
+
+                widget = makeButtonList(
+                        (fieldDef.getType() == FieldType.D2DMODEL),
+                        fieldDef.getDescription(), filteredDbIdList,
+                        fieldDef.getDefaultValue());
+            } else if (fieldDef.getType().getPythonWidgetName()
+                    .contains("parm")) {
+                // TODO: Implement all parm-related AWIPS 1 smart script GUI
+                // widgets
+            } else if (fieldDef.getType() == FieldType.REFSET
+                    || fieldDef.getType() == FieldType.REFSETS) {
+                // TODO: Implement "refset" and "refsets" AWIPS 1 smart script
+                // GUI widgets
+            } else if (fieldDef.getType() == FieldType.MAP
+                    || fieldDef.getType() == FieldType.MAPS) {
+                // TODO: Implement "map" and "maps" AWIPS 1 smart script GUI
+                // widgets
+            } else if (fieldDef.getType() == FieldType.TIMERANGE
+                    || fieldDef.getType() == FieldType.TIMERANGES) {
+                // TODO: Implement "timerange" and "timeranges" AWIPS 1 smart
+                // script GUI widgets
+            } else {
+                widget = makeLabel("ERROR: " + fieldDef.getDescription()
+                        + " unknown widget type: "
+                        + fieldDef.getType().getPythonWidgetName(), null);
+            }
+
+            widget.setVariable(fieldDef.getName());
+            widgets.add(widget);
+        }
+
+        return widgets;
     }
 
-    public int getPrecision() {
-        return precision;
+    private static Widget makeLabel(String labelText, Object value) {
+        return new LabelWidget(labelText, value);
     }
 
+    private static Widget makeEntry(String labelText, Object value,
+            boolean numericOnly) {
+        Widget entryField = null;
+
+        if (numericOnly) {
+            entryField = new NumberWidget(labelText);
+        } else {
+            entryField = new TextWidget(labelText);
+        }
+        entryField.setValue(value);
+
+        return entryField;
+    }
+
+    private static Widget makeButtonList(boolean radioButton, String label,
+            List<? extends Object> elementList, Object initialValue) {
+        if (radioButton) {
+            return makeRadioList(label, elementList, initialValue);
+        } else {
+            return makeCheckList(label, elementList, initialValue);
+        }
+    }
+
+    private static Widget makeRadioList(String label,
+            List<? extends Object> elementList, Object initialValue) {
+        Widget radioList;
+        if (elementList.size() < 20) {
+            radioList = new RadioWidget(label);
+        } else {
+            radioList = new ListWidget(label, false);
+        }
+        radioList.setValue(initialValue);
+        radioList.setOptions(elementList);
+
+        return radioList;
+    }
+
+    private static Widget makeCheckList(String label,
+            List<? extends Object> elementList, Object initialValue) {
+        Widget checkList;
+        if (elementList.size() < 20) {
+            checkList = new CheckWidget(label);
+        } else {
+            checkList = new ListWidget(label, true);
+        }
+        checkList.setValue(initialValue);
+        checkList.setOptions(elementList);
+
+        return checkList;
+    }
+
+    private static ScaleWidget makeScale(String labelText,
+            List<? extends Object> valueList, Object initialValue, float res, int precision) {
+        ScaleWidget scale = new ScaleWidget(labelText);
+        scale.setOptions(valueList);
+        scale.setValue(initialValue);
+        scale.setResolution(res);
+        scale.setPrecision(precision);
+
+        return scale;
+    }
+
+    private static Widget makeScrollbar(String label, Object initialValue) {
+        Widget scrollbar = new ScrollbarWidget(label);
+        scrollbar.setValue(initialValue);
+
+        return scrollbar;
+    }
 }
