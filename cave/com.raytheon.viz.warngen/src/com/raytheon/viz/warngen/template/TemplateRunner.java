@@ -212,7 +212,7 @@ public class TemplateRunner {
         context.put("dateUtil", new DateUtil());
         context.put("pointComparator", new ClosestPointComparator());
 
-        String action = followupData != null ? followupData.getAct() : WarningAction.NEW.toString();
+        String action = followupData != null ? followupData.getAct() : null;
         String phen = followupData != null ? followupData.getPhen() : null;
         String sig = followupData != null ? followupData.getSig() : null;
         String etn = followupData != null ? followupData.getEtn() : null;
@@ -244,18 +244,11 @@ public class TemplateRunner {
                 for (AffectedAreas area : areas) {
                     if (area.getTimezone() != null) {
                     	// Handles counties that span two counties
-                        String oneLetterTimeZones = area.getTimezone().trim();
-                        if (oneLetterTimeZones.length() == 1) {
-                            timeZones.add(String.valueOf(oneLetterTimeZones.charAt(0)));
-                        } else {
-                        	for (int i = 0; i < oneLetterTimeZones.length(); i++) {
-                        		String oneLetterTimeZone = String.valueOf(oneLetterTimeZones.charAt(i));
-                        		Geometry timezoneGeom = warngenLayer.getTimezoneGeom(oneLetterTimeZone);
-                        		if (timezoneGeom != null && GeometryUtil.intersects(warningArea, timezoneGeom)) {
-                        		    timeZones.add(oneLetterTimeZone);
-                        		}
-                        	}
-                        }
+                    	for (String oneLetterTimeZone : area.getTimezone().split("")) {
+                    		if (oneLetterTimeZone.length() != 0) {
+                    			timeZones.add(oneLetterTimeZone);
+                    		}
+                    	}
                     }
                 }
 
@@ -328,7 +321,7 @@ public class TemplateRunner {
                 // Convert to Point2D representation as Velocity requires
                 // getX() and getY() methods which Coordinate does not have
                 Coordinate[] newStormLocs = GisUtil
-                        .d2dCoordinates(stormLocs);
+                        .convertAlaskaLons(stormLocs);
                 Point2D.Double[] coords = new Point2D.Double[newStormLocs.length];
                 for (int i = 0; i < newStormLocs.length; i++) {
                     coords[i] = new Point2D.Double(newStormLocs[i].x,
@@ -446,21 +439,10 @@ public class TemplateRunner {
                 Calendar cal = oldWarn.getEndTime();
                 cal.add(Calendar.MILLISECOND, 1);
                 context.put("expire", cal.getTime());
-                String originalText = FollowUpUtil.originalText(oldWarn);
-                m = FollowUpUtil.vtecPtrn.matcher(originalText);
-                int totalSegments = 0;
-                while (m.find()) {
-                    totalSegments++;
-                }
                 if (stormTrackState.originalTrack) {
-                    context.put("originalText", originalText);
+                    context.put("specialCorText",
+                            FollowUpUtil.getSpecialCorText(oldWarn));
                 }
-                ArrayList<AffectedAreas> al = null;
-                if (totalSegments > 1) {
-                    al = FollowUpUtil.canceledAreasFromText(originalText);
-                }
-                context.put("cancel"+ config.getAreaConfig().getVariable(), al);
-                context.put("ugclinecan", FollowUpUtil.getUgcLineCanFromText(originalText));             
             } else if (selectedAction == WarningAction.EXT) {
                 context.put("action", WarningAction.EXT.toString());
                 context.put("etn", etn);
@@ -576,7 +558,8 @@ public class TemplateRunner {
                 + (System.currentTimeMillis() - tz0));
 
         return WarningTextHandler.handle(script.toString().toUpperCase(),
-                areas, cancelareas, selectedAction,
+                areas, cancelareas,
+                WarningAction.valueOf((String) context.get("action")),
                 config.getAutoLockText());
     }
 

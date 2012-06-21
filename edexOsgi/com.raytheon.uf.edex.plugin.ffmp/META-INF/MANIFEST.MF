@@ -19,8 +19,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.monitor.cpg;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.ffmp;bundle-version="1.12.1174",
  com.raytheon.edex.plugin.radar;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
- com.raytheon.uf.common.cache;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
 Import-Package: com.raytheon.edex.plugin.grib,
  com.raytheon.uf.common.dataplugin.grib,
  com.raytheon.uf.common.dataplugin.grib.spatial.projections,

@@ -158,21 +158,10 @@ public class ProjectionData implements ISerializableObject {
             Coordinate latLonUR, Coordinate latLonOrig, float stdPar1,
             float stdPar2, Point gridLL, Point gridUR, float latInt,
             float lonCenter, float lonOrig) {
-        this(projID, ProjectionType.values()[projType], latLonLL, latLonUR,
-                latLonOrig, stdPar1, stdPar2, gridLL, gridUR, latInt,
-                lonCenter, lonOrig);
-
-        init();
-    }
-
-    public ProjectionData(String projID, ProjectionType projType,
-            Coordinate latLonLL, Coordinate latLonUR, Coordinate latLonOrig,
-            float stdPar1, float stdPar2, Point gridLL, Point gridUR,
-            float latInt, float lonCenter, float lonOrig) {
         this();
 
         this.projectionID = projID;
-        this.projectionType = projType;
+        this.projectionType = ProjectionType.values()[projType];
         this.latLonLL = latLonLL;
         this.latLonUR = latLonUR;
         this.latLonOrigin = latLonOrig;

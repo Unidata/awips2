@@ -40,7 +40,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
-import com.raytheon.uf.common.monitor.config.FFMPTemplateConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
 import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
@@ -230,18 +229,41 @@ public class FFMPResourceData extends AbstractRequestableResourceData {
                 this.timeBack = new Date(
                         (long) (mostRecentTime.getRefTime().getTime() - (cfgBasinXML
                                 .getTimeFrame() * 3600 * 1000)));
-                ArrayList<String> hucsToLoad = FFMPTemplateConfigurationManager.getInstance().getHucLevels();
+                ArrayList<String> hucsToLoad = new ArrayList<String>();
+                hucsToLoad.add(ffmpConfig.getFFMPConfigData().getLayer());
+                if (!ffmpConfig.getFFMPConfigData().getLayer().equals("ALL")) {
+                    hucsToLoad.add("ALL");
+                }
+
                 // goes back X hours and pre populates the Data Hashes
                 FFMPDataLoader loader = new FFMPDataLoader(this, timeBack,
                         mostRecentTime.getRefTime(), LOADER_TYPE.INITIAL,
                         hucsToLoad);
                 loader.start();
 
+                int i = 0;
+                // make the table load wait for finish of initial data load
+                while (!loader.isDone) {
+                    try {
+                        // give it 120 or so seconds
+                        if (i > 12000) {
+                            statusHandler
+                                    .handle(Priority.WARN,
+                                            "Didn't load initial data in allotted time, releasing table");
+                            break;
+                        }
+                        Thread.sleep(30);
+                        i++;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             } else {
 
                 SourceXML source = getPrimarySourceXML();
                 this.domains = monitor.getRunConfig().getDomains();
-          
+
                 for (int i = 0; i < objects.length; i++) {
                     FFMPRecord rec = (FFMPRecord) objects[i];
                     rec.setExpiration(source.getExpirationMinutes(siteKey));

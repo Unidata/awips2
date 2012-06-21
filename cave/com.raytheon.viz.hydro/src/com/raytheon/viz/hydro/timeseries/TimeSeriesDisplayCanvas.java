@@ -121,10 +121,9 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 12 July 2011 9709     djingtao     add draw "DERIVED PP"         
  * 25 July 2011 10082    djingtao     modify makeRegions()
  * 10 August 2011 10457  djingtao     allow red rubberband box to be draw for setMissing in Edit
- * 27 March 2012 14527   wkwock       Fix incomplete time series selection issue
+ * 27 March 20112 14527  wkwock       Fix incomplete time series selection issue
  * 24 April 2012 14669   wkwock       Handle invalid color name
  * 08 May   2012 14958   wkwock       Fix overcrowded TS list
- * 30 May   2012 14967   wkwock       Fix incorrect product time
  * @author lvenable
  * @version 1.0
  * 
@@ -1059,19 +1058,17 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 if (!pe.equalsIgnoreCase("PP")) {
 
                     /* Draw the floodstage lines if needed */
-                    if (groupMode) {
-                        if ((pe.toUpperCase().startsWith("H") || pe
-                                .toUpperCase().startsWith("Q"))
-                                && (graphData.getShowcat())) {
-                            displayFloodCatLines(gc, graphData);
-                        }
-                    } else {
-                        if ((pe.toUpperCase().startsWith("H") || pe
-                                .toUpperCase().startsWith("Q"))
-                                && (isFloodLineDisplay())) {
-                            displayFloodCatLines(gc, graphData);
-                        }
-                    }
+                	if (groupMode) {
+	                    if ((pe.toUpperCase().startsWith("H") || pe.toUpperCase()
+	                    		.startsWith("Q")) && (graphData.getShowcat())) {
+	                        displayFloodCatLines(gc, graphData);
+	                    }
+                	} else {
+	                    if ((pe.toUpperCase().startsWith("H") || pe.toUpperCase()
+	                    		.startsWith("Q")) && (isFloodLineDisplay())) {
+	                        displayFloodCatLines(gc, graphData);
+	                    }
+                	}
 
                     /* Draw points and lines */
                     if (pe.equalsIgnoreCase("PP")) {
@@ -1445,7 +1442,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         ts = td.getTs().toUpperCase();
         pe = td.getPe().toUpperCase();
         dur = td.getDur();
-        String ext = td.getExtremum().toUpperCase();
+        String ext = td.getExtremum();
 
         String tablename = DbUtils.getTableName(pe, ts);
 
@@ -2012,8 +2009,6 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     data.setLid(td.getLid());
                     data.setDur(Integer.parseInt(td.getDur()));
                     data.setExtremum(td.getExtremum());
-                    data.setProductTime(td.getProductTime());
-                    data.setValue(new Double(pointArray[i].getY()));
 
                     if (td.getTs().toUpperCase().startsWith("F")
                             || td.getTs().toUpperCase().startsWith("C")) {
@@ -2439,7 +2434,6 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     p.setX(validTime);
                     pbak.setX(validTime);
                     Date productTime = row.getProducttime();
-                    traceData.setProductTime(productTime);
 
                     if ((validTime.getTime() >= beginDate.getTime())
                             && (validTime.getTime() <= endDate.getTime())

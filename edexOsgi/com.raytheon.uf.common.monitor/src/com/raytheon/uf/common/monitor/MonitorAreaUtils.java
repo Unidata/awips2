@@ -284,7 +284,7 @@ public class MonitorAreaUtils {
 	 * @param cwa
 	 * @return
 	 */
-	private static String getZoneEnvelope(String zone) throws Exception {
+	public static String getZoneEnvelope(String zone) throws Exception {
 
 		WKBReader wkbReader = new WKBReader();
 		Geometry geo = null;
@@ -324,7 +324,6 @@ public class MonitorAreaUtils {
 			        + ScanUtils.getStandardResolutionLevel("county") 
 			        + ") from " + MonitorConfigurationManager.COUNTY_TABLE 
 					+ " where state = '" + state + "' and fips like '" + fipsLike + "'";
-
 		}				
 
         ISpatialQuery sq = SpatialQueryFactory.create();
@@ -338,7 +337,7 @@ public class MonitorAreaUtils {
             }
         }
 		
-        return getPolygonText(geo);
+		return getPolygonText(geo.getEnvelope());
 	}
 
 	/**
