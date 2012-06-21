@@ -140,6 +140,7 @@ public class D2DSamplingResource extends SamplingResource implements
                 inspectForced = false;
                 setSampling(false);
                 issueRefresh();
+                return true;
             }
             return false;
         }

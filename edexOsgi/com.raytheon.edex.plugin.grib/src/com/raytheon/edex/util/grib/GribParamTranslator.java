@@ -64,9 +64,6 @@ public class GribParamTranslator {
     /** The map of parameter translations for grib 2 parameters */
     private Map<String, String> grib2Map;
 
-    /** The map of parameter aliases */
-    private Map<String, Map<String, String>> parameterNameMap;
-
     /**
      * Gets the singleton instance
      * 
@@ -94,24 +91,6 @@ public class GribParamTranslator {
         } catch (GribException e) {
             e.printStackTrace();
         }
-
-        try {
-            initParameterAliases();
-        } catch (GribException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String getParameterNameAlias(GribModel model) {
-        Map<String, String> modelMap = parameterNameMap.get(model
-                .getModelName());
-        if (modelMap != null) {
-            String newName = modelMap.get(model.getParameterAbbreviation());
-            if (newName != null) {
-                return newName;
-            }
-        }
-        return model.getParameterName();
     }
 
     /**
@@ -281,19 +260,6 @@ public class GribParamTranslator {
         }
     }
 
-    private void initParameterAliases() throws GribException {
-        parameterNameMap = new HashMap<String, Map<String, String>>();
-        Map<LocalizationLevel, LocalizationFile> files = PathManagerFactory
-                .getPathManager().getTieredLocalizationFile(
-                        LocalizationType.COMMON_STATIC,
-                        "grid" + File.separator + "parameterNameAlias.txt");
-        loadParameterNameAliases(files.get(LocalizationLevel.BASE).getFile());
-        if (files.containsKey(LocalizationLevel.SITE)) {
-            loadParameterNameAliases(files.get(LocalizationLevel.SITE)
-                    .getFile());
-        }
-    }
-
     /**
      * Loads paramter aliases from the grib master lookup file
      * 
@@ -330,50 +296,6 @@ public class GribParamTranslator {
                 } else {
                     grib2Map.put(tokens[0], tokens[tokens.length - 1]);
                 }
-            }
-        } catch (IOException e) {
-            throw new GribException(
-                    "Error processing master grib parameters file", e);
-        }
-
-        try {
-            in.close();
-        } catch (IOException e) {
-            throw new GribException(
-                    "Error processing master grib parameters file", e);
-        }
-    }
-
-    private void loadParameterNameAliases(File lookupFile) throws GribException {
-        BufferedReader in = null;
-        String[] tokens = null;
-        try {
-            in = new BufferedReader(new FileReader(lookupFile));
-            String str;
-
-            /*
-             * Reading in the file
-             */
-            while ((str = in.readLine()) != null) {
-                str = str.trim();
-                if (str.isEmpty() || str.startsWith("//")) {
-                    continue;
-                }
-
-                tokens = str.split("::");
-                if (tokens.length < 3) {
-                    continue;
-                }
-                String modelName = tokens[0].trim();
-                String parameterAbbreviation = tokens[1].trim();
-                String parameterName = tokens[2].trim();
-                if (!parameterNameMap.containsKey(modelName)) {
-                    parameterNameMap.put(modelName,
-                            new HashMap<String, String>());
-                }
-                parameterNameMap.get(modelName).put(parameterAbbreviation,
-                        parameterName);
-
             }
         } catch (IOException e) {
             throw new GribException(

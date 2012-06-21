@@ -46,7 +46,6 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 18, 2011            mschenke     Initial creation
- * 06/01/2012   DR 14555   D. Friedman  Support new version of Velocity.
  * 
  * </pre>
  * 
@@ -106,20 +105,5 @@ public class LocalizationResourceLoader extends FileResourceLoader implements
     @Override
     public synchronized void fileUpdated(FileUpdatedMessage message) {
         fileMap.remove(LocalizationUtil.extractName(message.getFileName()));
-    }
-
-    @Override
-    public boolean resourceExists(String name) {
-        LocalizationFile file = fileMap.get(name);
-        if (file == null || file.exists() == false) {
-            try {
-                file = FileUtil.getLocalizationFile(name, site);
-                file.addFileUpdatedObserver(this);
-            } catch (FileNotFoundException e) {
-                return false;
-            }
-            fileMap.put(name, file);
-        }
-        return true;
     }
 }

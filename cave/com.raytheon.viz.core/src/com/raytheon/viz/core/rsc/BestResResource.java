@@ -226,9 +226,6 @@ public class BestResResource extends
     @Override
     public String inspect(ReferencedCoordinate latLon) throws VizException {
         if (vizResource != null) {
-            Map<AbstractVizResource<?, ?>, DataTime[]> timeMap = descriptor
-                    .getTimeMatchingMap();
-            timeMap.put(vizResource, timeMap.get(this));
             return vizResource.inspect(latLon);
         } else {
             return "";
