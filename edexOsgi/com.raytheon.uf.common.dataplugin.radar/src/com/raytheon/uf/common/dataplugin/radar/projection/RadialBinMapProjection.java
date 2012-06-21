@@ -106,24 +106,48 @@ public class RadialBinMapProjection extends AzimuthRangeMapProjection {
     @Override
     protected Point2D transformNormalized(double lon, double lat, Point2D dest)
             throws ProjectionException {
+        if (dest == null) {
+            dest = new Point2D.Double();
+        }
         Point2D tmp = new Point2D.Double();
         tmp = super.transformNormalized(lon, lat, tmp);
         double az = tmp.getX();
         double ran = tmp.getY();
-        // System.out.println(ran);
-        double radial = Double.NaN;
         double bin = ran / flatBinLength;
-        float nextAngle = normalAngleData[0] + 360;
-        az = normalizeAngle(normalAngleData[0], nextAngle, az);
-        for (int i = normalAngleData.length - 1; i >= 0; i -= 1) {
-            float prevAngle = normalAngleData[i];
-            if (prevAngle <= az && nextAngle > az) {
-                radial = (i) + (az - prevAngle) / (nextAngle - prevAngle);
-                break;
-            }
-            prevAngle = nextAngle;
+        float firstAngle = normalAngleData[0];
+        float lastAngle = normalAngleData[normalAngleData.length - 1];
+        // normalize the range for az
+        while (az < firstAngle) {
+            az += 360;
         }
-        dest.setLocation(radial, bin);
+        while (az > firstAngle + 360) {
+            az -= 360;
+        }
+        if (az >= lastAngle) {
+            // special case of az is not between two normalizedAngles
+            double radial = normalAngleData.length - 1 + (az - lastAngle)
+                    / (firstAngle + 360 - lastAngle);
+            dest.setLocation(radial, bin);
+        } else {
+            // start off with a guess for the index
+            int index = (int) ((az - firstAngle) * (normalAngleData.length - 1) / (lastAngle - firstAngle));
+            // increase index if we guessed to low
+            float nextAngle = normalAngleData[index];
+            while (nextAngle <= az) {
+                index += 1;
+                nextAngle = normalAngleData[index];
+            }
+            index -= 1;
+            // decrease index if we guessed to high.
+            float prevAngle = normalAngleData[index];
+            while (prevAngle > az) {
+                nextAngle = prevAngle;
+                prevAngle = normalAngleData[--index];
+            }
+            // interpolate a result.
+            double radial = index + (az - prevAngle) / (nextAngle - prevAngle);
+            dest.setLocation(radial, bin);
+        }
         return dest;
     }
 
