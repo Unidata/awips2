@@ -81,6 +81,10 @@ import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.core.style.level.Level;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.contours.ContourRenderable;
+import com.raytheon.viz.core.contours.ILoadableAsArrows;
+import com.raytheon.viz.core.contours.ILoadableAsImage;
+import com.raytheon.viz.core.contours.ILoadableAsStreamline;
+import com.raytheon.viz.core.contours.ILoadableAsWindBarbs;
 import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedStreamlineDisplay;
@@ -90,6 +94,7 @@ import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.core.style.arrow.ArrowPreferences;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.raytheon.viz.grid.rsc.GriddedIconDisplay;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -114,7 +119,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @param <T>
  */
 public abstract class AbstractGridResource<T extends AbstractResourceData>
-        extends AbstractVizResource<T, IMapDescriptor> {
+        extends AbstractVizResource<T, IMapDescriptor> implements
+        ILoadableAsArrows, ILoadableAsWindBarbs, ILoadableAsImage,
+        ILoadableAsStreamline {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractGridResource.class);
 
@@ -293,7 +300,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      */
     protected void initCapabilities() {
         DisplayType displayType = getDisplayType();
-        List<DisplayType> altDisplayTypes = new ArrayList<DisplayType>();
         switch (displayType) {
         case IMAGE:
             if (!hasCapability(ImagingCapability.class)) {
@@ -301,18 +307,12 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 this.getCapability(ImagingCapability.class)
                         .setInterpolationState(true);
             }
-            altDisplayTypes.add(DisplayType.CONTOUR);
             break;
         case BARB:
         case ARROW:
-        case STREAMLINE:
-            altDisplayTypes.add(DisplayType.BARB);
-            altDisplayTypes.add(DisplayType.ARROW);
-            altDisplayTypes.add(DisplayType.STREAMLINE);
         case DUALARROW:
-            altDisplayTypes.add(DisplayType.ARROW);
         case CONTOUR:
-            altDisplayTypes.add(DisplayType.IMAGE);
+        case STREAMLINE:
             getCapability(ColorableCapability.class);
             getCapability(DensityCapability.class);
             getCapability(MagnificationCapability.class);
@@ -324,8 +324,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             getCapability(MagnificationCapability.class);
             break;
         }
-        this.getCapability(DisplayTypeCapability.class)
-                .setAlternativeDisplayTypes(altDisplayTypes);
     }
 
     /**
@@ -850,6 +848,58 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
     protected List<PluginDataObject> getPluginDataObjects(DataTime time) {
         return pdos.get(time);
+    }
+
+    public AbstractVizResource<?, ?> getArrowResource() throws VizException {
+        return newResource(new GridLoadProperties(DisplayType.ARROW));
+    }
+
+    public AbstractVizResource<?, ?> getStreamlineResource()
+            throws VizException {
+        return newResource(new GridLoadProperties(DisplayType.STREAMLINE));
+    }
+
+    public AbstractVizResource<?, ?> getWindBarbResource() throws VizException {
+        return newResource(new GridLoadProperties(DisplayType.BARB));
+    }
+
+    public AbstractVizResource<?, ?> getImageryResource() throws VizException {
+        return newResource(new GridLoadProperties(DisplayType.IMAGE));
+    }
+
+    private AbstractVizResource<?, ?> newResource(
+            GridLoadProperties loadProperties) throws VizException {
+        AbstractVizResource<?, ?> resource = resourceData.construct(
+                loadProperties, descriptor);
+        if (resource instanceof AbstractGridResource<?>) {
+            ((AbstractGridResource<?>) resource).setData(data);
+        }
+        return resource;
+    }
+
+    public boolean isStreamlineVector() {
+        DisplayType displayType = getDisplayType();
+        return displayType == DisplayType.BARB
+                || displayType == DisplayType.ARROW;
+
+    }
+
+    public boolean isArrowVector() {
+        DisplayType displayType = getDisplayType();
+        return displayType == DisplayType.BARB
+                || displayType == DisplayType.STREAMLINE
+                || displayType == DisplayType.DUALARROW;
+    }
+
+    public boolean isWindVector() {
+        DisplayType displayType = getDisplayType();
+        return displayType == DisplayType.ARROW
+                || displayType == DisplayType.STREAMLINE;
+    }
+
+    public boolean isLoadableAsImage() {
+        DisplayType displayType = getDisplayType();
+        return displayType != DisplayType.IMAGE;
     }
 
 }

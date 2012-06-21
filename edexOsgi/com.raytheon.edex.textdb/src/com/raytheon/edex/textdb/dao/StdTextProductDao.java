@@ -85,7 +85,6 @@ import com.raytheon.uf.edex.wmo.message.AFOSProductId;
  * 21May2010    2187        cjeanbap    Added operational/test or practice mode functionality.
  * 28Jul2010    2187        cjeanbap    Fixed class exception in cccnnnxxxReadVersion.
  * 05Oct2010                cjeanbap    Fixed a bug introduced on #2187; return distinct rows.
- * 23May2012    14952       rferrel     Added cccnnnxxxByRefTime.
  * </pre>
  * 
  * @author garmendariz
@@ -357,62 +356,6 @@ public class StdTextProductDao extends CoreDao {
         }
 
         return products;
-    }
-
-    /**
-     * Use the reference/creation time to restrict the results when obtaining a
-     * product.
-     * 
-     * @param ccc
-     * @param nnn
-     * @param xxx
-     * @param refTime
-     * @return products
-     */
-    public List<StdTextProduct> cccnnnxxxByRefTime(String ccc, String nnn,
-            String xxx, Long refTime) {
-        ccc = StringUtils.rightPad(ccc, MAX_FIELD_LENGTH);
-        nnn = StringUtils.rightPad(nnn, MAX_FIELD_LENGTH);
-        xxx = StringUtils.rightPad(xxx, MAX_FIELD_LENGTH);
-        Session session = null;
-
-        List<StdTextProduct> products = new ArrayList<StdTextProduct>();
-        try {
-            session = getSession();
-
-            Map<String, Object> tmp = new HashMap<String, Object>();
-            tmp.put(ProdCCC_ID, ccc);
-            tmp.put(ProdNNN_ID, nnn);
-            tmp.put(ProdXXX_ID, xxx);
-            tmp.put(CREATETIME, refTime);
-
-            Criteria criteria = session
-                    .createCriteria(getStdTextProductInstance().getClass());
-            criteria.add(Restrictions.allEq(tmp));
-            criteria.addOrder(Order.asc(ProdCCC_ID));
-            criteria.addOrder(Order.asc(ProdNNN_ID));
-            criteria.addOrder(Order.asc(ProdXXX_ID));
-            criteria.addOrder(Order.desc(CREATETIME));
-            criteria.addOrder(Order.desc(ProdHDRTIME));
-
-            Iterator<?> iter = criteria.list().iterator();
-
-            while (iter.hasNext()) {
-                StdTextProduct prod = (StdTextProduct) iter.next();
-
-                if (prod != null && prod.getProduct() != null
-                        && prod.getProduct().length() > 0) {
-                    products.add(prod);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error occurred reading products", e);
-        } finally {
-            closeSession(session);
-        }
-
-        return products;
-
     }
 
     /**

@@ -102,7 +102,7 @@ public class FFMPDataLoader extends Thread {
         sharePath = AppsDefaults.getInstance().getToken("apps_dir")
                 + File.separator + "ffmp" + File.separator;
         //sharePath = "/awips2/edex/data/share/hydroapps/ffmp/";
-        
+
         this.product = resourceData.getProduct();
         this.siteKey = resourceData.siteKey;
         this.dataKey = resourceData.dataKey;
@@ -151,9 +151,7 @@ public class FFMPDataLoader extends Thread {
         long time = System.currentTimeMillis();
 
         try {
-        	resourceData.setLoader(loadType);
-        	System.out.println("Starting Loader: "+loadType.getLoaderType());
-        	
+
             ProductRunXML productRun = runner.getProduct(siteKey);
             ArrayList<String> qpfSources = new ArrayList<String>();
 
@@ -164,8 +162,8 @@ public class FFMPDataLoader extends Thread {
                     || (loadType == LOADER_TYPE.GENERAL)) {
                 rateURI = getMonitor().getAvailableUri(siteKey, dataKey,
                         product.getRate(), mostRecentTime);
-            } 
-        
+            }
+
             NavigableMap<Date, List<String>> qpeURIs = getMonitor()
                     .getAvailableUris(siteKey, dataKey, product.getQpe(),
                             timeBack);
@@ -187,7 +185,7 @@ public class FFMPDataLoader extends Thread {
                     qpfURIs = getMonitor().getAvailableUris(siteKey, dataKey,
                             qpfSource.getSourceName(), qpfTime);
 
-                    if (qpfURIs != null && !qpfURIs.isEmpty()) {
+                    if (qpfURIs != null) {
                         qpfs.add(qpfURIs);
                         qpfSources.add(qpfSource.getSourceName());
                     }
@@ -215,16 +213,11 @@ public class FFMPDataLoader extends Thread {
                     iguidURIs = getMonitor().getAvailableUris(siteKey, dataKey,
                             guidSource.getSourceName(), guidTime);
 
-                    if (iguidURIs != null && !iguidURIs.isEmpty()) {
+                    if (iguidURIs != null) {
                         guids.put(guidSource.getSourceName(), iguidURIs);
                     }
                 }
             }
-            // We only load all for long range data, all + layer for medium range
-            if (loadType == LOADER_TYPE.TERTIARY) {
-            	hucsToLoad.clear();
-            	hucsToLoad.add("ALL");
-            } 
 
             for (String phuc : hucsToLoad) {
 
@@ -238,9 +231,8 @@ public class FFMPDataLoader extends Thread {
                 } else {
                     // rate
                     if (rateURI != null) {
-                    	fireLoaderEvent(loadType, "Processing "+product.getRate() + "/" + phuc,
-                                isDone);
-                    	
+                        System.out.println("Processing " + loadType
+                                + " Rate: huc = " + phuc);
                         getMonitor().processUri(isProductLoad, rateURI,
                                 siteKey, product.getRate(), timeBack, phuc);
                         fireLoaderEvent(loadType, product.getRate() + "/"
@@ -248,8 +240,8 @@ public class FFMPDataLoader extends Thread {
                     }
 
                     // qpes
-                    fireLoaderEvent(loadType, "Processing "+product.getQpe() + "/" + phuc,
-                            isDone);
+                    System.out.println("Processing " + loadType
+                            + " QPE: huc = " + phuc);
                     FFMPBasinData qpeData = null;
 
                     if ((loadType == LOADER_TYPE.INITIAL)
@@ -266,10 +258,10 @@ public class FFMPDataLoader extends Thread {
                             getMonitor().insertFFMPData(qpeData, siteKey,
                                     product.getQpe(), phuc);
                         }
-                    } 
+                    }
 
-                    if (!qpeURIs.isEmpty() && qpeData == null) {
-                        if (phuc.equals(config.getFFMPConfigData().getLayer()) || phuc.equals("ALL")) {
+                    if (!qpeURIs.isEmpty()) {
+                        if (phuc.equals(config.getFFMPConfigData().getLayer())) {
                             getMonitor().processUris(qpeURIs, isProductLoad,
                                     siteKey, product.getQpe(), timeBack, phuc,
                                     loadType);
@@ -282,8 +274,8 @@ public class FFMPDataLoader extends Thread {
                     int i = 0;
                     for (NavigableMap<Date, List<String>> qpfURIs : qpfs) {
                         // qpf
-                        fireLoaderEvent(loadType, "Processing "+product.getQpf(i) + "/" + phuc,
-                                isDone);
+                        System.out.println("Processing " + loadType
+                                + " QPF: huc = " + phuc);
                         FFMPBasinData qpfData = null;
                         if ((loadType == LOADER_TYPE.INITIAL)
                                 || (loadType == LOADER_TYPE.SECONDARY)) {
@@ -297,8 +289,8 @@ public class FFMPDataLoader extends Thread {
 
                             if (qpfData != null) {
 
-                                if ((phuc.equals(config.getFFMPConfigData()
-                                        .getLayer()) || phuc.equals("ALL"))
+                                if (phuc.equals(config.getFFMPConfigData()
+                                        .getLayer())
                                         && loadType == LOADER_TYPE.INITIAL
                                         && source.getSourceName().equals(
                                                 config.getFFMPConfigData()
@@ -319,7 +311,7 @@ public class FFMPDataLoader extends Thread {
                         //if (isUrisProcessNeeded(qpfData,qpfURIs)) {/*DR13839*/
                         if ((qpfData == null) && !qpfURIs.isEmpty()) {
                             if (phuc.equals(config.getFFMPConfigData()
-                                    .getLayer()) || phuc.equals("ALL")) { //old code: keep for reference*/
+                                    .getLayer())) { //old code: keep for reference*/
                         	//if (isHucProcessNeeded(phuc)) {/*DR13839*/
                                 getMonitor().processUris(qpfURIs,
                                         isProductLoad, siteKey,
@@ -337,8 +329,9 @@ public class FFMPDataLoader extends Thread {
                 }
                 // virtuals only have data for ALL
                 if (phuc.equals("ALL")) {
-                    fireLoaderEvent(loadType, "Processing "+product.getVirtual() + "/" + phuc,
-                            isDone);
+                    System.out.println("Processing " + loadType
+                            + " VGB: huc = " + phuc);
+
                     FFMPBasinData vgbData = null;
 
                     if ((loadType == LOADER_TYPE.INITIAL)
@@ -368,17 +361,16 @@ public class FFMPDataLoader extends Thread {
                 }
 
                 // process guidance all at once
+                System.out.println("Processing " + loadType
+                        + " GUIDANCE: huc = " + phuc);
+
                 for (String type : productRun.getGuidanceTypes(product)) {
-                
+
                     ArrayList<SourceXML> guidSources = productRun
                             .getGuidanceSources(product, type);
                     for (SourceXML guidSource : guidSources) {
-                    	
                         NavigableMap<Date, List<String>> iguidURIs = guids
                                 .get(guidSource.getSourceName());
-                        
-                        fireLoaderEvent(loadType, "Processing "+guidSource.getSourceName() + "/" + phuc,
-                                isDone);
 
                         getMonitor().processUris(iguidURIs, isProductLoad,
                                 siteKey, guidSource.getSourceName(), timeBack,
@@ -394,10 +386,11 @@ public class FFMPDataLoader extends Thread {
             }
         } catch (Exception e) {
             isDone = true;
-            System.err.println("FFMP Data Loader terminated...."
+            statusHandler.error("FFMP Data Loader terminated...."
                     + e.getMessage());
         } finally {
             isDone = true;
+            resourceData.setLoader(loadType);
         }
 
         String message = null;
@@ -478,35 +471,26 @@ public class FFMPDataLoader extends Thread {
         String sourceName = source.getSourceName();
         File file = new File(sharePath + wfo + File.separator + sourceName
                 + "-" + siteKey + "-" + pdataKey + "-" + huc + ".bin");
-        System.out.println("Buddy File path: " + file.getAbsolutePath());
 
-		FFMPBasinData basinData = null;
+        FFMPBasinData basinData = null;
 
-		if (file.exists()) {
-			
-			System.out.println("Last mod: " + new Date(file.lastModified()));
-			//System.out.println("6 hour mod: " + new Date((System.currentTimeMillis() - (6 * 1000 * 3600))));
-			//System.out.println("DIFF: "+(file.lastModified() - (System.currentTimeMillis() - (6 * 1000 * 3600))));
+        if (file.exists()) {
 
-			if (file.lastModified() > (System.currentTimeMillis() - (6 * 1000 * 3600))) {
-				
-				System.out.println("Buddy File path: " + file.getName());
-				
-				try {
-					basinData = (FFMPBasinData) SerializationUtil
-							.transformFromThrift(FileUtil.file2bytes(file,
-									false));
-				} catch (SerializationException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+            System.out.println("File path: " + file.getName());
 
-		return basinData;
+            try {
+                basinData = (FFMPBasinData) SerializationUtil
+                        .transformFromThrift(FileUtil.file2bytes(file, false));
+            } catch (SerializationException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
-	}
+        return basinData;
+
+    }
 
     /**
      * Finds the home datakey identifier for QPF sources

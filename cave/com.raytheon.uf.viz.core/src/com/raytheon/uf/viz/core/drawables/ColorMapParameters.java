@@ -938,7 +938,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
             index = 1.0f;
         }
         return colorToRGB(colorMap.getColors().get(
-                (int) (index * (colorMap.getSize()-1))));
+                (int) (index * colorMap.getSize())));
     }
 
     /**
@@ -954,7 +954,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         } else if (index > 1.0f) {
             index = 1.0f;
         }
-        return colorMap.getColors().get((int) (index * (colorMap.getSize()-1)));
+        return colorMap.getColors().get((int) (index * colorMap.getSize()));
     }
 
     public static RGB colorToRGB(Color c) {

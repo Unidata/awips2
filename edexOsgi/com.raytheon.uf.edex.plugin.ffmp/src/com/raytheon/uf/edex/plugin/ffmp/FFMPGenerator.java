@@ -36,10 +36,6 @@ import com.raytheon.edex.msg.DataURINotificationMessage;
 import com.raytheon.edex.plugin.radar.dao.RadarStationDao;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
-import com.raytheon.uf.common.cache.CacheException;
-import com.raytheon.uf.common.cache.CacheFactory;
-import com.raytheon.uf.common.cache.DiskCache;
-import com.raytheon.uf.common.cache.ICache;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataContainer;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
@@ -151,6 +147,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
     /** Stored data for FFMP/FFTI comparisons */
     private HashMap<String, FFMPDataContainer> ffmpData = new HashMap<String, FFMPDataContainer>();
+
+    /** source bins used for finding basin to data correlations **/
+    private HashMap<String, SourceBinList> sourceBins = new HashMap<String, SourceBinList>();
 
     /** run configuration manager **/
     public FFMPRunConfigurationManager frcm = null;
@@ -967,13 +966,12 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      */
     public SourceBinList getSourceBinList(String sourceId) {
         SourceBinList sbl = null;
-
-        sbl = getSourceBin(sourceId);
-        
-        if (sbl == null) {
+        if (!sourceBins.containsKey(sourceId)) {
             sbl = readSourceBins(sourceId);
-            setSourceBin(sbl, sourceId);
-        } 
+            sourceBins.put(sourceId, sbl);
+        } else {
+            sbl = sourceBins.get(sourceId);
+        }
 
         return sbl;
     }
@@ -984,8 +982,7 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @param sbl
      */
     public void setSourceBinList(SourceBinList sbl) {
-    	
-        setSourceBin(sbl, sbl.getSourceId());
+        sourceBins.put(sbl.getSourceId(), sbl);
         writeSourceBins(sbl);
     }
 
@@ -1069,6 +1066,10 @@ public class FFMPGenerator extends CompositeProductGenerator implements
 
         FFMPDataContainer container = ffmpData.get(sourceName);
 
+        if (container == null) {
+            container = new FFMPDataContainer(sourceName);
+            ffmpData.put(sourceName, container);
+        }
         return container;
     }
 
@@ -1187,14 +1188,14 @@ public class FFMPGenerator extends CompositeProductGenerator implements
                     .getSiteKey());
         }
 
-		// add current record data
-		for (String huc : ffmpRec.getBasinsMap().keySet()) {
-			fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(), source,
-					ffmpRec.getBasinData(huc), huc, ffmpRec.getSiteKey());
-		}
+        // add current record data
+        for (String huc : ffmpRec.getBasinsMap().keySet()) {
+            fdc.addFFMPEntry(ffmpRec.getDataTime().getRefTime(), source,
+                    ffmpRec.getBasinData(huc), huc, ffmpRec.getSiteKey());
+        }
 
-		fdc.purge(backDate);
         fdc.writeDataContainer(sourceSiteDataKey, sharePath, ffmpRec.getWfo());
+        fdc.purge(backDate);
 
         // write it back
         ffmpData.put(sourceSiteDataKey, fdc);
@@ -1220,18 +1221,16 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         FFMPDataContainer fdc = new FFMPDataContainer(sourceSiteDataKey, hucs);
 
         for (String huc : hucs) {
-			FFMPBasinData basinData = null;
-			if (checkBuddyFile(sourceSiteDataKey, huc, wfo, backDate)) {
-				basinData = readLoaderBuddyFile(sourceSiteDataKey, huc, wfo,
-						backDate);
-			}
-			if (basinData != null) {
-				fdc.setBasinBuddyData(basinData, huc);
-			} else {
-				// rebuild it
-				return null;
-			}
-		}
+
+            FFMPBasinData basinData = readLoaderBuddyFile(sourceSiteDataKey,
+                    huc, wfo, backDate);
+            if (basinData != null) {
+                fdc.setBasinBuddyData(basinData, huc);
+            } else {
+                // rebuild it
+                return null;
+            }
+        }
 
         return fdc;
     }
@@ -1245,47 +1244,27 @@ public class FFMPGenerator extends CompositeProductGenerator implements
      * @return
      */
     private FFMPBasinData readLoaderBuddyFile(String sourceSiteDataKey,
-			String huc, String wfo, Date backDate) {
-
-		File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + "-"
-				+ huc + ".bin");
-		FFMPBasinData basinData = null;
-
-		try {
-			basinData = (FFMPBasinData) SerializationUtil
-					.transformFromThrift(FileUtil.file2bytes(file));
-		} catch (SerializationException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return basinData;
-
-	}
-    
-    /**
-     * Load existing buddy file
-     * 
-     * @param sourceSiteDataKey
-     * @param huc
-     * @param wfo
-     * @return
-     */
-    public boolean checkBuddyFile(String sourceSiteDataKey,
             String huc, String wfo, Date backDate) {
 
         File file = new File(sharePath + wfo + "/" + sourceSiteDataKey + "-"
                 + huc + ".bin");
+        FFMPBasinData basinData = null;
 
         if (file.exists() && (file.lastModified() > backDate.getTime())) {
-            return true;
+
+            try {
+                basinData = (FFMPBasinData) SerializationUtil
+                        .transformFromThrift(FileUtil.file2bytes(file, false));
+            } catch (SerializationException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        return false;
+        return basinData;
 
     }
-
 
     @Override
     public synchronized void configChanged(MonitorConfigEvent fce) {
@@ -1322,8 +1301,9 @@ public class FFMPGenerator extends CompositeProductGenerator implements
         if (reload) {
             ffgCheck = false;
             resetFilters();
-            getSourceBinCache().clearCache();
-            getSourceBinCache().closeCache();
+            if (sourceBins != null) {
+                sourceBins.clear();
+            }
             if (ffmpData != null) {
                 ffmpData.clear();
             }
@@ -1334,86 +1314,5 @@ public class FFMPGenerator extends CompositeProductGenerator implements
             dmu.createMenus();
         }
     }
-    
-    /**
-     * Get SourceBins from cache
-     * @param siteKey
-     * @param sourceName
-     * @return
-     */
-    public SourceBinList getSourceBin(String sourceName) {
-    	
-    	SourceBinList bins = null;
-    	
-        if (sourceName != null) {
-            try {
-            	
-            	DiskCache<SourceBinList> diskCache = getSourceBinCache();
-            	bins = (SourceBinList) diskCache.getFromCache(sourceName);
-                
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return bins;
-    }
-       
-    /**
-     * Set Source Bins to cache
-     * @param sourceName
-     * @param record
-     */
-     
-    public void setSourceBin(SourceBinList list, String sourceName) {
-    	if (sourceName != null) {
-            try {
-            	
-            	DiskCache<SourceBinList> diskCache = getSourceBinCache();
-                
-                try {
-					diskCache.addToCache(sourceName, list);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
-        }
-    }
-
-	@SuppressWarnings({ "unchecked" })
-	private DiskCache<SourceBinList> getSourceBinCache() {
-    	
-    	DiskCache<SourceBinList> diskCache = null;
-    	
-    	try {
-			diskCache = (DiskCache<SourceBinList>)CacheFactory.getInstance()
-			  .getCache("FFMP-SourceBinList-cache");
-			
-		} catch (CacheException e) {
-			DiskCache<SourceBinList> dc = createSourceCache("FFMP-SourceBinList-cache", 4);
-			CacheFactory.getInstance().addCache("FFMP-SourceBinList-cache", dc);
-			return dc;
-		}
-		
-		return diskCache;
-    }
-	    
-    /**
-     * Create cache objects if needed
-     * @param siteKey
-     * @return
-     */
-    private DiskCache<SourceBinList> createSourceCache(String name, int size) {
-    	ICache<SourceBinList> cache = new DiskCache<SourceBinList>();
-    	DiskCache<SourceBinList> dc = (DiskCache<SourceBinList>) cache;
-    	dc.setName(name);
-    	dc.setSizeMemCacheMap(size);
-    	dc.activateEdexCache();
-    	
-    	return dc;
-    }
-    
 
 }

@@ -76,8 +76,6 @@ public class GeospatialFactory {
 
     public static final String METADATA_FILE = "warngen/geomMetaData.xml";
 
-    private static GeospatialData[] timezones;
-
     public static GeospatialData[] getGeoSpatialList(String site,
             GeospatialMetadata metaData) throws SpatialException {
         Map<GeospatialMetadata, GeospatialTime> lastRunTimeMap = loadLastRunGeoTimeSet(site);
@@ -116,7 +114,6 @@ public class GeospatialFactory {
 
         GeospatialData[] areas = dataSet.getAreas();
         GeospatialData[] parentAreas = dataSet.getParentAreas();
-        timezones = dataSet.getTimezones();
 
         Map<String, List<GeospatialData>> uniqueAreasMap = new HashMap<String, List<GeospatialData>>();
         for (GeospatialData data : areas) {
@@ -200,10 +197,6 @@ public class GeospatialFactory {
         }
 
         return areas;
-    }
-
-    public static GeospatialData[] getTimezones() {
-        return timezones;
     }
 
     /**

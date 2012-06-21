@@ -72,8 +72,6 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  *                                      to make SVS warning updates and
  *                                      original warning display properly
  *                                      in a given display frame
- * Jun 04, 2012 DR14992  mgamazaychikov Reversed the textToPrint array to
- * 										plot the strings in correct order
  * 
  * </pre>
  * 
@@ -577,14 +575,7 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
                             warningsFont = target.getDefaultFont()
                                     .deriveWithSize(11);
                         }
-                        // DR14992: reverse the textToPrint array to plot the strings in correct order
-                        String [] textToPrintReversed = new String[textToPrint.length];
-                        for(int i = 0; i < textToPrint.length; i++) {
-							textToPrintReversed[i] = textToPrint[textToPrint.length
-									- i - 1];
-						}
-                        
-                        DrawableString params = new DrawableString(textToPrintReversed,
+                        DrawableString params = new DrawableString(textToPrint,
                                 color);
                         params.font = warningsFont;
                         params.setCoordinates(d[0], d[1]);

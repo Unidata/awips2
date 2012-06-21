@@ -41,7 +41,6 @@ import org.apache.velocity.runtime.resource.loader.FileResourceLoader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/17/2008   1088       chammack    Initial Creation.
- * 06/01/2012   DR 14555   D. Friedman Support new version of Velocity.
  * 
  * </pre>
  * 
@@ -73,7 +72,13 @@ public class ScriptTemplateLoader extends FileResourceLoader {
     public InputStream getResourceStream(String arg0)
             throws ResourceNotFoundException {
         try {
-            FileInputStream fis = new FileInputStream(resolvePath(arg0));
+            String dir = null;
+            if (arg0.startsWith(File.separator) || arg0.charAt(1) == ':' )   //Win32
+                dir = arg0;
+            else
+                dir = this.path + File.separator + arg0;
+
+            FileInputStream fis = new FileInputStream(dir);
             return fis;
         } catch (FileNotFoundException e) {
             throw new ResourceNotFoundException(e);
@@ -99,21 +104,6 @@ public class ScriptTemplateLoader extends FileResourceLoader {
     public boolean isSourceModified(Resource arg0) {
         File file = new File(arg0.getName());
         return (file.lastModified() != arg0.getLastModified());
-    }
-
-    @Override
-    public boolean resourceExists(String name) {
-        File f = new File(resolvePath(name));
-        return f.isFile();
-    }
-    
-    private String resolvePath(String arg0) {
-        String dir = null;
-        if (arg0.startsWith(File.separator) || arg0.charAt(1) == ':' )   //Win32
-            dir = arg0;
-        else
-            dir = this.path + File.separator + arg0;
-        return dir;
     }
 
 }

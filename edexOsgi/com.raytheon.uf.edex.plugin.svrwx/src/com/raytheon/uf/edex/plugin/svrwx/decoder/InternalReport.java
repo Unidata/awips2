@@ -35,49 +35,46 @@ import org.apache.commons.logging.LogFactory;
  * TODO Add Description
  * 
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 10, 2010            jsanchez     Initial creation
- * 
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
+ * @version 1.0 
  */
 public class InternalReport {
-
+    
     private static Log logger = LogFactory.getLog(InternalReport.class);
-
+    
     public static final String REPORT_TYPE_LN = "^((.*)(TORNADO REPORTS|LRG HAIL/STRONG WIND RPTS|OTHER SEVERE REPORTS)(.*))";
-
+    
     public static final String EVENT_KEY = "(\\*TORN|WNDG|([AG]\\s{0,1}\\d{2,3}))";
 
     public static final String TIME = "(\\d{1,2}/\\d{4,4})";
-
-    public static final String EVENT_LN = "^((.*)" + EVENT_KEY + "(.*)" + TIME
-            + ")";
-
+    
+    public static final String EVENT_LN = "^((.*)" + EVENT_KEY + "(.*)" + TIME + ")";
+    
     public static final String LATLON = "(\\d{4,4}\\s{0,1}\\d{4,5})";
-
+    
     public static final String STATIONID = "(\\w{3,3}/\\w{3,3})";
-
-    public static final String RMK_LN = "^((.*)" + STATIONID + "(.*)" + LATLON
-            + ")";
-
-    public static final String REFTIME = "(\\d{2,2}CST\\s\\w{3,3}\\s\\w{3,3}\\s{1,2}\\d{1,2}\\s{1,2}\\d{4,4})";
-
-    public static final String TIME_RANGE_LN = "^((.*)FOR\\s" + REFTIME
-            + "\\sTHRU\\s" + REFTIME + ")";
-
+    
+    public static final String RMK_LN = "^((.*)" + STATIONID + "(.*)" + LATLON + ")";
+    
+    public static final String REFTIME = "(\\d{2,2}CST\\s\\w{3,3}\\s\\w{3,3}\\s\\d{1,2}\\s{1,2}\\d{4,4})";
+    
+    public static final String TIME_RANGE_LN = "^((.*)FOR\\s" + REFTIME + "\\sTHRU\\s" + REFTIME +")";
+    
     private final InternalType lineType;
-
+    
     private final String reportLine;
-
+    
     private List<InternalReport> subLines = null;
-
+    
     public InternalReport(InternalType type, String line) {
         lineType = type;
         reportLine = line;
@@ -104,16 +101,15 @@ public class InternalReport {
     public List<InternalReport> getSubLines() {
         return subLines;
     }
-
+    
     /**
      * 
-     * @param buffer
-     *            Buffer to receive String formatted internal data. If this
-     *            reference is null, a new StringBuilder instance is created.
+     * @param buffer Buffer to receive String formatted internal data. If this
+     * reference is null, a new StringBuilder instance is created.
      * @return The populated StringBuilder instance.
      */
     public StringBuilder toString(StringBuilder buffer) {
-        if (buffer == null) {
+        if(buffer == null) {
             buffer = new StringBuilder();
         }
         buffer.append("[");
@@ -123,17 +119,16 @@ public class InternalReport {
         buffer.append("}\n");
         return buffer;
     }
-
+    
     /**
      * Create a string representation of this class instance.
-     * 
      * @return The string representation of this class instance.
      */
     @Override
     public String toString() {
         StringBuilder sb = toString(null);
-        if (subLines != null) {
-            for (InternalReport r : subLines) {
+        if(subLines != null) {
+            for(InternalReport r : subLines) {
                 sb.append("   ");
                 r.toString(sb);
             }
@@ -141,49 +136,48 @@ public class InternalReport {
         return sb.toString();
     }
 
-    public static List<InternalReport> identifyMessage(byte[] message) {
+    public static List<InternalReport> identifyMessage(byte [] message) {
         List<InternalReport> reports = new ArrayList<InternalReport>();
         List<String> lines = separateLines(message);
-        if (lines != null) {
+        if(lines != null) {
             Pattern p1 = Pattern.compile(REPORT_TYPE_LN);
             Pattern p2 = Pattern.compile(EVENT_LN);
             Pattern p3 = Pattern.compile(RMK_LN);
             Pattern p4 = Pattern.compile(TIME_RANGE_LN);
-
+            
             InternalType t1 = InternalType.REPORT_TYPE;
             InternalType t2 = InternalType.EVENT_LN;
             InternalType t3 = InternalType.REMARKS;
             InternalType t4 = InternalType.TIME_RANGE;
-
-            Pattern patterns[] = { p1, p2, p3, p4 };
-            InternalType types[] = { t1, t2, t3, t4 };
+            
+            Pattern patterns[] = {p1,p2,p3,p4};
+            InternalType types[] = {t1,t2,t3,t4};
             boolean found;
-            for (String s : lines) {
+            for(String s : lines) {
                 found = false;
-                for (int i = 0; i < patterns.length; i++) {
+                for(int i = 0; i < patterns.length; i++){
                     Matcher m = patterns[i].matcher(s);
-                    if (m.matches()) {
-                        InternalReport rptLine = new InternalReport(types[i], s);
+                    if(m.matches()){
+                        InternalReport rptLine = new InternalReport(types[i],s);
                         reports.add(rptLine);
                         found = true;
                         break;
                     }
                 }
-
-                if (!found) {
-                    InternalReport rptLine = new InternalReport(
-                            InternalType.EXTRA, s);
+                
+                if(!found){
+                    InternalReport rptLine = new InternalReport(InternalType.EXTRA,s);
                     reports.add(rptLine);
                 }
             }
-
-            InternalReport rptLine = new InternalReport(InternalType.END, "");
+            
+            InternalReport rptLine = new InternalReport(InternalType.END,"");
             reports.add(rptLine);
-
+            
         }
         return reports;
     }
-
+        
     /**
      * 
      * @param message
@@ -205,7 +199,7 @@ public class InternalReport {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error reading from reader", e);
+                logger.error("Error reading from reader",e);
             } finally {
                 if (reader != null) {
                     try {
@@ -218,5 +212,6 @@ public class InternalReport {
         }
         return reportLines;
     }
+    
 
 }

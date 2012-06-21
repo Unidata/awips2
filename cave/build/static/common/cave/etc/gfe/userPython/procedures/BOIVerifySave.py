@@ -485,16 +485,18 @@ class Procedure (SmartScript.SmartScript):
          #
          #  get History of last time this grid was modified
          #
-         username = ""
-         updtime = None
          historyList=self.getGridHistory(dbid,parm,"SFC",gridTR)
          for hists in historyList:
             for hist in hists:
                if hist[4] not in [None, "None"]:
                   username=hist[4].split(':')[1]
+               else:
+                  username=""
 
                if hist[5] is not None:
                   updtime=hist[5].unixTime()
+               else:
+                  updtime = None
 
                if self.VU.getDebug()>=1:
                   t2=self.gstring1(time.gmtime(updtime))
@@ -828,7 +830,6 @@ class Procedure (SmartScript.SmartScript):
    #               different values from getComposite after IFPS16.
    #
    def getBetterComposite(self,parmName, timeRange):
-      from com.raytheon.uf.common.dataplugin.gfe.db.objects import GFERecord_GridType as GridType
       #
       #  Get the type, rateParm flag, and limits
       #  for the parameter name passed in.
@@ -863,7 +864,7 @@ class Procedure (SmartScript.SmartScript):
          sum=self._empty+150.0
       else:
          sum=self._empty
-         if GridType.VECTOR.equals(wxType):
+         if (wxType==1):
             sumv=self._empty
       cnt = zeros_like(self._empty)
       all = ones_like(self._empty)
@@ -879,7 +880,7 @@ class Procedure (SmartScript.SmartScript):
          #
          #  Add to sums, or min/max
          #
-         if GridType.SCALAR.equals(wxType):  # SCALAR
+         if wxType==0:  # SCALAR
             bits,isc=comp
             #isc=self.getGrids("ISC",parmName,"SFC",tr)
             #
@@ -903,14 +904,14 @@ class Procedure (SmartScript.SmartScript):
             else:
                sum=where(bits,sum+isc,sum)
                cnt[bits] += 1
-         if GridType.VECTOR.equals(wxType):  # VECTOR
+         if wxType==1:  # VECTOR
             bits,mag,direc=comp
             #(mag,dir)=self.getGrids("ISC",parmName,"SFC",tr)
             (u,v)=self.MagDirToUV(mag,direc)
             sum=where(bits,sum+u,sum)
             sumv=where(bits,sumv+v,sumv)
             cnt[bits] += 1
-         if GridType.WEATHER.equals(wxType):  # WEATHER
+         if wxType==2:  # WEATHER
             bits,keys,strings=comp
             #(keys,strings)=self.getGrids("ISC",parmName,"SFC",tr)
       #
@@ -919,9 +920,9 @@ class Procedure (SmartScript.SmartScript):
       #
       noISC=less(cnt,0.5)
       bits=greater(cnt,0.5)
-      if GridType.SCALAR.equals(wxType) or GridType.VECTOR.equals(wxType):
+      if ((wxType==0)or(wxType==1)):
          cnt[less(cnt,1)] = 1
-         if GridType.VECTOR.equals(wxType):
+         if (wxType==1):
             sum=where(noISC,minlimit,sum/cnt)
             sumv=where(noISC,minlimit,sumv/cnt)
             (mag,direc)=self.UVToMagDir(sum,sumv)

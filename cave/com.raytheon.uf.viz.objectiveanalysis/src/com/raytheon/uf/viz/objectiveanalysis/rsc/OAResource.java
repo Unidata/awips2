@@ -77,12 +77,14 @@ import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.core.style.level.SingleLevel;
+import com.raytheon.viz.core.contours.ILoadableAsImage;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
+import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -104,7 +106,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class OAResource extends
         AbstractVizResource<OAResourceData, MapDescriptor> implements
-        IResourceDataChanged {
+        IResourceDataChanged, ILoadableAsImage {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(OAResource.class);
 
@@ -176,8 +178,6 @@ public class OAResource extends
 
         this.displayType = getCapability(DisplayTypeCapability.class)
                 .getDisplayType();
-        getCapability(DisplayTypeCapability.class).setAlternativeDisplayTypes(
-                Arrays.asList(DisplayType.IMAGE));
         resourceData.addChangeListener(this);
         if (this.displayType == DisplayType.IMAGE) {
             this.getCapability(ImagingCapability.class);
@@ -697,6 +697,17 @@ public class OAResource extends
     /*
      * (non-Javadoc)
      * 
+     * @see com.raytheon.viz.core.contours.ILoadableAsImage#getImageryResource()
+     */
+    @Override
+    public AbstractVizResource<?, ?> getImageryResource() throws VizException {
+        return this.resourceData.construct(new GridLoadProperties(
+                DisplayType.IMAGE), descriptor);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#getRenderingOrderId()
      */
@@ -709,4 +720,13 @@ public class OAResource extends
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.contours.ILoadableAsImage#isLoadableAsImage()
+     */
+    @Override
+    public boolean isLoadableAsImage() {
+        return true;
+    }
 }

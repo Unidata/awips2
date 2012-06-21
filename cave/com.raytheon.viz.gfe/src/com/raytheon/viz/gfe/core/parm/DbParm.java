@@ -419,54 +419,6 @@ public class DbParm extends Parm {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.parm.Parm#historyUpdateArrived(java.util.Map)
-     */
-    @Override
-    public void historyUpdateArrived(
-            Map<TimeRange, List<GridDataHistory>> histories) {
-
-        // Old code also rejected when newTimeRanges.length was 0.
-        // Length 0 is valid for deletions over whole time range.
-        if (histories == null) {
-            return;
-        }
-
-        List<TimeRange> newTimeRanges = new ArrayList<TimeRange>(
-                histories.keySet());
-
-        // Find the full range of data affected
-        Collections.sort(newTimeRanges);
-
-        // process history updates
-        for (TimeRange tr : newTimeRanges) {
-            IGridData[] grids = this.getGridInventory(tr);
-
-            // if only a single unmodified grid exactly matches the time range
-            if (grids.length == 1 && !this.isLocked(tr)
-                    && grids[0].getGridSlice().getValidTime().equals(tr)) {
-                List<GridDataHistory> newHist = histories.get(tr);
-                GridDataHistory[] currentHist = grids[0].getGridSlice()
-                        .getHistory();
-
-                // if current history exists and has a matching update time
-                if (currentHist != null
-                        && currentHist[0].getUpdateTime().equals(
-                                newHist.get(0).getUpdateTime())) {
-                    // update last sent time
-                    currentHist[0].setLastSentTime(newHist.get(0)
-                            .getLastSentTime());
-                }
-            }
-
-            // notify parm clients of history update
-            sendGridHistoryUpdatedNotification(tr);
-        }
-    }
-
     @Override
     protected boolean requestLock(List<LockRequest> lreq) {
 
@@ -622,17 +574,14 @@ public class DbParm extends Parm {
 
             success &= allSaved;
         }
-
         // if any pending saves
         if (sgr.size() > 0) {
-            if (!doSave(sgr)) {
+            if (doSave(sgr)) {
+                for (TimeRange t : pendingUnlocks) {
+                    lreq.add(new LockRequest(getParmID(), t, LockMode.UNLOCK));
+                }
+            } else {
                 success = false;
-            }
-        }
-
-        if (success) {
-            for (TimeRange t : pendingUnlocks) {
-                lreq.add(new LockRequest(getParmID(), t, LockMode.UNLOCK));
             }
         }
 

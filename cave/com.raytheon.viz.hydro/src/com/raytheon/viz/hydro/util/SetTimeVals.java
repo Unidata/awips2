@@ -38,8 +38,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 31, 2009            mpduff      Initial creation.
- * May 17, 2012 558        mpduff      Adding null checks to RPFparams objects.
+ * Mar 31, 2009            mpduff     Initial creation
  * 
  * </pre>
  * 
@@ -118,10 +117,8 @@ public class SetTimeVals {
             // "No records in RpfParams table, using defaults\n");
         } else {
             rpfPtr = results.get(0);
-            if (rpfPtr != null && rpfPtr.getId() != null) {
-                dbObshrs = rpfPtr.getId().getObshrs();
-                dbFcsthrs = rpfPtr.getId().getFcsthrs();
-            }
+            dbObshrs = rpfPtr.getId().getObshrs();
+            dbFcsthrs = rpfPtr.getId().getFcsthrs();
         }
 
         /* get the token value */
