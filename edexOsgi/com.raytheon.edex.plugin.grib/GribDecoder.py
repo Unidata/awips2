@@ -667,7 +667,6 @@ class GribDecoder():
                 statisticalProcess = pdsTemplate[23]
 
             elif pdsTemplateNumber == 10:
-                parameterAbbreviation = parameterAbbreviation + str(100 - pdsTemplate[15]) + "Pct"
                 endTime = GregorianCalendar(pdsTemplate[16], pdsTemplate[17] - 1, pdsTemplate[18], pdsTemplate[19], pdsTemplate[20], pdsTemplate[21])
 
                 numTimeRanges = pdsTemplate[22]
