@@ -18,4 +18,8 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="TPCSG_30" name="Probabilistic Storm Surge height w/30% chance of being exceeded" unit="ft"/>
+<DerivedParameter abbreviation="TPCSG-30" name="Probabilistic Storm Surge height w/30% chance of being exceeded" unit="ft">
+    <Method models="TPCSurgeProb" name="Alias">
+        <Field abbreviation="Surge30Pct"/>
+    </Method>
+</DerivedParameter>
