@@ -30,6 +30,7 @@ import com.raytheon.viz.gfe.core.msgs.GridDataChangedMsg;
 import com.raytheon.viz.gfe.core.msgs.IColorTableModifiedListener;
 import com.raytheon.viz.gfe.core.msgs.ICombineModeChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IGridDataChangedListener;
+import com.raytheon.viz.gfe.core.msgs.IGridHistoryUpdatedListener;
 import com.raytheon.viz.gfe.core.msgs.ILockTableChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParameterSelectionChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmIDChangedListener;
@@ -70,6 +71,8 @@ public class ParmListeners {
 
     private final ListenerList parmInventoryChangedListeners;
 
+    private final ListenerList gridHistoryUpdatedListeners;
+
     private final ListenerList parmIDChangedListeners;
 
     private final ListenerList selectionTimeRangeChangedListeners;
@@ -106,6 +109,8 @@ public class ParmListeners {
         this.colorTableModifiedListeners = new ListenerList(
                 ListenerList.IDENTITY);
         this.lockTableChangedListeners = new ListenerList(ListenerList.IDENTITY);
+        this.gridHistoryUpdatedListeners = new ListenerList(
+                ListenerList.IDENTITY);
         this.notificationPool = pool;
     }
 
@@ -285,6 +290,43 @@ public class ParmListeners {
             };
             notificationPool.schedule(notTask);
         }
+    }
+
+    public void fireGridHistoryUpdatedListener(final Parm parm,
+            final TimeRange tr) {
+        for (Object listener : this.gridHistoryUpdatedListeners.getListeners()) {
+            final IGridHistoryUpdatedListener casted = (IGridHistoryUpdatedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.gridHistoryUpdated(parm, tr);
+                }
+            };
+            notificationPool.schedule(notTask);
+        }
+    }
+
+    /**
+     * Add grid history updated listener
+     * 
+     * @param listener
+     */
+    public void addGridHistoryUpdatedListener(
+            IGridHistoryUpdatedListener listener) {
+        Validate.notNull(listener, "Attempting to add null listener");
+        this.gridHistoryUpdatedListeners.add(listener);
+    }
+
+    /**
+     * Remove grid history updated listener
+     * 
+     * @param listener
+     */
+    public void removeGridHistoryUpdatedListener(
+            IGridHistoryUpdatedListener listener) {
+        this.gridHistoryUpdatedListeners.remove(listener);
     }
 
     /**
@@ -490,5 +532,4 @@ public class ParmListeners {
             ILockTableChangedListener listener) {
         this.lockTableChangedListeners.remove(listener);
     }
-
 }
