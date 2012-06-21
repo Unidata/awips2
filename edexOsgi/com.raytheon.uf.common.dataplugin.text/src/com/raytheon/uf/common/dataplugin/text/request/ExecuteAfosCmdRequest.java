@@ -34,7 +34,6 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Feb 2, 2010             njensen     Initial creation
  * 28May2010    2187       cjeanbap    Added boolean operationalOrTestModeFlag.
  * 02Aug2010    2187       cjeanbap    Update variable/method signature to be consistent.
- * May 23, 2012 14952      rferrel     Added refTime and reftimeMode.
  * 
  * </pre>
  * 
@@ -53,12 +52,6 @@ public class ExecuteAfosCmdRequest implements IServerRequest {
 
     @DynamicSerializeElement
     private boolean operationalMode;
-
-    @DynamicSerializeElement
-    private Long refTime;
-
-    @DynamicSerializeElement
-    private boolean reftimeMode;
 
     public String getAfosCommand() {
         return afosCommand;
@@ -82,21 +75,5 @@ public class ExecuteAfosCmdRequest implements IServerRequest {
 
     public String getAfosLocale() {
         return afosLocale;
-    }
-
-    public Long getRefTime() {
-        return refTime;
-    }
-
-    public void setRefTime(Long refTime) {
-        this.refTime = refTime;
-    }
-
-    public boolean isReftimeMode() {
-        return reftimeMode;
-    }
-
-    public void setReftimeMode(boolean reftimeMode) {
-        this.reftimeMode = reftimeMode;
     }
 }

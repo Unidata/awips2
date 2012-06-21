@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.xy.timeheight.rsc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -52,11 +52,13 @@ import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
+import com.raytheon.viz.core.contours.ILoadableAsImage;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 import com.raytheon.viz.core.style.arrow.ArrowPreferences;
+import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -79,7 +81,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class TimeHeightVectorResource extends AbstractTimeHeightResource
-        implements IResourceDataChanged {
+        implements ILoadableAsImage, IResourceDataChanged {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeHeightVectorResource.class);
 
@@ -112,8 +114,6 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
             prefs = arrowPrefs = (ArrowPreferences) sr.getPreferences();
         }
         this.getResourceData().addChangeListener(this);
-        getCapability(DisplayTypeCapability.class).setAlternativeDisplayTypes(
-                Arrays.asList(DisplayType.IMAGE));
     }
 
     @Override
@@ -273,6 +273,25 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
         vgr.setLineStyle(getCapability(OutlineCapability.class).getLineStyle());
         vgr.paint(target);
         vgr.dispose();
+    }
+
+    @Override
+    public AbstractVizResource<?, ?> getImageryResource() throws VizException {
+        GridLoadProperties props = new GridLoadProperties(DisplayType.IMAGE);
+        TimeHeightImageResource rsc = new TimeHeightImageResource(resourceData,
+                props, adapter);
+        rsc.interpolatedData = interpolatedData;
+        return rsc;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.contours.ILoadableAsImage#isLoadableAsImage()
+     */
+    @Override
+    public boolean isLoadableAsImage() {
+        return true;
     }
 
     /*
