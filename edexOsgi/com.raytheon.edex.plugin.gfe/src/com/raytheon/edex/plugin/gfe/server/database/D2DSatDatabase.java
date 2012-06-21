@@ -52,7 +52,6 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 16, 2011            bphillip     Initial creation
- * May 04, 2012  #574      dgilling     Add unimplemented methods from GridDatabase.
  * 
  * </pre>
  * 
@@ -190,6 +189,11 @@ public class D2DSatDatabase extends VGridDatabase {
     }
 
     @Override
+    public void dbSizeStats() {
+        // no op
+    }
+
+    @Override
     public void updateDbs() {
         // no op
     }
@@ -212,15 +216,5 @@ public class D2DSatDatabase extends VGridDatabase {
         }
 
         return times;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.edex.plugin.gfe.server.database.GridDatabase#deleteDb()
-     */
-    @Override
-    public void deleteDb() {
-        // no-op
     }
 }

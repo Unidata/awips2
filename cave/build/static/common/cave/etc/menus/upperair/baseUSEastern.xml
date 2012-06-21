@@ -107,7 +107,7 @@
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="New Orleans, LA (KLIX)" id="raobNewOrleans_LA"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
-	        <substitute key="stationId" value="72233"/>
+	        <substitute key="stationId" value="72231"/>
 	    </contribute>
 		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="Wash-Dulles, VA (KIAD)" id="raobWash-Dulles"
