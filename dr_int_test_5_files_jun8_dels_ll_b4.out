@@ -1,0 +1,22 @@
+-rw-r--r-- 1 dmsys dmtool 369 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/.classpath
+-rw-r--r-- 1 dmsys dmtool 666 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/.project
+-rw-r--r-- 1 dmsys dmtool 387 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/.settings/org.eclipse.jdt.core.prefs
+-rw-r--r-- 1 dmsys dmtool 593 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/META-INF/MANIFEST.MF
+-rw-r--r-- 1 dmsys dmtool 76 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/build.properties
+-rw-r--r-- 1 dmsys dmtool 376 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/component-deploy.xml
+-rw-r--r-- 1 dmsys dmtool 2731 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/res/spring/tafqueue-request.xml
+-rw-r--r-- 1 dmsys dmtool 9203 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/src/com/raytheon/edex/plugin/tafqueue/TafQueueDao.java
+-rw-r--r-- 1 dmsys dmtool 7062 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/src/com/raytheon/edex/plugin/tafqueue/TafQueueManager.java
+-rw-r--r-- 1 dmsys dmtool 6620 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.tafqueue/src/com/raytheon/edex/plugin/tafqueue/TafQueueRequestHandler.java
+ls: edexOsgi/com.raytheon.edex.plugin.tafqueue/src/com/raytheon/uf/edex/tafqueue/TafQueueDao.java: No such file or directory
+ls: edexOsgi/com.raytheon.edex.plugin.tafqueue/src/com/raytheon/uf/edex/tafqueue/TafQueueManager.java: No such file or directory
+ls: edexOsgi/com.raytheon.edex.plugin.tafqueue/src/com/raytheon/uf/edex/tafqueue/TafQueueRequestHandler.java: No such file or directory
+-r--r--r-- 1 dmsys dmtool 2130 Mar  5  2010 cave/com.raytheon.viz.core.contours/plugin.xml
+-r--r--r-- 1 dmsys dmtool 1545 Mar  5  2010 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/ILoadableAsArrows.java
+-r--r--r-- 1 dmsys dmtool 1667 Jul 27  2010 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/ILoadableAsImage.java
+-r--r--r-- 1 dmsys dmtool 1683 Mar  5  2010 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/ILoadableAsStreamline.java
+-r--r--r-- 1 dmsys dmtool 1550 Mar  5  2010 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/ILoadableAsWindBarbs.java
+-r--r--r-- 1 dmsys dmtool 3980 Aug  4  2010 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/cmenu/ConvertToArrows.java
+-r--r--r-- 1 dmsys dmtool 4369 Apr 18  2011 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/cmenu/ConvertToImagery.java
+-r--r--r-- 1 dmsys dmtool 4150 Aug  4  2010 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/cmenu/ConvertToStreamlines.java
+-r--r--r-- 1 dmsys dmtool 4048 Aug  4  2010 cave/com.raytheon.viz.core.contours/src/com/raytheon/viz/core/contours/cmenu/ConvertToWindBarbs.java
