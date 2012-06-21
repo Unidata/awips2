@@ -16,6 +16,7 @@ import com.raytheon.uf.viz.monitor.data.ObReport;
  * Date           Ticket #   Engineer     Description 
  * ---------------------------------------------------
  * May 15, 2012   14510      zhao         Modified generateObReport()
+ * June 1, 2012   14510      zhao         Modified getPrWX()
  *
  */
 public class GenerateFSSObReport {
@@ -108,6 +109,9 @@ public class GenerateFSSObReport {
      * @return
      */
     private static String getPrWX(String[] presWeather) {
+    	if ( presWeather == null ) {
+    		return "";
+    	}
         StringBuffer prWx = new StringBuffer();
         for (int i = presWeather.length - 1; i >= 0; i--) {
             if (presWeather[i] != "") {
