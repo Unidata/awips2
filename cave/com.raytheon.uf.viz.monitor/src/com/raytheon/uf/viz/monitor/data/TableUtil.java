@@ -48,7 +48,6 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * ------------ ---------- ----------- --------------------------
  * Dec. 3, 2009  3424       zhao       Initial creation.
  * Jan 25, 2010  4281       wkwock/Zhao Added history-table-row-data related modules
- * May 23, 2012  14410      zhao       Modified getCellTypeForBlizWarn and getCellTypeForHsnowWarn modules
  * 
  * </pre>
  * 
@@ -751,39 +750,23 @@ public final class TableUtil {
         CellType type = CellType.NotAvailable;  // default; assuming no observation available
 
         String presentWx = report.getPresentWx();
-        
-        CellType windSpeed = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_WIND_SPEED.getXmlKey(), report.getWindSpeed());
 
-        CellType peakWind = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_PEAK_WIND.getXmlKey(), report.getMaxWindSpeed());
+        CellType windSpeed = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_WIND_SPEED.getXmlKey(), report.getWindSpeed());
 
-        CellType windGust = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_GUST_SPEED.getXmlKey(), report.getWindGust());
+        CellType peakWind = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_PEAK_WIND.getXmlKey(), report.getMaxWindSpeed());
 
-        CellType visibility = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_BLIZZ_VIS.getXmlKey(), report.getVisibility());
+        CellType windGust = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_WIND_GUST_SPEED.getXmlKey(), report.getWindGust());
+
+        CellType visibility = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_VIS.getXmlKey(), report.getVisibility());
 
         if ( presentWx.contains("SN") || presentWx.contains("BLSN") ) {
             // snow or blowing snow observed
-            if ( windSpeed.equals(CellType.R) || peakWind.equals(CellType.R) || windGust.equals(CellType.R) ) {
-            	if ( visibility.equals(CellType.R) ) {
-            		type = CellType.R;
-            	} else {
-            		type = CellType.Y;
-            	} 
-            } else if ( windSpeed.equals(CellType.Y) || peakWind.equals(CellType.Y) || windGust.equals(CellType.Y) ) {
-            	type = CellType.Y;
-            } else if ( windSpeed.equals(CellType.G) || peakWind.equals(CellType.G) || windGust.equals(CellType.G) ) {
-            	if ( visibility.equals(CellType.R) || visibility.equals(CellType.Y) ) {
-            		type = CellType.Y;
-            	} else if ( visibility.equals(CellType.G) ) {
-            		type = CellType.G;
-            	} else {
-            		type = CellType.NotAvailable;
-            	}
-            } else {
-            	if ( visibility.equals(CellType.R) || visibility.equals(CellType.Y) ) {
-            		type = CellType.Y;
-            	} else {
-            		type = CellType.NotAvailable;
-            	}
+            if ( windSpeed.equals(CellType.R) || peakWind.equals(CellType.R) || windGust.equals(CellType.R) || visibility.equals(CellType.R) ) {
+                type = CellType.R;
+            } else if ( windSpeed.equals(CellType.Y) || peakWind.equals(CellType.Y) || windGust.equals(CellType.Y) || visibility.equals(CellType.Y) ) {
+                type = CellType.Y;
+            } else if ( windSpeed.equals(CellType.G) || peakWind.equals(CellType.G) || windGust.equals(CellType.G) || visibility.equals(CellType.G) ) {
+                type = CellType.G;
             }
         } else {
             // snow or blowing snow not observed
@@ -853,12 +836,12 @@ public final class TableUtil {
     public static CellType getCellTypeForHsnowWarn(String zone, ObReport report, AbstractThresholdMgr tm) {
 
         CellType type = CellType.NotAvailable;  // default, assuming no observation available
-        
-        CellType snowDepth = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_HSW_SNOW_DEPTH.getXmlKey(), report.getSnowDepth());
 
-        CellType snincrHourly = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_HSW_SNINCR_HOURLY.getXmlKey(), report.getSnincrHourly());
+        CellType snowDepth = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_TEMP.getXmlKey(), report.getSnowDepth());
 
-        CellType snincrTotal = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_PROD_HSW_SNINCR_TOTAL.getXmlKey(), report.getSnincrTotal());
+        CellType snincrHourly = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_TEMP.getXmlKey(), report.getSnincrHourly());
+
+        CellType snincrTotal = tm.getThresholdValueCellType(DataUsageKey.DISPLAY, zone, MonitorConfigConstants.SnowDisplay.SNOW_DISP_METEO_TEMP.getXmlKey(), report.getSnincrTotal());
 
         if ( snowDepth.equals(CellType.R) || snincrHourly.equals(CellType.R) || snincrTotal.equals(CellType.R) ) {
             type = CellType.R;

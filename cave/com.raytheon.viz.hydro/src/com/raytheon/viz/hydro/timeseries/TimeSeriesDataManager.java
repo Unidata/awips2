@@ -68,7 +68,6 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * Apr 05, 2011 8732       jpiatt      Added product_id to getGraphData query.
  * June 01 2011 9499       djingtao    add dur in getGraphData()
  * July 25 2011 10082      djingtao    modify edit()
- * May  30 2012 14967      wkwock      overload insertRejectedData method
  * </pre>
  * 
  * @author dhladky
@@ -343,7 +342,7 @@ public class TimeSeriesDataManager extends HydroDataManager {
 				"select lid,obstime,value,product_id from ");
 		graphQuery.append(tablename + " where lid = '" + lid + "' and pe = '"
 				+ pe + "' " + "and dur = '" + dur + "' ");
-		graphQuery.append("and ts = '" + ts + "' and extremum = '" + extremum.toUpperCase() + "' and obstime ");
+		graphQuery.append("and ts = '" + ts + "' and extremum = '" + extremum + "' and obstime ");
 		graphQuery.append("between '"
 				+ HydroConstants.DATE_FORMAT.format(startTime) + "' ");
 		graphQuery.append("and '" + HydroConstants.DATE_FORMAT.format(endTime)
@@ -895,92 +894,6 @@ public class TimeSeriesDataManager extends HydroDataManager {
 
 		return DirectDbQuery.executeStatement(sb.toString(),
 				HydroConstants.IHFS, QueryLanguage.SQL);
-	}
-
-	public int insertRejectedData(List<ForecastData> deleteList) throws VizException {
-		StringBuilder sb = new StringBuilder();
-
-		Date currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
-		for (ForecastData dr : deleteList) {
-
-			Date productTime=dr.getProductTime();
-			if(productTime==null){ //get product time from DB if not available
-				StringBuilder sql = new StringBuilder("select producttime from ");
-				String tablename = DbUtils.getTableName(dr.getPe(), dr.getTs());
-				sql.append(tablename + " where ");
-				sql.append("lid = '" + dr.getLid() + "' ");
-				sql.append("and dur = " + dr.getDur() + " ");
-				sql.append("and ts = '" + dr.getTs().toUpperCase() + "' ");
-				sql.append("and extremum = '" + dr.getExtremum().toUpperCase() + "' ");
-				sql.append("and obstime = '" + dr.getObsTime() + "' ");
-				sql.append("and value = "+dr.getValue());
-				List<Object[]> sqlResult = (ArrayList<Object[]>) (DirectDbQuery.executeQuery(sql.toString(), HydroConstants.IHFS, QueryLanguage.SQL));
-				if (sqlResult !=null && sqlResult.size()>0 && sqlResult.get(0)[0]!=null)
-					productTime=(Date)sqlResult.get(0)[0];
-				else
-					productTime=currentTime; //use current time if still not available
-			}
-
-			sb.append("insert into rejecteddata(lid, pe, dur, ts, extremum, ");
-			sb.append("probability, validtime, basistime, postingtime, value, ");
-			sb.append("revision, shef_qual_code, product_id, producttime, quality_code, ");
-			sb.append("reject_type, userid) VALUES(");
-
-			sb.append("'" + dr.getLid() + "', ");
-			sb.append("'" + dr.getPe() + "', ");
-			sb.append(dr.getDur() + ", ");
-			sb.append("'" + dr.getTs() + "', ");
-			sb.append("'" + dr.getExtremum() + "', ");
-			sb.append(-1 + ", ");
-
-			/* set validtime for observed data */
-			if (dr.getValidTime() != null) {
-				sb.append("'"
-						+ HydroConstants.DATE_FORMAT.format(dr.getValidTime())
-						+ "', ");
-			} else {
-				sb.append("'"
-						+ (HydroConstants.DATE_FORMAT.format(dr.getObsTime()))
-						+ "', ");
-			}
-
-			if (dr.getBasisTime() != null) {
-					sb.append("'"
-							+ (dr.getBasisTime()) + "', ");
-			} else {
-				sb.append("'"
-						+ (HydroConstants.DATE_FORMAT.format(dr.getObsTime()))
-						+ "', ");
-			}
-
-			sb.append("'" + HydroConstants.DATE_FORMAT.format(currentTime) + "', ");
-			sb.append(dr.getValue() + ", ");
-			sb.append(dr.getRevision() + ", ");
-			sb.append("'" + dr.getShefQualCode() + "', ");
-			sb.append("'" + dr.getProductID() + "', ");
-			sb.append("'"
-					+ HydroConstants.DATE_FORMAT.format(productTime)
-					+ "', ");
-			sb.append(dr.getQualityCode() + ", ");
-			sb.append("'M', ");
-			sb.append("'" + LocalizationManager.getInstance().getCurrentUser()
-					+ "');");
-		}
-
-		AppsDefaults ad = AppsDefaults.getInstance();
-		boolean debug = ad.getBoolean(HydroConstants.DEBUG_HYDRO_DB_TOKEN,
-				false);
-
-		if (debug) {
-			System.out.println(ad.getToken(HydroConstants.PGHOST) + ":"
-					+ ad.getToken(HydroConstants.PGPORT) + ":"
-					+ ad.getToken(HydroConstants.DB_NAME));
-			System.out.println("Query: " + sb.toString());
-		}
-
-		return DirectDbQuery.executeStatement(sb.toString(),
-				HydroConstants.IHFS, QueryLanguage.SQL);
-
 	}
 
 	/**

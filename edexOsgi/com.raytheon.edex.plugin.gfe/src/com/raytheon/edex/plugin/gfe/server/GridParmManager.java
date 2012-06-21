@@ -36,12 +36,13 @@ import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
+import com.raytheon.edex.plugin.gfe.server.database.ClimoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabase;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.HLSTopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
-import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.edex.util.Util;
@@ -766,6 +767,8 @@ public class GridParmManager {
         List<DatabaseID> gfeDbs = gfeDao.getDatabaseInventory();
         List<DatabaseID> singletons = null;
         List<DatabaseID> d2dDbs = null;
+        List<DatabaseID> climoDbs = null;
+        List<DatabaseID> hlsTopoDbs = null;
 
         d2dDbs = D2DParmIdCache.getInstance().getDatabaseIDs();
 
@@ -800,7 +803,11 @@ public class GridParmManager {
         DatabaseID topoDbId = TopoDatabaseManager.getTopoDbId(siteID);
         databases.add(topoDbId);
 
-        databases.addAll(NetCDFDatabaseManager.getDatabaseIds(siteID));
+        climoDbs = ClimoDatabaseManager.getClimoDatabases(siteID);
+        databases.addAll(climoDbs);
+
+        hlsTopoDbs = HLSTopoDatabaseManager.getHLSTopoDatabases(siteID);
+        databases.addAll(hlsTopoDbs);
 
         sr.setPayload(databases);
         return sr;
@@ -1126,11 +1133,30 @@ public class GridParmManager {
             if ("D2D".equals(dbType)) {
                 if (modelName.equals("Satellite")) {
                     db = D2DSatDatabaseManager.getSatDatabase(dbId.getSiteId());
-
+                } else if (modelName.contains("Climo")) {
+                    // Check for climo types
+                    String climoModel = modelName.replace("Climo", "");
+                    for (String source : ClimoDatabaseManager.getClimoSources()) {
+                        DatabaseID climoDbId = ClimoDatabaseManager
+                                .getClimoDbId(siteId, source);
+                        String climoDbType = climoDbId.getDbType();
+                        if (climoDbType.equals(dbType)
+                                && source.equals(climoModel)) {
+                            db = ClimoDatabaseManager.getClimoDatabase(siteId,
+                                    source);
+                            break;
+                        }
+                    }
+                } else if (HLSTopoDatabaseManager.getHLSTopoSources().contains(
+                        modelName)) {
+                    // check for hlsTopo
+                    GridDatabase hlsTopoDb = HLSTopoDatabaseManager
+                            .getHLSTopoDatabase(siteId, modelName);
+                    if (hlsTopoDb != null
+                            && dbType.equals(hlsTopoDb.getDbId().getDbType())) {
+                        db = hlsTopoDb;
+                    }
                 } else {
-                    db = NetCDFDatabaseManager.getDb(dbId);
-                }
-                if (db == null) {
                     IFPServerConfig serverConfig = IFPServerConfigManager
                             .getServerConfig(siteId);
                     db = new D2DGridDatabase(serverConfig, dbId);

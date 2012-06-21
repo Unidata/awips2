@@ -219,71 +219,6 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 
         return val;
     }
-    
-    /**
-     * Used for mosaic sources where the times come in irregularly (QPF)
-     * @param date
-     * @param buffer
-     * @return
-     */
-    public Float getAverageValue(Date date, long buffer) {
-    	Date afterDate = new Date(date.getTime()-(buffer/2));
-    	Date beforeDate = new Date(date.getTime()+(buffer/2));
-    	//System.out.println("AfterDate: "+afterDate+ " BeforeDate: "+beforeDate);
-    	return getAverageValue(afterDate, beforeDate);
-    }
-    
-    /**
-     * Gets the average value within a time window, used for mosaic
-     * 
-     * @param afterDate
-     * @param beforeDate
-     * @return
-     */
-	public Float getAverageValue(Date afterDate, Date beforeDate) {
-		Float val = 0.0f;
-		int i = 0;
-
-		synchronized (values) {
-
-			for (Date date : values.keySet()) {
-				if (date.before(beforeDate) && date.after(afterDate)) {
-					val += values.get(date);
-				}
-			}
-
-			if (i != 0) {
-				val = val / i;
-			}
-		}
-
-		return val;
-	}
-	
-	/**
-     * Gets the average value within a time window, used for mosaic
-     * 
-     * @param afterDate
-     * @param beforeDate
-     * @return
-     */
-	public Float getMaxValue(Date afterDate, Date beforeDate) {
-		Float val = 0.0f;
-
-		synchronized (values) {
-
-			for (Date date : values.keySet()) {
-				if (date.before(beforeDate) && date.after(afterDate)) {
-					if (val > values.get(date)) {
-						val = values.get(date);
-					}
-				}
-			}
-		}
-
-		return val;
-	}
-
 
     /**
      * Adds a date/value pair
@@ -347,10 +282,8 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
         if (values != null) {
             synchronized (values) {
                 ArrayList<Date> removes = new ArrayList<Date>();
-                for (Date mdate : values.keySet()) {
-                	if (mdate.before(date)) {
-                		removes.add(mdate);
-                	}
+                for (Date mdate : values.tailMap(date).keySet()) {
+                    removes.add(mdate);
                 }
 
                 for (Date rdate : removes) {

@@ -89,11 +89,6 @@
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
 	        <substitute key="stationId" value="72582"/>
 	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
-	                menuText="Las Vegas, NV (KVEF)" id="raobLasVegas_NV"
-	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
-	        <substitute key="stationId" value="72388"/>
-	    </contribute>	    
 	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
 	                menuText="Medford, OR (KMFR)" id="raobMedford_OR"
 	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
