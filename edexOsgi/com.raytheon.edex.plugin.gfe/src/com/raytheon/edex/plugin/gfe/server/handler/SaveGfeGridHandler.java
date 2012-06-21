@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.SaveGfeGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
+import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
@@ -62,16 +63,23 @@ public class SaveGfeGridHandler implements IRequestHandler<SaveGfeGridRequest> {
     public ServerResponse<?> handleRequest(SaveGfeGridRequest request)
             throws Exception {
         ServerResponse<?> sr = null;
-        String siteID = request.getSiteID();
         List<SaveGridRequest> saveRequest = request.getSaveRequest();
+        WsId workstationID = request.getWorkstationID();
+        String siteID = request.getSiteID();
+        boolean clientSendStatus = false;
+        if (!saveRequest.isEmpty()) {
+            clientSendStatus = saveRequest.get(0).isClientSendStatus();
+        }
 
         try {
-            sr = GridParmManager.saveGridData(saveRequest,
-                    request.getWorkstationID(), siteID);
+            sr = GridParmManager.saveGridData(saveRequest, workstationID,
+                    siteID);
 
+            // check for sending to ISC
             IFPServerConfig serverConfig = IFPServerConfigManager
                     .getServerConfig(siteID);
-            if (serverConfig.requestISC()) {
+            String iscrta = serverConfig.iscRoutingTableAddress().get("ANCF");
+            if (serverConfig.requestISC() && clientSendStatus && iscrta != null) {
                 for (SaveGridRequest save : saveRequest) {
                     DatabaseID dbid = save.getParmId().getDbId();
                     // ensure Fcst database

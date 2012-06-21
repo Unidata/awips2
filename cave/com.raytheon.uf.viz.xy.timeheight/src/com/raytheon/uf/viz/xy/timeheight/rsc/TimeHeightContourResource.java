@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.xy.timeheight.rsc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -30,11 +31,11 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
@@ -45,10 +46,8 @@ import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.contours.ContourSupport;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
-import com.raytheon.viz.core.contours.ILoadableAsImage;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
-import com.raytheon.viz.grid.rsc.GridLoadProperties;
 
 /**
  * Resource for displaying cross sections as contours
@@ -67,8 +66,7 @@ import com.raytheon.viz.grid.rsc.GridLoadProperties;
  * @version 1.0
  */
 
-public class TimeHeightContourResource extends AbstractTimeHeightResource
-        implements ILoadableAsImage {
+public class TimeHeightContourResource extends AbstractTimeHeightResource {
 
     private static final double ZOOM_REACTION_FACTOR = .45;
 
@@ -110,6 +108,8 @@ public class TimeHeightContourResource extends AbstractTimeHeightResource
         if (sr != null) {
             prefs = contourPrefs = (ContourPreferences) sr.getPreferences();
         }
+        getCapability(DisplayTypeCapability.class).setAlternativeDisplayTypes(
+                Arrays.asList(DisplayType.IMAGE));
     }
 
     @Override
@@ -217,33 +217,6 @@ public class TimeHeightContourResource extends AbstractTimeHeightResource
                     lineCap.getOutlineWidth(), posLineStyle, negLineStyle,
                     this.timeHeightFont, null);
         }
-    }
-
-    @Override
-    public AbstractVizResource<?, ?> getImageryResource() throws VizException {
-        GridLoadProperties props = new GridLoadProperties(DisplayType.IMAGE);
-        // TimeHeightImageResource rsc = new
-        // TimeHeightImageResource(resourceData,
-        // props, adapter);
-        // rsc.geometry = geometry;
-        // rsc.interpolatedData = interpolatedData;
-
-        // use resource data to construct so that everything gets set up
-        // properly
-        AbstractVizResource<?, ?> rsc = this.getResourceData().construct(props,
-                this.getDescriptor());
-
-        return rsc;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.contours.ILoadableAsImage#isLoadableAsImage()
-     */
-    @Override
-    public boolean isLoadableAsImage() {
-        return true;
     }
 
     /*
