@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+ * gov.noaa.nws.ost.edex.plugin.alaskasat.util.RegionalSatLookups
+ * 
+ * 12-01-11
+ * 
+ * This code has been developed by the NWS/OST/SEC for use in the AWIPS2 system.
+ -->
+<physicalElements>
+	<map>
+		<entry><key channel="0.58 - 0.68 micron VISL" satName="HRPT"/><value name="0.58 - 0.68 micron VISL" /></entry>
+		<entry><key channel="3 Channel Differencing" satName="HRPT"/><value name="3 Channel Differencing" /></entry>
+		<entry><key channel="3.55-3.93 micron IRUL" satName="HRPT"/><value name="3.55-3.93 micron IRUL" units="IRPixel" /></entry>
+		<entry><key channel="10.5 - 11.5 micron IRUL" satName="HRPT"/><value name="10.5 - 11.5 micron IRUL" units="IRPixel" /></entry>
+		<entry><key channel="Channel 4-5 IR" satName="HRPT"/><value name="Channel 4-5 IR" /></entry>
+		<entry><key channel="0.7 micron visible" satName="MTSAT"/><value name="0.7 micron visibl" /></entry>
+		<entry><key channel="10 micron IR" satName="MTSAT"/><value name="10 micron IR" units="IRPixel"/></entry>
+		<entry><key channel="Channel 4-5 IR" satName="MTSAT"/><value name="Channel 4-5 IR" /></entry>
+		<entry><key channel="0.40 - 1.10 micron VISL" satName="DMSP"/><value name="0.40 - 1.10 micron VISL" /></entry>
+		<entry><key channel="10.0 - 12.0 micron IRUL" satName="DMSP"/><value name="10.0 - 12.0 micron IRUL" units="IRPixel"/></entry>
+		<entry><key channel="0.55-0.75 micron VISL" satName="GVAR"/><value name="0.55-0.75 micron VISL" /></entry>
+		<entry><key channel="3.80-4.00 micron IRUL" satName="GVAR"/><value name="3.80-4.00 micron IRUL" units="IRPixel"/></entry>
+		<entry><key channel="6.50-7.00 micron IRUL" satName="GVAR"/><value name="6.50-7.00 micron IRUL" /></entry>
+		<entry><key channel="10.20-11.20 micron IRUL" satName="GVAR"/><value name="10.20-11.20 micron IRUL" units="IRPixel"/></entry>
+		<entry><key channel="0.58 - 0.68 micron VISL" satName="FY1C"/><value name="0.58 - 0.68 micron VISL" /></entry>
+		<entry><key channel="10.5 - 11.5 micron IRUL" satName="FY1C"/><value name="10.5 - 11.5 micron IRUL" units="IRPixel" /></entry>
+		<entry><key channel="3.55-3.93 micron IRUL" satName="FY1C"/><value name="3.55-3.93 micron IRUL" units="IRPixel" /></entry>
+		<entry><key channel="3 Channel Differencing" satName="FY1C"/><value name="3 Channel Differencing" /></entry>
+		<entry><key channel="Channel 4-5 IR" satName="FY1C"/><value name="Channel 4-5 IR" /></entry>
+		<entry><key channel="0.58 - 0.68 micron VISL" satName="FY3C"/><value name="0.58 - 0.68 micron VISL" /></entry>
+		<entry><key channel="3.55-3.93 micron IRUL" satName="FY3C"/><value name="3.55-3.93 micron IRUL" units="IRPixel" /></entry>		
+		<entry><key channel="10.5 - 11.5 micron IRUL" satName="FY3C"/><value name="10.5 - 11.5 micron IRUL" units="IRPixel" /></entry>
+		<entry><key channel="3 Channel Differencing" satName="FY3C"/><value name="3 Channel Differencing" /></entry>
+		<entry><key channel="Channel 4-5 IR" satName="FY3C"/><value name="Channel 4-5 IR" /></entry>
+		<entry><key channel="AIRS" satName="GOESR-PG"/><value name="Imager Based Derived Precipitable Water (PW)" /></entry>
+		<entry><key channel="ABI" satName="GOESR-PG"/><value name="Imager 6.7-6.5 micron IR (WV)" /></entry>
+		<entry><key channel="AVHRR" satName="GOESR-PG"/><value name="Imager Visible" /></entry>
+		<entry><key channel="MIMTPW" satName="Blended2"/><value name="Imager Based Derived Precipitable Water (PW)" /></entry>
+	</map>
+</physicalElements>

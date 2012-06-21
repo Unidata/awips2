@@ -1,0 +1,138 @@
+-r--r--r-- 1 dmsys dmtool 58713 Mar  7  2011 cave/build/static/common/cave/etc/bundles/DefaultRadarFourPanelBlendedBestRes.xml
+-r--r--r-- 1 dmsys dmtool 7790 May  1 15:31 cave/build/static/common/cave/etc/gfe/userPython/utilities/ProcessVariableList.py
+-rw-r--r-- 1 dmsys dmtool 8936 Jun  4 17:11 cave/com.raytheon.uf.viz.alertviz/src/com/raytheon/uf/viz/alertviz/AlertVizClient.java
+-rw-r--r-- 1 dmsys dmtool 12670 Jun  4 17:09 cave/com.raytheon.uf.viz.alertviz/src/com/raytheon/uf/viz/alertviz/Container.java
+-r--r--r-- 1 dmsys dmtool 12609 Apr 18  2011 cave/com.raytheon.uf.viz.core/src/com/raytheon/uf/viz/core/catalog/ScriptCreator.java
+-r--r--r-- 1 dmsys dmtool 30246 Apr 25 11:06 cave/com.raytheon.uf.viz.core/src/com/raytheon/uf/viz/core/drawables/ColorMapParameters.java
+-r--r--r-- 1 dmsys dmtool 1992 Aug  4  2010 cave/com.raytheon.uf.viz.core/src/com/raytheon/uf/viz/core/rsc/capabilities/DisplayTypeCapability.java
+-r--r--r-- 1 dmsys dmtool 9013 Jun 17  2011 cave/com.raytheon.uf.viz.d2d.core/src/com/raytheon/uf/viz/d2d/core/sampling/D2DSamplingResource.java
+-r--r--r-- 1 dmsys dmtool 1430 Sep  8  2011 cave/com.raytheon.uf.viz.monitor.ffmp/META-INF/MANIFEST.MF
+-rw-r--r-- 1 dmsys dmtool 94518 May 29 12:46 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/FFMPMonitor.java
+-rw-r--r-- 1 dmsys dmtool 71285 May 29 12:46 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/ui/dialogs/FfmpBasinTableDlg.java
+-rw-r--r-- 1 dmsys dmtool 7156 May 29 12:46 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/ui/dialogs/FFMPTableCellData.java
+-r--r--r-- 1 dmsys dmtool 24069 Nov 29  2011 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/ui/dialogs/TimeDurScaleComp.java
+-rw-r--r-- 1 dmsys dmtool 40157 May 29 12:46 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/ui/rsc/FFMPDataGenerator.java
+-rw-r--r-- 1 dmsys dmtool 18611 May 29 12:46 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/ui/rsc/FFMPDataLoader.java
+-r--r--r-- 1 dmsys dmtool 16858 Dec  5  2011 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/ui/rsc/FFMPResourceData.java
+-rw-r--r-- 1 dmsys dmtool 147202 May 29 12:46 cave/com.raytheon.uf.viz.monitor.ffmp/src/com/raytheon/uf/viz/monitor/ffmp/ui/rsc/FFMPResource.java
+-r--r--r-- 1 dmsys dmtool 4676 Jun  1 10:55 cave/com.raytheon.uf.viz.monitor/src/com/raytheon/uf/viz/monitor/GenerateFSSObReport.java
+-r--r--r-- 1 dmsys dmtool 10059 May 15 14:08 cave/com.raytheon.uf.viz.monitor/src/com/raytheon/uf/viz/monitor/ObsMonitor.java
+-r--r--r-- 1 dmsys dmtool 28499 Nov  7  2011 cave/com.raytheon.uf.viz.objectiveanalysis/src/com/raytheon/uf/viz/objectiveanalysis/rsc/OAResource.java
+-r--r--r-- 1 dmsys dmtool 5742 May  5  2011 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/DialogAreaComposite.java
+-r--r--r-- 1 dmsys dmtool 3988 Jul 12  2011 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/ButtonWidget.java
+-r--r--r-- 1 dmsys dmtool 6993 Jul 12  2011 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/InputWidget.java
+-r--r--r-- 1 dmsys dmtool 2287 Jul 12  2011 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/LabelWidget.java
+-r--r--r-- 1 dmsys dmtool 4793 Jul 12  2011 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/ListWidget.java
+-r--r--r-- 1 dmsys dmtool 4168 Jul 12  2011 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/PushButtonWidget.java
+-r--r--r-- 1 dmsys dmtool 6137 May  1 15:31 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/ScaleWidget.java
+-r--r--r-- 1 dmsys dmtool 1764 Sep 20  2010 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/ScrollbarWidget.java
+-r--r--r-- 1 dmsys dmtool 4280 Jul 12  2011 cave/com.raytheon.uf.viz.python.swt/src/com/raytheon/uf/viz/python/swt/widgets/Widget.java
+-r--r--r-- 1 dmsys dmtool 9282 Jul 26  2011 cave/com.raytheon.uf.viz.qpf/src/com/raytheon/uf/viz/qpf/QPFResource.java
+-r--r--r-- 1 dmsys dmtool 15298 Dec  5  2011 cave/com.raytheon.uf.viz.xy.crosssection/src/com/raytheon/uf/viz/xy/crosssection/rsc/CrossSectionContourResource.java
+-r--r--r-- 1 dmsys dmtool 9912 Nov 30  2011 cave/com.raytheon.uf.viz.xy.timeheight/src/com/raytheon/uf/viz/xy/timeheight/rsc/TimeHeightContourResource.java
+-r--r--r-- 1 dmsys dmtool 13288 Aug 24  2011 cave/com.raytheon.uf.viz.xy.timeheight/src/com/raytheon/uf/viz/xy/timeheight/rsc/TimeHeightVectorResource.java
+-rwxr-xr-x 1 dmsys dmtool 24532 May 29 12:46 cave/com.raytheon.viz.aviation/src/com/raytheon/viz/aviation/editor/LoaderDialog.java
+-rwxr-xr-x 1 dmsys dmtool 16243 May 29 12:46 cave/com.raytheon.viz.aviation/src/com/raytheon/viz/aviation/observer/SendDialog.java
+-rwxr-xr-x 1 dmsys dmtool 24732 May 29 12:46 cave/com.raytheon.viz.aviation/src/com/raytheon/viz/aviation/utility/TransmissionQueueDlg.java
+-r--r--r-- 1 dmsys dmtool 21480 Aug 15  2011 cave/com.raytheon.viz.awipstools/src/com/raytheon/viz/awipstools/common/stormtrack/StormTrackUIManager.java
+-r--r--r-- 1 dmsys dmtool 10584 May 24  2011 cave/com.raytheon.viz.core/src/com/raytheon/viz/core/rsc/BestResResource.java
+-r--r--r-- 1 dmsys dmtool 4066 Dec  6  2011 cave/com.raytheon.viz.feature.awips.developer/feature.xml
+-r--r--r-- 1 dmsys dmtool 72331 Mar  9 07:19 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/core/internal/AbstractParmManager.java
+ls: cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/core/msgs/IGridHistoryUpdatedListener.java: No such file or directory
+-rw-r--r-- 1 dmsys dmtool 32074 May 29 12:46 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/core/parm/DbParm.java
+-rw-r--r-- 1 dmsys dmtool 172010 May 10 11:41 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/core/parm/Parm.java
+-rw-r--r-- 1 dmsys dmtool 16429 May 10 11:41 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/core/parm/ParmListeners.java
+-r--r--r-- 1 dmsys dmtool 4960 Jul 27  2010 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/dialogs/formatterlauncher/WrapLengthDialog.java
+-r--r--r-- 1 dmsys dmtool 50742 Jan 19 18:32 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/gridmanager/GridBar.java
+-r--r--r-- 1 dmsys dmtool 64286 Dec  6  2011 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/rsc/GFEResource.java
+-r--r--r-- 1 dmsys dmtool 54869 Apr 18  2011 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/sampler/HistSample.java
+-r--r--r-- 1 dmsys dmtool 13726 May  1 15:31 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/smartscript/FieldDefinition.java
+ls: cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/ui/runtimeui/DialogAreaComposite.java: No such file or directory
+-r--r--r-- 1 dmsys dmtool 4878 Jul 14  2011 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/ui/runtimeui/SelectionDlg.java
+-r--r--r-- 1 dmsys dmtool 8385 Jul 18  2011 cave/com.raytheon.viz.gfe/src/com/raytheon/viz/gfe/ui/runtimeui/ValuesDialog.java
+-r--r--r-- 1 dmsys dmtool 43336 Dec 12 11:56 cave/com.raytheon.viz.grid/src/com/raytheon/viz/grid/rsc/AbstractMapVectorResource.java
+-r--r--r-- 1 dmsys dmtool 34306 Dec 12 11:56 cave/com.raytheon.viz.grid/src/com/raytheon/viz/grid/rsc/general/AbstractGridResource.java
+-rw-r--r-- 1 dmsys dmtool 15134 May  7 10:47 cave/com.raytheon.viz.grid/src/com/raytheon/viz/grid/rsc/general/D2DGribGridResource.java
+-rw-r--r-- 1 dmsys dmtool 66493 May 15 22:30 cave/com.raytheon.viz.grid/src/com/raytheon/viz/grid/rsc/GridResource.java
+-r--r--r-- 1 dmsys dmtool 33220 May 16 09:56 cave/com.raytheon.viz.grid/src/com/raytheon/viz/grid/rsc/GridVectorResource.java
+-rwxr-xr-x 1 dmsys dmtool 94795 May  7 10:47 cave/com.raytheon.viz.hydro/src/com/raytheon/viz/hydro/timeseries/TabularTimeSeriesDlg.java
+-r--r--r-- 1 dmsys dmtool 102743 Jun  1 13:24 cave/com.raytheon.viz.hydro/src/com/raytheon/viz/hydro/timeseries/TimeSeriesDisplayCanvas.java
+-rw-r--r-- 1 dmsys dmtool 88308 May 10 11:41 cave/com.raytheon.viz.hydro/src/com/raytheon/viz/hydro/timeseries/TimeSeriesDlg.java
+-r--r--r-- 1 dmsys dmtool 20351 Apr 25 11:06 cave/com.raytheon.viz.radar/src/com/raytheon/viz/radar/rsc/AbstractRadarResource.java
+-rw-r--r-- 1 dmsys dmtool 10817 May 29 12:46 cave/com.raytheon.viz.texteditor/src/com/raytheon/viz/texteditor/alarmalert/dialogs/AlarmAlertBell.java
+-rw-r--r-- 1 dmsys dmtool 23346 May 29 12:46 cave/com.raytheon.viz.texteditor/src/com/raytheon/viz/texteditor/alarmalert/dialogs/CurrentAlarmQueue.java
+-rw-r--r-- 1 dmsys dmtool 2647 May 29 12:46 cave/com.raytheon.viz.texteditor/src/com/raytheon/viz/texteditor/alarmalert/util/FlashBellJob.java
+-r--r--r-- 1 dmsys dmtool 6389 Nov 18  2011 cave/com.raytheon.viz.texteditor/src/com/raytheon/viz/texteditor/command/AFOSCommand.java
+-r--r--r-- 1 dmsys dmtool 4378 Mar  5  2010 cave/com.raytheon.viz.texteditor/src/com/raytheon/viz/texteditor/command/CommandFactory.java
+-r--r--r-- 1 dmsys dmtool 21673 Mar 14 14:12 cave/com.raytheon.viz.ui/plugin.xml
+ls: cave/com.raytheon.viz.ui/src/com/raytheon/viz/ui/cmenu/LoadAsArrowsAction.java: No such file or directory
+ls: cave/com.raytheon.viz.ui/src/com/raytheon/viz/ui/cmenu/LoadAsBarbsAction.java: No such file or directory
+ls: cave/com.raytheon.viz.ui/src/com/raytheon/viz/ui/cmenu/LoadAsDisplayTypeAction.java: No such file or directory
+ls: cave/com.raytheon.viz.ui/src/com/raytheon/viz/ui/cmenu/LoadAsGraphicsAction.java: No such file or directory
+ls: cave/com.raytheon.viz.ui/src/com/raytheon/viz/ui/cmenu/LoadAsImageAction.java: No such file or directory
+ls: cave/com.raytheon.viz.ui/src/com/raytheon/viz/ui/cmenu/LoadAsStreamlinesAction.java: No such file or directory
+-rw-r--r-- 1 dmsys dmtool 76621 May 29 12:46 cave/com.raytheon.viz.warngen/src/com/raytheon/viz/warngen/gui/WarngenDialog.java
+-rw-r--r-- 1 dmsys dmtool 91692 Jun  4 14:29 cave/com.raytheon.viz.warngen/src/com/raytheon/viz/warngen/gui/WarngenLayer.java
+-r--r--r-- 1 dmsys dmtool 33887 Jun  4 14:18 cave/com.raytheon.viz.warngen/src/com/raytheon/viz/warngen/template/TemplateRunner.java
+-r--r--r-- 1 dmsys dmtool 22007 May  9 10:42 edexOsgi/build.edex/deploy-install.xml
+-rw-r--r-- 1 dmsys dmtool 4932 May 29 12:46 edexOsgi/build.edex/rpm/component/edex/includes/edex-dataplugins/MANIFEST.MF
+-rw-r--r-- 1 dmsys dmtool 47632 May 29 12:46 edexOsgi/com.raytheon.edex.feature.uframe/feature.xml
+-rw-r--r-- 1 dmsys dmtool 10338 May 29 12:44 edexOsgi/com.raytheon.edex.plugin.gfe/src/com/raytheon/edex/plugin/gfe/isc/IscSendJob.java
+-rw-r--r-- 1 dmsys dmtool 6065 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.gfe/src/com/raytheon/edex/plugin/gfe/server/database/NetCDFDatabaseManager.java
+-rw-r--r-- 1 dmsys dmtool 52614 May 29 12:46 edexOsgi/com.raytheon.edex.plugin.gfe/src/com/raytheon/edex/plugin/gfe/server/GridParmManager.java
+-rw-r--r-- 1 dmsys dmtool 32277 May 22 23:58 edexOsgi/com.raytheon.edex.plugin.gfe/src/com/raytheon/edex/plugin/gfe/server/lock/LockManager.java
+-r--r--r-- 1 dmsys dmtool 10780 Mar 23  2010 edexOsgi/com.raytheon.edex.plugin.gfe/src/com/raytheon/edex/plugin/gfe/util/TranslateReferenceSet.java
+-rw-r--r-- 1 dmsys dmtool 24661 May 30 15:03 edexOsgi/com.raytheon.edex.plugin.grib/src/com/raytheon/edex/plugin/grib/spatial/GribSpatialCache.java
+-r--r--r-- 1 dmsys dmtool 1036 Sep  8  2011 edexOsgi/com.raytheon.edex.plugin.grib/utility/edex_static/base/grib/largeGribPatterns.xml
+-r--r--r-- 1 dmsys dmtool 51223 Oct 25  2011 edexOsgi/com.raytheon.edex.plugin.obs/src/com/raytheon/edex/plugin/obs/metar/MetarDecoder.java
+-r--r--r-- 1 dmsys dmtool 12429 Aug  4  2011 edexOsgi/com.raytheon.edex.plugin.radar/src/com/raytheon/edex/plugin/radar/dao/RadarDao.java
+-r--r--r-- 1 dmsys dmtool 6421 Nov 16  2011 edexOsgi/com.raytheon.edex.plugin.shef/res/spring/shef-ingest.xml
+-rw-r--r-- 1 dmsys dmtool 2197 May 30 15:04 edexOsgi/com.raytheon.edex.plugin.text/src/com/raytheon/edex/plugin/text/dao/TextDao.java
+-r--r--r-- 1 dmsys dmtool 4836 Mar 16  2011 edexOsgi/com.raytheon.edex.textdb/src/com/raytheon/edex/textdb/alarms/AlarmAlertUtil.java
+-r--r--r-- 1 dmsys dmtool 106401 Oct  5  2011 edexOsgi/com.raytheon.edex.textdb/src/com/raytheon/edex/textdb/dao/StdTextProductDao.java
+-rw-r--r-- 1 dmsys dmtool 34309 Apr 25 11:06 edexOsgi/com.raytheon.edex.textdb/src/com/raytheon/edex/textdb/dbapi/impl/TextDB.java
+-r--r--r-- 1 dmsys dmtool 1987 Aug  4  2010 edexOsgi/com.raytheon.edex.textdb/src/com/raytheon/edex/textdb/handler/ExecuteAfosCmdHandler.java
+-r--r--r-- 1 dmsys dmtool 3898 Apr 18  2011 edexOsgi/com.raytheon.edex.textdb/src/com/raytheon/edex/textdb/handler/WriteProductHandler.java
+-r--r--r-- 1 dmsys dmtool 11676 Oct  7  2011 edexOsgi/com.raytheon.uf.common.cache/src/com/raytheon/uf/common/cache/DiskCache.java
+-r--r--r-- 1 dmsys dmtool 17936 Feb 10  2011 edexOsgi/com.raytheon.uf.common.dataplugin.airep/src/com/raytheon/uf/common/dataplugin/airep/AirepRecord.java
+-r--r--r-- 1 dmsys dmtool 1308 Aug 24  2011 edexOsgi/com.raytheon.uf.common.dataplugin.ffmp/META-INF/MANIFEST.MF
+-r--r--r-- 1 dmsys dmtool 14442 Nov 28  2011 edexOsgi/com.raytheon.uf.common.dataplugin.ffmp/src/com/raytheon/uf/common/dataplugin/ffmp/FFMPBasinData.java
+-rw-r--r-- 1 dmsys dmtool 8064 May 10 11:41 edexOsgi/com.raytheon.uf.common.dataplugin.ffmp/src/com/raytheon/uf/common/dataplugin/ffmp/FFMPBasin.java
+ls: edexOsgi/com.raytheon.uf.common.dataplugin.ffmp/src/com/raytheon/uf/common/dataplugin/ffmp/FFMPCacheRecord.java: No such file or directory
+-rw-r--r-- 1 dmsys dmtool 14664 May 29 12:46 edexOsgi/com.raytheon.uf.common.dataplugin.ffmp/src/com/raytheon/uf/common/dataplugin/ffmp/FFMPDataContainer.java
+-rw-r--r-- 1 dmsys dmtool 26923 May 29 12:46 edexOsgi/com.raytheon.uf.common.dataplugin.ffmp/src/com/raytheon/uf/common/dataplugin/ffmp/FFMPRecord.java
+-r--r--r-- 1 dmsys dmtool 9262 Sep 29  2011 edexOsgi/com.raytheon.uf.common.dataplugin.fssobs/src/com/raytheon/uf/common/dataplugin/fssobs/FSSObsRecordTransform.java
+-r--r--r-- 1 dmsys dmtool 4622 Jun  6  2011 edexOsgi/com.raytheon.uf.common.dataplugin.gfe/src/com/raytheon/uf/common/dataplugin/gfe/server/notify/DBInvChangeNotification.java
+ls: edexOsgi/com.raytheon.uf.common.dataplugin.gfe/src/com/raytheon/uf/common/dataplugin/gfe/server/notify/GridHistoryUpdateNotification.java: No such file or directory
+-r--r--r-- 1 dmsys dmtool 6144 Nov 16  2011 edexOsgi/com.raytheon.uf.common.dataplugin.gfe/src/com/raytheon/uf/common/dataplugin/gfe/server/notify/GridUpdateNotification.java
+-r--r--r-- 1 dmsys dmtool 22995 Jun 14  2011 edexOsgi/com.raytheon.uf.common.dataplugin.pirep/src/com/raytheon/uf/common/dataplugin/pirep/PirepRecord.java
+-r--r--r-- 1 dmsys dmtool 9620 Mar 16  2011 edexOsgi/com.raytheon.uf.common.dataplugin.text/src/com/raytheon/uf/common/dataplugin/text/alarms/AlarmAlertProduct.java
+-r--r--r-- 1 dmsys dmtool 2338 Aug  4  2010 edexOsgi/com.raytheon.uf.common.dataplugin.text/src/com/raytheon/uf/common/dataplugin/text/request/ExecuteAfosCmdRequest.java
+-rw-r--r-- 1 dmsys dmtool 13470 May 29 12:46 edexOsgi/com.raytheon.uf.common.dataplugin.warning/src/com/raytheon/uf/common/dataplugin/warning/util/GeometryUtil.java
+-rw-r--r-- 1 dmsys dmtool 7863 May 29 12:46 edexOsgi/com.raytheon.uf.common.tafqueue/src/com/raytheon/uf/common/tafqueue/TafQueueRecord.java
+-rw-r--r-- 1 dmsys dmtool 3067 May 29 12:46 edexOsgi/com.raytheon.uf.common.tafqueue/src/com/raytheon/uf/common/tafqueue/TafQueueRequest.java
+-r--r--r-- 1 dmsys dmtool 7972 Aug 17  2011 edexOsgi/com.raytheon.uf.edex.core/src/com/raytheon/uf/edex/core/EDEXUtil.java
+-r--r--r-- 1 dmsys dmtool 10555 Dec  5  2011 edexOsgi/com.raytheon.uf.edex.dat.utils/src/com/raytheon/uf/edex/dat/utils/FreezingLevel.java
+-r--r--r-- 1 dmsys dmtool 1674 Apr 18  2011 edexOsgi/com.raytheon.uf.edex.plugin.ffmp/META-INF/MANIFEST.MF
+-rw-r--r-- 1 dmsys dmtool 13059 May 29 12:46 edexOsgi/com.raytheon.uf.edex.plugin.ffmp/src/com/raytheon/uf/edex/plugin/ffmp/common/FFTIProcessor.java
+-rw-r--r-- 1 dmsys dmtool 47290 May 29 12:46 edexOsgi/com.raytheon.uf.edex.plugin.ffmp/src/com/raytheon/uf/edex/plugin/ffmp/FFMPGenerator.java
+-r--r--r-- 1 dmsys dmtool 28519 Sep 29  2011 edexOsgi/com.raytheon.uf.edex.plugin.fssobs/src/com/raytheon/uf/edex/plugin/fssobs/FSSObsDataTransform.java
+-r--r--r-- 1 dmsys dmtool 13591 Apr 26  2011 edexOsgi/com.raytheon.uf.edex.pointdata/src/com/raytheon/uf/edex/pointdata/PointDataQuery.java
+-rw-r--r-- 1 dmsys dmtool 9250 May 30 15:03 edexOsgi/com.raytheon.uf.edex.purgesrv/src/com/raytheon/uf/edex/purgesrv/PurgeDao.java
+-rw-r--r-- 1 dmsys dmtool 9574 May 30 15:03 edexOsgi/com.raytheon.uf.edex.purgesrv/src/com/raytheon/uf/edex/purgesrv/PurgeJob.java
+-rw-r--r-- 1 dmsys dmtool 15681 May 30 15:03 edexOsgi/com.raytheon.uf.edex.purgesrv/src/com/raytheon/uf/edex/purgesrv/PurgeManager.java
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/build.properties: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/.classpath: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/component-deploy.xml: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/META-INF/MANIFEST.MF: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/.project: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/res/spring/tafqueue-request.xml: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/.settings/org.eclipse.jdt.core.prefs: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/src/com/raytheon/uf/edex/tafqueue/TafQueueDao.java: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/src/com/raytheon/uf/edex/tafqueue/TafQueueManager.java: No such file or directory
+ls: edexOsgi/com.raytheon.uf.edex.tafqueue/src/com/raytheon/uf/edex/tafqueue/TafQueueRequestHandler.java: No such file or directory
+-rwxr-xr-x 1 dmsys dmtool 6751 May 29 12:46 rpms/awips2.core/deploy.builder/build.sh
+ls: rpms/awips2.core/Installer.gfe/component.spec: No such file or directory
+-r--r--r-- 1 dmsys dmtool 13312 Feb 16 16:55 rpms/awips2-rpm.db
+ls: rpms/common/static.versions/LATEST.gfe: No such file or directory
+-r--r--r-- 1 dmsys dmtool 26696 Feb 16 16:45 rpms/common/yum/arch.x86/comps.xml
