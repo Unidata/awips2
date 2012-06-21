@@ -132,26 +132,10 @@ public class PointDataQuery {
                 parameters.add(parameter.getParameterName());
             }
         }
-        boolean needsDbQuery = false;
-        for (String key : dao.getKeysRequiredForFileName()) {
-            if (!key.equals("dataTime.refTime")) {
-                needsDbQuery = true;
-                break;
-            }
-        }
-        if (needsDbQuery) {
-            for (Map<String, Object> workingMap : performDbQuery(
-                    Arrays.asList(dao.getKeysRequiredForFileName()), 1)) {
-                PointDataDescription desc = dao
-                        .getPointDataDescription(workingMap);
-                if (desc != null) {
-                    for (ParameterDescription param : desc.parameters) {
-                        parameters.add(param.getParameterName());
-                    }
-                }
-            }
-        } else {
-            PointDataDescription desc = dao.getPointDataDescription(null);
+
+        for (Map<String, Object> workingMap : performDbQuery(
+                Arrays.asList(dao.getKeysRequiredForFileName()), 1)) {
+            PointDataDescription desc = dao.getPointDataDescription(workingMap);
             if (desc != null) {
                 for (ParameterDescription param : desc.parameters) {
                     parameters.add(param.getParameterName());

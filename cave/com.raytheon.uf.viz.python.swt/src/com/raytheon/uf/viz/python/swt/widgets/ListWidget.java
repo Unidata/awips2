@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
 /**
- * List widget
+ * TODO Add Description
  * 
  * <pre>
  * 
@@ -68,21 +68,20 @@ public class ListWidget extends Widget {
      * .swt.widgets.Composite, int)
      */
     @Override
-    public Composite buildComposite(Composite parent) {
-        Group group = new Group(parent, SWT.NONE);
+    public Composite buildComposite(Composite parent, int style) {
+        Group group = new Group(parent, style);
         group.setText(makeGuiLabel(getLabel()));
         GridLayout layout = new GridLayout(1, false);
         group.setLayout(layout);
-        GridData layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
+        GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         group.setLayoutData(layoutData);
 
+        // TODO: change to ToggleSelectList
         org.eclipse.swt.widgets.List list = new org.eclipse.swt.widgets.List(
                 group, SWT.BORDER | SWT.V_SCROLL
                         | (this.isMultiSelect ? SWT.MULTI : SWT.SINGLE));
-        layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
-        if (getOptions().size() > 30) {
-            layoutData.heightHint = list.getItemHeight() * 30;
-        }
+        layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        layoutData.heightHint = list.getItemHeight() * 30;
         list.setLayoutData(layoutData);
 
         List<Object> values = getValues();
@@ -114,7 +113,7 @@ public class ListWidget extends Widget {
             }
         });
 
-        return group;
+        return null;
     }
 
     @SuppressWarnings("unchecked")

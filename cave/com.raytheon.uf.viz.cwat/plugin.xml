@@ -35,17 +35,4 @@
             scriptLibrary="BaseRequest">
       </scriptTemplate>
    </extension>
-   
-      <!-- for making CWAT available on Localization Perspective in CAVE: 2012-05-14 from DHladky -->
-   
-   <extension
-       point="com.raytheon.uf.viz.localization.localizationpath">
-    <path
-          application="D2D"
-          localizationType="common_static"
-          name="CWAT"
-          recursive="true"
-          value="cwat">
-    </path>
-   </extension>
 </plugin>

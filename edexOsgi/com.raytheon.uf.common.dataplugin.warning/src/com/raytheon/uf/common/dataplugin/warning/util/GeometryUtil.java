@@ -10,7 +10,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.operation.overlay.snap.GeometrySnapper;
@@ -37,7 +36,7 @@ public class GeometryUtil {
         }
 
         for (int i = 0; i < list1.size(); ++i) {
-            if (list1.get(i).buffer(0).equals(list2.get(i).buffer(0)) == false) {
+            if (list1.get(i).equals(list2.get(i)) == false) {
                 return false;
             }
         }
@@ -185,7 +184,7 @@ public class GeometryUtil {
                     prefix = getPrefix(g1Name);
                 }
                 if ((g1Name == null || g2Name == null || g2Name
-                        .startsWith(prefix))) {
+                        .startsWith(prefix)) && g1.isValid() && g2.isValid()) {
                     Geometry section = g1.intersection(g2);
                     if (section.isEmpty() == false) {
                         section = section.buffer(0);
@@ -214,19 +213,10 @@ public class GeometryUtil {
             }
             if (g1Name == null || g2Name == null || g2Name.startsWith(prefix)) {
                 if (pg.intersects(g1)) {
-                    Geometry section = null;
-                    try {
-                        section = g1.intersection(g2);
-                    } catch (TopologyException e) {          
-                        // This exception is due to g2 having interior intersections
-                        section = g1.intersection(g2.buffer(0));
-                    }
-                    
-                    if (section != null) {
-                        setUserData(section, (CountyUserData) g2.getUserData());
-                        section.setUserData(g2.getUserData());
-                        intersections.add(section);
-                    }                    
+                    Geometry section = g1.intersection(g2);
+                    setUserData(section, (CountyUserData) g2.getUserData());
+                    section.setUserData(g2.getUserData());
+                    intersections.add(section);
                 }
             }
         }

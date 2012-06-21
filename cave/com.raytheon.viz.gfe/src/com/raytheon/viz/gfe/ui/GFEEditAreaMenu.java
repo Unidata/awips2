@@ -54,61 +54,81 @@ import com.raytheon.viz.gfe.core.IReferenceSetManager;
  */
 
 public class GFEEditAreaMenu extends CompoundContributionItem {
-    private static final String COMMAND_ID = "com.raytheon.viz.gfe.actions.EditArea";
+	private static final String COMMAND_ID = "com.raytheon.viz.gfe.actions.EditArea";
 
-    private static final String NULL_COMMAND_ID = "com.raytheon.viz.ui.actions.nullAction";
+	private static final String NULL_COMMAND_ID = "com.raytheon.viz.ui.actions.nullAction";
 
-    // private boolean addTear = true;
+	// private boolean addTear = true;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.actions.CompoundContributionItem#getContributionItems()
-     */
-    @Override
-    protected IContributionItem[] getContributionItems() {
-        MenuManager menuMgr = new MenuManager("Edit Areas");
-        DataManager dm = DataManager.getCurrentInstance();
-        if (dm != null) {
-            IReferenceSetManager refMgr = dm.getRefManager();
-            List<String> groupList = refMgr.getGroupInventory();
-            groupList.add("Misc");
-            int menuLength = GFEPreference
-                    .getIntPreference("MaxMenuItemsBeforeCascade");
-            menuLength = (menuLength > 1) ? menuLength : 30;
-            for (String group : groupList) {
-                MenuManager mm = new MenuManager(group);
-                menuMgr.add(mm);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.actions.CompoundContributionItem#getContributionItems()
+	 */
+	@Override
+	protected IContributionItem[] getContributionItems() {
+		// TODO, fix this code to not show extra items
+		// boolean needTear = com.raytheon.uf.viz.core.Activator.getDefault()
+		// .getPreferenceStore().getBoolean("tearoffmenus");
 
-                mm.addMenuListener(new TearOffMenuListener(mm));
-                int count = 0;
-                for (String ref : refMgr.getGroupData(group)) {
-                    Map<String, String> parms = new HashMap<String, String>();
-                    parms.put("name", ref);
-                    mm.add(new CommandContributionItem(
-                            new CommandContributionItemParameter(PlatformUI
-                                    .getWorkbench(), null, COMMAND_ID, parms,
-                                    null, null, null, ref, null, null,
-                                    CommandContributionItem.STYLE_PUSH, null,
-                                    true)));
-                    if (++count % menuLength == 0) {
-                        MenuManager mm1 = new MenuManager("More");
-                        mm.add(mm1);
-                        mm = mm1;
-                    }
-                }
+		MenuManager menuMgr = new MenuManager("Edit Areas");
+		DataManager dm = DataManager.getCurrentInstance();
+		if (dm != null) {
+			IReferenceSetManager refMgr = dm.getRefManager();
+			List<String> groupList = refMgr.getGroupInventory();
+			groupList.add("Misc");
+			int menuLength = GFEPreference
+					.getIntPreference("MaxMenuItemsBeforeCascade");
+			menuLength = (menuLength > 1) ? menuLength : 30;
+			// if (addTear && needTear) {
+			// menuMgr.addMenuListener(new TearOffMenuListener(menuMgr));
+			// addTear = false;
+			// }
+			for (String group : groupList) {
+				MenuManager mm = new MenuManager(group);
+				menuMgr.add(mm);
 
-                if (count == 0) {
-                    mm.add(new CommandContributionItem(
-                            new CommandContributionItemParameter(PlatformUI
-                                    .getWorkbench(), null, NULL_COMMAND_ID,
-                                    null, null, null, null, "<Empty>", null,
-                                    null, CommandContributionItem.STYLE_PUSH,
-                                    null, true)));
-                }
-            }
-        }
-        return menuMgr.getItems();
-    }
+				// if (needTear) {
+				// menuMgr.addMenuListener(new TearOffMenuListener(mm));
+				// addTear = true;
+				// }
+
+				int count = 0;
+				for (String ref : refMgr.getGroupData(group)) {
+					// if (needTear && addTear) {
+					// mm.addMenuListener(new TearOffMenuListener(mm));
+					// addTear = false;
+					// }
+					Map<String, String> parms = new HashMap<String, String>();
+					parms.put("name", ref);
+					mm.add(new CommandContributionItem(
+							new CommandContributionItemParameter(PlatformUI
+									.getWorkbench(), null, COMMAND_ID, parms,
+									null, null, null, ref, null, null,
+									CommandContributionItem.STYLE_PUSH, null,
+									true)));
+					if (++count % menuLength == 0) {
+						MenuManager mm1 = new MenuManager("More");
+						mm.add(mm1);
+						mm = mm1;
+						// if (needTear && addTear) {
+						// mm.addMenuListener(new TearOffMenuListener(mm));
+						// addTear = false;
+						// }
+					}
+				}
+
+				if (count == 0) {
+					mm.add(new CommandContributionItem(
+							new CommandContributionItemParameter(PlatformUI
+									.getWorkbench(), null, NULL_COMMAND_ID,
+									null, null, null, null, "<Empty>", null,
+									null, CommandContributionItem.STYLE_PUSH,
+									null, true)));
+				}
+			}
+		}
+		return menuMgr.getItems();
+	}
 }

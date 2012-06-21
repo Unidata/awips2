@@ -13,7 +13,6 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -333,10 +332,6 @@ public class DiskCache<K> implements ICache<K> {
     public void closeCache() {
         cacheWriter.run = false;
     }
-    
-    public void clearCache() {
-    	metaDataMap.clear();
-    }
 
     public int getSizeMemCacheMap() {
         return sizeMemCacheMap;
@@ -388,36 +383,6 @@ public class DiskCache<K> implements ICache<K> {
                 + File.separator + "pid_" + pid;
         this.cacheDir = PathManagerFactory.getPathManager().getFile(
                 userContext, path);
-
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
-        }
-
-        CacheFactory factory = CacheFactory.getInstance();
-        factory.addCache(name, this);
-
-        // TODO: Throw exception if not properly configured
-    }
-    
-    public void activateEdexCache() {
-        int pid = SystemUtil.getPid();
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext context = pathMgr.getContext(
-                LocalizationType.EDEX_STATIC, LocalizationLevel.SITE);
-
-        if (baseCacheDir == null) {
-            baseCacheDir = "diskCache";
-        }
-
-        String path = baseCacheDir + File.separator + name + File.separator
-                + File.separator + "pid_" + pid;
-        try {
-        	LocalizationFile dir = PathManagerFactory.getPathManager().getLocalizationFile(context, path);
-        	this.cacheDir = dir.getFile();
-        } catch (Exception e) {
-        	// no localization file exists
-        	this.cacheDir = new File(path);
-        }
 
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();

@@ -107,7 +107,7 @@ public class SendIscTransactions {
                         if (record != null
                                 && record.getInsertTime().getTime() < timeOutCheck) {
                             handler.info("Running IscSendJob "
-                                    + record.toString()
+                                    + record.getKey()
                                     + " timed out.  Rerunning IscSendJob.");
                             record.setInsertTime(new Date());
                             sess.update(record);

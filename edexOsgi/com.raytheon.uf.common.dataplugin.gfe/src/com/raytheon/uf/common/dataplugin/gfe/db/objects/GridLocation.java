@@ -292,21 +292,6 @@ public class GridLocation extends PersistableDataObject implements
         }
     }
 
-    public GridLocation(ProjectionData proj) {
-        this(
-                proj.getProjectionID(), //
-                proj, //
-                new Point(
-                        //
-                        proj.getGridPointUR().x - proj.getGridPointLL().x + 1,
-                        proj.getGridPointUR().y - proj.getGridPointLL().y + 1),
-                new Coordinate(proj.getGridPointLL().x, proj.getGridPointLL().y),
-                new Coordinate( //
-                        proj.getGridPointUR().x - proj.getGridPointLL().x,
-                        proj.getGridPointUR().y - proj.getGridPointLL().y),
-                "GMT");
-    }
-
     /**
      * @return the timeZone
      */
