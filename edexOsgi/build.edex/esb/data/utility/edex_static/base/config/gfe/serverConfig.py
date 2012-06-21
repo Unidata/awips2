@@ -1091,7 +1091,7 @@ elif SID in CONUS_EAST_SITES:
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 'TPCSurgeProb', # DCS3462
+                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
                  'GlobalWave',
                  'EPwave10',
                  'AKwave10',
@@ -1139,7 +1139,7 @@ else:   #######DCS3501 WEST_CONUS
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 'TPCSurgeProb', # DCS3462
+                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
                  'GlobalWave',
                  'EPwave10',
                  'WCwave10',
