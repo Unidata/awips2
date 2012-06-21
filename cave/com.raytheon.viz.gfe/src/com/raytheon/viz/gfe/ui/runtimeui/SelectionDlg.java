@@ -24,13 +24,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.python.swt.ButtonConstant;
+import com.raytheon.uf.viz.python.swt.DialogAreaComposite;
 import com.raytheon.uf.viz.python.swt.widgets.LabelWidget;
 import com.raytheon.uf.viz.python.swt.widgets.Widget;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -56,13 +56,13 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
     /**
      * The top composite.
      */
-    protected DialogAreaComposite comp;
+    protected Composite top;
 
     protected String name;
 
     protected DataManager dataMgr;
 
-    private List<FieldDefinition> fieldDefs;
+    private List<Widget> widgetList;
 
     @Override
     protected void buttonPressed(int buttonId) {
@@ -89,7 +89,7 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
         super(parent);
         this.name = title;
         this.dataMgr = dataMgr;
-        this.fieldDefs = fieldDefs;
+        this.widgetList = FieldDefinition.buildWidgetList(fieldDefs, dataMgr);
         this.setShellStyle(SWT.MODELESS | SWT.TITLE | SWT.RESIZE);
     }
 
@@ -115,16 +115,15 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
      */
     @Override
     protected Control createDialogArea(Composite parent) {
-        Composite top = (Composite) super.createDialogArea(parent);
+        top = (Composite) super.createDialogArea(parent);
 
         // Create the main layout for the top level composite.
         GridLayout mainLayout = new GridLayout(1, false);
-        mainLayout.marginHeight = 0;
-        mainLayout.marginWidth = 0;
+        mainLayout.marginHeight = 3;
+        mainLayout.marginWidth = 3;
         top.setLayout(mainLayout);
 
-        this.comp = new DialogAreaComposite(top, fieldDefs, this.dataMgr);
-        this.comp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        initializeComponents();
 
         return top;
     }
@@ -144,9 +143,17 @@ public abstract class SelectionDlg extends CaveJFACEDialog {
                 parent.getSize().y + 20);
     }
 
+    private void initializeComponents() {
+        createWidgetsControls();
+    }
+
+    private void createWidgetsControls() {
+        new DialogAreaComposite(top, widgetList, SWT.NONE);
+    }
+
     protected Map<String, Object> getValues() {
         Map<String, Object> map = new HashMap<String, Object>();
-        for (Widget w : this.comp.getWidgetList()) {
+        for (Widget w : widgetList) {
             if (!(w instanceof LabelWidget)) {
                 map.put(w.getLabel(), w.getValue());
             }

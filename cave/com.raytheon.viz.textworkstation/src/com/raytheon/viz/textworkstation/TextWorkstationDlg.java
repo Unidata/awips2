@@ -160,7 +160,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
                 TextWorkstationConstants.getTextWorkstationQueueName(), null,
                 this);
         notify.checkExpirationNotices(shell);
-        AlarmAlertFunctions.getAlarmalertbell().close();
+        AlarmAlertFunctions.getAlarmalertbell().getAlarmShell()
+                .setVisible(false);
         for (TextEditorDialog teDlg : textEditorArray) {
             if (teDlg != null) {
                 teDlg.disposeDialog();

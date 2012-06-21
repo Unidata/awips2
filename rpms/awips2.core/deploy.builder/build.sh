@@ -138,7 +138,6 @@ function buildLocalizationRPMs()
       export LOCALIZATION_DIRECTORY="${dir}"
       export COMPONENT_NAME="awips2-localization-${site}"
       echo ${site}
-      export site="${site}"
 
       rm -rf ${BUILDROOT_DIR}
 
@@ -148,7 +147,6 @@ function buildLocalizationRPMs()
          --define '_component_release %(echo ${AWIPSII_RELEASE})' \
          --define '_component_name %(echo ${COMPONENT_NAME})' \
          --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
-         --define '_localization_site %(echo ${site})' \
          --define '_localization_directory %(echo ${LOCALIZATION_DIRECTORY})' \
          --buildroot ${BUILDROOT_DIR} \
          ../Installer.localization/component.spec
@@ -187,7 +185,6 @@ buildRPM "Installer.database"
 buildRPM "Installer.maps-database"
 buildRPM "Installer.gfe.climo"
 buildRPM "Installer.topo"
-buildRPM "Installer.gfe"
 buildRPM "Installer.hydroapps"
 buildRPM "Installer.notification"
 buildRPM "Installer.pypies"

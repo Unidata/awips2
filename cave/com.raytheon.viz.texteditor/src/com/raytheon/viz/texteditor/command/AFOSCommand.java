@@ -49,7 +49,6 @@ import com.raytheon.viz.texteditor.AfosBrowserModel;
  * 21May2010    2187       cjeanbap    Add operational mode functionality.
  * 02Aug2010    2187       cjeanbap    Update method signature to be consistent.
  * 20Mar2011    8561       jdortiz     Added enterEditor field.
- * May 23, 2012 14952      rferrel     Added refTime.
  * 
  * </pre>
  * 
@@ -62,13 +61,13 @@ public class AFOSCommand implements ICommand {
 
     private AFOSParser parser = null;
 
+    private String locale = null;
+
     private boolean enterEditor = false;
 
-    private Long refTime;
-
-    public AFOSCommand(String afosCommand, String siteId, Long refTime) {
+    public AFOSCommand(String afosCommand, String siteId) {
         parser = new AFOSParser(afosCommand, siteId);
-        this.refTime = refTime;
+        locale = siteId;
     }
 
     @Override
@@ -110,12 +109,7 @@ public class AFOSCommand implements ICommand {
         req.setAfosCommand(parser.getAfosCommand());
 
         req.setAfosLocale(AfosBrowserModel.getInstance().getLocalSite());
-
-        if (refTime != null) {
-            req.setRefTime(refTime);
-            req.setReftimeMode(true);
-        }
-
+        
         CAVEMode mode = CAVEMode.getMode();
         boolean result = (CAVEMode.OPERATIONAL.equals(mode)
                 || CAVEMode.TEST.equals(mode) ? true : false);

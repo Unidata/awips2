@@ -79,8 +79,6 @@ public class TransmissionViewerDlg extends CaveSWTDialog {
     protected void initializeComponents(Shell shell) {
         mainComp = new Composite(shell, SWT.NONE);
         mainComp.setLayout(new GridLayout(1, false));
-        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        mainComp.setLayoutData(gd);
 
         // Initialize all of the controls and layouts
         initializeComponents();
