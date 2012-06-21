@@ -412,6 +412,7 @@ class GribDecoder():
             pdsSectionValues['model'].setParameterAbbreviation(newAbbr)
         pdsSectionValues['model'].setParameterAbbreviation(pdsSectionValues['model'].getParameterAbbreviation().replace('_', '-'))
         
+        pdsSectionValues['model'].setParameterName(GribParamTranslator.getInstance().getParameterNameAlias(pdsSectionValues['model']))
         pdsSectionValues['model'].generateId()
         if pdsSectionValues['model'].getParameterName() == MISSING:
             model = pdsSectionValues['model']
