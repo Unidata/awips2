@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.gfe.perspective;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.Command;
@@ -100,12 +99,15 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
     /** The GFE Perspective Class */
     public static final String GFE_PERSPECTIVE = "com.raytheon.viz.ui.GFEPerspective";
 
+    private static boolean keybindingsCreated = false;
+
     public GFEPerspectiveManager() {
 
     }
 
     @Override
     public void open() {
+        contextActivator = new GFEContextActivator(page);
         loadDefaultBundle("gfe/default-procedure.xml");
 
         AbstractEditor gfeEditor = (AbstractEditor) EditorUtil
@@ -127,7 +129,10 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
             mapMgr.loadMapByBundleName(map);
         }
 
-        defineKeys();
+        if (!keybindingsCreated) {
+            registerKeyBindings();
+            keybindingsCreated = true;
+        }
 
         DataManager dm = DataManager.getInstance(perspectiveWindow);
         IRenderableDisplay display = pane.getRenderableDisplay();
@@ -256,7 +261,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         return items;
     }
 
-    private void defineKeys() {
+    private static void registerKeyBindings() {
         ICommandService commandService = (ICommandService) PlatformUI
                 .getWorkbench().getService(ICommandService.class);
 
@@ -275,21 +280,9 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
         try {
-            Scheme scheme = bindingManager.getScheme(schemeId);
-            scheme.define(activeScheme.getName(),
-                    activeScheme.getDescription(), activeScheme.getParentId());
-
             // get currentBindings and remove any GFE ShortCut bindings
             String contextId = "com.raytheon.viz.gfe.GFEShortCutContext";
-            Binding[] currentBindings = bindingService.getBindings();
-            List<Binding> newBindings = new ArrayList<Binding>();
-            for (Binding binding : currentBindings) {
-                if (!binding.getContextId().equals(contextId)) {
-                    newBindings.add(binding);
-                }
-            }
-            bindingManager.setBindings(newBindings
-                    .toArray(new Binding[newBindings.size()]));
+            bindingManager.setBindings(bindingService.getBindings());
 
             for (int i = 1; i < 201; i++) {
                 String shortCut = "ShortCut" + i;
@@ -386,10 +379,10 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     // add the binding
                     bindingManager.addBinding(new KeyBinding(keySequence,
                             parmCmd, schemeId, contextId, null, null, null,
-                            Binding.USER));
+                            Binding.SYSTEM));
                 }
             }
-            bindingService.savePreferences(bindingManager.getScheme(schemeId),
+            bindingService.savePreferences(activeScheme,
                     bindingManager.getBindings());
         } catch (Throwable e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);

@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.d2d.ui.perspectives;
+package com.raytheon.viz.gfe.perspective;
 
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -25,12 +25,12 @@ import org.eclipse.ui.IWorkbenchPartReference;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay;
+import com.raytheon.viz.gfe.GridManagerView;
+import com.raytheon.viz.gfe.core.GFEMapRenderableDisplay;
 import com.raytheon.viz.ui.perspectives.AbstractWorkbenchPartContextActivator;
 
 /**
- * Activates context for D2D UI for IDisplayPaneContainers with
- * ID2DRenderableDisplays
+ * Context activator for GFE perspective parts
  * 
  * <pre>
  * 
@@ -38,7 +38,7 @@ import com.raytheon.viz.ui.perspectives.AbstractWorkbenchPartContextActivator;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 5, 2012            mschenke     Initial creation
+ * Jun 21, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -46,26 +46,32 @@ import com.raytheon.viz.ui.perspectives.AbstractWorkbenchPartContextActivator;
  * @version 1.0
  */
 
-public class D2DContextActivator extends AbstractWorkbenchPartContextActivator {
+public class GFEContextActivator extends AbstractWorkbenchPartContextActivator {
 
-    D2DContextActivator(IWorkbenchPage page) {
+    /**
+     * @param page
+     */
+    GFEContextActivator(IWorkbenchPage page) {
         super(page);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.ui.perspectives.AbstractPerspectiveContextManager#
+     * @see
+     * com.raytheon.viz.ui.perspectives.AbstractPerspectiveContextActivator#
      * isPerspectivePart(org.eclipse.ui.IWorkbenchPartReference)
      */
     @Override
     protected boolean isPerspectivePart(IWorkbenchPartReference partRef) {
-        if (partRef != null) {
+        if (GridManagerView.ID.equals(partRef.getId())) {
+            return true;
+        } else {
             IWorkbenchPart part = partRef.getPart(false);
             if (part instanceof IDisplayPaneContainer) {
-                for (IDisplayPane pane : ((IDisplayPaneContainer) part)
-                        .getDisplayPanes()) {
-                    if (pane.getRenderableDisplay() instanceof ID2DRenderableDisplay) {
+                IDisplayPaneContainer container = (IDisplayPaneContainer) part;
+                for (IDisplayPane pane : container.getDisplayPanes()) {
+                    if (pane.getRenderableDisplay() instanceof GFEMapRenderableDisplay) {
                         return true;
                     }
                 }
@@ -73,5 +79,4 @@ public class D2DContextActivator extends AbstractWorkbenchPartContextActivator {
         }
         return false;
     }
-
 }
