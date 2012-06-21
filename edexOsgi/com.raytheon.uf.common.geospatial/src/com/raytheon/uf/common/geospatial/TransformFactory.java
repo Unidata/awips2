@@ -168,9 +168,8 @@ public class TransformFactory {
 
     /**
      * Constructs a transform from the "world" CRS of the target geometry to the
-     * grid of the targetGeometry. Null is a valid return and indicates there is
-     * no "world" CRS to convert from and all conversions should be from
-     * targetGeometry CRS to grid
+     * grid of the targetGeometry. Will return crsToGrid if no "world" CRS
+     * exists.
      * 
      * @param targetGeometry
      * @param cellType
@@ -181,20 +180,23 @@ public class TransformFactory {
             PixelInCell cellType) throws FactoryException {
         CoordinateReferenceSystem crs = targetGeometry.getEnvelope()
                 .getCoordinateReferenceSystem();
-        if (crs instanceof GeneralDerivedCRS) {
-            GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
-            CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
-            MathTransform worldToCRS = CRSCache.getInstance()
-                    .findMathTransform(worldCRS, crs);
-            try {
+        try {
+            if (crs instanceof GeneralDerivedCRS) {
+                GeneralDerivedCRS projCRS = (GeneralDerivedCRS) crs;
+                CoordinateReferenceSystem worldCRS = projCRS.getBaseCRS();
+                MathTransform worldToCRS = CRSCache.getInstance()
+                        .findMathTransform(worldCRS, crs);
+
                 MathTransform crsToPixel = targetGeometry
                         .getGridToCRS(cellType).inverse();
                 return factory.createConcatenatedTransform(worldToCRS,
                         crsToPixel);
-            } catch (Exception e) {
-                throw new FactoryException(e);
+            } else {
+                // No associated "world" CRS, go straight crs to grid
+                return targetGeometry.getGridToCRS(cellType).inverse();
             }
+        } catch (Exception e) {
+            throw new FactoryException(e);
         }
-        return null;
     }
 }
