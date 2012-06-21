@@ -701,7 +701,8 @@ public class PlotModelFactory2 {
         return null;
     }
 
-    public synchronized String getStationMessage(PlotData stationData, String dataURI) {
+    public synchronized String getStationMessage(PlotData stationData,
+            String dataURI) {
         PlotPythonScript script = null;
         StringBuilder sampleMessage = new StringBuilder();
         try {
@@ -879,6 +880,7 @@ public class PlotModelFactory2 {
             if (element.winds.barbElement != null) {
                 element.winds.barbNode.setNodeValue(" ");
             }
+            renderArrow(windGust, windDir, speedUnit, element);
             return false;
         }
         return true;

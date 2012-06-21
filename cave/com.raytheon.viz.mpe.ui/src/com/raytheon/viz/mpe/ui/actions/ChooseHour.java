@@ -33,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
 import com.raytheon.viz.mpe.ui.dialogs.ChooseDataPeriodDialog;
 import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
 import com.raytheon.viz.ui.EditorUtil;
@@ -105,7 +106,7 @@ public class ChooseHour extends AbstractHandler {
                 xmrgRsc.updateXmrg(false);
             }
         }
-
+        TransmitRFCBiasProvider.setEnabled(true);
         return null;
     }
 }
