@@ -74,4 +74,9 @@ public class CacheFactory {
     public void addCache(String cacheName, ICache cache) {
         cacheMap.put(cacheName, cache);
     }
+    
+    public void removeCache(String cacheName) {
+    	
+    	cacheMap.remove(cacheName);
+    }
 }

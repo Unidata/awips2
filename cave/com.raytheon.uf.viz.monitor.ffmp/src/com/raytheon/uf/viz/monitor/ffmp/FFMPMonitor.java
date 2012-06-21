@@ -175,6 +175,16 @@ public class FFMPMonitor extends ResourceMonitor implements
 			resourceListeners.clear();
 		}
 
+		// clear all remaining data
+		if (ffmpData != null) {
+			for (String key : ffmpData.keySet()) {
+				for (Entry<String, FFMPCacheRecord> entry : ffmpData.get(key)
+						.entrySet()) {
+					entry.getValue().closeCache();
+				}
+			}
+		}
+		
 		ffmpData = null;
 		ffmpAvailableUriQueryDates = null;
 		ffmpAvailableUris = null;
@@ -1088,6 +1098,11 @@ public class FFMPMonitor extends ResourceMonitor implements
 			}
 			res.getResourceData().floader = null;
 			int val = siteCount.get(res.getSiteKey());
+			
+			// clear out the cache
+			for (Entry<String, FFMPCacheRecord> entry: ffmpData.get(res.getSiteKey()).entrySet()){
+				entry.getValue().closeCache();
+			}
 
 			if ((val == 1) && (siteCount.size() > 1)) {
 
