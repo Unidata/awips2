@@ -93,8 +93,6 @@ import com.vividsolutions.jts.geom.Point;
  *    Apr 18, 2012 DR14733    Qinglu Lin  David's fix is used, which creates another
  *                                        ClosestPoint object in the for loop 
  *                                        that loops over availablePoints.
- *    May 21, 2012 DR14480    Qinglu Lin  Added code to prevent duplicate cities
- *                                        in pathcast.
  * 
  * </pre>
  * 
@@ -528,9 +526,6 @@ public class Wx {
             // with first pathcast and goes through each point within maxCount,
             // check for same point in other pathcast objects. If same point
             // exists, remove from which ever pathcast is furthest away
-            Set<String> closestPtNames = new HashSet<String>(30);
-            List<ClosestPoint> tmpPoints = new ArrayList<ClosestPoint>(
-                    maxCount);
             Queue<PathCast> tmp = new ArrayDeque<PathCast>(pathcasts);
             while (tmp.isEmpty() == false) {
                 PathCast pc = tmp.remove();
@@ -558,16 +553,10 @@ public class Wx {
                     }
                 }
 
-                tmpPoints.clear();
+                List<ClosestPoint> tmpPoints = new ArrayList<ClosestPoint>(
+                        maxCount);
                 for (int i = 0; i < points.size() && i < maxCount; ++i) {
-                	ClosestPoint point = points.get(i);
-                	String name = point.getName();
-                	if (!closestPtNames.contains(name)) {
-                		// To prevent duplicate cities in pathcast,
-                		// only unused point is added to tmpPoints
-                		tmpPoints.add(point);
-                		closestPtNames.add(name);
-                	}
+                    tmpPoints.add(points.get(i));
                 }
                 if (tmpPoints.size() > 0) {
                     pc.points = tmpPoints.toArray(new ClosestPoint[tmpPoints

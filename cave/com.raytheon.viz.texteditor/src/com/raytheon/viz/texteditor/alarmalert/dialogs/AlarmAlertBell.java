@@ -35,7 +35,6 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -52,7 +51,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmBeepJob;
-import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
 
 /**
  * TODO Add Description
@@ -66,7 +64,6 @@ import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
  * Aug 16, 2010 2187	   cjeanbap    Fixed a NullPointerException
  * Dec 23, 2010 7375       cjeanbap    Force dialog ON TOP of over Dialog/Windows.
  * 03/19/2012              D. Friedman Fix alarming.  Disable runloop in open().
- * May 18, 2012            jkorman     Added flashing alarm image.
  * </pre>
  * 
  * @author mnash
@@ -75,10 +72,6 @@ import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
 
 public class AlarmAlertBell extends Dialog implements MouseMoveListener,
         MouseListener {
-    
-    // delay in milliseconds - flash every 1 1/2 seconds
-    private static final int FLASH_DELAY = 1500;
-    
     private Shell parentShell;
 
     private Shell alarmShell;
@@ -88,18 +81,6 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
     private CurrentAlarmQueue alarmDlg;
 
     private String bellPath;
-
-    private FlashBellJob flasher;
-    
-    private Image norm_bell;
-
-    private Image revs_bell;
-
-    private boolean invert = false;
-    
-    private boolean active = false;
-    
-    private Button button;
 
     private AlarmBeepJob abj = null;
 
@@ -196,13 +177,17 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
     }
 
     public Object open(boolean alarm) {
+        // setInitialDialogLocation();
+
         if (alarm) {
             // provides the beep to alert the user that an alarm has come in
             abj = new AlarmBeepJob("AlarmBeepJob");
             abj.schedule();
         }
 
-        if (alarmShell == null) {
+        if (alarmShell != null && alarmShell.isVisible()) {
+            alarmShell.setVisible(true);
+        } else {
             display = parentShell.getDisplay();
             if (alarmShell == null) {
                 initShell();
@@ -210,34 +195,25 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
             alarmShell.setLocation(locationX, locationY);
 
             alarmShell.pack();
+            alarmShell.setVisible(true);
+            alarmShell.setActive();
+
+            /* // TODO: what is this for?
+            while (!alarmShell.isDisposed()) {
+                if (!display.isDisposed() && !display.readAndDispatch()) {
+                    display.sleep();
+                }
+            }
+            */
+
+            /*// TODO: put this in the correct location.
+            labelFont.dispose();
+            */
         }
-        alarmShell.setVisible(true);
-        alarmShell.pack();
-        alarmShell.setActive();
-        active = true;
-        // Start a new flash job only if one isn't currently running!
-        if(flasher == null) {
-            invert = false;
-            flasher = new FlashBellJob("FlashBell", this, FLASH_DELAY);
-        }
+
         return null;
     }
 
-    /**
-     * Close the AlarmAlertBell and turn off the "flasher" job
-     * if running.
-     */
-    public void close() {
-        if(!alarmShell.isDisposed()) {
-            alarmShell.setVisible(false);
-        }
-        active = false;
-        if(flasher != null) {
-            flasher.cancel();
-            flasher = null;
-        }
-    }
-    
     private void setInitialDialogLocation() {
         if (locationX < 0) {
             Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -261,12 +237,10 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
                 .getLocalizationFile(localization,
                         "images" + File.separator + "bell.gif");
         bellPath = imageFile.getFile().getAbsolutePath();
-        norm_bell = new Image(display, bellPath);
-        button = new Button(alarmShell, SWT.IMAGE_GIF);
-        if(norm_bell != null) {
-            createInvertImage(bellPath);
-            button.setImage(norm_bell);
-        }
+        Image bell = new Image(display, bellPath);
+        Button button = new Button(alarmShell, SWT.IMAGE_GIF);
+        button.setImage(bell);
+
         button.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -274,16 +248,18 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
                     alarmDlg = CurrentAlarmQueue.getInstance(getParent());
                     alarmDlg.setDialogFocus();
                     alarmDlg.open();
+                    alarmShell.setVisible(false);
                 } else {
                     if (alarmDlg.getShell().isDisposed()) {
                         alarmDlg = CurrentAlarmQueue.getInstance(alarmShell);
                         alarmDlg.setDialogFocus();
                         alarmDlg.open();
+                        alarmShell.setVisible(false);
                     } else {
                         alarmDlg.setDialogFocus();
+                        alarmShell.setVisible(false);
                     }
                 }
-                close();
             }
         });
     }
@@ -310,9 +286,6 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
         moveDialog = false;
     }
 
-    /**
-     * 
-     */
     @Override
     public void mouseMove(MouseEvent e) {
         if (origin != null && moveDialog == true) {
@@ -325,41 +298,18 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
     }
 
     /**
-     * Create an inverse image of the bell.
+     * Returns if dialog is disposed.
+     * 
+     * @return True if disposed, false if not.
      */
-    private void createInvertImage(String path) {
-        if (norm_bell != null) {
-            ImageData id = new ImageData(path);
-            for(int i = 0;i < id.width;i++) {
-                for(int j = 0;j < id.height;j++) {
-                    if(id.getPixel(i,j) == 0) {
-                        id.setPixel(i,j,1);
-                    } else {
-                        id.setPixel(i,j,0);
-                    }
-                }
-            }
-            revs_bell = new Image(display, id);
-        }
+    public boolean isDisposed() {
+        return alarmShell.isDisposed();
     }
 
     /**
-     * Check to see if the dialog is active.
-     * @return
+     * return the shell of the AlarmAlertBell
      */
-    public boolean isActive() {
-        return active;
-    }
-    
-    /**
-     * Alternate between normal and reverse images.
-     */
-    public void flash() {
-        if(invert) {
-            button.setImage(revs_bell);
-        } else {
-            button.setImage(norm_bell);
-        }
-        invert = !invert;
+    public Shell getAlarmShell() {
+        return alarmShell;
     }
 }

@@ -105,7 +105,7 @@ public class FFMPDataContainer {
      * @param hucName
      */
     public void setBasinBuddyData(FFMPBasinData basins, String hucName) {
-         long time = System.currentTimeMillis();
+        // long time = System.currentTimeMillis();
         for (Entry<Long, FFMPBasin> entry : basins.getBasins().entrySet()) {
             FFMPBasin basin = getBasinData(hucName).get(entry.getKey());
             if (basin != null) {
@@ -121,8 +121,8 @@ public class FFMPDataContainer {
                 getBasinData(hucName).put(entry.getKey(), entry.getValue());
             }
         }
-         long time2 = System.currentTimeMillis();
-         System.out.println("time to load HUC: " + (time2 - time) + " ms");
+        // long time2 = System.currentTimeMillis();
+        // System.out.println("time to load HUC: " + (time2 - time) + " ms");
     }
 
     /**

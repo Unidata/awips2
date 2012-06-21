@@ -44,7 +44,6 @@ import com.raytheon.uf.edex.core.EdexException;
  * Sep 29, 2009            mnash     Initial creation
  * 15Feb2010    4426       MW Fegan    Added over-ride of sendProductAlarmAlert(...)
  * 08Jul2010    2187       cjeanbap    Added Operational mode functionality.
- * 23May2012    14952      rferrel     Added reference time.
  * 
  * </pre>
  * 
@@ -143,8 +142,6 @@ public class AlarmAlertUtil {
         aap.setProductId(afosPIL);
         aap.setDateReceived(date);
         aap.setOperationalMode(operationalMode);
-        // Assume this is also the reference/creation time.
-        aap.setRefTime(date.getTime());
         try {
             EDEXUtil.getMessageProducer().sendAsync(alarmEndpoint, aap);
         } catch (EdexException e) {

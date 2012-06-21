@@ -108,7 +108,7 @@ public class DBInvChangeNotification extends GfeNotification implements
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
+        StringBuffer str = new StringBuffer();
         str.append("Inventory: ").append(this.inventory).append("\n");
         str.append("Additions: ").append(this.additions).append("\n");
         str.append("Deletions: ").append(this.deletions).append("\n");

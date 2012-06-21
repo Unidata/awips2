@@ -150,6 +150,10 @@
          id="com.raytheon.uf.viz.thinclient.feature"
          version="0.0.0"/>
 
+   <includes
+         id="com.raytheon.uf.viz.npp.feature"
+         version="0.0.0"/>
+
    <requires>
       <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
    </requires>
