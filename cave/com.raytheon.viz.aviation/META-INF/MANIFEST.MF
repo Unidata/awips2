@@ -13,9 +13,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.texteditor,
  org.geotools,
  com.raytheon.edex.plugin.ccfp,
+ com.raytheon.edex.plugin.taf,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.7",
  com.raytheon.uf.common.serialization,
- com.raytheon.edex.plugin.taf;bundle-version="1.12.1174",
  com.raytheon.viz.pointdata;bundle-version="1.11.7",
  com.raytheon.uf.common.python;bundle-version="1.11.7",
  org.jep;bundle-version="1.0.0",
@@ -23,8 +23,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.0.0",
  com.raytheon.uf.common.site,
  com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174",
- com.raytheon.uf.viz.application;bundle-version="1.0.0",
- com.raytheon.uf.common.tafqueue;bundle-version="1.0.0"
+ com.raytheon.uf.viz.application;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.viz.aviation,

@@ -20,12 +20,10 @@
 
 from string import Template
 
-import ctypes
 import stomp
 import socket
 import sys
 import time
-import threading
 import xml.etree.ElementTree as ET 
 
 import ThriftClient
@@ -98,16 +96,6 @@ class NotificationMessage:
       else:
           self.priority = priority
 
-   def connection_timeout(self, connection):
-          if (connection is not None and not connection.is_connected()):
-              print "Connection Retry Timeout"
-              for tid, tobj in threading._active.items():
-                  if tobj.name is "MainThread":
-                      res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, ctypes.py_object(SystemExit))
-                      if res != 0 and res != 1:
-                          # problem, reset state
-                          ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, 0)
-
    def send(self):
        # depending on the value of the port number indicates the distribution
        # of the message to AlertViz   
@@ -116,14 +104,7 @@ class NotificationMessage:
     if (self.port == 61999):
         # use stomp.py
         conn = stomp.Connection(host_and_ports=[(self.host, self.port)])
-        timeout = threading.Timer(5.0, self.connection_timeout, [conn])
-
-        try:
-            timeout.start();
-            conn.start()
-        finally:
-            timeout.cancel()
-
+        conn.start()
         conn.connect()
 
         sm = ET.Element("statusMessage")

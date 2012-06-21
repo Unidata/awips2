@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- *
+ * 
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- *
+ * 
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- *
+ * 
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,7 +45,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
 
 /**
  * Composite containing the product area and its controls.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -54,14 +54,12 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 19 JAN 2010  4085       ryu         Save and load draft.
  *  1 DEC 2010  6130       ryu         Show output log when formatter fails.
  *  2 SEP 2011 10654       gzhou       Delete running/pending task and close tab.
- * 23 MAY 2012 14859       ryu         Select VTEC formatting in practice mode
- *                                     based on VTECMessageType setting.
- *
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
- *
+ * 
  */
 public class ProductAreaComp extends Composite implements
         TextProductFinishListener, ITransmissionState {
@@ -193,7 +191,7 @@ public class ProductAreaComp extends Composite implements
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            Parent composite.
      */
@@ -428,31 +426,11 @@ public class ProductAreaComp extends Composite implements
         formattingCbo.add("Normal: X-Vtec");
         formattingCbo.add("Test: NoVTEC");
         formattingCbo.add("Test: T-Vtec");
-
-        int pracType = 0;
         if (practiceMode) {
-            String pil = (String) textProductMgr.getProductDefinition(productName)
-                                       .get("pil");
-            if (pil != null) {
-                String vtecMode = textProductMgr.getVtecMessageType(
-                                       pil.substring(0, 3));
-                if (vtecMode == null) {
-                	pracType = 0;
-                } else if ("O".equals(vtecMode)) {
-                    pracType = 1;
-                } else if ("E".equals(vtecMode)) {
-                	pracType = 2;
-                } else if ("X".equals(vtecMode)) {
-                    pracType = 3;
-                } else if ("T".equals(vtecMode)) {
-                    pracType = 5;
-                } else {
-                    pracType = 4;
-                }
-            }
+            formattingCbo.select(1);
+        } else {
+            formattingCbo.select(0);
         }
-        formattingCbo.select(pracType);
-
         formattingCbo.setVisible(practiceMode);
 
         // create the progress bar
@@ -604,7 +582,7 @@ public class ProductAreaComp extends Composite implements
     }
 
     /**
-     *
+     * 
      * @return the textProductManager
      */
     public TextProductManager getTextProductManager() {
@@ -613,7 +591,7 @@ public class ProductAreaComp extends Composite implements
 
     /**
      * Sets the textProductManager
-     *
+     * 
      * @param textProductManager
      */
     public void setTextProductManager(TextProductManager textProductManager) {
