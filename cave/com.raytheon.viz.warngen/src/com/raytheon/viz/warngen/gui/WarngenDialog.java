@@ -827,16 +827,30 @@ public class WarngenDialog extends CaveSWTDialog implements
         updateListCbo.removeAll();
         String site = warngenLayer.getLocalizedSite();
         CurrentWarnings cw = CurrentWarnings.getInstance(site);
+
+        java.util.List<AbstractWarningRecord> records = cw.getWarnings();
         java.util.List<AbstractWarningRecord> warnings = cw
                 .getCurrentWarnings();
+        java.util.List<AbstractWarningRecord> correctableWarnings = cw
+                .getCorrectableWarnings(warngenLayer.getConfiguration()
+                        .getPhensigs());
 
         ArrayList<String> dropDownItems = new ArrayList<String>();
-        WarningAction[] acts = new WarningAction[] { WarningAction.CON, WarningAction.COR,
+        // Rules for correcting warnings are different than other followups.
+        correctableWarnings = FollowUpUtil.checkCorApplicable(
+                warngenLayer.getConfiguration(), correctableWarnings, records);
+        for (AbstractWarningRecord w : correctableWarnings) {
+            FollowupData data = new FollowupData(WarningAction.COR, w);
+            updateListCbo.setData(data.displayString, data);
+            corYes = true;
+            dropDownItems.add(data.displayString);
+        }
+        WarningAction[] acts = new WarningAction[] { WarningAction.CON,
                 WarningAction.CAN, WarningAction.EXP, WarningAction.NEW,
                 WarningAction.EXT };
         for (int i = 0; i < warnings.size(); i++) {
             for (WarningAction act : acts) {
-                if (FollowUpUtil.checkApplicable(site,
+                if (FollowUpUtil.checkApplicable(
                         warngenLayer.getConfiguration(), warnings.get(i), act)) {
                     FollowupData data = new FollowupData(act, warnings.get(i));
                     updateListCbo.setData(data.displayString, data);
@@ -848,8 +862,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                             || act == WarningAction.CAN
                             || act == WarningAction.EXP) {
                         follow = true;
-                    } else if (act == WarningAction.COR) {
-                        corYes = true;
                     }
                     dropDownItems.add(data.displayString);
                 }
@@ -1497,6 +1509,8 @@ public class WarngenDialog extends CaveSWTDialog implements
      * item from update list selected
      */
     public void updateListSelected() {
+        bulletList.setEnabled(true);
+        durationList.setEnabled(true);
         warngenLayer.setOldWarningPolygon(null);
         setPolygonLocked(false);
         if (updateListCbo.getSelectionIndex() >= 0) {
@@ -1547,8 +1561,6 @@ public class WarngenDialog extends CaveSWTDialog implements
                 return;
             }
 
-            bulletList.setEnabled(true);
-            durationList.setEnabled(true);
             totalSegments = 0;
             warngenLayer.getStormTrackState().endTime = null;
             WarningAction action = WarningAction.valueOf(data.getAct());
