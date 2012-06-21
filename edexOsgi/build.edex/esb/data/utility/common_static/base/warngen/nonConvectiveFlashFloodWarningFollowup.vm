@@ -174,12 +174,7 @@
 ####################################
 ## DAM BREAK FFW FOLLOW-UP HEADER ##
 ####################################
-#if(${action}=="COR" && ${cancelareas})
-#set($CORCAN = "true")
-#else
-#set($CORCAN = "false")
-#end
-#if(${action}!="CANCON" && ${CORCAN}!="true")
+#if(${action}!="CANCON")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFS${siteId}
 
@@ -222,7 +217,7 @@ ${endwarning}
 #######################
 ## DAM BREAK FFW CON ##
 #######################
-#if(${action}=="CON" || (${action}=="COR" && ${CORCAN}=="false"))
+#if(${action}=="CON")
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
@@ -413,195 +408,6 @@ $$
 
 ${ugcline}
 /${productClass}.CON.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
-/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
-#foreach (${area} in ${areas}) 
-${area.name} ${area.stateabbr}-##
-#end
-
-${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
-
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE.##
-#end
-...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
-...##
-########### END NEW HEADLINE CODE ####################
-
-
-###############################################################################
-## Flash Flood Emergency per NWS 10-922 Directive goes after initial headline #
-###############################################################################
-#if(${list.contains($bullets, "ffwEmergency")})
-
-...THIS IS A FLASH FLOOD EMERGENCY FOR !**ENTER LOCATION**!...
-
-#end
-#####################################################
-## Changed report to match selections in template
-#####################################################
-#set ($report = "${reportType1}")
-#if(${list.contains($bullets, "county")})
-  #set ($report = "COUNTY DISPATCH REPORTED ${reportType1}") 
-#end
-#if(${list.contains($bullets, "lawEnforcement")})
-  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${reportType1}") 
-#end
-#if(${list.contains($bullets, "corps")})
-  #set ($report = "CORPS OF ENGINEERS REPORTED ${reportType1}") 
-#end
-#if(${list.contains($bullets, "damop")})
-  #set ($report = "DAM OPERATORS REPORTED ${reportType1}") 
-#end
-#if(${list.contains($bullets, "bureau")})
-  #set ($report = "BUREAU OF RECLAMATION REPORTED ${reportType1}") 
-#end
-#if(${list.contains($bullets, "public")})
-  #set ($report = "THE PUBLIC REPORTED ${reportType1}") 
-#end
-
-## Storm current location description
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
-#end
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}) ${report}.
-
-#set ($phenomena = "FLASH FLOOD") 
-#set ($warningType = "WARNING") 
-##########################################################################
-## Optional 4th bullet...comment out if needed.
-##########################################################################
-## This first if loop will override the locations impacted statement
-## with the site specific information in the 4th bullet.
-##########################################################################
-#if (${sitespecSelected} == "YES")
-${addInfo} 
-
-${scenario}
-
-${ruleofthumb}
-
-##########################################################################
-## Continue with the regular 4th bullet information
-##########################################################################
-#elseif(${list.contains($bullets, "pathcast")})
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
-#end
-#pathCast("THE FLOOD WILL BE NEAR..." "THIS FLOODING" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat})
-
-#elseif(${list.contains($bullets, "listofcities")})
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
-#end
-#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
-#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
-#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
-#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
-#locationsList("LOCATIONS IMPACTED INCLUDE..." "THIS FLOODING WILL AFFECT MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat})
-
-#end
-############################ End of Optional 4th Bullet ###########################
-#if(${list.contains($bullets, "drainages")})
-#drainages(${riverdrainages})
-
-#end
-
-#####################
-## CALL TO ACTIONS ##
-#####################
-#######################################################################
-## Check to see if we've selected any calls to action. In our .xml file
-## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
-#######################################################################
-#foreach ($bullet in $bullets)
-#if ($bullet.endsWith("CTA"))
-#set ($ctaSelected = "YES")
-#end
-#end
-##
-#if (${ctaSelected} == "YES")
-PRECAUTIONARY/PREPAREDNESS ACTIONS...
-#end
-##
-
-${sitespecCTA}
-
-${volcanoCTA}
-
-#if(${list.contains($bullets, "floodMovingCTA")})
-FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
-
-#end
-#if(${list.contains($bullets, "taddCTA")})
-MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
-
-#end
-#if(${list.contains($bullets, "nighttimeCTA")})
-BE ESPECIALLY CAUTIOUS AT NIGHT WHEN IT IS HARDER TO RECOGNIZE THE DANGERS OF FLOODING. IF FLOODING IS OBSERVED ACT QUICKLY. MOVE UP TO HIGHER GROUND TO ESCAPE FLOOD WATERS. DO NOT STAY IN AREAS SUBJECT TO FLOODING WHEN WATER BEGINS RISING.
-
-#end
-#if(${list.contains($bullets, "vehicleCTA")})
-DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
-
-#end
-#if(${list.contains($bullets, "warningMeansCTA")})
-A FLASH FLOOD WARNING MEANS FLASH FLOODING IS OCCURRING OR IS IMMINENT. MOST FLOOD RELATED DEATHS OCCUR IN AUTOMOBILES. DO NOT ATTEMPT TO CROSS WATER COVERED BRIDGES...DIPS...OR LOW WATER CROSSINGS. NEVER TRY TO CROSS A FLOWING STREAM...EVEN A SMALL ONE...ON FOOT. TO ESCAPE RISING WATER MOVE UP TO HIGHER GROUND.
-
-#end
-#if(${list.contains($bullets, "powerFloodCTA")})
-DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLOWING WATER CAN QUICKLY CARRY AWAY YOUR VEHICLE.
-
-#end
-#if(${list.contains($bullets, "reportCTA")})
-TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
-
-#end
-#if (${ctaSelected} == "YES")
-&&
-#end
-
-#elseif(${CORCAN}=="true")
-${WMOId} ${vtecOffice} 000000 ${BBBId}
-FFS${siteId}
-
-#if(${productClass}=="T")
-TEST...FLASH FLOOD STATEMENT...TEST
-#else
-FLASH FLOOD STATEMENT
-#end
-NATIONAL WEATHER SERVICE ${officeShort}
-#backupText(${backupSite})
-${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
-
-${ugclinecan}
-/${productClass}.COR.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
-/00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
-#foreach (${area} in ${cancelareas}) 
-${area.name} ${area.stateabbr}-##
-#end
-
-${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
-
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE.##
-#end
-...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${cancelareas} true true true false)
-...##
-########### END NEW HEADLINE CODE ####################
-
-
-## Explanation
-${endwarning}
-
-#printcoords(${areaPoly}, ${list})
-
-
-$$
-
-${ugcline}
-/${productClass}.COR.${vtecOffice}.FF.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.${floodseverity}.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
 ${area.name} ${area.stateabbr}-##

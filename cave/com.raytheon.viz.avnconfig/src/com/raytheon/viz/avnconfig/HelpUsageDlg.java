@@ -130,8 +130,8 @@ public class HelpUsageDlg extends CaveSWTDialog {
      */
     private void createHelpTextControl() {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.heightHint = 420;
-        gd.widthHint = 600;
+        gd.heightHint = 300;
+        gd.widthHint = 475;
         helpStTxt = new StyledText(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL
                 | SWT.H_SCROLL);
         helpStTxt.setWordWrap(false);
