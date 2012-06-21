@@ -2422,30 +2422,63 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 
                 if (tsSelected) {
                 	ArrayList<SiteInfo> siList = tsMap.get(selectedTs.substring(0,1));
+                	ArrayList<SiteInfo> numList = new ArrayList<SiteInfo>();
                 	for (SiteInfo si: siList) {
                 		// Add the selected TS
                 		if (si.getTs().equals(selectedTs)) {
-                			bottomDataList.add(formatDataLine(si));
-                			siteInfoList.add(si);
+                		    // Check for TS values with a digit, those go after the TS
+                		    // values not containing digits
+                		    if (si.getTs().matches("\\D*\\d+\\D*")) {
+                		        numList.add(si);
+                		    } else {
+                		        bottomDataList.add(formatDataLine(si));
+                		        siteInfoList.add(si);
+                		    }
                 		}
+                	}
+                	for (SiteInfo si: numList) {
+                        bottomDataList.add(formatDataLine(si));
+                        siteInfoList.add(si);
                 	}
                 } 
                 
+                ArrayList<SiteInfo> numList = new ArrayList<SiteInfo>();
                 for (String ts: TS_ORDER) {
                 	ArrayList<SiteInfo> siList = tsMap.get(ts);
                 	for (SiteInfo si: siList) {
                 		if (!siteInfoList.contains(si)) {
-                    		bottomDataList.add(formatDataLine(si));
-                    		siteInfoList.add(si);                			
+                            if (si.getTs().matches("\\D*\\d+\\D*")) {
+                                numList.add(si);
+                            } else {
+                                bottomDataList.add(formatDataLine(si));
+                                siteInfoList.add(si);
+                            }
                 		}
                 	}
+                	
+                    for (SiteInfo si: numList) {
+                        bottomDataList.add(formatDataLine(si));
+                        siteInfoList.add(si);
+                    }
+                    numList.clear();
                 }
                 
+                numList.clear();
             	ArrayList<SiteInfo> siList = tsMap.get(OTHER);
             	for (SiteInfo si: siList) {
-            		bottomDataList.add(formatDataLine(si));
-            		siteInfoList.add(si);
+                    if (si.getTs().matches("\\D*\\d+\\D*")) {
+                        numList.add(si);
+                    } else {
+                        bottomDataList.add(formatDataLine(si));
+                        siteInfoList.add(si);
+                    }
             	}
+            	
+                for (SiteInfo si: numList) {
+                    bottomDataList.add(formatDataLine(si));
+                    siteInfoList.add(si);
+                }
+
             }
         }
     }
