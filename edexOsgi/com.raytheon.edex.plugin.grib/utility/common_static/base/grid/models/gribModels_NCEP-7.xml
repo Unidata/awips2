@@ -38,19 +38,6 @@
 	</model>
 
 	<model>
-		<title>RUC80</title>
-		<name>RUC</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>211</grid>
-		<process>
-			<id>86</id>
-		</process>
-		<paramInfo>ruc211</paramInfo>
-		<dt>3</dt>
-	</model>
-
-	<model>
 		<title>GFS180</title>
 		<name>AVN</name>
 		<center>7</center>
@@ -686,7 +673,7 @@
 
 
 	<model>
-		<title>RUC40</title>
+		<title>RAP40</title>
 		<name>RUC236</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -997,7 +984,7 @@
 	</model>
 
 	<model>
-		<title>RUC13</title>
+		<title>RAP13</title>
 		<name>RUC130</name>
 		<center>7</center>
 		<subcenter>0</subcenter>

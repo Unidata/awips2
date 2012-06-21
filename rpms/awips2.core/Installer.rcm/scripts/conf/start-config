@@ -1,15 +1,17 @@
 # Set the following line to the radar ingest endpoint directory for EDEX.
-edex_endpoint_arg=/awips2/edex/data/sbn/radar
+edex_endpoint_arg=@EDEX_HOME@/edex/data/sbn/radar
 
-# The following line controls the location of the log file.  Change to 
-# /dev/null to disable logging.
-log_file=/awips2/rcm/data/logs/radarserver-log
+# The following line controls the location of log files.  See
+# data/config/res/log4j.properties for more logging options.
+log_dir=$rs_home_dir/rcm/data/logs
 
 # Uncomment and change the following line to choose a Java VM.  The 
 # default is the "java" program that is in the PATH.
 #java=/path/to/jre/bin/java
-java=/awips2/java/bin/java
+java=${INSTALL_PATH}/bin/java
 
+# necessary for fxaAnnounce to be called if rpg goes down
+awips2_fxa=/awips2/fxa
 
 #======= AWIPS 1 Compatibility Configuration =======
 # Only uncomment the following items if you want to use configuration files
