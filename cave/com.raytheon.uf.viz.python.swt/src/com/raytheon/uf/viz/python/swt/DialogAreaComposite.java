@@ -86,21 +86,21 @@ public class DialogAreaComposite extends ScrolledComposite {
                 Composite rowOfButtons = new Composite(composite, style);
                 GridLayout gridLayout = new GridLayout(1, false);
                 rowOfButtons.setLayout(gridLayout);
-                widget.buildComposite(rowOfButtons);
+                widget.buildComposite(rowOfButtons, style);
 
                 while (wIterator.hasNext()) {
                     widget = wIterator.next();
                     if (widget instanceof ButtonWidget) {
                         gridLayout.numColumns++;
-                        widget.buildComposite(rowOfButtons);
+                        widget.buildComposite(rowOfButtons, style);
                     } else {
-                        widget.buildComposite(composite);
+                        widget.buildComposite(composite, style);
                         break;
                     }
                 }
 
             } else {
-                widget.buildComposite(composite);
+                widget.buildComposite(composite, style);
             }
 
         }

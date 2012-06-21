@@ -559,8 +559,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
      */
     public void reopenDialog() {
         // Open the dialog
-        if (dialog == null || dialog.getShell() == null
-                || dialog.getShell().isDisposed()) {
+        if (dialog == null || dialog.getShell().isDisposed()) {
             VizApp.runAsync(new Runnable() {
 
                 @Override

@@ -127,10 +127,7 @@ public class PurgeText {
                 }
                 
             } catch(Exception e) {
-                log.error(traceId + " - Error processing text data.  ");
-                if(log.isDebugEnabled()) {
-                    log.error(e);
-                }
+                log.error(traceId + " - Error processing text data.  ", e);
             }
         }
     }
@@ -180,10 +177,7 @@ public class PurgeText {
                 }
             }
         } catch (Exception e) {
-            log.error(traceId + " - Error processing text data.  ");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            log.error(traceId + " - Error processing text data.  ", e);
         }
     }
 
@@ -258,10 +252,7 @@ public class PurgeText {
             dao.saveOrUpdate(t);
             success = true;
         } catch(Exception e) {
-            log.error("Error saving text ");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            log.error("Error saving text ", e);
         }
         return success;
     }

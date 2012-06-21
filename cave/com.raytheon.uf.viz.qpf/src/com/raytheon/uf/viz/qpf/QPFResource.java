@@ -202,6 +202,36 @@ public class QPFResource extends AbstractMapVectorResource implements
                         descriptor);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> getStreamlineResource()
+            throws VizException {
+        return (AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>) this.resourceData
+                .construct(new GridLoadProperties(
+                        com.raytheon.uf.viz.core.rsc.DisplayType.STREAMLINE),
+                        descriptor);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> getWindBarbResource()
+            throws VizException {
+        return (AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>) this.resourceData
+                .construct(new GridLoadProperties(
+                        com.raytheon.uf.viz.core.rsc.DisplayType.BARB),
+                        descriptor);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> getArrowResource()
+            throws VizException {
+        return (AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>) this.resourceData
+                .construct(new GridLoadProperties(
+                        com.raytheon.uf.viz.core.rsc.DisplayType.ARROW),
+                        descriptor);
+    }
+
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type.equals(ChangeType.DATA_UPDATE)) {
@@ -224,4 +254,31 @@ public class QPFResource extends AbstractMapVectorResource implements
         return null;
     }
 
+    @Override
+    public boolean isStreamlineVector() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isWindVector() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isArrowVector() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.contours.ILoadableAsImage#isLoadableAsImage()
+     */
+    @Override
+    public boolean isLoadableAsImage() {
+        return false;
+    }
 }

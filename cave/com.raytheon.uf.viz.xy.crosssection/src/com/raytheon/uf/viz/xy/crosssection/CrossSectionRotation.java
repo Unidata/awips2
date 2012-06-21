@@ -19,19 +19,11 @@
  **/
 package com.raytheon.uf.viz.xy.crosssection;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.GeodeticCalculator;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.xy.crosssection.CrossSectionRotationsFile.RotationMode;
 import com.raytheon.viz.core.slice.request.HeightScale;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -54,13 +46,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class CrossSectionRotation {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(CrossSectionRotation.class);
 
     public static List<float[]> rotateVector(String parameter,
             List<Coordinate> linePoints, List<float[]> floatData,
-            int lineLengthInMeters, HeightScale heightScale,
-            CoordinateReferenceSystem dataCRS) {
+            int lineLengthInMeters, HeightScale heightScale) {
         if (floatData.size() < 4) {
             return floatData;
         }
@@ -84,7 +73,7 @@ public class CrossSectionRotation {
         int height = result.length / width;
         float[] cosRot = new float[width];
         float[] sinRot = new float[width];
-        getRotationCoefs(linePoints, cosRot, sinRot, dataCRS);
+        getRotationCoefs(linePoints, cosRot, sinRot);
         switch (mode) {
         case VR_NO_ROTATION: {
             return floatData;
@@ -177,31 +166,18 @@ public class CrossSectionRotation {
     }
 
     private static void getRotationCoefs(List<Coordinate> linePoints,
-            float[] cosRot, float[] sinRot, CoordinateReferenceSystem crs) {
-        List<Coordinate> convertedPoints = new ArrayList<Coordinate>();
-        try {
-            MathTransform transform = MapUtil.getTransformFromLatLon(crs);
-            for (Coordinate c : linePoints) {
-                DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
-                transform.transform(dp, dp);
-                convertedPoints.add(new Coordinate(dp.x, dp.y));
-            }
-        } catch (Throwable e) {
-            statusHandler.handle(Priority.VERBOSE,
-                    "Error reprojecting points for cross section rotation", e);
-            convertedPoints = linePoints;
-        }
-        for (int i = 0; i < convertedPoints.size() - 1; i++) {
-            Coordinate c1 = convertedPoints.get(i);
-            Coordinate c2 = convertedPoints.get(i + 1);
+            float[] cosRot, float[] sinRot) {
+        for (int i = 0; i < linePoints.size() - 1; i++) {
+            Coordinate c1 = linePoints.get(i);
+            Coordinate c2 = linePoints.get(i + 1);
             double x = c2.x - c1.x;
             double y = c2.y - c1.y;
             double m = Math.sqrt(x * x + y * y);
             cosRot[i] = (float) (x / m);
             sinRot[i] = (float) (y / m);
         }
+
         cosRot[cosRot.length - 1] = Float.NaN;
         sinRot[sinRot.length - 1] = Float.NaN;
-
     }
 }
