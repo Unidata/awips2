@@ -72,9 +72,6 @@ MSAS:com.raytheon.edex.plugin.grib.decoderpostprocessors.MSASPostProcessor
 HPCqpf:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor
 HPCqpfNDFD:com.raytheon.edex.plugin.grib.decoderpostprocessors.OverwriteGribPostProcessor
 
-#TPCSurgeProb grids
-TPCSurgeProb:com.raytheon.edex.plugin.grib.decoderpostprocessors.TPCSurgeProbPostProcessor
-
 #Canadian GEM grids
 Canadian-Reg:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianRegPostProcessor
 Canadian-NH:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianNHPostProcessor
