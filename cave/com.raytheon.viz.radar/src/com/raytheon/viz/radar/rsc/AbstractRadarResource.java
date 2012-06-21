@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.cache.CacheObject.ICacheObjectCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -302,10 +303,17 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         if (resourceData.mode.equals("CZ-Pg")) {
             return null;
         }
-
         // Grab current time
         DataTime displayedDate = descriptor.getTimeForResource(this);
 
+        if (displayedDate == null) {
+            FramesInfo fi = descriptor.getFramesInfo();
+            DataTime[] times = fi.getTimeMap().get(this);
+            int index = fi.getFrameIndex();
+            if (times != null && index > 0 && index < times.length) {
+                displayedDate = times[index];
+            }
+        }
         if (displayedDate == null) {
             displayedDate = this.displayedDate;
         }
