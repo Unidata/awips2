@@ -55,6 +55,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 22, 2011  10631   njensen  Major refactor
  * May 3, 2012	DR 14741  porricel	   Stop setting end time of orig.
  *                                     warning to start time of update.
+ * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
+ *										NEW warning when CAN warning is issued 
  * 
  * </pre>
  * 
@@ -99,7 +101,11 @@ public class WarningsResource extends AbstractWarningResource {
                                 
                                 //if cancellation, set end time to start time 
                                 //of this action
-                                if(act == WarningAction.CAN) {
+                                
+                                // DR14992: fix the problem with plotting expiration time for 
+                                // 			NEW warning when CAN warning is issued
+                                if(act == WarningAction.CAN &&
+                                   WarningAction.valueOf(entry.record.getAct()) == WarningAction.CAN) {
                                     entry.record.setEndTime((Calendar) warnrec
                                             .getStartTime().clone());
                                 }
