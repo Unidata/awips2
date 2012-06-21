@@ -168,7 +168,7 @@ public class GridUpdateNotification extends GfeNotification implements
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
+        StringBuffer str = new StringBuffer();
         str.append("ParmID: ").append(this.parmId.toString()).append("\n");
         str.append("Replacement TimeRange: ")
                 .append(this.replacementTimeRange.toString()).append("\n");

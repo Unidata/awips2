@@ -89,16 +89,6 @@ public class AffectedAreas {
     public String getName() {
         return name;
     }
-    
-
-    /**
-     * @param name 
-     *          the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
 
     /**
      * @return the areaNotation
@@ -114,14 +104,6 @@ public class AffectedAreas {
         return areasNotation;
     }
 
-    public void setAreaNotation(String areaNotation) {
-        this.areaNotation = areaNotation;
-    }
-
-    public void setAreasNotation(String areasNotation) {
-        this.areasNotation = areasNotation;
-    }
-
     /**
      * @return the partOfParentRegion
      */
@@ -134,10 +116,6 @@ public class AffectedAreas {
      */
     public String getParentRegion() {
         return parentRegion;
-    }
-
-    public void setPartOfArea(List<String> partOfArea) {
-        this.partOfArea = partOfArea;
     }
 
     /**

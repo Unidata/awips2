@@ -47,7 +47,7 @@
                                 <constraint constraintValue="grib" constraintType="EQUALS"/>
                             </mapping>
 							<mapping key="modelInfo.modelName">
-								<constraint constraintValue="FFG-TUA,FFG-ACR,FFG-STR,FFG-RSA,FFG-ORN,FFG-RHA,FFG-KRF,FFG-MSR,FFG-TAR,FFG-PTR,FFG-TIR-HiRes,FFG-ALR,FFG-FWR"
+								<constraint constraintValue="FFG-TUA,FFG-ACR,FFG-STR,FFG-RSA,FFG-ORN,FFG-RHA,FFG-KRF,FFG-MSR,FFG-TAR,FFG-PTR,FFG-TIR,FFG-ALR,FFG-FWR"
 									constraintType="IN" />
 							</mapping>
                         </metadataMap>
@@ -321,7 +321,7 @@
 		                                <constraint constraintValue="grib" constraintType="EQUALS"/>
 		                            </mapping>
 		                            <mapping key="modelInfo.modelName">
-		                                <constraint constraintValue="FFG-TIR-HiRes" constraintType="EQUALS"/>
+		                                <constraint constraintValue="FFG-TIR" constraintType="EQUALS"/>
 		                            </mapping>
 		                        </metadataMap>
 		                    </resourceData>

@@ -1137,10 +1137,8 @@ public class PostShef {
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error retrieving from " + tableName);
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error retrieving from " + tableName, e);
+        } finally {
         }
     }
 
@@ -1170,10 +1168,9 @@ public class PostShef {
             } catch (Exception e) {
                 log.error("Query = [" + query + "]");
                 log.error(shefRecord.getTraceId()
-                        + " - PostgresSQL error retrieving from " + tableName);
-                if(log.isDebugEnabled()) {
-                    log.error(e);
-                }
+                        + " - PostgresSQL error retrieving from " + tableName,
+                        e);
+            } finally {
             }
         }
     }
@@ -1274,11 +1271,10 @@ public class PostShef {
             log.error("Query = [" + riverStatQuery + "]");
             log.error("Query = [" + hourQuery + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error loading max forecast item");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error loading max forecast item", e);
+        } finally {
         }
+
     }
 
     /**
@@ -1305,10 +1301,8 @@ public class PostShef {
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error searching riverstatus");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error searching riverstatus", e);
+        } finally {
         }
         return rval;
     }
@@ -1544,10 +1538,8 @@ public class PostShef {
             log.error("Query = [" + query + "]");
             log.error("Query = [" + queryForecast + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error in buildTsFcstRiv");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error in buildTsFcstRiv", e);
+        } finally {
         }
         return shefList;
     }
@@ -1999,11 +1991,10 @@ public class PostShef {
         } catch (Exception e) {
             log.error("Query = [" + query + "]");
             log.error(shefRecord.getTraceId()
-                    + " - PostgresSQL error retrieving from ingestfilter");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + " - PostgresSQL error retrieving from ingestfilter", e);
+        } finally {
         }
+
         return tsFound;
     }
 
@@ -2054,10 +2045,7 @@ public class PostShef {
             }
         } catch (Exception e) {
             log.error("Query = [" + sql + "]");
-            log.error(shefRecord.getTraceId() + " - Error checking location");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            log.error(shefRecord.getTraceId() + " - Error checking location", e);
         }
         return retVal;
     }
@@ -2401,10 +2389,7 @@ public class PostShef {
             matchFound = true;
         } catch (Exception e) {
             log.error("Query = [" + sql + "]");
-            log.error(shefRecord.getTraceId() + " - " + errorMsg.toString());
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            log.error(shefRecord.getTraceId() + " - " + errorMsg.toString(), e);
             stats.incrementErrorMessages();
         }
 
@@ -2452,9 +2437,6 @@ public class PostShef {
             log.error(shefRecord.getTraceId()
                     + " - An error occurred in recordCount:  " + table + " - "
                     + sql);
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
         }
         return retVal;
     }
@@ -2553,9 +2535,7 @@ public class PostShef {
         } catch (Exception e) {
             log.error("Query = [" + sql + "]");
             log.error(shefRecord.getTraceId() + " - Error adjusting raw value");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+            e.printStackTrace();
         }
     }
 
@@ -2592,10 +2572,7 @@ public class PostShef {
         } catch (Exception e) {
             log.error(shefRecord.getTraceId()
                     + " - Error writing to productlink table(" + locId + ", "
-                    + productId + ", " + obsTime.toString() + ")");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
+                    + productId + ", " + obsTime.toString() + "):  ", e);
         }
     }
 
@@ -2858,9 +2835,6 @@ public class PostShef {
             log.error("Error in checkQuality() for " + shefRecord.getTraceId(),e);
             log.info("locdatalimits query = [" + locLimitSql.toString() + "]");
             log.info("datalimits query  = [" + defLimitSql.toString() + "]");
-            if(log.isDebugEnabled()) {
-                log.error(e);
-            }
             stats.incrementErrorMessages();
         }
 

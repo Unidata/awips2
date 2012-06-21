@@ -51,12 +51,6 @@
 			value="jms-dist:queue:Ingest.Shef?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
-    <bean id="shefHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
-        factory-method="register">
-        <constructor-arg value="shef" />
-        <constructor-arg value="jms-dist:queue:Ingest.Shef?destinationResolver=#qpidDurableResolver" />
-    </bean>
-
 	<bean id="shefCamelRegistered" factory-bean="contextManager"
 		factory-method="register">
 		<constructor-arg ref="shef-camel" />

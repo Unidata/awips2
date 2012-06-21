@@ -36,9 +36,10 @@ import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IRTManager;
 import com.raytheon.edex.plugin.gfe.reference.MapManager;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.database.ClimoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
-import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
+import com.raytheon.edex.plugin.gfe.server.database.HLSTopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
 import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecord;
 import com.raytheon.edex.site.SiteUtil;
@@ -295,19 +296,15 @@ public class GFESiteActivation implements ISiteActivationListener {
             statusHandler.handle(Priority.EVENTA,
                     "TopoDatabaseManager initializing...");
             TopoDatabaseManager.initializeTopoDatabase(siteID);
-            // statusHandler.handle(Priority.EVENTA,
-            // "ClimoDatabaseManager initializing...");
-            // ClimoDatabaseManager.initializeClimoDatabase(siteID);
-            // statusHandler.handle(Priority.EVENTA,
-            // "HLSDatabaseManager initializing...");
-            // HLSTopoDatabaseManager.initializeHLSTopoDatabase(siteID);
-            // statusHandler.handle(Priority.EVENTA,
-            // "D2DSatDatabaseManager initializing...");
-            D2DSatDatabaseManager.initializeD2DSatDatabase(siteID, config);
-
             statusHandler.handle(Priority.EVENTA,
-                    "NetCDFDatabaseManager initializing...");
-            NetCDFDatabaseManager.initializeNetCDFDatabases(config);
+                    "ClimoDatabaseManager initializing...");
+            ClimoDatabaseManager.initializeClimoDatabase(siteID);
+            statusHandler.handle(Priority.EVENTA,
+                    "HLSDatabaseManager initializing...");
+            HLSTopoDatabaseManager.initializeHLSTopoDatabase(siteID);
+            statusHandler.handle(Priority.EVENTA,
+                    "D2DSatDatabaseManager initializing...");
+            D2DSatDatabaseManager.initializeD2DSatDatabase(siteID, config);
 
             statusHandler.handle(Priority.EVENTA, "MapManager initializing...");
             // should be cluster locked
@@ -521,11 +518,9 @@ public class GFESiteActivation implements ISiteActivationListener {
             }
 
             TopoDatabaseManager.removeTopoDatabase(siteID);
-            // for (String source : ClimoDatabaseManager.getClimoSources()) {
-            // ClimoDatabaseManager.removeClimoDatabase(siteID, source);
-            // }
-
-            NetCDFDatabaseManager.removeDatabases(siteID);
+            for (String source : ClimoDatabaseManager.getClimoSources()) {
+                ClimoDatabaseManager.removeClimoDatabase(siteID, source);
+            }
 
             D2DSatDatabaseManager.removeSatDatabase(siteID);
             D2DParmIdCache.getInstance().removeSiteDbs(siteID);

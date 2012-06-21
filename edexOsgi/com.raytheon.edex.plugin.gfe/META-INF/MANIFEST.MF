@@ -25,15 +25,16 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174"
  com.raytheon.uf.common.datastorage.hdf5;bundle-version="1.11.24",
  ncsa.hdf5;bundle-version="2.4.0",
  com.raytheon.uf.edex.topo,
+ com.raytheon.uf.common.climo;bundle-version="1.0.0",
  com.raytheon.edex.common,
+ com.raytheon.uf.common.hlstopo;bundle-version="1.0.0",
  org.apache.commons.beanutils;bundle-version="1.8.3",
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
  com.raytheon.edex.plugin.satellite;bundle-version="1.12.1174",
  com.raytheon.uf.edex.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
  com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.12.1174",
- com.raytheon.uf.common.site;bundle-version="1.12.1174",
- ucar.nc2;bundle-version="1.0.0"
+ com.raytheon.uf.common.site;bundle-version="1.12.1174"
 Export-Package: com.raytheon.edex.plugin.gfe,
  com.raytheon.edex.plugin.gfe.config,
  com.raytheon.edex.plugin.gfe.db.dao,

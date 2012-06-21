@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -48,6 +48,7 @@ import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.status.StatusConstants;
 
 /**
  * Creates uEngine scripts on the fly.
@@ -74,8 +75,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * @version 1
  */
 public class ScriptCreator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ScriptCreator.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ScriptCreator.class);
 
     private static final String DEFAULT_SCRIPT_LIBRARY = "BaseRequest";
 
@@ -99,10 +99,10 @@ public class ScriptCreator {
                             new Path("scriptTemplates/standardTemplate.vm"),
                             null)).getPath());
         } catch (IOException e) {
-            statusHandler
-                    .handle(Priority.CRITICAL,
-                            "Unable to load the standard script template.  Requesting products will not work until this is fixed.",
-                            e);
+            statusHandler.handle(
+                    Priority.CRITICAL,
+                    "Unable to load the standard script template.  Requesting products will not work until this is fixed.",
+                    e);
         }
     }
 
@@ -148,7 +148,7 @@ public class ScriptCreator {
             return;
         }
 
-        pluginToLibraryMap = new HashMap<String, ScriptProperties>();
+        pluginToLibraryMap = new WeakHashMap<String, ScriptProperties>();
         IExtensionRegistry registry = Platform.getExtensionRegistry();
 
         IExtensionPoint point = registry.getExtensionPoint(RESOURCE_EXTENSION);
