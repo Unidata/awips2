@@ -43,8 +43,17 @@ public class RasterElementContainer extends AbstractElementContainer {
 	@Override
 	public void draw(IGraphicsTarget target, PaintProperties paintProps,
 				DisplayProperties dprops) {
+		draw(target, paintProps, dprops, false);
+	}
 		
-		boolean needsCreate = false;
+	/* 	 
+ 	 * Draws to the given graphics target.  Recreates the IDisplayable objects  
+	 * if the Layer properties change.
+	 * @see gov.noaa.nws.ncep.ui.pgen.display.AbstractTBNL#draw(com.raytheon.uf.viz.core.IGraphicsTarget, com.raytheon.uf.viz.core.drawables.PaintProperties, boolean)
+	 */
+	@Override
+	public void draw(IGraphicsTarget target, PaintProperties paintProps,
+				DisplayProperties dprops, boolean needsCreate) {
 		
 		if ( displayEls == null ) needsCreate = true;
 		

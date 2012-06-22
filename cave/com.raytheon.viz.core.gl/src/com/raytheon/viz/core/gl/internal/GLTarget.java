@@ -1930,7 +1930,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public BufferedImage screenshot() {
 
-        makeContextCurrent();
+        boolean needsRelease = makeContextCurrent();
         if (theCanvas != null) {
             theCanvas.swapBuffers();
         }
@@ -1941,7 +1941,9 @@ public class GLTarget implements IGLTarget {
             theCanvas.swapBuffers();
         }
 
-        releaseContext();
+        if (needsRelease) {
+        	releaseContext();
+        }
         return bi;
     }
 
