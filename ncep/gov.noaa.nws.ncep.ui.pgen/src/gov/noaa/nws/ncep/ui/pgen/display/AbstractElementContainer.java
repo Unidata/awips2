@@ -89,13 +89,24 @@ public abstract class AbstractElementContainer {
 			DisplayProperties dprops);
 	
 	/**
+	 * Draws to the given graphics target.  Recreates the IDisplayable objects, if
+	 * necessary.
+	 * @param target
+	 * @param paintProps 
+	 * @param dprops PGEN Layer properties
+	 * @param needsCreate
+	 */
+	public abstract void draw(IGraphicsTarget target, PaintProperties paintProps, 
+			DisplayProperties dprops, boolean needsCreate);
+	
+	/**
 	 * Uses a DisplayElementFactory to create IDisplayable objects from the Drawable Element
 	 * @param paintProps
 	 */
 	protected void createDisplayables(PaintProperties paintProps) {
 		
 		//Cleanup first
-		if ( (displayEls!=null) && !displayEls.isEmpty() ) dispose();
+		if ( (displayEls!=null) && !displayEls.isEmpty() ) reset();
 		if ( element instanceof IAvnText ) {
 			displayEls = def.createDisplayElements( (IAvnText) element, paintProps );		   			
 		}
@@ -145,6 +156,10 @@ public abstract class AbstractElementContainer {
 	    }
 	}
 	
+	private void reset() {
+		def.reset();
+	}
+
 	/**
 	 * Releases the resources held by any of the IDisplayables
 	 */
@@ -156,6 +171,10 @@ public abstract class AbstractElementContainer {
 	         each.dispose();
 		}
 		displayEls.clear();
+	}
+
+	public void setElement(DrawableElement el) {
+		this.element = el;
 	}
 	
 	
