@@ -22,7 +22,8 @@ package com.raytheon.uf.common.geospatial.interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 
 /**
- * Nearest Neighbor interpolation
+ * Provides logic for deriving a value at a single point from a 2D numeric
+ * source.
  * 
  * <pre>
  * 
@@ -38,14 +39,8 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
  * @version 1.0
  */
 
-public class NearestNeighborInterpolation implements Interpolation {
+public interface Interpolation {
 
-    public NearestNeighborInterpolation() {
-    }
-
-    @Override
-    public double getInterpolatedValue(DataSource source, double x, double y) {
-        return source.getDataValue((int) Math.round(x), (int) Math.round(y));
-    }
-
+    public abstract double getInterpolatedValue(DataSource source, double x,
+            double y);
 }
