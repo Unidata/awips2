@@ -24,6 +24,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -142,8 +143,13 @@ public class PlotBlendedResource extends
         AbstractVizResource<?, ?> rsc = null;
         for (int i = 0; i < resourceData.getResourceList().size(); i++) {
             rsc = resourceData.getResourceList().get(i).getResource();
-            newProps.setDataTime(descriptor.getTimeForResource(rsc));
-            rsc.paint(target, newProps);
+            if (rsc.getProperties().isVisible()) {
+                newProps.setDataTime(descriptor.getTimeForResource(rsc));
+                PaintStatus paintStatus = rsc.paint(target, newProps);
+                if (paintStatus != PaintStatus.PAINTED) {
+                    updatePaintStatus(paintStatus);
+                }
+            }
         }
 
     }
