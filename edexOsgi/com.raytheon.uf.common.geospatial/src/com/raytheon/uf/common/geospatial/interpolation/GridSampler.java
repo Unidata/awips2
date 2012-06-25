@@ -22,7 +22,9 @@ package com.raytheon.uf.common.geospatial.interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 
 /**
- * Nearest Neighbor interpolation
+ * Used for sampling data values from a source using an interpolation. It can be
+ * more convenient to use a sampler rather than a interpolation and a source
+ * seperatly.
  * 
  * <pre>
  * 
@@ -30,7 +32,7 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 18, 2012            bsteffen     Initial creation
+ * Jun 20, 2012            bsteffen     Initial creation
  * 
  * </pre>
  * 
@@ -38,14 +40,31 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
  * @version 1.0
  */
 
-public class NearestNeighborInterpolation implements Interpolation {
+public class GridSampler {
 
-    public NearestNeighborInterpolation() {
+    private Interpolation interpolation;
+
+    private DataSource source;
+
+    public GridSampler(Interpolation interpolation) {
+        this.interpolation = interpolation;
     }
 
-    @Override
-    public double getInterpolatedValue(DataSource source, double x, double y) {
-        return source.getDataValue((int) Math.round(x), (int) Math.round(y));
+    public GridSampler(DataSource source, Interpolation interpolation) {
+        this.interpolation = interpolation;
+        this.source = source;
+    }
+
+    public double sample(double x, double y) {
+        return interpolation.getInterpolatedValue(source, x, y);
+    }
+
+    public void setInterpolation(Interpolation interpolation) {
+        this.interpolation = interpolation;
+    }
+
+    public void setSource(DataSource source) {
+        this.source = source;
     }
 
 }
