@@ -17,12 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.geospatial.interpolation;
+package com.raytheon.uf.common.geospatial.interpolation.data;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
 /**
- * Nearest Neighbor interpolation
+ * 
+ * converts a 2D x,y index pair into an index value.
  * 
  * <pre>
  * 
@@ -30,22 +31,35 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 18, 2012            bsteffen     Initial creation
+ * Jun 20, 2012            bsteffen     Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
+public abstract class DataWrapper1D extends AbstractDataWrapper {
 
-public class NearestNeighborInterpolation implements Interpolation {
+    public DataWrapper1D(GeneralGridGeometry geometry) {
+        super(geometry);
+    }
 
-    public NearestNeighborInterpolation() {
+    public DataWrapper1D(int nx, int ny) {
+        super(nx, ny);
     }
 
     @Override
-    public double getInterpolatedValue(DataSource source, double x, double y) {
-        return source.getDataValue((int) Math.round(x), (int) Math.round(y));
+    protected double getDataValueInternal(int x, int y) {
+        return getDataValueInternal(x + y * nx);
     }
+
+    @Override
+    public void setDataValueInternal(double dataValue, int x, int y) {
+        setDataValueInternal(dataValue, x + nx * y);
+    }
+
+    protected abstract double getDataValueInternal(int index);
+
+    protected abstract void setDataValueInternal(double dataValue, int index);
 
 }
