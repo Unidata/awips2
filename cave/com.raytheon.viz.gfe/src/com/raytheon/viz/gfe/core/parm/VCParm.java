@@ -67,6 +67,9 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
  * Mar 02, 2012  #346      dgilling     Use Parm's new disposed flag to
  *                                      prevent leaks through
  *                                      ListenerLists.
+ * Jun 25, 2012  #766      dgilling     Cleanup error logging so we
+ *                                      don't spam alertViz in practice
+ *                                      mode.
  * 
  * </pre>
  * 
@@ -104,7 +107,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
         // Need to check that the above call to mod.getGpi() did not fail
         if (!mod.isValid()) {
-            statusHandler.handle(Priority.PROBLEM, "Can't get GPI: ",
+            statusHandler.handle(Priority.EVENTB, "Can't get GPI: ",
                     this.mod.getErrorString());
         }
 
@@ -410,7 +413,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // ensure we have parms* for all of the dependent parms
         List<ParmID> args = new ArrayList<ParmID>(mod.dependentParms());
         if (!mod.isValid()) {
-            statusHandler.handle(Priority.PROBLEM,
+            statusHandler.handle(Priority.EVENTB,
                     "Error getting dependent WeatherElements: ",
                     mod.getErrorString());
         }
@@ -455,7 +458,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // get list of dependent parms
         List<ParmID> args = new ArrayList<ParmID>(mod.dependentParms());
         if (!mod.isValid()) {
-            statusHandler.handle(Priority.PROBLEM,
+            statusHandler.handle(Priority.EVENTB,
                     "Error getting dependent WeatherElements: ",
                     mod.getErrorString());
         }
