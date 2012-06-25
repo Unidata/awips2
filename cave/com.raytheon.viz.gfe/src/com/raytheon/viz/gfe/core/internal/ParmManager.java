@@ -71,6 +71,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 08/19/09     2547       rjpeter     Implement Test/Prac database display.
  * 02/23/12     #346       dgilling    Call Parm's dispose method when removing
  *                                     a Parm.
+ * 06/25/12     #766       dgilling    Fix NullPointerException from VCModules
+ *                                     when running in practice mode.
  * </pre>
  * 
  * @author bphillip
@@ -437,6 +439,12 @@ public class ParmManager extends AbstractParmManager {
 
     @Override
     public ParmID[] getAvailableParms(DatabaseID dbID) {
+        // a derivation from AWIPS1:
+        // short-circuit the checks and just return an empty array back
+        // if we have an invalid DatabaseID
+        if ((dbID == null) || (!dbID.isValid())) {
+            return new ParmID[0];
+        }
 
         // Check the cache
         List<ParmID> cacheParmIDs = null;

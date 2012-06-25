@@ -54,8 +54,9 @@ import jep.JepException;
  * Feb 4, 2008             njensen     Initial creation
  * Mar 21, 2008            njensen     Major refactor
  * June 9, 2008            njensen     Refactor
- * Sep 18, 2009   2899  njensen     Added cProfile support
- * Dec 7, 2009    3310  njensen     Separated some functionality up to PythonInterpreter
+ * Sep 18, 2009   2899     njensen     Added cProfile support
+ * Dec 7, 2009    3310     njensen     Separated some functionality up to PythonInterpreter
+ * Jun 26, 2012   #776     dgilling    Fix leaking of global names.
  * 
  * </pre>
  * 
@@ -244,10 +245,10 @@ public class PythonScript extends PythonInterpreter {
     }
 
     protected void cleanupArgs(List<String> args) throws JepException {
-        if (args != null && args.size() > 0) {
+        if (args != null && !args.isEmpty()) {
             for (String key : args) {
                 if (!key.equals("self")) {
-                    jep.eval(key + " = None");
+                    jep.eval("del " + key);
                 }
             }
         }
