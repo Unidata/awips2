@@ -71,9 +71,11 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -293,16 +295,23 @@ public class GridResource extends
                     .getLocation().getGridGeometry();
             GridGeometry2D expectedGridGeometry = this.gridGeometry[0];
             if (!realGridGeometry.equals(expectedGridGeometry)) {
-                AbstractInterpolation interp = new NearestNeighborInterpolation(
-                        realGridGeometry, expectedGridGeometry, -9998,
-                        Float.POSITIVE_INFINITY, -999999);
-                //interp.setMissingThreshold(1.0f); // Should be used for bi-linear interpolation
+                NearestNeighborInterpolation interp = new NearestNeighborInterpolation();
+                GridReprojection reproj = new GridReprojection(
+                        realGridGeometry, expectedGridGeometry);
+                // interp.setMissingThreshold(1.0f); // Should be used for
+                // bi-linear interpolation
                 if (record instanceof FloatDataRecord) {
                     float[] data = ((FloatDataRecord) record).getFloatData();
                     record = record.clone();
-                    interp.setData(data);
+                    FloatArrayWrapper source = new FloatArrayWrapper(data,
+                            realGridGeometry);
+                    source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+                    FloatArrayWrapper dest = new FloatArrayWrapper(
+                            expectedGridGeometry);
+                    dest.setFillValue(-999999);
                     try {
-                        data = interp.getReprojectedGrid();
+                        data = reproj.reprojectedGrid(interp, source, dest)
+                                .getArray();
                     } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
@@ -1040,12 +1049,16 @@ public class GridResource extends
             throws VizException {
         try {
             GridGeometry2D remappedImageGeometry = newTarget;
-            AbstractInterpolation interp = new NearestNeighborInterpolation(
-                    gridGeometry, remappedImageGeometry, -9998,
-                    Float.POSITIVE_INFINITY, -999999);
+            NearestNeighborInterpolation interp = new NearestNeighborInterpolation();
+            GridReprojection reproj = new GridReprojection(gridGeometry,
+                    remappedImageGeometry);
             float[] data = targetDataRecord.getFloatData();
-            interp.setData(data);
-            data = interp.getReprojectedGrid();
+            FloatArrayWrapper source = new FloatArrayWrapper(data, gridGeometry);
+            source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+            FloatArrayWrapper dest = new FloatArrayWrapper(
+                    remappedImageGeometry);
+            dest.setFillValue(-999999);
+            data = reproj.reprojectedGrid(interp, source, dest).getArray();
             FloatDataRecord remapGrid = (FloatDataRecord) targetDataRecord
                     .clone();
             remapGrid.setIntSizes(new int[] {
@@ -1309,14 +1322,14 @@ public class GridResource extends
 
         double tileCoordinateValue = Double.NaN;
         if (getCapability(ImagingCapability.class).isInterpolationState()) {
-            AbstractInterpolation interp = new BilinearInterpolation(
-                    tile.getLoadedData(), tile.getGridGeometry(),
-                    descriptor.getGridGeometry(), -9998f,
-                    Float.POSITIVE_INFINITY, Float.NaN);
+            FloatArrayWrapper source = new FloatArrayWrapper(
+                    tile.getLoadedData(), tile.getGridGeometry());
+            source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+            GridSampler sampler = new GridSampler(source,
+                    new BilinearInterpolation());
             try {
-                Coordinate pixel = coord.asPixel(descriptor.getGridGeometry());
-                tileCoordinateValue = interp.getReprojectedGridCell(
-                        (int) pixel.x, (int) pixel.y);
+                Coordinate pixel = coord.asPixel(tile.getGridGeometry());
+                tileCoordinateValue = sampler.sample(pixel.x, pixel.y);
                 UnitConverter converter = getCapability(
                         ColorMapCapability.class).getColorMapParameters()
                         .getDataToDisplayConverter();

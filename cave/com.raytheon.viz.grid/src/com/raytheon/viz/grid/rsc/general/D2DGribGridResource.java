@@ -37,8 +37,12 @@ import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -78,7 +82,7 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DGribGridResource.class);
 
-    private AbstractInterpolation reprojectionInterpolation;
+    private GridReprojection reprojectionInterpolation;
 
     public D2DGribGridResource(GridResourceData resourceData,
             LoadProperties loadProperties) {
@@ -140,15 +144,20 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
         // Now reproject if we need to.
         if (reprojectionInterpolation != null) {
             try {
+                Interpolation interp = new BilinearInterpolation();
                 if (data.isVector()) {
-                    reprojectionInterpolation.setData(data.getUComponent()
-                            .array());
-                    float[] udata = reprojectionInterpolation
-                            .getReprojectedGrid();
-                    reprojectionInterpolation.setData(data.getVComponent()
-                            .array());
-                    float[] vdata = reprojectionInterpolation
-                            .getReprojectedGrid();
+                    DataSource source = new FloatBufferWrapper(
+                            data.getUComponent(), getGridGeometry());
+                    FloatArrayWrapper dest = new FloatArrayWrapper(
+                            reprojectionInterpolation.getTargetGeometry());
+                    float[] udata = reprojectionInterpolation.reprojectedGrid(
+                            interp, source, dest).getArray();
+                    source = new FloatBufferWrapper(data.getVComponent(),
+                            getGridGeometry());
+                    dest = new FloatArrayWrapper(
+                            reprojectionInterpolation.getTargetGeometry());
+                    float[] vdata = reprojectionInterpolation.reprojectedGrid(
+                            interp, source, dest).getArray();
                     // When reprojecting it is necessary to recalculate the
                     // direction of vectors based off the change in the "up"
                     // direction
@@ -192,10 +201,12 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
                             data.getDataUnit());
 
                 } else {
-                    reprojectionInterpolation.setData(data.getScalarData()
-                            .array());
-                    float[] fdata = reprojectionInterpolation
-                            .getReprojectedGrid();
+                    DataSource source = new FloatBufferWrapper(
+                            data.getScalarData(), getGridGeometry());
+                    FloatArrayWrapper dest = new FloatArrayWrapper(
+                            reprojectionInterpolation.getTargetGeometry());
+                    float[] fdata = reprojectionInterpolation.reprojectedGrid(
+                            interp, source, dest).getArray();
                     data = GeneralGridData.createScalarData(
                             FloatBuffer.wrap(fdata), data.getDataUnit());
                 }
@@ -267,8 +278,9 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
                                 sourceGeometry, descriptor.getGridGeometry()
                                         .getEnvelope(), true);
                     }
-                    reprojectionInterpolation = new BilinearInterpolation(
+                    reprojectionInterpolation = new GridReprojection(
                             sourceGeometry, targetGeometry);
+                    reprojectionInterpolation.computeTransformTable();
                     clearRequestedData();
                 } catch (Exception e) {
                     reprojectionInterpolation = null;
