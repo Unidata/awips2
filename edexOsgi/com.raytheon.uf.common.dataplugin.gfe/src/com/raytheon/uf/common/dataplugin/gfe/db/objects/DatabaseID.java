@@ -47,8 +47,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 3/6/08       875        bphillip    Initial Creation
- * 8/19/09     2899       njensen   Rewrote equals() for performance
- * 5/08/12     #600       dgilling  Implement clone().
+ * 8/19/09     2899        njensen     Rewrote equals() for performance
+ * 5/08/12     #600        dgilling    Implement clone().
+ * 6/25/12     #766        dgilling    Fix isValid().
  * 
  * </pre>
  * 
@@ -228,7 +229,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      */
 
     public boolean isValid() {
-        return !this.format.equals("NONE");
+        return !this.format.equals(DataType.NONE);
     }
 
     /**
