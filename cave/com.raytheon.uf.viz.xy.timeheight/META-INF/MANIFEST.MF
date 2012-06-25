@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.xy.timeheight.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui;bundle-version="3.4.1"
+ org.eclipse.ui;bundle-version="3.4.1",
+ com.raytheon.uf.common.geospatial
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.core
