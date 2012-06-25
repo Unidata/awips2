@@ -70,6 +70,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2011            dgilling     Initial creation
+ * Jun 20, 2012  #766      dgilling     Refactor to improve
+ *                                      performance.
  * 
  * </pre>
  * 
@@ -149,7 +151,7 @@ public class VCModule {
 
     private GridParmInfo gpi;
 
-    private VCModuleJob python;
+    private Collection<ParmID> depParms;
 
     private DataManager dataMgr;
 
@@ -161,12 +163,11 @@ public class VCModule {
         this.dataMgr = dataMgr;
         this.parmMgr = parmMgr;
         this.id = module.getName().split("\\.(?=[^\\.]+$)")[0];
-        this.python = new VCModuleJob(this.dataMgr);
-        this.python.schedule();
+        this.depParms = Collections.emptyList();
     }
 
     public void dispose() {
-        this.python.cancel();
+        // no-op
     }
 
     public boolean isValid() {
@@ -185,7 +186,7 @@ public class VCModule {
         Map<String, Object> args = new HashMap<String, Object>();
         args.put(PyConstants.METHOD_NAME, method);
         VCModuleRequest req = new VCModuleRequest(id, "getMethodArgs", args);
-        python.enqueue(req);
+        parmMgr.getVCModulePool().enqueue(req);
 
         Object result = req.getResult();
         String[] argNames = (String[]) result;
@@ -193,14 +194,20 @@ public class VCModule {
     }
 
     public Collection<ParmID> dependentParms() {
-        Collection<ParmID> rval = new ArrayList<ParmID>();
+        // this is a derivation from AWIPS1
+        // like getGpi(), this should only ever need to be calculated once
+        // since VCModule does not support dynamic updates.
+        if (!depParms.isEmpty()) {
+            return depParms;
+        }
 
         try {
             Collection<String> parameters = getMethodArgs("getInventory");
+            depParms = new ArrayList<ParmID>(parameters.size());
             for (String parmName : parameters) {
                 ParmID pid = parmMgr.fromExpression(parmName);
                 if (pid.isValid()) {
-                    rval.add(pid);
+                    depParms.add(pid);
                 } else {
                     throw new IllegalArgumentException(
                             "Can't find Weather Element for " + parmName);
@@ -210,10 +217,10 @@ public class VCModule {
             error = t;
             // statusHandler.handle(Priority.DEBUG, "dependentParms: " + id
             // + " error", t);
-            return Collections.emptyList();
+            depParms = Collections.emptyList();
         }
 
-        return rval;
+        return depParms;
     }
 
     private long[] encodeTR(final TimeRange tr) {
@@ -235,9 +242,9 @@ public class VCModule {
         Object[] item = new Object[3];
         item[0] = encodeTR(gd.getGridTime());
 
-        // since we have to go through a bunch of hoops in VCModuleScript to get
-        // the IGridData in python-useable format, no need doing anything here
-        // but storing the data
+        // since we have to go through a bunch of hoops in VCModuleController to
+        // get the IGridData in python-useable format, no need doing anything
+        // here but storing the data
         item[1] = gd;
 
         // add a mask indicating the set of valid points. Note for all data
@@ -328,7 +335,7 @@ public class VCModule {
             }
 
             VCModuleRequest req = new VCModuleRequest(id, "getInventory", cargs);
-            python.enqueue(req);
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             // what's returned from the script here is a list of tuples.
@@ -389,7 +396,7 @@ public class VCModule {
         // commenting out this python call because it is completely
         // superfluous--all the baseline VCMODULE files have a calcHistory
         // method so there's no point in checking and it saves a call into the
-        // VCModuleJob queue. If at some point there's a desire to support
+        // VCModuleJobPool queue. If at some point there's a desire to support
         // user/site-defined modules, this check should probably return.
         // TODO: Reimplement using a call to BaseGfePyController.hasMethod().
 
@@ -442,7 +449,7 @@ public class VCModule {
             }
 
             VCModuleRequest req = new VCModuleRequest(id, "calcHistory", cargs);
-            python.enqueue(req);
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             List<String> result = (List<String>) reqResult;
@@ -500,7 +507,7 @@ public class VCModule {
 
             VCModuleRequest req = new VCModuleRequest(id, "calcGrid", cargs,
                     getGpi().getGridType());
-            python.enqueue(req);
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             return decodeGD(reqResult, invEntry);
@@ -521,7 +528,7 @@ public class VCModule {
 
         try {
             VCModuleRequest req = new VCModuleRequest(id, "getWEInfo", null);
-            python.enqueue(req);
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             List<List<Object>> result = (List<List<Object>>) reqResult;
