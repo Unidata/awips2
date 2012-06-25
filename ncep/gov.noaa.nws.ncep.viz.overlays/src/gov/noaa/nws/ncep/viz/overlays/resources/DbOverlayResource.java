@@ -356,6 +356,7 @@ public class DbOverlayResource extends
         if (shadedShape != null) {
             shadedShape.dispose();
         }
+        lastExtent = null;
     }
 
     @Override
