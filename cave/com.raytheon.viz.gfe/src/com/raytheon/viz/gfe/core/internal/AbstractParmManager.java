@@ -74,6 +74,7 @@ import com.raytheon.viz.gfe.core.msgs.ShowISCGridsMsg;
 import com.raytheon.viz.gfe.core.parm.ABVParmID;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 
 /**
  * Implements common parm manager functionality shared between concrete and mock
@@ -92,6 +93,8 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
  * 03/01/2012    #354      dgilling    Modify setParms to always load (but not
  *                                     necessarily display) the ISC parms that
  *                                     correspond to a visible mutable parm.
+ * 06/25/2012    #766      dgilling    Move to a shared thread pool for VCModule
+ *                                     execution.
  * 
  * </pre>
  * 
@@ -244,6 +247,8 @@ public abstract class AbstractParmManager implements IParmManager {
 
     private JobPool notificationPool;
 
+    private VCModuleJobPool vcModulePool;
+
     protected AbstractParmManager(final DataManager dataManager) {
         this.dataManager = dataManager;
         this.parms = new RWLArrayList<Parm>();
@@ -258,6 +263,8 @@ public abstract class AbstractParmManager implements IParmManager {
 
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
+        vcModulePool = new VCModuleJobPool("GFE Virtual ISC Python executor",
+                this.dataManager, vcModules.size(), Boolean.TRUE);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
@@ -413,6 +420,7 @@ public abstract class AbstractParmManager implements IParmManager {
             parms.releaseReadLock();
         }
 
+        vcModulePool.cancel();
         for (VCModule module : vcModules) {
             module.dispose();
         }
@@ -2059,5 +2067,10 @@ public abstract class AbstractParmManager implements IParmManager {
     @Override
     public JobPool getNotificationPool() {
         return notificationPool;
+    }
+
+    @Override
+    public VCModuleJobPool getVCModulePool() {
+        return vcModulePool;
     }
 }
