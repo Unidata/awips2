@@ -51,9 +51,10 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
-import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -102,7 +103,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                         when click 'Diff' button.
  *    05/08/2012   14828       D. Friedman Use nearest-neighbor interpolation for
  *                                         reprojected grids.
- *    05/16/2012   14993       D. Friedman Fix "blocky" contours  
+ *    05/16/2012   14993       D. Friedman Fix "blocky" contours
  * 
  * </pre>
  * 
@@ -237,9 +238,9 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                                 descriptor.getGridGeometry().getEnvelope(),
                                 true, 2));
                 IDataRecord[] newData = new IDataRecord[results.length];
-                BilinearInterpolation interp = new BilinearInterpolation(
-                        gridGeometry, remappedImageGeometry, -9998,
-                        Float.POSITIVE_INFINITY, -999999);
+                GridReprojection reproj = new GridReprojection(gridGeometry,
+                        remappedImageGeometry);
+                BilinearInterpolation interp = new BilinearInterpolation();
                 interp.setMissingThreshold(1.0f);
 
                 /*
@@ -282,8 +283,14 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                                     .getFloatData();
                         }
 
-                        interp.setData(data);
-                        data = interp.getReprojectedGrid();
+                        FloatArrayWrapper source = new FloatArrayWrapper(data,
+                                gridGeometry);
+                        source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+                        FloatArrayWrapper dest = new FloatArrayWrapper(
+                                remappedImageGeometry);
+                        dest.setFillValue(-999999);
+                        data = reproj.reprojectedGrid(interp, source, dest)
+                                .getArray();
                         newData[i] = results[i].clone();
                         newData[i]
                                 .setIntSizes(new int[] {
@@ -726,15 +733,13 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                 if (contourGroup == null || contourGroup.getData() == null) {
                     return "No Data";
                 }
-
-                AbstractInterpolation interp = new BilinearInterpolation(
+                GridSampler sampler = new GridSampler(
+                        new BilinearInterpolation());
+                sampler.setSource(new FloatArrayWrapper(
                         ((FloatDataRecord) contourGroup.getData()[0])
-                                .getFloatData(),
-                        dataGeom, descriptor.getGridGeometry(), -9998f,
-                        Float.POSITIVE_INFINITY, Float.NaN);
-                Coordinate pixel = coord.asPixel(descriptor.getGridGeometry());
-                value = interp.getReprojectedGridCell((int) pixel.x,
-                        (int) pixel.y);
+                                .getFloatData(), dataGeom));
+                Coordinate pixel = coord.asPixel(dataGeom);
+                value = sampler.sample(pixel.x, pixel.y);
 
             }
             // No data here
