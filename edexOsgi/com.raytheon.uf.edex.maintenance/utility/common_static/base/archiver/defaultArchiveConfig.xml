@@ -2,6 +2,6 @@
 <dataArchiveConfig>
     <pluginName>default</pluginName>
     <hoursToKeep>6</hoursToKeep>
-    <archivingEnabled>true</archivingEnabled>
+    <archivingEnabled>false</archivingEnabled>
     <compressionEnabled>true</compressionEnabled>
 </dataArchiveConfig>
