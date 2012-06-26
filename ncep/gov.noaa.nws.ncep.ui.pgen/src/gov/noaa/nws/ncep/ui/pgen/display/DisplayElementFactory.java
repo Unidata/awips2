@@ -4632,4 +4632,20 @@ public class DisplayElementFactory {
 		return new Line(null, new Color[]{color},1.5f,.5,false,
 				false, pts, 0, null,"Lines","LINE_SOLID");
 	}
+
+	public void reset() {
+		if (ss != null) {
+		    ss.reset();
+		}
+		if (sym != null) {
+		    sym.reset();
+		}
+		if (wfs != null) {
+		    for (IWireframeShape shape : wfs) {
+		        if (shape != null) {
+		           shape.reset();
+		        }
+		    }
+		}
+	}
 }
