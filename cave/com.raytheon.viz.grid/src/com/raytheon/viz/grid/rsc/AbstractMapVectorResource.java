@@ -59,8 +59,9 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -704,11 +705,15 @@ public abstract class AbstractMapVectorResource extends
             GridGeometry2D newTarget, GeneralGridGeometry gridGeometry)
             throws FactoryException, TransformException {
         GridGeometry2D remappedImageGeometry = newTarget;
-        AbstractInterpolation interp = new BilinearInterpolation(gridGeometry,
-                remappedImageGeometry, -9998, Float.POSITIVE_INFINITY, -999999);
-        float[] data = targetDataRecord.getFloatData();
-        interp.setData(data);
-        data = interp.getReprojectedGrid();
+        GridReprojection reproj = new GridReprojection(gridGeometry,
+                remappedImageGeometry);
+        FloatArrayWrapper source = new FloatArrayWrapper(
+                targetDataRecord.getFloatData(), gridGeometry);
+        source.setValidRange(-9998, Float.POSITIVE_INFINITY);
+        FloatArrayWrapper dest = new FloatArrayWrapper(remappedImageGeometry);
+        dest.setFillValue(-999999);
+        float[] data = reproj.reprojectedGrid(new BilinearInterpolation(),
+                source, dest).getArray();
         FloatDataRecord remapGrid = (FloatDataRecord) targetDataRecord.clone();
         remapGrid.setIntSizes(new int[] {
                 remappedImageGeometry.getGridRange2D().width,
