@@ -17,12 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.geospatial.interpolation;
-
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+package com.raytheon.uf.common.geospatial.interpolation.data;
 
 /**
- * Nearest Neighbor interpolation
+ * An abstraction for writing numeric data from a 2D grid of numeric data.
  * 
  * <pre>
  * 
@@ -38,14 +36,8 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
  * @version 1.0
  */
 
-public class NearestNeighborInterpolation implements Interpolation {
+public interface DataDestination {
 
-    public NearestNeighborInterpolation() {
-    }
-
-    @Override
-    public double getInterpolatedValue(DataSource source, double x, double y) {
-        return source.getDataValue((int) Math.round(x), (int) Math.round(y));
-    }
+    public void setDataValue(double dataValue, int x, int y);
 
 }
