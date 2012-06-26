@@ -30,8 +30,10 @@ import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.AbstractInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -275,9 +277,12 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
             return null;
         }
 
-        AbstractInterpolation interpolation = new BilinearInterpolation(
-                sliceData, geometry, descriptor.getGridGeometry(), -9998f,
-                Float.POSITIVE_INFINITY, Float.NaN);
+        FloatArrayWrapper source = new FloatArrayWrapper(sliceData, geometry);
+        source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+        GridSampler sampler = new GridSampler(source,
+                new BilinearInterpolation());
+        GridReprojection reproj = new GridReprojection(geometry,
+                descriptor.getGridGeometry());
 
         IExtent extent = descriptor.getGraph(this).getExtent();
 
@@ -289,7 +294,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
                 DirectPosition2D dp = new DirectPosition2D(coord.getObject().x,
                         coord.getObject().y);
                 descriptor.getGridGeometry().getGridToCRS().transform(dp, dp);
-                val = interpolation.getReprojectedGridCell((int) dp.x,
+                val = reproj.reprojectedGridCell(sampler, (int) dp.x,
                         (int) dp.y);
             } catch (Exception e) {
                 throw new VizException(e);
