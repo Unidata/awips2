@@ -41,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.DBInvChangeNotification;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridHistoryUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -241,6 +242,8 @@ public abstract class AbstractParmManager implements IParmManager {
 
     private AbstractGFENotificationObserver<GridUpdateNotification> gridUpdateListener;
 
+    private AbstractGFENotificationObserver<GridHistoryUpdateNotification> gridHistoryUpdateListener;
+
     private AbstractGFENotificationObserver<LockNotification> lockNotificationListener;
 
     private AbstractGFENotificationObserver<SiteActivationNotification> siteActivationListener;
@@ -344,6 +347,21 @@ public abstract class AbstractParmManager implements IParmManager {
 
         };
 
+        this.gridHistoryUpdateListener = new AbstractGFENotificationObserver<GridHistoryUpdateNotification>(
+                GridHistoryUpdateNotification.class) {
+
+            @Override
+            public void notify(GridHistoryUpdateNotification notificationMessage) {
+                ParmID parmID = notificationMessage.getParmId();
+                Parm parm = getParm(parmID);
+                if (parm != null) {
+                    parm.historyUpdateArrived(notificationMessage
+                            .getHistories());
+                }
+            }
+
+        };
+
         this.lockNotificationListener = new AbstractGFENotificationObserver<LockNotification>(
                 LockNotification.class) {
 
@@ -385,6 +403,9 @@ public abstract class AbstractParmManager implements IParmManager {
                 .addObserver(this.gridUpdateListener);
 
         dataManager.getNotificationRouter().addObserver(
+                this.gridHistoryUpdateListener);
+
+        dataManager.getNotificationRouter().addObserver(
                 this.siteActivationListener);
 
         notificationPool = new JobPool("Parm Manager notification job",
@@ -407,6 +428,9 @@ public abstract class AbstractParmManager implements IParmManager {
 
         dataManager.getNotificationRouter().removeObserver(
                 this.gridUpdateListener);
+
+        dataManager.getNotificationRouter().removeObserver(
+                this.gridHistoryUpdateListener);
 
         dataManager.getNotificationRouter().removeObserver(
                 this.siteActivationListener);

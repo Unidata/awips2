@@ -97,8 +97,8 @@ class Procedure (SmartScript.SmartScript):
 
         trList = []
         for g in gridInfo:
-            start = g.gridTime().startTime().unixTime()
-            end = g.gridTime().endTime().unixTime()
+            start = g.gridTime().startTime().unixTime() * 1000
+            end = g.gridTime().endTime().unixTime() * 1000
             tr = TimeRange.TimeRange(start,end)
             if tr.overlaps(timeRange):
                 trList.append(tr)   
@@ -243,7 +243,8 @@ class Procedure (SmartScript.SmartScript):
         modelTR_cum = self.getModelTimeRange(modelID, "prob34", weNames)
         weNames = ["pwsD34", "pwsD64", "pwsN34", "pwsN64"]        
         modelTR_inc = self.getModelTimeRange(modelID, "pws34", weNames)
-
+        if modelTR_cum is None or len(modelTR_cum) < 3:
+            return
         timeRange = modelTR_cum[0]
         minTime = modelTR_cum[1]
         maxTime = modelTR_cum[2]
