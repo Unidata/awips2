@@ -476,6 +476,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     @Override
     public void setDataURI(String dataURI) {
+        super.setDataURI(dataURI);
         identifier = dataURI;
     }
 

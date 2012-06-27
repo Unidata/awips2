@@ -149,6 +149,25 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      *            The model time
      */
     public DatabaseID(String siteId, DataType format, String dbType,
+            String modelName, Date modelTime) {
+        this(siteId, format, dbType, modelName, dateFormat.format(modelTime));
+    }
+
+    /**
+     * Constructor taking the individual components of the db ID
+     * 
+     * @param siteId
+     *            The site ID
+     * @param format
+     *            The format of the database
+     * @param dbType
+     *            The optional database type
+     * @param modelName
+     *            The model name
+     * @param modelTime
+     *            The model time
+     */
+    public DatabaseID(String siteId, DataType format, String dbType,
             String modelName, String modelTime) {
         this.siteId = siteId;
         this.format = format;
