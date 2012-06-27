@@ -238,4 +238,26 @@ public class ConvSigmetCastDataAdapter extends AbstractAdvisoryDataAdapter {
         return forecast;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (forecast ? 1231 : 1237);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ConvSigmetCastDataAdapter other = (ConvSigmetCastDataAdapter) obj;
+        if (forecast != other.forecast)
+            return false;
+        return true;
+    }
+
 }
