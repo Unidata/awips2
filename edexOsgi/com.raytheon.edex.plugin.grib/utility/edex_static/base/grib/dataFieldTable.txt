@@ -1,0 +1,422 @@
+// 
+// Data Field Table
+//
+// Column 1 - Data Field
+// Column 2 - cdl variable name
+// Column 3 - is no longer used.....
+// Column 4 - is used for derived calculations in the display code
+// Column 5 - is the name of the field
+// 
+P       | p       || 1   | Pressure
+PMSL    | pmsl    || 1   | Pressure reduced to Mean Sea Level 
+PT      | pt      ||     | Potential Tendancy
+GH      | gh      ||     | Geopotential Height
+T       | t       ||     | Temperature
+PoT     | pot     ||     | Potential Temperature
+DpT     | dpt     ||     | Dew point Temperature
+DpD     | dpd     ||     | Dew point depression
+WSp1    | wsp1    ||     | Wave Spectra (1)
+WSp2    | wsp2    ||     | Wave Spectra (2)
+WSp3    | wsp3    ||     | Wave Spectra (3)
+uW      | uw      ||     | u-component of wind
+vW      | vw      ||     | v-component of wind
+MSG     | msg     ||     | Montgomery Stream Function / Gravity
+SVV     | svv     ||     | Sigma coord. vertical velocity
+PVV     | pvv     ||     | Pressure vertical velocity
+GVV     | gvv     ||     | Geometric Vertical Velocity
+AV      | av      ||     | Absolute Vorticity
+RH      | rh      ||     | Relative Humidity
+PW      | pw      ||     | Precipitable Water
+PR      | pr      ||     | Precipitation Rate
+TP      | tp      ||     | Total Precipitation
+LgSP    | lgsp    ||     | Large Scale Precipitation
+CP      | cp      ||     | Convective Precipitation
+SnD     | snd     ||     | Snow Depth
+TCC     | tcc     ||     | Total Cloud Cover
+CW      | cw      ||     | Cloud Water
+ST      | st      ||     | Soil Temperature
+SMC     | smc     ||     | Soil Moisture Content
+MSLP    | mslp    || 1   | Mean Sea Level Pressure
+SLI     | sli     ||     | Surface Lifted Index
+BLI     | bli     ||     | Best (4 layer) Lifted Index
+KI      | ki      ||     | K Index
+SI      | si      ||     | Sweat Index
+RR      | rr      ||     | Radar Reflectivity
+BH      | bh      ||     | Balanced Heights
+BPVV    | bpvv    ||     | Balanced Pressure Vertical Velocity
+BWu     | bwu     ||     | Balanced Winds u-component
+BWv     | bwv     ||     | Balanced Winds w-component
+CB      | cb      ||     | Cloud Base
+CC      | cc      ||     | Cloud Ceiling
+VMCC    | vmcc    ||     | Vertical Maximum Cloud Cover
+CPVV    | cpvv    ||     | Cloud Pressure Vertical Velocity
+CTop    | ctop    ||     | Cloud Top
+CTyp    | ctyp    ||     | Cloud Type
+CSSI    | cssi    ||     | Colorado Severe Storms Index 
+EPT     | ept     ||     | Equivalent Potential Temperature
+Heli    | heli    ||     | Helicity
+IIdx    | iidx    ||     | Icing Index
+ILW     | ilw     ||     | Integrated Liquid Water
+LLIP    | llip    ||     | log(Lifted Index * Pressure Vert Vel)
+MRET    | mret    ||     | Maximum Radar Echo Tops 
+CXR     | cxr     ||     | Column Max Reflectivity
+MCDD    | mcdd    ||     | Mean Cloud Drop Diameter
+MWu     | mwu     ||     | Mean Winds u-component
+MWv     | mwv     ||     | Mean Winds v-component
+MAdv    | madv    ||     | Moisture Advection
+MCon    | mcon    ||     | Moisture Convergence
+NBE     | nbe     ||     | Negative Buoyant Energy
+PBE     | pbe     ||     | Positive Buoyant Energy
+PTA     | pta     ||     | Potential Temperature Advection
+PAcc    | pacc    ||     | Precipitation Accumulation
+PTyp    | ptyp    ||     | Precipitation Type
+ThP     | thp     ||     | Thunderstorm Probability
+RRV     | rrv     ||     | Radar Radial Velocity
+SAcc    | sacc    ||     | Snow Accumulation
+TAdv    | tadv    ||     | Temperature Advection
+IP      | ip      ||     | NCAR/RAP Icing Potential
+VSS     | vss     ||     | Vertical Speed Shear
+CIce    | cice    ||     | Cloud Ice 
+SCP     | scp     ||     | Snow Cover Percentage
+SH      | sh      ||     | Specific Humidity
+CCOV    | ccov    ||     | LAPS Cloud Cover
+CCP     | ccpc    ||     | Fractional Cloud Cover Pressure Coord
+HyC     | hyc     ||     | Hydrometeor Concentration
+STOT    | stot    ||     | Storm Total Snow Accum 
+Pchg    | pt3     ||     | 3-hr Pressure Tendency
+Alti    | alti    || 1   | Altimeter
+Vis     | vis     ||     | Visibility
+TKE     | tke     ||     | Turbulent Kinetic Energy
+CAPE    | cape    ||     | Convective Available Potential Energy
+CIn     | cin     ||     | Convective Inhibition
+EMSP    | emsp    || 1   | ETA Mean Sea Level Pressure
+SPT     | spt     ||     | Surface Precip Type
+FD      | fd      ||     | Fire Danger
+SHF     | shf     ||     | Sensible Heat Flux
+LHF     | lhf     ||     | Latent Heat Flux
+NLRS    | nlrs    ||     | Net Longwave Radiation (surface)
+VPT     | vpt     ||     | Virtual Potential Temperature
+HIdx    | hidx    ||     | Heat Index
+Topo    | topo    || 2   | 
+CorPar  | corpar  || 3   |
+MMSP    | mmsp    || 1   | MAPS Mean Sea Level Pressure
+TPW     | tpw     ||     | Integrated Total Precipitable Water 
+S1Hr    | s1hr    ||     | LAPS 60 minute Snow Accum
+PC      | pc      ||     | LAPS 60 minute Precip Accum
+STPA    | stpa    ||     | Storm Total Precip Accum
+PTT     | ptt     ||     | LAPS Surface Precip Type - LL refl threshold
+WOm     | wom     ||     | Wind Omega
+LLR     | llr     ||     | Low Level Reflectivity 
+uv2     |         ||     | Horizontal variance of wind for Profiler
+w2      |         ||     | 
+pkPwr   |         ||     | peak power
+MxT     | mxt     ||     | Maximum Temperature
+MnT     | mnt     ||     | Minimum Temperature
+WS      | ws      ||     | Wind Speed
+WD      | wd      ||     | Wind Direction
+PLI     | pli     ||     | Parcel Lifted Index 
+POP     | pop     ||     | Probability of precip
+CPOZP   | cpozp   ||     | Probability of freezing precip 
+CPOFP   | cpofp   ||     | Probability of frozen precip 
+WGH     | wgh     ||     | Five-wave height 
+RAIN    | rain    ||     | SFM rain content 
+SNOW    | snow    ||     | SFM snow content 
+PICE    | pice    ||     | SFM precipitating ice content
+VV      | ww      ||     | Vertical Velocity
+HTSGW   | htsgw   ||     | Significant height of combined wind waves & swell
+WVDIR   | wvdir   ||     | Direction of wind waves (from which)
+WVHGT   | wvhgt   ||     | Significant height of wind waves
+WVPER   | wvper   ||     | Mean period of wind waves
+SWDIR   | swdir   ||     | Direction of swell waves
+SWELL   | swell   ||     | Significant height of swell waves
+SWPER   | swper   ||     | Mean period of swell waves
+DIRPW   | dirpw   ||     | Primary wave direction
+PERPW   | perpw   ||     | Primary wave mean period
+DIRSW   | dirsw   ||     | Secondary wave direction
+PERSW   | persw   ||     | Secondary wave mean period 
+VAPP    | vapp    || 1   | Vapor Pressure 
+Splt    |         ||     | Sounding Plot
+_tp12   | _tp12   ||     | Flag for precip that is 12 hour
+_tp6    | _tp6    ||     | Flag for precip that is 6 hour
+ICEC    | icec    ||     | Ice Cover
+WEASD   | weasd   ||     | Water Equivalent Accumulated Snow Depth
+CRAIN   | crain   ||     | Categorical rain (yes=1, no=0)
+CFRZR   | cfrzr   ||     | Categorical freezing rain (yes=1, no=0)
+CICEP   | cicep   ||     | Categorical ice pellets (yes=1, no=0)
+CSNOW   | csnow   ||     | Categorical snow (yes=1, no=0)
+WGS     | wgs     ||     | Wind Gust Speed
+USTM    | ustm    ||     | U-component of Storm Motion
+VSTM    | vstm    ||     | V-component of Storm Motion
+_tp3    | _tp3    ||     | Flag for precip that is 3 hour
+_tp1    | _tp1    ||     | Flag for precip that is 1 hour
+TP_HPC  | tp_HPC  ||     | 6-hr Total Precip for HPC
+TP_ACR  | tp_ACR  ||     | 6-hr Total Precip for ACR
+TP_ALR  | tp_ALR  ||     | 6-hr Total Precip for ALR
+TP_FWR  | tp_FWR  ||     | 6-hr Total Precip for FWR
+TP_KRF  | tp_KRF  ||     | 6-hr Total Precip for KRF
+TP_MSR  | tp_MSR  ||     | 6-hr Total Precip for MSR
+TP_ORN  | tp_ORN  ||     | 6-hr Total Precip for ORN
+TP_PTR  | tp_PTR  ||     | 6-hr Total Precip for PTR
+TP_RHA  | tp_RHA  ||     | 6-hr Total Precip for RHA
+TP_RSA  | tp_RSA  ||     | 6-hr Total Precip for RSA
+TP_STR  | tp_STR  ||     | 6-hr Total Precip for STR
+TP_TAR  | tp_TAR  ||     | 6-hr Total Precip for TAR
+TP_TIR  | tp_TIR  ||     | 6-hr Total Precip for TIR
+TP_TUA  | tp_TUA  ||     | 6-hr Total Precip for TUA
+GeH     | geh     ||     | Geometric Height 
+zAGL    | zagl    ||     | height above ground
+uGust   |         ||     | u Component of Gust
+vGust   |         ||     | v Component of Gust
+WGD     | wgd     ||     | Wind Gust Direction
+CCag    |         ||     | cloud ceiling above ground
+NLAT    | nlat    ||     | Latitude
+ELON    | elon    ||     | Longitude
+OTIM    | otim    ||     | Observation Time
+tTOT    | ttot    ||     | Total Totals
+shWlt   | shwlt   ||     | Showalter index
+covCat  |         ||     | cloud cover category
+wx      |         ||     | weather
+PTAN    | ptan    ||     | Probability of temperature above normal
+PTNN    | ptnn    ||     | Probability of temperature near normal
+PTBN    | ptbn    ||     | Probability of temperature below normal
+PPAN    | ppan    ||     | Probability of precip above normal
+PPNN    | ppnn    ||     | Probability of precip near normal
+PPBN    | ppbn    ||     | Probability of precip below normal
+ShrMag  |         ||     | Magnitude of Shear
+sRank   |         ||     | Feature Strength Rank
+diam    |         ||     | Feature Diameter
+g2gsh   |         ||     | Gate to Gate Shear
+wDiv    |         ||     | Divergence
+ICEG    | iceg    ||     | Ice growth rate
+Prob34  | prob34  ||     | Probability of Wind Speed > 34 knots 
+Prob50  | prob50  ||     | Probability of Wind Speed > 50 knots 
+Prob64  | prob64  ||     | Probability of Wind Speed > 64 knots 
+POP12hr | pop12hr ||     | Probability of 12hr precip
+POP6hr  | pop6hr  ||     | Probability of 6hr precip
+POP3hr  | pop3hr  ||     | Probability of 3hr precip
+ThP12hr | thp12hr ||     | 12hr Thunderstorm probability
+ThP6hr  | thp6hr  ||     | 6hr Thunderstorm probability
+ThP3hr  | thp3hr  ||     | 3hr Thunderstorm probability
+TOTSN   | totsn   ||     | Total Snowfall
+TP3hr   | tp3hr   ||     | 3hr precip accumulation
+TP6hr   | tp6hr   ||     | 6hr precip accumulation
+TP24hr  | tp24hr  ||     | 24hr precip accumulation
+GHmean  | ghmean  ||     | Geopotential Height mean
+Tmean   | tmean   ||     | Temperature mean
+RHmean  | rhmean  ||     | Relative Humidity mean
+uWmean  | uwmean  ||     | U wind component mean
+vWmean  | vwmean  ||     | V wind component mean
+TP3mean | tpmean3 ||     | 3-hr Total Precip mean
+TP6mean | tpmean6 ||     | 6-hr Total Precip mean
+TP12mean| tpmean12||     | 12-hr Total Precip mean
+TP24mean| tpmean24||     | 24-hr Total Precip mean
+PWmean  | pwmean  ||     | Precipitable Water mean
+PMSLmean| pmslmean||     | Mean Sea Level Pressure mean
+DpTmean | dptmean ||     | Dew Point Temp mean
+SNOL12mean|snolmean12||  | 12-hr Large scale Snowfall mean
+CRAINmean|crainmean||    | Categorical Rain mean
+CSNOWmean|csnowmean||    | Categorical Snow mean
+CICEPmean|cicepmean||    | Categorical Ice Pellets mean
+CFRZRmean|cfrzrmean||    | Categorical Freezing Precip mean
+WSmean  | wsmean  ||     | Wind Speed mean
+GHsprd  | ghsprd  ||     | Geopotential Height sprd
+Tsprd   | tsprd   ||     | Temperature sprd
+RHsprd  | rhsprd  ||     | Relative Humidity sprd
+uWsprd  | uwsprd  ||     | U wind component sprd
+vWsprd  | vwsprd  ||     | V wind component sprd
+TP3sprd | tpsprd3 ||     | 3-hr Total Precip sprd
+TP6sprd | tpsprd6 ||     | 6-hr Total Precip sprd
+TP12sprd| tpsprd12||     | 12-hr Total Precip sprd
+TP24sprd| tpsprd24||     | 24-hr Total Precip sprd
+PWsprd  | pwsprd  ||     | Precipitable Water sprd
+PMSLsprd| pmslsprd||     | Sprd Sea Level Pressure sprd
+DpTsprd | dptsprd ||     | Dew Point Temp sprd
+SNOL12sprd|snolsprd12||  | 12-hr Large scale Snowfall sprd
+CRAINsprd|crainsprd||    | Categorical Rain mean
+CSNOWsprd|csnowsprd||    | Categorical Snow mean
+CICEPsprd|cicepsprd||    | Categorical Ice Pellets mean
+CFRZRsprd|cfrzrsprd||    | Categorical Freezing Precip mean
+WSsprd  | wssprd  ||     | Wind Speed mean
+TP3c1   | tp3c1   ||     | 3-hr POP > 0.01 in
+TP3c2   | tp3c2   ||     | 3-hr POP > 0.05 in
+TP3c3   | tp3c3   ||     | 3-hr POP > 0.10 in
+TP3c4   | tp3c4   ||     | 3-hr POP > 0.25 in
+TP3c5   | tp3c5   ||     | 3-hr POP > 0.50 in
+TP3c6   | tp3c6   ||     | 3-hr POP > 1.00 in
+TP3c7   | tp3c7   ||     | 3-hr POP > 1.50 in
+TP3c8   | tp3c8   ||     | 3-hr POP > 2.00 in
+TP6c1   | tp6c1   ||     | 6-hr POP > 0.01 in
+TP6c2   | tp6c2   ||     | 6-hr POP > 0.05 in
+TP6c3   | tp6c3   ||     | 6-hr POP > 0.10 in
+TP6c4   | tp6c4   ||     | 6-hr POP > 0.25 in
+TP6c5   | tp6c5   ||     | 6-hr POP > 0.50 in
+TP6c6   | tp6c6   ||     | 6-hr POP > 1.00 in
+TP6c7   | tp6c7   ||     | 6-hr POP > 1.50 in
+TP6c8   | tp6c8   ||     | 6-hr POP > 2.00 in
+TP12c1   | tp12c1   ||     | 12-hr POP > 0.01 in
+TP12c2   | tp12c2   ||     | 12-hr POP > 0.05 in
+TP12c3   | tp12c3   ||     | 12-hr POP > 0.10 in
+TP12c4   | tp12c4   ||     | 12-hr POP > 0.25 in
+TP12c5   | tp12c5   ||     | 12-hr POP > 0.50 in
+TP12c6   | tp12c6   ||     | 12-hr POP > 1.00 in
+TP12c7   | tp12c7   ||     | 12-hr POP > 1.50 in
+TP12c8   | tp12c8   ||     | 12-hr POP > 2.00 in
+TP24c1   | tp24c1   ||     | 24-hr POP > 0.01 in
+TP24c2   | tp24c2   ||     | 24-hr POP > 0.05 in
+TP24c3   | tp24c3   ||     | 24-hr POP > 0.10 in
+TP24c4   | tp24c4   ||     | 24-hr POP > 0.25 in
+TP24c5   | tp24c5   ||     | 24-hr POP > 0.50 in
+TP24c6   | tp24c6   ||     | 24-hr POP > 1.00 in
+TP24c7   | tp24c7   ||     | 24-hr POP > 1.50 in
+TP24c8   | tp24c8   ||     | 24-hr POP > 2.00 in
+Tc1      | tc1      ||     | Prob temp < O C
+SNOL12c1 | snol12c1 ||     | 12-hr SNOW > 1 in
+SNOL12c2 | snol12c2 ||     | 12-hr SNOW > 2 in
+SNOL12c3 | snol12c3 ||     | 12-hr SNOW > 4 in
+SNOL12c4 | snol12c4 ||     | 12-hr SNOW > 6 in
+SNOL12c5 | snol12c5 ||     | 12-hr SNOW > 7.5 in
+SNOL12c6 | snol12c6 ||     | 12-hr SNOW > 8 in
+SNOL12c7 | snol12c7 ||     | 12-hr SNOW > 10 in
+SNOL12c8 | snol12c8 ||     | 12-hr SNOW > 12 in
+SNOL12c9 | snol12c9 ||     | 12-hr SNOW > 16 in
+SNOL12c10| snol12c10||     | 12-hr SNOW > 24 in
+WSc1     | wsc1     ||     | Prob SFC wind speed > 25 kt
+WSc2     | wsc2     ||     | Prob SFC wind speed > 34 kt
+WSc3     | wsc3     ||     | Prob SFC wind speed > 48 kt
+WSc4     | wsc4     ||     | Prob SFC wind speed > 50 kt  
+CAPEc1   | capec1   ||     | Prob CAPE > 500 J/kg
+CAPEc2   | capec2   ||     | Prob CAPE > 1000 J/kg
+CAPEc3   | capec3   ||     | Prob CAPE > 2000 J/kg
+CAPEc4   | capec4   ||     | Prob CAPE > 3000 J/kg
+CAPEc5   | capec5   ||     | Prob CAPE > 4000 J/kg
+PLIxc1   | plixc1   ||     | Prob LI < 0
+PLIxc2   | plixc2   ||     | Prob LI < -2
+PLIxc3   | plixc3   ||     | Prob LI < -4
+PLIxc4   | plixc4   ||     | Prob LI < -6
+PLIxc5   | plixc5   ||     | Prob LI < -8
+Visc1    | visc1    ||     | Prob Sfc Visibility < 1 mile
+Visc2    | visc2    ||     | Prob Sfc Visibility < 3 miles
+Cigc1    | cigc1    ||     | Prob Ceiling Hgt < 500 ft
+Cigc2    | cigc2    ||     | Prob Ceiling Hgt < 1000 ft
+Cigc3    | cigc3    ||     | Prob Ceiling Hgt < 3000 ft
+Terranl | terranl   ||     | RTMA Temp Error Analysis
+DpTerranl| dpterranl ||    | RTMA Dewpoint Error Analysis
+uWerranl | uwerranl ||     | RTMA U Wind Error Analysis
+vWerranl | vwerranl ||     | RTMA V Wind Error Analysis
+CRAINc1  | crainc1  ||     | Prob Cat Rain
+CSNOWc1  | csnowc1  ||     | Prob Cat Snow
+CFRZRc1  | cfrzrc1  ||     | Prob Cat Freezing Rain
+CICEPc1  | cicepc1  ||     | Prob Cat Ice Pellets
+REFD     | refd     ||     | Derived Radar Reflectivity
+REFC     | refc     ||     | Derived Radar Composite
+WSea     |          ||     | RTMA Wind Speed Error Analysis
+WDea     |          ||     | RTMA Wind Dir Error Analysis
+CTSTM   | ctstm     ||     | Categorical thunder storm (yes=1, no=0)
+CPOLP   |           ||     | Probability of liquid precip
+CPOP    |           ||     | Categorical 1hr precip (yes=1, no=0)
+obVis   |           ||     | Obstruction to Vision
+visCat  |           ||     | Categorical visibility
+ThP2hr  |           ||     | 2hr Thunderstorm probability
+ThPcat  |           ||     | Categorical thunderstorm
+Cig     |           ||     | Ceiling Hgt
+UZTWC|uztwc||     | Upper zone tension water content %
+UZFWC|uzfwc||     | Upper zone free water content % 
+LZTWC|lztwc||     | Lower zone tension water content %
+LZFPC|lzfpc||     | Lower zone primary free water content % 
+LZFSC|lzfsc||     | Lower zone secondary free water content %
+ADIMC|adimc||     | Additional impervious area water content %
+WATER_DEPTH|water_depth||     | Hillslope water depth (in)
+ROUTED_FLOW|routed_flow    ||     | Channel routed flow (cfs) [low]
+ROUTED_FLOW_M|routed_flow_m||     | Channel routed flow (cfs) [mid]
+ROUTED_FLOW_H|routed_flow_h||     | Channel routed flow (cfs) [hi]
+ROUTED_FLOW_C|routed_flow_c||     | Channel routed flow (cfs) [combo]
+WSerranl | wserranl ||     | RTMA wind speed uncertainty cdl
+WDerranl | wderranl ||     | RTMA wind dir uncertainty cdl
+QPE01   | qpe1      ||     | QPE 1 hour
+QPE06   | qpe6      ||     | QPE 6 hour
+QPE24   | qpe24     ||     | QPE 24 hour
+MxT3hr  | mxt3hr    ||     | 3-hour Maximum Temperature
+MnT3hr  | mnt3hr    ||     | 3-hour Minimum Temperature
+MxT6hr  | mxt6hr    ||     | 6-hour Maximum Temperature
+MnT6hr  | mnt6hr    ||     | 6-hour Minimum Temperature
+MxT12hr | mxt12hr   ||     | 12-hour Maximum Temperature
+MnT12hr | mnt12hr   ||     | 12-hour Minimum Temperature
+TP_ECMWF  |tp_ecmwf ||     | ECMWF Total Precipitation
+TP_ECMWF12hr  |     ||     | ECMWF 12-hr Total Precipitation
+TP120hr |tp120hr    ||     | 120-hr Total Precipitation
+TP48hr  |tp48hr     ||     | 48-hr Total Precipitation
+TP12hr  | tp12hr    ||     | 12hr precip accumulation
+PPFFG   | ppffg     ||     | Probability of excessive rain
+PWS34    | pws34     ||    | Incremental Prob WS 34 kts or greater
+PWS50    | pws50     ||    | Incremental Prob WS 50 kts or greater
+PWS64    | pws64     ||    | Incremental Prob WS 64 kts or greater
+SHerranl | sherranl ||     | RTMA Alaska specific humidity error analysis
+Perranl  | perranl  ||     | RTMA Alaska pressure error analysis
+TiltAng  |           ||    | Tilt angle of a radar PPI
+BASSW    |           ||    | Radar spectrum width
+ZDR      |           ||    | Radar differential reflectivity
+KDP      |           ||    | Radar specific differential phase
+COCO     |           ||    | Radar correlation coefficient
+HC       |           ||    | Radar Hydrometeor Class
+TPCSG    | Surge10Pct      ||     | storm surge at 10 % Exceedance
+TPCSG_305E2   | PSurge10Ft ||     | storm surge probabilities > 10 feet
+TPCSG_274E2   | PSurge9Ft  ||     | storm surge probabilities > 9 feet
+TPCSG_244E2   | PSurge8Ft  ||     | storm surge probabilities > 8 feet
+TPCSG_213E2   | PSurge7Ft  ||     | storm surge probabilities > 7 feet
+TPCSG_183E2   | PSurge6Ft  ||     | storm surge probabilities > 6 feet
+TPCSG_152E2   | PSurge5Ft  ||     | storm surge probabilities > 5 feet
+TPCSG_122E2   | PSurge4Ft  ||     | storm surge probabilities > 4 feet
+TPCSG_91E2    | PSurge3Ft  ||     | storm surge probabilities > 3 feet
+TPCSG_61E2    | PSurge2Ft  ||     | storm surge probabilities > 2 feet
+SIPD          | sld        ||     |Supercooled large droplet icing potential
+TURB          | turb       ||     |Turbulence hazard forecast index
+ICNG          | icng       ||     |Total icing potential diagnostic
+ICSEV         | icsev      ||     |Icing severity
+ICPRB         | icprb      ||     |Total icing probability
+MAXRH3hr | maxRH3hr ||     | 3-hr Maximum Relative Humidity
+MAXRH12hr| maxRH12hr||     | 12-hr Maximum Relative Humidity
+PTAM     | ptam     ||     | 8-14 day Prob of temperature > 0.66 K
+PTBM     | ptbm     ||     | 8-14 day Prob of temperature < 0.33 K
+PPAM     | ppam     ||     | 8-14 day Prob of total precipitation > 0.66 kg/(m^2)
+PPBM     | ppbm     ||     | 8-14 day Prob of total precipitation < 0.33 kg/(m^2)
+PTAS     | ptas     ||     | 6-10 day Prob of temperature > 0.66 K
+PTBS     | ptbs     ||     | 6-10 day Prob of temperature < 0.33 K
+PPAS     | ppas     ||     | 6-10 day Prob of total precipitation > 0.66 kg/(m^2)
+PPBS     | ppbs     ||     | 6-10 day Prob of total precipitation < 0.33 kg/(m^2)
+prcp3hr  | prcp3hr  ||     |3hr precip probability
+prcp6hr  | prcp6hr  ||     |6hr precip probability
+prcp12hr | prcp12hr ||     |12hr precip probability
+FZNP     | fznp     ||     | Percent Frozen Precipitation
+snowd3hr | snowd3hr ||     | 3-hr Snow depth
+snowd6hr | snowd6hr ||     | 6-hr Snow depth
+PTOR     | ptor     ||     | Tornado Probability
+MINRH3hr | minRH3hr ||     | 3-hr Minimum Relative Humidity
+MINRH12hr| minRH12hr||     | 12-hr Minimum Relative Humidity
+TPCSG_SLOSH     | SloshSurge ||         | Real Time Slosh MEOW
+TPCSG_20           | Surge20Pct ||         | storm surge at 20% Exceedance
+TPCSG_30           | Surge30Pct ||         | storm surge at 30% Exceedance
+TPCSG_40           | Surge40Pct ||         | storm surge at 40% Exceedance
+TPCSG_50           | Surge50Pct ||         | storm surge at 50% Exceedance
+TPCSG_60           | Surge60Pct ||         | storm surge at 60% Exceedance
+TPCSG_70           | Surge70Pct ||         | storm surge at 70% Exceedance
+TPCSG_80           | Surge80Pct ||         | storm surge at 80% Exceedance
+TPCSG_90           | Surge90Pct ||         | storm surge at 90% Exceedance
+TPCSG_335E2     | PSurge11Ft ||         | storm surge probabilities > 11 feet
+TPCSG_366E2     | PSurge12Ft ||         | storm surge probabilities > 12 feet
+TPCSG_396E2     | PSurge13Ft ||         | storm surge probabilities > 13 feet
+TPCSG_427E2     | PSurge14Ft ||         | storm surge probabilities > 14 feet
+TPCSG_457E2     | PSurge15Ft ||         | storm surge probabilities > 15 feet
+TPCSG_488E2     | PSurge16Ft ||         | storm surge probabilities > 16 feet
+TPCSG_518E2     | PSurge17Ft ||         | storm surge probabilities > 17 feet
+TPCSG_549E2     | PSurge18Ft ||         | storm surge probabilities > 18 feet
+TPCSG_579E2     | PSurge19Ft ||         | storm surge probabilities > 19 feet
+TPCSG_610E2     | PSurge20Ft ||         | storm surge probabilities > 20 feet
+TPCSG_640E2     | PSurge21Ft ||         | storm surge probabilities > 21 feet
+TPCSG_671E2     | PSurge22Ft ||         | storm surge probabilities > 22 feet
+TPCSG_701E2     | PSurge23Ft ||         | storm surge probabilities > 23 feet
+TPCSG_732E2     | PSurge24Ft ||         | storm surge probabilities > 24 feet
+TPCSG_762E2     | PSurge25Ft ||         | storm surge probabilities > 25 feet
+CP2hr      | cp2hr      ||     | 2-hour Convective Precipitation
+CP3hr      | cp3hr      ||     | 3-hour Convective Precipitation
+LgSP2hr    | lgsp2hr    ||     | 2-hour Large Scale Precipitation
+LgSP3hr    | lgsp3hr    ||     | 3-hour Large Scale Precipitation

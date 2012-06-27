@@ -99,6 +99,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 06/18/08                njensen     Added discrete/wx to getGridData()
+ * 05/04/12     #574       dgilling    Restructure class to better match AWIPS1.
  * 
  * </pre>
  * 
@@ -1152,24 +1153,8 @@ public class IFPGridDatabase extends GridDatabase {
     }
 
     @Override
-    public void dbSizeStats() {
-
-    }
-
-    public void deleteDb() {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void dumpStatistics() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public String getProjectionId() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.gridConfig.projectionData().getProjectionID();
     }
 
     @Override
@@ -2333,5 +2318,15 @@ public class IFPGridDatabase extends GridDatabase {
         List<ParmStorageInfo> psis = new ArrayList<ParmStorageInfo>();
         psis.add(psi);
         storeGridParmInfo(gpis, psis, storeOp);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.edex.plugin.gfe.server.database.GridDatabase#deleteDb()
+     */
+    @Override
+    public void deleteDb() {
+        // Auto-generated method stub
     }
 }
