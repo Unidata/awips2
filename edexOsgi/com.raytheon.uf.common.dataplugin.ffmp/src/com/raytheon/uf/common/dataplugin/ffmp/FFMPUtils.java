@@ -1249,6 +1249,7 @@ public class FFMPUtils {
     public static float getMaxRatioValue(ArrayList<Float> qpes,
             ArrayList<Float> guids) {
         float ratio = Float.NaN;
+
         if ((qpes.size() == guids.size()) && (qpes.size() > 0)
                 && (guids.size() > 0)) {
             for (int i = 0; i < qpes.size(); i++) {
