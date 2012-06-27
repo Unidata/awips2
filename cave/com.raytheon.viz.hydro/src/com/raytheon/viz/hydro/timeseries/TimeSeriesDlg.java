@@ -2420,6 +2420,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                 	tsMap.get(OTHER).add(si);
                 }
                 
+                if (tsSelected) {
                 	ArrayList<SiteInfo> siList = tsMap.get(selectedTs.substring(0,1));
                 	ArrayList<SiteInfo> numList = new ArrayList<SiteInfo>();
                 	for (SiteInfo si: siList) {
@@ -2460,6 +2461,7 @@ public class TimeSeriesDlg extends CaveHydroSWTDialog {
                         siteInfoList.add(si);
                     }
                     numList.clear();
+                }
                 
                 numList.clear();
             	ArrayList<SiteInfo> siList = tsMap.get(OTHER);
