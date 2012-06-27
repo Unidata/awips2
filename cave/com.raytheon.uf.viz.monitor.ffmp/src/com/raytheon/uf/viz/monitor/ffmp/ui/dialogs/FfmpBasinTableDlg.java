@@ -1186,7 +1186,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         updateTimeDurationLabel(val, split);
         if (dialogInitialized) {
-            fireTimeChangedEvent(val, split);
+            fireTimeChangedEvent(val, split, false);
         }
         updateD2DRefresh();
     }
@@ -1260,18 +1260,28 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         this.ffmpConfig.setVisibleColumns(attrData);
         this.ffmpConfig.setAttrData(attrData);
         this.ffmpTable.showHideTableColumns();
+        boolean changeSplit = false;
+        
+        if (timeDurScale.split != ffmpConfig.isSplit()) {
+        	changeSplit = true;
+        }
 
         timeDurScale.setSplit(ffmpConfig.isSplit());
-
         updateTimeDurationLabel(timeDurScale.getSelectedHoursValue(),
                 ffmpConfig.isSplit());
 
-        if (updateData) {
-            resource.clearTables();
-            resource.getDrawable(resource.getPaintTime()).setDirty(true);
-            FFMPMonitor monitor = FFMPMonitor.getInstance();
-            monitor.fireMonitorEvent(this.getClass().getName());
-        }
+		if (updateData) {
+
+			if (changeSplit) {
+				fireTimeChangedEvent(timeDurScale.getSelectedHoursValue(),
+						ffmpConfig.isSplit(), true);
+			}
+			resource.clearTables();
+			resource.getDrawable(resource.getPaintTime()).setDirty(true);
+			FFMPMonitor.getInstance().fireMonitorEvent(
+					this.getClass().getName());
+
+		}
 
         ffmpTable.calculateTableSize();
         shell.pack();
@@ -1314,7 +1324,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         ffmpListeners.remove(fl);
     }
 
-    public void fireTimeChangedEvent(double newTime, boolean split) {
+    public void fireTimeChangedEvent(double newTime, boolean split, boolean override) {
 
         FFMPRecord.FIELDS field = FFMPRecord.FIELDS.QPE;
 
@@ -1325,7 +1335,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             }
         }
 
-        if (time != newTime) {
+        if ((time != newTime) || override) {
             FFMPTimeChangeEvent ftce = new FFMPTimeChangeEvent(newTime, split);
             Iterator<FFMPListener> iter = ffmpListeners.iterator();
             while (iter.hasNext()) {
@@ -1756,7 +1766,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
          */
         timeDurScale.setTimeDurationAndUpdate(ffmpConfig.getFFMPConfigData()
                 .getTimeFrame());
-        fireTimeChangedEvent(ffmpConfig.getFFMPConfigData().getTimeFrame(), false);
+        fireTimeChangedEvent(ffmpConfig.getFFMPConfigData().getTimeFrame(), false, false);
 
         /*
          * Layer
@@ -2006,6 +2016,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             dataLoadComp.setVisible(false);
             shell.pack();
         }
+
+        resource.manageLoaders(status);
     }
 
     @Override
@@ -2053,7 +2065,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     public void tableDataUpdateComplete(FFMPTableDataUpdate updateData) {
 
         final FFMPTableDataUpdate fupdateData = updateData;
-
+       
         if (!this.isDisposed()) {
 
             Display.getDefault().asyncExec(new Runnable() {
@@ -2078,9 +2090,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                     resetCursor();
                 }
             });
-        }
+		} 
     }
-    
     /**
      * used to blank the group label when channging HUC
      * while in an aggregate.

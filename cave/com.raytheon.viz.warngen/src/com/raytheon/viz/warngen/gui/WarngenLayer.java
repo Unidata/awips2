@@ -169,6 +169,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private static Map<String, GeospatialDataList> siteMap = new HashMap<String, GeospatialDataList>();
+    
+    private static Map<String, Geometry> timezoneMap = new HashMap<String, Geometry>();
 
     public static final String GID = "gid";
 
@@ -784,6 +786,20 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         System.out.println("Time to lookup geospatial data "
                                 + (System.currentTimeMillis() - tq0));
                         siteMap.put(currKey, gData);
+                        
+                        GeospatialData[] timezones = GeospatialFactory.getTimezones();
+                        if (timezones != null) {
+                            for (GeospatialData timezone : timezones) {
+                                if (timezone.attributes.containsKey(gmd.getTimeZoneField())) {
+                                    String oneLetterTimezone = String.valueOf(
+                                            timezone.attributes.get(gmd.getTimeZoneField()));
+                                    if (timezoneMap.containsKey(oneLetterTimezone) == false) {
+                                        timezoneMap.put(oneLetterTimezone, timezone.geometry);
+                                    }
+                                }
+                            }
+                        }
+                        
                     } catch (Exception e) {
                         statusHandler.handle(Priority.WARN,
                                 "Error in initializing geometries.", e);
@@ -840,6 +856,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         return new GeospatialData[0];
+    }
+    
+    public Geometry getTimezoneGeom(String oneLetterTimezone) {
+        return timezoneMap.get(oneLetterTimezone);
     }
 
     /**
@@ -969,16 +989,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Geometry area = null;
         if (polygon != null) {
             for (GeospatialData r : geoData.features) {
-                Geometry intersection = GeometryUtil.intersection(polygon,
-                        (Geometry) r.attributes
-                                .get(GeospatialDataList.LOCAL_GEOM));
-                if (intersection.isEmpty()) {
-                    continue;
-                }
-                if (area == null) {
-                    area = intersection;
-                } else {
-                    area = GeometryUtil.union(area, intersection);
+                PreparedGeometry prepGeom = (PreparedGeometry) r.attributes
+                    .get(GeospatialDataList.LOCAL_PREP_GEOM);
+                try {
+                    Geometry intersection = GeometryUtil.intersection(polygon, prepGeom);
+                    if (intersection.isEmpty()) {
+                        continue;
+                    }
+                    if (area == null) {
+                        area = intersection;
+                    } else {
+                        area = GeometryUtil.union(area, intersection);
+                    }
+                } catch (Exception e) {
+                    // TODO handle exception correctly!!!
+                    e.printStackTrace();
                 }
             }
         }
@@ -1196,8 +1221,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         "Inclusion Area not properly configured.", e);
             }
         }
-        System.out.println("determining hatchedArea took "
-                + (System.currentTimeMillis() - t0));
         // All area has been removed from the polygon...
         if (insideCWA == false) {
             state.strings.clear();
@@ -1223,7 +1246,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 // Snap back to polygon
                 state.setWarningPolygon(localToLatLon((Polygon) oldWarningPolygon));
                 newHatchedArea = (Geometry) oldWarningArea.clone();
-                updateWarnedAreas(snapHatchedAreaToPolygon, true);
             } else if (areaPercent < 10 && state.isMarked()) {
                 // snap back to last valid user selected area
                 state.setWarningPolygon((Polygon) state
@@ -1231,13 +1253,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 newHatchedArea = latLonToLocal((Geometry) state
                         .getMarkedWarningArea().clone());
                 state.resetMarked();
-                updateWarnedAreas(snapHatchedAreaToPolygon, true);
-            } else if (newHatchedArea != null) {
-                // want intersection of newHatchedArea and oldWarningArea
+            } else if (warningPolygon != null) {
+                // want intersection of warningPolygon and oldWarningArea
                 Geometry intersection = null;
                 for (int n = 0; n < oldWarningArea.getNumGeometries(); ++n) {
                     Geometry oldArea = oldWarningArea.getGeometryN(n);
-                    Geometry geom = GeometryUtil.intersection(newHatchedArea,
+                    Geometry geom = GeometryUtil.intersection(warningPolygon,
                             oldArea);
                     if (geom.isEmpty() == false) {
                         if (intersection == null) {
@@ -1251,6 +1272,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 newHatchedArea = intersection;
             }
         }
+        System.out.println("determining hatchedArea took "
+                + (System.currentTimeMillis() - t0));
         if (newHatchedArea == null) {
             boolean initialWarning = false;
             String[] followUps = this.getConfiguration().getFollowUps();
@@ -1278,7 +1301,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             newHatchedArea = localToLatLon(newHatchedArea);
             state.setWarningArea(newHatchedArea);
             state.mark(newHatchedArea);
-            newHatchedArea = buildArea(getPolygon());
             // add "W" strings
             if (determineInclusion) {
                 populateStrings();
@@ -1709,21 +1731,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         Polygon warnPolygon = gf.createPolygon(lr, null);
-        // Remove intersected segments
-        if (warnPolygon.isValid() == false) {
-            List<Coordinate> points = new ArrayList<Coordinate>(
-                    Arrays.asList(coords));
-            points.remove(points.size() - 1);
-            PolygonUtil.removeIntersectedSeg(points);
-            points.add(new Coordinate(points.get(0)));
-            warnPolygon = gf.createPolygon(gf.createLinearRing(points
-                    .toArray(new Coordinate[points.size()])), null);
-        }
         state.setWarningPolygon(warnPolygon);
         state.setWarningArea(getWarningAreaFromPolygon(
                 state.getWarningPolygon(), record));
-        updateWarnedAreas(false, true);
-        issueRefresh();
+        updateWarnedAreas(true, true);
     }
 
     private DataTime recordFrameTime(AbstractWarningRecord warnRecord) {
@@ -1948,10 +1959,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 for (int j = 0; j < ls.length; j++) {
                     if (i != j
                             && ls[i].intersection(ls[j]) != null
-                            && ls[i].intersection(ls[j]) != ls[i]
-                                    .getCoordinate(0)
-                            && ls[i].intersection(ls[j]) != ls[i]
-                                    .getCoordinate(1)) {
+                            && ls[i].intersection(ls[j]).equals(ls[i]
+                                    .getCoordinate(0)) == false
+                            && ls[i].intersection(ls[j]).equals(ls[i]
+                                    .getCoordinate(1)) == false) {
                         intersectFlag = true;
                     }
                 }
@@ -2152,7 +2163,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         for (GeospatialData f : geoData.features) {
             Geometry geom = f.geometry;
             if (prefixes.contains(GeometryUtil.getPrefix(geom.getUserData()))) {
-                state.strings.put(geom.getCentroid().getCoordinate(), "W");
+                Coordinate center = GisUtil.d2dCoordinate(geom.getCentroid().getCoordinate());
+                state.strings.put(center, "W");
             }
         }
     }
