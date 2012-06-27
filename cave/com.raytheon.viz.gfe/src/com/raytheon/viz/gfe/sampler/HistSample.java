@@ -48,8 +48,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.types.MutableInteger;
 
 /**
@@ -63,13 +61,16 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * Sep 3, 2008  1283        njensen     Fixed issues
  * Sep 9, 2008  1283        njensen     Implemented sample methods
  * May 29, 2009 2159        rjpeter     Optimized sample methods.
+ * May 24, 2012  673        randerso    Added defaulted method calls
+ * 
  * </pre>
  * 
  * @author mnash
  * @version 1.0
  */
 public class HistSample {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(HistSample.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(HistSample.class);
 
     private static final double DEG_TO_RAD = Math.PI / 180;
 
@@ -237,6 +238,10 @@ public class HistSample {
         _timeRange = gridSlice.getValidTime();
         sampleGrid(gridSlice, sampleArea, cachePoints);
         _numSamplePoints = countSamplePoints();
+    }
+
+    public final HistValue average() {
+        return average(true);
     }
 
     /**
@@ -619,6 +624,18 @@ public class HistSample {
         return _absoluteMax;
     }
 
+    public final HistValue moderatedAverage() {
+        return moderatedAverage(15, 15, true);
+    }
+
+    public final HistValue moderatedAverage(int minpercent) {
+        return moderatedAverage(minpercent, 15, true);
+    }
+
+    public final HistValue moderatedAverage(int minpercent, int maxpercent) {
+        return moderatedAverage(minpercent, maxpercent, true);
+    }
+
     /**
      * Description : Returns the representative average of the samples for
      * SCALAR. Returns the representative magnitude/direction for VECTOR. The
@@ -794,6 +811,10 @@ public class HistSample {
         }
     }
 
+    public final HistValue moderatedMin() {
+        return moderatedMin(15);
+    }
+
     /**
      * Description : Returns the representative minimum value for the sample
      * points. this is a no-op for WEATHER/DISCRETE. Percent should be between 0
@@ -832,6 +853,10 @@ public class HistSample {
         }
         hs._moderatedMin = _histPairs.get(_histPairs.size() - 1).value();
         return _moderatedMin;
+    }
+
+    public final HistValue moderatedMax() {
+        return moderatedMax(15);
     }
 
     /**
@@ -876,6 +901,18 @@ public class HistSample {
         }
         hs._moderatedMax = _histPairs.get(_histPairs.size() - 1).value();
         return _moderatedMax;
+    }
+
+    public final HistValue stdDevAvg() {
+        return stdDevAvg(1.0f, 1.0f, true);
+    }
+
+    public final HistValue stdDevAvg(float minStdD) {
+        return stdDevAvg(minStdD, 1.0f, true);
+    }
+
+    public final HistValue stdDevAvg(float minStdD, float maxStdD) {
+        return stdDevAvg(minStdD, maxStdD, true);
     }
 
     /**
@@ -1029,6 +1066,10 @@ public class HistSample {
         }
     }
 
+    public final HistValue stdDevMin() {
+        return stdDevMin(1.0f);
+    }
+
     /**
      * Description : Returns the representative minimum value for the sample
      * points. This is a no-op for WEATHER/DISCRETE. Based on standard
@@ -1066,6 +1107,10 @@ public class HistSample {
         }
         hs._stdDevMin = new HistValue(minValue);
         return _stdDevMin;
+    }
+
+    public final HistValue stdDevMax() {
+        return stdDevMax(1.0f);
     }
 
     /**
@@ -1221,9 +1266,8 @@ public class HistSample {
         Point saSize = new Point(area.getXdim(), area.getYdim());
         if (!grid.getGridInfo().getGridLoc().gridSize().equals(saSize)) {
             statusHandler.handle(Priority.PROBLEM, "Grid size ["
-                            + grid.getGridInfo().getGridLoc().gridSize()
-                            + "] and Grid2DBit size [" + saSize
-                            + "] not the same");
+                    + grid.getGridInfo().getGridLoc().gridSize()
+                    + "] and Grid2DBit size [" + saSize + "] not the same");
             return;
         }
 

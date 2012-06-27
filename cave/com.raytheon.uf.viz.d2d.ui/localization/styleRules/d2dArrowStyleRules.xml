@@ -108,6 +108,7 @@
 	<styleRule>
 		<paramLevelMatches>
 			<parameter>Wind</parameter>
+			<parameter>Gust</parameter>
 		</paramLevelMatches>
 		<arrowStyle>
 			<displayUnits>kts</displayUnits>
