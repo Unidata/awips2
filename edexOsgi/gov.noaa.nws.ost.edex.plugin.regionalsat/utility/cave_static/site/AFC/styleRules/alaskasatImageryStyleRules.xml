@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+
+<!-- Alaska Satellite Rules -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>0.58 - 0.68 micron VISL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>10.5 - 11.5 micron IRUL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+     	<minPixel>0</minPixel>
+     	<maxPixel>255</maxPixel>
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <dataMapping>
+		<entry pixelValue="0" displayValue="40" label="40.0" sample="0" />
+		<entry pixelValue="30" displayValue="20" label="20.0" sample="30" />
+		<entry pixelValue="60" displayValue="0" label="0.0" sample="60" />
+		<entry pixelValue="90" displayValue="-20" label="-20.0" sample="90" />
+		<entry pixelValue="120" displayValue="-40" label="-40.0" sample="120" />
+		<entry pixelValue="160" displayValue="-60" label="-60.0" sample="160" />
+		<entry pixelValue="200" displayValue="-80" label="-80.0" sample="200" />
+	 </dataMapping>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>3.55-3.93 micron IRUL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	<displayUnits>C</displayUnits>
+    <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Channel 4-5 IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/VIS/Linear</defaultColormap>
+     <colorbarLabeling> 
+ 	    <values>50 100 150 200</values> 
+ 	 </colorbarLabeling>     
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>3 Channel Differencing</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/VIS/Linear</defaultColormap>
+     <colorbarLabeling> 
+ 	    <values>50 100 150 200</values> 
+ 	 </colorbarLabeling>     
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>0.7 micron visible</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>10 micron IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>0.40 - 1.10 micron VISL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>10.0 - 12.0 micron IRUL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>0.55-0.75 micron VISL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>3.80-4.00 micron IRUL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>6.50-7.00 micron IRUL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>10.20-11.20 micron IRUL</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+
+</styleRuleset>
