@@ -1,0 +1,24 @@
+!
+! Restore File : 1000-500_thkn
+!
+! Log:
+! J. Carr/HPC   	 9/98	Initial creation
+!
+GLEVEL=500:1000!500:1000
+GVCORD=pres!pres
+SKIP=
+FILTER=y
+SCALE=-1 ! -1
+GDPFUN=ldf(hght)!ldf(hght)
+TYPE=c
+CINT=6/0/540!6/546/999
+LINE=6/3/2  !2/3/2
+FINT=
+FLINE=
+HILO=
+HLSYM=
+WIND=
+TITLE=5/-1/~ 1000-500 MB THICKNESS!0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       
