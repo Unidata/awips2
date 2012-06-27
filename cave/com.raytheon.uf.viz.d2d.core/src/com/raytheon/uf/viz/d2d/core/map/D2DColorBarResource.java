@@ -29,7 +29,6 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.DrawableString;
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -39,6 +38,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.preferences.ColorFactory;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -169,28 +169,25 @@ public class D2DColorBarResource extends
     private void paintLeftColorBar(IGraphicsTarget target,
             PaintProperties paintProps, AbstractVizResource<?, ?> rsc,
             ColorMapParameters colorMapParameters) throws VizException {
-        IExtent viewExtent = paintProps.getView().getExtent();
-        double ratio = (viewExtent.getWidth() / paintProps.getCanvasBounds().width);
         ImagingCapability cap = rsc.hasCapability(ImagingCapability.class) ? rsc
                 .getCapability(ImagingCapability.class) : null;
         float alpha = cap != null ? cap.getAlpha() : paintProps.getAlpha();
         float brightness = cap != null ? cap.getBrightness() : 1.0f;
         float contrast = cap != null ? cap.getContrast() : 1.0f;
-        double x1 = viewExtent.getMinX() + (3 * ratio);
-        double drawnWidth = ((viewExtent.getMaxX() - x1) * (((paintProps
-                .getCanvasBounds().width / 2.0) - 7.0) / paintProps
-                .getCanvasBounds().width));
+        double x1 = 3;
+        double drawnWidth = (paintProps.getCanvasBounds().width / 2.0) - 7.0;
         double x2 = x1 + drawnWidth;
-        double y1 = viewExtent.getMinY();
+        double y1 = 0;
         int pixels = paintProps.getCanvasBounds().width < 500 ? 18 : 25;
-        double y2 = y1 + (pixels * ratio);
+        double y2 = y1 + (pixels);
 
         DrawableColorMap cmap = new DrawableColorMap(colorMapParameters);
         cmap.extent = new PixelExtent(x1, x2, y1, y2);
         cmap.alpha = alpha;
         cmap.brightness = brightness;
         cmap.contrast = contrast;
-        target.drawColorRamp(cmap);
+        target.getExtension(ICanvasRenderingExtension.class).drawColorRamp(
+                paintProps, cmap);
 
         if (rsc.hasCapability(BlendedCapability.class)) {
             alpha *= 2.0;
@@ -208,29 +205,26 @@ public class D2DColorBarResource extends
     private void paintRightColorBar(IGraphicsTarget target,
             PaintProperties paintProps, AbstractVizResource<?, ?> rsc,
             ColorMapParameters colorMapParameters) throws VizException {
-        IExtent viewExtent = paintProps.getView().getExtent();
-        double ratio = (viewExtent.getWidth() / paintProps.getCanvasBounds().width);
         ImagingCapability cap = rsc.hasCapability(ImagingCapability.class) ? rsc
                 .getCapability(ImagingCapability.class) : null;
         float alpha = cap != null ? cap.getAlpha() : paintProps.getAlpha();
         float brightness = cap != null ? cap.getBrightness() : 1.0f;
         float contrast = cap != null ? cap.getContrast() : 1.0f;
-        double x1 = viewExtent.getMinX();
-        double drawnWidth = ((viewExtent.getMaxX() - x1) * (((paintProps
-                .getCanvasBounds().width / 2.0) - 7.0) / paintProps
-                .getCanvasBounds().width));
-        double x2 = viewExtent.getMaxX() - (3 * ratio);
+        double x1 = 0;
+        double drawnWidth = ((paintProps.getCanvasBounds().width / 2.0) - 7.0);
+        double x2 = paintProps.getCanvasBounds().width - 3;
         x1 = x2 - drawnWidth;
-        double y1 = viewExtent.getMinY();
+        double y1 = 0;
         int pixels = paintProps.getCanvasBounds().width < 500 ? 18 : 25;
-        double y2 = y1 + (pixels * ratio);
+        double y2 = y1 + pixels;
 
         DrawableColorMap cmap = new DrawableColorMap(colorMapParameters);
         cmap.extent = new PixelExtent(x1, x2, y1, y2);
         cmap.alpha = alpha;
         cmap.brightness = brightness;
         cmap.contrast = contrast;
-        target.drawColorRamp(cmap);
+        target.getExtension(ICanvasRenderingExtension.class).drawColorRamp(
+                paintProps, cmap);
 
         alpha *= 2.0;
         double yPos = y1 + ((y2 - y1) * .4);
@@ -470,11 +464,8 @@ public class D2DColorBarResource extends
                 }
             }
 
-            double ratio = paintProps.getView().getExtent().getWidth()
-                    / paintProps.getCanvasBounds().width;
-
             double lastXPos = Double.NEGATIVE_INFINITY;
-            double padding = 3 * ratio;
+            double padding = 3;
             if (paintProps.getCanvasBounds().width < 500) {
                 colorBarFont.setMagnification(0.9f);
             }
@@ -516,13 +507,14 @@ public class D2DColorBarResource extends
                 drawable.basics.alpha = paintProps.getAlpha();
 
                 Rectangle2D rect = target.getStringsBounds(drawable);
-                double widthDiv2 = (rect.getWidth() / 2) * ratio;
+                double widthDiv2 = (rect.getWidth() / 2);
                 if (xPos - widthDiv2 > lastXPos) {
                     drawables.add(drawable);
                     lastXPos = xPos + widthDiv2 + padding;
                 }
             }
-            target.drawStrings(drawables);
+            target.getExtension(ICanvasRenderingExtension.class).drawStrings(
+                    paintProps, drawables.toArray(new DrawableString[0]));
         }
     }
 }

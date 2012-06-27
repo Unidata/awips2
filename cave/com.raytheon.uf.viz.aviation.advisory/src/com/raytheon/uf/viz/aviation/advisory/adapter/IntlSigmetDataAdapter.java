@@ -95,13 +95,13 @@ public class IntlSigmetDataAdapter extends AbstractAdvisoryDataAdapter {
             if (sigmetRecord.getDistance() != -9999 && coords.length <= 2) {
                 if (coords.length == 1) {
                     AdvisoryRecord aRecord = new AdvisoryRecord(coords[0],
-                            sigmetRecord.getDistance(), label, sigmetRecord
-                                    .getBullMessage());
+                            sigmetRecord.getDistance(), label,
+                            sigmetRecord.getBullMessage());
                     result.add(aRecord);
                 } else {
                     AdvisoryRecord aRecord = new AdvisoryRecord(coords,
-                            sigmetRecord.getDistance(), label, sigmetRecord
-                                    .getBullMessage());
+                            sigmetRecord.getDistance(), label,
+                            sigmetRecord.getBullMessage());
                     result.add(aRecord);
                 }
             } else {
@@ -135,6 +135,32 @@ public class IntlSigmetDataAdapter extends AbstractAdvisoryDataAdapter {
     @Override
     public LineStyle getLineStyle() {
         return LINE_STYLE;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((hazardType == null) ? 0 : hazardType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        IntlSigmetDataAdapter other = (IntlSigmetDataAdapter) obj;
+        if (hazardType == null) {
+            if (other.hazardType != null)
+                return false;
+        } else if (!hazardType.equals(other.hazardType))
+            return false;
+        return true;
     }
 
 }
