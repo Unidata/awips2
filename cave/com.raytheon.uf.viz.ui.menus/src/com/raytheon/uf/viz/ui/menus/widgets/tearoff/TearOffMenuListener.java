@@ -173,13 +173,13 @@ public class TearOffMenuListener implements IMenuListener2 {
                     longest = check;
                 }
             }
-            byte[] bytes = new byte[longest.length() * 2];
-            Arrays.fill(bytes, (byte) '|');
-            // String filled = new String(bytes);
-            String filled = "- - - - - - TEAR-OFF : "
-                    + menu.getParentItem().getText() + " - - - - - -";
-            // String filled = "-" * bytes.length
-
+            int length = longest.length();
+            if (length == 0) {
+                length = 10;
+            }
+            byte[] bytes = new byte[length];
+            Arrays.fill(bytes, (byte) '-');
+            String filled = new String(bytes);
             new ActionContributionItem(new TearOffAction(filled, manager, menu))
                     .fill(menu, index);
         }

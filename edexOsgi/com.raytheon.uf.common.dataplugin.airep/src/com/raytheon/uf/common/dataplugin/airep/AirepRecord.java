@@ -82,17 +82,19 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     public static final Unit<Velocity> WIND_SPEED_UNIT = NonSI.KNOT;
 
     public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
-    
+
     public static final Unit<Length> ALTITUDE_UNIT = NonSI.FOOT;
 
     public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
-    
-    private static UnitConverter ftToHft = NonSI.FOOT.getConverterTo(SI.HECTO(NonSI.FOOT));
+
+    private static UnitConverter ftToHft = NonSI.FOOT.getConverterTo(SI
+            .HECTO(NonSI.FOOT));
 
     private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    
-    //private static final HashMap<Integer, String> WX_MAP = new HashMap<Integer, String>();
-    
+
+    // private static final HashMap<Integer, String> WX_MAP = new
+    // HashMap<Integer, String>();
+
     static {
         PARM_MAP.put("T", SFC_TEMP);
         PARM_MAP.put("WS", SFC_WNDSPD);
@@ -100,17 +102,17 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         PARM_MAP.put("NLAT", STA_LAT);
         PARM_MAP.put("NLON", STA_LON);
         PARM_MAP.put("FLT_LVL", UA_FLTLVL);
-        
-//        WX_MAP.put(0, "CLR");
-//        WX_MAP.put(1, "SCT");
-//        WX_MAP.put(2, "BKN");
-//        WX_MAP.put(3, "CONT");
-//        WX_MAP.put(4, "LIGHTNING");
-//        WX_MAP.put(5, "DZRA");
-//        WX_MAP.put(6, "CONT RA");
-//        WX_MAP.put(7, "CONT SN");
-//        WX_MAP.put(8, "SH");
-//        WX_MAP.put(9, "TSRA");
+
+        // WX_MAP.put(0, "CLR");
+        // WX_MAP.put(1, "SCT");
+        // WX_MAP.put(2, "BKN");
+        // WX_MAP.put(3, "CONT");
+        // WX_MAP.put(4, "LIGHTNING");
+        // WX_MAP.put(5, "DZRA");
+        // WX_MAP.put(6, "CONT RA");
+        // WX_MAP.put(7, "CONT SN");
+        // WX_MAP.put(8, "SH");
+        // WX_MAP.put(9, "TSRA");
     }
 
     @Column
@@ -130,7 +132,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlAttribute
     private Calendar refHour;
 
-    // 
+    //
     @DataURI(position = 1)
     @Column
     @DynamicSerializeElement
@@ -468,6 +470,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     @Override
     public void setDataURI(String dataURI) {
+        super.setDataURI(dataURI);
         identifier = dataURI;
     }
 
@@ -523,7 +526,7 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
             a = new Amount(this.getLongitude(), LOCATION_UNIT);
         } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
             a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
-            
+
         }
         return a;
     }
@@ -543,8 +546,8 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     @Override
     public String[] getStrings(String paramName) {
-        if ("FLT_HZD".matches(paramName)  && flightHazard != null) {
-            String[] flightHazards = {flightHazard.toString()};
+        if ("FLT_HZD".matches(paramName) && flightHazard != null) {
+            String[] flightHazards = { flightHazard.toString() };
             return flightHazards;
         }
         return null;
@@ -561,31 +564,34 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
 
     public void setLocation(AircraftObsLocation location) {
         this.location = location;
-    } 
-    
+    }
+
     @Override
     public String getMessageData() {
         return getReportData();
     }
-    
-    private String buildMessageData(){
+
+    private String buildMessageData() {
         String s = "";
-        
+
         String lat = String.valueOf(location.getLatitude());
         String lon = String.valueOf(location.getLongitude());
         String latDir = location.getLatitude() > 0 ? "N" : "S";
         String lonDir = location.getLongitude() > 0 ? "E" : "W";
         String hour = "";
         String minute = "";
-        if(timeObs != null){
+        if (timeObs != null) {
             hour = String.valueOf(timeObs.get(Calendar.HOUR_OF_DAY));
             minute = String.valueOf(timeObs.get(Calendar.MINUTE));
         }
-        String flightLevel = String.valueOf((int)ftToHft.convert(location.getFlightLevel()));
-        String wind = windDirection != null? 
-                String.valueOf(windDirection.intValue()) + "/" 
-                + String.valueOf(windSpeed.intValue()) + "KT": "";
-        //String wx = flightWeather != null? WX_MAP.get(flightWeather) : "";        
+        String flightLevel = String.valueOf((int) ftToHft.convert(location
+                .getFlightLevel()));
+        String wind = windDirection != null ? String.valueOf(windDirection
+                .intValue())
+                + "/"
+                + String.valueOf(windSpeed.intValue())
+                + "KT" : "";
+        // String wx = flightWeather != null? WX_MAP.get(flightWeather) : "";
         lat = formatLatLon(lat);
         lon = formatLatLon(lon);
         String temperature = "";
@@ -593,7 +599,8 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
             if (temp > 0) {
                 temperature = "P" + temp.intValue();
             } else {
-                temperature = "M" + String.valueOf(temp.intValue()).substring(1);
+                temperature = "M"
+                        + String.valueOf(temp.intValue()).substring(1);
             }
         }
         if (hour.length() < 2) {
@@ -602,37 +609,36 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
         if (minute.length() < 2) {
             minute = "0" + minute;
         }
-        s = "ARP " + location.getStationId() + " " 
-                + lat + latDir + " " + lon + lonDir + " " 
-                +  hour + minute + " F" + flightLevel 
-                + " " + temperature + " " + wind 
-                + "TB";
+        s = "ARP " + location.getStationId() + " " + lat + latDir + " " + lon
+                + lonDir + " " + hour + minute + " F" + flightLevel + " "
+                + temperature + " " + wind + "TB";
         return s;
     }
-    
-    private String formatLatLon(String str){
-        str = str.startsWith("-")? str.substring(1) : str;
-        
+
+    private String formatLatLon(String str) {
+        str = str.startsWith("-") ? str.substring(1) : str;
+
         int decimalIndex = str.indexOf(".");
-        
-        if(decimalIndex != -1){
+
+        if (decimalIndex != -1) {
             String temp = str.substring(decimalIndex + 1);
-            if(temp.length() > 3){
+            if (temp.length() > 3) {
                 temp = temp.substring(0, 3);
             } else if (temp.length() != 3) {
-                while(temp.length() != 3){
+                while (temp.length() != 3) {
                     temp += "0";
                 }
             }
-            str = str.substring(0,decimalIndex) + temp;
+            str = str.substring(0, decimalIndex) + temp;
         }
-        
+
         return str;
     }
 
     /**
-     * Returns the hashCode for this object. This implementation
-     * returns the hashCode of the generated dataURI.
+     * Returns the hashCode for this object. This implementation returns the
+     * hashCode of the generated dataURI.
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -645,9 +651,10 @@ public class AirepRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * Checks if this record is equal to another by checking the
-     * generated dataURI.
-     * @param obj 
+     * Checks if this record is equal to another by checking the generated
+     * dataURI.
+     * 
+     * @param obj
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override

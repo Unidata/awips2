@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.python.swt.widgets;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -97,18 +98,19 @@ public class ScaleWidget extends Widget {
      * .swt.widgets.Composite, int)
      */
     @Override
-    public Composite buildComposite(Composite parent, int style) {
+    public Composite buildComposite(Composite parent) {
 
-        Group group = new Group(parent, style);
+        Group group = new Group(parent, SWT.NONE);
         group.setText(makeGuiLabel(getLabel()));
 
         group.setLayout(new GridLayout());
-        group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        group.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        label = new Label(group, style);
-        label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        scale = new Scale(group, style);
-        scale.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        label = new Label(group, SWT.CENTER);
+        label.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        scale = new Scale(group, SWT.HORIZONTAL);
+        GridData layoutData = new GridData(300, SWT.DEFAULT);
+        scale.setLayoutData(layoutData);
 
         minValue = ((Number) (getOptions().get(0))).floatValue();
         maxValue = ((Number) (getOptions().get(1))).floatValue();
@@ -191,7 +193,7 @@ public class ScaleWidget extends Widget {
     }
 
     public int getPrecision() {
-		return precision;
+        return precision;
 	}
 
 	/*
@@ -235,8 +237,8 @@ public class ScaleWidget extends Widget {
         super.setOptions(options);
     }
 
-	public void setPrecision(int precision) {
-		this.precision = precision;		
-	}
+    public void setPrecision(int precision) {
+        this.precision = precision;
+    }
 
 }
