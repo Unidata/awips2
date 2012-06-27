@@ -47,7 +47,6 @@
 	<vbSource key="RSM" category="Volume" />
 	<vbSource key="RUC130" category="Volume" />
 	<vbSource key="RUC236" category="Volume" />
-	<vbSource key="RUC" category="Volume" />
 	<vbSource key="GFS161" category="Volume" />
 	<vbSource key="MRF205" category="Volume" />
 	<vbSource key="SREF212" category="Volume" views="PLANVIEW TIMESERIES"/>

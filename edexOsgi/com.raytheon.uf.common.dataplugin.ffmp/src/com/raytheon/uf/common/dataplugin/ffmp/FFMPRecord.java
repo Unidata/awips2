@@ -107,7 +107,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
     private String siteKey;
 
     @Transient
-    private HashMap<String, FFMPBasinData> basinsMap = new HashMap<String, FFMPBasinData>();
+    protected HashMap<String, FFMPBasinData> basinsMap = new HashMap<String, FFMPBasinData>();
 
     @Transient
     private int expiration = 0;
@@ -318,33 +318,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
     public void setBasinData(FFMPBasinData basins, String hucName) {
         basinsMap.put(hucName, basins);
     }
-
-    /**
-     * maybe this will work
-     * 
-     * @param basins
-     * @param hucName
-     */
-    public void setBasinBuddyData(FFMPBasinData basins, String hucName) {
-
-        for (Entry<Long, FFMPBasin> entry : basins.getBasins().entrySet()) {
-            FFMPBasin basin = getBasinData(hucName).get(entry.getKey());
-            if (basin != null) {
-                if (basin instanceof FFMPGuidanceBasin) {
-                    FFMPGuidanceBasin gbasin = (FFMPGuidanceBasin) basin;
-                    gbasin.getGuidValues().putAll(
-                            ((FFMPGuidanceBasin) entry.getValue())
-                                    .getGuidValues());
-                } else {
-                    basin.getValues().putAll(entry.getValue().getValues());
-                }
-            } else {
-                getBasinData(hucName).put(entry.getKey(), entry.getValue());
-            }
-        }
-
-    }
-
+    
     /**
      * finds the correct basin bin by hucName to place into
      * 
@@ -386,6 +360,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
         }
 
         fbd = getBasinData(huc);
+        String key = getSiteKey();
 
         synchronized (template) {
 
@@ -393,7 +368,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                     .getSource(sourceName);
 
             for (DomainXML domain : template.getDomains()) {
-                LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(),
+                LinkedHashMap<Long, ?> map = template.getMap(key,
                         domain.getCwa(), huc);
 
                 if (map != null && map.keySet().size() > 0) {
@@ -493,6 +468,8 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                 }
             }
         }
+        
+        setBasinData(fbd, huc);
     }
 
     /**
@@ -633,6 +610,8 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                 }
             }
         }
+        
+        setBasinData(fbd, "ALL");
     }
 
     /**
@@ -694,6 +673,9 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                     }
                 }
             }
+            
+            setBasinData(fbd, "ALL");
+            
         } catch (Throwable e) {
             statusHandler.handle(Priority.ERROR, "ERROR Retrieving Virtual..."
                     + "ALL");
@@ -767,19 +749,6 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
         return isRate;
     }
 
-    /**
-     * Purges out old data
-     * 
-     * @param date
-     */
-    public void purgeData(Date date) {
-
-        for (String ihuc : getBasinsMap().keySet()) {
-            FFMPBasinData basinData = getBasinsMap().get(ihuc);
-            basinData.purgeData(date);
-        }
-    }
-
     public void setSiteKey(String siteKey) {
         this.siteKey = siteKey;
     }
@@ -787,5 +756,5 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
     public String getSiteKey() {
         return siteKey;
     }
-
+   
 }
