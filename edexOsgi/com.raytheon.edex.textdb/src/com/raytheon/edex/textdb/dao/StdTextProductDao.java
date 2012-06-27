@@ -362,62 +362,6 @@ public class StdTextProductDao extends CoreDao {
     }
 
     /**
-     * Use the reference/creation time to restrict the results when obtaining a
-     * product.
-     * 
-     * @param ccc
-     * @param nnn
-     * @param xxx
-     * @param refTime
-     * @return products
-     */
-    public List<StdTextProduct> cccnnnxxxByRefTime(String ccc, String nnn,
-            String xxx, Long refTime) {
-        ccc = StringUtils.rightPad(ccc, MAX_FIELD_LENGTH);
-        nnn = StringUtils.rightPad(nnn, MAX_FIELD_LENGTH);
-        xxx = StringUtils.rightPad(xxx, MAX_FIELD_LENGTH);
-        Session session = null;
-
-        List<StdTextProduct> products = new ArrayList<StdTextProduct>();
-        try {
-            session = getSession();
-
-            Map<String, Object> tmp = new HashMap<String, Object>();
-            tmp.put(ProdCCC_ID, ccc);
-            tmp.put(ProdNNN_ID, nnn);
-            tmp.put(ProdXXX_ID, xxx);
-            tmp.put(CREATETIME, refTime);
-
-            Criteria criteria = session
-                    .createCriteria(getStdTextProductInstance().getClass());
-            criteria.add(Restrictions.allEq(tmp));
-            criteria.addOrder(Order.asc(ProdCCC_ID));
-            criteria.addOrder(Order.asc(ProdNNN_ID));
-            criteria.addOrder(Order.asc(ProdXXX_ID));
-            criteria.addOrder(Order.desc(CREATETIME));
-            criteria.addOrder(Order.desc(ProdHDRTIME));
-
-            Iterator<?> iter = criteria.list().iterator();
-
-            while (iter.hasNext()) {
-                StdTextProduct prod = (StdTextProduct) iter.next();
-
-                if (prod != null && prod.getProduct() != null
-                        && prod.getProduct().length() > 0) {
-                    products.add(prod);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error occurred reading products", e);
-        } finally {
-            closeSession(session);
-        }
-
-        return products;
-
-    }
-
-    /**
      * This function reads a specific version of the specified product.
      * 
      * As of January 2000, a given AFOS ID can be stored in multiple (WMOID +
