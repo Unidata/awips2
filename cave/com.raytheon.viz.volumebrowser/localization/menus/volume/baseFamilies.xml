@@ -88,13 +88,13 @@
 		<substitute key="frameCount" value="15"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-		menuText="RUC13" id="ruc13" useReferenceTime="true">
+		menuText="RAP13" id="ruc13" useReferenceTime="true">
 		<substitute key="modelName" value="RUC130"/>
 		<substitute key="TP" value="TP3hr"/>
 		<substitute key="frameCount" value="13"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml"
-		menuText="RUC" id="ruc" useReferenceTime="true">
+		menuText="RAP40" id="ruc" useReferenceTime="true">
 		<substitute key="modelName" value="RUC236"/>
 		<substitute key="TP" value="TP3hr"/>
 		<substitute key="frameCount" value="9"/>

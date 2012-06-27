@@ -45,11 +45,9 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
@@ -63,9 +61,7 @@ import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.viz.core.contours.ContourSupport;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
-import com.raytheon.viz.core.contours.ILoadableAsImage;
 import com.raytheon.viz.core.style.contour.ContourPreferences;
-import com.raytheon.viz.grid.rsc.GridLoadProperties;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
@@ -86,7 +82,7 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 
 public class CrossSectionContourResource extends AbstractCrossSectionResource
-        implements ILoadableAsImage, IResourceDataChanged {
+        implements IResourceDataChanged {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CrossSectionContourResource.class);
 
@@ -129,6 +125,8 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource
         if (sr != null) {
             prefs = contourPrefs = (ContourPreferences) sr.getPreferences();
         }
+        getCapability(DisplayTypeCapability.class).setAlternativeDisplayTypes(
+                Arrays.asList(DisplayType.IMAGE));
     }
 
     /*
@@ -335,31 +333,12 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource
     }
 
     @Override
-    public AbstractVizResource<?, ?> getImageryResource() throws VizException {
-        GridLoadProperties props = new GridLoadProperties(DisplayType.IMAGE);
-        props.setResourceType(ResourceType.CROSS_SECTION);
-        AbstractVizResource<?, ?> rsc2 = resourceData.construct(props,
-                getDescriptor());
-        return rsc2;
-    }
-
-    @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type.equals(ChangeType.CAPABILITY)) {
             if (object instanceof OutlineCapability) {
                 useDefaultLines = false;
             }
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.contours.ILoadableAsImage#isLoadableAsImage()
-     */
-    @Override
-    public boolean isLoadableAsImage() {
-        return true;
     }
 
     @Override
