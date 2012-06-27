@@ -18,7 +18,7 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="TPCSG_244E2" name="Probabilistic Storm Surge probability &gt; 8 feet" unit="%">
+<DerivedParameter abbreviation="TPCSG-244E2" name="Probabilistic Storm Surge probability &gt; 8 feet" unit="%">
     <Method models="TPCSurgeProb" name="Alias">
         <Field abbreviation="PSurge8Ft"/>
     </Method>
