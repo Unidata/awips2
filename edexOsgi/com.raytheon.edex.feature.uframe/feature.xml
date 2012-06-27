@@ -38,19 +38,6 @@
 
    <includes
          id="com.raytheon.uf.edex.cots.feature"
-   <plugin
-         id="com.raytheon.uf.edex.tafqueue"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.tafqueue"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
          version="0.0.0"/>
          
    <includes
