@@ -772,9 +772,6 @@ public class TextDB {
             if (parser.isStateQuery()) {
                 products = stateNNNRead(parser.getState(), parser.getNnn(),
                         operationalMode);
-            } else if (refTimeMode) {
-                products = (new StdTextProductDao(operationalMode))
-                        .cccnnnxxxByRefTime(ccc, nnn, xxx, refTime);
             } else {
                 int versionNo = 0; // default version number; read the latest
                 // version
