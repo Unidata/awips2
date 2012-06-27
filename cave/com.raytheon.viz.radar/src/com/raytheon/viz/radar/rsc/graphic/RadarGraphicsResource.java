@@ -29,12 +29,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -217,9 +218,6 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
             xPos = paintProps.getCanvasBounds().x
                     + paintProps.getCanvasBounds().width - xPos;
 
-            double[] pts = paintProps.getView().getDisplayCoords(
-                    new double[] { xPos, yPos }, target);
-
             // Get the Lat/Lon of the screen Extent
             Envelope screenLatLon = descriptor.pixelToWorld(paintProps
                     .getView().getExtent());
@@ -241,18 +239,22 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
                 }
             }
 
-            target.drawString(null, offScreenCount + " FEATURES OFF SCREEN",
-                    pts[0], pts[1], 0, TextStyle.NORMAL,
-                    this.getCapability(ColorableCapability.class).getColor(),
-                    HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE, 0.0);
+            DrawableString offscreen = new DrawableString(offScreenCount
+                    + " FEATURES OFF SCREEN", this.getCapability(
+                    ColorableCapability.class).getColor());
+            offscreen.setCoordinates(xPos, yPos);
+            offscreen.horizontalAlignment = HorizontalAlignment.CENTER;
+            offscreen.verticallAlignment = VerticalAlignment.MIDDLE;
 
-            pts = paintProps.getView().getDisplayCoords(
-                    new double[] { xPos, yPos + 20 }, target);
+            DrawableString notShown = new DrawableString(filteredCount
+                    + " FEATURES NOT SHOWN", this.getCapability(
+                    ColorableCapability.class).getColor());
+            notShown.setCoordinates(xPos, yPos + 20);
+            notShown.horizontalAlignment = HorizontalAlignment.CENTER;
+            notShown.verticallAlignment = VerticalAlignment.MIDDLE;
+            target.getExtension(ICanvasRenderingExtension.class).drawStrings(
+                    paintProps, offscreen, notShown);
 
-            target.drawString(null, filteredCount + " FEATURES NOT SHOWN",
-                    pts[0], pts[1], 0, TextStyle.NORMAL,
-                    this.getCapability(ColorableCapability.class).getColor(),
-                    HorizontalAlignment.CENTER, VerticalAlignment.MIDDLE, 0.0);
         }
     }
 
