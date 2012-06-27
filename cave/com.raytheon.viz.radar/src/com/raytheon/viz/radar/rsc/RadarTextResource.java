@@ -26,7 +26,6 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableString;
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
@@ -35,6 +34,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
@@ -212,9 +212,8 @@ public class RadarTextResource extends
             }
         }
 
-        target.clearClippingPlane();
-        target.drawStrings(stringsToRender);
-        target.setupClippingPlane(paintProps.getClippingPane());
+        target.getExtension(ICanvasRenderingExtension.class).drawStrings(
+                paintProps, stringsToRender.toArray(new DrawableString[0]));
     }
 
     /**
@@ -235,11 +234,8 @@ public class RadarTextResource extends
             PaintProperties paintProps, TextPair pair,
             HorizontalAlignment hAlign, int yOffset, int xOffset,
             List<DrawableString> stringsToRender) throws VizException {
-        IExtent extent = paintProps.getView().getExtent();
         if (pair.text != null && xOffset > 0 && yOffset > 0
                 && pair.text.length > 0) {
-            double ratio = extent.getWidth()
-                    / paintProps.getCanvasBounds().width;
             RGB[] colors = new RGB[pair.text.length];
             for (int i = 0; i < pair.text.length; ++i) {
                 colors[i] = pair.color;
@@ -247,8 +243,7 @@ public class RadarTextResource extends
             textFont.setMagnification(pair.magnification);
             DrawableString dString = new DrawableString(pair.text, colors);
             dString.font = textFont;
-            dString.setCoordinates(extent.getMinX() + xOffset * ratio,
-                    extent.getMinY() + yOffset * ratio, 0);
+            dString.setCoordinates(xOffset, yOffset, 0);
             dString.textStyle = TextStyle.BLANKED;
             dString.horizontalAlignment = hAlign;
             dString.verticallAlignment = VerticalAlignment.TOP;
