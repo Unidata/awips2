@@ -92,7 +92,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Dec 4, 2007             njensen     Initial creation
  * 02/17/09                njensen     Refactored to new rsc architecture
  * 02/27/12	    14490      kshresth    Fixed cross sections not loading as images
- *		
+ * 
  * </pre>
  * 
  * @author njensen
@@ -258,7 +258,8 @@ public abstract class AbstractCrossSectionResource extends
                     .getExtent().getMaxX(), 0)[0];
             floatData = CrossSectionRotation.rotateVector(
                     resourceData.getParameter(), Arrays.asList(lineData),
-                    floatData, lineLengthInMeters, descriptor.getHeightScale());
+                    floatData, lineLengthInMeters, descriptor.getHeightScale(),
+                    adapter.getDataCoordinateReferenceSystem());
             if (adapter.getUnit().isCompatible(getUnit())) {
                 UnitConverter converter = adapter.getUnit().getConverterTo(
                         getUnit());

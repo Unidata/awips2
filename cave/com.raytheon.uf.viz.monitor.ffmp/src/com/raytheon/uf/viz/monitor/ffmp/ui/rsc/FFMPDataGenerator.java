@@ -26,9 +26,9 @@ import java.util.HashMap;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPCacheRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord.FIELDS;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPUtils;
@@ -94,17 +94,17 @@ public class FFMPDataGenerator {
 
 	FFMPBasinData virtualBasin = null;
 
-	FFMPRecord rateRecord = null;
+	FFMPCacheRecord rateRecord = null;
 
-	FFMPRecord qpeRecord = null;
+	FFMPCacheRecord qpeRecord = null;
 
-	FFMPRecord qpfRecord = null;
+	FFMPCacheRecord qpfRecord = null;
 
-	HashMap<String, FFMPRecord> guidRecords = null;
+	HashMap<String, FFMPCacheRecord> guidRecords = null;
 
-	FFMPRecord virtualRecord = null;
+	FFMPCacheRecord virtualRecord = null;
 
-	FFMPRecord baseRec = null;
+	FFMPCacheRecord baseRec = null;
 
 	// Date time = null;
 
@@ -374,7 +374,7 @@ public class FFMPDataGenerator {
 
 					if ((qpfBasin != null)
 							&& (qpfBasin.get(parentBasinPfaf) != null)) {
-						qpf = qpfBasin.get(parentBasinPfaf).getValue(
+						qpf = qpfBasin.get(parentBasinPfaf).getAverageValue(
 								monitor.getQpfWindow().getAfterTime(),
 								monitor.getQpfWindow().getBeforeTime());
 						trd.setTableCellData(3, new FFMPTableCellData(
@@ -557,7 +557,7 @@ public class FFMPDataGenerator {
 					if ((qpfBasin != null)
 							&& (qpfBasin.get(cBasin.getPfaf()) != null)) {
 
-						qpf = qpfBasin.get(cBasin.getPfaf()).getValue(
+						qpf = qpfBasin.get(cBasin.getPfaf()).getAverageValue(
 								monitor.getQpfWindow().getAfterTime(),
 								monitor.getQpfWindow().getBeforeTime());
 						// qpf = getQPFValue(false, cBasin.getPfaf(),
@@ -872,7 +872,7 @@ public class FFMPDataGenerator {
 					trd.setTableCellData(
 							3,
 							new FFMPTableCellData(FIELDS.QPF, new Float(
-									qpeBasin.get(cBasin.getPfaf()).getValue(
+									qpfBasin.get(cBasin.getPfaf()).getMaxValue(
 											monitor.getQpfWindow()
 													.getAfterTime(),
 											monitor.getQpfWindow()
@@ -960,7 +960,7 @@ public class FFMPDataGenerator {
 							Float.NaN));
 				}
 				if (qpfBasin != null) {
-					qpf = qpfBasin.getMaxValue(pfafs, monitor.getQpfWindow()
+					qpf = qpfBasin.getAverageMaxValue(pfafs, monitor.getQpfWindow()
 							.getAfterTime(), monitor.getQpfWindow()
 							.getBeforeTime());
 
@@ -1103,7 +1103,7 @@ public class FFMPDataGenerator {
 					trd.setTableCellData(
 							3,
 							new FFMPTableCellData(FIELDS.QPF, new Float(
-									qpeBasin.get(cBasin.getPfaf()).getValue(
+									qpfBasin.get(cBasin.getPfaf()).getMaxValue(
 											monitor.getQpfWindow()
 													.getAfterTime(),
 											monitor.getQpfWindow()
@@ -1266,7 +1266,9 @@ public class FFMPDataGenerator {
 				qpeBasin = qpeRecord.getBasinData(huc);
 				if (qpeBasin.getBasins().size() > 0) {
 					field = FIELDS.QPE;
-					baseRec = qpeRecord;
+					if (baseRec == null) {
+						baseRec = qpeRecord;
+					}
 				}
 			}
 			if (qpfRecord != null) {

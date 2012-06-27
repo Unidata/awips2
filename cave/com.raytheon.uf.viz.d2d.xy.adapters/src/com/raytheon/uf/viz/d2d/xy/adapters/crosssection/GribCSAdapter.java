@@ -32,6 +32,7 @@ import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
@@ -86,6 +87,8 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
     protected Map<DataTime, Set<GribRecord>> yRecords = new HashMap<DataTime, Set<GribRecord>>();
 
     private Unit<?> unit;
+
+    private CoordinateReferenceSystem crs;
 
     /*
      * (non-Javadoc)
@@ -292,6 +295,7 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
         super.addRecord(pdo);
         if (pdo != null && pdo instanceof GribRecord) {
             unit = ((GribRecord) pdo).getModelInfo().getParameterUnitObject();
+            crs = ((GribRecord) pdo).getSpatialObject().getCrs();
         }
         yRecords.remove(pdo.getDataTime());
     }
@@ -353,6 +357,14 @@ public class GribCSAdapter extends AbstractCrossSectionAdapter<GribRecord> {
             yParameter = descriptor.getHeightScale().getParameter();
             yRecords.clear();
         }
+    }
+
+    @Override
+    public CoordinateReferenceSystem getDataCoordinateReferenceSystem() {
+        if (crs == null) {
+            return super.getDataCoordinateReferenceSystem();
+        }
+        return crs;
     }
 
 }
