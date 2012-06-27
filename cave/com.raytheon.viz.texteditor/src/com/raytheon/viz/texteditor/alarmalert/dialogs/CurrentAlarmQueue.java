@@ -379,7 +379,6 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
             prods = produceTextProduct(command, refDate.getTime());
         }
 
-        }
         if (alarmDisplayDlg == null) {
             alarmDisplayDlg = new AlarmDisplayWindow(shell, prods);
             alarmDisplayDlg.open();
