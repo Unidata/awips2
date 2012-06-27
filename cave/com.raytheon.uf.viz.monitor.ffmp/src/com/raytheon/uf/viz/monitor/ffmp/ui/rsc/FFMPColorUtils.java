@@ -49,7 +49,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/29/09      2152       D. Hladky   Initial release
- * 
+ * 05/21/12		DR 14833    G. Zhang    Error handling for invalid cmap 
  * </pre>
  * 
  * @author dhladky
@@ -68,7 +68,16 @@ public class FFMPColorUtils {
 
     private ArrayList<String> fileArray = new ArrayList<String>();
 
-    private TreeMap<Double, String> hourColorMapMap = new TreeMap<Double, String>();
+    private TreeMap<Double, String> hourColorMapMap = new TreeMap<Double, String>();    
+    
+    // DR 14833: replacing the one in the constructor
+    private StyleRule sr = null;
+    
+    // DR 14833: used when no colormap found
+    private static final String DEFAULT_COLORMAP  = "ffmp/qpe";
+    
+    // DR 14833: used when paramname not matching colormap name found
+    private static final String DEFAULT_PARAMNAME = "qpe";
 
     /**
      * Set up FFMP Color maps
@@ -84,7 +93,7 @@ public class FFMPColorUtils {
         this.tableLoad = tableLoad;
         this.colormapparams = null;
 
-        StyleRule sr = null;
+//        StyleRule sr = null;// DR 14833 replaced by a instance field
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, getMatchCriteria());
@@ -102,6 +111,7 @@ public class FFMPColorUtils {
             e.printStackTrace();
         }
 
+        if(cxml == null) cxml = getDefaultColorMap(); // DR 14833: load the default map 
         ColorMap colorMap = new ColorMap(colormapfile, (ColorMap) cxml);
         colormapparams = new ColorMapParameters();
         colormapparams.setColorMap(colorMap);
@@ -320,5 +330,72 @@ public class FFMPColorUtils {
                 fileArray.add(fn);
             }
         }
+    }   
+    
+    
+    /**
+     * DR 14833: Error handling for the following:
+     * when a user modified the ffmpImageryStyleRules.xml file 
+     * without adding the related qpeX.cmap and for a user made
+     * error like: qpe6/qpe4.cmap then default qpe/qpe.cmap used.      
+     * 
+     */    
+    public IColorMap getDefaultColorMap(){
+    	IColorMap cxml = null;  
+    	
+    	/*see parseFileNames(): colormap_name is "0.0" or qpe+key+".cmap"
+    	double hour = hourColorMapMap.firstKey();
+    	String cmapHour = ( hour==0.0 ? "" : String.valueOf(hour) );    		
+    	System.out.println("FFMPColorUtils.getDefaultColorMap() cmapHour: "+cmapHour );*/
+
+		/* Loop through all StyleRules to get the default.     
+		 * In StyleManager.loadRules(StyleType), all levels(not only USER) 
+		 * StyleRule loaded. So it is guaranteed the default can be loaded.
+		 */
+    	
+		com.raytheon.uf.viz.core.style.StyleRuleset srs = 
+			StyleManager.getInstance().getStyleRuleSet(StyleManager.StyleType.IMAGERY);
+		
+		for(StyleRule srl : srs.getStyleRules()){
+			String pn="", cm="";
+			try{
+				pn = ((ParamLevelMatchCriteria)srl.getMatchCriteria()).getParameterNames().get(0);
+				cm = ((ImagePreferences)srl.getPreferences()).getDefaultColormap();
+			}catch(Exception e){ continue;	}	
+			
+			if(DEFAULT_PARAMNAME.equalsIgnoreCase(pn) && DEFAULT_COLORMAP.equalsIgnoreCase(cm)){
+				sr = srl;
+				System.out.println("FFMPColorUtils.getDefaultColorMap(): StyleRule pn-cm value:  "+pn+"-"+cm);
+				break;
+			}	 
+			
+		}
+		/*
+		if(sr == null){
+		    	//get the MatchCriteria
+		        ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
+		        ArrayList<String> paramList = new ArrayList<String>();        
+		        paramList.add( FIELDS.QPE.getFieldName()+cmapHour );
+		        match.setParameterName(paramList); 
+		        
+		        //get the StyleRule
+		        try {
+		            sr=StyleManager.getInstance().getStyleRule(StyleManager.StyleType.IMAGERY, match);
+		        } catch (VizStyleException e) {
+		            e.printStackTrace();
+		        }
+		} 
+		*/
+        //get the colormapfile name
+        String colormapfile = ((ImagePreferences) sr.getPreferences()).getDefaultColormap();
+
+        //load the colormap
+        try {
+            cxml = ColorMapLoader.loadColorMap(colormapfile);
+        } catch (VizException e) {
+            e.printStackTrace();
+        }
+    	
+    	return cxml;
     }
 }
