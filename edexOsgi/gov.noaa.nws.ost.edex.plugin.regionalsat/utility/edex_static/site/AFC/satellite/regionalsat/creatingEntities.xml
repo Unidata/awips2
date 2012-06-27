@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+ * gov.noaa.nws.ost.edex.plugin.alaskasat.util.RegionalSatLookups
+ * 
+ * 12-01-11
+ * 
+ * This code has been developed by the NWS/OST/SEC for use in the AWIPS2 system.
+ -->
+<!-- Source: http://www.ssec.wisc.edu/mcidas/doc/users_guide/current/app_c-1.html -->
+<creatingEntities>
+	<map>
+		<entry><key>DMSP</key><value>DMSP</value></entry>	
+		<entry><key>FY1C</key><value>FY1C</value></entry>
+		<entry><key>FY3C</key><value>FY3C</value></entry>
+		<entry><key>GVAR</key><value>GVAR</value></entry>	
+		<entry><key>HRPT</key><value>HRPT</value></entry>
+		<entry><key>MTSAT</key><value>MTSAT</value></entry>	
+		<entry><key>GOESR-PG</key><value>GOESR-PG</value></entry>
+		<entry><key>Blended2</key><value>Blended2</value></entry>
+	</map>
+</creatingEntities>
