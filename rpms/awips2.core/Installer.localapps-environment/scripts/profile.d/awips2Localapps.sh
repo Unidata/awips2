@@ -16,4 +16,8 @@ if [ ! "${CHECK_PATH}" = "" ]; then
    return
 fi
 # Update PYTHONPATH
-export PYTHONPATH=/awips2/fxa/bin/src:${PYTHONPATH}
+if [ "${PYTHONPATH}" = "" ]; then
+   export PYTHONPATH=/awips2/fxa/bin/src
+else  
+   export PYTHONPATH=/awips2/fxa/bin/src:${PYTHONPATH}
+fi  
