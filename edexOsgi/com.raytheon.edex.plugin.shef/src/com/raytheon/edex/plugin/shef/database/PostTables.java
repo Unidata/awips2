@@ -365,9 +365,11 @@ public class PostTables {
                 }
             }
         } catch (Exception e) {
-            log.error("Query = [" + sql.toString() + "]");
             log.error(record.getTraceId() + " - Error posting paired data");
-            e.printStackTrace();
+            log.error("Query = [" + sql.toString() + "]");
+            if(log.isDebugEnabled()) {
+                log.error(e);
+            }
             stats.incrementErrorMessages();
         }
     }
@@ -865,14 +867,16 @@ public class PostTables {
                 }
             }
         } catch (Exception e) {
+            log.error(dataObj.getTraceId() + " - PostgresSQL error updating "
+                    + tableName + " for " + locId + ", " + validTime);
             if (doOverwrite > 0) {
                 log.error("Query = [" + update + "]");
             } else {
                 log.error("Query = [" + sql + "]");
             }
-            log.error(dataObj.getTraceId() + " - PostgresSQL error updating "
-                    + tableName + " for " + locId + ", " + validTime);
-            e.printStackTrace();
+            if(log.isDebugEnabled()) {
+                log.error(e);
+            }
             stats.incrementErrorMessages();
         }
     }
@@ -912,13 +916,15 @@ public class PostTables {
                 stats.incrementUnknownStationOverwrite();
             }
         } catch (Exception e) {
-            log.error("Query = [" + sql.toString() + "]");
             log.error(unkstn.getTraceId()
                     + " - PostgresSQL error updating UnkStn for "
                     + unkstn.getLid() + ", "
                     + unkstn.getProducttime().toString() + ", "
                     + unkstn.getPostingtime().toString());
-            e.printStackTrace();
+            log.error("Query = [" + sql.toString() + "]");
+            if(log.isDebugEnabled()) {
+                log.error(e);
+            }
             stats.incrementErrorMessages();
         }
     }
@@ -1111,15 +1117,16 @@ public class PostTables {
                 log.debug(functionName + " status = " + execStatus);
             }
         } catch (Exception e) {
-            log.error("Error updating/committing PE insert for PE "
-                    + shefData.getPhysicalElement());
-            log.error("Record Data: " + locId + ", " + dataValue + ", "
-                    + qualifier + ", " + qualityCode + ", " + productId + ", "
-                    + productTime.toString() + ", " + postTime.toString());
             log.error(
                     record.getTraceId()
                             + " - PostgresSQL error executing function "
-                            + functionName, e);
+                            + functionName);
+            log.error("Error updating/committing PE insert for PE "
+                    + shefData.getPhysicalElement());
+            log.error("Record Data: " + record);
+            if(log.isDebugEnabled()) {
+                log.error(e);
+            }
         } finally {
             try {
                 cs.close();
@@ -1198,24 +1205,8 @@ public class PostTables {
             cs.registerOutParameter(15, java.sql.Types.INTEGER);
 
             if (log.isDebugEnabled()) {
-                log.debug("locId = [" + locId + "]");
-                log.debug("PE = [" + shefData.getPhysicalElement() + "]");
-                log.debug("Duration = [" + shefData.getDuration().getValue() + "]");
-                log.debug("TS = [" + shefData.getTypeSource() + "]");
-                log.debug("Extremum = [" + shefData.getExtremum() + "]");
-                log.debug("timestamp = ["
-                        + new java.sql.Timestamp(shefData.getObservationTimeObj()
-                                .getTime()) + "]");
-                log.debug("Data Value = [" + dataValue + "]");
-                log.debug("Qualifier = [" + qualifier + "]");
-                log.debug("qualityCode = [" + qualityCode + "]");
-                log.debug("productId = [" + productId + "]");
-                log.debug("timestamp = ["
-                        + new java.sql.Timestamp(productTime.getTime()) + "]");
-                log.debug("timestamp = ["
-                        + new java.sql.Timestamp(postTime.getTime()) + "]");
+                log.debug("Stored data : " + record);
                 log.debug("doOverwrite = [" + doOverwrite + "]");
-                
                 log.debug("Calling executeQuery for " + functionName
                         + " doOverwrite = " + doOverwrite);
             }
@@ -1239,12 +1230,13 @@ public class PostTables {
             log.error(
                     record.getTraceId()
                             + " - PostgresSQL error executing function "
-                            + functionName, e);
+                            + functionName);
             log.error("Error updating/committing PE insert for PE "
                     + shefData.getPhysicalElement());
-            log.error("Record Data: " + locId + ", " + dataValue + ", "
-                    + qualifier + ", " + qualityCode + ", " + productId + ", "
-                    + productTime.toString() + ", " + postTime.toString());
+            log.error("Record Data: " + record);
+            if (log.isDebugEnabled()) {
+                log.error(e);
+            }
         } finally {
             try {
                 cs.close();
@@ -1395,13 +1387,14 @@ public class PostTables {
         } catch (Exception e) {
             log.error("Error updating/committing PE insert for PE "
                     + shefData.getPhysicalElement());
-            log.error("Record Data: " + locId + ", " + dataValue + ", "
-                    + qualifier + ", " + qualityCode + ", " + productId + ", "
-                    + productTime.toString() + ", " + postTime.toString());
+            log.error("Record Data: " + record);
             log.error(
                     record.getTraceId()
                             + " - PostgresSQL error executing function "
-                            + functionName, e);
+                            + functionName);
+            if (log.isDebugEnabled()) {
+                log.error(e);
+            }
             stats.incrementErrorMessages();
         } finally {
             try {
@@ -1558,45 +1551,20 @@ public class PostTables {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("lid = [" + lid + "]");
-                log.debug("PE = [" + pe + "]");
-                log.debug("Duration = [" + shefDataValue.getDuration().getValue()
-                        + "]");
-                log.debug("TS = [" + ts + "]");
-                log.debug("Extremum = [" + shefDataValue.getExtremum().getCode()
-                        + "]");
-                log.debug("Probability = [" + probability + "]");
-                log.debug("valid timestamp = [" + timeStamp + "]");
-                log.debug("basis timestamp = [" + timeStamp2 + "]");
-                log.debug("Data Value = [" + shefDataValue.getStringValue() + "]");
-
                 if (updateFlag) {
-                    log.debug("Completed river status update for PE "
-                            + shefDataValue.getPhysicalElement());
+                    log.error(String.format("Completed updating into RiverStatus with [%s]", record));
                 } else {
-                    log.debug("Completed river status insert for PE "
-                            + shefDataValue.getPhysicalElement());
+                    log.error(String.format("Completed inserting into RiverStatus with [%s]", record));
                 }
             }
         } catch (Exception e) {
-            log.error("lid = [" + lid + "]");
-            log.error("PE = [" + pe + "]");
-            log.error("Duration = [" + shefDataValue.getDuration().getValue()
-                    + "]");
-            log.error("TS = [" + ts + "]");
-            log.error("Extremum = [" + shefDataValue.getExtremum().getCode()
-                    + "]");
-            log.error("Probability = [" + probability + "]");
-            log.error("valid timestamp = [" + timeStamp + "]");
-            log.error("basis timestamp = [" + timeStamp2 + "]");
-            log.error("Data Value = [" + shefDataValue.getValue() + "]");
-
             if (updateFlag) {
-                log.error(record.getTraceId()
-                        + " - PostgresSQL error updating into riverstatus", e);
+                log.error(String.format("Error updating into RiverStatus with [%s]", record));
             } else {
-                log.error(record.getTraceId()
-                        + " - PostgresSQL error inserting into riverstatus", e);
+                log.error(String.format("Error inserting into RiverStatus with [%s]", record));
+            }
+            if (log.isDebugEnabled()) {
+                log.error(e);
             }
         } finally {
             try {

@@ -61,6 +61,8 @@ public class SimpleServerConfig {
 
     public Map<String, String> d2dModels;
 
+    public Map<String, String> netCDFDirs;
+
     public Map<String, String> satDirs;
 
     public boolean allowTopoBelowZero;
