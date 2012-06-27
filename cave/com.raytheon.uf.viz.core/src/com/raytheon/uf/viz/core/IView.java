@@ -166,6 +166,6 @@ public interface IView {
     public abstract void scaleToClientArea(Rectangle clientArea,
             int[] dimensions);
 
-    public Object clone();
+    public IView clone();
 
 }
