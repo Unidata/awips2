@@ -41,7 +41,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2007                 njensen     Initial creation
- * 
+ * May 21, 2012 DR 14833        gzhang		Adding a getter for StyleRuleset
  * </pre>
  * 
  * @author njensen
@@ -149,5 +149,24 @@ public class StyleManager {
         return new double[] { vmin, vmax };
 
     }
-
+    
+    /**2012-05-21
+     * DR 14833: FFMP uses this getter to find the color
+     * map if a user modified ffmpImageryStlyeRules.xml 
+     * incorrectly.
+     *  
+     * @param st:	StyleType
+     * @return:		StyleRuleset related to the StyleType
+     */
+    public StyleRuleset getStyleRuleSet(StyleType st){
+    	
+    	synchronized(st){ 
+    		
+    		if( ! rules.containsKey(st)){ 
+    			loadRules(st);
+    		} 
+    	}
+    	
+    	return rules.get(st);
+    }
 }

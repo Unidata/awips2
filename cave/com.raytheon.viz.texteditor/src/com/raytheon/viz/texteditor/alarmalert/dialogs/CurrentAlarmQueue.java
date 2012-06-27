@@ -30,12 +30,9 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
@@ -89,7 +86,9 @@ import com.raytheon.viz.ui.dialogs.ModeListener;
  *                                      product when a number of alarm products
  *                                      with same afos pil but different issue
  *                                      times showed up in the product list of
- *                                      current alarm queue window. 
+ *                                      current alarm queue window.
+ * May 23, 2012 14952      rferrel     Now use refTime/createtime to display
+ *                                      selected product
  * </pre>
  * 
  * @author mnash
@@ -109,14 +108,23 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
     private Composite shellComp = null;
 
+    /**
+     * The alarm queue list.
+     */
     private List list = null;
+
+    /**
+     * A list of reference times maintained in the same order as the list
+     * entries.
+     */
+    private java.util.List<Date> listDates;
 
     private Button displayAll;
 
     private IQueryTransport queryTransport = null;
 
     private java.util.List<StdTextProduct> prodList = null;
-    
+
     private static CurrentAlarmQueue INSTANCE;
 
     private static Point closeLocation;
@@ -145,9 +153,11 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         return INSTANCE;
     }
 
-    // Opens the dialog without ever displaying it, and does all the
-    // initializaton necessary to get alarms/alerts up and running without the
-    // user ever having to do more than open the text workstation.
+    /**
+     * Opens the dialog without ever displaying it, and does all the
+     * initialization necessary to get alarms/alerts up and running without the
+     * user ever having to do more than open the text workstation.
+     */
     public void openInvisible() {
         Shell parent = getParent();
 
@@ -182,11 +192,14 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
 
         preOpened();
 
-        // shell.open();
-
         opened();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -195,12 +208,24 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
         AlarmAlertLists.getInstance().removeListener(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(final Shell shell) {
         setReturnValue(false);
@@ -266,46 +291,18 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         textComp.setLayout(gl);
         GridData textData = new GridData(SWT.FILL, SWT.FILL, true, true);
         textComp.setLayoutData(textData);
-        list = new List(textComp, SWT.BORDER | SWT.V_SCROLL);
+        listDates = new ArrayList<Date>();
+        list = new List(textComp, SWT.BORDER | SWT.V_SCROLL | SWT.SINGLE);
         list.setLayoutData(textData);
-        list.addKeyListener(new KeyListener() {
+        list.addSelectionListener(new SelectionListener() {
 
             @Override
-            public void keyPressed(KeyEvent e) {
-                // if (list.getSelectionIndex() >= list.getItemCount() - 1) {
-                // list.setSelection(0);
-                // } else {
-                // list.setSelection(list.getSelectionIndex() - 1);
-                // }
-                //
-                // if (list.getSelectionIndex() <= 0) {
-                // list.setSelection(list.getItemCount() - 1);
-                // } else {
-                // list.setSelection(list.getSelectionIndex() + 1);
-                // }
-                // System.out.println("List selc : " +
-                // list.getSelectionIndex());
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // TODO Auto-generated method stub
-
-            }
-
-        });
-        list.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseDoubleClick(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseDown(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseUp(MouseEvent e) {
+            public void widgetSelected(SelectionEvent e) {
                 displayList();
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
             }
         });
     }
@@ -358,59 +355,28 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         });
     }
 
+    /**
+     * Display the selected product the current alarm queue list.
+     */
     private void displayList() {
         String command = "";
-        String alarmHHMM = "";
+        Date refDate = null;
         if (list != null && list.getItemCount() > 0
                 && list.getSelectionCount() > 0 && list.getSelection() != null) {
             command = list.getSelection()[0].split(" ")[0];
-            
-            // Get issue time of current alarm product (DR_14624)
-            String headTime = list.getSelection()[0].split(" ")[5];
-            String[] hdrTimeFields = null;
-            if (headTime != null) {
-                hdrTimeFields = headTime.split(":");
-            }
-            if (hdrTimeFields.length >= 2) {
-                alarmHHMM = hdrTimeFields[0] + hdrTimeFields[1];
-            }
+            refDate = listDates.get(list.getSelectionIndex());
             AlarmAlertLists.getInstance().getCurrentAlarms()
                     .remove(list.getSelectionIndex());
+            listDates.remove(list.getSelectionIndex());
             list.remove(list.getSelectionIndex());
             if (list.getItemCount() == 0) {
-                AlarmAlertFunctions.getAlarmalertbell().getAlarmShell()
-                        .setVisible(false);
+                AlarmAlertFunctions.getAlarmalertbell().close();
             }
         }
 
         java.util.List<StdTextProduct> prods = null;
-        if (command != "") {
-            prods = produceTextProduct(command);
-        }
-        
-		// Check incoming alarm product matching selected product from
-		// current Alarm Queue Window (DR_14624)
-        if (prods != null) {
-        	if (prods.size() == 1) {
-                String inprod = null;
-        		inprod = prods.get(0).getProduct();
-        		String[] prodLines = inprod.split("\n");
-        		String[] hdrFields = prodLines[0].split(" ");
-        		String wmoId = hdrFields[0];
-        		String site = hdrFields[1];
-        		String hdrTime = hdrFields[2];
-        		String hhmm = hdrTime.substring(2);
-        		String bbb = "";
-        		String awipsId = "";
-        
-        		// Use awips command to retrieve correct alarm product if it does
-        		// not match (DR_14624)
-        		if (!alarmHHMM.equals(hhmm)) {
-        			String hdrDate = hdrTime.substring(0,2);
-        			hdrTime = hdrDate.concat(alarmHHMM);
-        			prods = getAwipsTextProduct(awipsId, wmoId, site, hdrTime, bbb);
-        		}
-            }
+        if (command != "" && refDate != null) {
+            prods = produceTextProduct(command, refDate.getTime());
         }
 
         if (alarmDisplayDlg == null) {
@@ -440,6 +406,9 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Display all the products in the alarm queue list and clear the list.
+     */
     private void displayAll() {
         String[] command = null;
         if (list != null) {
@@ -469,9 +438,9 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
                 }
             }
             AlarmAlertLists.getInstance().getCurrentAlarms().clear();
+            listDates.clear();
             list.removeAll();
-            AlarmAlertFunctions.getAlarmalertbell().getAlarmShell()
-                    .setVisible(false);
+            AlarmAlertFunctions.getAlarmalertbell().close();
         }
         if (alarmDisplayDlg == null) {
             java.util.List<StdTextProduct> prods = new ArrayList<StdTextProduct>();
@@ -511,12 +480,20 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         displayAll.setEnabled(false);
     }
 
+    /**
+     * Add a line to list that contains the afosPil and a date displayed as a
+     * local time string.
+     * 
+     * @param afosPil
+     * @param date
+     */
     public void addToQueue(String afosPil, Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         String s = formatter.format(date);
         String lineText = afosPil + " alert message received at " + s;
         if (!list.isDisposed()) {
             displayAll.setEnabled(true);
+            listDates.add(date);
             list.add(lineText);
             list.select(0);
         }
@@ -558,15 +535,31 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         return prodList;
     }
 
-    /*
-     * get text product using wmo command (DR_14624)
+    /**
+     * Get the product for the given AFOS command and reference time.
+     * 
+     * @param command
+     * @param refTime
+     * @return prodList
      */
-    public java.util.List<StdTextProduct> getAwipsTextProduct(String awipsId, 
-    		String wmoId, String site, String hdrTime, String bbb) {
-        ICommand cmd = CommandFactory.getAwipsCommand(awipsId, wmoId, site, hdrTime, bbb);
+    private java.util.List<StdTextProduct> produceTextProduct(String command,
+            Long refTime) {
+        ICommand cmd = CommandFactory.getAfosCommand(command, refTime);
         executeCommand(cmd);
         return prodList;
     }
+
+    /*
+     * get text product using wmo command (DR_14624)
+     */
+    public java.util.List<StdTextProduct> getAwipsTextProduct(String awipsId,
+            String wmoId, String site, String hdrTime, String bbb) {
+        ICommand cmd = CommandFactory.getAwipsCommand(awipsId, wmoId, site,
+                hdrTime, bbb);
+        executeCommand(cmd);
+        return prodList;
+    }
+
     /*
      * (non-Javadoc)
      * 
