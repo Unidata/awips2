@@ -73,6 +73,10 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 28, 2011            mschenke     Initial creation
+ * May 16, 2012   #636     dgilling     Ensure exception is thrown
+ *                                      and CAVE immediately exits
+ *                                      if connection cannot be made to
+ *                                      localization server.
  * 
  * </pre>
  * 
@@ -134,7 +138,18 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             display = new Display();
         }
 
-        initializeLocalization(nonui);
+        try {
+            initializeLocalization(nonui);
+        } catch (Exception e) {
+            e.printStackTrace();
+            statusHandler.handle(
+                    Priority.CRITICAL,
+                    "Could not connect to localization server: "
+                            + e.getLocalizedMessage(), e);
+            // we return EXIT_OK here so eclipse doesn't try to pop up an error
+            // dialog which would break gfeClient-based cron jobs.
+            return IApplication.EXIT_OK;
+        }
         initializeSerialization();
         initializeDataStoreFactory();
         initializeObservers();
@@ -318,15 +333,9 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
                 new PyPiesDataStoreFactory(pypiesProps));
     }
 
-    protected void initializeLocalization(boolean nonui) {
-        try {
-            new LocalizationInitializer(!nonui,
-                    !LocalizationManager.internalAlertServer).run();
-        } catch (Exception e1) {
-            e1.printStackTrace();
-            statusHandler.handle(Priority.CRITICAL,
-                    "Error setting up localization", e1);
-        }
+    protected void initializeLocalization(boolean nonui) throws Exception {
+        new LocalizationInitializer(!nonui,
+                !LocalizationManager.internalAlertServer).run();
     }
 
     protected void initializeSerialization() {
