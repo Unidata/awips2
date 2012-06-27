@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="GOES-R Proving Ground">
+		<contribute xsi:type="placeholder" 
+					menuText=" GOESR Proving Ground " id="GOESR-PGLine"/>
+		<contribute xsi:type="subMenu" menuText="AIRS">
+		<contribute xsi:type="subMenu" menuText="TPW">
+		<contribute xsi:type="placeholder" 
+					menuText=" AIRS TPW " id="airsTPWLine"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="ConusCyl" id="conuscylSector">
+		        <substitute key="element" value="Imager Based Derived Precipitable Water (PW)"/>
+		        <substitute key="sector" value="ConusCyl"/>
+		        <substitute key="entity" value="GOESR-PG"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>	    
+	    </contribute>
+	    </contribute>
+	    <contribute xsi:type="subMenu" menuText="AVHRR">
+	    <contribute xsi:type="subMenu" menuText="VIS">
+	    <contribute xsi:type="placeholder" 
+					menuText=" AVHRR " id="avhrrLine"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="ConusOne" id="conusOneSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="conusOne"/>
+		        <substitute key="entity" value="GOESR-PG"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+	    </contribute>
+	    </contribute>
+	    <contribute xsi:type="subMenu" menuText="MODIS">
+		<contribute xsi:type="subMenu" menuText="VIS">
+		<contribute xsi:type="placeholder" 
+					menuText=" MODIS Visble " id="modisVISLine"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="EastConus" id="eastConusSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="eastConus"/>
+		        <substitute key="entity" value="GOESR-PG"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="WestConus" id="westConusSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="westConus"/>
+		        <substitute key="entity" value="GOESR-PG"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>	    
+	    </contribute>
+	    <contribute xsi:type="subMenu" menuText="TPW">
+		<contribute xsi:type="placeholder" 
+					menuText=" MODIS TPW " id="modisTPWLine"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="EastConus" id="eastConusSector">
+		        <substitute key="element" value="Imager Based Derived Precipitable Water (PW)"/>
+		        <substitute key="sector" value="eastConus"/>
+		        <substitute key="entity" value="GOESR-PG"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="WestConus" id="westConusSector">
+		        <substitute key="element" value="Imager Based Derived Precipitable Water (PW)"/>
+		        <substitute key="sector" value="westConus"/>
+		        <substitute key="entity" value="GOESR-PG"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
+		    </contribute>	    
+	    </contribute>
+	    </contribute>
+		<contribute xsi:type="subMenu" menuText="Blended2">
+		<contribute xsi:type="subMenu" menuText="MIMTPW">
+		<contribute xsi:type="placeholder" 
+					menuText=" MIMTPW " id="mimtpwLine"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="FourSat" id="fourSatSector">
+		        <substitute key="element" value="Imager Based Derived Precipitable Water (PW)"/>
+		        <substitute key="sector" value="westConus"/>
+		        <substitute key="entity" value="Blended2"/>
+		        <substitute key="colormap" value="Sat/Precip Water/Precip Water Default"/>
+		    </contribute>	    
+		</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="ABI">
+		<contribute xsi:type="subMenu" menuText="Water Vapor">
+	    <contribute xsi:type="placeholder" 
+					menuText=" ABI Water Vapor " id="abiWVLine"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	                	menuText="CONUSLAMB" id="CONUSLAMBSector">
+		        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+		        <substitute key="sector" value="CONUSLAMB"/>
+		        <substitute key="entity" value="GOESR-PG"/>
+		        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
+		    </contribute> 
+		</contribute>
+	    </contribute>		
+    </contribute>
+</menuTemplate>

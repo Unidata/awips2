@@ -21,5 +21,5 @@
 <largeGribPatterns xmlns:ns2="group">
 	<regex>^al*</regex>
 	<regex>^tpcprblty*</regex>
-	<regex>^LGXT*</regex>
+	<regex>^LGX[TP]*</regex>
 </largeGribPatterns>

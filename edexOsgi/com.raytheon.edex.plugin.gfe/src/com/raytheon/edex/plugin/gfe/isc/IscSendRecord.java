@@ -107,24 +107,13 @@ public class IscSendRecord implements IPersistableDataObject, Serializable,
     }
 
     public IscSendRecord(ParmID parmId, TimeRange sendTR, boolean sendNow) {
-        this.parmID = parmId;
-        this.timeRange = sendTR;
-        this.xmlDest = "";
-        IscSendState state = (sendNow ? IscSendState.QUEUED
-                : IscSendState.PENDING);
-        this.state = state;
-        this.insertTime = new Date();
+        this(parmId, sendTR, "", sendNow);
     }
 
     public IscSendRecord(ParmID parmId, TimeRange sendTR, String xmlDest,
             boolean sendNow) {
-        this.parmID = parmId;
-        this.timeRange = sendTR;
-        this.xmlDest = xmlDest;
-        IscSendState state = (sendNow ? IscSendState.QUEUED
-                : IscSendState.PENDING);
-        this.state = state;
-        this.insertTime = new Date();
+        this(parmId, sendTR, xmlDest, (sendNow ? IscSendState.QUEUED
+                : IscSendState.PENDING));
     }
 
     public IscSendRecord(ParmID parmId, TimeRange sendTR, String xmlDest,
