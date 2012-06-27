@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
@@ -56,22 +56,26 @@ public abstract class ButtonWidget extends Widget {
      * .swt.widgets.Composite, int)
      */
     @Override
-    public Composite buildComposite(Composite parent, int style) {
+    public Composite buildComposite(Composite parent) {
 
-        Group group = new Group(parent, style);
+        Group group = new Group(parent, SWT.NONE);
         group.setText(makeGuiLabel(getLabel()));
         GridData layoutData = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         group.setLayoutData(layoutData);
 
-        RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
-        rowLayout.pack = false;
-        group.setLayout(rowLayout);
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginHeight = 0;
+        layout.verticalSpacing = 0;
+        group.setLayout(layout);
 
         buttons = new ArrayList<Button>();
 
         if (getOptions() != null) {
             for (Object option : getOptions()) {
                 Button button = new Button(group, setStyle());
+                layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT, false,
+                        false);
+                button.setLayoutData(layoutData);
                 button.setData(option);
                 String text = option.toString() != null ? option.toString()
                         : "";

@@ -52,6 +52,7 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPCacheRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGap;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceInterpolation;
@@ -65,9 +66,17 @@ import com.raytheon.uf.common.dataplugin.ffmp.FFMPVirtualGageBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.HucLevelGeometriesFactory;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.config.FFFGDataMgr;
+import com.raytheon.uf.common.monitor.config.FFMPRunConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.xml.DomainXML;
+import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -108,6 +117,7 @@ import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfig;
+import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPAutoRefreshEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPCWAChangeEvent;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPFieldChangeEvent;
@@ -249,23 +259,23 @@ public class FFMPResource extends
 
     };
 
-    private FFMPRecord rateRecord = null;
+    private FFMPCacheRecord rateRecord = null;
 
     private boolean isNewRate = true;
 
-    private FFMPRecord qpeRecord = null;
+    private FFMPCacheRecord qpeRecord = null;
 
     private boolean isNewQpe = true;
 
-    private FFMPRecord guidRecord = null;
+    private FFMPCacheRecord guidRecord = null;
 
     private boolean isNewGuid = true;
 
-    private FFMPRecord qpfRecord = null;
+    private FFMPCacheRecord qpfRecord = null;
 
     private boolean isNewQpf = true;
 
-    private FFMPRecord virtualRecord = null;
+    private FFMPCacheRecord virtualRecord = null;
 
     private boolean isNewVirtual = true;
 
@@ -309,7 +319,7 @@ public class FFMPResource extends
 
     /** table slider time **/
     private Date tableTime = null;
-
+    
     // complete reset
     public boolean isQuery = true;
 
@@ -332,6 +342,9 @@ public class FFMPResource extends
 
     /** guidance source expiration **/
     public long guidSourceExpiration = 0l;
+    
+    /** QPF source expiration **/
+    public long qpfSourceExpiration = 0l;
 
     /** is this a rate load **/
     public Boolean isRate = null;
@@ -622,7 +635,7 @@ public class FFMPResource extends
                 }
                 case QPF: {
                     value = getQpfRecord(recentTime).getBasinData("ALL")
-                            .getMaxValue(pfafs, recentTime);
+                            .getAverageMaxValue(pfafs, recentTime, getQpfSourceExpiration());
                     break;
                 }
                 case GUIDANCE: {
@@ -673,7 +686,7 @@ public class FFMPResource extends
                     case RATE:// fall through
                     case QPF: {
                         value = getBasin(key, field, recentTime, aggregate)
-                                .getValue(recentTime);
+                                .getAverageValue(recentTime, getQpfSourceExpiration());
                         break;
                     }
                     case GUIDANCE: {
@@ -700,7 +713,7 @@ public class FFMPResource extends
                     switch (field) {
                     case QPF: {
                         value = getBasin(key, field, recentTime, aggregate)
-                                .getValue(recentTime);
+                                .getAverageValue(recentTime, getQpfSourceExpiration());
                         break;
                     }
                     case GUIDANCE: {
@@ -1262,18 +1275,6 @@ public class FFMPResource extends
                         }
                     }
 
-                    if (getResourceData().isSecondaryLoad) {
-                        // kick in tertiary loader
-                        if (!getResourceData().isTertiaryLoad) {
-                            if ((loader == null) || !loader.isAlive()) {
-                                Date backDate = new Date(getMostRecentTime()
-                                        .getTime() - (24 * 1000 * 3600));
-                                startLoader(getOldestTime(), backDate,
-                                        LOADER_TYPE.TERTIARY);
-                            }
-                        }
-                    }
-
                     // the product string
                     if (isFfmpDataToggle() && fieldDescString != null) {
                         paintProductString(aTarget, paintProps);
@@ -1568,13 +1569,13 @@ public class FFMPResource extends
                 buf.append("County:  " + metaBasin.getState() + ", "
                         + metaBasin.getCounty() + "\n");
                 String valst = null;
-                Float val = getBasinValue(pfaf, paintTime.getRefTime(),
+                Float val = getBasinValue(pfaf, getPaintTime().getRefTime(),
                         aggregate);
                 if (val.isNaN() || (val == FFMPUtils.MISSING)) {
                     valst = "NO DATA";
                 } else {
                     valst = df.format(getBasinValue(pfaf,
-                            paintTime.getRefTime(), aggregate));
+                    		getPaintTime().getRefTime(), aggregate));
                 }
 
                 if (!valst.equals("NO DATA")) {
@@ -2233,7 +2234,7 @@ public class FFMPResource extends
     public DataTime getPaintTime() {
         return paintTime;
     }
-
+  
     /**
      * Add a value to worst case hash
      * 
@@ -3026,7 +3027,7 @@ public class FFMPResource extends
         if (ffmpTime.getTime() != time || isSplit != ffmpTime.isSplit()) {
 
         	isSplit = ffmpTime.isSplit();
-            setTime(ffmpTime.getTime());
+        	setTime(ffmpTime.getTime());
             setTableTime();
             if (interpolationMap != null) {
                 interpolationMap.clear();
@@ -3916,7 +3917,7 @@ public class FFMPResource extends
     private void purge(Date pdate) {
 
         long time = pdate.getTime();
-        time = time - (3600 * 1000 * 24);
+        time = time - getPurgePeriod();
         Date ndate = new Date(time);
 
         ArrayList<Date> removes = new ArrayList<Date>();
@@ -3965,6 +3966,30 @@ public class FFMPResource extends
         }
         return qpeSourceExpiration;
     }
+    
+    /**
+     * source expiration value as a long
+     * 
+     * @return
+     */
+    public long getQpfSourceExpiration() {
+		if (qpfSourceExpiration == 0l) {
+			SourceXML source = null;
+			if (getProduct() != null) {
+				FfmpTableConfigData ffmpTableCfgData = FfmpTableConfig
+						.getInstance().getTableConfigData(getSiteKey());
+				String qpfType = ffmpTableCfgData.getQpfType();
+
+				source = getProduct().getQpfSourcesByType(qpfType).get(0);
+			} else {
+				source = FFMPSourceConfigurationManager.getInstance()
+						.getSource(getResourceData().sourceName);
+			}
+			qpfSourceExpiration = source.getExpirationMinutes(getSiteKey()) * 60 * 1000;
+		}
+        return qpfSourceExpiration;
+    }
+
 
     /**
      * Gets the guidance source expiration
@@ -4130,7 +4155,9 @@ public class FFMPResource extends
         ArrayList<String> hucsToLoad = new ArrayList<String>();
 
         if (isWorstCase) {
-            hucsToLoad.add("ALL");
+        	if (!hucsToLoad.contains("ALL")) {
+        		hucsToLoad.add("ALL");
+        	}
         }
 
         // tertiary loader only loads ALL
@@ -4162,6 +4189,63 @@ public class FFMPResource extends
                     + " Data update failed", e);
             loader.removeListener(this);
         }
+    }
+    
+    /**
+     * Get the purge file time
+     */
+    public long getPurgePeriod() {
+
+    	IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        LocalizationFile lfFile = pm.getLocalizationFile(lc,
+                "purge/ffmpPurgeRules.xml");
+        
+        if (lfFile.exists()) {
+       
+        	//TODO  Need to figure out why we can't read in the purgeRules!
+        	/*try {
+				PurgeRuleSet prs = (PurgeRuleSet) SerializationUtil
+				.jaxbUnmarshalFromXmlFile(lfFile.getFile().getAbsolutePath());
+				
+				for (PurgeRule rule: prs.getRules()) {
+					if (rule.getId().equals("ffmp")) {
+						return rule.getPeriodInMillis();
+					}
+				}
+				
+			} catch (SerializationException e) {
+				e.printStackTrace();
+				return 3600*24*1000;
+			} */
+        	
+        }
+        
+        return 3600*24*1000;
+    }
+    
+    /**
+     * Kicks off additional loaders that need to be fired off
+     * @param loader
+     * @param isDone
+     */
+    public void manageLoaders(FFMPLoaderStatus status) {
+    	
+    	if (status.getLoaderType() == LOADER_TYPE.SECONDARY) {
+    		if (status.isDone() && !this.getResourceData().isTertiaryLoad) {
+    			try {
+    				Date startDate = new Date(getMostRecentTime().getTime() - 12 * 3600 * 1000);
+                    FFMPMonitor.getInstance().startLoad(this, startDate,
+                            LOADER_TYPE.TERTIARY);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Secondary Data Load failure", e);
+                }
+    		}
+    	} 
+    	
+    	// We don't really care about status of tertiary and general loaders
     }
 
 }

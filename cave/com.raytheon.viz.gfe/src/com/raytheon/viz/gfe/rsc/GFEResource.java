@@ -63,7 +63,6 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.IGrid2D;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
 import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
@@ -124,7 +123,6 @@ import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
 import com.raytheon.viz.gfe.core.griddata.DiscreteGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.griddata.WeatherGridData;
-import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
 import com.raytheon.viz.gfe.core.internal.OffscreenSpatialDisplayManager;
 import com.raytheon.viz.gfe.core.msgs.IGridDataChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmIDChangedListener;
@@ -276,8 +274,6 @@ public class GFEResource extends
 
     };
 
-    private AbstractGFENotificationObserver<UserMessageNotification> notificationObserver;
-
     /**
      * Construct a resource that is capable of displaying a particular parm
      * 
@@ -319,26 +315,6 @@ public class GFEResource extends
         lastIscMode = dataManager.getParmManager().iscMode();
 
         updateRightClickMenu();
-
-        // TODO: this probably should be done in parmManager or maybe not at all
-        // there should be some kind of parm inv update when new ISC data comes
-        // in that should be listened for in if ISC mode is on
-        notificationObserver = new AbstractGFENotificationObserver<UserMessageNotification>(
-                UserMessageNotification.class) {
-            @Override
-            public void notify(UserMessageNotification notificationMessage) {
-                if (notificationMessage.getCategory().equals("ISC")) {
-                    for (Parm p : GFEResource.this.dataManager.getParmManager()
-                            .getSelectedParms()) {
-                        p.getListeners().fireGridChangedListener(p.getParmID(),
-                                p.getInventorySpan());
-                    }
-                    reset();
-                }
-            }
-        };
-
-        dataManager.getNotificationRouter().addObserver(notificationObserver);
 
         Message.registerInterest(this, ShowISCGridsMsg.class);
     }
@@ -399,8 +375,6 @@ public class GFEResource extends
             }
         }
 
-        dataManager.getNotificationRouter()
-                .removeObserver(notificationObserver);
         parm.getListeners().removeGridChangedListener(gridChanged);
         parm.getListeners().removeParmInventoryChangedListener(
                 parmInventoryChanged);
@@ -1583,6 +1557,21 @@ public class GFEResource extends
         gid = this.dataManager.getIscDataAccess().getISCGridID(gid, true);
         if (gid != null) {
             issueRefresh();
+        }
+
+        Parm iscParm = this.dataManager.getIscDataAccess()
+                .getISCParm(this.parm);
+        if (iscParm != null) {
+            if (message.show()) {
+                // iscParm.getListeners().addParmInventoryChangedListener(
+                // this.parmInventoryChanged);
+                iscParm.getListeners().addGridChangedListener(this.gridChanged);
+            } else {
+                // iscParm.getListeners().removeParmInventoryChangedListener(
+                // this.parmInventoryChanged);
+                iscParm.getListeners().removeGridChangedListener(
+                        this.gridChanged);
+            }
         }
     }
 

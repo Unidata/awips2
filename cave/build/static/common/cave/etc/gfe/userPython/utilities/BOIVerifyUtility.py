@@ -4367,13 +4367,13 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              recmatch=logical_and(recbase,recfit)
              recnumbers=compress(recmatch,self.fncRecs)
              recList=list(recnumbers)
-             recList.sort(lambda x,y: cmp(self.fncStime[x],self.fncStime[y]))
+             recList.sort(lambda x,y: cmp(self.fncStime[int(x)],self.fncStime[int(y)]))
           else:
              recmatch=logical_and(greater(self.oncEtime,stime),
                                  less(self.oncStime,etime))
              recnumbers=compress(recmatch,self.oncRecs)
              recList=list(recnumbers)
-             recList.sort(lambda x,y: cmp(self.oncStime[x],self.oncStime[y]))
+             recList.sort(lambda x,y: cmp(self.oncStime[int(x)],self.oncStime[int(y)]))
        self.logMsg("number of intersecting grids:%d"%len(recList),10)
        if len(recList)<1:
           return retVal
