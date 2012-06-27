@@ -56,9 +56,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class NonConvSigmetDataAdapter extends AbstractAdvisoryDataAdapter {
 
     private static final String INSPECT_FORMAT = "Valid UNTIL %02d%02d%02d\n%s";
-    
+
     private static final float LINE_WIDTH = 1.5f;
-    
+
     private static final LineStyle LINE_STYLE = LineStyle.SOLID;
 
     @XmlAttribute
@@ -144,6 +144,32 @@ public class NonConvSigmetDataAdapter extends AbstractAdvisoryDataAdapter {
     @Override
     public LineStyle getLineStyle() {
         return LINE_STYLE;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((hazardType == null) ? 0 : hazardType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NonConvSigmetDataAdapter other = (NonConvSigmetDataAdapter) obj;
+        if (hazardType == null) {
+            if (other.hazardType != null)
+                return false;
+        } else if (!hazardType.equals(other.hazardType))
+            return false;
+        return true;
     }
 
 }
