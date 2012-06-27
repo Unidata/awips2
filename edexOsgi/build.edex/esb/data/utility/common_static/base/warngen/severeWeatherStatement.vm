@@ -57,9 +57,20 @@ NATIONAL WEATHER SERVICE ${officeShort}
 #backupText(${backupSite})
 ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
+#if(${action}=="COR" && ${cancelareas})
+#set($CORCAN = "true")
+#else
+#set($CORCAN = "false")
+#end
 #if(${action}=="CANCON")
 ${ugclinecan}
 /${productClass}.CAN.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
+#foreach (${area} in ${cancelareas})
+${area.name} ${area.stateabbr}-##
+#end
+#elseif(${CORCAN}=="true")
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
 #foreach (${area} in ${cancelareas})
 ${area.name} ${area.stateabbr}-##
 #end
@@ -94,7 +105,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #elseif(${action}=="EXP")
   #set($expcanHLTag = "WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}")
   #set($expcanBODYTag = "WILL BE ALLOWED TO EXPIRE")
-#elseif(${action}=="CAN" || ${action}=="CANCON")
+#elseif(${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
   #set($expcanHLTag = "IS CANCELLED")
   #set($expcanBODYTag = "HAS BEEN CANCELLED")
 #end
@@ -107,7 +118,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #headlineLocList(${areas} true true true false)
  ${expcanHLTag}...
 ## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
-#elseif(${action}=="CANCON")
+#elseif(${action}=="CANCON" || ${CORCAN}=="true")
 ...THE ${eventType} WARNING FOR ##
 #headlineLocList(${cancelareas} true true true false)
  ${expcanHLTag}...
@@ -119,7 +130,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #########################################
 ## NOW LETS FORGE OUR CAN/EXP STATEMENTS#
 #########################################
-#if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON")
+#if(${action}=="EXP" || ${action}=="CAN" || ${action}=="CANCON" || ${CORCAN}=="true")
 #### SET A DEFAULT STATEMENT IN CASE NO BULLET WAS SELECTED OR AVAILABLE
 #if(${stormType} == "line")
   #set($expcanPhrase = "THE LINE OF STORMS WHICH PROMPTED THE WARNING HAVE !** WEAKENED/MOVED OUT OF THE WARNED AREA **!. THEREFORE THE WARNING ${expcanBODYTag}.")
@@ -304,8 +315,23 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
+#elseif(${CORCAN}=="true")
+
+
+${ugcline}
+/${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz})}/
+#foreach (${area} in ${areas}) 
+${area.name} ${area.stateabbr}-##
 #end
-#if(${action}=="CANCON" || ${action}=="CON")
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#end
+#if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
 ...A ${eventType} WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
 #headlineLocList(${areas} true true true false)
 ...##
