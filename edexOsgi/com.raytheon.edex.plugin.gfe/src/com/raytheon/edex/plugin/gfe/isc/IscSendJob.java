@@ -43,7 +43,7 @@ import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
-import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridHistoryUpdateNotification;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -224,7 +224,7 @@ public class IscSendJob implements Runnable {
                     }
                 }
 
-                List<GridUpdateNotification> notifications = new ArrayList<GridUpdateNotification>();
+                List<GridHistoryUpdateNotification> notifications = new ArrayList<GridHistoryUpdateNotification>();
                 List<GFERecord> records = dao.getRecords(id, overlapTimes);
                 for (GFERecord record : records) {
                     List<GridDataHistory> history = record.getGridHistory();
@@ -235,8 +235,8 @@ public class IscSendJob implements Runnable {
                     }
                     historyMap.put(record.getTimeRange(), history);
                     dao.saveOrUpdate(record);
-                    notifications.add(new GridUpdateNotification(id, record
-                            .getTimeRange(), historyMap, wsId, siteId));
+                    notifications.add(new GridHistoryUpdateNotification(id,
+                            historyMap, wsId, siteId));
                 }
 
                 SendNotifications.send(notifications);

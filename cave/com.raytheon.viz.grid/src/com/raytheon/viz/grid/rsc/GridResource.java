@@ -95,6 +95,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.uf.viz.core.style.DataMappingPreferences;
@@ -114,6 +115,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.grid.GridLevelTranslator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
+import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
@@ -619,6 +621,11 @@ public class GridResource extends
             parameter = record.getModelInfo().getParameterName();
             parameterAbbrev = record.getModelInfo().getParameterAbbreviation();
             units = record.getModelInfo().getParameterUnit();
+
+            this.getCapability(DisplayTypeCapability.class)
+                    .setAlternativeDisplayTypes(
+                            FieldDisplayTypesFactory.getInstance()
+                                    .getDisplayTypes(parameterAbbrev));
 
             levelUnits = record.getModelInfo().getLevelUnit();
 
