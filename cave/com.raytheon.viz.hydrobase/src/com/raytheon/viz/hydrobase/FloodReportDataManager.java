@@ -38,6 +38,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 2, 2009  2259       mpduff      Initial creation
+ * May 14, 2012 14965      wkwock      Fix crash in query for data
  * 
  * </pre>
  * 
@@ -198,8 +199,7 @@ public class FloodReportDataManager extends HydroDataManager {
 
         ArrayList<Object[]> rs = runQuery("select fs from riverstat where lid = '"
                 + lid + "'");
-
-        if ((rs != null) && (rs.size() > 0)) {
+        if ((rs != null) && (rs.size() > 0) && rs.get(0)[0]!=null) {
             fs = (Double) rs.get(0)[0];
         }
 
