@@ -9,10 +9,8 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.GroupMarker;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -162,6 +160,8 @@ public class VizEditorSystemMenu implements ISystemMenu {
 
     private ActionFactory.IWorkbenchAction openAgain;
 
+    private Menu lastShown;
+
     /**
      * Create the standard view menu
      * 
@@ -231,10 +231,6 @@ public class VizEditorSystemMenu implements ISystemMenu {
                     }
                 }
             }
-            // loop through and add all the actions
-            for (Action act : userContributionActions) {
-                menuManager.add(act);
-            }
         }
     }
 
@@ -251,6 +247,10 @@ public class VizEditorSystemMenu implements ISystemMenu {
      */
     public void show(Control parent, Point displayCoordinates,
             IPresentablePart currentSelection) {
+        if (lastShown != null) {
+            lastShown.dispose();
+        }
+
         closeOthers.setTarget(currentSelection);
         closeAll.update();
         restore.update();
@@ -260,38 +260,21 @@ public class VizEditorSystemMenu implements ISystemMenu {
         maximize.update();
         close.setTarget(currentSelection);
 
-        // loop through all the contributed actions and update them as necessary
-        List<ContributedEditorMenuAction> shouldBeShown = new ArrayList<ContributedEditorMenuAction>();
-        List<ContributedEditorMenuAction> shouldBeHidden = new ArrayList<ContributedEditorMenuAction>();
+        MenuManager toShow = new MenuManager(menuManager.getMenuText(),
+                menuManager.getId());
+        for (IContributionItem item : menuManager.getItems()) {
+            toShow.add(item);
+        }
 
         for (ContributedEditorMenuAction action : userContributionActions) {
-            action.setPart(currentSelection);
             if (action.shouldBeVisible()) {
-                shouldBeShown.add(action);
-            } else {
-                shouldBeHidden.add(action);
+                action.setPart(currentSelection);
+                toShow.add(new ActionContributionItem(action));
             }
         }
 
-        for (IContributionItem item : menuManager.getItems()) {
-            if (item instanceof ActionContributionItem) {
-                IAction action = ((ActionContributionItem) item).getAction();
-                if (shouldBeShown.contains(action)) {
-                    shouldBeShown.remove(action);
-                } else if (shouldBeHidden.contains(action)) {
-                    menuManager.remove(item);
-                }
-            }
-        }
-
-        if (shouldBeShown.size() > 0) {
-            for (ContributedEditorMenuAction action : shouldBeShown) {
-                menuManager.add(action);
-            }
-        }
-
-        Menu aMenu = menuManager.createContextMenu(parent);
-        menuManager.update(true);
+        Menu aMenu = lastShown = toShow.createContextMenu(parent);
+        toShow.update(true);
         aMenu.setLocation(displayCoordinates.x, displayCoordinates.y);
         aMenu.setVisible(true);
     }
