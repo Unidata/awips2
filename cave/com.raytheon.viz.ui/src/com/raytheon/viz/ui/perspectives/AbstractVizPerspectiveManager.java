@@ -490,7 +490,7 @@ public abstract class AbstractVizPerspectiveManager implements
 
     protected void deactivateContexts(ContextManager manager) {
         manager.deactivateContexts(this);
-        if (page != null) {
+        if (page != null && page.getActivePart() != null) {
             manager.deactivateContexts(page.getActivePart());
         }
     }
