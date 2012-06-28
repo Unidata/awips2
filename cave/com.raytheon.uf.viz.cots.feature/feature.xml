@@ -343,14 +343,7 @@
          id="org.apache.commons.cli"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.jivesoftware.smack"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>   
 
    <plugin
          id="org.apache.log4j"
