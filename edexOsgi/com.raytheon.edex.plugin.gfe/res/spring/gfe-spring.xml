@@ -122,7 +122,8 @@
 		<route id="gfeVtecChangeNotification">
 			<from uri="jms-generic:topic:edex.alerts.vtec"/>
 			<doTry>
-				<bean ref="vtecChangeListener" method="handleNotification"/>
+			    <bean ref="serializationUtil" method="transformFromThrift" />
+				<bean ref="vtecChangeListener" method="handleNotification" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to uri="log:vtecChangeListener?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
