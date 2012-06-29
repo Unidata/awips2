@@ -84,7 +84,7 @@ class StdWarningDecoder():
         #base time for decoder
         self._time = time.time() + self._timeOffset   #present time
         allowArchive = os.getenv("ALLOW_ARCHIVE_DATA")
-        if (allowArchive == "true" and re.match(".*\\.\\d{8}$", self._incomingFilename)  ):
+        if allowArchive.lower() == "true" and re.match(".*\\.\\d{8}$", self._incomingFilename):
             m = re.search('(.*\\.)(\\d{8}$)', self._incomingFilename)
             yyyymmdd = m.group(2)
             timeTuple = time.strptime(yyyymmdd, "%Y%m%d")
