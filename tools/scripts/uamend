@@ -16,7 +16,7 @@ echo "EDITOR command = $EDITOR"
 git commit --amend
 
 # Push
-$dir/gpush
+$dir/upush
 
 # Show stats
-$dir/gstat
+$dir/ustat
