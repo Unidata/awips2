@@ -51,6 +51,11 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
@@ -79,6 +84,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/6/09       1990       bphillip    Initial creation
+ * 6/29/12      #828       dgilling    Force getPurgeRulesForPlugin()
+ *                                     to search only COMMON_STATIC.
  * </pre>
  * 
  * @author bphillip
@@ -1228,8 +1235,21 @@ public abstract class PluginDao extends CoreDao {
     }
 
     public static List<PurgeRule> getPurgeRulesForPlugin(String pluginName) {
-        File rulesFile = PathManagerFactory.getPathManager().getStaticFile(
-                "purge/" + pluginName + "PurgeRules.xml");
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        Map<LocalizationLevel, LocalizationFile> tieredFile = pathMgr
+                .getTieredLocalizationFile(LocalizationType.COMMON_STATIC,
+                        "purge/" + pluginName + "PurgeRules.xml");
+        LocalizationContext[] levelHierarchy = pathMgr
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
+        File rulesFile = null;
+        for (LocalizationContext ctx : levelHierarchy) {
+            LocalizationFile lFile = tieredFile.get(ctx.getLocalizationLevel());
+            if (lFile != null) {
+                rulesFile = lFile.getFile();
+                break;
+            }
+        }
+
         if (rulesFile != null) {
             try {
                 PurgeRuleSet purgeRules = (PurgeRuleSet) SerializationUtil
