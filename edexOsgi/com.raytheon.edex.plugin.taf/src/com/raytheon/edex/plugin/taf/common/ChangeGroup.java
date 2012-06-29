@@ -51,6 +51,7 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -69,26 +70,27 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * 
  * This class represents a forecast group found in a taf message.
  * 
  * <pre>
  * 
- *  SOFTWARE HISTORY
- *                 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 8/30/06					bphillip	Initial Creation
- * 6/21/07		180			bphillip	Updated for use with plugin persistance pattern
- * 20080603     1001        jkorman     Numerous changes to the the decode
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 30, 2006            bphillip     Initial Creation
+ * Jun 21, 2007  180       bphillip     Updated for use with plugin persistance pattern
+ * Jun 03. 2008  1001      jkorman      Numerous changes to the the decode
  *                                      method. 
- * 9/4/2008     1444        grichard    Move constants to TafConstants class. 
- * Oct 21, 2008       1515  jkorman     Added 30 Hour capability changes.
+ * Sep 04, 2008  1444      grichard     Move constants to TafConstants class.
+ * Oct 21, 2008  1515      jkorman      Added 30 Hour capability changes.
+ * Jun 28, 2012  #827      dgilling     Annotate id field for
+ *                                      serialization.
  * 
  * </pre>
  * 
  * @author bphillip
- * @version 1
+ * @version 1.0
  */
 @Entity
 @Table(name = "taf_change_groups")
@@ -105,10 +107,13 @@ public class ChangeGroup extends PersistableDataObject implements
     private TafRecord parentID;
 
     @Id
+    @GeneratedValue
+    @DynamicSerializeElement
     private int id;
 
     /** A String containing the change group */
     @Column
+    @DynamicSerializeElement
     private String changeGroup;
 
     /** The period for which the TAF is valid */
@@ -265,8 +270,7 @@ public class ChangeGroup extends PersistableDataObject implements
      *            The valid time period of the TAF
      */
     public ChangeGroup(String group, TafPeriod tafIssuePeriod) {
-        identifier = java.util.UUID.randomUUID().toString();
-        id = java.util.UUID.randomUUID().hashCode();
+        identifier = UUID.randomUUID().toString();
         changeGroup = group;
         tafValidPeriod = tafIssuePeriod;
 
@@ -292,7 +296,6 @@ public class ChangeGroup extends PersistableDataObject implements
     public ChangeGroup(String group, String fcstData, TafPeriod tafIssuePeriod,
             TafPeriod groupValidPeriod) {
         identifier = UUID.randomUUID().toString();
-        id = UUID.randomUUID().hashCode();
         changeGroup = fcstData;
         change_indicator = group;
         tafValidPeriod = tafIssuePeriod;
@@ -358,8 +361,8 @@ public class ChangeGroup extends PersistableDataObject implements
                 } else {
                     // All the rest are hour/hour
                     tafChangePeriod = TafPeriod.determineChangeGroupPeriodSSEE(
-                            t1, t2, tafValidPeriod, CG_BECMG
-                                    .equals(change_indicator));
+                            t1, t2, tafValidPeriod,
+                            CG_BECMG.equals(change_indicator));
                 }
             }
         }
@@ -958,5 +961,4 @@ public class ChangeGroup extends PersistableDataObject implements
     public void setId(int id) {
         this.id = id;
     }
-
 }
