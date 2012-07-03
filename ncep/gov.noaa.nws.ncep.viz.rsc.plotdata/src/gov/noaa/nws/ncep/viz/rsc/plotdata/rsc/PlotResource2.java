@@ -884,6 +884,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     	if( generator != null ) {
     		generator.shutdown();
     	}
+        initialized = false;
     }
     
 	protected AbstractFrameData createNewFrame( DataTime frameTime, int timeInt ) {
