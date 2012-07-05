@@ -22,6 +22,8 @@
 from gfeConfig import *
 import gfeConfig
 
+HideConfigFile = 1
+
 # Defines the T as the displayable weather element
 Png_parms = ['T_SFC:_Fcst -1', 'Td_SFC:_Fcst -1', 'Wind_SFC:_Fcst -1']
 Png_image = 'T'
