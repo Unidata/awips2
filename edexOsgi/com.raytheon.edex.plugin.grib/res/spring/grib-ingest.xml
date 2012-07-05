@@ -67,7 +67,6 @@
 					<bean ref="persist" method="persist" />
 					<bean ref="index" method="index" />
 					<bean ref="processUtil" method="log" />
-					<bean ref="persist" method="removeRawData" />
 					<multicast parallelProcessing="false">
 						<to uri="directvm:gribIngestAlert"/>
 						<to uri="directvm:gribNotification"/>
