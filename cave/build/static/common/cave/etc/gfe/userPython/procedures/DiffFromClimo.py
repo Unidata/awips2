@@ -42,8 +42,6 @@ import time
 import AbsTime
 import TimeRange
 
-from com.raytheon.uf.common.time import TimeRange as javaTR
-
 MODEL = "Fcst"
 LEVEL = "SFC"
 
@@ -148,17 +146,16 @@ class Procedure (SmartScript.SmartScript):
     # @return: time ranges at which WEName has data.
     # @rtype: Python list of Python TimeRange objects
     def _getWEInventory(self, dbName, WEName, timeRange=None):
-        # yesterday = time.time() - (2 * 24 * 3600) # two days ago
-        # later = time.time() + 10 * 24 * 3600  # 10 days from now
+        # set up a timeRange if it is None
         if timeRange is None:
-            timeRange = javaTR.allTimes()
+            timeRange = TimeRange.allTimes()
         parm = self.getParm(dbName, WEName, LEVEL)
         if parm is None:
             print "PFC: dbName =", dbName
             print "PFC: WEName =", WEName
             print "PFC: parm is None"
             return []
-        inv = parm.getGridInventory(timeRange)
+        inv = parm.getGridInventory(timeRange.toJavaObj())
         if inv is None: self.statusBarMsg("inv is None","S")
         elif len(inv)==0: print self.statusBarMsg("PFC: len(inv)==0","S")
         trList = []
