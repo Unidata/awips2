@@ -47,100 +47,98 @@ import com.raytheon.uf.edex.core.EdexException;
  */
 
 public class GribNotifyQueue {
-	protected static final transient IUFStatusHandler handler = UFStatus
-			.getHandler(GribNotifyQueue.class);
+    protected static final transient IUFStatusHandler handler = UFStatus
+            .getHandler(GribNotifyQueue.class);
 
-	private final Object syncObj = new Object();
+    private final Object syncObj = new Object();
 
-	private List<GribRecord> queuedRecord = new ArrayList<GribRecord>(35);
+    private List<GribNotifyMessage> queuedMsgs = new ArrayList<GribNotifyMessage>(
+            35);
 
-	private String destinationUri = null;
+    private String destinationUri = null;
 
-	private GribNotifySendThread sendThread = new GribNotifySendThread(
-			"gribNotifySend");
+    private GribNotifySendThread sendThread = new GribNotifySendThread(
+            "gribNotifySend");
 
-	public GribNotifyQueue() {
-		sendThread.start();
-	}
+    public GribNotifyQueue() {
+        sendThread.start();
+    }
 
-	public void addRecords(PluginDataObject[] gribs) {
-		if (gribs != null && gribs.length > 0) {
-			synchronized (syncObj) {
-				if (gribs.length > 0) {
-					for (PluginDataObject grib : gribs) {
-						queuedRecord.add((GribRecord) grib);
-					}
-				} else {
-					queuedRecord.add((GribRecord) gribs[0]);
-				}
+    public void addRecords(PluginDataObject[] gribs) {
+        if (gribs != null && gribs.length > 0) {
+            synchronized (syncObj) {
+                for (PluginDataObject grib : gribs) {
+                    queuedMsgs.add(new GribNotifyMessage((GribRecord) grib));
+                }
+                syncObj.notifyAll();
+            }
+        }
+    }
 
-				syncObj.notifyAll();
-			}
-		}
-	}
+    public String getDestinationUri() {
+        return destinationUri;
+    }
 
-	public String getDestinationUri() {
-		return destinationUri;
-	}
+    public void setDestinationUri(String destinationUri) {
+        this.destinationUri = destinationUri;
+    }
 
-	public void setDestinationUri(String destinationUri) {
-		this.destinationUri = destinationUri;
-	}
+    private class GribNotifySendThread extends Thread {
+        public GribNotifySendThread(String name) {
+            super(name);
+        }
 
-	private class GribNotifySendThread extends Thread {
-		public GribNotifySendThread(String name) {
-			super(name);
-		}
+        @Override
+        public void run() {
+            while (true) {
+                List<GribNotifyMessage> msgsToSend = null;
 
-		public void run() {
-			while (true) {
-				List<GribRecord> recordsToSend = null;
+                // small sleep to allow messages to accumulate
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
 
-				// small sleep to allow messages to accumulate
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
+                }
 
-				}
+                try {
+                    synchronized (syncObj) {
+                        while (queuedMsgs.size() == 0) {
+                            try {
+                                syncObj.wait();
+                            } catch (InterruptedException e) {
+                            }
+                        }
 
-				try {
-					synchronized (syncObj) {
-						while (queuedRecord.size() == 0) {
-							try {
-								syncObj.wait();
-							} catch (InterruptedException e) {
-							}
-						}
+                        msgsToSend = queuedMsgs;
+                        queuedMsgs = new ArrayList<GribNotifyMessage>(35);
+                    }
 
-						recordsToSend = queuedRecord;
-						queuedRecord = new ArrayList<GribRecord>(35);
-					}
+                    GribNotifyContainer msg = new GribNotifyContainer(
+                            msgsToSend);
 
-					GribNotifyContainer msg = GribNotifyTransform
-							.transformToMessages(recordsToSend);
-					try {
-						byte[] data = SerializationUtil.transformToThrift(msg);
-						EDEXUtil.getMessageProducer().sendAsyncUri(
-								destinationUri, data);
-					} catch (SerializationException e) {
-						handler.error(
-								"Failed to serialize grib notification message. Notification msg for "
-										+ recordsToSend.size()
-										+ " records won't be sent", e);
-					} catch (EdexException e) {
-						handler.error(
-								"Failed to send grib notification message. Notification msg for "
-										+ recordsToSend.size()
-										+ " records won't be sent", e);
-					}
-				} catch (Throwable e) {
-					handler.error(
-							"Error occurred in GribNotificationSend process. Notification msg for "
-									+ (recordsToSend == null ? 0
-											: recordsToSend.size())
-									+ " records won't be sent", e);
-				}
-			}
-		}
-	}
+                    try {
+                        byte[] data = SerializationUtil.transformToThrift(msg);
+                        EDEXUtil.getMessageProducer().sendAsyncUri(
+                                destinationUri, data);
+                    } catch (SerializationException e) {
+                        handler.error(
+                                "Failed to serialize grib notification message. Notification msg for "
+                                        + msgsToSend.size()
+                                        + " records won't be sent", e);
+                    } catch (EdexException e) {
+                        handler.error(
+                                "Failed to send grib notification message. Notification msg for "
+                                        + msgsToSend.size()
+                                        + " records won't be sent", e);
+                    }
+                } catch (Throwable e) {
+                    handler.error(
+                            "Error occurred in GribNotificationSend process. Notification msg for "
+                                    + (msgsToSend == null ? 0 : msgsToSend
+                                            .size()) + " records won't be sent",
+                            e);
+                }
+            }
+        }
+    }
 }
