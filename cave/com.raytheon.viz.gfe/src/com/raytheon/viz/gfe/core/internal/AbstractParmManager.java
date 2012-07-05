@@ -31,8 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.ListenerList;
 
@@ -201,9 +199,6 @@ public abstract class AbstractParmManager implements IParmManager {
 
     private static final int MILLIS_PER_HOUR = SECONDS_PER_HOUR
             * MILLIS_PER_SECOND;
-
-    private static final Pattern CLIMO_EXPR_PATTERN = Pattern
-            .compile("(\\w{2,3})_SFC_(\\w{3,4})_Climo_(\\w{4,5})");
 
     protected final DataManager dataManager;
 
@@ -1120,13 +1115,6 @@ public abstract class AbstractParmManager implements IParmManager {
             enableDisableTopoParm(true, false);
 
             return getParmInExpr(exprName, false, variableParm);
-        }
-
-        Matcher climoMatcher = CLIMO_EXPR_PATTERN.matcher(exprName);
-        if (climoMatcher.matches()) {
-            String shortVar = climoMatcher.group(1);
-            String source = climoMatcher.group(3);
-            enableDisableClimoParm(true, false, source, shortVar);
         }
 
         // Check the mutable database first
