@@ -42,7 +42,6 @@ VariableList = [("ProductID:", "", "alphaNumeric"),
 
 import TimeRange
 import AbsTime
-from com.raytheon.uf.common.time import TimeRange as javaTR
 
 import SmartScript
 
@@ -608,15 +607,6 @@ class Procedure (SmartScript.SmartScript):
 
         return textList
 
-    # Retrieves a text product from the text database
-    def getTextProductFromDB(self, productID):
-        from com.raytheon.viz.gfe.product import TextDBUtil
-        
-        opMode = self.gfeOperatingMode()=="OPERATIONAL"
-        fullText = TextDBUtil.retrieveProduct(productID, opMode)
-        textList =  fullText.splitlines(True)
-        return textList
-
     # Reads decodes depression information using the specified product.
     def decodeDepressionInfo(self, textProduct):
 
@@ -650,11 +640,11 @@ class Procedure (SmartScript.SmartScript):
         return fcstList
 
     def getWEInventory(self, modelName, WEName, level):
-        #yesterday = time.time() - (300 * 24 * 3600) # 300 days ago
-        #later = time.time() + 100 * 24 * 3600  # 100days from now
-        allTimes = javaTR.allTimes()
+        yesterday = self._gmtime() - (2 * 24 * 3600) # two days ago
+        later = self._gmtime() + 10 * 24 * 3600  # 10 days from now
+        allTimes = TimeRange.TimeRange(yesterday, later)
         parm = self.getParm(modelName, WEName, level);
-        inv = parm.getGridInventory(allTimes)
+        inv = parm.getGridInventory(allTimes.toJavaObj())
         trList = []
         for gd in inv:
             tr = TimeRange.TimeRange(gd.getGridTime())
