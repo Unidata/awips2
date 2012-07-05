@@ -2380,4 +2380,13 @@ class SmartScript(BaseTool.BaseTool):
         import JUtil
         return JUtil.javaStringListToPylist(self.__dataMgr.knownOfficeTypes())
 
+    # Retrieves a text product from the text database
+    def getTextProductFromDB(self, productID):
+        from com.raytheon.viz.gfe.product import TextDBUtil
+        
+        opMode = self.gfeOperatingMode()=="OPERATIONAL"
+        fullText = TextDBUtil.retrieveProduct(productID, opMode)
+        textList =  fullText.splitlines(True)
+        return textList
+
 
