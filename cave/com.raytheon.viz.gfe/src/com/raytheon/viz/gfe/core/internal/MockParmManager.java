@@ -782,12 +782,6 @@ public class MockParmManager extends AbstractParmManager {
 
     }
 
-    @Override
-    public void enableDisableClimoParm(boolean wanted, boolean forceVisible,
-            String source, String shortParmName) {
-
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -817,13 +811,6 @@ public class MockParmManager extends AbstractParmManager {
     @Override
     public void purgeDbCacheForSite(String site) {
         // Do nothing
-
-    }
-
-    @Override
-    public void enableDisableHlsTopoParm(boolean wanted,
-            boolean forceVisibility, String source, String shortParmName) {
-        // TODO Auto-generated method stub
 
     }
 
