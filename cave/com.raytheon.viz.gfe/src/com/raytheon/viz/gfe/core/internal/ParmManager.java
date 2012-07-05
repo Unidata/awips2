@@ -1054,43 +1054,6 @@ public class ParmManager extends AbstractParmManager {
                 .getSpatialDisplayManager().getActivatedParm());
     }
 
-    @Override
-    public void enableDisableClimoParm(boolean wanted, boolean forceVisibility,
-            String source, String shortParmName) {
-        // Guard: only climo grids we know about
-        if ("PRISM".equals(source) || "NCDC".equals(source)) {
-            if ("mnt".equals(shortParmName) || "mxt".equals(shortParmName)
-                    || "tp".equals(shortParmName)) {
-                //
-                Parm aClimoParm = null;
-                aClimoParm = getParm(dataManager.getClimoManager()
-                        .getCompositeParmID(source, shortParmName));
-                boolean exists = (aClimoParm != null);
-
-                if (wanted && !exists) {
-                    // Get all 12 grids for the element
-                    IGridSlice[] gridSlices = dataManager.getClimoManager()
-                            .getCompositeClimo(source, shortParmName);
-                    if (gridSlices != null) {
-                        GridParmInfo gpi = gridSlices[0].getGridInfo();
-                        aClimoParm = createVirtualParm(gpi.getParmID(), gpi,
-                                gridSlices, false, true);
-                        // If forceVisibility, force the display to IMAGE,
-                        // and force the visibility on
-                        if (forceVisibility) {
-                            this.dataManager.getSpatialDisplayManager()
-                                    .setDisplayMode(aClimoParm, VisMode.IMAGE);
-                            this.dataManager.getSpatialDisplayManager()
-                                    .makeVisible(aClimoParm, true, false);
-                        }
-                    }
-                } else if (!wanted && exists) {
-                    deleteParm(new Parm[] { aClimoParm });
-                }
-            }
-        }
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -1138,67 +1101,6 @@ public class ParmManager extends AbstractParmManager {
             } else {
                 statusHandler.handle(Priority.PROBLEM,
                         "Topography Not Available");
-            }
-        }
-
-        // not wanted
-        else {
-            deleteParm(new Parm[] { topoParm });
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#enableDisableTopoParm(boolean,
-     * boolean)
-     */
-    @Override
-    public void enableDisableHlsTopoParm(boolean wanted,
-            boolean forceVisibility, String shortParmName, String simpleModel) {
-        // find out if the hls topo parm already exists
-        boolean exists = false;
-        Parm topoParm = getParm(this.dataManager.getHlsTopoManager()
-                .getCompositeParmID(shortParmName, simpleModel));
-        if (topoParm != null) {
-            exists = true;
-        }
-
-        // nothing to do
-        if (wanted && exists || !wanted && !exists) {
-            return;
-        }
-
-        // if needed
-        if (wanted) {
-            // get the data from the topography manager
-            IGridSlice[] gridSlices = this.dataManager.getHlsTopoManager()
-                    .getCompositeTopo(shortParmName, simpleModel);
-
-            IGridSlice gridSlice = null;
-            if (gridSlices != null && gridSlices.length > 0) {
-                gridSlice = gridSlices[0];
-            }
-
-            // ensure validity
-            if (gridSlice != null && gridSlice.isValid() == null) {
-                // create the parm
-                topoParm = createVirtualParm(gridSlice.getGridInfo()
-                        .getParmID(), gridSlice.getGridInfo(),
-                        new IGridSlice[] { gridSlice }, false, true);
-
-                // If forceVisibility, force the visibility to on,
-                // and force the display to IMAGE
-                if (forceVisibility) {
-                    this.dataManager.getSpatialDisplayManager().setDisplayMode(
-                            topoParm, VisMode.IMAGE);
-                    this.dataManager.getSpatialDisplayManager().makeVisible(
-                            topoParm, true, false);
-                }
-            } else {
-                statusHandler.handle(Priority.PROBLEM,
-                        "HLS Topography Not Available");
             }
         }
 
