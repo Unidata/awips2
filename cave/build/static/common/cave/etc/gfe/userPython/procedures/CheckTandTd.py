@@ -43,7 +43,6 @@ VariableList = [("Check or Force:" , "Check Only", "radio",
 import SmartScript
 import TimeRange
 import AbsTime
-from com.raytheon.uf.common.time import TimeRange as javaTR
 from numpy import *
 
 MODEL = "Fcst"
@@ -63,11 +62,11 @@ class Procedure (SmartScript.SmartScript):
     # @return: time ranges at which WEName has data.
     # @rtype: Python list of Python TimeRange objects
     def getWEInventory(self, WEName):
-        # yesterday = time.time() - (2 * 24 * 3600) # two days ago
-        # later = time.time() + 10 * 24 * 3600  # 10 days from now
-        allTimes = javaTR.allTimes()
+        yesterday = self._gmtime() - (2 * 24 * 3600) # two days ago
+        later = self._gmtime() + 10 * 24 * 3600  # 10 days from now
+        allTimes = TimeRange.TimeRange(yesterday, later)
         parm = self.getParm(MODEL, WEName, LEVEL);
-        inv = parm.getGridInventory(allTimes)
+        inv = parm.getGridInventory(allTimes.toJavaObj())
         trList = []
         for gd in inv:
             tr = TimeRange.TimeRange(gd.getGridTime())
