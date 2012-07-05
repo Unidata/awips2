@@ -453,32 +453,6 @@ public interface IParmManager extends IParmInventoryChangedListener,
     public void deallocateUnusedGrids(int seconds);
 
     /**
-     * @param wanted
-     *            true to enable the parm, false to diable it
-     * @param forceVisibility
-     *            true to make the parm visible, false to leave it hidden
-     * @param source
-     *            The name of the provider
-     * @param shortParmName
-     *            "mxt", "mnt", or "tp"
-     */
-    public void enableDisableClimoParm(boolean wanted, boolean forceVisibility,
-            String source, String shortParmName);
-
-    /**
-     * @param wanted
-     *            true to enable the parm, false to diable it
-     * @param forceVisibility
-     *            true to make the parm visible, false to leave it hidden
-     * @param source
-     *            The name of the provider
-     * @param shortParmName
-     *            "mxt", "mnt", or "tp"
-     */
-    public void enableDisableHlsTopoParm(boolean wanted,
-            boolean forceVisibility, String shortParmName, String simpleModel);
-
-    /**
      * Command to enable or disable the topography parm.
      * 
      * Makes assumption that topography is a vparm.
