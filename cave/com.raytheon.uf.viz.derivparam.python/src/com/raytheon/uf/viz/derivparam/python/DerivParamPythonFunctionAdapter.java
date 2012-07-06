@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -30,9 +31,9 @@ import jep.JepException;
 
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -75,8 +76,6 @@ public class DerivParamPythonFunctionAdapter implements
 
     private static final String TEMPLATE_FILE = DerivedParameterGenerator.DERIV_PARAM_DIR
             + File.separator + PYTHON + File.separator + "functionTemplate.txt";
-
-    private File baseDir = null;
 
     private MasterDerivScript masterScript;
 
@@ -136,49 +135,45 @@ public class DerivParamPythonFunctionAdapter implements
     @Override
     public void init() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        if (baseDir == null) {
-            LocalizationContext context = pm.getContext(
-                    LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-            context.setContextName(Activator.getDefault().getBundle()
-                    .getSymbolicName());
-            baseDir = pm.getFile(context,
-                    DerivedParameterGenerator.FUNCTIONS_DIR);
-            if (baseDir == null) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Could not find base directory for "
-                                + DerivedParameterGenerator.FUNCTIONS_DIR);
+
+        File script = pm.getStaticFile(INTERFACE_SCRIPT);
+
+        // Get list of all files for search hierarch of CAVE_STATIC
+        LocalizationFile[] derivParamFiles = pm.listFiles(
+                pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
+                DerivedParameterGenerator.DERIV_PARAM_DIR, null, false, false);
+        List<String> functionDirs = new ArrayList<String>(
+                derivParamFiles.length);
+        functionDirs.add(script.getParent());
+
+        Arrays.sort(derivParamFiles);
+
+        for (LocalizationFile file : derivParamFiles) {
+            if (file.isDirectory()
+                    && DerivedParameterGenerator.FUNCTIONS
+                            .equals(LocalizationUtil.extractName(file.getName()))) {
+                // If it is a derived parameters functions directory, add to search list
+                functionDirs.add(file.getFile().getAbsolutePath());
             }
         }
 
-        File script = pm.getStaticFile(INTERFACE_SCRIPT);
-        File siteDir = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.SITE),
-                DerivedParameterGenerator.FUNCTIONS_DIR);
-        File userDir = pm.getFile(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.USER),
-                DerivedParameterGenerator.FUNCTIONS_DIR);
-
-        if (baseDir.exists() == false) {
-            baseDir.mkdirs();
-        }
-        if (siteDir.exists() == false) {
-            siteDir.mkdirs();
-        }
-        if (userDir.exists() == false) {
-            userDir.mkdirs();
-        }
-
-        String PATH = PyUtil.buildJepIncludePath(script.getParent(),
-                userDir.getAbsolutePath(), siteDir.getAbsolutePath(),
-                baseDir.getAbsolutePath());
+        // Create path from function dir list
+        String PATH = PyUtil.buildJepIncludePath(functionDirs
+                .toArray(new String[functionDirs.size()]));
 
         List<String> preEvals = new ArrayList<String>(2);
         preEvals.add("import DerivParamImporter");
         StringBuilder cmd = new StringBuilder(200);
         cmd.append("sys.meta_path.append(DerivParamImporter.DerivParamImporter(");
-        cmd.append("'").append(userDir.getPath()).append("', ");
-        cmd.append("'").append(siteDir.getPath()).append("', ");
-        cmd.append("'").append(siteDir.getPath()).append("'))");
+        // Pass in directories to search based on function directories
+        int size = functionDirs.size() - 1;
+        for (int i = size; i > 0; --i) {
+            if (i < size) {
+                cmd.append(", ");
+            }
+            cmd.append("'").append(functionDirs.get(i)).append("'");
+        }
+        cmd.append("))");
         preEvals.add(cmd.toString());
 
         try {
