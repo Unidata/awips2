@@ -38,9 +38,9 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
-import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.ISpatialQuery.SearchMode;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -430,8 +430,6 @@ public class PlotGriddedFreezeResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-
-        target.setUseBuiltinColorbar(false);
         if (buf == null || DailyQcUtils.grids_flag != 1
                 || displayMgr.isZflag() != true) {
             return;
