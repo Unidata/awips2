@@ -147,9 +147,10 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
                 try {
                     IImage raster = target.getExtension(
                             IColormappedImageExtension.class).initializeRaster(
-                            new SatDataRetriever(pdo, level, tileRect,
-                                    signed, tileData), cmp);
+                            new SatDataRetriever(pdo, level, tileRect, signed,
+                                    tileData), cmp);
                     if (raster != null) {
+                        raster.stage();
                         addImage(raster, level, i, j);
                     }
                 } catch (VizException e) {
