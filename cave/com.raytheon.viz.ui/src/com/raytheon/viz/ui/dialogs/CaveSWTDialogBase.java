@@ -27,6 +27,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
@@ -422,6 +424,23 @@ public abstract class CaveSWTDialogBase extends Dialog {
             shell.addListener(eventType, listener);
         } else {
             listenersToAdd.add(new ListenerPair(eventType, listener));
+        }
+    }
+
+    /**
+     * Recursively set the enabled flag on the control. Will set on children if
+     * control is a composite
+     * 
+     * @param control
+     * @param enable
+     */
+    public static void enable(Control control, boolean enable) {
+        control.setEnabled(enable);
+        if (control instanceof Composite) {
+            Control[] children = ((Composite) control).getChildren();
+            for (Control c : children) {
+                enable(c, enable);
+            }
         }
     }
 }
