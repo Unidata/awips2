@@ -39,18 +39,19 @@ import os, types, sys, imp, inspect
 
 class DerivParamImporter:
     
-    def __init__(self, userDir, siteDir, baseDir):
-        self.baseDir = baseDir
-        self.siteDir = siteDir
-        self.userDir = userDir
+    def __init__(self, *args):
+        # Initialize directories to search for files
+        self.searchDirs = args;
     
     def __buildPath(self, dir, name):
         return dir + os.sep + name + '.py'
     
-    def __isDerivParam(self, name):        
-        return os.path.exists(self.__buildPath(self.baseDir, name)) or \
-            os.path.exists(self.__buildPath(self.siteDir, name)) or \
-            os.path.exists(self.__buildPath(self.userDir, name))
+    def __isDerivParam(self, name):
+        # Check each directory to search instead of base/site/user specifically
+        for searchDir in self.searchDirs:
+            if os.path.exists(self.__buildPath(searchDir, name)):
+                return True
+        return False
     
     def find_module(self, fullname, path=None):
         if path is None:
@@ -62,9 +63,11 @@ class DerivParamImporter:
         if sys.modules.has_key(fullname):
             return sys.modules[fullname]
         combined = imp.new_module(fullname)
-        self.__addToModule(combined, fullname, self.baseDir, "base")
-        self.__addToModule(combined, fullname, self.siteDir, "site")
-        self.__addToModule(combined, fullname, self.userDir, "user")
+        i = 0
+        for searchDir in self.searchDirs:
+            # Add module for each search directory, giving unique name
+            self.__addToModule(combined, fullname, searchDir, "localization" + str(i))
+            i = i + 1
         sys.modules[fullname] = combined
         return combined
     
