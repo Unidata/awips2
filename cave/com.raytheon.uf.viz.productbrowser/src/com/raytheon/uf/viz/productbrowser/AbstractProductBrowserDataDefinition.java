@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.productbrowser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -90,6 +91,9 @@ public abstract class AbstractProductBrowserDataDefinition<T extends AbstractRes
      * Should implement this for building the history list as well as for
      * building the tree correctly
      * 
+     * NOTE : If overriden, it is the responsibility of the new data definition
+     * to sort the data
+     * 
      * @param param
      * @param parameters
      * @return
@@ -100,6 +104,7 @@ public abstract class AbstractProductBrowserDataDefinition<T extends AbstractRes
         for (int i = 0; i < parameters.length; i++) {
             temp.add(new ProductBrowserLabel(parameters[i], null));
         }
+        Collections.sort(temp);
         return temp;
     }
 

@@ -494,16 +494,11 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
             if (image == null || image.getStatus() != Status.LOADED
                     || tile.coverage.getMesh() == null) {
-
                 needDrawLower = true;
-
-                if (tile.coverage != null && tile.coverage.getMesh() == null) {
-                    tile.coverage.setMesh(target.getExtension(
-                            IMapMeshExtension.class)
-                            .constructMesh(tile.imageGeometry,
-                                    mapDescriptor.getGridGeometry()));
-                    rsc.issueRefresh();
-                }
+                tile.coverage.setMesh(target.getExtension(
+                        IMapMeshExtension.class).constructMesh(
+                        tile.imageGeometry, mapDescriptor.getGridGeometry()));
+                target.setNeedsRefresh(true);
             }
         }
 
@@ -637,9 +632,9 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             for (int level = 0; level < this.levels; level++) {
 
                 // Grab the center x, 3/4 y of the map
-                double mapYCenter = mapDescriptor.getGridGeometry()
-                        .getGridRange().getSpan(0) * 0.5;
                 double mapXCenter = mapDescriptor.getGridGeometry()
+                        .getGridRange().getSpan(0) * 0.5;
+                double mapYCenter = mapDescriptor.getGridGeometry()
                         .getGridRange().getSpan(1) * 0.75;
 
                 // Get the lat/lon points at center and center offset 1.
