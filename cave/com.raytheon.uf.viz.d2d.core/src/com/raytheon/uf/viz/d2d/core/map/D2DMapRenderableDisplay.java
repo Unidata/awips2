@@ -223,7 +223,6 @@ public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
         props.setScale(scale);
         PaintProperties myProps = new PaintProperties(paintProps);
         myProps.setPerspectiveProps(props);
-        target.setUseBuiltinColorbar(false);
 
         if (scaleOnNextPaint) {
             scaleToClientArea(paintProps.getCanvasBounds());
