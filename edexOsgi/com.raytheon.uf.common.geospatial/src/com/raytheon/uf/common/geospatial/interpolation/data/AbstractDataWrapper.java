@@ -100,8 +100,8 @@ public abstract class AbstractDataWrapper implements DataSource,
             }
         }
         double val = getDataValueInternal(x, y);
-        if (val < minValid || val > maxValid) {
-            // skip outside valid range
+        if (val == fillValue || val < minValid || val > maxValid) {
+            // skip outside valid range or fill value
             val = Double.NaN;
         }
         return val;

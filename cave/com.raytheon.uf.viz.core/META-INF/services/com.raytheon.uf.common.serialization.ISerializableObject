@@ -17,6 +17,7 @@ com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability
 com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability
 com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability
 com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability
+com.raytheon.uf.viz.core.rsc.capabilities.MultiChannelCapability
 com.raytheon.uf.viz.core.rsc.capabilities.PointCapability
 com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability
 com.raytheon.uf.viz.core.rsc.GenericResourceData

@@ -40,8 +40,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -123,11 +121,8 @@ public class ColormapComp {
                         try {
                             String shortName = ColorMapLoader
                                     .shortenName(cmapFile);
-                            IColorMap cxml = ColorMapLoader
-                                    .loadColorMap(shortName);
-                            ColorMap glColorMap = new ColorMap(ColorMapLoader
-                                    .shortenName(cmapFile), (ColorMap) cxml);
-                            params.setColorMap(glColorMap);
+                            params.setColorMap(ColorMapLoader
+                                    .loadColorMap(shortName));
                             cap.notifyResources();
 
                             for (IColormapCompChangeListener listener : listeners) {
