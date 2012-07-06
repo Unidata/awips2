@@ -26,6 +26,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchPartReference;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.viz.core.ContextManager;
@@ -97,7 +98,10 @@ public abstract class AbstractCAVEPerspectiveManager extends
     protected void deactivateContexts(ContextManager manager) {
         super.deactivateContexts(manager);
         if (contextActivator != null) {
-            contextActivator.partDeactivated(page.getActivePartReference());
+            IWorkbenchPartReference partRef = page.getActivePartReference();
+            if (partRef != null) {
+                contextActivator.partDeactivated(partRef);
+            }
         }
     }
 

@@ -93,6 +93,7 @@ public class CreateTileJob extends Job implements Runnable {
 
             if (image != null) {
                 tileSet.addImage(image, level, i, j);
+                image.stage();
             } else {
                 image = null;
             }
