@@ -53,5 +53,8 @@
          <graphicsExtension
                class="com.raytheon.viz.core.gl.internal.ext.GLDefaultImagingExtension">
          </graphicsExtension>
+         <graphicsExtension
+               class="com.raytheon.viz.core.gl.internal.ext.GLMultiChannelImageExtension">
+         </graphicsExtension>
       </extension>
 </plugin>
