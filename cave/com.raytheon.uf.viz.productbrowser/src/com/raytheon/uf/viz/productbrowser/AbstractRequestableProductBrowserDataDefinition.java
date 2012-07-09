@@ -136,7 +136,7 @@ public abstract class AbstractRequestableProductBrowserDataDefinition<T extends 
         if (temp != null) {
         if ((Boolean) getPreference(FORMAT_DATA).getValue()) {
             parameters = formatData(param, temp);
-        } else if {
+        } else {
             parameters = super.formatData(param, temp);
         }
         }
