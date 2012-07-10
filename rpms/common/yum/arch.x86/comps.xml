@@ -52,6 +52,7 @@
          <packagereq type="default">awips2-tools</packagereq>
          <packagereq type="default">awips2-data.hdf5-topo</packagereq>
          <packagereq type="default">awips2-data.hdf5-gfe.climo</packagereq>
+         <packagereq type="default">awips2-data.gfe</packagereq>
          <packagereq type="default">awips2-aviation-shared</packagereq>
 
          <packagereq type="default">awips2-python-cherrypy</packagereq>
@@ -213,6 +214,7 @@
          <packagereq type="default">awips2-python-pygtk</packagereq>
          <packagereq type="default">awips2-python-pycairo</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
+         <packagereq type="default">awips2-data.gfe</packagereq>
       </packagelist>
    </group>
 

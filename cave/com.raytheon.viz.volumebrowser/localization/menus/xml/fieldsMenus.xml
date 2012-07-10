@@ -600,83 +600,83 @@
 
 		<contribute xsi:type="toolbarSubMenu" menuText="Probabilistic Storm Surge">
 			<contribute xsi:type="menuItem" menuText="probability of &gt; 2-foot surge"
-				key="TPCSG_61E2"  indentText="false" />
+				key="TPCSG-61E2"  indentText="false" />
 			<contribute xsi:type="menuItem" menuText="&gt; 3-foot"
-				key="TPCSG_91E2"  indentText="true" />
+				key="TPCSG-91E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 4-foot"
-				key="TPCSG_122E2"  indentText="true" />
+				key="TPCSG-122E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 5-foot"
-				key="TPCSG_152E2"  indentText="true" />
+				key="TPCSG-152E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 6-foot"
-				key="TPCSG_183E2"  indentText="true" />
+				key="TPCSG-183E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 7-foot"
-				key="TPCSG_213E2"  indentText="true" />
+				key="TPCSG-213E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 8-foot"
-				key="TPCSG_244E2"  indentText="true" />
+				key="TPCSG-244E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 9-foot"
-				key="TPCSG_274E2"  indentText="true" />
+				key="TPCSG-274E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 10-foot"
-				key="TPCSG_305E2"  indentText="true" />
+				key="TPCSG-305E2"  indentText="true" />
 			<contribute xsi:type="menuItem"
 				menuText="height w/10% chance of being exceeded" key="TPCSG" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="Real Time Slosh MEOW" key="TPCSG_SLOSH" 
+				menuText="Real Time Slosh MEOW" key="TPCSG-SLOSH" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/20% chance of being exceeded" key="TPCSG_20" 
+				menuText="height w/20% chance of being exceeded" key="TPCSG-20" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/30% chance of being exceeded" key="TPCSG_30" 
+				menuText="height w/30% chance of being exceeded" key="TPCSG-30" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/40% chance of being exceeded" key="TPCSG_40" 
+				menuText="height w/40% chance of being exceeded" key="TPCSG-40" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/50% chance of being exceeded" key="TPCSG_50" 
+				menuText="height w/50% chance of being exceeded" key="TPCSG-50" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/60% chance of being exceeded" key="TPCSG_60" 
+				menuText="height w/60% chance of being exceeded" key="TPCSG-60" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/70% chance of being exceeded" key="TPCSG_70" 
+				menuText="height w/70% chance of being exceeded" key="TPCSG-70" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/80% chance of being exceeded" key="TPCSG_80" 
+				menuText="height w/80% chance of being exceeded" key="TPCSG-80" 
 				indentText="false" />
 			<contribute xsi:type="menuItem"
-				menuText="height w/90% chance of being exceeded" key="TPCSG_90" 
+				menuText="height w/90% chance of being exceeded" key="TPCSG-90" 
 				indentText="false" />
 			<contribute xsi:type="menuItem" menuText="&gt; 11-foot"
-				key="TPCSG_335E2"  indentText="true" />
+				key="TPCSG-335E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 12-foot"
-				key="TPCSG_366E2"  indentText="true" />
+				key="TPCSG-366E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 13-foot"
-				key="TPCSG_396E2"  indentText="true" />
+				key="TPCSG-396E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 14-foot"
-				key="TPCSG_427E2"  indentText="true" />
+				key="TPCSG-427E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 15-foot"
-				key="TPCSG_457E2"  indentText="true" />
+				key="TPCSG-457E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 16-foot"
-				key="TPCSG_488E2"  indentText="true" />
+				key="TPCSG-488E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 17-foot"
-				key="TPCSG_518E2"  indentText="true" />
+				key="TPCSG-518E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 18-foot"
-				key="TPCSG_549E2"  indentText="true" />
+				key="TPCSG-549E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 19-foot"
-				key="TPCSG_579E2"  indentText="true" />
+				key="TPCSG-579E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 20-foot"
-				key="TPCSG_610E2"  indentText="true" />
+				key="TPCSG-610E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 21-foot"
-				key="TPCSG_640E2"  indentText="true" />
+				key="TPCSG-640E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 22-foot"
-				key="TPCSG_671E2"  indentText="true" />
+				key="TPCSG-671E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 23-foot"
-				key="TPCSG_701E2"  indentText="true" />
+				key="TPCSG-701E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 24-foot"
-				key="TPCSG_732E2"  indentText="true" />
+				key="TPCSG-732E2"  indentText="true" />
 			<contribute xsi:type="menuItem" menuText="&gt; 25-foot"
-				key="TPCSG_762E2"  indentText="true" />
+				key="TPCSG-762E2"  indentText="true" />
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="NAM DNG 5km">

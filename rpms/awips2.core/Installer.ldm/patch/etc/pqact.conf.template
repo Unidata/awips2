@@ -266,8 +266,8 @@ ANY	^(LGXP[0-9][0-9]) KNHC (..)(..)(..)
 # AWIPS1:	GRID    ^LDIZ11.*KWNS                   /Grid/SBN/rawGrib2
 # LDIZ11 KWNS 180039 !grib2/ncep/0/#202/FHRS//LVL
 
-ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ40) (KWNS) (..)(..)(..)[^ ]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
-	FILE	-overwrite -log -close -edex	/data_store/\6/GRID\7/SPC/\3/\4/\1_\2_\3\4\5_(seq).\6.%Y%m%d
+ANY	^(LDIZ1[1-9]|LDIZ2[7-9]|LDIZ3[0789]|LDIZ4[0-1]) (KWNS) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/[^/]*/#([^/]*)/([^/]*)
+	FILE	-overwrite -log -close -edex	/data_store/\6/GRID197/SPC/\3/\4/\1_\2_\3\4\5_(seq).\6.%Y%m%d
 
 # AWIPS1:	GRID    ^ZETA98.(KTUA|PACR|KSTR|KRSA|KORN|KRHA|KKRF|KMSR|KTAR|KPTR|KTIR|KALR|KFWR) /Grid/SBN/HydroRaw
 # ZETA98 KTAR 012300 /mNWS_160 !grib/nws/NWS_160/#255/201102012200/F001/APCP/sfc/
@@ -316,6 +316,9 @@ HDS	^(SF(US|PA)41) ([A-Z]{4}) (..)(..)(..)
 #		TEXT    ^T[BCHPRTWXY].*			/text/NO_STORE
 # *** COME BACK TO THIS ***
 IDS|DDPLUS	^([ABCFMNRSUVW][A-Z]{3}[0-9]{2}) ([KPTMC].{3}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+
+IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
 
 

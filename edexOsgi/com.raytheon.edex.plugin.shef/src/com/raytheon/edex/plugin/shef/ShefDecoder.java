@@ -104,7 +104,10 @@ public class ShefDecoder {
             separator = ShefSeparator.separate(data, headers);
             
         } catch(Exception e) {
-            logger.error("Could not separate ",e);
+            logger.error("Could not separate " + traceId);
+            if(logger.isDebugEnabled()) {
+                logger.error(e);
+            }
             separator = null;
         }
         if (separator != null) {
@@ -149,6 +152,11 @@ public class ShefDecoder {
             separator = ShefSeparator.separate(data, headers);
             
         } catch(Exception e) {
+            if(logger.isDebugEnabled()) {
+                logger.error("Could not separate " + traceId, e);
+            } else {
+                logger.error("Could not separate " + traceId);
+            }
             logger.error("Could not separate ",e);
             separator = null;
         }
@@ -157,23 +165,31 @@ public class ShefDecoder {
             long startTime = System.currentTimeMillis();
             Date postDate = getPostTime(startTime);
 
-            PostShef postShef = new PostShef(postDate);
-
-//            if(separator.hasNext()) {
-//                PurgeText pText = new PurgeText(postDate);
-//                pText.storeTextProduct(separator);
-//            }
-            
-            if(postShef != null) {
-                doDecode(separator, traceId, postShef);
+            PostShef postShef = null;
+            try {
+                postShef = new PostShef(postDate);
+            } catch (Exception e) {
+                if(logger.isDebugEnabled()) {
+                    logger.error("Could not create PostShef", e);
+                } else {
+                    logger.error("Could not create PostShef" + e.toString());
+                }
             }
-            logger.info(traceId + "- Decode complete in "
-                    + (System.currentTimeMillis() - startTime)
-                    + " milliSeconds");
+            if(postShef != null) {
+                try {
+                    doDecode(separator, traceId, postShef);
+                    logger.info(traceId + "- Decode complete in "
+                            + (System.currentTimeMillis() - startTime)
+                            + " milliSeconds");
+                } catch (Exception e) {
+                    if(logger.isDebugEnabled()) {
+                        logger.error("ShefDecoder.decode failed", e);
+                    } else {
+                        logger.error("ShefDecoder.decode failed " + e.toString());
+                    }
+                } 
+            }
         }
-        
-        
-        
         return records;
     }
     

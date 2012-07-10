@@ -26,6 +26,7 @@ import org.eclipse.core.commands.ExecutionException;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
@@ -77,6 +78,8 @@ public class ClearMPEData extends AbstractHandler {
             displayMgr.clearMPEData();
             displayMgr.setDisplayedResource(null);
         }
+        
+        TransmitRFCBiasProvider.setEnabled(false);
         return null;
     }
 
