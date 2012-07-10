@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Velocity Plug-in
 Bundle-SymbolicName: org.apache.velocity
-Bundle-Version: 1.5.0
+Bundle-Version: 1.7.0
 Eclipse-BuddyPolicy: ext, registered
-Bundle-ClassPath: velocity-tools-generic-1.3.jar,
- velocity-1.5.jar,
- oro-2.0.7.jar
+Bundle-ClassPath: velocity-tools-generic-2.0.jar,
+ velocity-1.7.jar,
+ oro-2.0.8.jar
 Export-Package: org.apache.velocity,
  org.apache.velocity.anakia,
  org.apache.velocity.app,
@@ -30,6 +30,8 @@ Export-Package: org.apache.velocity,
  org.apache.velocity.texen,
  org.apache.velocity.texen.ant,
  org.apache.velocity.texen.util,
+ org.apache.velocity.tools,
+ org.apache.velocity.tools.config,
  org.apache.velocity.tools.generic,
  org.apache.velocity.tools.generic.log,
  org.apache.velocity.util,
@@ -38,6 +40,6 @@ Require-Bundle: org.apache.commons.beanutils,
  org.apache.commons.collections,
  org.apache.commons.lang
 Bundle-Vendor: Raytheon-bundled OSS
-Edex-Deploy: velocity-1.5.jar, 
- velocity-tools-generic-1.3.jar
+Edex-Deploy: velocity-1.7.jar, 
+ velocity-tools-generic-2.0.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

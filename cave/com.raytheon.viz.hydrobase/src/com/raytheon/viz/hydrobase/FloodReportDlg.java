@@ -75,6 +75,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 3, 2010  4952        lbousaidi   
  * Jan 13, 2011 5415		lbousaidi	added a dialog when 
  * 							"Compute Latest data" button runs
+ * May 14, 2012 14965       wkwock      fix crash in query for data
  * 
  * </pre>
  * 
@@ -984,21 +985,21 @@ public class FloodReportDlg extends CaveSWTDialog {
                 }
 
                 /* now output the info for the event */
-                String stream = dman.getRiver(lid);
-                String basin = dman.getRiverBasin(lid);
+                String stream = dman.getRiver(data.getLid());
+                String basin = dman.getRiverBasin(data.getLid());
 
-                if (!basin.equals(prevBasin)) {
+                if (basin!=null && prevBasin!=null && !basin.equals(prevBasin)) {
                     buffer.append("\n\nBASIN:  " + basin + "\n");
                 }
 
-                if (!stream.equals(prevStream)) {
+                if (stream!=null && prevStream!=null && !stream.equals(prevStream)) {
                     buffer.append("\n  RIVER:  " + stream + "\n");
                 }
 
                 if (!data.getLid().equals(prevLid)) {
                     buffer
                             .append("\n    " + data.getLongName() + ", "
-                                    + dman.getState(lid) + " (" + data.getLid()
+                                    + dman.getState(data.getLid()) + " (" + data.getLid()
                                     + ")\n");
                 }
 
