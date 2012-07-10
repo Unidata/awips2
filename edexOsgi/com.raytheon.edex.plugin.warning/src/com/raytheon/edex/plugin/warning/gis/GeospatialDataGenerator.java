@@ -261,7 +261,7 @@ public class GeospatialDataGenerator {
 
                 // add time zone data
                 try {
-                    queryTimeZones(metaData, hull, areas);
+                    dataSet.setTimezones(queryTimeZones(metaData, hull, areas));
                 } catch (Exception e) {
                     throw new SpatialException(
                             "Unable to generate area geometries.  Error occurred looking up time zones.",
@@ -447,8 +447,9 @@ public class GeospatialDataGenerator {
      * @param hull
      * @param geoData
      */
-    private static void queryTimeZones(GeospatialMetadata metaData,
+    private static GeospatialData[] queryTimeZones(GeospatialMetadata metaData,
             Geometry hull, GeospatialData[] geoData) throws SpatialException {
+        GeospatialData[] rval = null;    
         String timezonePathcastTable = metaData.getTimeZoneSource();
         String timezonePathcastField = metaData.getTimeZoneField();
 
@@ -458,7 +459,16 @@ public class GeospatialDataGenerator {
                     .query(timezonePathcastTable,
                             new String[] { timezonePathcastField }, hull, null,
                             false, SearchMode.INTERSECTS);
-
+            
+            rval = new GeospatialData[timeZoneResults.length];
+            for (int i = 0; i < timeZoneResults.length; i++) {
+                SpatialQueryResult result = timeZoneResults[i];
+                GeospatialData data = new GeospatialData();
+                data.geometry = result.geometry;
+                data.attributes = result.attributes;
+                rval[i] = data;
+            }
+            
             // set time zone and area field
             if (timeZoneResults.length == 1) {
                 SpatialQueryResult tz = timeZoneResults[0];
@@ -483,6 +493,7 @@ public class GeospatialDataGenerator {
                 }
             }
         }
+        return rval;
     }
 
     /**
