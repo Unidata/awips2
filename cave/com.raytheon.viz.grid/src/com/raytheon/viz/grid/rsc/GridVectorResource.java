@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.viz.core.style.StyleManager;
 import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
@@ -78,6 +79,7 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.RemappedImage;
+import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -122,19 +124,26 @@ public class GridVectorResource extends AbstractMapVectorResource implements
         super(data, props);
 
         data.addChangeListener(this);
+        String paramAbbrev = "";
         GribRecord emptyRecord = new GribRecord();
         for (GribRecord rec : data.getRecords()) {
             try {
                 // don't add empty records
                 if (!emptyRecord.equals(rec)) {
+                    paramAbbrev = rec.getModelInfo().getParameterAbbreviation();
                     this.addRecord(rec);
-                    Collections.sort(this.dataTimes);
                 }
             } catch (VizException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
+        Collections.sort(this.dataTimes);
+        this.getCapability(DisplayTypeCapability.class)
+                .setAlternativeDisplayTypes(
+                        FieldDisplayTypesFactory.getInstance().getDisplayTypes(
+                                paramAbbrev));
+
         if (resourceData.getNameGenerator() == null) {
             resourceData.setNameGenerator(new GridNameGenerator());
         }
@@ -582,51 +591,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                         descriptor);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> getStreamlineResource()
-            throws VizException {
-        return (AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>) resourceData
-                .construct(new GridLoadProperties(
-                        com.raytheon.uf.viz.core.rsc.DisplayType.STREAMLINE),
-                        descriptor);
-    }
-
-    @Override
-    public boolean isStreamlineVector() {
-        return false;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> getWindBarbResource()
-            throws VizException {
-        return (AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>) resourceData
-                .construct(new GridLoadProperties(
-                        com.raytheon.uf.viz.core.rsc.DisplayType.BARB),
-                        descriptor);
-    }
-
-    @Override
-    public boolean isWindVector() {
-        return false;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> getArrowResource()
-            throws VizException {
-        return (AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>) resourceData
-                .construct(new GridLoadProperties(
-                        com.raytheon.uf.viz.core.rsc.DisplayType.ARROW),
-                        descriptor);
-    }
-
-    @Override
-    public boolean isArrowVector() {
-        return false;
-    }
-
     @Override
     protected FloatDataRecord remapGrid(GridCoverage location,
             GridCoverage location2, FloatDataRecord dataRecord,
@@ -773,16 +737,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         remappedImageGeometry = null;
         super.project(mapData);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.contours.ILoadableAsImage#isLoadableAsImage()
-     */
-    @Override
-    public boolean isLoadableAsImage() {
-        return displayType == null;
     }
 
 }

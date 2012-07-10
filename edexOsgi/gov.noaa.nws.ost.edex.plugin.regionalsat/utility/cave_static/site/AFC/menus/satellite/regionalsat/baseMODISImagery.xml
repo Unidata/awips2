@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="MTSAT">
+		<contribute xsi:type="placeholder" 
+					menuText=" MTSAT " id="MTSATLine"/>
+		<contribute xsi:type="subMenu" menuText="MTSAT VIS ">
+		<contribute xsi:type="placeholder" 
+					menuText=" 0.7 micron visible " id="MTSATch1Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	               		menuText="1wp" id="1wpSector">
+		        <substitute key="element" value="Imager Visible"/>
+		        <substitute key="sector" value="AkSec1wp"/>
+		        <substitute key="entity" value="MTSAT"/>
+		        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="MTSAT IR ">
+		<contribute xsi:type="placeholder" 
+					menuText=" 10 micron IR " id="MTSATch2Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	              		menuText="2wp" id="2wpSector">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+		        <substitute key="sector" value="AkSec2wp"/>
+		        <substitute key="entity" value="MTSAT"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute> 
+	    </contribute>
+		<contribute xsi:type="subMenu" menuText="MTSAT Ch 4 - Ch 5 Diff ">
+		<contribute xsi:type="placeholder" 
+					menuText=" Ch 4 - Ch 5 Diff " id="MTSATch3Line"/>
+	        <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+	             		menuText="3wp" id="3wpSector">
+		        <substitute key="element" value="Imager Channel 4-5 IR"/>
+		        <substitute key="sector" value="AkSec3wp"/>
+		        <substitute key="entity" value="MTSAT"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute> 
+	    </contribute>	    
+    </contribute>
+</menuTemplate>
