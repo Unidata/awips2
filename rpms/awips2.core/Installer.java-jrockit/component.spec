@@ -39,7 +39,7 @@ mkdir -p %{_build_root}/awips2/java
 %build
 
 %install
-RPM_CORE_PROJECT_DIR="%{_baseline_workspace}/Installer.rpm/awips2.core"
+RPM_CORE_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core"
 JROCKIT_PROJECT_DIR="${RPM_CORE_PROJECT_DIR}/Installer.java-jrockit"
 JROCKIT_INSTALLER="jrockit-jdk1.6.0_26-R28.1.4-4.0.1-linux-ia32.bin"
 SILENT_XML="silent.xml"
