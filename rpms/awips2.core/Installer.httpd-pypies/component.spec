@@ -13,6 +13,8 @@ URL: http://httpd.apache.org/
 Prefix: /awips2/httpd_pypies
 Source0: http://www.apache.org/dist/httpd/httpd-%{version}.tar.gz
 Source1: centos_index.html
+Source3: httpd-pypies.logrotate
+Source4: httpd-pypies.init
 Source5: httpd.sysconf
 Source8: centos_powered_by_rh.png
 Source10: httpd.conf
@@ -358,14 +360,12 @@ ln -s ../..%{_libdir}/httpd/modules $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/http
 
 # install service script.
 mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
-rpm_core_dir="%{_baseline_workspace}/Installer.rpm/awips2.core"
-pypies_project_dir="${rpm_core_dir}/Installer.httpd-pypies"
-install -m755 ${pypies_project_dir}/configuration/etc/init.d/httpd-pypies \
+install -m755 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/etc/init.d/httpd-pypies \
     ${RPM_BUILD_ROOT}/etc/init.d
 
 # install log rotation stuff
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-install -m644 ${pypies_project_dir}/SOURCES/httpd-pypies.logrotate \
+install -m644 $RPM_SOURCE_DIR/httpd-pypies.logrotate \
 	$RPM_BUILD_ROOT/etc/logrotate.d/httpd-pypies
 
 # fix man page paths
@@ -402,21 +402,63 @@ rm -rf $RPM_BUILD_ROOT/awips2/httpd_pypies/etc/httpd/conf/{original,extra}
 # Make suexec a+rw so it can be stripped.  %%files lists real permissions
 chmod 755 $RPM_BUILD_ROOT/awips2/httpd_pypies%{_sbindir}/suexec
 
+# build mod_wsgi.so
+/bin/cp %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/src/mod_wsgi-3.3.tar.gz \
+   %{_topdir}/BUILD
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+pushd . > /dev/null
+cd %{_topdir}/BUILD
+if [ -d mod_wsgi-3.3 ]; then
+   /bin/rm -rf mod_wsgi-3.3
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
+/bin/tar -xvf mod_wsgi-3.3.tar.gz
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cd mod_wsgi-3.3
+export CPPFLAGS="-I/awips2/python/include/python2.7"
+export LDFLAGS="-L/awips2/python/lib"
+./configure --with-python=/awips2/python/bin/python
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+make
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 # Install the module required by pypies.
-rpm_core_dir="%{_baseline_workspace}/Installer.rpm/awips2.core"
-pypies_project_dir="${rpm_core_dir}/Installer.httpd-pypies"
-install -m755 ${pypies_project_dir}/configuration/apache/mod_wsgi.so \
+install -m755 .libs/mod_wsgi.so \
     ${RPM_BUILD_ROOT}/awips2/httpd_pypies/etc/httpd/modules
+    
+cd ../
+/bin/rm -f mod_wsgi-3.3.tar.gz
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/rm -rf mod_wsgi-3.3
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+unset CPPFLAGS
+unset LDFLAGS
+popd > /dev/null
 
 # Install the pypies configuration.
-install -m644 ${pypies_project_dir}/configuration/apache/pypies.conf \
+install -m644 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/apache/pypies.conf \
     ${RPM_BUILD_ROOT}/awips2/httpd_pypies/etc/httpd/conf.d
 mkdir -p ${RPM_BUILD_ROOT}/awips2/httpd_pypies/var/www/wsgi
-install -m644 ${pypies_project_dir}/configuration/apache/pypies.wsgi \
+install -m644 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/apache/pypies.wsgi \
     ${RPM_BUILD_ROOT}/awips2/httpd_pypies/var/www/wsgi
 
 # Install & Override the httpd configuration.
-install -m644 ${pypies_project_dir}/configuration/conf/httpd.conf \
+install -m644 %{_baseline_workspace}/rpms/awips2.core/Installer.httpd-pypies/configuration/conf/httpd.conf \
     ${RPM_BUILD_ROOT}/awips2/httpd_pypies/etc/httpd/conf
 
 %pre
@@ -506,7 +548,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /awips2/httpd_pypies/etc/sysconfig
 %dir /awips2/httpd_pypies/usr
 %dir /awips2/httpd_pypies/usr/bin
-%dir /awips2/httpd_pypies/usr/lib
+%dir /awips2/httpd_pypies/%{_libdir}
 %dir /awips2/httpd_pypies/usr/sbin
 /awips2/httpd_pypies/usr/share
 %dir /awips2/httpd_pypies/var

@@ -8,6 +8,7 @@ Version: 1.0.0
 Release: 3
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: i386
 Prefix: /awips2/tools
 URL: N/A
 License: N/A
@@ -46,13 +47,13 @@ if [ ! "${RC}" = "0" ]; then
    exit 1
 fi
 
-PROFILE_D_DIR="Installer.rpm/awips2.core/Installer.tools/scripts/profile.d"
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+PROFILE_D_DIR="rpms/awips2.core/Installer.tools/scripts/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 # Update LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/awips2/python/lib:$LD_LIBRARY_PATH
 
-HDF5_SOURCE_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.tools/source"
+HDF5_SOURCE_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.tools/source"
 HDF5_TAR_FILE="hdf5-1.8.4-patch1.tar.gz"
 LZF_TAR_FILE="lzf.tar.gz"
 
@@ -109,17 +110,17 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 mkdir -p ${RPM_BUILD_ROOT}/awips2/tools/bin
 mkdir -p ${RPM_BUILD_ROOT}/awips2/tools/include

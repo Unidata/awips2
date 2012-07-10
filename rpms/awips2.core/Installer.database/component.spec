@@ -1,4 +1,3 @@
-%define CORE_DELTA_SETUP ${WORKSPACE_DIR}/Installer.rpm/delta/setup/updateSetup.sh
 %define _component_name           awips2-database
 %define _component_project_dir    awips2.core/Installer.database
 %define _component_default_prefix /awips2/database
@@ -42,14 +41,6 @@ fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2/database
 
 %build
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
-source %{CORE_DELTA_SETUP}
-copySetupCore ${RPM_BUILD_ROOT} %{_component_default_prefix}
-copyApplicableDeltas ${RPM_BUILD_ROOT} %{_component_name} \
-   %{_component_project_dir} %{_component_default_prefix}
-#---------------------------------------------------------------------------#
 
 PATH_TO_DDL="build.edex/opt/db/ddl"
 
@@ -63,14 +54,14 @@ CONFIG_FILE_TO_INCLUDE="pg_hba.conf"
 EXPECTED_PATH_TO_CONFIG="${PATH_TO_DDL}/setup"
 KNOWN_CONFIG_DESTINATION="awips2/database/sqlScripts/share/sql"
 # Ensure That We Have Access To The Configuration Files Before Continuing.
-if [ ! -f ${WORKSPACE_DIR}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} ]; then
+if [ ! -f %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} ]; then
    echo "The ${CONFIG_FILE_TO_INCLUDE} PostgreSQL Configuration File Can Not Be Found."
    echo "Unable To Continue ... Terminating"
    exit 1
 fi
 
 # Copy The Configuration File
-cp -r ${WORKSPACE_DIR}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} \
+cp -r %{_baseline_workspace}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} \
    ${RPM_BUILD_ROOT}/${KNOWN_CONFIG_DESTINATION} 
 
 # Copy The SQL Scripts That The Database RPM Will Need To The
@@ -78,7 +69,7 @@ cp -r ${WORKSPACE_DIR}/${EXPECTED_PATH_TO_CONFIG}/${CONFIG_FILE_TO_INCLUDE} \
 DIRS_TO_COPY=('damcat' 'hmdb' 'migrated' 'setup' 'SHEF' 'vtec')
 for dir in ${DIRS_TO_COPY[*]};
 do
-   cp -r ${WORKSPACE_DIR}/${PATH_TO_DDL}/${dir}/* \
+   cp -r %{_baseline_workspace}/${PATH_TO_DDL}/${dir}/* \
       ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql
 done
 
@@ -94,9 +85,9 @@ do
 done
 
 # Copy Two Other Files To The Temporary Share Directory.
-cp -r ${WORKSPACE_DIR}/${PATH_TO_DDL}/setup/lwpostgis.sql \
+cp -r %{_baseline_workspace}/${PATH_TO_DDL}/setup/lwpostgis.sql \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share
-cp -r ${WORKSPACE_DIR}/${PATH_TO_DDL}/setup/spatial_ref_sys.sql \
+cp -r %{_baseline_workspace}/${PATH_TO_DDL}/setup/spatial_ref_sys.sql \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share
    
 # Create our installation log file.
@@ -531,16 +522,11 @@ echo -e "\e[1;34m---------------------------------------------------------------
 echo -e "\e[1;34m\| The AWIPS II Database Installation Has Been Successfully Removed\e[m"
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
 %files
 %defattr(644,awips,fxalpha,755)
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
-%dir %{_component_default_prefix}/delta
-%attr(700,root,root) %{_component_default_prefix}/delta/updateManager.sh
-%attr(700,root,root) %{_component_default_prefix}/delta/createUpdateRegistry.sh
-%{_component_default_prefix}/delta/%{_component_name}
-#---------------------------------------------------------------------------#
 %dir /awips2
 %dir /awips2/database
 %dir /awips2/database/sqlScripts

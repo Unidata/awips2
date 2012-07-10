@@ -49,14 +49,14 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
    echo "\"/${COMPONENT_BUILD_DIR}/licenses/license.txt\"" \
@@ -66,22 +66,22 @@ function copyLegal()
    echo "\"/${COMPONENT_BUILD_DIR}/licenses/FOSS_licenses.tar\"" \
       >> %{_topdir}/BUILD/component-files.txt
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
-cp -r ${AWIPSCM_SHARE}/packages/irt-server/* ${RPM_BUILD_ROOT}/irt
+cp -r %{_awipscm_share}/packages/irt-server/* ${RPM_BUILD_ROOT}/irt
 
 # Copy The Configuration File To The Appropriate Directory.
 IRT_CONFIG_FILE="IRT_Config.txt"
-CONFIG_FILE_SRC_DIR="Installer.rpm/awips2.core/Installer.irt/scripts/conf"
+CONFIG_FILE_SRC_DIR="rpms/awips2.core/Installer.irt/scripts/conf"
 CONFIG_FILE_DEST_DIR="IRT-operational/server"
-cp ${WORKSPACE_DIR}/${CONFIG_FILE_SRC_DIR}/${IRT_CONFIG_FILE} \
+cp %{_baseline_workspace}/${CONFIG_FILE_SRC_DIR}/${IRT_CONFIG_FILE} \
    ${RPM_BUILD_ROOT}/irt/${CONFIG_FILE_DEST_DIR}
    
 # Create an IRT bin Directory and Copy the Startup Script to It.
 IRT_STARTUP_FILE="start_irt.sh"
-STARTUP_FILE_SRC_DIR="Installer.rpm/awips2.core/Installer.irt/scripts"
+STARTUP_FILE_SRC_DIR="rpms/awips2.core/Installer.irt/scripts"
 mkdir -p ${RPM_BUILD_ROOT}/irt/bin
-cp ${WORKSPACE_DIR}/${STARTUP_FILE_SRC_DIR}/${IRT_STARTUP_FILE} \
+cp %{_baseline_workspace}/${STARTUP_FILE_SRC_DIR}/${IRT_STARTUP_FILE} \
    ${RPM_BUILD_ROOT}/irt/bin
 
 cd ${RPM_BUILD_ROOT}
