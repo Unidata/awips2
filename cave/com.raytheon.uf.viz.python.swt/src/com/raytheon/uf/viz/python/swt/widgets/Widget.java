@@ -59,7 +59,7 @@ public abstract class Widget {
      * Class constructor
      */
     protected Widget() {
-        options = new ArrayList<Object>();
+        this.options = new ArrayList<Object>();
     }
 
     /**
@@ -154,10 +154,9 @@ public abstract class Widget {
      * Builds a composite for the widget attached to the given parent.
      * 
      * @param parent
-     * @param style
      * @return Composite capable of being placed into an SWT container.
      */
-    public abstract Composite buildComposite(Composite parent, int style);
+    public abstract Composite buildComposite(Composite parent);
 
     /**
      * @param variable
