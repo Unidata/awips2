@@ -37,10 +37,10 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/data
 
 %install
 PROJECT_DIR="Installer.database-server-configuration"
-CONFIGURATION_DIR="Installer.rpm/awips2.core/${PROJECT_DIR}/configuration"
+CONFIGURATION_DIR="rpms/awips2.core/${PROJECT_DIR}/configuration"
 CONF_FILE="postgresql.conf"
 
-cp ${WORKSPACE_DIR}/${CONFIGURATION_DIR}/${CONF_FILE} \
+cp %{_baseline_workspace}/${CONFIGURATION_DIR}/${CONF_FILE} \
    ${RPM_BUILD_ROOT}/awips2/data
 
 %pre
@@ -48,6 +48,9 @@ cp ${WORKSPACE_DIR}/${CONFIGURATION_DIR}/${CONF_FILE} \
 if [ -f /awips2/data/postgresql.conf ]; then
    rm -f /awips2/data/postgresql.conf
 fi
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %attr(644,awips,fxalpha) /awips2/data/postgresql.conf
