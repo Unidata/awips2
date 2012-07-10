@@ -32,6 +32,7 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 30, 2009 2191       rjpeter     Initial creation
+ * May 23, 2010 14952      rferrel     Allow using refTime in AFOS commands.
  * 
  * </pre>
  * 
@@ -43,7 +44,11 @@ public class CommandFactory {
             .getCurrentSite();
 
     public static ICommand getAfosCommand(String afosCommand) {
-        return new AFOSCommand(afosCommand, localSiteId);
+        return new AFOSCommand(afosCommand, localSiteId, null);
+    }
+
+    public static ICommand getAfosCommand(String afosCommand, Long refTime) {
+        return new AFOSCommand(afosCommand, localSiteId, refTime);
     }
 
     public static ICommand getPreviousForAfosCommand(ICommand cmd) {
@@ -58,7 +63,7 @@ public class CommandFactory {
 
         String afosCommand = "-" + version + ":" + parser.getCcc()
                 + parser.getNnn() + parser.getXxx();
-        return new AFOSCommand(afosCommand, localSiteId);
+        return new AFOSCommand(afosCommand, localSiteId, null);
     }
 
     public static ICommand getNextForAfosCommand(ICommand cmd) {
@@ -75,7 +80,7 @@ public class CommandFactory {
             afosCommand = parser.getCcc() + parser.getNnn() + parser.getXxx();
         }
 
-        return new AFOSCommand(afosCommand, localSiteId);
+        return new AFOSCommand(afosCommand, localSiteId, null);
     }
 
     public static ICommand getLatestForAfosCommand(ICommand cmd) {
@@ -83,7 +88,7 @@ public class CommandFactory {
         AFOSParser parser = new AFOSParser(text, localSiteId);
         String afosCommand = parser.getCcc() + parser.getNnn()
                 + parser.getXxx();
-        return new AFOSCommand(afosCommand, localSiteId);
+        return new AFOSCommand(afosCommand, localSiteId, null);
     }
 
     public static ICommand getAllForAfosCommand(ICommand cmd) {
@@ -91,7 +96,7 @@ public class CommandFactory {
         AFOSParser parser = new AFOSParser(text, localSiteId);
         String afosCommand = "ALL:" + parser.getCcc() + parser.getNnn()
                 + parser.getXxx();
-        return new AFOSCommand(afosCommand, localSiteId);
+        return new AFOSCommand(afosCommand, localSiteId, null);
     }
 
     public static ICommand getWmoCommand(String wmoId, String cccc) {

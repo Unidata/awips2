@@ -246,19 +246,19 @@
 		  		menuText="1hr FFG" id="OH1hrFFG">
 				<dataURI>/grib/%/FFG-TIR/FFG0124hr/%</dataURI>
 				<substitute key="timespan" value="FFG0124hr"/>
-				<substitute key="model" value="FFG-TIR"/>
+				<substitute key="model" value="FFG-TIR-HiRes"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
 				menuText="3hr FFG" id="OH3hrFFG">
-				<dataURI>/grib/%/FFG-TIR/FFG0324hr/%</dataURI>
+				<dataURI>/grib/%/FFG-TIR-HiRes/FFG0324hr/%</dataURI>
 				<substitute key="timespan" value="FFG0324hr"/>
-	    		<substitute key="model" value="FFG-TIR"/>
+	    		<substitute key="model" value="FFG-TIR-HiRes"/>
 			</contribute>
 			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
 				menuText="6hr FFG" id="OH6hrFFG">
-				<dataURI>/grib/%/FFG-TIR/FFG0624hr/%</dataURI>
+				<dataURI>/grib/%/FFG-TIR-HiRes/FFG0624hr/%</dataURI>
 				<substitute key="timespan" value="FFG0624hr"/>
-	    		<substitute key="model" value="FFG-TIR"/>
+	    		<substitute key="model" value="FFG-TIR-HiRes"/>
 			</contribute>
 		</contribute>
 		<contribute xsi:type="subMenu" menuText="SERFC" id="SERFCMenu">
