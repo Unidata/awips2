@@ -81,7 +81,6 @@ Export-Package: com.raytheon.viz.radar;
  com.raytheon.viz.radar.rsc.graphic,
  com.raytheon.viz.radar.rsc.image,
  com.raytheon.viz.radar.rsc.mosaic,
- com.raytheon.viz.radar.rsc.mosaic.ext,
  com.raytheon.viz.radar.ui;
   uses:="com.raytheon.viz.radar,
    com.raytheon.viz.ui.dialogs,

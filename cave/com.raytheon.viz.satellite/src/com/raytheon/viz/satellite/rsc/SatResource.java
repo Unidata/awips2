@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
@@ -52,6 +53,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -107,13 +109,13 @@ public class SatResource extends
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatResource.class);
 
-    protected Map<DataTime, FileBasedTileSet> tileSet;
+    protected Map<DataTime, SatFileBasedTileSet> tileSet;
 
     private Map<DataTime, SatelliteRecord> recordMap = new HashMap<DataTime, SatelliteRecord>();
 
     protected DataTime displayedDate;
 
-    protected FileBasedTileSet baseTile;
+    protected SatFileBasedTileSet baseTile;
 
     protected String legend;
 
@@ -125,7 +127,7 @@ public class SatResource extends
 
     protected String viewType;
 
-    protected FileBasedTileSet currentTile;
+    protected SatFileBasedTileSet currentTile;
 
     protected GridGeometry recordGeometry;
 
@@ -139,7 +141,7 @@ public class SatResource extends
     public SatResource(SatResourceData data, LoadProperties props) {
         super(data, props);
         data.addChangeListener(this);
-        this.tileSet = new HashMap<DataTime, FileBasedTileSet>();
+        this.tileSet = new HashMap<DataTime, SatFileBasedTileSet>();
         this.dataTimes = new ArrayList<DataTime>();
         this.legend = null;
         SatelliteRecord[] records = data.getRecords();
@@ -224,12 +226,11 @@ public class SatResource extends
         if (sr != null && sr.getPreferences() instanceof ImagePreferences) {
             sampleRange = ((ImagePreferences) sr.getPreferences())
                     .getSamplePrefs();
-            String lg = ((ImagePreferences) sr.getPreferences())
-        	.getLegend();
-        	// test, so legend is not over written with empty string
-        	if (lg != null && !lg.trim().isEmpty()) { 
-        		legend = lg;
-        	}
+            String lg = ((ImagePreferences) sr.getPreferences()).getLegend();
+            // test, so legend is not over written with empty string
+            if (lg != null && !lg.trim().isEmpty()) {
+                legend = lg;
+            }
         }
 
         colorMapParameters = ColorMapParameterFactory.build(null,
@@ -447,7 +448,7 @@ public class SatResource extends
 
     public void addRecord(PluginDataObject record) throws VizException {
         synchronized (this) {
-            FileBasedTileSet tile;
+            SatFileBasedTileSet tile;
             DataTime recordTime = null;
             if (resourceData.getBinOffset() != null || resourceData.equals(0)) {
                 BinOffset binOffset = resourceData.getBinOffset();
@@ -560,6 +561,20 @@ public class SatResource extends
     @Override
     public void meshCalculated(ImageTile tile) {
         issueRefresh();
+    }
+
+    public List<DrawableImage> getImages(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        this.target = target;
+        this.displayedDate = paintProps.getDataTime();
+        if (this.displayedDate == null)
+            return Collections.emptyList();
+
+        currentTile = this.tileSet.get(this.displayedDate);
+        if (currentTile != null) {
+            return currentTile.getImages(target, paintProps);
+        }
+        return Collections.emptyList();
     }
 
 }
