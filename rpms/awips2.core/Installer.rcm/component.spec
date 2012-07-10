@@ -39,6 +39,15 @@ fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2/rcm
 
 %build
+# Run pde build of RadarServer.
+cd %{_baseline_workspace}/build.rcm
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/bash build.sh -eclipse=%{_uframe_eclipse}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %install
 # Copies the standard Raytheon licenses into a license directory for the
@@ -52,29 +61,29 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 RCM_PROPS_DIR="build.rcm/pdeprops"
 DEPLOY_SCRIPT="build.rcm/build.xml"
 
 # Deploy Radar Server To Our Temporary Build Directory.
-ant -file ${WORKSPACE_DIR}/${DEPLOY_SCRIPT} \
+ant -file %{_baseline_workspace}/${DEPLOY_SCRIPT} \
    -Ddeploy.dir=${RPM_BUILD_ROOT}/awips2/rcm \
-   -Dinstaller=true -Dprops.dir=${WORKSPACE_DIR}/${RCM_PROPS_DIR}
+   -Dinstaller=true -Dprops.dir=%{_baseline_workspace}/${RCM_PROPS_DIR}
    
 # Overwrite the Existing start-config File With The Our start-config File.
 rm -f ${RPM_BUILD_ROOT}/awips2/rcm/data/config/start-config
-cp ${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.rcm/scripts/conf/start-config \
+cp %{_baseline_workspace}/rpms/awips2.core/Installer.rcm/scripts/conf/start-config \
    ${RPM_BUILD_ROOT}/awips2/rcm/data/config/
 
 # Create the radar server logs directory
@@ -82,7 +91,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/rcm/data/logs
 
 # Include the rcm service script
 mkdir -p ${RPM_BUILD_ROOT}/etc/init.d
-cp ${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.rcm/scripts/init.d/edex_rcm \
+cp %{_baseline_workspace}/rpms/awips2.core/Installer.rcm/scripts/init.d/edex_rcm \
    ${RPM_BUILD_ROOT}/etc/init.d
 
 copyLegal "awips2/rcm"
@@ -92,26 +101,14 @@ if [ "${1}" = "2" ]; then
    exit 0
 fi
 
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing AWIPS II Radar Server (RCM)...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
-
 %post
 if [ "${1}" = "2" ]; then   
    exit 0
 fi
-echo "--------------------------------------------------------------------------------"
-echo "\| Setting up AWIPS II Radar Server Runtime and Environment..."
-echo "--------------------------------------------------------------------------------"
 
 if [ -f /etc/init.d/edex_rcm ]; then
    /sbin/chkconfig --add edex_rcm
 fi
-
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Radar Server (RCM) Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
 
 %preun
 if [ "${1}" = "1" ]; then
@@ -125,9 +122,6 @@ fi
 if [ "${1}" = "1" ]; then
    exit 0
 fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| AWIPS II Radar Server (RCM) Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

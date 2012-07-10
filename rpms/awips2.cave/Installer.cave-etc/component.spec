@@ -48,7 +48,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/etc
 
 %install
 BASELINE_ETC_DIR="build/static/common/cave/etc"
-ETC_DIR_LOC="${WORKSPACE_DIR}/${BASELINE_ETC_DIR}"
+ETC_DIR_LOC="%{_baseline_workspace}/${BASELINE_ETC_DIR}"
 
 if [ ! -d ${ETC_DIR_LOC} ]; then
    echo "ERROR: Unable to find CAVE etc directory."

@@ -59,7 +59,7 @@ fi
 cp -r %{_uframe_eclipse}/* %{_build_root}/awips2/eclipse
 
 # Copy eclipse.sh to our build-directory.
-cp %{_baseline_workspace}/Installer.rpm/awips2.ade/Installer.eclipse/scripts/* \
+cp %{_baseline_workspace}/rpms/awips2.ade/Installer.eclipse/scripts/* \
    %{_build_root}/awips2/eclipse
    
 # delete the basemaps and etc links
