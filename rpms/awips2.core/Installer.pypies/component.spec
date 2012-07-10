@@ -43,12 +43,12 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/python/lib/python2.7/site-packages/pypies
 
 # Copy The PyPIES modules To The appropriate directory.
 PYPIES_FILE_SRC_DIR="pythonPackages/pypies"
-cp -r ${WORKSPACE_DIR}/${PYPIES_FILE_SRC_DIR}/pypies/* \
+cp -r %{_baseline_workspace}/${PYPIES_FILE_SRC_DIR}/pypies/* \
    ${RPM_BUILD_ROOT}/awips2/python/lib/python2.7/site-packages/pypies
  
 # copy pypies.cfg
 mkdir -p ${RPM_BUILD_ROOT}/awips2/pypies/conf
-cp ${WORKSPACE_DIR}/${PYPIES_FILE_SRC_DIR}/pypies.cfg \
+cp %{_baseline_workspace}/${PYPIES_FILE_SRC_DIR}/pypies.cfg \
 	${RPM_BUILD_ROOT}/awips2/pypies/conf/pypies.cfg
 	
 # create the pypies logging directory
@@ -83,6 +83,9 @@ echo -e "\e[1;34m---------------------------------------------------------------
 echo -e "\e[1;34m\| The AWIPS II PyPIES Installation Has Been Successfully Removed\e[m"
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 echo ""
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,awips,fxalpha,755)
