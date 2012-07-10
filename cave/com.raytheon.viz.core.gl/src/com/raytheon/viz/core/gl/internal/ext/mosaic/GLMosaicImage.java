@@ -17,14 +17,15 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.radar.gl.mosaic;
+package com.raytheon.viz.core.gl.internal.ext.mosaic;
 
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension.IMosaicImage;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.images.GLDelegateImage;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicImage;
 
 /**
  * GL implementation of IMosaicImage, wraps an offscreen image and contains
@@ -61,8 +62,9 @@ public class GLMosaicImage extends GLDelegateImage<GLColormappedImage>
      * @param extensionClass
      */
     public GLMosaicImage(GLColormappedImage image, int[] bounds,
-            IExtent imageExtent) {
-        super(image, GLRadarMosaicImageExtension.class);
+            IExtent imageExtent,
+            Class<? extends IMosaicImageExtension> extensionClass) {
+        super(image, extensionClass);
         this.bounds = bounds;
         this.extent = imageExtent;
     }
