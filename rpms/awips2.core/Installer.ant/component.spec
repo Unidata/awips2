@@ -7,6 +7,7 @@ Version: 1.7.1
 Release: 2
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 Prefix: /awips2/ant
 URL: N/A
 License: N/A
@@ -35,8 +36,8 @@ fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2/ant
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 
-PROFILE_D_DIR="Installer.rpm/awips2.core/Installer.ant/scripts/profile.d"
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+PROFILE_D_DIR="rpms/awips2.core/Installer.ant/scripts/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 %build
 
@@ -52,24 +53,24 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
 ANT_TAR_FILE="apache-ant-1.7.1-bin.tar.gz"
 ANT_TAR_FILE_SRC_DIR="CMLibrary/Software/OpenSource/Ant/v1.7.1"
 
 # Will Be Extracted Into apache-ant-1.7.1
-tar -xf ${AWIPSCM_SHARE}/${ANT_TAR_FILE_SRC_DIR}/${ANT_TAR_FILE} \
+tar -xf %{_awipscm_share}/${ANT_TAR_FILE_SRC_DIR}/${ANT_TAR_FILE} \
    -C ${RPM_BUILD_ROOT}/awips2
 # Move Files From 1.7.1 To The Generic Directory
 cp -r ${RPM_BUILD_ROOT}/awips2/apache-ant-1.7.1/* \

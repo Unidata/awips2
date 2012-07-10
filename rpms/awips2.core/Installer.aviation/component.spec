@@ -39,7 +39,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/share/aviation/tmp
 AVIATION_SRC_DIR="build/static/common/cave/etc/aviation/thresholds"
 
 # Copy the aviation *ish files to their destination.
-cp ${WORKSPACE_DIR}/${AVIATION_SRC_DIR}/*.txt \
+cp %{_baseline_workspace}/${AVIATION_SRC_DIR}/*.txt \
    ${RPM_BUILD_ROOT}/awips2/edex/data/share/aviation
    
 %pre
