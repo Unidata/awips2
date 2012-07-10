@@ -130,7 +130,7 @@
                   mnemonic="T">
             </command>
             <command
-                  commandId="com.raytheon.viz.ui.actions.notImplemented2"
+                  commandId="com.raytheon.viz.mpe.ui.actions.transmitRFCBias"
                   label="Transmit RFC Bias"
                   mnemonic="a">
             </command>
@@ -891,7 +891,7 @@
             name="NOT Implemented">
       </command>
 	  <command
-	        id="com.raytheon.viz.ui.actions.notImplemented2"
+	        id="com.raytheon.viz.mpe.ui.actions.transmitRFCBias"
 	        name="Transmit RFC Bias">
 	  </command>
       <command
@@ -1107,6 +1107,23 @@
                </reference>
             </activeWhen>
       </handler>
+       <handler
+            class="com.raytheon.viz.mpe.ui.actions.TransmitRFCBias"
+            commandId="com.raytheon.viz.mpe.ui.actions.transmitRFCBias">
+            <enabledWhen>
+                 <with
+                       variable="com.raytheon.viz.mpe.ui.transmitRFCBias">
+                       <equals value="true">
+                       </equals>
+                 </with>
+            </enabledWhen>
+            <activeWhen>
+               <reference
+                     definitionId="com.raytheon.viz.inMPEActionSet">
+               </reference>
+            </activeWhen>
+            
+      </handler>    
       <handler
             class="com.raytheon.viz.mpe.ui.actions.RecenterAction"
             commandId="com.raytheon.viz.mpe.ui.actions.recenter">
@@ -1644,6 +1661,14 @@
 	           priorityLevel="activeWorkbenchWindow">
 	      </variable>
 		</sourceProvider>
+		<sourceProvider
+        	 provider="com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider">
+	      <variable
+	           name="com.raytheon.viz.mpe.ui.transmitRFCBias"
+	           priorityLevel="activeWorkbenchWindow">
+	      </variable>
+		</sourceProvider>
+		
 	</extension>
 	<extension point="org.eclipse.ui.themes">
 	    <themeElementCategory 

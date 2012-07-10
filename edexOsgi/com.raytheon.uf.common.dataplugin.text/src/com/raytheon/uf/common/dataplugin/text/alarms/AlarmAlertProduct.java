@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2009            mnash     Initial creation
  * 07Jul2010    2187       cjeanbap    Added operational mode flag.
+ * May 23, 2012 14952      rferrel     Added refTime.
  * 
  * </pre>
  * 
@@ -85,10 +86,13 @@ public class AlarmAlertProduct implements ISerializableObject {
 
     @DynamicSerializeElement
     private boolean operationalMode = true;
-    
+
+    @DynamicSerializeElement
+    private long refTime;
+
     public AlarmAlertProduct() {
     }
-    
+
     public AlarmAlertProduct(boolean operationalMode) {
         this.operationalMode = operationalMode;
     }
@@ -373,5 +377,13 @@ public class AlarmAlertProduct implements ISerializableObject {
 
     public void setOperationalMode(boolean operationalMode) {
         this.operationalMode = operationalMode;
+    }
+
+    public long getRefTime() {
+        return refTime;
+    }
+
+    public void setRefTime(long refTime) {
+        this.refTime = refTime;
     }
 }

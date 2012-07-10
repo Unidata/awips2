@@ -181,53 +181,40 @@ public class CurrentWarnings {
     }
 
     /**
-     * Get a list of the correctable warning records
-     * 
-     * @return the correctable warnings
-     */
-    public List<AbstractWarningRecord> getCorrectableWarnings() {
-        return getCorrectableWarnings(null);
-    }
-
-    /**
      * Get a list of the correctable warning records for the phensigs. Or all
      * correctable warnings if phensigs is null
      * 
      * @param phenSigs
      * @return
      */
-    public List<AbstractWarningRecord> getCorrectableWarnings(String[] phenSigs) {
+    public List<AbstractWarningRecord> getCorrectableWarnings(AbstractWarningRecord warnRec) {
         List<AbstractWarningRecord> rval = new ArrayList<AbstractWarningRecord>();
         Calendar current = Calendar.getInstance();
         Calendar end = Calendar.getInstance();
         current.setTime(SimulatedTime.getSystemTime().getTime());
 
-        boolean valid;
         synchronized (officeId) {
             for (AbstractWarningRecord warning : records) {
-                valid = true;
-                if (phenSigs != null) {
-                    valid = false;
-                    for (String phenSig : phenSigs) {
-                        if (warning.getPhensig() != null
-                                && warning.getPhensig().equals(phenSig)) {
-                            valid = true;
-                        }
+                String phensig = warning.getPhensig();
+                String etn = warning.getEtn();
+                
+                if (warnRec.getPhensig().equals(phensig) && warnRec.getEtn().equals(etn)) {
+                    WarningAction action = WarningAction.valueOf(warning.getAct());
+                    end.setTime(warning.getStartTime().getTime());
+                    end.add(Calendar.MINUTE, 10);
+                    TimeRange t = new TimeRange(warning.getStartTime().getTime(),
+                            end.getTime());
+                    if ((action == WarningAction.NEW || action == WarningAction.CON || action == WarningAction.EXT)
+                            && t.contains(current.getTime())) {
+                        rval.add(warning);
+                    } else if (action == WarningAction.CAN || action == WarningAction.EXP) {
+                        rval.clear();
+                        return rval;
                     }
-                }
-                WarningAction action = getAction(warning.getAct());
-                end.setTime(warning.getStartTime().getTime());
-                end.add(Calendar.MINUTE, 10);
-                TimeRange t = new TimeRange(warning.getStartTime().getTime(),
-                        end.getTime());
-                if (valid
-                        && (action == WarningAction.NEW
-                                || action == WarningAction.CON || action == WarningAction.EXT)
-                        && t.contains(current.getTime())) {
-                    rval.add(warning);
                 }
             }
         }
+        
         return rval;
     }
 
@@ -266,6 +253,7 @@ public class CurrentWarnings {
                 for (AbstractWarningRecord warning : warnings) {
                     if (getAction(warning.getAct()) == WarningAction.CON) {
                         if (rval != null) {
+                            //rval.setAct("CON");
                             rval.setGeometry(warning.getGeometry());
                             rval.setCountyheader(warning.getCountyheader());
                             rval.setUgczones(warning.getUgczones());

@@ -224,6 +224,12 @@ public class SatResource extends
         if (sr != null && sr.getPreferences() instanceof ImagePreferences) {
             sampleRange = ((ImagePreferences) sr.getPreferences())
                     .getSamplePrefs();
+            String lg = ((ImagePreferences) sr.getPreferences())
+        	.getLegend();
+        	// test, so legend is not over written with empty string
+        	if (lg != null && !lg.trim().isEmpty()) { 
+        		legend = lg;
+        	}
         }
 
         colorMapParameters = ColorMapParameterFactory.build(null,

@@ -1,8 +1,15 @@
 package com.raytheon.uf.common.cache;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,7 +20,10 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -72,325 +82,469 @@ import com.raytheon.uf.common.util.SystemUtil;
  */
 
 public class DiskCache<K> implements ICache<K> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(DiskCache.class.getPackage().getName(), "CAVE",
-                    "WORKSTATION");
+	private static final transient IUFStatusHandler statusHandler = UFStatus
+			.getHandler(DiskCache.class.getPackage().getName(), "CAVE",
+					"WORKSTATION");
 
-    protected String name;
+	protected String name;
 
-    protected String baseCacheDir;
+	protected String baseCacheDir;
 
-    /**
-     * Number of items allowed in the mem cache map. Defaults to 100 items.
-     */
-    private int sizeMemCacheMap = 100;
+	/**
+	 * Number of items allowed in the mem cache map. Defaults to 100 items.
+	 */
+	private int sizeMemCacheMap = 100;
 
-    // unique per jvm, configured DiskCache instance, not clusterable
-    protected File cacheDir;
+	// unique per jvm, configured DiskCache instance, not clusterable
+	protected File cacheDir;
 
-    protected class MetaData {
-        private Object syncObj = null;
+	/**
+	 * Should this be static or one writer thread per cache? Only have so much
+	 * through put to disk.
+	 */
+	protected DiskCacheWriter cacheWriter = null;
 
-        private String cacheFilePath = null;
+	private ConcurrentMap<String, MetaData> softMetaDataMap = new ConcurrentHashMap<String, MetaData>(
+			512);
 
-        private SoftReference<K> softRef = null;
+	private LinkedHashMap<String, MetaData> metaDataMap = new RefMap<String, MetaData>(
+			128, 0.75f, true);
 
-        private K ref = null;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.common.cache.ICache#getFromCache(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public K getFromCache(String id) {
+		MetaData md = null;
+		K obj = null;
 
-    private class RefMap<X extends String, V extends MetaData> extends
-            LinkedHashMap<X, V> {
+		// check the hard ref map
+		synchronized (metaDataMap) {
+			md = metaDataMap.get(id);
+		}
 
-        /**
+		if (md != null) {
+			obj = md.ref;
+		} else {
+			// check the soft ref map
+			md = softMetaDataMap.get(id);
+
+			if (md == null) {
+				// object not cached
+				return null;
+			}
+
+			if (obj == null) {
+				SoftReference<K> ref = md.softRef;
+				if (ref != null) {
+					obj = ref.get();
+
+					if (obj != null) {
+						md.ref = obj;
+
+						// cancel pending write for data if pending
+						cacheWriter.cancelWrite(md);
+					}
+				}
+			}
+
+			if (obj == null) {
+				// object no longer in memory, read from disk
+
+				try {
+					synchronized (md.syncObj) {
+						// verify data wasn't already retrieved
+						if (md.ref == null) {
+							// data wasn't pending, read from disk
+							File f = new File(md.cacheFilePath);
+							byte[] data = FileUtil.file2bytes(f);
+
+							obj = (K) SerializationUtil
+									.transformFromThrift(data);
+							md.ref = obj;
+						}
+					}
+				} catch (Exception e) {
+					statusHandler.handle(Priority.ERROR,
+							"Error occurred retrieving cached data from disk",
+							e);
+				}
+			}
+
+			// add object back to hard cache
+			md.ref = obj;
+			md.softRef = null;
+			md.weakRef = null;
+
+			synchronized (metaDataMap) {
+				metaDataMap.put(id, md);
+			}
+		}
+
+		return obj;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.raytheon.uf.common.cache.ICache#removeFromCache(java.lang.String)
+	 */
+	@Override
+	public void removeFromCache(String id) {
+		MetaData md = null;
+		synchronized (metaDataMap) {
+			md = metaDataMap.remove(id);
+		}
+		if (md == null) {
+			md = softMetaDataMap.remove(id);
+		} else {
+			softMetaDataMap.remove(id);
+		}
+
+		if (md != null && md.cacheFilePath != null) {
+			cacheWriter.cancelWrite(md);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.common.cache.ICache#addToCache(java.lang.String, K)
+	 */
+	@Override
+	public void addToCache(String id, K obj) throws IOException {
+		MetaData md = null;
+
+		// check map of hard refs
+		synchronized (metaDataMap) {
+			md = metaDataMap.get(id);
+		}
+
+		// No hard ref, check for soft ref
+		if (md == null) {
+			md = softMetaDataMap.get(id);
+		}
+
+		// no previous cache'd entry, make new one
+		if (md == null) {
+			md = new MetaData();
+			md.syncObj = new Object();
+			md.cacheFilePath = File.createTempFile("cache", ".bin", cacheDir)
+					.getAbsolutePath();
+		}
+
+		synchronized (metaDataMap) {
+			metaDataMap.put(id, md);
+		}
+
+		md.softRef = null;
+		md.ref = obj;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.raytheon.uf.common.cache.ICache#addToCache(K)
+	 */
+	@Override
+	public String addToCache(K obj) throws IOException {
+		MetaData md = new MetaData();
+		md.syncObj = new Object();
+		md.cacheFilePath = File.createTempFile("cache", ".bin", cacheDir)
+				.getAbsolutePath();
+
+		synchronized (metaDataMap) {
+			metaDataMap.put(md.cacheFilePath, md);
+		}
+
+		md.ref = obj;
+		md.softRef = null;
+		md.weakRef = null;
+
+		// unique id will be the unique temp file created
+		return md.cacheFilePath;
+	}
+
+	public void closeCache() {
+		cacheWriter.run = false;
+	}
+
+	public void clearCache() {
+		softMetaDataMap.clear();
+	}
+
+	public int getSizeMemCacheMap() {
+		return sizeMemCacheMap;
+	}
+
+	public void setSizeMemCacheMap(int sizeMemCacheMap) {
+		this.sizeMemCacheMap = sizeMemCacheMap;
+
+		// need to push extra entries to disk?
+		if (sizeMemCacheMap > metaDataMap.size()) {
+			synchronized (metaDataMap) {
+				RefMap<String, MetaData> tmp = new RefMap<String, MetaData>(
+						(int) (sizeMemCacheMap * 1.25) + 1, 0.75f, true);
+				tmp.putAll(metaDataMap);
+				metaDataMap = tmp;
+			}
+		}
+
+		this.sizeMemCacheMap = sizeMemCacheMap;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getBaseCacheDir() {
+		return baseCacheDir;
+	}
+
+	public void setBaseCacheDir(String baseCacheDir) {
+		this.baseCacheDir = baseCacheDir;
+	}
+
+	public void activateCache() {
+		int pid = SystemUtil.getPid();
+		IPathManager pathMgr = PathManagerFactory.getPathManager();
+		LocalizationContext userContext = pathMgr.getContext(
+				LocalizationType.CAVE_STATIC, LocalizationLevel.WORKSTATION);
+
+		if (baseCacheDir == null) {
+			baseCacheDir = "diskCache";
+		}
+
+		String path = baseCacheDir + File.separator + name + File.separator
+				+ File.separator + "pid_" + pid;
+		this.cacheDir = PathManagerFactory.getPathManager().getFile(
+				userContext, path);
+
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
+
+		if (cacheWriter == null) {
+			cacheWriter = new DiskCacheWriter(name);
+			cacheWriter.start();
+		}
+
+		CacheFactory factory = CacheFactory.getInstance();
+		factory.addCache(name, this);
+
+		// TODO: Throw exception if not properly configured
+	}
+
+	public void activateEdexCache() {
+		int pid = SystemUtil.getPid();
+		IPathManager pathMgr = PathManagerFactory.getPathManager();
+		LocalizationContext context = pathMgr.getContext(
+				LocalizationType.EDEX_STATIC, LocalizationLevel.SITE);
+
+		if (baseCacheDir == null) {
+			baseCacheDir = "diskCache";
+		}
+
+		String path = baseCacheDir + File.separator + name + File.separator
+				+ File.separator + "pid_" + pid;
+		try {
+			LocalizationFile dir = PathManagerFactory.getPathManager()
+					.getLocalizationFile(context, path);
+			this.cacheDir = dir.getFile();
+		} catch (Exception e) {
+			// no localization file exists
+			this.cacheDir = new File(path);
+		}
+
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
+
+		if (cacheWriter == null) {
+			cacheWriter = new DiskCacheWriter(name);
+			cacheWriter.start();
+		}
+
+		CacheFactory factory = CacheFactory.getInstance();
+		factory.addCache(name, this);
+
+		// TODO: Throw exception if not properly configured
+	}
+
+	protected class MetaData {
+		private Object syncObj = null;
+
+		private String cacheFilePath = null;
+
+		private SoftReference<K> softRef = null;
+
+		private WeakReference<K> weakRef = null;
+
+		private K ref = null;
+	}
+
+	protected class RefMap<X extends String, V extends MetaData> extends
+			LinkedHashMap<X, V> {
+
+		/**
          * 
          */
-        public RefMap() {
-            super();
-            // TODO Auto-generated constructor stub
-        }
+		public RefMap() {
+			super();
+			// TODO Auto-generated constructor stub
+		}
 
-        /**
-         * @param initialCapacity
-         * @param loadFactor
-         * @param accessOrder
-         */
-        public RefMap(int initialCapacity, float loadFactor, boolean accessOrder) {
-            super(initialCapacity, loadFactor, accessOrder);
-            // TODO Auto-generated constructor stub
-        }
+		/**
+		 * @param initialCapacity
+		 * @param loadFactor
+		 * @param accessOrder
+		 */
+		public RefMap(int initialCapacity, float loadFactor, boolean accessOrder) {
+			super(initialCapacity, loadFactor, accessOrder);
+			// TODO Auto-generated constructor stub
+		}
 
-        /**
-         * @param initialCapacity
-         * @param loadFactor
-         */
-        public RefMap(int initialCapacity, float loadFactor) {
-            super(initialCapacity, loadFactor);
-            // TODO Auto-generated constructor stub
-        }
+		/**
+		 * @param initialCapacity
+		 * @param loadFactor
+		 */
+		public RefMap(int initialCapacity, float loadFactor) {
+			super(initialCapacity, loadFactor);
+			// TODO Auto-generated constructor stub
+		}
 
-        /**
-         * @param initialCapacity
-         */
-        public RefMap(int initialCapacity) {
-            super(initialCapacity);
-            // TODO Auto-generated constructor stub
-        }
+		/**
+		 * @param initialCapacity
+		 */
+		public RefMap(int initialCapacity) {
+			super(initialCapacity);
+			// TODO Auto-generated constructor stub
+		}
 
-        /**
-         * @param m
-         */
-        public RefMap(Map<? extends X, ? extends V> m) {
-            super(m);
-            // TODO Auto-generated constructor stub
-        }
+		/**
+		 * @param m
+		 */
+		public RefMap(Map<? extends X, ? extends V> m) {
+			super(m);
+			// TODO Auto-generated constructor stub
+		}
 
-        @Override
-        protected boolean removeEldestEntry(Entry<X, V> eldest) {
-            boolean rval = size() > sizeMemCacheMap;
+		@Override
+		protected boolean removeEldestEntry(Entry<X, V> eldest) {
+			boolean rval = size() > sizeMemCacheMap;
 
-            if (rval) {
-                MetaData md = eldest.getValue();
-                cacheWriter.asyncWrite(md.cacheFilePath, md.ref, md.syncObj);
-                md.softRef = new SoftReference<K>(md.ref);
-                md.ref = null;
-                softMetaDataMap.put(eldest.getKey(), eldest.getValue());
-            }
+			if (rval) {
+				MetaData md = eldest.getValue();
+				md.softRef = new SoftReference<K>(md.ref);
+				cacheWriter.asyncWrite(md);
+				md.ref = null;
+				softMetaDataMap.put(eldest.getKey(), eldest.getValue());
+			}
 
-            return rval;
-        }
-    }
+			return rval;
+		}
+	}
 
-    /**
-     * Should this be static or one writer thread per cache? Only have so much
-     * through put to disk.
-     */
-    protected static DiskCacheWriter cacheWriter;
+	protected class DiskCacheWriter extends Thread {
+		protected boolean run = true;
 
-    private ConcurrentMap<String, MetaData> softMetaDataMap = new ConcurrentHashMap<String, MetaData>(
-            512);
+		protected ReferenceQueue<K> pendingWrites = new ReferenceQueue<K>();
 
-    private LinkedHashMap<String, MetaData> metaDataMap = new RefMap<String, MetaData>(
-            128, 0.75f, true);
+		private Map<Reference<K>, MetaData> dataMap = new HashMap<Reference<K>, MetaData>();
 
-    static {
-        cacheWriter = new DiskCacheWriter();
-        cacheWriter.start();
-    }
+		public DiskCacheWriter(String name) {
+			super(name);
+		}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.cache.ICache#getFromCache(java.lang.String)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public K getFromCache(String id) {
-        MetaData md = null;
-        K obj = null;
+		public void asyncWrite(MetaData md) {
+			synchronized (dataMap) {
+				// if we are currently writing to disk, let that flush finish
+				// before continuing
+				while (pendingWrites.poll() != null) {
+					try {
+						dataMap.wait();
+					} catch (InterruptedException e) {
 
-        // check the hard ref map
-        synchronized (metaDataMap) {
-            md = metaDataMap.get(id);
-        }
+					}
+				}
 
-        if (md != null) {
-            obj = md.ref;
-        } else {
-            // check the soft ref map
-            md = softMetaDataMap.get(id);
+				md.weakRef = new WeakReference<K>(md.ref, pendingWrites);
+				dataMap.put(md.weakRef, md);
+			}
+		}
 
-            if (md == null) {
-                // object not cached
-                return null;
-            }
+		public void cancelWrite(MetaData md) {
+			synchronized (dataMap) {
+				dataMap.remove(md.weakRef);
+			}
 
-            // cancel pending write for data if pending
-            obj = (K) cacheWriter.cancelWrite(md.cacheFilePath);
+			synchronized (md.syncObj) {
+				// wait for any pending writes to finish
+			}
+		}
 
-            if (obj == null) {
-                obj = md.softRef.get();
-            }
+		@Override
+		public void run() {
+			while (run) {
+				try {
+					Reference<? extends K> ref = pendingWrites.remove(60000);
+					if (ref != null) {
+						MetaData md = null;
 
-            if (obj == null) {
-                // object no longer in memory, read from disk
-                byte[] data = null;
+						// verify write wasn't cancelled
+						synchronized (dataMap) {
+							md = dataMap.get(ref);
+						}
 
-                try {
-                    synchronized (md.syncObj) {
-                        // verify data wasn't already retrieved
-                        if (md.ref == null) {
-                            if (data == null) {
-                                // data wasn't pending, read from disk
-                                File f = new File(md.cacheFilePath);
-                                data = FileUtil.file2bytes(f);
-                            }
+						if (md != null) {
+							synchronized (md.syncObj) {
+								if (md.ref == null && md.softRef != null) {
+									K dataObject = md.softRef.get();
+									OutputStream os = null;
 
-                            obj = (K) SerializationUtil
-                                    .transformFromThrift(data);
-                            md.ref = obj;
-                        }
-                    }
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.ERROR,
-                            "Error occurred retrieving cached data from disk",
-                            e);
-                }
-            }
+									try {
+										File f = new File(md.cacheFilePath);
 
-            // add object back to hard cache
-            md.ref = obj;
-            md.softRef = null;
-            synchronized (metaDataMap) {
-                metaDataMap.put(id, md);
-            }
-        }
+										if (dataObject != null) {
+											// serialize object and write data
+											// to disk
+											os = new BufferedOutputStream(
+													new FileOutputStream(f));
+											DynamicSerializationManager dsm = DynamicSerializationManager
+													.getManager(SerializationType.Thrift);
+											dsm.serialize(dataObject, os);
 
-        return obj;
-    }
+											dataObject = null;
+											f.deleteOnExit();
+										} else {
+											// delete file
+											f.delete();
+										}
+									} finally {
+										synchronized (dataMap) {
+											dataMap.notifyAll();
+										}
+									}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.cache.ICache#removeFromCache(java.lang.String)
-     */
-    @Override
-    public void removeFromCache(String id) {
-        MetaData md = null;
-        synchronized (metaDataMap) {
-            md = metaDataMap.remove(id);
-        }
-        if (md == null) {
-            md = softMetaDataMap.remove(id);
-        } else {
-            softMetaDataMap.remove(id);
-        }
-
-        if (md != null && md.cacheFilePath != null) {
-            cacheWriter.cancelWrite(md.cacheFilePath);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.cache.ICache#addToCache(java.lang.String, K)
-     */
-    @Override
-    public void addToCache(String id, K obj) throws IOException {
-        MetaData md = null;
-
-        // check map of hard refs
-        synchronized (metaDataMap) {
-            md = metaDataMap.get(id);
-        }
-
-        // No hard ref, check for soft ref
-        if (md == null) {
-            md = softMetaDataMap.get(id);
-        }
-
-        // no previous cache'd entry, make new one
-        if (md == null) {
-            md = new MetaData();
-            md.syncObj = new Object();
-            md.cacheFilePath = File.createTempFile("cache", ".bin", cacheDir)
-                    .getAbsolutePath();
-        }
-
-        synchronized (metaDataMap) {
-            metaDataMap.put(id, md);
-        }
-
-        md.softRef = null;
-        md.ref = obj;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.cache.ICache#addToCache(K)
-     */
-    @Override
-    public String addToCache(K obj) throws IOException {
-        MetaData md = new MetaData();
-        md.syncObj = new Object();
-        md.cacheFilePath = File.createTempFile("cache", ".bin", cacheDir)
-                .getAbsolutePath();
-
-        synchronized (metaDataMap) {
-            metaDataMap.put(md.cacheFilePath, md);
-        }
-
-        md.ref = obj;
-        md.softRef = null;
-
-        // unique id will be the unique temp file created
-        return md.cacheFilePath;
-    }
-
-    public void closeCache() {
-        cacheWriter.run = false;
-    }
-
-    public int getSizeMemCacheMap() {
-        return sizeMemCacheMap;
-    }
-
-    public void setSizeMemCacheMap(int sizeMemCacheMap) {
-        this.sizeMemCacheMap = sizeMemCacheMap;
-
-        // need to push extra entries to disk?
-        if (sizeMemCacheMap > metaDataMap.size()) {
-            synchronized (metaDataMap) {
-                RefMap<String, MetaData> tmp = new RefMap<String, MetaData>(
-                        (int) (sizeMemCacheMap * 1.25) + 1, 0.75f, true);
-                tmp.putAll(metaDataMap);
-                metaDataMap = tmp;
-            }
-        }
-
-        this.sizeMemCacheMap = sizeMemCacheMap;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getBaseCacheDir() {
-        return baseCacheDir;
-    }
-
-    public void setBaseCacheDir(String baseCacheDir) {
-        this.baseCacheDir = baseCacheDir;
-    }
-
-    public void activateCache() {
-        int pid = SystemUtil.getPid();
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext userContext = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.WORKSTATION);
-
-        if (baseCacheDir == null) {
-            baseCacheDir = "diskCache";
-        }
-
-        String path = baseCacheDir + File.separator + name + File.separator
-                + File.separator + "pid_" + pid;
-        this.cacheDir = PathManagerFactory.getPathManager().getFile(
-                userContext, path);
-
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
-        }
-
-        CacheFactory factory = CacheFactory.getInstance();
-        factory.addCache(name, this);
-
-        // TODO: Throw exception if not properly configured
-    }
+									md.softRef = null;
+									md.weakRef = null;
+								}
+							}
+						}
+					}
+				} catch (Throwable e) {
+					statusHandler.handle(Priority.ERROR,
+							"Error occurred writing data to disk cache", e);
+				}
+			}
+		}
+	}
 }

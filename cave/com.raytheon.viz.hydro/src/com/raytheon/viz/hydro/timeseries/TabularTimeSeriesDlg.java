@@ -135,6 +135,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 	private static final transient IUFStatusHandler statusHandler = UFStatus
 			.getHandler(TabularTimeSeriesDlg.class);
 
+	
+    private static final String CARRIAGECONTROL = "\r";
+
 	private static final int MAX_TS_ON_LIST = 120;
 
 	private static final String HDRDEFAULT = "    Value     Time(Z)    RV SQ QC   Product       Time         Posted";
@@ -3110,7 +3113,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 						shefFileName));
 				String str;
 				while ((str = in.readLine()) != null) {
-					sb.append(str);
+				    sb.append(CARRIAGECONTROL);
+				    sb.append(str);
 				}
 				in.close();
 			} catch (IOException e) {
