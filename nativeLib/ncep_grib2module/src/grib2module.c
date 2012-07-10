@@ -49,12 +49,13 @@ int getRecord(FILE * fptr, gribfield ** gfld, int recordNumber,
 
 	unsigned char *cgrib;
 	g2int listsec0[3], listsec1[13];
-	long iseek = 0;
-	long lskip;
-	long lgrib = 1;
+	g2int iseek = 0;
+	g2int lskip;
+	g2int lgrib = 1;
 	g2int numfields;
 	g2int numlocal;
-	int ret, ierr, expand = 1;
+	g2int ierr, expand = 1;
+	int ret = 1;
 	size_t lengrib;
 
 	// Seek to the correct position in the file
@@ -130,7 +131,7 @@ static PyObject * grib2_getData(PyObject *self, PyObject* args)
 
 	gribfield * gfld;
 	long numfields;
-	int dimSize[1];
+	npy_intp dimSize[1];
 	PyObject *response = PyDict_New();
 	numfields = getRecord(fptr, &gfld, recordNumber, fieldNumber, 1);
 
