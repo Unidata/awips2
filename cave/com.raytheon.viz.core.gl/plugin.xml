@@ -56,5 +56,14 @@
          <graphicsExtension
                class="com.raytheon.viz.core.gl.internal.ext.GLMultiChannelImageExtension">
          </graphicsExtension>
+         <graphicsExtension
+               class="com.raytheon.viz.core.gl.internal.ext.mosaic.GLMosaicImageExtension">
+   		 </graphicsExtension>
+         <graphicsExtension
+               class="com.raytheon.viz.core.gl.internal.ext.mosaic.GLMosaicMaxValImageExtension">
+   		 </graphicsExtension>
+         <graphicsExtension
+               class="com.raytheon.viz.core.gl.internal.ext.mosaic.GLMosaicOrderedImageExtension">
+   		 </graphicsExtension>
       </extension>
 </plugin>

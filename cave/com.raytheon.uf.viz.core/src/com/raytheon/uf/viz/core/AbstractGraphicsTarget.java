@@ -47,7 +47,6 @@ import com.raytheon.uf.viz.core.drawables.ImagingSupport;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtensionManager;
-import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -380,17 +379,6 @@ public abstract class AbstractGraphicsTarget implements IGraphicsTarget {
             PointStyle pointStyle, float magnification) throws VizException {
         drawPoints(Arrays.asList(new double[] { x, y, z }), color, pointStyle,
                 magnification);
-    }
-
-    @Override
-    public void renderOffscreen(IImage offscreenImage) throws VizException {
-        getExtension(IOffscreenRenderingExtension.class).renderOffscreen(
-                offscreenImage);
-    }
-
-    @Override
-    public void renderOnscreen() throws VizException {
-        getExtension(IOffscreenRenderingExtension.class).renderOnscreen();
     }
 
     @Override
