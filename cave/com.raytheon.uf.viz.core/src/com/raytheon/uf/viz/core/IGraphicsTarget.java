@@ -732,20 +732,6 @@ public interface IGraphicsTarget extends IImagingExtension {
     public IView getView();
 
     /**
-     * Use getExtension(IOffscreenRenderingExtension.class).renderOffscreen(
-     * offscreenImage) instead;
-     */
-    @Deprecated
-    public void renderOffscreen(IImage offscreenImage) throws VizException;
-
-    /**
-     * Use getExtension(IOffscreenRenderingExtension.class).renderOnscreen()
-     * instead;
-     */
-    @Deprecated
-    public void renderOnscreen() throws VizException;
-
-    /**
      * Use drawStrings(DrawableString parameters)
      */
     @Deprecated

@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.radar.gl.mosaic;
+package com.raytheon.viz.core.gl.internal.ext.mosaic;
 
 import java.nio.ByteBuffer;
 
@@ -30,13 +30,12 @@ import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ImagingSupport;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
+import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.ext.GLOffscreenRenderingExtension;
 import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension;
 
 /**
  * Extension used for rendering radar mosaic images
@@ -55,8 +54,8 @@ import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension;
  * @version 1.0
  */
 
-public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
-        implements IRadarMosaicImageExtension {
+public class GLMosaicImageExtension extends AbstractGLSLImagingExtension
+        implements IMosaicImageExtension {
 
     private AbstractGLImage writeToImage;
 
@@ -65,7 +64,7 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
         return new GLMosaicImage(target.getExtension(
                 GLOffscreenRenderingExtension.class).constructOffscreenImage(
                 ByteBuffer.class, imageBounds, params), imageBounds,
-                imageExtent);
+                imageExtent, this.getClass());
     }
 
     /*
@@ -77,7 +76,7 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
      */
     @Override
     public String getShaderProgramName() {
-        return "mosaicMaxVal";
+        return "mosaicOrdered";
     }
 
     /*
@@ -95,8 +94,8 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
             GLMosaicImage mosaicImage = (GLMosaicImage) image;
             if (mosaicImage.isRepaint()) {
                 writeToImage = mosaicImage.getWrappedImage();
-                IOffscreenRenderingExtension extension = target
-                        .getExtension(IOffscreenRenderingExtension.class);
+                GLOffscreenRenderingExtension extension = target
+                        .getExtension(GLOffscreenRenderingExtension.class);
                 try {
                     extension.renderOffscreen(mosaicImage,
                             mosaicImage.getImageExtent());
@@ -164,7 +163,7 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
     @Override
     public void loadShaderData(GLShaderProgram program, IImage image,
             PaintProperties paintProps) throws VizException {
-        program.setUniform("radarData", 0);
+        program.setUniform("imageData", 0);
         program.setUniform("mosaicTexture", 1);
 
         // pass in width and height
