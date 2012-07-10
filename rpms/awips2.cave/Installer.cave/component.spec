@@ -51,7 +51,7 @@ fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2
 mkdir -p ${RPM_BUILD_ROOT}/etc/xdg/autostart
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-CAVE_DIST_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.cave/setup/dist"
+CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
 
 if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
    echo "ERROR: Unable to find - ${CAVE_DIST_DIR}/%{_component_zip_file_name}."
@@ -69,19 +69,19 @@ unzip %{_component_zip_file_name}
 rm -f %{_component_zip_file_name}
 
 # Our profile.d scripts
-PROFILE_D_DIR="${WORKSPACE_DIR}/Installer.rpm/common/environment/awips2-cave/profile.d"
+PROFILE_D_DIR="%{_baseline_workspace}/rpms/common/environment/awips2-cave/profile.d"
 cp ${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 # The AWIPS II version script.
-VERSIONS_SCRIPT="Installer.rpm/utility/scripts/versions.sh"
-cp ${WORKSPACE_DIR}/${VERSIONS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
+VERSIONS_SCRIPT="rpms/utility/scripts/versions.sh"
+cp %{_baseline_workspace}/${VERSIONS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
 
 # testWS script
-TEXTWS_SCRIPT="Installer.rpm/utility/scripts/textWS.sh"
-cp ${WORKSPACE_DIR}/${TEXTWS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
+TEXTWS_SCRIPT="rpms/utility/scripts/textWS.sh"
+cp %{_baseline_workspace}/${TEXTWS_SCRIPT} ${RPM_BUILD_ROOT}/awips2/cave
 
 # text-workstation autostart script.
-CAVE_SCRIPTS_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.cave/Installer.cave/scripts"
+CAVE_SCRIPTS_DIR="%{_baseline_workspace}/rpms/awips2.cave/Installer.cave/scripts"
 TEXTWS_AUTO_SCRIPT="${CAVE_SCRIPTS_DIR}/autostart/awips2-textws.desktop"
 cp -v ${TEXTWS_AUTO_SCRIPT} ${RPM_BUILD_ROOT}/etc/xdg/autostart
 if [ $? -ne 0 ]; then

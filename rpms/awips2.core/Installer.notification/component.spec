@@ -1,4 +1,3 @@
-%define CORE_DELTA_SETUP ${WORKSPACE_DIR}/Installer.rpm/delta/setup/updateSetup.sh
 %define _component_name           awips2-notification
 %define _component_project_dir    awips2.core/Installer.notification
 %define _component_default_prefix /awips2/notification
@@ -39,19 +38,10 @@ fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2/notification
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 
-RPM_CORE_PROJECT_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.core"
-PROFILE_D_DIR="${RPM_CORE_PROJECT_DIR}/Installer.notification/scripts/profile.d"
-cp ${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+PROFILE_D_DIR="rpms/awips2.core/Installer.notification/scripts/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 %build
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
-source %{CORE_DELTA_SETUP}
-copySetupCore ${RPM_BUILD_ROOT} %{_component_default_prefix}
-copyApplicableDeltas ${RPM_BUILD_ROOT} %{_component_name} \
-   %{_component_project_dir} %{_component_default_prefix}
-#---------------------------------------------------------------------------#
 
 %install
 # Copies the standard Raytheon licenses into a license directory for the
@@ -65,24 +55,24 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 RPM_CORE_PROJECT_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.core"
 NOTIFICATION_TAR_FILE_DIR="${RPM_CORE_PROJECT_DIR}/Installer.notification/src"
 NOTIFICATION_TAR_FILE="${NOTIFICATION_TAR_FILE_DIR}/edex_com.tar.bz2"
 
 cd ${RPM_BUILD_ROOT}/awips2
-/bin/gtar -xpf ${NOTIFICATION_TAR_FILE}
+/bin/gtar -xpf %{_awipscm_share}/${NOTIFICATION_TAR_FILE}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -109,34 +99,9 @@ echo -e "\e[1;34m---------------------------------------------------------------
 echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
 
 %post
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
-if [ "${1}" = "2" ]; then
-   echo "INFO: Performing %{_component_name} Upgrade."
-   echo "Preparing ..."
-   
-   # Check the delta directory to see if there are updates that
-   # may need to be applied.
-   cd ${RPM_INSTALL_PREFIX}/delta/%{_component_name}
-   COUNT=`ls -1 | wc -l`
-   
-   if [ "${COUNT}" = "0" ]; then
-      echo "INFO: No Updates To Perform."
-      exit 0
-   fi
-   
-   echo "INFO: Potentially Applying ${COUNT} Updates."
-   
-   # The Update Manager Is In: ${RPM_INSTALL_PREFIX}/delta
-   UPDATE_MANAGER="${RPM_INSTALL_PREFIX}/delta/updateManager.sh"
-   cd ${RPM_INSTALL_PREFIX}/delta
-   export COMPONENT_INSTALL="${RPM_INSTALL_PREFIX}"
-   ${UPDATE_MANAGER} %{_component_name}
-   
+if [ "${1}" = "2" ]; then   
    exit 0
 fi
-#---------------------------------------------------------------------------#
 echo "--------------------------------------------------------------------------------"
 echo "\| Setting up the AWIPS II Notification Runtime and Environment..."
 echo "--------------------------------------------------------------------------------"
@@ -166,14 +131,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(755,root,root) /etc/profile.d/awips2Notification.csh
 %attr(755,root,root) /etc/profile.d/awips2Notification.sh
 %dir /awips2/notification
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
-%dir %{_component_default_prefix}/delta
-%attr(700,root,root) %{_component_default_prefix}/delta/updateManager.sh
-%attr(700,root,root) %{_component_default_prefix}/delta/createUpdateRegistry.sh
-%{_component_default_prefix}/delta/%{_component_name}
-#---------------------------------------------------------------------------#
 %dir /awips2/notification/include
 /awips2/notification/include/*
 %dir /awips2/notification/lib

@@ -41,7 +41,7 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
 fi
 
 mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/.repository
-CAVE_DIST_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.cave/setup/dist"
+CAVE_DIST_DIR="%{_baseline_workspace}/rpms/awips2.cave/setup/dist"
 
 if [ ! -f ${CAVE_DIST_DIR}/%{_component_zip_file_name} ]; then
    echo "ERROR: Unable to find - ${CAVE_DIST_DIR}/%{_component_zip_file_name}."
@@ -116,7 +116,7 @@ function restoreCAVEAndFail()
 }
 
 # Set all paths required by CAVE before installing.
-export LD_LIBRARY_PATH=%{_awips2_java_home}/lib:/awips2/python/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/awips2/java/lib:/awips2/python/lib:$LD_LIBRARY_PATH
 export LD_PRELOAD=libpython.so
 if [ -d /awips2/cave/lib ]; then
    export LD_LIBRARY_PATH=/awips2/cave/lib/lib_illusion:$LD_LIBRARY_PATH
@@ -125,8 +125,8 @@ if [ -d /awips2/cave/lib64 ]; then
    export LD_LIBRARY_PATH=/awips2/cave/lib64/lib_illusion:$LD_LIBRARY_PATH
 fi
 # Need to use awips2-java to do this.
-export PATH=%{_awips2_java_home}/bin:/awips2/python/bin:${PATH}
-export JAVA_HOME="%{_awips2_java_home}/jre"
+export PATH=/awips2/java/bin:/awips2/python/bin:${PATH}
+export JAVA_HOME="/awips2/java/jre"
 
 # Use the eclipse p2 manager.
 CAVE_EXE="/awips2/cave/cave"
@@ -208,7 +208,7 @@ if [ ! -f /awips2/python/bin/python ]; then
 fi
 
 # Set all paths required by CAVE before installing.
-export LD_LIBRARY_PATH=%{_awips2_java_home}/lib:/awips2/python/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/awips2/java/lib:/awips2/python/lib:$LD_LIBRARY_PATH
 export LD_PRELOAD=libpython.so
 if [ -d /awips2/cave/lib ]; then
    export LD_LIBRARY_PATH=/awips2/cave/lib/lib_illusion:$LD_LIBRARY_PATH
@@ -217,8 +217,8 @@ if [ -d /awips2/cave/lib64 ]; then
    export LD_LIBRARY_PATH=/awips2/cave/lib64/lib_illusion:$LD_LIBRARY_PATH
 fi
 # Need to use awips2-java to do this.
-export PATH=%{_awips2_java_home}/bin:/awips2/python/bin:${PATH}
-export JAVA_HOME="%{_awips2_java_home}/jre"
+export PATH=/awips2/java/bin:/awips2/python/bin:${PATH}
+export JAVA_HOME="/awips2/java/jre"
 
 # Use the eclipse p2 manager.
 CAVE_EXE="/awips2/cave/cave"
