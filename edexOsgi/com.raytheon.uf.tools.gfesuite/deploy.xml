@@ -95,6 +95,8 @@
 			<fileset dir="${basedir}/../com.raytheon.uf.tools.gfesuite.servicebackup/svcBackup"/>
 			<filterset refid="installer.filter.set"/>
 		</copy>
+		<!-- Create the exportgrids directory. -->
+		<mkdir dir="${gfe.suite.home}/exportgrids" />
 		<echo message="Setting permissions in ${gfe.suite.home}/ServiceBackup/scripts to 'ugo+rx'" />
 		<chmod dir="${gfe.suite.home}/ServiceBackup/scripts" perm="ugo+rx" 
 			includes="**/**" />

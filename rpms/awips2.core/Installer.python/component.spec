@@ -1,13 +1,16 @@
+%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+%define _build_arch %(uname -i)
+
 #
 # AWIPS II Python Spec File
 #
 Name: awips2-python
 Summary: AWIPS II Python Distribution
 Version: 2.7.1
-Release: 1
+Release: 4
 Group: AWIPSII
-BuildRoot: /tmp
-Prefix: /awips2/python
+BuildRoot: %{_build_root}
+BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -16,77 +19,61 @@ Packager: Bryan Kowal
 
 AutoReq: no
 provides: awips2-python
-obsoletes: awips2-python < 2.7.1
-
-#-----------------------------------------------------------------------------#
-# IMPORTANT ! INFORMATION ABOUT UPGRADING PYTHON!                             #                              
-#-----------------------------------------------------------------------------#
-# Whenever python is upgraded, the following libraries will need to be
-# re-compiled with the updated python shared library.
-# 1) grib2.so
-# 2) gridslice.so
-# 3) mod_wsgi (pypies)
-#-----------------------------------------------------------------------------#
 
 %description
 AWIPS II Python Distribution - Contains Python V2.7.1 plus modules
-required for AWIPS II
-
-# Turn off the brp-python-bytecompile script
-%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+required for AWIPS II.
 
 %prep
 # Verify That The User Has Specified A BuildRoot.
-if [ "${RPM_BUILD_ROOT}" = "/tmp" ]
+if [ "%{_build_root}" = "" ]
 then
-   echo "An Actual BuildRoot Must Be Specified. Use The --buildroot Parameter."
+   echo "A Build Root has not been specified."
    echo "Unable To Continue ... Terminating"
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2/python
-mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
+rm -rf %{_build_root}
+mkdir -p %{_build_root}/build-python
+mkdir -p %{_build_root}/awips2/python
+mkdir -p %{_build_root}/etc/profile.d
 
 %build
-PROFILE_D_DIR="Installer.rpm/awips2.core/Installer.python/scripts/profile.d"
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+PYTHON_TAR="Python-2.7.1.tgz"
+PYTHON_SRC_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.python/src"
 
-PYTHON_SRC_TAR="Python-2.7.1.tgz"
-PATH_TO_PYTHON_SRC="${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.python"
-PYTHON_SRC="${PATH_TO_PYTHON_SRC}/src/${PYTHON_SRC_TAR}"
+cp -v ${PYTHON_SRC_DIR}/${PYTHON_TAR} \
+   %{_build_root}/build-python
 
-# Copy the source to a temporary location
-PYTHON_BUILD_DIR="${RPM_BUILD_ROOT}/awips2/python-build"
+pushd . > /dev/null
 
-mkdir -p ${PYTHON_BUILD_DIR}
-cp ${PYTHON_SRC} ${PYTHON_BUILD_DIR}
-
-# Untar The Source
-cd ${PYTHON_BUILD_DIR}
-tar -xf ${PYTHON_BUILD_DIR}/${PYTHON_SRC_TAR}
+# Untar the source.
+cd %{_build_root}/build-python
+tar -xf ${PYTHON_TAR}
 RC=$?
 if [ ${RC} -ne 0 ]; then
-   exit 1 
-fi
-
-# Check Return Codes For The Steps That Follow ...
-# Run Configure
-PYTHON_SRC_DIR="${RPM_BUILD_ROOT}/awips2/python-build/Python-2.7.1"
-
-cd ${PYTHON_SRC_DIR}
-./configure --prefix=${RPM_BUILD_ROOT}/awips2/python --enable-shared
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
    exit 1
 fi
 
-# Run Make
+cd Python-2.7.1
+./configure --prefix=%{_build_root}/awips2/python \
+   --enable-shared
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+
 make clean
-make
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
+RC=$?
+if [ ${RC} -ne 0 ]; then
    exit 1
 fi
+make
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+
+popd > /dev/null
 
 %install
 # Copies the standard Raytheon licenses into a license directory for the
@@ -97,116 +84,212 @@ function copyLegal()
    
    COMPONENT_BUILD_DIR=${1}
    
-   mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
+   mkdir -p %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
    
-   # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
-   
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-      
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
+      %{_build_root}/${COMPONENT_BUILD_DIR}/licenses
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
+      %{_build_root}/${COMPONENT_BUILD_DIR}/licenses    
 }
+pushd . > /dev/null
 
-PYTHON_BUILD_DIR="${RPM_BUILD_ROOT}/awips2/python-build"
-PYTHON_SRC_DIR="${PYTHON_BUILD_DIR}/Python-2.7.1"
-cd ${PYTHON_SRC_DIR}
-
+cd %{_build_root}/build-python/Python-2.7.1
 make install
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   exit 1
-fi
-
-ADDL_TAR_PATH="${WORKSPACE_DIR}/Installer.rpm/awips2.core/Installer.python"
-PYTHON_ADDL_TAR="${ADDL_TAR_PATH}/src/awips2-python.tar.gz"
-tar -xf ${PYTHON_ADDL_TAR} -C ${RPM_BUILD_ROOT}/awips2/python/
 RC=$?
 if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-# Remove our temporary build directory
-rm -rf ${PYTHON_BUILD_DIR}
+popd > /dev/null
 
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+
+pushd .
+cd %{_build_root}/awips2/python/lib/pkgconfig
+# Alter the prefix in: lib/pkgconfig/python-2.7.pc
+/bin/sed -i '1c\'"prefix=/awips2/python" python-2.7.pc
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+cd %{_build_root}/awips2/python/bin
+# Update the first line of: 2to3, idle, pydoc, python2.7-config, smtpd.py
+/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" 2to3
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" idle
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" pydoc
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" python2.7-config
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+/bin/sed -i '1c\'"#!/awips2/python/bin/python2.7" smtpd.py
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+popd
+
+# Our profile.d scripts.
+PYTHON_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.python"
+PYTHON_SRC_DIR="${PYTHON_PROJECT_DIR}/src"
+PYTHON_SCRIPTS_DIR="${PYTHON_PROJECT_DIR}/scripts"
+PYTHON_PROFILED_DIR="${PYTHON_SCRIPTS_DIR}/profile.d"
+cp -v ${PYTHON_PROFILED_DIR}/* %{_build_root}/etc/profile.d
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+
+# The external libraries (hdf5, netcdf, ...) and headers
+# we include with python.
+
+# Retrieve hdf5 from: hdf5-1.8.4-patch1-linux-?-shared.tar.gz
+HDF5184_PATTERN="hdf5-1.8.4-patch1-linux*-shared.tar.gz"
+pushd . > /dev/null
+cd ${PYTHON_SRC_DIR}/%{_build_arch}
+HDF5_TAR=`ls -1 ${HDF5184_PATTERN}`
+popd > /dev/null
+
+# Copy the hdf5 tar file to our build directory.
+cp -v ${PYTHON_SRC_DIR}/%{_build_arch}/${HDF5_TAR} \
+   %{_build_root}/build-python
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+pushd . > /dev/null
+cd %{_build_root}/build-python
+tar -xvf ${HDF5_TAR}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+# Determine what the hdf5 directory is.
+HDF_ROOT_DIR=`/bin/tar -tf ${HDF5_TAR} | head -n 1`
+rm -fv ${HDF5_TAR}
+
+cp -v ${HDF_ROOT_DIR}lib/* \
+   %{_build_root}/awips2/python/lib
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+popd > /dev/null
+
+PYTHON_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core/Installer.python"
+PYTHON_SRC_DIR="${PYTHON_PROJECT_DIR}/src"
+PYTHON_NATIVE_DIR="${PYTHON_PROJECT_DIR}/nativeLib"
+LAPACK_TAR="lapack-3.0.tgz"
+LAPACK_PATCH="lapack.patch1"
+
+# The Raytheon-built native (nativeLib) libraries.
+cp -vP ${PYTHON_NATIVE_DIR}/%{_build_arch}/grib2.so \
+       ${PYTHON_NATIVE_DIR}/%{_build_arch}/gridslice.so \
+       %{_build_root}/awips2/python/lib/python2.7
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cp -vP ${PYTHON_NATIVE_DIR}/%{_build_arch}/libjasper.so \
+       ${PYTHON_NATIVE_DIR}/%{_build_arch}/libjasper.so.1 \
+       ${PYTHON_NATIVE_DIR}/%{_build_arch}/libjasper.so.1.0.0 \
+       %{_build_root}/awips2/python/lib
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+# An additional step for 32-bit rpms (for now).
+if [ "%{_build_arch}" = "i386" ]; then
+   /bin/tar -xvf ${PYTHON_SRC_DIR}/i386/awips2-python.tar \
+      -C %{_build_root}/awips2/python
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
+
+# Copy the LAPACK tar file and patch to our build directory.
+cp -v ${PYTHON_SRC_DIR}/${LAPACK_TAR} \
+   %{_build_root}/build-python
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+cp -v ${PYTHON_SRC_DIR}/${LAPACK_PATCH} \
+   %{_build_root}/build-python
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+pushd . > /dev/null
+cd %{_build_root}/build-python
+tar -xvf ${LAPACK_TAR}
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+rm -fv ${LAPACK_TAR}
+if [ ! -d LAPACK ]; then
+   file LAPACK
+   exit 1
+fi
+cd LAPACK
+patch -p1 -i ../${LAPACK_PATCH}
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+make blaslib
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+make lapacklib
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+# Copy the libraries that we just built to
+# the python lib directory.
+if [ ! -f BLAS/SRC/libblas.so ]; then
+   file BLAS/SRC/libblas.so
+   exit 1
+fi
+cp -v BLAS/SRC/libblas.so \
+   %{_build_root}/awips2/python/lib
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+if [ ! -f SRC/liblapack.so ]; then
+   file SRC/liblapack.so
+   exit 1
+fi
+cp -v SRC/liblapack.so \
+   %{_build_root}/awips2/python/lib
+RC=$?
+if [ ${RC} -ne 0 ]; then
+   exit 1
+fi
+
+popd > /dev/null
+
+rm -rf %{_build_root}/build-python
 copyLegal "awips2/python"
 
-%pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II Python Distribution...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
-
-%post
-function printFailureMessage()
-{
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-   echo -e "\e[1;31m\| AWIPS II Python Distribution Installation - FAILED\e[m"
-   echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-}
-
-function update_script_first_line()
-{
-   # $1 == the name of the script
-
-   PYTHON_BIN_DIR=${RPM_INSTALL_PREFIX}/bin
-   PYTHON_EXE=${PYTHON_BIN_DIR}/python
-
-   sed '1c\'"#!${PYTHON_EXE}" ${PYTHON_BIN_DIR}/${1} > ${PYTHON_BIN_DIR}/${1}.tmp
-   rm -rf ${PYTHON_BIN_DIR}/${1}
-   mv ${PYTHON_BIN_DIR}/${1}.tmp ${PYTHON_BIN_DIR}/${1}
-   chmod a+x ${PYTHON_BIN_DIR}/${1}
-}
-echo "--------------------------------------------------------------------------------"
-echo "\| Setting up AWIPS II Python Runtime and Environment..."
-echo "--------------------------------------------------------------------------------"
-
-update_script_first_line 2to3
-update_script_first_line idle
-update_script_first_line pydoc
-update_script_first_line python2.7-config
-update_script_first_line smtpd.py
-
-echo "--------------------------------------------------------------------------------"
-echo "\| Adding Environment Variables for AWIPS II Python"
-echo "--------------------------------------------------------------------------------"
-
-if [ -L ${RPM_INSTALL_PREFIX}/lib/.site-packages ]; then
-   rm -f ${RPM_INSTALL_PREFIX}/lib/.site-packages
-fi
-cd ${RPM_INSTALL_PREFIX}/lib
-ln -s python2.7/site-packages .site-packages
-
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Python Distribution Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
-%preun
-
-%postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II Python Distribution Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+rm -rf %{_build_root}
 
 %files
-%defattr(-,awips,fxalpha,-)
+%defattr(644,awips,fxalpha,755)
 %attr(755,root,root) /etc/profile.d/awips2Python.csh
 %attr(755,root,root) /etc/profile.d/awips2Python.sh
 %dir /awips2/python
