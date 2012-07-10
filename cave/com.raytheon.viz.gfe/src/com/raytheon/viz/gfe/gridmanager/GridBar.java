@@ -61,6 +61,7 @@ import com.raytheon.viz.gfe.core.msgs.GMDisplayModeMsg;
 import com.raytheon.viz.gfe.core.msgs.HighlightMsg;
 import com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IGridDataChangedListener;
+import com.raytheon.viz.gfe.core.msgs.IGridHistoryUpdatedListener;
 import com.raytheon.viz.gfe.core.msgs.IGridVisibilityChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ILockTableChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParameterSelectionChangedListener;
@@ -95,7 +96,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         IGridVisibilityChangedListener, IActivatedParmChangedListener,
         IGridDataChangedListener, ISelectionTimeRangeChangedListener,
         IParameterSelectionChangedListener, ILockTableChangedListener,
-        IParmIDChangedListener, DisposeListener
+        IParmIDChangedListener, IGridHistoryUpdatedListener, DisposeListener
 
 {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -258,7 +259,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     //
     // private int redrawCount;
 
-    private Display display;
+    // private Display display;
 
     /**
      * @param aCanvas
@@ -269,7 +270,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     public GridBar(final GridCanvas aCanvas, final Parm aParm,
             final GridManager aGridManager) {
         canvas = aCanvas;
-        display = canvas.getDisplay();
+        // display = canvas.getDisplay();
         parm = aParm;
         gridManager = aGridManager;
 
@@ -284,6 +285,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         this.parm.getListeners().addParmInventoryChangedListener(this);
         this.parm.getListeners().addGridChangedListener(this);
+        this.parm.getListeners().addGridHistoryUpdatedListener(this);
         this.parm.getListeners().addSelectionTimeRangeChangedListener(this);
         this.parm.getListeners().addParameterSelectionChangedListener(this);
         this.parm.getListeners().addLockTableChangedListener(this);
@@ -324,6 +326,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         parm.getListeners().removeParmInventoryChangedListener(this);
         parm.getListeners().removeGridChangedListener(this);
+        parm.getListeners().removeGridHistoryUpdatedListener(this);
         parm.getListeners().removeSelectionTimeRangeChangedListener(this);
         parm.getListeners().removeParameterSelectionChangedListener(this);
         parm.getListeners().removeLockTableChangedListener(this);
@@ -1466,7 +1469,24 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
         // System.out.println("parmInventoryChanged for " + this);
         canvas.calcStepTimes();
-        if (this.gridManager.checkVisibility(timeRange)) {
+        if (this.parm.equals(parm)
+                && this.gridManager.checkVisibility(timeRange)) {
+            redraw();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.gfe.core.msgs.IGridHistoryUpdatedListener#historyUpdated
+     * (com.raytheon.viz.gfe.core.parm.Parm,
+     * com.raytheon.uf.common.time.TimeRange)
+     */
+    @Override
+    public void gridHistoryUpdated(Parm parm, TimeRange timeRange) {
+        if (this.parm.equals(parm)
+                && this.gridManager.checkVisibility(timeRange)) {
             redraw();
         }
     }
@@ -1511,8 +1531,10 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     @Override
     public void gridDataChanged(ParmID parmId, TimeRange validTime) {
-        // System.out.println("gridDataChanged for " + this);
-        if (this.gridManager.checkVisibility(validTime)) {
+        // System.out.println(this + " processing gridDataChanged(" + parmId
+        // + ", " + validTime + ")");
+        if (this.parm.getParmID().equals(parmId)
+                && this.gridManager.checkVisibility(validTime)) {
             redraw();
         }
     }
@@ -1536,7 +1558,9 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     @Override
     public void lockTableChanged(Parm parm, LockTable lockTable) {
         // System.out.println("lockTableChanged for " + this);
-        redraw();
+        if (this.parm.equals(parm)) {
+            redraw();
+        }
     }
 
     @Override

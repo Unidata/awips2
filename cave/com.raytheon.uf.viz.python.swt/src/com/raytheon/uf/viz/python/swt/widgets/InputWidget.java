@@ -19,9 +19,11 @@
  **/
 package com.raytheon.uf.viz.python.swt.widgets;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -29,6 +31,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
@@ -66,7 +69,7 @@ public abstract class InputWidget extends Widget implements Listener {
      * @version 1.0
      */
 
-    public class helpRepositioner implements ControlListener {
+    public class HelpRepositioner implements ControlListener {
 
         /*
          * (non-Javadoc)
@@ -112,20 +115,37 @@ public abstract class InputWidget extends Widget implements Listener {
      * .swt.widgets.Composite, int)
      */
     @Override
-    public Composite buildComposite(Composite parent, int style) {
+    public Composite buildComposite(Composite parent) {
 
-        Composite composite = new Composite(parent, style);
+        Group group = new Group(parent, SWT.NONE);
 
         GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 2;
-        composite.setLayout(gridLayout);
-        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        gridLayout.marginHeight = 0;
+        group.setLayout(gridLayout);
+        group.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false));
 
-        Label label = new Label(composite, style);
+        Label label = new Label(group, SWT.LEFT);
         label.setText(makeGuiLabel(getLabel()));
 
-        text = new Text(composite, SWT.BORDER);
-        text.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        String s = "";
+        if (getValue() != null) {
+            s = getValue().toString();
+        }
+
+        int width = 30;
+        if (s.length() > 20) {
+            width = s.length() + 10;
+        }
+        GC gc = new GC(parent);
+        width = Dialog.convertWidthInCharsToPixels(gc.getFontMetrics(), width);
+        gc.dispose();
+
+        text = new Text(group, SWT.BORDER);
+        GridData layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT, true,
+                false);
+        layoutData.widthHint = width;
+        text.setLayoutData(layoutData);
         text.addListener(SWT.Verify, this);
         text.addListener(SWT.Modify, new Listener() {
 
@@ -143,16 +163,14 @@ public abstract class InputWidget extends Widget implements Listener {
             }
         });
 
-        if (getValue() != null) {
-            text.setText(getValue().toString());
-        }
+        text.setText(s);
 
-        this.composite = composite;
+        this.composite = group;
 
-        composite.getShell().addControlListener(new helpRepositioner());
-        composite.addControlListener(new helpRepositioner());
+        group.getShell().addControlListener(new HelpRepositioner());
+        group.addControlListener(new HelpRepositioner());
 
-        return composite;
+        return group;
 
     }
 
