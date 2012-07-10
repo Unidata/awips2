@@ -21,14 +21,14 @@
 # it was renamed to avoid a conflict with jep's built-in config module
 import types
 
-from java.util import ArrayList,HashMap
+from java.util import ArrayList,LinkedHashMap
 from java.lang import Integer,Float
 from com.vividsolutions.jts.geom import Coordinate
 from java.awt import Point
 
 Databases = {}
 Projections = {}
-DiscreteDef = HashMap()   #from parseKeys()
+DiscreteDef = LinkedHashMap()   #from parseKeys()
         
 # Check a python sequence to see that
 # it matches the format.
@@ -62,7 +62,7 @@ def check(data, fmt, message, allData = None):
 
 # dictionary check, keys are strings, values/subvalues  as specified
 def dictCheck(dictionary, value, subvalue, configName):
-    map = HashMap()
+    map = LinkedHashMap()
     if type(dictionary) == dict:
         for k in dictionary.keys():
             if type(k) != str:
@@ -352,7 +352,7 @@ def parse(site, databases, wxtypes, wxvisibilities, allSites, inProjections):
     return models, projections, vis, types, DiscreteDef, allSiteIDs, domain, siteId, timeZone, allOfficeTypes
 
 def d2dParse(d2dmodels):
-    dict = HashMap()
+    dict = LinkedHashMap()
     for entry in d2dmodels:
         if type(entry) is types.TupleType:
             d2dModelName, gfeModelName = check(entry, (str, str),
@@ -369,8 +369,30 @@ def d2dParse(d2dmodels):
 
     return dict
 
+def netcdfParse(netcdfDirs):
+    dict = LinkedHashMap()
+    for entry in netcdfDirs:
+        if type(entry) is types.TupleType:
+            direct, modelName = check(entry, (str, str),
+              "Format error in NETCDFDIRS entry", netcdfDirs)
+
+            if direct[-1] == '/':
+                direct = direct[0:-1]
+            dict.put(direct, modelName)
+
+        elif type(entry) is types.StringType:
+            direct = entry
+            if direct[-1] == '/':
+                direct = direct[0:-1]
+            dict.put(direct,  '')
+
+        else:
+            raise SyntaxError, "Invalid syntax for NETCDFDIRS" + `netcdfDirs`
+
+    return dict
+
 def parseSat(satdirs):
-    rval = HashMap()
+    rval = LinkedHashMap()
     for e in satdirs:
         if type(e) is types.TupleType:
             direct, name = check(e, (str, str),
@@ -411,7 +433,7 @@ def otherParse(serverhost, mhsid, port,
     if type(extraWEPrec) != list:
         raise TypeError, "ExtraWEPrec not an list: " + `extraWEPrec`
     else:
-        extraWEPrecision = HashMap()
+        extraWEPrecision = LinkedHashMap()
         for e in extraWEPrec:
             if type(e) == str:
                 extraWEPrecision.put(e, Integer(1))

@@ -87,7 +87,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     so that it would place the
  *                                     entire time series within the
  *                                     printable area of the page.
- * 04  Mar 2011 7644      lbousaid     fixed Zoom in feature                                
+ * 04  Mar 2011 7644      lbousaid     fixed Zoom in feature       
+ * 30  May 2012 14967     wkwock       fix insert deleted data to rejecteddata table                         
  * 
  * </pre>
  * 
@@ -819,6 +820,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                             .getInstance();
                     if (deleteList.size() > 0) {
                         try {
+                            dataManager.insertRejectedData(deleteList);
                             dataManager.delete(deleteList);
                             updateMaxFcst(deleteList);
                         } catch (VizException e) {

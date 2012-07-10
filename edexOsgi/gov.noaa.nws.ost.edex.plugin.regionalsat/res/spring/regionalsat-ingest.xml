@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	
+	<bean id="jms-regionalsat" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestRegionalSatConfig" />
+		<property name="taskExecutor" ref="regionalSatThreadPool" />		
+	</bean>
+	
+	<bean id="jmsIngestRegionalSatConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
+			
+	<bean id="regionalSatThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean>
+
+	<bean id="regionalSatDecoder" class="gov.noaa.nws.ost.edex.plugin.regionalsat.decoder.RegionalSatDecoder">
+		<property name="source" value="Source" />
+		<property name="filename" value="regional_satellite_netcdf3" />
+		<property name="dao" ref="regionalSatDao" />
+	</bean>
+
+	<!-- sat plugin has one but we don't want to be dep on the satellite-ingest beans... -->
+	<bean id="regionalSatDao" class="com.raytheon.edex.plugin.satellite.dao.SatelliteDao"
+		depends-on="satelliteRegistered">
+		<constructor-arg ref="satellitePluginName" />
+	</bean>
+
+	<bean id="regionalSatDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="regionalsat" />
+		<constructor-arg value="jms-dist:queue:Ingest.regionalsat?destinationResolver=#qpidDurableResolver" />
+	</bean>
+    
+	<!-- 	<constructor-arg value="jms-dist:queue:Ingest.Satellite" />  -->
+	
+    <bean id="regionalSatCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="regionalSat-camel"/>
+  	</bean>
+    
+    <camelContext id="regionalSat-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+
+        <!-- Begin regionalsat routes -->
+        <route id="regionalSatIngestRoute">
+            <from uri="jms-generic:queue:Ingest.regionalsat?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+				<constant>regionalsat</constant>
+			</setHeader>
+            <doTry>
+	            <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="regionalSatDecoder" method="decode"/>
+                    <to uri="directvm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:regionalsat?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>
+
+

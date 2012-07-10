@@ -29,8 +29,10 @@ import java.util.List;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
@@ -114,6 +116,10 @@ public abstract class AbstractCrossSectionAdapter<T extends PluginDataObject>
             }
 
         });
+    }
+
+    public CoordinateReferenceSystem getDataCoordinateReferenceSystem() {
+        return MapUtil.LATLON_PROJECTION;
     }
 
 }

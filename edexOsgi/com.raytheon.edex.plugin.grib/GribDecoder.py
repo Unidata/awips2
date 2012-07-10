@@ -412,6 +412,7 @@ class GribDecoder():
             pdsSectionValues['model'].setParameterAbbreviation(newAbbr)
         pdsSectionValues['model'].setParameterAbbreviation(pdsSectionValues['model'].getParameterAbbreviation().replace('_', '-'))
         
+        pdsSectionValues['model'].setParameterName(GribParamTranslator.getInstance().getParameterNameAlias(pdsSectionValues['model']))
         pdsSectionValues['model'].generateId()
         if pdsSectionValues['model'].getParameterName() == MISSING:
             model = pdsSectionValues['model']
@@ -666,7 +667,6 @@ class GribDecoder():
                 statisticalProcess = pdsTemplate[23]
 
             elif pdsTemplateNumber == 10:
-                parameterAbbreviation = parameterAbbreviation + str(100 - pdsTemplate[15]) + "Pct"
                 endTime = GregorianCalendar(pdsTemplate[16], pdsTemplate[17] - 1, pdsTemplate[18], pdsTemplate[19], pdsTemplate[20], pdsTemplate[21])
 
                 numTimeRanges = pdsTemplate[22]
