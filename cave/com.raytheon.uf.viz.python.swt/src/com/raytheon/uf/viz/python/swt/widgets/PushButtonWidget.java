@@ -96,12 +96,13 @@ public class PushButtonWidget extends Widget {
      * .swt.widgets.Composite, int)
      */
     @Override
-    public Composite buildComposite(Composite parent, int style) {
+    public Composite buildComposite(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout());
-        composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        composite
+                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         button = new Button(composite, SWT.PUSH);
-        button.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        button.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         if (this.text != null) {
             button.setText(makeGuiLabel(this.text));
         }

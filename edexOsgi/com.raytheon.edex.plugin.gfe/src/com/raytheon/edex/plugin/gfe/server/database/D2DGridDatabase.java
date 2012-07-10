@@ -36,11 +36,14 @@ import javax.measure.unit.Unit;
 import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
 import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
+import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.db.dao.GFEDao;
+import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.grib.dao.GribDao;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.edex.plugin.grib.util.GribParamInfoLookup;
 import com.raytheon.edex.plugin.grib.util.ParameterInfo;
+import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
@@ -80,6 +83,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 07/23/09     2342        ryu        Check for null gridConfig in getGridParmInfo
  * 03/02/12     DR14651     ryu        change time independency of staticTopo, staticCoriolis, staticSpacing
+ * 05/04/12     #574        dgilling   Implement missing methods from GridDatabase.
  * 
  * </pre>
  * 
@@ -408,11 +412,6 @@ public class D2DGridDatabase extends VGridDatabase {
         return sr;
     }
 
-    @Override
-    public void dbSizeStats() {
-
-    }
-
     /**
      * Gets a grid slice based on Parm information provided
      * 
@@ -736,15 +735,22 @@ public class D2DGridDatabase extends VGridDatabase {
                 && (parmName.equals("staticTopo")
                         || parmName.equals("staticSpacing") || parmName
                         .equals("staticCoriolis"))) {
-            TimeRange ntr = inventory.get(0).combineWith(
-                    inventory.get(inventory.size() - 1));
+            TimeRange ntr = new TimeRange(
+                    inventory.get(0).getStart().getTime(), inventory
+                            .get(inventory.size() - 1).getEnd().getTime()
+                            + Util.MILLI_PER_HOUR);
             inventory.clear();
             inventory.add(ntr);
         } else {
             List<TimeRange> newInventory = new ArrayList<TimeRange>(
                     inventory.size());
             for (TimeRange tr : inventory) {
-                newInventory.add(tc.constraintTime(tr.getStart()));
+                if (isNonAccumDuration(id, inventory) && tr.isValid()
+                        && !GFEDao.isMos(id)) {
+                    newInventory.add(tc.constraintTime(tr.getEnd()));
+                } else {
+                    newInventory.add(tc.constraintTime(tr.getStart()));
+                }
             }
             inventory = newInventory;
         }
@@ -821,6 +827,37 @@ public class D2DGridDatabase extends VGridDatabase {
             validTimes.add(validTimeCalc.getTime());
         }
         return validTimes;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.edex.plugin.gfe.server.database.GridDatabase#deleteDb()
+     */
+    @Override
+    public void deleteDb() {
+        // no-op
+    }
+
+    public static boolean isNonAccumDuration(ParmID id, List<TimeRange> times)
+            throws GfeConfigurationException {
+        boolean isAccum = false;
+        try {
+            isAccum = IFPServerConfigManager
+                    .getServerConfig(id.getDbId().getSiteId())
+                    .accumulativeD2DElements(id.getDbId().getModelName())
+                    .contains(id.getParmName());
+        } catch (GfeConfigurationException e) {
+            throw e;
+        }
+        boolean isDuration = false;
+        for (TimeRange time : times) {
+            if (time.getDuration() > 0) {
+                isDuration = true;
+                break;
+            }
+        }
+        return !isAccum && isDuration;
     }
 
 }
