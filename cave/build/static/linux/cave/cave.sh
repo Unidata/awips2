@@ -133,10 +133,16 @@ if [ ${redirect} == "TRUE" ]; then
   fi
 fi
 
+# Special instructions for the 64-bit jvm.
+ARCH_ARGS=""
+if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
+   ARCH_ARGS="-vm /awips2/java/jre/lib/amd64/server/libjvm.so"
+fi
+
 lookupINI $@
 if ( [ ${redirect} == "TRUE" ] || [ -w ${LOGFILE} ] ); then 
-  exec ${dir}/cave ${SWITCHES} ${CAVE_INI_ARG} $@ > ${LOGFILE} 2>&1
+  exec ${dir}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} $@ > ${LOGFILE} 2>&1
 else
-  ${dir}/cave ${SWITCHES} ${CAVE_INI_ARG} $@
+  ${dir}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} $@
 fi
 
