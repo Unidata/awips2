@@ -22,7 +22,6 @@ package com.raytheon.edex.textdb.handler;
 import java.util.Date;
 import java.util.logging.Logger;
 
-import com.raytheon.edex.textdb.TextConstants;
 import com.raytheon.edex.textdb.alarms.AlarmAlertUtil;
 import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.text.request.WriteProductRequest;
@@ -44,6 +43,8 @@ import com.raytheon.uf.edex.core.EdexException;
  * Feb 2, 2010            njensen     Initial creation
  * 01Jun2010               cjeanbap    Added operational mode functionality.
  * Jul 02, 2010 4687       cjeanbap    Added watch warn queue.
+ * May 23, 2012 14952      rferrel     Alarm Alerts date now set to the
+ *                                      products reference/create time.
  * 
  * </pre>
  * 
@@ -53,7 +54,8 @@ import com.raytheon.uf.edex.core.EdexException;
 
 public class WriteProductHandler implements
         IRequestHandler<WriteProductRequest> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(WriteProductHandler.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(WriteProductHandler.class);
 
     private static final String WATCH_WARN_QUEUE = "ldadWatchWarnDirect";
 
@@ -73,6 +75,7 @@ public class WriteProductHandler implements
 
             if (request.isNotifyAlarmAlert()) {
                 Date d = new Date();
+                d.setTime(result);
 
                 AlarmAlertUtil.sendProductAlarmAlert(request.getProductId(),
                         String.valueOf(d.getTime()),
@@ -102,7 +105,7 @@ public class WriteProductHandler implements
                     + queue);
         } catch (EdexException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to send product '"
-                            + message + "' to queue '" + queue + "'", e);
+                    + message + "' to queue '" + queue + "'", e);
         }
     }
 }

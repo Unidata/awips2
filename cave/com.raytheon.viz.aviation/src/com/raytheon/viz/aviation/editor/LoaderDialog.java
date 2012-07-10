@@ -49,8 +49,6 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.viz.aviation.monitor.TafUtil;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr;
 import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
-import com.raytheon.viz.aviation.utility.TafMessageData;
-import com.raytheon.viz.aviation.utility.TransmissionQueue;
 import com.raytheon.viz.avnconfig.ITafSiteConfig;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.avnconfig.TafSiteData;
@@ -502,138 +500,89 @@ public class LoaderDialog extends CaveSWTDialog {
         String issueTime = "";
         String bbb = tagToBBB();
         String siteId = "";
-        boolean removePendingTags = false;
 
         for (int i = 0; i < selected.length; i++) {
             String ident = selected[i];
             sb.append(TafUtil.LINE_BREAK);
             sb.append(TafUtil.LINE_BREAK);
             // Always retrieve pending TAF from the queue
-            TafMessageData pendingTaf = TransmissionQueue.getInstance()
-                    .getPendingBySiteId(ident);
-            if (pendingTaf != null) {
-                // Only ask one time if pending TAF(s) should be removed.
-                if (removePendingTags == false) {
-                    String tafType = "Routine";
-                    String pbbb = pendingTaf.getBBB();
-                    if (pbbb.startsWith("A")) {
-                        tafType = "Amended";
-                    } else if (pbbb.startsWith("C")) {
-                        tafType = "Correctetd";
-                    } else if (pbbb.startsWith("R")) {
-                        tafType = "Delayed";
-                    }
-                    String msg = tafType
-                            + " TAF(s) in pending queue will be removed!\n"
-                            + "Is this what you want to do? If not, press \'No\' and re-check\n"
-                            + "TAF forecast type for editing.";
-                    MessageBox msgBox = new MessageBox(getParent(), SWT.YES
-                            | SWT.NO);
-                    msgBox.setMessage(msg);
-                    msgBox.setText("Pending TAF");
-                    if (SWT.YES == msgBox.open()) {
-                        removePendingTags = true;
-                    } else {
+            TafRecord taf = null;
+            if (order.equals("template") == false) {
+                taf = TafUtil.getLatestTaf(ident);
+                if (taf == null) {
+                    if (i == 0) {
+                        tveDlg.setMessageStatusError("No TAF for site " + ident);
                         return;
                     }
+                    continue;
                 }
+            }
 
-                String text = pendingTaf.getTafText();
-                sb.append(text);
-                TransmissionQueue.getInstance().remove(pendingTaf.getInfo());
-
-                if (i == 0) {
-                    wmoId = pendingTaf.getWmoId();
-                    siteId = pendingTaf.getSiteId();
-                    bbb = pendingTaf.getBBB();
-                }
+            if (taf != null && order.equals("merge") == false) {
+                sb.append(TafUtil.safeFormatTaf(taf, false));
             } else {
-                TafRecord taf = null;
-                if (order.equals("template") == false) {
-                    taf = TafUtil.getLatestTaf(ident);
-                    if (taf == null) {
-                        if (i == 0) {
-                            tveDlg.setMessageStatusError("No TAF for site "
-                                    + ident);
-                            return;
-                        }
-                        continue;
-                        // } else {
-                        // // TODO the TafEditDialog.py __getForecast line: 1538
-                        // -
-                        // // 1540
-                    }
+                String[] results = getTafTemplate(ident, bbb);
+                String tmpl = results[0];
+                if (tmpl == null) {
+                    MessageBox msgBox = new MessageBox(getParent(), SWT.OK);
+                    msgBox.setMessage(ident + ": " + results[1]);
+                    msgBox.setText("Problem with template");
+                    msgBox.open();
+                    return;
                 }
-
-                if (taf != null && order.equals("merge") == false) {
-                    sb.append(TafUtil.safeFormatTaf(taf, false));
+                if (taf != null && order.equals("merge") == true) {
+                    // TODO merge taf and template here
+                    String[] tmp = tmpl.split(TafUtil.LINE_BREAK);
+                    String sTmpl = tmp[1];
+                    Pattern rexp_tmp = Pattern.compile("^" + ident
+                            + "\\s+\\d{6}Z\\s+(\\d{4}/\\d{4}|\\d{6})\\s+");
+                    sTmpl = rexp_tmp.matcher(sTmpl).replaceFirst("");
+                    String fmtTaf = TafUtil.safeFormatTaf(taf, false)
+                            .split("=")[0];
+                    Pattern rexp_ramd = Pattern
+                            .compile("\\s+AMD\\s(NOT\\sSKED|LTD\\sTO)([\\s\\w/]+)?");
+                    fmtTaf = rexp_ramd.matcher(fmtTaf).replaceAll("").trim();
+                    StringBuilder contents = new StringBuilder(fmtTaf);
+                    contents.append(" ").append(sTmpl);
+                    for (int index = 2; index < tmp.length; ++index) {
+                        contents.append(TafUtil.LINE_BREAK).append(tmp[index]);
+                    }
+                    sb.append(contents);
                 } else {
-                    String[] results = getTafTemplate(ident, bbb);
-                    String tmpl = results[0];
-                    if (tmpl == null) {
-                        MessageBox msgBox = new MessageBox(getParent(), SWT.OK);
-                        msgBox.setMessage(ident + ": " + results[1]);
-                        msgBox.setText("Problem with template");
-                        msgBox.open();
-                        return;
-                    }
-                    if (taf != null && order.equals("merge") == true) {
-                        // TODO merge taf and template here
-                        String[] tmp = tmpl.split(TafUtil.LINE_BREAK);
-                        String sTmpl = tmp[1];
-                        Pattern rexp_tmp = Pattern.compile("^" + ident
-                                + "\\s+\\d{6}Z\\s+(\\d{4}/\\d{4}|\\d{6})\\s+");
-                        sTmpl = rexp_tmp.matcher(sTmpl).replaceFirst("");
-                        String fmtTaf = TafUtil.safeFormatTaf(taf, false)
-                                .split("=")[0];
-                        Pattern rexp_ramd = Pattern
-                                .compile("\\s+AMD\\s(NOT\\sSKED|LTD\\sTO)([\\s\\w/]+)?");
-                        fmtTaf = rexp_ramd.matcher(fmtTaf).replaceAll("")
-                                .trim();
-                        StringBuilder contents = new StringBuilder(fmtTaf);
-                        contents.append(" ").append(sTmpl);
-                        for (int index = 2; index < tmp.length; ++index) {
-                            contents.append(TafUtil.LINE_BREAK).append(
-                                    tmp[index]);
-                        }
-                        sb.append(contents);
-                    } else {
-                        sb.append(tmpl);
-                        if (i == 0) {
-                            String itime = tmpl.split("\n")[1].split(" +")[1];
-                            issueTime = itime.substring(0, 4) + "00";
-                        }
+                    sb.append(tmpl);
+                    if (i == 0) {
+                        String itime = tmpl.split("\n")[1].split(" +")[1];
+                        issueTime = itime.substring(0, 4) + "00";
                     }
                 }
+            }
 
-                if (i == 0) {
-                    if (taf != null) {
-                        String[] header = taf.getWmoHeader().split(" ");
-                        issueTime = header[2];
-                    }
-
-                    /**
-                     * DR #5062: It appears that using the header that comes
-                     * with the TAF gives a wrong wmoId and siteId; here, it is
-                     * changed to use the header from TafSiteConfig; may need
-                     * further investigation on this...
-                     */
-                    try {
-                        ITafSiteConfig config = TafSiteConfigFactory
-                                .getInstance();
-                        TafSiteData siteData = config.getSite(ident);
-                        wmoId = siteData.wmo.split(" ")[0];
-                        siteId = siteData.wmo.split(" ")[1];
-                    } catch (FileNotFoundException e) {
-                        tveDlg.setSendCollective(false);
-                    } catch (ConfigurationException e) {
-                        tveDlg.setSendCollective(false);
-                    } catch (IOException e) {
-                        tveDlg.setSendCollective(false);
-                    }
-
-                    bbb = tagToBBB();
+            if (i == 0) {
+                if (taf != null) {
+                    String[] header = taf.getWmoHeader().split(" ");
+                    issueTime = header[2];
                 }
+
+                /**
+                 * DR #5062: It appears that using the header that comes with
+                 * the TAF gives a wrong wmoId and siteId; here, it is changed
+                 * to use the header from TafSiteConfig; may need further
+                 * investigation on this...
+                 */
+                try {
+                    ITafSiteConfig config = TafSiteConfigFactory.getInstance();
+                    TafSiteData siteData = config.getSite(ident);
+                    wmoId = siteData.wmo.split(" ")[0];
+                    siteId = siteData.wmo.split(" ")[1];
+                } catch (FileNotFoundException e) {
+                    tveDlg.setSendCollective(false);
+                } catch (ConfigurationException e) {
+                    tveDlg.setSendCollective(false);
+                } catch (IOException e) {
+                    tveDlg.setSendCollective(false);
+                }
+
+                bbb = tagToBBB();
             }
         }
 

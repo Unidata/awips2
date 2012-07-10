@@ -480,6 +480,9 @@ public class Grib1Decoder extends AbstractDecoder {
         model.setParameterAbbreviation(model.getParameterAbbreviation()
                 .replaceAll("_", "-"));
 
+        model.setParameterName(GribParamTranslator.getInstance()
+                .getParameterNameAlias(model));
+
         if (!model.getParameterName().equals(MISSING)) {
             try {
                 model = GribModelCache.getInstance().getModel(model);

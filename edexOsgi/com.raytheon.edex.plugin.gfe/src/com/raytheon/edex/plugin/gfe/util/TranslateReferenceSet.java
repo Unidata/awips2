@@ -29,11 +29,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -62,6 +64,7 @@ import com.vividsolutions.jts.operation.valid.IsValidOp;
 public class TranslateReferenceSet {
     public static class DefaultFilter implements FileFilter {
 
+        @Override
         public boolean accept(File f) {
             return (!f.isHidden() && f.canRead());
         }
@@ -257,11 +260,14 @@ public class TranslateReferenceSet {
     /**
      * @param file
      * @throws SerializationException
+     * @throws JAXBException
      */
-    public static void translateFile(File file) throws SerializationException {
-        System.out.println("Translating file: " + file.getAbsoluteFile());
+    public static void translateFile(File file) throws SerializationException,
+            JAXBException {
+        JAXBManager jbm = new JAXBManager(ReferenceData.class);
         if (file.isDirectory()) {
             for (File f : file.listFiles(new ExtensionFilter(".REFERENCE"))) {
+                System.out.println("Translating: " + f.getAbsoluteFile());
                 translateFile(f);
             }
         } else {
@@ -269,7 +275,7 @@ public class TranslateReferenceSet {
             if (refData != null) {
                 String path = file.getAbsolutePath();
                 path = path.substring(0, path.lastIndexOf('.')) + ".xml";
-                SerializationUtil.jaxbMarshalToXmlFile(refData, path);
+                jbm.jaxbMarshalToXmlFile(refData, path);
             }
         }
     }
@@ -280,7 +286,7 @@ public class TranslateReferenceSet {
                 File file = new File(arg);
                 try {
                     translateFile(file);
-                } catch (SerializationException e) {
+                } catch (Exception e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }

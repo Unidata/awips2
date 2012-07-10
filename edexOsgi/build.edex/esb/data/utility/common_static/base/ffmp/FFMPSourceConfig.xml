@@ -175,8 +175,19 @@
        <hrapGridFactor>4</hrapGridFactor>
    </source>
    <source>
-       <SourceName>VGBRADAR</SourceName>
-       <DisplayName>Virtual Gage Basins RADAR</DisplayName>
+       <SourceName>VGBDHR</SourceName>
+       <DisplayName>Virtual Gage Basins DHR</DisplayName>
+       <DurationHour>1</DurationHour>
+       <dataPath>hd_ob92oax</dataPath>
+       <dataType>RADAR</dataType>
+       <sourceType>GAGE</sourceType>
+       <rateOrAccum>rate</rateOrAccum>
+       <expirationMinutes>15</expirationMinutes>
+       <unit>inches</unit>
+   </source>
+   <source>
+       <SourceName>VGBDPR</SourceName>
+       <DisplayName>Virtual Gage Basins DPR</DisplayName>
        <DurationHour>1</DurationHour>
        <dataPath>hd_ob92oax</dataPath>
        <dataType>RADAR</dataType>
@@ -210,7 +221,7 @@
        <qpf>PRTM</qpf>
        <qpf>BPRTM</qpf>
        <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
-       <virtual>VGBRADAR</virtual>
+       <virtual>VGBDHR</virtual>
    </product>
    <product primarySource="DPR">
        <rate>DPR</rate>
@@ -219,6 +230,6 @@
        <qpf>BPRTM</qpf>
        <qpf>PRTM</qpf>
        <guidance>FFG0124hr, FFG0324hr, FFG0624hr</guidance>
-       <virtual>VGBRADAR</virtual>
+       <virtual>VGBDPR</virtual>
    </product>
 </FFMPSourceConfig>

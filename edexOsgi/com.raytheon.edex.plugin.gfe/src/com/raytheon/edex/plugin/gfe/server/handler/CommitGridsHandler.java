@@ -99,30 +99,26 @@ public class CommitGridsHandler implements IRequestHandler<CommitGridsRequest> {
             }
 
             try {
+                // check for sending to ISC
                 IFPServerConfig serverConfig = IFPServerConfigManager
                         .getServerConfig(siteID);
                 String iscrta = serverConfig.iscRoutingTableAddress().get(
                         "ANCF");
-                if (serverConfig.requestISC() && !commits.isEmpty()
-                        && iscrta != null) {
+                if (sr.isOkay() && iscrta != null
+                        && serverConfig.sendiscOnPublish() && clientSendStatus
+                        && serverConfig.requestISC()) {
                     for (GridUpdateNotification change : changes) {
                         // ensure Official database
                         if (change.getParmId().getDbId().getModelName()
                                 .equals("Official")
                                 && change.getParmId().getDbId().getDbType()
                                         .isEmpty()) {
-                            if (clientSendStatus) {
-                                IscSendRecord sendReq = new IscSendRecord(
-                                        change.getParmId(),
-                                        change.getReplacementTimeRange(), "",
-                                        serverConfig.sendiscOnPublish());
-                                IscSendQueue
-                                        .sendToQueue(Arrays.asList(sendReq));
-                            }
-                        } else {
-                            logger.info("Not Official: "
-                                    + change.getParmId().getDbId()
-                                            .getModelName());
+                            // queue them
+                            IscSendRecord sendReq = new IscSendRecord(
+                                    change.getParmId(),
+                                    change.getReplacementTimeRange(), "",
+                                    serverConfig.sendiscOnPublish());
+                            IscSendQueue.sendToQueue(Arrays.asList(sendReq));
                         }
                     }
                 }

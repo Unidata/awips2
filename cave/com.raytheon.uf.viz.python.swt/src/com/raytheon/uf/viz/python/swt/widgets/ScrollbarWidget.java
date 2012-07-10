@@ -51,7 +51,7 @@ public class ScrollbarWidget extends Widget {
      * .swt.widgets.Composite, int)
      */
     @Override
-    public Composite buildComposite(Composite parent, int style) {
+    public Composite buildComposite(Composite parent) {
         parent.getShell().pack();
         Point size = parent.getShell().getSize();
         parent.getShell().setSize(size.x, ((Number) (getValue())).intValue());
