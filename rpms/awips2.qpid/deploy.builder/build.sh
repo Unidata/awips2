@@ -1,9 +1,4 @@
 #!/bin/bash
-
-export CFLAGS="-m32"
-export CXXFLAGS="-m32"
-export LDFLAGS="-m32"
-
 SPECS_FILE="qpid-cpp-mrg.spec"
 
 # Verify that the correct version of swig is installed.
@@ -44,6 +39,19 @@ fi
 # Purge the RPMS/i386 directory, if necessary.
 if [ -d ${QPID_WORKSPACE_DIR}/RPMS/i386 ]; then
    rm -rf ${QPID_WORKSPACE_DIR}/RPMS/i386/*
+fi
+
+if [ ! -d ${QPID_WORKSPACE_DIR}/BUILD ]; then
+   mkdir -p ${QPID_WORKSPACE_DIR}/BUILD
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
+if [ ! -d ${QPID_WORKSPACE_DIR}/SRPMS ]; then
+   mkdir -p ${QPID_WORKSPACE_DIR}/SRPMS
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
 fi
 
 # Conceal The SWIG Requirement In The Specs File.
