@@ -32,7 +32,6 @@
             <fileset dir="${edex.root.directory}/lib/">
                 <include name="**" />
                 <exclude name="native/**" />
-                <exclude name="lib64/**" />
             </fileset>
         </delete>
 
@@ -41,6 +40,8 @@
         <delete>
             <fileset dir="${edex.root.directory}/bin/">
                 <include name="*.sh"/>
+            	<include name="wrapper.conf" />
+        		<include name="linux-x86-*/**" />
             </fileset>
         </delete>
 
@@ -59,12 +60,58 @@
 				<exclude name="data/**" />
 				<exclude name="svcBackup/**" />
 				<exclude name="**/bin/setup.env" />
+				<exclude name="**/bin/linux-x86-32/**" />
+				<exclude name="**/bin/linux-x86-64/**" />
+				<exclude name="**/lib/lib_illusion/**" />
 			</fileset>
 		</copy>
 		
-		<!-- set executable permissions. -->
+		<!-- copy the correct wrapper based on architecture. -->
+		<antcall target="deploy.esb.wrapper-${architecture}" />
+		
+		<!-- copy the correct 'libpython.so' based on architecture. -->
+		<mkdir dir="${edex.root.directory}/lib/lib_illusion" />
+		<copy todir="${edex.root.directory}/lib/lib_illusion">
+			<fileset dir="${esb.directory}/lib/lib_illusion/${architecture}">
+				<include name="*.so" />
+			</fileset>
+		</copy>
+		
+		<!-- set executable permissions - start.sh. -->
 		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />
+	</target>
+	
+	<target name="deploy.esb.wrapper-x86">
+		<copy todir="${edex.root.directory}">
+			<fileset dir="${esb.directory}">
+				<include name="**/bin/linux-x86-32/**" />
+			</fileset>
+		</copy>
+		
+		<!-- update permissions on the wrapper. -->
 		<chmod file="${edex.root.directory}/bin/linux-x86-32/wrapper" 
+			perm="ugo+rx" />
+	</target>
+	
+	<target name="deploy.esb.wrapper-x86_64">
+		<copy todir="${edex.root.directory}">
+			<fileset dir="${esb.directory}">
+				<include name="**/bin/linux-x86-64/**" />
+			</fileset>
+		</copy>
+		
+		<if>
+			<available file="${edex.root.directory}/lib/native/linux32/libjep.so"
+				type="file" />
+			<then>
+				<delete>
+					<fileset file="${edex.root.directory}/lib/native/linux32/libjep.so" />
+				</delete>
+			</then>
+		</if>
+		
+		<!-- update permissions on the wrapper. -->
+		<chmod file="${edex.root.directory}/bin/linux-x86-64/wrapper" 
 			perm="ugo+rx" />
 	</target>
 
