@@ -1,6 +1,0 @@
-The awips2.64 directory contains the build script(s) and rpm projects for the AWIPS II 64-bit rpms.
-
-If you are running this build manually, you should update the Build Variables located near the top of build.sh.
-To build all 64-bit rpms, just run build.sh. If you want to build a certain 64-bit rpm or a subset of the 64-bit rpms,
-pass the name of the rpm as an argument to this script. You can pass one or multiple space-delimited rpms to this 
-script. 
