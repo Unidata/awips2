@@ -46,11 +46,10 @@ fi
 
 %install
 GFESUITE_PROJECT="com.raytheon.uf.tools.gfesuite"
-GFESUITE_DEPLOY_SCRIPT="${WORKSPACE_DIR}/${GFESUITE_PROJECT}/deploy.xml"
+GFESUITE_DEPLOY_SCRIPT="%{_baseline_workspace}/${GFESUITE_PROJECT}/deploy.xml"
 
-ANT_EXE="/awips2/ant/bin/ant"
-
-${ANT_EXE} -f ${GFESUITE_DEPLOY_SCRIPT} -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/GFESuite \
+/awips2/ant/bin/ant -f ${GFESUITE_DEPLOY_SCRIPT} \
+   -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/GFESuite \
    -Dinstaller=true -Dclient.build=true
 RC=$?
 if [ ${RC} -ne 0 ]; then
@@ -58,8 +57,7 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-# Create additional directories that are required; the baselined empty
-# directories were lost when we started using git.
+# Create additional directories that are required.
 mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/exportgrids/tmp
 if [ $? -ne 0 ]; then
    exit 1
@@ -73,9 +71,13 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
+
 # Copy the profile.d scripts.
-PROFILE_D_DIR="Installer.rpm/common/environment/awips2-gfesuite/profile.d"
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+PROFILE_D_DIR="rpms/common/environment/awips2-gfesuite/profile.d"
+cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(644,root,root,-)
