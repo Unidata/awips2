@@ -17,17 +17,18 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.radar.rsc.mosaic.ext;
+package com.raytheon.uf.viz.core.drawables.ext;
 
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
-import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- * Radar mosaic image extension, creates IMosaicImages
+ * Mosaic image extension, creates IMosaicImages. Mosaicing should be used when
+ * multiple overlapping images are being drawn to the screen. The mosaic
+ * extension will combine these images into a single mosaic image.
  * 
  * <pre>
  * 
@@ -43,7 +44,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 
-public interface IRadarMosaicImageExtension extends IImagingExtension {
+public interface IMosaicImageExtension extends IImagingExtension {
 
     public static interface IMosaicImage extends IColormappedImage {
 
