@@ -1,4 +1,5 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
+%define _build_arch %(uname -i)
 
 #
 # AWIPS II Java Spec File
@@ -6,9 +7,10 @@
 Name: awips2-java
 Summary: AWIPS II Java Distribution
 Version: 1.6.0_27
-Release: 1
+Release: 3
 Group: AWIPSII
 BuildRoot: %{_build_root}
+BuildArch: %{_build_arch}
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -23,96 +25,137 @@ AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.6.0_27
 plus additional libraries used by AWIPS II.
 
 %prep
-# Verify That The User Has Specified A BuildRoot.
-if [ "%{_build_root}" = "/tmp" ]
-then
-   echo "An Actual BuildRoot Must Be Specified. Use The --buildroot Parameter."
-   echo "Unable To Continue ... Terminating"
+# Ensure that a "buildroot" has been specified.
+if [ "%{_build_root}" = "" ]; then
+   echo "ERROR: A BuildRoot has not been specified."
+   echo "FATAL: Unable to Continue ... Terminating."
    exit 1
 fi
 
-rm -rf %{_build_root}
+if [ -d %{_build_root} ]; then
+   rm -rf %{_build_root}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
 mkdir -p %{_build_root}/build-java
-mkdir -p %{_build_root}/awips2
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/awips2/java
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 mkdir -p %{_build_root}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %build
 
 %install
-JDK_BIN="jdk-6u27-linux-i586.bin"
+build_arch=
+arch_directory=
+# determine the architecture based on the system architecture.
+if [ "%{_build_arch}" = "x86_64" ]; then
+   build_arch="amd64"
+   arch_directory="x86_64"
+   jdk_arch="x64"
+else
+   if [ "%{_build_arch}" = "i386" ]; then
+      build_arch="i586"
+      arch_directory="i386"
+      jdk_arch=${build_arch}
+   else
+      echo "ERROR: Unrecognized architecture '%{_build_arch}."
+      exit 1
+   fi
+fi
+
 JDK_BIN_var_javahome="jdk1.6.0_27"
-JAI_BIN="jai-1_1_3-lib-linux-i586-jdk.bin"
-JAI_PATCH="jai.patch1"
-JAI_IMAGEIO_BIN="jai_imageio-1_1-lib-linux-i586-jdk.bin"
-JAI_IMAGEIO_PATCH="jai_imageio.patch1"
-PYDEV_CER="pydev_certificate.cer"
-JAVA_SRC_DIR="%{_baseline_workspace}/Installer.rpm/awips2.core/Installer.java/src"
+jdk_bin="jdk-6u27-linux-${jdk_arch}.bin"
+jai_bin="jai-1_1_3-lib-linux-${build_arch}-jdk.bin"
+jai_imageio_bin="jai_imageio-1_1-lib-linux-${build_arch}-jdk.bin"
+jai_bin_patch="jai.patch1"
+jai_imageio_bin_patch="jai_imageio.patch1"
+pydev_cert="pydev_certificate.cer"
 
-cp -v ${JAVA_SRC_DIR}/${JDK_BIN} \
-   %{_build_root}/awips2
+# locate the java src.
+CORE_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core"
+JAVA_SRC_DIR="${CORE_PROJECT_DIR}/Installer.java/src"
+JAVA_SCRIPTS_DIR="${CORE_PROJECT_DIR}/Installer.java/scripts"
+JAVA_ARCH_SRC_DIR="${JAVA_SRC_DIR}/${arch_directory}"
+
+pushd . > /dev/null
+cd ${JAVA_ARCH_SRC_DIR}
+/bin/cp -v ${jdk_bin} %{_build_root}/build-java
 if [ $? -ne 0 ]; then
    exit 1
 fi
-pushd .
-cd %{_build_root}/awips2
-chmod u+x ${JDK_BIN}
+/usr/bin/patch -i ${jai_bin_patch} \
+   -o %{_build_root}/build-java/${jai_bin}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-./${JDK_BIN} -noregister
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-mv ${JDK_BIN_var_javahome} java
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-rm -fv ${JDK_BIN}
+/usr/bin/patch -i ${jai_imageio_bin_patch} \
+   -o %{_build_root}/build-java/${jai_imageio_bin}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-cd ${JAVA_SRC_DIR}
-patch -i ${JAI_PATCH} -o %{_build_root}/build-java/${JAI_BIN}
+chmod a+x %{_build_root}/build-java/*.bin
+cd %{_build_root}/awips2/java
+# Used to automatically agree to software licenses.
+touch yes.txt
+echo "yes" > yes.txt
+
+%{_build_root}/build-java/${jdk_bin} -noregister
 if [ $? -ne 0 ]; then
    exit 1
 fi
-patch -i ${JAI_IMAGEIO_PATCH} -o %{_build_root}/build-java/${JAI_IMAGEIO_BIN}
+
+/bin/mv ${JDK_BIN_var_javahome}/* .
 if [ $? -ne 0 ]; then
    exit 1
 fi
-cp -v ${PYDEV_CER} \
+rm -rfv ${JDK_BIN_var_javahome}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+%{_build_root}/build-java/${jai_bin} < yes.txt
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+%{_build_root}/build-java/${jai_imageio_bin} < yes.txt
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+rm -fv yes.txt
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+rm -rf %{_build_root}/build-java
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+popd > /dev/null
+
+# Our profile.d scripts.
+JAVA_PROFILED_DIR="${JAVA_SCRIPTS_DIR}/profile.d"
+cp -v ${JAVA_PROFILED_DIR}/* %{_build_root}/etc/profile.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
+# The pydev certificate.
+cp -v ${JAVA_SRC_DIR}/${pydev_cert} \
    %{_build_root}/awips2/java/jre/lib/security
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
-# Used to automatically agree to software licenses.
-touch %{_build_root}/build-java/yes.txt
-echo "yes" > %{_build_root}/build-java/yes.txt
-
-cd %{_build_root}/awips2/java
-chmod u+x %{_build_root}/build-java/${JAI_BIN}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-%{_build_root}/build-java/${JAI_BIN} \
-   < %{_build_root}/build-java/yes.txt
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-chmod u+x %{_build_root}/build-java/${JAI_IMAGEIO_BIN}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-%{_build_root}/build-java/${JAI_IMAGEIO_BIN} \
-   < %{_build_root}/build-java/yes.txt
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
-touch %{_build_root}/build-java/changeit.txt
-echo "changeit" > %{_build_root}/build-java/changeit.txt
+touch changeit.txt
+echo "changeit" > changeit.txt
 chmod 666 %{_build_root}/awips2/java/jre/lib/security/cacerts
 if [ $? -ne 0 ]; then
    exit 1
@@ -120,30 +163,20 @@ fi
 %{_build_root}/awips2/java/bin/keytool -import \
    -file %{_build_root}/awips2/java/jre/lib/security/pydev_certificate.cer \
    -keystore %{_build_root}/awips2/java/jre/lib/security/cacerts \
-   -noprompt < %{_build_root}/build-java/changeit.txt
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-popd
-
-# The profile.d environment scripts.
-JAVA_SCRIPTS_DIR="%{_baseline_workspace}/Installer.rpm/awips2.core/Installer.java/scripts"
-cp -v ${JAVA_SCRIPTS_DIR}/profile.d/* \
-   %{_build_root}/etc/profile.d
+   -noprompt < changeit.txt
+rm -fv changeit.txt
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
 # The licenses
 mkdir -p %{_build_root}/awips2/java/licenses
-LEGAL_DIR="%{_baseline_workspace}/Installer.rpm/legal"
+LEGAL_DIR="%{_baseline_workspace}/rpms/legal"
 cp -v ${LEGAL_DIR}/*.txt ${LEGAL_DIR}/*.pdf \
    %{_build_root}/awips2/java/licenses
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
-rm -rf %{_build_root}/build-java
 
 %pre
 if [ "${1}" = "2" ]; then
@@ -159,9 +192,7 @@ if [ "${1}" = "2" ]; then
 fi
 
 %post
-
 %preun
-
 %postun
 
 %clean
