@@ -77,4 +77,5 @@ Require-Bundle: com.raytheon.uf.common.activetable;bundle-version="1.12.1174",
  com.raytheon.uf.common.alertmonitor;bundle-version="1.12.1174",
  com.raytheon.uf.common.hlstopo;bundle-version="1.0.0",
  com.raytheon.uf.common.jms;bundle-version="1.12.1174",
- com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.12.1174"
+ com.raytheon.uf.common.plugin.nwsauth;bundle-version="1.12.1174",
+ com.raytheon.uf.common.tafqueue;bundle-version="1.0.0"

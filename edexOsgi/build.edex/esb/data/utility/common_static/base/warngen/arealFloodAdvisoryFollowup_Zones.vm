@@ -186,7 +186,12 @@
 ##########################################
 ## FLOOD ADVISORY FOLLOW-UP HEADER INFO ##
 ##########################################
-#if(${action}!="CANCON")
+#if(${action}=="COR" && ${cancelareas})
+#set($CORCAN = "true")
+#else
+#set($CORCAN = "false")
+#end
+#if(${action}!="CANCON" && ${CORCAN}!="true")
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
 
@@ -412,6 +417,35 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
+#elseif(${CORCAN} == "true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FLS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLOOD ADVISORY...TEST
+#else
+FLOOD ADVISORY
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${cancelareas}) 
+${area.name} ${area.stateabbr}-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
@@ -545,6 +579,196 @@ A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED...OR PONDING OF WATER 
 
 #end
 #################################### END OF CTA STUFF ###################################
+#elseif(${CORCAN}=="true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FLS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLOOD ADVISORY...TEST
+#else
+FLOOD ADVISORY
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${cancelareas}) 
+${area.name} ${area.stateabbr}-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#elseif(${CORCAN} == "true")
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FLS${siteId}
+
+#if(${productClass}=="T")
+TEST...FLOOD ADVISORY...TEST
+#else
+FLOOD ADVISORY
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+${ugclinecan}
+/${productClass}.COR.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${cancelareas}) 
+${area.name} ${area.stateabbr}-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#headlineLocList(${cancelareas} true true true false)
+...##
+########### END NEW HEADLINE CODE ####################
+
+## One line explanation - user can delete the one they don't want
+## or delete both and explain why manually
+!** THE HEAVY RAIN HAS ENDED. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
+!** THE FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+${ugcline}
+/${productClass}.COR.${vtecOffice}.FA.Y.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas}) 
+${area.name} ${area.stateabbr}-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} REMAINS IN EFFECT UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+## REMMED OUT FOR Alaska
+## #headlineLocList(${areas} true true true false)
+!**INSERT RIVER/STREAM OR AREA **! IN !**INSERT GEO AREA**!...##
+########### END NEW HEADLINE CODE ####################
+
+#if(${productClass}=="T")
+
+THIS IS A TEST MESSAGE. AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...!** warning basis **!
+#else
+
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report}. ${estimate}
+#end
+
+#set ($phenomena = "FLASH FLOOD") 
+#set ($warningType = "ADVISORY") 
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+##locationsList("SOME LOCATIONS THAT WILL EXPERIENCE MINOR FLOODING INCLUDE" "THE FLOODING IS EXPECTED TO IMPACT MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0) EXCLUDED FOR ALASKA
+#if(${list.contains($bullets, "fcstPoint")})
+FOR THE !** insert river name and forecast point **!...
+AT ${dateUtil.format(${now}, ${timeFormat.clock}, ${localtimezone})} THE STAGE WAS !** xx.x **! FEET.
+FLOOD STAGE IS !** xx.x **! FEET.
+FORECAST... !** insert crest stage and time **!.
+IMPACTS...!** discussion of expected impacts and flood path **!
+#else
+!** insert impacts and flood path **!
+
+#end
+#if(${list.contains($bullets, "addRainfall")})
+
+ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
+#end
+#if(${list.contains($bullets, "specificPlace")})
+
+MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
+#end
+
+#if(${list.contains($bullets, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+#####################
+## CALL TO ACTIONS ##
+#####################
+#foreach ($bullet in $bullets)
+#if($bullet.endsWith("CTA"))
+#set ($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+#if(${list.contains($bullets, "dontdrownCTA")})
+MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
+
+#end
+#if(${list.contains($bullets, "urbanCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS AND STREAMS...AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS.
+
+#end
+#if(${list.contains($bullets, "ruralCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES.  ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
+
+#end
+#if(${list.contains($bullets, "donotdriveCTA")})
+DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
+
+#end
+#if(${list.contains($bullets, "lowspotsCTA")})
+IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS WHICH ARE POTENTIALLY DANGEROUS IN HEAVY RAIN. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${list.contains($bullets, "powerCTA")})
+DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLOWING WATER CAN QUICKLY CARRY AWAY YOUR VEHICLE.
+
+#end
+#if(${list.contains($bullets, "reportFloodingCTA")})
+TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if(${list.contains($bullets, "advisoryMeansCTA")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED...OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
 #end
 ####################################
 ## END OF FLOOD ADVISORY PRODUCTS ##

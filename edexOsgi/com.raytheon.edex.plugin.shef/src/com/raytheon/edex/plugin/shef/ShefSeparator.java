@@ -194,7 +194,11 @@ public class ShefSeparator extends AbstractRecordSeparator {
             }
             separator.setData(data, headers);
         } catch (Exception e) {
-            log.error(separator.traceId + "- Error separating data.", e);
+            if(log.isDebugEnabled()) {
+                log.error(separator.traceId + "- Error separating data.", e);
+            } else {
+                log.error(separator.traceId + "- Error separating data " + e.toString());
+            }
         }
         return separator;
     }
@@ -589,8 +593,11 @@ public class ShefSeparator extends AbstractRecordSeparator {
                 records.add(buffer.toString());
             }
         } catch (Exception e) {
-            ERR_LOGGER.error(getClass(), "Data error ", e);
-            e.printStackTrace();
+            if (log.isDebugEnabled()) {
+                ERR_LOGGER.error(getClass(), "Data error ", e);
+            } else {
+                ERR_LOGGER.error(getClass(), "Data error ");
+            }
         }
         if (log.isDebugEnabled()) {
             ERR_LOGGER.debug(getClass(), "Message has " + records.size()

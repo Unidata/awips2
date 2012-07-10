@@ -45,6 +45,9 @@ public class GeospatialDataSet {
 
     @DynamicSerializeElement
     private GeospatialData[] parentAreas;
+    
+    @DynamicSerializeElement
+    private GeospatialData[] timezones;
 
     public GeospatialData[] getAreas() {
         return areas;
@@ -61,4 +64,13 @@ public class GeospatialDataSet {
     public void setParentAreas(GeospatialData[] parentAreas) {
         this.parentAreas = parentAreas;
     }
+
+    public GeospatialData[] getTimezones() {
+        return timezones;
+    }
+
+    public void setTimezones(GeospatialData[] timezones) {
+        this.timezones = timezones;
+    }
+    
 }

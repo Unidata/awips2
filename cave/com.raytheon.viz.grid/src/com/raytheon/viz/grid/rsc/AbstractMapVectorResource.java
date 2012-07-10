@@ -83,10 +83,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.viz.core.contours.ContourRenderable;
-import com.raytheon.viz.core.contours.ILoadableAsArrows;
-import com.raytheon.viz.core.contours.ILoadableAsImage;
-import com.raytheon.viz.core.contours.ILoadableAsStreamline;
-import com.raytheon.viz.core.contours.ILoadableAsWindBarbs;
 import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
@@ -119,9 +115,7 @@ import com.raytheon.viz.pointdata.PointWindDisplay.DisplayType;
  * @version 1
  */
 public abstract class AbstractMapVectorResource extends
-        AbstractVizResource<AbstractRequestableResourceData, MapDescriptor>
-        implements ILoadableAsImage, ILoadableAsStreamline,
-        ILoadableAsWindBarbs, ILoadableAsArrows {
+        AbstractVizResource<AbstractRequestableResourceData, MapDescriptor> {
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractMapVectorResource.class);
 
