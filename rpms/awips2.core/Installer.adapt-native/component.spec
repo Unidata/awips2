@@ -42,7 +42,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2
 %install
 NATIVE_TAR_FILE="dist.native/i386-pc-linux-gnu.tar"
 
-/bin/gtar -xpf ${WORKSPACE_DIR}/${NATIVE_TAR_FILE} \
+/bin/gtar -xpf %{_baseline_workspace}/${NATIVE_TAR_FILE} \
    -C ${RPM_BUILD_ROOT}/awips2
 
 # Remove Unnecessary Directories.
@@ -52,32 +52,12 @@ rm -rf ${RPM_BUILD_ROOT}/awips2/lib
 rm -rf ${RPM_BUILD_ROOT}/awips2/awipsShare
 
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II Adapt Native Libraries...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}/adapt\e[m"
 
 %post
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II Adapt Native Library Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
 
 %preun
 
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| The AWIPS II Adapt Native Libraries Have Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m" 
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
