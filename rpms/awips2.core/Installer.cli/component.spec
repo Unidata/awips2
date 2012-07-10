@@ -1,4 +1,3 @@
-%define CORE_DELTA_SETUP ${WORKSPACE_DIR}/Installer.rpm/delta/setup/updateSetup.sh
 %define _component_name           awips2-cli
 %define _component_project_dir    awips2.core/Installer.cli
 %define _component_default_prefix /awips2/fxa
@@ -41,14 +40,6 @@ fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2/fxa
 
 %build
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
-source %{CORE_DELTA_SETUP}
-copySetupCore ${RPM_BUILD_ROOT} %{_component_default_prefix}
-copyApplicableDeltas ${RPM_BUILD_ROOT} %{_component_name} \
-   %{_component_project_dir} %{_component_default_prefix}
-#---------------------------------------------------------------------------#
 
 %install
 # Copies the standard Raytheon licenses into a license directory for the
@@ -62,17 +53,17 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 # This Is The Workspace Project That Contains The Files That We
 # Need For The CLI Component Installer.
@@ -80,14 +71,14 @@ CLI_PROJECT_DIR="com.raytheon.uf.tools.cli"
 
 # Create the bin Directory for the CLI Component
 mkdir -p ${RPM_BUILD_ROOT}/awips2/fxa/bin
-cp -r ${WORKSPACE_DIR}/${CLI_PROJECT_DIR}/impl/* ${RPM_BUILD_ROOT}/awips2/fxa/bin
+cp -r %{_baseline_workspace}/${CLI_PROJECT_DIR}/impl/* ${RPM_BUILD_ROOT}/awips2/fxa/bin
 
 copyLegal "awips2/fxa"
 
 # Copy our profile.d scripts.
-PROFILE_D_DIRECTORY="Installer.rpm/awips2.core/Installer.cli/scripts/profile.d"
+PROFILE_D_DIRECTORY="rpms/awips2.core/Installer.cli/scripts/profile.d"
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIRECTORY}/* \
+cp %{_baseline_workspace}/${PROFILE_D_DIRECTORY}/* \
    ${RPM_BUILD_ROOT}/etc/profile.d
 
 %pre
@@ -100,36 +91,10 @@ echo -e "\e[1;34m---------------------------------------------------------------
 echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
 
 %post
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
 if [ "${1}" = "2" ]; then
-   echo "INFO: Performing %{_component_name} Upgrade."
-   echo "Preparing ..."
-   
-   # Check the delta directory to see if there are updates that
-   # may need to be applied.
-   cd ${RPM_INSTALL_PREFIX}/delta/%{_component_name}
-   COUNT=`ls -1 | wc -l`
-   
-   if [ "${COUNT}" = "0" ]; then
-      echo "INFO: No Updates To Perform."
-      exit 0
-   fi
-   
-   echo "INFO: Potentially Applying ${COUNT} Updates."
-   
-   # The Update Manager Is In: ${RPM_INSTALL_PREFIX}/delta
-   UPDATE_MANAGER="${RPM_INSTALL_PREFIX}/delta/updateManager.sh"
-   cd ${RPM_INSTALL_PREFIX}/delta
-   export COMPONENT_INSTALL="${RPM_INSTALL_PREFIX}"
-   ${UPDATE_MANAGER} %{_component_name}
-   
    exit 0
 fi
-#---------------------------------------------------------------------------#
-PYTHON_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-python`
-PYTHON_INSTALL=${PYTHON_INSTALL}
+PYTHON_INSTALL="/awips2/python"
 
 function printFailureMessage()
 {
@@ -154,16 +119,11 @@ echo -e "\e[1;34m\| The AWIPS II CLI Installation Has Been Successfully Removed\
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 echo ""
 
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
 %files
 %defattr(644,awips,fxalpha,755)
-#---------------------------------------------------------------------------#
-# Delta-Enabled RPM
-#---------------------------------------------------------------------------#
-%dir %{_component_default_prefix}/delta
-%attr(700,root,root) %{_component_default_prefix}/delta/updateManager.sh
-%attr(700,root,root) %{_component_default_prefix}/delta/createUpdateRegistry.sh
-%{_component_default_prefix}/delta/%{_component_name}
-#---------------------------------------------------------------------------#
 %dir /awips2/fxa
 %docdir /awips2/fxa/licenses
 %dir /awips2/fxa/licenses

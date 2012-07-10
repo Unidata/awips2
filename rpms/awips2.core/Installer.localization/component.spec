@@ -32,6 +32,13 @@ then
    exit 1
 fi
 
+if [ -d ${RPM_BUILD_ROOT} ]; then
+   rm -rf ${RPM_BUILD_ROOT}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
+
 mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/utility
 
 %build

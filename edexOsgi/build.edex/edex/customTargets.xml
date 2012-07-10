@@ -185,9 +185,21 @@
         			includes="dependencies-stash/**" />
         	</delete>
         	
+        	<!-- manipulate the topLevelElementId - the feature -->
+        	<propertyregex property="edex.component"
+        		override="true"
+        		input="${topLevelElementId}"
+        		regexp="\."
+        		replace="-" />
+            <propertyregex property="edex.component"
+            	override="true"
+            	input="${edex.component}"
+            	regexp="com-raytheon-uf-(.+)-feature"
+            	select="\1" />
+        	
         	<!-- Create the distribution directory. -->
         	<mkdir dir="${builder}/dist" />
-        	<zip destfile="${builder}/dist/${topLevelElementId}-edex.zip"
+        	<zip destfile="${builder}/dist/${edex.component}.zip"
         		basedir="${builder}/postBuild"
         		includes="*/**">
         	</zip>
