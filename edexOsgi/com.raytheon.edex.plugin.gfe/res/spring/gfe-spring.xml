@@ -13,14 +13,12 @@
 			factory-bean="jmsConfig" factory-method="copy" />
 	<bean id="smartInitThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="3" />
-		<property name="maxPoolSize" value="3" />
+		<property name="corePoolSize" value="${smartinit.threadpoolsize}" />
+		<property name="maxPoolSize" value="${smartinit.threadpoolsize}" />
 	</bean>
 	<bean id="smartInitSrvCfg" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrvConfig">
 	    <property name="executor" ref="smartInitThreadPool"/>
-	    <!-- Threads should be 2 less than the size of the pool to account for reading
-	         from the notify topic and the manual queue -->
-	    <property name="threads" value="1"/>
+	    <property name="threads" value="${smartinit.threads}"/>
 	    <property name="pendingInitMinTimeMillis" value="180000"/>
 	    <property name="runningInitTimeOutMillis" value="300000"/>
 	    <property name="threadSleepInterval" value="60000"/>
