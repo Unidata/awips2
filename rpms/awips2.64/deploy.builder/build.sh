@@ -3,10 +3,12 @@
 # Build Variables:
 # -----------------------------------------------------------------------------
 VAR_AWIPSII_TOP_DIR="/home/bkowal/rpmbuild"
-VAR_WORKSPACE="/common/bkowal/workspace"
+VAR_WORKSPACE="/common/bkowal/git/thunder/baseline"
 VAR_AWIPSII_BUILD_ROOT="/tmp/awips-component"
 VAR_AWIPSII_VERSION=""
 VAR_AWIPSII_RELEASE=""
+VAR_UFRAME_ECLIPSE="/opt/uframe-eclipse"
+VAR_AWIPSCM_SHARE="/awipscm"
 # -----------------------------------------------------------------------------
 
 # DO NOT EDIT ANYTHING BELOW THIS LINE!
@@ -39,11 +41,20 @@ function prepareBuildEnvironment()
       fi
       export AWIPSII_RELEASE="${VAR_AWIPSII_RELEASE}"
    fi
+
+   if [ "${UFRAME_ECLIPSE}" = "" ]; then
+      export UFRAME_ECLIPSE="${VAR_UFRAME_ECLIPSE}"
+   fi
+
+   if [ "${AWIPSCM_SHARE}" = "" ]; then
+      export AWIPSCM_SHARE="${VAR_AWIPSCM_SHARE}"
+   fi
 }
 
 RPM_SPECS_DIR=""
 function lookupRPM()
 {
+   export TARGET_ARCH="x86_64"
    # This function is used to lookup the location of a specs file
    # based on the name of an rpm.
 
@@ -52,6 +63,9 @@ function lookupRPM()
       return 1
    fi
    local RPM_64BIT_PROJECT_DIR="${WORKSPACE}/Installer.rpm/awips2.64"
+   local RPM_CAVE_PROJECT_DIR="${WORKSPACE}/Installer.rpm/awips2.cave"
+   local RPM_CORE_PROJECT_DIR="${WORKSPACE}/Installer.rpm/awips2.core"
+   local RPM_EDEX_PROJECT_DIR="${WORKSPACE}/Installer.rpm/awips2.edex"
 
    if [ "${1}" = "awips2-python-dynamicserialize" ]; then
       RPM_SPECS_DIR="${RPM_64BIT_PROJECT_DIR}/Installer.dynamicserialize"
@@ -64,7 +78,7 @@ function lookupRPM()
    fi
 
    if [ "${1}" = "awips2-java" ]; then
-      RPM_SPECS_DIR="${RPM_64BIT_PROJECT_DIR}/Installer.java"
+      RPM_SPECS_DIR="${RPM_CORE_PROJECT_DIR}/Installer.java"
       return 0
    fi
 
@@ -104,7 +118,7 @@ function lookupRPM()
    fi
 
    if [ "${1}" = "awips2-python" ]; then
-      RPM_SPECS_DIR="${RPM_64BIT_PROJECT_DIR}/Installer.python"
+      RPM_SPECS_DIR="${RPM_64BIT_PROJECT_DIR}/../awips2.core/Installer.python"
       return 0
    fi
 
@@ -158,13 +172,135 @@ function lookupRPM()
       return 0
    fi
 
-   if [ "${1}" = "awips2-cave" ]; then
+   if [ "${1}" = "CAVE" ]; then
       RPM_SPECS_DIR="_BUILD_CAVE_"
       return 0
    fi
 
+   if [ "${1}" = "EDEX" ]; then
+      RPM_SPECS_DIR="_BUILD_EDEX_"
+      return 0
+   fi
+
    if [ "${1}" = "awips2-alertviz" ]; then
-      RPM_SPECS_DIR="${RPM_64BIT_PROJECT_DIR}/Installer.alertviz"
+      RPM_SPECS_DIR="${RPM_CAVE_PROJECT_DIR}/Installer.alertviz"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-base" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-base"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-configuration" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-configuration"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-shapefiles" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-shapefiles"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-native" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-native"
+      export TARGET_ARCH="i386"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-bufr" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-bufr"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-common-core" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-common-core"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-core" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-core"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-cots" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-cots"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-dat" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-dat"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-dataplugins" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-dataplugins"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-gfe" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-gfe"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-grib" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-grib"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-hydro" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-hydro"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-ncep" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-ncep"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-ncep-nsharp" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-ncep-nsharp"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-npp" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-npp"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-radar" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-radar"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-satellite" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-satellite"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-shapefiles" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-shapefiles"
+      return 0
+   fi
+
+   if [ "${1}" = "awips2-edex-text" ]; then
+      RPM_SPECS_DIR="${RPM_EDEX_PROJECT_DIR}/Installer.edex-component"
+      export COMPONENT_NAME="edex-text"
       return 0
    fi
 
@@ -191,12 +327,15 @@ function buildRPM()
       fi
    fi
 
-   rpmbuild -ba --target=x86_64 \
+   rpmbuild -ba --target=${TARGET_ARCH} \
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
+      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
+      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
       --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --define '_component_name %(echo ${COMPONENT_NAME})' \
       --buildroot ${AWIPSII_BUILD_ROOT} \
       ${1}
    RC=$?
@@ -206,11 +345,26 @@ function buildRPM()
 }
 
 # Special Cases:
+# Builds all of the CAVE RPMs.
 function buildCAVE()
 {
    export CAVE_BUILD_ARCH="x86_64"
    export RPM_TOP_DIR="${AWIPSII_TOP_DIR}"
    cd ${WORKSPACE}/Installer.rpm/awips2.cave/deploy.builder
+   time ./build.sh "${AWIPSII_VERSION}" "${AWIPSII_RELEASE}"
+   RC=$?
+   if [ ${RC} -ne 0 ]; then
+      return 1
+   fi
+   return 0
+}
+
+# Builds all of the EDEX RPMs.
+function buildEDEX()
+{
+   export EDEX_BUILD_ARCH="x86_64"
+   export RPM_TOP_DIR="${AWIPSII_TOP_DIR}"
+   cd ${WORKSPACE}/Installer.rpm/awips2.edex/deploy.builder
    time ./build.sh "${AWIPSII_VERSION}" "${AWIPSII_RELEASE}"
    RC=$?
    if [ ${RC} -ne 0 ]; then
@@ -238,6 +392,19 @@ if [ $# -eq 0 ]; then
    RC=$?
    if [ ${RC} -ne 0 ]; then
       echo "ERROR: Failed to build the 64-Bit RPMs."
+      exit 1
+   fi
+   buildEDEX
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build the 64-bit RPMs."
+      exit 1
+   fi
+   lookupRPM "awips2-python"
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM ${RPM_SPECS_DIR}/component.spec
+   if [ $? -ne 0 ]; then
       exit 1
    fi
    lookupRPM "awips2-python-pygtk"
@@ -268,12 +435,20 @@ if [ $# -gt 0 ]; then
          exit 1
       fi
 
-      if [ ! "${RPM_SPECS_DIR}" = "_BUILD_CAVE_" ]; then
+      if [ ! "${RPM_SPECS_DIR}" = "_BUILD_CAVE_" ] &&
+         [ ! "${RPM_SPECS_DIR}" = "_BUILD_EDEX_" ]; then
          buildRPM ${RPM_SPECS_DIR}/component.spec
          RC=$?
       else
-         buildCAVE
-         RC=$?
+         if [ "${RPM_SPECS_DIR}" = "_BUILD_CAVE_" ]; then
+            buildCAVE
+            RC=$?
+         fi
+
+         if [ "${RPM_SPECS_DIR}" = "_BUILD_EDEX_" ]; then
+            buildEDEX
+            RC=$?
+         fi
       fi
       if [ ${RC} -ne 0 ]; then
          echo "ERROR: Failed to build - ${arg}."
