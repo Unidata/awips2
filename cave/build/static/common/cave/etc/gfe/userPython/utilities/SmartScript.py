@@ -1838,12 +1838,8 @@ class SmartScript(BaseTool.BaseTool):
     # @rtype: list of strings
     def getDiscreteKeys(self, elementName):
         parm = self.getParm("Fcst", elementName, "SFC")
-        keyList = []
-        inventory = parm.getGridInventory()
-        for gridData in inventory:
-             slice = gridData.getGridSlice()
-             for discreteKey in slice.getKey():
-                 keyList.append(discreteKey.toString())
+        keyList = parm.getGridInfo().getDiscreteKeys()
+        keyList = JUtil.javaStringListToPylist(keyList)
         return keyList
 
 #########################################################################

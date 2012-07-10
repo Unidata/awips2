@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: regionalsat
+Bundle-SymbolicName: gov.noaa.nws.ost.edex.plugin.regionalsat
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NWS
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ org.apache.commons.logging,
+ org.geotools,
+ javax.measure,
+ org.apache.commons.lang,
+ javax.persistence,
+ com.raytheon.edex.plugin.satellite,
+ ucar.nc2;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: 
+ com.raytheon.edex.uengine.tasks.query,
+ com.raytheon.edex.util.satellite,
+ com.raytheon.uf.common.dataplugin.satellite,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.menus,
+ com.raytheon.uf.common.menus.xml,
+ com.raytheon.uf.common.status
+Export-Package: gov.noaa.nws.ost.edex.plugin.regionalsat,
+ gov.noaa.nws.ost.edex.plugin.regionalsat.decoder;uses:="com.raytheon.edex.plugin,gov.noaa.nws.ost.edex.plugin.regionalsat.dao"
+

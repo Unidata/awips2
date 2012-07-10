@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuContributionFile>	
+	<include installTo="menu:satellite?after=GROUP7"
+		fileName="menus/satellite/alaskasat/baseAlaskaComposite.xml">
+	</include>
+</menuContributionFile>
