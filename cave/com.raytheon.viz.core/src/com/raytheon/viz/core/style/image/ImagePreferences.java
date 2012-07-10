@@ -56,6 +56,9 @@ public class ImagePreferences extends AbstractStylePreferences {
     @XmlElement(name = "range")
     private DataScale dataScale;
 
+    @XmlElement(name = "displayLegend")
+    private String legend;
+    
     @XmlElement
     private SamplePreferences samplePrefs;
 
@@ -143,5 +146,12 @@ public class ImagePreferences extends AbstractStylePreferences {
     public void setSamplePrefs(SamplePreferences samplePrefs) {
         this.samplePrefs = samplePrefs;
     }
-
+    
+    /**
+     *  @return the legend
+     */
+    public String getLegend() {
+        return legend;
+    }
+    
 }

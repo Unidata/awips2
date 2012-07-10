@@ -278,23 +278,30 @@ public class GisUtil {
         return list;
     }
 
-    public static Coordinate[] convertAlaskaLons(Coordinate[] oldCoords) {
+    public static Coordinate d2dCoordinate(Coordinate oldCoord) {
+        Coordinate coord = new Coordinate();
+        if (oldCoord.x > 150. && oldCoord.y > 45.) {
+            coord.x = oldCoord.x - 360.;
+        } else {
+            coord.x = oldCoord.x;
+        }
+        coord.y = oldCoord.y;
+        
+        return coord;
+        
+    }
+    
+    public static Coordinate[] d2dCoordinates(Coordinate[] oldCoords) {
         int length = oldCoords.length;
         Coordinate[] coords = new Coordinate[length];
         for (int i = 0; i < length; i++) {
-            coords[i] = new Coordinate();
-            if (oldCoords[i].x > 150. && oldCoords[i].y > 45.) {
-                coords[i].x = oldCoords[i].x - 360.;
-            } else {
-                coords[i].x = oldCoords[i].x;
-            }
-            coords[i].y = oldCoords[i].y;
+            coords[i] = d2dCoordinate(oldCoords[i]);
         }
         return coords;
     }
 
     public static Point2D[] convertCoords(Coordinate[] oldCoords) {
-        Coordinate[] coords = convertAlaskaLons(oldCoords);
+        Coordinate[] coords = d2dCoordinates(oldCoords);
         ArrayList<Point2D> pts = new ArrayList<Point2D>();
         int firstX = (int) (coords[0].x * 100);
         int firstY = (int) (coords[0].y * 100);
