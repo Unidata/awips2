@@ -1,13 +1,12 @@
 #
-# AWIPS II Edex Cots Spec File
+# AWIPS II edex-native Spec File
 #
 Name: awips2-edex-native
-Summary: AWIPS II Edex Native
+Summary: AWIPS II Edex
 Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
-BuildRoot: /tmp
-Prefix: /awips2
+BuildRoot: %{_build_root}
 URL: N/A
 License: N/A
 Distribution: N/A
@@ -28,63 +27,46 @@ AWIPS II Edex Installation - Installs The AWIPS II EDEX Native Libraries.
 
 %prep
 # Verify That The User Has Specified A BuildRoot.
-if [ "${RPM_BUILD_ROOT}" = "/tmp" ]
+if [ "%{_build_root}" = "" ]
 then
-   echo "An Actual BuildRoot Must Be Specified. Use The --buildroot Parameter."
-   echo "Unable To Continue ... Terminating"
+   echo "ERROR: The RPM Build Root has not been specified."
    exit 1
 fi
 
-mkdir -p ${RPM_BUILD_ROOT}/awips2
+if [ -d %{_build_root} ]; then
+   rm -rf %{_build_root}
+fi
+mkdir -p %{_build_root}/awips2
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/awips2/edex/lib/native/linux32/awips1
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 %build
 
 %install
-NATIVE_TAR_FILE="dist.native/i386-pc-linux-gnu.tar"
+DIST_NATIVE="%{_baseline_workspace}/dist.native"
+PACKAGES="%{_awipscm_share}/packages"
+# extract the native libraries
+/bin/tar -xpf ${DIST_NATIVE}/i386-pc-linux-gnu.tar \
+   -C %{_build_root}/awips2 ./edex/lib ./edex/bin
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+# copy the AWIPS I mhs libraries
+cp ${PACKAGES}/mhs/* \
+   %{_build_root}/awips2/edex/lib/native/linux32/awips1
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
-/bin/gtar -xpf ${WORKSPACE_DIR}/${NATIVE_TAR_FILE} \
-   -C ${RPM_BUILD_ROOT}/awips2
-   
-# Remove all unnecessary files and directories.
-rm -rf ${RPM_BUILD_ROOT}/awips2/adapt
-rm -rf ${RPM_BUILD_ROOT}/awips2/lib
-rm -rf ${RPM_BUILD_ROOT}/awips2/awipsShare
-rm -rf ${RPM_BUILD_ROOT}/awips2/setup
-rm -rf ${RPM_BUILD_ROOT}/awips2/edex/data
-
-# Copy the mhs libraries to the native directory structure
-MHS_LIB_DIR="${AWIPSCM_SHARE}/packages/mhs"
-# Need to copy mhs libraries.
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/lib/native/linux32/awips1
-
-cp -r ${MHS_LIB_DIR}/* \
-   ${RPM_BUILD_ROOT}/awips2/edex/lib/native/linux32/awips1
-   
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing the AWIPS II EDEX Native Distribution...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = ${RPM_INSTALL_PREFIX}\e[m"
-echo -e "\e[1;34m         Destination = ${RPM_INSTALL_PREFIX}/edex/lib\e[m"
-
 %post
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II EDEX Native Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
+%preun
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| AWIPS II EDEX Native Libraries Have Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

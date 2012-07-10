@@ -1,0 +1,234 @@
+#!/bin/bash
+
+function buildRPM()
+{
+   # Arguments:
+   #   ${1} == the name of the rpm.
+   lookupRPM "${1}"
+   if [ $? -ne 0 ]; then
+      echo "ERROR: '${1}' is not a recognized AWIPS II RPM."
+      exit 1
+   fi
+
+   /usr/bin/rpmbuild -ba \
+      --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
+      --define '_baseline_workspace %(echo ${WORKSPACE})' \
+      --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
+      --define '_awipscm_share %(echo ${AWIPSCM_SHARE})' \
+      --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --buildroot ${AWIPSII_BUILD_ROOT} \
+      ${RPM_SPECIFICATION}/component.spec
+   if [ $? -ne 0 ]; then
+      echo "ERROR: Failed to build RPM ${1}."
+      exit 1
+   fi
+
+   return 0
+}
+
+# This script will build all of the 64-bit rpms.
+# Ensure that we are on a machine with the correct architecture.
+
+architecture=`uname -i`
+if [ ! "${architecture}" = "x86_64" ]; then
+   echo "ERROR: This build can only be performed on a 64-bit Operating System."
+   exit 1
+fi
+
+# Determine which directory we are running from.
+path_to_script=`readlink -f $0`
+dir=$(dirname $path_to_script)
+
+common_dir=`cd ${dir}/../common; pwd;`
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to find the common functions directory."
+   exit 1
+fi
+# source the common functions.
+source ${common_dir}/lookupRPM.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to source the common functions."
+   exit 1
+fi
+source ${common_dir}/usage.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to source the common functions."
+   exit 1
+fi
+source ${common_dir}/rpms.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to source the common functions."
+   exit 1
+fi
+
+# prepare the build environment.
+source ${dir}/buildEnvironment.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to prepare the build environment."
+   exit 1
+fi
+
+export LIGHTNING=true
+# Determine if the optional '-nobinlightning' argument has been specified.
+if [ "${2}" = "-nobinlightning" ]; then
+   LIGHTNING=false
+fi
+
+if [ "${1}" = "-delta" ]; then
+   buildCAVE
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-alertviz"
+   buildEDEX
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-cli"
+   buildRPM "awips2-data.hdf5-gfe.climo"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-localapps-environment"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2"
+   buildLocalizationRPMs
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
+if [ "${1}" = "-full" ]; then
+   buildCAVE
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-alertviz"
+   buildEDEX
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-python"
+   buildRPM "awips2-python-cherrypy"
+   buildRPM "awips2-python-dynamicserialize"
+   buildRPM "awips2-python-h5py"
+   buildRPM "awips2-python-jimporter"
+   buildRPM "awips2-python-matplotlib"
+   buildRPM "awips2-python-nose"
+   buildRPM "awips2-python-numpy"
+   buildRPM "awips2-python-pil"
+   buildRPM "awips2-python-pmw"
+   buildRPM "awips2-python-pupynere"
+   buildRPM "awips2-python-qpid"
+   buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-scipy"
+   buildRPM "awips2-python-tables"
+   buildRPM "awips2-python-thrift"
+   buildRPM "awips2-python-tpg"
+   buildRPM "awips2-python-ufpy"
+   buildRPM "awips2-python-werkzeug"
+   buildRPM "awips2-python-pygtk"
+   buildRPM "awips2-python-pycairo"
+   buildRPM "awips2-cli"
+   buildRPM "awips2-data.hdf5-gfe.climo"
+   buildRPM "awips2-gfesuite-client"
+   buildRPM "awips2-gfesuite-server"
+   buildRPM "awips2-localapps-environment"
+   buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2"
+   unpackHttpdPypies
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-httpd-pypies"
+   buildRPM "awips2-java"
+   buildLocalizationRPMs
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
+if [ "${1}" = "-ade" ]; then
+   echo "INFO: AWIPS II currently does not support a 64-bit version of the ADE."
+   exit 0
+   buildRPM "awips2-eclipse"
+
+   exit 0
+fi
+
+if [ "${1}" = "-viz" ]; then
+   buildCAVE
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   buildRPM "awips2-alertviz"
+
+   exit 0
+fi
+
+if [ "${1}" = "-edex" ]; then
+   buildEDEX
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
+if [ "${1}" = "-qpid" ]; then
+   echo "INFO: AWIPS II currently does not support a 64-bit version of QPID."
+   exit 0
+fi
+
+if [ "${1}" = "-ldm" ]; then
+   echo "INFO: AWIPS II currently does not support a 64-bit version of ldm."
+   exit 0
+fi
+
+if [ "${1}" = "-package" ]; then
+   repository_directory="awips2-repository-${AWIPSII_VERSION}-${AWIPSII_RELEASE}"
+   if [ -d ${WORKSPACE}/${repository_directory} ]; then
+      rm -rf ${WORKSPACE}/${repository_directory}
+      if [ $? -ne 0 ]; then
+         exit 1
+      fi
+   fi
+   mkdir -p ${WORKSPACE}/${repository_directory}/${AWIPSII_VERSION}-${AWIPSII_RELEASE}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   cp -r ${AWIPSII_TOP_DIR}/RPMS/* \
+      ${WORKSPACE}/${repository_directory}/${AWIPSII_VERSION}-${AWIPSII_RELEASE}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   rpms_directory="${WORKSPACE}/rpms"
+   comps_xml="${rpms_directory}/common/yum/arch.x86_64/comps.xml"
+   cp -v ${comps_xml} ${WORKSPACE}/${repository_directory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   pushd . > /dev/null
+   cd ${WORKSPACE}
+   tar -cvf ${repository_directory}.tar ${repository_directory}
+   RC=$?
+   popd > /dev/null
+   if [ ${RC} -ne 0 ]; then
+      exit 1
+   fi
+
+   exit 0
+fi
+
+usage
+exit 0

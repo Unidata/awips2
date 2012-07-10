@@ -7,6 +7,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 Prefix: /awips2/edex
 URL: N/A
 License: N/A
@@ -46,21 +47,21 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
 # Determine which version of the climo we should use.
-RPM_COMMON_DIR="${WORKSPACE_DIR}/Installer.rpm/common/static.versions"
+RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
 
 if [ ! -f ${RPM_COMMON_DIR}/LATEST.climo ]; then
    file ${RPM_COMMON_DIR}/LATEST.climo
@@ -68,7 +69,7 @@ if [ ! -f ${RPM_COMMON_DIR}/LATEST.climo ]; then
 fi
 VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.climo`
 
-GFE_CLIMO_SRC_DIR="${AWIPSCM_SHARE}/awips2-static/climo/${VERSION_DIR}"
+GFE_CLIMO_SRC_DIR="%{_awipscm_share}/awips2-static/climo/${VERSION_DIR}"
 if [ ! -d ${GFE_CLIMO_SRC_DIR} ]; then
    file ${GFE_CLIMO_SRC_DIR}
    exit 1
