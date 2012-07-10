@@ -70,6 +70,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 04/08/08     #875       bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 06/19/08                njensen     Added retrieval of discrete
+ * 05/04/12     #574       dgilling    Update class to better match AWIPS1.
  * 
  * </pre>
  * 
@@ -286,6 +287,8 @@ public abstract class GridDatabase {
         return valid;
     }
 
+    public abstract void deleteDb();
+
     /**
      * Returns the list of ParmIDs that are contained in this database.
      * 
@@ -357,8 +360,6 @@ public abstract class GridDatabase {
             ParmID id, List<TimeRange> trs);
 
     public abstract String getProjectionId();
-
-    public abstract void dbSizeStats();
 
     public ModelState modelState() {
         throw new UnsupportedOperationException("Not implemented for class "

@@ -105,7 +105,6 @@ public class ChooseHour extends AbstractHandler {
                 xmrgRsc.updateXmrg(false);
             }
         }
-
         return null;
     }
 }
