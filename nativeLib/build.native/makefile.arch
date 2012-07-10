@@ -1,0 +1,12 @@
+ARCHFLAGS =
+
+ifndef ARCHFLAGS
+	ARCH ?= $(shell uname -i)
+	ifeq ($(ARCH),x86_64)
+		export CFLAGS := $(CFLAGS) -m64
+	else
+		export CFLAGS := $(CFLAGS) -m32
+	endif
+else
+	export CFLAGS := $(CFLAGS) $(ARCHFLAGS)
+endif

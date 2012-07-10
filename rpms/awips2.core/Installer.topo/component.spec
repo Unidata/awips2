@@ -7,6 +7,7 @@ Version: %{_component_version}
 Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
+BuildArch: noarch
 Prefix: /awips2/edex
 URL: N/A
 License: N/A
@@ -46,21 +47,21 @@ function copyLegal()
    mkdir -p ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
    
    # Create a Tar file with our FOSS licenses.
-   tar -cjf ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
-      ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses/
+   tar -cjf %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
+      %{_baseline_workspace}/rpms/legal/FOSS_licenses/
    
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/license.txt \
+   cp %{_baseline_workspace}/rpms/legal/license.txt \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp "${WORKSPACE_DIR}/Installer.rpm/legal/Master Rights File.pdf" \
+   cp "%{_baseline_workspace}/rpms/legal/Master Rights File.pdf" \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
-   cp ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar \
+   cp %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar \
       ${RPM_BUILD_ROOT}/${COMPONENT_BUILD_DIR}/licenses
       
-   rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
+   rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
 
 # Determine which version of the topo we should use.
-RPM_COMMON_DIR="${WORKSPACE_DIR}/Installer.rpm/common/static.versions"
+RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
 
 if [ ! -f ${RPM_COMMON_DIR}/LATEST.topo ]; then
    file ${RPM_COMMON_DIR}/LATEST.topo
@@ -68,8 +69,8 @@ if [ ! -f ${RPM_COMMON_DIR}/LATEST.topo ]; then
 fi
 VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.topo`
 TOPO_SRC_DIR="awips2-static/topo/${VERSION_DIR}"
-if [ ! -d ${AWIPSCM_SHARE}/${TOPO_SRC_DIR} ]; then
-   file ${AWIPSCM_SHARE}/${TOPO_SRC_DIR}
+if [ ! -d %{_awipscm_share}/${TOPO_SRC_DIR} ]; then
+   file %{_awipscm_share}/${TOPO_SRC_DIR}
    exit 1
 fi
 
@@ -88,7 +89,7 @@ TOPO_TO_COPY=\
 
 for topoFile in ${TOPO_TO_COPY[*]};
 do
-   cp -r ${AWIPSCM_SHARE}/${TOPO_SRC_DIR}/${topoFile} \
+   cp -r %{_awipscm_share}/${TOPO_SRC_DIR}/${topoFile} \
       ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
    RC=$?
    if [ ${RC} -ne 0 ]; then
@@ -98,7 +99,7 @@ done
 
 # Copy our hlsTopo
 mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo/hlsTopo
-cp -r ${AWIPSCM_SHARE}/${TOPO_SRC_DIR}/hlsTopo/* \
+cp -r %{_awipscm_share}/${TOPO_SRC_DIR}/hlsTopo/* \
    ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo/hlsTopo
 RC=$?
 if [ ${RC} -ne 0 ]; then

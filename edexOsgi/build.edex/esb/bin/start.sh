@@ -80,9 +80,8 @@ export PATH=$PATH:$PROJECT/bin
 
 export JAVA_HOME="${JAVA_INSTALL}"
 export LD_LIBRARY_PATH=$EDEX_HOME/lib/native/linux32/awips1:${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$PROJECT/sharedLib
-if [ -d /awips2/edex/lib/lib64 ]; then
-   export LD_LIBRARY_PATH=/awips2/edex/lib/lib64:$LD_LIBRARY_PATH
-fi
+export LD_LIBRARY_PATH=/awips2/edex/lib/lib_illusion:$LD_LIBRARY_PATH
+
 export LD_PRELOAD="libpython.so"
 export FXA_DATA=$EDEX_HOME/data/fxa
 export ALLOW_ARCHIVE_DATA="false"
@@ -138,4 +137,14 @@ fi
 # enable core dumps
 #ulimit -c unlimited
 
-$dir/linux-x86-32/wrapper -c $dir/linux-x86-32/$CONF_FILE
+# which wrapper do we start (possibly use a symlink instead)?
+wrapper_dir=
+if [ -d $dir/linux-x86-32 ]; then
+   wrapper_dir=linux-x86-32
+   export EDEX_ARCH="32-bit"
+fi
+if [ -d $dir/linux-x86-64 ]; then
+   wrapper_dir=linux-x86-64
+   export EDEX_ARCH="64-bit"
+fi
+$dir/$wrapper_dir/wrapper -c $dir/$CONF_FILE

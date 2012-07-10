@@ -1,4 +1,3 @@
-%define CORE_DELTA_SETUP ${WORKSPACE_DIR}/Installer.rpm/delta/setup/updateSetup.sh
 %define _component_name           awips2-hydroapps-shared
 %define _component_project_dir    awips2.core/Installer.hydroapps
 #
@@ -43,7 +42,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2
 NATIVE_TAR_FILE="dist.native/i386-pc-linux-gnu.tar"
 
 # Untar the Native Library
-/bin/gtar -xpf ${WORKSPACE_DIR}/${NATIVE_TAR_FILE} \
+/bin/gtar -xpf %{_baseline_workspace}/${NATIVE_TAR_FILE} \
    -C ${RPM_BUILD_ROOT}/awips2
    
 # Remove all unnecessary files and directories.
