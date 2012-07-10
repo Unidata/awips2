@@ -22,6 +22,7 @@ package com.raytheon.viz.core.rsc.hdf5;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -434,7 +435,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
      * @param isRecursiveCall
      * @throws VizException
      */
-    protected void drawInternal(IGraphicsTarget target,
+    protected List<DrawableImage> drawInternal(IGraphicsTarget target,
             PaintProperties paintProps, int lvl, int depth) throws VizException {
 
         List<ImageTile> intersectedTiles = new ArrayList<ImageTile>();
@@ -504,12 +505,14 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
         // Draw lower resolution data first
         if (needDrawLower && (lvl + 1) < levels) {
-            drawInternal(target, paintProps, lvl + 1, depth + 1);
+            // put lower levels first in the list so they are drawn first.
+            List<DrawableImage> lowerImages = drawInternal(target, paintProps,
+                    lvl + 1, depth + 1);
+            lowerImages.addAll(drawableImages);
+            drawableImages = lowerImages;
         }
 
-        // Draw all tiles at once
-        target.drawRasters(paintProps, drawableImages
-                .toArray(new DrawableImage[drawableImages.size()]));
+        return drawableImages;
     }
 
     /*
@@ -526,11 +529,16 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             return;
         }
         lastPaintedTarget = target;
-        do2D(target, paintProps);
+        List<DrawableImage> drawableImages = do2D(target, paintProps);
+
+        // Draw all tiles at once
+        target.drawRasters(paintProps, drawableImages
+                .toArray(new DrawableImage[drawableImages.size()]));
+
     }
 
-    protected void do2D(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
+    protected List<DrawableImage> do2D(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
 
         double screenToWorldRatio = paintProps.getCanvasBounds().width
                 / paintProps.getView().getExtent().getWidth();
@@ -550,9 +558,11 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
         if (this.tileSet.getTileSet() != null
                 && tileSet.getTileSet().size() > 0) {
-            drawInternal(target, paintProps, usedTileLevel, 0);
-
             lastPaintedLevel = usedTileLevel;
+
+            return drawInternal(target, paintProps, usedTileLevel, 0);
+        } else {
+            return Collections.emptyList();
         }
 
     }
