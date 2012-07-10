@@ -1,11 +1,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-  
+
+    <bean id="vtecFilter" class="com.raytheon.edex.plugin.warning.util.WarningHasVTECFilter" />
+
     <bean id="activeTableSrv" class="com.raytheon.uf.edex.activetable.ActiveTableSrv" />
-    <bean id="activeTable" class="com.raytheon.uf.edex.activetable.ActiveTable" />		       
+    <bean id="activeTable" class="com.raytheon.uf.edex.activetable.ActiveTable" />
    	<bean id="activeTableDatabaseProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
 		<property name="pluginFQN" value="com.raytheon.uf.common.activetable" />
 		<property name="database" value="metadata" />
@@ -16,7 +18,7 @@
 	</bean>
     <bean id="jms-activetable" class="org.apache.camel.component.jms.JmsComponent">
         <constructor-arg ref="jmsActiveTableConfig" />
-		<property name="taskExecutor" ref="activeTableMergeThreadPool" />		
+		<property name="taskExecutor" ref="activeTableMergeThreadPool" />
 	</bean>
 	<bean id="jmsActiveTableConfig" class="org.apache.camel.component.jms.JmsConfiguration"
 			factory-bean="jmsConfig" factory-method="copy" />
@@ -42,20 +44,23 @@
         <route id="vtecNotify">
             <from uri="vm:edex.vtecAlert" />
             <bean ref="serializationUtil" method="transformToThrift" />
-            <to uri="jms-generic:topic:edex.alerts.vtec" />         
-        </route>		
+            <to uri="jms-generic:topic:edex.alerts.vtec" />
+        </route>
 		<route id="practiceVtecRoute">
 			<from uri="jms-activetable:queue:practiceActiveTable?concurrentConsumers=1" />
             <doTry>
                <bean ref="activeTable" method="dumpProductToTempFile" />
                <bean ref="practiceWarningDecoder" method="decode" />
                <bean ref="index" method="index" />
-               <bean ref="activeTableSrv" method="practiceVtecArrived" />
-               <bean ref="toDataURI" method="toDataURI"/>
-               <bean ref="uriAggregator" method="addDataUris" />
-               <bean ref="uriAggregator" method="sendPracticeQueuedUris" />
-               <bean ref="serializationUtil" method="transformToThrift" />
-               <to uri="jms-generic:topic:edex.alerts.practicewarning?timeToLive=60000&amp;deliveryPersistent=false"/>
+               <filter>
+                 <method bean="vtecFilter" method="hasVTEC" />
+                 <bean ref="activeTableSrv" method="practiceVtecArrived" />
+                 <bean ref="toDataURI" method="toDataURI"/>
+                 <bean ref="uriAggregator" method="addDataUris" />
+                 <bean ref="uriAggregator" method="sendPracticeQueuedUris" />
+                 <bean ref="serializationUtil" method="transformToThrift" />
+                 <to uri="jms-generic:topic:edex.alerts.practicewarning?timeToLive=60000&amp;deliveryPersistent=false"/>
+               </filter>
                <doCatch>
                    <exception>java.lang.Throwable</exception>
                    <to uri="log:practiceActiveTable?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
@@ -79,13 +84,13 @@
 	            	<bean ref="activeTable" method="dumpProductToTempFile"/>
 		    		<bean ref="timeOffsetDecoder" method="decode"/>
 		    		<multicast parallelProcessing="false">
-	    				<bean ref="activeTableSrv" method="practiceVtecArrived"/>  
+	    				<bean ref="activeTableSrv" method="practiceVtecArrived"/>
 	    				<filter>
 	    					<simple>${header?.notifygfe.booleanValue}</simple>
-    					    <to uri="jms-generic:queue:practiceNotify"/>  
+    					    <to uri="jms-generic:queue:practiceNotify"/>
 	    				</filter>
 	    			</multicast>
-	    		</pipeline>						
+	    		</pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to uri="log:practiceActiveTable?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
