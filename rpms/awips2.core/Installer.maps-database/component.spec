@@ -1,4 +1,3 @@
-%define CORE_DELTA_SETUP ${WORKSPACE_DIR}/Installer.rpm/delta/setup/updateSetup.sh
 %define _component_name           awips2-maps-database
 %define _component_project_dir    awips2.core/Installer.maps-database
 #
@@ -39,7 +38,7 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps
 
 %install
 # Determine which version of db we should use.
-RPM_COMMON_DIR="${WORKSPACE_DIR}/Installer.rpm/common/static.versions"
+RPM_COMMON_DIR="%{_baseline_workspace}/rpms/common/static.versions"
 
 if [ ! -f ${RPM_COMMON_DIR}/LATEST.maps ]; then
    file ${RPM_COMMON_DIR}/LATEST.maps
@@ -47,12 +46,12 @@ if [ ! -f ${RPM_COMMON_DIR}/LATEST.maps ]; then
 fi
 VERSION_DIR=`cat ${RPM_COMMON_DIR}/LATEST.maps`
 
-STATIC_DATA_DIR="${AWIPSCM_SHARE}/awips2-static"
+STATIC_DATA_DIR="%{_awipscm_share}/awips2-static"
 
 # Copy the sql that is needed to create the maps database.
 PATH_TO_DDL="build.edex/opt/db/ddl"
 PATH_TO_MAPS_DDL="${PATH_TO_DDL}/maps"
-cp -r ${WORKSPACE_DIR}/${PATH_TO_MAPS_DDL}/* \
+cp -r %{_baseline_workspace}/${PATH_TO_MAPS_DDL}/* \
    ${RPM_BUILD_ROOT}/awips2/database/sqlScripts/share/sql/maps
 
 PATH_TO_STATIC_DDL="${STATIC_DATA_DIR}/maps/${VERSION_DIR}/db"
@@ -379,6 +378,9 @@ fi
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 echo -e "\e[1;34m\| SUCCESSFUL UNINSTALLATION ~ awips2-maps-database\e[m"
 echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
    
 %files
 %defattr(666,awips,fxalpha,775)

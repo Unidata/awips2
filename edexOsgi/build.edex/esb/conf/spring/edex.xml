@@ -346,8 +346,11 @@
    <!-- Reference properties files -->
    <bean id="projectPropertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-	<property name="location">
-		<value>file:${edex.home}/conf/spring/project.properties</value>
+	<property name="locations">
+		<list>
+			<value>file:${edex.home}/conf/spring/cron.properties</value>
+			<value>file:${edex.home}/conf/spring/${edex.arch}/architecture.properties</value>
+		</list>
 	</property>
    </bean>
 </beans>
