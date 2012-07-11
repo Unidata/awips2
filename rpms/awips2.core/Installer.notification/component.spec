@@ -67,12 +67,12 @@ function copyLegal()
       
    rm -f %{_baseline_workspace}/rpms/legal/FOSS_licenses.tar    
 }
-RPM_CORE_PROJECT_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.core"
+RPM_CORE_PROJECT_DIR="%{_baseline_workspace}/rpms/awips2.core"
 NOTIFICATION_TAR_FILE_DIR="${RPM_CORE_PROJECT_DIR}/Installer.notification/src"
 NOTIFICATION_TAR_FILE="${NOTIFICATION_TAR_FILE_DIR}/edex_com.tar.bz2"
 
 cd ${RPM_BUILD_ROOT}/awips2
-/bin/gtar -xpf %{_awipscm_share}/${NOTIFICATION_TAR_FILE}
+/bin/gtar -xpf ${NOTIFICATION_TAR_FILE}
 if [ $? -ne 0 ]; then
    exit 1
 fi
