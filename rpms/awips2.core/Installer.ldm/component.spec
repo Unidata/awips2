@@ -72,7 +72,7 @@ cp %{_baseline_workspace}/${LDM_TAR_DIR}/ldm-6.8.1.patch0 \
 cp %{_baseline_workspace}/${LDM_TAR_DIR}/ldm-6.8.1.patch1 \
    ${LDM_BUILD_DIR}
 # Copy patch2 to the build directory.
-cp ${WORKSPACE_DIR}/${LDM_TAR_DIR}/ldm-6.8.1.patch2 \
+cp %{_baseline_workspace}/${LDM_TAR_DIR}/ldm-6.8.1.patch2 \
    ${LDM_BUILD_DIR}
 cd ${LDM_BUILD_DIR}
 tar -xvf ${LDM_TAR_FILE}
@@ -224,10 +224,6 @@ cp %{_baseline_workspace}/${PATCH_DIR}/profile.d/awipsLDM.csh \
    ${RPM_BUILD_ROOT}/etc/profile.d
    
 %pre
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| Installing AWIPS II ldm...\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m   Installation Root = /usr/local/ldm-6.8.1\e[m"
 if [ -d /tmp/ldm ]; then
    rm -rf /tmp/ldm
 fi
@@ -270,16 +266,8 @@ rm -f /usr/local/ldm-6.8.1/etc/ldmd.conf.*
 
 rm -rf /tmp/ldm
 
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;32m\| AWIPS II ldm Installation - COMPLETE\e[m"
-echo -e "\e[1;32m--------------------------------------------------------------------------------\e[m"
-
 %postun
 /sbin/ldconfig
-
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
-echo -e "\e[1;34m\| AWIPS II ldm Has Been Successfully Removed\e[m"
-echo -e "\e[1;34m--------------------------------------------------------------------------------\e[m"
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
