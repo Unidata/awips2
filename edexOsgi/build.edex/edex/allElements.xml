@@ -15,6 +15,8 @@
  	<target name="allElementsDelegator"> 		
  		<property file="${builder}/common.properties" />
  		<!-- TODO: actually consider evaluating the result. -->
+		<property name="current.workspace.directory"
+			value="${builder}/../../" />
  		<property name="awips.baseline.directory"
  			value="${builder}/../../../" />
  		<path id="ant.classpath">
@@ -35,7 +37,7 @@
  			select="\1"
  			casesensitive="true" />
  		
- 		<var name="basedirectories" value="" />
+ 		<var name="basedirectories" value="${current.workspace.directory}" />
  		<for list="${baseline.variables}" param="index"
  		delimiter="${path.separator}">
  			<sequential>
