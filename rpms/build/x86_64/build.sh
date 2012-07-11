@@ -94,6 +94,7 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-data.gfe"
    buildRPM "awips2"
    buildLocalizationRPMs
    if [ $? -ne 0 ]; then
@@ -140,6 +141,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-localapps-environment"
    buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-data.gfe"
    buildRPM "awips2"
    unpackHttpdPypies
    if [ $? -ne 0 ]; then
