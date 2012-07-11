@@ -115,8 +115,14 @@ cd ${WORKSPACE}/build.edex
 if [ $? -ne 0 ]; then
    exit 1
 fi
-/awips2/ant/bin/ant -f build.xml
-if [ $? -ne 0 ]; then
+if [ ${LIGHTNING} = true ]; then
+   /awips2/ant/bin/ant -f build.xml -Dlightning=true
+   RC=$?
+else
+   /awips2/ant/bin/ant -f build.xml
+   RC=$?
+fi
+if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 popd
