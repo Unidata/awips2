@@ -50,13 +50,16 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 4, 2010            mschenke     Initial creation
+ * Jul 11, 2012 #875       rferrel     Return Value now only set
+ *                                      to bundle on Load. Prevents
+ *                                      the window's 'x' close from
+ *                                      trying to perform a load.
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-
 public class AlterBundleDlg extends CaveSWTDialog {
 
     private static class AlterBundleEntry {
@@ -93,11 +96,6 @@ public class AlterBundleDlg extends CaveSWTDialog {
         mainLayout.marginHeight = 0;
         mainLayout.marginWidth = 0;
         return mainLayout;
-    }
-
-    @Override
-    protected void disposed() {
-        setReturnValue(bundle);
     }
 
     @Override
@@ -231,7 +229,7 @@ public class AlterBundleDlg extends CaveSWTDialog {
                         entry.alterValue);
             }
         }
-
+        setReturnValue(bundle);
         shell.close();
     }
 
