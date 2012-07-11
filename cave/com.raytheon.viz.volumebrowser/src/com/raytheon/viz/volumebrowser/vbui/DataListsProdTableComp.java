@@ -56,6 +56,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.points.IPointChangedListener;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
@@ -442,10 +444,10 @@ public class DataListsProdTableComp extends Composite implements
                         });
                     }
                 });
-        ToolsDataManager.getInstance().addPointsChangedListener(
-                new IToolChangedListener() {
+        PointsDataManager.getInstance().addPointsChangedListener(
+                new IPointChangedListener() {
                     @Override
-                    public void toolChanged() {
+                    public void pointChanged() {
                         VizApp.runAsync(new Runnable() {
                             public void run() {
                                 updateMenuInventory();
@@ -826,7 +828,7 @@ public class DataListsProdTableComp extends Composite implements
             tbContrib.xml.toolItemText = "Points";
             tbContrib.xml.id = "SoundingPointsButton";
             List<IContributionItem> items = new ArrayList<IContributionItem>();
-            List<String> points = new ArrayList<String>(ToolsDataManager
+            List<String> points = new ArrayList<String>(PointsDataManager
                     .getInstance().getPointNames());
             Collections.sort(points);
             for (String point : points) {
