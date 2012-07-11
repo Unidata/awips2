@@ -184,6 +184,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.topo"
       return 0
    fi
+   if [ "${1}" = "awips2-data.gfe" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.gfe"
+      return 0
+   fi
    if [ "${1}" = "awips2" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.version"
       return 0
