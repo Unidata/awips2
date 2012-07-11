@@ -105,6 +105,7 @@ if [ "${1}" = "-delta" ]; then
    buildRPM "awips2-notification"
    buildRPM "awips2-pypies"
    buildRPM "awips2-data.hdf5-topo"
+   buildRPM "awips2-data.gfe"
    buildRPM "awips2"
    buildRPM "awips2-rcm"
    buildLocalizationRPMs
@@ -154,6 +155,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-database-server-configuration"
    buildRPM "awips2-database-standalone-configuration"
    buildRPM "awips2-data.hdf5-gfe.climo"
+   buildRPM "awips2-data.gfe"
    buildRPM "awips2-gfesuite-client"
    buildRPM "awips2-gfesuite-server"
    buildRPM "awips2-hydroapps-shared"
