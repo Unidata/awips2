@@ -74,7 +74,7 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
 
     public static final String MODEL_TIME_FORMAT = "yyyyMMdd_HHmm";
 
-    public static final SimpleDateFormat dateFormat = new SimpleDateFormat(
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
             MODEL_TIME_FORMAT);
 
     static {
@@ -150,7 +150,14 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
      */
     public DatabaseID(String siteId, DataType format, String dbType,
             String modelName, Date modelTime) {
-        this(siteId, format, dbType, modelName, dateFormat.format(modelTime));
+        this.siteId = siteId;
+        this.format = format;
+        this.dbType = dbType;
+        this.modelName = modelName;
+        synchronized (dateFormat) {
+            this.modelTime = dateFormat.format(modelTime);
+        }
+        encodeIdentifier();
     }
 
     /**
@@ -345,10 +352,15 @@ public class DatabaseID implements Serializable, Comparable<DatabaseID>,
     }
 
     private boolean decodeDtg(String dtgString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmm");
+        if (dtgString == null
+                || dtgString.length() != MODEL_TIME_FORMAT.length()) {
+            return false;
+        }
         try {
-            Date date = sdf.parse(dtgString);
-            modelTime = sdf.format(date);
+            synchronized (dateFormat) {
+                dateFormat.parse(dtgString);
+            }
+            modelTime = dtgString;
         } catch (ParseException e) {
             return false;
         }
