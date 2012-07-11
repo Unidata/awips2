@@ -3,8 +3,6 @@
 		<property name="gfesuite.directory"
 			value="${edex.root.directory}/../GFESuite" />
 		
-		<antcall target="cleanup" />
-		
 		<!-- Determine which directory the gfesuite project is in. -->
 		<if>
 			<available file="${awips.baseline.directory}/${gfesuite.project}" 
@@ -20,7 +18,7 @@
 		</if>
 		
 		<!-- Deploy GFESuite -->
-		<copy todir="${gfesuite.directory}">
+		<copy todir="${gfesuite.directory}" overwrite="true">
 			<fileset dir="${gfesuite.project.path}/svcBackup">
 				<include name="*/**" />
 			</fileset>
@@ -40,15 +38,5 @@
 				<include name="**/**" />
 			</fileset>
 		</chmod>
-	</target>
-	
-	<target name="cleanup">
-		<echo message="Cleaning target directory: ${gfesuite.directory}" />
-		<delete includeemptydirs="true">
-			<fileset dir="${gfesuite.directory}">
-				<include name="bin/**" />
-				<include name="ServiceBackup/**" />
-			</fileset>
-		</delete>
 	</target>
 </project>
