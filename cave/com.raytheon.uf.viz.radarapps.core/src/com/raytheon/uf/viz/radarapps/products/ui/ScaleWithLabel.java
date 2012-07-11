@@ -28,6 +28,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 
+import com.raytheon.viz.ui.widgets.MinimumSizeComposite;
+
 // TODO: make label a spinner control for precise control
 public class ScaleWithLabel extends Composite {
 	private MinimumSizeComposite msc;
