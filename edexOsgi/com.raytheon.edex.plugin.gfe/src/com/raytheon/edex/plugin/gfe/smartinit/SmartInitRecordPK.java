@@ -20,7 +20,9 @@
 package com.raytheon.edex.plugin.gfe.smartinit;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -28,6 +30,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -55,6 +58,13 @@ public class SmartInitRecordPK implements ISerializableObject, Serializable,
         Cloneable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
+            DatabaseID.MODEL_TIME_FORMAT);
+
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     public enum State {
         PENDING, RUNNING
@@ -139,28 +149,37 @@ public class SmartInitRecordPK implements ISerializableObject, Serializable,
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         SmartInitRecordPK other = (SmartInitRecordPK) obj;
         if (initName == null) {
-            if (other.initName != null)
+            if (other.initName != null) {
                 return false;
-        } else if (!initName.equals(other.initName))
+            }
+        } else if (!initName.equals(other.initName)) {
             return false;
+        }
         if (state == null) {
-            if (other.state != null)
+            if (other.state != null) {
                 return false;
-        } else if (!state.equals(other.state))
+            }
+        } else if (!state.equals(other.state)) {
             return false;
+        }
         if (validTime == null) {
-            if (other.validTime != null)
+            if (other.validTime != null) {
                 return false;
-        } else if (!validTime.equals(other.validTime))
+            }
+        } else if (!validTime.equals(other.validTime)) {
             return false;
+        }
         return true;
     }
 
@@ -170,8 +189,8 @@ public class SmartInitRecordPK implements ISerializableObject, Serializable,
         tmp.append(initName);
         tmp.append(" ValidTime: ");
         if (validTime != null) {
-            synchronized (InitModules.dateFormat) {
-                tmp.append(InitModules.dateFormat.format(validTime));
+            synchronized (dateFormat) {
+                tmp.append(dateFormat.format(validTime));
             }
         } else {
             tmp.append("null");
