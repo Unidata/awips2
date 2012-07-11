@@ -22,7 +22,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.d2d.core,
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
- com.raytheon.uf.viz.d2d.ui
+ com.raytheon.uf.viz.d2d.ui,
+ com.raytheon.uf.viz.points;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.capabilities,
