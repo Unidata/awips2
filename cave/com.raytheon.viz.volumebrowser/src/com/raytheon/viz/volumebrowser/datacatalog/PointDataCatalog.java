@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.BufruaNSharpResourceData;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.MdlSndNSharpResourceData;
 import com.raytheon.uf.viz.objectiveanalysis.rsc.OAResourceData;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
@@ -450,7 +451,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                     .setPointCoordinate(closestCoord);
 
             String pointLetter = getPointLetter(catalogEntry);
-            ToolsDataManager.getInstance().setPoint(pointLetter, closestCoord);
+            PointsDataManager.getInstance().setPoint(pointLetter, closestCoord);
             return resourceData;
         case CROSS_SECTION:
             resourceData = super.getResourceData(catalogEntry, resourceType);
@@ -569,7 +570,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 continue;
             }
             for (String letter : pointLetters) {
-                Coordinate c = ToolsDataManager.getInstance().getPoint(letter);
+                Coordinate c = PointsDataManager.getInstance().getPoint(letter);
                 if (getClosestStation(c, source) != null) {
                     fileredSources.add(source);
                     break;
@@ -605,17 +606,17 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             return results;
         }
         ToolsDataManager tdm = ToolsDataManager.getInstance();
+        PointsDataManager pdm = PointsDataManager.getInstance();
         Set<String> validPlanes = new HashSet<String>(sources.size());
         for (String source : sources) {
-            for (String letter : tdm.getPointNames()) {
-                Coordinate c = ToolsDataManager.getInstance().getPoint(letter);
+            for (String letter : pdm.getPointNames()) {
+                Coordinate c = pdm.getPoint(letter);
                 if (getClosestStation(c, source) != null) {
                     validPlanes.add("Point" + letter);
                 }
             }
             for (String letter : tdm.getBaselineNames()) {
-                LineString ls = ToolsDataManager.getInstance().getBaseline(
-                        letter);
+                LineString ls = tdm.getBaseline(letter);
                 boolean failed = false;
                 for (Coordinate c : ls.getCoordinates()) {
                     if (getClosestStation(c, source) == null) {

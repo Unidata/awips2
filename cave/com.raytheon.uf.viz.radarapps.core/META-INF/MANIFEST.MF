@@ -17,7 +17,9 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core;bundle-version="1.11.7",
  com.raytheon.uf.common.localization;bundle-version="1.11.7",
  javax.jms;bundle-version="1.0.0",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.points;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.viz.radarapps.client,
  com.raytheon.uf.viz.radarapps.core,
  com.raytheon.uf.viz.radarapps.products.ui
