@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.awipstools.common.RangeRing;
 import com.raytheon.viz.awipstools.common.RangeRing.RangeRingType;
@@ -54,20 +55,21 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Dialog for managing the displaying of points in the D2D's Range Rings view.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  10-21-09     #732       bsteffen   Fixed Many issues
+ *  07-11-12     #875       rferrel    Bug fix for check box on
+ *                                      unapplied points.
  * 
  * </pre>
  * 
  * @author ebabin
  * @version 1.0
  */
-
 public class RangeRingDialog extends CaveJFACEDialog implements
         IResourceDataChanged {
 
@@ -132,7 +134,10 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
     private final AbstractResourceData resourceData;
 
-    private ToolsDataManager dataManager = ToolsDataManager.getInstance();
+    private ToolsDataManager toolsDataManager = ToolsDataManager.getInstance();
+
+    private PointsDataManager pointsDataManager = PointsDataManager
+            .getInstance();
 
     private Collection<FixedRingRow> fixedRings = new ArrayList<FixedRingRow>();
 
@@ -234,13 +239,13 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                 true, true, 1, 1));
         new Label(createComposite, SWT.NONE).setText("New at: ");
         Combo combo = new Combo(createComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-        Collection<String> points = dataManager.getPointNames();
+        Collection<String> points = pointsDataManager.getPointNames();
         ArrayList<String> items = new ArrayList<String>();
         items.add(LATLON);
         for (String point : points) {
             items.add("Point " + point);
         }
-        Collection<RangeRing> rangeRings = dataManager.getRangeRings();
+        Collection<RangeRing> rangeRings = toolsDataManager.getRangeRings();
         for (RangeRing ring : rangeRings) {
             if (ring.getType() == RangeRingType.FIXED) {
                 items.add(ring.getId());
@@ -293,7 +298,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             }
             row.id.setText(id);
         } else {
-            Collection<String> points = dataManager.getPointNames();
+            Collection<String> points = pointsDataManager.getPointNames();
             String selectedPoint = null;
             for (String point : points) {
                 if (selection.equals("Point " + point)) {
@@ -303,7 +308,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             }
             if (selectedPoint != null) {
                 row.id.setText(selection);
-                Coordinate loc = dataManager.getPoint(selectedPoint);
+                Coordinate loc = pointsDataManager.getPoint(selectedPoint);
                 row.lon.setText(String.valueOf(loc.x));
                 row.lat.setText(String.valueOf(loc.y));
             } else {
@@ -364,7 +369,9 @@ public class RangeRingDialog extends CaveJFACEDialog implements
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                row.ring.setVisible(row.enabled.getSelection());
+                if (row.ring != null) {
+                    row.ring.setVisible(row.enabled.getSelection());
+                }
             }
         });
         row.id = new Text(movableRingsComposite, SWT.SINGLE | SWT.BORDER);
@@ -462,7 +469,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         }
         fixedRings.clear();
         movableRings.clear();
-        Collection<RangeRing> rangeRings = dataManager.getRangeRings();
+        Collection<RangeRing> rangeRings = toolsDataManager.getRangeRings();
         for (RangeRing ring : rangeRings) {
             if (ring.getType() == RangeRingType.FIXED) {
                 FixedRingRow row = getNewFixedRow();
@@ -499,7 +506,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             String label = row.label.getText();
             rangeRings.add(new RangeRing(id, center, radius, label, enabled));
         }
-        dataManager.setRangeRings(rangeRings);
+        toolsDataManager.setRangeRings(rangeRings);
         resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
         load();
     }
