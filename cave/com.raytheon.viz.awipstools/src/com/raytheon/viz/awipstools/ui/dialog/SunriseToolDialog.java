@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.common.SunriseSunsetCalculator;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -76,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  10-21-09    #1711       bsteffen    Modified to use datamanager for home location
  * 25May2010    5603        bkowal      Added additional timezones based on the timezones
  *                                      that were present in AWIPSI.
+ * 11Jul2012    875         rferrel     Now uses PointsDataManager
  * </pre>
  * 
  * @author Eric Babin
@@ -166,8 +167,6 @@ public class SunriseToolDialog extends CaveJFACEDialog {
     private float latitudeValue;
 
     private float longitudeValue;
-    
-    
 
     private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
@@ -175,89 +174,45 @@ public class SunriseToolDialog extends CaveJFACEDialog {
     // right.
 
     /*
-    String zoneStrings[] = {
-    		TimeZone.getTimeZone("Pacific/Guam").getDisplayName(false, TimeZone.SHORT)
-    				+ " (+" + TimeZone.getTimeZone("Pacific/Guam").getRawOffset()
-    				/ 3600000 + ")",
-    	    TimeZone.getTimeZone("HST").getDisplayName(false, TimeZone.SHORT)
-            		+ " (" + TimeZone.getTimeZone("HST").getRawOffset()
-            		/ 3600000 + ")",
-    		TimeZone.getTimeZone("AST").getDisplayName(false, TimeZone.SHORT)
-    				+ " (" + TimeZone.getTimeZone("AST").getRawOffset()
-    				/ 3600000 + ")",
-            TimeZone.getTimeZone("AST").getDisplayName(true, TimeZone.SHORT)
-                    + " ("
-                    + (TimeZone.getTimeZone("AST").getRawOffset() + 100000)
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("PST").getDisplayName(false, TimeZone.SHORT)
-                    + " (" + TimeZone.getTimeZone("PST").getRawOffset()
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("PST").getDisplayName(true, TimeZone.SHORT)
-                    + " ("
-                    + (TimeZone.getTimeZone("PST").getRawOffset() + 100000)
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("MST").getDisplayName(false, TimeZone.SHORT)
-                    + " (" + TimeZone.getTimeZone("MST").getRawOffset()
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("MST").getDisplayName(true, TimeZone.SHORT)
-                    + " ("
-                    + (TimeZone.getTimeZone("MST").getRawOffset() + 100000)
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("CST").getDisplayName(false, TimeZone.SHORT)
-                    + " (" + TimeZone.getTimeZone("CST").getRawOffset()
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("CST").getDisplayName(true, TimeZone.SHORT)
-                    + " ("
-                    + (TimeZone.getTimeZone("CST").getRawOffset() + 100000)
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("EST").getDisplayName(false, TimeZone.SHORT)
-                    + " (" + TimeZone.getTimeZone("EST").getRawOffset()
-                    / 3600000 + ")",
-            TimeZone.getTimeZone("EST").getDisplayName(true, TimeZone.SHORT)
-                    + " ("
-                    + (TimeZone.getTimeZone("EST").getRawOffset() + 100000)
-                    / 3600000 + ")",
-    	    TimeZone.getTimeZone("SystemV/AST4").getDisplayName(false, TimeZone.SHORT)
-            		+ " (" + TimeZone.getTimeZone("SystemV/AST4").getRawOffset()
-            		/ 3600000 + ")",
-            TimeZone.getTimeZone("GMT").getDisplayName(false, TimeZone.SHORT)
-                    + " (0)" };
-    */
-    final String timeZoneIDs[] =
-    {
-    	"Pacific/Guam",
-    	"HST",
-    	"AST",
-    	"AST",
-    	"PST",
-    	"PST",
-    	"MST",
-    	"MST",
-    	"CST",
-    	"CST",
-    	"EST",
-    	"EST",
-    	"SystemV/AST4",
-    	"GMT"
-    };
-    final boolean daylightIndicators[] =
-    {
-    	false,
-    	false,
-    	false,
-    	true,
-    	false,
-    	true,
-    	false,
-    	true,
-    	false,
-    	true,
-    	false,
-    	true,
-    	false,
-    	false
-    };
-    
+     * String zoneStrings[] = {
+     * TimeZone.getTimeZone("Pacific/Guam").getDisplayName(false,
+     * TimeZone.SHORT) + " (+" +
+     * TimeZone.getTimeZone("Pacific/Guam").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("HST").getDisplayName(false, TimeZone.SHORT) + " ("
+     * + TimeZone.getTimeZone("HST").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("AST").getDisplayName(false, TimeZone.SHORT) + " ("
+     * + TimeZone.getTimeZone("AST").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("AST").getDisplayName(true, TimeZone.SHORT) + " (" +
+     * (TimeZone.getTimeZone("AST").getRawOffset() + 100000) / 3600000 + ")",
+     * TimeZone.getTimeZone("PST").getDisplayName(false, TimeZone.SHORT) + " ("
+     * + TimeZone.getTimeZone("PST").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("PST").getDisplayName(true, TimeZone.SHORT) + " (" +
+     * (TimeZone.getTimeZone("PST").getRawOffset() + 100000) / 3600000 + ")",
+     * TimeZone.getTimeZone("MST").getDisplayName(false, TimeZone.SHORT) + " ("
+     * + TimeZone.getTimeZone("MST").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("MST").getDisplayName(true, TimeZone.SHORT) + " (" +
+     * (TimeZone.getTimeZone("MST").getRawOffset() + 100000) / 3600000 + ")",
+     * TimeZone.getTimeZone("CST").getDisplayName(false, TimeZone.SHORT) + " ("
+     * + TimeZone.getTimeZone("CST").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("CST").getDisplayName(true, TimeZone.SHORT) + " (" +
+     * (TimeZone.getTimeZone("CST").getRawOffset() + 100000) / 3600000 + ")",
+     * TimeZone.getTimeZone("EST").getDisplayName(false, TimeZone.SHORT) + " ("
+     * + TimeZone.getTimeZone("EST").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("EST").getDisplayName(true, TimeZone.SHORT) + " (" +
+     * (TimeZone.getTimeZone("EST").getRawOffset() + 100000) / 3600000 + ")",
+     * TimeZone.getTimeZone("SystemV/AST4").getDisplayName(false,
+     * TimeZone.SHORT) + " (" +
+     * TimeZone.getTimeZone("SystemV/AST4").getRawOffset() / 3600000 + ")",
+     * TimeZone.getTimeZone("GMT").getDisplayName(false, TimeZone.SHORT) +
+     * " (0)" };
+     */
+    final String timeZoneIDs[] = { "Pacific/Guam", "HST", "AST", "AST", "PST",
+            "PST", "MST", "MST", "CST", "CST", "EST", "EST", "SystemV/AST4",
+            "GMT" };
+
+    final boolean daylightIndicators[] = { false, false, false, true, false,
+            true, false, true, false, true, false, true, false, false };
+
     private LinkedHashMap<String, String> timezonesMap;
 
     public SunriseToolDialog(Shell parShell, String dialogTitle)
@@ -269,7 +224,7 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         yyyyMMdd = sdf.format(SimulatedTime.getSystemTime().getTime());
 
-        Coordinate center = ToolsDataManager.getInstance().getWfoCenter();
+        Coordinate center = PointsDataManager.getInstance().getWfoCenter();
         latitudeValue = (float) center.y;
         longitudeValue = (float) center.x;
 
@@ -298,36 +253,33 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
         return top;
     }
-    
-    private void setupTimezones()
-    {
-    	TimeZone timeZone = null;
-    	String displayName = null;
-    	String displayText = null;
-    	boolean dlIndicator = false;
-    	
-    	int additionalOffset = -1;
-    	
-    	timezonesMap = new LinkedHashMap<String, String>();
-    	for (int i = 0; i < timeZoneIDs.length; i++)
-    	{
-    		dlIndicator = daylightIndicators[i];
-    		
-    		timeZone = TimeZone.getTimeZone(timeZoneIDs[i]);
-    		
-    		additionalOffset = 0;
-    		if (dlIndicator)
-    		{
-    			additionalOffset = 1000000;
-    		}
-    		
-    		displayName = timeZone.getDisplayName(
-    			dlIndicator, TimeZone.SHORT);
-    		displayText = displayName + "(" +
-    			(timeZone.getRawOffset() + additionalOffset) / 3600000 + ")";
-    		
-    		timezonesMap.put(displayText, displayName);
-    	}
+
+    private void setupTimezones() {
+        TimeZone timeZone = null;
+        String displayName = null;
+        String displayText = null;
+        boolean dlIndicator = false;
+
+        int additionalOffset = -1;
+
+        timezonesMap = new LinkedHashMap<String, String>();
+        for (int i = 0; i < timeZoneIDs.length; i++) {
+            dlIndicator = daylightIndicators[i];
+
+            timeZone = TimeZone.getTimeZone(timeZoneIDs[i]);
+
+            additionalOffset = 0;
+            if (dlIndicator) {
+                additionalOffset = 1000000;
+            }
+
+            displayName = timeZone.getDisplayName(dlIndicator, TimeZone.SHORT);
+            displayText = displayName + "("
+                    + (timeZone.getRawOffset() + additionalOffset) / 3600000
+                    + ")";
+
+            timezonesMap.put(displayText, displayName);
+        }
     }
 
     /**
@@ -397,9 +349,9 @@ public class SunriseToolDialog extends CaveJFACEDialog {
      * Method for creating the month, day, ect labels and fields.
      */
     private void createToolControls() {
-    	String[] zoneStrings = null;
-    	Iterator<String> tzIterator = null;
-    	
+        String[] zoneStrings = null;
+        Iterator<String> tzIterator = null;
+
         sunriseFieldComposite = new Composite(top, SWT.NONE);
         sunriseFieldComposite.setLayout(new FormLayout());
         sunriseFieldComposite.setSize(80, 360);
@@ -478,7 +430,7 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         setHomeLocButton.addListener(SWT.MouseUp, new Listener() {
 
             public void handleEvent(Event event) {
-                Coordinate home = ToolsDataManager.getInstance().getHome();
+                Coordinate home = PointsDataManager.getInstance().getHome();
                 longitudeValue = (float) home.x;
                 latitudeValue = (float) home.y;
                 longitudeText.setText(String.valueOf(longitudeValue));
@@ -571,16 +523,15 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         zoneLabel = new Label(sunriseFieldComposite, SWT.NONE);
         zoneLabel.setText("Zone:");
         zoneLabel.setLayoutData(createFormLayoutLoc(true));
-        
+
         zoneStrings = new String[timezonesMap.size()];
         tzIterator = timezonesMap.keySet().iterator();
         String key = null;
-        for (int i = 0; i < zoneStrings.length; i++)
-        {
-        	zoneStrings[i] = tzIterator.next();
-        	key = tzIterator.toString();
+        for (int i = 0; i < zoneStrings.length; i++) {
+            zoneStrings[i] = tzIterator.next();
+            key = tzIterator.toString();
         }
-        
+
         zoneCombo = new Combo(sunriseFieldComposite, SWT.DROP_DOWN);
         zoneCombo.setItems(zoneStrings);
         data = createFormLayoutLoc(false);
@@ -593,7 +544,7 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
             public void widgetSelected(SelectionEvent e) {
                 if (zoneCombo.getSelectionIndex() != -1) {
-                	zone = timezonesMap.get(zoneCombo.getText());
+                    zone = timezonesMap.get(zoneCombo.getText());
                 } else {
                     zone = "GMT";
                 }
@@ -614,18 +565,15 @@ public class SunriseToolDialog extends CaveJFACEDialog {
      * the current.
      */
     private void setCurrentTimeZone(String[] zoneStrings) {
-    	String lTimeZoneString = null;
+        String lTimeZoneString = null;
 
         lTimeZoneString = localTimeZoneString();
-        if (timezonesMap.containsValue(lTimeZoneString))
-        {
-        	for (int i = 0; i < zoneStrings.length; i++)
-        	{
-        		if (zoneStrings[i].contains(lTimeZoneString + "("))
-        		{
-        			zoneCombo.setText(zoneStrings[i]);
-        		}
-        	}
+        if (timezonesMap.containsValue(lTimeZoneString)) {
+            for (int i = 0; i < zoneStrings.length; i++) {
+                if (zoneStrings[i].contains(lTimeZoneString + "(")) {
+                    zoneCombo.setText(zoneStrings[i]);
+                }
+            }
         }
     }
 
@@ -713,22 +661,26 @@ public class SunriseToolDialog extends CaveJFACEDialog {
                 // e.gc.setFont(originalFont);
                 e.gc.setLineWidth(2);
                 // N-S line.
-                e.gc.drawString("N", CIRCLE_X + CIRCLE_SIZE / 2
-                        - e.gc.getCharWidth('N') / 2, CIRCLE_Y
-                        - e.gc.getFontMetrics().getHeight());
+                e.gc.drawString(
+                        "N",
+                        CIRCLE_X + CIRCLE_SIZE / 2 - e.gc.getCharWidth('N') / 2,
+                        CIRCLE_Y - e.gc.getFontMetrics().getHeight());
                 e.gc.drawLine(CIRCLE_X + CIRCLE_SIZE / 2, CIRCLE_Y, CIRCLE_X
                         + CIRCLE_SIZE / 2, CIRCLE_Y + CIRCLE_SIZE);
-                e.gc.drawString("S", CIRCLE_X + CIRCLE_SIZE / 2
-                        - e.gc.getCharWidth('S') / 2, CIRCLE_Y + CIRCLE_SIZE);
+                e.gc.drawString(
+                        "S",
+                        CIRCLE_X + CIRCLE_SIZE / 2 - e.gc.getCharWidth('S') / 2,
+                        CIRCLE_Y + CIRCLE_SIZE);
                 // W-E line.
                 e.gc.drawString("W", CIRCLE_X - e.gc.getCharWidth('W'),
                         CIRCLE_Y + CIRCLE_SIZE / 2
                                 - e.gc.getFontMetrics().getHeight() / 2);
                 e.gc.drawLine(CIRCLE_X, CIRCLE_Y + CIRCLE_SIZE / 2, CIRCLE_X
                         + CIRCLE_SIZE, CIRCLE_Y + CIRCLE_SIZE / 2);
-                e.gc.drawString("E", CIRCLE_X + CIRCLE_SIZE
-                        + e.gc.getCharWidth('E') / 2, CIRCLE_Y + CIRCLE_SIZE
-                        / 2 - e.gc.getFontMetrics().getHeight() / 2);
+                e.gc.drawString("E",
+                        CIRCLE_X + CIRCLE_SIZE + e.gc.getCharWidth('E') / 2,
+                        CIRCLE_Y + CIRCLE_SIZE / 2
+                                - e.gc.getFontMetrics().getHeight() / 2);
             }
         });
         return canvas;

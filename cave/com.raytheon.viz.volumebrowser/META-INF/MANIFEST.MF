@@ -31,7 +31,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.objectiveanalysis,
  com.raytheon.uf.common.pointdata,
  net.sf.swtaddons;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.viz.points;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.volumebrowser,
  com.raytheon.viz.volumebrowser.catalog,
