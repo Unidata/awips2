@@ -24,19 +24,7 @@ import java.io.File;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.ILayoutContainer;
-import org.eclipse.ui.internal.PartPane;
-import org.eclipse.ui.internal.ViewPane;
-import org.eclipse.ui.internal.ViewSite;
-import org.eclipse.ui.internal.WorkbenchPage;
-import org.eclipse.ui.internal.dnd.DragUtil;
 import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.viz.ui.UiPlugin;
@@ -61,13 +49,7 @@ import com.raytheon.viz.ui.UiPlugin;
 
 public abstract class CaveFloatingView extends ViewPart {
 
-    private boolean detached;
-
-    private CaveDetachedWindow window;
-
-    private ILayoutContainer container;
-
-    private Rectangle bounds;
+    protected FloatAction floatAction;
 
     /**
      * Constructs the view
@@ -81,8 +63,13 @@ public abstract class CaveFloatingView extends ViewPart {
         createToolbarButton();
     }
 
-    public IViewPart getPart() {
-        return this;
+    public void setFloating(boolean floating) {
+        floatAction.setChecked(floating);
+        if (floating) {
+            floatAction.setToolTipText("Dock");
+        } else {
+            floatAction.setToolTipText("Float");
+        }
     }
 
     /**
@@ -90,57 +77,31 @@ public abstract class CaveFloatingView extends ViewPart {
      */
     protected void createToolbarButton() {
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
-        final Action floatAction = new Action("Float", SWT.TOGGLE) {
-            @Override
-            public void run() {
-                // should only run when the user is currently attached to cave
-                // (or detached, but not a floating dialog)
-                this.setToolTipText("Dock");
-                setChecked(true);
-                detached = true;
-                WorkbenchPage page = (WorkbenchPage) PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getActivePage();
-                bounds = ((ViewSite) ((ViewPart) getPart()).getViewSite())
-                        .getPane().getBounds();
+        floatAction = new FloatAction();
+        mgr.add(floatAction);
 
-                container = ((ViewSite) ((ViewPart) getPart()).getViewSite())
-                        .getPane().getStack();
-                window = new CaveDetachedWindow(page);
-                window.create();
-                window.open();
+    }
 
-                bounds.x += PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getShell().getMonitor()
-                        .getBounds().x;
-                ViewPane pane = (ViewPane) ((ViewSite) getPart().getViewSite())
-                        .getPane();
-                container = pane.getContainer();
-                window.drop(pane);
-                window.getShell().setBounds(bounds);
-            };
+    private class FloatAction extends Action {
 
-            @Override
-            public void runWithEvent(Event event) {
-                if (!detached) {
-                    run();
-                    return;
-                }
-                setToolTipText("Float");
-                setChecked(false);
-                detached = false;
-                WorkbenchPage page = (WorkbenchPage) PlatformUI.getWorkbench()
-                        .getActiveWorkbenchWindow().getActivePage();
-                PartPane layoutPart = ((ViewSite) getPart().getViewSite())
-                        .getPane();
-                Point point = new Point(bounds.x + bounds.width / 2, bounds.y
-                        + bounds.height / 2);
-                window.getShell().setVisible(false);
-                window = null;
-                DragUtil.dragTo(Display.getCurrent(), layoutPart, point, bounds);
+        public FloatAction() {
+            super("Float", SWT.TOGGLE);
+            setImageDescriptor(UiPlugin.getImageDescriptor("icons"
+                    + File.separator + "float.gif"));
+        }
+
+        @Override
+        public void run() {
+            if (isChecked()) {
+                CaveWorkbenchPageManager manager = CaveWorkbenchPageManager
+                        .getInstance(getSite().getPage());
+                manager.floatView(CaveFloatingView.this);
+            } else {
+                CaveWorkbenchPageManager manager = CaveWorkbenchPageManager
+                        .getInstance(getSite().getPage());
+                manager.dockView(CaveFloatingView.this);
             }
         };
-        floatAction.setImageDescriptor(UiPlugin.getImageDescriptor("icons"
-                + File.separator + "float.gif"));
-        mgr.add(floatAction);
+
     }
 }
