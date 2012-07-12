@@ -1,3 +1,5 @@
+package com.raytheon.uf.viz.points;
+
 /*****************************************************************************************
  * COPYRIGHT (c), 2007, RAYTHEON COMPANY
  * ALL RIGHTS RESERVED, An Unpublished Work 
@@ -17,10 +19,9 @@
  * Use or disclosure of data contained in this source code file is subject to
  * the export restrictions set forth in the Master Rights File.
  ******************************************************************************************/
-package com.raytheon.viz.awipstools;
 
 /**
- * Interface for listening for tool changes. Register with ToolsDataManager
+ * Interface for listening for tool changes. Register with PointsDataManager
  * 
  * <pre>
  * 
@@ -28,15 +29,16 @@ package com.raytheon.viz.awipstools;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *                                     Initial creation
+ * 
+ * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
 
-public interface IToolChangedListener {
+public interface IPointChangedListener {
 
-    public void toolChanged();
+    public void pointChanged();
 
 }
