@@ -18,6 +18,9 @@ function buildRPM()
       --define '_build_root %(echo ${AWIPSII_BUILD_ROOT})' \
       --define '_component_version %(echo ${AWIPSII_VERSION})' \
       --define '_component_release %(echo ${AWIPSII_RELEASE})' \
+      --define '_component_build_date %(echo ${COMPONENT_BUILD_DATE})' \
+      --define '_component_build_time %(echo ${COMPONENT_BUILD_TIME})' \
+      --define '_component_build_system %(echo ${COMPONENT_BUILD_SYSTEM})' \
       --buildroot ${AWIPSII_BUILD_ROOT} \
       ${RPM_SPECIFICATION}/component.spec
    if [ $? -ne 0 ]; then
@@ -60,6 +63,11 @@ fi
 source ${common_dir}/rpms.sh
 if [ $? -ne 0 ]; then
    echo "ERROR: Unable to source the common functions."
+   exit 1
+fi
+source ${common_dir}/systemInfo.sh
+if [ $? -ne 0 ]; then
+   echo "ERROR: Unable to retrieve the system information."
    exit 1
 fi
 
