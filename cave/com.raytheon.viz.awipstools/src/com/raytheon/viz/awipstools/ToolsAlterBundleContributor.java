@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.core.rsc.IPointsToolContainer;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureDlg;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
@@ -47,6 +48,8 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Jul 11, 2012 #875       rferrel     Bug fix.
  * 
  * 
  * </pre>
@@ -76,6 +79,7 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
     public Map<String, String[]> getAlterables() {
         Map<String, String[]> alterables = new HashMap<String, String[]>();
         ToolsDataManager tdm = ToolsDataManager.getInstance();
+        PointsDataManager pdm = PointsDataManager.getInstance();
         Collection<String> blNames = tdm.getBaselineNames();
         String[] lines = new String[blNames.size()];
         int i = 0;
@@ -85,7 +89,7 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         }
         Arrays.sort(lines);
 
-        Collection<String> pNames = tdm.getPointNames();
+        Collection<String> pNames = pdm.getPointNames();
         String[] points = new String[pNames.size()];
         i = 0;
         for (String point : pNames) {
@@ -99,7 +103,7 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
         pointsValues[1] = ProcedureDlg.CURRENT;
         System.arraycopy(points, 0, pointsValues, 2, points.length);
 
-        String[] linesValues = new String[points.length + 2];
+        String[] linesValues = new String[lines.length + 2];
         linesValues[0] = ProcedureDlg.ORIGINAL;
         linesValues[1] = ProcedureDlg.CURRENT;
         System.arraycopy(lines, 0, linesValues, 2, lines.length);
@@ -196,7 +200,7 @@ public class ToolsAlterBundleContributor implements IAlterBundleContributor {
      */
     private void alterContainer(IPointsToolContainer container,
             String selectedString) {
-        Coordinate point = ToolsDataManager.getInstance().getPoint(
+        Coordinate point = PointsDataManager.getInstance().getPoint(
                 selectedString);
         container.setPointCoordinate(point);
         container.setPointLetter(selectedString);
