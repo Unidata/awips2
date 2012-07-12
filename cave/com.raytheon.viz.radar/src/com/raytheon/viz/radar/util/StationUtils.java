@@ -24,10 +24,9 @@ import com.raytheon.uf.common.dataplugin.radar.request.GetRadarSpatialRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.viz.awipstools.IToolChangedListener;
-import com.raytheon.viz.awipstools.ToolsDataManager;
+import com.raytheon.uf.viz.points.IPointChangedListener;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -45,7 +44,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @author rjpeter
  * @version 1.0
  */
-public class StationUtils implements IToolChangedListener {
+public class StationUtils implements IPointChangedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(StationUtils.class);
 
@@ -62,17 +61,12 @@ public class StationUtils implements IToolChangedListener {
     }
 
     private StationUtils() {
-        ToolsDataManager.getInstance().addHomeChangedListener(this);
+        PointsDataManager.getInstance().addHomeChangedListener(this);
     }
 
     public synchronized RadarStation getHomeRadarStation() {
         if (station == null) {
-            LocalizationManager lm = LocalizationManager.getInstance();
-            // IPreferenceStore store = CorePlugin.getDefault()
-            // .getPreferenceStore();
-            // String site = lm.getCurrentSite();
-
-            Coordinate home = ToolsDataManager.getInstance().getHome();
+            Coordinate home = PointsDataManager.getInstance().getHome();
             return getClosestRadarStation(home.x, home.y);
         }
 
@@ -103,7 +97,7 @@ public class StationUtils implements IToolChangedListener {
      * com.raytheon.viz.awipstools.IHomeChangedListener#homeLocationChanged()
      */
     @Override
-    public void toolChanged() {
+    public void pointChanged() {
         station = null;
     }
 }
