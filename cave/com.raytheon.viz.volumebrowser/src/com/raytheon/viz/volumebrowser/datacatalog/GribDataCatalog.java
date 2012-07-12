@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.GribNSharpResourceData;
+import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.grid.inv.GridInventory;
 import com.raytheon.viz.grid.rsc.GribSkewTLoadProperties;
@@ -453,7 +454,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                         .getCoordinateReferenceSystem());
                 Envelope2D env = gridGeom.getEnvelope2D();
                 for (String letter : pointLetters) {
-                    Coordinate c = ToolsDataManager.getInstance().getPoint(
+                    Coordinate c = PointsDataManager.getInstance().getPoint(
                             letter);
                     DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                     llToCRS.transform(dp, dp);
@@ -519,6 +520,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
             return results;
         }
         ToolsDataManager tdm = ToolsDataManager.getInstance();
+        PointsDataManager pdm = PointsDataManager.getInstance();
         Map<String, GridCoverage> coverages = new HashMap<String, GridCoverage>();
         try {
             coverages = CoverageUtils.getInstance().getCoverages(sources);
@@ -543,8 +545,8 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                 MathTransform llToCRS = MapUtil.getTransformFromLatLon(gridGeom
                         .getCoordinateReferenceSystem());
                 Envelope2D env = gridGeom.getEnvelope2D();
-                for (String letter : tdm.getPointNames()) {
-                    Coordinate c = tdm.getPoint(letter);
+                for (String letter : pdm.getPointNames()) {
+                    Coordinate c = pdm.getPoint(letter);
                     DirectPosition2D dp = new DirectPosition2D(c.x, c.y);
                     llToCRS.transform(dp, dp);
                     if (env.contains(dp.x, dp.y)) {
