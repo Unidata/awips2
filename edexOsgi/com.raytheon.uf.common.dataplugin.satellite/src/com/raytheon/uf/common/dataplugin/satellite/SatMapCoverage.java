@@ -21,6 +21,7 @@
 package com.raytheon.uf.common.dataplugin.satellite;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -35,6 +36,7 @@ import org.hibernate.annotations.Type;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
@@ -57,7 +59,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip   Initial Checkin
- * 
+ * - AWIPS2 Baseline Repository --------
+ * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
  * 
  * </pre>
  */
@@ -65,13 +68,23 @@ import com.vividsolutions.jts.geom.Polygon;
 @Table(name = "satellite_spatial")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+@Embeddable
 public class SatMapCoverage extends PersistableDataObject implements
 		ISpatialObject {
 
 	private static final long serialVersionUID = 1L;
 
+    public static final int PROJ_MERCATOR = 1;
+
+    public static final int PROJ_LAMBERT = 3;
+
+    public static final int PROJ_POLAR_STEREO = 5;
+
+    public static final int PROJ_CYLIN_EQUIDISTANT = 7;
+    
 	@Id
 	@DynamicSerializeElement
+    @DataURI(position = 0)
 	private int gid;
 
 	/**
