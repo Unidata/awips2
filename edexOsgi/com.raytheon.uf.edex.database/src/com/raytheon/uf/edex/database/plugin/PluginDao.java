@@ -344,7 +344,8 @@ public abstract class PluginDao extends CoreDao {
      * @param objects
      *            The objects to retrieve the HDF5 component for
      * @param tileSet
-     *            The tile set to retrieve. Currently unimplemented
+     *            The tile set to retrieve. Any value less than or equal
+     *            to zero returns the "base" data only.
      * @return The HDF5 data records
      * @throws StorageException
      *             If problems occur while interacting with HDF5 data stores
@@ -355,32 +356,29 @@ public abstract class PluginDao extends CoreDao {
         List<IDataRecord[]> retVal = new ArrayList<IDataRecord[]>();
 
         for (PluginDataObject obj : objects) {
-            IDataRecord[] record = null;
 
             if (obj instanceof IPersistable) {
                 /* connect to the data store and retrieve the data */
                 IDataStore dataStore = getDataStore((IPersistable) obj);
-                if (tileSet != -1) {
-                    record = new IDataRecord[tileSet + 1];
-                    for (int i = 0; i <= tileSet; i++) {
-                        try {
-                            record[i] = dataStore.retrieve(obj.getDataURI()
-                                    + File.separator + "Data-interpolated"
-                                    + File.separator, String.valueOf(tileSet),
-                                    Request.ALL);
-                        } catch (Exception e) {
-                            throw new PluginException(
-                                    "Error getting HDF5 data", e);
-                        }
+                boolean interpolated = DataStoreFactory.isInterpolated(tileSet);
+                if(!interpolated) {
+                    tileSet = 0;
+                }
+                IDataRecord[] record = new IDataRecord[tileSet + 1];
+                try {
+                    String group = DataStoreFactory.createGroupName(
+                            obj.getDataURI(),
+                            DataStoreFactory.DEF_DATASET_NAME, interpolated);
+                    // Retrieve the base record.
+                    record[0] = dataStore.retrieve(obj.getDataURI(),
+                            DataStoreFactory.DEF_DATASET_NAME, Request.ALL);
+                    // Now get the interpolated data, if any!
+                    for (int tile = 1; tile < record.length; tile++) {
+                            record[tile] = dataStore.retrieve(group,
+                                    String.valueOf(tile), Request.ALL);
                     }
-                } else {
-                    record = new IDataRecord[1];
-                    try {
-                        record[0] = dataStore.retrieve(obj.getDataURI(),
-                                "Data", Request.ALL);
-                    } catch (Exception e) {
-                        throw new PluginException("Error getting HDF5 data", e);
-                    }
+                } catch (Exception e) {
+                    throw new PluginException("Error getting HDF5 data", e);
                 }
                 retVal.add(record);
             }
