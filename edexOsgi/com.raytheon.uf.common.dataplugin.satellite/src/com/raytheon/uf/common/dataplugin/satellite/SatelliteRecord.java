@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -65,239 +66,276 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
-		implements ISpatialEnabled {
+        implements ISpatialEnabled {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * The source of the data - NESDIS
-	 */
-	@Column(length = 31)
-	@DataURI(position = 1)
-	@XmlAttribute
-	@DynamicSerializeElement
-	private String source;
+    public static final String SAT_DATASET_NAME = DataStoreFactory.DEF_DATASET_NAME;
+    
+    public static final String SAT_FILL_VALUE = "FILL_VALUE";
 
-	/** The creating entity. See table 4.5 of GINI satellite ICD */
-	@Column(length = 63)
-	@DataURI(position = 2)
-	@XmlAttribute
-	@DynamicSerializeElement
-	private String creatingEntity;
+    public static final String SAT_ADD_OFFSET = "ADD_OFFSET";
 
-	/** The sector ID. See table 4.6 of the GINI satellite ICD */
-	@Column(length = 63)
-	@DataURI(position = 3)
-	@XmlAttribute
-	@DynamicSerializeElement
-	private String sectorID;
+    public static final String SAT_SCALE_FACTOR = "SCALE_FACTOR";
 
-	/** The physical Element. See table 4.7 of the GINI satellite ICD */
-	@Column(length = 63)
-	@DataURI(position = 4)
-	@XmlAttribute
-	@DynamicSerializeElement
-	private String physicalElement;
+    /**
+     * The source of the data - NESDIS
+     */
+    @Column(length = 31)
+    @DataURI(position = 1)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String source;
 
-	/**
-	 * Number of logical records in the product. See tables 4.9, 4.11, 4.12,
-	 * 4.13, 4.14, 4.16 of the GINI satellite ICD
-	 */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Integer numRecords;
+    /** The creating entity. See table 4.5 of GINI satellite ICD */
+    @Column(length = 63)
+    @DataURI(position = 2)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String creatingEntity;
 
-	/**
-	 * Size of logical records in bytes for product. See tables 4.9, 4.11, 4.12,
-	 * 4.13, 4.14, 4.16 of the GINI satellite ICD
-	 */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Integer sizeRecords;
+    /** The sector ID. See table 4.6 of the GINI satellite ICD */
+    @Column(length = 63)
+    @DataURI(position = 3)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String sectorID;
 
-	/** The latitude directly beneath the satellite */
-	@Column
-	@DynamicSerializeElement
-	private Float satSubPointLat;
+    /** The physical Element. See table 4.7 of the GINI satellite ICD */
+    @Column(length = 63)
+    @DataURI(position = 4)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String physicalElement;
 
-	/** The longitude directly beneath the satellite */
-	@Column
-	@DynamicSerializeElement
-	private Float satSubPointLon;
+    /**
+     * Number of logical records in the product. See tables 4.9, 4.11, 4.12,
+     * 4.13, 4.14, 4.16 of the GINI satellite ICD
+     */
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Integer numRecords;
 
-	/** The upper right hand latitude */
-	@Column
-	@DynamicSerializeElement
-	private Float upperRightLat;
+    /**
+     * Size of logical records in bytes for product. See tables 4.9, 4.11, 4.12,
+     * 4.13, 4.14, 4.16 of the GINI satellite ICD
+     */
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Integer sizeRecords;
 
-	/** The upper right hand longitude */
-	@Column
-	@DynamicSerializeElement
-	private Float upperRightLon;
+    /** The latitude directly beneath the satellite */
+    @Column
+    @DynamicSerializeElement
+    private Float satSubPointLat;
 
-	/** Height of the satellite in km */
-	@Column
-	@DynamicSerializeElement
-	private Integer satHeight;
+    /** The longitude directly beneath the satellite */
+    @Column
+    @DynamicSerializeElement
+    private Float satSubPointLon;
 
-	/** Units of the satellite data * */
-	@Column(length = 26)
-	@XmlAttribute
-	@DynamicSerializeElement
-	private String units;
+    /** The upper right hand latitude */
+    @Column
+    @DynamicSerializeElement
+    private Float upperRightLat;
 
-	@ManyToOne
-	@PrimaryKeyJoinColumn
-	@XmlElement
-	@DynamicSerializeElement
-	private SatMapCoverage coverage;
+    /** The upper right hand longitude */
+    @Column
+    @DynamicSerializeElement
+    private Float upperRightLon;
 
-	@Override
-	public SatMapCoverage getSpatialObject() {
-		return coverage;
-	}
+    /** Height of the satellite in km */
+    @Column
+    @DynamicSerializeElement
+    private Integer satHeight;
 
-	public SatMapCoverage getCoverage() {
-		return coverage;
-	}
+    /** Units of the satellite data * */
+    @Column(length = 26)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String units;
 
-	public void setCoverage(SatMapCoverage coverage) {
-		this.coverage = coverage;
-	}
+    /** Number of interpolation levels in the data store */
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Integer interpolationLevels;
+    
+    @DataURI(position = 5, embedded=true)
+    @ManyToOne
+    @PrimaryKeyJoinColumn
+    @XmlElement
+    @DynamicSerializeElement
+    private SatMapCoverage coverage;
 
-	public Float getSatSubPointLat() {
-		return satSubPointLat;
-	}
+    @Override
+    public SatMapCoverage getSpatialObject() {
+        return coverage;
+    }
 
-	public void setSatSubPointLat(Float satSubPointLat) {
-		this.satSubPointLat = satSubPointLat;
-	}
+    public SatMapCoverage getCoverage() {
+        return coverage;
+    }
 
-	public Float getSatSubPointLon() {
-		return satSubPointLon;
-	}
+    public void setCoverage(SatMapCoverage coverage) {
+        this.coverage = coverage;
+    }
 
-	public void setSatSubPointLon(Float satSubPointLon) {
-		this.satSubPointLon = satSubPointLon;
-	}
+    public Float getSatSubPointLat() {
+        return satSubPointLat;
+    }
 
-	public Float getUpperRightLat() {
-		return upperRightLat;
-	}
+    public void setSatSubPointLat(Float satSubPointLat) {
+        this.satSubPointLat = satSubPointLat;
+    }
 
-	public void setUpperRightLat(Float upperRightLat) {
-		this.upperRightLat = upperRightLat;
-	}
+    public Float getSatSubPointLon() {
+        return satSubPointLon;
+    }
 
-	public Float getUpperRightLon() {
-		return upperRightLon;
-	}
+    public void setSatSubPointLon(Float satSubPointLon) {
+        this.satSubPointLon = satSubPointLon;
+    }
 
-	public void setUpperRightLon(Float upperRightLon) {
-		this.upperRightLon = upperRightLon;
-	}
+    public Float getUpperRightLat() {
+        return upperRightLat;
+    }
 
-	/**
-	 * No-arg constructor.
-	 */
-	public SatelliteRecord() {
+    public void setUpperRightLat(Float upperRightLat) {
+        this.upperRightLat = upperRightLat;
+    }
 
-	}
+    public Float getUpperRightLon() {
+        return upperRightLon;
+    }
 
-	/**
-	 * Constructs a satellite record from a dataURI
-	 * 
-	 * @param uri
-	 *            The dataURI
-	 * @param tableDef
-	 *            The table definition associated with this class
-	 */
-	public SatelliteRecord(String uri) {
-		super(uri);
-	}
+    public void setUpperRightLon(Float upperRightLon) {
+        this.upperRightLon = upperRightLon;
+    }
 
-	public Integer getNumRecords() {
-		return numRecords;
-	}
+    /**
+     * No-arg constructor.
+     */
+    public SatelliteRecord() {
 
-	public void setNumRecords(Integer numRecords) {
-		this.numRecords = numRecords;
-	}
+    }
 
-	public Integer getSizeRecords() {
-		return sizeRecords;
-	}
+    /**
+     * Constructs a satellite record from a dataURI
+     * 
+     * @param uri
+     *            The dataURI
+     * @param tableDef
+     *            The table definition associated with this class
+     */
+    public SatelliteRecord(String uri) {
+        super(uri);
+    }
 
-	public void setSizeRecords(Integer sizeRecords) {
-		this.sizeRecords = sizeRecords;
-	}
+    public Integer getNumRecords() {
+        return numRecords;
+    }
 
-	public Integer getSatHeight() {
-		return satHeight;
-	}
+    public void setNumRecords(Integer numRecords) {
+        this.numRecords = numRecords;
+    }
 
-	public void setSatHeight(Integer satHeight) {
-		this.satHeight = satHeight;
-	}
+    public Integer getSizeRecords() {
+        return sizeRecords;
+    }
 
-	/**
-	 * @return the units
-	 */
-	public String getUnits() {
-		return units;
-	}
+    public void setSizeRecords(Integer sizeRecords) {
+        this.sizeRecords = sizeRecords;
+    }
 
-	/**
-	 * @param units
-	 *            the units to set
-	 */
-	public void setUnits(String units) {
-		this.units = units;
-	}
+    public Integer getSatHeight() {
+        return satHeight;
+    }
 
-	/**
-	 * Get the IDecoderGettable reference for this record.
-	 * 
-	 * @return The IDecoderGettable reference for this record. Null for this
-	 *         class.
-	 */
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return null;
-	}
+    public void setSatHeight(Integer satHeight) {
+        this.satHeight = satHeight;
+    }
 
-	public String getSource() {
-		return source;
-	}
+    /**
+     * @return the units
+     */
+    public String getUnits() {
+        return units;
+    }
 
-	public void setSource(String source) {
-		this.source = source;
-	}
+    /**
+     * @param units
+     *            the units to set
+     */
+    public void setUnits(String units) {
+        this.units = units;
+    }
 
-	public String getCreatingEntity() {
-		return creatingEntity;
-	}
+    /**
+     * Get the IDecoderGettable reference for this record.
+     * 
+     * @return The IDecoderGettable reference for this record. Null for this
+     *         class.
+     */
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+        return null;
+    }
 
-	public void setCreatingEntity(String creatingEntity) {
-		this.creatingEntity = creatingEntity;
-	}
+    public String getSource() {
+        return source;
+    }
 
-	public String getSectorID() {
-		return sectorID;
-	}
+    public void setSource(String source) {
+        this.source = source;
+    }
 
-	public void setSectorID(String sectorID) {
-		this.sectorID = sectorID;
-	}
+    public String getCreatingEntity() {
+        return creatingEntity;
+    }
 
-	public String getPhysicalElement() {
-		return physicalElement;
-	}
+    public void setCreatingEntity(String creatingEntity) {
+        this.creatingEntity = creatingEntity;
+    }
 
-	public void setPhysicalElement(String physicalElement) {
-		this.physicalElement = physicalElement;
-	}
+    public String getSectorID() {
+        return sectorID;
+    }
 
+    public void setSectorID(String sectorID) {
+        this.sectorID = sectorID;
+    }
+
+    public String getPhysicalElement() {
+        return physicalElement;
+    }
+
+    public void setPhysicalElement(String physicalElement) {
+        this.physicalElement = physicalElement;
+    }
+
+    /**
+     * Get the number of interpolation levels in the data store.
+     * @return The number of interpolation levels. Data that is not interpolated
+     * should return a value of 0.
+     */
+    public Integer getInterpolationLevels() {
+        return interpolationLevels;
+    }
+    
+    /**
+     * Set the number of interpolation levels in the data store. If the data
+     * are not interpolated a value of 0 should be used.
+     * @param levels The number of interpolation levels in the data. Any value less than
+     * zero is set to zero.
+     */
+    public void setInterpolationLevels(Integer levels) {
+        if(!DataStoreFactory.isInterpolated(levels)) {
+            levels = 0;
+        }
+        interpolationLevels = levels;
+    }
+  
 }
