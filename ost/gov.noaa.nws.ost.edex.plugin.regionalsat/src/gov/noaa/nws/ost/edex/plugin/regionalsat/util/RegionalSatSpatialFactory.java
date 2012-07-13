@@ -37,7 +37,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * date          Ticket#     Engineer    Description
  * -----------  ----------  ----------- --------------------------
  * 7/15/11                      tk    	Initial Creation                          
- * 
+ * - AWIPS2 Baseline Repository --------
+ * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
  * </pre>
  * 
  * @author tk
@@ -179,13 +180,13 @@ public class RegionalSatSpatialFactory {
 
         ProjectedCRS crs = null;
         // Get the correct CRS
-        if (mapProjection == 1) {
+        if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
             crs = MapUtil.constructMercator(MapUtil.AWIPS_EARTH_RADIUS,
                     MapUtil.AWIPS_EARTH_RADIUS, latin, lov);
-        } else if (mapProjection == 3) {
+        } else if (mapProjection == SatMapCoverage.PROJ_LAMBERT) {
             crs = MapUtil.constructLambertConformal(MapUtil.AWIPS_EARTH_RADIUS,
                     MapUtil.AWIPS_EARTH_RADIUS, latin, latin, lov);
-        } else if (mapProjection == 7) {
+        } else if (mapProjection == SatMapCoverage.PROJ_CYLIN_EQUIDISTANT) {
             crs = MapUtil.constructEquidistantCylindrical(MapUtil.AWIPS_EARTH_RADIUS,
                     MapUtil.AWIPS_EARTH_RADIUS, lov, latin);
         } else {
