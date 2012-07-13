@@ -45,6 +45,7 @@ import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -94,7 +95,9 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  *  03/25/2009      2086     jsanchez    Mapped correct converter to parameter type.
  *                                        Updated the call to ColormapParametersFactory.build
  *  03/30/2009      2169     jsanchez    Updated numLevels handling.
- * 
+ * - AWIPS2 Baseline Repository --------
+ * 07/17/2012        798     jkorman     Use decimationLevels from SatelliteRecord. Removed hard-coded
+ * data set names.
  * </pre>
  * 
  * @author chammack
@@ -266,15 +269,8 @@ public class SatResource extends
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
 
-        numLevels = 1;
-        int newSzX = record.getSpatialObject().getNx();
-        int newSzY = record.getSpatialObject().getNy();
-        while ((newSzX > 512 && newSzY > 512)) {
-            newSzX /= 2;
-            newSzY /= 2;
-            numLevels++;
-        }
-
+        // number of interpolation levels plus the base level!
+        numLevels = record.getInterpolationLevels() + 1;
     }
 
     @Override
@@ -490,13 +486,13 @@ public class SatResource extends
             }
 
             if (baseTile == null) {
-                tile = baseTile = new SatFileBasedTileSet(record, "Data",
+                tile = baseTile = new SatFileBasedTileSet(record, DataStoreFactory.DEF_DATASET_NAME,
                         numLevels, 256,
                         MapUtil.getGridGeometry(((SatelliteRecord) record)
                                 .getSpatialObject()), this,
                         PixelInCell.CELL_CORNER, viewType);
             } else {
-                tile = new SatFileBasedTileSet(record, "Data", baseTile);
+                tile = new SatFileBasedTileSet(record, DataStoreFactory.DEF_DATASET_NAME, baseTile);
             }
             tile.addMeshCallback(this);
             tile.setMapDescriptor(this.descriptor);
