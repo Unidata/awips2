@@ -28,6 +28,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.datum.PixelInCell;
 
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.data.IDataPreparer;
@@ -53,7 +54,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Feb 15, 2007             chammack    Initial Creation.
- * 
+ * - AWIPS2 Baseline Repository --------
+ * Jul 18, 2012           798  jkorman     Modified {@link #createTile} to remove hard-coded interpolation groups.
  * </pre>
  * 
  * @author chammack
@@ -97,7 +99,7 @@ public class FileBasedTileSet extends AbstractTileSet {
         this.dataset = dataset;
     }
 
-    /*
+    /**
      * (non-Javadoc)
      * 
      * @see
@@ -109,10 +111,10 @@ public class FileBasedTileSet extends AbstractTileSet {
             throws VizException {
         IImage raster = target.getExtension(IColormappedImageExtension.class)
                 .initializeRaster(
-                        new HDF5DataRetriever(new File(this.hdf5File), "/"
-                                + this.group + "/" + this.dataset
-                                + "-interpolated/" + level, this.tileSet
-                                .getTile(level, i, j).getRectangle()),
+                        new HDF5DataRetriever(new File(this.hdf5File),
+                                DataStoreFactory.createDataSetName(group,
+                                        dataset, level), this.tileSet.getTile(
+                                        level, i, j).getRectangle()),
                         rsc.getCapability(ColorMapCapability.class)
                                 .getColorMapParameters());
         return raster;
