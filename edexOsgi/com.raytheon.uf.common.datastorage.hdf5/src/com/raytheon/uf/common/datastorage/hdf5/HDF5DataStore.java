@@ -58,6 +58,7 @@ import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
 import ncsa.hdf.hdf5lib.exceptions.HDF5SymbolTableException;
 
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.DuplicateRecordStorageException;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
@@ -90,6 +91,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 25, 2007             chammack    Added replace record functionality
  * Apr 01, 2008 1041        chammack    Added delete functionality
  * Jun 30, 2008     2538    jsanchez    Update readProperties for Strings.
+ * - AWIPS2 Baseline Repository --------
+ * Jul 18, 2012        798  jkorman     Removed some hard-coded interpolation code/constants.
  * </pre>
  * 
  * @author chammack
@@ -438,7 +441,7 @@ public class HDF5DataStore implements IDataStore {
 
         String[] datasets = getDatasets(group);
         for (String ds : datasets) {
-            if (includeInterpolated && ds.endsWith("-interpolated")) {
+            if (includeInterpolated && ds.endsWith(DataStoreFactory.DEF_INTERPOLATED_GROUP)) {
                 IDataRecord[] subresults;
                 subresults = this.retrieve(group + "/" + ds, false);
 
@@ -447,7 +450,7 @@ public class HDF5DataStore implements IDataStore {
                         records.add(result);
                     }
                 }
-            } else if (!ds.endsWith("-interpolated")) {
+            } else if (!ds.endsWith(DataStoreFactory.DEF_INTERPOLATED_GROUP)) {
                 IDataRecord record = this.retrieve(group, ds, Request.ALL);
                 records.add(record);
             }
@@ -1626,9 +1629,8 @@ public class HDF5DataStore implements IDataStore {
                     .getData());
         }
 
-        rec.setName("" + level);
-        rec.setGroup(originalGroup + "/" + originalDatasetName
-                + "-interpolated");
+        rec.setName(String.valueOf(level));
+        rec.setGroup(DataStoreFactory.createGroupName(originalGroup, originalDatasetName, true));
 
         rec.setSizes(new long[] { w / 2, h / 2 });
 
