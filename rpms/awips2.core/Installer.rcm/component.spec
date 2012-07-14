@@ -77,7 +77,7 @@ RCM_PROPS_DIR="build.rcm/pdeprops"
 DEPLOY_SCRIPT="build.rcm/build.xml"
 
 # Deploy Radar Server To Our Temporary Build Directory.
-ant -file %{_baseline_workspace}/${DEPLOY_SCRIPT} \
+/awips2/ant/bin/ant -file %{_baseline_workspace}/${DEPLOY_SCRIPT} \
    -Ddeploy.dir=${RPM_BUILD_ROOT}/awips2/rcm \
    -Dinstaller=true -Dprops.dir=%{_baseline_workspace}/${RCM_PROPS_DIR}
    
