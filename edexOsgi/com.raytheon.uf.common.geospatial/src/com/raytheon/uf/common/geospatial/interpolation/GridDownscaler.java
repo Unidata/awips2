@@ -64,10 +64,9 @@ public class GridDownscaler {
 
     /**
      * Get the {@link GeneralGridGeometry} [] of downscale levels that the
-     * GridDownscaler will use for downscaling it's source geometry. This array
-     * will NOT include the original source geometry in it but instead will
-     * contain only the downscaled geomerties. An empty array will be returned
-     * if no downscaling is recommended
+     * GridDownscaler will use for downscaling it's source geometry. The
+     * returned array will be at least of size one with the first item in the
+     * array being the rectangle for the source gridGeometry
      * 
      * @param gridGeometry
      * @return
@@ -87,9 +86,13 @@ public class GridDownscaler {
         }
 
         List<Rectangle> downscaleSizes = new ArrayList<Rectangle>();
+
         GridEnvelope ge = gridGeometry.getGridRange();
         Envelope e = gridGeometry.getEnvelope();
+
         Rectangle currSize = new Rectangle(ge.getSpan(0), ge.getSpan(1));
+        downscaleSizes.add(currSize);
+
         while (currSize.width > minGridSize
                 && currSize.height > minGridSize
                 && (!checkSpacing || ((e.getSpan(0) / currSize.width) < MAX_GRID_SPACING_METERS && (e
@@ -137,16 +140,37 @@ public class GridDownscaler {
         this.interpolation = interpolation;
     }
 
+    /**
+     * Sets the {@link Interpolation} algorithm to be used when downscaling
+     * 
+     * @param interpolation
+     */
+    public void setInterpolation(Interpolation interpolation) {
+        this.interpolation = interpolation;
+    }
+
+    /**
+     * Returns the total number of levels, this includes the full resolution
+     * grid
+     * 
+     * @return
+     */
     public int getNumberOfDownscaleLevels() {
         return downscaleGeometries.length;
     }
 
+    /**
+     * Returns the size of the downscale level passed in.
+     * 
+     * @param downscaleLevel
+     * @return
+     */
     public Rectangle getDownscaleSize(int downscaleLevel) {
-        return downscaleGeometries[downscaleLevel];
+        return new Rectangle(downscaleGeometries[downscaleLevel]);
     }
 
     /**
-     * Downscales the specified level into the destination object
+     * Downscales the specified level into the destination object.
      * 
      * @param downscaleLevel
      * @param destination
