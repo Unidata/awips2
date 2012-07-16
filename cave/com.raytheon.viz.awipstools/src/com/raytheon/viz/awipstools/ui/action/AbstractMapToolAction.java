@@ -82,12 +82,16 @@ public abstract class AbstractMapToolAction<T extends AbstractVizResource<Abstra
                 }
             }
 
-            for (IDisplayPane pane : editor.getDisplayPanes()) {
-                pane.getDescriptor().getTimeMatcher()
-                        .redoTimeMatching(pane.getDescriptor());
-            }
+            // Assume getSelectedPanes() has already tried to locate the editor.
+            // Only do something when editor is found.
+            if (editor != null) {
+                for (IDisplayPane pane : editor.getDisplayPanes()) {
+                    pane.getDescriptor().getTimeMatcher()
+                            .redoTimeMatching(pane.getDescriptor());
+                }
 
-            editor.refresh();
+                editor.refresh();
+            }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Failed to initalized map tool", e);
@@ -109,6 +113,12 @@ public abstract class AbstractMapToolAction<T extends AbstractVizResource<Abstra
         if (this.editor == null) {
             this.editor = EditorUtil.getActiveVizContainer();
         }
+
+        if (this.editor == null) {
+            // User does not have a display editor showing.
+            return new IDisplayPane[0];
+        }
+
         IDisplayPane[] displayPanes = editor.getDisplayPanes();
 
         if (editor instanceof IMultiPaneEditor) {
