@@ -3,12 +3,12 @@ edex_endpoint_arg=@EDEX_HOME@/edex/data/sbn/radar
 
 # The following line controls the location of log files.  See
 # data/config/res/log4j.properties for more logging options.
-log_dir=$rs_home_dir/rcm/data/logs
+log_dir=$rs_home_dir/data/logs
 
 # Uncomment and change the following line to choose a Java VM.  The 
 # default is the "java" program that is in the PATH.
 #java=/path/to/jre/bin/java
-java=${INSTALL_PATH}/bin/java
+java=/awips2/java/bin/java
 
 # necessary for fxaAnnounce to be called if rpg goes down
 awips2_fxa=/awips2/fxa
