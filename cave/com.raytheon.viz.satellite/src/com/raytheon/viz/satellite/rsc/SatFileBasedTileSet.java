@@ -299,7 +299,7 @@ public class SatFileBasedTileSet extends FileBasedTileSet {
 
     }
 
-    public List<DrawableImage> getImages(IGraphicsTarget target,
+    public synchronized List<DrawableImage> getImages(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         return do2D(target, paintProps);
     }
