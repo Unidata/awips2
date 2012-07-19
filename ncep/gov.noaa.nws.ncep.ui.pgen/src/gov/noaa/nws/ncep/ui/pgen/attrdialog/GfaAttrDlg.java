@@ -21,7 +21,6 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.GfaInfo;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
-import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 
 import java.awt.Color;
@@ -43,8 +42,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 import com.raytheon.uf.viz.core.exception.VizException;
-//import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Singleton attribute dialog for GFA.
@@ -62,7 +59,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/11		#?			B. Yin		Set voxText
  * 02/12		#662		J. Wu		update verification of "other" text.
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo.
- *
+ * 05/12        #637        Archana.S   Updated the code to update the filter hr in PgenFilterDlg
+ *                                      based on the current Fcst hr selected.
+ * 05/12		#808		J. Wu		update vor text.
  * </pre>
  * 
  * @author mlaryukhin
@@ -73,6 +72,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	/** Singleton instance. */
 	private static GfaAttrDlg instance = null;
 
+
 	/** Logger */
 //	private final static Logger log = Logger.getLogger(GfaAttrDlg.class);
     public static final String PGEN_RED_CROSS_IMG   = "red_cross.png";
@@ -80,7 +80,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	private final String[] LABELS = { "Hazard:", "Fcst Hr:", "Tag:", "Desk:", "Issue Type:", "", "" };
 
 	private Combo hazardCbo;
-	private Combo fcstHrCbo;
+	protected Combo fcstHrCbo;
 	private Combo tagCbo;
 	private Combo deskCbo;
 	private Combo issueTypeCbo;
@@ -136,6 +136,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	/** Digits, semicolon*/
 	private final String TIME = "[01234569]?|12|[012345]?:|[012345]?:(0|1|3|4|00|15|30|45)";
 
+
 	/**
 	 * Private constructor.
 	 * 
@@ -143,7 +144,9 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	 * @throws VizException
 	 */
 	private GfaAttrDlg(Shell parShell) throws VizException {
+		
 		super(parShell);
+
 	}
 
 	/**
@@ -216,6 +219,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 
 		hazardCbo = createCombo(panelComboGroup, HAZARD_XPATH, hazardIndexLastUsed);
 		fcstHrCbo = createFcstHrCombo(panelComboGroup, FCSTHR_XPATH, fcstHrIndexLastUsed);
+
 		tagCbo = new Combo(panelComboGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
 		deskCbo = createCombo(panelComboGroup, DESK_XPATH, deskIndexLastUsed);
 		issueTypeCbo = createCombo(panelComboGroup, ISSUE_TYPE_XPATH, issueTypeIndexLastUsed);
@@ -826,12 +830,17 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				redrawHazardSpecificPanel();
+				if ( PgenFilterDlg.isFilterDlgOpen()){
+					selectFilterHourWhenGfaFcstHourIsChanged(getGfaFcstHr());
+				}
+				
 			}
 		};
 
 		// add selection listeners after (!) we create cs
 		hazardCbo.addSelectionListener(s1);
 		fcstHrCbo.addSelectionListener(s2);
+		
 		
 		SelectionAdapter saveSettings = new SelectionAdapter() {
 			@Override
@@ -842,6 +851,26 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		};
 		deskCbo.addSelectionListener(saveSettings);
 		issueTypeCbo.addSelectionListener(saveSettings);
+	}
+	
+	/**
+	 * Enables the filter hour corresponding to the selected gfaFcsthr
+	 * if the PgenFilter dialog is open.
+	 * @param gfaFcstHr - the selected fcst hour in the GFA dialog
+	 */
+	private void selectFilterHourWhenGfaFcstHourIsChanged( String gfaFcstHr ){
+		for ( Button button: PgenFilterDlg.hourBtns){
+			if ( !button.getSelection() ){
+				String buttonText = button.getText();
+				String filterHr = ( buttonText.endsWith("+") ? buttonText.replace('+', ' ').trim() : buttonText);
+				if ( gfaFcstHr.compareTo(filterHr) == 0 ){
+					button.setSelection(true);
+					mapEditor.refresh();
+					break;
+				}
+					
+			}
+		}
 	}
 
 	/**
@@ -1143,7 +1172,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			if(adc instanceof Gfa) selectedGfa = (Gfa) adc;
 		}
 		if(selectedGfa != null) {
-			setVorText( selectedGfa );
+			setVorText( selectedGfa.getGfaVorText() );
 		}
 	}
 
@@ -1905,30 +1934,13 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	}	
 	
 	/**
-	 * Sets vorText field in the GFA dialog from the input GFA.
-	 * @param gfa
+	 * Sets vorText field in the GFA dialog.
+	 * @param vorText
 	 */
-	public void setVorText( Gfa gfa ){
-		ArrayList<Coordinate> pts = gfa.getPoints();
-		pts = SnapUtil.getSnapWithStation(pts,SnapUtil.VOR_STATION_LIST,10,16, false) ;
-		Coordinate[] a = new Coordinate[pts.size()];
-		a = pts.toArray(a);
-		String s = "";
-		if ( gfa.getGfaHazard().equalsIgnoreCase("FZLVL")){
-			if ( gfa.isClosedLine() ){
-				s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
-			}
-			else {
-				s = SnapUtil.getVORText(a, "-", "Line", -1, true, false, true );
-			}
-		}
-		else if ( gfa.getGfaHazard().equalsIgnoreCase("LLWS")){
-			s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
-		}
-		else {
-			s = SnapUtil.getVORText(a, " TO ", "Area", -1, true, false, true );
-		}
-		textVOR.setText(s);
+	public void setVorText( String vorText ){
+		textVOR.setText( vorText );
 	}
+
 	
 }
+

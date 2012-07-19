@@ -1056,7 +1056,7 @@ public class PostTables {
                     + "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
             cs.setString(1, locId);
             cs.setString(2, shefData.getPhysicalElement().getCode());
-            cs.setInt(3, shefData.getDuration().getValue());
+            cs.setInt(3, shefData.getDurationValue());
             cs.setString(4, shefData.getTypeSource().getCode());
             cs.setString(5, shefData.getExtremum().getCode());
             cs.setTimestamp(6, new Timestamp(shefData.getObservationTimeObj()
@@ -1181,7 +1181,7 @@ public class PostTables {
                     + "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}");
             cs.setString(1, locId);
             cs.setString(2, shefData.getPhysicalElement().getCode());
-            cs.setInt(3, shefData.getDuration().getValue());
+            cs.setInt(3, shefData.getDurationValue());
             cs.setString(4, shefData.getTypeSource().getCode());
             cs.setString(5, shefData.getExtremum().getCode());
             cs.setTimestamp(6, new java.sql.Timestamp(shefData

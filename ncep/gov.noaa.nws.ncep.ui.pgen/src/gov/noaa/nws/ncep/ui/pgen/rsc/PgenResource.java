@@ -47,10 +47,9 @@ import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductManageDialog;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
+import gov.noaa.nws.ncep.ui.pgen.tools.AbstractPgenTool;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
-//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -62,7 +61,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.datum.DefaultEllipsoid;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -78,6 +76,9 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+import com.raytheon.viz.ui.tools.AbstractModalTool;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
 import com.vividsolutions.jts.geom.CoordinateList;
@@ -127,6 +128,7 @@ import com.vividsolutions.jts.geom.Point;
  * 										"No OpenGL context current on this thread"; 
  * 										workaround pending RTS regression fix.
  * 04/12		#705		J. Wu		TTR 542 - Draw elements in specific sequences.
+ * 05/12		#610		J. Wu		TTR 397 - Select GFA by text box.
  *
  * </pre>
  * 
@@ -168,6 +170,9 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
     private CategoryFilter catFilter;
     
     private static final String resourceName = "PGEN Resource";
+    
+    //Scale factor to allow easy selection of Gfa by its text box.
+    private static final double GFA_TEXTBOX_SELECT_SCALE = 2.0;
     
     /**
      * Default constructor
@@ -488,7 +493,20 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 * @return	the nearest element
 	 */
 	public DrawableElement getNearestElement( Coordinate point ){
-		return getNearestElement( point, catFilter );
+		
+		DrawableElement nearestGfabyTextBox = getNearestGfaByTextBox( point, catFilter );
+		DrawableElement nearestElm = getNearestElement( point, catFilter );
+        
+		//Selecting Gfa by its  text box first.
+		if ( nearestGfabyTextBox != null &&
+			 ( (nearestElm == null ) || (nearestElm instanceof Gfa) ) ) {
+			return nearestGfabyTextBox;
+		}
+		else {
+			return nearestElm;
+		}
+		
+//		return getNearestElement( point, catFilter );
 		//return getNearestElement( point, new AcceptFilter() );
 	}
 		
@@ -501,18 +519,13 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		
 		DrawableElement nearestElement = null;
 		double	minDistance = Double.MAX_VALUE;
-
-		GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
 		
-		gc.setStartingGeographicPoint(point.x, point.y);
-						
 	    Iterator<DrawableElement> iterator = resourceData.getActiveLayer().createDEIterator();
 		while ( iterator.hasNext()){
 			DrawableElement element = iterator.next();
 			
 			if ( ! filter.accept(element) || !filters.acceptOnce(element)) continue;
 			if ( ! catFilter.accept(element)) continue;
-			
 			
 			double dist = getDistance(element, point);
 			if ( dist < minDistance ) {
@@ -522,7 +535,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 				
 			}
 	    }
-		
+				
 		if ( minDistance < this.getMaxDistToSelect() ){
 			return nearestElement;
 		}
@@ -1288,8 +1301,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	public double getDistance(AbstractDrawableComponent adc, Coordinate loc ){
 		
 		double minDist = Double.MAX_VALUE;
-		
-//    	AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+		      
     	AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
     	double [] locScreen = mapEditor.translateInverseClick(loc);
     	
@@ -1332,22 +1344,18 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 
 			Object pts[] =  gfa.getPoints().toArray();
 
-			for ( int ii = 0; ii <  pts.length - 1; ii++ ) {
+			for ( int ii = 0; ii <  pts.length; ii++ ) {
 
-				if ( ii == pts.length - 1){
-					if (gfa.isClosedLine() ){
-				  
-						dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[0]);
-	
+				if ( ii == pts.length - 1){		        						
+					if ( gfa.isClosedLine() ){				  
+						dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[0]);	
 					}
 					else {
 						break;
 					}
 				}
-				else {	
-				
+				else {					
 					dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[ii+1]);
-
 				}
 
 				if ( dist < minDist ) {
@@ -1526,6 +1534,24 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
      */
     public String buildFileName( Product prd ) {
         return resourceData.buildFileName( prd );  
+    }
+ 
+    /**
+     * De-activate all PGEN tools
+     */
+    public void deactivatePgenTools(){
+    	AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+    	.getCurrentPerspectiveManager();
+    	if (mgr != null) {
+    		Iterator<AbstractModalTool> it  = mgr.getToolManager().getSelectedModalTools().iterator();
+    		while ( it.hasNext() ){
+    			AbstractModalTool tool = it.next();
+    			if (tool != null && tool instanceof AbstractPgenTool) {
+    				tool.deactivate();
+    				it.remove();
+    			}
+    		}
+    	}
     }
     
     	
@@ -1735,6 +1761,50 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	}
 
 	
+	/**
+	 * Finds the nearest Gfa element in the active layer by the distance to the center of the
+	 * text box.
+	 * 
+	 * @param point
+	 * @param filter 
+	 * @return	the nearest element
+	 */
+	private DrawableElement getNearestGfaByTextBox( Coordinate point, ElementFilter filter ){
+		
+		DrawableElement nearestElement = null;
+
+		double	boxScale = GFA_TEXTBOX_SELECT_SCALE;
+		double  minDistance = this.getMaxDistToSelect() * boxScale;
+
+		AbstractEditor mapEditor = PgenUtil.getActiveEditor();       
+    	double [] locScreen = mapEditor.translateInverseClick( point );
+    	Point clickPt = new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1]) );
+		
+	    Iterator<DrawableElement> iterator = resourceData.getActiveLayer().createDEIterator();
+		while ( iterator.hasNext() ){
+			DrawableElement element = iterator.next();
+			
+			if ( ! (element instanceof Gfa) ) continue;
+			if ( ! filter.accept(element) || !filters.acceptOnce(element)) continue;
+			if ( ! catFilter.accept(element)) continue;						
+	    					
+			Gfa gfa = (Gfa)element;
+
+			//calculate distance from the text box
+			double [] pt = mapEditor.translateInverseClick( gfa.getGfaTextCoordinate() );
+			Point ptScreen = new GeometryFactory().createPoint( new Coordinate(pt[0], pt[1]) );
+			double distToBox = ptScreen.distance( clickPt );
+
+			if ( distToBox < minDistance ) {
+				minDistance = distToBox;
+				nearestElement = element; 
+			}
+			
+	    }
+		
+		return nearestElement;
+				
+	}
 
 }
 

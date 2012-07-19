@@ -4,4 +4,4 @@ enablePositiveStrikes=false
 enableNegativeStrikes=true
 positiveSymbolSize=3
 negativeSymbolSize=3
-colorBar=@dfltLtngColorBar.xml
+colorBar=@ColorBars/Lightning/dfltLtngColorBar.xml

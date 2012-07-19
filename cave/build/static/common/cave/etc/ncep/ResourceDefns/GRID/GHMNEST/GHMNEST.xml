@@ -4,7 +4,7 @@
     <resourceDefnName>GHMNEST</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=GHMNEST
+GDFILE=ghmnest
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

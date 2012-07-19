@@ -34,7 +34,7 @@ import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag.gempak;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.DgdrivException;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
-import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
+//import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree.NcDataTree;
 //import gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree.NcLevelNode;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
@@ -102,7 +102,7 @@ public class TestDgdriv {
 	private ArrayList<DataTime> dataForecastTimes;
 	private static Connector conn;
 	private NcDataTree dataTree;
-	private NcInventory inventory;
+//	private NcInventory inventory;
 	
    /*
     * TODO Work around solution - need to find away to set logging level programmatically
@@ -128,8 +128,8 @@ public class TestDgdriv {
 		proj = "";
 		scalar = false;
 		dataForecastTimes = new ArrayList<DataTime>();
-	    dataTree = NcInventory.getInstance().getNcDataTree();
-	    inventory = NcInventory.getInstance();
+//	    dataTree = NcInventory.getInstance().getNcDataTree();
+//	    inventory = NcInventory.getInstance();
 		try {
 			conn = Connector.getInstance();
 		} catch (VizException e) {
@@ -1223,12 +1223,12 @@ public class TestDgdriv {
 		String[] parmList = parameters.split("\\|");
 		Map<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
 		if ( !parmList[1].isEmpty()) {
-			queryList = inventory.getRequestConstraintMap(parmList[0], parmList[1],
-						parmList[2], parmList[3], parmList[4]);
+//			queryList = inventory.getRequestConstraintMap(parmList[0], parmList[1],
+//						parmList[2], parmList[3], parmList[4]);
 		}
 		else {
-			queryList = inventory.getRequestConstraintMap(parmList[0], parmList[2],
-					parmList[3], parmList[4]);		    
+//			queryList = inventory.getRequestConstraintMap(parmList[0], parmList[2],
+//					parmList[3], parmList[4]);		    
 		}
 		
 		String refTimeg = parmList[5].toUpperCase().split("F")[0];

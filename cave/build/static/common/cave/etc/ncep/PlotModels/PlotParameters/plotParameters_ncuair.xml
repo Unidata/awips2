@@ -52,15 +52,15 @@
 <!-- STATION VARIABLES -->
  <PlotParameterDefn  plotParamName="STID" metParamName="StationID"    
                      plotMode="text" dbParamName="stationId" />
+ <PlotParameterDefn  plotParamName="STNM" metParamName="StationNumber"    
+                     plotMode="text" dbParamName="stnm" />
+
  <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"   
                      plotMode="text" dbParamName="latitude" plotUnit="°" plotFormat="%.3f"  />
  <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude"   
                      plotMode="text" dbParamName="longitude" plotUnit="°" plotFormat="%.3f"/>
  <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation" 
  					 plotMode="text" dbParamName="elevation" plotUnit="m" plotFormat="%5.0f" /> 
-   
-<!-- this should? be the stationId in the hdf5 file but it is the 
-     same as the stationName field. Instead we just look it up. -->
         
 <!-- These really aren't normally displayed by themselves but they need
   == to be here since they are used to derive the WindBarbs.
