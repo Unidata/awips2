@@ -66,5 +66,13 @@ public class NsharpWxMath {
         
         return tempPressure;
     }
-	
+    
+    /*
+     * Get pressure Y coordinate from available temp and temp's X coordinate
+     */
+    public static double getPressureYFromTemp(double temp, double tempX) {
+    	double pressureY;
+    	pressureY = (tempX - (temp * 0.54))/0.90692;
+    	return pressureY;
+    }
 }

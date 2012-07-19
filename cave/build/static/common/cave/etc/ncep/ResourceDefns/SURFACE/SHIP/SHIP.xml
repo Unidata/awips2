@@ -5,14 +5,13 @@
     <resourceCategory>SURFACE</resourceCategory>
 	<resourceParameters>
 legendString=SHIP
-levelKey=Surface
 pluginName=sfcobs
 reportType=1003
 spiFile=MTR.spi
-legend_color=RGB {0, 255, 0}
+legendColor=RGB {0, 255, 0}
     </resourceParameters>
     <filterLabels>Observed</filterLabels>
-    <rscImplementation>PlotData</rscImplementation>
+    <rscImplementation>SurfacePlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

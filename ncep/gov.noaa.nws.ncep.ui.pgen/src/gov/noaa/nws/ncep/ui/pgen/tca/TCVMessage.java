@@ -648,7 +648,8 @@ public class TCVMessage {
 		String localTime = createLocalTimeString();
 		
 		String center = TPC;
-		if ( PgenUtil.getCurrentOffice().equalsIgnoreCase("PHFO") ) center = CPHC;
+		if ( PgenUtil.getCurrentOffice().equalsIgnoreCase("PHFO") ||
+				 PgenUtil.getCurrentOffice().equalsIgnoreCase("HFO")) center = CPHC;
 		
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);

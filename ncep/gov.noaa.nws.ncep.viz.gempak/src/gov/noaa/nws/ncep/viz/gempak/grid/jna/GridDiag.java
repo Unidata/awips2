@@ -91,6 +91,7 @@ public class GridDiag {
 		public void db_returnfhrs(String cycleFcstHrsString);// throws LastErrorException ;
 		public void db_returnflnm( String ensmStr );// throws LastErrorException ;
 		
+		public int db_subgCrsCallback(DbCallbackWithMessage callback);// throws LastErrorException ;
 
 		/** Native library declaration and usage. */
 		
@@ -156,6 +157,8 @@ public class GridDiag {
 		
 		public void db_seta2dtinfo_ (String alias, String path, String template,
 				IntByReference iret);
+		
+		public void db_setsubgnav_ (float lllat, float lllon, float urlat, float urlon,IntByReference iret );
 		/*
 		 * Wrapper functions
 		 */

@@ -1,20 +1,16 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements;
 
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
 
@@ -30,14 +26,14 @@ import com.raytheon.uf.common.localization.LocalizationFile;
  * 10/09  		172    	   	M. Li       Initial Creation
  * 
  * 08/21/11     450         G. Hull     add LocalizationFile                 
- *                       
+ * 05/02/12     778         Q. Zhou     Changed symbol size form int to double               
  * </pre>
  * 
  * @author mli
  * @version 1
  */
 
-@XmlRootElement(name = "PlotModel")
+@XmlRootElement(name = "plotModel")
 @XmlAccessorType(XmlAccessType.NONE)
 public class PlotModel {
 
@@ -215,8 +211,8 @@ public class PlotModel {
         	newPlotModelElement.setPosition( pme.getPosition() );
 //        	newPlotModelElement.setEnable( pme.getEnable() );
         	if( pme.getSymbolSize() != null ) {
-        		newPlotModelElement.setSymbolSize( new Integer( pme.getSymbolSize() ));
-        	}
+        		newPlotModelElement.setSymbolSize( pme.getSymbolSize()); //(new Double( pme.getSymbolSize()) ) );
+        	}       	
         	if( pme.getTextFont() != null ) {
         		newPlotModelElement.setTextFont( pme.getTextFont() );
         	}

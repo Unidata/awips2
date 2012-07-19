@@ -187,7 +187,11 @@ int  populateSndgDataStatic(CaveSndgParms snDataArray[], int arraySize, int data
 	/* Reset levels in sounding since the global var numlvl is updated in xtnd_sndg() */
 	s->nlev     = numlvl;
 	s->noriglev = numlvl;
-
+	/* Chin::
+	 * the following is copy from load_sounding() in xwvid6.c. This is how BigNsharp decide storm motion when it loads a
+	 * new sounding data. st_dir and st_spd are globals and used to store current storm motion wind direction and speed.
+	 * Calling bunkers_storm_motion() to set them.
+	 */
 	/* First guess at storm motion. User can modify on hodograph */
 	bunkers_storm_motion(&ix1, &ix2, &st_dir, &st_spd);
 	//st_dir = winDir;

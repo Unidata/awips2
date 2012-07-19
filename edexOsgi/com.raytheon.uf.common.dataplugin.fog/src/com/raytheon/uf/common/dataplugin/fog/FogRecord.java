@@ -435,7 +435,15 @@ public class FogRecord extends PersistablePluginDataObject implements
         return vis_array;
     }
 
-    /**
+    public GridGeometry2D getGridGeometry2D() {
+		return gridGeometry2D;
+	}
+
+	public void setGridGeometry2D(GridGeometry2D gridGeometry2D) {
+		this.gridGeometry2D = gridGeometry2D;
+	}
+
+	/**
      * Set the VIS pixel array
      * 
      * @param data_array

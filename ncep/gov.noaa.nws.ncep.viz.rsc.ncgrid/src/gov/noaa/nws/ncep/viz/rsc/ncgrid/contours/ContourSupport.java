@@ -27,6 +27,7 @@ import gov.noaa.nws.ncep.gempak.parameters.infill.FINT;
 import gov.noaa.nws.ncep.gempak.parameters.infill.FLine;
 import gov.noaa.nws.ncep.gempak.parameters.line.LineDataStringParser;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLogger;
 import gov.noaa.nws.ncep.viz.tools.contour.ContourException;
 import gov.noaa.nws.ncep.viz.tools.contour.ContourGenerator;
 import gov.noaa.nws.ncep.viz.tools.contour.FillException;
@@ -107,6 +108,7 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
  *    Mar 13, 2012             X. Guo      Handle multi-threads
  *    Mar 15, 2012             X. Guo      Refactor
  *    Mar 27, 2012             X. Guo      Used contour lock instead of "synchronized" 
+ *    May 23, 2012             X. Guo      Loaded ncgrib logger
  * 
  * </pre>
  * 
@@ -143,7 +145,8 @@ public class ContourSupport {
     private Set<Double> svalues;
     private boolean isWorld0;
     private boolean isCntrsCreated;
-       
+    private static NcgribLogger ncgribLogger = NcgribLogger.getInstance();;
+    
     /**
      * Constructor
      * 
@@ -288,7 +291,6 @@ public class ContourSupport {
     	this.zoom = zoom;
     	this.cntrData = new ContourGridData(records);
     	this.isWorld0 = isWorld0(descriptor);
-    	
     	
     	initContourGroup ( target,contourGp );
     }
@@ -984,7 +986,8 @@ public class ContourSupport {
     	}
     	long t3 = System.currentTimeMillis();
     	logger.debug("===Creating label wireframes for ("+name+") took: " + total_labeling_time);
-        	logger.debug("===Creating contour line wireframes for ("+name+")took: " + (t3 - t2 - total_labeling_time));
+    	if ( ncgribLogger.enableCntrLogs() )
+        	logger.info("===Creating contour line wireframes for ("+name+")took: " + (t3 - t2 ));
 //        	System.out.println("Creating contour line wireframes took: " + (t3 - t2 - total_labeling_time));
     }
     
@@ -1018,13 +1021,18 @@ public class ContourSupport {
     			}
 
     			int minX=0,minY=0;
+    			long t11 = System.currentTimeMillis();
     			FillGenerator fgen = new FillGenerator(contourGroup.grid);
+    			long t12 = System.currentTimeMillis();
+    			logger.debug(" create FillGenerator took:" + (t12-t11));
     			for ( Double cval : contourGroup.fvalues ) {
     				float fval = (float) (cval * 1.0f);
     				Geometry g = contourGroup.data.get(cval.toString());
     				if ( g == null ) continue;
     				fgen.addContours(fval, g);
     			}
+    			t11 = System.currentTimeMillis();
+    			logger.debug(" add Contour took:" + (t11-t12));
     			// Add color fill to contourGroup
     			for (int n=0; n <= contourGroup.fvalues.size(); n++ ) {
     				if (fillColorsIndex.get(n) <= 0 || fillColorsIndex.get(n) >= 32) continue;
@@ -1061,6 +1069,8 @@ public class ContourSupport {
 //						e.printStackTrace();
     				}
     			}
+    			t12 = System.currentTimeMillis();
+    			logger.debug(" loop fvalues took:" + (t12-t11));
 //				System.out.println("Creating color fills took : " + (t4-t3));
 		
     		} catch (Exception e) {
@@ -1070,7 +1080,8 @@ public class ContourSupport {
     		}
     	}
     	long t4 = System.currentTimeMillis();
-		logger.debug("===Creating color fills for ("+name+") took : " + (t4-t3));
+    	if ( ncgribLogger.enableCntrLogs() )
+    		logger.info("===Creating color fills for ("+name+") took : " + (t4-t3));
     }
     
     private void createStreamLines () {
@@ -1246,7 +1257,8 @@ public class ContourSupport {
      
      
     		long t2 = System.currentTimeMillis();
-    		logger.debug("===ContourGenerator.generateContours() for ("+name+") took: " + (t2-t1c));
+    		if ( ncgribLogger.enableCntrLogs() )
+    			logger.info("===ContourGenerator.generateContours() for ("+name+") took: " + (t2-t1a));
 	
 //    		System.out.println("Contour Computation took: " + (t2-t1c));
   

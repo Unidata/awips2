@@ -27,115 +27,149 @@
       </nc-resource>
    </extension> 
          <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="java.lang.Boolean"
-            attributeName="wstmWarningEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="wstmWarningEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="org.eclipse.swt.graphics.RGB"
-            attributeName="wstmWarningColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="org.eclipse.swt.graphics.RGB"
+            paramName="wstmWarningColor"
             defaultValue="RGB {255,0,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="wstmWarningLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="wstmWarningLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="wstmWarningSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="wstmWarningSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="java.lang.Float"
-            attributeName="wstmWarningSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="java.lang.Float"
+            paramName="wstmWarningSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="java.lang.Boolean"
-            attributeName="wstmWatchEnable"
+      <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="wstmWatchEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="org.eclipse.swt.graphics.RGB"
-            attributeName="wstmWatchColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="org.eclipse.swt.graphics.RGB"
+            paramName="wstmWatchColor"
             defaultValue="RGB {255,127,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="wstmWatchLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="wstmWatchLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="wstmWatchSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="wstmWatchSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="java.lang.Float"
-            attributeName="wstmWatchSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="java.lang.Float"
+            paramName="wstmWatchSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Boolean"
-            attributeName="wstmAdvisoryEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="wstmAdvisoryEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="org.eclipse.swt.graphics.RGB"
-            attributeName="wstmAdvisoryColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="org.eclipse.swt.graphics.RGB"
+            paramName="wstmAdvisoryColor"
             defaultValue="RGB {255,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="wstmAdvisoryLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="wstmAdvisoryLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="wstmAdvisorySymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="wstmAdvisorySymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="java.lang.Float"
-            attributeName="wstmAdvisorySymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="java.lang.Float"
+            paramName="wstmAdvisorySymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="java.lang.Boolean"
-            attributeName="zoneNameEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="zoneNameEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WSTM">
-      </nc-resourceAttribute>  
-      <nc-resourceAttribute
-            attributeClass="java.lang.Boolean"
-            attributeName="outlineEnable"
+      </nc-resourceParameter>  
+      <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="outlineEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="WSTM">
-      </nc-resourceAttribute>             
+      </nc-resourceParameter>             
+      
+      <nc-resourceParameter
+            ncResourceName="WSTM"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="WSTM"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {255, 255, 255}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
      </extension> 
 </plugin>

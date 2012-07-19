@@ -1,5 +1,5 @@
 ! Attributes for the GFSXMOS resource with "maxminpopan" plot model
 !
-plotModelName=maxminpopan
+plotModel=maxminpopan
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

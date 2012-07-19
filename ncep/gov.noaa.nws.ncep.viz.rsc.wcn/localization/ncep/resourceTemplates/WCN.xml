@@ -83,12 +83,12 @@
             <watchBoxUnionEnable>${watchBoxUnionEnable}</watchBoxUnionEnable>
             <requestStyle>METADATA</requestStyle>
             <metadataMap>
-              <mapping key="pluginName">
-                <constraint constraintValue="aww" constraintType="EQUALS" />
-              </mapping>
-              <mapping key="reportType">
-                <constraint constraintValue="WATCH_COUNTY_NOTIFICATION" constraintType="IN" />
-              </mapping>
+               <mapping key="pluginName">
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="${reportType}" constraintType="IN" />
+               </mapping>
             </metadataMap>
           </resourceData>
         </resource>
