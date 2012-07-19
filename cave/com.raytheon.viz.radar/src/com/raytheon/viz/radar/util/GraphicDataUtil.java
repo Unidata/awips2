@@ -46,7 +46,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 21, 2011            mnash     Initial creation
+ * Sep 21, 2011            mnash     	Initial creation
+ * Jun 04  2012	 14710	   Xiaochuan 	The rank value should take  
+ * 										from STRENGTH_RANK instead  
+ * 										of 2D_STRENGTH_RANK.
  * 
  * </pre>
  * 
@@ -170,27 +173,17 @@ public class GraphicDataUtil {
                                 baseHeight = setupConverter(currFeature,
                                         DMDAttributeIDs.BASE_HEIGHT.toString(),
                                         1, true);
-                                // if (!baseHeight.equals("")) {
-                                // baseHeight += "Ag";
-                                // }
-
+                                
                                 // Depth, user unit definable
                                 String depth = setupConverter(currFeature,
                                         DMDAttributeIDs.DEPTH.toString(), 1,
                                         true);
 
                                 // Rank, not user unit definable
-                                String ranks = currFeature
-                                        .getValue(DMDAttributeIDs._2D_STRENGTH_RANK
+                                String rank = currFeature
+                                        .getValue(DMDAttributeIDs.STRENGTH_RANK
                                                 .toString());
-                                int tiltNum = 0;
-                                if ((ranks.length() > 0) && !ranks.isEmpty()) {
-                                    tiltNum = ranks.split(",").length - 1;
-                                }
-                                String rank = ranks.split(",")[tiltNum]
-                                        + currFeature
-                                                .getValue(DMDAttributeIDs.STRENGTH_RANK_TYPE
-                                                        .toString());
+            
                                 // MSI, not user definable
                                 String msi = currFeature
                                         .getValue(DMDAttributeIDs.MSI
@@ -216,11 +209,7 @@ public class GraphicDataUtil {
                                         currFeature,
                                         DMDAttributeIDs.HEIGHT_MAX_ROTATIONAL_VEL
                                                 .toString(), 1, true);
-
-                                // if (!htmxrv.equals("")) {
-                                // htmxrv += "Ag";
-                                // }
-
+                                
                                 // put together the final string to display in
                                 // the table
                                 String fnlString = String.format(dataRowFormat,

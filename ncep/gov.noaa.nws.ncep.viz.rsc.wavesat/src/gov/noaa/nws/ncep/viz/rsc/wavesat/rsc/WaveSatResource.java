@@ -1,11 +1,8 @@
 package gov.noaa.nws.ncep.viz.rsc.wavesat.rsc;
 
-import gov.noaa.nws.ncep.common.dataplugin.sgwh.SgwhRecord;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
@@ -14,38 +11,22 @@ import java.awt.geom.Rectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.Map.Entry;
-
-import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.viz.pointdata.PointDataRequest;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -54,11 +35,8 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
-import org.eclipse.swt.graphics.Rectangle;
-
 
 
 /**
@@ -72,7 +50,7 @@ import org.eclipse.swt.graphics.Rectangle;
  * ------------ ---------- ----------- --------------------------
  *  09/21/2011    #248     Greg Hull    Initial creation. 
  *  02/16/2012    #555     S. Gurung    Added call to setPopulated(true) in queryData().
- * 
+ *  05/23/2012    #785     Q. Zhou      Added getName for legend.
  * </pre>
  * 
  * @author ghull 
@@ -685,4 +663,14 @@ public class WaveSatResource extends AbstractNatlCntrsResource<WaveSatResourceDa
 	protected AbstractFrameData createNewFrame( DataTime frameTime, int timeInt ) {
 		return new FrameData(frameTime,timeInt);
 	}	
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.waveSatDataMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }

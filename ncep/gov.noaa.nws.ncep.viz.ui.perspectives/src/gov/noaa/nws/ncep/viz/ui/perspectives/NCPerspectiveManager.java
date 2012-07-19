@@ -2,6 +2,7 @@ package gov.noaa.nws.ncep.viz.ui.perspectives;
 
 import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.Activator;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
@@ -13,7 +14,7 @@ import gov.noaa.nws.ncep.viz.tools.frame.FrameDataDisplay;
 import gov.noaa.nws.ncep.viz.tools.imageProperties.FadeDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
+import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcGridInventory;
 
 import gov.noaa.nws.ncep.staticdataprovider.StaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.controls.PgenFileNameDisplay;
@@ -23,8 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.ContributionItem;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+
+import sun.security.jca.GetInstance;
 
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IVizEditorChangedListener;
 import com.raytheon.uf.viz.core.VizApp;
@@ -32,8 +39,10 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.application.ProgramArguments;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -78,6 +87,12 @@ import gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerDialog;
  *                                      Removed the call to setNcEditor() and updated initFromEditor()
  *                                      to take an editor as one of the arguments    
  * 04/16/2012	740			B. Yin		Start the static data service before opening map editor.  
+ * 03/01/2012   #606        G. Hull     initialize NcInventory
+ * 05/15/2012               X. Guo      initialize NcGridInventory
+ * 05/17/2012               X. Guo      Changed "true" to "false" to initialize NcGridInventory
+ * 06/01/2012   #815        G. Hull     Create DESK Level for Localization.
+ * 06/13/2012   #817        G. Hull     for -spf arg, create one rbdLoader and call initTimeline on the rbds.
+ *                                        
  * </pre>
  * 
  * @author 
@@ -89,8 +104,6 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
 	// put this in common to avoid dependencies on this project
     public static final String NC_PERSPECTIVE = NmapCommon.NatlCntrsPerspectiveID;
            
-    private int currentRscIndex = 0;
-    
     private boolean gridInventoryInited = false;
 
     private IVizEditorChangedListener displayChangeListener=null;
@@ -98,13 +111,18 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
 	@Override
 	protected void open() {
 		
-		/*
-		 * TODO
-		 * this is probably will need to be re-worked
-		 */
+		// force DESK level to be created.
+		NcPathManager.getInstance();
+		
 		if ( !gridInventoryInited ) {
 			long t0 = System.currentTimeMillis();
-			NcInventory.getInstance().initInventory();
+			try {
+				NcGridInventory.getInstance().initInventory( false ); // don't re-init
+//				NcGridInventory.getInstance().dumpNcGribInventory();
+			} catch (VizException e) {
+				System.out.println("NcGridInventory  failed : "+e.getMessage()  );
+			} 
+			
 			long t1 = System.currentTimeMillis();
 			System.out.println("NcGridInventory Init took: " + (t1-t0));
 			gridInventoryInited = true;
@@ -119,6 +137,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
 			}
 		};
 				
+		// Add an observer to process the dataURI Notification msgs from edex.
+		//
         ProductAlertObserver.addObserver(null, new NcAutoUpdater());
 
         // NatlCntrs uses a different equation to compute the Temperature values from
@@ -126,6 +146,50 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         // images and will create our Units and UnitConverter class to do the conversion.
         // 
         NcSatelliteUnits.register();
+        
+		// Force the RBDs to read from localization to save time
+		// bringing up the RBD manager
+		// 
+		SpfsManager.getInstance();
+		
+        // Initialize the NcInventory. This cache is stored on the server side and will only
+        // need initialization for the first instance of cave.
+        try {
+ 	    	ResourceDefnsMngr.getInstance(); // force reading in of the resource definitions
+ 	    	
+ 	    	if( !ResourceDefnsMngr.getInstance().getBadResourceDefnsErrors().isEmpty() ) {
+ 	    		
+ 	    		final StringBuffer errBuf = new StringBuffer("There were errors creating the following Resource Defintions:\n\n");
+ 	    		int numErrs = 0;
+ 	    		for( VizException vizex : ResourceDefnsMngr.getInstance().getBadResourceDefnsErrors() ) {
+ 	    			errBuf.append( " -- "+ vizex.getMessage()+"\n" );
+ 	    			
+ 	    			if( ++numErrs > 20 ) {
+ 	    				errBuf.append( " .....and more....");
+ 	    			}
+ 	    		}
+
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+         	    		MessageDialog errDlg = new MessageDialog( 
+         						perspectiveWindow.getShell(), "Error", null, 
+         						errBuf.toString(),
+         						MessageDialog.ERROR, new String[]{"OK"}, 0 );
+         	    		errDlg.open(); 	    		
+                    }
+                });
+ 	    	}
+ 	    	
+// 	    	ResourceDefnsMngr.getInstance().createInventory();
+ 	    	
+	    } catch( VizException el ) {
+	    	MessageDialog errDlg = new MessageDialog( 
+					perspectiveWindow.getShell(), "Error", null, 
+					"Error Initializing NcInventory:\n\n"+el.getMessage(),
+					MessageDialog.ERROR, new String[]{"OK"}, 0);
+			errDlg.open();
+	    }
         
         // Load either the default RBD or RBDs in the command line spf
         //
@@ -141,6 +205,11 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         	if( grpAndSpf.length != 2 ) {
         		System.out.println("The -spf argument is specified without an spf group (ex spfGroupName/spfName.");
         		// load the default rbd...
+    	    	MessageDialog errDlg = new MessageDialog( 
+    					perspectiveWindow.getShell(), "Error", null, 
+    					"The -spf arguement is missing an SPF group name.\nEx. \"SpfGroupName/SpfName\"",
+    					MessageDialog.WARNING, new String[]{"OK"}, 0);
+    			errDlg.open();
         	}
         	else {
         		
@@ -151,7 +220,11 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         						true ); // resolve Latest Cycle times
         		}
         		catch( VizException e ) {
-        			System.out.println("The -spf argument is specified with an unknown spf: "+ spfName );
+        	    	MessageDialog errDlg = new MessageDialog( 
+        					perspectiveWindow.getShell(), "Error", null, 
+        					"The -spf arguement, "+spfName+" doen't exist\n",
+        					MessageDialog.WARNING, new String[]{"OK"}, 0);
+        			errDlg.open();
         		}
         	}
         }
@@ -174,31 +247,19 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         //start data provider before creating ncmapeditor
 	    StaticDataProvider.start();
 
-        // loop thru the rbds and load them into a new editor.
+    	ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading SPF: " );
+
+    	// loop thru the rbds and load them into a new editor.
         for(  RbdBundle rbd: rbdsToLoad ) {
 
+        	rbd.initTimeline();
+
         	NCMapEditor editor = NmapUiUtils.createNatlCntrsEditor( rbd.getRbdName() );
- //       	rbd.setNcEditor( editor );
-
-        	ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+rbd.getRbdName() );
-
-        	rbdLoader.addRBD( rbd, editor );
-        	VizApp.runAsync( rbdLoader );
-        }
-        
-//      xguo,06/02/11. To enhance the system performance, move 
-//      data resource query to here to initialize Data Resource instance.
-        try {
-        	long lt = System.currentTimeMillis();
         	
- 	    	ResourceDefnsMngr.getInstance().generateDynamicResources();
- 	    	
- 	    	long ltime= System.currentTimeMillis();
-            System.out.println("Generate Dynamic Resources  " + (ltime-lt) + "ms");
-            
-	    } catch( VizException el ) {
-	    	System.out.println("Could not initialize NC-Data resources: " + el.getMessage());
-	    }
+        	rbdLoader.addRBD( rbd, editor );
+        }        
+
+        VizApp.runAsync( rbdLoader );        	
 	}
 	
 	@Override
@@ -283,168 +344,18 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
             public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             	// Set mouse position
             	Coordinate ll = editor.translateClick(x, y);       	
-            	//gov.noaa.nws.ncep.viz.ui.locator.LocatorDisplay/*.getInstance()*/.setPosition(ll); 
             	gov.noaa.nws.ncep.viz.common.CoorBean.getInstance().setCoor(ll);
                 return false;
             }
 
             @Override
             public boolean handleMouseMove(int x, int y) {
-            	// AbstractVizPerspective was doing this in its handlers so copy here.
-                //for (IDisplayPane pane : editor.getDisplayPanes()) {
-                //    pane.setLastMouseX(x);
-                //    pane.setLastMouseY(y);
-                //}
-
             	// Set mouse position
             	Coordinate ll = ((NCMapEditor)editor).translateClick( x, y);
-            	//gov.noaa.nws.ncep.viz.ui.locator.LocatorDisplay/*.getInstance()*/.setPosition(ll);   
             	gov.noaa.nws.ncep.viz.common.CoorBean.getInstance().setCoor(ll);
                 return false;
             }
 
-// R1G2-9 migration
-//            Raytheon's wheel zoom now in the PanHandler so we will do the same...
-//            
-//            // Copied from AbstractVizePerspective but we may want to change 
-//            @Override
-//            public boolean handleMouseWheel(Event event, int x, int y) {
-//            	if( ((NCMapEditor)editor).arePanesGeoSynced() ) {
-//            		IDisplayPane[] panes = editor.getDisplayPanes();
-//            		for (IDisplayPane pane : panes) {
-//            			pane.zoom(event.count, event.x, event.y);
-//            		}
-//            	}
-//            	else {
-//// Which one of these makes more sense?            		
-////            		IDisplayPane pane = editor.getActiveDisplayPane();
-//
-//            		
-//            		IDisplayPane pane = ((NCMapEditor)editor).getCurrentMouseHoverPane();
-//            		pane.zoom( event.count, event.x, event.y );            		
-//            	}
-//
-////            	IExtent extent = editor.getActiveDisplayPane().getRenderableDisplay().getExtent();  
-//                
-////            	IDescriptor descriptor = editor.getActiveDisplayPane().getDescriptor(); 
-//            	
-////            	DisplayViewLowerLeftAndUpperRightLongLatValues longLatValuesInstance = 
-////            		DisplayViewLowerLeftAndUpperRightLongLatValues.getInstance(); 
-////            	longLatValuesInstance.initialization(extent, descriptor); 
-//
-//            	return false;
-//            }
-//            
-            /*
-             * (non-Javadoc)
-             * 
-             * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
-             * int, int)
-             */
-            @Override
-            public boolean handleMouseDown(int x, int y, int mouseButton) {
-
-            	if ( mouseButton != 1 ) return false;
-            	
-            	IDescriptor descriptor = editor.getActiveDisplayPane()
-            	.getDescriptor();
-
-            	/*
-            	 * get all resource labels
-            	LegendEntry[] labels = editor.getActiveDisplayPane()
-            	.getRenderableDisplay().getLegendDecorator()
-            	.getLegendData(descriptor);
-            	if (labels == null || labels.length == 0) {
-            		return false;
-            	}
-            	 */
-
-            	/*
-            	 * if click on resource label, toggle its visibility on/off
-            	//ResourcePair rsc = editor.getActiveDisplayPane()
-            	//.getTarget().checkLabelSpace(labels, x, y);
-                IDisplayPane activePane = editor.getActiveDisplayPane();
-                IRenderableDisplay display = editor.getActiveDisplayPane()
-                        .getRenderableDisplay();
-                ILegendDecorator ld = display.getLegendDecorator();
-                ResourcePair rsc = ld.checkLabelSpace(descriptor, activePane.getTarget(), x, y);
-            	
-            	if (rsc != null) {
-            		toggleVisibility(rsc);
-            		editor.refresh();
-            	}
-            	 */
-
-            	
-            	return false;
-            }
-            
-        	@Override
-        	public boolean handleKeyDown(int keyCode) {
-
-        		/*if ( keyCode == SWT.SHIFT ) {
-        			isShiftDown = true;
-        			return false;
-        		}
-
-        		if ( (keyCode==SWT.ARROW_UP) || (keyCode==SWT.ARROW_DOWN) ) {
-
-        			if ( isShiftDown ) {
-        				// Make all resources visible
-        				 
-        				ResourceList rl = editor.getActiveDisplayPane().getDescriptor().getResourceList();
-        				for (int i=0; i < rl.size(); i++ ) {
-        					rl.get(i).getProperties().setVisible(true);
-        				}
-
-        			}
-        			else {
-
-        				ResourceList rl = editor.getActiveDisplayPane().getDescriptor().getResourceList();
-
-        				int incr = 1;
-        				if (keyCode==SWT.ARROW_DOWN) incr = -1;
-
-        				// look for next non map layer resource
-        				
-        				int search = currentRscIndex;
-        				do {
-        					search += incr;
-        					if ( search < 0 ) search = rl.size() - 1;
-        					if ( search >= rl.size() ) search = 0;
-        					if ( ! rl.get(search).getProperties().isMapLayer() ) {
-        						currentRscIndex = search;
-        						break;
-        					}
-        				} while ( search != currentRscIndex );
-
-        				// turn off all non map layer resources
-        				 
-        				for (int i=0; i < rl.size(); i++ ) {
-        					if ( rl.get(i).getProperties().isMapLayer() )
-        						rl.get(i).getProperties().setVisible(true);
-        					else
-        						rl.get(i).getProperties().setVisible(false);
-        				}
-
-        				//  re-enable selected resource.
-        				rl.get(currentRscIndex).getProperties().setVisible(true);
-
-        			}
-        			editor.refresh();
-
-        		} */
-        		return false;
-        	}
-        	
-        	@Override
-        	public boolean handleKeyUp(int keyCode) {
-        		/*if ( keyCode == SWT.SHIFT ) {
-        			isShiftDown = false;
-        		}*/
-        		return false;
-        	}
-            
             private void toggleVisibility(ResourcePair rp) {
             	AbstractVizResource<?, ?> rsc = rp.getResource();
             	if (rsc != null) {

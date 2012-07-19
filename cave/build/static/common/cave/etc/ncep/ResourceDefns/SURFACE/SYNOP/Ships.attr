@@ -1,7 +1,7 @@
 ! Parameters and Attributes for the default METAR Resource
 !
 legendString=Ship Synop
-plotModelName=ship_standard
+plotModel=@PlotModels/sfcobs/ship_standard.xml
 reportType=1003
 plotDensity=15
-conditionalFilterName=
+conditionalFilter=

@@ -1,5 +1,5 @@
 ! Attributes for the TAF resource with "tempo_prob" plot model
 !
-plotModelName=tempo_prob
+plotModel=@PlotModels/nctaf/tempo_prob.xml
 plotDensity=10
-conditionalFilterName=tempo_prob
+conditionalFilter=@PlotModels/ConditionalFilters/taf_tempo_prob.xml

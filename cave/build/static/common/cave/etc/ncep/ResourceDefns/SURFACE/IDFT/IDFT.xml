@@ -3,6 +3,10 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>IDFT</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
+        <resourceParameters>
+pluginName=idft
+reportType=idft
+    </resourceParameters>    
     <filterLabels>Forecast</filterLabels>
     <rscImplementation>IDFT</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

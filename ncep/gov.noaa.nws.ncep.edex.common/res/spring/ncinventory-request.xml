@@ -1,0 +1,90 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+<!--  for the ThriftClient requests -->  
+   <bean id="ManageNcInventoryMsgHandler" class="gov.noaa.nws.ncep.edex.common.ncinventory.ManageNcInventoryMsgHandler" />
+	
+   <bean factory-bean="handlerRegistry" factory-method="register">
+      <constructor-arg value="gov.noaa.nws.ncep.edex.common.ncinventory.ManageNcInventoryMsg"/>
+  	  <constructor-arg ref="ManageNcInventoryMsgHandler"/>
+   </bean>
+
+   <bean id="NcInventoryRequestMsgHandler" class="gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsgHandler" />
+	
+   <bean factory-bean="handlerRegistry" factory-method="register">
+      <constructor-arg value="gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg"/>
+  	  <constructor-arg ref="NcInventoryRequestMsgHandler"/>
+   </bean>
+  
+  	<bean id="NcInventoryMngr" 
+  	     class="gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryMngr" />
+
+  	<bean id="NcInventoryUpdater" 
+  	     class="gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryUpdater" />
+
+    <bean id="ncInventoryRegistered" factory-bean="contextManager"
+		factory-method="register"><!--  depends-on="persistCamelRegistered">  -->
+		<constructor-arg ref="ncinventory-camel"/>
+  	</bean>  
+  
+    <camelContext id="ncinventory-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!-- Need to reroute to a queue to allow for multiple jms consumers -->
+	    <route id="ncInventoryRoute">
+	        <from uri="jms-generic:topic:edex.alerts"/>
+	        <doTry>
+		          <pipeline>
+		          	<bean ref="serializationUtil" method="transformFromThrift" />
+		            <bean ref="NcInventoryUpdater" method="updateInventoryFromURIs"/>
+		          </pipeline>
+		          <doCatch>
+		             <exception>java.lang.Throwable</exception>
+		             <to uri="log:ncInventory?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		          </doCatch>
+	        </doTry>
+	    </route>
+	    		
+	    <route id="manageInventoryRoute">
+        	<from uri="jms-generic:topic:manageInventory" />
+			<doTry>
+				<bean ref="NcInventoryMngr" method="manageInventory" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+		               <to uri="log:ncInventory?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+        </route>
+	    		
+		<route id="pluginPurgedRoute">
+        	<from uri="jms-generic:topic:pluginPurged" />
+			<doTry>
+				<bean ref="NcInventoryUpdater" method="purgePlugin" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+		               <to uri="log:ncInventory?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+        </route>
+	    			    	    
+    </camelContext>
+  
+  <bean id="ncInventoryInitializer" class="gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryInitializer" />
+
+  <camelContext id="ncInventoryRoutes"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+       
+        <route id="ncInventoryInitializationRoute">
+            <from uri="quartz://ncInventoryInitQuartz?trigger.repeatInterval=1"/>
+            <bean ref="ncInventoryInitializer" method="initialize" />
+        </route>
+  </camelContext>
+  
+ </beans>

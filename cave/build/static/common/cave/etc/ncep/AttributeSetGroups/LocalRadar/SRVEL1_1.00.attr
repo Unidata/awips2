@@ -1,8 +1,9 @@
 colorMapName=rad_srmvel
-colorBar=@dfltRadarColorBar.xml
+colorBar=@ColorBars/Radar/dfltRadarColorBar.xml
 ! 1km Storm Relative Motion
 productCode=56
 elevationNumber=1
+! primaryElevationAngle=0.5
 alpha=1.0
 brightness=1.0
 contrast=1.0

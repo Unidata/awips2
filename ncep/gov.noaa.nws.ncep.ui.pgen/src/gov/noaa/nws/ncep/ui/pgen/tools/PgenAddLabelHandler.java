@@ -43,6 +43,8 @@ import java.util.List;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * Mouse handler to add labels when drawing labeled lines.
@@ -105,12 +107,19 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     	
     	//  Check if mouse is in geographic extent
     	Coordinate loc = mapEditor.translateClick(anX, aY);
-    	if ( loc == null ) return false;
+    	if ( loc == null || shiftDown) return false;
 
     	if ( button == 1 ) {
     		
     		if ( lineSelected != null ){
-    			pts.add( loc );
+    			
+				pts.add( loc );
+
+    			if ( !prevTool.getLabeledLine().getName().contains("CCFP_SIGMET") 
+    					&& inPoly(loc, lineSelected) ){
+    				addLabel( loc, prevTool.getLabeledLine() ); 
+    				pts.clear();
+    			}
     		}
     		else {
     			LabeledLine ll = prevTool.getLabeledLine();
@@ -165,7 +174,16 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     				return true;
     			}
     			else{	 
-    				addLabel( loc, prevTool.getLabeledLine() ); 
+    		
+    				if ( !pts.isEmpty()){
+    					addLabel( pts.get(pts.size()-1), prevTool.getLabeledLine() );
+    				}
+    				else {
+    	    			lineSelected = null;
+    	    			ghostLabel = null;
+    	    			drawingLayer.removeGhostLine();
+    	    			mapEditor.refresh();
+    				}
     			}
     			pts.clear();
     		}
@@ -187,37 +205,37 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     	}
     	
     }
-    
+
     private void addLabel( Coordinate loc, LabeledLine ll ){
-		
-		// make a copy and add label to the copy,
-		// then replace the original line with the new one so that
-		// undo/redo will work
-		LabeledLine newll = ll.copy();
-		Label lbl = createLabel(loc, newll, lineSelected);
-		newll.addLabel( lbl );
-		
-		//merge two labels if they are close to each other.
-		PgenUtil.mergeLabels(newll, lbl.getSpe().getLocation(), mapEditor);
-		
-		//save mid-level cloud text settings
-		if ( ll.getName().equalsIgnoreCase("Cloud")){
-			AttrSettings.getInstance().setSettings((DrawableElement)lbl.getSpe());
-		}
-		
-		drawingLayer.replaceElement(ll, newll);
+    	// make a copy and add label to the copy,
+    	// then replace the original line with the new one so that
+    	// undo/redo will work
+    	LabeledLine newll = ll.copy();
+    	Label lbl = createLabel(loc, newll, lineSelected);
+    	newll.addLabel( lbl );
 
-		prevTool.setLabeledLine( newll );
+    	//merge two labels if they are close to each other.
+    	PgenUtil.mergeLabels(newll, lbl.getSpe().getLocation(), mapEditor);
 
-		lineSelected = null;
-		
-		if ( drawingLayer.getSelectedDE()!= null ) {
-			resetSelected(newll);
-		}
-		
-		ghostLabel = null;
-		drawingLayer.removeGhostLine();
-		mapEditor.refresh();
+    	//save mid-level cloud text settings
+    	if ( ll.getName().equalsIgnoreCase("Cloud")){
+    		AttrSettings.getInstance().setSettings((DrawableElement)lbl.getSpe());
+    	}
+
+    	drawingLayer.replaceElement(ll, newll);
+
+    	prevTool.setLabeledLine( newll );
+
+    	lineSelected = null;
+
+    	if ( drawingLayer.getSelectedDE()!= null ) {
+    		resetSelected(newll);
+    	}
+
+    	ghostLabel = null;
+    	drawingLayer.removeGhostLine();
+    	mapEditor.refresh();
+
     }
 
     /*
@@ -253,8 +271,8 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 
     @Override
 	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-		return true;
-	}
+		if ( shiftDown ) return false;
+		else return true;	}
 
 	/**
      * Create label for line ln at location loc.
@@ -383,13 +401,20 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     			ArrayList<Coordinate> locs = new ArrayList<Coordinate>();
     			locs.add(spe.getLocation());
     			
+    		
+    			
     			if ( !pts.isEmpty() ){
-    				for ( int ii = pts.size() - 1; ii >=0 ; ii-- ){
+    				int idx = pts.size() - 1;
+    				if ( locs.get(0) == pts.get(idx)){
+    					idx--;
+    				}
+    				for ( int ii = idx; ii >=0 ; ii-- ){
     					locs.add(pts.get(ii));
     				}
     			}
     			
-    			locs.add(ln.getCentroid());
+    			Coordinate scnCenter = this.getScreenCentroid(ln);
+    			locs.add( mapEditor.translateClick(scnCenter.x, scnCenter.y));
 
     			Color[] arrowColors = new Color[2];
     			if (  ll.getName().equalsIgnoreCase("Cloud") ){
@@ -504,6 +529,23 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 		mapEditor.refresh();
     }
     
+    
+    private boolean inPoly( Coordinate loc,  Line ln ){
+		int[] xpoints = new int[ln.getPoints().size()];
+		int[] ypoints = new int[ln.getPoints().size()];
+		for ( int ii = 0; ii < ln.getPoints().size(); ii++){
+			double pt[] = mapEditor.translateInverseClick(ln.getPoints().get(ii));
+			xpoints[ii] = (int) pt[0];
+			ypoints[ii] = (int) pt[1];
+		}
+
+		Polygon poly = new Polygon(xpoints, ypoints, ln.getPoints().size());
+
+		double scnLoc[] = mapEditor.translateInverseClick( loc );
+
+		return poly.contains(scnLoc[0], scnLoc[1]);
+    }
+    
     private void cleanUp(){
 		lineSelected = null;
 		drawingLayer.removeGhostLine();
@@ -523,6 +565,21 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
 		GeometryFactory f = new GeometryFactory();	
 			
 		return f.createPolygon(f.createLinearRing(c), null).contains(new GeometryFactory().createPoint(pts));
+	}
+	
+	private Coordinate getScreenCentroid( Line ln ){
+		 GeometryFactory factory = new GeometryFactory();
+		 Coordinate[] ptArray = new Coordinate[ln.getPoints().size() +1 ];
+		 
+		 for ( int ii = 0; ii < ln.getPoints().size(); ii++ ){
+			 double xy[] = mapEditor.translateInverseClick( ln.getPoints().get(ii) );
+			 ptArray[ ii ]= new Coordinate(xy[0], xy[1]);
+		 }
+		 
+		 ptArray[ptArray.length -1] = ptArray[0]; // add the first point to the end
+		 LineString g = factory.createLineString( ptArray );
+		 Point p = g.getCentroid();
+		 return p.getCoordinate();
 	}
 
 }

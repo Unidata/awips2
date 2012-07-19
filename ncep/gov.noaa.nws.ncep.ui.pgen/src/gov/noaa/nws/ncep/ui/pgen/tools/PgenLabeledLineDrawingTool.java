@@ -54,7 +54,8 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
     protected void activateTool( ) {
 
     	super.activateTool();
-
+    	if (super.isDelObj()) return;
+    	
     	if ( attrDlg instanceof CloudAttrDlg ){
     		((CloudAttrDlg)attrDlg).setCloudDrawingTool(this);
     	}
@@ -151,7 +152,7 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
             
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	if ( button == 1 ) {
         		
@@ -276,13 +277,14 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
             	
             }
             
-        	return false;
+        	return true;
         	
         }
         
         @Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return true;
+        	if ( shiftDown ) return false;
+        	else return true;
 		}
 
 		private void clearPoints(){

@@ -1,7 +1,5 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 
-import java.util.HashMap;
-
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
@@ -12,8 +10,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -481,14 +477,14 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
     // set metadataMap with the modelName constraint and return it
     // (This is overridden by the NcEnsembleResourceData
 	//
-    public HashMap<String, RequestConstraint> getMetadataMap() {
-    	HashMap<String, RequestConstraint> queryList = super.getMetadataMap();
-    	
-    	queryList.put("modelInfo.modelName", 
-	        		new RequestConstraint( getGdfile(), ConstraintType.EQUALS ) );
-		
-		return queryList;
-    }
+//    public HashMap<String, RequestConstraint> getMetadataMap() {
+//    	HashMap<String, RequestConstraint> queryList = super.getMetadataMap();
+//    	
+//    	queryList.put("modelInfo.modelName", 
+//	        		new RequestConstraint( getGdfile(), ConstraintType.EQUALS ) );
+//		
+//		return queryList;
+//    }
 
 	@Override
 	public DataTime[] getAvailableTimes() throws VizException {

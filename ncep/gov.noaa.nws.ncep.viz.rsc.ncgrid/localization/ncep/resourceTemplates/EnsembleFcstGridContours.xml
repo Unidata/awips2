@@ -19,6 +19,8 @@
           <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
           <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
         
+<!--     <primaryModel>$ { primaryModel}</primaryModel>  -->      
+
           <availableModels>${availableModels}</availableModels>
           <!-- like GDFILE for ensembles except with relative cycle times ie. 'CYC-12' -->
           <ensembleComponentWeights>${ENS_COMPONENT_WEIGHTS}</ensembleComponentWeights>
@@ -44,6 +46,9 @@
           <metadataMap>
              <mapping key="pluginName">
                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+             </mapping>
+             <mapping key="modelInfo.modelName">
+                <constraint constraintValue="${primaryModel}" constraintType="EQUALS" />
              </mapping>
              <!-- a constraint on the "modelInfo.modelName" is set in code from -->
              

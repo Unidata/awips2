@@ -4,19 +4,14 @@ package gov.noaa.nws.ncep.viz.rsc.wou.rsc;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Calendar;
-import java.util.Date;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -29,7 +24,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
@@ -37,23 +31,8 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-
-import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
-import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
-import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
-import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
-
-
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
-
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-
-
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
@@ -62,11 +41,18 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
+import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
+import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
+import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
@@ -88,7 +74,7 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * 07/28/11      #450   Greg Hull    NcPathManager   
  * 09/28/11             Xilin Guo    Made changes to create IWireframeShape for watch number 
  * 12/27/11             Xilin Guo    Checked available watch data                          
- * 
+ * 05/23/2012    785    Q. Zhou      Added getName for legend.
  * </pre>
  * 
  * @author ujosyula 
@@ -1043,5 +1029,15 @@ implements     INatlCntrsResource, IStationField {
 			 
 		}		
 		return cntyName;
+	}
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.wouFrameData.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
 	}
 }

@@ -56,7 +56,7 @@
 		<label text="Imminent"/>
 	</otlktype>
 	
-	<otlktype name="HAILOTLK" prefix="hail">
+	<otlktype name="HAIL" prefix="hail">
 		<label text="5%"/>
 		<label text="10%"/>
 		<label text="15%"/>
@@ -66,7 +66,7 @@
 		<label text="SIG"		value="100"/>
 	</otlktype>
 	
-	<otlktype name="TORNOTLK" prefix="torn">
+	<otlktype name="TORN" prefix="torn">
 		<label text="2%"/>
 		<label text="5%"/>
 		<label text="10%"/>
@@ -77,7 +77,7 @@
 		<label text="SIG"		value="100"/>
 	</otlktype>
 	
-	<otlktype name="WINDOTLK" prefix="wind">
+	<otlktype name="WIND" prefix="wind">
 		<label text="5%"/>
 		<label text="15%"/>
 		<label text="30%"/>

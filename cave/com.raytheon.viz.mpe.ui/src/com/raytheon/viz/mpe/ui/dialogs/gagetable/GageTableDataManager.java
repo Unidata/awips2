@@ -737,8 +737,7 @@ public class GageTableDataManager {
                 String edit = editedGage.getEdit();
                 if (edit != null && !edit.trim().equals("")
                         && !edit.trim().equalsIgnoreCase("M")) {
-                    editValue = Double.parseDouble(editedGage.getEdit());
-                    gage.setEdit(edit);
+                    editValue = Double.parseDouble(editedGage.getEdit());                    
                 } else {
                     gage.setManedit(false);
                 }

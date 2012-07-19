@@ -22,7 +22,7 @@ Require-Bundle: gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  org.eclipse.update.configurator;bundle-version="3.2.201"
 Import-Package: com.raytheon.uf.edex.decodertools.core,
  com.vividsolutions.jts.geom,
+ gov.noaa.nws.ncep.viz.common.ui,
+ gov.noaa.nws.ncep.viz.ui.display,
  org.eclipse.swt.graphics,
- org.opengis.referencing.crs,
- gov.noaa.nws.ncep.viz.ui.display 
- 
+ org.opengis.referencing.crs

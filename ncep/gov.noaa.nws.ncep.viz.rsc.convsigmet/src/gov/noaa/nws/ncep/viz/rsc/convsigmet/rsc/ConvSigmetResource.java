@@ -3,10 +3,9 @@ package gov.noaa.nws.ncep.viz.rsc.convsigmet.rsc;
 import gov.noaa.nws.ncep.common.dataplugin.convsigmet.ConvSigmetLocation;
 import gov.noaa.nws.ncep.common.dataplugin.convsigmet.ConvSigmetRecord;
 import gov.noaa.nws.ncep.common.dataplugin.convsigmet.ConvSigmetSection;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.DfltRecordRscDataObj;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import java.util.Set;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -56,7 +54,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 09 Mar 2012    728      B. Hebbard  Use postProcessFrameUpdate() to remove, for each frame, SIGMETs/Outlooks 
  *                                     if superseded by any in that frame more recently issued for the same
  *                                     region (W/C/E) (TTR 143).
- * 
+ * 05/23/12       785      Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author bhebbard 
@@ -547,5 +545,15 @@ public class ConvSigmetResource extends AbstractNatlCntrsResource<ConvSigmetReso
 
 	public void resourceAttrsModified() {
 		// don't need to do anything
+	}
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.convSigmetDataMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
 	}
 }
