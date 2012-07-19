@@ -26,224 +26,276 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="ifrEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="ifrEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="ifrColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="ifrColor"
             defaultValue="RGB {255, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ifrLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ifrLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ifrSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ifrSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
          
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="mntObscEnable"
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="mntObscEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="mntObscColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="mntObscColor"
             defaultValue="RGB {255, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="mntObscLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="mntObscLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="mntObscSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="mntObscSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="turbEnable"
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="turbEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="turbColor1"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="turbColor1"
             defaultValue="RGB {30, 144, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="turbColor2"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="turbColor2"
             defaultValue="RGB {255, 0, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbLevel"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbLevel"
             defaultValue="420"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="icingEnable"
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="icingEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="icingColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="icingColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="sustWindsEnable"
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="sustWindsEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="sustWindsColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="sustWindsColor"
             defaultValue="RGB {255, 106, 106}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="sustWindsLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="sustWindsLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="sustWindsSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="sustWindsSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="sustWindsSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="sustWindsSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="lowLevelWindShearEnable"
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="lowLevelWindShearEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="lowLevelWindShearColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="lowLevelWindShearColor"
             defaultValue="RGB {0, 238, 238}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lowLevelWindShearLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lowLevelWindShearLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lowLevelWindShearSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lowLevelWindShearSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lowerFilterLevel"
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lowerFilterLevel"
             defaultValue="150"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="upperFilterLevel"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="upperFilterLevel"
             defaultValue="300"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="symbolEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="symbolEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="flightLevelEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="flightLevelEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="seqIdEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="seqIdEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Airmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="Airmet"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+       
+      <nc-resourceParameter
+            ncResourceName="Airmet"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="airmet"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
    </extension>
 </plugin>

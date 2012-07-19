@@ -94,6 +94,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *    ------------ ----------  ----------- --------------------------
  *    05/16/2012   14993       D. Friedman Add oversampling option to
  *                                         reprojectGeometry.
+ *    06/19/2012   14988       D. Friedman Make oversampling more like AWIPS 1
  * 
  * </pre>
  */
@@ -386,6 +387,7 @@ public class MapUtil {
         ReferencedEnvelope newEnv = new ReferencedEnvelope(JTS.getEnvelope2D(
                 newTargetREnv.intersection(newSourceEnv), LATLON_PROJECTION),
                 LATLON_PROJECTION);
+        ReferencedEnvelope newEnvInSourceProjection = newEnv.transform(sourceCRS, false, 500);
         newEnv = newEnv.transform(targetCRS, false, 500);
         // Calculate nx and ny, start with the number of original grid
         // points in the intersection and then adjust to the new aspect
@@ -397,8 +399,16 @@ public class MapUtil {
         double count = intersectingEnv.getWidth() * intersectingEnv.getHeight();
         int nx = (int) Math.sqrt(count / aspectRatio);
         int ny = (int) (nx * aspectRatio);
-        nx *= oversampleFactor;
-        ny *= oversampleFactor;
+
+        if (oversampleFactor > 1) {
+            int inCount = sourceGeometry.getGridRange().getSpan(0) *
+                sourceGeometry.getGridRange().getSpan(1);
+            double outCount = inCount * newEnv.getArea() /
+                sourceEnv.getArea();
+            outCount *= 4;
+            nx = (int) Math.sqrt(outCount / aspectRatio);
+            ny = (int) (nx * aspectRatio);
+        }
 
         if (addBorder) {
             newEnv.expandBy(newEnv.getWidth() / nx, newEnv.getHeight() / ny);
