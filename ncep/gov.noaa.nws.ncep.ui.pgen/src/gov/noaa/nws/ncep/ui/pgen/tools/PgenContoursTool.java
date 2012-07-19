@@ -22,6 +22,7 @@ import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourLine;
+import gov.noaa.nws.ncep.ui.pgen.controls.CommandStackListener;
 
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
@@ -59,7 +60,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.ContoursAttrDlg;
  * @author	J. Wu
  */
 
-public class PgenContoursTool extends AbstractPgenDrawingTool {
+public class PgenContoursTool extends AbstractPgenDrawingTool implements CommandStackListener{
 
 	/**
 	 * Points of the new element.
@@ -77,6 +78,10 @@ public class PgenContoursTool extends AbstractPgenDrawingTool {
 	 */
 	private boolean  addContourLine = false;
 	private Contours elem = null;		
+	private Contours lastElem = null;		
+
+	private int undo = -1;
+	private int redo = -1;
 	
     public PgenContoursTool(){
     	
@@ -475,7 +480,7 @@ public class PgenContoursTool extends AbstractPgenDrawingTool {
         /*
          * create a Contours and add to the Pgen Resource.
          */
-        private void drawContourMinmax( Coordinate loc ) {
+        public void drawContourMinmax( Coordinate loc ) {
         	
         	if ( loc != null ) {
         	     
@@ -537,7 +542,8 @@ public class PgenContoursTool extends AbstractPgenDrawingTool {
 		        	newElem.add( cmm );
     		                   	
 		        	drawingLayer.replaceElement( elem, newElem );
-    	                			
+    	                		
+		        	lastElem = elem;
 		            elem = newElem;
 		        
 		    	}
@@ -723,5 +729,26 @@ public class PgenContoursTool extends AbstractPgenDrawingTool {
         }
 
     }
+    
+    public void resetUndoRedoCount(){
+    	undo = -1;
+    	redo = -1;
+    }
+
+	@Override
+	public void stacksUpdated(int undoSize, int redoSize) {
+		
+		if ( undoSize < undo || redoSize < redo ){
+			//there is an undo or a redo
+			Contours tmp = elem;
+			elem = lastElem;
+			lastElem = tmp;
+			
+		}
+		
+		undo = undoSize;
+		redo = redoSize;
+
+	}
 
 }

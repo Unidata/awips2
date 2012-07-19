@@ -20,276 +20,345 @@
       </nc-resource>
    </extension>
       <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="thunderstormEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="thunderstormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="thunderstormColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="thunderstormColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="thunderstormLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="thunderstormLineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tornadoEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tornadoEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tornadoColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tornadoColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tornadoLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tornadoLineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="statusEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="statusEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="statusColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="statusColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="statusLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="statusLineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx0Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx0Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx0Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx0Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx0LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx0LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx1Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx1Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx1Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx1Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx1LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx1LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx2Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx2Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx2Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx2Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx2LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx2LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx3Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx3Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx3Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx3Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx3LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx3LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx4Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx4Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx4Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx4Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx4LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx4LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx5Enable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx5Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx5Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx5Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx5LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx5LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx6Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx6Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx6Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx6Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx6LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx6LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx7Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx7Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx7Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx7Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx7LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx7LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx8Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx8Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx8Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx8Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx8LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx8LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchxxx9Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchxxx9Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watchxxx9Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watchxxx9Color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="watchxxx9LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="watchxxx9LineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchBoxTimeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchBoxTimeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="statusLinesTimeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="statusLinesTimeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchBoxNumberEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchBoxNumberEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="statusLinesNumberEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="statusLinesNumberEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="colorCodeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="colorCodeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="mostRecentStatusEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="mostRecentStatusEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WATCH">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="WATCH"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="WATCH"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="WATCH"
+            paramClass="String"
+            paramName="legendName"
+            defaultValue="Watch"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
+      
       </extension>
 </plugin>

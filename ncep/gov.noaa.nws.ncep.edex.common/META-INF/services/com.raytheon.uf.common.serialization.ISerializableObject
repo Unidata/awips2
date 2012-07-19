@@ -1,3 +1,5 @@
+gov.noaa.nws.ncep.edex.common.ncinventory.ManageNcInventoryMsg
+gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryDefinition
 gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord
 gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube
 gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile

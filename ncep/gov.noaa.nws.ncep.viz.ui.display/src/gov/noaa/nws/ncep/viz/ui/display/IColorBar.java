@@ -1,30 +1,13 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
 
-import java.io.File;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
 
 import javax.measure.unit.Unit;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.common.colormap.ColorMap;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.viz.core.exception.VizException;
-
-import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
-import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
-import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
 
 /**
  *  An Interface to define the methods needed to edit and paint ColorBars. 
@@ -34,6 +17,11 @@ import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 04/04/10      #259        Greg Hull    Initial Creation.
+ * 06/07/12      #794         Archana     Added the method
+ *                                        getReverseOrder()
+ * 06/07/12      #717         Archana     Added the methods
+ *                                        getDisplayUnitStr() and 
+ *                                        getNumPixelsToReAlignLabel()
  * 
  * </pre>
  * 
@@ -92,6 +80,13 @@ public interface IColorBar {
 	public abstract int getNumDecimals();
 	
 	public abstract void setNumDecimals(int numDecimals);
+
+	public abstract Boolean getReverseOrder();
+	public abstract void setReverseOrder(Boolean b);
+	
+	public abstract String getDisplayUnitStr();
+	
+	public abstract int getNumPixelsToReAlignLabel();
 	
 	// Methods to get/set values for the colorBar intervals and colors
 	//

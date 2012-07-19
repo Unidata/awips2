@@ -14,7 +14,6 @@
              <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
 <!--         <scatMode>$ {scatMode}</scatMode>   -->
              <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
-             <legendColor>${legend_color}</legendColor>
              <color>${color}</color>
              <skipEnable>${skipEnable}</skipEnable>
              <skipValue>${skipValue}</skipValue>
@@ -38,7 +37,7 @@
              <requestStyle>METADATA</requestStyle>
              <metadataMap> 
                <mapping key="pluginName">
-                 <constraint constraintValue="ncscat" constraintType="EQUALS" />
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
                <mapping key="reportType">
                  <constraint constraintValue="${reportType}" constraintType="EQUALS" />

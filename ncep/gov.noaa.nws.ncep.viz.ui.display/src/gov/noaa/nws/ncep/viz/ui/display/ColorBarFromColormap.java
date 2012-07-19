@@ -1,6 +1,8 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,6 +15,9 @@ import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.viz.core.style.DataMappingPreferences;
+import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
+import com.raytheon.viz.core.style.image.ImagePreferences;
 
 import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
 import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
@@ -27,6 +32,17 @@ import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
  * 04/14/10      #259        Greg Hull    Initial Creation.
  * 10/25/11      #463        qzhou        Added equals()
  * 12/06/11                  qzhou        Modified equals and added hashCode
+ * 06/07/12      #717       Archana       Added imagePreferences to store the label information
+ *                                        Added the method scalePixelValues() to 
+ *                                        scale the pixel values whenever the 
+ *                                        pixel values exceeded the actual number 
+ *                                        of colors in the color map
+ *                                        Added numPixelsToReAlignLabel to position the label at the
+ *                                        beginning or at the middle of the color interval.
+ *                                       
+ * 06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
+ *                                        reversing the order of colors in the color-bar.                                  
+ *                                         
  * </pre>
  * 
  * @author ghull
@@ -71,6 +87,12 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	private Boolean showLabels = true;
 
 	@XmlElement
+	private Boolean reverseOrder = true; 
+	
+	@XmlElement
+	String displayUnitStr = null;
+	
+	@XmlElement
 	@XmlJavaTypeAdapter(IntegerListAdapter.class)
 	private ArrayList<Integer> labeledPixels = new ArrayList<Integer>();
 
@@ -86,6 +108,27 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	private Display display = null; // the Display used to create the Colors in
 									// the intervals
 
+	private ImagePreferences imagePreferences = null;
+
+	private Boolean isScalingAttemptedForThisColorMap = false;
+	
+	/**
+	 * @param isScalingAttemptedForThisColorMap the isScalingAttemptedForThisColorMap to set
+	 */
+	public final void setIsScalingAttemptedForThisColorMap(
+			Boolean isScalingAttemptedForThisColorMap) {
+		this.isScalingAttemptedForThisColorMap = isScalingAttemptedForThisColorMap;
+	}
+
+	private int numPixelsToReAlignLabel;
+	
+	/**
+	 * @return the isScalingAttemptedForThisColorMap
+	 */
+	public final boolean isScalingAttemptedForThisColorMap() {
+		return isScalingAttemptedForThisColorMap.booleanValue();
+	}
+
 	public ColorBarFromColormap() {
 	}
 
@@ -95,6 +138,10 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		}
 //		colorMapName = (cbar.colorMapName == null ? null : new String(
 //				cbar.colorMapName));
+		if (cbar.imagePreferences != null )
+		imagePreferences = cbar.imagePreferences;
+		else
+			imagePreferences = new ImagePreferences();
 		anchorLoc = cbar.anchorLoc;
 		orientation = cbar.orientation;
 		labelColor = cbar.labelColor;
@@ -102,17 +149,20 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 		showLabels = cbar.showLabels;
 		lengthAsRatio = cbar.lengthAsRatio;
 		widthInPixels = cbar.widthInPixels;
-
+        reverseOrder = cbar.reverseOrder;
+        numPixelsToReAlignLabel = cbar.numPixelsToReAlignLabel;
+        isScalingAttemptedForThisColorMap = cbar.isScalingAttemptedForThisColorMap;
+        if (cbar.displayUnitStr != null )
+          displayUnitStr = new String(cbar.displayUnitStr);
 		colorMap = null;
 		if( cbar.getColorMap() != null ) {
-			// ?we may need a deep copy 
-			colorMap = cbar.getColorMap();
+			setColorMap(cbar.getColorMap());
 		}
-		for( int p=0 ; p<cbar.getNumIntervals() ; p++ ) {
-			if( cbar.isPixelLabeled(p) ) {
-				labelPixel(p);
-			}
-		}
+//		for( int p=0 ; p<cbar.getNumIntervals() ; p++ ) {
+//			if( cbar.isPixelLabeled(p) ) {
+//				labelPixel(p);
+//			}
+//		}
 	}
 
 //	public String getColorMapName() {
@@ -155,19 +205,61 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 
 		// interval units are pixels
 		dataUnits = null;
-
+		if (display == null )
+			display = NmapUiUtils.getActiveNatlCntrsEditor().getActiveDisplayPane().getDisplay();
+		
 		for (int c = 0; c < reds.length; c++) {
-
 			RGB rgb = new RGB( scaleCmapValue(reds[c]),
-					           scaleCmapValue(greens[c]), scaleCmapValue(blues[c]));
+					           scaleCmapValue(greens[c]),
+					           scaleCmapValue(blues[c]));
 			pixelRGBs.add( rgb );
-			
-			if (display != null) {
-				colors.add(new Color(display, rgb));
-			}
+			colors.add(new Color(display, rgb));
 		}
 
+		
+
 		return true;
+	}
+	
+	
+	public void scalePixelValues(){
+		if ( colorMap != null && imagePreferences != null ){
+			if (imagePreferences.getSamplePrefs() != null ){
+			    double maxValue = imagePreferences.getSamplePrefs().getMaxValue();
+			    if ( maxValue != 0 && maxValue != Double.NaN && maxValue > colorMap.getSize()){
+			    	 double scalingFactor = (int) Math.round(maxValue/ colorMap.getSize());
+			    	 DataMappingPreferences dmPref = imagePreferences.getDataMapping();
+			    	 if ( dmPref != null ){
+			    		List<DataMappingEntry> dmEntriesList = dmPref.getEntries();
+			    		if (dmEntriesList != null && dmEntriesList.size() > 0 ){
+			    			isScalingAttemptedForThisColorMap = true;
+			    			for ( DataMappingEntry dmEntry : dmEntriesList ){
+			  				    double thisPixVal   = dmEntry.getPixelValue().doubleValue();
+			  			
+			  				    double scaledPixVal = Math.round( thisPixVal);
+
+			  	                if ( thisPixVal >= scalingFactor){
+			  				       scaledPixVal = Math.round(thisPixVal/scalingFactor) ;
+			  				       
+			  				       if (scaledPixVal > colorMap.getSize() - 1)
+			  				    	 scaledPixVal = colorMap.getSize() - 1;
+			  				       
+			  				       dmEntry.setPixelValue(scaledPixVal);
+			  				       
+			  	                }
+
+			  			    }
+			    			
+			    			DataMappingEntry[] dmEntryArray = new DataMappingEntry[dmEntriesList.size()];
+			    			dmEntriesList.toArray(dmEntryArray);
+			    			dmPref.setSerializableEntries(dmEntryArray);
+			    			imagePreferences.setDataMapping(dmPref);
+			    		}
+			    	}
+			    }
+			
+			}
+		}
 	}
 
 	public int scaleCmapValue(float cmapVal) {
@@ -259,6 +351,7 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 			colors.get(c).dispose();
 			colors.set(c, new Color(display, rgb));
 		}
+		colorMap = null;
 	}
 
 	public Float getIntervalMin(int c) {
@@ -282,14 +375,19 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	// if numIntervals is passed in we will return the max value of the last
 	// interval
 	public String getLabelString(int i) {
-		if (!showLabels || i >= getNumIntervals()) {
+		if (!showLabels || i >= getNumIntervals() 
+				|| imagePreferences == null
+				|| imagePreferences.getDataMapping() == null) {
 			return null;
 		}
 		// if applying to a colorMap then use the labeledPixels map
 		// otherwise get the value of the interval
-		else {
-			return (isPixelLabeled(i) ? Integer.toString(i) : null);
-		}
+//		else {
+//			return (isPixelLabeled(i) ? Integer.toString(i) : null);
+//		}
+
+		  return imagePreferences.getDataMapping().getLabelValueForDataValue(i);
+
 	}
 
 	public void createNewInterval(int c) {
@@ -328,6 +426,11 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 			}
 			colors.clear();
 		}
+		
+		showLabels = false;
+		imagePreferences = null;
+	    displayUnitStr = null;
+	    
 	}
 
 	public boolean unlabelPixel(int p) {
@@ -406,6 +509,8 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	}
 
 	public void setLengthAsRatio(Float l) {
+		if ( l > 0.95 )
+			l = 0.98f;
 		lengthAsRatio = l;
 	}
 
@@ -441,6 +546,16 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 				+ ((showLabels == null) ? 0 : showLabels.hashCode());
 		result = prime * result
 				+ ((widthInPixels == null) ? 0 : widthInPixels.hashCode());
+		result = prime * result
+		+ ((imagePreferences == null) ? 0 : imagePreferences.hashCode());
+		
+		result = prime * result
+		+ ((reverseOrder == null) ? 0 : reverseOrder.hashCode());
+
+		result = prime * result
+		+ ((isScalingAttemptedForThisColorMap == null) ? 0 : isScalingAttemptedForThisColorMap.hashCode());
+				
+		
 		return result;
 	}
 
@@ -508,7 +623,89 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 				return false;
 		} else if (!widthInPixels.equals(other.widthInPixels))
 			return false;
+
+		if (imagePreferences == null) {
+			if (other.imagePreferences != null)
+				return false;
+		} else if (!imagePreferences.equals(other.imagePreferences))
+			return false;
+
+		if (reverseOrder == null) {
+			if (other.reverseOrder != null)
+				return false;
+		} else if (!reverseOrder.equals(other.reverseOrder))
+			return false;
+
+		if (isScalingAttemptedForThisColorMap == null) {
+			if (other.isScalingAttemptedForThisColorMap != null)
+				return false;
+		} else if (!isScalingAttemptedForThisColorMap.equals(other.isScalingAttemptedForThisColorMap))
+			return false;
+		
+		//isScalingAttemptedForThisColorMap
+		
 		return true;
 	}
 
+	/**
+	 * @param imagePreferences the imagePreferences to set
+	 */
+	public void setImagePreferences(ImagePreferences imgPref) {
+		this.imagePreferences = imgPref;
+	}
+
+	/**
+	 * @return the imagePreferences
+	 */
+	public ImagePreferences getImagePreferences() {
+		return imagePreferences;
+	}
+
+	/**
+	 * @return the reverseOrder
+	 */
+	@Override
+	public Boolean getReverseOrder() {
+		return reverseOrder;
+	}
+
+	/**
+	 * @param reverseOrder the reverseOrder to set
+	 */
+	
+	@Override
+	public void setReverseOrder(Boolean reverseOrder) {
+		this.reverseOrder = reverseOrder;
+	}
+
+	/**
+	 * @return the pixelRGBs
+	 */
+	public final ArrayList<RGB> getPixelRGBs() {
+		return pixelRGBs;
+	}
+
+	/**
+	 * @param displayUnitStr the displayUnitStr to set
+	 */
+	public void setDisplayUnitStr(String displayUnitStr) {
+		this.displayUnitStr = displayUnitStr;
+	}
+
+	/**
+	 * @return the displayUnitStr
+	 */
+	@Override
+	public String getDisplayUnitStr() {
+		return displayUnitStr;
+	}
+
+	@Override
+	public int getNumPixelsToReAlignLabel(){
+		return numPixelsToReAlignLabel;
+	}
+	
+	public void setNumPixelsToReAlignLabel(int n){
+		numPixelsToReAlignLabel = n;
+	}
 }

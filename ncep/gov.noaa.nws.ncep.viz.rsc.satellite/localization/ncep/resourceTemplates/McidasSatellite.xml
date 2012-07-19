@@ -21,7 +21,7 @@
                           isRequeryNecessaryOnTimeMatch="true">
               <satelliteType>MCIDAS</satelliteType>
               <displayUnitStr>${displayUnitStr}</displayUnitStr>
-			   <legendColor>${legend_color}</legendColor>
+			   <legendColor>${legendColor}</legendColor>
 			   <colorMapName>${colorMapName}</colorMapName>
   		         ${colorBar}
               <frameSpan>${frameSpan}</frameSpan>
@@ -34,7 +34,7 @@
               <contrast>${contrast}</contrast> 
               <metadataMap>
                  <mapping key="pluginName">
-                    <constraint constraintValue="mcidas" 
+                     <constraint constraintValue="${pluginName}" 
                                 constraintType="EQUALS"/>
                  </mapping>
                  <mapping key="imageType">

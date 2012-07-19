@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProdType;
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
  * ------------	----------	-----------	--------------------------
  * 01/11			?		B. Yin   	Initial Creation.
  * 11/11			? 		B. Yin		Write the text products to a predefined location 
+ * 03/12		#616		B. Yin		Write the product to activity/prod/prod type/file
  *
  * </pre>
  * 
@@ -174,6 +176,13 @@ public class PgenProd extends AbstractPgenTool {
        	    return super.open();
     		
     	}
+       	
+       	@Override
+       	public boolean close(){
+       		//remove the all PGEN tool from tool manager list
+       		PgenSession.getInstance().getPgenResource().deactivatePgenTools();
+       		return super.close();
+       	}
        	
     	/*
     	 * 
@@ -307,7 +316,8 @@ public class PgenProd extends AbstractPgenTool {
        			
        			String dirPath = PgenUtil.getPgenOprDirectory() + 
        							File.separator + pd1 +
-       							File.separator + "text";
+       							File.separator + "prod" +
+       							File.separator + pt.getType().replaceAll(" ", "_");
        			
        			String filePath = dirPath +File.separator + pt.getOutputFile();
        			
