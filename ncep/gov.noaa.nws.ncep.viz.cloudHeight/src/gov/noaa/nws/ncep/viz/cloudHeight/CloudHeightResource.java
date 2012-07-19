@@ -42,6 +42,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      and updated the field names in the query string
  * 02/16/12      #583       B. Hebbard  On upper air query from DB, only get stations where
  *                                      "nil" flag is FALSE
+ * 06/01/12		#747		B. Yin		Comment out the part to draw all stations.
  * </pre>
  * 
  * @version 1
@@ -137,8 +138,10 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     		target.drawLine( p1[0],   p1[1]+d, p1[0],   p1[1]-d, 0.0, 0.0,
     				 new RGB(0,255,0), 1.0f );    		
     	}
-    	
-    	if(stnLocs != null && stnLocs.length > 0 ) {
+  
+    	//When there are many stations, the drawing becomes too slow.
+    	//It does not seem necessary to draw all stations.  --bingfan
+ /*   	if(stnLocs != null && stnLocs.length > 0 ) {
     		float zoomLevel = paintProps.getZoomLevel();
     		int d = (int)(200 * zoomLevel + 1.0);
 //    		d = d;
@@ -153,7 +156,10 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     						new RGB(255,0,0), 1.0f );
     			}
     		}
+    		
     	}
+    	
+    	*/
     }
 
     public RGB getColor() {

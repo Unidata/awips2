@@ -68,12 +68,12 @@
 			<watchBoxOutlineEnable>${watchBoxOutlineEnable}</watchBoxOutlineEnable>
 			<requestStyle>METADATA</requestStyle>
 			<metadataMap>
-				<mapping key="pluginName">
-					<constraint constraintValue="aww" constraintType="EQUALS" />
-				</mapping>
-              	<mapping key="reportType">
-               	 <constraint constraintValue="SEVERE_THUNDERSTORM_WATCH,TORNADO_WATCH_OUTLINE_UPDATE" constraintType="IN" />
-              	</mapping>
+               <mapping key="pluginName">
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="${reportType}" constraintType="IN" />
+               </mapping>
 			</metadataMap>
 		</resourceData>
 	</resource>

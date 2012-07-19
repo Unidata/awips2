@@ -2,10 +2,8 @@
 !
 reportType=Exasct
 !
-legend_color=RGB {155, 155, 155}
-color=RGB {155, 155, 155}
-colorBar1=@defaultColorBar1.xml
-colorBar2=@defaultColorBar2.xml
+colorBar1=@ColorBars/SCAT/defaultColorBar1.xml
+colorBar2=@ColorBars/SCAT/defaultColorBar2.xml
 ! 
 skipEnable=false
 skipValue=5

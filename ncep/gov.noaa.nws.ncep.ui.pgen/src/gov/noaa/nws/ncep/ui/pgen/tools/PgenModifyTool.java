@@ -24,7 +24,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
 import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
-import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaReducePoint;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenModifyLine;
 
 
@@ -41,6 +42,8 @@ import gov.noaa.nws.ncep.ui.pgen.tools.PgenModifyLine;
  * 04/10		#165		G. Zhang	Added isModifiableSigmet()
  * 02/12        #597        S. Gurung   Removed snapping while modification for all sigmets. 
  * 										Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 05/12		#808		J. Wu   	Update GFA vor text
+ * 05/12		#610		J. Wu   	Add warning when GFA FROM lines > 3
  *
  * </pre>
  * 
@@ -119,7 +122,7 @@ public class PgenModifyTool extends AbstractPgenTool {
         	preempt = false;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	if ( button == 1 ) {
 
@@ -201,7 +204,19 @@ public class PgenModifyTool extends AbstractPgenTool {
 									//ArrayList<Coordinate> list2 = SigmetInfo.getNonDplicList(list);
 									mpe.setPoints(list);//2);
 								}else*/
-									mpe.setPoints(ghostEl.getPoints());
+            		    		
+            		    		mpe.setPoints(ghostEl.getPoints());
+            		    		if ( mpe instanceof Gfa ) {
+            		    			if( ((Gfa)mpe).getGfaFcstHr().indexOf("-") > -1 ){
+            		    				// snap
+            		    				((Gfa)mpe).snap();
+            		    				
+            		    				 GfaReducePoint.WarningForOverThreeLines( (Gfa)mpe );           		    				
+            		    			}
+            		    			
+
+            		    			((Gfa)mpe).setGfaVorText( Gfa.buildVorText( (Gfa)mpe ));
+            		    		}
             		    		
             		    		drawingLayer.setSelected( mpe );
             		    	}
@@ -291,7 +306,8 @@ public class PgenModifyTool extends AbstractPgenTool {
         
     	@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return preempt;
+    		if ( shiftDown ) return false;
+    		else return preempt;
 		}
 
 		/**

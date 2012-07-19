@@ -45,7 +45,10 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
  *                                       cycle times to LATEST before marshaling,
  *                                       and restore actual times afterwards.
  * 11/15/11                  ghull       add resolveLatestCycleTimes
- * 01/01/12                  J. Zeng     Add listener for multiple CAVEs to get SPFs info from each other 
+ * 01/01/12                  J. Zeng     Add listener for multiple CAVEs to get SPFs info from each other
+ * 04/29/12       #606      Greg Hull    now called from the PerspectiveManager. Better timing/count output. 
+ * 06/13/12       #817      Greg Hull    add resolveDominantResource() 
+ * 
  * </pre>
  * 
  * @author 
@@ -55,6 +58,10 @@ public class SpfsManager implements ILocalizationFileObserver  {
 
 	private static SpfsManager instance = null;
 
+	private static long rbdCount = 0;
+	private static long spfCount = 0;
+	private static long spfGrpCount = 0;
+	
 	// TODO : do we want to store the RbdBundle or just the LocalizationFile
 	// (Store the RbdBundle but don't give it out unless we are making a copy
 	// of it (by unmarshalling the file in LFIle.)
@@ -72,6 +79,8 @@ public class SpfsManager implements ILocalizationFileObserver  {
 	}
 	
 	private void findAvailSpfs() {
+		long t0 = System.currentTimeMillis();
+		
 		spfsMap = new TreeMap<String,
 							Map<String, Map<String,RbdBundle>>>();
 		
@@ -131,8 +140,9 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			}
 		}
 		
-		System.out.println("#spfs ="+Integer.toString( spfsMap.size() )); 
-		
+		System.out.println("Time to Read "+ rbdCount + " RBDs: "+ 
+				(System.currentTimeMillis()-t0) + " msecs.");
+
 	}
 	
 	// ? it may be possible to have groups in 2 different contexts. I don't think 
@@ -141,6 +151,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 	public void addSpfGroup( String grpName ) { //, LocalizationFile lFile ) {
 		if( !spfsMap.containsKey( grpName ) ) {
 			spfsMap.put( grpName, new TreeMap<String, Map<String,RbdBundle>>() );
+			spfGrpCount++;
 		}
 	}
 
@@ -151,6 +162,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 
 		if( !grpMap.containsKey( spfName ) ) {
 			grpMap.put( spfName, new TreeMap<String, RbdBundle>() );
+			spfCount++;
 		}
 		
 	}
@@ -171,6 +183,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		
 		if( !sMap.containsKey( rbd.getRbdName() ) ) {
 			sMap.put( rbd.getRbdName(), rbd );
+			rbdCount++;
 		}
 	}
 	
@@ -241,6 +254,9 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		for( RbdBundle rbd : sMap.values() ) {
 			RbdBundle newRbd = RbdBundle.unmarshalRBD( 
 									rbd.getLocalizationFile().getFile(), null );
+			
+			newRbd.resolveDominantResource();
+			
 			if( resolveLatestCycleTimes ) {
 				newRbd.resolveLatestCycleTimes();
 				
@@ -378,23 +394,25 @@ public class SpfsManager implements ILocalizationFileObserver  {
 	}
 
 	@Override
-	public void fileUpdated(FileUpdatedMessage message) {
-
-		
+	public void fileUpdated(FileUpdatedMessage message) {		
 		String chgFile = message.getFileName();
 		FileChangeType chgType = message.getChangeType();
 		LocalizationContext chgContext = message.getContext();
 		
-		if (chgType.toString().equals("ADDED")) {
+		// TODO : need to handle the UPDATED (and DELETED when delete is implemented) cases
+		//
+		
+		if (chgType == FileChangeType.ADDED) {
 
 			String[] dirsf = chgFile.split( File.separator);
 			
-			if( ! chgFile.endsWith(".xml" ) ) {
+			if( !chgFile.endsWith(".xml" ) ) {
 				System.out.println("Non-xmlfile found under SPFs dir???:"+ chgFile );
 			}
 			else if( dirsf.length != 5 ) {
 				System.out.println("xml file found in non-SPF directory? "+ chgFile );
-			}else {
+			} 
+			else {
 				try {
 					LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
 							chgContext, chgFile );
@@ -407,12 +425,8 @@ public class SpfsManager implements ILocalizationFileObserver  {
 					// log error
 					System.out.println("Error unmarshalling rbd: "+ chgFile
 							+ "\n"+e.getMessage() );
-				}
-			
+				}			
 			}
 		}
-
-	}
-	
-
+	}	
 }

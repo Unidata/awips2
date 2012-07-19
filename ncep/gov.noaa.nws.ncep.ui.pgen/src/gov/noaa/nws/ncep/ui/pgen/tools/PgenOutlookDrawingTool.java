@@ -35,6 +35,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
  * 04/11			?		B. Yin		Re-factor IAttribute
  * 12/11        #582        Q.Zhou      changed hard coded line type in mouse down/move for TROPICAL
  * 03/2012      #599        Q.Zhou      Added FLOOD
+ * 05/12        #710		B. Yin		Set the outlook type to layer name
  * </pre>
  * 
  * @author	B. Yin
@@ -62,8 +63,21 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         
     	if ( attrDlg != null && !isDelObj()){
     		((OutlookAttrDlg) attrDlg).enableAddDel(false);
+    		
+    		// set the outlook type to the layer name if there is one
+    		String layer = drawingLayer.getActiveLayer().getName();
+    		boolean setName = false;
+    		if ( layer != null && ! layer.isEmpty() && !layer.equalsIgnoreCase("Default")){
+    			((OutlookAttrDlg) attrDlg).setOtlkType( layer );
+
+    			setName = true;
+
+    		}
     		if ( otlk != null ) {
-    			((OutlookAttrDlg) attrDlg).setOtlkType( otlk.getOutlookType());
+    		
+    			if ( !setName ){ 
+    				((OutlookAttrDlg) attrDlg).setOtlkType( otlk.getOutlookType());
+    			}
     			AbstractDrawableComponent adc =  attrDlg.getDrawableElement();
     			if ( adc != null && adc instanceof Line && 
     					( adc.getParent() instanceof Outlook || adc.getParent().getParent() instanceof Outlook)){
@@ -144,7 +158,7 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	if ( button == 1 ) {
         		
@@ -284,7 +298,8 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         
         @Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return true;
+        	if ( shiftDown ) return false;
+        	else return true;
 		}
 
 		public void clearPoints(){

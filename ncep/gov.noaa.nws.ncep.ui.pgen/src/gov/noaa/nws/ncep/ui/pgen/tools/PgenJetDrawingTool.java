@@ -170,7 +170,7 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 
 			//  Check if mouse is in geographic extent
 			Coordinate loc = mapEditor.translateClick(anX, aY);
-			if ( loc == null ) return false;
+			if ( loc == null || shiftDown ) return false;
 
 			if ( button == 1 ) {
 
@@ -276,7 +276,8 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 		}
 		@Override
 		public boolean handleMouseDownMove(int aX, int aY, int button) {
-			return true;
+			if ( shiftDown ) return false;
+			else return true;
 		}
 	}
 }

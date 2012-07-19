@@ -18,7 +18,6 @@ package gov.noaa.nws.ncep.viz.rsc.svrl.rsc;
  * @author ujosyula 
  * @version 1.0
  */
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -31,7 +30,6 @@ import java.util.StringTokenizer;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
-
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.DataTime;
@@ -42,7 +40,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
@@ -51,30 +48,24 @@ import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-
-
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
-
-import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-
-
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
-
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
@@ -679,14 +670,14 @@ drawCountyOutline2(svrlData,target,color,symbolWidth,lineStyle,paintProps);//T45
     	 public class Result {
          	
              public IWireframeShape outlineShape;            
-             public java.util.Map<Object, RGB> colorMap;
+//             public java.util.Map<Object, RGB> colorMap;
 
              private Result(IWireframeShape outlineShape,IWireframeShape nuShape,
                       			IShadedShape shadedShape,java.util.Map<Object, RGB> colorMap){
              	
              	this.outlineShape = outlineShape;
                  
-                 this.colorMap = colorMap;
+//                 this.colorMap = colorMap;
              }
          }
     	 
@@ -857,5 +848,15 @@ String key = wData.datauri;//.getKey(); //TODO other key?
 		if(validTimeInCalendar != null)
 			dataTimeInMs = validTimeInCalendar.getTimeInMillis(); 
 		return dataTimeInMs; 
+	}
+    
+    @Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.svrlDataMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
 	}
 }

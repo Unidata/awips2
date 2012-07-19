@@ -394,8 +394,10 @@ class NcgribDecoder():
         
         self._createModelName(pdsSectionValues['model'], self.inputFile)
         modelName = pdsSectionValues['model'].getModelName()
-        if modelName == "GHMNEST" or modelName == "GHM6TH" or modelName == "HWRFNEST" or modelName == "GFS" or modelName == "NAMFIREWX":
-           pdsSectionValues['model'].generateId(self.inputFile)
+        if modelName == "ghmNest" or modelName == "ghm6th" or \
+            modelName == "hwrfNest" or modelName == "gfs" or \
+            modelName == "fireWxNest" or modelName == "hwrf":
+            pdsSectionValues['model'].generateId(self.inputFile)
         else:
             pdsSectionValues['model'].generateId()
         
@@ -1470,7 +1472,7 @@ class NcgribDecoder():
                 else: 
                     name = "hysplit"  
                 NcgribModelLookup.getInstance().setModel(center, subcenter, gridid, process, name)
-                gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process, filename)
+                gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process, fileName,model)
                     #name = gridModel.getName()
         else:
             name = gridModel.getName()

@@ -1,9 +1,9 @@
 colorMapName=rad_scref
-colorBar=@dfltRadarColorBar.xml
+colorBar=@ColorBars/Radar/dfltRadarColorBar.xml
 ! 4km CREF
 productCode=38
-! check elevation
 elevationNumber=0
+!primaryElevationAngle=0.0
 alpha=1.0
 brightness=1.0
 contrast=1.0

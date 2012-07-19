@@ -12,5 +12,18 @@
 	         extensionFilter=".tbl,.cmap">
        </path>
     </extension>
-
+   <extension
+         point="org.eclipse.ui.preferencePages">   
+      <page
+            class="gov.noaa.nws.ncep.viz.common.NcepPreferences"
+            id="org.eclipse.jface.Prerences"
+            name="NCEP">
+      </page>   
+      <page
+            category="org.eclipse.jface.Prerences"
+            class="gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences"
+            id="gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences"
+            name="Data Area">
+      </page>
+   </extension>
 </plugin>

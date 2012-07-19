@@ -9,6 +9,8 @@ import java.util.TimeZone;
 
 import com.raytheon.uf.common.time.DataTime;
 
+//
+// 
 public class EnsembleComponentData {
 
 	// for the gridResource
@@ -201,13 +203,24 @@ public class EnsembleComponentData {
 	
 	// just the model name and not the ensComp name (ie. members not included)
 	
-	public String getPrimaryModel( ) {		
-		for( EnsComp ec : ensCompsList ) {
-			if( ec.isFirst ) {
-				return ec.getModelName();
-			}
-		}
-		return "";
+//	public String getPrimaryModel( ) {		
+//		for( EnsComp ec : ensCompsList ) {
+//			if( ec.isFirst ) {
+//				return ec.getModelName();
+//			}
+//		}
+//		return "";
+//	}
+	
+	public void setModelAsPrimary( String model ) {
+//		for( EnsComp ec : ensCompsList ) {
+//			if( model.equals( ec.getModelName() ) ) {
+//				ec.setFirst( true );
+//			}
+//			else if( ec.isFirst() ) {
+//				ec.setFirst( false );
+//			}
+//		}		
 	}
 	
 	public void reset() {

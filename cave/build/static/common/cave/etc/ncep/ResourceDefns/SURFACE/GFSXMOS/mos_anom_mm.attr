@@ -2,4 +2,4 @@
 !
 plotModelName=mosanonmm
 plotDensity=10
-conditionalFilterName=
+conditionalFilterName=conditionalFilter=

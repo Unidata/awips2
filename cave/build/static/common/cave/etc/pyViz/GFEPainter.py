@@ -104,18 +104,17 @@ class GFEPainter(VizPainter.VizPainter):
         self.addVizResource(colorBar)
         self.getDescriptor().getResourceList().getProperties(colorBar).setSystemResource(True)
     
-    def __makeGFEResource(self, parmName):
-        parm = self.dataMgr.getParmManager().getParmInExpr(parmName, False)
+    def __makeGFEResource(self, parm):
         parm.getParmState().setPickUpValue(None)            
         gfeRsc = GFEResource(parm, self.dataMgr)
         self.addVizResource(gfeRsc)
         if not parm.getDisplayAttributes().getBaseColor():
             from com.raytheon.viz.core import ColorUtil
             parm.getDisplayAttributes().setBaseColor(ColorUtil.getNewColor(self.getDescriptor()))
-        return gfeRsc, parm        
+        return gfeRsc        
     
-    def addGfeResource(self, parmName, colormap=None, colorMin=None, colorMax=None, smooth=False, color=None, lineWidth=None):
-        gfeRsc, parm = self.__makeGFEResource(parmName)
+    def addGfeResource(self, parm, colormap=None, colorMin=None, colorMax=None, smooth=False, color=None, lineWidth=None):
+        gfeRsc = self.__makeGFEResource(parm)
 #        jvisType = VisualizationType.valueOf('IMAGE')
 #        jset = HashSet()
 #        jset.add(jvisType)

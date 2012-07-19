@@ -1,0 +1,7 @@
+colorMapName=lingray
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=Sounder Based Derived Surface Skin Temp (SFC Skin)
+displayUnitStr=SounderSkinTempPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

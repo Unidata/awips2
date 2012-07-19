@@ -340,7 +340,7 @@ public class ProductNameDialog extends ProductDialog {
         });
         
         Button cancelBtn = new Button( centeredComp, SWT.NONE );
-        cancelBtn.setText( "Cancel" );
+        cancelBtn.setText( " Close " );
         cancelBtn.setLayoutData( gd );
         cancelBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {

@@ -19,6 +19,8 @@
  **/
 package com.raytheon.edex.plugin.grib.notify;
 
+import java.util.List;
+
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -43,13 +45,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class GribNotifyContainer implements ISerializableObject {
 
     @DynamicSerializeElement
-    private GribNotifyMessage[] messages;
+    private List<GribNotifyMessage> messages;
 
-    public GribNotifyMessage[] getMessages() {
+    public GribNotifyContainer() {
+
+    }
+
+    public GribNotifyContainer(List<GribNotifyMessage> messages) {
+        this.messages = messages;
+    }
+
+    public List<GribNotifyMessage> getMessages() {
         return messages;
     }
 
-    public void setMessages(GribNotifyMessage[] messages) {
+    public void setMessages(List<GribNotifyMessage> messages) {
         this.messages = messages;
     }
 

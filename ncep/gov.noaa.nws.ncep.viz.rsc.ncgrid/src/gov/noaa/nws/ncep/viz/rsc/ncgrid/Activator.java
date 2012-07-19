@@ -16,7 +16,6 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 	
 	private IPreferenceStore myprefs = null;
-	
 	/**
 	 * The constructor
 	 */
@@ -49,30 +48,21 @@ public class Activator extends AbstractUIPlugin {
 	public static Activator getDefault() {
 		return plugin;
 	}
-	
 	@Override
 	public IPreferenceStore getPreferenceStore() {
 		
 		/*
-		 * First time, set defaults for the Ncgrid preference store
+		 * First time, set defaults for the Ncgrid logger store
 		 */
 		if ( myprefs == null ) {
 			myprefs =  super.getPreferenceStore();
-			/*
-			myprefs.setDefault( NcgridPreferences.LLLAT, "");
-			myprefs.setDefault( NcgridPreferences.LLLON, "");
-			myprefs.setDefault( NcgridPreferences.URLAT, "");
-			myprefs.setDefault( NcgridPreferences.URLON, "");
-			
-			/*
-			myprefs.setDefault( NcgridPreferences.CLIP_AREA_COM,  NcgridPreferences.CLIP_AREA_US);
-			myprefs.setDefault( NcgridPreferences.GAREA, NcgridPreferences.CLIP_AREA_US);
-			myprefs.setDefault( NcgridPreferences.PROJ, "STR/90;-97;0");
-			myprefs.setDefault( NcgridPreferences.CUSTOM_AREA, false );
-			*/
+			myprefs.setDefault( NcgribLoggerPreferences.ENABLE_ALL_LOGGER, false);	
+			myprefs.setDefault( NcgribLoggerPreferences.ENABLE_RSC_LOGGER, false);	
+			myprefs.setDefault( NcgribLoggerPreferences.ENABLE_DGD_LOGGER, false);	
+			myprefs.setDefault( NcgribLoggerPreferences.ENABLE_CNTR_LOGGER, false);	
+			myprefs.setDefault( NcgribLoggerPreferences.ENABLE_FINAL_LOGGER, false);
 		}
 		
 		return myprefs;
 	}
-
 }

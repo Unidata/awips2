@@ -100,7 +100,7 @@ public class PgenResourceData extends AbstractResourceData
 	private boolean needsSaving = false;
 	private int numberOfResources = 0;
 
-	private static final String PRD_GRAPHIC = "xml";
+//	private static final String PRD_GRAPHIC = "xml";
 	
 	public PgenResourceData() {
 		super();
@@ -751,7 +751,8 @@ public class PgenResourceData extends AbstractResourceData
 		String filepath = PgenUtil.getTempWorkDir() + File.separator + recoveryFilename;
         PgenResource rsc = PgenSession.getInstance().getPgenResource();        
         ArrayList<Product> prds = (ArrayList<Product>)rsc.getProducts();
-        Products filePrds = ProductConverter.convert( prds );
+
+        Products filePrds = ProductConverter.convert( prds );   	
         FileTools.write( filepath, filePrds );
 
 	}
@@ -1034,9 +1035,9 @@ public class PgenResourceData extends AbstractResourceData
 		autosaveInterval = prefs.getLong(PgenPreferences.P_AUTO_FREQ) * 60 * 1000;  // convert minutes to milliseconds
  		
 		//  Write out a temporary recovery file
-    	recoverySave();
-    	
-    	/*
+		recoverySave();
+
+		/*
     	 * If autosave feature is on, and enough time has elapsed,
     	 * dump the current ProeductList to the autosave file
     	 */
@@ -1050,7 +1051,7 @@ public class PgenResourceData extends AbstractResourceData
     	}
     	
     	fireChangeListeners(ChangeType.DATA_UPDATE, null);
-    	
+   	
 	}
 
 	/*
