@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
 
 public enum TokenType {
     SLASH("/"),
+    SPACEINMIDDLE("[^ \t].*[ \t][ \t]*.*[^ \t]"),
     SPACE(" "),
     TAB("\t"),
     COMMA(","),

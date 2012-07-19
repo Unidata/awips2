@@ -1,7 +1,7 @@
-legend_color= RGB {0,255,0}
 color= RGB {0,255,0}
 markerState=MARKER_ONLY
 markerType=FILLED_TRIANGLE
 markerSize=1.2
 markerWidth=1
 markerTextSize=SMALL
+markerTextAppearanceZoomLevel=5

@@ -3,6 +3,12 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>QSCT</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>
+pluginName=ncscat
+! the reportType may be overridden in an attrSet file
+reportType=quikscat
+color=RGB {155, 155, 155}
+    </resourceParameters>
     <filterLabels>SCAT</filterLabels>
     <rscImplementation>SCAT</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

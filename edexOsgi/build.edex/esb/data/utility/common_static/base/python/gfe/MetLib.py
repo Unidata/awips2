@@ -210,7 +210,7 @@ def advection(windGrid, scalarGrid):
 def getLatLonGrids(gridLoc):
     # Fetch the grids
     latLonGrid = gridLoc.getLatLonGrid().__numpy__[0];
-    latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
+    latLonGrid = reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
     return latLonGrid[1], latLonGrid[0]
 
 # Returns a grid of gridSpacing or the distance from one grid cell to

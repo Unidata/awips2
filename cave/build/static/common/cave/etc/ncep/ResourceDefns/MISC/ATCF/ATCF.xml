@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>ATCF</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legendColor=RGB {255, 255, 255}</resourceParameters>
+    <resourceParameters>
+pluginName=atcf
+reportType=ATCF
+legendColor=RGB {255, 255, 255}
+	</resourceParameters>
     <filterLabels>Hurricane</filterLabels>
     <rscImplementation>ATCF</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

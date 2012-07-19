@@ -1,5 +1,5 @@
 ! Parameters and Attributes for the default SCD Resource
 !
-plotModelName=standard
+plotModel=@PlotModels/ncscd/standard.xml
 plotDensity=15
-conditionalFilterName=
+conditionalFilter=

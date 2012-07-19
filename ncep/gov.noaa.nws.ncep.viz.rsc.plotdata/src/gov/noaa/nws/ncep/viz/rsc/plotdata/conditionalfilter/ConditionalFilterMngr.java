@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/2012      #615       S. Gurung   Initial Creation
+ * 04/2012      #606       Greg Hull   
  *                       
  * </pre>
  * 
@@ -277,10 +278,11 @@ public class ConditionalFilterMngr {
 		}				
 	}
 		
-	public ConditionalFilter getDefaultConditionalFilter() {
+	public ConditionalFilter getDefaultConditionalFilter( String plugin ) {
 	    ConditionalFilter dfltPM = new ConditionalFilter();
 	    dfltPM.setName("default");
-	    dfltPM.setPlugin("none");
+	    dfltPM.setPlugin( plugin );
+	    dfltPM.setDescription("");
 	    dfltPM.getConditionalFilterElements(); 
 	    return dfltPM;
 	}

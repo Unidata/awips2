@@ -473,7 +473,7 @@ class Procedure (SmartScript.SmartScript):
                   else:
                      Td=tdc
                   Td=clip(Td,self.parmMinval,self.parmMaxval)
-                  self.createGrid(mutableModel,"TdMrn","SFC",Td,newtr)
+                  self.createGrid(mutableModel,"TdMrn","SCALAR",Td,newtr)
          self.saveGrid(mutableModel,"TdMrn")
          (self.parmUnits,self.parmPrecision,self.parmMinval,self.parmMaxval,
           self.parmColorTable,self.parmDisplayMinval,
@@ -496,7 +496,7 @@ class Procedure (SmartScript.SmartScript):
                   else:
                      Td=tdc
                   Td=clip(Td,self.parmMinval,self.parmMaxval)
-                  self.createGrid(mutableModel,"TdAft","SFC",Td,newtr)
+                  self.createGrid(mutableModel,"TdAft","SCALAR",Td,newtr)
          self.saveGrid(mutableModel,"TdAft")
       self.VU.logMsg("BOIVerifyBiasCorr Procedure Finished")
       return

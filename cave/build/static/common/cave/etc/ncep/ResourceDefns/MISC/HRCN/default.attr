@@ -1,7 +1,5 @@
 ! Attributes for Tropical Cyclone (HRCN/TCM)
 !
-color= {155, 155, 155}
-! 
 hurricaneEnable=true
 hurricaneColor= {255, 0, 0}
 hurricaneSymbolWidth=1

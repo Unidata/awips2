@@ -234,7 +234,7 @@ emailAddress3=""
 # Set some paths
 WRKDIR="${DXwrkDir}/data"
 FXA_BIN="/awips2/fxa/bin"
-CDSHOST="dx3"
+CDSHOST="ec"
 CDSPORT="9581" 
 
 # It is possible that you may not have all of the parameters that your service backup sites

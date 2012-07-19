@@ -1,14 +1,15 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.loadRbd;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+
+//import gov.noaa.nws.ncep.viz.common.EditorManager;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
+import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.CreateRbdControl;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
-import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
@@ -18,10 +19,14 @@ import gov.noaa.nws.ncep.viz.ui.display.PaneID;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.TreeSet;
 
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -31,6 +36,8 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -42,10 +49,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -58,6 +68,7 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.UiPlugin;
 
 /**
  * An SWT Composite control to load Rbds
@@ -90,7 +101,10 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 08/04/11      #450       Greg Hull       SpfsManager
  * 02/15/2012    #627        Archana        Updated the call to addRbd() to accept 
  *                                          a NCMapEditor object as one of the arguments
- *                                          Removed the call to setNcEditor()   
+ *                                          Removed the call to setNcEditor() 
+ * 04/27/12       #585      S. Gurung       Added code to reorder RBDs using right-click and save the order
+ * 											so that RBDs are displayed in the sequence specified   
+ * 05/17/2012     #791       Quan Zhou      Modified LoadRBD to check if default editor is empty, then replace it.
  * </pre>
  * 
  * @author ghull
@@ -112,6 +126,7 @@ public class LoadRbdControl extends Composite {
 
     private Button edit_rbd_btn = null;
     private Button sel_all_rbd_btn = null;
+    private Button save_spf_rbdseq_btn = null;
     private TimelineControl timelineControl = null;
     
     private Button load_btn = null;
@@ -136,6 +151,8 @@ public class LoadRbdControl extends Composite {
     
     private EditRbdDialog editRbdDlg = null;
 
+    private static List<String> defaultRscList = new ArrayList<String>();
+    private static boolean emptyEditorRemoved = false;
 
     public LoadRbdControl( Composite parent )       throws VizException {
         super(parent, SWT.NONE );
@@ -244,7 +261,7 @@ public class LoadRbdControl extends Composite {
         fd = new FormData();// 80,25 );
         edit_rbd_btn.setText("Edit RBD");
         fd.top = new FormAttachment( rbd_lviewer.getList(), 10, SWT.BOTTOM );
-        fd.left  = new FormAttachment( rbd_lviewer.getList(), 35, SWT.LEFT );
+        fd.left  = new FormAttachment( rbd_lviewer.getList(), 5, SWT.LEFT );
         edit_rbd_btn.setLayoutData( fd );
         edit_rbd_btn.setEnabled(false); // Not Implemented
 
@@ -252,9 +269,15 @@ public class LoadRbdControl extends Composite {
         fd = new FormData();// 80,25 );
         sel_all_rbd_btn.setText("Select All");
         fd.top = new FormAttachment( rbd_lviewer.getList(), 10, SWT.BOTTOM );
-        fd.right  = new FormAttachment( rbd_lviewer.getList(), -35, SWT.RIGHT );
+        fd.right  = new FormAttachment( rbd_lviewer.getList(), -95, SWT.RIGHT );
         sel_all_rbd_btn.setLayoutData( fd );
 
+        save_spf_rbdseq_btn = new Button( sel_rbds_grp, SWT.PUSH );
+        fd = new FormData();// 80,25 );
+        save_spf_rbdseq_btn.setText("Save Order");
+        fd.top = new FormAttachment( rbd_lviewer.getList(), 10, SWT.BOTTOM );
+        fd.right  = new FormAttachment( rbd_lviewer.getList(), -5, SWT.RIGHT );
+        save_spf_rbdseq_btn.setLayoutData( fd );
         
         rsc_lviewer = new ListViewer( sel_rbds_grp, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
       	
@@ -274,8 +297,7 @@ public class LoadRbdControl extends Composite {
         fd.bottom  = new FormAttachment( rsc_lviewer.getList(), -3, SWT.TOP );
         fd.left  = new FormAttachment( rsc_lviewer.getList(), 0, SWT.LEFT );
         rsc_lbl.setLayoutData( fd );
-
-        
+   
         load_opts_grp = new Group( sel_rbds_grp, SWT.SHADOW_NONE );
         load_opts_grp.setText("Display Options");
         load_opts_grp.setLayout( new FormLayout() );
@@ -286,7 +308,6 @@ public class LoadRbdControl extends Composite {
         fd.right  = new FormAttachment( rsc_lviewer.getList(), 0, SWT.RIGHT );
         fd.bottom  = new FormAttachment( 100, -5 );
         load_opts_grp.setLayoutData( fd );
-
 
         auto_update_btn = new Button( load_opts_grp, SWT.CHECK );
         fd = new FormData();
@@ -492,7 +513,7 @@ public class LoadRbdControl extends Composite {
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			}
-        });     
+        });    
 
        	// double click is same as OK (except of course is can't work for multiple selections)
        	rbd_lviewer.getList().addListener( SWT.MouseDoubleClick, new Listener() {
@@ -500,7 +521,90 @@ public class LoadRbdControl extends Composite {
    				editRbd();
    			}
    		});
+                
+        rbd_lviewer.getList().addMouseListener(new MouseListener() {
+   			
+        	@Override
+			public void mouseDown(MouseEvent e) {
+        		
+				if (e.button == 3) {
+					Menu menu = new Menu(shell, SWT.POP_UP);
+				    MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+				    item1.setText("Move Up");
+				    item1.addListener(SWT.Selection, new Listener() {
 
+						@Override
+						public void handleEvent(Event event) {
+							MenuItem selItem = (MenuItem) event.widget;
+						    String string = selItem.getText();
+						        
+							int seldRbdIndx = rbd_lviewer.getList().getSelectionIndex();
+					    	
+							if( seldRbdIndx <= 0 ) {
+					    		return;
+					    	}
+					    	
+					    	RbdBundle rbdSel = availRbdsList.get( seldRbdIndx ); 
+
+					    	if( rbdSel == null ) { 
+					    		return;
+					    	}
+					    	
+					    	if ("Move Up".equals(string)) {
+					    		availRbdsList.remove(seldRbdIndx);
+					    		availRbdsList.add(seldRbdIndx - 1, rbdSel);
+					    	}
+					    	
+					    	rbd_lviewer.refresh();
+						}
+				    	
+				    });
+				    MenuItem item2 = new MenuItem(menu, SWT.PUSH);
+				    item2.setText("Move Down");
+				    item2.addListener(SWT.Selection, new Listener() {
+
+						@Override
+						public void handleEvent(Event event) {
+							MenuItem selItem = (MenuItem) event.widget;
+						    String string = selItem.getText();
+						        
+							int seldRbdIndx = rbd_lviewer.getList().getSelectionIndex();
+					    	
+					    	if( seldRbdIndx < 0 || seldRbdIndx >= (availRbdsList.size() - 1)) {					    		
+					    		return;
+					    	}
+					    	
+					    	RbdBundle rbdSel = availRbdsList.get( seldRbdIndx ); 
+
+					    	if( rbdSel == null ) { 
+					    		return;
+					    	}
+					    	
+					    	if ("Move Down".equals(string)) {
+					    		availRbdsList.remove(seldRbdIndx);
+					    		availRbdsList.add(seldRbdIndx + 1, rbdSel);
+					    	}
+					    	
+					    	rbd_lviewer.refresh();
+						}
+				    	
+				    });
+				    
+				    rbd_lviewer.getList().setMenu(menu);
+				}
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+				
+			}
+
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+   		});
 
         edit_rbd_btn.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
@@ -514,6 +618,12 @@ public class LoadRbdControl extends Composite {
        			setSelectedRBDs();
        		}
         });
+       	
+       	save_spf_rbdseq_btn.addSelectionListener(new SelectionAdapter() {
+       		public void widgetSelected( SelectionEvent ev ) {
+       			saveSpfRbdsSequence();
+       		}
+       	});
        	
    		// if this button is enabled then only one rbd can be selected.
    		// get the selected rbd and set the auto update flag
@@ -590,6 +700,7 @@ public class LoadRbdControl extends Composite {
         geo_sync_panes.setSelection(true);
         geo_sync_panes.setEnabled(false);
 
+        defaultRscList = CreateRbdControl.getDefaultRbdRsc();
     }
     
     // the callback for the SPF list
@@ -609,6 +720,8 @@ public class LoadRbdControl extends Composite {
 		} catch (VizException e) {
 		}
 
+		orderSpfRbdsBySequence();
+		
     	rbd_lviewer.setInput( availRbdsList );
     	rbd_lviewer.refresh();
     	//06/02/11, xguo. refresh Resource & Overlays window.
@@ -825,10 +938,18 @@ public class LoadRbdControl extends Composite {
 						newEditor = null;
 					}
 				}
-				
+			
 				if( newEditor == null ) {
-					newEditor = NmapUiUtils.createNatlCntrsEditor( rbdName, paneLayout );
-				}
+					// if there is a default display, replace it.
+					String defaultName = defaultRscList.get(0);
+					if( !defaultName.equals( rbdName ) && !emptyEditorRemoved && NmapUiUtils.findEmptyEditor(defaultRscList)) {
+						emptyEditorRemoved = true;
+						newEditor = (NCMapEditor)NmapUiUtils.findDisplayByName(defaultName);String name = newEditor.getDisplayName();
+						newEditor.setDisplayName(name.substring(0, name.indexOf("-")+1) + rbdName);
+					}
+					else
+						newEditor = NmapUiUtils.createNatlCntrsEditor( rbdName, paneLayout );
+			    }
 
 				if( newEditor == null ) {
 					throw new VizException( "Unable to create an Editor for RBD "+rbdName);
@@ -871,6 +992,9 @@ public class LoadRbdControl extends Composite {
 */
 		VizApp.runSync( rbdLoader );
 		
+		// if there is a default display, close it.	
+		//CreateRbdControl.findCloseEmptyEditor();
+
     	// They aren't going to like this if there is an error loading....
     	if( close ) {
 //    		if( Thread.currentThread().wait() rbdLoader.
@@ -944,5 +1068,53 @@ public class LoadRbdControl extends Composite {
     	}
 
     	editRbdDlg = null;   				
+    }
+    
+    private void orderSpfRbdsBySequence() {
+    	
+    	HashMap<Integer, RbdBundle> map = new HashMap<Integer, RbdBundle>();
+    	
+    	for (int i=0; i<availRbdsList.size(); i++) {
+    		RbdBundle rbdBundle =  availRbdsList.get(i);
+    		Integer seq = rbdBundle.getRbdSequence();
+    		if (seq == 0 || seq == null)
+    			map.put(i+1, rbdBundle);
+    		else
+    			map.put(seq, rbdBundle);
+    	}
+    	
+    	ArrayList<RbdBundle> orderedRbdList = new ArrayList<RbdBundle>();    	
+    	TreeSet<Integer> keys = new TreeSet<Integer>(map.keySet());
+    	
+    	for (Integer key : keys) { 
+    		orderedRbdList.add(map.get(key));
+    	}
+
+    	if (orderedRbdList.size() > 0)	
+    		availRbdsList = orderedRbdList;
+    }
+    
+    private void saveSpfRbdsSequence() {
+    	
+    	try{
+	    	int seq = 1;
+	    	for (RbdBundle rbdBundle: availRbdsList) {
+	    		rbdBundle.setRbdSequence(seq++);
+	    		StructuredSelection seldSpfs = (StructuredSelection)spf_name_lviewer.getSelection();  
+	    		String seldSpfName = (String)seldSpfs.getFirstElement();
+	    		SpfsManager.getInstance().saveRbdToSpf( spf_group_combo.getText(), seldSpfName, rbdBundle );
+	    	}
+    	}
+    	catch( VizException e ) {
+    		final String msg = e.getMessage();
+    		VizApp.runSync(new Runnable() {
+    			public void run() {
+    				Status status = new Status(Status.ERROR, UiPlugin.PLUGIN_ID, 0, msg, null );
+    				ErrorDialog.openError(Display.getCurrent().getActiveShell(),
+    						"ERROR", "Error.", status);
+    			}
+    		});
+    	}
+    	
     }
 }

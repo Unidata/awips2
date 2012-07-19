@@ -20,7 +20,8 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  com.raytheon.uf.common.colormap;bundle-version="1.11.22",
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
- com.raytheon.viz.alerts
+ com.raytheon.viz.alerts,
+ gov.noaa.nws.ncep.viz.gempak
 Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.resources;
   uses:="gov.noaa.nws.ncep.viz.resources.manager,
@@ -70,9 +71,11 @@ Export-Package: gov.noaa.nws.ncep.viz.resources;
    com.raytheon.uf.common.time,
    gov.noaa.nws.ncep.viz.ui.display"
 Import-Package: com.raytheon.uf.common.message.response,
+ com.raytheon.uf.common.pointdata,
  com.raytheon.uf.viz.core.maps,
  com.raytheon.viz.alerts.observers,
  gov.noaa.nws.ncep.common.dataplugin.mcidas,
  gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree,
+ gov.noaa.nws.ncep.edex.common.ncinventory,
  gov.noaa.nws.ncep.edex.plugin.mosaic.common,
  gov.noaa.nws.ncep.viz.gempak.grid.inv

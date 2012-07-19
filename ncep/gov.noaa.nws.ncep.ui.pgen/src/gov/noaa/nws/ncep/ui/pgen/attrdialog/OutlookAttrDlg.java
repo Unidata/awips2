@@ -417,7 +417,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		txtComp.setLayout(txtLayout);
 		
 		txtBtn = new Button(txtComp, SWT.CHECK);
-		txtBtn.setLayoutData(new GridData(50, SWT.DEFAULT));
+		txtBtn.setLayoutData(new GridData(55, SWT.DEFAULT));
 		txtBtn.setText("Text");
 		txtBtn.setEnabled(flagLabel);
 		txtBtn.setSelection(true);
@@ -1417,8 +1417,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	 * @param type
 	 */
 	public void setOtlkType( String type ){
-		outlookCombo.select( outlookCombo.indexOf(type));
-		setDefaultLabels(type);
+		outlookCombo.select( outlookCombo.indexOf(type.toUpperCase()));
+		setDefaultLabels( this.getOutlookType());
 	//	setDefaultLineAttr( outlookCombo.getText() + txtCombo.getText());
 	}
 		
