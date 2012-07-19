@@ -95,10 +95,10 @@ public class CommonBundleMenuContribution extends
 
     /**
      * Indicates whether reference time should be used, instead of valid time
-     * (optional)
+     * (optional, defaults to true)
      */
     @XmlAttribute(name = "useReferenceTime", required = false)
-    public Boolean useReferenceTime;
+    public boolean useReferenceTime = true;
 
     /**
      * The product offset in seconds (optional)
