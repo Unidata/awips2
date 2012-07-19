@@ -81,6 +81,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
 import com.raytheon.viz.core.gl.GLContextBridge;
 import com.raytheon.viz.core.gl.GLDisposalManager;
+import com.raytheon.viz.core.gl.GLStats;
 import com.raytheon.viz.core.gl.IGLFont;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
@@ -1079,6 +1080,8 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
 
         GLDisposalManager.performDispose(GLU.getCurrentGL());
 
+        GLStats.printStats(gl);
+
         GLContextBridge.releaseMasterContext();
         releaseContext();
     }
@@ -1378,7 +1381,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         }
 
         if (needsRelease) {
-        	releaseContext();
+            releaseContext();
         }
         return bi;
     }
@@ -2304,96 +2307,6 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
             gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
         } finally {
             popGLState();
-        }
-    }
-
-    protected void printMemoryInformation() {
-        if (gl.isExtensionAvailable("GL_NVX_gpu_memory_info")) {
-            int GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX = 0x9047;
-            int GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 0x9048;
-            int GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = 0x9049;
-            int GPU_MEMORY_INFO_EVICTION_COUNT_NVX = 0x904A;
-            int GPU_MEMORY_INFO_EVICTED_MEMORY_NVX = 0x904B;
-
-            System.out
-                    .println("----------------NVIDIA GPU memory info -----------------");
-            IntBuffer tmp = IntBuffer.allocate(1);
-            gl.glGetIntegerv(GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, tmp);
-            tmp.rewind();
-            int totalMem = tmp.get();
-            System.out.println("DEDICATED_VIDMEM: " + totalMem + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, tmp);
-            tmp.rewind();
-            int totAvailMem = tmp.get();
-            System.out.println("TOTAL_AVAILABLE_MEMORY: " + totAvailMem + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, tmp);
-            tmp.rewind();
-            int curAvailMem = tmp.get();
-            System.out.println("CURRENT_AVAILABLE_VIDMEM: " + curAvailMem
-                    + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_EVICTION_COUNT_NVX, tmp);
-            tmp.rewind();
-            int evictCount = tmp.get();
-            System.out.println("INFO_EVICTION_COUNT: " + evictCount);
-            tmp.rewind();
-            gl.glGetIntegerv(GPU_MEMORY_INFO_EVICTED_MEMORY_NVX, tmp);
-            tmp.rewind();
-            int evictMem = tmp.get();
-            System.out.println("INFO_EVICTED_MEMORY: " + evictMem + "KB");
-        } else if (false && gl.isExtensionAvailable("GL_ATI_meminfo")) {
-            // TODO this is untested, I have no ATI gpu
-            int VBO_FREE_MEMORY_ATI = 0x87FB;
-            int TEXTURE_FREE_MEMORY_ATI = 0x87FC;
-            int RENDERBUFFER_FREE_MEMORY_ATI = 0x87FD;
-
-            System.out
-                    .println("----------------ATI GPU memory info -----------------");
-            IntBuffer tmp = IntBuffer.allocate(4);
-            gl.glGetIntegerv(VBO_FREE_MEMORY_ATI, tmp);
-            tmp.rewind();
-            int vboTotal = tmp.get();
-            int vboLargest = tmp.get();
-            int vboTotalAux = tmp.get();
-            int vboLargestAux = tmp.get();
-            System.out.println("VBO_FREE_MEMORY total: " + vboTotal + "KB");
-            System.out.println("VBO_FREE_MEMORY largest: " + vboLargest + "KB");
-            System.out.println("VBO_FREE_MEMORY total aux: " + vboTotalAux
-                    + "KB");
-            System.out.println("VBO_FREE_MEMORY largest auc: " + vboLargestAux
-                    + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(TEXTURE_FREE_MEMORY_ATI, tmp);
-            tmp.rewind();
-            int texTotal = tmp.get();
-            int texLargest = tmp.get();
-            int texTotalAux = tmp.get();
-            int texLargestAux = tmp.get();
-            System.out.println("TEXTURE_FREE_MEMORY total: " + texTotal + "KB");
-            System.out.println("TEXTURE_FREE_MEMORY largest: " + texLargest
-                    + "KB");
-            System.out.println("TEXTURE_FREE_MEMORY total aux: " + texTotalAux
-                    + "KB");
-            System.out.println("TEXTURE_FREE_MEMORY largest auc: "
-                    + texLargestAux + "KB");
-            tmp.rewind();
-            gl.glGetIntegerv(RENDERBUFFER_FREE_MEMORY_ATI, tmp);
-            tmp.rewind();
-            int rbTotal = tmp.get();
-            int rbLargest = tmp.get();
-            int rbTotalAux = tmp.get();
-            int rbLargestAux = tmp.get();
-            System.out.println("RENDERBUFFER_FREE_MEMORY total: " + rbTotal
-                    + "KB");
-            System.out.println("RENDERBUFFER_FREE_MEMORY largest: " + rbLargest
-                    + "KB");
-            System.out.println("RENDERBUFFER_FREE_MEMORY total aux: "
-                    + rbTotalAux + "KB");
-            System.out.println("RENDERBUFFER_FREE_MEMORY largest auc: "
-                    + rbLargestAux + "KB");
-
         }
     }
 
