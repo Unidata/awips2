@@ -26,270 +26,331 @@
       </nc-resource>
    </extension>
       <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lineWidth"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {0, 100, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="thunderstormName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="thunderstormName"
             defaultValue="Thunderstorm"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="thunderstormEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="thunderstormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="thunderstormColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="thunderstormColor"
             defaultValue="RGB {0, 255, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="tornadoName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="tornadoName"
             defaultValue="Tornado"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tornadoEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tornadoEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tornadoColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tornadoColor"
             defaultValue="RGB {255, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch0Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch0Name"
             defaultValue="Watch xxx0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch0Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch0Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch0Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch0Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch1Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch1Name"
             defaultValue="Watch xxx1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch1Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch1Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch1Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch1Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch2Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch2Name"
             defaultValue="Watch xxx2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch2Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch2Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch2Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch2Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch3Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch3Name"
             defaultValue="Watch xxx3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch3Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch3Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch3Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch3Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch4Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch4Name"
             defaultValue="Watch xxx4"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch4Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch4Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch4Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch4Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch5Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch5Name"
             defaultValue="Watch xxx5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch5Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch5Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch5Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch5Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch6Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch6Name"
             defaultValue="Watch xxx6"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch6Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch6Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch6Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch6Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch7Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch7Name"
             defaultValue="Watch xxx7"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch7Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch7Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch7Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch7Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch8Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch8Name"
             defaultValue="Watch xxx8"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch8Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch8Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch8Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch8Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watch9Name"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watch9Name"
             defaultValue="Watch xxx9"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watch9Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watch9Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="watch9Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="watch9Color"
             defaultValue="RGB {0, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="timeLabelName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="timeLabelName"
             defaultValue="Time"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeLabelEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeLabelEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="watchNumberLabelName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="watchNumberLabelName"
             defaultValue="Watch Number"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="watchNumberLabelEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="watchNumberLabelEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="colorCodeName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="colorCodeName"
             defaultValue="Color Code"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="colorCodeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="colorCodeEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WCP">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="WCP"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="wcp"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+	  <nc-resourceParameter
+            ncResourceName="WCP"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {0, 100, 255}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
    </extension>
 </plugin>

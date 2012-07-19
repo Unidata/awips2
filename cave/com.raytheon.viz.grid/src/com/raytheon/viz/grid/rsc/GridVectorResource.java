@@ -77,6 +77,7 @@ import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
 import com.raytheon.viz.grid.GridLevelTranslator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
+import com.raytheon.viz.grid.util.ConformalityUtil;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.RemappedImage;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
@@ -104,7 +105,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                         when click 'Diff' button.
  *    05/08/2012   14828       D. Friedman Use nearest-neighbor interpolation for
  *                                         reprojected grids.
- *    05/16/2012   14993       D. Friedman Fix "blocky" contours  
+ *    05/16/2012   14993       D. Friedman Fix "blocky" contours
+ *    06/19/2012   14988       D. Friedman Reproject based on conformality  
  * 
  * </pre>
  * 
@@ -232,7 +234,9 @@ public class GridVectorResource extends AbstractMapVectorResource implements
         if (location != null && location.getSpacingUnit().equals("degree")) {
             double dx = location.getDx();
             Integer nx = location.getNx();
-            if (dx * nx >= 360) {
+            //if (dx * nx >= 360) { // Test changed for DR 14988 to the following
+            if (! ConformalityUtil.testConformality(location.getGridGeometry(), 
+                    descriptor.getGridGeometry())) {
                 reproject = true;
             }
         }

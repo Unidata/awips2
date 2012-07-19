@@ -1,10 +1,5 @@
 ! Attributes for SVRL (Severe Local Storm Watches)
 !
-!frame_interval in minutes
-frame_interval=60
-normalize_timeline=true
-color=RGB {155, 155, 155}
-! 
 thunderstormEnable=true
 thunderstormColor=RGB {109, 246, 254}
 thunderstormSymbolWidth=1

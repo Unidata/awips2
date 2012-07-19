@@ -58,6 +58,7 @@ import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    12Dec2009    3963        dhladky    Initial Creation.
+ *    16Jun2012    14386       zhao       Modified to keep only latest fog record for each frame
  * 
  * </pre>
  * 
@@ -94,10 +95,15 @@ public class FogResourceData extends AbstractRequestableResourceData {
             try {
                 records[i] = populateRecord(records[i]);
             } catch (VizException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            }
+            if ( dataObjectMap.containsKey(records[i].getRefHour().getTime()) ) {
+            	if ( dataObjectMap.get(records[i].getRefHour().getTime()).getDataTime().greaterThan(records[i].getDataTime()) ) {
+            		continue;
+            	} else {
+            		dataObjectMap.remove(records[i].getRefHour().getTime());
+            		gridImageMap.remove(records[i].getRefHour().getTime());
+            	}
             }
             dataObjectMap.put(records[i].getRefHour().getTime(), records[i]);
             gridImageMap.put(records[i].getRefHour().getTime(), null);
@@ -188,5 +194,12 @@ public class FogResourceData extends AbstractRequestableResourceData {
         }
         return monitor;
     }
+       
+    public void resetGridImgMap() {
+        for(Date key: dataObjectMap.keySet()){
+            gridImageMap.put(key, null);
+        }
+    }
+
     
 }

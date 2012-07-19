@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IStatus;
@@ -78,6 +80,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 10/7/2009    ****       dhladky     reworked
  * 11/30/2009   3424       Zhidong/Slav/Wen Adds stationTableData to keep station info.
  * May 15, 2012 14510      zhao        Modified processing at startup
+ * Jun 16, 2012 14386      zhao        Auto update County/Zone Table when new fog threat data arrives
  * 
  * </pre>
  * 
@@ -104,7 +107,8 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
     public ArrayList<Date> resourceTimes = null;
 
     /** data holder for FOG Algo data **/
-    public HashMap<Date, HashMap<String, FOG_THREAT>> algorithmData = null;
+    //public HashMap<Date, HashMap<String, FOG_THREAT>> algorithmData = null;
+    public SortedMap<Date, HashMap<String, FOG_THREAT>> algorithmData = null;
 
     public Date dialogTime = null;
 
@@ -187,7 +191,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         obData.setThresholdMgr(FogThresholdMgr.getInstance());
 
         obsData = new ObsData();
-        algorithmData = new HashMap<Date, HashMap<String, FOG_THREAT>>();
+        algorithmData = new TreeMap<Date, HashMap<String, FOG_THREAT>>();
 
         for (String zone : MonitoringArea.getPlatformMap().keySet()) {
             obsData.addArea(zone, MonitoringArea.getPlatformMap().get(zone));
@@ -340,11 +344,14 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
         // use ObMultiHrsReports for data archive
         // [Jan 21, 2010, zhao]
         obData.addReport(result);
-        fireMonitorEvent(this);
+        //fireMonitorEvent(this);
 
         String zone = findZone(result.getPlatformId());
         getTableData().getArea(zone).addReport(result.getObservationTime(),
                 result);
+        
+        fireMonitorEvent(this);
+
     }
 
     /**
@@ -392,6 +399,7 @@ public class FogMonitor extends ObsMonitor implements IFogResourceListener {
             algorithmData.remove(time);
         }
         algorithmData.put(time, algData);
+        updateDialogTime(time);
     }
 
     /**

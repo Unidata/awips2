@@ -64,6 +64,13 @@ void (*flnmClbkPtr)(char*);
 char *flnmStrBack;
 int  flnmStrLength;
 
+/*
+ * 7. for the sub - grid CRS
+ */
+void (*subgCrsClbkPtr)(char*);
+char *subgCrsStrBack;
+int  subgCrsStrLength;
+
 typedef struct  a2dtinfo {
         char    alias[30];      /* Template alias               */
         char    path[26];       /* Template path                */

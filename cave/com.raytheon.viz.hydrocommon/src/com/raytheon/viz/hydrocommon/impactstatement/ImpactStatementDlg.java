@@ -31,6 +31,8 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -146,6 +148,10 @@ public class ImpactStatementDlg extends CaveSWTDialog {
      * Text editor control.
      */
     private StyledText textEditor;
+    /**
+     * text from the remark text box
+     */
+    private String currentImpactText=null;
 
     /**
      * OK button.
@@ -460,6 +466,20 @@ public class ImpactStatementDlg extends CaveSWTDialog {
         textEditor.setEditable(fullControl);
         textEditor.setWordWrap(true);
         textEditor.setTextLimit(512);
+        currentImpactText=textEditor.getText();
+        ModifyListener listener = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (textEditor.getText().length()>512){
+        			textEditor.setText(currentImpactText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentImpactText=textEditor.getText();
+        	}
+        };
+
+        textEditor.addModifyListener(listener);
+
     }
 
     /**

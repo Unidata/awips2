@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
  * 20070928            391 jkorman     Initial Coding.
  * 20080106            391 jkorman     Corrected ship longitude decode.
  * 20080108            721 jkorman     Added buoy id query.
+ * 20120619      DR 14015  mporricelli Added elevation for fixed buoys
  * </pre>
  * 
  * @author jkorman
@@ -60,6 +61,8 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
 
     protected Double shipLongitude = null;
 
+    protected Integer shipElev = null;
+    
     protected Integer shipQuadrant = null;
 
     protected boolean isFixedBuoy = false;
@@ -88,6 +91,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
         isValid = reportPrefix.equals(element);
         Double buoyLat = null;
         Double buoyLon = null;
+        Integer buoyElev = null;        
         isFixedBuoy = false;
         if (isValid) {
             reportParser.next();
@@ -113,6 +117,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
                     isFixedBuoy = true;
                     buoyLat = DecoderTools.getCoordinateLatitude(staInfo.getStationGeom().getCoordinate());
                     buoyLon = DecoderTools.getCoordinateLongitude(staInfo.getStationGeom().getCoordinate());
+                    buoyElev = staInfo.getElevation();
                 }
             }
             reportParser.next();
@@ -157,6 +162,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
                 
                 shipLatitude = buoyLat;
                 shipLongitude = buoyLon;
+                shipElev = buoyElev;
                 if ((shipLatitude == null) || (shipLongitude == null)) {
                     clearSectionDecoders();
                     logger.error("Bad Geometry for " + getReportIdentifier());
@@ -198,7 +204,7 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
             SurfaceObsLocation loc = new SurfaceObsLocation(
                     getReportIdentifier());
             loc.assignLocation(shipLatitude, shipLongitude);
-            loc.setElevation(0);
+            loc.setElevation(shipElev);
             loc.setLocationDefined(Boolean.FALSE);
             report.setLocation(loc);
         }

@@ -3,8 +3,10 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>SGWH</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legend_color=RGB {33,100,255}
-    pluginName=sgwh
+    <resourceParameters>
+pluginName=sgwh
+satelliteId=260
+legendColor=RGB {33,100,255}
     </resourceParameters>
     <filterLabels>Satellite</filterLabels>
     <rscImplementation>WaveSat</rscImplementation>

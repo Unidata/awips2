@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
+
 //import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -36,6 +39,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 06/11					J. Wu		No area clipping if two areas are not in the
  *                                      same FA region.
  * 07/11					J. Wu		Force the same logic as in legacy.
+ * 05/12		#610		J. Wu   	Add WarningForOverThreeLines()
  * 
  * </pre>
  * 
@@ -276,7 +280,7 @@ public class GfaReducePoint {
 	 *  Check if a smear can be formatted into 3 65-character lines
 	 * @param glist
 	 */
-	private boolean canBeFormatted( Gfa smear ) {
+	public static boolean canBeFormatted( Gfa smear ) {
 		
 		boolean formattable = false;
 		if ( !smear.isSnapshot() ) {                    
@@ -295,7 +299,7 @@ public class GfaReducePoint {
 	 *  
 	 * @param glist
 	 */
-	private String getPrefixString( Gfa smear ) {
+	private static String getPrefixString( Gfa smear ) {
 		        
 		String prefix = "";
 		if ( !smear.isSnapshot() ) {
@@ -319,7 +323,7 @@ public class GfaReducePoint {
 	 * @param pts
 	 * @param prefix
 	 */
-	private boolean canBeFormatted( ArrayList<Coordinate> pts, String prefix ) {				
+	private static boolean canBeFormatted( ArrayList<Coordinate> pts, String prefix ) {				
 	    return ReduceGfaPointsUtil.canFormatted( pts, prefix );	    		
 	}
 
@@ -1198,6 +1202,37 @@ public class GfaReducePoint {
 			}
 	    }
 
+	}
+	
+	/**
+	 *  Check if a smear can be formatted into 3 65-character lines, if not, pops up a warning.
+	 * @param glist
+	 */
+	public static void WarningForOverThreeLines( Gfa smear ) {
+		
+		if ( !smear.isSnapshot() ) {                    
+		    String prefix = getPrefixString( smear );
+		    
+		    boolean formattable = 	canBeFormatted( smear.getPoints(), prefix );
+		    
+		    if ( !formattable ) {
+			    String message = "";
+			    if ( prefix.equals( Gfa.FROM ) ) {
+			    	message = new String( "This AIRMET will generate more than 3 FROM lines when formatted.");
+			    }
+			    else {
+			    	message = new String( "This OUTLOOK will generate more than 3 FROM lines when formatted.");			    	
+			    }
+			    
+	    		MessageDialog confirmDlg = new MessageDialog( 
+	            		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+	            		"Over 3 FROM Lines", null, message,
+	            		MessageDialog.WARNING, new String[]{"OK"}, 0 );
+	            
+	        	confirmDlg.open();
+
+		    }		    		    
+		}				
 	}
 			
 }

@@ -1016,8 +1016,6 @@ public class GageTableDlg extends JFrame {
                             (String) gridCombo.getSelectedItem())) {
                         dataManager.setSelectedGrid(prod
                                 .getProductFilenamePrefix());
-
-                        tableModel.refreshTable();
                         break;
                     }
                 }

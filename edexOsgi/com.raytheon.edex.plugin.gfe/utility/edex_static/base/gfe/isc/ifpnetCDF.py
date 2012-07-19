@@ -213,8 +213,6 @@ def getArgs(argv):
         elif opt[0] == '-v':
             logFile=opt[1]
         
-    initLogger(logFile)
-
     # Create dictionary of arguments
     argDict = {
         "host" : host,
@@ -231,7 +229,8 @@ def getArgs(argv):
         "compressFileFactor" : compressFileFactor,
         "trim" : trim,
         "krunch" : krunch,
-        "userID" : userID
+        "userID" : userID,
+        "logFile" : logFile,
         }
     return argDict
 
@@ -623,10 +622,13 @@ def storeTopoGrid(client, file, databaseID, maskGrid, clipArea):
     pDict = gridLoc.getProjection()
 
     # Get the topo grid
-    topoGrid = TopoDatabaseManager.getTopoDatabase(DatabaseID(databaseID).getSiteId()).getTopo().__numpy__[0]
+    topoDB = TopoDatabaseManager.getTopoDatabase(DatabaseID(databaseID).getSiteId())
+    parmId = topoDB.getParmList().getPayload().get(0)
+    tr = topoDB.getGridInventory(parmId).getPayload()
+    topoGrid = topoDB.getGridData(parmId, tr).getPayload().get(0).__numpy__[0]
     topoGrid = clipToExtrema(topoGrid, clipArea)
     topoGrid = numpy.flipud(topoGrid)
-
+    
     # clipped size
     clipGridSize = (clipArea[1] - clipArea[0] + 1, clipArea[3] - clipArea[2] + 1)
 
@@ -970,7 +972,7 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     ## Extract the GridDataHistory info and save it
     storeGridDataHistory(file, we, wec, trList, timeRange)
     
-    logEvent("Saved ", gridCount, " ", varName, " grids")
+    logEvent("Saved", gridCount, varName, " grids")
 
     return gridCount
 
@@ -1491,6 +1493,8 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
     argDict = checkArgs(argDict) 
     
     start = time.time()
+    a = os.times()
+    cpu0 = a[0] + a[1]
     client = None
 
     try:
@@ -1609,11 +1613,10 @@ def executeIfpNetCDF(host, port, outputFilename, parmList, databaseID, startTime
     cpugz = a[0] + a[1]
     stop = time.time()
     logEvent("Elapsed/CPU time: ", "%-.2f" % (stop1 - start),
-      "/", "%-.2f" % cpu, "processing,", "%-.2f" % (stop - stop1), "/",
+      "/", "%-.2f" % (cpu - cpu0), "processing,", "%-.2f" % (stop - stop1), "/",
       "%-.2f" % (cpugz - cpu), "compress,",
-      "%-.2f" % (stop - start), "/", "%-.2f" % (cpugz), "total")
+      "%-.2f" % (stop - start), "/", "%-.2f" % (cpugz - cpu0), "total")
     #logEvent("stats: ", client.getStats())
-    logEvent("ifpnetCDF Finished")
     
 
 
@@ -1625,17 +1628,19 @@ def main(argv):
     #  AFPS.DBSubsystem_getBuiltBy(), AFPS.DBSubsystem_getBuiltOn(),
     #  AFPS.DBSubsystem_getBuildVersion())
 
-    if type(argv) != 'list':
+    if type(argv) is not list:
         argv = JUtil.javaStringListToPylist(argv) 
     argDict = getArgs(argv) 
+
+    initLogger(argDict["logFile"])
     logEvent("ifpnetCDF Starting")
     logEvent("Command: ",iscUtil.tupleToString(*argv))
-     
 
     executeIfpNetCDF(argDict["host"], argDict["port"], argDict["outputFilename"], argDict["parmList"], argDict["databaseID"],
                      argDict["startTime"], argDict["endTime"], argDict["mask"], argDict["geoInfo"], argDict["compressFile"],
                      argDict["configFileName"], argDict["compressFileFactor"], argDict["trim"], argDict["krunch"], argDict["userID"])
 
+    logEvent("ifpnetCDF Finished")
 
 if __name__ == "__main__":
     pass

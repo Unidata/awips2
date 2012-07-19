@@ -36,7 +36,7 @@
              <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
-              		<constraint constraintValue="aww" constraintType="EQUALS" />
+              		<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
                <mapping key="reportType">
                  <constraint constraintValue="WINTER_WEATHER_ADVISORY,WINTER_STORM_WARNING,WINTER_STORM_WATCH,ADVISORY,URGENT_WEATHER_MESSAGE,WEATHER_ADVISORY,WINTER_STORM" constraintType="IN" />
