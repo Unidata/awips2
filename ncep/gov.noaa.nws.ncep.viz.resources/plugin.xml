@@ -2,7 +2,7 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="NC-Resource" name="NC-Resource" schema="schema/nc_resource.exsd"/>
-   <extension-point id="NC-ResourceAttribute" name="NC-ResourceAttribute" schema="schema/nc_rsc_attr.exsd"/>
+   <extension-point id="NC-ResourceParameter" name="NC-ResourceParameter" schema="schema/nc_rsc_attr.exsd"/>
 
    <extension
          point="com.raytheon.viz.ui.contextualMenu">

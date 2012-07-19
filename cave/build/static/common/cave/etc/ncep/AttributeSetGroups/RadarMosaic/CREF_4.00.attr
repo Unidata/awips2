@@ -1,5 +1,5 @@
 colorMapName=osf_ref16
-colorBar=@dfltMosaicColorBar.xml
+colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=30
 prodName=CREF_30
 alpha=1.0

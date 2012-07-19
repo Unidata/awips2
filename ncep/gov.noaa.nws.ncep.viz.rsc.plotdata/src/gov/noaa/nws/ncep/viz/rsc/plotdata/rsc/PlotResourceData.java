@@ -50,6 +50,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * 10/19/2011              ghull       add TafPlotResource
  * 11/01/2011    #482      ghull       added plotDensity, comment out unimplemented plugins
  * 04/09/2012    #615      sgurung     Added conditionalFilterName and conditionalFilter
+ * 02/05/2012    #606      ghull       rm reportType as member variable
  *                           
  * </pre>
  * 
@@ -65,8 +66,8 @@ INatlCntrsResourceData {
 	protected int pixelSizeHint = 80;
 
 	// used in metadata query. For bufrmos this is the bufrmos type.
-	@XmlElement
-	protected String reportType = null;
+//	@XmlElement
+//	protected String reportType = null;
 
 	@XmlElement
 	protected String legendString = null;
@@ -75,14 +76,16 @@ INatlCntrsResourceData {
 	protected String spiFile = null;
 
 	// The name of the plotModel is the name of the resource prm file.
-	@XmlElement
-	protected String plotModelName = null;
+//	@XmlElement
+//	protected String plotModelName = null;
 
 	// if the plotModel has not been edited then these values will be from the 
 	// plotModelName. Otherwise this will contain the edited plotModel values.
 	@XmlElement
 	protected PlotModel plotModel = null;
 
+	// For upper air plots, levelKey is an attribute, 
+	// for non-upper air plots this will be set to 'Surface'
 	@XmlElement
     protected String levelKey = null;
 
@@ -104,10 +107,10 @@ INatlCntrsResourceData {
     @XmlElement
     protected AbstractDbPlotInfoRetriever plotInfoRetriever;
     
-    @XmlElement
-	protected String conditionalFilterName = null;
-	
     //@XmlElement
+	//protected String conditionalFilterName = null;
+	
+    @XmlElement
 	protected ConditionalFilter conditionalFilter = null;
 
     private static HashSet<String> pluginNames = new HashSet<String>();
@@ -117,22 +120,10 @@ INatlCntrsResourceData {
     private static ArrayList<String> fcstPlugins = new ArrayList<String>();
 
     static {
-//        pluginNames.add("goessounding");
-//        pluginNames.add("poessounding");
         pluginNames.add("obs");
-//        pluginNames.add("bufrssmi");
-//        pluginNames.add("bufrquikscat");
-//        pluginNames.add("bufrascat");
-//        pluginNames.add("radar");
-//        pluginNames.add("bufrhdw");
-//        pluginNames.add("lsr");
         pluginNames.add("sfcobs");
-//        pluginNames.add("tcg");
-//        pluginNames.add("svrwx");
-//        pluginNames.add("ldadmesonet");
         pluginNames.add("ncuair");
         pluginNames.add("ncscd");
-//        pluginNames.add("scd");
         pluginNames.add("ncairep");
         pluginNames.add("ncpirep");
         pluginNames.add("nctaf");
@@ -218,12 +209,6 @@ INatlCntrsResourceData {
 	protected AbstractVizResource<?, ?> constructResource(
 			LoadProperties loadProperties, PluginDataObject[] objects) {
 		
-		// Force the reportType to be set in the metadata map for non-bufrmos plugins
-		// 
-		if( !getPluginName().startsWith("bufrmos") ) {		
-			setReportType( getReportType() );
-		}
-		
 		String pluginName = this.metadataMap.get("pluginName").getConstraintValue();
 		
         if (pluginNames.contains(pluginName)) {
@@ -245,20 +230,6 @@ INatlCntrsResourceData {
 			return null; //new PlotResource( this, loadProperties );
 	}
 		
-	public String getReportType() {
-		return reportType;
-	}
-
-	public void setReportType(String rType) {
-		reportType = rType;
-		
-		RequestConstraint req = new RequestConstraint(
-				reportType, ConstraintType.IN );
-
-		getMetadataMap().put( "reportType", req );
-	}
-
-
 	public String getLegendString() {
 		return legendString;
 	}
@@ -279,13 +250,12 @@ INatlCntrsResourceData {
 		this.spiFile = spiFile;
 	}
 
-	public String getPlotModelName() {
-		return plotModelName;
-	}
-
-	public void setPlotModelName(String name) {
-		this.plotModelName = name;
-	}
+//	public String getPlotModelName() {
+//		return (plotModel != null ? plotModel.getName() : null ); //plotModelName;
+//	}
+//	public void setPlotModelName(String name) {
+//		this.plotModelName = name;
+//	}
 
 	public void setPlotModel( PlotModel pm ) {
 		plotModel = pm;    
@@ -295,18 +265,21 @@ INatlCntrsResourceData {
 		// if the plotModel has not been set yet (either from xml in the bundle file
 		// or from the plotModelName attribute) then get it from the manager
 		//
-		if( plotModel == null ) {			
-			plotModel = PlotModelMngr.getInstance().getPlotModel( getPluginName(), getPlotModelName() );
-			
-			if( plotModel == null ) {
-				System.out.println("Unable to find plotModel for plugin '"+getPluginName()+
-						            "' for '"+ getPlotModelName() +"'.");
-				plotModel = PlotModelMngr.getInstance().getDefaultPlotModel();
-				plotModel.setName( getPlotModelName() );
-				plotModel.setPlugin( getPluginName() );
-				return plotModel;
-			}
-		}
+// The plotmodel is now set directly from the referenced plotModel file or from
+// the RBD.		
+//		if( plotModel == null ) {			
+//			plotModel = PlotModelMngr.getInstance().getPlotModel( getPluginName(), 
+//					getPlotModelName() );
+//			
+//			if( plotModel == null ) {
+//				System.out.println("Unable to find plotModel for plugin '"+getPluginName()+
+//						            "' for '"+ getPlotModelName() +"'.");
+//				plotModel = PlotModelMngr.getInstance().getDefaultPlotModel();
+//				plotModel.setName( getPlotModelName() );
+//				plotModel.setPlugin( getPluginName() );
+//				return plotModel;
+//			}
+//		}
 		return new PlotModel( plotModel );
 	}
 
@@ -346,30 +319,32 @@ INatlCntrsResourceData {
 		return sfcPlugins.contains( getPluginName() );
 	}    
     
-    public String getConditionalFilterName() {
-		return conditionalFilterName;
-	}
-
-	public void setConditionalFilterName(String name) {
-		this.conditionalFilterName = name;
-	}
+//    public String getConditionalFilterName() {
+//		return conditionalFilterName;
+//	}
+//
+//	public void setConditionalFilterName(String name) {
+//		this.conditionalFilterName = name;
+//	}
 
     public ConditionalFilter getConditionalFilter( ) {
-		// if the conditionalFilter has not been set yet (from xml file
+// Note that now the conditionalFilter is set directly from either the refd xml file or from 
+// the xml in the RBD.
+    	// if the conditionalFilter has not been set yet (from xml file
 		// or from the conditionalFilterName attribute) then get it from the manager
 		if( conditionalFilter == null ) {			
-			conditionalFilter = ConditionalFilterMngr.getInstance().getConditionalFilter( getPluginName(), getConditionalFilterName() );
-			
-			if( conditionalFilter == null ) {
-				System.out.println("Unable to find ConditionalFilter for plugin '"+getPluginName()+
-						            "' for '"+ getConditionalFilterName() +"'.");
-				conditionalFilter = ConditionalFilterMngr.getInstance().getDefaultConditionalFilter();
-				conditionalFilter.setName( getConditionalFilterName() );
-				conditionalFilter.setPlugin( getPluginName() );
-				conditionalFilter.setDescription( "" );
-				conditionalFilter.getConditionalFilterElements();
+//			conditionalFilter = ConditionalFilterMngr.getInstance().getConditionalFilter( getPluginName(), getConditionalFilterName() );
+//			
+//			if( conditionalFilter == null ) {
+//				System.out.println("Unable to find ConditionalFilter for plugin '"+getPluginName()+
+//						            "' for '"+ getConditionalFilterName() +"'.");
+				conditionalFilter = ConditionalFilterMngr.getInstance().getDefaultConditionalFilter( getPluginName() );
+//				conditionalFilter.setName( getConditionalFilterName() );
+//				conditionalFilter.setPlugin( getPluginName() );
+//				conditionalFilter.setDescription( "" );
+//				conditionalFilter.getConditionalFilterElements();
 				return conditionalFilter;
-			}
+//			}
 		}
 		return new ConditionalFilter( conditionalFilter );
 	}

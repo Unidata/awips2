@@ -17,268 +17,371 @@
    </extension>
   
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="TYPE"
             attributeName="type"
             defaultValue="c"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+	        paramName="GVCORD"
             attributeName="gvcord"
             defaultValue="press"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="GLEVEL"
             attributeName="glevel"
             defaultValue="500"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="GDPFUN"
             attributeName="gdpfun"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="SKIP"
             attributeName="skip"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="FILTER"
             attributeName="filter"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="SCALE"
             attributeName="scale"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="COLORS"
             attributeName="colors"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="MARKER"
             attributeName="marker"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="Integer"
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="GRDLBL"
             attributeName="grdlbl"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="CINT"
             attributeName="cint"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="LINE"
             attributeName="lineAttributes"
             defaultValue="8/1/2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
-      
-      <nc-resourceAttribute
-            attributeClass="String"
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="FINT"
             attributeName="fint"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="FLINE"
             attributeName="fline"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="TITLE"
             attributeName="title"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="WIND"
             attributeName="wind"
             defaultValue="18/1/1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="HILO"
             attributeName="hilo"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
             
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="HLSYM"
             attributeName="hlsym"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
                   
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="TYPE"
             attributeName="type"
             defaultValue="c"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="GVCORD"
             attributeName="gvcord"
             defaultValue="press"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="GLEVEL"
             attributeName="glevel"
             defaultValue="500"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="GDPFUN"
             attributeName="gdpfun"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
 
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="SKIP"
             attributeName="skip"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="FILTER"
             attributeName="filter"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
             
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="SCALE"
             attributeName="scale"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="COLORS"
             attributeName="colors"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="MARKER"
             attributeName="marker"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="Integer"
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="GRDLBL"
             attributeName="grdlbl"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="CINT"
             attributeName="cint"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="LINE"
             attributeName="lineAttributes"
             defaultValue="8/1/2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="FINT"
             attributeName="fint"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="FLINE"
             attributeName="fline"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="TITLE"
             attributeName="title"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="WIND"
             attributeName="wind"
             defaultValue="18/1/1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="HILO"
             attributeName="hilo"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="HLSYM"
             attributeName="hlsym"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-       <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="ensembleComponentWeights"
+       <nc-resourceParameter
+            paramClass="String"
+            paramName="ensembleComponentWeights"
             defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
+       <nc-resourceParameter
+             ncResourceName="ModelFcstGridContours"
+             paramClass="String"
+             paramName="GDFILE"
+             paramType="REQUEST_CONSTRAINT"
+             constraintName="modelName">
+       </nc-resourceParameter>
+
+       <nc-resourceParameter
+             ncResourceName="ModelFcstGridContours"
+             paramClass="String"
+             paramName="eventName"
+             paramType="REQUEST_CONSTRAINT">
+       </nc-resourceParameter>
+      
+       <nc-resourceParameter
+             ncResourceName="EnsembleFcstGridContours"
+             paramClass="String"
+             paramName="availableModels"
+             paramType="IMPLEMENTATION_PARAM">
+       </nc-resourceParameter>
+      
+       <nc-resourceParameter
+             ncResourceName="EnsembleFcstGridContours"
+             paramClass="String"
+             paramName="primaryModel"
+             paramType="REQUEST_CONSTRAINT"
+             constraintName="modelName">
+       </nc-resourceParameter>      
    </extension>
+
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
       <nc-resource
@@ -293,15 +396,13 @@
             name="EnsembleFcstGridContours">
       </nc-resource>
    </extension>
-   
-   <extension
-         point="org.eclipse.ui.preferencePages">
+         <extension
+         point="org.eclipse.ui.preferencePages">    
       <page
-            category="org.eclipse.jface.Prerences"
-            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgridPreferences"
-            id="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgridPreferences"
-            name="Clipping Area">
-      </page>
+            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLoggerPreferences"
+            id="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLoggerPreferences"
+            name="Ncgrid Logger"
+            category="org.eclipse.jface.Prerences">
+      </page> 
    </extension>
-   
 </plugin>   

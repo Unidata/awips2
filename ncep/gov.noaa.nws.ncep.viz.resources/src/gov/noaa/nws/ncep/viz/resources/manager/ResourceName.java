@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * 
@@ -66,6 +67,8 @@ public class ResourceName {
 		} 	
 	}
 
+	public static final String generatedTypeDelimiter = ":";
+	
 	public static final String dfltAttrSetName = "default";
 	
 	// public String rscName; // ex. (SURFACE/METAR/standard)
@@ -182,13 +185,12 @@ public class ResourceName {
 	// ??? call method on the ResourceDefnsMngr to check that this is valid
 	//
 	public boolean isValid() {
-		if( rscCategory == null || rscCategory.isEmpty() ||
-			rscType     == null || rscType.isEmpty() ||
-			rscAttrSetName == null || rscAttrSetName.isEmpty() ) {
-//			rscName == null || rscName.isEmpty() ) {
+		try {
+			return  ResourceDefnsMngr.getInstance().isResourceNameValid( this );
+		}
+		catch( VizException vizex ) {
 			return false;
 		}
-		else return true;
 	}
 
 	public String getRscCategory() {
@@ -282,7 +284,12 @@ public class ResourceName {
 	}
 
 	public String toString() {
-		if( isValid() ) {
+		if( rscCategory == null || rscCategory.isEmpty() ||
+			rscType     == null || rscType.isEmpty() ||
+			rscAttrSetName == null || rscAttrSetName.isEmpty() ) {
+			return "";
+		}
+		else {
 //			String str = rscCategory + File.separator + rscType + File.separator +
 //			        (!rscGroup.isEmpty() ? rscGroup + File.separator : "" ) +
 //			            rscAttrSetName +
@@ -299,9 +306,6 @@ public class ResourceName {
 			else {
 				return str + '(' +NmapCommon.getTimeStringFromDataTime( cycleTime, "_" ) + ')';
 			}
-		}
-		else {
-			return "";
 		}
 	}
 

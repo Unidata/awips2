@@ -5,7 +5,7 @@
     <resourceCategory>RADAR</resourceCategory>
     <resourceParameters>
 pluginName=mosaic
-legend_color=RGB {200, 200, 200}
+legendColor=RGB {200, 200, 200}
 	</resourceParameters>
     <filterLabels>RadarMosaic</filterLabels>
     <rscImplementation>RadarMosaic</rscImplementation>

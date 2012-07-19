@@ -5,13 +5,12 @@
     <resourceCategory>PGEN</resourceCategory>
     <filterLabels></filterLabels>
     <resourceParameters>
-legend_color=RGB {155, 155, 155}
 ! the sub-directory under the current PGEN working directory
 ! TODO : may want to change pgenDirectory to productType/activity and get the directory of the productType
 pgenDirectory=/home/awp2pgen/activities/Extend_Range/xml
     </resourceParameters>
     <rscImplementation>PGEN</rscImplementation>
-    <subTypeGenerator>${productName}</subTypeGenerator>
+    <subTypeGenerator>productName</subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>60</frameSpan>

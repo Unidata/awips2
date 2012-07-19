@@ -5,7 +5,7 @@
 Name: awips2-ldm
 Summary: AWIPS II LDM Distribution
 Version: 6.8.1
-Release: 21
+Release: 22
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
@@ -246,7 +246,16 @@ done
 #if a remote CP site, copy over the filtered data configuration
 case $SITE_IDENTIFIER in gum|hfo|pbp|vrh)
 		echo -e "\nInstalling ldmd.conf for $SITE_IDENTIFIER."
-        cp /usr/local/ldm-6.8.1/etc/ldmd.conf.$SITE_IDENTIFIER /usr/local/ldm-6.8.1/etc/ldmd.conf;;
+        if ! scp /usr/local/ldm-6.8.1/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn1:/usr/local/ldm/etc/ldmd.conf
+        then
+            echo "ERROR: Failed copy of ldmd.conf to cpsbn1"
+        fi
+
+        if ! scp /usr/local/ldm-6.8.1/etc/ldmd.conf.$SITE_IDENTIFIER cpsbn2:/usr/local/ldm/etc/ldmd.conf
+        then
+            echo "ERROR: Failed copy of ldmd.conf to cpsbn2"
+        fi
+        ;;
 esac
 
 #remove the extra configuration files

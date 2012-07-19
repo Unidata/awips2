@@ -8,6 +8,7 @@
 ##         BY EVAN BOOKBINDER           11-04-2011  OB11.9-3   ##
 ##         BY EVAN BOOKBINDER            2-24-2012  OB12.2.1   ##
 ##         BY MIKE REGA       5-3-2012 DR 14885 MND blank line ##
+##         BY QINGLU LIN     6-18-2012 DR 15043 use duration   ##
 #################################################################
 ##
 ###################################################################
@@ -332,7 +333,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #end
 #end
 #if(${action}=="CANCON" || ${action}=="CON" || ${action}=="COR" || ${CORCAN}=="true")
-...A ${eventType} WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+...A ${eventType} WARNING REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone},${duration}) FOR ##
 #headlineLocList(${areas} true true true false)
 ...##
 ########### END NEW HEADLINE CODE ####################

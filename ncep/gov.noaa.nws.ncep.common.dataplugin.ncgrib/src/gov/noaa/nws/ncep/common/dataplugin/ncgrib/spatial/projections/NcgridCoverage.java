@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * 5/23/12                  xguo        Merged 4 coverage tables into one
  * 
  * </pre>
  * 
@@ -65,7 +66,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * @version 1
  */
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize

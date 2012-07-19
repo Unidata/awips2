@@ -60,6 +60,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 12/07/2011               B. Hebbard  Added "Plot All" option
  * 02/16/2012    #639       Q. Zhou     Changed density text listener. Changed density duration to 30. Adjusted field size.
  * 04/02/2012    #615       S. Gurung   Added code related to Conditional Filtering
+ * 02/05/2012    #606       Greg Hull   Don't get level attr for non-sounding resources
+ *
  * </pre>
  * 
  * @author mli
@@ -70,7 +72,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 	private RscAttrValue plotLevelAttr = null;
 	private RscAttrValue plotModelAttr = null;
 	private RscAttrValue condFilterAttr = null;
-	private RscAttrValue condFilterNameAttr = null;
 	private PlotModel editedPlotModel = null;
 	private ConditionalFilter editedCondFilter = null;
 	
@@ -113,7 +114,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 		plotDensityAttr = editedRscAttrSet.getRscAttr("plotDensity");
 		plotModelAttr = editedRscAttrSet.getRscAttr( "plotModel" );
 		condFilterAttr = editedRscAttrSet.getRscAttr("conditionalFilter");
-		condFilterNameAttr = editedRscAttrSet.getRscAttr("conditionalFilterName");
 		
 		if( plotDensityAttr == null || plotDensityAttr.getAttrClass() != Integer.class ) {
 			System.out.println("plotDensityAttr is null or not of expected class Integer?");
@@ -121,10 +121,6 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 		}
 		if( plotModelAttr == null || plotModelAttr.getAttrClass() != PlotModel.class ) {
 			System.out.println("plotModelAttr is null or not of expected class plotModel?");
-			return topComp;
-		}
-		if( condFilterNameAttr == null || condFilterNameAttr.getAttrClass() != String.class ) {
-			System.out.println("condFilterNameAttr is null or not of expected class String?");
 			return topComp;
 		}
 		if( condFilterAttr == null || condFilterAttr.getAttrClass() != ConditionalFilter.class ) {
@@ -286,62 +282,63 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 			plotDensityAttr.setAttrValue( new Integer( 99 ) );
         }
 
+        if (isSounding) {
+        	Group selLevelGrp = new Group ( topComp, SWT.SHADOW_NONE );
+        	selLevelGrp.setText("Vertical Level");
 
-        Group selLevelGrp = new Group ( topComp, SWT.SHADOW_NONE );
-        selLevelGrp.setText("Vertical Level");
+        	selLevelGrp.setLayout(new FormLayout() );
 
-        selLevelGrp.setLayout(new FormLayout() );
+        	fd = new FormData();
+        	//fd.width = 70;
+        	fd.left = new FormAttachment( densityGrp, 10, SWT.RIGHT );
+        	fd.right = new FormAttachment( 100, -10 );
+        	fd.top = new FormAttachment( densityGrp, 0, SWT.TOP );
+        	fd.bottom = new FormAttachment( densityGrp, 0, SWT.BOTTOM );
+        	selLevelGrp.setLayoutData( fd );
 
-        fd = new FormData();
-        //fd.width = 70;
-        fd.left = new FormAttachment( densityGrp, 10, SWT.RIGHT );
-        fd.right = new FormAttachment( 100, -10 );
-        fd.top = new FormAttachment( densityGrp, 0, SWT.TOP );
-        fd.bottom = new FormAttachment( densityGrp, 0, SWT.BOTTOM );
-        selLevelGrp.setLayoutData( fd );
+        	levelCombo = new Combo(selLevelGrp, SWT.DROP_DOWN );
+        	// levelCombo.setSize( 40, 30 );
 
-        levelCombo = new Combo(selLevelGrp, SWT.DROP_DOWN );
-       // levelCombo.setSize( 40, 30 );
-        
-        fd = new FormData(75, 25);
-        fd.left = new FormAttachment( 0, 10 );
-        fd.right = new FormAttachment( 100, -10 );
-        fd.top = new FormAttachment( 0, 20 );
-        fd.bottom = new FormAttachment( 100, -10 );
-        levelCombo.setLayoutData( fd );
-        
-        levelCombo.setItems( stdLevels );
-        RscAttrValue ra = editedRscAttrSet.getRscAttr("levelKey");
-        String s = ra.getAttrValue().toString();
+        	fd = new FormData(75, 25);
+        	fd.left = new FormAttachment( 0, 10 );
+        	fd.right = new FormAttachment( 100, -10 );
+        	fd.top = new FormAttachment( 0, 20 );
+        	fd.bottom = new FormAttachment( 100, -10 );
+        	levelCombo.setLayoutData( fd );
 
-        levelCombo.setText(s);
+        	levelCombo.setItems( stdLevels );
+        	RscAttrValue ra = editedRscAttrSet.getRscAttr("levelKey");
+        	String s = ra.getAttrValue().toString();
 
-        Label mblbl = new Label(selLevelGrp, SWT.NONE);
-        mblbl.setText("mb");
-        fd = new FormData();
-        fd.left = new FormAttachment( levelCombo, 5, SWT.RIGHT );
-        fd.bottom = new FormAttachment( levelCombo, -7, SWT.BOTTOM );
-        fd.right = new FormAttachment( 100, -10 );
-        mblbl.setLayoutData( fd );
+        	levelCombo.setText(s);
 
-        levelCombo.addSelectionListener(new SelectionAdapter() {
-        	public void widgetSelected(SelectionEvent event) {
-        		// TODO Auto-generated method stub
-        		String s = levelCombo.getText();
-        		editedRscAttrSet.setAttrValue("levelKey", s);
-        	}
-        });
+        	Label mblbl = new Label(selLevelGrp, SWT.NONE);
+        	mblbl.setText("mb");
+        	fd = new FormData();
+        	fd.left = new FormAttachment( levelCombo, 5, SWT.RIGHT );
+        	fd.bottom = new FormAttachment( levelCombo, -7, SWT.BOTTOM );
+        	fd.right = new FormAttachment( 100, -10 );
+        	mblbl.setLayoutData( fd );
 
-        levelCombo.addModifyListener( new ModifyListener() {
-        	@Override
-        	public void modifyText(ModifyEvent e) {
-        		// TODO Auto-generated method stub
-        		String ss = levelCombo.getText();
-        		editedRscAttrSet.setAttrValue("levelKey", ss);
-        	}
-        });
+        	levelCombo.addSelectionListener(new SelectionAdapter() {
+        		public void widgetSelected(SelectionEvent event) {
+        			// TODO Auto-generated method stub
+        			String s = levelCombo.getText();
+        			editedRscAttrSet.setAttrValue("levelKey", s);
+        		}
+        	});
 
-        selLevelGrp.setVisible( isSounding );
+        	levelCombo.addModifyListener( new ModifyListener() {
+        		@Override
+        		public void modifyText(ModifyEvent e) {
+        			// TODO Auto-generated method stub
+        			String ss = levelCombo.getText();
+        			editedRscAttrSet.setAttrValue("levelKey", ss);
+        		}
+        	});
+
+        	selLevelGrp.setVisible( isSounding );
+        }
 
         Group condFilterGrp = new Group ( topComp, SWT.SHADOW_NONE );
         condFilterGrp.setText("Conditional Filter");
@@ -403,10 +400,8 @@ public class EditPlotDataAttrsDialog extends AbstractEditResourceAttrsDialog {
 					cf.setPlugin(pluginName);
 				} 
 				condFilterAttr.setAttrValue( cf );
-				condFilterNameAttr.setAttrValue(cf.getName());
 				editedCondFilter = cf;
 				editedRscAttrSet.setAttrValue("conditionalFilter", cf);
-				editedRscAttrSet.setAttrValue("conditionalFilterName", cf.getName());
 			}
 		});
         

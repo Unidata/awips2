@@ -22,6 +22,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 12/13/2011               G Hull     Created.
+ * 04/02/2012   #606        G Hull     added primaryModel for Ensem
  *           
  * </pre>
  * 
@@ -32,9 +33,11 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 @XmlType(name="NC-EnsembleResourceData")
 public class NcEnsembleResourceData extends NcgridResourceData {
 
+//	@XmlElement
+//	protected String primaryModel;
+
 	@XmlElement
 	protected String availableModels; // comma separated string
-//	protected ArrayList<String> ensembleComponentModels;
 
 	// like GDFILE except with relative cycle times
 	// 
@@ -52,7 +55,26 @@ public class NcEnsembleResourceData extends NcgridResourceData {
     	return new NcgridResource(this, loadProperties);
     }
 	
+	// the primary model is stored in the metadata map.
+	//
+	public String getPrimaryModel() {
+		HashMap<String, RequestConstraint> reqConstraints  = getMetadataMap();
+		if( reqConstraints.containsKey("modelInfo.modelName") ) {
+			return reqConstraints.get("modelInfo.modelName").getConstraintValue(); 
+    	}
+		else {
+			return null;
+		}
+	}
+
+	public void setPrimaryModel(String primaryModel) {
+		getMetadataMap().put("modelInfo.modelName", 
+				new RequestConstraint( primaryModel, ConstraintType.EQUALS ) );
+	}
+
     public String getAvailableModels() {
+    	// TODO : if the primaryModel is not in the list, then add it.
+    	//
 		return availableModels;
 	}
 
@@ -106,8 +128,7 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 	public ArrayList<String> getAvailEnsembleComponents() {
 		ArrayList<String> availEnsCompsList = new ArrayList<String>();
 		
-		if( availableModels != null ) {
-			
+		if( availableModels != null ) {			
 			String[] ensCompStrs = availableModels.split(";");
 			if( ensCompStrs.length > 0 ) {
 				for( int ec=0 ; ec<ensCompStrs.length ; ec++ ) {
@@ -131,7 +152,8 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 	}
 	
     // set metadataMap with the primary modelName constraint and return it
-	//
+	// 
+/**************************** This is now set in the resource template with the primaryModel parameter
 	@Override
 	public HashMap<String, RequestConstraint> getMetadataMap() {
     	
@@ -160,9 +182,12 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 //                		new RequestConstraint( modelName, ConstraintType.EQUALS ) );
 //		}
     }
-
+**************************/
 	public void createGdFile() {
 		// use the selected cycle time to update the ensembleComponentWeights
+		// NOTE: The primary used to be specified by putting it first in the list
+		// but now it is stored in the resource defn. However, the legacy code is still 
+		// expecting a GDFILE with the primary first. 
 		//
 		DataTime cycleTime = getResourceName().getCycleTime();
 		
@@ -170,6 +195,7 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 				cycleTime.getRefTime(), getEnsembleComponentWeights() );
 		ensCompData.setSelectedModelStrings();
 		
+		ensCompData.setModelAsPrimary( getPrimaryModel() );
 		// testing 
 		//getEnsembleMembersForModel( "GEFS" );
 		super.setGdfile( ensCompData.getEnsCompsStringForRefTime() );
@@ -393,4 +419,5 @@ public class NcEnsembleResourceData extends NcgridResourceData {
 
         return true;
     }
+
 }

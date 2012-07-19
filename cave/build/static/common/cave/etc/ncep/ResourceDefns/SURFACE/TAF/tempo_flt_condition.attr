@@ -1,5 +1,5 @@
 ! Attributes for the TAF resource with "tempo_flt_condition" plot model
 !
-plotModelName=tempo_flt_condition
+plotModel=@PlotModels/nctaf/tempo_flt_condition.xml
 plotDensity=10
-conditionalFilterName=tempo_flight_condition
+conditionalFilter=@PlotModels/ConditionalFilters/taf_tempo_flight_condition.xml

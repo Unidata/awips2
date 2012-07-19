@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <resourceDefnName>METEOSAT10</resourceDefnName>
+    <resourceCategory>SATELLITE</resourceCategory>
+    <resourceParameters>
+! This must match the value in the
+! mcidas DB table valid values are 
+! (GOES12, GOES13, .....)
+satelliteName=METEOSAT10
+pluginName=mcidas
+legendColor=RGB {200, 200, 200}
+    </resourceParameters>
+    <filterLabels>McIdas,METEOSAT</filterLabels>
+    <rscImplementation>McidasSatellite</rscImplementation>
+    <subTypeGenerator>areaName,resolution</subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

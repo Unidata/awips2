@@ -27,522 +27,617 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="thunderstormEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="thunderstormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="thunderstormColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="thunderstormColor"
             defaultValue="RGB {0 ,  255 ,  255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="thunderstormLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="thunderstormLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="thunderstormSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="thunderstormSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="thunderstormSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="thunderstormSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="turbulenceEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="turbulenceEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="turbulenceColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="turbulenceColor"
             defaultValue="RGB {255, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbulenceLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbulenceLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbulenceSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbulenceSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="turbulenceSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="turbulenceSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hurricaneEnable"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hurricaneEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="hurricaneColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hurricaneColor"
             defaultValue="RGB {255, 0,  0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hurricaneSymbolWidth"
+       </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hurricaneSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="hurricaneSymbolSize"
+       </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="hurricaneSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tropicalStormEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tropicalStormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tropicalStormColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tropicalStormColor"
             defaultValue="RGB {255,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tropicalStormSymbolWidth"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tropicalStormSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="tropicalStormSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="tropicalStormSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tropicalDepressionEnable"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tropicalDepressionEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tropicalDepressionColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tropicalDepressionColor"
             defaultValue="RGB {0,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tropicalDepressionSymbolWidth"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tropicalDepressionSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="tropicalDepressionSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="tropicalDepressionSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>              
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="volcanicAshCloudEnable"
+      </nc-resourceParameter>              
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="volcanicAshCloudEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="volcanicAshCloudColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="volcanicAshCloudColor"
             defaultValue="RGB {255, 127, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="volcanicAshCloudLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="volcanicAshCloudLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="volcanicAshCloudSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="volcanicAshCloudSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="volcanicAshCloudSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="volcanicAshCloudSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="mountainWaveEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="mountainWaveEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="mountainWaveColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="mountainWaveColor"
             defaultValue="RGB {255,  0,  255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="mountainWaveLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="mountainWaveLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="mountainWaveSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="mountainWaveSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="mountainWaveSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="mountainWaveSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tropicalCycloneEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tropicalCycloneEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tropicalCycloneColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tropicalCycloneColor"
             defaultValue="RGB {255,0,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tropicalCycloneSymbolWidth"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tropicalCycloneSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="tropicalCycloneSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="tropicalCycloneSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-     <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="squallLineEnable"
+      </nc-resourceParameter>
+     <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="squallLineEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="squallLineColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="squallLineColor"
             defaultValue="RGB {255,  0,  255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="squallLineWidth"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="squallLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="squallLineSymbolWidth"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="squallLineSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>    
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="squallLineSymbolSize"
+      </nc-resourceParameter>    
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="squallLineSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>      
-       <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="squallLineEnable"
+      </nc-resourceParameter>      
+       <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="squallLineEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="squallLineColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="squallLineColor"
             defaultValue="RGB {255,0,255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="squallLineLineWidth"
+      </nc-resourceParameter> 
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="squallLineSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="squallLineSymbolWidth"
-            defaultValue="2"
-            ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="squallLineSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="squallLineSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="catEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="catEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="catColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="catColor"
             defaultValue="RGB {255,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="catLineWidth"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="catLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="catSymbolWidth"
+       </nc-resourceParameter>              
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="catSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="catSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="catSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>                  
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="icingEnable"
+      </nc-resourceParameter>                  
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="icingEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="icingColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="icingColor"
             defaultValue="RGB {0,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingLineWidth"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingSymbolWidth"
+       </nc-resourceParameter>              
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="icingSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="icingSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hailEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hailEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="hailColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hailColor"
             defaultValue="RGB {255,0,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hailLineWidth"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hailLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hailSymbolWidth"
+       </nc-resourceParameter>              
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hailSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="hailSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="hailSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="dustStormEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="dustStormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="dustStormColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="dustStormColor"
             defaultValue="RGB {255,127,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="dustStormLineWidth"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="dustStormLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="dustStormSymbolWidth"
+       </nc-resourceParameter>              
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="dustStormSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="dustStormSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="dustStormSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="sandStormEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="sandStormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="sandStormColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="sandStormColor"
             defaultValue="RGB {255,127,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="sandStormLineWidth"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="sandStormLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="sandStormSymbolWidth"
+       </nc-resourceParameter>              
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="sandStormSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="sandStormSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="sandStormSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>            
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="cumulonimbusEnable"
+      </nc-resourceParameter>            
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="cumulonimbusEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="cumulonimbusColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="cumulonimbusColor"
             defaultValue="RGB {255,0,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="cumulonimbusLineWidth"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="cumulonimbusLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="cumulonimbusSymbolWidth"
+       </nc-resourceParameter>              
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="cumulonimbusSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="cumulonimbusSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="cumulonimbusSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="lowLevelWindShearEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="lowLevelWindShearEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="lowLevelWindShearColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="lowLevelWindShearColor"
             defaultValue="RGB {255,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lowLevelWindShearLineWidth"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lowLevelWindShearLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-       </nc-resourceAttribute>              
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lowLevelWindShearSymbolWidth"
+       </nc-resourceParameter>              
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lowLevelWindShearSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="lowLevelWindShearSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="lowLevelWindShearSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="symbolEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="symbolEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="nameOrNumberEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="nameOrNumberEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>  
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="motionEnable"
+      </nc-resourceParameter>  
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="motionEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>               
-      <nc-resourceAttribute      
-            attributeClass="Boolean"
-            attributeName="flightLevelEnable"
+      </nc-resourceParameter>               
+      <nc-resourceParameter      
+            paramClass="Boolean"
+            paramName="flightLevelEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IntlSigmet">
-      </nc-resourceAttribute>         
+      </nc-resourceParameter>   
+      
+      <nc-resourceParameter
+            ncResourceName="IntlSigmet"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {255, 255, 255}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="IntlSigmet"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="intlsigmet"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>      
    </extension>
 </plugin>

@@ -110,6 +110,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Oct 31, 2011            Qinglu Lin  Call convertAlaskaLons() for eventLocation.
  * May  9, 2012   14887    Qinglu Lin  Changed one argument passed to calculatePortion().
  * May 31, 2012   15047    Qinglu Lin  Added additional logic to canOrExpCal for CAN and EXP.
+ * Jun 15, 2012   15043    Qinglu Lin  Added duration to context.
  * 
  * </pre>
  * 
@@ -284,6 +285,11 @@ public class TemplateRunner {
                         "expire",
                         DateUtil.roundDateTo15(selectedAction == WarningAction.EXT ? endTime
                                 : wx.getEndTime()));
+                
+                // duration: convert millisecond to minute
+                long duration = (wx.getEndTime().getTime()-wx.getStartTime().getTime())/(1000*60);
+                context.put("duration", duration);
+                
                 context.put("event", eventTime);
                 context.put("ugcline",
                         FipsUtil.getUgcLine(areas, wx.getEndTime(), 15));
