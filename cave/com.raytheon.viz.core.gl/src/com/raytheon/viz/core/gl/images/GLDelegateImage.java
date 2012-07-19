@@ -173,4 +173,10 @@ public class GLDelegateImage<T extends AbstractGLImage> extends AbstractGLImage 
         image.usaAsFrameBuffer();
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+        image.dispose();
+    }
+
 }
