@@ -1,9 +1,5 @@
 ! Attributes for Flash Flood related information 
 !
-sourceName=FFA
-normalize_timeline=true
-color=RGB {155, 155, 155}
-! 
 flashFloodAdvisoryEnable=true
 flashFloodAdvisoryColor=RGB {0, 255, 0}
 flashFloodAdvisorySymbolWidth=2

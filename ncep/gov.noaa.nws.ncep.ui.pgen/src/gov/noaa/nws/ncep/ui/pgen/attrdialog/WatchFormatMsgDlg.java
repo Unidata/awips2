@@ -58,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------	----------	-----------	--------------------------
  * 02/10		#159		B. Yin   	Initial Creation.
  * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
+ * 05/12		#772		B. Yin		Close dialog after done format.
  *
  * </pre>
  * 
@@ -182,6 +183,7 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 			saveProducts(generateProducts(pd,"WOU.xlt"), dirPath + "WW"+watchNumber+".WOU");
 
 			wfd.close();
+			WatchBoxAttrDlg.getInstance(null).close();
 			super.okPressed();
 		}
 	}
@@ -196,6 +198,7 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 		
 		//close the format dialog
 		wfd.close();
+		WatchBoxAttrDlg.getInstance(null).close();
 		super.cancelPressed();
 		
 	}

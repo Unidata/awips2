@@ -26,120 +26,163 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hour0Enable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hour0Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="hour0Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hour0Color"
             defaultValue="RGB {255, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hour0LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hour0LineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hour1Enable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hour1Enable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="hour1Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hour1Color"
             defaultValue="RGB {0, 0, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hour1LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hour1LineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hour2Enable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hour2Enable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="hour2Color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hour2Color"
             defaultValue="RGB {255, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hour2LineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hour2LineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="outlookEnable"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="outlookEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="outlookColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="outlookColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="outlookLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="outlookLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hour0sequenceIdEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hour0sequenceIdEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hour1sequenceIdEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hour1sequenceIdEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hour2sequenceIdEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hour2sequenceIdEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="motionEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="motionEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="flightLevelEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="flightLevelEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="intensityEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="intensityEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ConvectiveSigmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="ConvectiveSigmet"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="convsigmet"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="ConvectiveSigmet"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            ncResourceName="ConvectiveSigmet"
+            paramClass="String"
+            paramName="legendName"
+            defaultValue="convsigmet"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
+      
    </extension>
 </plugin>

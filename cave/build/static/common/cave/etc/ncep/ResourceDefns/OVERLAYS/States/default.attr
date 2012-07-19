@@ -1,4 +1,3 @@
-legend_color= RGB {255,255,255}
-color= RGB {255,255,255}
+color= RGB {255,0,0}
 lineStyle=SOLID
 lineWidth=1

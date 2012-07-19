@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/11		?			B. Yin		Bring up the WatchBox spec dialog
  * 12/11		565			B. Yin		Modify watch box onlly when the curse is close enough
  * 02/12		TTR 525		B. Yin		Make sure points don't move when selecting.
+ * 05/12		TTR 534		B. Yin		Re-set the watch dialog attributes
  * 
  * </pre>
  * 
@@ -59,21 +60,21 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
     	super.activateTool();
     	
     	if ( event.getTrigger() instanceof WatchBox ) {
-    		((WatchBoxAttrDlg)attrDlg).setWatchBox( (WatchBox)event.getTrigger());
-    		((WatchBoxAttrDlg)attrDlg).enableShapeBtn(false);
+    		
     		((WatchBoxAttrDlg)attrDlg).setWbTool(this);
     		
     		//set wb as selected and open spec dialog
     		// this is for ending of the wb drawing.
     		if ( drawingLayer.getSelectedDE() == null ){
-    			drawingLayer.setSelected( (WatchBox)event.getTrigger());
+    			drawingLayer.setSelected( ((WatchBoxAttrDlg)attrDlg).getWatchBox());
+    			((WatchBoxAttrDlg)attrDlg).setAttrForDlg(((WatchBoxAttrDlg)attrDlg).getWatchBox() );
     			((WatchBoxAttrDlg)attrDlg).enableButtons();
     			((WatchBoxAttrDlg)attrDlg).openSpecDlg();
     		}
     	}
         
     }
-
+    
     /**
      * Returns the current mouse handler.
      * @return
@@ -98,6 +99,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
 	private class PgenWatchBoxModifyHandler extends PgenSelectingTool.PgenSelectHandler {
 		
 		private boolean dontMove = true;	//flag to prevent moving during selection
+		private boolean simulate;
         /*
          * (non-Javadoc)
          * 
@@ -109,7 +111,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
 
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown || simulate ) return false;
         	
         	if ( button == 1 ) {
         		dontMove = false;
@@ -155,7 +157,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
 
         	DrawableElement tmpEl = drawingLayer.getSelectedDE();
         	//make sure the click is close enough to the element
@@ -192,6 +194,9 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         		}
         	}
 
+        	simulate = true;
+        	PgenUtil.simulateMouseDown(x, y, button, mapEditor);
+        	simulate = false;
         	return true;
                 
         }

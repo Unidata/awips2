@@ -1,5 +1,5 @@
 ! Attributes for the GFSXMOS resource with "anonmm" plot model
 !
-plotModelName=anonmm
+plotModel=anonmm
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

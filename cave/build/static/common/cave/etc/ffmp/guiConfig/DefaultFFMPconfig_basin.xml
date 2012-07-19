@@ -55,7 +55,7 @@
     <TableColumn>
         <ColumnName>RATE</ColumnName>
         <ReverseFilter>false</ReverseFilter>
-        <Filter>.00</Filter>
+        <Filter>.01</Filter>
         <Low>.1</Low>
         <Mid>.5</Mid>
         <Upper>1.0</Upper>
@@ -68,7 +68,7 @@
     <TableColumn>
         <ColumnName>QPE</ColumnName>
         <ReverseFilter>false</ReverseFilter>
-        <Filter>.000</Filter>
+        <Filter>.01</Filter>
         <Low>2.0</Low>
         <Mid>3.5</Mid>
         <Upper>5.0</Upper>
@@ -81,7 +81,7 @@
     <TableColumn>
         <ColumnName>QPF</ColumnName>
         <ReverseFilter>false</ReverseFilter>
-        <Filter>.00</Filter>
+        <Filter>.01</Filter>
         <Low>2.0</Low>
         <Mid>3.5</Mid>
         <Upper>5.0</Upper>
@@ -107,7 +107,7 @@
     <TableColumn>
         <ColumnName>RATIO</ColumnName>
         <ReverseFilter>false</ReverseFilter>
-        <Filter>0</Filter>
+        <Filter>5</Filter>
         <Low>25</Low>
         <Mid>50</Mid>
         <Upper>90</Upper>

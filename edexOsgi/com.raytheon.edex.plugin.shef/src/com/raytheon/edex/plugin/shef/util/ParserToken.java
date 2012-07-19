@@ -709,7 +709,7 @@ public class ParserToken {
                             if(!isAllDigits(ss)) {
                                 error = SHEFErrorCodes.LOG_028;
                             } else {
-                                if(ss.length() > 2) {
+                                if(ss.length() > 3) {
                                     error = SHEFErrorCodes.LOG_103;
                                 }
                             }

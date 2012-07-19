@@ -1,0 +1,7 @@
+colorMapName=micropw
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=PWAT
+displayUnitStr=in
+alpha=1.0
+brightness=1.0
+contrast=1.0

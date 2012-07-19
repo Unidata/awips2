@@ -131,10 +131,20 @@
           id="gov.noaa.nws.ncep.viz.ui.actions.BadFrameAction"
           name="Bad Frame">
       </command>
+      <command
+          id="gov.noaa.nws.ncep.viz.ui.ncInventoryControl"
+          name="NcInventoryControl">
+      </command>
+      
    </extension>
       
    <extension
          point="org.eclipse.ui.handlers">
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.ncInventoryControl.NcInventoryControlAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.ncInventoryControl">
+      </handler>
+         
       <handler
             class="gov.noaa.nws.ncep.viz.tools.autoUpdate.AutoUpdateAction"
             commandId="gov.noaa.nws.ncep.viz.ui.autoUpdate">
@@ -481,6 +491,13 @@
                 contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
                 schemeId="com.raytheon.viz.ui.awips.scheme"
                 sequence="A">
+         </key>
+         <!-- its easter egg time --> 
+         <key
+                commandId="gov.noaa.nws.ncep.viz.ui.ncInventoryControl"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="ALT+I">
          </key> 
          
    </extension>

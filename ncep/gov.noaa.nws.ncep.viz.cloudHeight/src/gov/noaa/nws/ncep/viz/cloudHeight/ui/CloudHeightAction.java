@@ -9,6 +9,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -35,6 +36,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/07/11     migration   Greg Hull     use Raytheons ISelectedPanesChangedListener
  * 03/01/12     524/TTR11   B. Hebbard    Various changes to allow mutual operation of
  *                                        'Take Control' button with other Modal Tools
+ * 06/01/12		747			B. Yin		  Made the pan tool work when the shift is held down.
  * 
  * </pre>
  * 
@@ -185,7 +187,8 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
     public class MouseHandler extends InputAdapter {
     	
     	boolean preempt = false;
-    	
+    	private boolean shiftDown;
+
     	/*
          * (non-Javadoc)
          * 
@@ -196,6 +199,8 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
     	public boolean handleMouseDown(int x, int y, int button) {
     		
     		preempt = false;
+    		
+    		if ( shiftDown ) return false;
     		
     		if( button == 1 ) {
     			Coordinate ll = mapEditor.translateClick(x, y);
@@ -222,7 +227,25 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
     	public boolean handleMouseDownMove(int x, int y, int button) {
     		return preempt;
     	}
+        
+    	@Override
+    	public boolean handleKeyDown(int keyCode) {
+    		if ( keyCode == SWT.SHIFT) {
+    			shiftDown = true;
+    		}
 
+    		return true;
+    	}
+
+    	@Override
+    	public boolean handleKeyUp(int keyCode) {
+    		if ( keyCode == SWT.SHIFT) {
+    			shiftDown = false;
+    		}    		
+
+    		return true;
+    	}
+    	
     }   
 
 	public String getCommandId() {

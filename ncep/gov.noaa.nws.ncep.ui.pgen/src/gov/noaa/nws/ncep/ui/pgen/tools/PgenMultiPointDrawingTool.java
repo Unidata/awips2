@@ -11,6 +11,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import org.eclipse.ui.PlatformUI;
 import org.geotools.referencing.GeodeticCalculator;
@@ -19,18 +20,13 @@ import org.geotools.referencing.datum.DefaultEllipsoid;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
 
-//import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.DisplayType;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.FontStyle;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
-import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
-import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
-import gov.noaa.nws.ncep.ui.pgen.elements.Line;
-import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlgFactory;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrSettings;
@@ -66,7 +62,8 @@ import gov.noaa.nws.ncep.viz.common.LocatorUtil;
  * 01/12		597			S. Gurung	Removed Snapping for ConvSigmet
  * 02/12        TTR456      Q.Zhou      Added parameters to setTrack()
  * 02/12        #597        S. Gurung   Removed snapping for NCON_SIGMET. 
-                                        Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 05/12		#708		J. Wu		Use data frame time for Track element
+ *                                       
  * </pre>
  * 
  * @author	B. Yin
@@ -163,12 +160,37 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
             
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	if ( button == 1 ) {
         		if("SIGMET".equalsIgnoreCase(pgenCategory)) return handleSigmetMouseDown( loc);
         		
                 points.add( loc );                
+                
+                if ( isTrackElement( getDrawableType( pgenType ) ) ) {
+                	if ( points.size() == 1 ) {
+                		if ( attrDlg instanceof TrackAttrDlg &&
+                			 ((TrackAttrDlg) attrDlg).getFrameTimeButton().getSelection() ) {
+                			String ftime = PgenUtil.getCurrentFrameTime();
+                			if ( ftime != null & ftime.trim().length() > 0 ) {
+                			    ((TrackAttrDlg) attrDlg).getFirstTimeText().setText( ftime );
+                   		        ((TrackAttrDlg) attrDlg).getSecondTimeText().setText(  "" );
+                			}
+                		}
+                	}
+                	else if ( points.size() == 2 ) {
+                		if ( attrDlg instanceof TrackAttrDlg &&
+                    		 ((TrackAttrDlg) attrDlg).getFrameTimeButton().getSelection()) {
+            		        Calendar cal = PgenUtil.getCurrentFrameCalendar();
+            		        String interval = ((TrackAttrDlg) attrDlg).getIntervalTimeString();
+            		        Calendar secondCal = PgenUtil.getNextCalendar( cal, interval );
+         		            String stime =   PgenUtil.getFrameTime( secondCal );
+         		            if ( stime != null && stime.trim().length() > 0 ) {
+                   		        ((TrackAttrDlg) attrDlg).getSecondTimeText().setText(  stime );
+         		            }
+            			}
+                	}                	
+                }
                 
                 return true;
                 
@@ -228,6 +250,10 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
             		
             	
             		if(isTrackElement(drawableType)) {
+            			System.out.println( "interval attdlg= "+ ((TrackAttrDlg)attrDlg).getIntervalTimeString() );
+            			System.out.println( "interval track= " + ((Track)elem).getIntervalComboSelectedIndex() );
+            			System.out.println( "interval track= " + ((Track)elem).getIntervalTimeString() );
+                    			
             			displayTrackExtrapPointInfoDlg((TrackAttrDlg)attrDlg,	(Track)elem);   
             		}
 
@@ -258,7 +284,8 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
         
         @Override
         public boolean handleMouseDownMove(int aX, int aY, int button) {
-        	return true;
+        	if ( shiftDown ) return false;
+        	else return true;
         }
         
         private boolean handleSigmetMouseDown(Coordinate loc){  

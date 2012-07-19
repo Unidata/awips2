@@ -27,6 +27,7 @@
          <packagereq type="default">awips2-edex-grib</packagereq>
          <packagereq type="default">awips2-edex-hydro</packagereq>
          <packagereq type="default">awips2-edex-native</packagereq>
+         <packagereq type="default">awips2-edex-ost</packagereq>
          <packagereq type="default">awips2-edex-radar</packagereq>
          <packagereq type="default">awips2-edex-satellite</packagereq>
          <packagereq type="default">awips2-edex-text</packagereq>
@@ -178,6 +179,7 @@
          <packagereq type="default">awips2-edex-grib</packagereq>
          <packagereq type="default">awips2-edex-hydro</packagereq>
          <packagereq type="default">awips2-edex-native</packagereq>
+         <packagereq type="default">awips2-edex-ost</packagereq>
          <packagereq type="default">awips2-edex-radar</packagereq>
          <packagereq type="default">awips2-edex-satellite</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>

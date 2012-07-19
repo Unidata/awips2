@@ -20,6 +20,7 @@ import java.util.Stack;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 06/09		#116			B. Yin   	Initial Creation.
+ * 03/12		#711			B. Yin		Handle empty DECollection
  * 
  * </pre>
  * 
@@ -71,6 +72,14 @@ public class DEIterator implements Iterator<DrawableElement> {
 					if ( iterator.previousIndex() == pIdx ) break;
 					else iterator.previous();
 				}
+				
+				//if the last item is an empty DEC,
+				//or if the current iterator is empty
+				if ( !status && !stack.isEmpty()){
+					stack.pop();
+					return hasNext();
+				}
+				
 			}
 		}
 		

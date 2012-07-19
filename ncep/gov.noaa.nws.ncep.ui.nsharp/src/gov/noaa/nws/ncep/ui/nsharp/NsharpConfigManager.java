@@ -22,8 +22,7 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp;
 
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpParametersSelectionConfigDialog;
-import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpDataDisplayConfigDialog;
+import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
@@ -34,9 +33,9 @@ import java.util.Map;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -120,13 +119,11 @@ public class NsharpConfigManager {
 				}	
 			}
 		}
-		
 		if(nsharpConfigStore== null){
 			// could not find configuration nsharpConfig.xml file 
 			nsharpConfigStore = new NsharpConfigStore();
-			nsharpConfigStore = NsharpParametersSelectionConfigDialog.setDefaultGraphConfig(nsharpConfigStore);
-			nsharpConfigStore=NsharpDataDisplayConfigDialog.setDefaultLineConfig(nsharpConfigStore);
-		}	
+			
+		}
 		return nsharpConfigStore;
 	}
 	//save to file system

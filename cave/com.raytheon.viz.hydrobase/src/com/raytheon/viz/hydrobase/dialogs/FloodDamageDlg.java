@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -83,6 +85,11 @@ public class FloodDamageDlg extends CaveSWTDialog {
      * Damage text control.
      */
     private Text damageTF;
+
+    /**
+     * text from the remark text box
+     */
+    private String currentDamageText=null;
 
     /**
      * Lid for the dialog.
@@ -221,6 +228,20 @@ public class FloodDamageDlg extends CaveSWTDialog {
         damageTF = new Text(statmentGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         damageTF.setLayoutData(gd);
         damageTF.setFont(controlFont);
+        currentDamageText=damageTF.getText();
+        ModifyListener listener = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (damageTF.getText().length()>510){
+        			damageTF.setText(currentDamageText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentDamageText=damageTF.getText();
+        	}
+        };
+
+        damageTF.addModifyListener(listener);
+
     }
 
     /**
