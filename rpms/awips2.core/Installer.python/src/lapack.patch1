@@ -1,125 +1,155 @@
-diff -cr LAPACK/BLAS/SRC/Makefile LAPACK.patched/BLAS/SRC/Makefile
-*** LAPACK/BLAS/SRC/Makefile	1999-11-04 13:23:14.000000000 -0600
---- LAPACK.patched/BLAS/SRC/Makefile	2011-07-26 17:51:27.000000000 -0500
+diff -crB lapack-3.1.1-a/BLAS/SRC/Makefile lapack-3.1.1-b/BLAS/SRC/Makefile
+*** lapack-3.1.1-a/BLAS/SRC/Makefile	2007-02-20 17:35:40.000000000 -0600
+--- lapack-3.1.1-b/BLAS/SRC/Makefile	2012-07-19 10:27:03.000000000 -0500
 ***************
-*** 50,56 ****
+*** 55,61 ****
   #
   #######################################################################
   
-! all: single double complex complex16
+! all: $(BLASLIB)
    
   #---------------------------------------------------------
   #  Comment out the next 6 definitions if you already have
---- 50,56 ----
+--- 55,61 ----
   #
   #######################################################################
   
-! all: single double complex complex16 libblas.so
+! all: $(BLASLIB) libblas.so
    
   #---------------------------------------------------------
   #  Comment out the next 6 definitions if you already have
 ***************
-*** 149,154 ****
---- 149,160 ----
-  	$(ALLBLAS) $(ZBLAS2) $(ZBLAS3)
-  	$(RANLIB) $(BLASLIB)
+*** 137,146 ****
+--- 137,154 ----
+  	$(CBLAS1) $(CB1AUX) $(CBLAS2) $(CBLAS3) $(ZBLAS1) $(ZB1AUX)	\
+  	$(ZBLAS2) $(ZBLAS3) $(ALLBLAS)
   
-+ libblas.so: $(SBLAS1) $(CBLAS1) $(DBLAS1) $(ZBLAS1) \
-+ 	$(CB1AUX) $(ZB1AUX) $(ALLBLAS) $(SBLAS2) \
-+ 	$(CBLAS2) $(DBLAS2) $(ZBLAS2) $(SBLAS3) \
-+ 	$(CBLAS3) $(DBLAS3) $(ZBLAS3)
-+ 	cc -shared -Wl,-soname,$@ -lgfortran -lg2c -o $@ *.o
++ # Prevent linking code twice
++ SHAREDOBJ=$(SBLAS1) $(SBLAS2) $(SBLAS3) $(DBLAS1) $(DBLAS2) $(DBLAS3)	\
++ 	$(CBLAS1) $(CBLAS2) $(CBLAS3) $(ZBLAS1) $(ZBLAS2) $(ZBLAS3)	\
++ 	$(ALLBLAS)
 + 
-  FRC:
-  	@FRC=$(FRC)
+  $(BLASLIB): $(ALLOBJ)
+  	$(ARCH) $(ARCHFLAGS) $@ $(ALLOBJ)
+  	$(RANLIB) $@
   
-diff -cr LAPACK/make.inc LAPACK.patched/make.inc
-*** LAPACK/make.inc	1999-11-04 13:23:14.000000000 -0600
---- LAPACK.patched/make.inc	2011-07-26 17:05:59.000000000 -0500
++ libblas.so: $(SHAREDOBJ)
++ 	cc -shared -Wl,-soname,$@ -lgfortran -lg2c -o $@ $(SHAREDOBJ)
++ 
+  single: $(SBLAS1) $(ALLBLAS) $(SBLAS2) $(SBLAS3)
+  	$(ARCH) $(ARCHFLAGS) $(BLASLIB) $(SBLAS1) $(ALLBLAS) \
+  	$(SBLAS2) $(SBLAS3)
 ***************
-*** 8,14 ****
-  #
-  #  The machine (platform) identifier to append to the library names
-  #
-! PLAT = _SUN4SOL2
-  #  
-  #  Modify the FORTRAN and OPTS definitions to refer to the
-  #  compiler and desired compiler options for your machine.  NOOPT
---- 8,14 ----
-  #
-  #  The machine (platform) identifier to append to the library names
-  #
-! PLAT = 
-  #  
-  #  Modify the FORTRAN and OPTS definitions to refer to the
-  #  compiler and desired compiler options for your machine.  NOOPT
+*** 166,171 ****
+--- 174,180 ----
+  
+  clean:
+  	rm -f *.o
++ 	rm -f *.so
+  
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+diff -crB lapack-3.1.1-a/INSTALL/Makefile lapack-3.1.1-b/INSTALL/Makefile
+*** lapack-3.1.1-a/INSTALL/Makefile	2007-02-23 14:07:35.000000000 -0600
+--- lapack-3.1.1-b/INSTALL/Makefile	2012-07-19 10:27:25.000000000 -0500
 ***************
-*** 16,31 ****
+*** 29,35 ****
+  clean:
+  	rm -f *.o
+  
+! slamch.o: slamch.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+! dlamch.o: dlamch.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+  
+  .f.o: ; $(FORTRAN) $(OPTS) -c $< -o $@
+--- 29,35 ----
+  clean:
+  	rm -f *.o
+  
+! slamch.o: slamch.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+! dlamch.o: dlamch.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+  
+  .f.o: ; $(FORTRAN) $(OPTS) -c $< -o $@
+diff -crB lapack-3.1.1-a/make.inc.example lapack-3.1.1-b/make.inc.example
+*** lapack-3.1.1-a/make.inc.example	2007-02-23 14:07:35.000000000 -0600
+--- lapack-3.1.1-b/make.inc.example	2012-07-19 10:33:06.000000000 -0500
+***************
+*** 18,28 ****
   #  selected.  Define LOADER and LOADOPTS to refer to the loader and 
   #  desired load options for your machine.
   #
-! FORTRAN  = f77
-  #OPTS     = -O4 -u -f -mt
-  #OPTS     = -u -f -dalign -native -xO5 -xarch=v8plusa
-! OPTS     = -u -f -dalign -native -xO5 -xarch=v8plusa
+! FORTRAN  = g77 
+! OPTS     = -funroll-all-loops -O3
   DRVOPTS  = $(OPTS)
-! NOOPT    = -u -f
-  #NOOPT    = -u -f -mt
-! LOADER   = f77
-  #LOADOPTS = -mt
-! LOADOPTS = -f -dalign -native -xO5 -xarch=v8plusa
+  NOOPT    =
+! LOADER   = g77
+  LOADOPTS =
   #
-  #  The archiver and the flag(s) to use when building archive (library)
-  #  If you system has no ranlib, set RANLIB = echo.
---- 16,33 ----
+  # Timer for the SECOND and DSECND routines
+--- 18,28 ----
   #  selected.  Define LOADER and LOADOPTS to refer to the loader and 
   #  desired load options for your machine.
   #
 ! FORTRAN  = gfortran
-  #OPTS     = -O4 -u -f -mt
-  #OPTS     = -u -f -dalign -native -xO5 -xarch=v8plusa
-! #OPTS     = -u -f -dalign -native -xO5 -xarch=v8plusa
-! OPTS      = -funroll-all-loops -O3 -fPIC
+! OPTS     = -funroll-all-loops -O3 -fPIC
   DRVOPTS  = $(OPTS)
-! #NOOPT    = -u -f
-  #NOOPT    = -u -f -mt
-! NOOPT     = -fPIC
+  NOOPT    =
 ! LOADER   = gfortran
-  #LOADOPTS = -mt
-! #LOADOPTS = -f -dalign -native -xO5 -xarch=v8plusa
+  LOADOPTS =
   #
-  #  The archiver and the flag(s) to use when building archive (library)
-  #  If you system has no ranlib, set RANLIB = echo.
-diff -cr LAPACK/SRC/Makefile LAPACK.patched/SRC/Makefile
-*** LAPACK/SRC/Makefile	1999-11-04 13:26:09.000000000 -0600
---- LAPACK.patched/SRC/Makefile	2011-07-26 17:53:28.000000000 -0500
+  # Timer for the SECOND and DSECND routines
+diff -crB lapack-3.1.1-a/SRC/Makefile lapack-3.1.1-b/SRC/Makefile
+*** lapack-3.1.1-a/SRC/Makefile	2007-02-23 15:33:05.000000000 -0600
+--- lapack-3.1.1-b/SRC/Makefile	2012-07-19 10:31:27.000000000 -0500
 ***************
-*** 277,283 ****
-     zunmtr.o zupgtr.o \
-     zupmtr.o izmax1.o dzsum1.o
+*** 288,294 ****
+     zupmtr.o izmax1.o dzsum1.o zstemr.o \
+     zcgesv.o zlag2c.o clag2z.o
   
-! all: single complex double complex16
+! all: ../$(LAPACKLIB)
   
-  single: $(SLASRC) $(ALLAUX) $(SCLAUX) 
-  	$(ARCH) $(ARCHFLAGS) ../$(LAPACKLIB) $(SLASRC) $(ALLAUX) \
---- 277,283 ----
-     zunmtr.o zupgtr.o \
-     zupmtr.o izmax1.o dzsum1.o
+  ALLOBJ=$(SLASRC) $(DLASRC) $(CLASRC) $(ZLASRC) $(SCLAUX) $(DZLAUX)	\
+  	$(ALLAUX)
+--- 288,294 ----
+     zupmtr.o izmax1.o dzsum1.o zstemr.o \
+     zcgesv.o zlag2c.o clag2z.o
   
-! all: single complex double complex16 liblapack.so
+! all: ../$(LAPACKLIB) liblapack.so
   
-  single: $(SLASRC) $(ALLAUX) $(SCLAUX) 
-  	$(ARCH) $(ARCHFLAGS) ../$(LAPACKLIB) $(SLASRC) $(ALLAUX) \
+  ALLOBJ=$(SLASRC) $(DLASRC) $(CLASRC) $(ZLASRC) $(SCLAUX) $(DZLAUX)	\
+  	$(ALLAUX)
 ***************
-*** 299,304 ****
---- 299,308 ----
-  	$(DZLAUX)
-  	$(RANLIB) ../$(LAPACKLIB)
+*** 297,302 ****
+--- 297,305 ----
+  	$(ARCH) $(ARCHFLAGS) $@ $(ALLOBJ)
+  	$(RANLIB) $@
   
-+ liblapack.so: $(ALLAUX) $(SCLAUX) $(DZLAUX) $(SLASRC) \
-+ 	$(CLASRC) $(DLASRC) $(ZLASRC)
-+ 	cc -shared -Wl,-soname,$@ -L../BLAS/SRC -lgfortran -lblas -o $@ *.o
++ liblapack.so: $(ALLOBJ)
++ 	cc -shared -Wl,-soname,$@ -lgfortran -lg2c -o $@ $(ALLOBJ)
 + 
-  $(ALLAUX): $(FRC)
-  $(SCLAUX): $(FRC)
-  $(DZLAUX): $(FRC)
+  single: $(SLASRC) $(ALLAUX) $(SCLAUX) 
+  	$(ARCH) $(ARCHFLAGS) ../$(LAPACKLIB) $(SLASRC) $(ALLAUX) \
+  	$(SCLAUX)
+***************
+*** 330,339 ****
+  
+  clean:
+  	rm -f *.o
+  
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+  
+! slaruv.o: slaruv.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+! dlaruv.o: dlaruv.f ; $(FORTRAN) $(NOOPT) -c $< -o $@
+  
+--- 333,343 ----
+  
+  clean:
+  	rm -f *.o
++ 	rm -f *.so
+  
+  .f.o: 
+  	$(FORTRAN) $(OPTS) -c $< -o $@
+  
+! slaruv.o: slaruv.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+! dlaruv.o: dlaruv.f ; $(FORTRAN) $(NOOPT) -fPIC -c $< -o $@
+  
