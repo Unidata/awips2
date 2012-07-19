@@ -14,9 +14,9 @@ import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 
 import java.awt.Color;
@@ -57,7 +57,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  *                                     forecast hour in the data.
  * 04/11        #?         B. Yin      Re-factor IAttribute
  * 01/06/2012   530        B. Hebbard  In initResource filter DB query by cycle time
- * 
+ * 05/23/12     785        Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author gzhang 
@@ -325,5 +325,15 @@ public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, Ma
 			}
 		}
 
-	}	
+	}
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.idftDataList.size() == 0) {
+			return legendString + "-No Data";
+		}		
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }

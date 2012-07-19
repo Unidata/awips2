@@ -8,6 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlgFactory;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -91,6 +93,10 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
     	
     	if ( super.isDelObj() ){
     		
+    		// rest delObj mode because clicking on any Object in Palette de-activiates the delObj tool 
+        	PgenSession.getInstance().getPgenPalette().setActiveIcon( "Delete Obj" );
+        	PgenUtil.setDelObjMode();
+        	
     		/*
     		 * pop up the 'delete obj' confirm dialog
     		 */
@@ -100,6 +106,7 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
     			
     			MessageDialog confirmDlg = new MessageDialog( 
     					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+    					//PgenSession.getInstance().getPgenPalette().getViewSite().getShell(),
     					"Confirm Delete", null, "Are you sure you want to delete all " + numEls +" selected element(s)?",
     					MessageDialog.QUESTION, new String[]{"OK", "Cancel"}, 0);
     			

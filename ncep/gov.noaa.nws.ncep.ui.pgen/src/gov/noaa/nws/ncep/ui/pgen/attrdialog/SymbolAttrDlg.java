@@ -68,6 +68,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      the complete color matrix . 
  * 11/10		?			B. Yin		Set the dialog title to the PgenCategory(symbol/combo/marker) 
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 05/12		756			B. Yin		Added a new method placeSymbol in order for ContourAttrDlg to override
  * </pre>
  * 
  * @author	B. Yin
@@ -106,7 +107,7 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	protected Text longitudeText = null;
 	
 	protected Button placeBtn = null;
-	private Button undoBtn = null;
+	protected Button undoBtn = null;
 	private boolean keyEvent = false;
 	
 	// location when 'Place Symbol' is pressed. (to undo)
@@ -811,49 +812,8 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 
 			@Override
 			public void handleEvent(Event event) {
-
-				DrawableElementFactory def = new DrawableElementFactory();
-
-				/*
-				 * Check if new element should be a Symbol or ComboSymbol
-				 */
-				DrawableType which = DrawableType.SYMBOL;
-				if ( pgenCategory.equals("Combo") ) which = DrawableType.COMBO_SYMBOL;
-
-				DrawableElement elem = (DrawableElement)def.create(which, SymbolAttrDlg.this, pgenCategory,
-						pgenType, new Coordinate(Double.parseDouble(longitudeText.getText()),
-								Double.parseDouble(latitudeText.getText())),
-								drawingLayer.getActiveLayer());
-
-				if ( drawingLayer.getSelectedDE() != null ){
-					prevLoc = ((ISymbol)drawingLayer.getSelectedDE()).getLocation();
-					drawingLayer.replaceElement(drawingLayer.getSelectedDE(), elem);
-					drawingLayer.setSelected(elem);
-				}
-				else if (SymbolAttrDlg.this.labelEnabled()){
-            		DECollection dec = new DECollection("labeledSymbol");
-            		dec.setPgenCategory(pgenCategory);
-            		dec.setPgenType(pgenType);
-            		dec.addElement(elem);
-            		drawingLayer.addElement(dec);
-            		
-            		String defaultTxt = "";
-            		if ( SymbolAttrDlg.this instanceof VolcanoAttrDlg ){
-            			defaultTxt = ((VolcanoAttrDlg)SymbolAttrDlg.this).getVolText();
-            			dec.setCollectionName("Volcano");
-            		}
-            		PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)SymbolAttrDlg.this).useSymbolColor(), defaultTxt, dec );
-				}
-				else {
-					drawingLayer.addElement(elem);
-					placeBtn.setEnabled(false);
-					undoBtn.setEnabled(true);
-				}
-
-				mapEditor.refresh();
-
-			} 
-
+				placeSymbol();
+			}
 		});
 	}
 
@@ -951,4 +911,52 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
     public Coordinate getLocation(){
     	return null;
     }
+	
+	/**
+	 * place the symbol at the location from lat/lon text fields
+	 */
+	protected void placeSymbol(){
+
+		DrawableElementFactory def = new DrawableElementFactory();
+
+		/*
+		 * Check if new element should be a Symbol or ComboSymbol
+		 */
+		DrawableType which = DrawableType.SYMBOL;
+		if ( pgenCategory.equals("Combo") ) which = DrawableType.COMBO_SYMBOL;
+
+		DrawableElement elem = (DrawableElement)def.create(which, SymbolAttrDlg.this, pgenCategory,
+				pgenType, new Coordinate(Double.parseDouble(longitudeText.getText()),
+						Double.parseDouble(latitudeText.getText())),
+						drawingLayer.getActiveLayer());
+
+		if ( drawingLayer.getSelectedDE() != null ){
+			prevLoc = ((ISymbol)drawingLayer.getSelectedDE()).getLocation();
+			drawingLayer.replaceElement(drawingLayer.getSelectedDE(), elem);
+			drawingLayer.setSelected(elem);
+		}
+		else if (SymbolAttrDlg.this.labelEnabled()){
+    		DECollection dec = new DECollection("labeledSymbol");
+    		dec.setPgenCategory(pgenCategory);
+    		dec.setPgenType(pgenType);
+    		dec.addElement(elem);
+    		drawingLayer.addElement(dec);
+    		
+    		String defaultTxt = "";
+    		if ( SymbolAttrDlg.this instanceof VolcanoAttrDlg ){
+    			defaultTxt = ((VolcanoAttrDlg)SymbolAttrDlg.this).getVolText();
+    			dec.setCollectionName("Volcano");
+    		}
+    		PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)SymbolAttrDlg.this).useSymbolColor(), defaultTxt, dec );
+		}
+		else {
+			drawingLayer.addElement(elem);
+			placeBtn.setEnabled(false);
+			undoBtn.setEnabled(true);
+			undoBtn.setText("Undo Symbol");
+		}
+
+		mapEditor.refresh();
+
+	}
 }

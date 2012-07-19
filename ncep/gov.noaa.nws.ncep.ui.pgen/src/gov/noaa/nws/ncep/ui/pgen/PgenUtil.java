@@ -21,17 +21,16 @@ import gov.noaa.nws.ncep.ui.pgen.graphtogrid.CoordinateTransform;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResourceData;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
-//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-//import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -43,8 +42,19 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -53,12 +63,14 @@ import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -104,6 +116,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 08/11		  			J. Wu		  Added getPgenOprDirectory()
  * 03/12         #611       S. Gurung     Added computePoint()
  * 03/12		 #704		B. Yin		  Move applyStylesheet() here from ProdType
+ * 05/12		 #708		J. Wu		  Add methods to retrieve current data frame time.
+ * 05/12		 #769		B. Yin		  Moved the creation of UTC time from TCA dialog to here.
  * 
  * </pre>
  * 
@@ -194,9 +208,21 @@ public class PgenUtil {
 	 * set current ModalTool to  Selecting mode
 	 */   
     public static final void setSelectingMode() {
+      
+		setCommandMode("gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect");
+
+    }
+	/**
+	 * set current ModalTool to  Selecting mode
+	 */   
+    public static final void setDelObjMode() {
+    		setCommandMode("gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteObj");
+    } 
+    
+    private static final void setCommandMode(String command){
         IEditorPart part = EditorUtil.getActiveEditor();
         ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
-        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect");
+        Command cmd = service.getCommand(command);
 
         if (cmd != null) {
         	
@@ -213,7 +239,6 @@ public class PgenUtil {
         	}
         }
     }
-  
     /**
      * Set the drawing mode to symbol. 
      * When drawing a symbol with a text, this method is called after the text is finished
@@ -1717,6 +1742,199 @@ public class PgenUtil {
     }
 
 
+	/**
+	 * Retrieve the current data frame time in format of "yyMMdd/HHmm".
+	 * 
+	 * Note - this method is modified from FramDataDisply.updateFrameDataDisplay().
+	 * 
+	 * @param 
+	 * @return a time string in format of "yyMMdd/HHmm"
+	 */
+	public static String getCurrentFrameTime() {       
+        return getFrameTime( getCurrentFrameCalendar() );
+	}
+	
+	/**
+	 * Retrieve the current data frame's Calendar time.
+	 * 
+	 * @param 
+	 * @return a Calendar
+	 */
+	public static Calendar getCurrentFrameCalendar() {
+		
+		Calendar cal = null;
+		
+		if( EditorUtil.getActiveEditor() != null) {
+			
+			AbstractEditor absEditor = (AbstractEditor)EditorUtil.getActiveEditor();
+			
+			MapDescriptor mapDescriptor = (MapDescriptor)absEditor.getActiveDisplayPane().getRenderableDisplay().getDescriptor();
 
-    
+			if ( mapDescriptor != null ) {
+
+				int currentFrame = mapDescriptor.getFramesInfo().getFrameIndex();
+				
+				DataTime[] frameTimes = mapDescriptor.getFramesInfo().getFrameTimes();	
+								
+				if ( frameTimes != null && currentFrame >= 0 ) {
+		             cal = frameTimes[ currentFrame].getValidTime();
+				}				
+			}
+		}
+		
+		return cal;
+
+	}
+
+	/**
+	 * Build a frame time in format of "yyMMdd/HHmm" from a Calendar .
+	 *
+	 * @param  cal	a Calendar
+	 * @return a time string in format of "yyMMdd/HHmm"
+	 */
+	public static String getFrameTime( Calendar cal ) {
+
+		String frameTimeString = "";
+		
+		if( cal != null) {
+	        
+			SimpleDateFormat FRAME_DATE_FORMAT = new SimpleDateFormat( "EEE yyMMdd/HHmm") ;
+	        FRAME_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+			
+		    String fTimeString  = new String( FRAME_DATE_FORMAT.format( cal.getTime() ) );
+		    if ( fTimeString != null && fTimeString.trim().length() > 0 ) {
+				 String[] ftArrays = fTimeString.split(" ");
+				 if ( ftArrays.length > 1 ) {
+				     frameTimeString = ftArrays[ 1 ];
+				 }				
+			}
+		}
+		
+		return frameTimeString;
+
+	}
+
+	/**
+	 * Get a Calendar by incrementing "HH:MM" to a given Calendar.
+	 * By default, one hour is added to the give Calendar.
+	 *
+	 * @param  calIn      Calendar
+	 * @param  interval   a timeString as "HH:MM"
+	 * @return a Calendar
+	 */
+	public static Calendar getNextCalendar( Calendar calIn,  String interval ) {
+
+        Calendar nCal = null;
+        
+        if ( calIn != null ) {
+        	long ftime = calIn.getTimeInMillis();
+        	long ntime = 60 * 60 * 1000;
+        	if ( interval != null & interval.trim().length() > 0 ) {
+        		String[] intTimes = interval.split( ":" );
+        		if ( intTimes.length > 1 ) {
+        			ntime = Integer.parseInt( intTimes[0] ) * 60 * 60 * 1000 +
+        			Integer.parseInt( intTimes[1] ) * 60 * 1000  ;
+        		}
+        		else {            		        		
+        			ntime = Integer.parseInt( intTimes[0] ) * 60 * 1000 ;
+        		}
+        	}
+
+        	nCal = Calendar.getInstance();
+        	nCal.setTimeInMillis( ftime + ntime );
+        }
+        
+		return nCal;
+
+	}
+	
+    	
+	/**
+	 *		Create a UTC time text widget
+	 */
+	public static Text setUTCTimeTextField( Composite parent, final Text validTime, Calendar cal,  Control topWidget, int offset ){
+		
+		validTime.setTextLimit(4);
+		validTime.setText( getInitialTime(cal ));
+		validTime.addVerifyListener( new VerifyListener(){
+
+			@Override
+			public void verifyText(VerifyEvent ve) {
+				final char BACKSPACE = 0x08;
+				final char DELETE = 0x7F;
+				
+				if ( Character.isDigit(ve.character) || Character.UNASSIGNED == ve.character ||
+					  ve.character == BACKSPACE || ve.character == DELETE ) ve.doit = true;
+				else {
+					ve.doit = false;
+					Display.getCurrent().beep();
+				}
+			}} );
+		
+		validTime.addModifyListener( new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				if ( isTimeValid( validTime.getText() ) )
+					validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_WHITE));
+				else
+					validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_RED));
+			}
+			
+		});
+		 
+		org.eclipse.swt.widgets.Label utcLabel = new org.eclipse.swt.widgets.Label(parent,SWT.NONE);
+		utcLabel.setText("UTC");
+		FormData fd = new FormData();
+		parent.setLayout( new FormLayout());
+		if ( topWidget != null ) fd.top = new FormAttachment(topWidget,offset, SWT.BOTTOM);
+		fd.left = new FormAttachment(validTime, 5, SWT.RIGHT);
+		utcLabel.setLayoutData(fd);
+		
+		return validTime;
+	}
+	
+	/**
+ 	 *  check if the input string is a valid time
+     */
+	public static boolean isTimeValid(String text) {
+		int time = Integer.parseInt(text);
+		int hour = time / 100;
+		int minute = time % 100;
+		
+		if ( hour >= 0 && hour <= 23 &&
+				minute >= 00 && minute <=59 ) return true;
+		
+		return false;
+	}
+	
+	/**
+     *	Get the time string in the format HH00 from the input calendar time.
+	 */
+	public static String getInitialTime(Calendar now ) {
+		
+		
+		int minute = now.get(Calendar.MINUTE);
+		if ( minute >= 15 ) now.add(Calendar.HOUR_OF_DAY, 1);
+		int hour = now.get(Calendar.HOUR_OF_DAY);
+
+		return String.format("%02d00", hour);
+	}
+	
+    /**
+	 * Simulate a mouse down event. 
+	 * @param x
+	 * @param y
+	 * @param button
+	 * @param mapEditor
+	 */
+	public static void simulateMouseDown(int x, int y, int button, AbstractEditor mapEditor ){
+		Event me = new Event();
+		me.display = mapEditor.getActiveDisplayPane().getDisplay();
+		me.button = 1;
+		me.type = SWT.MouseDown;
+		me.x = x;
+		me.y = y;
+		mapEditor.getMouseManager().handleEvent(me);
+	}
 }

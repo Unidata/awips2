@@ -1,10 +1,9 @@
 ! Parameters and Attributes for the default WaveSat Resource
 !
-colorBar=@waveSatColorBar.xml
+colorBar=@ColorBars/WaveSat/waveSatColorBar.xml
 fontSize=12
 fontName=Times
 timeDisplayInterval=30
 timeDisplayColor=RGB {255, 255, 255}
-satelliteId=260
 !displayValues=true  
 !symbolName=ASTERISK  Not Implemented

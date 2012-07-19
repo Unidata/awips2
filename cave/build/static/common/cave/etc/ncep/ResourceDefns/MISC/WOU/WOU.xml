@@ -3,6 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>WOU</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>    
+pluginName=aww
+reportType=SEVERE_THUNDERSTORM_WATCH,TORNADO_WATCH_OUTLINE_UPDATE
+color=RGB {155, 155, 155}
+    </resourceParameters>
     <filterLabels>AWW,Event</filterLabels>
     <rscImplementation>WOU</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

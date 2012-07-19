@@ -26,6 +26,8 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -216,6 +218,11 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
      * Remarks text control.
      */
     private Text remarksTF;
+ 
+    /**
+     * text from the remark text box
+     */
+    private String currentRemarkText=null;
 
     /**
      * Forecast Point check box.
@@ -783,6 +790,20 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
         remarksTF.setLayoutData(gd);
         remarksTF.setFont(controlFont);
         remarksTF.setTextLimit(255);
+        currentRemarkText=remarksTF.getText();
+        ModifyListener listener = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (remarksTF.getText().length()>255){
+        			remarksTF.setText(currentRemarkText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentRemarkText=remarksTF.getText();
+        	}
+        };
+
+        remarksTF.addModifyListener(listener);
+
     }
 
     /**
