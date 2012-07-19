@@ -21,6 +21,7 @@ package com.raytheon.uf.common.menus.xml;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -42,5 +43,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "separator")
 public class CommonSeparatorMenuContribution extends
         CommonAbstractMenuContribution {
+
+    /** Specifies if the separator should be visible or not */
+    @XmlAttribute(name = "visible", required = false)
+    public boolean visible = true;
 
 }
