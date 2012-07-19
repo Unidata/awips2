@@ -178,7 +178,8 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
             TimeQueryRequest myQ = req.getTimeQuery(originalRequest,
                     latestOnly, cache, latestOnlyCache);
             if (myQ != null) {
-                // no need to merge timeQueries
+                // Make sure simulated time gets set
+                myQ.setSimDate(originalRequest.getSimDate());
                 queries.put(req, myQ);
             }
         } else {
