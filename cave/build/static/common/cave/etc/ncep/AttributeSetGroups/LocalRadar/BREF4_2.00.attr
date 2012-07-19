@@ -1,7 +1,8 @@
 colorMapName=osf_ref16
-colorBar=@dfltRadarColorBar.xml
+colorBar=@ColorBars/Radar/dfltRadarColorBar.xml
 productCode=20
 elevationNumber=4
+!primaryElevationAngle=3.4
 alpha=1.0
 brightness=1.0
 contrast=1.0

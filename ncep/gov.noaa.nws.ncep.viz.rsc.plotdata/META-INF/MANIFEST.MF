@@ -30,9 +30,9 @@ Import-Package: com.raytheon.edex.scriptfactory,
  com.raytheon.uf.viz.core.rsc,
  com.vividsolutions.jts.geom,
  gov.noaa.nws.ncep.edex.common.sounding,
- gov.noaa.nws.ncep.metparameters.util,
  gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements,
- gov.noaa.nws.ncep.viz.ui.display
+ gov.noaa.nws.ncep.viz.ui.display,
+ gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea
 Export-Package: gov.noaa.nws.ncep.viz.rsc.plotdata,
  gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter,
  gov.noaa.nws.ncep.viz.rsc.plotdata.parameters,

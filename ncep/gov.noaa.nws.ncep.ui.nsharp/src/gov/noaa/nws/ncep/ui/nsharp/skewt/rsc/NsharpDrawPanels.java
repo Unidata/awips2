@@ -1973,6 +1973,20 @@ public class NsharpDrawPanels {
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
+		
+		/*
+		 * Compute CCL (TL)
+		 */	
+		/*
+		FloatByReference pccl = new FloatByReference(0);		
+		FloatByReference tccl = new FloatByReference(0);
+		FloatByReference zccl = new FloatByReference(0);
+		nsharpNative.nsharpLib.cave_ccl (-9999.F, pccl, tccl, zccl);
+		System.out.println (" \n\n surface-based CCL ");
+		System.out.println (" pccl (mb): " + pccl.getValue() );
+		System.out.println (" tccl (C): " + tccl.getValue() );
+		System.out.println (" zccl (m): " + zccl.getValue() ); 
+		*/
 		//myFont.dispose();
     }
 	@SuppressWarnings("deprecation")
@@ -2451,6 +2465,7 @@ public class NsharpDrawPanels {
 		// calculate Layer-based lapse rate data 
 		flag = 1;
 		nsharpNative.nsharpLib.mix_height(mh_mb,mh_drct,mh_sped,mh_dC,mh_lr,mh_drct_max,mh_sped_max,flag);
+		
 
 		if(nsharpNative.nsharpLib.qc(nsharpNative.nsharpLib.ihght(mh_mb.getValue()))==1) {
 			textStr = NsharpNativeConstants.OPC_MIXINGHEIGHT_LINE;
@@ -2619,6 +2634,48 @@ public class NsharpDrawPanels {
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		}
+		
+		/* 
+		 *  Momentum transfer (TL)
+		 */  
+		/*
+		FloatByReference drct_mean = new FloatByReference(-9999.F);
+		FloatByReference sped_mean = new FloatByReference(-9999.F);
+		FloatByReference pres = new FloatByReference(-9999.F);
+		FloatByReference drct = new FloatByReference(-9999.F);
+		FloatByReference sped = new FloatByReference(-9999.F);
+		FloatByReference del_t = new FloatByReference(-9999.F);
+		FloatByReference lr = new FloatByReference(-9999.F);
+		FloatByReference drct_max = new FloatByReference(-9999.F);
+		FloatByReference sped_max = new FloatByReference(-9999.F);
+
+		flag = 0;
+		nsharpNative.nsharpLib.nc_mix_height(pres,drct,sped,del_t,lr,drct_mean, sped_mean, drct_max,sped_max,flag);
+		System.out.println (" \n\n Surface-based momentum transfer ");
+		System.out.println (" pressure at mix height: " + pres.getValue() );
+		System.out.println (" wind dir at mix height: " + drct.getValue() );
+		System.out.println (" wind speed at mix height: " + sped.getValue() );
+		System.out.println (" layer change in temp (C): " + del_t.getValue() );
+		System.out.println (" Layer lapse rate: " + lr.getValue() );
+		System.out.println (" mean wind direction: " + drct_mean.getValue() );
+		System.out.println (" mean wind speed: " + sped_mean.getValue() );
+		System.out.println (" max wind direction: " + drct_max.getValue() );
+		System.out.println (" max wind speed: " + sped_max.getValue() ); 
+		
+		flag = 1;
+		nsharpNative.nsharpLib.nc_mix_height(pres,drct,sped,del_t,lr,drct_mean, sped_mean, drct_max,sped_max,flag);
+		System.out.println (" \n\n Layer-based momentum transfer ");
+		System.out.println (" pressure at mix height: " + pres.getValue() );
+		System.out.println (" wind dir at mix height: " + drct.getValue() );
+		System.out.println (" wind speed at mix height: " + sped.getValue() );
+		System.out.println (" layer change in temp (C): " + del_t.getValue() );
+		System.out.println (" Layer lapse rate: " + lr.getValue() );
+		System.out.println (" mean wind direction: " + drct_mean.getValue() );
+		System.out.println (" mean wind speed: " + sped_mean.getValue() );
+		System.out.println (" max wind direction: " + drct_max.getValue() );
+		System.out.println (" max wind speed: " + sped_max.getValue() ); 
+		*/
+		
         //myFont.dispose();
 	}
 	@SuppressWarnings("deprecation")
@@ -3363,6 +3420,49 @@ public class NsharpDrawPanels {
 		target.drawString(myFont, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
+		
+		/*
+		 * Compute MDPI_WINDEX (TL)
+		 */
+		/*		
+		FloatByReference windex = new FloatByReference(0);
+		float mdpi = nsharpNative.nsharpLib.cave_mdpi_windex(windex);
+		System.out.println (" \n\n MDPI: Microburst Day Potential Index");
+		System.out.println (" MDPI: " + mdpi );
+		System.out.println (" Max wind gust: " + windex.getValue() );	
+		*/
+		
+		/* 
+		 * Compute DMPI (TL)
+		 */
+		/*
+		int dmpi = nsharpNative.nsharpLib.cave_dmpi();
+		System.out.println (" \n\n DMPI: Dry Microburst Potential Index");
+		System.out.println (" DMPI: " + dmpi ); 		
+		*/
+		
+		/*
+		 * Compute Soaring Index (TL)
+		 */
+		/*
+		FloatByReference ctax = new FloatByReference(0);
+		FloatByReference zconv = new FloatByReference(0);
+		FloatByReference tconv= new FloatByReference(0);
+		FloatByReference zthrm = new FloatByReference(0);
+		FloatByReference tthrm = new FloatByReference(0);
+		FloatByReference soar = new FloatByReference(0);
+		FloatByReference ttrig = new FloatByReference(0);
+
+		nsharpNative.nsharpLib.cave_soar ( -9999.F, ctax, zconv,tconv, zthrm, tthrm, soar, ttrig);   	
+		System.out.println (" \n\n Soaring Index ");
+		System.out.println (" potential temp of forecast Tmax (C): " + ctax.getValue() );
+		System.out.println (" height of minimum effective convection (m): " + zconv.getValue() );
+		System.out.println (" temp of minimum effective convection (C): " + tconv.getValue() );
+		System.out.println (" height at thrm altitude (m): " + zthrm.getValue() );
+		System.out.println (" temperature at thrm altitude (C): " + tthrm.getValue() );
+		System.out.println (" soaring index (ft/min): " + soar.getValue() );
+		System.out.println (" triggering temp (C): " + ttrig.getValue() );	
+		*/
        // myFont.dispose();
 	}
 	@SuppressWarnings("deprecation")
@@ -3613,6 +3713,21 @@ public class NsharpDrawPanels {
                 VerticalAlignment.TOP, null);
 		}
 		
+		/*
+		 * Compute vertical motion stemming from thermal buoyancy. (TL)
+		 */		
+		/*
+		float [] vvel = null;
+		vvel = new float[150];
+		float wmax = nsharpNative.nsharpLib.cave_wmax (vvel);
+		System.out.println (" \n\n Thermodynamic buoyancy ");
+		for (int i = 0; i < vvel.length; i++ ) {
+			if ( vvel[i] > 0. ) { 
+				System.out.print ( " W [" + i +"]" + " = " + vvel[i] + "\n");
+			}
+		}	 
+		System.out.println (" Max vertical motions: " + wmax );
+		*/
         //myFont.dispose();
 	}
 

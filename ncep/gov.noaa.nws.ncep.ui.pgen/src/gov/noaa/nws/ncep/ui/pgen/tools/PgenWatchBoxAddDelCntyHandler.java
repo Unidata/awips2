@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import java.util.List;
 
+import org.eclipse.swt.SWT;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
@@ -31,6 +32,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 
 import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
@@ -58,6 +60,7 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
 	private WatchBox wb;
 	private PgenWatchBoxModifyTool wbTool;
 
+	
 	//feature collection used to find which county a location is in
 	static FeatureCollection<SimpleFeatureType,SimpleFeature> counties;
 	
@@ -86,6 +89,8 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
      */
     @Override	
     public boolean handleMouseDown(int anX, int aY, int button) {
+    	
+       if (shiftDown ) return false;
        
     	//  Check if mouse is in geographic extent
     	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -186,7 +191,7 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     			mapEditor.refresh();
     		}
     		
-    		return true;            	
+    		return false;            	
 
     	}
         else if ( button == 3 ) {
@@ -209,7 +214,8 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     
     @Override
 	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-		return true;
+		if ( shiftDown ) return false;
+		else return true;
 	}
 
 	/**
@@ -263,5 +269,6 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
 
         return filter;
     }
+    
 
 }

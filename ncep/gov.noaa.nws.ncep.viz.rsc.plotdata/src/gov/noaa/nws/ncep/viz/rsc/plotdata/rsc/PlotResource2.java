@@ -20,8 +20,11 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
+import gov.noaa.nws.ncep.viz.common.GraphicsAreaPreferences;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.common.Activator;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelGenerator2;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.StaticPlotInfoPV.SPIEntry;
@@ -35,11 +38,15 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.GeneralEnvelope;
+import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -53,19 +60,19 @@ import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.capabilities.IPlotDataResource;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotAlertParser;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 import com.vividsolutions.jts.geom.Coordinate;
+import gov.noaa.nws.ncep.gempak.parameters.core.marshaller.garea.GraphicsAreaCoordinates;
 
+import static java.lang.System.out;
 /**
  * Provides a resource that will display plot data for a given reference time.
  * 
@@ -101,7 +108,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  02/16/2012     #555    sgurung     Changed setPopulated() to setPopulated(true) in populateFrame().
  *  02/16/2012     #639    Q.Zhou      Changed maxDensity to 3.0(Could do 4 or 5 if needed)
  *  04/02/2012     #615    sgurung     Use modified version of PlotModelGenerator2 constructor
- *  
+ *  05/18/2012     #809    sgurung     Use a separate PlotModelGenerator2 thread to create plots for stations
+ *  								   within a predefined Data Area (from Preferences) but outside
+ *  								   of the current display area to improve panning performance
+ *  05/23/2012     785     Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author brockwoo
@@ -137,8 +147,8 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         private boolean newData = false;
 
         private List<Station> lastComputed = new ArrayList<Station>();
-
-        public ProgDisc() {
+        
+         public ProgDisc() {
             super("progressive disclosure");
             this.setSystem(true);
         }
@@ -174,6 +184,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                 FrameData frameData = (FrameData) getCurrentFrame();
                 PaintProperties theseProps = new PaintProperties(lastProps);
                 IExtent extent = theseProps.getView().getExtent();
+               
                 int displayWidth = (int) (descriptor.getMapWidth() * theseProps
                         .getZoomLevel());
                 double kmPerPixel = (displayWidth / canvasWidth) / 1000.0;
@@ -183,6 +194,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                 if (plotWidth != actualPlotWidth * magnification) {
                     plotWidth = actualPlotWidth * magnification;
                     generator.setPlotModelSize(Math.round(plotWidth));
+                    bgGenerator.setPlotModelSize(Math.round(plotWidth));
                 }
                 double displayHintSize = plotRscData.getPixelSizeHint() * magnification;
                 
@@ -190,7 +202,10 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                 
                 boolean plotAll = ( density > MAX_DENSITY || threshold < distFloor  );
                 
+                GeneralEnvelope dataAreaEnvelope = getDataAreaEnvelope();
+                
                 LinkedList<Station> stationList = new LinkedList<Station>();
+                LinkedList<Station> bgStationList = new LinkedList<Station>();
                 List<String> toRemove = new ArrayList<String>();
                 
                 for (String s : frameData.stnLocList) {
@@ -198,19 +213,28 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                     Coordinate location = station.pixelLocation;
                     
                     if (station.info != null) {
-                        if (!extent.contains(new double[] { location.x,
-                                location.y })) {
-                            continue;
+                    	DirectPosition stnPos = getStationPosition(station);
+                    
+                    	if ((dataAreaEnvelope == null || stnPos == null) && !extent.contains(new double[] { location.x,location.y })) {
+                        	continue;
+                        }                    	
+                    	else if (dataAreaEnvelope != null && stnPos != null && !dataAreaEnvelope.contains(stnPos) && !extent.contains(new double[] { location.x, location.y })) {
+                        	continue;
                         }
-                        
-                        // the distValues will be null for autoUpdated stations from the PlotAlertParser.
+                    	
+                    	// the distValues will be null for autoUpdated stations from the PlotAlertParser.
                         // 
                         if( station.distValue == null ) {
                         	//numAutoUpdateStations++;
-//                        	System.out.println("station.distValue = null for stn "+station.info.stationId );
+//                        	out.println("station.distValue = null for stn "+station.info.stationId );
                         }
                         else if( plotAll || station.distValue >= threshold ) {
-                            stationList.addLast(station);
+                            if (extent.contains(new double[] { location.x, location.y })) {
+                            	stationList.addLast(station);  
+                        	}
+                            else {
+                            	bgStationList.add(station);
+                            }
                         }
                     } 
                     else {  // why would this be null ??? also remove from stn map?
@@ -218,7 +242,6 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
                     }
                 }
 
-                // This 
                 if( !toRemove.isEmpty() ) {
                 	System.out.println("removing "+ toRemove.size() + " stations from list");
                 }
@@ -231,20 +254,36 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 //                if (runtimeProgDisc) {
 //                	frameData.calculateProgDiscRuntime(stationList, threshold);
 //                }
+                
                 List<Station> imageStations = new ArrayList<Station>();
                 List<PlotInfo> newStations = new ArrayList<PlotInfo>();
-                for (Station station : stationList) {
-                    if (station.plotImage == null) {
-                        if (generator.isQueued(station.info) == false) {
+                
+                for (Station station : stationList) {               	
+                	 if (station.plotImage == null) {
+                         if (generator.isQueued(station.info) == false) {
                             newStations.add(station.info);
+                         }
+                     } else {
+                         imageStations.add(station);
+                     }
+                }
+                // for stations within the current display area
+                generator.queueStations(newStations);
+                
+                newStations = new ArrayList<PlotInfo>();
+                for (Station station : bgStationList) {
+                    if (station.plotImage == null) {
+                        if (bgGenerator.isQueued(station.info) == false) {
+                           newStations.add(station.info);
                         }
                     } else {
                         imageStations.add(station);
                     }
                 }
 
-                generator.queueStations(newStations);
-
+                // for stations within the data area (from Preferences) but outside of the current display area
+                bgGenerator.queueStations(newStations);
+                
                 synchronized (this) {
                     lastComputed.clear();
                     lastComputed.addAll(imageStations);
@@ -265,6 +304,8 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     private PixelExtent worldExtent;
 
     private PlotModelGenerator2 generator;
+    
+    private PlotModelGenerator2 bgGenerator;
 
     private VA_Advanced progDisc;
 
@@ -292,9 +333,13 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 
     private double screenToWorldRatio;
 
-    private boolean needsUpdate = false;
+    private boolean needsUpdate = false;    
     
-    public class Station {
+    private final ISchedulingRule mutexRule = new MutexRule();
+    
+    private MathTransform WGS84toPROJCRS = null; 
+    
+	public class Station {
         PlotInfo info;
 
         IImage plotImage;
@@ -340,7 +385,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 			// (Don't think this should happen anymore)
 			if( plotInfo.dataTime == null ) { 
 				plotInfo.dataTime = getFrameTime();
-				System.out.println("dataTime from plotInfo is null. Setting to FrameTime");
+				out.println("dataTime from plotInfo is null. Setting to FrameTime");
 			}
 			
 			String stnMapKey = getStationMapKey( plotInfo.latitude,
@@ -351,24 +396,20 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
     		// This can happen during an auto update or if there are multiple reports for this frame.
     		//
     		if( stn != null ) {
-        		if( stn.plotImage != null ) {
-        			stn.plotImage.dispose();
-        			stn.plotImage = null;
-        		}
 //        		if( stn.info.latitude != plotInfo.latitude || 
 //        			stn.info.longitude != plotInfo.longitude ) {
-//        			System.out.println("??Updating PlotInfo for station " + stn.info.stationId +
+//        			out.println("??Updating PlotInfo for station " + stn.info.stationId +
 //        					" with different lat/lon???" + stn.info.latitude +"," + stn.info.longitude + "and " +
 //        					plotInfo.latitude + "," + plotInfo.longitude );
 //        		}
         		if( stn.info == null ) { // shouldn't happen
-        			System.out.println("Sanity check: Found existing Station in stationMap with a null plotInfo???");
+        			out.println("Sanity check: Found existing Station in stationMap with a null plotInfo???");
         		}
         		else {
-        			//System.out.println(" updating station info "+stn.info.dataURI+ " with " + plotInfo.dataURI );
+        			//out.println(" updating station info "+stn.info.dataURI+ " with " + plotInfo.dataURI );
         			
         			if( !stn.info.stationId.equals( plotInfo.stationId ) ) {
-        				System.out.println("2 stations "+ stn.info.stationId +" and " +
+        				out.println("2 stations "+ stn.info.stationId +" and " +
         						plotInfo.stationId + " have the same location?"	);
         			}
         			// if these are the same time, should we check which one should be used, 
@@ -376,13 +417,21 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         			//
         			else if( stn.info.dataTime.getValidTime().getTimeInMillis() != 
         				          plotInfo.dataTime.getValidTime().getTimeInMillis() ) {
-//        				System.out.println(" station "+ plotInfo.stationId+ " has 2 times in same frame");
-//        				System.out.println(stn.info.dataTime+ " and " + plotInfo.dataTime );
+//        				out.println(" station "+ plotInfo.stationId+ " has 2 times in same frame");
+//        				out.println(stn.info.dataTime+ " and " + plotInfo.dataTime );
         				
         				// determine the best time match.
         				if( timeMatch( plotInfo.dataTime ) < timeMatch( stn.info.dataTime ) ) {
         					stn.info = plotInfo;
-//            				System.out.println("Using time "+ plotInfo.dataTime );
+            				out.println("Replacing Station: "+
+            						stn.info.stationId+ ". at "+ stn.info.dataTime.getRefTime() 
+            					   + " with "+ plotInfo.dataTime.getRefTime() );
+
+        					if( stn.plotImage != null ) {
+        	        			out.println( "    Replacing image ");
+        	        			stn.plotImage.dispose();
+        	        			stn.plotImage = null;
+        	        		}
         				}
         			}
         		}
@@ -398,12 +447,6 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         		calcStaticStationInfo( stn );
         	}
     		
-    		// if this plotInfo is from an auto-update, (from the  PlotAlertParser) then 
-    		// we need to 
-    		if( isPopulated() ) {
-    			
-    		}
-						
 			return true;
 		}
 		
@@ -415,7 +458,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	        dynStations = 0;
 	        uniqueueStations = 0;
 	        
-	      //  System.out.println("populateFrame: "  + frameTime.toString());
+	      //  out.println("populateFrame: "  + frameTime.toString());
 	        RequestConstraint time = new RequestConstraint();
 	        String[] constraintList = { startTime.toString(), endTime.toString() };
 	        time.setBetweenValueList(constraintList);
@@ -430,7 +473,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	        								 metadataMap);
 	        
 	        long t1 = System.currentTimeMillis();
-	        System.out.println("InitFrame Took: " + (t1 - t0) + " To find "+ 
+	        out.println("InitFrame Took: " + (t1 - t0) + " To find "+ 
 	        		plotInfoObjs.size() + " Stations ( entries in metadata DB.)" );
 
 	        for( PlotInfo pltInfo : plotInfoObjs ) {	
@@ -443,7 +486,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 					}
 					else { // upper air data uses the NcSoundingQuery which needs a start and stop time for 
 						   // the query which needs to be correct.
-						System.out.println("Error getting dataTime from Plot Query");
+						out.println("Error getting dataTime from Plot Query");
 					}
 				}
 
@@ -458,22 +501,22 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	        			// really is a serious sanity check.....
 	        			// This happens when the dataTime is the same as the startTime. This satisfies the query constraint
 	        			// the not the time matching.
-//	        			System.out.println("plotInfo obj doesn't time match to the frame which queried it???");
+//	        			out.println("plotInfo obj doesn't time match to the frame which queried it???");
 	        		}
 	        	}
 	        }
 
-	        System.out.println( "Number of dynamic stations is " + dynStations );
-	        System.out.println( "Number of uniq stations is " + stationMap.size() );
+//	        out.println( "Number of dynamic stations is " + dynStations );
+//	        out.println( "Number of uniq stations is " + stationMap.size() );
 	        
 	        if( stnLocList.size() != stationMap.keySet().size() ) {
-	        	System.out.println("Sanity check: station lists out of sync???");
+	        	out.println("Sanity check: station lists out of sync???");
 	        }
 	        
 
 	        calculateProgDisc();
 
-	        setPopulated(true);
+	        setPopulated( true );
 
 	        return true;
 	    }
@@ -532,7 +575,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	            uniqueueStations++;
 	        }
 	        else {
-	        	System.out.println("Updating StationMap	with " +stnMapKey );
+	        	out.println("Updating StationMap	with " +stnMapKey );
 	        }
 	        return true;
 	    }
@@ -612,8 +655,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	    	progDisc.setVaDistPass( dynStations * dynStations / size < 3000.0 );
 	    	progDisc.getVaAdvanced( latLonArray, goodnessArray, distArray );
 
-	    	for (i = 0; i < size; ++i) {
-	    		
+	    	for (i = 0; i < size; ++i) {	    		
 	    		stationMap.get( stnLocList.get(i) ).distValue = distArray[i];
 	    	}
 
@@ -652,7 +694,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	    	// I think this might happen if a prog disclosure is run twice before
 	    	// the image is generated
 	    	if( stn.plotImage != null ) {
-	    		System.out.println("modelGenerated image for existing Station?"+
+	    		out.println("modelGenerated image for existing Station?"+
 	    				key.stationId );
 	    		stn.plotImage.dispose();
 	    		stn.plotImage = null;
@@ -661,6 +703,8 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	    }
 	    
 	    public void dispose() {
+	    	super.dispose();
+	    	
             for (String stnLoc : stnLocList ) {
                 Station s = stationMap.get( stnLoc );
                 if (s != null && s.plotImage != null) {
@@ -721,11 +765,29 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         }
     }
 
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		
+		if (fd == null || fd.getFrameTime() == null || fd.isStationMapEmpty()) {
+			return legendString + "-No Data";
+		}
+		
+		if (legendString == null || legendString.equalsIgnoreCase("")) {
+			return "Plot Data";
+		}
+		else {
+			return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+		}
+	}
+	
+
     // override to process PlotInfoRscDataObj instead of PlotInfo
     @Override
 	protected IRscDataObject[] processRecord( Object pltInfo ) {
 		if( !(pltInfo instanceof PlotInfo) ) {
-			System.out.println( "PlotResource2.processRecord method expecting PlotInfoRscData objects "+
+			out.println( "PlotResource2.processRecord method expecting PlotInfoRscData objects "+
 					"instead of: " + pltInfo.getClass().getName() );
 			return new PlotInfoRscDataObj[0];
 		}
@@ -756,7 +818,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         // if zooming out, clear the stations to avoid the flickr
         //
     	if( paintProps.isZooming() ) {
-    		//System.out.println("Zooming");
+    		//out.println("Zooming");
     		return; 
     	}
     	
@@ -826,7 +888,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 //             to remove once decision is firmed up on this...)
 //             
 //          if( frameData.timeMatch( station.info.dataTime ) == -1) {
-//              System.out.println("********non timematching station being plotted????!!!!!");
+//              out.println("********non timematching station being plotted????!!!!!");
 //            }
 //            else {
                 PixelCoverage pc = new PixelCoverage( station.pixelLocation, scaleValue, scaleValue );
@@ -842,21 +904,37 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
         magnification = 1.0;//paintProps.getMagnification();
         
         density = plotRscData.getPlotDensity() / 10.0;
-    	
-    	if( generator != null ) {
+        
+        if( generator != null ) {
     		generator.cancel();
     		generator.cleanImages();
     	}
     	
-      generator = new PlotModelGenerator2(aTarget, descriptor,
+    	// generator for creating plots for stations within the current display area
+        generator = new PlotModelGenerator2(aTarget, descriptor,
                 plotRscData.getPlotModel(), 
-                (plotRscData.isSurfaceOnly() ? null : plotRscData.getLevelKey() ), 
-                plotRscData.getMetadataMap(),  plotRscData.getConditionalFilter(), this);       
-        
-        this.generator.setPlotMissingData(
-        					plotRscData.isPlotMissingData() );
+                (plotRscData.isSurfaceOnly() ? null : plotRscData.getLevelKey() ),
+                plotRscData.getMetadataMap(),  plotRscData.getConditionalFilter(), this);  
+        // apply mutexRule for scheduling this job to run first
+        generator.setRule(mutexRule);        
+        this.generator.setPlotMissingData(plotRscData.isPlotMissingData() );
   
         this.actualPlotWidth = this.plotWidth = generator.getPlotModelWidth();
+        
+        if( bgGenerator != null ) {
+        	bgGenerator.cancel();
+        	bgGenerator.cleanImages();
+    	}
+    	
+        // generator for creating plots for stations within the data area but outside of the current display area
+        bgGenerator = new PlotModelGenerator2(aTarget, descriptor,
+                plotRscData.getPlotModel(), 
+                (plotRscData.isSurfaceOnly() ? null : plotRscData.getLevelKey() ),
+                plotRscData.getMetadataMap(),  plotRscData.getConditionalFilter(), this);       
+        // apply mutexRule for scheduling this job to run after the first generator job is complete
+        bgGenerator.setRule(mutexRule);        
+        this.bgGenerator.setPlotMissingData(plotRscData.isPlotMissingData() );
+       
         
         this.distFloor = ( descriptor.getMapWidth() / 1000.0)
         						* plotRscData.getPixelSizeHint() / 32000.0;
@@ -883,6 +961,9 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	public void disposeInternal() {
     	if( generator != null ) {
     		generator.shutdown();
+    	}
+    	if( bgGenerator != null ) {
+    		bgGenerator.shutdown();
     	}
     }
     
@@ -965,4 +1046,90 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 				  			  Math.round(lon*1000.0) ); 
 
 	}	
+	
+	private DirectPosition getStationPosition(Station station) {
+		try {
+			if (WGS84toPROJCRS != null && station != null) 	{
+				DirectPosition stnPos = WGS84toPROJCRS.transform(new DirectPosition2D(station.info.longitude, station.info.latitude), null);
+				return stnPos;
+			}
+	        		
+		} catch (Exception e) {
+			System.out.println("Error while getting station position: " + e.getMessage());
+		}
+
+		return null;
+	}
+	
+	/*
+	 * Gets the data area (from File -> Preferences) in the form of latitudes and longitudes 
+	 * and returns a GeneralEnvelope based on it
+	 */
+	private GeneralEnvelope getDataAreaEnvelope () {
+
+		//expression
+		String expr = "((-|\\+)?[0-9]+(\\.[0-9]+)?)+";
+		
+		IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+    	String llLat = prefs.getString(GraphicsAreaPreferences.LLLAT);
+    	String llLon = prefs.getString(GraphicsAreaPreferences.LLLON);
+    	String urLat = prefs.getString(GraphicsAreaPreferences.URLAT);
+    	String urLon = prefs.getString(GraphicsAreaPreferences.URLON);
+    	
+    	if ( llLat == null || llLon == null || urLat == null ||	urLon == null ) 
+    		return null;
+    	
+    	if ( llLat == "" || llLon == "" || urLat == "" ||	urLon == "" ) 
+    		return null;
+    	
+    	String garea = llLat+";"+llLon+";"+urLat+";"+urLon;
+      		     	
+     	if ( !llLat.matches(expr) || !llLon.matches(expr) ||
+    			!urLat.matches(expr) || !urLon.matches(expr)) return null;    	
+    	
+     	GraphicsAreaCoordinates gareaCoordObj = new GraphicsAreaCoordinates( garea ); 
+    	if ( ! gareaCoordObj.parseGraphicsAreaString(garea)) 
+    		return null;	    	
+    	
+    	try {
+       
+	        WGS84toPROJCRS = MapUtil.getTransformFromLatLon(MapUtil.LATLON_PROJECTION);    
+	        
+	        GeneralEnvelope dataAreaEnvelope = new GeneralEnvelope(2);
+	
+	        DirectPosition ll = WGS84toPROJCRS.transform(new DirectPosition2D(
+	        		Double.parseDouble(llLon), Double.parseDouble(llLat)), null);
+	
+	        DirectPosition ur = WGS84toPROJCRS.transform(new DirectPosition2D(
+	        		Double.parseDouble(urLon), Double.parseDouble(urLat)), null);
+	
+	        dataAreaEnvelope.setRange(0,
+	                Math.min(ll.getOrdinate(0), ur.getOrdinate(0)),
+	                Math.max(ll.getOrdinate(0), ur.getOrdinate(0)));
+	        dataAreaEnvelope.setRange(1,
+	                Math.min(ll.getOrdinate(1), ur.getOrdinate(1)),
+	                Math.max(ll.getOrdinate(1), ur.getOrdinate(1)));
+	
+	        dataAreaEnvelope.setCoordinateReferenceSystem(MapUtil.LATLON_PROJECTION);
+	        
+	        return dataAreaEnvelope;
+        
+        } catch (Exception e) {
+        	System.out.println("Error while getting data area from Preferences: " + e.getMessage());	    
+        	return null;
+        }
+    }
+		 
+	// Mutex Rule for scheduling generator in order 
+	class MutexRule implements ISchedulingRule {
+
+        public boolean contains(ISchedulingRule rule) {
+            return (rule == this);
+        }
+
+        public boolean isConflicting(ISchedulingRule rule) {
+            return (rule == this);
+        }
+
+	}
 }

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -46,17 +46,18 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
 
 /**
  * Image legend resource used by GFEPainter.py
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2011            mschenke     Initial creation
- * 
+ * Jun 25, 2012  15080     ryu          Ron's local time fix
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  * @version 1.0
  */
@@ -154,14 +155,15 @@ public class ImageLegendResource extends GFELegendResource {
 
             Formatter formatter = new Formatter(locale);
 
+            String tz = "GMT";
+            if (localTime) {
+                tz = dataManager.getParmManager().compositeGridLocation()
+                        .getTimeZone();
+            }
+
             if (snapshotTime) {
                 // display the time of the snapshot
                 Calendar snap = curTime.getRefTimeAsCalendar();
-                String tz = "GMT";
-                if (localTime) {
-                    tz = dataManager.getParmManager().compositeGridLocation()
-                            .getTimeZone();
-                }
                 snap.setTimeZone(TimeZone.getTimeZone(tz));
                 formatter.format(snapshotFormat.replaceAll("\\%", "%1\\$t"),
                         snap);
@@ -175,22 +177,14 @@ public class ImageLegendResource extends GFELegendResource {
                     }
                     if (startFormat != null) {
                         Calendar start = Calendar.getInstance();
-                        if (localTime) {
-                            start.setTimeZone(TimeZone.getDefault());
-                        } else {
-                            start.setTimeZone(TimeZone.getTimeZone("GMT"));
-                        }
+                        start.setTimeZone(TimeZone.getTimeZone(tz));
                         start.setTime(tr.getStart());
                         formatter.format(
                                 startFormat.replaceAll("\\%", "%1\\$t"), start);
                     }
                     if (endFormat != null) {
                         Calendar end = Calendar.getInstance();
-                        if (localTime) {
-                            end.setTimeZone(TimeZone.getDefault());
-                        } else {
-                            end.setTimeZone(TimeZone.getTimeZone("GMT"));
-                        }
+                        end.setTimeZone(TimeZone.getTimeZone(tz));
                         end.setTime(tr.getEnd());
                         formatter.format(endFormat.replaceAll("\\%", "%1\\$t"),
                                 end);
@@ -345,7 +339,7 @@ public class ImageLegendResource extends GFELegendResource {
 
     /**
      * Specifies the color for a legend entry, overrides the default
-     * 
+     *
      * @param parmName
      * @param colorName
      */

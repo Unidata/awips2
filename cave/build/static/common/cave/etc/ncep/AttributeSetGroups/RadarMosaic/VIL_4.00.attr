@@ -1,5 +1,5 @@
 colorMapName=nids_vil
-colorBar=@dfltMosaicColorBar.xml
+colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=148
 prodName=VIL_4
 alpha=1.0

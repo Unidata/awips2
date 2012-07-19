@@ -27,104 +27,135 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="thunderstormEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="thunderstormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="thunderstormColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="thunderstormColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="thunderstormSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="thunderstormSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="thunderstormSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="thunderstormSymbolSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tornadoEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tornadoEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tornadoColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tornadoColor"
             defaultValue="RGB {30, 144, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tornadoSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tornadoSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tornadoSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tornadoSymbolSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="flashFloodEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="flashFloodEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="flashFloodColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="flashFloodColor"
             defaultValue="RGB {255, 215, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodSymbolSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="countyNameEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="countyNameEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="countyOutlineEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="countyOutlineEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="stormBasedPolygonEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="stormBasedPolygonEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Warn">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
    
+      <nc-resourceParameter
+            ncResourceName="Warn"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="Warn"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
    </extension>
 
 </plugin>

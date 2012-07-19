@@ -38,57 +38,166 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
-            attributeName="colorBar"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
+            paramName="colorBar"
+            paramType="EDITABLE_ATTRIBUTE"
+            paramRefLocation="ncep/ColorBars/Satellite"
             ncResourceName="GiniSatellite">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="colorMapName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="colorMapName"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="GiniSatellite">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
-            attributeName="colorBar"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
+            paramName="colorBar"
+            paramType="EDITABLE_ATTRIBUTE"
+            paramRefLocation="ncep/ColorBars/Satellite"
             ncResourceName="McidasSatellite">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="colorMapName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="colorMapName"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="McidasSatellite">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="alpha"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="alpha"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
             ncResourceName="McidasSatellite">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="alpha"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="alpha"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
             ncResourceName="GiniSatellite">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="brightness"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="brightness"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
             ncResourceName="McidasSatellite">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="brightness"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="brightness"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
             ncResourceName="GiniSatellite">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="contrast"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="contrast"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="1.0"
             ncResourceName="McidasSatellite">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="contrast"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="contrast"
+            defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="GiniSatellite">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            constraintName="creatingEntity"
+            ncResourceName="GiniSatellite"
+            paramClass="String"
+            paramName="satelliteName"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <!-- the image type is given in the attrSet but we provide a
+           default value here to pass validity checking -->
+      <nc-resourceParameter
+            constraintName="physicalElement"
+            ncResourceName="GiniSatellite"
+            paramClass="String"
+            paramName="imageType"
+            defaultValue="not-specified"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            constraintName="sectorID"
+            ncResourceName="GiniSatellite"
+            paramClass="String"
+            paramName="sectorID"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="McidasSatellite"
+            paramClass="String"
+            paramName="satelliteName"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="McidasSatellite"
+            paramClass="String"
+            paramName="imageType"
+            defaultValue="not-specified"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="McidasSatellite"
+            paramClass="String"
+            paramName="areaName"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="McidasSatellite"
+            paramClass="Integer"
+            paramName="resolution"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="GiniSatellite"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="McidasSatellite"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>      
+      
+      <nc-resourceParameter
+            ncResourceName="GiniSatellite"
+            paramClass="String"
+            paramName="displayUnitStr"
+            defaultValue="BRIT"
+            paramType="NON_EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            ncResourceName="McidasSatellite"
+            paramClass="String"
+            paramName="displayUnitStr"
+            defaultValue="BRIT"
+            paramType="NON_EDITABLE_ATTRIBUTE">
+      </nc-resourceParameter>      
+      
    </extension>
-
+      <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Style Rules"
+             recursive="true"
+             value="ncep/StyleRules"
+	         extensionFilter="*ImageryStyleRules.xml">
+       </path>
+    </extension>
 </plugin>
