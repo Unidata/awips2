@@ -1456,5 +1456,11 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
+	
+	@Override
+	public boolean close() {
+		drawingLayer.removeSelected();
+		SaveMsgDlg.getInstance(this.getParentShell()).close();
+		return super.close();
+	}
 }

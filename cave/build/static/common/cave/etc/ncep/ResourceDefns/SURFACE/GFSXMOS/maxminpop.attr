@@ -2,4 +2,4 @@
 !
 plotModelName=maxminpop
 plotDensity=10
-conditionalFilterName=
+conditionalFilterName=conditionalFilter=

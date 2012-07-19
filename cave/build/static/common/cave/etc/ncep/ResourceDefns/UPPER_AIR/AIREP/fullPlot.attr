@@ -1,4 +1,5 @@
 ! Parameters and Attributes for the default AIREP Resource
-plotModelName=fullPlot
+!
+plotModel=@PlotModels/ncairep/fullPlot.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

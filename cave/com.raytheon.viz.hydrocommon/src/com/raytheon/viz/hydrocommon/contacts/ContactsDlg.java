@@ -22,6 +22,8 @@ package com.raytheon.viz.hydrocommon.contacts;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -99,6 +101,10 @@ public class ContactsDlg extends CaveSWTDialog {
      * Concerns text control.
      */
     private Text concernsTF;
+    /**
+     * text from the remark text box
+     */
+    private String currentConcernsText=null;
 
     /**
      * Delete button.
@@ -287,6 +293,21 @@ public class ContactsDlg extends CaveSWTDialog {
         gd.horizontalSpan = 3;
         concernsTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         concernsTF.setLayoutData(gd);
+        currentConcernsText=concernsTF.getText();
+        ModifyListener listener = new ModifyListener() {
+        	@Override
+        	public void modifyText(ModifyEvent e) {
+        		if (concernsTF.getText().length()>255){
+        			concernsTF.setText(currentConcernsText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentConcernsText=concernsTF.getText();
+        	}
+        };
+
+        concernsTF.addModifyListener(listener);
+
     }
 
     /**

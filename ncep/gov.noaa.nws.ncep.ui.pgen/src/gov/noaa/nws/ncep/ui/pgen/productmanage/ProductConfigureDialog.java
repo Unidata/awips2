@@ -1611,7 +1611,8 @@ public class ProductConfigureDialog extends ProductDialog {
         
 	    layerOnOffBtn = new Button( dispComp, SWT.CHECK);
 	    layerOnOffBtn.setText( "OnOff" );
-	    layerOnOffBtn.setSelection( true );     	          
+//	    layerOnOffBtn.setSelection( true );     	          
+	    layerOnOffBtn.setSelection( false );     	          
 		        
 	    layerMonoBtn = new Button( dispComp, SWT.CHECK );
 	    layerMonoBtn.setText( "A/M" );
@@ -2678,7 +2679,8 @@ public class ProductConfigureDialog extends ProductDialog {
 	private void setDefaultLayerInput() {
 		
 	    layerNameTxt.setText("");
-		layerOnOffBtn.setSelection( true );
+//		layerOnOffBtn.setSelection( true );
+		layerOnOffBtn.setSelection( false);
 		layerMonoBtn.setSelection( false);
 			
 		Color layerClr = Color.YELLOW;
@@ -3126,22 +3128,22 @@ public class ProductConfigureDialog extends ProductDialog {
 					ProdType pt = it.next();
 					if ( pt.getName().equalsIgnoreCase(ptBtn.getText() )){
 						
-						try {
+					//	try {
 							//remove style sheets
-							String xsltFile = ProdTypeDialog.getStyleSheetFileName( pt.getName());
-							if ( xsltFile != null && !xsltFile.isEmpty()){
-								LocalizationContext userContext = PgenStaticDataProvider.getProvider().getLocalizationContext(
-										LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+					//		String xsltFile = ProdTypeDialog.getStyleSheetFileName( pt.getName());
+					//		if ( xsltFile != null && !xsltFile.isEmpty()){
+					//			LocalizationContext userContext = NcPathManager.getInstance().getContext(
+					//					LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
 
-								LocalizationFile lFile = PgenStaticDataProvider.getProvider().getLocalizationFile( 
-										userContext, xsltFile);
+					//			LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+					//					userContext, xsltFile);
 
-								lFile.delete();
-							}
-						}
-						catch (Exception e ){
-							e.printStackTrace();
-						}
+					//			lFile.delete();
+					//		}
+					//	}
+					//	catch (Exception e ){
+					//		e.printStackTrace();
+					//	}
     		    		
     		    		it.remove();
 						break;

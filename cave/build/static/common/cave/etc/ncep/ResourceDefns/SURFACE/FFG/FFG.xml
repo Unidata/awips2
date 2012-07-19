@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>FFG</resourceDefnName>
     <resourceCategory>SURFACE</resourceCategory>
-    <resourceParameters>legend_color=RGB {33,100,255}</resourceParameters>
+    <resourceParameters>
+pluginName=ffg
+reportType=FFG
+legendColor=RGB {33,100,255}
+    </resourceParameters>
     <filterLabels></filterLabels>
     <rscImplementation>FFG</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

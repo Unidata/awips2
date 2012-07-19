@@ -191,22 +191,24 @@ public class ManageResourceControl extends Composite {
 				sashForm.setWeights( new int[] { 5, 6 } );
 				activeEditComposite = editRscTypeComp;				
 			}
+			// Give more room since the lists of attr sets can be long for
+			// grids
 			else if( action == EditResourceAction.COPY_RESOURCE_GROUP ) {
-				sashForm.setWeights( new int[] { 5, 5 } );
+				sashForm.setWeights( new int[] { 2, 3 } );
 				activeEditComposite = editAttrSetGroupComp;
 				copyFlag = true;
 			}
 			else if( action == EditResourceAction.EDIT_RESOURCE_GROUP ) {
-				sashForm.setWeights( new int[] { 5, 5 } );
+				sashForm.setWeights( new int[] { 2, 3 } );
 				activeEditComposite = editAttrSetGroupComp;
 			}
 			else if( action == EditResourceAction.COPY_RESOURCE_ATTR_SET ) {
-				sashForm.setWeights( new int[] { 6, 5 } );
+				sashForm.setWeights( new int[] { 5, 6 } );
 				activeEditComposite = editAttrSetComp;
 				copyFlag = true;
 			}
 			else if( action == EditResourceAction.EDIT_RESOURCE_ATTR_SET ) {
-				sashForm.setWeights( new int[] { 6, 5 } );
+				sashForm.setWeights( new int[] { 5, 6 } );
 				activeEditComposite = editAttrSetComp;
 			}
 			else { // remove a type/group/attrSet

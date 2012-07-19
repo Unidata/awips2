@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NcInventoryDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <inventoryName>GHMNEST</inventoryName>
+    <inventoryParameters>pluginName,eventName,dataTime</inventoryParameters>
+    <baseConstraints>
+        <mapping key="modelName">
+            <constraint constraintValue="ghmnest" constraintType="EQUALS"/>
+        </mapping>
+        <mapping key="pluginName">
+            <constraint constraintValue="ncgrib" constraintType="EQUALS"/>
+        </mapping>
+        <mapping key="eventName">
+            <constraint constraintValue="%" constraintType="LIKE"/>
+        </mapping>
+    </baseConstraints>
+</NcInventoryDefinition>

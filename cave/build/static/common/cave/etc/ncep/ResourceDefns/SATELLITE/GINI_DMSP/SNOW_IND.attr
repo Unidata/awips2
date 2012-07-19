@@ -1,0 +1,7 @@
+colorMapName=lingray
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
+imageType=Snow indicator
+displayUnitStr=GenericPixel
+alpha=1.0
+brightness=1.0
+contrast=1.0

@@ -17,6 +17,18 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.eclipse.swt.graphics.RGB;
 
+/**
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                  
+ * 05/02/12     778         Q. Zhou     Changed symbol size form int to double    
+ * 06/11/12     654         S. Gurung   Changed default textSize to 14          
+ * </pre>
+ * 
+ */
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -39,7 +51,7 @@ public class PlotModelElement {
     protected String paramName=null;
     
     @XmlAttribute
-    protected String textSize = "12"; // defaults
+    protected String textSize = "14"; // defaults
     
     @XmlAttribute
     protected String textFont = "Helvetica";
@@ -48,7 +60,7 @@ public class PlotModelElement {
     protected String textStyle = "Normal";
     
     @XmlAttribute
-    protected Integer symbolSize = 1;
+    protected double symbolSize = 1.0;
     
 //    @XmlAttribute
 //    protected Boolean enable=true;
@@ -107,11 +119,11 @@ public class PlotModelElement {
         this.textStyle = value;
     }
 
-    public Integer getSymbolSize() {
+    public Double getSymbolSize() {
         return symbolSize;
     }
 
-    public void setSymbolSize(Integer value) {
+    public void setSymbolSize(Double value) {
         this.symbolSize = value;
     }
     
