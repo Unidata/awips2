@@ -159,7 +159,7 @@ public class WCPResourceData extends AbstractNatlCntrsRequestableResourceData
                 if( sourceName != null ) {
                     return sourceName;
                 }
-                return "WCP Data";
+                return "WCP";
             }
 
         };

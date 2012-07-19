@@ -54,6 +54,7 @@ import gov.noaa.nws.ncep.edex.plugin.ncgrib.util.TableTimeStamp;
  * 3/12/10      4758       bphillip     Initial creation
  * 10/13/10     276        llin			Modified for NC GRIB.
  * 01/19/12                xguo         Split large files
+ * 05/23/12                xguo         Split large file to each record file
  * </pre>
  * 
  * @author njensen
@@ -181,6 +182,34 @@ public class NcgribDecoder {
             List<Long> sizes) throws IOException {
         FileOutputStream out = null;
         byte[] transfer = null;
+        long rdSize=0;
+        int num = 0;
+        for (int i = 0; i < sizes.size(); i++) {
+        	if ( rdSize == sizes.get(i).longValue() ) continue;
+        	num ++;
+        	rdSize = sizes.get(i).longValue();
+        	transfer = new byte[(int) sizes.get(i).longValue()];
+            raf.seek(seekRecordStart(raf, raf.length()));
+            raf.read(transfer);
+
+            try {
+                out = new FileOutputStream(System.getProperty("edex.home")
+                        + "/data/sbn/ncgrib/" + fileName + "_" + num);
+                out.write(transfer);
+                out.close();
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
+            
+        }
+    }
+    /*
+     private void splitFile(String fileName, RandomAccessFile raf,
+            List<Long> sizes) throws IOException {
+        FileOutputStream out = null;
+        byte[] transfer = null;
         long fileSize = 0,seekLoc;
         int num = 0;
         for (int i = 0; i < sizes.size(); i++) {
@@ -227,6 +256,7 @@ public class NcgribDecoder {
             }
         }
     }
+     */
     /**
      * Moves the filepointer on the random access file to the beginning of the
      * next grib record in the file

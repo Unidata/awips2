@@ -1,19 +1,29 @@
 package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
 
+
+import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.NcUnits;
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
+//import gov.noaa.nws.ncep.viz.resources.colorBar.LabeledLevel;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
+import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRPixelToTempConverter;
+import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRTempToPixelConverter;
 import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +32,6 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import org.eclipse.jface.action.IContributionItem;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -37,7 +46,10 @@ import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.time.DataTime;
+
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -45,21 +57,29 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
-import com.raytheon.uf.viz.core.rsc.GenericResourceData;
+
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
-import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
+
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
+import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
+import com.raytheon.uf.viz.core.style.DataMappingPreferences;
+import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
+import com.raytheon.uf.viz.core.style.MatchCriteria;
+import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.viz.core.style.StyleRule;
+import com.raytheon.uf.viz.core.style.StyleRuleset;
+import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
 import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
+import com.raytheon.viz.core.style.image.DataScale;
+import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.satellite.SatelliteConstants;
-import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -88,7 +108,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  04/10/2012               bhebbard    In getSatIRTemperature(...), do IGLTarget.makeContextCurrent()
  *                                       to avoid GLException: "No OpenGL context current on this thread" 
  *                                       on following interrogate(); workaround pending RTS regression fix.
- * 
+ *  
+ *  06/07/2012      #717     archana     Added the method generateAndStoreColorBarLabelingInformation(),
+ *                                       and the abstract methods getImageTypeNumber(),getParameterList(),getLocFilePathForImageryStyleRule()     
  * </pre>
  * 
  * @author chammack
@@ -121,6 +143,7 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 
     protected ColorBarResource cbarResource;
     protected ResourcePair     cbarRscPair;
+    
 
     public FileBasedTileSet getTileSet(){
     	FrameData fd = (FrameData) this.getCurrentFrame();
@@ -225,8 +248,16 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 //					dataTimes.add( satRecord.getDataTime() );
 					
 					imageTypes.add( getImageTypeFromRecord( satRec ) );
-
+		
+					
 					Collections.sort(AbstractSatelliteResource.this.dataTimes);
+					
+					List<String> paramList = getParameterList(satRec);
+					String unitStr = getDataUnitsFromRecord(satRec);
+					String locFileName = getLocFilePathForImageryStyleRule();
+					int imgNum = getImageTypeNumber(satRec);
+					generateAndStoreColorBarLabelingInformation(paramList, unitStr, imgNum, locFileName);					
+
 				}
 				catch( VizException e ) {
 					System.out.println("Error processing SatelliteRecord. " + e.getMessage() );
@@ -258,6 +289,14 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
     abstract String getProjectionFromRecord( PluginDataObject pdo );
     
     abstract GridGeometry2D createNativeGeometry(PluginDataObject pdo );
+   
+    abstract int getImageTypeNumber(PluginDataObject pdo );
+    
+    abstract List<String> getParameterList(PluginDataObject pdo );
+    
+    abstract String getLocFilePathForImageryStyleRule(); 
+    
+    
     
     /**
      * Constructor
@@ -301,10 +340,11 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 	public String getName() {
 		String legendString = super.getName();
 		FrameData fd = (FrameData) getCurrentFrame();
-		if (fd == null || fd.tileTime == null ) {
-			return legendString;
+		if (fd == null || fd.tileTime == null || fd.tileSet.getMapDescriptor().getFramesInfo().getFrameCount() == 0) {
+			return legendString + "-No Data";
+
 		}
-		return legendString + "("+NmapCommon.getTimeStringFromDataTime( fd.tileTime, "/");
+		return legendString + " "+NmapCommon.getTimeStringFromDataTime( fd.tileTime, "/");
 	}
 
 	@Override
@@ -315,21 +355,14 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 	// need a record to create the baseTile. used to get the numLevels, .
     private void initializeFirstFrame( PluginDataObject record )
             throws VizException {
-//        File file = HDF5Util.findHDF5Location(record);
-//
-//        if (!file.exists()) {
-//            throw new VizException("File does not exist: " + file.toString());
-//        }
-//
-        SingleLevel level = new SingleLevel(Level.LevelType.SURFACE);
+
 
         NcSatelliteUnits.register();
-        
-//        getLegend(record);
-        
+        NcUnits.register();
+
         // NOTE : This will replace Raytheons IRPixel (and IRPixelToTempConverter) with ours
         // even for D2D's GiniSatResource. 
-//        UnitFormat.getUCUMInstance(). label( , arg1)
+
         
         Unit<?> dataUnit = null;
         String  dataUnitStr = getDataUnitsFromRecord( record );
@@ -355,12 +388,10 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
             } else {
             	dataUnit = new GenericPixel();
             }
-        }
-        else 
+        }else 
            	dataUnit = new GenericPixel();
 
 //        } else {
-//            // units not in satellite_units table
 //            if (physicalElement.equals("Gridded Cloud Amount")) {
 //                unit = new SounderCloudAmountPixel();
 //            } else if (physicalElement
@@ -397,12 +428,8 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 		} catch (VizException e) {
     		throw new VizException("Error loading colormap: "+ satRscData.getColorMapName() );
 		}
+   	
 
-    	ColorBarFromColormap colorBar = satRscData.getColorBar();
-    	
-		((ColorBarFromColormap)colorBar).setColorMap( colorMap );
-    	    	
-    	colorMapParameters.setColorMap( colorMap );
     	colorMapParameters.setDisplayUnit( satRscData.getDisplayUnit() );
     	colorMapParameters.setDataUnit( dataUnit );
 
@@ -411,9 +438,12 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
         colorMapParameters.setDataMax(255.0f);
         colorMapParameters.setColorMapMin(0.0f);
         colorMapParameters.setColorMapMax(255.0f);
-
+		
+    	
+    	colorMapParameters.setColorMap( colorMap );
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 colorMapParameters);
+
 
         numLevels = 1;
         int newSzX = ((ISpatialEnabled)record).getSpatialObject().getNx();
@@ -463,6 +493,8 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
             cbarRscPair  = ResourcePair.constructSystemResourcePair( 
   		           new ColorBarResourceData( satRscData.getColorBar() ) );
  
+
+
             getDescriptor().getResourceList().add(  cbarRscPair );
             getDescriptor().getResourceList().instantiateResources( getDescriptor(), true );
 
@@ -496,15 +528,14 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
         	imgCap.setContrast(satRscData.getContrast());
         	imgCap.setAlpha(satRscData.getAlpha());
         	paintProps.setAlpha(satRscData.getAlpha());
-//        	satRscData.fireChangeListeners(ChangeType.CAPABILITY, imgCap);
-//        	System.out.println("alpha = " + imgCap.getAlpha());
+
             ColorMapParameters params = getCapability(ColorMapCapability.class)
                     .getColorMapParameters();
             if (params.getColorMap() == null) {
                 String colorMapName = params.getColorMapName();
                 if (colorMapName == null)
                     colorMapName = "Sat/VIS/ZA (Vis Default)";
-//                params.setColorMap(target.buildColorMap(colorMapName));
+
                  params.setColorMap(ColorMapUtil.loadColorMap(ResourceName.SatelliteRscCategory, colorMapName));                
             }
 
@@ -644,7 +675,8 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 
 	}
 	
-    public Unit<Temperature> getTemperatureUnits() {
+    @SuppressWarnings("unchecked")
+	public Unit<Temperature> getTemperatureUnits() {
     	if( isCloudHeightCompatible() ) {
     		if( satRscData.getDisplayUnit() == null ) {
     			return SI.CELSIUS;
@@ -665,9 +697,7 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
 	public void resourceAttrsModified() {
 		// update the colorbarPainter with a possibly new colorbar
     	ColorBarFromColormap colorBar = satRscData.getColorBar();
-
-    	cbarResource.setColorBar( colorBar );
-		    	    	
+    	
     	ColorMapParameters cmapParams = getCapability(ColorMapCapability.class).getColorMapParameters();
     	cmapParams.setColorMap( colorBar.getColorMap());
     	cmapParams.setColorMapName( satRscData.getColorMapName() );
@@ -675,11 +705,8 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
     	cmapParams.setDisplayUnit( satRscData.getDisplayUnit() );
     			
         getCapability(ColorMapCapability.class).setColorMapParameters( cmapParams );
+        cbarResource.setColorBar( colorBar );	    	    	
 
-        // TODO to11dr11 determine how to migrate this 
-        if( baseTile != null ) {
-//        	baseTile.resourceChanged(ChangeType.CAPABILITY, this.getCapability( ColorMapCapability.class));
-        }
 	}
 	
 	public String  getLegendString() {
@@ -736,8 +763,18 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
         		String colorMapName = colorMapCap.getColorMapParameters().getColorMapName();
         		satRscData.setColorMapName( colorMapName );
         	    satRscData.getRscAttrSet().setAttrValue( "colorMapName", colorMapName );
+
         	    ColorBarFromColormap cBar = satRscData.getColorBar();
         	    cBar.setColorMap( theColorMap );
+        	    ColorBarFromColormap colorBar = (ColorBarFromColormap) this.cbarResource.getResourceData().getColorbar();
+        	    if ( colorBar != null ){
+        	    	if ( colorBar.getImagePreferences() != null && cBar.getImagePreferences() == null ){
+        	    		cBar.setImagePreferences(colorBar.getImagePreferences() );
+        	    	}
+
+        	    	cBar.setIsScalingAttemptedForThisColorMap(colorBar.isScalingAttemptedForThisColorMap());
+        	    	cBar.setNumPixelsToReAlignLabel(colorBar.getNumPixelsToReAlignLabel());
+        	    }
         	    satRscData.getRscAttrSet().setAttrValue( "colorBar", cBar );
         	    satRscData.setIsEdited( true );
         		issueRefresh();
@@ -747,4 +784,214 @@ public abstract class AbstractSatelliteResource extends AbstractNatlCntrsResourc
         }
 
 	}
+	
+	
+	public void generateAndStoreColorBarLabelingInformation(List<String>  parameterList, String dataUnitString, int imageTypeNumber, String localizationFileName ){ 
+
+		  double minPixVal = Double.NaN;
+		  double maxPixVal = Double.NaN;
+		  ParamLevelMatchCriteria matchCriteria  = new ParamLevelMatchCriteria();
+		  
+
+		  ImagePreferences imgPref = new ImagePreferences();
+
+		  ColorBarFromColormap colorBar = (ColorBarFromColormap)this.cbarResource.getResourceData().getColorbar();
+		  if( colorBar.getColorMap() == null ){
+			  colorBar.setColorMap((ColorMap)getCapability(ColorMapCapability.class).getColorMapParameters().getColorMap());
+		  }
+   	      matchCriteria.setParameterName(parameterList);
+        
+		  File file = NcPathManager.getInstance().getStaticFile( localizationFileName );
+		  try {
+			StyleRuleset styleSet = (StyleRuleset) SerializationUtil.jaxbUnmarshalFromXmlFile(file);
+			
+			if ( styleSet != null ){
+			List<StyleRule> styleRuleList=  styleSet.getStyleRules();
+			
+			for ( StyleRule sr : styleRuleList ){
+				    MatchCriteria styleMatchCriteria = sr.getMatchCriteria();
+				    if ( styleMatchCriteria.matches(matchCriteria)  > 0 ){
+				    	   
+				    	   AbstractStylePreferences stylePref = sr.getPreferences();
+				    	   if ( stylePref != null && stylePref instanceof ImagePreferences ){
+				    		    imgPref = (ImagePreferences) stylePref;
+				    		    /*
+				    		     * Might need to change this if/when we use the data-scaling
+				    		     */
+				    		    SamplePreferences samplePref = imgPref.getSamplePrefs();
+				    		    if ( samplePref != null ){
+				    		         minPixVal = imgPref.getSamplePrefs().getMinValue();
+				    		         maxPixVal = imgPref.getSamplePrefs().getMaxValue();
+				    		    } 
+				    		    else if ( imgPref.getDataScale() != null ){
+				    		    	DataScale ds = imgPref.getDataScale();
+				    		    	if (ds.getMaxValue() != null )
+				    		    		maxPixVal = ds.getMaxValue().doubleValue();
+				    		    	if ( ds.getMinValue() != null )
+				    		    		minPixVal = ds.getMinValue().doubleValue();
+				    		    }
+				
+				    		    
+				    		    
+						        colorBar.setImagePreferences(imgPref);
+							    if(imgPref.getDisplayUnitLabel() != null){
+							       colorBar.setDisplayUnitStr(imgPref.getDisplayUnitLabel());
+
+							    }
+							    break;
+				    	    }
+				    	   
+				     }
+
+				    
+			}
+			
+		  }
+		  } catch (SerializationException e1) {
+
+			   e1.printStackTrace();
+		  } catch (VizStyleException e1) {
+
+			   e1.printStackTrace();
+		  } catch (NullPointerException e1) {
+
+			   e1.printStackTrace();
+		  }
+		  //these label value calculations are from legacy imlabl.f
+		  if ( ( dataUnitString != null) && ( ( dataUnitString).compareTo("BRIT") == 0  )   
+		  && ( ( imageTypeNumber == 8 )  || ( imageTypeNumber == 128 ) )
+		  && ( minPixVal != Double.NaN )
+		  && ( maxPixVal != Double.NaN )
+		  && (colorBar != null )
+		  &&  (imgPref.getDataMapping() == null))
+		  
+		  {
+		    
+		    int imndlv = ( int ) Math.min( 256, ( maxPixVal - minPixVal + 1 ) );
+		    NcIRPixelToTempConverter pixelToTemperatureConverter = new NcIRPixelToTempConverter();
+		    double tmpk = pixelToTemperatureConverter.convert( minPixVal );
+		    double tmpc = SI.KELVIN.getConverterTo( SI.CELSIUS ).convert( tmpk );
+		    
+		    DataMappingPreferences dmPref = new DataMappingPreferences();
+		    DataMappingEntry entry = new DataMappingEntry();
+		    
+		    entry.setPixelValue(1.0);
+		    entry.setDisplayValue(tmpc);
+		    entry.setLabel(String.format("%.1f", tmpc));
+		    dmPref.addEntry(entry);
+		    colorBar.labelPixel(entry.getPixelValue().intValue());
+		    
+		    int ibrit = (imndlv - 1) + ( int ) minPixVal;
+		    tmpk = pixelToTemperatureConverter.convert( ibrit );
+		    tmpc = SI.KELVIN.getConverterTo(SI.CELSIUS).convert( tmpk );
+
+
+		    entry = new DataMappingEntry();
+		    entry.setPixelValue(Double.valueOf( imndlv ) );
+		    entry.setDisplayValue( tmpc );
+		    entry.setLabel(String.format("%.1f", tmpc));
+		    dmPref.addEntry( entry );
+		    colorBar.labelPixel(entry.getPixelValue().intValue());
+
+		    NcIRTempToPixelConverter tempToPixConv = new NcIRTempToPixelConverter();
+		    tmpc = -100;
+
+	          tmpk = SI.CELSIUS.getConverterTo( SI.KELVIN ) .convert ( tmpc )  ; 
+	          double brit = tempToPixConv.convert ( tmpk )  ;    
+	          ibrit = (int) (Math.round ( brit ) - minPixVal);
+	          while( tmpc < 51 ){
+		    
+		          tmpk = SI.CELSIUS.getConverterTo( SI.KELVIN ) .convert ( tmpc )  ; 
+		          brit = tempToPixConv.convert ( tmpk )  ;
+
+		          ibrit = (int) (Math.round ( brit ) - minPixVal);
+		          if ( ibrit > 0 ){ 
+		        	entry = new DataMappingEntry();
+		        	
+		        	
+		        	entry.setPixelValue( Double.valueOf( ibrit ) );
+		   		    entry.setDisplayValue( tmpc );
+		   		    entry.setLabel(Integer.toString( (int) tmpc));
+		   	  		dmPref.addEntry( entry );
+		   	  		
+		   		    colorBar.labelPixel( entry.getPixelValue().intValue() );
+		   		    
+		          }
+		     
+		          tmpc+= 10;
+		    }
+
+		    imgPref.setDataMapping(dmPref);
+		    colorBar.setImagePreferences(imgPref);
+		    if( !colorBar.isScalingAttemptedForThisColorMap() )
+		    	colorBar.scalePixelValues();
+
+				    colorBar.setDisplayUnitStr(imgPref.getDisplayUnitLabel());
+
+		  }
+
+		  else if (imgPref.getDataMapping() == null){ //no existing data mapping, so we generate it
+			//For all other images, the native units are used for display
+//			  if (Double.isNaN(minPixVal) || Double.isNaN(maxPixVal)){
+//				  
+//			  }
+			  
+			  
+			            if(imgPref.getDisplayUnitLabel() != null )
+			            	colorBar.setDisplayUnitStr(imgPref.getDisplayUnitLabel());
+			            else
+			            	colorBar.setDisplayUnitStr(dataUnitString);
+                       
+
+                       int imndlv = (int) Math.min(256, maxPixVal - minPixVal + 1);
+                       double ratio = (maxPixVal - minPixVal)/255;
+                       DataMappingEntry dmEntry = new DataMappingEntry();
+                       dmEntry.setPixelValue(1.0);
+                       dmEntry.setDisplayValue(minPixVal);
+                       dmEntry.setLabel(Double.toString(minPixVal));
+                       DataMappingPreferences dmPref = new DataMappingPreferences();
+                       dmPref.addEntry(dmEntry);
+                       double level = -1;
+                       for ( int ii = 2; ii < imndlv ; ii++){
+                      	 if ( ( ii - 1 )% 16  == 0){
+                      		 level = Math.round( (ii - 1) * ratio ) + minPixVal;
+                      		 dmEntry = new DataMappingEntry();
+                               dmEntry.setPixelValue((double)ii);
+                               dmEntry.setDisplayValue(level);
+                               dmEntry.setLabel(Double.toString(level));
+                               dmPref.addEntry(dmEntry);		 
+                      	 }
+                       }
+                       level = Math.round( (imndlv - 1) * ratio ) + minPixVal;
+              		 dmEntry = new DataMappingEntry();
+                       dmEntry.setPixelValue((double)imndlv);
+                       dmEntry.setDisplayValue(level);
+                       dmEntry.setLabel(Double.toString(level));
+                       dmPref.addEntry(dmEntry);
+                       
+
+           		    if( !colorBar.isScalingAttemptedForThisColorMap() ){
+           		         imgPref = new ImagePreferences();
+           		         imgPref.setDataMapping(dmPref);
+           		         SamplePreferences sPref = new SamplePreferences();
+           		         sPref.setMaxValue(255);
+           		         sPref.setMinValue(0);
+           		         imgPref.setSamplePrefs(sPref);
+           		         colorBar.setImagePreferences(imgPref);
+           		    	 colorBar.scalePixelValues();
+           		    }
+                       
+		  }
+		  
+
+		  colorBar.setNumPixelsToReAlignLabel(4);
+		  if(!colorBar.equals(satRscData.getColorBar()))
+            this.satRscData.setColorBar(colorBar);
+
+
+	}
+	
+	
+
+	
 }

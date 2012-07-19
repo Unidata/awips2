@@ -24,10 +24,10 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
-
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.Point;
  * 30-Sep-2010     307     Greg Hull   renamed CondensedIntlSigmetRecord to IntlSigmetRscDataObj and
  *                                     implemented the IRscDataObj interface                                                                                                                 
  * 04/11			?	   B. Yin	   Re-factor IAttribute
+ * 05/23/12       785      Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author Archana
@@ -2103,5 +2104,15 @@ implements INatlCntrsResource{
 			return symbolType;
 		}
     }
+    
+    @Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.condensedIntligLinkedHashMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }
 

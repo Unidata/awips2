@@ -22,6 +22,7 @@ package com.raytheon.viz.warngen.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +57,12 @@ import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
  *                                     lengthy code snippet is available) and to resolve issue with 
  *                                     empty areaNotation and areasNotation which occurs when,
  *                                     for example, District of Columbia is followed by a county.
+ * Jun 19, 2012 15110     Qinglu Lin   Fixed issues in CAN of CANCON: a) ST in any words changed to "ST." and 
+ *                                     locked if county name has ST., e.g., ST. JOSEPH; 
+ *                                     b)Locking beyond the first paragraph for areal flood warning followup;
+ *                                     c)Locking does not work for areal flood advisory followup;
+ *                                     d)NullointException/locking does not work for special marine warning 
+ *                                       and locking beyond first paragragh. 
  * 
  * </pre>
  * 
@@ -125,7 +132,10 @@ public class WarningTextHandler {
             .compile("(\\.\\.\\.((A|THE)\\s(.*)\\s(WARNING|ADVISORY))\\s(FOR|(REMAINS IN EFFECT (|(UNTIL\\s\\d{3,4}\\s(AM|PM)\\s\\w{3})))))(|(.*))");
 
     private static final Pattern canVtecPtrn = Pattern.compile("(\\.CAN\\.)");
-
+    private static final Pattern smwCanPtrn = Pattern.compile("(\\.MA\\.W\\.)");
+    private static final Pattern afaCanPtrn = Pattern.compile("(\\.FA\\.Y\\.)");
+    private static final Pattern smwHeadlinePtrn = Pattern.compile("(THE AFFECTED AREAS WERE)");
+    
     private static Pattern immediateCausePtrn = null;
 
     /** ex. SARPY NE-DOUGLAS NE-WASHINGTON NE- */
@@ -285,6 +295,51 @@ public class WarningTextHandler {
         // Set before to false if the line is beyond "THE NATIONAL WEATHER SERVICE IN" line.
         boolean before = true;
         
+        boolean isCancelledFound = false;
+
+        // for CAN of CANCON of Special Marine Warning
+        boolean smwCan = false;
+        boolean lockSmwCan = false;
+
+        // for CAN of CANCON of Areal Flood Advisory
+        boolean afaCan = false;
+        int afaCanBlankline = 0;        
+
+        String[] tokens = null;
+        if (canceledAreas != null) {
+        	String areaNames = "";
+        	for (AffectedAreas area : canceledAreas) {
+        		String areaName = area.getName();
+        		if (areaName != null && areaName.length()>0) {
+        			areaName = areaName.toUpperCase();
+        			areaNames += areaName + " ";
+        		}
+        	}
+        	areaNames = areaNames.trim();
+        	HashSet<String> areaNameSet = new HashSet<String>(); 
+        	String[] tokens0 = areaNames.split(" ");
+        	int tokensLength = tokens0.length;
+        	for (int i=0;i<tokensLength;i++)
+        	{
+        		areaNameSet.add(tokens0[i]);
+        	}
+        	
+        	tokens = (String[])areaNameSet.toArray(new String[areaNameSet.size()]);
+        	String s0;
+        	for (int i=0;i<areaNameSet.size()-1;i++) {
+        		s0 = tokens[i];
+        		String s1;
+        		for (int j=i;j<areaNameSet.size();j++){
+        			if (tokens[j].length() > s0.length()) {
+        				s1 = s0;
+        				s0 = tokens[j];
+        				tokens[j] = s1;
+        			}
+        		}
+        		tokens[i] = s0;
+        	}
+        }
+
         ArrayList<String> usedAreaNotations = new ArrayList<String>();
         for (int lineIndex = 0; lineIndex < seperatedLines.length; ++lineIndex) {
             String line = seperatedLines[lineIndex];
@@ -330,8 +385,13 @@ public class WarningTextHandler {
                     m = canVtecPtrn.matcher(line);
                     if (action == WarningAction.CANCON && m.find()) {
                         cancelVtecLineFound = true;
-                    } else 
-                    	cancelVtecLineFound = false;
+                        m = smwCanPtrn.matcher(line);
+                        if (m.find())
+                        	smwCan = true;
+                        m = afaCanPtrn.matcher(line);
+                        if (m.find())
+                        	afaCan = true;
+                    }
                     continue;
                 }
 
@@ -361,6 +421,18 @@ public class WarningTextHandler {
 
                 if (line.trim().length() == 0) {
                     headlineFound = false;
+                    if (smwCan) {
+                    	if (lockSmwCan)
+                    		cancelVtecLineFound = false;
+                    	lockSmwCan = false;
+                    }
+                    if (afaCan) {
+                    	afaCanBlankline += 1;
+                    	if (afaCanBlankline > 1) {
+                    		afaCan = false;
+                    		cancelVtecLineFound = false;
+                    	}
+                    }
                     if (startLines) {
                         // Don't lock blank line after header
                         sb.append("\n");
@@ -479,44 +551,58 @@ public class WarningTextHandler {
                 	}
                 	// CAN portion in a CANCON
                 	if (cancelVtecLineFound) {
-                		for (AffectedAreas area : canceledAreas) {
-                			String areaName = area.getName();
-                			if (areaName != null) {
-                                areaName = areaName.toUpperCase();
-                				String[] tokens = areaName.split(" ");
-                				for (String s: tokens)
-                					if (line.contains(s))
-                						line = line.replaceAll(s, LOCK_START
-                								+ s + LOCK_END);
+                		if (smwCan) {
+                			// lock marine zone names
+                			if (lockSmwCan) {
+                				if (line.length()==0) {
+                					lockSmwCan = false;
+                				} else 
+                					line = 	LOCK_START + line + LOCK_END;
+                			} else { 
+                				m = smwHeadlinePtrn.matcher(line);
+                				if (m.find())	
+                					lockSmwCan = true;
                 			}
-                			// areaNotation, e.g., COUNTY
-                			String areaNotation = area.getAreaNotation().toUpperCase();
-                			if (areaNotation != null && areaNotation.length()>0
-                					&& !usedAreaNotations.contains(areaNotation)
-                					&& line.contains(areaNotation)) {
-                				line = line.replaceAll(areaNotation, LOCK_START
-                						+ areaNotation + LOCK_END);
-                				usedAreaNotations.add(areaNotation);
+                		} else {
+        					for (String s: tokens)
+        						if (line.contains(s))
+        							line = line.replace(s, LOCK_START
+        									+ s + LOCK_END);
+                			for (AffectedAreas area : canceledAreas) {
+                				String areaNotation = area.getAreaNotation();
+                				if (areaNotation != null) {
+                					// areaNotation, e.g., COUNTY
+                					if (areaNotation != null && areaNotation.length()>0
+                							&& !usedAreaNotations.contains(areaNotation)
+                							&& line.contains(areaNotation)) {
+                						line = line.replaceAll(areaNotation, LOCK_START
+                								+ areaNotation + LOCK_END);
+                						usedAreaNotations.add(areaNotation);
+                					}
+                					// areasNotation, e.g., COUNTIES
+                					String areasNotation = area.getAreasNotation().toUpperCase();
+                					if (areasNotation != null && areasNotation.length()>0
+                							&& !usedAreaNotations.contains(areasNotation)
+                							&& line.contains(areasNotation)) {
+                						line = line.replaceAll(areasNotation, LOCK_START
+                								+ areasNotation + LOCK_END);
+                						usedAreaNotations.add(areasNotation);
+                					}
+                				}
                 			}
-                			// areasNotation, e.g., COUNTIES
-                			String areasNotation = area.getAreasNotation().toUpperCase();
-                			if (areasNotation != null && areasNotation.length()>0
-                					&& !usedAreaNotations.contains(areasNotation)
-                					&& line.contains(areasNotation)) {
-                				line = line.replaceAll(areasNotation, LOCK_START
-                						+ areasNotation + LOCK_END);
-                				usedAreaNotations.add(areasNotation);
-                			}
+                			// locking "THE" in "THE CITY OF MANASSAS", "...THE" in "...THE CITY",
+                			// and "IS" or "CANCELLED" in "IS CANCELLED...".
+                			line = extraTokensPattern.matcher(line).replaceAll(
+                					LOCK_REPLACEMENT_TEXT);
                 		}
-                		// locking "THE" in "THE CITY OF MANASSAS", "...THE" in "...THE CITY",
-                		// and "IS" or "CANCELLED" in "IS CANCELLED...".
-        				line = extraTokensPattern.matcher(line).replaceAll(
-                                LOCK_REPLACEMENT_TEXT);
 
-        				m = cancelOnlyPtrn.matcher(line);
+                		if (cancelVtecLineFound && isCancelledFound)
+                			cancelVtecLineFound = false;
+
+                		m = cancelOnlyPtrn.matcher(line);
                 		if (m.find())
                 			cancelVtecLineFound = false;
-                		
+
                 		sb.append(line + "\n");
                 		continue;
                 	} else {
@@ -577,7 +663,7 @@ public class WarningTextHandler {
                 						LOCK_START + m.group(3) + LOCK_END);
                 				headlineFound = false;
                 			}
-                			
+
                 			sb.append(line + "\n");
                 			continue;
                 		}

@@ -1,8 +1,9 @@
 colorMapName=nids_pre
-colorBar=@dfltRadarColorBar.xml
+colorBar=@ColorBars/Radar/dfltRadarColorBar.xml
 ! 2km total precip
 productCode=80
 elevationNumber=0
+! primaryElevationAngle=0.0
 alpha=1.0
 brightness=1.0
 contrast=1.0

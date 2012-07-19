@@ -47,7 +47,7 @@ import com.raytheon.viz.core.style.image.ImagePreferences;
  * ------------ ---------- ----------- --------------------------
  * 12/08/2011      #541    S. Gurung   Initial creation
  * 01/03/2012              S. Gurung   Append "No Data" to radar name when record is null
- * 
+ * 05/23/12       785      Q. Zhou    Modified getName for legend.
  * </pre>
  * 
  * @author sgurung
@@ -102,7 +102,7 @@ public class RadarNameGenerator extends AbstractNameGenerator {
 
             RadarRecord record = rsc.getRadarRecord(rsc.getDescriptor().getTimeForResource(rsc));
             if (record == null) {
-                return "No Data - Radar";
+                return "Radar-No Data";
             }
             RadarInfoDict dict = AbstractRadarResource.infoDict;
             RadarInfo info = dict.getInfo(record.getProductCode());
@@ -191,7 +191,7 @@ public class RadarNameGenerator extends AbstractNameGenerator {
         		return retLegStr;
         	}
         	else {        		
-        		outputString =  NmapCommon.getTimeStringFromDataTime(rsc.displayedDate, "/") + " " + outputString;                
+        		outputString = outputString + " " + NmapCommon.getTimeStringFromDataTime(rsc.displayedDate, "/") ;                
         	}
         }
         return outputString;

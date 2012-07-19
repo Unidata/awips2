@@ -263,6 +263,7 @@ public class MetParameterFactory implements ISerializableObject{
 //		ncParamsMap.put( ThunderstormOccurring12hr.class.getSimpleName(), new ThunderstormOccurring12hr() );
 //		ncParamsMap.put( ThunderstormOccurring24hr.class.getSimpleName(), new ThunderstormOccurring24hr() );
 		ncParamsMap.put( ShipIceThickness.class.getSimpleName(), new ShipIceThickness() );
+		ncParamsMap.put( StationNumber.class.getSimpleName(), new StationNumber() );
 		ncParamsMap.put( TopOfIcing.class.getSimpleName(), new TopOfIcing() );
 		ncParamsMap.put( TopOfTurbulence.class.getSimpleName(), new TopOfTurbulence() );
 		ncParamsMap.put( TopOfWeather.class.getSimpleName(), new TopOfWeather() );

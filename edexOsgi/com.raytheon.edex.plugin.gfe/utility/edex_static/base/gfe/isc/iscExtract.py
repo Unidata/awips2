@@ -428,9 +428,35 @@ def executeIscExtract(parmNames, databaseName, startTime, endTime,
                 maskName = "ISC_Send_Area"
     
             # Run ifpnetCDF for the data 
-            ifpnetCDF.executeIfpNetCDF(siteConfig.GFESUITE_SERVER, siteConfig.GFESUITE_PORT,
-                                       fname, JUtil.pyValToJavaObj(dest['parms']), dbid, startTR, endTR, maskName, 0, 1,
-                                       None, 6, 1, 1, "iscExtract")    
+            argv = []
+            argv.append("ifpnetCDF")
+            argv.append("-h")
+            argv.append(siteConfig.GFESUITE_SERVER)
+            argv.append("-r")
+            argv.append(siteConfig.GFESUITE_PORT)
+            argv.append("-o")
+            argv.append(fname)
+            for p in dest['parms']:
+                argv.append("-p")
+                argv.append(p)
+                
+            argv.append("-d")
+            argv.append(dbid)
+            argv.append("-s")
+            argv.append(startTR)
+            argv.append("-e")
+            argv.append(endTR)
+            argv.append("-m")
+            argv.append(maskName)
+            argv.append("-c")
+            argv.append("-f")
+            argv.append("6")
+            argv.append("-t")
+            argv.append("-k")
+            argv.append("-u")
+            argv.append("iscExtract")
+
+            ifpnetCDF.main(argv)    
             
             fname = fname + '.gz'
             size = os.stat(fname)[stat.ST_SIZE]

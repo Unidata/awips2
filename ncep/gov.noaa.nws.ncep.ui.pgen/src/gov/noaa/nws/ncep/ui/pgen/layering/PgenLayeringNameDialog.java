@@ -93,7 +93,7 @@ public class PgenLayeringNameDialog extends PgenLayeringDialog {
         top.setLayout( gl );
         
         nameText = new Text( top, SWT.SINGLE | SWT.BORDER );                        
-        nameText.setLayoutData( new GridData( 100, 20 ) );
+        nameText.setLayoutData( new GridData( 95, 20 ) );
         nameText.setEditable( true );   
         nameText.setText( layeringDlg.getActiveLayer().getName() );
 		
@@ -113,7 +113,7 @@ public class PgenLayeringNameDialog extends PgenLayeringDialog {
         });
         
         Button cancelBtn = new Button( centeredComp, SWT.NONE );
-        cancelBtn.setText( "Cancel" );
+        cancelBtn.setText( "  Close " );
         cancelBtn.setLayoutData( gd );
         cancelBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {

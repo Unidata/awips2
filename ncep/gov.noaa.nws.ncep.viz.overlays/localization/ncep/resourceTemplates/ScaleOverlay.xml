@@ -2,7 +2,7 @@
   <resource>
     <properties renderingOrderId="MAP_OUTLINE"></properties>
     <resourceData xsi:type="NC-ScaleOverlayResourceData">
-      <legendColor>${legend_color}</legendColor>
+      <legendColor>${color}</legendColor>
       <color>${color}</color>
       <scaleModel>${scaleModel}</scaleModel>
       <scalePosition>${scalePosition}</scalePosition>

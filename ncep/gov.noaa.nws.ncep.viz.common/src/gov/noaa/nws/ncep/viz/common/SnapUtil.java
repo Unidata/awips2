@@ -335,12 +335,12 @@ public class SnapUtil {
 	 * @param lineType
 	 * @param numPerLines number of coordinates per line, if negative, then Integer.MAX_VALUE is used instead.
 	 * @param isSnapped <code>boolean</code> if the coors have been snapped
-	 * @param useJTS <code>boolean</code> false to speed up the calculation (bypass teh use of JTS library), true by default  
+	 * @param useJTS <code>boolean</code> false to speed up the calculation (bypass the use of JTS library), true by default  
 	 * @return  VOR text string
 	 */
 	public static String getVORText(Coordinate[] coors, String vorConnector, String lineType, int numPerLines, 
             boolean isSnapped, boolean useJTS, boolean isGfa ) {
-		return getVORText(coors, vorConnector, lineType, numPerLines, isSnapped, true, false, null);
+		return getVORText(coors, vorConnector, lineType, numPerLines, isSnapped, true, isGfa, null);
 	}
 		
 	/**

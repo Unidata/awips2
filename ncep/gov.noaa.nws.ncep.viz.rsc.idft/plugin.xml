@@ -27,49 +27,64 @@
       </nc-resource>
    </extension> 
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="symbolName"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="symbolName"
             defaultValue="ASTERISK"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IDFT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="distanceColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="distanceColor"
             defaultValue="RGB {255,215,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IDFT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Double"
-            attributeName="pointSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Double"
+            paramName="pointSize"
             defaultValue="2.0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IDFT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="pointColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="pointColor"
             defaultValue="RGB {255,0,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IDFT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="arrowColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="arrowColor"
             defaultValue="RGB {255,215,0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IDFT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Double"
-            attributeName="arrowLength"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Double"
+            paramName="arrowLength"
             defaultValue="1.25"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IDFT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Double"
-            attributeName="arrowLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Double"
+            paramName="arrowLineWidth"
             defaultValue="1.25"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="IDFT">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="IDFT"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="idft"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
    </extension>
 
 </plugin>

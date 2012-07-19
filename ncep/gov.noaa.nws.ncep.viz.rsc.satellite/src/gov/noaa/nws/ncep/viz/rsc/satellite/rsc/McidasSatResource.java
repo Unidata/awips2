@@ -1,28 +1,26 @@
 package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.Separator;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
+
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcIRPixelToTempConverter;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 
 
 
@@ -36,7 +34,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  05/24/2010    #281        ghull       Initial creation 
- *  
+ *  06/07/2012    #717       archana    Added the methods getImageTypeNumber(),
+ *                                      getParameterList(), getLocFilePathForImageryStyleRule()
+ *                                      Updated getDataUnitsFromRecord() to get the units from the database 
  * </pre>
  * 
  * @author ghull
@@ -44,7 +44,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
  */
 public class McidasSatResource extends AbstractSatelliteResource 
 		   implements ICloudHeightCapable, INatlCntrsResource {
-
+    protected NcIRPixelToTempConverter pixelToTemperatureConverter = null;
 	public McidasSatResource(SatelliteResourceData data, LoadProperties props) {
         super(data, props);
         satRscData = data;
@@ -57,6 +57,8 @@ public class McidasSatResource extends AbstractSatelliteResource
         	legendStr = satRscData.getMetadataMap().get("satelliteName").getConstraintValue() + " " +
         	            satRscData.getMetadataMap().get("imageType").getConstraintValue();
         }
+        
+        
 
 	}
     
@@ -87,16 +89,31 @@ public class McidasSatResource extends AbstractSatelliteResource
     }
 
     String getDataUnitsFromRecord( PluginDataObject pdo ) {
-    	// TODO: workaround until the units is put into the DB.
-    	return (isCloudHeightCompatible() ? "IRPixel" : "BRIT" );
-    	//"";//((McidasRecord)pdo).getUnits();
+    	return ((McidasRecord)pdo).getCalType();
     }
     
     String getCreatingEntityFromRecord( PluginDataObject pdo ) {
     	return ((McidasRecord)pdo).getSatelliteName();
     }
 
+    List<String> getParameterList(PluginDataObject pdo ){
+    	
+    	String paramStr = ((McidasRecord)pdo).getSatelliteName() + "_" +((McidasRecord)pdo).getImageType();
+    	List<String> paramList = new ArrayList<String>(0);
+    	paramList.add(paramStr);
+    	return paramList;
+    }
 
+    
+    String getLocFilePathForImageryStyleRule(){
+    	return NcPathConstants.MCIDAS_IMG_STYLE_RULES;
+    }
+    
+int getImageTypeNumber(PluginDataObject pdo ) {
+	return ((McidasRecord)pdo).getImageTypeNumber().intValue();
+}
+    
+    
 	@Override
 	String getProjectionFromRecord(PluginDataObject pdo) {
 		return ((McidasRecord)pdo).getProjection();
@@ -133,7 +150,5 @@ public class McidasSatResource extends AbstractSatelliteResource
 		
 	       return mapGeom;
 	}
-
-
 
 }

@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 12/11		#?			B. Yin		Sets vorText 
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 05/12		#808		J. Wu		Tune GFA performance for vor text
  * 
  * </pre>
  * 
@@ -152,7 +153,7 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
             
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
     		DrawableType drawableType = getDrawableType(pgenType); 
 
         	if ( button == 1 ) {
@@ -182,10 +183,11 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
             		}
             		if(!((GfaAttrDlg)attrDlg).validateRequiredFields()) return false;
 
-            		if(((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1){
+            		if(((IGfa)attrDlg).getGfaFcstHr().indexOf("-") > -1) {
 	            		// snap
 	        			points = SnapUtil.getSnapWithStation(points,SnapUtil.VOR_STATION_LIST,10,16);
             		}
+            		
             		// create a new DrawableElement.    
             		elem = def.create( drawableType, (IAttribute)attrDlg,
             				pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
@@ -196,10 +198,14 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
             		}
             		
             		//set from line
-            		((GfaAttrDlg)attrDlg).setVorText((Gfa)elem);
+            		String vorText = Gfa.buildVorText( (Gfa)elem );
+            		((Gfa)elem).setGfaVorText( vorText );
+            	    
+            		((GfaAttrDlg)attrDlg).setVorText( vorText );
             		
 					startGfaText = true;
 					attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
+
 					return true;
             	}
             	return true;
@@ -216,11 +222,13 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         }
 
 		private boolean handleGfaMouseDown(Coordinate loc, DrawableType drawableType) {
-			elem = def.create( drawableType, (IAttribute)attrDlg,
+			if ( elem == null ) {
+			    elem = def.create( drawableType, (IAttribute)attrDlg,
 					pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
-
-			((Gfa)elem).setGfaTextCoordinate(loc);
+			}
 			
+			((Gfa)elem).setGfaTextCoordinate(loc);
+    		
 			drawingLayer.addElement(elem);
 
 			removeClearRefresh();
@@ -289,7 +297,8 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return true;
+			if ( shiftDown ) return false;
+			else return true;
 		}
 
 		private boolean handleGfaTextMouseMove(Coordinate loc) {

@@ -20,127 +20,171 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="java.lang.Boolean"
-            attributeName="flashFloodAdvisoryEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="java.lang.Boolean"
+            paramName="flashFloodAdvisoryEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="flashFloodAdvisoryColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="flashFloodAdvisoryColor"
             defaultValue="RGB {100, 100, 100}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodAdvisorySymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodAdvisorySymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodAdvisorySymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodAdvisorySymbolSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="flashFloodWarningEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="flashFloodWarningEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="flashFloodWarningColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="flashFloodWarningColor"
             defaultValue="RGB {155, 100, 100}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodWarningSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodWarningSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodWarningSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodWarningSymbolSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="flashFloodWatchEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="flashFloodWatchEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="flashFloodWatchColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="flashFloodWatchColor"
             defaultValue="RGB {100, 100, 155}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodWatchSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodWatchSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodWatchSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodWatchSymbolSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="flashFloodStatementEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="flashFloodStatementEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="flashFloodStatementColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="flashFloodStatementColor"
             defaultValue="RGB {100, 155, 100}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodStatementSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodStatementSymbolWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="flashFloodStatementSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="flashFloodStatementSymbolSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="countyOrZoneNameEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="countyOrZoneNameEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="immediateCauseEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="immediateCauseEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="outlineEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="outlineEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="FFA">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="FFA"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="FFA"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="FFA"
+            paramClass="String"
+            paramName="legendName"
+            defaultValue="Watch"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
+      
    </extension>
 
 </plugin>

@@ -239,9 +239,12 @@ public class ContourRenderable implements IRenderable {
     							contourGroup[i].fvalues = new ArrayList<Double>(cg.fvalues);
     							contourGroup[i].data = new HashMap< String, Geometry>(cg.data);
     							contourGroup[i].grid = cg.grid;
-    							contourGroup[i].posValueShape.compile();
-    							contourGroup[i].negValueShape.compile();
-    							contourGroup[i].fillShapes.compile();
+    							if ( contourGroup[i].posValueShape != null )
+    								contourGroup[i].posValueShape.compile();
+    							if ( contourGroup[i].negValueShape != null )
+    								contourGroup[i].negValueShape.compile();
+    							if ( contourGroup[i].fillShapes != null )
+    								contourGroup[i].fillShapes.compile();
     						} 
     						else {
     							target.setNeedsRefresh(true);
@@ -261,12 +264,14 @@ public class ContourRenderable implements IRenderable {
                         if (contourGroup[i] != null
                                 && paintProps.getView().getExtent().intersects(
                                         contourGroup[i].lastUsedPixelExtent)) {
-                        	target.drawShadedShape(contourGroup[i].fillShapes , 0.5f);
-                        	
-                            target.drawWireframeShape(
+                        	if ( contourGroup[i].fillShapes != null )
+                        		target.drawShadedShape(contourGroup[i].fillShapes , 0.5f);
+                        	if ( contourGroup[i].posValueShape != null )
+                        		target.drawWireframeShape(
                                     contourGroup[i].posValueShape, this.color,
                                     this.outlineWidth, posLineStyle, font);
-                            target.drawWireframeShape(
+                        	if ( contourGroup[i].negValueShape != null )
+                        		target.drawWireframeShape(
                                     contourGroup[i].negValueShape, this.color,
                                     this.outlineWidth, negLineStyle, font);
                             
@@ -280,15 +285,16 @@ public class ContourRenderable implements IRenderable {
                                         if (contourGroup[j].lastUsedPixelExtent
                                                 .intersects(paintProps
                                                         .getView().getExtent())) {
-                                        	
-                                        	target.drawShadedShape( contourGroup[j].fillShapes, 0.5f);
-                                        	
-                                            target.drawWireframeShape(
+                                        	if ( contourGroup[j].fillShapes != null )
+                                        		target.drawShadedShape( contourGroup[j].fillShapes, 0.5f);
+                                        	if ( contourGroup[j].posValueShape != null )
+                                        		target.drawWireframeShape(
                                                             contourGroup[j].posValueShape,
                                                             this.color,
                                                             this.outlineWidth,
                                                             posLineStyle, font);
-                                            target.drawWireframeShape(
+                                        	if ( contourGroup[j].negValueShape != null )
+                                        		target.drawWireframeShape(
                                                             contourGroup[j].negValueShape,
                                                             this.color,
                                                             this.outlineWidth,
@@ -335,12 +341,14 @@ public class ContourRenderable implements IRenderable {
                         if (contourGroup[i] != null
                                 && paintProps.getView().getExtent().intersects(
                                         contourGroup[i].lastUsedPixelExtent)) {
-                        	target.drawShadedShape(contourGroup[i].fillShapes , 0.5f);
-                        	
-                            target.drawWireframeShape(
+                        	if ( contourGroup[i].fillShapes != null )
+                        		target.drawShadedShape(contourGroup[i].fillShapes , 0.5f);
+                        	if ( contourGroup[i].posValueShape != null )
+                        		target.drawWireframeShape(
                                     contourGroup[i].posValueShape, this.color,
                                     this.outlineWidth, posLineStyle, font);
-                            target.drawWireframeShape(
+                        	if ( contourGroup[i].negValueShape != null )
+                        		target.drawWireframeShape(
                                     contourGroup[i].negValueShape, this.color,
                                     this.outlineWidth, negLineStyle, font);                            
                         } 
@@ -449,9 +457,12 @@ public class ContourRenderable implements IRenderable {
     							contourGroup[i].fvalues = new ArrayList<Double>(cg.fvalues);
     							contourGroup[i].data = new HashMap< String, Geometry>(cg.data);
     							contourGroup[i].grid = cg.grid;
-    							contourGroup[i].posValueShape.compile();
-    							contourGroup[i].negValueShape.compile();
-    							contourGroup[i].fillShapes.compile();
+    							if ( contourGroup[i].posValueShape != null )
+    								contourGroup[i].posValueShape.compile();
+    							if ( contourGroup[i].negValueShape != null )
+    								contourGroup[i].negValueShape.compile();
+    							if ( contourGroup[i].fillShapes != null )
+    								contourGroup[i].fillShapes.compile();
     						} 
     					}
                         break;

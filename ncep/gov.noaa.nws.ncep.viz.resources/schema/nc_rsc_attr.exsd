@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="nc-resourceAttribute"/>
+            <element ref="nc-resourceParameter"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,7 +47,7 @@
       </complexType>
    </element>
 
-   <element name="nc-resourceAttribute">
+   <element name="nc-resourceParameter">
       <complexType>
          <attribute name="ncResourceName" type="string" use="required">
             <annotation>
@@ -59,14 +59,14 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="attributeName" type="string" use="required">
+         <attribute name="paramName" type="string" use="required">
             <annotation>
                <documentation>
                   used to access a member variable of the resource data
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="attributeClass" type="string" use="required">
+         <attribute name="paramClass" type="string" use="required">
             <annotation>
                <documentation>
                   the class of the member variable.
@@ -79,6 +79,34 @@ Examples are the primitives (Integer...),  RGB, PlotModel, and ColorBar
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="paramType" type="string" use="required">
+            <annotation>
+               <documentation>
+                  IMPLEMENTATION_PARAM, 
+REQUEST_CONSTRAINT,
+EDITABLE_ATTRIBUTE,
+NON_EDITABLE_ATTRIBUTE
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="constraintName" type="string">
+            <annotation>
+               <documentation>
+                  db column name. defaults to the paramName. Example use is modelName for GDFILE
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="attributeName" type="string">
+            <annotation>
+               <documentation>
+	         	  if and EDITABLE_ATTRIBUTE this is the name of the attribute (ie member variable
+	         	  in the java class. This defaults to the paramName. 
+	         	  This only exists for Grid because the parameters are upper case and the 
+	         	  attr names are lowercase.
+               </documentation>
+            </annotation>
+         </attribute>
+         
          <attribute name="defaultValue" type="string">
             <annotation>
                <documentation>
@@ -86,6 +114,7 @@ Examples are the primitives (Integer...),  RGB, PlotModel, and ColorBar
                </documentation>
             </annotation>
          </attribute>
+         
       </complexType>
    </element>
 

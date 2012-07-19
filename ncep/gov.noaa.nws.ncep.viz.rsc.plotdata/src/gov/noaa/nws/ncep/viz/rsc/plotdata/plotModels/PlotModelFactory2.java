@@ -93,6 +93,8 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 01/19/2012     #539     qzhou       Fixed southern hemisphere wind barbs
  * 02/27/2012     #694     qzhou       Fixed center symbol positions not overlap
  * 04/02/2012     #615     sgurung     Fixed a NullPointerException bug in processTableDirective()
+ * 05/30/2012     #654     sgurung     Modified style in the constructor to construct FontFamily names that match SVG file names
+ * 
  * </pre>
  * 
  * @author BRock97
@@ -499,12 +501,15 @@ public class PlotModelFactory2 {
                 String fontFamily = prmDefn.getSymbolFont();
 
                 // TODO : adjust the position of symbol parameters to align them correctly 
-                
-                if( prmDefn.getPlotMode().equals("text" ) ) {                
-                	style = style + "stroke: "+color+";fill:"+color
+                               
+                if( prmDefn.getPlotMode().equals("text" ) ) {         
+                	fontFamily = pme.getTextFont() + ("Standard".equals(pme.getTextFont())? "":pme.getTextStyle()) + "Font";
+                	
+                	style = style + "stroke: "+color+";fill: "+("Standard".equals(pme.getTextFont())? "none":color)
                 				+";font-size: "+pme.getTextSize()
-                					+";font-family: "+pme.getTextFont()
-                						+";font-style:"+pme.getTextStyle()+";";
+                					+";font-family: "+fontFamily
+                    				+ ";letter-spacing: 1" //(fontFamily.startsWith("Courier")? "":";letter-spacing: 1")
+                					+";font-style: "+(pme.getTextStyle().endsWith("Italic")? "italic":"normal")+";";
                 } 
                 else if( prmDefn.getPlotMode().equals("barb" ) ) {                
                 	style = "fill: none; "+"stroke: "+color                    		
@@ -514,19 +519,19 @@ public class PlotModelFactory2 {
                 } 
                 else if( prmDefn.getPlotMode().equals("table" ) ){
                 	style = style + "fill: none; "+"stroke: "+color
-                			+";stroke-width:"+pme.getSymbolSize()+"px"
+                			+";stroke-width: 1px"//+pme.getSymbolSize()+"px"
                 				+";font-size:"+pme.getSymbolSize()+"em"
                 					+";font-family:"+fontFamily+";";
                 }
                 else {
                 	style = style + "stroke: "+color
-        				+";stroke-width:"+pme.getSymbolSize()+"px"
+        				+";stroke-width: 1px"//+pme.getSymbolSize()+"px"
         				+";font-size:"+pme.getSymbolSize()+"em"
         					+";font-family:"+fontFamily+";";
                 	System.out.println("prmDefn missing/unrecognized plotMode: " +
                 			prmDefn.getPlotMode() );
                 	continue;
-                }
+                } 
 
                 domElement.setAttribute("style", style);
 

@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NatlMosaic</resource>
     <attrSetGroupName>TOPS</attrSetGroupName>
-    <attrSetNames>TOPS2_4.00,TOPS18_1.00,TOPS30_1.00</attrSetNames>
+    <attrSetNames>TOPS_4.00,TOPS2_4.00,TOPS18_1.00,TOPS30_1.00</attrSetNames>
 </AttributeSetGroup>

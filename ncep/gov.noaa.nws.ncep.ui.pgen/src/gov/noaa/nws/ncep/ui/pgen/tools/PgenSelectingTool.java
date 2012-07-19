@@ -22,8 +22,9 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
-//import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
@@ -55,6 +56,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaReducePoint;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
@@ -68,8 +70,8 @@ import gov.noaa.nws.ncep.ui.pgen.attrdialog.SymbolAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.TextAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.TrackAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrdialog.TrackExtrapPointInfoDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
-//import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
 /**
  * Implements a modal map tool for PGEN selecting functions.
@@ -105,6 +107,12 @@ import gov.noaa.nws.ncep.viz.common.SnapUtil;
  * 02/12          #597      S. Gurung   Removed snapping for CONV_SIGMET and NCON_SIGMET.
  * 										Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 02/12		 TTR 525	B. Yin		Mkae sure points don't move when selecting.
+ * 04/12           #750     Q. Zhou     Modified handleMouseDownMove for loc null. 
+ * 										Added tempLoc and inOut to trace position of single position element
+ * 05/12		 TTR 310	B. Yin		added a method to change line type.
+ * 05/12			#808	J. Wu		Update Gfa vor text
+ * 05/12		    #610	J. Wu   	Add warning when GFA FROM lines > 3
+ * 
  * </pre>
  * 
  * @author	B. Yin
@@ -146,6 +154,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         if (!(ep instanceof AbstractEditor) ){
             return;
         }
+        //close attr dialog except contour dialog
+        if ( attrDlg != null && !(attrDlg instanceof ContoursAttrDlg) )attrDlg.close();
     	attrDlg = null;
     	if ( buttonName == null ) buttonName = new String("Select");
     	PgenSession.getInstance().getPgenPalette().setDefaultAction();
@@ -360,8 +370,19 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     	/**
     	 * For single point element, the original location is needed for undo.
     	 */
-    	Coordinate oldLoc = null;
+    	protected Coordinate oldLoc = null;
     	
+    	/**
+    	 * the mouse downMove position. Used for crossing the screen border, for single point element.
+    	 */
+    	protected Coordinate tempLoc = null;
+    	
+    	/**
+    	 * Flag for point moving cross the screen. inOut=0: outside the map bound, inOut=1: inside the map bound..
+    	 */
+    	protected int inOut = 1;
+    	
+    	protected boolean simulate = false;
         /*
          * (non-Javadoc)
          * 
@@ -371,25 +392,46 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
         	
-        	preempt = false;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
-        	
+        	if ( loc == null || shiftDown || simulate ) return false;
+        	preempt = false;
+	
         	if ( button == 1 ) {
 
+        		//reset ptSelected flag in case the dialog is closed without right-mouse click.
+        		if ( drawingLayer.getSelectedDE() == null ) ptSelected = false;
+        		
         		// Return if an element or a point has been selected
         		if ( ptSelected || drawingLayer.getSelectedDE() != null ) {
         			dontMove =false;
         			preempt = true;
+
+        			if ( drawingLayer.getSelectedDE() instanceof SinglePointElement
+        					&& drawingLayer.getDistance(drawingLayer.getSelectedDE(), loc) > 30 ) {
+        				ptSelected = false;   //prevent SPE from moving when selecting it and then click far away and hold to  move.
+        			}
+        			
         			return false;
         		}
         		        	
         		// Get the nearest element and set it as the selected element.
         		DrawableElement elSelected = drawingLayer.getNearestElement( loc );
-       		
-        		AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc, new AcceptFilter(), true );
+       		    
+    			if ( elSelected instanceof SinglePointElement) {
+    				ptSelected = true;   //prevent map from moving when holding and dragging too fast.
+    			}
+    			
         	//	AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc );
+       		    
+        		AbstractDrawableComponent adc = null;
+        		if ( elSelected != null && elSelected.getParent() != null && 
+        			 !elSelected.getParent().getName().equals( "Default" ) ) {
+ 
+        			adc = drawingLayer.getNearestComponent( loc, new AcceptFilter(), true );       			
+        		}
+        		
+//    		    AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc, new AcceptFilter(), true );
 
         		if ( elSelected == null ) return false;
         		preempt = true;
@@ -403,6 +445,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         			PgenUtil.loadTCATool(elSelected);
         		}
         		else if ( elSelected instanceof WatchBox ){
+            		WatchBoxAttrDlg.getInstance(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).setWatchBox( (WatchBox)elSelected );
         			PgenUtil.loadWatchBoxModifyTool(elSelected);
         		}
         		else if ( elSelected instanceof Tcm ){
@@ -575,8 +618,10 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
                 		attrDlg.setAttrForDlg( elSelected );
                 	}
                 }
-                 mapEditor.setFocus();
-                 mapEditor.refresh();  
+                
+                mapEditor.setFocus();
+                mapEditor.refresh();  
+                
                 return preempt;
                 
             }
@@ -624,21 +669,47 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) { 
         	
+        	if ( shiftDown ) return false;
         	if ( dontMove  && drawingLayer.getSelectedDE() != null) return true;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
-        	if ( loc == null ) return false;
+        	//if ( loc == null ) return false;
 
-        	DrawableElement tmpEl = drawingLayer.getSelectedDE();
-        	       	
+        	DrawableElement tmpEl = drawingLayer.getSelectedDE();        	       	
         	if( isUnmovable(tmpEl) ) return false;
-        	
-        	//make sure the click is close enough to the element
-        	if ( drawingLayer.getDistance(tmpEl, loc) > 30 && !ptSelected ) return false;
+
+        	//
+        	if (loc != null )
+        		tempLoc = loc;
+
+        	if (loc != null && inOut == 1) {
+        		//make sure the click is close enough to the element
+        		if ( drawingLayer.getDistance(tmpEl, loc) > 30 && !ptSelected ) 
+        			return false;
+        	}
+        	else if (loc != null && inOut == 0) {       		
+            	inOut = 1;            
+        	}
+        	else { 
+        		if (inOut != 0)
+        			inOut = 0;
+            	
+        		if ( tmpEl == null ) //make sure if no DE is selected, no moving the DE
+        			return false;	 //for pan
+        		else {
+        			simulate = true;
+        			PgenUtil.simulateMouseDown(x, y, button, mapEditor);
+        			simulate = false;
+        			
+        			return true;	 //for DE
+        		}
+        	}
 
         	if ( tmpEl != null ) {
         		if (tmpEl instanceof SinglePointElement ){
-
+        			
+        			ptSelected = true;  // to prevent map shifting when cursor moving too fast for single point elements. 
+        			
         			if ( oldLoc == null ){
         				oldLoc = new Coordinate(((SinglePointElement)tmpEl).getLocation());
         			}
@@ -741,19 +812,37 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         					ghostEl.setPgenType( tmpEl.getPgenType());
 
         					ptIndex = getNearestPtIndex( ghostEl, loc);
-        					ghostEl.setPoints( points );
+        					
+        					
+        				   	double [] locScreen = mapEditor.translateInverseClick(loc);
+       				    	double [] pt = mapEditor.translateInverseClick((ghostEl.getPoints().get(ptIndex)));
 
-        					setGhostLineColorForTrack(ghostEl, ptIndex); 
+        					Point ptScreen = new GeometryFactory().createPoint(new Coordinate(pt[0], pt[1]));
+        					double dist = ptScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));
+        						dist = 0;
+        					if ( dist <= 30 ){ 
+        						ghostEl.setPoints( points );
 
-        					ptSelected = true;
+        						setGhostLineColorForTrack(ghostEl, ptIndex); 
+
+        						ptSelected = true;
+        					}
 
         				}
         			}
-        			
+        			simulate = true;
+        			PgenUtil.simulateMouseDown(x, y, button, mapEditor);
+        			simulate = false;
         			return true;
         		}     	
         	}
 
+        	if ( preempt ) {
+        		simulate = true;
+        		PgenUtil.simulateMouseDown(x, y, button, mapEditor);
+        		simulate = false;
+        	}
+        	
             return preempt;
          
         }
@@ -855,11 +944,15 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     							
     							drawingLayer.replaceElement(el, newEl);
     							((SinglePointElement) el).setLocationOnly(oldLoc);
+    							
     							oldLoc = null;
     						}
     						
-    						((SinglePointElement) newEl).setLocation(mapEditor.translateClick(x, y));   						
-    		       			   						
+    						Coordinate loc = mapEditor.translateClick(x, y);
+    						if (loc != null) 
+    						    ((SinglePointElement) newEl).setLocation(loc);
+    						else
+    							((SinglePointElement) newEl).setLocation(tempLoc);
     						drawingLayer.setSelected(newEl);
     					}
 
@@ -904,6 +997,16 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 								newEl.setPoints(ghostEl.getPoints());
     						}
     						
+    						///update Gfa vor text         		    				
+    						if ( newEl instanceof Gfa ) {
+    							GfaReducePoint.WarningForOverThreeLines( (Gfa)newEl );           		    				
+    							((Gfa)newEl).setGfaVorText( Gfa.buildVorText( (Gfa)newEl ) );
+    							if ( attrDlg instanceof GfaAttrDlg ) {
+    			            		((GfaAttrDlg)attrDlg).setVorText( ((Gfa)newEl).getGfaVorText() );
+    							}
+
+    						}
+    						
     						if(attrDlg != null ) 
     							attrDlg.setDrawableElement(newEl);    						
     						
@@ -942,7 +1045,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 	        	  pResource.deleteSelectedElements();
 	        	  refresh();
 	        	  return true;
-             }   
+              }
+	          else super.handleKeyDown(keyCode);
 	          return false;
         }
         
@@ -1231,6 +1335,29 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     		}
     	}
     	
+    }
+    
+    public AttrDlg getAttrDlg(){
+    	return attrDlg;
+    }
+    /**
+		Change the line type of the selected element.
+	 */
+    public void changeSelectedLineType(String type){
+    	DrawableElement de = drawingLayer.getSelectedDE();
+    	if (  de != null && (de instanceof Line )) {
+        	attrDlg.setPgenType(type); 
+        	attrDlg.setDefaultAttr();
+
+    		Line ln = (Line)((Line)de).copy();
+    		ln.setPgenType(type);
+    		
+    		ln.update(attrDlg);
+    		
+    		drawingLayer.replaceElement(de, ln);
+    		drawingLayer.setSelected(ln);
+    		mapEditor.refresh();
+    	}
     }
     
 }
