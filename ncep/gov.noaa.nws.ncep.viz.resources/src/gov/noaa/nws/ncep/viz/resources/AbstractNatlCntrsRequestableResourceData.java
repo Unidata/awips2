@@ -19,7 +19,11 @@ import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
-import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceAttrInfo;
+import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamInfo;
+import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamType;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
+//import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition.InventoryLoadStrategy;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName.ResourceNameAdapter;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
@@ -74,6 +78,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * Mar 03, 2011    408     ghull       frameInterval -> frameSpan
  * Nov 15, 2011            ghull       add resolveLatestCycleTime, 
  * Nov 29, 2011    518     ghull       add dfltFrameTimes
+ * Feb 06, 2012    606     ghull       getDataTimes from Inventory if it exists
  * 
  * </pre>
  *  * 
@@ -347,24 +352,46 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 	// return a list of all of the data times from the database. If 
 	// this is a forecast resource with a cycle time, this will only 
 	// return a list of unique cycle times. 
-	public ArrayList<DataTime> getAvailableDataTimes( ) {
-		DataTime[] availTimes = null;
-		ArrayList<DataTime> availTimesList = new ArrayList<DataTime>();
+	public List<DataTime> getAvailableDataTimes( ) {
+		List<DataTime> availTimesList=null;
 		
 		try {
-			availTimes = getAvailableTimes();
-		} catch ( VizException e ) {
-			System.out.println("Error getting Available Times: "+e.getMessage() );
-			return null;
+			ResourceDefinition rscDefn = ResourceDefnsMngr.getInstance().getResourceDefinition( getResourceName() );
+			
+			// first attempt to get the times from the inventory and 
+			// if there is no 
+//			if( !rscDefn.hasInventory() &&
+//				 rscDefn.getInventoryLoadStrategy() != InventoryLoadStrategy.NO_INVENTORY ) {
+//				
+//				rscDefn.loadInventory( false );
+//			}
+			
+			if( rscDefn.getInventoryEnabled() && 
+				rscDefn.isInventoryInitialized() ) {				
+				availTimesList = rscDefn.getDataTimes( getResourceName() );
+			}
+			else {
+				try {
+					DataTime[] availTimes = null;
+					availTimes = getAvailableTimes();
+					if( availTimes == null ) {
+						return new ArrayList<DataTime>();
+					}
+					availTimesList = Arrays.asList( availTimes ); 
+					
+				} catch ( VizException e ) {
+					System.out.println("Error getting Available Times: "+e.getMessage() );
+					return null;
+				}
+			}
+		} catch (VizException e1) {
+			return availTimesList;
 		}
 
 		// if there is a cycle time, filter out other times and sort by the forecast hours 
 		// TODO: don't get the cycle time from the resourceName.... 
 		//
-		if( getResourceName().getCycleTime() == null ) {
-			availTimesList = new ArrayList<DataTime>( Arrays.asList( availTimes ) );
-		}
-		else {
+		if( getResourceName().getCycleTime() != null ) {
 			//DataTime cycleTime = getResourceName().getCycleTime(); 
 			long cycleTimeMs=0;
 			
@@ -372,7 +399,7 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 			// and set the resolved time in the ResourceName
 			//
 			if( getResourceName().isLatestCycleTime() ) {
-				for( DataTime dt : availTimes ) {
+				for( DataTime dt : availTimesList ) {
 					if( dt.getRefTime().getTime() > cycleTimeMs ) {
 						
 						cycleTimeMs = dt.getRefTime().getTime();
@@ -384,19 +411,23 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 			else {
 				cycleTimeMs = getResourceName().getCycleTime().getRefTime().getTime();
 			}
-			
+			ArrayList<DataTime> tmpTimesList = new ArrayList<DataTime>();
+
 			// add all the forecast times for the given cycleTime.
 			// (TODO: confirm that duplicate valid times (with different periods are not getting added here.) 
-			for( DataTime dt : availTimes ) {
+			for( DataTime dt : availTimesList ) {
 				if( dt.getRefTime().getTime() == cycleTimeMs ) {
 					// create a DataTime without a period which may lead to duplicate times.
 					DataTime dataTime = new DataTime( dt.getRefTime(), dt.getFcstTime() );
-					if( !availTimesList.contains( dataTime ) ) {
-						availTimesList.add( dataTime );
+					if( !tmpTimesList.contains( dataTime ) ) {
+						tmpTimesList.add( dataTime );
 					}
 				}
 			}
+			availTimesList = tmpTimesList;
 		}
+
+
 		return availTimesList;
 	}
 	
@@ -511,22 +542,26 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 		
 //		if( rscAttrSet == null && rscAttrSetName != null ) {	
 			
-			HashMap<String,ResourceAttrInfo> attrSetInfo = 
-				     rscExtPointMngr.getResourceAttributes( getResourceName() );
+			HashMap<String,ResourceParamInfo> rscImplParamInfo = 
+				     rscExtPointMngr.getParameterInfoForRscImplementation( getResourceName() );
 			
-			if( attrSetInfo == null ) {
+			if( rscImplParamInfo == null ) {
 				return null;
 			}
 
 			ResourceAttrSet rscAttrSet = new ResourceAttrSet( 
 					resourceName.getRscAttrSetName() ); //rscAttrSetName );
 
-			for( ResourceAttrInfo attrInfo : attrSetInfo.values() ) {
-				Method[] mthds = this.getClass().getDeclaredMethods();
-				String attrName = attrInfo.getAttrName();
+			for( ResourceParamInfo prmInfo : rscImplParamInfo.values() ) {
+				if( prmInfo.getParamType() != ResourceParamType.EDITABLE_ATTRIBUTE ) {
+					continue;
+				}
 				
-				String getMthdName = "get"+attrName.substring(0,1).toUpperCase() +
-				attrName.substring(1);
+				Method[] mthds = this.getClass().getDeclaredMethods();
+				String paramName = prmInfo.getAttributeName();
+				
+				String getMthdName = "get"+paramName.substring(0,1).toUpperCase() +
+				paramName.substring(1);
 
 				for( Method m : mthds ) {
 					if( m.getName().equals( getMthdName ) ) {
@@ -551,12 +586,12 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 									attrVal = cc.newInstance( attrVal );
 								}
 								
-								rscAttrSet.setAttrValue( attrName, attrVal );
+								rscAttrSet.setAttrValue( paramName, attrVal );
 								
 							} catch (NoSuchMethodException e) {
 								// if there is no copy constructor go ahead and set
 								// the attribute value
-								rscAttrSet.setAttrValue( attrName, attrVal );
+								rscAttrSet.setAttrValue( paramName, attrVal );
 								
 							} catch( IllegalAccessException iae ) {
 								System.out.println(iae.getMessage());
@@ -597,16 +632,22 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 //		}
 		
 //		Set<String> attrNames = rscAttrSet.getAttrNames();
-		HashMap<String,ResourceAttrInfo> attrSetInfo = 
-		     rscExtPointMngr.getResourceAttributes( getResourceName() );
+		HashMap<String,ResourceParamInfo> rscImplParamInfo = 
+		     rscExtPointMngr.getParameterInfoForRscImplementation( getResourceName() );
 	
-		if( attrSetInfo == null ) {
+		if( rscImplParamInfo == null ) {
+			System.out.println("Couldn't find rsc impl parameter info for "+getResourceName() );
 			return false;
 		}
 
 		// loop thru the attributes and use Java Bean utils to set the attributes on the resource    	
-		for( ResourceAttrInfo attrInfo : attrSetInfo.values() ) {
-			String attrName = attrInfo.getAttrName();
+		for( ResourceParamInfo prmInfo : rscImplParamInfo.values() ) {
+			
+			if( prmInfo.getParamType() != ResourceParamType.EDITABLE_ATTRIBUTE ) {
+				continue;
+			}
+			
+			String attrName = prmInfo.getAttributeName();
 			
 			// make sure that this attrSet has this attributeName
 			if( !newRscAttrSet.hasAttrName(attrName) ) {
@@ -617,10 +658,10 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 			Object attrValue = rscAttr.getAttrValue();
 			Class<?> attrClass = rscAttr.getAttrClass();
 
-			if( attrClass != attrInfo.getAttrClass() ) {
+			if( attrClass != prmInfo.getParamClass() ) {
 				System.out.println("Unable to set Attribute "+attrName+" because it is defined as "+
 						" the wrong type: "+attrClass.getName()+" != "+
-						attrInfo.getAttrClass().getName() );
+						prmInfo.getParamClass().getName() );
 				continue;
 			}
 			else if( attrValue == null ) {

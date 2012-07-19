@@ -19,7 +19,6 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gov.noaa.nws.ncep.common.staticdata.USState;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
@@ -64,6 +63,8 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
     @Override
     protected void activateTool( ) {
     	super.activateTool();
+    	if (super.isDelObj()) return;
+
     	if ( attrDlg != null ){
     		((WatchBoxAttrDlg)attrDlg).enableDspBtn(false);
     	}
@@ -138,7 +139,7 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
             
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	if ( button == 1 ) {
 
@@ -287,7 +288,8 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
   
         @Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return true;
+        	if ( shiftDown ) return false;
+        	else return true;
 		}
 
 		/**

@@ -1,7 +1,5 @@
 ! Attributes for NonConvective SIGMET
 !
-color=RGB {155, 155, 155}
-! 
 icingEnable=true
 icingColor=RGB {0, 255, 0}
 icingLineWidth=2

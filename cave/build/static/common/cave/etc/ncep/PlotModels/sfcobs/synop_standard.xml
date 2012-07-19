@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<PlotModel svgTemplate="standardPlotModelTemplate.svg" plugin="sfcobs" name="synop_standard" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="sfcobs" name="synop_standard" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TMPF">
         <Position>UL</Position>
         <Color red="255" green="0" blue="0"/>
@@ -40,4 +40,4 @@
         <Position>LC</Position>
         <Color red="238" green="238" blue="0"/>
     </PlotModelElement>
-</PlotModel>
+</plotModel>

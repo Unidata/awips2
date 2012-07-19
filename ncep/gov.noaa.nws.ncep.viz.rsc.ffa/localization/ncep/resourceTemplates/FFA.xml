@@ -13,7 +13,7 @@
              <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
              <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
              <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
-             <sourceName>${sourceName}</sourceName>
+             <sourceName>${legendName}</sourceName>
              <color>${color}</color>     
              <flashFloodAdvisoryEnable>${flashFloodAdvisoryEnable}</flashFloodAdvisoryEnable>
              <flashFloodAdvisoryColor>${flashFloodAdvisoryColor}</flashFloodAdvisoryColor>
@@ -38,10 +38,10 @@
              <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
-              		<constraint constraintValue="aww" constraintType="EQUALS" />
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
                <mapping key="reportType">
-                 <constraint constraintValue="FLASH_FLOOD_ADVISORY,FLASH_FLOOD_WARNING,FLASH_FLOOD_WATCH,FLASH_FLOOD_STATEMENT,FLOOD_WATCH" constraintType="IN" />
+                 <constraint constraintValue="${reportType}" constraintType="IN" />
                </mapping>
              </metadataMap>
           </resourceData>

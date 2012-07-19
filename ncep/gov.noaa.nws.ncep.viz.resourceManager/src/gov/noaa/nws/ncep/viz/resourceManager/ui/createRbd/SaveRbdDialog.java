@@ -47,7 +47,8 @@ import org.eclipse.swt.widgets.Text;
  * 08/01/11      #450       Greg Hull    Change spf name combo to a Text widget
  * 08/01/11      #450       Greg Hull    Use SpfsManager with new NcPathManager 
  * 	                                     Localization for USER-level save/delete.
- * 11/03/11      #???       B. Hebbard   Add "Save Source Timestamp As:" Constant / Latest 
+ * 11/03/11      #???       B. Hebbard   Add "Save Source Timestamp As:" Constant / Latest  * 
+ * 05/02/12      #585       S. Gurung    Commented out unwanted options ("Sort Alphabetically" and "Sort By Date")  
  *                                       
  * </pre>
  * 
@@ -128,7 +129,7 @@ public class SaveRbdDialog extends Dialog {
 
         FormData fd = new FormData( );
 
-        Composite display_by_grp = new Composite( shell, SWT.SHADOW_NONE );
+        /*Composite display_by_grp = new Composite( shell, SWT.SHADOW_NONE );
         display_by_grp.setLayout( new FormLayout() );
         fd = new FormData();
         fd.top = new FormAttachment( 0, 0 );
@@ -164,13 +165,16 @@ public class SaveRbdDialog extends Dialog {
        		    spf_name_lviewer.refresh(true);
        		 
        		}
-        });
+        });*/
         
         spf_group_combo = new Combo( shell, SWT.DROP_DOWN );
         fd = new FormData();
-        fd.top = new FormAttachment( display_by_grp, 40, SWT.BOTTOM );
+        fd.top = new FormAttachment( 5, 10 );
+        fd.left  = new FormAttachment( 9, 10 );
+        fd.right  = new FormAttachment( 85, 0 );
+        /*fd.top = new FormAttachment( display_by_grp, 40, SWT.BOTTOM );
         fd.left  = new FormAttachment( display_by_grp, 20, SWT.LEFT );
-        fd.right  = new FormAttachment( display_by_grp, -20, SWT.RIGHT );
+        fd.right  = new FormAttachment( display_by_grp, -20, SWT.RIGHT );*/
         spf_group_combo.setLayoutData( fd );    	
         
         Label spf_grp_lbl = new Label( shell, SWT.NONE);

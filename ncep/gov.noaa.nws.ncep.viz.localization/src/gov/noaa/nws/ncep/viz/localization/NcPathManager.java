@@ -13,10 +13,14 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
 
 /**
- * A Facade over the PathManager using the NatlCntrsLocalizationAdapter.
+ * A Facade over the PathManager. This was initially created to create a pathMngr with
+ * a NatlCntrsLocalizationAdapter but now is just a convenience wrapper around the 
+ * same PathManager as the rest of CAVE.
  *
  Would it be ok/better to derive from PathManager directly and bypass the PathManagerFactory?
  * 
@@ -31,6 +35,12 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
  * 03/15/2012     #621      S. Gurung    Added LOCKED_CMAP_TBL
  * 04/12/2012     #615      S. Gurung    Added CONDITIONAL_FILTERS_DIR, CONDITIONAL_FILTER_HELP_FILE, 
  * 										 CONDITIONAL_FILTER_MINUS_IMG and CONDITIONAL_FILTER_PLUS_IMG
+ * 05/07/2012     #615      S.Gurung     Modified constants CONDITIONAL_FILTER_HELP_FILE,CONDITIONAL_FILTER_MINUS_IMG
+ *                                       and CONDITIONAL_FILTER_PLUS_IMG
+ * 05/24/2012     #606      Greg Hull    Added NCINVENTORY_DEFINITIONS_DIR
+ * 06/01/2012     #815      Greg Hull    rm NatlCntrsLocalizationAdapter and use CAVELocalizationAdapter
+ * 06/07/2012     #717      Archana      Added the constants STYLE_RULES_DIR,
+ *                                       MCIDAS_IMG_STYLE_RULES and GINI_IMG_STYLE_RULES                                 
  * </pre>
  * 
  * @author ghull 
@@ -48,7 +58,10 @@ public class NcPathManager {
 		// the root of NCEP file hierarchy (below base/user/site/desk)
 		public static final String NCEP_ROOT   = "ncep"+File.separator;
 
-	    // static directories. 
+		// Note that these files are in STATIC_COMMON  
+		public static final String NCINVENTORY_DEFNS_DIR = NCEP_ROOT + "NcInventoryDefinitions";
+
+		// static directories. 
 		public static final String SPFS_DIR            = NCEP_ROOT + "SPFs"; // the Groups dir
 		public static final String RSC_TMPLTS_DIR      = NCEP_ROOT + "resourceTemplates";
 		public static final String RSC_DEFNS_DIR       = NCEP_ROOT + "ResourceDefns";
@@ -63,6 +76,7 @@ public class NcPathManager {
 		public static final String PLOT_PARAMETERS_DIR = PLOT_MODELS_DIR + File.separator+"PlotParameters";
 		public static final String LOCATOR_SOURCE_DIR  = NCEP_ROOT+"LocatorDataSources";
 		public static final String PGEN_XML_OVERLAYS   = NCEP_ROOT + "PgenXmlOverlayProducts";
+		public static final String STYLE_RULES_DIR = NCEP_ROOT + "styleRules" + File.separator;
 		// lpi,spi files for overlays
 		public static final String BASEMAPS_DIR        = NCEP_ROOT + "basemaps";
 		
@@ -84,12 +98,10 @@ public class NcPathManager {
 												     "gempak"+File.separator+"geog.xml";
 		public static final String SFSTNS_TBL = STATIONS_DIR+File.separator+"sfstns.xml";
 		
-		// help file for conditional filters 
-		public static final String CONDITIONAL_FILTER_HELP_FILE       = NCEP_ROOT + "conditionalFilter" + File.separator  + "ConditionalFilterHelp.txt";
-		public static final String CONDITIONAL_FILTER_MINUS_IMG       = NCEP_ROOT + "conditionalFilter" + File.separator  + "minus_red.gif";
-		public static final String CONDITIONAL_FILTER_PLUS_IMG        = NCEP_ROOT + "conditionalFilter" + File.separator  + "plus_green.gif";
-		
-		public static final String CONDITIONAL_FILTERS_DIR = PLOT_MODELS_DIR + File.separator+"ConditionalFilters";
+		public static final String CONDITIONAL_FILTERS_DIR      = PLOT_MODELS_DIR + File.separator+"ConditionalFilters";
+		public static final String CONDITIONAL_FILTER_HELP_FILE = NCEP_ROOT + File.separator + "conditionalFilter" + File.separator + "ConditionalFilterHelp.txt";
+		public static final String CONDITIONAL_FILTER_MINUS_IMG = NCEP_ROOT + File.separator + "conditionalFilter" + File.separator + "minus_red.gif";
+		public static final String CONDITIONAL_FILTER_PLUS_IMG  = NCEP_ROOT + File.separator + "conditionalFilter" + File.separator + "plus_green.gif";
 		
 		// migrating code which looked for these filenames
 		public static final String VORS_STN_TBL  = STATIONS_DIR + File.separator+"vors.xml";
@@ -110,7 +122,8 @@ public class NcPathManager {
 	    // the files.
 	    public static final String RADAR_INFO   = NCEP_ROOT + "Radar"+File.separator+"radarInfo.txt";
 	    public static final String MOSAIC_INFO  = NCEP_ROOT + "Radar"+File.separator+"mosaicInfo.txt";
-	    
+	    public static final String MCIDAS_IMG_STYLE_RULES = STYLE_RULES_DIR + "mcidasSatelliteImageryStyleRules.xml";
+	    public static final String GINI_IMG_STYLE_RULES = STYLE_RULES_DIR + "giniSatelliteImageryStyleRules.xml";	    
 	    // PGEN Files 
 	    public static final String PGEN_ROOT            = NCEP_ROOT + "pgen"+File.separator;
 	    public static final String PGEN_SETTINGS_TBL    = PGEN_ROOT + "settings_tbl.xml";
@@ -163,10 +176,30 @@ public class NcPathManager {
 	}
 	
 	private NcPathManager() {
-		pathMngr = PathManagerFactory.getPathManager(
-		         new NatlCntrsLocalizationAdapter() );		
-	}
 		
+		// SITE < DESK < USER
+        if( !Activator.getCurrentDesk().isEmpty() ) {
+        	//LocalizationLevel usrLvl = 
+        		
+        	// NOTE : order of 650 is between SITE(order=500) and USER(order=1000). 
+        	LocalizationLevel DESK = LocalizationLevel.createLevel("DESK", 650 ); 
+		
+        	LocalizationManager.getInstance();
+        
+        	LocalizationManager.registerContextName(
+        			DESK, Activator.getCurrentDesk() );
+        }	
+        
+		// Uses the same CAVELocalizationAdapter.
+		pathMngr = PathManagerFactory.getPathManager( new CAVELocalizationAdapter() );
+		
+	}
+	
+	// same thing as calling PathManagerFactory.getPathManager();
+	public IPathManager getPathManager() {
+		return pathMngr;		
+	}
+	
 	// Use this method if we don't care or need to know which context the file comes from.
 	public File getStaticFile( String fname ) {
 		return pathMngr.getStaticFile( fname );
@@ -188,10 +221,18 @@ public class NcPathManager {
     
     // only include 1 version of each filename. Assume CAVE_STATIC (can change this later)
     // 
-    public Map<String, LocalizationFile>  listFiles( //LocalizationContext[] context,
+    public Map<String, LocalizationFile>  listFiles( 
             String name, String[] filter, boolean recursive, boolean filesOnly ) {
     	LocalizationContext[] contexts = getLocalSearchHierarchy( LocalizationType.CAVE_STATIC );
     	
+    	return listFiles( contexts, name, filter, recursive, filesOnly );
+    }
+
+    // created to allow listFiles for COMMON_STATIC contexts
+    //
+    public Map<String, LocalizationFile>  listFiles( LocalizationContext[] contexts,
+            String name, String[] filter, boolean recursive, boolean filesOnly ) {
+ 
         Map<String, LocalizationFile> lFileMap = new HashMap<String, LocalizationFile>();
 
     	List<LocalizationFile> lFilesList = 

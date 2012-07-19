@@ -48,7 +48,6 @@ class PngWriter:
         self.pgons = None
         self.imgParm = None
         self.ipn = self.getConfig('Png_image', '')
-        print "ipn:",self.ipn
 
         # user named time range specified?
         if usrTimeRange is not None:
@@ -246,6 +245,10 @@ class PngWriter:
         wholeDomain = self.getConfig('Png_wholeDomain', 0, int)
 
         viz = GFEPainter.GFEPainter(width, height, leftExpand, rightExpand, topExpand, bottomExpand, mask, wholeDomain)
+
+        if not omitColorbar:
+            viz.enableColorbar()
+            
         prms = self.getParms()
                         
         # allow user to specify precise interval for creation of images
@@ -306,9 +309,6 @@ class PngWriter:
         #TODO handle transparent background
         bgColor, trans = self.getBG()   
         
-        if not omitColorbar:
-            viz.enableColorbar()
-            
         xOffset = self.getConfig("MapLabelXOffset", None, int)
         yOffset = self.getConfig("MapLabelYOffset", None, int)
         for map in maps:
@@ -329,7 +329,7 @@ class PngWriter:
             colorMin = self.getConfig(pname + '_minColorTableValue', None, float)
             color = self.getConfig(pname + '_graphicColor', None)    
             lineWidth = self.getConfig(pname + '_lineWidth', None, int)
-            viz.addGfeResource(pname, colormap=colormap, colorMin=colorMin, colorMax=colorMax, \
+            viz.addGfeResource(p, colormap=colormap, colorMin=colorMin, colorMax=colorMax, \
                                smooth=smooth, color=color, lineWidth=lineWidth)
             fitToDataAlg = self.getConfig(pname + '_fitToDataColorTable', None)
             if fitToDataAlg is not None:
@@ -343,11 +343,9 @@ class PngWriter:
                     fitToDataAlg = None
                     
             if pname == self.ipn:
-                print "setting",pname,"to IMAGE"
-                p.getDisplayAttributes().setVisMode(VisMode.IMAGE)
+                self.dm.getSpatialDisplayManager().setDisplayMode(p, VisMode.IMAGE)
             else:
-                print "setting",pname,"to GRAPHIC"
-                p.getDisplayAttributes().setVisMode(VisMode.GRAPHIC)
+                self.dm.getSpatialDisplayManager().setDisplayMode(p, VisMode.GRAPHIC)
                 
         self.initSamples()
         

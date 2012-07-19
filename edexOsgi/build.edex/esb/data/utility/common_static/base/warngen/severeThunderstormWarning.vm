@@ -7,6 +7,7 @@
 ##                         9-15-2011 OB11.8.0-8 PATHCAST/CITY ##
 ##                        11-04-2011 OB11.9-3 (DRs)           ## 
 ##                         2-24-2012 OB12.2.1 CLEANUP         ##
+##       BY QINGLU LIN     6-18-2012 DR 15043 use duration    ##
 ################################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -227,7 +228,7 @@ SEVERE THUNDERSTORM WARNING FOR...
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone},${duration})
 
 ####################################################
 ############# THIRD BULLET #########################

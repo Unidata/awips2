@@ -1068,7 +1068,7 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 			rscDefn.setSubTypeGenerator( subTypeGenStr );
 			
 			// 
-			rscDefn.getSubTypesMap().clear();
+			//rscDefn.getGeneratedSubTypesList().clear();
 		}		
 	}
 	

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<PlotModel svgTemplate="standardPlotModelTemplate.svg" plugin="bufrmosGFS" name="gfsmos_12hrpop">
- 
-    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="PP12">
-        <Position>UR</Position>
-        <Color red="255" green="215" blue="0"/>  <!-- GEMPAK#19 -->
-    </PlotModelElement>
-
-</PlotModel>

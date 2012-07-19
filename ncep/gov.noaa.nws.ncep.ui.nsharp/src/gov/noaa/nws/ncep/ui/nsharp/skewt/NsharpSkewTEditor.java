@@ -98,12 +98,16 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
         
         // It might be desirable to stop here so that we only have an "active"
         // editor if it really is active.
+        if(PlatformUI.getWorkbench()== null || PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow() == null)
+        	return null;
         IWorkbenchPage activePage = PlatformUI.getWorkbench()
                 .getActiveWorkbenchWindow().getActivePage();
         IEditorReference[] references = new IEditorReference[0];
         if (activePage != null) {
             references = activePage.getEditorReferences();
         }
+        
 
         for (IEditorReference ref : references) {
             ep = ref.getEditor(false);

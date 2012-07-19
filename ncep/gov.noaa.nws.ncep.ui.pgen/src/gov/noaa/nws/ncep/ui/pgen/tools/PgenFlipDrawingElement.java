@@ -95,7 +95,7 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
         	preempt = false;
            	//  Check if mouse is in geographic extent
         	Coordinate loc = flipNCMapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	//DrawableElement selectedDrawableElement = flipPgenSource.getSelectedDE();
         	AbstractDrawableComponent selectedDrawableElement = flipPgenSource.getSelectedComp();
@@ -119,6 +119,7 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
        
         @Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+        	if ( shiftDown ) return false;
 			return preempt;
 		}
 
