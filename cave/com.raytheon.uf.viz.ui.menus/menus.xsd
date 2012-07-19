@@ -158,6 +158,7 @@
     <xs:complexContent>
       <xs:extension base="abstractMenuContribution">
         <xs:sequence/>
+        <xs:attribute name="visible" type="xs:boolean"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
