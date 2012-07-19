@@ -34,7 +34,7 @@
              fileName="menus/satellite/baseDerivedProductsImagery.xml">
     	<substitute key="sector" value="Supernational"/>
     </include>
-    <include installTo="menu:satellite?after=GROUP4" 
+    <include subMenu="Derived Products Plots" installTo="menu:satellite?after=GROUP4" 
              fileName="menus/satellite/baseDerivedProductPlots.xml"/>
     <include installTo="menu:satellite?after=GROUP5" 
              fileName="menus/satellite/baseNHemisphere.xml">
