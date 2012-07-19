@@ -64,6 +64,8 @@ import com.raytheon.viz.ui.UiPlugin;
  * 08/04/11      #450        Greg Hull   SpfsManager
  * 02/15/2012     627        Archana    Removed the call to setNcEditor() and updated initFromEditor(0
  *                                      to take an editor as one of the arguments  
+ * 04/30/12       #585       S. Gurung   Save RBDs in the order in which they are displayed;
+ * 										 Removed unwanted options ("Sort Alphabetically" and "Sort By Date")  
  * </pre>
  * 
  * @author 
@@ -111,63 +113,36 @@ public class ManageMultiSPFControl extends Composite {
 
         FormData fd = new FormData( );
 
-        Group display_by_grp = new Group( topComposite, SWT.SHADOW_NONE );
-        display_by_grp.setText("Save Displays to SPF"); 
-        display_by_grp.setLayout( new FormLayout() );
+        Group save_display_grp = new Group( topComposite, SWT.SHADOW_NONE );
+        save_display_grp.setText("Save Displays to SPF"); 
+        save_display_grp.setLayout( new FormLayout() );
         fd.top = new FormAttachment( 0, 10 );
         fd.left  = new FormAttachment( 0, 10 );
         fd.right  = new FormAttachment( 40, 0 );
-        fd.bottom = new FormAttachment(15, 0); 
-        display_by_grp.setLayoutData( fd );    	
-        
-        display_by_name = new Button( display_by_grp, SWT.RADIO );
-        display_by_name.setText("Sort Alphabetically");
+        fd.bottom = new FormAttachment(70, 0); 
+        save_display_grp.setLayoutData( fd );    	
+                
+        spf_group_combo = new Combo( save_display_grp, SWT.DROP_DOWN );
         fd = new FormData();
-        fd.top = new FormAttachment( 0, 20 );
-        fd.left  = new FormAttachment( 10, 0);
-        display_by_name.setLayoutData( fd );
-        display_by_name.setSelection( true );
-        display_by_name.addSelectionListener(new SelectionAdapter() {
-       		public void widgetSelected( SelectionEvent ev ) {
-     		  spf_name_lviewer.refresh(true);     		 
-       		}
-        });
-        
-        display_by_date = new Button( display_by_grp, SWT.RADIO );
-        display_by_date.setText("Sort By Date");
-        fd = new FormData();
-        fd.top = new FormAttachment( display_by_name, 5, SWT.BOTTOM );
-        fd.left  = new FormAttachment( display_by_name, 0,SWT.LEFT );
-
-        display_by_date.setLayoutData( fd );    	
-        
-        display_by_date.addSelectionListener(new SelectionAdapter() {
-       		public void widgetSelected( SelectionEvent ev ) {
-       		    spf_name_lviewer.refresh(true);
-         		}
-          });
-
-        spf_group_combo = new Combo( topComposite, SWT.DROP_DOWN );
-        fd = new FormData();
-        fd.top = new FormAttachment( display_by_grp, 30, SWT.BOTTOM );
-        fd.left  = new FormAttachment( display_by_grp, 20, SWT.LEFT );
-        fd.right  = new FormAttachment( display_by_grp, -20, SWT.RIGHT );
+        fd.top = new FormAttachment( 5, 10 );
+        fd.left  = new FormAttachment( 9, 10 );
+        fd.right  = new FormAttachment( 85, 0 );
         spf_group_combo.setLayoutData( fd );    	
 
-        Label spf_grp_lbl = new Label( topComposite, SWT.NONE);
+        Label spf_grp_lbl = new Label( save_display_grp, SWT.NONE);
         spf_grp_lbl.setText("SPF Group");
        	fd = new FormData();
         fd.bottom  = new FormAttachment( spf_group_combo, -3, SWT.TOP );
         fd.left  = new FormAttachment( spf_group_combo, 0, SWT.LEFT );
         spf_grp_lbl.setLayoutData( fd );
         
-        Group spf_name_grp = new Group( topComposite, SWT.SHADOW_NONE );
+        Group spf_name_grp = new Group( save_display_grp, SWT.SHADOW_NONE );
         spf_name_grp.setText("Available SPFs ");
         spf_name_grp.setLayout( new FormLayout() );
         fd = new FormData(260,300);
         fd.top = new FormAttachment( spf_group_combo, 20, SWT.BOTTOM );
         fd.left  = new FormAttachment( 0, 10 );
-        fd.right  = new FormAttachment(40, 0);
+        fd.right  = new FormAttachment(97, 0);
         spf_name_grp.setLayoutData( fd );    	
 
         spf_name_lviewer = new ListViewer(spf_name_grp, 
@@ -195,7 +170,7 @@ public class ManageMultiSPFControl extends Composite {
         fd.left  = new FormAttachment( spf_name_text, 0, SWT.LEFT );
         spf_name_lbl.setLayoutData( fd );
 
-        save_ref_time_btn = new Button( topComposite, SWT.CHECK );
+        save_ref_time_btn = new Button( save_display_grp, SWT.CHECK );
         fd = new FormData();
         save_ref_time_btn.setText("Save Reference Time");
         fd.top = new FormAttachment( spf_name_grp, 15, SWT.BOTTOM );
@@ -210,7 +185,7 @@ public class ManageMultiSPFControl extends Composite {
        		}
         });
 
-        save_btn = new Button( topComposite, SWT.PUSH );
+        save_btn = new Button( save_display_grp, SWT.PUSH );
         save_btn.setText("  Save All RBDs  ");
         fd = new FormData();
     	fd.top = new FormAttachment(save_ref_time_btn, 15, SWT.BOTTOM);
@@ -337,16 +312,17 @@ public class ManageMultiSPFControl extends Composite {
       try {
     	String spfGroup = spf_group_combo.getText();	
     	String spfName  = spf_name_text.getText();
-
+    	
     	//????? do we still need saveRefTime flag ????
 
     	List<NCMapEditor> displayList = NmapUiUtils.getAllNCDisplays(); 
     	Integer numRBDs = 0;
     	
     	// loop thru all the active Displays and create an RbdBundle for each.
-    	//
+    	int seq = 1;
     	for( NCMapEditor display : displayList) {
     		RbdBundle rbd = new RbdBundle();
+    	    rbd.setRbdSequence(seq++);
     		
  //   		rbd.setNcEditor( display );
     		

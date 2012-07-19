@@ -10,12 +10,7 @@
       </properties>
       <resourceData xsi:type="LightningResourceData"
             isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
-         <metadataMap>
-            <mapping key="pluginName">
-               <constraint constraintValue="binlightning" constraintType="EQUALS" />
-            </mapping>
-         </metadataMap>
-		 <legendColor>${legend_color}</legendColor>						
+		 <legendColor>${legendColor}</legendColor>						
          <colorByIntensity>${colorByIntensity}</colorByIntensity>
          <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
          <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
@@ -28,6 +23,11 @@
          <negativeSymbolSize>${negativeSymbolSize}</negativeSymbolSize>
          <requestStyle>METADATA</requestStyle>
          ${colorBar}
+         <metadataMap>
+            <mapping key="pluginName">
+				<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+            </mapping>
+         </metadataMap>
       </resourceData>
    </resource>
 </resourceGroup>

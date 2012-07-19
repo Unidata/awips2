@@ -1,5 +1,5 @@
 ! Attributes for the GFSMOS resource with "6 hour POP" plot model
 !
-plotModelName=gfsmos_6hrpop
+plotModel=@PlotModels/bufrmosGFS/6hrpop.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

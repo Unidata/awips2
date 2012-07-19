@@ -7,36 +7,181 @@
       <nc-resource
             class="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.PlotResourceData"
             editDialogClass="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.EditPlotDataAttrsDialog"
-            name="PlotData">
+            name="SurfacePlot">
       </nc-resource>
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.PlotResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.EditPlotDataAttrsDialog"
+            name="MosPlot">
+      </nc-resource>
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.PlotResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.EditPlotDataAttrsDialog"
+            name="UpperAirPlot">
+      </nc-resource>
+      
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="PlotModel"
-            attributeName="plotModel"
-            ncResourceName="PlotData">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="levelKey"
-            ncResourceName="PlotData">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="plotDensity"
-            ncResourceName="PlotData">
-      </nc-resourceAttribute>    
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="conditionalFilterName"
-            ncResourceName="PlotData">
-      </nc-resourceAttribute>          
-      <nc-resourceAttribute
-            attributeClass="ConditionalFilter"
-            attributeName="conditionalFilter"
-            ncResourceName="PlotData">
-      </nc-resourceAttribute>
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="PlotModel"
+            paramName="plotModel"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="SurfacePlot">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="plotDensity"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="20"
+            ncResourceName="SurfacePlot">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="ConditionalFilter"
+            paramName="conditionalFilter"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="SurfacePlot">
+      </nc-resourceParameter>
+         
+      <nc-resourceParameter
+            ncResourceName="SurfacePlot"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="SurfacePlot"
+            paramClass="String"
+            paramName="spiFile"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="SurfacePlot"
+            paramClass="String"
+            paramName="legendString"
+            defaultValue="SurfacePlot"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="SurfacePlot"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
+      
+      <nc-resourceParameter
+            paramClass="PlotModel"
+            paramName="plotModel"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="UpperAirPlot">
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="levelKey"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="UpperAirPlot">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="plotDensity"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="20"
+            ncResourceName="UpperAirPlot">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="ConditionalFilter"
+            paramName="conditionalFilter"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="UpperAirPlot">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="UpperAirPlot"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="UpperAirPlot"
+            paramClass="String"
+            paramName="spiFile"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="UpperAirPlot"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="UpperAirPlot"
+            paramClass="String"
+            paramName="legendString"
+            defaultValue="SurfacePlot"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
+
+      <nc-resourceParameter
+            paramClass="PlotModel"
+            paramName="plotModel"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="MosPlot">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="plotDensity"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue="20"
+            ncResourceName="MosPlot">
+      </nc-resourceParameter>
+  <!--
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="conditionalFilterName"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue=""
+            ncResourceName="MosPlot">
+      </nc-resourceParameter>
+   -->          
+      <nc-resourceParameter
+            paramClass="ConditionalFilter"
+            paramName="conditionalFilter"
+            defaultValue=""
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="MosPlot">
+      </nc-resourceParameter>
+      
+      
+<!-- For MOS plot data the report type is not a request constraint 
+-->
+      <nc-resourceParameter
+            ncResourceName="MosPlot"
+            paramClass="String"
+            paramName="spiFile"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="MosPlot"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="MosPlot"
+            paramClass="String"
+            paramName="legendString"
+            defaultValue="SurfacePlot"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
+      
    </extension>
    
    <extension
@@ -50,6 +195,10 @@
 	         extensionFilter=".xml,.svg,.spi">
        </path>
     </extension>
+    <!-- 
+        The plot parameters and conditional filters show up in localization
+        under the plot models so there is no need to have a duplicate entry 
+        by extending the ext point again
    <extension
           point="com.raytheon.uf.viz.localization.localizationpath">
        	<path
@@ -72,5 +221,5 @@
 	         extensionFilter=".xml">
        </path>
     </extension> 
-    
+    -->
 </plugin>

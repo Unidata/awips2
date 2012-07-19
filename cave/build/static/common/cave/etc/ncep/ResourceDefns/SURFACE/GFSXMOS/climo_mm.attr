@@ -1,5 +1,5 @@
 ! Attributes for the GFSXMOS resource with "climomm" plot model
 !
-plotModelName=climomm
+plotModel=climomm
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

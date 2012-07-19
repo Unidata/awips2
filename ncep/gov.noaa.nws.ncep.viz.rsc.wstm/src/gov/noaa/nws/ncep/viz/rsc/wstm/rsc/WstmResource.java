@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Calendar;
 import java.util.TimeZone;
-
 import java.awt.Color;
+
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -28,7 +28,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener.DisplayChangeType;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
@@ -45,6 +44,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
+
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
@@ -52,19 +52,15 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
-
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
-
-import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -81,9 +77,9 @@ import com.vividsolutions.jts.io.ParseException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05-Nov- 2010   247       Archana  Initial creation.   
+ * 05-Nov- 2010   247       Archana    Initial creation.   
  * 16 Feb 2012    555      S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords().
- * 
+ * 05/23/2012     785      Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author archana
@@ -1437,6 +1433,15 @@ wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=crea
 		return dataTimeInMs; 
 	}
 	
+    @Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.wstmDataMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }
 
 

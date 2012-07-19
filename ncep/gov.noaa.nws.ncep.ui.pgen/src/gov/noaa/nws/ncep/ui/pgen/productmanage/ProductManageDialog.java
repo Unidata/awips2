@@ -66,6 +66,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 01/11	  	#151		J. Wu		Simplified output for post-processing 
  * 09/11	  	#335		J. Wu		Added file auto storage/acccess 
  * 09/11  		#335      	J. Wu 		made cascading menu for activity type/subtype. 
+ * 06/12  		TTR253      J. Wu 		made layer check boxes to stay de-selected 
+ *                                      unless the user selects them. 
  * 
  * </pre>
  *
@@ -230,6 +232,8 @@ public class ProductManageDialog extends ProductDialog {
 			
         	currentProduct = new Product("Default", "Default", "Default",
       		      new ProductInfo(), new ProductTime(), new ArrayList<Layer>() );
+
+        	currentProduct.setOnOff( false );
         	
         	drawingLayer.addProduct( currentProduct );
         	drawingLayer.setActiveProduct( currentProduct );
@@ -248,6 +252,8 @@ public class ProductManageDialog extends ProductDialog {
         	currentLayer = new Layer();
        	
             currentProduct.addLayer( currentLayer );
+ 
+            currentLayer.setOnOff( false );
             
             drawingLayer.setActiveLayer( currentLayer );                              
         }
@@ -406,13 +412,13 @@ public class ProductManageDialog extends ProductDialog {
   		    layerInUse = 0;
   		    currentProduct = prdList.get( prdInUse );
  		    currentProduct.setInUse( true );
- 		    currentProduct.setOnOff( true );
+// 		    currentProduct.setOnOff( true );
  	        drawingLayer.setActiveProduct( currentProduct );
 
   		    layerList = (ArrayList<Layer>)currentProduct.getLayers();  		    
   		    currentLayer = currentProduct.getLayer( layerInUse );  		    
   	    	currentLayer.setInUse( true );  	    	
-  	    	currentLayer.setOnOff( true );  			
+//  	    	currentLayer.setOnOff( true );  			
   	        drawingLayer.setActiveLayer( currentLayer );   
   	        
  		}
@@ -704,6 +710,7 @@ public class ProductManageDialog extends ProductDialog {
     	    layerNameBtns.add( nameBtn );
     	
     	    Button dispBtn = new Button( layersComp, SWT.CHECK );
+
     	    dispBtn.setSelection( lyr.isOnOff() );     	          
             dispBtn.setData( ii );
     	    dispBtn.addSelectionListener( new SelectionAdapter() {
@@ -762,8 +769,8 @@ public class ProductManageDialog extends ProductDialog {
     	}
 
 	    setButtonColor( layerNameBtns.get( layerInUse ), activeButtonColor );			
-		displayOnOffBtns.get( layerInUse ).setSelection( true );
-	    layerList.get( layerInUse ).setInUse( true );
+//		displayOnOffBtns.get( layerInUse ).setSelection( true );
+//	    layerList.get( layerInUse ).setInUse( true );
 	    
 	    currentLayer = layerList.get( layerInUse );
 	    drawingLayer.setActiveLayer( currentLayer );
@@ -1022,7 +1029,7 @@ public class ProductManageDialog extends ProductDialog {
 	    setButtonColor( layerNameBtns.get( layerInUse ), activeButtonColor );			    			
 	   	
 	    // Turn the display for the layer   	    	    
-	    layerList.get( layerInUse ).setOnOff( true );
+//	    layerList.get( layerInUse ).setOnOff( true );
 	    
 		openPrdNameDialog = false;
 	    openLayerNameDialog = false;
@@ -1091,9 +1098,9 @@ public class ProductManageDialog extends ProductDialog {
     	/*
     	 *  Always turn on the display for the active layer.
     	 */
-    	displayOnOffBtns.get( layerInUse ).setSelection( true );
-    	layerList.get( layerInUse ).setOnOff( true );
-    	currentLayer.setOnOff( true );
+//    	displayOnOffBtns.get( layerInUse ).setSelection( true );
+//    	layerList.get( layerInUse ).setOnOff( true );
+//    	currentLayer.setOnOff( true );
 
     	PgenUtil.refresh();
     
@@ -1190,7 +1197,7 @@ public class ProductManageDialog extends ProductDialog {
     	
     	currentLayer = currentProduct.getLayer( layerInUse );
     	
-    	currentLayer.setOnOff( true );
+//    	currentLayer.setOnOff( true );
                 
         drawingLayer.setActiveLayer( currentLayer );      
         
@@ -1514,7 +1521,7 @@ public class ProductManageDialog extends ProductDialog {
 
     	currentProduct = prdList.get( prdInUse );
     	currentProduct.setInUse( true );
-    	currentProduct.setOnOff( true );
+ //   	currentProduct.setOnOff( true );
     	
     	drawingLayer.setActiveProduct( currentProduct );
     	
@@ -1522,7 +1529,7 @@ public class ProductManageDialog extends ProductDialog {
         layerList = (ArrayList<Layer>)currentProduct.getLayers();
         layerInUse = layerList.size() - 1;
         currentLayer =  layerList.get( layerInUse );  	            
-    	currentLayer.setOnOff( true );  
+ //   	currentLayer.setOnOff( true );  
     	
         drawingLayer.setActiveLayer( currentLayer );      
               
@@ -1555,9 +1562,9 @@ public class ProductManageDialog extends ProductDialog {
   	    /*
   	     *  Always turn on the display for the active product.
   	     */
-  	    prdDispOnOffBtns.get( prdInUse ).setSelection( true );
-  	    prdList.get( prdInUse ).setOnOff( true );
-  	    currentProduct.setOnOff( true );
+  //	    prdDispOnOffBtns.get( prdInUse ).setSelection( true );
+ // 	    prdList.get( prdInUse ).setOnOff( true );
+//  	    currentProduct.setOnOff( true );
 
   	    PgenUtil.refresh();
   
@@ -2139,7 +2146,13 @@ public class ProductManageDialog extends ProductDialog {
     	return hasSubtypes;
 
     }
-
+    /*
+     *  Close the dialog
+     */
+    public void close() {
+    	PgenUtil.setSelectingMode();
+    	super.close();
+    }
          
 }
 

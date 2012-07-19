@@ -275,12 +275,13 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 		/*
 		 * 4. restore interval time settings
 		 */
-		intervalCombo.select(track.getIntervalComboSelectedIndex()); 
-		int intervalComboItemCount = intervalCombo.getItemCount(); 
-		if((intervalComboItemCount - 1) == track.getIntervalComboSelectedIndex())
-			intervalText.setText(track.getIntervalTimeString()); 
-		setIntervalTimeString(intervalCombo.getText());
+//		intervalCombo.select(track.getIntervalComboSelectedIndex()); 		
+//		int intervalComboItemCount = intervalCombo.getItemCount();		
+//		if ( (intervalComboItemCount - 1) == track.getIntervalComboSelectedIndex() )
+//			intervalText.setText(track.getIntervalTimeString()); 
 		
+		setIntervalTimeString( track.getIntervalTimeString() );
+        		
 //		restoreIntervalTimeSettingByTrack(this, track); 
 		
 		/*
@@ -494,7 +495,7 @@ public class TrackAttrDlg extends AttrDlg implements ITrack{
 				}
 			}
         }); 
-        
+
         intervalText.addModifyListener(new ModifyListener() {
         	public void modifyText(ModifyEvent e) {
         		if ( !((Text)e.widget).getText().isEmpty())

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
-<PlotModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<plotModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:noNamespaceSchemaLocation="plotModel.xsd"
         plugin="ncairep" name="fullPlot"       
         svgTemplate="standardPlotModelTemplate.svg">
@@ -11,59 +11,59 @@
 		 
 		  -->
 		<PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="TBSY">
+textFont="Helvetica" textSize="14" paramName="TBSY">
             <Position>TC</Position>
             <Color red="0" green="178" blue="238"/>
         </PlotModelElement>
 		<!--  PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="BRBK">
+textFont="Helvetica" textSize="14" paramName="BRBK">
             <Position>MC</Position>
             <Color red="0" green="255" blue="255"/>
         </PlotModelElement> -->
  <!-- no vsby        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="VSBY">
+textFont="Helvetica" textSize="14" paramName="VSBY">
             <Position>BC</Position>
             <Color red="16" green="78" blue="139"/>
         </PlotModelElement> -->
         
         <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="TMPC">
+textFont="Helvetica" textSize="14" paramName="TMPC">
             <Position>UL</Position>
             <Color red="255" green="0" blue="0"/>
         </PlotModelElement>
 
 		<PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="FELV">
+textFont="Helvetica" textSize="14" paramName="FELV">
             <Position>LL</Position>
             <Color red="0" green="255" blue="0"/>
         </PlotModelElement>
         
  <!--       <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="PRES">
+textFont="Helvetica" textSize="14" paramName="PRES">
             <Position>UR</Position>
             <Color red="0" green="0" blue="255"/>
         </PlotModelElement>   --> 
         <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="ICSY">
+textFont="Helvetica" textSize="14" paramName="ICSY">
             <Position>MR</Position>
             <Color red="255" green="255" blue="0"/>
         </PlotModelElement>
         <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="STID">
+textFont="Helvetica" textSize="14" paramName="STID">
             <Position>LR</Position>
             <Color red="205" green="133" blue="0"/>
         </PlotModelElement>
 
  <!--        <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="DRCT">
+textFont="Helvetica" textSize="14" paramName="DRCT">
             <Position>MR</Position>
             <Color red="255" green="255" blue="0"/>
         </PlotModelElement>
 
         <PlotModelElement symbolSize="1" textStyle="Normal" 
-textFont="Helvetica" textSize="12" paramName="SPED">
+textFont="Helvetica" textSize="14" paramName="SPED">
             <Position>LR</Position>
             <Color red="205" green="133" blue="0"/>
         </PlotModelElement>
          -->        
-</PlotModel>
+</plotModel>

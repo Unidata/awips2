@@ -82,6 +82,7 @@ import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLatitude;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
+import gov.noaa.nws.ncep.edex.common.metparameters.StationNumber;
 //import gov.noaa.nws.ncep.edex.common.metparameters.StationName;
 import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.NotDerivableException;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
@@ -881,6 +882,17 @@ public class PlotModelGenerator2 extends Job {
                     		//              			metPrm.setStringValue( stnInfo.stationId );
                     		//              		}
                     	}
+                    	else if( metPrm.getMetParamName().equals( StationNumber.class.getSimpleName() ) ) {
+                    		if( sndingProfile.getStationNum() != 0 ) {
+                    			metPrm.setStringValue( new Integer (sndingProfile.getStationNum()).toString() );
+                    		}
+                    		else {
+                    			metPrm.setValueToMissing();
+                    		}
+
+                    	}
+                    	
+                    	
                     	else{
 //                    		System.out.println("Sanity check: " + metPrm.getMetParamName() + " is not available in the sounding data");
                     	}

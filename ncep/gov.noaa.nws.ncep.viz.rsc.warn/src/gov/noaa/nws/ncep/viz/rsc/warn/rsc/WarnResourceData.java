@@ -103,7 +103,7 @@ public  class WarnResourceData extends AbstractNatlCntrsRequestableResourceData
                 if( sourceName != null ) {
                     return sourceName;
                 }
-                return "warning";
+                return "Warning";
             }
 
         };
