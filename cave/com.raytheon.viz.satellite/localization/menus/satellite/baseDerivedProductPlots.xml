@@ -19,293 +19,290 @@
 		further_licensing_information.
 	-->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="Derived Products Plots">
-		<contribute xsi:type="subMenu" menuText="GOES High Density Winds">
-			<contribute xsi:type="titleItem"
-				titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
-				menuText="IR Plot" id="irPlot" productInterval="3600" productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="satType" value="IR" />
-				<substitute key="legend" value="IR" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
-				menuText="Water Vapor Plot" id="waterVaporPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="satType" value="WV" />
-				<substitute key="legend" value="Water Vapor" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
-				menuText="Visible Plot" id="visiblePlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="satType" value="Vis" />
-				<substitute key="legend" value="Visible" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/Satellite3_9WindPlots.xml"
-				menuText="IR 3.9u Plot" id="ir3.9uPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWV7_0WindPlots.xml"
-				menuText="Water Vapor 7.0u Plot" id="waterVapor7.0uPlot"
-				productInterval="3600" productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWV7_4WindPlots.xml"
-				menuText="Water Vapor 7.4u Plot" id="waterVapor7.4uPlot"
-				productInterval="3600" productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-			</contribute>
-			<contribute xsi:type="separator" id="MySeparatorId" />
-			<contribute xsi:type="titleItem"
-				titleText="------ Satellite Layer Winds  ------" id="SatLayerdWindLine" />
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="200hPa Layer Plot" id="200hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="225mb-100mb" />
-				<substitute key="between" value="10000--22600" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="250hPa Layer Plot" id="250hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="275mb-225mb" />
-				<substitute key="between" value="22600--27500" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="300hPa Layer Plot" id="300hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="350mb-275mb" />
-				<substitute key="between" value="27600--35000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="400hPa Layer Plot" id="400hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="450mb-350mb" />
-				<substitute key="between" value="35100--45000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="500hPa Layer Plot" id="500hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="600mb-450mb" />
-				<substitute key="between" value="45100--60000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="700hPa Layer Plot" id="700hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="775mb-600mb" />
-				<substitute key="between" value="60100--77500" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="850hPa Layer Plot" id="850hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="900mb-775mb" />
-				<substitute key="between" value="77600--90000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="925hPa Layer Plot" id="925hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrhdw" />
-				<substitute key="source" value="GOES"/>
-				<substitute key="legend" value="1050mb-900mb" />
-				<substitute key="between" value="90100--105000" />
-			</contribute>
+	<contribute xsi:type="subMenu" menuText="GOES High Density Winds">
+		<contribute xsi:type="titleItem"
+			titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
+			menuText="IR Plot" id="irPlot" productInterval="3600" productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="satType" value="IR" />
+			<substitute key="legend" value="IR" />
 		</contribute>
-		<contribute xsi:type="subMenu" menuText="MTSAT High Density Winds">
-			<contribute xsi:type="titleItem"
-				titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
-				menuText="IR Plot" id="irPlot" productInterval="3600" productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="satType" value="IR" />
-				<substitute key="legend" value="IR" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
-				menuText="Water Vapor Plot" id="waterVaporPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="satType" value="WV" />
-				<substitute key="legend" value="Water Vapor" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
-				menuText="Visible Plot" id="visiblePlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="satType" value="Vis" />
-				<substitute key="legend" value="Visible" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/Satellite3_9WindPlots.xml"
-				menuText="IR 3.9u Plot" id="ir3.9uPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-			</contribute>
-			<contribute xsi:type="separator" id="MySeparatorId" />
-			<contribute xsi:type="titleItem"
-				titleText="------ Satellite Layer Winds  ------" id="SatLayerdWindLine" />
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="200hPa Layer Plot" id="200hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="225mb-100mb" />
-				<substitute key="between" value="10000--22600" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="250hPa Layer Plot" id="250hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="275mb-225mb" />
-				<substitute key="between" value="22600--27500" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="300hPa Layer Plot" id="300hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="350mb-275mb" />
-				<substitute key="between" value="27600--35000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="400hPa Layer Plot" id="400hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="450mb-350mb" />
-				<substitute key="between" value="35100--45000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="500hPa Layer Plot" id="500hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="600mb-450mb" />
-				<substitute key="between" value="45100--60000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="700hPa Layer Plot" id="700hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="775mb-600mb" />
-				<substitute key="between" value="60100--77500" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="850hPa Layer Plot" id="850hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="900mb-775mb" />
-				<substitute key="between" value="77600--90000" />
-			</contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
-				menuText="925hPa Layer Plot" id="925hPaLayerPlot" productInterval="3600"
-				productOffset="1800">
-				<substitute key="pluginName" value="bufrmthdw" />
-				<substitute key="source" value="MTSAT"/>
-				<substitute key="legend" value="1050mb-900mb" />
-				<substitute key="between" value="90100--105000" />
-			</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
+			menuText="Water Vapor Plot" id="waterVaporPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="satType" value="WV" />
+			<substitute key="legend" value="Water Vapor" />
 		</contribute>
-		<contribute xsi:type="subMenu" menuText="Scatterometer Winds">
-			<!--
-			<contribute xsi:type="bundleItem" file="bundles/Scatterometer_quikscat.xml"
-				menuText="QuikSCAT 12.5 km" id="QuikSCAT" productInterval="3600"
-				productOffset="1800">
-				<dataURI>/bufrquikscat/%</dataURI>
-		        <substitute key="legend" value="QUIKSCAT"/>
-		        <substitute key="svg" value="quikScatPlotDesign.svg"/>
-		        <substitute key="plugin" value="bufrquikscat"/>
-		        <substitute key="posOffset" value="0"/>
-		        <substitute key="negOffset" value="5400"/>
-		    </contribute>
-		    -->
-		    <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
-	               menuText="ASCAT Winds 25 km" id="ASCATWinds"
-	               productInterval="3600" productOffset="1800">
-		        <dataURI>/bufrascat/%</dataURI>
-		        <substitute key="legend" value="ASCAT"/>
-		        <substitute key="svg" value="ascatPlotDesign.svg"/>
-		        <substitute key="plugin" value="bufrascat"/>
-		        <substitute key="posOffset" value="2650"/>
-		        <substitute key="negOffset" value="2650"/>
-		    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
+			menuText="Visible Plot" id="visiblePlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="satType" value="Vis" />
+			<substitute key="legend" value="Visible" />
 		</contribute>
-		<contribute xsi:type="subMenu" menuText="SSM/I Point Data">
-			<contribute xsi:type="titleItem" 
-					titleText="------ SSM/I Data ------" id="SSMIDataLine"/>
-			<contribute xsi:type="bundleItem" file="bundles/SSMIWindPlot.xml" 
-	               menuText="SSM/I Wind Speeds" id="SSMIDataLine"
-	               productInterval="3600" productOffset="1800">
-		        <dataURI>/bufrssmi/%</dataURI>
-		        <substitute key="svg" value="ssmiWindPlotDesign.svg"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-	               menuText="SSM/I Precip. Water" id="SSMIDataLine"
-	               productInterval="3600" productOffset="1800">
-		        <dataURI>/bufrssmi/%</dataURI>
-		        <substitute key="svg" value="ssmiPWPlotDesign.svg"/>
-		        <substitute key="legend" value="SSM/I Precipitable Water (kg/m**2)"/>
-		        <substitute key="offset" value="1800"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-	               menuText="SSM/I Sea Temperature" id="SSMIDataLine"
-	               productInterval="3600" productOffset="1800">
-		        <dataURI>/bufrssmi/%</dataURI>
-		        <substitute key="svg" value="ssmiSTPlotDesign.svg"/>
-		        <substitute key="legend" value="SSM/I Sea Temperature (C)"/>
-		        <substitute key="offset" value="1800"/>
-		    </contribute>
-			<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
-	               menuText="SSM/I VIL" id="SSMIDataLine"
-	               productInterval="3600" productOffset="1800">
-		        <dataURI>/bufrssmi/%</dataURI>
-		        <substitute key="svg" value="ssmiVILPlotDesign.svg"/>
-		        <substitute key="legend" value="SSM/I Vert. Integ. Water (kg/(m**2))"/>
-		        <substitute key="offset" value="1800"/>
-		    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Satellite3_9WindPlots.xml"
+			menuText="IR 3.9u Plot" id="ir3.9uPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
 		</contribute>
-        <contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
-                menuText="GOES Sounding Availability" id="goesSoundingAvailability"
-                productInterval="3600" productOffset="1800">
-	        <dataURI>/goessounding/%</dataURI>
-	        <substitute key="pluginName" value="goessounding"/>
-	        <substitute key="plotSource" value="GOES Sounding Availability"/>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWV7_0WindPlots.xml"
+			menuText="Water Vapor 7.0u Plot" id="waterVapor7.0uPlot"
+			productInterval="3600" productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWV7_4WindPlots.xml"
+			menuText="Water Vapor 7.4u Plot" id="waterVapor7.4uPlot"
+			productInterval="3600" productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+		</contribute>
+		<contribute xsi:type="separator" id="MySeparatorId" />
+		<contribute xsi:type="titleItem"
+			titleText="------ Satellite Layer Winds  ------" id="SatLayerdWindLine" />
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="200hPa Layer Plot" id="200hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="225mb-100mb" />
+			<substitute key="between" value="10000--22600" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="250hPa Layer Plot" id="250hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="275mb-225mb" />
+			<substitute key="between" value="22600--27500" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="300hPa Layer Plot" id="300hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="350mb-275mb" />
+			<substitute key="between" value="27600--35000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="400hPa Layer Plot" id="400hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="450mb-350mb" />
+			<substitute key="between" value="35100--45000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="500hPa Layer Plot" id="500hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="600mb-450mb" />
+			<substitute key="between" value="45100--60000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="700hPa Layer Plot" id="700hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="775mb-600mb" />
+			<substitute key="between" value="60100--77500" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="850hPa Layer Plot" id="850hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="900mb-775mb" />
+			<substitute key="between" value="77600--90000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="925hPa Layer Plot" id="925hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrhdw" />
+			<substitute key="source" value="GOES"/>
+			<substitute key="legend" value="1050mb-900mb" />
+			<substitute key="between" value="90100--105000" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="MTSAT High Density Winds">
+		<contribute xsi:type="titleItem"
+			titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
+			menuText="IR Plot" id="irPlot" productInterval="3600" productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="satType" value="IR" />
+			<substitute key="legend" value="IR" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
+			menuText="Water Vapor Plot" id="waterVaporPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="satType" value="WV" />
+			<substitute key="legend" value="Water Vapor" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
+			menuText="Visible Plot" id="visiblePlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="satType" value="Vis" />
+			<substitute key="legend" value="Visible" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Satellite3_9WindPlots.xml"
+			menuText="IR 3.9u Plot" id="ir3.9uPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+		</contribute>
+		<contribute xsi:type="separator" id="MySeparatorId" />
+		<contribute xsi:type="titleItem"
+			titleText="------ Satellite Layer Winds  ------" id="SatLayerdWindLine" />
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="200hPa Layer Plot" id="200hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="225mb-100mb" />
+			<substitute key="between" value="10000--22600" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="250hPa Layer Plot" id="250hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="275mb-225mb" />
+			<substitute key="between" value="22600--27500" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="300hPa Layer Plot" id="300hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="350mb-275mb" />
+			<substitute key="between" value="27600--35000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="400hPa Layer Plot" id="400hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="450mb-350mb" />
+			<substitute key="between" value="35100--45000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="500hPa Layer Plot" id="500hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="600mb-450mb" />
+			<substitute key="between" value="45100--60000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="700hPa Layer Plot" id="700hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="775mb-600mb" />
+			<substitute key="between" value="60100--77500" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="850hPa Layer Plot" id="850hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="900mb-775mb" />
+			<substitute key="between" value="77600--90000" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
+			menuText="925hPa Layer Plot" id="925hPaLayerPlot" productInterval="3600"
+			productOffset="1800">
+			<substitute key="pluginName" value="bufrmthdw" />
+			<substitute key="source" value="MTSAT"/>
+			<substitute key="legend" value="1050mb-900mb" />
+			<substitute key="between" value="90100--105000" />
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="Scatterometer Winds">
+		<!--
+		<contribute xsi:type="bundleItem" file="bundles/Scatterometer_quikscat.xml"
+			menuText="QuikSCAT 12.5 km" id="QuikSCAT" productInterval="3600"
+			productOffset="1800">
+			<dataURI>/bufrquikscat/%</dataURI>
+	        <substitute key="legend" value="QUIKSCAT"/>
+	        <substitute key="svg" value="quikScatPlotDesign.svg"/>
+	        <substitute key="plugin" value="bufrquikscat"/>
+	        <substitute key="posOffset" value="0"/>
+	        <substitute key="negOffset" value="5400"/>
+	    </contribute>
+	    -->
+	    <contribute xsi:type="bundleItem" file="bundles/Scatterometer.xml" 
+               menuText="ASCAT Winds 25 km" id="ASCATWinds"
+               productInterval="3600" productOffset="1800">
+	        <dataURI>/bufrascat/%</dataURI>
+	        <substitute key="legend" value="ASCAT"/>
+	        <substitute key="svg" value="ascatPlotDesign.svg"/>
+	        <substitute key="plugin" value="bufrascat"/>
+	        <substitute key="posOffset" value="2650"/>
+	        <substitute key="negOffset" value="2650"/>
+	    </contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="SSM/I Point Data">
+		<contribute xsi:type="titleItem" 
+				titleText="------ SSM/I Data ------" id="SSMIDataLine"/>
+		<contribute xsi:type="bundleItem" file="bundles/SSMIWindPlot.xml" 
+               menuText="SSM/I Wind Speeds" id="SSMIDataLine"
+               productInterval="3600" productOffset="1800">
+	        <dataURI>/bufrssmi/%</dataURI>
+	        <substitute key="svg" value="ssmiWindPlotDesign.svg"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
+               menuText="SSM/I Precip. Water" id="SSMIDataLine"
+               productInterval="3600" productOffset="1800">
+	        <dataURI>/bufrssmi/%</dataURI>
+	        <substitute key="svg" value="ssmiPWPlotDesign.svg"/>
+	        <substitute key="legend" value="SSM/I Precipitable Water (kg/m**2)"/>
 	        <substitute key="offset" value="1800"/>
 	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
-                menuText="POES Sounding Availability" id="poesSoundingAvailability"
-                productInterval="3600" productOffset="1800">
-	        <dataURI>/poessounding/%</dataURI>
-	        <substitute key="pluginName" value="poessounding"/>
-	        <substitute key="plotSource" value="POES Sounding Availability"/>
+		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
+               menuText="SSM/I Sea Temperature" id="SSMIDataLine"
+               productInterval="3600" productOffset="1800">
+	        <dataURI>/bufrssmi/%</dataURI>
+	        <substitute key="svg" value="ssmiSTPlotDesign.svg"/>
+	        <substitute key="legend" value="SSM/I Sea Temperature (C)"/>
 	        <substitute key="offset" value="1800"/>
-	    </contribute>   
-   </contribute>
-<contribute xsi:type="separator" id="belowDerivedProductPlots" />
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SSMIPlot.xml" 
+               menuText="SSM/I VIL" id="SSMIDataLine"
+               productInterval="3600" productOffset="1800">
+	        <dataURI>/bufrssmi/%</dataURI>
+	        <substitute key="svg" value="ssmiVILPlotDesign.svg"/>
+	        <substitute key="legend" value="SSM/I Vert. Integ. Water (kg/(m**2))"/>
+	        <substitute key="offset" value="1800"/>
+	    </contribute>
+	</contribute>
+       <contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+               menuText="GOES Sounding Availability" id="goesSoundingAvailability"
+               productInterval="3600" productOffset="1800">
+        <dataURI>/goessounding/%</dataURI>
+        <substitute key="pluginName" value="goessounding"/>
+        <substitute key="plotSource" value="GOES Sounding Availability"/>
+        <substitute key="offset" value="1800"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+               menuText="POES Sounding Availability" id="poesSoundingAvailability"
+               productInterval="3600" productOffset="1800">
+        <dataURI>/poessounding/%</dataURI>
+        <substitute key="pluginName" value="poessounding"/>
+        <substitute key="plotSource" value="POES Sounding Availability"/>
+        <substitute key="offset" value="1800"/>
+    </contribute>   
 </menuTemplate>
