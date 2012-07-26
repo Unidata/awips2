@@ -121,24 +121,25 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
             DbQueryResponse response, boolean latestOnly, BinOffset binOffset) {
         String dataTimefield = DATA_TIME_FIELD;
         if (latestOnly) {
-			dataTimefield = LATEST_DATA_TIME_FIELD;
-		}
-		Collection<DataTime> results = new HashSet<DataTime>();
-		int i = 0;
-		for (Map<String, Object> map : response.getResults()) {
-			DataTime time = null;
-			if (latestOnly) {
-				time = new DataTime((Date) map.get(dataTimefield), 0);
-			} else {
-				time = (DataTime) map.get(dataTimefield);
-				time.setLevelValue((Double) map.get(LEVEL_FIELD));
-			}
-			// Best res requests need this because they span a time period
-			if (time.getRefTime().before(SimulatedTime.getSystemTime().getTime())) {
-				results.add(time);
-				++i;
-			}
-		}
+            dataTimefield = LATEST_DATA_TIME_FIELD;
+        }
+        Collection<DataTime> results = new HashSet<DataTime>();
+        int i = 0;
+        for (Map<String, Object> map : response.getResults()) {
+            DataTime time = null;
+            if (latestOnly) {
+                time = new DataTime((Date) map.get(dataTimefield), 0);
+            } else {
+                time = (DataTime) map.get(dataTimefield);
+                time.setLevelValue((Double) map.get(LEVEL_FIELD));
+            }
+            // Best res requests need this because they span a time period
+            if (time.getRefTime().before(
+                    SimulatedTime.getSystemTime().getTime())) {
+                results.add(time);
+                ++i;
+            }
+        }
 
         if (binOffset != null) {
             Set<DataTime> scaledDates = new TreeSet<DataTime>();
@@ -173,7 +174,6 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
         List<DbQueryRequest> dbRequests = new ArrayList<DbQueryRequest>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
-        	request.setSimDate(SimulatedTime.getSystemTime().getTime());
             dbRequests.add(getTimeQueryRequest(request.getQueryTerms(),
                     request.isMaxQuery()));
         }
@@ -188,9 +188,7 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
             TimeQueryRequest request = requests.get(i);
             Collection<DataTime> times = processTimeQueryResponse(response,
                     request.isMaxQuery(), request.getBinOffset());
-            
-            
-            
+
             result.add(new ArrayList<DataTime>(times));
         }
         return result;
