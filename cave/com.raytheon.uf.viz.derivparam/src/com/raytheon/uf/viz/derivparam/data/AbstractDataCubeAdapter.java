@@ -43,7 +43,6 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
@@ -109,7 +108,6 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
         for (TimeQueryRequest request : requests) {
             List<AbstractRequestableLevelNode> requestNodes = evaluateRequestConstraints(request
                     .getQueryTerms());
-            request.setSimDate(SimulatedTime.getSystemTime().getTime());
             // pull out time queries and bulk submit
             for (AbstractRequestableLevelNode requestNode : requestNodes) {
                 getTimeQuery(request, requestNode, false, queries, cache, null);
@@ -178,8 +176,6 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
             TimeQueryRequest myQ = req.getTimeQuery(originalRequest,
                     latestOnly, cache, latestOnlyCache);
             if (myQ != null) {
-                // Make sure simulated time gets set
-                myQ.setSimDate(originalRequest.getSimDate());
                 queries.put(req, myQ);
             }
         } else {
