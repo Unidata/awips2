@@ -36,7 +36,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -233,7 +232,6 @@ public class CatalogQuery {
         req.setMaxQuery(max);
         req.setPluginName(pluginName);
         req.setBinOffset(binOffset);
-        req.setSimDate(SimulatedTime.getSystemTime().getTime());
         req.setQueryTerms(constraintMap);
 
         return req;
