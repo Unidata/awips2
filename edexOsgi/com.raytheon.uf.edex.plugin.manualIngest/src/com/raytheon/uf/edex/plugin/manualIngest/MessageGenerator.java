@@ -20,11 +20,7 @@
 package com.raytheon.uf.edex.plugin.manualIngest;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -33,6 +29,7 @@ import org.springframework.util.FileCopyUtils;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.header.WMOHeaderFinder;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
@@ -64,10 +61,6 @@ public class MessageGenerator implements Processor {
             .getEnvProperties().getEnvValue("ARCHIVEDIR")
             + File.separator + "manual";
 
-    private static Pattern WMOPATTERN = Pattern
-            .compile("([A-Z]{3}[A-Z0-9](\\d{0,2}|[A-Z]{0,2}) [A-Z0-9 ]{4} "
-                    + "\\d{6}[^\\r\\n]*)[\\r\\n]+");
-
     private static MessageGenerator instance = new MessageGenerator();
 
     private String ingestRoute = null;
@@ -91,39 +84,17 @@ public class MessageGenerator implements Processor {
      */
     @Override
     public void process(Exchange arg0) throws Exception {
-
-        byte[] header = new byte[100];
-
         File file = (File) arg0.getIn().getBody();
-
         if (file != null) {
             String fileName = file.getName();
-
-            InputStream is = null;
-            try {
-                is = new FileInputStream(file);
-                is.read(header);
-                String sHeader = new String(header, "ISO-8859-1");
-                Matcher wmoSearch = WMOPATTERN.matcher(sHeader);
-                String messageHeader = fileName;
-
-                if (wmoSearch.find()) {
-                    messageHeader = wmoSearch.group();
-                }
-
-                arg0.getIn().setBody(file.toString());
-                arg0.getIn().setHeader("header", messageHeader);
-                arg0.getIn().setHeader("enqueueTime",
-                        System.currentTimeMillis());
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
+            String messageHeader = WMOHeaderFinder.find(file);
+            if (messageHeader == null) {
+                messageHeader = fileName;
             }
+
+            arg0.getIn().setBody(file.toString());
+            arg0.getIn().setHeader("header", messageHeader);
+            arg0.getIn().setHeader("enqueueTime", System.currentTimeMillis());
         } else {
             // No file received
             arg0.getOut().setFault(true);
@@ -135,7 +106,7 @@ public class MessageGenerator implements Processor {
 
         // Determine the sub-directory
         String inputPath = inFile.getParent();
-        
+
         // Split on the manual directory to get the sub-directory
         String[] parts = inputPath.split("manual");
         File dir = null;
@@ -144,7 +115,7 @@ public class MessageGenerator implements Processor {
         } else {
             dir = new File(path);
         }
-        
+
         if (!dir.exists()) {
             dir.mkdirs();
         }
@@ -153,7 +124,8 @@ public class MessageGenerator implements Processor {
 
         try {
             FileCopyUtils.copy(inFile, newFile);
-            statusHandler.handle(Priority.INFO, "DataManual: " + inFile.getAbsolutePath());
+            statusHandler.handle(Priority.INFO,
+                    "DataManual: " + inFile.getAbsolutePath());
         } catch (IOException e) {
             statusHandler.handle(Priority.ERROR, "Failed to copy file ["
                     + inFile.getAbsolutePath() + "] to archive dir", e);
