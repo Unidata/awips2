@@ -27,48 +27,59 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">      
-      <nc-resourceAttribute
-            attributeClass="ColorBar"
-            attributeName="colorBar"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">      
+      <nc-resourceParameter
+            paramClass="ColorBar"
+            paramName="colorBar"
+            paramType="EDITABLE_ATTRIBUTE"
+            paramRefLocation="ncep/ColorBars/WaveSat"
             ncResourceName="WaveSat">
-      </nc-resourceAttribute>
-      <!-- This isn't considered an attribute right now mainly since 
-           the different satellites are stored in different db tables. 
-           If this is changed to put all the waveSat data in one table with
-           a satelliteId column then we can let the user change this through 
-           the edit attributes dialog.
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="satelliteId"
-            defaultValue="Jason-1"
-            ncResourceName="WaveSat">
-      </nc-resourceAttribute>
-	  -->
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="fontName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="fontName"
             defaultValue="Monospace"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WaveSat">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="fontSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="fontSize"
+            paramType="EDITABLE_ATTRIBUTE"
             defaultValue="12"
             ncResourceName="WaveSat">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="timeDisplayInterval"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="timeDisplayInterval"
             defaultValue="30"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WaveSat">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="timeDisplayColor"
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="timeDisplayColor"
             defaultValue="RGB {255,255,255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="WaveSat">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="WaveSat"
+            paramClass="String"
+            paramName="satelliteId"
+            paramType="REQUEST_CONSTRAINT"
+            constraintName="said">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="WaveSat"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {33,100,255}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
    </extension>
 
 </plugin>

@@ -13,7 +13,7 @@
              <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
 	         <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
              <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
-             <legendColor>${legend_color}</legendColor>			
+             <legendColor>${legendColor}</legendColor>			
 			 			
              <ifrEnable>${ifrEnable}</ifrEnable>
              <ifrColor>${ifrColor}</ifrColor>
@@ -61,10 +61,10 @@
              <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
-                 <constraint constraintValue="airmet" constraintType="EQUALS" />
+                  <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
                <mapping key="reportType">
-                 <constraint constraintValue="airmet" constraintType="EQUALS" />
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS" />
                </mapping>
              </metadataMap>             
           </resourceData>

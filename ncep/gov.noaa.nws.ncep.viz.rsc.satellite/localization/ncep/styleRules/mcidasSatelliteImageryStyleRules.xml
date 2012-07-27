@@ -1,0 +1,1572 @@
+<styleRuleset>
+
+<!-- GOES8 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES8_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+     <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES8_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES8_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+     </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES8_IR4</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES8_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES8_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<!-- GOES9 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES9_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+     <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES9_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES9_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+     </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES9_IR4</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES9_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES9_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- GOES10 -->
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES10_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+     <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES10_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES10_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+     </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES10_IR4</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES10_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES10_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- GOES11 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES11_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+     <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES11_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES11_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+     </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES11_IR4</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES11_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES11_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- GOES12 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES12_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+     <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES12_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES12_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+     </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES12_IR4</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES12_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES9_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+<!-- GOES13 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+     <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_IR4</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_IR5</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_SOUNDER</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES13_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DPD_CAPE</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="J/kg">joules_per_kg</displayUnits>
+     <dataMapping>
+     <entry pixelValue="1" displayValue="0" label="0" />
+     <entry pixelValue="5" displayValue="1000" label="1000" />
+     <entry pixelValue="12" displayValue="2000" label="2000" />
+     <entry pixelValue="18" displayValue="3000" label="3000" />
+     <entry pixelValue="24" displayValue="4000" label="4000" />
+     <entry pixelValue="30" displayValue="5000" label="5000" />
+     <entry pixelValue="36" displayValue="6000" label="6000" />
+     </dataMapping>
+
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DPD_CINH</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="J/kg">joules_per_kg</displayUnits>
+     <dataMapping>
+     <entry pixelValue="1" displayValue="0"    label="0" />
+     <entry pixelValue="2" displayValue="30"   label="30" />
+     <entry pixelValue="4" displayValue="60"   label="60" />
+     <entry pixelValue="6"  displayValue="90"   label="90" />
+     <entry pixelValue="10" displayValue="120" label="120" />
+     </dataMapping>
+
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DPD_LI</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Deg C">°C</displayUnits>
+     <dataMapping>
+     <entry pixelValue="25" displayValue="5"   label="+5" />
+     <entry pixelValue="31" displayValue="0"   label="0" />
+     <entry pixelValue="38" displayValue="-5"  label="-5" />
+     <entry pixelValue="44" displayValue="-10" label="-10" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DPD_TPW</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Inches">in</displayUnits>
+     <dataMapping>
+     <entry pixelValue="44" displayValue="0"   label="0.0" />
+     <entry pixelValue="47" displayValue="0.5" label="0.5" />
+     <entry pixelValue="51" displayValue="1"   label="1.0" />
+     <entry pixelValue="53" displayValue="1.5" label="1.5" />
+     <entry pixelValue="57" displayValue="2"   label="2.0" />
+     <entry pixelValue="60" displayValue="2.5" label="2.5" />
+     </dataMapping>
+    
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DPD_TPW</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Inches">in</displayUnits>
+     <dataMapping>
+     <entry pixelValue="1"  displayValue="0"   label="0.0" />
+     <entry pixelValue="10" displayValue="0.5" label="0.5" />
+     <entry pixelValue="19" displayValue="1"   label="1.0" />
+     <entry pixelValue="29" displayValue="1.5" label="1.5" />
+     <entry pixelValue="38" displayValue="2"   label="2.0" />
+     <entry pixelValue="49" displayValue="2.5" label="2.5" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Global_RAIN</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="In/hour">inches_per_hour</displayUnits>
+     <dataMapping>
+     <entry pixelValue="27" displayValue="0"    label="0.00" />
+     <entry pixelValue="32" displayValue="0.25" label="0.25" />
+     <entry pixelValue="37" displayValue="0.5"  label="0.50" />
+     <entry pixelValue="41" displayValue="0.75" label="0.75" />
+     <entry pixelValue="44" displayValue="1.0"  label="1.00" />
+     <entry pixelValue="47" displayValue="1.25" label="1.25" />
+     <entry pixelValue="50" displayValue="1.5"  label="1.50" />
+     <entry pixelValue="53" displayValue="1.75" label="1.75" />
+     <entry pixelValue="56" displayValue="2.0"  label="2.00" />     
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Global_89GHZ</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Global_85GHZ</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Global_PWAT</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Global_SSMI</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Global_WINDS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits label="Knots">kn</displayUnits>
+     <dataMapping>
+     <entry pixelValue="14" displayValue="0"    label="0" />
+     <entry pixelValue="19" displayValue="10"   label="10" />
+     <entry pixelValue="21" displayValue="15"   label="15" />
+     <entry pixelValue="23" displayValue="19"   label="19" />
+     <entry pixelValue="25" displayValue="28"   label="28" />
+     <entry pixelValue="26" displayValue="36"   label="36" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+
+<!-- GMS -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GMS_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>30</minValue>
+       <maxValue>220</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GMS_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GMS_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GMS_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- MTS -->
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTS_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>30</minValue>
+       <maxValue>220</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTS_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTS_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTS_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- MTSAT2 -->
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTSAT2_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>30</minValue>
+       <maxValue>220</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTSAT2_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+    
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTSAT2_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>MTSAT2_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- GOES6 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES6_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>30</minValue>
+       <maxValue>220</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES6_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES6_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<!-- GOES7 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES7_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>30</minValue>
+       <maxValue>220</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES7_VISPC</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES7_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GOES7_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- FYC -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>FYC_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>30</minValue>
+       <maxValue>220</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>FYC_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>FYC_IR2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>FYC_SW</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- METEOSAT8 -->
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_HRVIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_VIS_0.6</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_VIS_0.8</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_NIR_1.6</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_VIS_0.8</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_SWIR_3.9</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_WV_6.2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_WV_7.3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_IR_8.7</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_IR_10.8</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT8_IR_12.0</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+<!-- METEOSAT9 -->
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_HRVIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_WV_7.3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_IR_12.0</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_IR_10.8</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_IR_8.7</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_VIS_0.6</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_VIS_0.8</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_NIR_1.6</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_SWIR_3.9</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT9_WV_6.2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- METEOSAT10 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_VIS_0.8</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_SWIR_3.9</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_WV_6.2</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_WV_7.3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_IR_12.0</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_IR_10.8</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_IR_8.7</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>1023</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_HRVIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT10_NIR_1.6</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- METEOSAT3 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT3_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>20</minValue>
+       <maxValue>250</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT3_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT3_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- METEOSAT5 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT5_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>20</minValue>
+       <maxValue>250</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT5_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>20</minValue>
+       <maxValue>250</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT5_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT5_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- METEOSAT6 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT6_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT6_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT6_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<!-- METEOSAT7 -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT7_IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT7_IR3</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT7_VIS</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>METEOSAT7_WV</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+       <samplePrefs>
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </samplePrefs>
+  </imageStyle>
+</styleRule>
+
+
+
+
+</styleRuleset>
+
+
+
+
+
+
+
+
+
+
+

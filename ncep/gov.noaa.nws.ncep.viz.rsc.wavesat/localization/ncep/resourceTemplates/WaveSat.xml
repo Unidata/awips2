@@ -9,7 +9,7 @@
       retrieveData="false" isUpdatingOnMetadataOnly="false"
       isRequeryNecessaryOnTimeMatch="false">
 
-      <legendColor>${legend_color}</legendColor>
+      <legendColor>${legendColor}</legendColor>
       <frameSpan>${frameSpan}</frameSpan>
       <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
       <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 

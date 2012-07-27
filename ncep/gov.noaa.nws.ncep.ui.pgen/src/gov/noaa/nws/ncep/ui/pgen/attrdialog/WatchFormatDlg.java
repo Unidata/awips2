@@ -22,6 +22,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -30,6 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -47,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 01/10		#159		B. Yin   	Initial Creation.
  * 03/06/11     #707        Q.Zhou      Changed FORECASTER text to combo. Load from forecaster.xml.
  * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
+ * 05/12		#776, 769	B. Yin		Added UTC time. Carry ove info from WCC/WCL dialogs.
  * </pre>
  * 
  * @author	B. Yin
@@ -93,7 +98,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	
 	//expiration date and time
 	private DateTime validDate;
-	private DateTime validTime;
+	private Text validTime;
 	
 	//hail size
     private Combo hailCombo;
@@ -114,8 +119,8 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	private Combo spdCombo;
 	public static String MOVESPD[] =  { "10", "15", "20", "25", "30", "35","40", "45", "50","55","60","65","70" };
 
-	private static final String S_STORM = "SEVERE THUNDERSTORM";
-	private static final String TORNADO = "TORNADO";
+	public static final String S_STORM = "SEVERE THUNDERSTORM";
+	public static final String TORNADO = "TORNADO";
 	
 	private static final Color STORM_COLOR = Color.CYAN;
 	private static final Color TORNADO_COLOR = Color.RED;
@@ -228,16 +233,23 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		GridLayout dtGl = new GridLayout(2, false);
 		dt.setLayout(dtGl);
 		validDate = new DateTime(dt, SWT.BORDER | SWT.DATE );
-		validTime = new DateTime(dt, SWT.BORDER | SWT.TIME | SWT.SHORT );
 
 		Calendar expTime = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		validDate.setYear( expTime.get(Calendar.YEAR));
 		validDate.setMonth( expTime.get(Calendar.MONTH));
 		validDate.setDay( expTime.get(Calendar.DAY_OF_MONTH));
-		validTime.setHours( expTime.get(Calendar.HOUR_OF_DAY));
-		validTime.setMinutes( expTime.get(Calendar.MINUTE));
-		validTime.setSeconds(0);
 		
+		Composite c1 = new Composite(dt, SWT.NONE);
+		c1.setLayout( new FormLayout());
+
+		validTime = new Text(c1, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+
+		FormData fd = new FormData();
+		fd.top = new FormAttachment(watchNumber,2, SWT.BOTTOM);
+		fd.left = new FormAttachment(validDate, 5, SWT.RIGHT);
+		validTime.setLayoutData(fd);
+		PgenUtil.setUTCTimeTextField(c1, validTime,  expTime, watchNumber, 5);
+
 		//create watch type
 		Label typeLbl = new Label(top, SWT.LEFT);
 		typeLbl.setText("Watch Type:");
@@ -421,10 +433,8 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		
    	    this.getShell().setLocation(this.getShell().getParent().getLocation());
    	    
-   	    if ( wb.getIssueFlag() != 0){
-   	    	initDlg();
-   	    }
-   	    
+	   	initDlg();
+
    	    return super.open();
 		
 	}
@@ -436,11 +446,40 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	private Calendar getExpirationTime(){
 		Calendar expiration = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		expiration.set(validDate.getYear(), validDate.getMonth(), validDate.getDay(), 
-				    validTime.getHours(), validTime.getMinutes(), 0);
+				getExpHour(), getExpMinute(), 0);
 		expiration.set(Calendar.MILLISECOND, 0);
 		return expiration;
 	}
-
+	
+	/**
+ 	 * Get the expiration hour from the validTime text widget
+     */
+	private int getExpHour(){
+		int ret =0;
+		try {
+			String hm = validTime.getText();
+			ret = Integer.parseInt(hm.substring(0, hm.length()== 4 ? 2:1 ));
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
+	}
+	
+	/**
+ 	 * Get the expiration minute from the validTime text widget
+     */
+	private int getExpMinute(){
+		int ret =0;
+		try {
+			String hm = validTime.getText();
+			ret = Integer.parseInt(hm.substring(hm.length()== 4 ? 2:1 ), hm.length()-1);
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
+	}
 	/*
 	 * 
 	 * (non-Javadoc)
@@ -715,23 +754,38 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	 */
 	private void initDlg(){
 		
-		if ( wb.getIssueStatus() != null ){
-			if( wb.getIssueStatus().equalsIgnoreCase("Test") ){
-				testBtn.setSelection(true);
-			}
-			else if ( wb.getIssueStatus().equalsIgnoreCase("Active")){
-				actvBtn.setSelection(true);
-			}
-		}
-		
-		watchNumber.setText(String.valueOf(wb.getWatchNumber()));
+		if ( wb.getIssueFlag() != 0){
 
+			if ( wb.getIssueStatus() != null ){
+				if( wb.getIssueStatus().equalsIgnoreCase("Test") ){
+					testBtn.setSelection(true);
+				}
+				else if ( wb.getIssueStatus().equalsIgnoreCase("Active")){
+					actvBtn.setSelection(true);
+				}
+			}
+
+			watchNumber.setText(String.valueOf(wb.getWatchNumber()));
+			
+			setTimeZone(wb.getTimeZone());
+			
+			hailCombo.setText(String.valueOf(wb.getHailSize()));
+			windCombo.setText(String.valueOf(wb.getGust()));
+			topCombo.setText(String.valueOf(wb.getTop()));
+			dirCombo.setText(String.valueOf(wb.getMoveDir()));
+			spdCombo.setText(String.valueOf(wb.getMoveSpeed()));
+			
+			cText.setText(String.valueOf(wb.getContWatch()));
+
+   	    }
+   	    
 		Calendar exp = wb.getExpTime();
 		if ( exp != null ){
 			validDate.setDate(exp.get(Calendar.YEAR), exp.get(Calendar.MONTH), exp.get(Calendar.DAY_OF_MONTH));
-			validTime.setTime(exp.get(Calendar.HOUR), exp.get(Calendar.MINUTE), 0);
+			validTime.setText(PgenUtil.getInitialTime( exp ));
+
 		}
-		
+
 		if ( wb.getWatchType() != null ){
 			if (wb.getWatchType().equalsIgnoreCase("Tornado")){
 				tornadoBtn.setSelection(true);
@@ -740,17 +794,9 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 				stormBtn.setSelection(true);
 			}
 		}
-		
-		setTimeZone(wb.getTimeZone());
-		
-		hailCombo.setText(String.valueOf(wb.getHailSize()));
-		windCombo.setText(String.valueOf(wb.getGust()));
-		topCombo.setText(String.valueOf(wb.getTop()));
-		dirCombo.setText(String.valueOf(wb.getMoveDir()));
-		spdCombo.setText(String.valueOf(wb.getMoveSpeed()));
+
 		
 		rText.setText(String.valueOf(wb.getReplWatch()));
-		cText.setText(String.valueOf(wb.getContWatch()));
 		
 		if ( wb.getForecaster() != null )
 			forecasterCombo.setText(wb.getForecaster());

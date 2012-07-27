@@ -17,7 +17,7 @@
             <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
             <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
             <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
-            <legendColor>${legend_color}</legendColor>
+            <legendColor>${legendColor}</legendColor>
             <colorMapName>${colorMapName}</colorMapName>
             <alpha>${alpha}</alpha>
             <brightness>${brightness}</brightness>
@@ -35,14 +35,24 @@
                 <constraint constraintValue="${productCode}"
                   constraintType="EQUALS" />
               </mapping>
-              <!--  <mapping key="format">
-                <constraint constraintValue="Radial"
-                  constraintType="EQUALS" />
-              </mapping> -->
-              <mapping key="elevationNumber">
+              <mapping key="format"> 
+                <constraint constraintValue="${format}"
+                  			constraintType="IN" />
+              </mapping> 
+	          <mapping key="elevationNumber">
                 <constraint constraintValue="${elevationNumber}"
                   constraintType="EQUALS" />
-              </mapping>              
+              </mapping>      
+        
+<!--          <mapping key="primaryElevationAngle">
+                <constraint constraintValue="$ { primaryElevationAngle } "
+                  constraintType="EQUALS" />
+              </mapping>
+              <mapping key="operationalMode">
+                <constraint constraintValue="$ { operationalMode }"
+                  constraintType="EQUALS" />
+              </mapping>
+-->             
             </metadataMap>
           </resourceData>
         </resource>

@@ -23,16 +23,15 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import gov.noaa.nws.ncep.common.dataplugin.stormtrack.StormTrackRecord;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import com.raytheon.uf.common.time.DataTime;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
 
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -64,7 +63,7 @@ import com.vividsolutions.jts.geom.CoordinateList;
  * 01-Mar-2011             Greg Hull   frameInterval -> frameSpan
  * 12-Oct-2011             sgilbert    Modified from ATCFResource
  * 26-Oct-2011             B. Hebbard  Initial commit as StormTrack
- *                                                
+ * 05/23/2012     785      Q. Zhou     Added getName for legend.                                               
  * @author sgilbert
  *</pre>
  */
@@ -763,5 +762,15 @@ implements INatlCntrsResource{
 		 private void setColorOfModel(RGB colorOfModel) {
 			 this.colorOfModel = colorOfModel;
 		 }
+	}
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.tracks.getModels().size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
 	}
 }

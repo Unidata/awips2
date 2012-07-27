@@ -48,10 +48,10 @@
 			<requestStyle>METADATA</requestStyle>
 			<metadataMap>
 				<mapping key="pluginName">
-					<constraint constraintValue="tcm" constraintType="EQUALS" />
+					<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
 				</mapping>
 				<mapping key="reportType">
-					<constraint constraintValue="TCM" constraintType="EQUALS" />
+					<constraint constraintValue="${reportType}" constraintType="EQUALS" />
 				</mapping>
 			</metadataMap>
 		</resourceData>

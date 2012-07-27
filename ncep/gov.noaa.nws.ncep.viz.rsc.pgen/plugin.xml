@@ -19,25 +19,36 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="monoColorEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="monoColorEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="PGEN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="monoColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="monoColor"
+            paramType="EDITABLE_ATTRIBUTE"
             defaultValue="RGB {0, 255, 0}"
             ncResourceName="PGEN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="fillModeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="fillModeEnable"
+            paramType="EDITABLE_ATTRIBUTE"
             defaultValue="true"
             ncResourceName="PGEN">
-      </nc-resourceAttribute>
-   </extension>
+      </nc-resourceParameter>
 
+      <nc-resourceParameter
+            ncResourceName="PGEN"
+            paramClass="String"
+            paramName="pgenDirectory"
+            defaultValue="/home/awp2pgen/activities"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
+   </extension>
 </plugin>

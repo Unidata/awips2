@@ -2090,7 +2090,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                     resetCursor();
                 }
             });
-		} 
+        }
     }
     /**
      * used to blank the group label when channging HUC

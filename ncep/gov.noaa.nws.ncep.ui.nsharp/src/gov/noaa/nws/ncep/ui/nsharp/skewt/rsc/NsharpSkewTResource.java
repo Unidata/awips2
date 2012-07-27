@@ -35,6 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
@@ -46,7 +50,10 @@ import gov.noaa.nws.ncep.ui.nsharp.NsharpConfigStore;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpGraphProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpLineProperty;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpSoundingElementStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpTimeLineStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpWxMath;
 import gov.noaa.nws.ncep.ui.nsharp.maprsc.NsharpMapMouseHandler;
 import gov.noaa.nws.ncep.ui.nsharp.maprsc.NsharpMapResource;
@@ -179,9 +186,9 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
     //list of sounding layer list for each data time line
     private HashMap<String, List<NcSoundingLayer>> dataTimelineSndLysListMap = new HashMap<String, List<NcSoundingLayer>>();
     private HashMap<String, List<NcSoundingLayer>> originalDataTimelineSndLysListMap= new HashMap<String, List<NcSoundingLayer>>();
-	public enum State {
-		CURRENT, ACTIVE, INACTIVE,NOTAVAIL ,OVERLAY, AVAIL//was , DISABLED
-	}
+	//public enum State {
+	//	CURRENT, ACTIVE, INACTIVE,NOTAVAIL ,OVERLAY, AVAIL//was , DISABLED
+	//}
 	//dataTimelineList: time line selected by user, but is updated based on available time line at DB at setRsc()
 	// this is derived from dataTimelineSndLysListMap. It has stn info + sounding time line info
 	// used field is used to identify if this time line is picked by user. user could pick multiple time lines for comparison
@@ -252,10 +259,10 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 	}
 
 
-	private HashMap<State, RGB> elementColorMap = new HashMap<State, RGB>();
+	private HashMap<NsharpConstants.State, RGB> elementColorMap = new HashMap<NsharpConstants.State, RGB>();
 	public class ElementStateProperty {
 		String elementDescription;
-		State elementState;
+		NsharpConstants.State elementState;
 		NsharpStationInfo stnInfo;
 		public NsharpStationInfo getStnInfo() {
 			return stnInfo;
@@ -266,7 +273,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		public String getElementDescription() {
 			return elementDescription;
 		}
-		public State getElementState() {
+		public NsharpConstants.State getElementState() {
 			return elementState;
 		}
 	}
@@ -436,8 +443,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			//find a new available stn for current time line
 			boolean found = false;
 			for(int i =0; i< stnStateList.size(); i++){
-				if(stnStateList.get(i).stnState == State.ACTIVE 
-						&& stnTimeTable.get(i).get(currentTimeLineStateListIndex).elementState == State.AVAIL){
+				if(stnStateList.get(i).stnState == NsharpConstants.State.ACTIVE 
+						&& stnTimeTable.get(i).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 					found = true;
 					currentStnStateListIndex = i;
 				}
@@ -470,8 +477,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			//find a new available time line for current stn
 			boolean found = false;
 			for(int i =0; i< timeLineStateList.size(); i++){
-				if(timeLineStateList.get(i).timeState == State.ACTIVE 
-					&& stnTimeTable.get(currentStnStateListIndex).get(i).elementState == State.AVAIL){
+				if(timeLineStateList.get(i).timeState == NsharpConstants.State.ACTIVE 
+					&& stnTimeTable.get(currentStnStateListIndex).get(i).elementState == NsharpConstants.State.AVAIL){
 					found = true;
 					previousTimeLineStateListIndex = currentTimeLineStateListIndex;
 		 			currentTimeLineStateListIndex = i;
@@ -639,7 +646,6 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		c = WxMath.speedDir((float) c.x, (float) c.y);
 		smWindDir = (float) c.y;
 		smWindSpd = (float)c.x;
-		//System.out.println("setHodo smWindDir="+smWindDir+" smWindSpd="+smWindSpd);
 		nsharpNative.nsharpLib.set_storm(smWindSpd, smWindDir);
 		
 		WGraphics WGc = bkRsc.getPsblWatchTypeBackground().getWorld();
@@ -1150,8 +1156,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 	private void setCurrentTimeLineStateIndexForCurrentState(){
 		boolean found = false;
 		for(NsharpTimeLineStateProperty tl:timeLineStateList){
-			if(tl.timeState  == State.ACTIVE && 
-					stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(tl)).elementState == State.AVAIL){
+			if(tl.timeState  == NsharpConstants.State.ACTIVE && 
+					stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(tl)).elementState == NsharpConstants.State.AVAIL){
 				currentTimeLineStateListIndex = timeLineStateList.indexOf(tl);
 				found = true;
 				break; // find a good time line state index
@@ -1163,8 +1169,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 	private void setCurrentStnStateIndexForCurrentTime(){
 		boolean found = false;
 		for(NsharpStationStateProperty tl:stnStateList){
-			if(tl.stnState  == State.ACTIVE && 
-					stnTimeTable.get(stnStateList.indexOf(tl)).get(currentTimeLineStateListIndex).elementState == State.AVAIL){
+			if(tl.stnState  == NsharpConstants.State.ACTIVE && 
+					stnTimeTable.get(stnStateList.indexOf(tl)).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 				currentStnStateListIndex = stnStateList.indexOf(tl);
 				found = true;
 				break; // find a good stn state index
@@ -1187,18 +1193,18 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		if(currentStnStateListIndex < 0 || currentStnStateListIndex >= stnStateList.size()){
 			currentStnStateListIndex = 0;
 		}
-		if(timeLineStateList.get(currentTimeLineStateListIndex).timeState == State.ACTIVE && 
-				stnStateList.get(currentStnStateListIndex).stnState == State.ACTIVE )
+		if(timeLineStateList.get(currentTimeLineStateListIndex).timeState == NsharpConstants.State.ACTIVE && 
+				stnStateList.get(currentStnStateListIndex).stnState == NsharpConstants.State.ACTIVE )
 			return;
-		else if(timeLineStateList.get(currentTimeLineStateListIndex).timeState == State.INACTIVE && 
-				stnStateList.get(currentStnStateListIndex).stnState == State.ACTIVE ){
+		else if(timeLineStateList.get(currentTimeLineStateListIndex).timeState == NsharpConstants.State.INACTIVE && 
+				stnStateList.get(currentStnStateListIndex).stnState == NsharpConstants.State.ACTIVE ){
 			//find first active time line from list
 			for(NsharpTimeLineStateProperty sndProp: timeLineStateList){
-				if(sndProp.timeState == State.ACTIVE ){
+				if(sndProp.timeState == NsharpConstants.State.ACTIVE ){
 					currentTimeLineStateListIndex = timeLineStateList.indexOf(sndProp);
 					//current stn  may not be available for this time line
 					if(stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState ==
-								State.AVAIL)
+								NsharpConstants.State.AVAIL)
 						return;
 					else {
 						//need to find an available time line for this time line
@@ -1210,14 +1216,14 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			//come to here means nothing found,
 			currentTimeLineStateListIndex = -1;
 		}
-		else if(timeLineStateList.get(currentTimeLineStateListIndex).timeState == State.ACTIVE && 
-				stnStateList.get(currentStnStateListIndex).stnState == State.INACTIVE ){
+		else if(timeLineStateList.get(currentTimeLineStateListIndex).timeState == NsharpConstants.State.ACTIVE && 
+				stnStateList.get(currentStnStateListIndex).stnState == NsharpConstants.State.INACTIVE ){
 			for(NsharpStationStateProperty sndProp: stnStateList){
-				if(sndProp.stnState == State.ACTIVE) {
+				if(sndProp.stnState == NsharpConstants.State.ACTIVE) {
 					currentStnStateListIndex = stnStateList.indexOf(sndProp);
 					//current time line may not be available for this stn
 					if(stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState ==
-								State.AVAIL)
+								NsharpConstants.State.AVAIL)
 						return;
 					else {
 						//need to find an available time line for this stn
@@ -1232,7 +1238,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		else{
 			boolean found = false;
 			for(NsharpTimeLineStateProperty sndProp: timeLineStateList){
-				if(sndProp.timeState == State.ACTIVE ){
+				if(sndProp.timeState == NsharpConstants.State.ACTIVE ){
 					currentTimeLineStateListIndex = timeLineStateList.indexOf(sndProp);
 					found = true;
 					break;
@@ -1241,7 +1247,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 					currentTimeLineStateListIndex = -1;
 			}
 			for(NsharpStationStateProperty sndProp: stnStateList){
-				if(sndProp.stnState == State.ACTIVE) {
+				if(sndProp.stnState == NsharpConstants.State.ACTIVE) {
 					currentStnStateListIndex = stnStateList.indexOf(sndProp);
 					return;
 				}
@@ -1256,11 +1262,11 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 	private void findCurrentElementIndexesAfterDelete(){
 		//find new indexes
 		for(NsharpTimeLineStateProperty tl:timeLineStateList){
-			if(tl.timeState == State.ACTIVE){
+			if(tl.timeState == NsharpConstants.State.ACTIVE){
 				for(NsharpStationStateProperty stn: stnStateList){
-					if(stn.stnState == State.ACTIVE && 
+					if(stn.stnState == NsharpConstants.State.ACTIVE && 
 							stnTimeTable.get(stnStateList.indexOf(stn)).get(timeLineStateList.indexOf(tl)).elementState ==
-								State.AVAIL){
+								NsharpConstants.State.AVAIL){
 						currentStnStateListIndex = stnStateList.indexOf(stn);
 						currentTimeLineStateListIndex = timeLineStateList.indexOf(tl);
 						return;
@@ -1280,13 +1286,13 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		int tmIndex = getTmLineIndexFromTimeLineStateList(tmLine);//getTmLineIndexByTimeLine(tmLine);
 		int stnIndex = getStnIndexFromStnStateList(stnId);//getStnIndexByStnId(stnId);
 		if(tmIndex>=0 && stnIndex>=0){
-			if(stnTimeTable.get(stnIndex).get(tmIndex).elementState == State.AVAIL)
+			if(stnTimeTable.get(stnIndex).get(tmIndex).elementState == NsharpConstants.State.AVAIL)
 				// this sounding element is already loaded
 				return;
 			else {
 				// this element is previous created but marked as NOTAVAIL state.
 				newSndPropElem = stnTimeTable.get(stnIndex).get(tmIndex);
-				newSndPropElem.setElementState(State.AVAIL);
+				newSndPropElem.setElementState(NsharpConstants.State.AVAIL);
 				newSndPropElem.setElementDescription(elementDesc);
 				currentTimeLineStateListIndex = tmIndex;
 				currentStnStateListIndex = stnIndex;
@@ -1302,7 +1308,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 				if(tmLine.equals(sndProp.timeDescription)){
 					//stnId state should be active, but time line state should based on its peer in other stn
 					newSndPropElem = 
-						new NsharpSoundingElementStateProperty(elementDesc, State.AVAIL,stnId, tmLine,  stnInfo);
+						new NsharpSoundingElementStateProperty(elementDesc, NsharpConstants.State.AVAIL,stnId, tmLine,  stnInfo);
 					
 					newList.add(newSndPropElem);
 				}
@@ -1310,7 +1316,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 					//create time line for  not avail sounding profiles
 					String elmDes= stnId+" "+sndProp.timeDescription;
 					dummySndPropElem = 
-						new NsharpSoundingElementStateProperty(elmDes, State.NOTAVAIL,stnId,  sndProp.timeDescription,  stnInfo);
+						new NsharpSoundingElementStateProperty(elmDes, NsharpConstants.State.NOTAVAIL,stnId,  sndProp.timeDescription,  stnInfo);
 					newList.add(dummySndPropElem);
 				}
 				
@@ -1321,7 +1327,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			//However, we have to sort stnId in stnTimeTable (outer list)
 			Collections.sort(stnTimeTable,  new SndPropElementComparatorStnId());
 			//add new stn to stnStateList
-			NsharpStationStateProperty stn = new NsharpStationStateProperty(stnId,State.ACTIVE,stnInfo);
+			NsharpStationStateProperty stn = new NsharpStationStateProperty(stnId,NsharpConstants.State.ACTIVE,stnInfo);
 			stnStateList.add(stn);
 			Collections.sort(stnStateList,  new StationStatePropertyComparator());
 			currentStnStateListIndex = stnStateList.indexOf(stn);
@@ -1335,14 +1341,14 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 					if(sndProp.stnDescription.equals(stnId) ){
 						//time line state should be active, but stnId  state should based on its peer in other  time line
 						newSndPropElem = 
-							new NsharpSoundingElementStateProperty(elementDesc, State.AVAIL,stnId, tmLine,  stnInfo);
+							new NsharpSoundingElementStateProperty(elementDesc, NsharpConstants.State.AVAIL,stnId, tmLine,  stnInfo);
 						//newSndPropElem.elementState = decideNewLoadElementState(newSndPropElem);
 						stnList.add(newSndPropElem);
 					}
 					else{
 						String elmDes= sndProp.stnDescription+" "+tmLine;
 						dummySndPropElem = 
-							new NsharpSoundingElementStateProperty(elmDes, State.NOTAVAIL,sndProp.stnDescription, tmLine,  sndProp.stnInfo);
+							new NsharpSoundingElementStateProperty(elmDes, NsharpConstants.State.NOTAVAIL,sndProp.stnDescription, tmLine,  sndProp.stnInfo);
 						stnList.add(dummySndPropElem);
 					}
 					
@@ -1353,7 +1359,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 
 			}
 			//add new time line to NsharpTimeLineStateProperty
-			NsharpTimeLineStateProperty tl = new NsharpTimeLineStateProperty(tmLine, State.ACTIVE);
+			NsharpTimeLineStateProperty tl = new NsharpTimeLineStateProperty(tmLine, NsharpConstants.State.ACTIVE);
 			timeLineStateList.add(tl);
 			Collections.sort(timeLineStateList,  new TimeLineStateComparator());
 			currentTimeLineStateListIndex = timeLineStateList.indexOf(tl);
@@ -1362,12 +1368,12 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			//  an element with new time line and new stnId
 			//  need to do both cases above
 			//add new time line to NsharpTimeLineStateProperty
-			NsharpTimeLineStateProperty tl = new NsharpTimeLineStateProperty(tmLine, State.ACTIVE);
+			NsharpTimeLineStateProperty tl = new NsharpTimeLineStateProperty(tmLine, NsharpConstants.State.ACTIVE);
 			timeLineStateList.add(tl);
 			Collections.sort(timeLineStateList,  new TimeLineStateComparator());
 			currentTimeLineStateListIndex = timeLineStateList.indexOf(tl);
 			//add new stn to stnStateList
-			NsharpStationStateProperty stn = new NsharpStationStateProperty(stnId,State.ACTIVE,stnInfo);
+			NsharpStationStateProperty stn = new NsharpStationStateProperty(stnId,NsharpConstants.State.ACTIVE,stnInfo);
 			stnStateList.add(stn);
 			Collections.sort(stnStateList,  new StationStatePropertyComparator());
 			currentStnStateListIndex = stnStateList.indexOf(stn);
@@ -1380,7 +1386,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 					if(tmLine.equals(sndProp.timeDescription)){
 						//stnId state should be active, but time line state should based on its peer in other stn
 						newSndPropElem = 
-							new NsharpSoundingElementStateProperty(elementDesc, State.AVAIL,stnId, tmLine,  stnInfo);
+							new NsharpSoundingElementStateProperty(elementDesc, NsharpConstants.State.AVAIL,stnId, tmLine,  stnInfo);
 						
 						newList.add(newSndPropElem);
 					}
@@ -1388,7 +1394,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 						//create time line for  not avail sounding profiles
 						String elmDes= stnId+" "+sndProp.timeDescription;
 						dummySndPropElem = 
-							new NsharpSoundingElementStateProperty(elmDes, State.NOTAVAIL,stnId,  sndProp.timeDescription,  stnInfo);
+							new NsharpSoundingElementStateProperty(elmDes, NsharpConstants.State.NOTAVAIL,stnId,  sndProp.timeDescription,  stnInfo);
 						newList.add(dummySndPropElem);
 					}
 					
@@ -1400,7 +1406,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 					for(NsharpSoundingElementStateProperty sndProp: stnList){
 						String elmDes= sndProp.stnDescription+" "+tmLine;
 						dummySndPropElem = 
-							new NsharpSoundingElementStateProperty(elmDes, State.NOTAVAIL,sndProp.stnDescription, tmLine,  sndProp.stnInfo);
+							new NsharpSoundingElementStateProperty(elmDes, NsharpConstants.State.NOTAVAIL,sndProp.stnDescription, tmLine,  sndProp.stnInfo);
 						stnList.add(dummySndPropElem);
 						break; // only add one element for each list, break out of here.
 					}
@@ -1415,7 +1421,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			else{
 				//this is the case, we are adding first element to stnTimeTable
 				newSndPropElem = 
-					new NsharpSoundingElementStateProperty(elementDesc, State.AVAIL,stnId, tmLine,stnInfo);
+					new NsharpSoundingElementStateProperty(elementDesc, NsharpConstants.State.AVAIL,stnId, tmLine,stnInfo);
 				newList.add(newSndPropElem);
 				stnTimeTable.add(newList);
 				curSndProfileProp=newSndPropElem;	
@@ -1434,7 +1440,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 				boolean found =false;
 				for(List<NsharpSoundingElementStateProperty> stnList: stnTimeTable){
 					NsharpSoundingElementStateProperty elm= stnList.get(i);
-					if(elm.getElementState() !=State.NOTAVAIL){
+					if(elm.getElementState() !=NsharpConstants.State.NOTAVAIL){
 						found = true;
 						break;
 					}
@@ -1465,7 +1471,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			}
 			boolean found =false;
 			for(NsharpSoundingElementStateProperty elm: stnList){
-				if(elm.getElementState() !=State.NOTAVAIL){
+				if(elm.getElementState() !=NsharpConstants.State.NOTAVAIL){
 					found = true;
 					break;
 				}
@@ -1511,7 +1517,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			for(List<NsharpSoundingElementStateProperty> stnList: stnTimeTable){
 				for(NsharpSoundingElementStateProperty elm: stnList){
 					if(dataTmLine.equals(elm.elementDescription)){
-						elm.setElementState(State.NOTAVAIL);
+						elm.setElementState(NsharpConstants.State.NOTAVAIL);
 						updateStnTimeTableAndList();						
 						setdone = true;
 						break;
@@ -1562,7 +1568,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			pickedStnInfoStr = stnTimeTable.get( currentStnStateListIndex).get( currentTimeLineStateListIndex).getElementDescription();
 			pickedStnInfo = stnTimeTable.get( currentStnStateListIndex).get( currentTimeLineStateListIndex).getStnInfo();
 
-			if(stnTimeTable.get( currentStnStateListIndex).get( currentTimeLineStateListIndex).elementState == State.AVAIL){
+			if(stnTimeTable.get( currentStnStateListIndex).get( currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 
 				if(overlayIsOn){ 
 					previousSoundingLys = soundingLys;
@@ -1610,7 +1616,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 	}
 	public void addRsc(Map<String, List<NcSoundingLayer>> soundMap,  NsharpStationInfo stnInfo){
 		//make sure not adding duplicated sounding data
-		//System.out.println("NsharpSkewTResource addRsc called");
+		System.out.println("NsharpSkewTResource addRsc called");
 		Set<String> duplicateKeys = new HashSet<String>();
 		for(String key: soundMap.keySet()) {
 			if(dataTimelineSndLysListMap.containsKey(key)==true)
@@ -1723,10 +1729,10 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			switch(stnStateList.get(index).stnState){
 			
 			case INACTIVE:
-				stnStateList.get(index).stnState = State.ACTIVE;
+				stnStateList.get(index).stnState = NsharpConstants.State.ACTIVE;
 				break;
 			case ACTIVE:
-				stnStateList.get(index).stnState = State.INACTIVE;
+				stnStateList.get(index).stnState = NsharpConstants.State.INACTIVE;
 				
 				break;
 			default:
@@ -1761,10 +1767,10 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		if( index  < timeLineStateList.size() ){
 			switch(timeLineStateList.get(index).timeState){
 			case INACTIVE:
-				timeLineStateList.get(index).timeState = State.ACTIVE;
+				timeLineStateList.get(index).timeState = NsharpConstants.State.ACTIVE;
 				break;
 			case ACTIVE:
-				timeLineStateList.get(index).timeState = State.INACTIVE;
+				timeLineStateList.get(index).timeState = NsharpConstants.State.INACTIVE;
 				break;
 			default:
 				return;
@@ -1793,8 +1799,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			counter++;
 			if(counter > timeLineStateList.size())
 				break;
-			if(timeLineStateList.get(currentTimeLineStateListIndex).getTimeState() == State.ACTIVE &&
-					stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == State.AVAIL){
+			if(timeLineStateList.get(currentTimeLineStateListIndex).getTimeState() == NsharpConstants.State.ACTIVE &&
+					stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 				break;//out of while loop
 			}
 			
@@ -1810,8 +1816,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			counter++;
 			if(counter > timeLineStateList.size())
 				break;
-			if(timeLineStateList.get(currentTimeLineStateListIndex).getTimeState() == State.ACTIVE &&
-					stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == State.AVAIL){
+			if(timeLineStateList.get(currentTimeLineStateListIndex).getTimeState() == NsharpConstants.State.ACTIVE &&
+					stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 				break;//out of while loop
 			}
 		}
@@ -1844,8 +1850,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 					currentTimeLineStateListIndex = timeLineStateList.size()-1;
 				}
 			}
-			if(timeLineStateList.get(currentTimeLineStateListIndex).getTimeState() == State.ACTIVE &&
-				stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == State.AVAIL){
+			if(timeLineStateList.get(currentTimeLineStateListIndex).getTimeState() == NsharpConstants.State.ACTIVE &&
+				stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 						break;//out of while loop
 			}
 		}
@@ -1875,10 +1881,11 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			setCurSndProfileProp();
  			setCurrentSoundingLayerInfo();
  			resetData();
-			NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
-			if (editor != null) {
-				editor.refresh();
-			}
+ 			issueRefresh();
+			//NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
+			//if (editor != null) {
+			//	editor.refresh();
+			//}
 		}
 				
 	}
@@ -1889,7 +1896,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
  	private int getActiveTimeLineNumber(){
  		int n=0;
  		for (NsharpTimeLineStateProperty tm:timeLineStateList){
- 			if(tm.timeState == State.ACTIVE){
+ 			if(tm.timeState == NsharpConstants.State.ACTIVE){
  				n++;
  			}
  		}
@@ -1898,7 +1905,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
  	private int getActiveStnNumber(){
  		int n=0;
  		for (NsharpStationStateProperty stn:stnStateList){
- 			if(stn.stnState == State.ACTIVE){
+ 			if(stn.stnState == NsharpConstants.State.ACTIVE){
  				n++;
  			}
  		}
@@ -1941,17 +1948,17 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
  				counter++;
  				if(counter >= timeLineStateList.size())
  					return; // looped through whole list already, and index back to original
- 				if(timeLineStateList.get(targetIndex).getTimeState() == State.ACTIVE) {
+ 				if(timeLineStateList.get(targetIndex).getTimeState() == NsharpConstants.State.ACTIVE) {
  					if(compareTmIsOn 
- 					&& stnTimeTable.get(currentStnStateListIndex).get(targetIndex).elementState == State.NOTAVAIL){
+ 					&& stnTimeTable.get(currentStnStateListIndex).get(targetIndex).elementState == NsharpConstants.State.NOTAVAIL){
  						continue;
  					}
  					else if(compareStnIsOn){
  						boolean found = false;
  						//find an active and available stn for this timeline and set is as current
  						for (int i=0; i < stnStateList.size(); i++){
- 							if(stnStateList.get(i).stnState==State.ACTIVE &&
- 									stnTimeTable.get(i).get(targetIndex).elementState == State.AVAIL){
+ 							if(stnStateList.get(i).stnState==NsharpConstants.State.ACTIVE &&
+ 									stnTimeTable.get(i).get(targetIndex).elementState == NsharpConstants.State.AVAIL){
  								currentStnStateListIndex = i;
  								found = true;
  								break;
@@ -2008,17 +2015,17 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
  				//System.out.println("counter = "+ counter);
  				if(counter >= stnStateList.size())
  					return; // looped through whole list already, and index back to original
- 				if(stnStateList.get(currentStnStateListIndex).stnState == State.ACTIVE){
+ 				if(stnStateList.get(currentStnStateListIndex).stnState == NsharpConstants.State.ACTIVE){
  					if (compareStnIsOn 
- 							&& stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == State.NOTAVAIL){
+ 							&& stnTimeTable.get(currentStnStateListIndex).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.NOTAVAIL){
  						continue;
  					}
  					else if(compareTmIsOn){
  						boolean found = false;
  						//find an active and available timeline for this stn and set is as current
  						for (int i=0; i < timeLineStateList.size(); i++){
- 							if(timeLineStateList.get(i).timeState==State.ACTIVE &&
- 									stnTimeTable.get(currentStnStateListIndex).get(i).elementState == State.AVAIL){
+ 							if(timeLineStateList.get(i).timeState==NsharpConstants.State.ACTIVE &&
+ 									stnTimeTable.get(currentStnStateListIndex).get(i).elementState == NsharpConstants.State.AVAIL){
  								currentTimeLineStateListIndex = i;
  								found = true;
  								break;
@@ -2341,12 +2348,12 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
     	System.out.println("NsharpSkewTResource constructed");
         this.dataTimes = new ArrayList<DataTime>();
         this.soundingMap = new HashMap<Date, SoundingParams>();
-        elementColorMap.put(State.CURRENT,NsharpConstants.color_green); //green
-        elementColorMap.put(State.ACTIVE,NsharpConstants.color_yellow);//cyan
-        elementColorMap.put(State.INACTIVE,NsharpConstants.color_white);//white
-        elementColorMap.put(State.NOTAVAIL,NsharpConstants.color_red);//white
-        elementColorMap.put(State.OVERLAY,NsharpConstants.color_red);//red
-        elementColorMap.put(State.AVAIL,NsharpConstants.color_yellow);//white
+        elementColorMap.put(NsharpConstants.State.CURRENT,NsharpConstants.color_green); //green
+        elementColorMap.put(NsharpConstants.State.ACTIVE,NsharpConstants.color_yellow);//cyan
+        elementColorMap.put(NsharpConstants.State.INACTIVE,NsharpConstants.color_white);//white
+        elementColorMap.put(NsharpConstants.State.NOTAVAIL,NsharpConstants.color_red);//white
+        elementColorMap.put(NsharpConstants.State.OVERLAY,NsharpConstants.color_red);//red
+        elementColorMap.put(NsharpConstants.State.AVAIL,NsharpConstants.color_yellow);//white
         nsharpNative = new NsharpNative();
 		//based on BigNsharp storm slinky color used and gempak color definition
 		stormSlinkyColorMap.put(new Integer(3),NsharpConstants.color_green); //green
@@ -2443,7 +2450,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 
 	@Override
 	protected synchronized void initInternal(IGraphicsTarget target) throws VizException {
-		//System.out.println("NsharpSkewTResource initInternal called");
+		System.out.println("NsharpSkewTResource initInternal called");
 		this.font9 = target.initializeFont("Monospace", 9, null);
 		this.font10 = target.initializeFont("Monospace", 10, null);
 		this.font11 = target.initializeFont("Monospace", 11, null);
@@ -3115,7 +3122,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
     public void drawNsharpSkewtCursorData(IGraphicsTarget target) throws VizException{
     	IFont myFont;
     	myFont = target.initializeFont("Monospace", curseToggledFontLevel, null);
-    	
+    	myFont.setSmoothing(false);
+    	myFont.setScaleFont(false);
     	NsharpBackgroundResource bkRsc = descriptor.getSkewTBkGResource();
     	
     	WGraphics WGc = bkRsc.getSkewTBackground().getWorld();
@@ -3137,33 +3145,44 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		if (nsharpNative.nsharpLib.itemp((float)p_mb) > -9998.0 && nsharpNative.nsharpLib.idwpt((float)p_mb) > -9998.0){
 			FloatByReference parm= new FloatByReference(0);
 			relh= nsharpNative.nsharpLib.relh((float)p_mb, parm);
-			curStrFormat= "%4.0fmb  %5.0fft/%.0fm agl  %2.0f%%\n";
-			curStr = String.format(curStrFormat, p_mb,htFt,htM,relh);
+			curStrFormat= "%4.0f/%.0fkt %4.0fmb  %5.0fft/%.0fm agl  %2.0f%%\n";
+			curStr = String.format(curStrFormat, nsharpNative.nsharpLib.iwdir((float)p_mb),
+					nsharpNative.nsharpLib.iwspd((float)p_mb),p_mb,htFt,htM,relh);
 		}
 		else{
-			curStrFormat= "%4.0fmb  %5.0fft/%.0fm agl\n";
-			curStr = String.format(curStrFormat, p_mb,htFt,htM);
+			curStrFormat= "%4.0f/%.0fkt %4.0fmb  %5.0fft/%.0fm agl\n";
+			curStr = String.format(curStrFormat,nsharpNative.nsharpLib.iwdir((float)p_mb),
+					nsharpNative.nsharpLib.iwspd((float)p_mb), p_mb,htFt,htM);
 		}
-		curStrFormat1 = "%4.1f %4.1f/%4.1f%cC  %4.0f/%.0f kt\n";
+		/*curStrFormat1 = "%4.1f %4.1f/%4.1f%cC  %4.0f/%.0f kt\n";
 		curStr1 = String.format(curStrFormat1,temp,  nsharpNative.nsharpLib.itemp((float)p_mb),
 				nsharpNative.nsharpLib.idwpt((float)p_mb),NsharpConstants.DEGREE_SYMBOL, nsharpNative.nsharpLib.iwdir((float)p_mb),
-				nsharpNative.nsharpLib.iwspd((float)p_mb));
+				nsharpNative.nsharpLib.iwspd((float)p_mb));*/
 
+		curStrFormat1 = "%s(%s) %4.1f/%4.1f%cF(%4.1f/%4.1f%cC)\n";
+		temp =  nsharpNative.nsharpLib.itemp((float)p_mb);
+		UnitConverter celciusToFahrenheit = SI.CELSIUS.getConverterTo(NonSI.FAHRENHEIT);
+		double tempF= celciusToFahrenheit.convert(temp);
+		double dp = nsharpNative.nsharpLib.idwpt((float)p_mb);
+		double dpF= celciusToFahrenheit.convert(dp);
+		curStr1 = String.format(curStrFormat1,bkRsc.getSTemperatureF(),bkRsc.getSTemperatureC(),  tempF,dpF, NsharpConstants.DEGREE_SYMBOL,temp,
+				dp,NsharpConstants.DEGREE_SYMBOL);
+		
 		//String tempS= String.format("%5.1f%cC ",temp,NsharpConstants.DEGREE_SYMBOL);
-		curStr2 =bkRsc.getSThetaInK()+" "+bkRsc.getSWThetaInK()+" "+bkRsc.getSEThetaInK()+"\n";
+		//curStr2 =bkRsc.getSThetaInK()+" "+bkRsc.getSWThetaInK()+" "+bkRsc.getSEThetaInK()+"\n";
 
 		//Adjust string plotting position
 		if(cursorCor.x < NsharpConstants.SKEWT_REC_X_ORIG + 200){
 			hAli = HorizontalAlignment.LEFT;
 		} 
-		else if(cursorCor.x > NsharpConstants.SKEWT_VIEW_X_END - 200){
+		//else if(cursorCor.x > NsharpConstants.SKEWT_VIEW_X_END - 200){
+		//	hAli = HorizontalAlignment.RIGHT;
+		//}
+		else {
 			hAli = HorizontalAlignment.RIGHT;
 		}
-		else {
-			hAli = HorizontalAlignment.CENTER;
-		}
 		vAli = VerticalAlignment.BOTTOM;
-		target.drawString(myFont,curStr+curStr1+curStr2+curStr3, cursorCor.x,
+		target.drawString(myFont,curStr+curStr1+curStr3, cursorCor.x,
 				cursorCor.y, 0.0, TextStyle.NORMAL,
 				NsharpConstants.color_yellow, hAli,
 				vAli, null);
@@ -3481,15 +3500,15 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
         {
         	boolean avail=false;
          	NsharpStationStateProperty elm = stnStateList.get(j);
-    		State sta ;
-    		if(elm.stnState == State.ACTIVE && j == currentStnStateListIndex)
-    			sta = State.CURRENT;
+    		NsharpConstants.State sta ;
+    		if(elm.stnState == NsharpConstants.State.ACTIVE && j == currentStnStateListIndex)
+    			sta = NsharpConstants.State.CURRENT;
     		else 
     			sta = elm.stnState; // set its state based on stn state
     		
     		double ly = NsharpConstants.DATA_TIMELINE_NEXT_PAGE_END + NsharpConstants.CHAR_HEIGHT * i;
     		if (currentTimeLineStateListIndex>=0){
-    			if(stnTimeTable.get(j).get(currentTimeLineStateListIndex).elementState == State.AVAIL ){
+    			if(stnTimeTable.get(j).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL ){
     				avail =true;
     			}
     			if(avail){
@@ -3519,7 +3538,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
         			color,
         			HorizontalAlignment.LEFT,  
         			VerticalAlignment.BOTTOM, null);
-         	if(compareStnIsOn && elm.stnState == State.ACTIVE && avail){
+         	if(compareStnIsOn && elm.stnState == NsharpConstants.State.ACTIVE && avail){
          		colorIndex = (compIndex-1)%(NsharpConstants.LINE_COMP10-NsharpConstants.LINE_COMP1+1)+ NsharpConstants.LINE_COMP1;
     			s ="Cp "+ compIndex;
     			target.drawString(font10,s, x+230,
@@ -3656,14 +3675,14 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
         	{
         		boolean avail=false;
         		NsharpTimeLineStateProperty elm = timeLineStateList.get(j);
-        		State sta  = elm.timeState;
+        		NsharpConstants.State sta  = elm.timeState;
         		double ly = NsharpConstants.DATA_TIMELINE_NEXT_PAGE_END + NsharpConstants.CHAR_HEIGHT * i;
-        		if(elm.timeState == State.ACTIVE && j == currentTimeLineStateListIndex )
-    				sta = State.CURRENT;
+        		if(elm.timeState == NsharpConstants.State.ACTIVE && j == currentTimeLineStateListIndex )
+    				sta = NsharpConstants.State.CURRENT;
         		if(currentStnStateListIndex>=0){
         			
 
-        			if ( stnTimeTable.get(currentStnStateListIndex).get(j).elementState == State.AVAIL ){
+        			if ( stnTimeTable.get(currentStnStateListIndex).get(j).elementState == NsharpConstants.State.AVAIL ){
         				avail = true;
         			}
         			if(avail){
@@ -3694,7 +3713,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
         				VerticalAlignment.BOTTOM, null);
         		
         		i++;
-        		if(compareTmIsOn && elm.timeState == State.ACTIVE && avail){
+        		if(compareTmIsOn && elm.timeState == NsharpConstants.State.ACTIVE && avail){
         			colorIndex = (compIndex-1)%(NsharpConstants.LINE_COMP10-NsharpConstants.LINE_COMP1+1)+ NsharpConstants.LINE_COMP1;
         			s ="Cp "+ compIndex;
         			target.drawString(font10,s, x+270,
@@ -3773,11 +3792,11 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 
         	if(!compareIsOn){
         		if(overlayIsOn == true && this.previousSoundingLys!=null){
-        			if(elm.elementState == State.PICKED ){
+        			if(elm.elementState == NsharpConstants.State.PICKED ){
         				color = linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_OVERLAY1]).getLineColor();
         				
         			}
-        			else if(elm.elementState == State.OVERLAY)
+        			else if(elm.elementState == NsharpConstants.State.OVERLAY)
         				color = linePropertyMap.get(NsharpConstants.lineNameArray[NsharpConstants.LINE_OVERLAY2]).getLineColor();
         			
         			else
@@ -3789,7 +3808,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
          		}
         	}
         	else {
-        		if(elm.elementState == State.PICKED || elm.elementState == State.GROUPED) { 
+        		if(elm.elementState == NsharpConstants.State.PICKED || elm.elementState == NsharpConstants.State.GROUPED) { 
         			color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
         			
     			}  
@@ -3802,7 +3821,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 				if(colorIndex > NsharpConstants.LINE_COMP10)//COLOR_ARRAY.length-1)
 					colorIndex =NsharpConstants.LINE_COMP1;//1;
         	}
-        	if(elm.elementState == State.PICKED){
+        	if(elm.elementState == NsharpConstants.State.PICKED){
         		pickedStnColor = color;
         	}
         	
@@ -5468,8 +5487,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		if(compareStnIsOn && currentTimeLineStateListIndex >=0){
 			int colorIndex =NsharpConstants.LINE_COMP1;
 			for(NsharpStationStateProperty elm: stnStateList) {
-				if(elm.stnState == State.ACTIVE && 
-						stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementState == State.AVAIL){
+				if(elm.stnState == NsharpConstants.State.ACTIVE && 
+						stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 					List<NcSoundingLayer> soundingLayeys = dataTimelineSndLysListMap.get(stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementDescription);
 					NsharpLineProperty lp = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]);
 					colorIndex++;
@@ -5482,8 +5501,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		else if(compareTmIsOn && currentStnStateListIndex >=0 ){
 			int colorIndex =NsharpConstants.LINE_COMP1;
 			for(NsharpTimeLineStateProperty elm: timeLineStateList) {
-				if(elm.timeState == State.ACTIVE && 
-						stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementState == State.AVAIL){
+				if(elm.timeState == NsharpConstants.State.ACTIVE && 
+						stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementState == NsharpConstants.State.AVAIL){
 					List<NcSoundingLayer> soundingLayeys = dataTimelineSndLysListMap.get(stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementDescription);
 					NsharpLineProperty lp = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]);
 					colorIndex++;
@@ -5517,8 +5536,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		if(compareStnIsOn && currentTimeLineStateListIndex >=0){
 			int colorIndex =NsharpConstants.LINE_COMP1;
 			for(NsharpStationStateProperty elm: stnStateList) {
-				if(elm.stnState == State.ACTIVE && 
-						stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementState == State.AVAIL){
+				if(elm.stnState == NsharpConstants.State.ACTIVE && 
+						stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementState == NsharpConstants.State.AVAIL){
 					List<NcSoundingLayer> soundingLayeys = dataTimelineSndLysListMap.get(stnTimeTable.get(stnStateList.indexOf(elm)).get(currentTimeLineStateListIndex).elementDescription);
 					RGB color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
 					colorIndex++; 
@@ -5531,8 +5550,8 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		else if(compareTmIsOn && currentStnStateListIndex >=0 ){
 			int colorIndex =NsharpConstants.LINE_COMP1;
 			for(NsharpTimeLineStateProperty elm: timeLineStateList) {
-				if(elm.timeState == State.ACTIVE && 
-						stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementState == State.AVAIL){
+				if(elm.timeState == NsharpConstants.State.ACTIVE && 
+						stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementState == NsharpConstants.State.AVAIL){
 					List<NcSoundingLayer> soundingLayeys = dataTimelineSndLysListMap.get(stnTimeTable.get(currentStnStateListIndex).get(timeLineStateList.indexOf(elm)).elementDescription);
 					RGB color = linePropertyMap.get(NsharpConstants.lineNameArray[colorIndex]).getLineColor();
 					colorIndex++;
@@ -6738,7 +6757,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 		this.linePropertyMap = linePropertyMap;
 	}
 	
-	public void handleTimeLineActConfig(List<String>  tlList, State actSt){
+	public void handleTimeLineActConfig(List<String>  tlList, NsharpConstants.State actSt){
 		for(String tlStr: tlList){
 			for(NsharpTimeLineStateProperty tl: timeLineStateList){	
 				if(tlStr.equals(tl.timeDescription)){
@@ -6756,7 +6775,7 @@ public class NsharpSkewTResource extends AbstractVizResource<AbstractResourceDat
 			createRscPressTempCurveShapeAll();
 		}
 	}
-	public void handleStationActConfig(List<String>  stnList, State actSt){
+	public void handleStationActConfig(List<String>  stnList, NsharpConstants.State actSt){
 		for(String tlStr: stnList){
 			for(NsharpStationStateProperty stn: stnStateList){	
 				if(tlStr.equals(stn.stnDescription)){

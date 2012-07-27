@@ -1478,6 +1478,7 @@ public class DisplayElementFactory {
         IImage pic = null;
         try {
         	pic = target.initializeRaster( imageCb );
+        	pic.stage();
         	//pic = target.initializeRaster( new IODataPreparer(image, sym.getPatternName(), 0), null );
         }
         catch (Exception e) {

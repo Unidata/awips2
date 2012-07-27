@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>ENS_CYC</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legendColor=RGB {255, 255, 255}</resourceParameters>
+    <resourceParameters>
+pluginName=stormtrack
+reportType=ENSCYC
+legendColor=RGB {255, 255, 255}
+    </resourceParameters>
     <filterLabels>Hurricane</filterLabels>
     <rscImplementation>StormTrack</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

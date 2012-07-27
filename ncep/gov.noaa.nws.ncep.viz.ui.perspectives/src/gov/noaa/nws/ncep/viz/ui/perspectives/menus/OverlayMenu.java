@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.ui.perspectives.menus;
 
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 
@@ -33,6 +34,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *                                        (instead of ContributionItem); fixes
  *                                        menu items disappearing (after first
  *                                        menu use) in OB12.4
+ * 06/05/12      #816        G. Hull      update for ResourceDefns returned by getResourceDefnsForCategory()                                        
  * 
  * </pre>
  * 
@@ -52,31 +54,30 @@ public class OverlayMenu extends CompoundContributionItem {
     protected IContributionItem[] getContributionItems() {
         List<IContributionItem> items = new ArrayList<IContributionItem>();
         try {
-            List<String> overlayRscTypes = ResourceDefnsMngr.getInstance()
-                    .getResourceTypesForCategory(
-                            ResourceName.OverlayRscCategory, "", false);
-            Collections.sort(overlayRscTypes, new Comparator<String>() { // alphabetize
-                                                                         // menu...
-                        public int compare(String s1, String s2) { // ...case
-                                                                   // insensitive
-                            return s1.compareToIgnoreCase(s2);
-                        }
-                    });
+            List<ResourceDefinition> overlayRscTypes = ResourceDefnsMngr.getInstance()
+                    .getResourceDefnsForCategory( ResourceName.OverlayRscCategory );
 
-            for (String overlayRsc : overlayRscTypes) {
-                if (overlayRsc.equals(NmapCommon.getBaseOverlay())) {
+            Collections.sort(overlayRscTypes, new Comparator<ResourceDefinition>() { // alphabetize
+            	// menu...
+            	public int compare(ResourceDefinition s1, ResourceDefinition s2) { // ...case
+            		// insensitive
+            		return s1.getResourceDefnName().compareToIgnoreCase( s2.getResourceDefnName() );
+            	}
+            });
+
+            for (ResourceDefinition overlayRscDefn : overlayRscTypes) {
+                if( overlayRscDefn.equals( NmapCommon.getBaseOverlay() )) {
                     continue;
                 }
 
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("overlayName", overlayRsc);
+                		params.put("overlayName", overlayRscDefn.getResourceDefnName() );
                 CommandContributionItemParameter param = new CommandContributionItemParameter(
                         PlatformUI.getWorkbench(), null,
                         "gov.noaa.nws.ncep.viz.ui.actions.loadOverlay", params,
-                        null, null, null, overlayRsc, null, null,
+                        null, null, null, overlayRscDefn.getResourceDefnName(), null, null,
                         CommandContributionItem.STYLE_PUSH, null, true);
-                CommandContributionItem ovrlyMenuItem = new CommandContributionItem(
-                        param);
+                CommandContributionItem ovrlyMenuItem = new CommandContributionItem( param );
                 items.add(ovrlyMenuItem);
             }
             return items.toArray(new IContributionItem[0]);

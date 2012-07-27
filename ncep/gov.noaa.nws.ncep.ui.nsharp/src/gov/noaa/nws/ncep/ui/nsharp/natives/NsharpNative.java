@@ -11,6 +11,8 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
+ * 5/2012		736			T. Lee		Added cave_ccl, cave_soar, cave_dmpi, 
+ *										cave_wmax, cave_mdpi_windex, nc_mix_height
  *
  * </pre>
  * 
@@ -46,7 +48,8 @@ public class NsharpNative {
 
     public NsharpNative() {
 		super();
-		nsharpLib = NsharpLibrary.INSTANCE;
+		//nsharpLib = NsharpLibrary.INSTANCE;
+		nsharpLib = (NsharpLibrary) Native.loadLibrary("bignsharp", NsharpLibrary.class);
 		nsharpLib.initStaticGlobalsMem();
 	}
     
@@ -111,6 +114,7 @@ public class NsharpNative {
     public interface NsharpLibrary extends Library {
     	//library name is libbignsharp.so. but only use "bignsharp" as lib name when loading
     	NsharpLibrary INSTANCE = (NsharpLibrary) Native.loadLibrary("bignsharp", NsharpLibrary.class);
+    	
     	/// <i>native declaration : line 1</i>
     	public static class _lplvalues extends Structure {
     		/// C type : char[40]
@@ -366,6 +370,12 @@ public class NsharpNative {
      	int cave_ww_type();
      	float cave_criticalAngel();
      	void get_effectLayertopBotPres(FloatByReference topP, FloatByReference botP);
+    	void nc_mix_height(FloatByReference pres, FloatByReference drct, FloatByReference sped, FloatByReference del_t, FloatByReference lr, FloatByReference drct_mean, FloatByReference sped_mean, FloatByReference drct_max, FloatByReference sped_max, short flag);
+    	float cave_mdpi_windex (FloatByReference windex);
+    	int cave_dmpi();
+    	void cave_ccl (float mixr, FloatByReference pccl, FloatByReference tccl, FloatByReference zccl);
+    	void cave_soar (float slev, FloatByReference ctax, FloatByReference zconv, FloatByReference tconv, FloatByReference zthrm, FloatByReference tthrm, FloatByReference soar, FloatByReference ttrig);
+    	float cave_wmax (float[] vvel);    	
      	//void printSfcInfo();
      	//void showSndgData();
      	//From basic.h

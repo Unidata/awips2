@@ -46,6 +46,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * ------------ ----------  ----------- --------------------------
  * May 21, 2008  1167       mnash       Initial creation
  * Sep 3, 2008   1283       njensen     Fixed issues
+ * Jun 15, 2012  14994      ryu         Fixed NPE on _minMaxSumHP
  * 
  * </pre>
  * 
@@ -210,7 +211,7 @@ public class ParmHisto {
 
         // if not cached, then calculate
         if (((minpercent != _minModPercent) || (maxpercent != _maxModPercent))
-                && (_minMaxSumHP.size() >= 1)) {
+                && (_minMaxSumHP != null) && (_minMaxSumHP.size() >= 1)) {
             ParmHisto ph = this;
 
             // calculate the number of sample points
@@ -297,7 +298,7 @@ public class ParmHisto {
 
         // if not cached, then calculate
         if (((minStds != _minStds) || (maxStds != _maxStds))
-                && (_minMaxSumHP.size() >= 1)) {
+                && (_minMaxSumHP != null) && (_minMaxSumHP.size() >= 1)) {
             ParmHisto ph = this;
             float sDev = 0.0f;
             float avg = 0.0f;

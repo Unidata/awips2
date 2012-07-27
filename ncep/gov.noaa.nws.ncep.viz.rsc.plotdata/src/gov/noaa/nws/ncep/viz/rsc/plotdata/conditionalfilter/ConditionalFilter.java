@@ -30,13 +30,14 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  04/2012      #615        S. Gurung   Initial Creation.
+ *  04/2012      #606        Greg Hull   
  * 
  * </pre>
  * 
  * @author sgurung
  * @version 1
  */
-@XmlRootElement(name = "ConditionalFilter")
+@XmlRootElement(name = "conditionalFilter")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ConditionalFilter extends AbstractConditionalFilter implements ISerializableObject {
 

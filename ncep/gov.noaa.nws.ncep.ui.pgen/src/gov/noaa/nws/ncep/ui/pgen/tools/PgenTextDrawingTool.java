@@ -180,7 +180,7 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
            
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	if ( button == 1 ) {
             	            	
             	// create an element.
@@ -334,7 +334,8 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
 
 		@Override
 		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-			return true;
+			if ( shiftDown ) return false;
+			else return true;
 		}
  
     }

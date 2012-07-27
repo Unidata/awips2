@@ -3,10 +3,12 @@ package gov.noaa.nws.ncep.viz.rsc.airmet.rsc;
 import gov.noaa.nws.ncep.common.dataplugin.airmet.AirmetLocation;
 import gov.noaa.nws.ncep.common.dataplugin.airmet.AirmetRecord;
 import gov.noaa.nws.ncep.common.dataplugin.airmet.AirmetReport;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
+import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
+import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
+import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
@@ -14,13 +16,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -35,10 +34,6 @@ import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.vividsolutions.jts.geom.Coordinate;
 
-import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
-import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
-import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
-
 
 /**
  * AirmetResource - Display AIRMET data.
@@ -50,7 +45,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
  *  4/22/10       245        Greg Hull  Initial creation.
  * 09/30/10       307        Greg Hull  AirmetRscDataObject implements IRscDataObject
  * 08/05/11       n/a        B. Hebbard In preProcessFrameUpdate(), preserve newRscDataObjsQueue
- * 
+ * 05/23/12       785        Q. Zhou    Added getName for legend.
  * </pre>
  * 
  * @author ghull 
@@ -609,5 +604,15 @@ public class AirmetResource extends AbstractNatlCntrsResource<AirmetResourceData
 
 	public void resourceAttrsModified() {
 		// don't need to do anything
+	}
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.airmetDataMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
 	}
 }

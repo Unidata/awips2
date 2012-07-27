@@ -1,6 +1,8 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl;
 import gov.noaa.nws.ncep.viz.resourceManager.timeline.TimelineControl.IDominantResourceChangedListener;
 
@@ -10,7 +12,6 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
@@ -63,13 +64,17 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.UiPlugin;
 
 
@@ -99,6 +104,11 @@ import com.raytheon.viz.ui.UiPlugin;
  * 11/03/11       #???       B. Hebbard  Add "Save Source Timestamp As:" Constant / Latest 
  * 02/15/2012     627        Archana      Updated the call to addRbd() to accept 
  *                                      a NCMapEditor object as one of the arguments
+ * 04/26/2012     #766       Quan Zhou   Modified rscSelDlg listener for double click w. existing rsc--close the dlg.
+ * 04/03/2012     #765       S. Gurung   Modified method importRBD to change the display when a RBD is imported
+ * 05/17/2012     #791       Quan Zhou   Added getDefaultRbdRsc() to get name and rsc from original defaultRbd.xml
+ * 										 Modified LoadRBD to check if default editor is empty, then replace it.
+ * 										 findCloseEmptyEdotor() is ready but not used now.
  * </pre>
  * 
  * @author ghull
@@ -172,6 +182,9 @@ public class CreateRbdControl extends Composite {
     private final String ImportFromSPF = "From SPF...";
     
     private boolean initialized = false;
+    
+    private static List<String> defaultRscList = new ArrayList<String>();
+    private static boolean emptyEditorRemoved = false;
     	        
     // the rbdMngr will be used to set the gui so it should either be initialized/cleared 
     // or set with the initial RBD.
@@ -848,10 +861,16 @@ public class CreateRbdControl extends Composite {
    	   				else {
    	   					if( addAllPanes ) {
    	   	   					if( !rbdMngr.addSelectedResourceToAllPanes( rbt ) ) {
+   	   	   						if( done ) {
+   	   	   							rscSelDlg.close();
+   	   	   						}
    	   	   						return;
    	   	   					}
    	   					}
    	   					else if( !rbdMngr.addSelectedResource( rbt ) ) {
+   	   						if( done ) {
+   	    						rscSelDlg.close();
+   	   						}
    	   						return;
    	   					}
    					}
@@ -1033,7 +1052,8 @@ public class CreateRbdControl extends Composite {
        	
        	import_rbd_combo.addSelectionListener( new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
-       			importRBD( import_rbd_combo.getText() );
+       			importRBD( import_rbd_combo.getText() );            	
+            	timelineControl.selectDominantResource();
        		}
        	});
        	    
@@ -1117,6 +1137,7 @@ public class CreateRbdControl extends Composite {
 
     	timelineControl.clearTimeline();
 
+    	defaultRscList = getDefaultRbdRsc();
 //   		NCMapEditor currEditor = NmapUiUtils.getActiveNatlCntrsEditor();
 //
 //		if( currEditor == null ) { // NWX or NSharp
@@ -1655,8 +1676,18 @@ public class CreateRbdControl extends Composite {
     			editor = null;
     		}
 
-    		if( editor == null ) {
-    			editor = NmapUiUtils.createNatlCntrsEditor( rbdName, rbdBndl.getPaneLayout() );
+    		
+    		if( editor == null ) {//&& !emptyEditorRemoved) {
+    			String defaultName = defaultRscList.get(0);
+				if( !defaultName.equals( rbdName ) && !emptyEditorRemoved && NmapUiUtils.findEmptyEditor(defaultRscList)) {
+					emptyEditorRemoved = true;
+					editor = (NCMapEditor)NmapUiUtils.findDisplayByName(defaultName);
+					String name = editor.getDisplayName();
+					editor.setDisplayName(name.substring(0, name.indexOf("-")+1) + rbdName);
+				}
+				else {
+					editor = NmapUiUtils.createNatlCntrsEditor( rbdName, rbdBndl.getPaneLayout() );
+				}
     		}
 //    		else {
 //    			editor.setDisplayName( NmapUiUtils.createNatlCntrsDisplayName( rbdName ) );
@@ -1670,10 +1701,13 @@ public class CreateRbdControl extends Composite {
     		editor.setApplicationName(rbdName); 
     		
 //    		rbdBndl.setNcEditor( editor );
-
-    		rbdLoader.addRBD( rbdBndl, editor );
-
+    		
+        	rbdLoader.addRBD( rbdBndl, editor );
+    		
         	VizApp.runSync( rbdLoader );
+        	
+//        	if( !importDisplayName.equals( rbdName ) ) 
+//        		findCloseEmptyEditor();
         	
         	editor.refreshGUIElements();
   
@@ -1693,6 +1727,97 @@ public class CreateRbdControl extends Composite {
     			}
     		});
     	}
+    }
+    
+    
+    public static NCMapEditor findCloseEmptyEditor() {
+//    	NCMapEditor defaultEditor = (NCMapEditor) NmapUiUtils.findDisplayByName( "Welcome" );
+    	
+    	IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		for (IWorkbenchWindow window : windows) {
+			IWorkbenchPage pages[] = window.getPages();
+			for (IWorkbenchPage page : pages) {
+				IEditorReference[] refs = page.getEditorReferences();
+				for (IEditorReference r : refs) {
+					String name = r.getName();
+					String s1 = name.substring(0, name.indexOf("-"));
+					String s2 = name.substring(name.indexOf("-")+1, name.length());
+					
+					NCMapEditor defaultEditor = (NCMapEditor) (r.getEditor(false));
+					
+					if (defaultEditor != null && name != null) {
+						if (defaultEditor.getDescriptor() != null) 	{
+							ResourceList rl = defaultEditor.getDescriptor().getResourceList();
+							
+							if (rl !=null && s2.equalsIgnoreCase(defaultRscList.get(0)) && s1.equalsIgnoreCase("1")) {
+								boolean flag = true;
+								for( ResourcePair rp : rl ) {
+					    			if( rp != null ) {
+					    				String s = rp.getResource().getResourceData().getClass().getName();
+					    				
+					    				if (defaultRscList.contains(s)) {
+											continue;	
+					    				}
+					    				else {
+					    					flag = false;
+					    					break;
+					    				}
+									}																				
+					    		}
+								
+								if (flag == true) {
+									page.closeEditor(defaultEditor, false);
+//									//updateEditorNum();
+									return defaultEditor;
+								}
+							}
+						}
+					}
+				}
+			}
+		}	
+		
+		return null;
+    }
+    
+    /*
+     *  get Rbd name and resources from defaultRbd.xml
+     */
+    public static List<String> getDefaultRbdRsc() {
+    	
+    	File rbdFile = NcPathManager.getInstance().getStaticFile( 
+		         NcPathConstants.DFLT_RBD );
+    	List<String> list = new ArrayList<String>();
+    	
+    	try {
+    		RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+    		if (rbd != null)
+    			list.add(rbd.getRbdName() );
+    		
+    			ResourceList rscList = (rbd.getDisplays())[0].getDescriptor().getResourceList();
+    			//ResourceList rscList1 = (rbd.getDisplays())[0].getDescriptor().getRenderableDisplay().getDescriptor().getResourceList();
+    		
+    		for( ResourcePair rp : rscList ) {
+//    			try {
+    				if( rp != null && rp.getResourceData() != null) {
+    					// there are 2 type of res
+//    					AbstractNatlCntrsResourceData resourceData = (AbstractNatlCntrsResourceData)(rp.getResourceData());
+//    					String s = resourceData.getResourceName().toString();
+    					String s = rp.getResourceData().getClass().getName();
+    					list.add(s);
+    				}
+//    			}
+//    			catch (Exception e) {
+//    				String s = rp.getResourceData().getClass().getName();	    				
+//    				list.add(s);    				
+//    			}
+    		}
+    	}
+    	catch ( Exception ve ) {
+    		System.out.println("Could not load Rbd: " + ve.getMessage());
+    		
+    	}  
+    	return list;
     }
     
     // After Loading an RBD the user may 're-load' a modified Pane. Currently the number of panes
@@ -1788,6 +1913,7 @@ public class CreateRbdControl extends Composite {
 //    		rbdBndl.setNcEditor( editor );
 
     		rbdLoader.addRBD( rbdBndl, editor );
+    		
 
         	VizApp.runSync( rbdLoader );
     	} 
@@ -1825,7 +1951,8 @@ public class CreateRbdControl extends Composite {
     		}
     		impRbd = new RbdBundle();
 //    		impRbd.setNcEditor( seldEditor );
-    		impRbd.initFromEditor(seldEditor);   				
+    		impRbd.initFromEditor(seldEditor);  
+    		NmapUiUtils.bringToTop(seldEditor);
     	}
 
     	//boolean confirm = ( rbdMngr.getSelectedRscs().length > 1 ) || rbdMngr.isMultiPane();

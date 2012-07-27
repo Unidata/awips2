@@ -1,6 +1,9 @@
+#include "geminc.h"
+#include "gemprm.h"
+#include "dbcmn.h"
+
 #include "dg.h"
 #include <sys/timeb.h>
-#include "dbcmn.h"
 
 #define COMPAR(xx,yy)	( G_ABS ( (xx) - (yy) ) < RDIFFD )
 #define LLMXTH 1000000
@@ -91,7 +94,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
    /*
     * timing vars
     */
-    char     diagMessage[720];
     struct   timeb t_gsgprj1, t_gsgprj2, t_gsgprj3, t_gqgprj1, t_gqgprj2, 
              t_gsgprj4, t_setr, t_gqbnd, t_gskp, t_gtrans1, t_mnav, t_cnav, 
              t_cone, t_current;
@@ -131,9 +133,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
 	     &_dgsubg.refnav[7], &_dgsubg.refnav[8], &agln2, &ier,
 	     strlen(gprj) );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gsgprj1 ", (int) (1000.0 * (t_current.time - t_gsgprj1.time) + (t_current.millitm - t_gsgprj1.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     if ( ier != 0 ) {
 	er_wmsg ( "GEMPLT", &ier, " ", &ierr, strlen("GEMPLT"), strlen(" ") );
 	*iret = -37;
@@ -151,9 +150,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     ftime(&t_setr);
     grc_setr ( &mx, &my, &_dgsubg.ishift, &ier );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in grc_setr ", (int) (1000.0 * (t_current.time - t_setr.time) + (t_current.millitm - t_setr.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     if ( ier == -22 ) {
 	*iret = -39;
 	return;
@@ -165,9 +161,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     gqgprj ( gprj, &ag1, &ag2, &ag3, &mx, &my, &aglt1, &agln1, &aglt2,
              &agln2, &ier, sizeof(gprj) );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gqgprj1 ", (int) (1000.0 * (t_current.time - t_gqgprj1.time) + (t_current.millitm - t_gqgprj1.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     gprj[4] = '\0';
     cst_lstr ( gprj, &nc, &ier );
     gprj[nc] = '\0';
@@ -178,9 +171,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     ftime(&t_gqbnd);
     gqbnd ( sys_G, &rimn, &rjmn, &rimx, &rjmx, &ier, strlen(sys_D) );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gqbnd ", (int) (1000.0 * (t_current.time - t_gqbnd.time) + (t_current.millitm - t_gqbnd.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     if ( ier != 0 ) {
 	er_wmsg ( "GEMPLT", &ier, " ", &ierr, strlen("GEMPLT"), strlen(" ") );
 	*iret = -40;
@@ -229,9 +219,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     ftime(&t_gskp);
     in_gskp ( ijskip, &ix1, &ix2, &nsx, &iy1, &iy2, &nsy, &autos, &ier );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in in_gskp ", (int) (1000.0 * (t_current.time - t_gskp.time) + (t_current.millitm - t_gskp.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     if ( ier != 0 ) {
 	er_wmsg ( "IN", &ier, " ", &iir, strlen("IN"), strlen(" ") );
 	*iret = -40;
@@ -384,16 +371,11 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
 	    &_dgsubg.refnav[7], &_dgsubg.refnav[8], &agln2, &ier,
 	    strlen(gprj) );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gsgprj2 ", (int) (1000.0 * (t_current.time - t_gsgprj2.time) + (t_current.millitm - t_gsgprj2.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     ftime(&t_gqgprj2);
 	gqgprj ( gprj, &ag1, &ag2, &ag3, &mx, &my, &aglt1, &agln1, 
 	    &aglt2, &agln2, &ier, sizeof(gprj) );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gqgprj2 ", (int) (1000.0 * (t_current.time - t_gqgprj2.time) + (t_current.millitm - t_gqgprj2.millitm)));
     if ( diagClbkPtr != NULL )
-       diagClbkPtr(diagMessage);
 	gprj[4] = '\0';
 	cst_lstr ( gprj, &nc, &ier );
 	gprj[nc] = '\0';
@@ -544,9 +526,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     gtrans ( sys_G, sys_M, &nc, rglt, rgln, rglt, rgln, &ier,
         strlen(sys_G), strlen(sys_M) );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gtrans1 ", (int) (1000.0 * (t_current.time - t_gtrans1.time) + (t_current.millitm - t_gtrans1.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     if ( G_ABS ( rgln[0] - 180. ) < .01 || G_ABS ( rgln[0] + 180. ) < .01 )
         rgln[0] = -180.;
     if ( G_ABS ( rgln[1] - 180. ) < .01 || G_ABS ( rgln[1] + 180. ) < .01 )
@@ -557,9 +536,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     gsgprj ( _dgfile.cprj, &ag1, &ag2, &ag3, &_dgfile.kxd, &_dgfile.kyd, 
         &rglt[0], &rgln[0], &rglt[1], &rgln[1], &ier, strlen(_dgfile.cprj) );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gsgprj3 ", (int) (1000.0 * (t_current.time - t_gsgprj3.time) + (t_current.millitm - t_gsgprj3.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
     if ( ier != 0 ) {
 	if ( _dgsubg.gwrapg == G_TRUE) {
 	    ag2 += 180.;
@@ -569,10 +545,7 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
 		&rglt[0], &rgln[0], &rglt[1], &rgln[1], &ier,
 		strlen(_dgfile.cprj) ) ;
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in gsgprj4 ", (int) (1000.0 * (t_current.time - t_gsgprj4.time) + (t_current.millitm - t_gsgprj4.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
-	    if ( ier != 0 ) {
+	if ( ier != 0 ) {
 		*iret = -44;
 		return;
 	    }
@@ -586,9 +559,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     grc_mnav ( _dgfile.cprj, &_dgfile.kxd, &_dgfile.kyd, &rglt[0], &rgln[0],
 	&rglt[1], &rgln[1], &ag1, &ag2, &ag3, &angflg, tnav, &ier );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in grc_mnav ", (int) (1000.0 * (t_current.time - t_mnav.time) + (t_current.millitm - t_mnav.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
 
     /*
      * Check the current navigation against the saved navigation.
@@ -598,9 +568,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     ftime(&t_cnav);
     grc_cnav ( tnav, _dgfile.snav, &navsz, &navflg, &ier );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in grc_cnav ", (int) (1000.0 * (t_current.time - t_cnav.time) + (t_current.millitm - t_cnav.millitm)));
-    if ( diagClbkPtr != NULL )
-        diagClbkPtr(diagMessage);
 
     /*
      * Save the current navigation.
@@ -609,6 +576,8 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
 	_dgfile.snav[k] = tnav[k];
     }
 
+    db_retsubgcrs (_dgfile.cprj, _dgfile.kxd, _dgfile.kyd, rglt[0], rgln[0],
+                       rglt[1], rgln[1],ag1, ag2, ag3,&ier); 
     /*
      * Set the constant of the cone for various projections (code
      * duplicated from UPDCON.FOR in GEMPLT).
@@ -620,9 +589,6 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
     dg_cone ( _dgfile.cprj, &_dgfile.anglr1, &_dgfile.anglr3,
     	      &_dgfile.concon, iret );
     ftime(&t_current);
-    sprintf (diagMessage, "%s %d", "dgc_subg|info: time spent in dg_cone ", (int) (1000.0 * (t_current.time - t_cone.time) + (t_current.millitm - t_cone.millitm)));
-    if ( diagClbkPtr != NULL )
-	diagClbkPtr(diagMessage);
 
     /*
      * Set lat/lon,  map scale factor, and rotation matrix
@@ -669,6 +635,5 @@ void dgc_subg ( const char *ijskip, int *maxgrid, int *imll, int *jmll,
      */
     _dggrid.idglst = 0;
 
-    sprintf (diagMessage, "%s %d %d %d %d ", "dgc_subg|info: output parms:", *imll, *jmll, *imur, *jmur);
     return;
 }
