@@ -8,5 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.junit;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.util,
  com.raytheon.uf.common.util.cache,
+ com.raytheon.uf.common.util.header,
  com.raytheon.uf.common.util.registry
 Import-Package: org.apache.commons.lang
