@@ -36,12 +36,10 @@ from java.util import ArrayList
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfig
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
 from com.raytheon.edex.plugin.gfe.util import CartDomain2D
-from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridLocation
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
-from com.raytheon.uf.common.dataplugin.gfe.util import GfeUtil
 
 from com.vividsolutions.jts.geom import Coordinate
 
