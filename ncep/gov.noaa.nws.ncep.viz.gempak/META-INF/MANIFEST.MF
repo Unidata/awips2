@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui;bundle-version="1.12.1142",
  gov.noaa.nws.ncep.viz.localization,
  javax.measure;bundle-version="1.0.0",
+ com.raytheon.viz.alerts,
  gov.noaa.nws.ncep.common.dataplugin.ncgrib;bundle-version="1.0.0",
  com.sun.jna,
  org.geotools;bundle-version="2.6.4",
@@ -20,4 +21,5 @@ Export-Package: gov.noaa.nws.ncep.viz.gempak,
  gov.noaa.nws.ncep.viz.gempak.grid.jna,
  gov.noaa.nws.ncep.viz.gempak.grid.inv,
  gov.noaa.nws.ncep.viz.gempak.util
-Import-Package: com.raytheon.uf.common.derivparam.tree
+Import-Package: com.raytheon.uf.common.derivparam.tree,
+ gov.noaa.nws.ncep.edex.common.ncinventory

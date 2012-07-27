@@ -22,88 +22,46 @@ public class Activator extends Plugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "gov.noaa.nws.ncep.viz.localization";
 
-	public static final String ACTIVE_DESK = "-ACTIVE_DESK"; 
-	public static final String ACTIVE_SITE = "-ACTIVE_SITE"; 
+	public static final String DESK_ARG = "-desk"; 
+//	public static final String DESK_ENV = "DESK"; 
 
 	// The shared instance
 	private static Activator plugin;
 
-	// 
 	private static String currentDesk="None";
 	
-	public Activator() {
-		LocalizationManager localizationManager = LocalizationManager.getInstance();
-		
+	public Activator() {		
 		/*
 		 * Now the priority is: 1. command line argument, 2. from UI preference setting
 		 * 3. system variable 
 		 */
-		String desk = ProgramArguments.getInstance().getString( ACTIVE_DESK ); 
-		if(!isValidDesk(desk)) 
-			//desk = localizationManager.getCurrentDesk(); 
-		if(!isValidDesk(desk))
-			currentDesk = System.getenv("ACTIVE_DESK");
-		if(!isValidDesk(desk))
-			currentDesk = "None"; 
-		else {
-			/*
-			 * set the valid current desk value back to localization store 
-			 * through LocalizationManager
-			 */
-//			localizationManager.setCurrentDesk(desk); 
+		String desk = ProgramArguments.getInstance().getString( DESK_ARG ); 
+		
+		if( desk != null && !desk.trim().isEmpty() ) {
+			desk = desk.trim().toUpperCase();
+			System.out.println("Setting Desk to "+ desk+" from Program Arguement.");
+			currentDesk = desk;
 		}
-//		System.out.println("===================, the active_desk value is:" + desk); 
+//		else {
+//			desk = System.getenv( DESK_ENV );
+//			
+//			if( desk != null && !desk.trim().isEmpty() ) {
+//				desk = desk.trim();
+//				System.out.println("Setting Desk to "+ desk+" from Environment variable.");
+//				currentDesk = desk;
+//			}						
+//		}
+	
+		
+		// THE SITE is set by the LocalizationManager from either the  
+		// preferences or the program args.
 
-		
-		/*
-		 * Now the priority is: 1. command line argument, 2. from UI preference setting
-		 * 3. system variable 
-		 */
-		String site = ProgramArguments.getInstance().getString( ACTIVE_SITE ); 
-		if(!isValidSite(site)) 
-			site = localizationManager.getCurrentSite(); 
-		if(!isValidSite(site))
-			site = System.getenv("ACTIVE_SITE"); 
-		if(!isValidSite(site))
-			site = "none"; 
-		else {
-			/*
-			 * set the valid current site value back to localization store 
-			 * through LocalizationManager
-			 */
-			localizationManager.setCurrentSite(site); 
-		}
-//		System.out.println("===================, the active_site value is:" + site); 
-//		initializeCurrentUser(localizationManager); 		
 	}
 
 	public static String getCurrentDesk() {
 		return currentDesk;
 	}
-
-	private boolean isValidDesk(String deskName) {
-		boolean isValidDesk = false; 
-		if(!isStringEmpty(deskName) && !deskName.equalsIgnoreCase("none"))
-			isValidDesk = true;
-		return isValidDesk; 
-	}
-	
-	
-	
-	private boolean isValidSite(String siteName) {
-		boolean isValidSite = false; 
-		if(!isStringEmpty(siteName) && !siteName.equalsIgnoreCase("none"))
-			isValidSite = true;
-		return isValidSite; 
-	}
-		
-	public  boolean isStringEmpty(String str) {
-		boolean result = false; 
-		if(str == null || str.trim().length() == 0)
-			result = true; 
-		return result; 
-	}
-		
+				
 	private void locationTest() {
 		String configurationLocation = Platform.getConfigurationLocation().getURL().getPath(); 
 		System.out.println("Platform.getConfigurationLocation().getURL().getPath()="+configurationLocation); 

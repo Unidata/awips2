@@ -87,11 +87,9 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 		private boolean selectRect;
 
 		//Current Pgen Category
-		String pgenCat;
+		private String pgenCat;
 
-		boolean shiftDown;
-
-		List<Coordinate> polyPoints;
+		private List<Coordinate> polyPoints;
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -128,22 +126,23 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 
 			}
 			else if ( button == 3 ) {
+				if ( polyPoints == null || polyPoints.isEmpty()){
+					// Close the attribute dialog and do the cleanup.
+					if ( attrDlg != null ) {
+						attrDlg.close(); 
+					}
 
-				// Close the attribute dialog and do the cleanup.
-				if ( attrDlg != null ) {
-					attrDlg.close(); 
+					attrDlg = null;
+					pgenCategory = null;
+					pgenType  = null;
+
+					drawingLayer.removeGhostLine();
+					drawingLayer.removeSelected();
+					mapEditor.refresh();
+
+
+					PgenUtil.setSelectingMode();
 				}
-
-				attrDlg = null;
-				pgenCategory = null;
-				pgenType  = null;
-
-				drawingLayer.removeGhostLine();
-				drawingLayer.removeSelected();
-				mapEditor.refresh();
-
-				PgenUtil.setSelectingMode();
-
 				return false;
 
 			}
@@ -424,14 +423,6 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 	        	  PgenResource pResource = PgenSession.getInstance().getPgenResource();
 	        	  pResource.deleteSelectedElements();
 //	        	  System.out.println("Pgen elements deleted from PgenMultiSelect");				
-			}
-			return true;
-		}
-
-		@Override
-		public boolean handleKeyUp(int keyCode) {
-			if ( keyCode == SWT.SHIFT) {
-				shiftDown = false;
 			}
 			return true;
 		}

@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.newResource;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionDialog;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionControl.IResourceSelectedListener;
@@ -119,7 +120,7 @@ public class NewResourceAction extends AbstractHandler {
    					// 
    					if( rscData instanceof AbstractNatlCntrsRequestableResourceData ) {
 
-   						ArrayList<DataTime> availTimes = 
+   						List<DataTime> availTimes = 
    							((AbstractNatlCntrsRequestableResourceData) rscData).getAvailableDataTimes();
 
    						if( availTimes == null || availTimes.isEmpty() ) {

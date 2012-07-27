@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.producttypes.ProductType;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenToolUtils;
@@ -28,6 +29,9 @@ import org.dom4j.io.SAXReader;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -50,7 +54,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * ------------	----------	-----------	--------------------------
  * 01/10		#159		B. Yin   	Initial Creation.
  * 03/06/11     #707        Q.Zhou      Changed FORECASTER text to combo. Load from forecaster.xml.
- * 03/12		$703		B. Yin		Generate product text from style sheet
+ * 03/12		#703		B. Yin		Generate product text from style sheet
+ * 05/12		#769, 776	B. Yin		Added UTC time. Carry ove info to WatchFormat dialog.
  *
  * </pre>
  * 
@@ -92,7 +97,7 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 	
 	//expiration date and time
 	private DateTime validDate;
-	private DateTime validTime;
+	private Text validTime;
 	
 	//phone number combo
 	private Combo phoneCombo;
@@ -110,7 +115,7 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 	private List<Button> wfoBtns;
 	
 	private String dirPath;
-
+	private Text rText ;
 	/**
 	 * Protected constructor
 	 * @param parentShell
@@ -214,16 +219,23 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		GridLayout dtGl = new GridLayout(2, false);
 		dt.setLayout(dtGl);
 		validDate = new DateTime(dt, SWT.BORDER | SWT.DATE );
-		validTime = new DateTime(dt, SWT.BORDER | SWT.TIME | SWT.SHORT );
+		//validTime = new DateTime(dt, SWT.BORDER | SWT.TIME | SWT.SHORT );
 
 		Calendar expTime = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		validDate.setYear( expTime.get(Calendar.YEAR));
 		validDate.setMonth( expTime.get(Calendar.MONTH));
 		validDate.setDay( expTime.get(Calendar.DAY_OF_MONTH));
-		validTime.setHours( expTime.get(Calendar.HOUR_OF_DAY));
-		validTime.setMinutes( expTime.get(Calendar.MINUTE));
-		validTime.setSeconds(0);
 
+		Composite c1 = new Composite(dt, SWT.NONE);
+		c1.setLayout( new FormLayout());
+
+		validTime = new Text(c1, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+
+		FormData fd = new FormData();
+		//fd.top = new FormAttachment(watchNumber,2, SWT.BOTTOM);
+		fd.left = new FormAttachment(validDate, 5, SWT.RIGHT);
+		validTime.setLayoutData(fd);
+		PgenUtil.setUTCTimeTextField(c1, validTime, expTime, wType, 5);
 		//create phone list combo
 		Label phoneLbl = new Label(panel1, SWT.LEFT);
 		phoneLbl.setText("Phone Number:");
@@ -247,7 +259,7 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		//Create replace watch number text
 		Label replaceLbl = new Label(panel1, SWT.LEFT);
 		replaceLbl.setText("Replace Watch#:");
-		Text rText = new Text(panel1, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
+		rText = new Text(panel1, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
 
 		AttrDlg.addSeparator(top);
 
@@ -366,9 +378,25 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 								File.separator + pd1 +  File.separator + "prod" +
 							File.separator + "text" + File.separator;
 			openWCCDlg();
+			updateWatch();
 		}
 	}
 
+	private void updateWatch(){
+		WatchBox wb = wbDlg.getWatchBox();
+		
+		wb.setWatchType(this.getWatchType());
+		wb.setForecaster(forecasterCombo.getText());
+		try {
+			wb.setReplWatch(Integer.parseInt(rText.getText()));
+		}
+		catch( Exception e){
+			//if anything wrong, don't set the watch replace number
+		}
+		wb.setExpTime(this.getExpirationTime());
+	}
+	
+	
 	/**
 	 * Get weather type string
 	 * @return
@@ -387,7 +415,7 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 	private Calendar getExpirationTime(){
 		Calendar expiration = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		expiration.set(validDate.getYear(), validDate.getMonth(), validDate.getDay(), 
-				    validTime.getHours(), validTime.getMinutes(), 0);
+				    getExpHour(), getExpMinute(), 0);
 		expiration.set(Calendar.MILLISECOND, 0);
 		return expiration;
 	}
@@ -530,6 +558,51 @@ public class WatchCoordDlg  extends CaveJFACEDialog  {
 		}
 		
 		return FORECASTERS;
+	}
+	
+	/**
+	 * Get Watch type
+	 * @return string - watch type
+	 */
+	private String getWatchType(){
+		String type ="";
+		if (stormBtn.getSelection()){
+			type = WatchFormatDlg.S_STORM;
+		}
+		else if (tornadoBtn.getSelection()){
+			type = WatchFormatDlg.TORNADO;
+		}
+		return type;
+	}
+	
+	/**
+ 	 * Get the expiration hour from the validTime text widget
+     */
+	private int getExpHour(){
+		int ret =0;
+		try {
+			String hm = validTime.getText();
+			ret = Integer.parseInt(hm.substring(0, hm.length()== 4 ? 2:1 ));
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
+	}
+	
+	/**
+ 	 * Get the expiration minutes from the validTime text widget
+     */	
+	private int getExpMinute(){
+		int ret =0;
+		try {
+			String hm = validTime.getText();
+			ret = Integer.parseInt(hm.substring(hm.length()== 4 ? 2:1 ), hm.length()-1);
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
 	}
 }
 

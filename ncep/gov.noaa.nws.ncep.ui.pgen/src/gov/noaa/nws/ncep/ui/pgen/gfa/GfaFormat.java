@@ -57,6 +57,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  * 06/11					J. Wu		Fixed missing CIG type in findGfaSubTypes().
  * 07/11					J. Wu		Removed the pre-clipping before snapping.
  * 07/11		?			B. Yin		Added FRZL
+ * 05/12		#808		J. Wu		Update vor text for airmets.
  * 
  * </pre>
  * 
@@ -81,7 +82,6 @@ public class GfaFormat {
 	 */
 	public void formatAllPressed() {
 		GfaClip.getInstance().updateGfaBoundsInGrid();		
-		long time = System.currentTimeMillis();
 				
 		if (drawingLayer != null) {
 			for (Product p : drawingLayer.getProducts()) {
@@ -90,15 +90,14 @@ public class GfaFormat {
 					formatLayer(layer, false );
 				}
 			}
-		}
-		
-//		logger.debug("formatting time: " + (System.currentTimeMillis() - time) + " ms");
+		}		
 	}
 
 	/**
 	 * Format layer button pressed.
 	 */
 	public void formatLayerPressed() {				
+
 		GfaClip.getInstance().updateGfaBoundsInGrid();
 		if (drawingLayer != null) {
 			Layer layer = drawingLayer.getActiveLayer();
@@ -125,10 +124,10 @@ public class GfaFormat {
 	 * @param checkTag
 	 */
 	private void formatLayer(Layer layer, boolean checkTag ) {
-		
+
 		ArrayList<AbstractDrawableComponent> oldList = new ArrayList<AbstractDrawableComponent>();
 		ArrayList<AbstractDrawableComponent> newList = new ArrayList<AbstractDrawableComponent>();
-		ArrayList<AbstractDrawableComponent> toRemove = new ArrayList<AbstractDrawableComponent>();
+//		ArrayList<AbstractDrawableComponent> toRemove = new ArrayList<AbstractDrawableComponent>();
     	
 		DrawableElement de = drawingLayer.getSelectedDE();
 		
@@ -136,18 +135,21 @@ public class GfaFormat {
 			
 			if (!(adc instanceof Gfa)) continue;
 			    
-			    if ( checkTag ) { 
-			    	if ( de != null && !isSameHazardAndTag( ((Gfa)adc), ((Gfa)de) ) ) {
-			    		continue;
-			    	}
-			    }
-			    
-			    if ( ( (Gfa)adc ).isSnapshot() ) {
-				    oldList.add(adc);
-				    newList.add(adc);
-			    } else {
-				    toRemove.add(adc);
+			if ( checkTag ) { 
+				if ( de != null && !isSameHazardAndTag( ((Gfa)adc), ((Gfa)de) ) ) {
+					continue;
+				}
 			}
+            
+			oldList.add(adc);
+			
+			if ( ( (Gfa)adc ).isSnapshot() ) {
+//				oldList.add(adc);
+				newList.add(adc);
+			} 
+//			else {
+//				toRemove.add(adc);
+//			}
 		}
 
 		// Generate smears for this list of snapshots
@@ -159,13 +161,14 @@ public class GfaFormat {
 			newList.addAll(frzl);
 		}
 		
-		for ( AbstractDrawableComponent adc : toRemove ) {
-			drawingLayer.removeElement( adc );
-		} 
+//		for ( AbstractDrawableComponent adc : toRemove ) {
+//			drawingLayer.removeElement( adc );
+//		} 
 		
 		if ( !newList.isEmpty() ) {
 			drawingLayer.replaceElements( oldList, newList );
 		}
+
 	}
 
 	/**
@@ -398,6 +401,13 @@ public class GfaFormat {
 				
 		// Clean up all intermediate attributes from the list.
 		clearAttributes( listOfLists );		
+
+		// Set the vor text for each Airmet.
+		for ( AbstractDrawableComponent gg : list ) {
+			if ( gg instanceof Gfa ) {
+				((Gfa)gg).setGfaVorText( Gfa.buildVorText( (Gfa)gg ) );
+			}
+		}
 		
 	}
 

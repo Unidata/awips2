@@ -4,4 +4,4 @@ markerType=ASTERISK
 markerSize=1
 markerWidth=1
 markerTextSize=MEDIUM
-legend_color=RGB {255,255,255}
+markerTextAppearanceZoomLevel=1

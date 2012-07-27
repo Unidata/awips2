@@ -66,11 +66,14 @@ import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+import com.raytheon.viz.ui.tools.AbstractModalTool;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil.PgenMode;
+import gov.noaa.nws.ncep.ui.pgen.attrdialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.controls.CommandStackListener;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.filter.CategoryFilter;
@@ -79,6 +82,7 @@ import gov.noaa.nws.ncep.ui.pgen.palette.Activator;
 import gov.noaa.nws.ncep.ui.pgen.productmanage.ProductDialogStarter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenSelectingTool;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 //import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 //import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -535,8 +539,6 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 		IEditorPart editor = VizWorkbenchManager.getInstance().getActiveEditor();
 		if( editor instanceof AbstractEditor ){//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
 
-
-
 			/*
 			 * get the endpoint information associated with this button.
 			 */
@@ -562,13 +564,45 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 					elem =  itemMap.get( "MultiSelect");
 
 				}
-				exeCommand(elem);
-
-				if ( point.equals(ACTION_SECTION)){
-					currentAction = elem.getAttribute("name");
+				
+				//change front/line type
+				PgenSelectingTool selTool = null;
+				if ( point.equals(OBJECT_SECTION) && currentAction.equalsIgnoreCase("Select") && 
+					 ( currentCategory.equalsIgnoreCase("Front") ||
+					   currentCategory.equalsIgnoreCase("Lines"))){
+					  AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+		                .getCurrentPerspectiveManager();
+					 for ( AbstractModalTool tool : mgr.getToolManager().getSelectedModalTools() ) {
+						 //check selecting tool and change front/line type
+						 if ( tool instanceof PgenSelectingTool ){
+							 AttrDlg dlg = ((PgenSelectingTool)tool).getAttrDlg();
+							 if ( dlg != null && dlg.getShell() != null
+									 && ((PgenSelectingTool)tool).getDrawingLayer().getSelectedDE()!=null) {
+								 selTool = (PgenSelectingTool)tool;
+							 }
+							 break;
+						 }
+					 }
 				}
+				
+				if ( selTool != null ){
+					selTool.changeSelectedLineType( elem.getAttribute("name"));
+				}
+				else {
+					//clean up
+					PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) editor );
+					if ( pgen != null ){
+						pgen.removeGhostLine();
+						pgen.removeSelected();
+						pgen.deactivatePgenTools();
+					}
+					
+					exeCommand(elem);
 
-
+					if ( point.equals(ACTION_SECTION)){
+						currentAction = elem.getAttribute("name");
+					}
+				}
 			} else if ( point.equals(CLASS_SECTION) ) {
 				/*
 				 * If a button in the "Class" section of the palette was pressed, 
@@ -853,9 +887,17 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 			
 			PgenResource pgen = PgenUtil.findPgenResource( (AbstractEditor) part );
 			if ( pgen != null ){
-				pgen.removeGhostLine();
-				pgen.removeSelected();
+				
+			//	Comment out the following three lines to keep the drawing tool and to keep the attribute dialog up
+			//	when user clicks on the blank space on PGEN pallete. --bingfan 4/20/12
+				
+			//	pgen.removeGhostLine();
+			//	pgen.removeSelected();
+			//	pgen.deactivatePgenTools();
+				
+				//not sure why closeDialogs() is put here and not sure why it's commented out. --bingfan
 				//pgen.closeDialogs();
+				
 				deactivatePGENContext();
 				((AbstractEditor) part).refresh();
 			}
@@ -1171,7 +1213,8 @@ public class PgenPaletteWindow extends ViewPart implements SelectionListener,
 	 */
 	public HashMap<String, IConfigurationElement> getItemMap() {		
 	    return itemMap;	
-	}	
+	}
+	
 	private void deactivatePGENContext() {
 		if (pgenContextActivation != null) {
 			

@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
@@ -22,6 +23,10 @@ import java.awt.Color;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.RGB;
@@ -105,6 +110,10 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 
     private float lineWidth = 2.0f;
 
+    private String prevTop = "";
+    private String prevBottom = "";
+    private String prevSymbol = "";
+    
     /**
      * Constructor
      * @param parShell
@@ -339,7 +348,23 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 
 		topValue = new Text( comp, SWT.SINGLE | SWT.BORDER );                        
 		topValue.setEditable( true );
-		topValue.setText("XXX");
+		
+		if ( prevTop.isEmpty() ){
+			topValue.setText("XXX");
+		}
+		else {
+			topValue.setText(prevTop);
+		}
+		
+		topValue.addModifyListener(new ModifyListener(){
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				prevTop = ((Text)e.widget).getText();
+			}
+
+		});
+			
 	}
 	
 	private void createBottomAttr(Composite comp){
@@ -369,8 +394,22 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 
 		bottomValue = new Text( comp, SWT.SINGLE | SWT.BORDER );                        
 		bottomValue.setEditable( true );
-		bottomValue.setText("XXX");
-	}	
+		
+		if ( prevBottom.isEmpty() ){
+			bottomValue.setText("XXX");
+		}
+		else {
+			bottomValue.setText(prevBottom);
+		}
+		
+		bottomValue.addModifyListener(new ModifyListener(){
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				prevBottom = ((Text)e.widget).getText();
+			}
+
+		});	}	
 	
 	/**
 	 * Create widgets for the Color attribute
@@ -428,7 +467,13 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 		symbolCombo = new SymbolCombo( comp );
 		symbolCombo.setLayoutData(new GridData(10, 1));
 		symbolCombo.setItems(TURB_LIST);
-		symbolCombo.select(4);
+		
+		if ( prevSymbol.isEmpty()) {
+			symbolCombo.select(4);
+		}
+		else {
+			symbolCombo.setSelectedText(prevSymbol);
+		}
 		
 	}
 
@@ -521,6 +566,16 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 	
 	@Override
 	/**
+	 * Removes ghost line, handle bars, and closes the dialog
+	 */
+	public void cancelPressed(){
+		
+		PgenUtil.setSelectingMode();
+		super.cancelPressed();
+		
+	}
+	@Override
+	/**
 	 * Updates the selected element and redraws the PGEN layer.
 	 */
 	public void okPressed(){
@@ -604,6 +659,8 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 	@Override
 	public boolean close(){
 		
+		if ( !symbolCombo.isDisposed())
+			prevSymbol = symbolCombo.getSelectedText();
 		return super.close();
 		
 	}

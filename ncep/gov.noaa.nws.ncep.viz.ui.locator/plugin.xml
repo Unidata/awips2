@@ -19,111 +19,131 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos1LocatorSource"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos1LocatorSource"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="pos1RoundToNearest"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="pos1RoundToNearest"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos1DisplayUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos1DisplayUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos1DirectionUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos1DirectionUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos2LocatorSource"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos2LocatorSource"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="pos2RoundToNearest"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="pos2RoundToNearest"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos2DisplayUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos2DisplayUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos2DirectionUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos2DirectionUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos3LocatorSource"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos3LocatorSource"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="pos3RoundToNearest"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="pos3RoundToNearest"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos3DisplayUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos3DisplayUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos3DirectionUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos3DirectionUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos4LocatorSource"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos4LocatorSource"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="pos4RoundToNearest"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="pos4RoundToNearest"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos4DisplayUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos4DisplayUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos4DirectionUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos4DirectionUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos5LocatorSource"
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos5LocatorSource"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="java.lang.Integer"
-            attributeName="pos5RoundToNearest"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="java.lang.Integer"
+            paramName="pos5RoundToNearest"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos5DisplayUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos5DisplayUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="pos5DirectionUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pos5DirectionUnit"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="Locator">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
       
    </extension>
    <extension

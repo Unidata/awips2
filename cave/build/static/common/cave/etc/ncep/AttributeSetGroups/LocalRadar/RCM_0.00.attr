@@ -1,8 +1,9 @@
 colorMapName=osf_ref16
-colorBar=@dfltRadarColorBar.xml
+colorBar=@ColorBars/Radar/dfltRadarColorBar.xml
 ! Radar Coded Message
 productCode=74
 elevationNumber=0
+!primaryElevationAngle=0.0
 alpha=1.0
 brightness=1.0
 contrast=1.0
