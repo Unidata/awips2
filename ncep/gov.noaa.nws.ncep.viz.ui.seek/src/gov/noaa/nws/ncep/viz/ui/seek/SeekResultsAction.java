@@ -3,7 +3,10 @@ package gov.noaa.nws.ncep.viz.ui.seek;
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Event;
+
 import org.eclipse.ui.PlatformUI;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
@@ -31,7 +34,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                                        to the seekResourceData object
  *                                                        Updated the execute() method to toggle
  *                                                        the display of the seek layer.  
- * Jan   2012   TTR 326   J. Zeng      handled NUllPointerException                                                      
+ * Jan   2012   TTR 326   J. Zeng      handled NUllPointerException   
+ * May 	 2012	# 747	  B. Yin		Made the pan tool work when the shift key is held down.                                                  
  *   
  * </pre>
  * 
@@ -97,11 +101,12 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     
     public class SeekMouseHandler extends InputAdapter {
 
-    	private int firstMouseX;
-
-    	private int firstMouseY;
+    	private Coordinate firstMouseClick;
     	
     	private Coordinate[] endpts = new Coordinate[2];
+    	
+    	private boolean shiftDown;
+    	private boolean simulate;
 
     	/*
          * (non-Javadoc)
@@ -112,17 +117,16 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     	@Override
     	public boolean handleMouseDown(int x, int y, int button) {
 
-    		if (button != 1) {
+    		if (button != 1 || simulate ) {
     			return false;
     		}
     		if (mapEditor != null ) {
     			Coordinate ll = mapEditor.translateClick(x, y);
+    			firstMouseClick = ll;
     			if ( ll == null ) return false;
     		
     			if (id != null && id.isDlgOpen()/*.isOpen()*/ && ll != null) {//archana - changed isOpen() to isDlgOpen() 
     				id.setPosition(ll);
-    				firstMouseX = x;
-    				firstMouseY = y;
     				endpts = id.getEndPoints();
     				if (endpts[0] != null || endpts[1] != null) {
     					//seekDrawingLayer.drawClickPtLine(endpts[0], endpts[1]);
@@ -132,7 +136,7 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     			}
     			mapEditor.refresh();
     		}
-    		return true;
+    		return false;
     	}
 
         /*
@@ -143,11 +147,11 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
          */
     	@Override
     	public boolean handleMouseDownMove(int x, int y, int button) {
-    		if (button != 1) {
+    		if (button != 1 || shiftDown ) {
     			return false;
     		}
     		if (mapEditor != null){
-    			Coordinate c1 = mapEditor.translateClick(firstMouseX, firstMouseY);
+    			Coordinate c1 = firstMouseClick;
     			Coordinate c2 = mapEditor.translateClick(x, y);
     			if (id != null && id.isDlgOpen() && c1 != null && c2 != null) {
  //   				seekDrawingLayer.drawLine(c1, c2);
@@ -163,7 +167,9 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     				if (azimuth < 0) azimuth += 360.0;
     				double distanceInMeter = gc.getOrthodromicDistance();
                 
-    				Coordinate c = mapEditor.translateClick(firstMouseX - 15, firstMouseY - 15);
+    				double firstScnPt[] = mapEditor.translateInverseClick(firstMouseClick);
+    				
+    				Coordinate c = mapEditor.translateClick(firstScnPt[0] - 15, firstScnPt[1] - 15);
     				String str = id.getFormatDistance(distanceInMeter, azimuth);
                 
 //            	    seekDrawingLayer.clearStrings();
@@ -173,6 +179,19 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     					(( SeekResourceData) seekDrawingLayer.getResourceData()).drawString(c, str);
     				}  
     				mapEditor.refresh();
+    			
+    				//simulate a mouse down event so that the pan tool gets the location of the last click.
+    				Event me = new Event();
+    				me.display = mapEditor.getActiveDisplayPane().getDisplay();
+    				me.button = 1;
+    				me.type = SWT.MouseDown;
+    				me.x = x;
+    				me.y = y;
+    				
+    				simulate = true; 
+    				mapEditor.getMouseManager().handleEvent(me);
+    				simulate = false;
+    				
     				return true;
     			}
     		}
@@ -203,6 +222,25 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
         	return false;
         	
         }
+        
+        
+    	@Override
+    	public boolean handleKeyDown(int keyCode) {
+    		if ( keyCode == SWT.SHIFT) {
+    			shiftDown = true;
+    		}
+    	
+    		return true;
+    	}
+
+    	@Override
+    	public boolean handleKeyUp(int keyCode) {
+    		if ( keyCode == SWT.SHIFT) {
+    			shiftDown = false;
+    		}
+    		return true;
+    	}
+    	
     }   
     
 //    private SeekDrawingLayer getSeekLayer() {

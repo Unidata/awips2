@@ -6,7 +6,7 @@
 	<resourceParameters>
 dbName=ncep
 tableName=bounds.greatlakesbnds
-labelField=area
+labelField=name
 mapName=Great Lakes</resourceParameters>    
     <filterLabels></filterLabels>
     <rscImplementation>DbOverlay</rscImplementation>

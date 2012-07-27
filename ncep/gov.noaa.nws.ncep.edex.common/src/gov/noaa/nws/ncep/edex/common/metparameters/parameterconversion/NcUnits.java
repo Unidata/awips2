@@ -45,6 +45,9 @@ public class NcUnits implements ISerializableObject{
 	
 	@DynamicSerializeElement
 	public static Unit<?> INCHES_PER_THREE_HOURS            = NonSI.INCH.divide(NonSI.HOUR.times( 3 ) );
+	
+	@DynamicSerializeElement
+	public static Unit<?> INCHES_PER_HOUR            = NonSI.INCH.divide(NonSI.HOUR );
 
 	@DynamicSerializeElement
 	public static Unit<PotentialForCyclonicUpdraftRotation> METER_SQUARE_PER_SECOND_SQUARE = 
@@ -100,6 +103,7 @@ public class NcUnits implements ISerializableObject{
 	    UnitFormat.getUCUMInstance().label( PASCALS_PER_SEC, "pascals_per_sec" );
 	    UnitFormat.getUCUMInstance().label( KELVIN_PER_DAY, "kelvin_per_day" );
 		UnitFormat.getUCUMInstance().label( JOULES_PER_KILOGRAM, "joules_per_kg" );
+		UnitFormat.getUCUMInstance().label( INCHES_PER_HOUR, "inches_per_hour" );		
 //		UnitFormat.getUCUMInstance().label( CELSIUS_PER_KILOMETER, "℃/km" );
 //		UnitFormat.getUCUMInstance().label( KELVIN_PER_MILLIBAR, "K/mb" );
 		

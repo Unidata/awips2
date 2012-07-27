@@ -2,21 +2,15 @@ package gov.noaa.nws.ncep.viz.rsc.nonconvsigmet.rsc;
 
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
 import org.eclipse.swt.graphics.RGB;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -24,30 +18,19 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet.NonConvSigmetLocation;
 import gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet.NonConvSigmetRecord;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
-import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.EditElement;
-import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscRscAttrs;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
@@ -71,7 +54,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * 30 Sep 2010    307       Greg Hull   have NonConvSigmetRscDataObject implement IRscDataObject
  * 18 Nov 2010    307       Greg Hull   newRscDataObjsList -> newRscDataObjsQueue
  * 05 Aug 2011    n/a       B. Hebbard  Preserve newRscDataObjsQueue during traversal in processCancelRequest
- * 
+ * 05/23/12       785       Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author bhebbard 
@@ -603,4 +586,14 @@ public class NonConvSigmetResource extends
     	//  but doing it centrally seems less error prone...
     	updateEnableMaps(); 
     }
+    
+    @Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.nonConvSigmetDataMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }

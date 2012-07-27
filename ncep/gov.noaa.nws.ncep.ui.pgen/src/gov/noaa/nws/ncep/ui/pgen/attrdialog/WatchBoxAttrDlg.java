@@ -42,8 +42,11 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchBoxDrawingTool;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchBoxModifyTool;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
 
@@ -64,6 +67,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      to align the color selection
  *                                      button correctly.
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 05/12		TTR 526		B. Yin		Allow to change watch shape
  * </pre>
  * 
  * @author	B. Yin
@@ -260,22 +264,25 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 			
 			fillBtn.setSelection(ia.getFillFlag());
 			
-			WatchShape ws = ia.getWatchBoxShape();
-			if (ws == WatchShape.NS ){
-				nsBtn.setSelection(true);
-				ewBtn.setSelection(false);
-				esolBtn.setSelection(false);
-			}
-			else if (ws == WatchShape.EW ){
-				ewBtn.setSelection(true);
-				esolBtn.setSelection(false);
-				nsBtn.setSelection(false);
-			}
-			else if (ws == WatchShape.ESOL ){
-				esolBtn.setSelection(true);
-				nsBtn.setSelection(false);
-				ewBtn.setSelection(false);
-			}
+			setShapeBtn(ia.getWatchBoxShape());
+		}
+	}
+	
+	private void setShapeBtn(WatchShape ws ){
+		if (ws == WatchShape.NS ){
+			nsBtn.setSelection(true);
+			ewBtn.setSelection(false);
+			esolBtn.setSelection(false);
+		}
+		else if (ws == WatchShape.EW ){
+			ewBtn.setSelection(true);
+			esolBtn.setSelection(false);
+			nsBtn.setSelection(false);
+		}
+		else if (ws == WatchShape.ESOL ){
+			esolBtn.setSelection(true);
+			nsBtn.setSelection(false);
+			ewBtn.setSelection(false);
 		}
 	}
 	
@@ -592,6 +599,7 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 	 * Close the watch attribute dialog and the watch info dialog 
 	 */
 	public boolean close(){
+		this.drawingLayer.removeSelected();
 		wbTool = null;
 		if( infoDlg != null ){
 			infoDlg.close();
@@ -701,6 +709,29 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 						// Update the new Element with these current attributes
 						newEl.update(this);
 						wb = (WatchBox)newEl;
+						
+						//re-calculate points of watch box if shape changes 
+						boolean updateShape = false;
+						if ( ((WatchBox)el).getWatchBoxShape() !=  this.getWatchBoxShape()){
+							ArrayList<Station> anchorsInPoly =  PgenWatchBoxDrawingTool.getAnchorsInPoly(mapEditor, 
+									WatchBox.generateWatchBoxPts(this.getWatchBoxShape(),
+											wb.getHalfWidth(), wb.getPoints().get(0),  wb.getPoints().get(5)));
+							if ( anchorsInPoly != null && !anchorsInPoly.isEmpty() ){
+								DECollection dec = new DrawableElementFactory().createWatchBox("Met", "Watch", this.getWatchBoxShape(), 
+										wb.getPoints().get(0),  wb.getPoints().get(5), anchorsInPoly, this);
+								if ( dec != null ) {
+									 wb.setLinePoints(((WatchBox)dec.getPrimaryDE()).getPoints());
+									 wb.setAnchors(((WatchBox)dec.getPrimaryDE()).getAnchors()[0], ((WatchBox)dec.getPrimaryDE()).getAnchors()[1]);
+									 updateShape = true;
+								}
+							}
+						}
+						
+						//if for any reason, shape cannot be changed, set the shape bake to the original.
+						if ( !updateShape ){
+							wb.setWatchBoxShape(el.getWatchBoxShape());
+							this.setShapeBtn(wb.getWatchBoxShape());
+						}
 						
 						newList.add(newEl);
 					}

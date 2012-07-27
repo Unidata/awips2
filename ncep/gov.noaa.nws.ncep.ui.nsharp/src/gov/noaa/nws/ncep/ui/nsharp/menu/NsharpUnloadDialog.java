@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpSoundingElementStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSoundingElementStateProperty;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -195,7 +196,7 @@ public class NsharpUnloadDialog extends Dialog {
 		//}
 		for(List<NsharpSoundingElementStateProperty> stnTmList: stnTmTable){
 			for(NsharpSoundingElementStateProperty tm: stnTmList){
-				if(tm.getElementState() != NsharpSkewTResource.State.NOTAVAIL){
+				if(tm.getElementState() != NsharpConstants.State.NOTAVAIL){
 					sndTimeList.add(tm.getElementDescription());
 				}
 			}

@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    12/1/2009                 ghull       to11d6 : Reference ncep data directory
  *    08/10/2010    273         ghull       get overlayData dir from 
  *    07/28/2011    450         ghull       NcPathManager
+ *    04/23/2012    #744        sgurung     Display Marker Text based on user specified zoom level
  *    
  * </pre>
  * 
@@ -255,7 +256,12 @@ public class LPIResource extends AbstractVizResource<LPIResourceData, MapDescrip
 
 			double displayHintSize = this.pixelSizeHint; 
 			double minSepDist = (displayHintSize * (metersPerPixel / 1000.0)); 
-
+			
+			float markerTextAppearZoomLevel = lpiResourceData.getMarkerTextAppearanceZoomLevel() / 10.0f;
+			markerTextAppearZoomLevel = Math.round(markerTextAppearZoomLevel * 100.0f) / 100.0f;
+			
+			float currZoomLevel = Math.round(paintProps.getZoomLevel() * 100.0f) / 100.0f;
+			
 			double offsetX = 0;
 			double offsetY = 0;
 			HorizontalAlignment align = HorizontalAlignment.CENTER;
@@ -286,7 +292,8 @@ public class LPIResource extends AbstractVizResource<LPIResourceData, MapDescrip
 					if (p.pixel == null)
 						continue;
 					if ((paintProps.getView().isVisible(p.pixel))
-							&& (p.dist >= minSepDist)) {
+							&& (p.dist >= minSepDist || markerTextAppearZoomLevel >= currZoomLevel)) {
+						
 							target.drawString(font, p.label, p.pixel[0] + offsetX,
 									p.pixel[1] + offsetY, 0.0, 
 									IGraphicsTarget.TextStyle.WORD_WRAP, lpiResourceData.getColor(),
