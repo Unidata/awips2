@@ -364,6 +364,10 @@ public class GFEColorbarResource extends
         if (container != null) {
             container.registerMouseHandler(handler, InputPriority.PERSPECTIVE);
         }
+
+        if (currentParm != null) {
+            currentParm.getListeners().addPickupValueChangedListener(this);
+        }
     }
 
     /*
