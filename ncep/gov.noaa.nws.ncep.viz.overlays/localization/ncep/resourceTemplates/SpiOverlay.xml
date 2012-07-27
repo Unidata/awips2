@@ -5,10 +5,10 @@
          <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
       </properties>
       <resourceData xsi:type="NC-SPIResourceData">
-                <filename>${SpiFilename}</filename>
-                <mapName>${mapName}</mapName>
-                <legendColor>${legend_color}</legendColor>
-                <color>${color}</color>
+            <filename>${SpiFilename}</filename>
+            <mapName>${mapName}</mapName>
+            <legendColor>${color}</legendColor>
+            <color>${color}</color>
     		<markerState>${markerState}</markerState>
     		<markerType>${markerType}</markerType>
     		<markerSize>${markerSize}</markerSize>

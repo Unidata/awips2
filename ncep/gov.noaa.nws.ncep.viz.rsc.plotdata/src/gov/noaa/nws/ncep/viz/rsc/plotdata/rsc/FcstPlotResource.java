@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -29,7 +30,7 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * ------------ ---------- ----------- --------------------------
  *  10/04/2010     #307    ghull       Created 
  *  02/16/2012     #555    sgurung     Changed frameData.setPopulated() to frameData.setPopulated(true) in populateFrame().
- * 
+ *  05/23/2012     785     Q. Zhou    Added getName for legend.
  * </pre>
  * 
  * @author ghull
@@ -161,6 +162,22 @@ public class FcstPlotResource extends PlotResource2 {
 		frameData.setPopulated(true);
     }
 	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		
+		if (fd == null || fd.getFrameTime() == null || fd.isStationMapEmpty()) {
+			return legendString + "-No Data";
+		}
+		
+		if (legendString == null || legendString.equalsIgnoreCase("")) {
+			return "Forecast";
+		}
+		else {
+			return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+		}
+	}
 //	@Override
 //	protected AbstractFrameData createNewFrame( DataTime frameTime, int timeInt ) {
 //		FrameData newFrame = new FrameData( frameTime, timeInt );		

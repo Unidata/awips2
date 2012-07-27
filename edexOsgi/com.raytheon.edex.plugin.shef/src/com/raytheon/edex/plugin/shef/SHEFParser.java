@@ -2599,16 +2599,13 @@ public class SHEFParser {
                 if(TokenType.COMMA.equals(last) && currToken.startsWith(" ")) {
                     tokens.add(new ParserToken(" ", TokenType.SPACE));
                 }
-                if (TokenType.UNKNOWN.equals(t.getType())) {
+                if (TokenType.UNKNOWN.equals(t.getType()) || 
+                		TokenType.SPACEINMIDDLE.equals(t.getType())) {
                     // check possible failures
-                    if(TokenType.UNKNOWN.equals(t.getType())) {
                         List<ParserToken> subList = subTokenize(currToken);
                         if (subList != null) {
                             tokens.addAll(subList);
                         }
-                    } else {
-                        tokens.add(t);
-                    }
                 } else {
                     tokens.add(t);
                 }

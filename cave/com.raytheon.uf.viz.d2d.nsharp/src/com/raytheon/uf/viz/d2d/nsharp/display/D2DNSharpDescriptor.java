@@ -101,19 +101,20 @@ public class D2DNSharpDescriptor extends NsharpSkewTDescriptor {
                         .valueOf(operation.name());
                 IDescriptor.FrameChangeMode dmode = IDescriptor.FrameChangeMode
                         .valueOf(mode.name());
+                D2DNSharpDescriptor.this.changeFrame(dop, dmode);
                 // Just hand this off to the resource.
-                switch (dmode) {
+                /*switch (dmode) {
                 case TIME_ONLY:
-                    getSkewtResource().setSteppingTimeLine(dop, dmode /*ignored*/);
+                    getSkewtResource().setSteppingTimeLine(dop, dmode );
                     break;
                 case SPACE_ONLY:
                     // noop for now
                     break;
                 case TIME_AND_SPACE:
                     // same as TIME_ONLY for now
-                    getSkewtResource().setSteppingTimeLine(dop, dmode /*ignored*/);
+                    getSkewtResource().setSteppingTimeLine(dop, dmode );
                     break;
-                }
+                }*/
             }
         };
     }

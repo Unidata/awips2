@@ -4,9 +4,9 @@
     <resourceDefnName>GFS_ENS</resourceDefnName>
     <resourceCategory>ENSEMBLE</resourceCategory>
     <resourceParameters>
+primaryModel=gfs
 availableModels=gfs
 pluginName=ncgrib
-eventName=%
     </resourceParameters>
     <filterLabels>Forecast,Global,Ensemble</filterLabels>
     <rscImplementation>EnsembleFcstGridContours</rscImplementation>

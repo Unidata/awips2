@@ -58,6 +58,7 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.rsc.GridResourceData;
+import com.raytheon.viz.grid.util.ConformalityUtil;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -72,6 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2011            bsteffen     Initial creation
+ * 06/19/2012   14988      D. Friedman Reproject based on conformality  
  * 
  * </pre>
  * 
@@ -276,14 +278,17 @@ public class D2DGribGridResource extends GribGridResource<GridResourceData>
         if (location != null && location.getSpacingUnit().equals("degree")) {
             double dx = location.getDx();
             Integer nx = location.getNx();
-            if (dx * nx >= 360) {
+            //if (dx * nx >= 360) { // Test changed for DR 14988 to the following
+            
+            if (! ConformalityUtil.testConformality(location.getGridGeometry(), 
+                    descriptor.getGridGeometry())) {
                 try {
                     GridGeometry2D sourceGeometry = location.getGridGeometry();
                     GeneralGridGeometry targetGeometry = sourceGeometry;
                     if (descriptor != null) {
                         targetGeometry = MapUtil.reprojectGeometry(
                                 sourceGeometry, descriptor.getGridGeometry()
-                                        .getEnvelope(), true);
+                                        .getEnvelope(), true, 2);
                     }
                     reprojectionInterpolation = new GridReprojection(
                             sourceGeometry, targetGeometry);

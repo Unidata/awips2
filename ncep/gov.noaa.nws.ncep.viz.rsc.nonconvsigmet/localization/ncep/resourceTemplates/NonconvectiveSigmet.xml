@@ -14,7 +14,6 @@
              <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
              <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
              <sourceName>NonConvective SIGMETs</sourceName>
-             <legendColor>${legend_color}</legendColor>             
              <color>${color}</color>     
              <icingEnable>${icingEnable}</icingEnable>
              <icingColor>${icingColor}</icingColor>
@@ -53,10 +52,10 @@
              <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
-                 <constraint constraintValue="nonconvsigmet" constraintType="EQUALS" />
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
                <mapping key="reportType">
-                 <constraint constraintValue="nonconvsigmet" constraintType="EQUALS" />
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS" />
                </mapping>
              </metadataMap>
           </resourceData>

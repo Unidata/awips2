@@ -93,6 +93,17 @@ public class FFMPColorUtils {
         this.tableLoad = tableLoad;
         this.colormapparams = null;
 
+        // LocalizationFile[] files = ColorMapLoader.listColorMapFiles();
+        // for (LocalizationFile file : files) {
+        // String fn = file.getName();
+        // if (fn.startsWith("colormaps/ffmp/qpe"))
+        // {
+        // System.out.println(file.getName());
+        // String hour = fn.s
+        // }
+        //
+        // }
+
 //        StyleRule sr = null;// DR 14833 replaced by a instance field
         try {
             sr = StyleManager.getInstance().getStyleRule(
@@ -177,8 +188,8 @@ public class FFMPColorUtils {
 
         double val2 = (Math.round(valueArg * 100.0)) / 100.0;
         Double value = val2;
-        
-        if (value < 0.01 && field != FIELDS.DIFF) {
+
+        if (value < 0.005 && field != FIELDS.DIFF) {
             ret = 0;
         } else if (field == FIELDS.DIFF) {
 

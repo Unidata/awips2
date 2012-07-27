@@ -17,6 +17,13 @@
         
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
+        
+  SOFTWARE HISTORY
+  
+  Date			Ticket#	Engineer	 Description
+  __________________________________________________________________________
+  06/04/2012	14710	Xiaochuan	 Changed DefaultRank to default   
+             
     -->
 <ScanConfigDMDTable>
     <LinkToFrame>true</LinkToFrame>
@@ -27,7 +34,7 @@
     <OverlapOpt>false</OverlapOpt>
     <TrackOpt>true</TrackOpt>
     <ClutterControl>stRank</ClutterControl>
-    <DefaultRank>stRank</DefaultRank>
+    <DefaultRank>default</DefaultRank>
     <RadVar>999</RadVar>
     <AlarmsDisabled>false</AlarmsDisabled>
     <AlarmBellOn>true</AlarmBellOn>

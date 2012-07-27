@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -142,8 +144,15 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
 
     private enum DialogStates {
         HYDRO_VIEW, NEW, STATEMENTS_AVAILABLE, STATEMENTS_NOT_AVAILABLE
-    }
-
+    }    
+    
+    /**
+     * text from the remark text box
+     */
+    private String currentCriteriaText=null;
+    private String currentSourceText=null;
+    private String currentStatementText=null;
+    
     private DialogStates buttonState;
 
     /**
@@ -278,6 +287,19 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         gd.horizontalSpan = 7;
         criteriaTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI);
         criteriaTF.setLayoutData(gd);
+        currentCriteriaText=criteriaTF.getText();
+        ModifyListener listenerC = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (criteriaTF.getText().length()>255){
+        			criteriaTF.setText(currentCriteriaText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentCriteriaText=criteriaTF.getText();
+        	}
+        };
+
+        criteriaTF.addModifyListener(listenerC);
 
         gd = new GridData(SWT.RIGHT, SWT.TOP, true, true);
         Label sourceLbl = new Label(infoGroup, SWT.RIGHT);
@@ -289,6 +311,19 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         gd.horizontalSpan = 7;
         sourceTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI);
         sourceTF.setLayoutData(gd);
+        currentSourceText=sourceTF.getText();
+        ModifyListener listenerS = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (sourceTF.getText().length()>255){
+        			sourceTF.setText(currentSourceText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentSourceText=sourceTF.getText();
+        	}
+        };
+
+        sourceTF.addModifyListener(listenerS);
 
         gd = new GridData(SWT.RIGHT, SWT.TOP, true, true);
         Label statementLbl = new Label(infoGroup, SWT.RIGHT);
@@ -300,6 +335,20 @@ public class LowWaterStatementDlg extends CaveSWTDialog {
         gd.horizontalSpan = 7;
         statementTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI);
         statementTF.setLayoutData(gd);
+        currentStatementText=statementTF.getText();
+        ModifyListener listenerT = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (statementTF.getText().length()>200){
+        			statementTF.setText(currentStatementText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentStatementText=statementTF.getText();
+        	}
+        };
+
+        statementTF.addModifyListener(listenerT);
+
     }
 
     /**

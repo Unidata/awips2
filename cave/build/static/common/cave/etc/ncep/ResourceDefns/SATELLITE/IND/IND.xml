@@ -3,22 +3,20 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>IND</resourceDefnName>
     <resourceCategory>SATELLITE</resourceCategory>
-    <filterLabels>McIdas</filterLabels>
+    <filterLabels>Standard,McIdas</filterLabels>
     <rscImplementation>McidasSatellite</rscImplementation>
-    <subTypeGenerator>${areaName}_${resolution}</subTypeGenerator>
+    <subTypeGenerator>areaName,resolution</subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
-    <frameSpan>30</frameSpan>
+    <frameSpan>60</frameSpan>
     <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
     <dfltFrameCount>10</dfltFrameCount>
     <dfltTimeRange>48</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=mcidas
-! mcidas DB table valid values are
 satelliteName=IND
-! (GOES12, GOES13, .....)
-! This must match the value in the
+legendColor=RGB {200, 200, 200}
 
 </resourceParameters>
 </ResourceDefinition>

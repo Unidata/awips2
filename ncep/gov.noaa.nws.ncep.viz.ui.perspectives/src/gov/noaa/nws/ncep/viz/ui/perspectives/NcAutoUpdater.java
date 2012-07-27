@@ -59,6 +59,7 @@ import com.raytheon.viz.alerts.IAlertObserver;
  *    10/22/10      #307       ghull       Initial Creation based on AutoUpdater
  *    06/07/11      #445       xGuo        Data Manager Performance Improvements
  *                                         process alert message to update data resource
+ *    03/21/12      #606       ghull       resources no longer need to be updated
  *    
  * </pre>
  * 
@@ -118,7 +119,6 @@ public class NcAutoUpdater implements IAlertObserver {
         for (AlertMessage message : alertMessages) {
             Map<String, Object> attribs = new HashMap<String,Object>( message.decodedAlert );
 
-            String pluginName = "";
             for( String attrName : attribs.keySet() ) {
         		Object attribsObj = attribs.get( attrName );
         		if( attribsObj instanceof String && 
@@ -132,18 +132,6 @@ public class NcAutoUpdater implements IAlertObserver {
 //   					"\n     Attribute "+ attrName +" has a space : '"+ (String)attribsObj +"'" );
             		}
             	}
-        		if ( attrName.equals("pluginName")) {
-        			pluginName = attribs.get( attrName ).toString();
-        		}
-            }
-            if ( pluginName.length() > 0) {
-                try {
-        	    	ResourceDefnsMngr rscDefnMngr = ResourceDefnsMngr.getInstance();
-            	    rscDefnMngr.dynamicUpdateDataResource (pluginName, message.dataURI);
-                } catch( VizException el ) {
-        			    handler.handle(Priority.PROBLEM, 
-                                "Error performing NC data resource", el);
-        	    }
             }
             try {
                 // System.out.println("extract took: " + (tZ1 - tZ0));

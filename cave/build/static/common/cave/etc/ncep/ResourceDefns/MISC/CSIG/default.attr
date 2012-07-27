@@ -1,7 +1,5 @@
 ! Attributes for Convective SIGMET
 !
-color=RGB {155, 155, 155}
-! 
 hour0Enable=true
 hour0Color=RGB {255, 0, 0}
 hour0LineWidth=2
