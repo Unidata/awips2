@@ -192,7 +192,7 @@ public class PgenTcaTool extends AbstractPgenDrawingTool {
         	 * convert mouse click to geographic location
         	 */
            	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
 
         	// get current geography type selection from the attr dialog
         	String geog = tcaDlg.getGeogType();

@@ -3,7 +3,7 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>Scale</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
-    <resourceParameters> legend_color= RGB {0, 255, 0} </resourceParameters>
+    <resourceParameters></resourceParameters>
     <filterLabels></filterLabels>
     <rscImplementation>ScaleOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

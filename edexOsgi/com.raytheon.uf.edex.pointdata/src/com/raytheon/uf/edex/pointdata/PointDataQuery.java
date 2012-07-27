@@ -132,22 +132,38 @@ public class PointDataQuery {
 				parameters.add(parameter.getParameterName());
 			}
 		}
+        boolean needsDbQuery = false;
+        for (String key : dao.getKeysRequiredForFileName()) {
+            if (!key.equals("dataTime.refTime")) {
+                needsDbQuery = true;
+                break;
+            }
+        }
+        if (needsDbQuery) {
+            for (Map<String, Object> workingMap : performDbQuery(
+                    Arrays.asList(dao.getKeysRequiredForFileName()), 1)) {
+                PointDataDescription desc = dao
+                        .getPointDataDescription(workingMap);
+                if (desc != null) {
+                    for (ParameterDescription param : desc.parameters) {
+                        parameters.add(param.getParameterName());
+                    }
+                }
+            }
+        } else {
+            PointDataDescription desc = dao.getPointDataDescription(null);
+            if (desc != null) {
+                for (ParameterDescription param : desc.parameters) {
+                    parameters.add(param.getParameterName());
+                }
+            }
+        }
 
-		for (Map<String, Object> workingMap : performDbQuery(
-				Arrays.asList(dao.getKeysRequiredForFileName()), 1)) {
-			PointDataDescription desc = dao.getPointDataDescription(workingMap);
-			if (desc != null) {
-				for (ParameterDescription param : desc.parameters) {
-					parameters.add(param.getParameterName());
-				}
-			}
-		}
+        ResponseMessageCatalog cat = new ResponseMessageCatalog();
+        cat.setValues(parameters.toArray(new String[0]));
 
-		ResponseMessageCatalog cat = new ResponseMessageCatalog();
-		cat.setValues(parameters.toArray(new String[0]));
-
-		return cat;
-	}
+        return cat;
+    }
 
 	private List<Map<String, Object>> performDbQuery(List<String> fields,
 			int limit) throws Exception {

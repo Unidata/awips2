@@ -4,7 +4,7 @@
     <resourceDefnName>AVIATION</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=AVIATION
+GDFILE=aviation
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

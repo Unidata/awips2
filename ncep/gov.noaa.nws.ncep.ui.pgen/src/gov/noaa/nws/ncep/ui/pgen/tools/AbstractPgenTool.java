@@ -131,4 +131,12 @@ import com.raytheon.viz.ui.tools.AbstractModalTool;
     	return delObjFlag;
     	
     }
+
+	public PgenResource getDrawingLayer() {
+		return drawingLayer;
+	}
+
+	public void setDrawingLayer(PgenResource drawingLayer) {
+		this.drawingLayer = drawingLayer;
+	}
 }

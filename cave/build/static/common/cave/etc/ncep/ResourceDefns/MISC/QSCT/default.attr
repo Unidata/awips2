@@ -2,10 +2,8 @@
 !
 reportType=quikscat
 !
-legend_color=RGB {155, 155, 155}
-color=RGB {155, 155, 155}
-colorBar1=@defaultColorBar1.xml
-colorBar2=@defaultColorBar2.xml
+colorBar1=@ColorBars/SCAT/defaultColorBar1.xml
+colorBar2=@ColorBars/SCAT/defaultColorBar2.xml
 ! 
 skipEnable=false
 skipValue=5
@@ -15,8 +13,6 @@ timeStampColor=RGB {255, 255, 255}
 timeStampInterval=30
 timeStampLineWidth=1
 arrowStyle=WIND_BARB
-regArrow=true
-windBarb=true
 arrowWidth=1
 arrowSize=2
 headSize=4

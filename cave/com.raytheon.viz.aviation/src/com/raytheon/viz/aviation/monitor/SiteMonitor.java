@@ -75,7 +75,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
 	 * check if Metar is outdated
 	 * and turn indicator labels gray when Metar is outdated
 	 */
-	private static long latestMetarTime = -1; 
+	//private static long latestMetarTime = -1; 
 	private final int GRAY_COLOR_SEVERITY = 1;
 	private boolean GRAY_LABEL = false;
 
@@ -432,7 +432,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                 	Map<?, ?> mtrdcdMap = (Map<?, ?>) statusMap.get("dcd");
                 	if ( mtrdcdMap != null ) {
                 		Map<?, ?> mtrItimeMap = (Map<?, ?>) mtrdcdMap.get("itime");
-                		latestMetarTime = ((Float) mtrItimeMap.get("value")).longValue() * 1000;
+                		parentSiteComp.setLatestMtrTime(((Float) mtrItimeMap.get("value")).longValue() * 1000);
                 	}
                 }
                 
@@ -452,8 +452,8 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                         /**
                          * DR14717: Metar monitor indicators should turn gray when Metar is outdated
                          */
-                        if ( latestMetarTime > 0 ) {
-                        	if ( ( currentTime > ( latestMetarTime + TafSiteComp.METAR_TIMEOUT_4HR ) )
+                        if ( parentSiteComp.getLatestMtrTime() > 0 ) {
+                        	if ( ( currentTime > ( parentSiteComp.getLatestMtrTime() + TafSiteComp.METAR_TIMEOUT_4HR10MIN ) )
                         			&& ( thisMonitor.equals("MetarMonitor") || thisMonitor.equals("PersistMonitor") ) ) {
                         		/**
                         		 * both Current observation monitoring indicators 
@@ -461,7 +461,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                         		 */
                         		GRAY_LABEL = true;
                         		msg = "METAR outdated";
-                        	} else if ( ( currentTime > ( latestMetarTime + TafSiteComp.METAR_TIMEOUT_2HR ) )  
+                        	} else if ( ( currentTime > ( parentSiteComp.getLatestMtrTime() + TafSiteComp.METAR_TIMEOUT_2HR ) )  
                         			&& thisMonitor.equals("PersistMonitor") ) {
                         		/**
                         		 *  Persistence indicators should turn gray
@@ -471,7 +471,7 @@ public class SiteMonitor implements IRequestCompleteListener<Map<?, ?>> {
                         	}
                         }
                         
-                        if ( ( latestMetarTime < 0 ) && thisMonitor.equals("PersistMonitor") ) {
+                        if ( ( parentSiteComp.getLatestMtrTime() < 0 ) && thisMonitor.equals("PersistMonitor") ) {
                         	parentSiteComp.setPersistMonitorProcessedFirst(true);
                         }
                         

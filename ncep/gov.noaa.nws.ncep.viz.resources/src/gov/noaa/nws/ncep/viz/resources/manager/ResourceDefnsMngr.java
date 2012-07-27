@@ -1,11 +1,9 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
-import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree.NcDataTree;
-import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
+import static java.lang.System.out;
+import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryDefinition;
+import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
 import gov.noaa.nws.ncep.viz.common.SelectableFrameTimeMatcher;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
@@ -15,37 +13,30 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.viz.alerts.IAlertObserver;
-import com.raytheon.viz.alerts.observers.ProductAlertObserver;
-
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 /**
  * 
  * 
@@ -75,14 +66,20 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * 12/08/11                 Shova Gurung Modified dynamicUpdateRadarDataResource() to fix a bug (Local Radar
  * 										 data resource names not showing up correctly after being populated, if database was empty at CAVE startup)
  * 01/09/11      #561       Greg Hull    save the Locator Resource
+ * 01/20/12      #606       Greg Hull    use '@' to reference plotModel files.
+ * 04/23/12      #606       Greg Hull    use '@' to reference conditional filters for plot data
+ * 05/27/12      #606       Greg Hull    get a list of inventoryDefinitions from Edex and save the alias in the ResourceDefn.
+ * 06/05/12      #816       Greg Hull    return RD comparator. Change method to get RDs by
+ *                                       category to return RD instead of type name. 
+ *
  * </pre>
  * 
  * @author ghull
  * @version 1
  */
-public class ResourceDefnsMngr {
+public class ResourceDefnsMngr implements ILocalizationFileObserver {
 	
-	// one instance per user. (Not used)
+	// one instance per user. (Currently only the 'base' used)
 	//
     private static Map<String, ResourceDefnsMngr> instanceMap = 
     	   new HashMap<String, ResourceDefnsMngr>();
@@ -92,6 +89,10 @@ public class ResourceDefnsMngr {
     
 	private HashMap<String,ResourceDefinition> resourceDefnsMap = null;
 		
+	// a list of inventories definitions available on edex.
+	// used to set the inventoryInitialized flag.
+	private HashMap<NcInventoryDefinition,NcInventoryDefinition> invDefnsMap = null; 
+	
 	// a map from either the rscType or the rscImpl (depending on if AttrSetGroups apply)
 	// to a list of available Attribute Set Files returned from Localization.
 	private Map<String,Map<String,AttributeSet>> attrSetMap;
@@ -100,7 +101,17 @@ public class ResourceDefnsMngr {
 	// holds the list of attrSets
 	private Map<String,AttrSetGroup> attrSetGroupsMap;
 	
-	private static Map<String,LocalizationFile> colorBarMap;
+	// for parameters which reference a file under localization.
+	// (ie. ColorBars and PlotModels and the plot model conditional filters)
+	// NOTE that Conditional Filters dir is under the Plot Models so 
+	// this is not strictly necessary.
+	private static final String[] refdParamDirectories = { 
+		NcPathConstants.PLOT_MODELS_DIR,
+		NcPathConstants.CONDITIONAL_FILTERS_DIR,
+		NcPathConstants.COLORBARS_DIR
+	};
+	
+	private static Map<String,LocalizationFile> refdParamFilesMap;
 	
 //  read dynamically based on what is in the resourceDefinitions.xml
 	private static String[] AvailResourceCategories = {
@@ -120,12 +131,24 @@ public class ResourceDefnsMngr {
 		ResourceName.UpperAirFcstRscCategory,
 		ResourceName.UpperAirObsRscCategory
 	};	
-	
+
+	public static final HashMap<String,String> paramInfoForRscDefnParamsMap = new HashMap<String,String>(); 
+	{
+		paramInfoForRscDefnParamsMap.put("frameSpan", "Integer" );
+		paramInfoForRscDefnParamsMap.put("timeMatchMethod", "TimeMatchMethod" );
+		paramInfoForRscDefnParamsMap.put("dfltNumFrames", "Integer");
+		paramInfoForRscDefnParamsMap.put("dfltTimeRange", "Integer" );
+		paramInfoForRscDefnParamsMap.put("timelineGenMethod",  "TimelineGenMethod" );
+		paramInfoForRscDefnParamsMap.put("isForecast", "Boolean" );
+	}
+
 	private static List<String> availResourceCategoriesList = Arrays.asList( AvailResourceCategories );
 
 	private static String ATTR_SET_FILE_EXT =  ".attr";
 
 	private static ResourceDefinition locatorRscDefn = null;
+	
+	private static List<VizException> badRscDefnsList = new ArrayList<VizException>();
 	
 	public static synchronized ResourceDefnsMngr getInstance() throws VizException {
 		return getInstance("base");
@@ -137,24 +160,38 @@ public class ResourceDefnsMngr {
         if( instance == null ) {
         	try {
         		instance = new ResourceDefnsMngr(user);        		
-        		instance.readResourceDefns();
+        		instance.readResourceDefns(); 
         	} catch( VizException ve ) {
         		throw ve;
         	}
-        	
             instanceMap.put(user, instance);
         }
-
+        //instance.initializeInventory();
+        
         return instance;
 	}
 	
 	private ResourceDefnsMngr( String user ) {
+		
+		// check for an environment variable to override the inventory strategies.
+		//
+//		String inventoryLoadStrategy = System.getenv().get("INVENTORY_STRATEGY");
+//		out.println("INVENTORY_STRATEGY is " + (inventoryLoadStrategy != null ? inventoryLoadStrategy : " Not set ") );
+		
 		pathMngr = NcPathManager.getInstance();		        
 //        searchContexts = pathMngr.getLocalSearchHierarchy( LocalizationType.CAVE_STATIC );
 	}
 	
+	public List<VizException> getBadResourceDefnsErrors() {
+		return badRscDefnsList;
+	}
+	
 	public ArrayList<String> getAvailResourceCategories() {
 		return (ArrayList<String>) Arrays.asList( AvailResourceCategories );
+	}
+	
+	public List<ResourceDefinition> getAllResourceDefinitions() {
+		return new ArrayList<ResourceDefinition>( resourceDefnsMap.values() );
 	}
 	
 	//
@@ -163,10 +200,17 @@ public class ResourceDefnsMngr {
 			return;
 		}
 
+		// This would read the inventoryDefns from localizations (ie what edex uses)
+		// to initialize but instead we will query edex to see what's there and 
+		// only create inventories that don't exist.	    
+//	    checkAndSaveNcInventories();
+
+		invDefnsMap = getInventoryDefinitions( true );
+		
 		// this was used to maintain the order in the resourceDefnsTable but now that 
 		// these are separate files, I don't know that this will work. Need to 
 		// find another way to get these in the right order for the GUI.
-		int defnIndx = 0;
+		long t0 = System.currentTimeMillis();
 
         Map<String,LocalizationFile> lFiles = pathMngr.listFiles( //searchContexts,
         	     NcPathConstants.RSC_DEFNS_DIR, new String[]{  "xml" }, true, true );
@@ -176,25 +220,117 @@ public class ResourceDefnsMngr {
 
 		for( LocalizationFile lFile : lFiles.values() ) {
 			
-			if( readResourceDefn( lFile, defnIndx ) ) {
-				defnIndx++;
+			try {
+				readResourceDefn( lFile );
+			}
+			catch ( VizException e ) {
+				out.println("Error creating ResourceDefn from file: "+lFile.getName() );
+				out.println(" --->"+e.getMessage() );
+				badRscDefnsList.add( e );
 			}
 		}
-
+		
+		long t1 = System.currentTimeMillis();
+		out.println("Time to read "+lFiles.values().size() +" Resource Definitions: " + (t1-t0) + " ms");
+		
 		// Note: Temporary solution. Would prefer to fold this into the referencing
 		// attr set file when changed to xml format.
 		// 
-		long t0 = System.currentTimeMillis();
-	    readColorbars();
-	    long t1 = System.currentTimeMillis();
-	    System.out.println("Time to read colorbars: " + (t1-t0) + " ms");
+		t0 = System.currentTimeMillis();
+	    
+		readRefParamFiles();
+	    
+	    t1 = System.currentTimeMillis();
+	    out.println("Time to read colorbars: " + (t1-t0) + " ms");
 	    
 		// read in the attrSetGroupsMap (this needs the resourceDefnsMap
 	    // to be set.)
 		//
 	    readAttrSets( );
 	    long t2 = System.currentTimeMillis();
-	    System.out.println("Time to read Attr Sets: " + (t2-t1) + " ms");
+	    
+	    out.println("Time to read Attr Sets: " + (t2-t1) + " ms");
+		   
+	    // loop thru the ResourceDefns and enable those that have been initialized and
+	    // find any inventories that don't exist and create them
+	    //
+	    List<NcInventoryDefinition> createInvDefns = new ArrayList<NcInventoryDefinition>();
+	    List<NcInventoryDefinition>  errList = new ArrayList<NcInventoryDefinition>();
+	    
+	    for( ResourceDefinition rd : resourceDefnsMap.values() ) {
+	    	
+	    	NcInventoryDefinition invDefn = rd.createNcInventoryDefinition();
+	    	
+			if( invDefnsMap.containsKey( invDefn ) ) {
+				rd.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
+			}
+
+	    	if( rd.usesInventory() && !rd.isInventoryInitialized() ) {
+	    		createInvDefns.add( rd.createNcInventoryDefinition() );
+	    	}
+	    }
+
+	    if( !createInvDefns.isEmpty() ) {
+	    	InventoryLoaderJob invLoader = new InventoryLoaderJob( createInvDefns, false );
+
+	    	invLoader.schedule();
+
+	    	// TODO : update the progress monitor
+	    	while( invLoader.getNumberOfInventoriesLeftToLoad() > 0 ) {
+	    		//			out.println("Inventories left to load = "+invLoader.getNumberOfInventoriesLeftToLoad() );
+	    		try {
+	    			Thread.sleep(400);
+	    		} catch (InterruptedException e) {				
+	    		}
+	    	}
+
+	    	errList = Arrays.asList( invLoader.getUninitializedInventoryDefns() );	    	
+	    }
+
+	    // for the rscDefns that just had an inventory created for them
+		// enable or disable based on whether there was an error.
+		//
+	    for( ResourceDefinition rd : resourceDefnsMap.values() ) {
+	    	
+	    	if( rd.usesInventory() ) {
+	    		
+	    		NcInventoryDefinition invDefn = rd.createNcInventoryDefinition();
+
+	    		// if created successfully set the inventoryName/Alias
+	    		if( createInvDefns.contains( invDefn ) &&
+	    		   !errList.contains( invDefn ) ) {	    			
+	    		
+	    			rd.setInventoryAlias( invDefn.getInventoryName() );
+	    		}
+	    		
+	    		// if there is an inventory and if it is enabled 
+	    		if( rd.getInventoryEnabled() &&
+	    			!errList.contains( invDefn ) ) {
+	    			
+	    			rd.enableInventoryUse(); // remove the ProductAlertObserver
+	    		}
+	    		else {
+	    			rd.disableInventoryUse(); // add the ProductAlertObserver and query types/subTypes
+	    		}
+	    	}
+	    }
+	    
+//		if( errList.length == 1 ) {
+//			throw new VizException("There was an error Initializing an Inventory for "+
+//					errList[0].getInventoryName() );
+//		}
+//		else if( errList.length > 0 ) {
+//			StringBuffer errStr = new StringBuffer( "There were errors Initializing "+
+//					errList.length + " Inventories :\n");
+//			for( int i=0 ; i<errList.length ; i++ ) {
+//				errStr.append( errList[i].getInventoryName()+"\n");
+//				if( i > 20 ) {
+//					errStr.append("... and "+(errList.length-20)+" others...");
+//					break;
+//				}
+//			}
+//			throw new VizException( errStr.toString() );
+//		}
 	    
 	    // validate that attrSetGroups in the ResourceDefinitions are actually present
 	    //
@@ -204,7 +340,7 @@ public class ResourceDefnsMngr {
 //	    			if( !attrSetGroupsMap.containsKey( 
 //	    					rd.getResourceDefnName()+File.separator+ asgName ) ) {
 //	    				rd.removeAttrSetGroup( asgName );
-//	    				System.out.println("attrSetGroup "+ asgName+" for resourceDefn "+
+//	    				out.println("attrSetGroup "+ asgName+" for resourceDefn "+
 //	    					rd.getResourceDefnName()+" doesn't exist???" );
 //	    			}
 //	    		}
@@ -216,7 +352,7 @@ public class ResourceDefnsMngr {
 	    //generateDynamicResources( );
 	}
 
-	private Boolean readResourceDefn( LocalizationFile lFile, int defnIndx ) {
+	private void readResourceDefn( LocalizationFile lFile ) throws VizException {
 		List<String> availCategories = Arrays.asList( AvailResourceCategories );
 
 		File rscDefnFile = lFile.getFile();
@@ -227,84 +363,105 @@ public class ResourceDefnsMngr {
 					rscDefnFile.getAbsolutePath() );
 
 			if( !(xmlObj instanceof ResourceDefinition) ) {
-				System.out.println("sanity check: "+rscDefnFile.getAbsolutePath()+
-						" is not a ResourceDefinition xml file");
-				return false;
+//				out.println("sanity check: "+rscDefnFile.getAbsolutePath()+
+//						" is not a ResourceDefinition xml file");
+				throw new VizException("sanity check: "+rscDefnFile.getAbsolutePath()+
+					" is not a ResourceDefinition xml file");		
 			}
 
 			// copy the resourceDefn to the resourceDefnsMap and then
 			//  verify the implementation, and add the resource Definitions to the map.
 			//
 			ResourceDefinition rscDefn = (ResourceDefinition)xmlObj;
-			
-			
-			// TODO : Change this to set the LocalizationFile or the context
-		    rscDefn.setLocalizationFile( lFile );
-		    
+
 			// TODO : If the definitions are modified and written out, this will drop any invalid resourceDefns. 
 	    	// Should we save these write them out anyway? Make them disabled?
 
 	    	// Validate the category
 	    	if( !availCategories.contains( rscDefn.getResourceCategory() ) ) {
-	    		System.out.println( "Error configuring resource: " +
-	    				rscDefn.getResourceDefnName()+" : Invalid Resource Category." ); 
-	    		return false;
+//	    		out.println( "Error configuring resource: " +
+//	    				rscDefn.getResourceDefnName()+" : Invalid Resource Category." ); 
+	    		throw new VizException( "resource: " +
+	    				rscDefn.getResourceDefnName()+" has an unknown Category." ); 
 	    	}
 	    
-	    	// Validate that the resource implementation is present.
+	    	// Validate that the resource implementation is present and that the   
+	    	// parameters are defined
 	    	//  
 	    	String rscImpl = rscDefn.getRscImplementation();
 	    	
 	    	if( !ResourceExtPointMngr.getInstance().getAvailResources().contains( rscImpl ) ) {
-	    		System.out.println( "Error configuring resource: " +
-	    				rscDefn.getResourceDefnName() ); 
-	    		System.out.println( "The Resource implementation: "+ rscImpl +" is not " +
-	    			"specified in a NC-Resource extention point" );
+	    		throw new VizException("The Resource implementation: "+ rscImpl +" for "+
+	    				rscDefn.getResourceDefnName()+" is not " +
+    				"specified in a NC-Resource extention point" );
 	    	}
 	    	else {
-	    		rscDefn.setDefinitionIndex( defnIndx++ );
-	    		
+	    		rscDefn.validateResourceParameters();
+	    			    		
     			resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );
     			
     			if( rscImpl.equals( "Locator" ) ) {
     				locatorRscDefn = rscDefn;
     			}
+    			
+    			// TODO : Change this to set the LocalizationFile or the context
+    		    rscDefn.setLocalizationFile( lFile );
+    		    
+    			if( rscDefn.usesInventory() ) {
+    				
+    				NcInventoryDefinition invDefn = 
+    							rscDefn.createNcInventoryDefinition();
+    				
+    				// throws exception on error creating a defn
+    				if( invDefnsMap.containsKey( invDefn ) ) {
+    					
+    					rscDefn.setInventoryAlias( 
+							invDefnsMap.get( invDefn ).getInventoryName() );
+    				}
+				}
 	    	}
-	    	
-
-		} catch (SerializationException e) {
-			System.out.println("Error parsing "+rscDefnFile.getAbsolutePath() +" - " + e.getMessage() );
-			return false;
 		} 
-		
-		return true;
+		catch (SerializationException e) {
+			throw new VizException("Error parsing "+rscDefnFile.getAbsolutePath() +" - " + e.getMessage() );
+		} 		
 	}
-	
-	private void readColorbars( ) {
-		colorBarMap = new HashMap<String,LocalizationFile>();
+
+	private void readRefParamFiles( ) {
+		refdParamFilesMap = new HashMap<String,LocalizationFile>();
 
 		// This will find all .xml (must be AttrSetGroup xml files) for all
 		// of the Resource implementations.
 		//
-        Map<String,LocalizationFile> cbarLclFiles = pathMngr.listFiles(//searchContexts,
-        		NcPathConstants.COLORBARS_DIR, new String[]{ ".xml" }, 
-            	          true, true );
+		
+		for( String refDir : refdParamDirectories ) {
+			
+			Map<String,LocalizationFile> lclFiles = pathMngr.listFiles(
+					refDir, new String[]{ ".xml" }, true, false );
 
-        if( cbarLclFiles.isEmpty() ) {
-        	System.out.println("Error finding ColorBars Files?");
-        	return;
-        }
-      
-		// 
-		for( LocalizationFile lclFile : cbarLclFiles.values() ) {
+			if( lclFiles.isEmpty() ) {
+				out.println("Error finding Files in "+refDir+" for parameter references?");
+				continue;
+			}
 
-			// get the resource implementation from the path.
-			String cbarName = lclFile.getName();
-			cbarName = cbarName.substring( 
-					NcPathConstants.COLORBARS_DIR.length()+1, cbarName.length()-".xml".length() );
+			// 
+			for( LocalizationFile lclFile : lclFiles.values() ) {
 
-			// we chould unmarsh here to validate? 
-			colorBarMap.put( cbarName, lclFile );
+				// get the resource implementation from the path.
+//				String lName = lclFile.getName();
+//				lName = lName.substring( NcPathConstants.NCEP_ROOT.length() );
+				//			cbarName = cbarName.substring( 0, cbarName.length()-".xml".length() );
+
+				lclFile.addFileUpdatedObserver( this );
+
+				if( !lclFile.isDirectory() ) {
+					// 	TODO : should we unmarsh here to validate?
+					// 
+					refdParamFilesMap.put( lclFile.getName(), lclFile );				
+				}
+//				else {
+//					out.println("Adding observer to LFile "+lclFile.getContext()+":"+lclFile.getName() );
+//				}
+			}
 		}
 	}
 	
@@ -322,7 +479,7 @@ public class ResourceDefnsMngr {
 								new String[]{ ".xml" },	true, true );
 
         if( attrSetGrpLclFiles.isEmpty() ) {
-        	System.out.println("Error finding AttrSetGroup Files?");
+        	out.println("Error finding AttrSetGroup Files?");
         	return;
         }
       
@@ -336,7 +493,7 @@ public class ResourceDefnsMngr {
 			File asgFile = lclFile.getFile();
 			
 			if( !asgFile.exists() ) {
-				System.out.println( "Can't open AttrSetGroup file: "+asgFile.getAbsolutePath() );
+				out.println( "Can't open AttrSetGroup file: "+asgFile.getAbsolutePath() );
 				continue;
 			}
 
@@ -346,7 +503,7 @@ public class ResourceDefnsMngr {
 						asgFile.getAbsolutePath( ) );
 
 				if( !(asgObj instanceof AttrSetGroup) ) { // AttrSetGroupList
-					System.out.println( asgFile.getAbsolutePath()+
+					out.println( asgFile.getAbsolutePath()+
 							" file is expected to be an attrSetGroup file." );
 					continue;
 				}
@@ -369,7 +526,7 @@ public class ResourceDefnsMngr {
 			else {
 				ResourceDefinition asgRscDefn = getResourceDefinition( asg.getResource() );
 				if( asgRscDefn == null ) {
-					System.out.println("AttrSetGroup file "+
+					out.println("AttrSetGroup file "+
 							asgFile.getName() +" has a unknown resource:"+
 							asg.getResource() );
 					continue;
@@ -381,10 +538,10 @@ public class ResourceDefnsMngr {
 				//
 				if( !ResourceExtPointMngr.getInstance().
 						getAvailResources().contains( rscImpl ) ) {
-					System.out.println( "Can't  find Resource Implementation (class) for " +
+					out.println( "Can't  find Resource Implementation (class) for " +
 							"attrSetGroup : " + rscImpl );
 
-					System.out.println( "The Resource implementation should be specified in " +
+					out.println( "The Resource implementation should be specified in " +
 					                    "a NC-Resource extention point" );
 					// don't fail; go ahead and put the attrset in the map 
 				}
@@ -397,7 +554,7 @@ public class ResourceDefnsMngr {
 				            File.separator + asg.getResource()+"-"+asg.getAttrSetGroupName()+".xml";
 				
 				if( !lFileName.equals( lclFile.getName() ) ) 	{
-					System.out.println("Warning: Localization file for AttrSetGroup, "+ lclFile.getName() +
+					out.println("Warning: Localization file for AttrSetGroup, "+ lclFile.getName() +
 							" doesn't follow the naming convention.("+lFileName+")" );
 				}
 				            
@@ -419,7 +576,7 @@ public class ResourceDefnsMngr {
 							new String[]{ ATTR_SET_FILE_EXT }, true, true );
 
 		if( attrSetLclFiles.isEmpty() ) {
-			System.out.println("Error finding AttrSets (for AttrSetGroups) Files?");
+			out.println("Error finding AttrSets (for AttrSetGroups) Files?");
 			return;
 		}
 
@@ -449,7 +606,7 @@ public class ResourceDefnsMngr {
 				attrSetMap.get( rscImpl ).put( aSet.getName(), aSet );
 			} 
 			catch ( VizException e ) {
-				System.out.println("Error Creating AttributeSet "+ asLclFile.getName() + 
+				out.println("Error Creating AttributeSet "+ asLclFile.getName() + 
 						": "+ e.getMessage() ); 						
 			}
 		}
@@ -461,14 +618,14 @@ public class ResourceDefnsMngr {
 				new String[]{ ATTR_SET_FILE_EXT }, true, true );
 
 		if( attrSetLclFiles.isEmpty() ) {
-			System.out.println("Error finding AttrSet Files?");
+			out.println("Error finding AttrSet Files?");
 			return;
 		}
 
 		for( LocalizationFile asLclFile : attrSetLclFiles.values() ) {
 
 //			if( asLclFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
-//				System.out.println(" USER");
+//				out.println(" USER");
 //			}
 			// Some resources may have more organizational directories than others. The resource
 			// type is the lowest directory.
@@ -492,7 +649,7 @@ public class ResourceDefnsMngr {
 				attrSetMap.get( rscType ).put( aSet.getName(), aSet );
 			} 
 			catch ( VizException e ) {
-				System.out.println("Error Creating AttributeSet "+ asLclFile.getName()+ 
+				out.println("Error Creating AttributeSet "+ asLclFile.getName()+ 
 						": "+ e.getMessage() ); 						
 			}			
 		}
@@ -516,7 +673,7 @@ public class ResourceDefnsMngr {
 				if( !attrSetMap.containsKey(rscImpl) ||
 					!attrSetMap.get( rscImpl ).containsKey( asName ) ) {
 					asg.removeAttrSet(asName);
-					System.out.println("attrSet "+asName+" in attrSetGroup "+
+					out.println("attrSet "+asName+" in attrSetGroup "+
 							asg.getResource()+File.separator+asg.getAttrSetGroupName()+" doesn't exist.");
 				}
 			}
@@ -524,422 +681,275 @@ public class ResourceDefnsMngr {
 	}
 	
 	
-	// regenerate any dynamic types or subTypes.	
-	//
-	public void generateDynamicResources() {
-		for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-			if( !rscDefn.getSubTypeGenerator().isEmpty() ||
-				!rscDefn.getRscTypeGenerator().isEmpty() ) {
-				
-				generateDynamicResources( rscDefn );
+	private HashMap<NcInventoryDefinition,NcInventoryDefinition> 
+					getInventoryDefinitions( boolean reload ) throws VizException {
+		
+		if( invDefnsMap == null || reload ) {
+			
+			// query the list of inventories that exist on edex and set the
+			// inventoryInitialized flag in the ResourceDefns 
+			NcInventoryRequestMsg dirRequest = NcInventoryRequestMsg.makeDirectoryRequest();
+
+			Object rslts = ThriftClient.sendRequest( dirRequest );
+
+			if( rslts instanceof String ) {
+				throw new VizException( rslts.toString() );
+			}
+			else if( !(rslts instanceof ArrayList<?>) ) {
+				out.println("Inventory Directory Directory Error: expecting NcInventoryDefinition[] return." );
+				throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
+			}
+			else if( ((ArrayList<?>)rslts).isEmpty() ) {
+				out.println("Inventory Directory Request Error: No Inventories initialized.???" );
+				//			throw new VizException( "Inventory Directory Request Error: No Inventories initialized." );
+			}
+			if( !(((ArrayList<?>)rslts).get(0) instanceof NcInventoryDefinition) ) {
+				throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
+			}
+
+			// used to set the inventory initialized flag
+			ArrayList<NcInventoryDefinition> invDefnsList = (ArrayList<NcInventoryDefinition>)rslts;
+			
+			invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
+			
+
+			for( NcInventoryDefinition invDefn : invDefnsList ) {
+				invDefnsMap.put( invDefn, invDefn );
 			}
 		}
 		
-		// add Product Observers for each of the plugins that generate resource types or sub-types
+		return invDefnsMap;
+	}
+	
+	public boolean isResourceNameValid( ResourceName rscName ) {
+		if( rscName == null ||
+			rscName.getRscCategory() == null || 
+			rscName.getRscCategory().isEmpty() ||
+			rscName.getRscType() == null || 
+			rscName.getRscType().isEmpty() ||
+			rscName.getRscAttrSetName() == null ||
+			rscName.getRscAttrSetName().isEmpty() ) {
+			
+			return false;
+		}
+		
+		ResourceDefinition rd = getResourceDefinition( rscName );
+
+		if( rd == null ) {
+			return false;
+		}
+		
+		// if there is a generating type then check for a ':'
 		//
-//		ProductAlertObserver.addObserver( "mcidas", 
-//				new IAlertObserver() {
-//					@Override
-//					public void alertArrived( Collection<AlertMessage> alertMessages) {						
+		if( !rd.getRscTypeGenerator().isEmpty() ) {
+			if( rscName.getRscType().indexOf(
+					ResourceName.generatedTypeDelimiter ) == -1 ) {
+				out.println("ResourceName "+rscName.toString() + " is expecting a "+
+						"generated type from the "+ rd.getRscTypeGenerator() );
+				return false;
+			}
+		}
+		// if there is no group/subType, make sure there isn't supposed to be one.
+		if( rscName.getRscGroup() == null || 
+			rscName.getRscGroup().isEmpty() ) {
+
+			if( rd.applyAttrSetGroups() || !rd.getSubTypeGenerator().isEmpty() ) {
+				out.println("ResourceName "+rscName.toString() + " is expecting a "+
+				"generated sub-type from "+ rd.getSubTypeGenerator() );
+				return false;				
+			}				
+		}
+		else { // and if there is one 
+			
+		}
+
+		return true;
+	}
+
+	// read all of the NcInventoryDefinitions from COMMON_STATIC and
+	// If a resourceDefn doesn't have a matching Inventory then save 
+	// one for edex to use on a restart.
+	//    NOTE THIS WON"T WORK SINCE EDEX CAN"T READ FROM USER 
+	// WE COULD USE THIS AS A WAY TO KNOW WHETHER AN INVENTORY EXISTS BUT
+	// INSTEAD WE WILL QUERY THE ACTUAL INVENTORY DENFS FROM EDEX
+//	private void checkAndSaveNcInventories() throws VizException {        
+//        LocalizationContext lCntxts[] = new LocalizationContext[3]; 
+//        lCntxts[0] = pathMngr.getContext( 
+//        		LocalizationType.COMMON_STATIC, LocalizationLevel.BASE );
+////      lCntxts[1] = pathMngr.getContext( 
+////        		LocalizationType.COMMON_STATIC, LocalizationLevel.DESK );
+//        lCntxts[1] = pathMngr.getContext( 
+//        		LocalizationType.COMMON_STATIC, LocalizationLevel.SITE );
+//        lCntxts[2] = pathMngr.getContext( 
+//        		LocalizationType.COMMON_STATIC, LocalizationLevel.USER );
+//        
+//        Map<String, LocalizationFile> invDefnFilesMap =
+//        	NcPathManager.getInstance().listFiles( 
+//        			lCntxts, NcPathConstants.NCINVENTORY_DEFNS_DIR, 
+//        				new String[]{".xml"}, true, true );
+//        
+//        ArrayList<NcInventoryDefinition> invDefnsArray = 
+//        					new ArrayList<NcInventoryDefinition>();
+//        
+//        for( LocalizationFile lFile : invDefnFilesMap.values() ) {
+//        	out.println("invDefn  file is :"+ lFile.getName() );
+//        	File invDefnFile = lFile.getFile();
+//    		
+//    		Object xmlObj;
+//    		try {
+//    			xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
+//    								invDefnFile.getAbsolutePath() );
+//    			if( !(xmlObj instanceof NcInventoryDefinition) ) {    				
+//    				throw new VizException("NcInventoryDefinition .xml file is not an NcInventoryDefinition object???");
+//    			}
+//    			
+//    			invDefnsArray.add( (NcInventoryDefinition)xmlObj );    			
+//    		}
+//    		catch( Exception ex ) {
+//    			System.out.println( ex.getMessage() );
+//    		}
+//        }
+//
+//        for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
+//        	if( !rscDefn.usesInventory() ) {
+//        		continue;
+//        	}
+//        	
+//        	try {
+//        		NcInventoryDefinition invDefn = rscDefn.createNcInventoryDefinition(); 
+//
+//        		if( !invDefnsArray.contains( invDefn ) ) {
+//        		
+//        			String invDefnFileName = NcPathConstants.NCINVENTORY_DEFNS_DIR+
+//        			 	 	 		File.separator + invDefn.getInventoryName()+".xml";
+//        			LocalizationFile lFile = 
+//        				NcPathManager.getInstance().getLocalizationFile( 
+//        						lCntxts[2], invDefnFileName );
+//        			               			
+//        			SerializationUtil.jaxbMarshalToXmlFile( invDefn, 
+//        									lFile.getFile().getAbsolutePath() );
+//        			lFile.save();
+//        			out.println("Localizing NcInventory, "+ invDefn.getInventoryName()+
+//        					" to LFile:"+lFile.getName() );
+//        		}
+//        		
+//        	} catch( VizException vizex ) {
+//        		out.println( vizex.getMessage() );
+//        	} catch (SerializationException e) {
+//				throw new VizException("Error Serializing NcInventory:"+e.getMessage() );
+//			} catch (LocalizationOpFailedException e) {
+//				throw new VizException("Error Localizing file:"+e.getMessage() );
+//			} 
+//        }        
+//	}
+	
+	// similar to validateResourceParameters except we are also checking for the attributes 
+//	public void verifyParametersExist( ResourceName rscName ) throws VizException {
+//		ResourceDefinition rscDefn = getResourceDefinition( rscName.getRscType() );
+//
+//		if( rscDefn == null ) {
+//			throw new VizException("Unable to find resource definition for "+rscName.toString() );
+//		}
+//		
+//		rscDefn.validateResourceParameters();
+//		
+//		HashMap<String, ResourceParamInfo> rscImplParams = 
+//			ResourceExtPointMngr.getInstance().getResourceParameters( rscDefn.getRscImplementation() );
+//
+//		// the default values specified in the extention point
+//		HashMap<String,String> dfltParamValues = rscDefn.getDefaultParameterValues();
+//
+//		// the parameters defined by the resource definition
+//		HashMap<String,String> paramValues = getAllResourceParameters( rscName );
+//
+//		// a list of all the generated parameters
+//		List<String> genParamsList = new ArrayList<String>( Arrays.asList( rscDefn.getSubTypeGenParamsList() ) ); 
+//		if( !rscDefn.getRscTypeGenerator().isEmpty() ) {
+//			genParamsList.add( rscDefn.getRscTypeGenerator() );
+//		}
+//		
+//		// check that all the parameters defined for the implmentation either have a 
+//		// value given in the rsc params, will be generated, or have a default value 
+//		// 
+//		for( ResourceParamInfo implPrmInfo : rscImplParams.values() ) {
+//			String implPrm = implPrmInfo.getParamName();
+//			String prmConstraintName = implPrmInfo.getConstraintName();// same as paramName except for GDFILE and 1 or 2 others. 
+//
+//			if( implPrmInfo.getParamType() == ResourceParamType.EDITABLE_ATTRIBUTE ||
+//				implPrmInfo.getParamType() == ResourceParamType.NON_EDITABLE_ATTRIBUTE ) {
+//				
+//				// if the needed param is not set in the resource defn or is set to empty 
+//				String paramValue = paramValues.get( implPrm );
+//
+//				if( paramValue == null || paramValue.isEmpty() ) {
+//
+//					paramValue = dfltParamValues.get( implPrm );
+//
+//					// if there is no default value specified by the implementation
+//					//
+//					if( paramValue == null || paramValue.isEmpty() ) {
+//						throw new VizException( rscDefn.getResourceDefnName()+ 
+//								" is missing a value for the attribute "+implPrm+"." );
 //					}
-//		});
-		
-	}
-
-	// for resources that either have a type generator (some GRIDs and Ensembles) or a subType 
-	// generator (Satellite and Radars) 
- 	//
-	public void generateDynamicResources( ResourceDefinition rscDefn) {
-	    
-		// PGEN doesn't currently query the database so treat it differently
-		if( !rscDefn.isPgenResource() ) {
-			// create request constraints for the query
-			HashMap<String, RequestConstraint> queryTerms = new HashMap<String, RequestConstraint>();
-			String genParam = ( rscDefn.getSubTypeGenerator().isEmpty() ? 
-					            rscDefn.getRscTypeGenerator() : rscDefn.getSubTypeGenerator() );
-			
-			try { // get the pluginName from the rscTypeParameters				
-				HashMap<String,String> paramsMap = rscDefn.getResourceParameters();//readParamsFile( prmFile );
+//					else {
+//						out.println("Setting attribute "+implPrm+" to default value "+paramValue );
+//					}
+//				}
+//			}
+//			
+//			// if this is not a generated request constraint, then check the inventory to make
+//			// sure that this value is in the database
+//			//			
+//			else if( implPrmInfo.getParamType() == ResourceParamType.REQUEST_CONSTRAINT ) {
+//				// if there is not a value for this parameter
+//				// 
+//				if( !paramValues.containsKey( implPrm ) ) {
+//					throw new VizException( 
+//							"The parameter "+implPrm+" is not available for resource "+ rscDefn.getResourceDefnName()+"." );
+//				}
+//				
+//				// if this parameter is in the inventory then see if we need to 
+//				//     see if the value (given in the selected attrSet) is in the inventory.
+//				//
+//				if( rscDefn.getInventoryParameterNames().contains( prmConstraintName ) ) {
+//					
+//					// if this is not a generated parameter 
+//					// (assume that since it was generated then it must be in the inventory,
+//					//  currently this is true but may not be if this method is ever
+//					//  called from other than updateSelectedResource.)
+//					// 
+//					if( !genParamsList.contains( prmConstraintName ) ) {
+//
+//						ArrayList<String> qRslts = rscDefn.queryInventoryParameter( rscName, prmConstraintName );
+//
+//						if( qRslts.isEmpty() ) {
+//							throw new VizException( 
+//							   "The parameter value "+implPrm+"="+paramValues.get(implPrm)+
+//							   " is not available for resource "+ rscDefn.getResourceDefnName()+"." );
+//						}	
+//
+//						out.println("Inventory has "+ qRslts.size() +" values");
+//					}
+//				}
+//			}
+//		}
+//		
+//		// check that all of the paramValues are specified for the rsc implementation
+//		// 
+//		for( String prm : paramValues.keySet() ) {
+//			if( !prm.equals("pluginName") &&
+//				!paramInfoForRscDefnParamsMap.containsKey( prm ) &&
+//				!rscImplParams.containsKey( prm ) ) {
+//
+//				//					out.println("Warning: parameter "+prm+" for "+getResourceDefnName()+
+//				//						" is not recognized for the resource implementation "+getRscImplementation() );
+//
+//				throw new VizException( rscDefn.getResourceDefnName()+" has a parameter, "+prm+
+//						", that is not recognized by its implementation: "+ rscDefn.getRscImplementation() );
+//			}
+//		}
+//	}
 	
-				if( !paramsMap.containsKey("pluginName") ) {
-					System.out.println("Error Requesting "+genParam+" for "+
-							rscDefn.getResourceDefnName()+" - The pluginName "+
-							    "must be given as a resource parameter." );
-				}
-				else {
-					rscDefn.getSubTypesMap().clear();
-					
-					// for types (GRIDS/Radar) create a CatalogQuery cause its faster.
-					//
-					if( !rscDefn.getRscTypeGenerator().isEmpty() ) {
-						
-						queryTerms.put( "pluginName", new RequestConstraint( paramsMap.get("pluginName" ) ) );
-	
-						if( rscDefn.getResourceCategory().equals( ResourceName.GridRscCategory ) || 
-							rscDefn.getResourceCategory().equals( ResourceName.EnsembleRscCategory ) ) { 
-
-							// the parameter name is 'GDFILE' but the DB table is 'modelName'
-							queryTerms.put( "modelName", new RequestConstraint( paramsMap.get("GDFILE" ) ) );
-						}
-						else if( rscDefn.getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
-						}
-						
-						String dynParamValues[] = CatalogQuery.performQuery( genParam, queryTerms );
-
-						ArrayList<String> genTypesList = new ArrayList<String>();
-
-						// 
-						for( String prmVal : dynParamValues ) {							
-							if( rscDefn.getResourceCategory().equals( ResourceName.GridRscCategory ) ) {
-								String eventName = prmVal;
-								String genType = rscDefn.getResourceDefnName()+":"+
-								                     eventName;
-								if( !genTypesList.contains( genType ) ) {
-									genTypesList.add( genType );
-								}												
-							}
-							// Will the ensemble members be in the GRID or Ensemble category?
-							else if( rscDefn.getResourceCategory().equals( ResourceName.EnsembleRscCategory ) ) {
-
-								// Ensemble member dynamic types are not implemented yet.
-							}
-							else if( rscDefn.getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
-								
-								// TODO : NMAP2 gives the state that the radar is in but this data is not in
-								// the DB so add code to look it up.
-								String genType = rscDefn.getResourceDefnName()+":"+ 
-								     prmVal.toUpperCase();
-								if( !genTypesList.contains( genType ) ) {
-									genTypesList.add( genType );
-								}												
-							}
-						}
-						
-						rscDefn.setGeneratedTypesList( genTypesList );						
-					}
-					else { // for subTypes (for Satellite) we may have 2 parameters so we can't use a CatalogQuery...	
-						rscDefn.getGeneratedTypesList().clear();
-						
-						// TODO : This works because it so happens that all the parameters for resources that 
-						// generate subTypes are request parameters. (ie. not something like METAR's spiFile which
-						// is not part of the query.)
-						// TODO : Also the names of the parameters need to match the names of the DB tbl. 
-						//    It would be better to somehow specify the query constraints.						
-						for( String prm : paramsMap.keySet() ) {
-							queryTerms.put( prm, new RequestConstraint( paramsMap.get(prm) ) );
-						}
-	
-						LayerProperty prop = new LayerProperty();
-						prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-						prop.setEntryQueryParameters(queryTerms, false);
-						prop.setNumberOfImages(15000); 
-						String script = null;
-						script = ScriptCreator.createScript(prop);
-	
-						if (script == null)
-							return;
-	
-						Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
-	
-						HashMap<String,ArrayList<String>> subTypesMap = new HashMap<String,ArrayList<String>>();
-						
-						for (Object pdo : pdoList) {
-							String subType=null;
-							String attrSetKey=null;
-	
-							if( rscDefn.getResourceCategory().equals( ResourceName.SatelliteRscCategory ) ) {
-								if( rscDefn.getRscImplementation().equals("GiniSatellite") ) {
-									SatelliteRecord satRec = (SatelliteRecord) pdo;
-									subType = satRec.getSectorID();
-									attrSetKey = satRec.getPhysicalElement();
-								}
-								else if( rscDefn.getRscImplementation().equals("McidasSatellite") ) {
-									McidasRecord satRec = (McidasRecord) pdo;
-									subType = satRec.getAreaName() + "_" + 
-									satRec.getResolution().toString() + "km";
-									attrSetKey = satRec.getImageType();
-								}
-							}
-							else if( rscDefn.getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
-								// if Mosaic there is no subType so just use 'mosaic'
-								MosaicRecord rdrRec = (MosaicRecord) pdo;
-								subType = "mosaic";
-								attrSetKey = rdrRec.getProdName();
-								// if Radar then use the name of the radar as the subType
-							}
-							
-							if( subType != null ) {
-								if( !subTypesMap.containsKey( subType ) ) {
-							
-									subTypesMap.put( subType, new ArrayList<String>() );
-								}
-							
-								subTypesMap.get( subType ).add( attrSetKey );
-							}
-						}
-	
-						rscDefn.setSubTypesMap( subTypesMap );
-					}
-				}				
-			} catch (VizException e1) {
-				System.out.println("Error Generating Dynamic Resource "+ 
-						rscDefn.getResourceDefnName() + ": "+e1.getMessage() );
-			}		
-		}
-		// TODO : We need to decide what to do with PGEN Resources....
-		else { // PGEN			
-			rscDefn.getGeneratedTypesList().clear();
-			HashMap<String,ArrayList<String>> subTypesMap = new HashMap<String,ArrayList<String>>();
-
-	   		// PGEN generates the SubTypes from the .xml files in the products directory.
-			if( !rscDefn.getResourceParameters().containsKey( "pgenDirectory" ) ) {
-				System.out.println("Error generating PGEN products: "+
-						"the pgenDirectory parameter is not specified.");
-				return;
-			}
-			
-			String prodDirName = rscDefn.getResourceParameters().get( "pgenDirectory" );
-			
-			if( !prodDirName.trim().startsWith( File.separator ) ) {
-				// TODO: should call PgenUtil.getWorkingDirectory() if not 
-				// for cyclical dependency. This still needs work so leaving 
-				// this as current working directory for now. If user were to change the
-				// pgen working directory, this would break.
-				prodDirName = 
-		    			NmapCommon.getPgenWorkingDirectory() + File.separator +
-		    				prodDirName + File.separator;
-			}
-				
-			File productsDir = new File( prodDirName );
-	
-			if( productsDir == null || !productsDir.exists() ||
-										!productsDir.isDirectory() ) {
-				System.out.println("Error generating PGEN products: the pgenDirectory for, "+
-						rscDefn.getResourceParameters().get("pgenDirectory") + ", doesn't exist" );
-				return;
-			}
-			
-			String[] prmFileNames = productsDir.list( new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.endsWith( ".xml" );
-				}       			
-			});
-
-			for( String prmFileName : prmFileNames ) {
-				String productName = prmFileName.substring(0,prmFileName.length()-4);
-					// for PGEN there aren't any 'attrSetKeys' (these are used by Satellite and Radar
-					// to determine which attrSets
-				if( !subTypesMap.containsKey( productName ) ) {	
-					subTypesMap.put( productName, new ArrayList<String>() );
-					subTypesMap.get( productName ).add( "show all attribute sets" );
-				}
-			}			
-
-			rscDefn.setSubTypesMap( subTypesMap );
-		}
-	}
-	
-	//Dynamic update Data Resources
-	public void dynamicUpdateDataResource ( String pluginName, String dataURI ) {
-//		System.out.println ("--updateDataResource: pluginName:" + pluginName + " dataURI:" + dataURI);
-		for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-			if( (!rscDefn.getSubTypeGenerator().isEmpty() ||
-				!rscDefn.getRscTypeGenerator().isEmpty()) && 
-				(!rscDefn.isPgenResource()) ) {
-				
-				dynamicUpdateDataResource ( rscDefn, pluginName, dataURI );
-			}
-		}
-		//update Ncgrib inventory DB
-		if (pluginName.equals("ncgrib")) {
-			dynamicUpdateNcGribInventoryDB ( dataURI );
-		}
-	}
-	
-	//dynamic update resources that either have a type generator (some GRIDs and Ensembles) or a subType 
-	// generator (Satellite and Radars)
-	private void dynamicUpdateDataResource ( ResourceDefinition rscDefn, String pluginName, String dataURI ) {
-		if ( pluginName.equals("mcidas") || pluginName.equals("satellite")) {
-			dynamicUpdateMcidasDataResource (rscDefn, dataURI);
-		}
-		else if (pluginName.equals("ncgrib")) {
-			dynamicUpdateGrid2DataResource (rscDefn, dataURI);
-		}
-		else if (pluginName.equals("radar")) {
-			dynamicUpdateRadarDataResource (rscDefn, dataURI);
-		} 
-		else if (pluginName.equals("mosaic")) {
-			dynamicUpdateMosaicDataResource (rscDefn, dataURI );
-		}
-	}
-	
-	//dynamic update mcidas/satellite data resources
-	private void dynamicUpdateMcidasDataResource (ResourceDefinition rscDefn, String dataURI) {
-		String subType = null;
-		String attrSetKey = null;
-		if ( !rscDefn.getSubTypeGenerator().isEmpty() &&
-				rscDefn.getResourceCategory().equals( ResourceName.SatelliteRscCategory ) ) {
-
-			String [] attribs = dataURI.split("/", 8);
-			HashMap<String,String> rscPrms = rscDefn.getResourceParameters();
-			
-			// 
-			if ( rscDefn.getRscImplementation().equals("McidasSatellite") ) {
-				if( rscPrms.containsKey("satelliteName") &&
-					 rscPrms.get("satelliteName").equals( attribs[3] ) ) {
-					
-					subType=attribs[4] + "_" + attribs[5] + "km";
-					attrSetKey=attribs[6];
-				}
-			}
-			else if ( rscDefn.getRscImplementation().equals("GiniSatellite") ) {
-				if ( rscPrms.containsKey("creatingEntity") &&
-				     rscPrms.get("creatingEntity").equals( attribs[4] ) ) {
-					subType = attribs[5];
-					attrSetKey = attribs[6];
-				}
-			}
-			if ( subType != null) {
-				HashMap<String,ArrayList<String>> subTypesMap = rscDefn.getSubTypesMap();
-				if ( !subTypesMap.containsKey(subType)) {
-					subTypesMap.put( subType, new ArrayList<String>());
-					subTypesMap.get( subType ).add( attrSetKey );
-				}
-				else {
-					if ( ! subTypesMap.get( subType ).contains(attrSetKey) ) {
-						subTypesMap.get( subType ).add( attrSetKey );
-					}
-				}
-				rscDefn.setSubTypesMap( subTypesMap );
-			}
-		}
-	}
-	
-	//dynamic update GRID2 data resources
-	private void dynamicUpdateGrid2DataResource (ResourceDefinition rscDefn, String dataURI) {
-		String genType = null;
-
-		if ( !rscDefn.getRscTypeGenerator().isEmpty() &&
-				rscDefn.getResourceCategory().equals( ResourceName.GridRscCategory ) ) {
-
-			String [] attribs = dataURI.split("/", 15);
-						
-			HashMap<String,String> rscPrms = rscDefn.getResourceParameters();
-
-			if ( rscPrms.containsKey("GDFILE") &&
-				 rscPrms.get("GDFILE").equals( attribs[3] ) ) {
-				
-				String [] fileNameAttrs = attribs[12].split("\\.");
-				genType = rscDefn.getResourceDefnName()+":"+ fileNameAttrs[0];
-			}
-
-			
-			if ( genType != null) {
-				ArrayList<String> genTypesList = rscDefn.getGeneratedTypesList();
-
-				if( !genTypesList.contains( genType ) ) {
-					genTypesList.add( genType );
-					rscDefn.setGeneratedTypesList( genTypesList );
-				}
-			}
-		}
-	}
-	
-	//dynamic update NcGrib inventory Database
-	private void dynamicUpdateNcGribInventoryDB ( String dataURI ) {
-		NcInventory ncgribInventory = NcInventory.getInstance();
-		if (ncgribInventory != null) {
-			String [] attribs = dataURI.split("/", 16);
-			String []  fileNameAttrs = attribs[12].split("\\.");
-			String model = attribs[3];
-			String event = fileNameAttrs[0];
-			String parm = attribs[13];
-			String vcord = attribs[14];
-			String level1 = Integer.toString((int)Double.parseDouble(attribs[6]));
-			String level2 = Integer.toString((int)Double.parseDouble(attribs[7]));
-			Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-            rcMap.put("pluginName", new RequestConstraint("ncgrib"));
-            rcMap.put("modelName", new RequestConstraint(model));
-            rcMap.put("eventName",new RequestConstraint(event));
-            rcMap.put("parm", new RequestConstraint(parm));
-            rcMap.put("vcord", new RequestConstraint(vcord));
-            rcMap.put("glevel1", new RequestConstraint(level1));
-            rcMap.put("glevel2", new RequestConstraint(level2));
-            NcDataTree ncgridTree = ncgribInventory.getNcDataTree();
-            ncgridTree.addBranch(model, event, parm, vcord, level1, level2, rcMap);
-		}
-	}
-	//dynamic update RADAR data resources
-	private void dynamicUpdateRadarDataResource (ResourceDefinition rscDefn, String dataURI) {
-		String genType = null;
-
-		if ( !rscDefn.getRscTypeGenerator().isEmpty() && 
-				rscDefn.getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
-
-			String [] attribs = dataURI.split("/", 5);
-			HashMap<String,String> rscPrms = rscDefn.getResourceParameters();
-			
-			if ( rscPrms.containsKey("pluginName") &&
-				 rscPrms.get("pluginName").equals( attribs[1] ) ) {
-				genType = rscDefn.getResourceDefnName()+":"+ attribs[3].toUpperCase();
-			}
-
-			
-			if ( genType != null) {
-				ArrayList<String> genTypesList = rscDefn.getGeneratedTypesList();
-
-				if( !genTypesList.contains( genType ) ) {
-					genTypesList.add( genType );
-					rscDefn.setGeneratedTypesList( genTypesList );
-				}
-			}
-		}
-	}
-	
-	//dynamic update MOSAIC data resources
-	private void dynamicUpdateMosaicDataResource (ResourceDefinition rscDefn, String dataURI) {
-		String subType = null;
-		String attrSetKey=null;
-
-		if ( !rscDefn.getSubTypeGenerator().isEmpty() && 
-				rscDefn.getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
-
-			String [] attribs = dataURI.split("/", 5);
-			HashMap<String,String> rscPrms = rscDefn.getResourceParameters();
-			
-			if ( rscPrms.containsKey( "pluginName") &&
-				 rscPrms.get("pluginName").equals( attribs[1] ) ) {
-				subType = "mosaic";
-				attrSetKey = attribs[4];
-			}
-
-			
-			if ( subType != null) {
-				HashMap<String,ArrayList<String>> subTypesMap = rscDefn.getSubTypesMap();
-				if ( !subTypesMap.containsKey(subType)) {
-					subTypesMap.put( subType, new ArrayList<String>());
-					subTypesMap.get( subType ).add( attrSetKey );
-				}
-				else {
-					if ( ! subTypesMap.get( subType ).contains(attrSetKey) ) {
-						subTypesMap.get( subType ).add( attrSetKey );
-					}
-				}
-				rscDefn.setSubTypesMap( subTypesMap );
-			}
-		}
-	}
-		
-	public ResourceDefinition getResourceDefnByIndx( int defnIndx ) {
-		for( ResourceDefinition rscDefn : resourceDefnsMap.values() ) {
-			if( rscDefn.getDefinitionIndex() == defnIndx ) {
-				return rscDefn;
-			}
-		}
-		
-		return null;
-	}
 				    			
 	public ResourceDefinition getResourceDefinition( ResourceName rscName ) {
 		return (rscName != null ? getResourceDefinition( rscName.getRscType() ) : null);
@@ -976,7 +986,7 @@ public class ResourceDefnsMngr {
 			}
 		}
 
-//		System.out.println("sanity check: can't find ResourceDefinition for: "+rscType );
+//		out.println("sanity check: can't find ResourceDefinition for: "+rscType );
 		return null;
 	}
 
@@ -1067,7 +1077,7 @@ public class ResourceDefnsMngr {
 			return null;
 		}
 
-		HashMap<String,String> paramsMap = new HashMap<String,String>( rscDefn.getResourceParameters() );
+		HashMap<String,String> paramsMap = new HashMap<String,String>( rscDefn.getResourceParameters(false) );
 
 		AttributeSet attrSet = getAttrSet( rscName );
 
@@ -1094,21 +1104,22 @@ public class ResourceDefnsMngr {
 	//   This includes parameters from the ResourceDefinition, attributes and timeMatching/frameCount...
 	//
 	public HashMap<String,String> getAllResourceParameters( ResourceName rscName ) throws VizException {
+
 		ResourceDefinition rscDefn = getResourceDefinition( rscName.getRscType() );
 
 		if( rscDefn == null ) {
 			return null;
 		}
 		
-		// first get the parameters from the .prm file for this type.
-		HashMap<String,String> paramsMap = new HashMap<String,String>( rscDefn.getResourceParameters() );
+		// first get the parameters defined by the RscDefn and use the default values
+		// for any that are not present. 
+		HashMap<String,String> paramsMap = new HashMap<String,String>( rscDefn.getResourceParameters(true) );
 
 		// next get the attributes
 		AttributeSet attrSet = getAttrSet( rscName );
 
 		if( attrSet != null ) {
 			paramsMap.putAll( attrSet.getAttributes() ); 
-					//readAttrSetFile( attrSetFile.getFile() ) );
 		}
 		
 		if( paramsMap.containsKey("GDATTIM") ) {
@@ -1126,76 +1137,57 @@ public class ResourceDefnsMngr {
 			paramsMap.put("isForecast", (rscDefn.isForecast() ? "true" : "false" ) );
 		}
 
-		// finally add 'dynamic' parameters that were queried from the database
-		// 
+		// if this is a generated type get the parameter value from the type in the ResourceName
+		//
+		String typeGenParam = rscDefn.getRscTypeGenerator();
 		
-		// if this is a generated type 
-		if( !rscDefn.getRscTypeGenerator().isEmpty() ) {
-			if( rscName.getRscCategory().equals( ResourceName.GridRscCategory ) ){
-				
-				// Note this will replace the 'default' eventName parameter ('%') which
-				// is used for non-event GRIDS
-				if( rscDefn.getRscTypeGenerator().equals( "eventName" ) ) {
-					String rscType = rscName.getRscType();
-					int indx = rscType.indexOf(":");
-					if( indx == -1 ) {
-						throw new VizException("sanity check: Can't parse eventName from Grid "+
-								"Resource name :"+rscName.toString() );
-					}
-					
-					String eventName = rscType.substring( indx+1 );  
+		if( !typeGenParam.isEmpty() ) {
 
-					paramsMap.put("eventName", eventName );
-				}
+			String rscType = rscName.getRscType();
+			int indx = rscType.indexOf(":");
+			if( indx == -1 ) {
+				throw new VizException("sanity check: Can't parse generated typ from "+
+						"Resource name :"+rscName.toString() );
 			}
-			else if( rscName.getRscCategory().equals( ResourceName.RadarRscCategory ) ){
-				if( rscDefn.getRscTypeGenerator().equals( "icao" ) ) {
-					String rscType = rscName.getRscType();
-					int indx = rscType.indexOf(":");
-					if( indx == -1 ) {
-						throw new VizException("sanity check: Can't parse icao from "+"" +
-								"LocalRadar Resource name :"+rscName.toString() );
-					}
 
-					String icaoStr = rscType.substring( indx+1 ).toLowerCase();  
+			String typeName = rscType.substring( indx+1 );  
 
-					paramsMap.put("icao", icaoStr );
-				}
-			}
+			paramsMap.put( typeGenParam, typeName );
 		}
 		
 		// If there is a generated sub-type then we will need to set a parameter for this 
 		// (In this case the name of the parameter in the paramsMap must be the same as the 
 		// name of the variable in the BundleTemplate.) 
 		// 
-		if( !rscDefn.getSubTypeGenerator().isEmpty() ) {
-			if( rscName.getRscGroup().isEmpty() ) {
-				System.out.println("getAllResourceParameters: Sanity Check: the generated sub-type "+
-						"is null for : "+ rscName.toString() );
+		String[] subTypeGenParams = rscDefn.getSubTypeGenParamsList();
+		
+		if( subTypeGenParams.length == 1 ) {
+			paramsMap.put( subTypeGenParams[0], rscName.getRscGroup() );
+		}
+		
+		// TODO : Note this currently only works for Satellite because its
+		// the only resource that uses 2 generating params, (the area and resolution) 
+		// A trailing 'km' which means this parsing code is not generic
+		//
+		else if( subTypeGenParams.length == 2 ) {
+			
+			String subType = rscName.getRscGroup();
+			if( !subType.endsWith( "km" ) ) {
+				out.println("Sanity check : SubType "+subType +" is expected to end with 'km'");
 			}
-			else if( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ){
-				
-				// TODO: This whole thing needs to be reworked. We shouldn't have to check 
-				// for the implementation here.
-				// GINI creates subTypes frome the 'sector' and 
-				// McIdas uses a combination of the areaName and the resolution.
-				if( rscDefn.getRscImplementation().equals( "McidasSatellite" ) ) {
-					// 
-					int indx = rscName.getRscGroup().lastIndexOf( '_' );
-					String areaName = rscName.getRscGroup().substring(0, indx);
-					String resStr   = rscName.getRscGroup().substring(indx+1, 
-							rscName.getRscGroup().length()-2); // "km"
-					paramsMap.put( "areaName",  areaName );
-					paramsMap.put( "resolution", resStr );
-				}
-				else if( rscDefn.getRscImplementation().equals( "GiniSatellite" ) ) {
-					paramsMap.put( "sectorID",  rscName.getRscGroup() );					
-				}
+
+			int indx = subType.lastIndexOf( '_' );
+			if( indx != -1 ) {
+				String paramVal1 = subType.substring(0, indx);
+				String paramVal2 = subType.substring(indx+1, subType.length()-2); // NOTE; "km"
+
+				String subtypeGenParam = subTypeGenParams[0];
+				paramsMap.put( subTypeGenParams[0], paramVal1 );
+				paramsMap.put( subTypeGenParams[1], paramVal2 );			
 			}
 		}
 		
-		
-		// just one more hack we can't have PGEN save a .prm file for some reason.
+		// just one more hack since we can't have PGEN save a .prm file for some reason.
 		if( rscDefn.isPgenResource() ) {
 			if( !rscName.getRscGroup().isEmpty() ) {
 				paramsMap.put("productName", rscName.getRscGroup() );
@@ -1206,6 +1198,7 @@ public class ResourceDefnsMngr {
 		return paramsMap;		
 	}
 					
+	// 
 	public static HashMap<String,String> readAttrSetFile( File asFile ) throws VizException {
 		// parse the attrset file to get the attrs to substitude into the 
 		// Bundle Template file.
@@ -1237,33 +1230,40 @@ public class ResourceDefnsMngr {
 					String prmKey = prmStr.substring(0,eq_indx).trim();
 					String prmVal = prmStr.substring(eq_indx+1).trim();
 
+//					if( prmKey.equals("SKIP" ) ) {
+//						out.println("SKIP");
+//					}
 					// '@' used to be a reference to a file in the same directory but with 
 					// the localization, and since this is only used for colorbars, 
 					// 					
 					if( !prmVal.isEmpty() && prmVal.charAt(0) == '@' ) {
 						try {
-							String cbarName = prmVal.substring(1, prmVal.length()-".xml".length());
-
-							if( !colorBarMap.containsKey( cbarName ) ) {
-								throw new VizException("Error reading file: "+
-										asFile.getAbsolutePath() + " : Unable to find referenced "+
-										" colorBar file '"+prmVal+"'." );
+							String refdLclName = NcPathConstants.NCEP_ROOT+prmVal.substring(1);
+											
+							if( !refdParamFilesMap.containsKey( refdLclName ) ) {
+								throw new VizException("Error reading file: "+asFile.getAbsolutePath() + 
+										" : Unable to find file for parameter reference " +prmVal+"'." );
 							}
-							
-							File cbarFile = colorBarMap.get( cbarName ).getFile( true );
+							File lFile = refdParamFilesMap.get( refdLclName ).getFile( true );
 
-							if( !cbarFile.exists() ) {
-								throw new VizException("Error reading file: "+
-									asFile.getAbsolutePath() + " colorBar file '"+prmVal+"'doesn't exist." );
+							if( !lFile.exists() ) {
+								throw new VizException("Error reading file: "+asFile.getAbsolutePath() + 
+										" : File for parameter reference " +prmVal+"' doesn't exist." );
 							}
-							
-							FileReader fr = new FileReader(cbarFile);
-							char[] b = new char[(int) cbarFile.length()];
+
+							FileReader fr = new FileReader(lFile);
+							char[] b = new char[(int) lFile.length()];
 							fr.read(b);
 							fr.close();
 
-							prmVal = new String(b);
-
+							prmVal = new String(b).trim();
+		// remove the xml header
+							if( prmVal.startsWith("<?xml") ) {
+								if( prmVal.indexOf("?>") != -1 ) {
+									prmVal = prmVal.substring(
+											prmVal.indexOf("?>")+2 ).trim();
+								}
+							}
 						} catch (FileNotFoundException fnf ) {
 							throw new VizException( fnf );
 						} catch (IOException ioe ) {
@@ -1286,6 +1286,47 @@ public class ResourceDefnsMngr {
 		return rscAttrMap;
 	}
 	
+	// sort with the Obs types first and then the Fcst, and then alphabetically 
+	public Comparator<ResourceDefinition> getDefaultRscDefnComparator() {
+		
+		return new Comparator<ResourceDefinition>() {
+			@Override
+			public int compare(ResourceDefinition rscDefn1, ResourceDefinition rscDefn2) {
+
+				if( rscDefn1 == null ) return  1;
+				if( rscDefn2 == null ) return -1;
+
+				// categories will be the same for the types but we may want to order them differently
+				// based on the category
+				//
+				// for Surf or UAIR, Obs before Fcst  
+				if( rscDefn1.getResourceCategory().equals( ResourceName.SurfaceRscCategory ) ||
+					rscDefn1.getResourceCategory().equals( ResourceName.UpperAirRscCategory ) ) {
+
+					if( (!rscDefn1.isForecast() && rscDefn2.isForecast() ) ||
+						 (rscDefn1.isForecast() && !rscDefn2.isForecast() ) ) {    				
+
+						return ( rscDefn1.isForecast() ? 1 : -1);
+					}
+				}
+				// for Radar, Mosaics before Local Radar
+				else if( rscDefn1.getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
+					if( rscDefn1.getFilterLabels().contains("RadarMosaic") || 
+						rscDefn1.getRscImplementation().equals("RadarMosaic") ) {
+						return -1;
+					}
+					else if( rscDefn2.getFilterLabels().contains("RadarMosaic") || 
+							 rscDefn2.getRscImplementation().equals("RadarMosaic") ) {
+						return 1;
+					}    				
+				}
+
+					return rscDefn1.getResourceDefnName().compareToIgnoreCase( 
+						   rscDefn2.getResourceDefnName() );    						
+			}
+		};
+	}
+
 	// loop thru all the rsc defns for this cat and return a list of all
 	// filter labels.
 	public List<String> getFilterLabelsForResourceCategory( String rscCat ) {
@@ -1310,8 +1351,14 @@ public class ResourceDefnsMngr {
     	return filterLabelsList;
 	}
 	
-    public  List<String> getResourceTypesForCategory( String rscCat, String filterStr, Boolean includeGeneratedTypes ) {
-    	ArrayList<String> resourceTypes = new ArrayList<String>();
+    public  List<ResourceDefinition> getResourceDefnsForCategory( String rscCat ) throws VizException {
+    	return getResourceDefnsForCategory(rscCat, "", false );
+    }
+
+    public  List<ResourceDefinition> getResourceDefnsForCategory( 
+    		String rscCat, String filterStr, Boolean includeGeneratedTypes ) 
+    						throws VizException {
+    	List<ResourceDefinition> resourceDefnsList = new ArrayList<ResourceDefinition>();
        	
        	// for other resources, get all of the resources in the given category.
        	//
@@ -1325,14 +1372,19 @@ public class ResourceDefnsMngr {
     			
     			if( rscDefn.getResourceCategory().equals( rscCat ) ) {
     				if( rscDefn.getRscTypeGenerator().isEmpty() ) {
-        				resourceTypes.add( rscDefn.getResourceDefnName() );    					
+    					resourceDefnsList.add( rscDefn );    					
     				}
     				
-    				if( includeGeneratedTypes ) {    					
-    					resourceTypes.addAll( rscDefn.getGeneratedTypesList() );
+    				if( includeGeneratedTypes ) {    	
+    					// TODO : could(should?) generate these from ResourceDefinition
+    					for( String genType : rscDefn.getGeneratedTypesList() ) {
+    						ResourceDefinition genRscDefn = new ResourceDefinition( rscDefn );
+    						genRscDefn.setResourceDefnName( genType );
+    						resourceDefnsList.add( genRscDefn );
+    					}
     				}
     				else if( !rscDefn.getRscTypeGenerator().isEmpty() ) {
-    					resourceTypes.add( rscDefn.getResourceDefnName() );
+    					resourceDefnsList.add( rscDefn );
     				}
     			}
 //    			List<String> rscCatList = rscDefn.getRscCategories();
@@ -1341,61 +1393,16 @@ public class ResourceDefnsMngr {
 //    			}
     		}
     	}
-    	String typesArray[] = resourceTypes.toArray( new String[0] );
-    	
-    	// sort with the Obs types first and then the Fcst, and then alphabetically 
-    	Arrays.sort( typesArray, new Comparator<String>() {
-    		public int compare(String o1, String o2) {
-    			ResourceDefinition rscDefn1 = getResourceDefinition( (String)o1 );
-    			ResourceDefinition rscDefn2 = getResourceDefinition( (String)o2 );
-    			if( rscDefn1 == null ) return  1;
-    			if( rscDefn2 == null ) return -1;
-
-    			// categories will be the same for the types but we may want to order them differently
-    			// based on the category
-    			//
-    			// for Surf or UAIR, Obs before Fcst  
-    			if( rscDefn1.getResourceCategory().equals( ResourceName.SurfaceRscCategory ) ||
-    				rscDefn1.getResourceCategory().equals( ResourceName.UpperAirRscCategory ) ) {
-
-    				if( (!rscDefn1.isForecast() && rscDefn2.isForecast() ) ||
-           				 (rscDefn1.isForecast() && !rscDefn2.isForecast() ) ) {    				
-
-    					return ( rscDefn1.isForecast() ? 1 : -1);
-    				}
-    			}
-    			// for Radar, Mosaics before Local Radar
-    			else if( rscDefn1.getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
-    				if( rscDefn1.getFilterLabels().contains("RadarMosaic") || 
-    					rscDefn1.getRscImplementation().equals("RadarMosaic") ) {
-    					return -1;
-    				}
-    				else if( rscDefn2.getFilterLabels().contains("RadarMosaic") || 
-    						 rscDefn2.getRscImplementation().equals("RadarMosaic") ) {
-    					return 1;
-    				}    				
-    			}
-
+    	return resourceDefnsList;
+    	//ResourceDefinition typesArray[] = resourceDefnsList.toArray( new ResourceDefinition[0] );
     			
-    			// otherwise return the order based on the index in the table 
-				if( rscDefn1.getDefinitionIndex() == 
-					rscDefn2.getDefinitionIndex() ) {
-					return ((String)o1).compareToIgnoreCase( (String)o2 );    						
-				}
-				else {
-					return ( rscDefn1.getDefinitionIndex() < 
-							 rscDefn2.getDefinitionIndex() ? -1 : 1 );
-				}
-    		}
-		}); 
-		
-    	return Arrays.asList( typesArray );
+//    	return Arrays.asList( typesArray );
     }
 
     // if these resource type uses attributeSetGroups then return the specified 
     // attrSetGroups, if not then look for groups which are 'sub-types' which are
     // given as 
-    public String[] getResourceSubTypes( String rscType ) {
+    public String[] getResourceSubTypes( String rscType ) throws VizException {
 
 		ResourceDefinition rscDefn = getResourceDefinition( rscType );
 
@@ -1403,15 +1410,8 @@ public class ResourceDefnsMngr {
 			return new String[0];
 		}
        	
-		// Grids, Satellite, Radar, etc all are dynamically updated when new alert updates 
-		// are recieved (when new data is ingested). PGEN doesn't have alert updates and so
-		// we need to always check for new products. 
-		if( rscDefn.isPgenResource() ) {
-			generateDynamicResources( rscDefn );
-		}
-       	// the sub-types are stored in the resourceDefnTable but they still
-       	// have to refer to a sub-directory in the rscConfig Dir.
-       	return rscDefn.getRscSubTypes();       	
+		// generate the subTypes 
+		return rscDefn.generatedSubTypesList().toArray( new String[0] );
     }
 
     // look up using a resource name
@@ -1510,7 +1510,7 @@ public class ResourceDefnsMngr {
 		Map<String,AttributeSet> attrSetFiles = attrSetMap.get( asMapKey );
 		
 		if( attrSetFiles == null || !attrSetFiles.containsKey( asName ) ) {				
-//			System.out.println("Unable to find attrSet,"+asName+", for "+rscDefn.getResourceDefnName());
+//			out.println("Unable to find attrSet,"+asName+", for "+rscDefn.getResourceDefnName());
 			return null;
 		}
 
@@ -1522,7 +1522,7 @@ public class ResourceDefnsMngr {
 			String asgMapKey = rscDefn.getResourceDefnName()+File.separator+asgName;
 			
 			if( !attrSetGroupsMap.containsKey( asgMapKey ) ) {
-				System.out.println("Error: cant find AttrSetGroup name, "+asgName+", for "+ 
+				out.println("Error: cant find AttrSetGroup name, "+asgName+", for "+ 
 						rscDefn.getResourceDefnName() );
 				return null;
 			}
@@ -1531,7 +1531,7 @@ public class ResourceDefnsMngr {
 			//
 			AttrSetGroup asg = attrSetGroupsMap.get( asgMapKey );
 			if( !asg.getAttrSetNames().contains( asName ) ) {
-				System.out.println("Warning: AttrSet, "+asName+", is not in group "+asgName );
+				out.println("Warning: AttrSet, "+asName+", is not in group "+asgName );
 				return null;
 			}
 		}
@@ -1543,8 +1543,8 @@ public class ResourceDefnsMngr {
 //			return asLclFile;			
 //		}
 //		catch( LocalizationException le ) {
-//			System.out.println("AttrSet,"+asName+", for "+rscName.toString()+" doesn't exist?" );
-//			System.out.println( le.getLocalizedMessage() +"\n"+ le.getCause() );
+//			out.println("AttrSet,"+asName+", for "+rscName.toString()+" doesn't exist?" );
+//			out.println( le.getLocalizedMessage() +"\n"+ le.getCause() );
 //			return null;			
 //		}
 	}
@@ -1572,7 +1572,7 @@ public class ResourceDefnsMngr {
    			attrSetList.addAll( attrSetMap.get( rscImpl ).keySet() );   			
    		}
    		else {
-   			System.out.println("No available attribute sets for "+rscImpl );
+   			out.println("No available attribute sets for "+rscImpl );
    		}
 	    return attrSetList;
     }
@@ -1585,8 +1585,7 @@ public class ResourceDefnsMngr {
     		return null;
     	}
        	
-    	
-    	if( rscDefn.applyAttrSetGroups() ) {
+    	if( rscDefn.applyAttrSetGroups( ) ) {
        		AttrSetGroup asg = getAttrSetGroupForResource( rscName );
        		if( asg != null ) {
        			return asg.getAttrSetNames().toArray( new String[0] );
@@ -1594,72 +1593,72 @@ public class ResourceDefnsMngr {
        		return new String[0];
        	}
 
-       	if( matchGroup &&
-       		( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) ) { //|| 
-//       		  rscName.getRscCategory().equals( ResourceName.RadarRscCategory ) ) ) {
-       			
-       		String rscGrp = rscName.getRscGroup();
-       		// map from the subType to a list of 'keys' for available attributes.  
-       		HashMap<String, ArrayList<String>> subTypesMap = rscDefn.getSubTypesMap();
-       		
-       		if( rscGrp == null || rscGrp.isEmpty() ) {
-       			if( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) {
-//       				System.out.println("Sanity Check: Satellite resource should have a group. " );
-       				return new String[0]; //       				
-       			}
-       			else { // Radar Mosaic
-       				return getAvailAttrSets( rscDefn ).toArray( new String[0] ); 
-       			}
-       		}
-       		
-       		ArrayList<String> attrSets = new ArrayList<String>();
-       		
-       		ArrayList<String> availAttrSetKeys = subTypesMap.get( rscGrp );
-       		if( availAttrSetKeys == null ) {
-   				System.out.println("Sanity Check: Satellite subType is not in the subTypeMap?? " );
-   				return new String[0]; //       				
-       		}
-       		
-       		for( String asName : getAvailAttrSets( rscDefn ) ) {
-//				try {
-					ResourceName fullRscName = new ResourceName( rscName );
-					fullRscName.setRscAttrSetName(asName);
-					
-					AttributeSet aset = getAttrSet( fullRscName );
-					HashMap<String, String> attrsMap = aset.getAttributes(); 
-						//readAttrSetFile( getAttrSet( fullRscName ).getFile() );
-           		
-					if( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) {
-						if( !attrsMap.containsKey("imageType") ) {
-							System.out.println("Sanity Check: Satellite attrSets must have an "+
-							" 'imageType' parameter." );
-						}
-						else {
-							if( availAttrSetKeys.contains( attrsMap.get( "imageType" ) ) ) {
-								attrSets.add( asName );
-							}
-						}
-					}
-					else if( rscName.getRscCategory().equals( ResourceName.RadarRscCategory ) ) {
-						if( !attrsMap.containsKey("productName") ) {
-							System.out.println("Sanity Check: Radar attrSets must have an "+
-							" 'productName' parameter." );
-						}
-						else {
-							if( availAttrSetKeys.contains( attrsMap.get( "productName" ) ) ) {
-								attrSets.add( asName );
-							}
-						}
-					} 
-//				} catch (VizException e) {
-//					System.out.println("Error parsing AttrSet "+asName+" : "+e.getMessage() );
-//				}
-       		}
-       		return attrSets.toArray( new String[0] );
-       	}
-       	else {
+//       	if( matchGroup &&
+//       		( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) ) { //|| 
+////       		  rscName.getRscCategory().equals( ResourceName.RadarRscCategory ) ) ) {
+//       			
+//       		String rscGrp = rscName.getRscGroup();
+//       		// map from the subType to a list of 'keys' for available attributes.  
+//       		HashMap<String, ArrayList<String>> subTypesMap = rscDefn.getSubTypesMap();
+//       		
+//       		if( rscGrp == null || rscGrp.isEmpty() ) {
+//       			if( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) {
+////       				out.println("Sanity Check: Satellite resource should have a group. " );
+//       				return new String[0]; //       				
+//       			}
+//       			else { // Radar Mosaic
+//       				return getAvailAttrSets( rscDefn ).toArray( new String[0] ); 
+//       			}
+//       		}
+//       		
+//       		ArrayList<String> attrSets = new ArrayList<String>();
+//       		
+//       		ArrayList<String> availAttrSetKeys = subTypesMap.get( rscGrp );
+//       		if( availAttrSetKeys == null ) {
+//   				out.println("Sanity Check: Satellite subType is not in the subTypeMap?? " );
+//   				return new String[0]; //       				
+//       		}
+//       		
+//       		for( String asName : getAvailAttrSets( rscDefn ) ) {
+////				try {
+//					ResourceName fullRscName = new ResourceName( rscName );
+//					fullRscName.setRscAttrSetName(asName);
+//					
+//					AttributeSet aset = getAttrSet( fullRscName );
+//					HashMap<String, String> attrsMap = aset.getAttributes(); 
+//						//readAttrSetFile( getAttrSet( fullRscName ).getFile() );
+//           		
+//					if( rscName.getRscCategory().equals( ResourceName.SatelliteRscCategory ) ) {
+//						if( !attrsMap.containsKey("imageType") ) {
+//							out.println("Sanity Check: Satellite attrSets must have an "+
+//							" 'imageType' parameter." );
+//						}
+//						else {
+//							if( availAttrSetKeys.contains( attrsMap.get( "imageType" ) ) ) {
+//								attrSets.add( asName );
+//							}
+//						}
+//					}
+//					else if( rscName.getRscCategory().equals( ResourceName.RadarRscCategory ) ) {
+//						if( !attrsMap.containsKey("productName") ) {
+//							out.println("Sanity Check: Radar attrSets must have an "+
+//							" 'productName' parameter." );
+//						}
+//						else {
+//							if( availAttrSetKeys.contains( attrsMap.get( "productName" ) ) ) {
+//								attrSets.add( asName );
+//							}
+//						}
+//					} 
+////				} catch (VizException e) {
+////					out.println("Error parsing AttrSet "+asName+" : "+e.getMessage() );
+////				}
+//       		}
+//       		return attrSets.toArray( new String[0] );
+//       	}
+//       	else {
        		return getAvailAttrSets( rscDefn ).toArray( new String[0] );
-       	}		
+//       	}		
     }
     
     
@@ -1688,10 +1687,12 @@ public class ResourceDefnsMngr {
     	
     	try {
         	String lFileName = lFile.getName();
-    		int rscIndx = rscDefn.getDefinitionIndex();
+//    		int rscIndx = rscDefn.getDefinitionIndex();
     		
         	lFile.delete();
 
+        	rscDefn.dispose();
+        	
         	resourceDefnsMap.remove( rscDefn.getResourceDefnName() );
     		
     		// get the BASE, SITE or DESK level file to replace the deleted one.
@@ -1700,12 +1701,15 @@ public class ResourceDefnsMngr {
         	if( lFile != null ) {
         		// sanity check 
         		if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
-        			System.out.println("??? a User-level file still exists??");
+        			out.println("??? a User-level file still exists??");
         		}
         		
-        		if( readResourceDefn( lFile, rscIndx ) ) {
-        			return true;
+        		try {
+        			readResourceDefn( lFile );//, rscIndx );        	
         		}
+        		catch( VizException e ) {
+        			throw e;
+        		}        		
         	}
 
     	} catch( LocalizationOpFailedException e ) {
@@ -1820,7 +1824,7 @@ public class ResourceDefnsMngr {
     		else {
         		// sanity check 
         		if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
-        			System.out.println("??? a User-level file still exists??");
+        			out.println("??? a User-level file still exists??");
         		}
         		
     			File asgFile = lFile.getFile();
@@ -2004,7 +2008,7 @@ public class ResourceDefnsMngr {
         	if( asLclFile != null ) {
         		// sanity check 
         		if( asLclFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
-        			System.out.println("??? a User-level file still exists??");
+        			out.println("??? a User-level file still exists??");
         		}
         		
     			String rscImpl = asLclFile.getFile().getParentFile().getName();
@@ -2018,7 +2022,7 @@ public class ResourceDefnsMngr {
     				attrSetMap.get( rscImpl ).put( aSet.getName(), aSet );
     			} 
     			catch ( VizException e ) {
-    				System.out.println("Error Creating AttributeSet "+ asLclFile.getName() + 
+    				out.println("Error Creating AttributeSet "+ asLclFile.getName() + 
     						": "+ e.getMessage() ); 						
     			}
         	}
@@ -2032,7 +2036,7 @@ public class ResourceDefnsMngr {
     	//
     	if( rscDefn.applyAttrSetGroups() ) {
     		String  rscImpl = rscDefn.getRscImplementation();
-//        	String  attrSetGroup = rscName.getRscGroup();
+// String  attrSetGroup = rscName.getRscGroup();
 
     		for( AttrSetGroup asg : attrSetGroupsMap.values() ) {
     			// if this is a BASE or SITE level group then it can't reference a user-defined attrSet.
@@ -2075,6 +2079,7 @@ public class ResourceDefnsMngr {
     	return true;
     }
     
+    
     public ArrayList<String> getRscTypesForRscImplementation( String rscImpl ) {
     	ArrayList<String> rscTypes = new ArrayList<String>();
     	
@@ -2087,9 +2092,12 @@ public class ResourceDefnsMngr {
     }
         
     
-    // put the new/edited rscDefn in the map and write it out.
+    // put the new/edited rscDefn in the map, write it out and initialize the inventory
     //
     public boolean saveResourceDefn( ResourceDefinition rscDefn ) throws VizException {    	
+    	
+    	 rscDefn.validateResourceParameters( );
+    	
     	boolean createRscDefn = ( getResourceDefinition( rscDefn.getResourceDefnName() ) == null );
 
     	LocalizationFile lFile;// ;
@@ -2113,7 +2121,6 @@ public class ResourceDefnsMngr {
     	
 		rscDefn.setLocalizationFile( lFile );
 		
-       	//       	
 		try {
 			SerializationUtil.jaxbMarshalToXmlFile( rscDefn, 
 					lFile.getFile().getAbsolutePath() );
@@ -2121,6 +2128,42 @@ public class ResourceDefnsMngr {
 			lFile.save();
 
 			resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );
+
+			// check to see if there is an inventory for this rscDefn or if
+			// we need to create one. 
+			// 
+			NcInventoryDefinition invDefn = rscDefn.createNcInventoryDefinition(); 
+			
+			// reload just in case they have changed.
+			invDefnsMap = getInventoryDefinitions( true );
+			
+			if( invDefnsMap.containsKey( invDefn ) ) {
+				rscDefn.setInventoryAlias( invDefnsMap.get( invDefn ).getInventoryName() );
+			}
+			else {				
+				InventoryLoaderJob invLoader = new InventoryLoaderJob( invDefn, false );
+				
+				invLoader.schedule();
+				
+				// update the progress monitor
+				while( invLoader.getNumberOfInventoriesLeftToLoad() > 0 ) {
+					try {
+						Thread.sleep(400);
+					} catch (InterruptedException e) {						
+					}
+				}
+								
+				if( invLoader.getUninitializedInventoryDefns().length == 1 ) {
+					rscDefn.setInventoryAlias( null ); // Initialized( false );					
+					rscDefn.disableInventoryUse();
+					
+					throw new VizException("There was an error Initializing an Inventory : Disabling Inventory Use" );
+				}
+
+				rscDefn.setInventoryAlias( invDefn.getInventoryName() );//Initialized( true );
+			}
+			
+			rscDefn.enableInventoryUse();
 			
 		} catch (SerializationException e) {
 			throw new VizException("Error Serializing AttrSetGroup file:"+e.getMessage() );
@@ -2157,9 +2200,30 @@ public class ResourceDefnsMngr {
     public ResourceDefinition getLocatorResourceDefinition() {
     	return locatorRscDefn;
     }
-    
-    // method to update the pgen products
-//    generateDynamicResources( pgenRscDefn );
-//    
-//    }
+
+    // TODO : add observer for ResourceDefn, attrSet, (attributeSetGroup?)
+    // files that are updated from the Localization perspective. 
+    // 
+	@Override
+	public void fileUpdated( FileUpdatedMessage fumsg) {
+		String fName = fumsg.getFileName();
+		LocalizationFile lFile;
+		
+		// if the file had been deleted 
+		if( fumsg.getChangeType() == FileChangeType.DELETED ) {
+			refdParamFilesMap.remove( fName );
+			// if reverted. (ie DELETED and there is a lower level file available)
+			lFile = pathMngr.getStaticLocalizationFile( fumsg.getFileName() );
+		}
+		else {
+		// get the ADDED, UPDATED file  
+			lFile = pathMngr.getLocalizationFile( 
+							fumsg.getContext(), fumsg.getFileName() );
+		}
+
+		// update the map with the new file 
+		if( lFile != null ) {
+			refdParamFilesMap.put( fName, lFile );			
+		}
+	}
 }

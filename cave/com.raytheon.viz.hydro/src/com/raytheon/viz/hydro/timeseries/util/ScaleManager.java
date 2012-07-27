@@ -102,7 +102,7 @@ public class ScaleManager {
 
 		// set the range the values fit into
 		double range = maxDataValue - minScaleValue;
-		if (range < 1) {
+		if (range < 1 && !zoomFlag) {
 		    range = 1;
 		}
 

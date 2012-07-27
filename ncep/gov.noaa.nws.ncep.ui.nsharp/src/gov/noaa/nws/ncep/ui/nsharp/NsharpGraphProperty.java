@@ -28,67 +28,67 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 @XmlAccessorType(XmlAccessType.NONE)
 public class NsharpGraphProperty implements ISerializableObject{
 	@XmlAttribute
-	private boolean temp;
+	private boolean temp=true;
 	
 	@XmlAttribute
-	private boolean dewp;
+	private boolean dewp=true;
 	
 	@XmlAttribute
-	private boolean parcel;
+	private boolean parcel=true;
 	
 	@XmlAttribute
-	private boolean VTemp;
+	private boolean VTemp=true;
 	
 	@XmlAttribute
-	private boolean wetBulb;
+	private boolean wetBulb=true;
 	
 	@XmlAttribute
-	private boolean mixratio;
+	private boolean mixratio=false;
 	
 	@XmlAttribute
-	private boolean dryAdiabat;
+	private boolean dryAdiabat=true;
 	
 	@XmlAttribute
-	private boolean moistAdiabat;
+	private boolean moistAdiabat=false;
 	
 	@XmlAttribute
-	private boolean effLayer;
+	private boolean effLayer=true;
 	
 	@XmlAttribute
-	private boolean cloud;
+	private boolean cloud=false;
 	
 	@XmlAttribute
-	private boolean hodo;
+	private boolean hodo=true;
 	
 	@XmlAttribute
-	private boolean meanWind;
+	private boolean meanWind=true;
 	
 	@XmlAttribute
-	private boolean smv3075;
+	private boolean smv3075=false;
 	
 	@XmlAttribute
-	private boolean smv1585;
+	private boolean smv1585=false;
 	
 	@XmlAttribute
-	private boolean smvBunkersR;
+	private boolean smvBunkersR=true;
 	
 	@XmlAttribute
-	private boolean smvBunkersL;
+	private boolean smvBunkersL=true;
 	
 	@XmlAttribute
-	private boolean omega;
+	private boolean omega=true;
 	
 	@XmlAttribute
-	private boolean corfidiV;
+	private boolean corfidiV=false;
 	
 	@XmlAttribute
-	private boolean windBarb;
+	private boolean windBarb=true;
 	
 	@XmlAttribute
-	private int windBarbDistance;
+	private int windBarbDistance=400;
 	
 	@XmlAttribute
-	private int tempOffset;
+	private int tempOffset=0;
 	
 	
 	public boolean isTemp() {

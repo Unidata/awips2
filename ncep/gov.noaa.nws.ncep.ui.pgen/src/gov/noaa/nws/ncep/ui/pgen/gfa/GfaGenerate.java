@@ -23,7 +23,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
@@ -50,6 +52,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 04/11					J. Wu		update state list order and create additional
  * 										smear for smears with two FA areas.
  * 02/12		#672		J. Wu		Re-order states list based on FA area.
+ * 05/12		#610		J. Wu		Add an empty Gfa to pass issue/until time.
+ * 05/12		#610		J. Wu		Assign issue/until times if they are missing.
  * 
  * </pre>
  * 
@@ -79,7 +83,7 @@ public class GfaGenerate {
 		StringBuilder sb = new StringBuilder();
 		StringBuilder temp = new StringBuilder();
 		String cycle = PgenCycleTool.pad( PgenCycleTool.getCycleHour() );
-		
+				
 		List<Gfa> adjusted = new ArrayList<Gfa>();
 		
 		/*
@@ -163,19 +167,34 @@ public class GfaGenerate {
 		for ( String category : categories ) {
 			for ( String area : areas ) {
 				List<AbstractDrawableComponent> ret = filterSelected( adjusted, area, category );
-
+                
+				//If no issue/until times, assign them.
+				for ( AbstractDrawableComponent de : ret ) {
+					if ( de instanceof Gfa && !((Gfa)de).isSnapshot() &&
+						 ((Gfa)de).getAttribute( Gfa.ISSUE_TIME ) == null ) {
+						GfaRules.assignIssueTime( ((Gfa)de) );
+					}
+				}
+				
+				//Add to a in-memory product for converting
 				String fileName = "AIRMET_" + category + "_" + area + "_" + cycle + ".txt";
 				fileName = PgenUtil.getWorkingDirectory() + File.separator + fileName;
-                
+				
 				Product p = new Product();
 				Layer l = new Layer();
-				p.addLayer( l );
+				p.addLayer( l );				
 				l.add( ret );
+				
 				List<Product> pList = new ArrayList<Product>();
 				pList.add( p );
 
 				Products products = ProductConverter.convert( pList );
-
+				
+				//Needs to add an empty Gfa to carry the issue/until for proper formatting.
+				if ( ret.size() == 0 ) {
+					addNullGfa( products, category ); 
+				}
+				
 				String xml = SerializationUtil.marshalToXml( products );
 
 				if( sb.length() > 0 && !sb.toString().endsWith("\n\n") )  sb.append( "\n\n" );
@@ -187,6 +206,7 @@ public class GfaGenerate {
 				temp.setLength( 0 ); // clear
 			}
 		}
+		
 		return sb;
 	}
 
@@ -391,4 +411,66 @@ public class GfaGenerate {
 		
 		return new String(sb);
 	}
+	
+
+	/*
+	 * Adds an empty Gfa to the product so it can pass issue/until time for correct formatting.
+	 * 
+	 * Note - this should be called only when there is no Gfa smears in the "prds".
+	 */
+	private void addNullGfa( Products prds, String category )  {
+
+		gov.noaa.nws.ncep.ui.pgen.file.Gfa fgfa = new gov.noaa.nws.ncep.ui.pgen.file.Gfa();
+			
+		fgfa.setPgenCategory( "MET" );
+		fgfa.setPgenType( "GFA" );
+        
+		// Hazard type & forecast hour with "-" are needed for xslt to retrieve issue/until time.
+		fgfa.setHazard( setFirstHazardType( category ) );
+		fgfa.setFcstHr("0-6" );
+
+		//
+		SimpleDateFormat sdf = new SimpleDateFormat("ddHHmm");				
+
+		Calendar cal = Calendar.getInstance();
+		String timeStr = AirmetCycleInfo.getIssueTime();
+
+		int hour = Integer.parseInt(timeStr.substring(0, 2));
+		int min = Integer.parseInt(timeStr.substring(2));
+
+		cal.set(Calendar.HOUR_OF_DAY, hour);
+		cal.set(Calendar.MINUTE, min);
+		cal.set(Calendar.SECOND, 0);
+
+		fgfa.setIssueTime( sdf.format( cal.getTime() ) );
+
+		cal = AirmetCycleInfo.getUntilTime();
+		fgfa.setUntilTime( sdf.format( cal.getTime() ) );
+        
+		//Add to the product
+		prds.getProduct().get(0).getLayer().get(0).getDrawableElement().getGfa().add( fgfa );
+
+	}
+	
+	
+	/*
+	 * set the first hazard type that belongs to a "category" - SIERRA, TANGO, ZULU.
+	 */
+	private String setFirstHazardType( String category )  {
+		String type = "NONE";
+		
+		if ( category.equals( GfaInfo.HazardCategory.SIERRA.toString() ) ) {
+			type = new String( "IFR" );
+		}
+		else if ( category.equals( GfaInfo.HazardCategory.TANGO.toString() ) ) {
+			type = new String( "TURB" );			
+		}
+		else if ( category.equals( GfaInfo.HazardCategory.ZULU.toString() ) ) {
+			type = new String( "ICE" );						
+		}
+		
+		return type;
+		
+	}
+	
 }

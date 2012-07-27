@@ -26,6 +26,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaReducePoint;
 
 /**
  * Implements a modal map tool for PGEN add point function.
@@ -34,8 +36,10 @@ import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
  * SOFTWARE HISTORY
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
- * 06/10			282		S. Gilbert   	Initial Creation.
+ * 06/10			282		S. Gilbert  Initial Creation.
  * 04/11			?		B. Yin		Re-factor IAttribute
+ * 05/11			#808	J. Wu		Update Gfa vor text
+ * 05/12		    #610	J. Wu   	Add warning when GFA FROM lines > 3
  *
  * </pre>
  * 
@@ -111,7 +115,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	if ( button == 1 ) {
 
@@ -197,7 +201,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         @Override
         public boolean handleMouseDownMove(int anX, int aY, int button){
         	
-        	if ( button != 1 ) return false;
+        	if ( button != 1 || shiftDown ) return false;
         	
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -247,6 +251,17 @@ public class PgenAddPointAlt extends AbstractPgenTool {
     			drawingLayer.removeGhostLine();
     			AbstractDrawableComponent newComp = addPointToElement( loc, index, drawingLayer.getSelectedComp() );
         		drawingLayer.replaceElement(drawingLayer.getSelectedComp(), newComp);
+        		
+    			if ( newComp instanceof Gfa ) {
+    				if( ((Gfa)newComp).getGfaFcstHr().indexOf("-") > -1 ){
+    					// snap
+    					((Gfa)newComp).snap();
+	    				GfaReducePoint.WarningForOverThreeLines( (Gfa)newComp );           		    				
+    				}
+
+    				((Gfa)newComp).setGfaVorText( Gfa.buildVorText( (Gfa)newComp ) );
+    			}
+
         		drawingLayer.removeSelected();
     			status = ADD_STATUS.START;
     			refresh();

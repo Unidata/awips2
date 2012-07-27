@@ -12,8 +12,8 @@ import gov.noaa.nws.ncep.ui.pgen.PgenStaticDataProvider;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
-import gov.noaa.nws.ncep.ui.pgen.productmanage.ProdTypeDialog;
 
+import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -265,7 +265,7 @@ public class ProdType {
     	String ret = "";
     	try {
 			
-			LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(ProdTypeDialog.getStyleSheetFileName(name) );
+			LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(getStyleSheetFileName(styleSheetFile) );
 			
 			ret =  lFile.getFile().getAbsolutePath();
 		}
@@ -275,5 +275,13 @@ public class ProdType {
 		
 		return ret;
     }
- 
+    
+	private String getStyleSheetFileName( String fname ){
+		String ret = "";
+		if ( fname == null || fname.isEmpty() ) return ret;
+		
+		return PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + File.separator + "xslt" + File.separator + "prod" + File.separator + fname;
+	}	
+
+	
 }
