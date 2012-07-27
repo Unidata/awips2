@@ -19,9 +19,9 @@ package gov.noaa.nws.ncep.ui.nsharp.palette;
  * @version 1.0
  */
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpTimeLineStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpTimeLineStateProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +139,7 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 		activateBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {   
 				NsharpSkewTResource rsc = NsharpSkewTEditor.getActiveNsharpEditor().getNsharpSkewTDescriptor().getSkewtResource();			
-				rsc.handleTimeLineActConfig(selectedTimeList, NsharpSkewTResource.State.ACTIVE);
+				rsc.handleTimeLineActConfig(selectedTimeList, NsharpConstants.State.ACTIVE);
 				selectedTimeList.clear();
 				close();
 			}
@@ -152,7 +152,7 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 			public void handleEvent(Event event) {  
 				//System.out.println("Unload Selected");
 				NsharpSkewTResource rsc = NsharpSkewTEditor.getActiveNsharpEditor().getNsharpSkewTDescriptor().getSkewtResource();				
-				rsc.handleTimeLineActConfig(selectedTimeList, NsharpSkewTResource.State.INACTIVE);
+				rsc.handleTimeLineActConfig(selectedTimeList, NsharpConstants.State.INACTIVE);
 				selectedTimeList.clear();
 				close();
 			}          		            	 	
@@ -178,7 +178,7 @@ public class NsharpTimeLineConfigDialog extends Dialog {
 		List<NsharpTimeLineStateProperty>  tlList = rsc.getTimeLineStateList();
 		for(NsharpTimeLineStateProperty tl: tlList){
 			String s;
-			if(tl.getTimeState() == NsharpSkewTResource.State.INACTIVE)
+			if(tl.getTimeState() == NsharpConstants.State.INACTIVE)
 				s = "--(InActive)";
 			else
 				s="--(Active)";

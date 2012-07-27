@@ -310,6 +310,9 @@ HDS	^(SF(US|PA)41) ([A-Z]{4}) (..)(..)(..)
 IDS|DDPLUS	^(M[A-Z]{3}[0-9]{2}) ([KPTMC].{3}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/text/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
+IDS|DDPLUS	^(T[BCHPRTWXY][A-Z]{2}[0-9]{2}) ([A-Z]{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/text/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
+
 # summaries
 IDS|DDPLUS	^(A.{5}) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/summaries/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
@@ -356,6 +359,9 @@ IDS|DDPLUS	^(SM[UCM][SNX]..) (.{4}) (..)(..)(..)
 IDS|DDPLUS	^(S[AP].{4}) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex	/data_store/metar/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d%H
 
+# already included in text pattern
+#IDS|DDPLUS	^(SAAK7.) (....) (..)(..)(..)
+#	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
 
 # AWIPS1:	RADAR	^SDUS[23578].*|^NXUS6.*		/radar/raw
 #		RADAR	^SDUS3.*			/radar/text
@@ -363,8 +369,8 @@ IDS|DDPLUS	^(S[AP].{4}) (.{4}) (..)(..)(..)
 # ** TO BE LOCALIZED *** 
 
 # already included in text pattern
-#IDS|DDPLUS	^(SM(US|CN|MX)..) (....) (..)(..)(..)
-#	FILE	-overwrite -log -close    /data_store/sfcobs/\4/\5/\1_\3_\4\5\6_(seq).%Y%m%d
+#IDS|DDPLUS	^(S[AP]CN[345].) (....) (..)(..)(..)
+#	FILE	-overwrite -log -close    /data_store/metar/\3/\4/\1_\2_\3\4\5_(seq).%Y%m%d
 
 # AWIPS1:	TEXT	^SMV[DCE].* 			/point/maritime/Raw
 # AWIPS1:	TEXT	^SIV[DCE].* 			/point/maritime/Raw

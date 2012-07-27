@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>NCON</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legend_color=RGB {155, 155, 155}</resourceParameters>
+    <resourceParameters>
+pluginName=nonconvsigmet
+reportType=nonconvsigmet	
+color=RGB {155, 155, 155}
+    </resourceParameters>
     <filterLabels>SigMet,Event</filterLabels>
     <rscImplementation>NonconvectiveSigmet</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

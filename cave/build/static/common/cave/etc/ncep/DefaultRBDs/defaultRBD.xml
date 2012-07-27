@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<rbdBundle rbdName="BasicWX-US">
+<rbdBundle rbdName="Welcome">
     <paneLayout col="1" row="1"/>
     <selectedPaneId col="0" row="0"/>
     <geoSyncedPanes>true</geoSyncedPanes>

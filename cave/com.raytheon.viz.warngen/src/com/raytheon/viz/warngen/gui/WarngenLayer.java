@@ -1160,14 +1160,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry intersection = null;
             try {
                 // Get intersection between county and hatched boundary
-                try {
-                    intersection = GeometryUtil.intersection(hatchedArea,
-                            prepGeom);
-                } catch (TopologyException e) {
-                    // side location conflict using a prepared geom
-                    // need the actual geom for this case
-                    intersection = GeometryUtil.intersection(hatchedArea, geom);
-                }
+                intersection = GeometryUtil.intersection(hatchedArea,prepGeom);
                 if (intersection.isEmpty()) {
                     continue;
                 }
@@ -1745,19 +1738,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Matcher m = tmlPtrn.matcher(rawMessage);
 
         if (m.find()) {
-            Calendar issueTime = warnRecord.getIssueTime();
-            int day = issueTime.get(Calendar.DAY_OF_MONTH);
-            int tmlHour = Integer.parseInt(m.group(1));
-            // This is for the case when the warning text was created,
-            // but actually issued the next day.
-            if (tmlHour > issueTime.get(Calendar.HOUR_OF_DAY)) {
-                day--;
-            }
-            int tmlMinute = Integer.parseInt(m.group(2));
+            int day = warnRecord.getIssueTime().get(Calendar.DAY_OF_MONTH);
+            int hour = Integer.parseInt(m.group(1));
+            int minute = Integer.parseInt(m.group(2));
             frameTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             frameTime.set(Calendar.DAY_OF_MONTH, day);
-            frameTime.set(Calendar.HOUR_OF_DAY, tmlHour);
-            frameTime.set(Calendar.MINUTE, tmlMinute);
+            frameTime.set(Calendar.HOUR_OF_DAY, hour);
+            frameTime.set(Calendar.MINUTE, minute);
         } else {
             frameTime = warnRecord.getIssueTime();
         }

@@ -1,5 +1,5 @@
 ! Attributes for the GFSMOS resource with "standard" plot model
 !
-plotModelName=gfsmos_standard
+plotModel=@PlotModels/bufrmosGFS/standard.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

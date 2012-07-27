@@ -883,7 +883,7 @@ class SmartScript(BaseTool.BaseTool):
         if varDict is not None:
             varDict = str(varDict)
         
-        parm = self.getParm("Fcst", elementName, "SFC")
+        parm = self.getParm(self.__mutableID, elementName, "SFC")
         if timeRange is None:
             from com.raytheon.viz.gfe.core.parm import ParmState
             timeRange = parm.getParmState().getSelectedTimeRange()

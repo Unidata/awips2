@@ -31,7 +31,7 @@ import PointDataView, PointDataContainer, NoDataException, PointDataRetrieve
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    25Apr2012       14688         rferrel        Initial Creation.
-#    
+#    06JUL2012       15153         zhao           retrieve latest Metar for MetarMonitor & PersistMonitor
 # 
 #
     
@@ -54,7 +54,19 @@ class RefTimePointDataRetrieve(PointDataRetrieve.PointDataRetrieve):
         from com.raytheon.viz.pointdata import PointDataRequest
         from java.lang import String
         import jep
-        dts = self._createJarray(availableTimes, maxSize)
+        from com.raytheon.uf.common.time import DataTime
+        #dts = self._createJarray(availableTimes, maxSize)
+        length = len(availableTimes)
+        dts = jep.jarray(length,DataTime)
+
+        if maxSize==0 : #DR15153: retrive latest Metar for Metarmonitor & PersistMonitor
+            #from com.raytheon.uf.common.time import DataTime
+            dts = jep.jarray(1,DataTime)
+            #length = len(availableTimes)
+            dts[0] = DataTime(availableTimes[length-1])
+        else : # for maxSize >= 1
+            dts = self._createJarray(availableTimes, maxSize)
+
         constraints = self._buildConstraints(None) #times are explicitly set so we don't need to constrain those
         params = jep.jarray(len(parameters), String)
         for i in range(len(parameters)):

@@ -127,14 +127,14 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
      *
      */
 	private class PgenLabeledLineModifyHandler extends PgenSelectingTool.PgenSelectHandler {
-		protected boolean	ptSelected2	= false;
         private ArrayList<Coordinate> points = new ArrayList<Coordinate>();
-        
+        private boolean simulate;
        	/**
     	 * An instance of DrawableElementFactory, which is used to 
     	 * create new elements.
     	 */
     	protected DrawableElementFactory def = new DrawableElementFactory();
+		protected boolean	ptSelected2	= false;
 
         /*
          * (non-Javadoc)
@@ -144,11 +144,14 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
-        	ptSelected2 = false;
+       
         	//  Check if mouse is in geographic extent
-        	click = mapEditor.translateClick(anX, aY);
-        	if ( click == null ) return false;
+        	Coordinate loc = mapEditor.translateClick(anX, aY);
+        	if ( loc == null || shiftDown || simulate ) return false;
         	
+        	click = loc;
+         	ptSelected2 = false;
+         	
         	if ( button == 1 ){
         		if ( attrDlg.isAddLineMode() ){
                     points.add( click );                
@@ -224,7 +227,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         public boolean handleMouseMove(int x, int y) {
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
-        	if ( loc == null ) return false;
+        	if ( loc == null || simulate ) return false;
         	
         	if ( attrDlg.isAddLineMode()){
         		// create the ghost line and put it in the group
@@ -261,10 +264,12 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
          */
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) {
+        	if ( shiftDown || simulate ) return false;
+        	
         	if ( button == 1 ){
         		//  Check if mouse is in geographic extent
         		Coordinate loc = mapEditor.translateClick(x, y);
-        		if ( loc == null || elSelected == null) return false;
+        		if ( loc == null || elSelected == null ) return true;
         		
             	//make sure the click is close enough to the element
             	if ( drawingLayer.getDistance(elSelected, loc) > 30 && !ptSelected2 ) return false;
@@ -347,6 +352,9 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         		else {
         		//	elSelected = drawingLayer.getNearestElement(click, labeledLine);
         		}
+        		simulate = true;
+        		PgenUtil.simulateMouseDown(x, y, button, mapEditor);
+        		simulate = false;
         	}
         	
         	return true;
@@ -362,6 +370,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
         	
+        	if ( shiftDown || simulate ) return false;
         	// Finish the editing
     		if (button == 1 && drawingLayer != null ){
     			

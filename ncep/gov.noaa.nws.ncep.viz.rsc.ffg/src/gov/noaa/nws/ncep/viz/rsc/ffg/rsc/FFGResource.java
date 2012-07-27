@@ -5,6 +5,7 @@ import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgRecord;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
@@ -27,7 +28,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -57,7 +57,7 @@ import javax.measure.unit.Unit;
  *  11/15/2010    307      Greg Hull    update existing data with best timeMatch
  *  07/11/2011             Greg Hull    ColorBarResource                               
  *  07/28/2011    450      Greg Hull    NcPathManager
- * 
+ *  05/23/12      785      Q. Zhou      Added getName for legend.
  * </pre>
  * 
  * @author ghull 
@@ -326,4 +326,14 @@ public class FFGResource extends AbstractNatlCntrsResource<FFGResourceData, MapD
 	protected AbstractFrameData createNewFrame( DataTime frameTime, int timeInt ) {
 		return new FrameData(frameTime,timeInt);
 	}	
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.ffgDataList.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }

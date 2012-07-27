@@ -4,4 +4,4 @@ enablePositiveStrikes=true
 enableNegativeStrikes=true
 positiveSymbolSize=3
 negativeSymbolSize=3
-colorBar=@intensityColorBar.xml
+colorBar=@ColorBars/Lightning/intensityColorBar.xml

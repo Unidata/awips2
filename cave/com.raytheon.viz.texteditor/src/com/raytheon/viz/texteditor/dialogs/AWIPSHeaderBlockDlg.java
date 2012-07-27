@@ -23,6 +23,8 @@ package com.raytheon.viz.texteditor.dialogs;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
@@ -87,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * 01/26/2012   14468       D.Friedman  Fix initial BBB field selection.
  * 05/30/2012   15046       D.Friedman  Always set addressee field to ALL.
+ * 06/19/2012   14975       D.Friedman  Run callback when dialog is dismissed.
  * </pre>
  * 
  * @author lvenable
@@ -187,13 +190,23 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
      *            Parent shell.
      */
     public AWIPSHeaderBlockDlg(Shell parent, TextEditorDialog cbClient) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
+        super(parent, SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL,
+                CAVE.PERSPECTIVE_INDEPENDENT | CAVE.DO_NOT_BLOCK);
         this.setText("AWIPS Header Block");
         this.parentEditor = cbClient;
     }
 
     @Override
     protected void initializeComponents(Shell shell) {
+        shell.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (parentEditor != null)
+                    parentEditor.headerBlockDlgDismissed(
+                            Boolean.TRUE.equals(getReturnValue()));
+            }
+        });
+        
         setReturnValue(false);
 
         createWmoIdFields();

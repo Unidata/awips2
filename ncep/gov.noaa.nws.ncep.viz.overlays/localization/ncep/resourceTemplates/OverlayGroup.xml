@@ -81,7 +81,7 @@
             <mapName>${mapName}</mapName>
             <lineWidth>${lineWidth}</lineWidth>
             <lineStyle>${lineStyle}</lineStyle>
-            <legendColor>${legend_color}</legendColor>
+            <legendColor>${color}</legendColor>
             <color>${color}</color>
       </resourceData>
    </resource>

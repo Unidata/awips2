@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NatlMosaic</resource>
     <attrSetGroupName>PRECIP</attrSetGroupName>
-    <attrSetNames>PRCP1_4.00,PRCP24_4.00,PRCPC_4.00</attrSetNames>
+    <attrSetNames>PRCP,PRCP1_4.00,PRCP24_4.00,PRCPC_4.00</attrSetNames>
 </AttributeSetGroup>

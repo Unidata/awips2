@@ -21,7 +21,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * ------------ ---------- ----------- --------------------------
  * 10/09  		172    	   	M. Li       Initial Creation
  *                           
- * 07/31/11     450         G. Hull     Add plugin and moved methods from NcPathManager                 
+ * 07/31/11     450         G. Hull     Add plugin and moved methods from NcPathManager       
+ * 06/01/12     654         S. Gurung   Added method getSkyCoverageParams()          
  *                       
  * </pre>
  * 
@@ -144,6 +145,20 @@ public class PlotParameterDefns implements ISerializableObject {
 		return list;
 	}
 
+	public ArrayList<String> getSkyCoverageParams() {
+		ArrayList<String> list = new ArrayList<String>();
+		
+		for(PlotParameterDefn p : plotParameterDefn ){
+			if( p.getPlotMode() != null && p.getPlotMode().equals( "table" ) &&
+				p.getSymbolFont() != null    && p.getSymbolFont().equals("WxSymbolFont") &&
+				p.getPlotParamName() != null && p.getPlotParamName().endsWith("C")) {
+				
+				list.add( p.getPlotParamName() );
+			}
+		}		
+		
+		return list;
+	}
 
 	// return  a list of all the Defns with the given metParameter.
 	public ArrayList<PlotParameterDefn> getPlotParamDefnsForMetParam( String metParam ) {
