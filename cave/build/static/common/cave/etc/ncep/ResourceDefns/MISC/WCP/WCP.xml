@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>WCP</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legend_color=RGB {0, 100, 255}</resourceParameters>
+    <resourceParameters>
+pluginName=wcp
+reportType=wcp
+color=RGB {0, 100, 255}
+	</resourceParameters>
     <filterLabels>AWW,Event</filterLabels>
     <rscImplementation>WCP</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

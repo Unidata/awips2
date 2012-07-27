@@ -21,38 +21,34 @@
                      isRequeryNecessaryOnTimeMatch="true">
          <satelliteType>GINI</satelliteType>
          <displayUnitStr>${displayUnitStr}</displayUnitStr>
-			   <legendColor>${legend_color}</legendColor>
-			   <colorMapName>${colorMapName}</colorMapName>
-  		    ${colorBar}
+		 <legendColor>${legendColor}</legendColor>
+		 <colorMapName>${colorMapName}</colorMapName>
+  ${colorBar}
          <frameSpan>${frameSpan}</frameSpan>
          <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
          <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
          <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
          <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+         <alpha>${alpha}</alpha>
+         <brightness>${brightness}</brightness>
+         <contrast>${contrast}</contrast> 
+         
          <metadataMap>
             <mapping key="pluginName">
                <constraint constraintValue="${pluginName}" 
                            constraintType="EQUALS"/>
             </mapping>
-            <mapping key="physicalElement">
-               <constraint constraintValue="${imageType}" 
-                           constraintType="EQUALS"/>
+            <mapping key="creatingEntity">
+               <constraint constraintValue="${satelliteName}" 
+                           constraintType="LIKE"/>
             </mapping>
             <mapping key="sectorID">
                <constraint constraintValue="${sectorID}" 
                            constraintType="EQUALS"/>
             </mapping>
-<!-- we would like to use imageType and areaName here like McIdas 
-     since these are the values that the 
-     user will see in the generating subType field in the gui --> 
-<!-- but we can't because the parameter name and the key need to be the 
-same since 
-     the dynamic resource generation code uses the parameters as 
-     request constraints when querying the DB.
-  -->
-            <mapping key="creatingEntity">
-               <constraint constraintValue="${creatingEntity}" 
-                           constraintType="LIKE"/>
+            <mapping key="physicalElement">
+               <constraint constraintValue="${imageType}" 
+                           constraintType="EQUALS"/>
             </mapping>
           </metadataMap>
          </resourceData>

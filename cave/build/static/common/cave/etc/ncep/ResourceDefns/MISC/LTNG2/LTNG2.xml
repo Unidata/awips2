@@ -4,9 +4,10 @@
     <resourceDefnName>LTNG2</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
     <resourceParameters>
-legend_color=RGB {200, 200, 200}
+pluginName=binlightning
 colorByIntensity=true
-	</resourceParameters>
+legendColor=RGB {200, 200, 200}
+    </resourceParameters>
     <filterLabels>Observed</filterLabels>
     <rscImplementation>Lightning</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
@@ -17,5 +18,4 @@ colorByIntensity=true
     <dfltFrameCount>10</dfltFrameCount>
     <dfltTimeRange>6</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
-    <binOffset virtualOffset="0" posOffset="10" negOffset="10"/>
 </ResourceDefinition>

@@ -1,4 +1,3 @@
-legend_color= RGB {238,64,0}
 color= RGB {238,64,0}
 lineStyle=LONG_DASH_THREE_DOTS
 lineWidth=2

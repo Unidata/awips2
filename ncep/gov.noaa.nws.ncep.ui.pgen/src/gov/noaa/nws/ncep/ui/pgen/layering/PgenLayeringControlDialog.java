@@ -565,9 +565,9 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
 	    setButtonColor( layerNameBtns.get( layerInUse ), activeLayerButtonColor );			    			
 	   	
 	    // Turn the display for the layer   	    
-	    displayOnOffBtns.get( layerInUse ).setSelection( true );
+//	    displayOnOffBtns.get( layerInUse ).setSelection( true );
 		layerList.get( layerInUse ).setInUse( true );
-		layerList.get( layerInUse ).setOnOff( true );
+//		layerList.get( layerInUse ).setOnOff( true );
 		
 		if ( layerNameDlg != null ) layerNameDlg.close();
 		if ( displayDlg != null ) displayDlg.close();
@@ -575,7 +575,7 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
 		
 		currentLayer = layerList.get( layerInUse );
 		
-    	currentLayer.setOnOff( true );
+//    	currentLayer.setOnOff( true );
 		
         drawingLayer.setActiveLayer( currentLayer );
         
@@ -639,9 +639,9 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
     	/*
     	 *  Always turn on the display for the active layer.
     	 */
-    	displayOnOffBtns.get( layerInUse ).setSelection( true );
-    	layerList.get( layerInUse ).setOnOff( true );
-    	currentLayer.setOnOff( true );
+//    	displayOnOffBtns.get( layerInUse ).setSelection( true );
+//    	layerList.get( layerInUse ).setOnOff( true );
+//    	currentLayer.setOnOff( true );
 
     	PgenUtil.refresh();
     

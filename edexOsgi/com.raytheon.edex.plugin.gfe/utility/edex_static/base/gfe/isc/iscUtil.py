@@ -278,7 +278,7 @@ def getRequestXML(xml,selectedServers, selectedWEList):
     return xmlreq;
 
 def getLogger(scriptName, logName=None):
-    import threading, logging
+    import logging
     if logName is None:
         logPath=siteConfig.GFESUITE_LOGDIR+"/"+strftime("%Y%m%d", gmtime())
         logName=scriptName+".log"
@@ -293,12 +293,12 @@ def getLogger(scriptName, logName=None):
     if not os.path.exists(logPath):
         os.makedirs(logPath)
     
-    theLog = logging.getLogger(scriptName+threading.current_thread().name)
+    theLog = logging.getLogger(scriptName)
     theLog.setLevel(logging.INFO)
     ch = logging.FileHandler(logFile)
     
     ch.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s %(filename)s %(levelname)s:  %(message)s", "%H:%M:%S")
+    formatter = logging.Formatter("%(levelname)s  %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s")
     ch.setFormatter(formatter)
     for h in theLog.handlers:
         theLog.removeHandler(h)

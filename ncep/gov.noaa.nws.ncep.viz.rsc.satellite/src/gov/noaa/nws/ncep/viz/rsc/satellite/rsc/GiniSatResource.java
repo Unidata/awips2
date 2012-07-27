@@ -1,16 +1,14 @@
 package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 
-
-import org.eclipse.jface.action.IMenuManager;
+import java.util.ArrayList;
+import java.util.List;
 import org.geotools.coverage.grid.GridGeometry2D;
-
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 
 /**
@@ -23,7 +21,12 @@ import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  05/24/2010    #281        ghull       Initial creation 
- *  
+ *  06/07/2012    #717       archana    Added the methods getImageTypeNumber(),
+ *                                      getParameterList(), getLocFilePathForImageryStyleRule()
+ *                                      removed the overridden method resourceChanged(), 
+ *                                      since it is implemented in the base class. 
+ *                                      
+ *                                        
  * </pre>
  * 
  * @author ghull
@@ -80,6 +83,15 @@ public class GiniSatResource extends AbstractSatelliteResource
     	return ((SatelliteRecord)pdo).getCreatingEntity();
     }
 
+    int getImageTypeNumber( PluginDataObject pdo ) {
+    	return -1;//not used for GINI images
+    }
+    
+    
+    String getLocFilePathForImageryStyleRule(){
+    	return NcPathConstants.GINI_IMG_STYLE_RULES;
+    }
+    
 	@Override
 	String getProjectionFromRecord(PluginDataObject pdo) {
 		int proj = ((SatelliteRecord)pdo).getCoverage().getProjection();
@@ -94,10 +106,13 @@ public class GiniSatResource extends AbstractSatelliteResource
 		return null;   //can't do
 	}
 
+
 	@Override
-	public void resourceChanged(ChangeType type, Object object) {
-		// TODO Auto-generated method stub
-		
+	List<String> getParameterList(PluginDataObject pdo) {
+    	String paramStr = ((SatelliteRecord)pdo).getPhysicalElement();
+    	List<String> paramList = new ArrayList<String>(0);
+    	paramList.add(paramStr);
+    	return paramList;
 	}
 
 

@@ -1,5 +1,5 @@
 ! Attributes for the PAFM resource with "standard" plot model
 !
-plotModelName=standard
+plotModel=@PlotModels/ncpafm/standard.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

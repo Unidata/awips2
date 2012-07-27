@@ -1,5 +1,5 @@
 ! Attributes for the GFSMOS resource with "Fosberg index, also called fire weather index" plot model
 !
-plotModelName=gfsmos_fosb
+plotModel=@PlotModels/bufrmosGFS/fosb.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

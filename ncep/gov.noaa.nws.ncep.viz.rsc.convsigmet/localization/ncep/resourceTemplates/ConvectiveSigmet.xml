@@ -13,8 +13,8 @@
              <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
              <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
              <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
-             <sourceName>Convective SIGMETs</sourceName>
-	     	 <legendColor>${legend_color}</legendColor>						
+             <sourceName>${legendName}</sourceName>
+	     	 <legendColor>${color}</legendColor>						
              <color>${color}</color>
              <hour0Enable>${hour0Enable}</hour0Enable>
              <hour0Color>${hour0Color}</hour0Color>
@@ -38,10 +38,10 @@
              <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
-                 <constraint constraintValue="convsigmet" constraintType="EQUALS" />
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
                <mapping key="reportType">
-                 <constraint constraintValue="convsigmet" constraintType="EQUALS" />
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS" />
                </mapping>
              </metadataMap>             
           </resourceData>

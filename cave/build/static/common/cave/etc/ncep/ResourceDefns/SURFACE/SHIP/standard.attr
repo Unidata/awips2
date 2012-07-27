@@ -1,4 +1,4 @@
 ! Parameters and Attributes for the default UAIR Resource
-plotModelName=ship_standard
+plotModel=@PlotModels/sfcobs/ship_standard.xml
 plotDensity=12
-conditionalFilterName=
+conditionalFilter=

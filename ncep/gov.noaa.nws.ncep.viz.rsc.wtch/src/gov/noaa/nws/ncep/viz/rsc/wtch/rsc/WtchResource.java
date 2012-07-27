@@ -8,6 +8,7 @@ import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead;
 import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.rsc.wtch.util.WtchUtil;
@@ -49,7 +50,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct. 26, 2011          Michael Gao  Initial creation.
- * 
+ * 05/23/2012     785     Q. Zhou      Added getName for legend.
  * </pre>
  * 
  * @author mgao 
@@ -1071,4 +1072,13 @@ int listIndex = 1;
 		return dataTimeInMs; 
 	}
    
+    @Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.wtchDataMap.size() == 0) {
+			return legendString +"-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }

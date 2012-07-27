@@ -22,6 +22,8 @@ package com.raytheon.viz.hydrobase.dialogs;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -132,6 +134,13 @@ public class DescriptionDlg extends CaveSWTDialog {
     private Button affectAreaSaveBtn;
 
     private String locationId;
+    
+    private String currentRemarkText=null;
+    private String currentFreezeText=null;
+    private String currentReachText=null;
+    private String currentRegText=null;
+    private String currentTopoText=null;
+    private String currentAreaText=null;
 
     // private boolean hasCurrentData = false;
 
@@ -208,6 +217,7 @@ public class DescriptionDlg extends CaveSWTDialog {
         streamBedTF = new Text(controlComp, SWT.BORDER);
         streamBedTF.setFont(controlFont);
         streamBedTF.setLayoutData(gd);
+        streamBedTF.setTextLimit(60);
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label divertLbl = new Label(controlComp, SWT.RIGHT);
@@ -219,6 +229,7 @@ public class DescriptionDlg extends CaveSWTDialog {
         divertTF = new Text(controlComp, SWT.BORDER);
         divertTF.setFont(controlFont);
         divertTF.setLayoutData(gd);
+        divertTF.setTextLimit(60);
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label remarksLbl = new Label(controlComp, SWT.RIGHT);
@@ -232,6 +243,19 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         remarksTF.setFont(controlFont);
         remarksTF.setLayoutData(gd);
+        currentRemarkText=remarksTF.getText();
+        ModifyListener listener = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (remarksTF.getText().length()>255){
+        			remarksTF.setText(currentRemarkText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentRemarkText=remarksTF.getText();
+        	}
+        };
+
+        remarksTF.addModifyListener(listener);
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label freezingLbl = new Label(controlComp, SWT.RIGHT);
@@ -245,6 +269,18 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         freezingTF.setFont(controlFont);
         freezingTF.setLayoutData(gd);
+        currentFreezeText=freezingTF.getText();
+        ModifyListener listenerF = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (freezingTF.getText().length()>160){
+        			freezingTF.setText(currentFreezeText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentFreezeText=freezingTF.getText();
+        	}
+        };
+        freezingTF.addModifyListener(listenerF);
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label reachLbl = new Label(controlComp, SWT.RIGHT);
@@ -258,6 +294,18 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         reachTF.setFont(controlFont);
         reachTF.setLayoutData(gd);
+        currentReachText=reachTF.getText();
+        ModifyListener listenerR = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (reachTF.getText().length()>80){
+        			reachTF.setText(currentReachText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentReachText=reachTF.getText();
+        	}
+        };
+        reachTF.addModifyListener(listenerR);
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label regulationLbl = new Label(controlComp, SWT.RIGHT);
@@ -271,6 +319,18 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         regulationTF.setFont(controlFont);
         regulationTF.setLayoutData(gd);
+        currentRegText=regulationTF.getText();
+        ModifyListener listenerReg = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (regulationTF.getText().length()>230){
+        			regulationTF.setText(currentRegText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentRegText=regulationTF.getText();
+        	}
+        };
+        regulationTF.addModifyListener(listenerReg);
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
         Label topoLbl = new Label(controlComp, SWT.RIGHT);
@@ -284,6 +344,18 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         topoTF.setFont(controlFont);
         topoTF.setLayoutData(gd);
+        currentTopoText=topoTF.getText();
+        ModifyListener listenerT = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (topoTF.getText().length()>230){
+        			topoTF.setText(currentTopoText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentTopoText=topoTF.getText();
+        	}
+        };
+        topoTF.addModifyListener(listenerT);
 
         // ---------------------------------------------
         // Add the Delete and Save buttons
@@ -338,6 +410,19 @@ public class DescriptionDlg extends CaveSWTDialog {
                 | SWT.WRAP | SWT.V_SCROLL);
         affectedAreaTF.setFont(controlFont);
         affectedAreaTF.setLayoutData(gd);
+        currentAreaText=affectedAreaTF.getText();
+        ModifyListener listenerA = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (affectedAreaTF.getText().length()>80){
+        			affectedAreaTF.setText(currentAreaText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentAreaText=affectedAreaTF.getText();
+        	}
+        };
+        affectedAreaTF.addModifyListener(listenerA);
+
 
         // ---------------------------------------------
         // Add the Delete and Save buttons
