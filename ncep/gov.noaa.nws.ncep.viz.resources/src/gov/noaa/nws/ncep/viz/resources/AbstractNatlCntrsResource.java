@@ -11,6 +11,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -309,6 +310,12 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 				@Override
 				public void resourceChanged(ChangeType type, Object object) {
 					
+					if( object == null ) {
+						System.out.println( "resourceChanged called with null object for "+
+								getResourceData().getResourceName().toString() );
+						return;
+					}
+					
 					// TODO : need to make sure that these are the same types of 
 					// objects that are returned by the queryRecords method (or the method
 					// that the resource uses to populate the frameData).
@@ -343,7 +350,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 	//
 	public Boolean updateTimeline( ) {
 		NCTimeMatcher timeMatcher = (NCTimeMatcher) descriptor.getTimeMatcher();
-		ArrayList<DataTime> newFrameTimes = timeMatcher.getFrameTimes();
+		List<DataTime> newFrameTimes = timeMatcher.getFrameTimes();
 
 		// loop thru all of the new frame times and if the frameDataMap doesn't have an entry for
 		// this time create a new entry. 
@@ -436,7 +443,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
     		// create the frameDataMap based on the timeFrames from the timeMatcher.
     		//ArrayList<DataTime> frameTimes
     		NCTimeMatcher timeMatcher = (NCTimeMatcher)descriptor.getTimeMatcher();
-    		ArrayList<DataTime> frameTimes = timeMatcher.getFrameTimes();
+    		List<DataTime> frameTimes = timeMatcher.getFrameTimes();
     		
     		for( DataTime frameTime : frameTimes ) {
     			if( frameTime != null ) {
@@ -648,6 +655,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 			}
 		}
 
+		// 
 		setAllFramesAsPopulated();
 	}
 
@@ -711,6 +719,10 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
  
 	}
 	
+	// set the populated flag in all frames
+	// this is done when the data for all frames has been queried at one time
+	// as opposed to populating as each frame is displayed.
+	//	
 	protected void setAllFramesAsPopulated() {
 		for( AbstractFrameData frameData : frameDataMap.values() ) {
 			frameData.setPopulated(true);

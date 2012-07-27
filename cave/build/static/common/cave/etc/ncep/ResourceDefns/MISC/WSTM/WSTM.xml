@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>WSTM</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legendColor=RGB {255, 255, 255}</resourceParameters>
+    <resourceParameters>    
+pluginName=aww
+reportType=WINTER_WEATHER_ADVISORY,WINTER_STORM_WARNING,WINTER_STORM_WATCH,ADVISORY,URGENT_WEATHER_MESSAGE,WEATHER_ADVISORY,WINTER_STORM
+legendColor=RGB {255, 255, 255}
+    </resourceParameters>
     <filterLabels>AWW,Event</filterLabels>    
     <rscImplementation>WSTM</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

@@ -482,6 +482,12 @@ public class EnsembleSelectComposite extends Composite {
      			}
      		});
      		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.setSelection(isChecked);
+
+     		// TODO : Remove this if we are going to keep the primaryModel parameter in the Resource Definition.
+     		// for now this is just turned off.
+//     		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.setEnabled( false );
+//     		ensCompGuiList.get(index).members[memberIndex].isPrimaryButton.setVisible( false );
+
      		
      		naCycleCnts = 0;
      		// weight at each cycle
@@ -585,6 +591,11 @@ public class EnsembleSelectComposite extends Composite {
      			}
      		});	
      		ensCompGuiList.get(index).isPrimaryButton.setSelection(isChecked);
+
+     		// TODO : Remove this if we are going to keep the primaryModel parameter in the Resource Definition.
+     		// for now this is just turned off.
+//     		ensCompGuiList.get(index).isPrimaryButton.setEnabled( false );
+//     		ensCompGuiList.get(index).isPrimaryButton.setVisible( false );
 
      		naCycleCnts = 0;
      		// weight at each cycle
@@ -839,7 +850,8 @@ public class EnsembleSelectComposite extends Composite {
     				continue;
     			}
     			ensCompName = ensCompGuiList.get(i).getEnsCompName();
-    			if (ensCompGuiList.get(i).isPrimaryButton.getSelection()) first = true;
+    			if (ensCompGuiList.get(i).isPrimaryButton.getSelection())  
+    				first = true;
     			
     			boolean cycleFlag = false;
     			for (j = 0; j < MaxNumOfEnsembleCycles ; j++) {

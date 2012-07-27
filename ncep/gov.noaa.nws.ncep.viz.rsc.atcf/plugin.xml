@@ -27,834 +27,944 @@
       </nc-resource>
    </extension> 
       <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="ohpcEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="ohpcEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="ohpcColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="ohpcColor"
             defaultValue="RGB {255,0,0}"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ohpcLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ohpcLineWidth"
             defaultValue="3"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ohpcSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ohpcSymbolWidth"
             defaultValue="1"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="ohpcSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="ohpcSymbolSize"
             defaultValue="1.0"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="clipEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="clipEnable"
             defaultValue="true"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="clipColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="clipColor"
             defaultValue="RGB {0,255,0}"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="clipLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="clipLineWidth"
             defaultValue="3"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="clipSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="clipSymbolWidth"
             defaultValue="1"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="clipSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="clipSymbolSize"
             defaultValue="1.0"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="avnoEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="avnoEnable"
             defaultValue="true"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="avnoColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="avnoColor"
             defaultValue="RGB {0,0,255}"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="avnoLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="avnoLineWidth"
             defaultValue="3"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="avnoSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="avnoSymbolWidth"
             defaultValue="1"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="avnoSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="avnoSymbolSize"
             defaultValue="1.0"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="mrfoEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="mrfoEnable"
             defaultValue="true"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="mrfoColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="mrfoColor"
             defaultValue="RGB {255,255,0}"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="mrfoLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="mrfoLineWidth"
             defaultValue="3"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="mrfoSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="mrfoSymbolWidth"
             defaultValue="1"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="mrfoSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="mrfoSymbolSize"
             defaultValue="1.0"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="ukmEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="ukmEnable"
             defaultValue="true"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="ukmColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="ukmColor"
             defaultValue="RGB {255,174,185}"
-             
+            paramType="EDITABLE_ATTRIBUTE"
               ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ukmLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ukmLineWidth"
             defaultValue="3"
-             
+            paramType="EDITABLE_ATTRIBUTE"
               ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ukmSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ukmSymbolWidth"
             defaultValue="1"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="ukmSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="ukmSymbolSize"
             defaultValue="1.0"
-               ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="avniEnable"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="ATCF">
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="avniEnable"
             defaultValue="true"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="avniColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="avniColor"
             defaultValue="RGB {0,205,0}"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="avniLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="avniLineWidth"
             defaultValue="3"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="avniSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="avniSymbolWidth"
             defaultValue="1"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="avniSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="avniSymbolSize"
             defaultValue="1.0"
-              
-             ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="namiEnable"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="ATCF">
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="namiEnable"
             defaultValue="true"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="namiColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="namiColor"
             defaultValue="RGB {238,64,0}"
-              
+            paramType="EDITABLE_ATTRIBUTE"
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="namiLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="namiLineWidth"
             defaultValue="3"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="namiSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="namiSymbolWidth"
             defaultValue="1"
-             
- ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="namiSymbolSize"
-            defaultValue="1.0"
-              
-             ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="emx2Enable"
-            defaultValue="true"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="emx2Color"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="namiSymbolSize"
+            defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
+             ncResourceName="ATCF">
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="emx2Enable"
+            defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="ATCF">
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="emx2Color"
             defaultValue="RGB {255,0,0}"
-               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="emx2LineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="emx2LineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                
             ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="emx2SymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="emx2SymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
               
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="emx2SymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="emx2SymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                
             ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="egriEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="egriEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="egriColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="egriColor"
             defaultValue="RGB {0,0,255}"
+            paramType="EDITABLE_ATTRIBUTE"
              
  ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="egriLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="egriLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
               
              ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="egriSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="egriSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="egriSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="egriSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
               
              ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="ngpiEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="ngpiEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="ngpiColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="ngpiColor"
             defaultValue="RGB {0,178,238}"
+            paramType="EDITABLE_ATTRIBUTE"
                
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ngpiLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ngpiLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
               
              ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ngpiSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ngpiSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
               
              ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="ngpiSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="ngpiSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
               
 ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="ukm2Enable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="ukm2Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="ukm2Color"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="ukm2Color"
             defaultValue="RGB {255,127,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ukm2LineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ukm2LineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ukm2SymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ukm2SymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="ukm2SymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="ukm2SymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hwfiEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hwfiEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="hwfiColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hwfiColor"
             defaultValue="RGB {205,0,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hwfiLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hwfiLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hwfiSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hwfiSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="hwfiSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="hwfiSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="ghmiEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="ghmiEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="ghmiColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="ghmiColor"
             defaultValue="RGB {255,165,79}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ghmiLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ghmiLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ghmiSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ghmiSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="ghmiSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="ghmiSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="gfniEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="gfniEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="gfniColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="gfniColor"
             defaultValue="RGB {255,174,185}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="gfniLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="gfniLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="gfniSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="gfniSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="gfniSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="gfniSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="aemiEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="aemiEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="aemiColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="aemiColor"
             defaultValue="RGB {205,133,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="aemiLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="aemiLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="aemiSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="aemiSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="aemiSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="aemiSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tconEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tconEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tconColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tconColor"
             defaultValue="RGB {145,44,238}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tconLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tconLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tconSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tconSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="tconSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="tconSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="gunaEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="gunaEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="gunaColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="gunaColor"
             defaultValue="RGB {30,144,255}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="gunaLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="gunaLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="gunaSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="gunaSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="gunaSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="gunaSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tvcnEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tvcnEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tvcnColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tvcnColor"
             defaultValue="RGB {255,106,106}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tvcnLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tvcnLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tvcnSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tvcnSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="tvcnSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="tvcnSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="emxiEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="emxiEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="emxiColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="emxiColor"
             defaultValue="RGB {0,139,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="emxiLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="emxiLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="emxiSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="emxiSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="emxiSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="emxiSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="fsseEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="fsseEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="fsseColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="fsseColor"
             defaultValue="RGB {0,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="fsseLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="fsseLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="fsseSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="fsseSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="fsseSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="fsseSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="ukmiEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="ukmiEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="ukmiColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="ukmiColor"
             defaultValue="RGB {0,255,255}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ukmiLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ukmiLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="ukmiSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="ukmiSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="ukmiSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="ukmiSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="bammEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="bammEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="bammColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="bammColor"
             defaultValue="RGB {255,215,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="bammLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="bammLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="bammSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="bammSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="bammSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="bammSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="bamdEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="bamdEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="bamdColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="bamdColor"
             defaultValue="RGB {238,238,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="bamdLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="bamdLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="bamdSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="bamdSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="bamdSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="bamdSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="bamsEnable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="bamsEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="bamsColor"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="bamsColor"
             defaultValue="RGB {255,255,0}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="bamsLineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="bamsLineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="bamsSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="bamsSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="bamsSymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="bamsSymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>
-            <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="egr2Enable"
+      </nc-resourceParameter>
+            <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="egr2Enable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="egr2Color"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="egr2Color"
             defaultValue="RGB {255,0,255}"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="egr2LineWidth"
+      </nc-resourceParameter>         
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="egr2LineWidth"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
                ncResourceName="ATCF">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="egr2SymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="egr2SymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
                
             ncResourceName="ATCF">
-      </nc-resourceAttribute>         
-       <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="egr2SymbolSize"
+      </nc-resourceParameter>         
+       <nc-resourceParameter
+            paramClass="Float"
+            paramName="egr2SymbolSize"
             defaultValue="1.0"
+            paramType="EDITABLE_ATTRIBUTE"
               
              ncResourceName="ATCF">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
               
              ncResourceName="ATCF">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="nameEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="nameEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
              
               ncResourceName="ATCF">
-      </nc-resourceAttribute>  
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="speedEnable"
+      </nc-resourceParameter>  
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="speedEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
                
             ncResourceName="ATCF">
-      </nc-resourceAttribute>               
-      <nc-resourceAttribute      
-            attributeClass="Boolean"
-            attributeName="markerEnable"
-            defaultValue="false"
-               
+      </nc-resourceParameter>               
+      <nc-resourceParameter      
+            paramClass="Boolean"
+            paramName="markerEnable"
+            defaultValue="false"               
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ATCF">
-      </nc-resourceAttribute>        
+      </nc-resourceParameter>        
+      
+      <nc-resourceParameter
+            ncResourceName="ATCF"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {255, 255, 255}"               
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="ATCF"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="ATCF"               
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
       </extension>   
 </plugin>
    

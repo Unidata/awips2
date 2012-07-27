@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrdialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.display.ILine;
@@ -532,6 +533,17 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 	public void setCloudDrawingTool(ILabeledLine pgenTool) {
 		
 		this.cloudTool = pgenTool;
+		
+	}
+	
+	@Override
+	/**
+	 * Removes ghost line, handle bars, and closes the dialog
+	 */
+	public void cancelPressed(){
+		
+		PgenUtil.setSelectingMode();
+		super.cancelPressed();
 		
 	}
 	

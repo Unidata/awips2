@@ -1,8 +1,5 @@
 ! Attributes for WTCH (SEVERE WEATHER WATCH Outline Update) - default
 !
-sourceName=WATCH
-color=RGB {155, 155, 155}
-! 
 thunderstormEnable=true
 thunderstormColor=RGB {109, 246, 254}
 thunderstormLineWidth=1

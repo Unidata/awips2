@@ -1,5 +1,5 @@
 ! Parameters and Attributes for the default METAR Resource
 !
-plotModelName=simple
+plotModel=@PlotModels/obs/simple.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

@@ -45,6 +45,7 @@ import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.EditConditionalFilte
  * Date         Ticket#         Engineer        Description
  * ------------ ----------      -----------     --------------------------
  * April 2012   #615             S. Gurung       Initial Creation
+ * April 2012   #606             G. Hull         get 3 plot resource implementations.
  * 
  * </pre>
  * 
@@ -449,20 +450,22 @@ public class ConditionalFilterMngrDialog extends Dialog {
 		try {
 			ArrayList<String> plotDataPlugins = new ArrayList<String>();
 			
-			for( String rscType : 
-				    ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation(
-				    		"PlotData" ) ) {
+			ArrayList<String> plotRscDefns =
+				ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation("SurfacePlot");
+			plotRscDefns.addAll( 
+					ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation("UpperAirPlot") );
+			plotRscDefns.addAll( 
+					ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation("MosPlot") );
+			
+			for( String rscType : plotRscDefns ) {
 				ResourceDefinition rscDefn = 
 					ResourceDefnsMngr.getInstance().getResourceDefinition( rscType );
-				if( rscDefn != null ) {
-					ResourceName rscName = new ResourceName( rscDefn.getResourceCategory(), 
-							rscType, null, null );
-					
-					HashMap<String,String> rscParams = rscDefn.getResourceParameters();
-					if( rscParams.containsKey("pluginName") &&
-						!plotDataPlugins.contains( rscParams.get("pluginName") ) ) { 
-						plotDataPlugins.add( rscParams.get("pluginName") );
-						pluginNameList.add( rscParams.get("pluginName") );
+				
+				if( rscDefn != null ) {					
+					String pluginName = rscDefn.getPluginName();
+					if( !plotDataPlugins.contains( pluginName ) ) { 
+						plotDataPlugins.add( pluginName );
+						pluginNameList.add( pluginName );
 					}
 				}
 			}

@@ -15,7 +15,7 @@ export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
 # set initial lid to the first command line argument passed into the script
 LID_PASSED_IN=$1
 
-export CLASSPATH=$CLASSPATH:$DB_DRIVER_PATH
+export CLASSPATH=$DB_DRIVER_PATH
 # need to add a path to the jar file for this application
 CLASSPATH=$CLASSPATH:$WHFS_BIN_DIR/SiteSpecific.jar
 

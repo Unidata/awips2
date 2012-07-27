@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -42,7 +43,8 @@ import com.raytheon.uf.edex.database.purge.PurgeLogger;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 19, 2012 #470       bphillip     Initial creation
+ * Apr 19, 2012   #470      bphillip     Initial creation
+ * Jun 20, 2012  NC#606     ghull        send purge-complete messages 
  * 
  * </pre>
  * 
@@ -55,6 +57,8 @@ public class PurgeJob extends Thread {
 	public enum PURGE_JOB_TYPE {
 		PURGE_ALL, PURGE_EXPIRED
 	}
+	
+    public static final String PLUGIN_PURGED_TOPIC = "jms-generic:topic:pluginPurged";
 
 	private long startTime;
 
@@ -97,7 +101,11 @@ public class PurgeJob extends Thread {
 			dao = PluginFactory.getInstance().getPluginDao(pluginName);
 			if (dao.getDaoClass() != null) {
 				dao.purgeExpiredData();
+				
 				PurgeLogger.logInfo("Data successfully Purged!", pluginName);
+
+				EDEXUtil.getMessageProducer().sendAsyncUri( PLUGIN_PURGED_TOPIC, pluginName );
+				
 			} else {
 				Method m = dao.getClass().getMethod("purgeExpiredData",
 						new Class[] {});
@@ -107,14 +115,16 @@ public class PurgeJob extends Thread {
 								.logWarn(
 										"Unable to purge data.  This plugin does not specify a record class and does not implement a custom purger.",
 										pluginName);
-					} else {
+					} else {				
 						if (this.purgeType.equals(PURGE_JOB_TYPE.PURGE_EXPIRED)) {
 							dao.purgeExpiredData();
 						} else {
 							dao.purgeAllData();
 						}
-						PurgeLogger.logInfo("Data successfully Purged!",
-								pluginName);
+
+						PurgeLogger.logInfo("Data successfully Purged!", pluginName);
+
+						EDEXUtil.getMessageProducer().sendAsyncUri( PLUGIN_PURGED_TOPIC, pluginName );
 					}
 				}
 			}

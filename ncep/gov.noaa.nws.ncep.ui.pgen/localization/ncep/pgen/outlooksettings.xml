@@ -22,17 +22,17 @@
                 <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Times" style="BOLD" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                     <Color red="255" green="255" blue="0" alpha="255"/>
                     <Point Lat="53.089094394543196" Lon="-139.59809730817855"/>
-                    <textLine>HAILOTLK</textLine>
+                    <textLine>HAIL</textLine>
                 </Text>
                 <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Times" style="BOLD" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                     <Color red="255" green="255" blue="0" alpha="255"/>
                     <Point Lat="57.95889501378278" Lon="-123.31501126727873"/>
-                    <textLine>TORNOTLK</textLine>
+                    <textLine>TORN</textLine>
                 </Text>
                 <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Times" style="BOLD" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                     <Color red="255" green="255" blue="0" alpha="255"/>
                     <Point Lat="59.848438067788535" Lon="-104.51321680285952"/>
-                    <textLine>WINDOTLK</textLine>
+                    <textLine>WIND</textLine>
                 </Text>
                 <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Times" style="BOLD" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                     <Color red="255" green="255" blue="0" alpha="255"/>
@@ -47,7 +47,7 @@
                 <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Times" style="BOLD" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                     <Color red="255" green="255" blue="0" alpha="255"/>
                     <Point Lat="47.20530802242193" Lon="-56.54390913096121"/>
-                    <textLine>CATG_SVR</textLine>
+                    <textLine>CATG</textLine>
                 </Text>
                 <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Times" style="BOLD" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
                     <Color red="255" green="255" blue="0" alpha="255"/>
@@ -488,7 +488,7 @@
                         </DrawableElement>
                     </DECollection>
                 </Outlook>
-                <Outlook outlookType="HAILOTLK" name="Outlook" pgenCategory="Outlook" pgenType="HAILOTLK">
+                <Outlook outlookType="HAIL" name="Outlook" pgenCategory="Outlook" pgenType="HAIL">
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
@@ -602,7 +602,7 @@
                         </DrawableElement>
                     </DECollection>
                 </Outlook>
-                <Outlook outlookType="TORNUTLK" name="Outlook" pgenCategory="Outlook" pgenType="TORNUTLK">
+                <Outlook outlookType="TORN" name="Outlook" pgenCategory="Outlook" pgenType="TORN">
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
@@ -732,7 +732,7 @@
                         </DrawableElement>
                     </DECollection>
                 </Outlook>
-                <Outlook outlookType="WINDOTLK" name="Outlook" pgenCategory="Outlook" pgenType="WINDOTLK">
+                <Outlook outlookType="WIND" name="Outlook" pgenCategory="Outlook" pgenType="WIND">
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">
@@ -978,7 +978,7 @@
                         </DrawableElement>
                     </DECollection>
                 </Outlook>
-                <Outlook outlookType="CATG_SVR" name="Outlook" pgenCategory="Outlook" pgenType="CATG_SVR">
+                <Outlook outlookType="CATG" name="Outlook" pgenCategory="Outlook" pgenType="CATG">
                     <DECollection collectionName="OutlookLine">
                         <DrawableElement>
                             <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="FILL_PATTERN_1" flipSide="false">

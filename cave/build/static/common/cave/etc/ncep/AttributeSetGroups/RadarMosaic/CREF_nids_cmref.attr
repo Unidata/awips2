@@ -1,5 +1,5 @@
 colorMapName=nids_cmref
-colorBar=@dfltMosaicColorBar.xml
+colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=30
 prodName=CREF
 alpha=1.0

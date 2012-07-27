@@ -9,15 +9,6 @@
           <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
             </properties>
           <resourceData xsi:type="NC-IDFTResourceData" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
-            <metadataMap>
-                <mapping key="pluginName">
-                    <constraint constraintValue="idft" constraintType="EQUALS"/>
-                </mapping>
-                <mapping key="reportType">
-                    <constraint constraintValue="idft" constraintType="EQUALS"/>
-                </mapping>
-            </metadataMap>
-            
            <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
            <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
            <frameSpan>${frameSpan}</frameSpan>
@@ -32,6 +23,15 @@
            <arrowLength>${arrowLength}</arrowLength>
            <arrowLineWidth>${arrowLineWidth}</arrowLineWidth>
            <requestStyle>METADATA</requestStyle>  
+           <metadataMap>
+				<mapping key="pluginName">
+					<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+				</mapping>
+				<mapping key="reportType">
+					<constraint constraintValue="${reportType}" constraintType="EQUALS" />
+				</mapping>
+            </metadataMap>
+            
            
           </resourceData>
         </resource>

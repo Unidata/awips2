@@ -11,6 +11,9 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 import java.awt.Color;
 import java.util.Iterator;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
+
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -23,6 +26,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaReducePoint;
 import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
@@ -45,7 +49,10 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
  * 02/12					J. Wu		Make the new copy as the newly-selected.
  * 02/12            597     S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 02/12                    S. Gurung   Moved isSnapADC() and getNumOfCompassPts() to SigmeInfo.		
- * 								 
+ * 04/12            750     Q. Zhou     Modified handleMouseDownMove for loc null.								 
+ * 05/11			#808	J. Wu		Update Gfa vor text
+ * 05/12		    #610	J. Wu   	Add warning when GFA FROM lines > 3
+ *
  * </pre>
  * 
  * @author	B. Yin
@@ -89,12 +96,14 @@ public class PgenCopyElement extends AbstractPgenTool {
     	
     	private boolean preempt;
     	private OperationFilter copyFilter= new OperationFilter( Operation.COPY_MOVE ); ;
-    	
-    	//DrawableElement elSelected = null;
-    	AbstractDrawableComponent ghostEl = null;
-    	Color ghostColor = new java.awt.Color( 255,255,255);
+    	private Coordinate ptSelected = null;
 
-    	Coordinate ptSelected = null;
+    	//DrawableElement elSelected = null;
+    	protected AbstractDrawableComponent ghostEl = null;
+    	//private Color ghostColor = new java.awt.Color( 255,255,255);
+
+    	protected boolean simulate;
+    	
     	
         /*
          * (non-Javadoc)
@@ -109,7 +118,7 @@ public class PgenCopyElement extends AbstractPgenTool {
         	
            	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown || simulate ) return false;
         	
         	if ( button == 1 ) {
 
@@ -165,14 +174,31 @@ public class PgenCopyElement extends AbstractPgenTool {
         @Override
         public boolean handleMouseDownMove(int anX, int aY, int button) {
         	
+        	if ( shiftDown ) return false;
+        	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	//if ( loc == null ) return false;
         	
         	AbstractDrawableComponent elSelected = drawingLayer.getSelectedComp();
         	Color ghostColor = new java.awt.Color( 255,255,255);
         	double distanceToSelect = 20;
 
+        	
+        	if (loc != null) {
+        	    //make sure the click is close enough to the element
+        		if ( drawingLayer.getDistance(elSelected, loc) > distanceToSelect && ghostEl == null ) 
+        			return false;
+        	}
+        	
+        	else {
+        	    //make sure if no DE is selected, no moving the DE
+        		if ( elSelected == null ) 
+        			return false;
+        		else
+        			return true;
+        	}
+        	
     		if ( elSelected != null ) {
 
     			preempt = true;
@@ -249,6 +275,15 @@ public class PgenCopyElement extends AbstractPgenTool {
 
     		}
 
+    		if ( preempt ){	//simulate mouse down move so that panning tool gets the last location
+				
+				simulate = true; 
+				
+				PgenUtil.simulateMouseDown(anX, aY, 1, mapEditor);
+				
+				simulate = false;
+    		}
+    		
             return preempt;
                 
         }
@@ -261,6 +296,8 @@ public class PgenCopyElement extends AbstractPgenTool {
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button) {
+        	
+        	if ( shiftDown || simulate ) return false;
         	
         	if ( ghostEl != null ) {
        		
@@ -287,6 +324,19 @@ public class PgenCopyElement extends AbstractPgenTool {
         		else if ( parent instanceof Outlook ){
         			((Outlook) parent).add(ghostEl);
     				drawingLayer.setSelected( ghostEl );
+        		}
+        		else if ( ghostEl instanceof Gfa ) {
+            		
+        			if( ((Gfa)ghostEl).getGfaFcstHr().indexOf("-") > -1 ){
+	            		// snap
+	        			((Gfa)ghostEl).snap();
+	    				 GfaReducePoint.WarningForOverThreeLines( (Gfa)ghostEl );           		    				
+        			}
+        			
+        			((Gfa)ghostEl).setGfaVorText( Gfa.buildVorText( (Gfa)ghostEl ));
+    				drawingLayer.addElement( ghostEl );
+    				drawingLayer.setSelected( ghostEl );
+         			 
         		}
         		else {
         			if ( SigmetInfo.isSnapADC(ghostEl)){

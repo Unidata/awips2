@@ -5,7 +5,7 @@
     <resourceCategory>GRID</resourceCategory>
     <filterLabels>Forecast,Regional</filterLabels>
     <resourceParameters>
-GDFILE=NAM
+GDFILE=nam
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

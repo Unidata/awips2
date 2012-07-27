@@ -1,9 +1,10 @@
-legend_color=RGB {200, 200, 200}
 colorMapName=lingray
-colorBar=@dfltMcidasColorBar.xml
+colorBar=@ColorBars/Satellite/dfltMcidasColorBar.xml
 imageType=SPLIT
 ! ? check that the displayUnits is correct?
 displayUnitStr=BRIT
 alpha=1.0
+brightness=1.0
+contrast=1.0alpha=1.0
 brightness=1.0
 contrast=1.0

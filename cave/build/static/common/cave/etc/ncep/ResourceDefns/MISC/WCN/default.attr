@@ -1,7 +1,5 @@
 ! Attributes for WCN (Watch County Notification) - default
 !
-color=RGB {155, 155, 155}
-! 
 thunderstormEnable=true
 thunderstormColor=RGB {109, 246, 254}
 thunderstormSymbolWidth=1

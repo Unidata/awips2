@@ -1,14 +1,28 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
+import static java.lang.System.out;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
+import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
 import gov.noaa.nws.ncep.viz.common.StringListAdapter;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
+import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
+import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamInfo;
+import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamType;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,8 +30,26 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
+import com.raytheon.uf.viz.core.catalog.CatalogQuery;
+import com.raytheon.uf.viz.core.catalog.LayerProperty;
+import com.raytheon.uf.viz.core.catalog.ScriptCreator;
+import com.raytheon.uf.viz.core.comm.Connector;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.viz.alerts.IAlertObserver;
+import com.raytheon.viz.alerts.observers.ProductAlertObserver;
+
+import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryDefinition;
+import gov.noaa.nws.ncep.edex.common.ncinventory.NcInventoryRequestMsg;
 
 /**
  * 
@@ -32,19 +64,21 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *  07/18/11      #450        Greg Hull   marshal rscParameters.
  *  07/24/11      #450        Greg Hull   save LocalizationFile
  *  11/15/11                  Greg Hull   rm attrSetGroupNames
- * 
+ *  01/20/12      #606        Greg Hull   query from NcInventory, rm types/sub-types lists
+ *  04/23/12      #606        Greg Hull   allow NcInventory to be disabled and query/update
+ *                                        for generated sub/types.
+ *  05/27/12      #606        Greg Hull   createNcInventoryDefinition()
+ *  05/31/12      #606        Greg Hull   save the name/alias of the inventory to query 
+ *  06/05/12      #816        Greg Hull   rm definitionIndex
+ *
  * </pre>
  * 
- * @author
+ * @author ghull
  * @version 1
  */
 @XmlRootElement(name = "ResourceDefinition")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ResourceDefinition implements ISerializableObject {
-
-    // the index of this resourceDefinition in the resourceDefinitions.xml
-    // file/table
-    private int definitionIndex;
+public class ResourceDefinition implements ISerializableObject, IAlertObserver, Comparable<ResourceDefinition> {
 
     // Currently not implemented but this would allow a resource to be defined
     // but not visible on the resource Selection Dialog
@@ -56,8 +90,6 @@ public class ResourceDefinition implements ISerializableObject {
 
     @XmlElement
     private String resourceCategory;
-
-    // private List<ResourceCategory> rscCategories;
 
     //
     @XmlElement
@@ -71,22 +103,20 @@ public class ResourceDefinition implements ISerializableObject {
     private String rscImplementation;
 
     // the name of a column in the DB used to generated dynamic Resources.
-    //
+    // (Note: this must be defined as a parameter for the resource implementation.) 
     @XmlElement
     private String subTypeGenerator;
 
     // in the gui this is edited in the rscType text widget but it is stored
-    // here
+    // here.(Note: this must be defined as a parameter for the resource implementation.) 
     @XmlElement
     private String rscTypeGenerator;
 
-    private ArrayList<String> generatedTypesList; // set from DB if
-                                                  // null
-//    @XmlElement
-//    @XmlJavaTypeAdapter(StringListAdapter.class)
-//    private ArrayList<String> attrSetGroupNames;
+    // the resource types generated by rscTypeGenerator from either the NcInventory or, 
+    // if the inventory is disabled, the DB. 
+    private ArrayList<String> generatedTypesList;
 
-    private HashMap<String, ArrayList<String>> subTypesMap;
+    private ArrayList<String> generatedSubTypesList;
 
     @XmlElement
     private TimeMatchMethod timeMatchMethod;
@@ -112,10 +142,6 @@ public class ResourceDefinition implements ISerializableObject {
     @XmlElement
     private String dfltGeogArea;
 
-    // TODO : remove this since it should no longer be needed.
-//    @XmlElement
-//    private BinOffset binOffset;
-
     // this does not include any parameters associated with subtypes or any in the
     // attributes file.
     // NOTE : Comments are kept in this map so that they can be preserved when the user
@@ -125,29 +151,50 @@ public class ResourceDefinition implements ISerializableObject {
     @XmlJavaTypeAdapter(RscParamsJaxBAdapter.class)
     private HashMap<String,String> resourceParameters;
     
-    //private ArrayList<RscParameter> rscTypeParameters;
-
     private boolean resourceParametersModified;
 
-    // TODO : since the prms HashMap will not be ordered, we may want to implement
-    // these another way so the user can see the comments/help/description text
-    // when editing them.    
-//    static public class RscParameter {
-//    	public String name;
-//    	public String value;
-//    	public String description;    	
+    // Default to enabled so it must be explicitly disabled. 
+    @XmlElement
+    private Boolean inventoryEnabled = true;
+    
+//	private Boolean inventoryInitialized = false;
+	
+	private String  inventoryAlias = null;
+	
+    // the names of the parameters which are stored in the inventory;
+    //	
+    private ArrayList<String> inventoryParamNames = new ArrayList<String>();
+    // we could save off the inventoryDescription if we need to....
+//    private HashMap<String, RequestConstraint> inventoryConstraints = 
+//											new HashMap<String,RequestConstraint>();
+//    public static enum InventoryLoadStrategy {
+//    	STARTUP, ON_DEMAND, NO_INVENTORY
 //    }
-
+//    @XmlElement
+//    private InventoryLoadStrategy inventoryLoadStrategy = InventoryLoadStrategy.NO_INVENTORY;
+	
+    
+    // this is the list of avail data times for the currently select resource.
+    // the times are read from the inventory.
+    // 
+    private List<DataTime> availTimesCache = new ArrayList<DataTime>();
+    
+    // For many/most resources, we don't need to requery when a new attrSet (or group)
+    // is selected and so we won't. This will store the name of the seld rsc used
+    // to query the seldRscAvailTimes.
+    private HashMap<String,RequestConstraint> constraintsUsedForTimeCache = null;
+    
+    private long timesCacheQueryTime = 0;
+    private static final long cacheHoldTime = 20*1000; // 20 seconds
+    
     
     public ResourceDefinition() {
         isEnabled = true;
         resourceDefnName = "";
         resourceCategory = ""; // new ArrayList<String>();
         filterLabels = new ArrayList<String>();
-        subTypesMap = new HashMap<String, ArrayList<String>>();
         subTypeGenerator = "";
         rscTypeGenerator = "";
-        generatedTypesList = new ArrayList<String>();
         resourceParameters = new HashMap<String,String>();
         resourceParametersModified = false;
         frameSpan = 0;
@@ -155,35 +202,31 @@ public class ResourceDefinition implements ISerializableObject {
         dfltTimeRange = DEFAULT_TIME_RANGE;
         dfltGeogArea = NmapCommon.getDefaultMap();
         timeMatchMethod = TimeMatchMethod.CLOSEST_BEFORE_OR_AFTER;
-        timelineGenMethod = timelineGenMethod.USE_DATA_TIMES;
+        timelineGenMethod = timelineGenMethod.USE_DATA_TIMES;     
+        //inventoryInitialized = false;
+        inventoryAlias = null;
+        constraintsUsedForTimeCache = new HashMap<String,RequestConstraint>();
+        availTimesCache = new ArrayList<DataTime>();
+        timesCacheQueryTime = 0;
+
+        inventoryEnabled = true;
+        
+        generatedTypesList = new ArrayList<String>();
+    	
+        generatedSubTypesList = new ArrayList<String>();
     }
 
+    // 
     // shallow copy of the attrSetGroups and subTypes lists
     public ResourceDefinition(ResourceDefinition rscDefn) {
         resourceDefnName = rscDefn.getResourceDefnName();
         resourceCategory = rscDefn.resourceCategory;
 
         isEnabled = rscDefn.isEnabled;
-        // rscSubTypes = new ArrayList<String>( rscDefn.getRscSubTypes() );
         filterLabels = new ArrayList<String>(rscDefn.getFilterLabels());
-
-        // deep copy the subTypesMap.
-        // (This will probably be removed after creation since the new defition
-        // will usually have its own subtypes.)
-        subTypesMap = new HashMap<String, ArrayList<String>>();
-        for (String subType : rscDefn.subTypesMap.keySet()) {
-            subTypesMap.put(subType, new ArrayList<String>());
-
-            for (String asName : rscDefn.subTypesMap.get(subType)) {
-                subTypesMap.get(subType).add(asName);
-            }
-        }
 
         subTypeGenerator = rscDefn.getSubTypeGenerator();
         rscTypeGenerator = rscDefn.getRscTypeGenerator();
-
-        generatedTypesList = new ArrayList<String>(
-                rscDefn.getGeneratedTypesList());
 
         resourceParameters = new HashMap<String,String>( 
         		rscDefn.resourceParameters );
@@ -200,6 +243,19 @@ public class ResourceDefinition implements ISerializableObject {
         rscImplementation = rscDefn.rscImplementation;
         
         setLocalizationFile( rscDefn.getLocalizationFile() );
+        
+//        inventoryInitialized = false;
+        inventoryAlias = null;
+        
+        constraintsUsedForTimeCache = new HashMap<String,RequestConstraint>();
+        availTimesCache = new ArrayList<DataTime>();
+        timesCacheQueryTime = 0;
+        
+        inventoryEnabled = rscDefn.inventoryEnabled;
+        
+        generatedTypesList = new ArrayList<String>();
+        
+        generatedSubTypesList = new ArrayList<String>();
     }
 
     public String getLocalizationName() {
@@ -224,10 +280,6 @@ public class ResourceDefinition implements ISerializableObject {
 		}
 	}
 
-    public String[] getRscSubTypes() {
-        return subTypesMap.keySet().toArray(new String[0]);
-    }
-
     public String getSubTypeGenerator() {
         return subTypeGenerator;
     }
@@ -236,61 +288,64 @@ public class ResourceDefinition implements ISerializableObject {
         this.subTypeGenerator = subTypeGenerator;
     }
 
+    public String[] getSubTypeGenParamsList() {
+    	if( subTypeGenerator == null || subTypeGenerator.trim().isEmpty() ) {
+    		return new String[0];
+    	}
+    	String prmsList[] = subTypeGenerator.split(",");
+    	for( int i=0; i<prmsList.length ; i++ ) {
+    		prmsList[i] = prmsList[i].trim();
+    	}
+    	return prmsList;
+    }
+    
     public String getRscTypeGenerator() {
-        return rscTypeGenerator;
+        return (rscTypeGenerator == null ? "" : rscTypeGenerator );
     }
 
     public void setRscTypeGenerator(String rscTypeGenerator) {
         this.rscTypeGenerator = rscTypeGenerator;
     }
 
-    public ArrayList<String> getGeneratedTypesList() {
-        return generatedTypesList;
-    }
-
-    public void setGeneratedTypesList(ArrayList<String> genTypes) {
-        this.generatedTypesList = genTypes;
-    }
-
-    public HashMap<String, ArrayList<String>> getSubTypesMap() {
-        return subTypesMap;
-    }
-
-    public void setSubTypesMap(HashMap<String, ArrayList<String>> stm) {
-        this.subTypesMap = stm;
-    }
-
     public String getResourceDefnName() {
         return resourceDefnName;
     }
 
-    public int getDefinitionIndex() {
-        return definitionIndex;
-    }
-
-    public void setDefinitionIndex(int definitionIndex) {
-        this.definitionIndex = definitionIndex;
-    }
-
     public void addResourceCategory(String cat) {
         resourceCategory = cat;
-        // if( !rscCategories.contains(cat) ) {
-        // rscCategories.add( cat );
-        // }
     }
 
     // resourceParameters includes the comments but don't return them.
     //
-    public HashMap<String,String> getResourceParameters() {
+    public HashMap<String,String> getResourceParameters( boolean includeDefaults ) {
     	HashMap<String,String> prmsWithoutComments = new HashMap<String,String>();
-		for( String prmName : resourceParameters.keySet() ) {
+
+    	for( String prmName : resourceParameters.keySet() ) {
 			if( !prmName.trim().startsWith("!") ) {
 				prmsWithoutComments.put( prmName, resourceParameters.get(prmName) );		
 			}
 		}
+		if( includeDefaults ) {
+			// the default values specified in the extention point
+			HashMap<String,String> dfltParamValues = getDefaultParameterValues();
+			
+			for( String dfltPrm : dfltParamValues.keySet() ) {
+				if( !prmsWithoutComments.containsKey( dfltPrm ) ) {
+					prmsWithoutComments.put( dfltPrm, dfltParamValues.get( dfltPrm ) );
+				}
+			}
+		}
+		// 
     	return prmsWithoutComments;
     }
     
+    // TODO : we might want to insert a 'blank' place holder 
+    // for IMEPLEMENTATION or REQUEST_CONSTRAINT parameters that are defined by the
+    // implementation but not specified here. This may happen to existing user
+    // RDs after a new parameter is defined. (except we'd need to figure out what to 
+    // do in the case of parameters like imageType's that are normally specified in the
+    // attribute sets.
+    //
     public String getResourceParametersAsString() {
 		if( resourceParameters.isEmpty() ) {
 			return "";
@@ -382,7 +437,6 @@ public class ResourceDefinition implements ISerializableObject {
         }
     }
 
-    // public List<String> getRscCategories() {
     public String getResourceCategory() {
         return resourceCategory;
     }
@@ -465,6 +519,14 @@ public class ResourceDefinition implements ISerializableObject {
         this.resourceDefnName = rName;
     }
 
+//    public InventoryLoadStrategy getInventoryLoadStrategy() {
+//		return inventoryLoadStrategy;
+//	}
+//
+//	public void setInventoryLoadStrategy(InventoryLoadStrategy inventoryLoadStrategy) {
+//		this.inventoryLoadStrategy = inventoryLoadStrategy;
+//	}
+
     public boolean isPgenResource() {
         return resourceCategory.equals(ResourceName.PGENRscCategory);
     }
@@ -475,4 +537,1065 @@ public class ResourceDefinition implements ISerializableObject {
                 || resourceCategory.equals(ResourceName.PGENRscCategory)
                 || resourceCategory.equals(ResourceName.EnsembleRscCategory);
     }
+
+    //
+    public ArrayList<String> getPgenProducts() {
+		// TODO :  need to decide what to do with PGEN Resources....
+		if( !isPgenResource() ) {
+			return null;
+		}
+		
+		ArrayList<String> pgenProductsList = new ArrayList<String>();
+
+		// PGEN generates the SubTypes from the .xml files in the products directory.
+		if( !getResourceParameters(false).containsKey( "pgenDirectory" ) ) {
+			out.println("Error generating PGEN products: "+
+			"the pgenDirectory parameter is not specified.");
+			return pgenProductsList;
+		}
+
+		String prodDirName = getResourceParameters(false).get( "pgenDirectory" );
+
+		if( !prodDirName.trim().startsWith( File.separator ) ) {
+			// TODO: should call PgenUtil.getWorkingDirectory() if not 
+			// for cyclical dependency. This still needs work so leaving 
+			// this as current working directory for now. If user were to change the
+			// pgen working directory, this would break.
+			prodDirName = 
+				NmapCommon.getPgenWorkingDirectory() + File.separator +
+				prodDirName + File.separator;
+		}
+
+		File productsDir = new File( prodDirName );
+
+		if( productsDir == null || !productsDir.exists() ||
+				!productsDir.isDirectory() ) {
+			out.println("Error generating PGEN products: the pgenDirectory for, "+
+					getResourceParameters(false).get("pgenDirectory") + ", doesn't exist" );
+			return pgenProductsList;
+		}
+
+		String[] prmFileNames = productsDir.list( new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith( ".xml" );
+			}       			
+		});
+
+		for( String prmFileName : prmFileNames ) {
+			String productName = prmFileName.substring(0,prmFileName.length()-4);
+			// for PGEN there aren't any 'attrSetKeys' (these are used by Satellite and Radar
+			// to determine which attrSets
+			if( !pgenProductsList.contains( productName ) ) {	
+				pgenProductsList.add( productName );
+			}
+		}			
+		return pgenProductsList;
+    }
+
+    // the plugin must be given as a resource parameter
+    //
+    public String getPluginName() {
+    	return getResourceParameters(false).get("pluginName");    	
+    }
+    
+    public HashMap<String,RequestConstraint>  getInventoryConstraintsFromParameters( 
+    		HashMap<String,String> paramValues ) {
+
+    	HashMap<String,RequestConstraint> inventoryConstraints = 
+    		new HashMap<String,RequestConstraint>( );
+
+    	inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
+    	
+    	HashMap<String, ResourceParamInfo> rscImplParams = 
+    				ResourceExtPointMngr.getInstance().getResourceParameters( rscImplementation );
+
+    	// override the constraints in the inventory with those from the params 
+    	// if there is no param value for the constraint then change to a wildcard.
+    	//
+    	// (most of the time the paramName and constraint name are the same except for
+    	// GDFILE where the constraint is 'modelName') So for this case we need to 
+    	//
+    	for( ResourceParamInfo prmInfo : rscImplParams.values() ) {    		
+    		if( prmInfo.getParamType() == ResourceParamType.REQUEST_CONSTRAINT ) {
+    			
+    			String prmName = prmInfo.getParamName();
+    			String cnstrName = prmInfo.getConstraintName();
+
+    			if( paramValues.containsKey( prmName ) ) {    				
+    				String prmValue = paramValues.get( prmName );
+
+    				inventoryConstraints.put( cnstrName,  
+    						getConstraintFromParamValue(  prmValue ) );
+    			}
+//    			else {
+    			// 'LIKE' doesn't work for integers. Just leave this out.
+//    				if( prmInfo.getParamClass() == Integer.class ) {
+//    					inventoryConstraints.put( cnstrName, RequestConstraint.WILDCARD );
+//    				}
+//    				inventoryConstraints.put( cnstrName, RequestConstraint.WILDCARD );
+//    			}
+    		}
+    	}    	
+    	return inventoryConstraints;
+    }
+
+    public RequestConstraint getConstraintFromParamValue( String paramVal ) {
+    	if( paramVal.equals( "%" ) ) {
+    		return RequestConstraint.WILDCARD;
+    	}
+    	else if( paramVal.indexOf( "," ) == -1 ) {
+        	return new RequestConstraint( paramVal, ConstraintType.EQUALS );
+    	}
+    	else { 
+    		return new RequestConstraint( paramVal, ConstraintType.IN );
+    	}
+    }
+
+    public boolean isInventoryInitialized() {
+    	return (inventoryAlias != null && !inventoryAlias.isEmpty() ); 
+    			//inventoryInitialized;
+    }
+
+    // This alias is either read from the existing inventory, or
+    // it is set when the inventory is created for this ResourceDefn.
+    // Either way this is what is used to query the inventory and is 
+    // also used as a flag to indicate that an inventory exists for
+    // the RscDefn.
+    //
+    public void setInventoryAlias( String invAlias ) {
+    	inventoryAlias = invAlias;
+    }
+//    public void setInventoryInitialized( boolean ii ) {
+//    	inventoryInitialized = ii;
+//    }
+
+    public Boolean getInventoryEnabled() {
+		return inventoryEnabled;
+	}
+
+	public void setInventoryEnabled(Boolean enableInventory) {
+		this.inventoryEnabled = enableInventory;		
+	}
+
+	// The inventory should have been initialized before enabling the inventory 
+	public void enableInventoryUse() {
+
+    	if( !usesInventory() || !isInventoryInitialized() ) {
+        	inventoryEnabled = false;
+    		return;
+    	}
+    	inventoryEnabled = true;
+
+		ProductAlertObserver.removeObserver( getPluginName(), this );		
+	}
+	
+	// disabling the inventory means we will need to query the types/sub-type
+	// and maintain the list with the data URI notifications.
+	//
+	public void disableInventoryUse() throws VizException {
+
+		setInventoryEnabled( false );
+		
+		// if we need to initialize and maintain any generated types or subTypes
+		//
+		if( getSubTypeGenParamsList().length > 0 ||  
+		   !getRscTypeGenerator().isEmpty() ) {
+
+			queryGeneratedTypes();
+
+			ProductAlertObserver.addObserver( getPluginName(), this );			
+		}
+	}
+
+	// TODO. We could have a more explicit way of indicating this. Perhaps
+    // getting the implementation's resourceData class and determine if it
+    // derives from Requestable or non-Requestable abstract class.
+    //
+    public boolean isRequestable() {
+    	return !( getResourceCategory().equals( ResourceName.OverlayRscCategory ) ||
+    			 isPgenResource() );  
+    }
+    
+    public boolean usesInventory() {
+    	// TODO : other 'gempak' plugins??? 
+    	return isRequestable() &&
+    		   !getPluginName().equals( GempakGrid.gempakPluginName );
+    }
+    
+    public List<String> getInventoryParameterNames() {
+    	return inventoryParamNames;
+    }
+    
+    public HashMap<String,String> getDefaultParameterValues() {
+    	HashMap<String,String> dfltParamValues = new HashMap<String,String>();
+		HashMap<String, ResourceParamInfo> rscImplParams = 
+			ResourceExtPointMngr.getInstance().getResourceParameters( getRscImplementation() );
+
+    	for( ResourceParamInfo prmInfo : rscImplParams.values() ) {
+    		String dfltVal = prmInfo.getDefaultValue();
+    		
+    		if( dfltVal != null && !dfltVal.isEmpty() ) {
+    			dfltParamValues.put( prmInfo.getParamName(), dfltVal );
+    		}
+    	}
+    	
+    	return dfltParamValues;
+    }
+
+	public void validateResourceParameters( ) throws VizException {
+		HashMap<String, ResourceParamInfo> rscImplParams = 
+			ResourceExtPointMngr.getInstance().getResourceParameters( getRscImplementation() );
+
+		// the parameters defined by the resource definition and use the defaults 
+		// specified by the implementation is not given.
+		//
+		HashMap<String,String> paramValues = getResourceParameters( true );
+//		HashMap<String,String> dfltParamValues = getDefaultParameterValues();
+
+		// check that all of the paramValues are specified for the rsc implementation
+		// 
+		for( String prm : paramValues.keySet() ) {
+			if( !prm.equals("pluginName") &&
+				!rscImplParams.containsKey( prm ) ) {
+
+//				out.println("Warning: parameter "+prm+" for "+getResourceDefnName()+
+//					" is not recognized for the resource implementation "+getRscImplementation() );
+
+				throw new VizException( getResourceDefnName()+" has a parameter, "+prm+
+						", that is not recognized by its implementation: "+ getRscImplementation() );
+			}
+		}
+
+		// a list of all the generated parameters
+		List<String> genParamsList = new ArrayList<String>( Arrays.asList( getSubTypeGenParamsList() ) ); 
+		if( !getRscTypeGenerator().isEmpty() ) {
+			genParamsList.add( getRscTypeGenerator() );
+		}
+		
+		// check that all the parameters defined for the implmentation either have a 
+		// value given in the rsc params, will be generated, or have a default value 
+		// 
+		for( ResourceParamInfo implPrmInfo : rscImplParams.values() ) {
+			String implPrm = implPrmInfo.getParamName();
+			String constraintName = implPrmInfo.getConstraintName();
+			
+			if( implPrmInfo.getParamType() == ResourceParamType.EDITABLE_ATTRIBUTE ||
+				implPrmInfo.getParamType() == ResourceParamType.NON_EDITABLE_ATTRIBUTE ) {
+				// if checking for attributes...
+				continue;
+			}
+			else if( implPrmInfo.getParamType() == ResourceParamType.REQUEST_CONSTRAINT ) {
+			
+				// if this param will be generated.
+				// 
+				if( genParamsList.contains( constraintName ) ) {
+					continue;
+				}
+				else {
+					// if the needed param is not set in the resource defn or is set to empty 
+					String paramValue = paramValues.get( implPrm );
+
+					if( paramValue == null || paramValue.isEmpty() ) {
+
+//						paramValue = dfltParamValues.get( implPrm );
+//
+//						// if there is no default value specified by the implementation
+//						//
+//						if( paramValue == null || paramValue.isEmpty() ) {
+							throw new VizException(getResourceDefnName()+ " is missing a value for the parameter "+implPrm+"." );
+//						}
+					}
+				}
+			}
+		}		
+	}
+
+	// if an alias 
+	public NcInventoryDefinition createNcInventoryDefinition() throws VizException {
+
+		// Each resource implementation defines parameters which are used to
+		// constraint the data read from the database. (ex. the modelName for Grids)
+		// These parameters ultimately must be given values in order to instantiate 
+		// a Resource. The parameters may come from :
+		//     1) parameters defined here by the Resource Definition, 
+		// 	   2) generating resource type or sub-types.
+		//     3) parameters defined in attribute sets. 
+		// 
+		// At this point, we only have values for 1) while values for 2) and 3) are
+		// defined later when the user selects the full ResourceName (ie. sub-type & attrSet)
+		// So parameters/constraints for 2) and 3) must be kept in the inventory.
+		//
+		//   The inventory has 'baseConstraints' which all data in the inventory must pass. And
+		// it has 'inventoryConstraints' which will define the constraints that each node at a
+		// given level must pass. 
+		// 
+		HashMap<String, ResourceParamInfo> rscImplParams = 
+			ResourceExtPointMngr.getInstance().getResourceParameters( rscImplementation );
+
+		HashMap<String,String> paramValues = getResourceParameters(false);
+
+		// the parameters used to define the data that gets stored in the inventory.
+		// this will be all the request constraint params that don't have a specified value
+		// for this resource (such as any type or sub-type generating params and any 
+		// parameters that are specified in an attribute set. (ex. radar product codes and 
+		// satellite imageTypes.)
+		//
+		HashMap<String, RequestConstraint> baseConstraints = 
+			new HashMap<String,RequestConstraint>();
+
+		//    		HashMap<String, RequestConstraint> inventoryConstraints = 
+		//    								new HashMap<String,RequestConstraint>();
+
+		baseConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
+		//        	inventoryConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
+		inventoryParamNames = new ArrayList<String>();
+		inventoryParamNames.add( "pluginName" );
+
+		// loop thru all of the request constraint parameters defined for the implementation and
+		// add it to either the base constraints or the inventory constraints. 
+		//
+		for( ResourceParamInfo prmInfo : rscImplParams.values() ) {    		
+			if( prmInfo.getParamType() == ResourceParamType.REQUEST_CONSTRAINT ) {
+
+				// if the parameter has a value then 
+				// 
+				if( paramValues.containsKey( prmInfo.getParamName() ) ) {
+
+					String prmValue = paramValues.get( prmInfo.getParamName() ).trim();
+
+					// if the paramber value is a wildcard or a non-constant
+					// value (ie. a list of reportTypes), then we will
+					// need to put this parameter in the inventory
+					//
+					if( prmValue.indexOf(',') != -1 ) {
+						inventoryParamNames.add( prmInfo.getConstraintName() );
+						baseConstraints.put( prmInfo.getConstraintName(),
+								new RequestConstraint( prmValue, ConstraintType.IN ) );
+					}
+					else if( prmValue.equals("%") ) {
+						inventoryParamNames.add( prmInfo.getConstraintName() );
+						baseConstraints.put( prmInfo.getConstraintName(),
+								new RequestConstraint( prmValue, ConstraintType.LIKE ) );
+					}
+					else {
+						baseConstraints.put( prmInfo.getConstraintName(),
+								new RequestConstraint( prmValue, ConstraintType.EQUALS ) );
+					}
+				}
+				else { // if there is no parameter value given add to the inventoryConstrains
+					inventoryParamNames.add( prmInfo.getConstraintName() );
+					//        				inventoryConstraints.put( prmInfo.getConstraintName(),    			
+					//        						RequestConstraint.WILDCARD ); 
+				}
+			}    		
+			// sanity check : if the parameter is not given in the attribute set then we  
+			//   won't be able to instantiate the resourceData. 
+			// These should be NON_EDITABLE_ATTRIBUTES
+			else if( prmInfo.getParamType() == ResourceParamType.IMPLEMENTATION_PARAM ) {
+				if( !paramValues.containsKey( prmInfo.getParamName() ) ) {
+					throw new VizException( "Error initializing rscDefn "+
+							getResourceDefnName()+ ": a value is not specified for parameter "+
+							prmInfo.getParamName() );
+				}
+			}
+		}
+
+		// make sure that the inventory tree is ordered with the pluginName first followed by
+		// the generating params and any defined in the attrSets and with the dataTimes as end nodes.
+		//
+		//    		inventoryParamNames = new ArrayList<String>( inventoryConstraints.keySet() );
+
+		Collections.sort( inventoryParamNames, new Comparator<String>() {
+			@Override
+			public int compare(String s1, String s2) {
+
+				if( s1.equals( s2 ) ) {
+					return 0;
+				}
+				int p1=999, p2=999;
+
+				if( s1.equals( "pluginName" ) ) {
+					p1 = 0;
+				}
+				if( s2.equals( "pluginName" ) ) {
+					p2 = 0;
+				}
+
+				if( s1.equals( getRscTypeGenerator() ) ) {
+					p1 = 1;
+				}
+				if( s2.equals( getRscTypeGenerator() ) ) {
+					p2 = 1;
+				}
+
+				if( getSubTypeGenParamsList().length > 0 ) {
+					if( s1.equals( getSubTypeGenParamsList()[0] ) ) {
+						p1 = 2;
+					}
+					if( s2.equals( getSubTypeGenParamsList()[0] ) ) {
+						p2 = 2;
+					}	
+				}
+				if( getSubTypeGenParamsList().length > 1 ) {
+					if( s1.equals( getSubTypeGenParamsList()[1] ) ) {
+						p1 = 3;
+					}
+					if( s2.equals( getSubTypeGenParamsList()[1] ) ) {
+						p2 = 3;
+					}	
+				}
+
+				// radar has elevation and productCode parameters in the attrSets 
+				// Do we need to specify an order in this case?
+				return p1-p2;
+			}
+		});
+
+		inventoryParamNames.add( "dataTime" );
+
+		String inventoryName;
+		if( inventoryAlias == null || inventoryAlias.isEmpty() ) {
+			inventoryName = LocalizationManager.getInstance().getCurrentUser() + ":" +
+												getResourceDefnName();
+		}
+		else {
+			inventoryName = inventoryAlias;
+		}
+
+		return new NcInventoryDefinition( inventoryName, baseConstraints, inventoryParamNames );
+	}
+
+//	private void initInventory( Boolean reload ) throws VizException {
+//    	    	
+//    	if( !usesInventory() ) {
+//    		return;
+//    	}
+//    	else if( getPluginName() == null ) {
+//    		throw new VizException( "Error creating ResourceDefn ("+resourceDefnName+
+//    				") The pluginName must be given as a resource parameter." );
+//    	}
+//		else if( getPluginName().equals( GempakGrid.gempakPluginName ) ) {
+//			return;
+//		}
+//		else if( isInventoryInitialized() && !reload ) {
+//    		return;
+//    	}
+//		else if( !isInventoryInitialized() && reload ) {
+//			// can't reload if not created yet
+//			//reload = 
+//		}
+//		return;
+//    }
+
+    //
+    public ArrayList<String> getGeneratedTypesList() throws VizException {
+    	
+    	if( !inventoryEnabled ) {
+    		return generatedTypesList;
+    	}
+
+    	generatedTypesList.clear();
+
+    	if( !usesInventory() ) {
+    		return generatedTypesList;
+    	}
+    	else if( getRscTypeGenerator().isEmpty() ) {
+    		return generatedTypesList;
+    	}
+    	else if( !isInventoryInitialized() ) {
+//    		out.println("getGeneratedTypesList: inventory not loaded");
+    		throw new VizException("Inventory Not Initialized.");
+//    		if( inventoryLoadStrategy == InventoryLoadStrategy.NO_INVENTORY ) {
+//    			out.println("RscDefn "+ getResourceDefnName() + " has a generating type "+
+//    				" which requires an inventory" );
+//    			setInventoryLoadStrategy( InventoryLoadStrategy.ON_DEMAND );
+//    		}
+    	}
+
+		// get a list of the generated Resource Types from the inventory.
+		//
+		HashMap<String, RequestConstraint> searchConstraints = 
+					getInventoryConstraintsFromParameters( getResourceParameters(true) );
+
+		// Create an NcInventoryRequest script to get query the ncInventory for the types.
+		// 
+//		String inventoryName = LocalizationManager.getInstance().getCurrentUser() + ":" +
+//										getResourceDefnName();
+
+		NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
+		reqMsg.setInventoryName( inventoryAlias );
+		reqMsg.setReqConstraintsMap( searchConstraints );
+		reqMsg.setRequestedParam( getRscTypeGenerator() );
+
+		Object rslts;
+
+		long t01 = System.currentTimeMillis();
+
+		rslts = ThriftClient.sendRequest( reqMsg );
+
+		if( !(rslts instanceof String[]) ) {
+			out.println("Inventory Request Error: expecting String[] return." );
+			disableInventoryUse();
+			throw new VizException("Inventory Request Error:"+rslts.toString() +
+					"\nDisabling Inventory use.");
+		}
+
+		long t02 = System.currentTimeMillis();
+
+		String[] rsltsArray = (String[])rslts;
+
+		out.println("Inventory Query for RscTypes for "+ resourceDefnName + 	
+				" took "+ (t02-t01)+ "msecs for "+ rsltsArray.length + " results." );
+//		out.println("    RscTypes = "+ (rsltsArray.toString() ) );
+
+		for( String rsltStr : rsltsArray ) {
+			String genTypesArr[] = rsltStr.split("/");
+			generatedTypesList.add( getResourceDefnName() + ":" + genTypesArr[ genTypesArr.length-1] );
+		}
+	    	
+    	return generatedTypesList;
+    }
+
+    //
+    public ArrayList<String> generatedSubTypesList() throws VizException {
+		// Grids, Satellite, Radar, etc all are dynamically updated when new alert updates 
+		// are recieved (when new data is ingested). PGEN doesn't have alert updates and so
+		// we need to always check for new products.     	
+    	if( isPgenResource() ) {
+    		return getPgenProducts();
+    	}
+
+    	// note that if the inventory is at first enabled and then disabled, generatedSubTypesList
+    	// will have been populated by the inventory and not queryGeneratedTypes. Also,
+    	// any new sub types ingested will not be found since the productAlertObserver was not 
+    	// added on startup.
+    	//
+    	if( !inventoryEnabled ) {
+    		return generatedSubTypesList;
+    	}
+
+    	generatedSubTypesList.clear();
+
+    	if( !usesInventory() ) {
+    		return generatedSubTypesList;
+    	}
+    	else if( getSubTypeGenParamsList().length == 0 ) {
+    		return generatedSubTypesList;
+    	}
+    	else if( !isInventoryInitialized() ) {
+    		throw new VizException("Inventory Not Initialized.");
+    	}
+
+		// the parameters used to define the data that gets stored in the inventory.
+		// this will be all the request constraint params that don't have a specified value
+		// for this resource. This will be any type or sub-type generating params and any 
+		// parameters that are specified in an attribute set. (ex. radar product codes and 
+		// satellite imageTypes.)
+		//		
+    	int numSubTypeGenParams = getSubTypeGenParamsList().length;
+    	String queryParam = getSubTypeGenParamsList()[ numSubTypeGenParams-1 ];
+    			
+    	HashMap<String, RequestConstraint> searchConstraints = 
+    		     getInventoryConstraintsFromParameters( getResourceParameters(true) );
+		
+		// Create an NcInventoryRequest script to get query the ncInventory for the types.
+		// 
+//		String inventoryName = 
+//				LocalizationManager.getInstance().getCurrentUser() + ":" + getResourceDefnName();
+		
+		NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
+		reqMsg.setInventoryName( inventoryAlias );
+		reqMsg.setReqConstraintsMap( searchConstraints );
+		reqMsg.setRequestedParam( queryParam );
+
+		Object rslts;
+
+		long t01 = System.currentTimeMillis();
+
+		rslts = ThriftClient.sendRequest( reqMsg );
+
+		if( !(rslts instanceof String[]) ) {
+			out.println("Inventory Request Error: " +rslts.toString() );
+			throw new VizException("Inventory Request Error: String[] response expecting instead of "+
+					rslts.getClass().getName()+" : "+rslts.toString() );
+		}
+
+		long t02 = System.currentTimeMillis();
+
+		String[] rsltsArray = (String[])rslts;
+
+//    	out.println("Inventory Query for Rsc Sub-Types for "+ resourceDefnName+ 
+//	    		" took "+ (t02-t01)+ "msecs for "+ rsltsArray.length + " results." );
+//	    out.println("    RscSubTypes = "+ (rsltsArray.toString() ) );
+
+	    for( Object queryRslt : rsltsArray ) {
+	    	String rsltStr = (String)queryRslt;
+	    	if( rsltStr == null ) {
+	    		continue;
+	    	}
+	    	
+	    	// the results from the NcInventory are have had spaces replaced with
+	    	// underscores and are delimited with "/"'s.
+	    	//
+	    	String[] queryResults = rsltStr.replaceAll("_", " ").split("/");
+
+	    	if( numSubTypeGenParams == 1 ) {
+
+	    		generatedSubTypesList.add( queryResults[1] );
+	    	}
+	    	// if there are 2 parameters used to generate the subType query for the second 
+	    	// parameter and create a subType for each unique combination.
+	    	//
+	    	else if( numSubTypeGenParams == 2 ) {
+	    		String subType = queryResults[1] + "_"+     // note that the 'km' here will make the code 
+	    		queryResults[2] + "km";    // to parse the subType non-generic so we might want to change it.
+
+	    		if( !generatedSubTypesList.contains( subType ) ) {
+	    			generatedSubTypesList.add( subType );					
+	    		}
+	    		else out.println("subType already in the list?"); // shouldn't happen
+	    	}									
+	    }
+
+        return generatedSubTypesList;
+    }
+
+    // 
+    public List<String> queryInventoryParameter( ResourceName rscName, String invPrm ) throws VizException {
+    	if( !getInventoryEnabled() ) {
+    		throw new VizException("Inventory Not Enabled.");
+    	}
+    	if( !isInventoryInitialized() ) {
+    		throw new VizException("Inventory Not Initialized.");
+    	}
+
+    	// Create an NcInventoryRequest script to get query the ncInventory for the types.
+    	// 
+//		String inventoryName = LocalizationManager.getInstance().getCurrentUser() + ":" +
+//								getResourceDefnName();
+    	// this will create constraints for all of the REQUEST_CONSTRAINT parameters
+    	// specified in the RD, AS, and generated type/subType in the name.
+    	//
+    	HashMap<String, RequestConstraint> searchConstraints = 
+    		getInventoryConstraintsFromParameters( 
+    				ResourceDefnsMngr.getInstance().getAllResourceParameters( rscName ) );
+
+    	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
+		reqMsg.setInventoryName( inventoryAlias );
+		reqMsg.setRequestedParam( invPrm );
+		reqMsg.setReqConstraintsMap( searchConstraints );
+		
+		Object rslts;
+
+		long t01 = System.currentTimeMillis();
+
+		rslts = ThriftClient.sendRequest( reqMsg );
+		
+		if( !(rslts instanceof String[]) ) {
+			out.println("Inventory Request Error: expecting String[] return." );
+			throw new VizException("Inventory Request Error: String[] response expecting instead of "+
+					rslts.getClass().getName()+" : "+rslts.toString() );
+		}
+
+		long t02 = System.currentTimeMillis();
+
+		List<String> rsltsArray = Arrays.asList( (String[])rslts );
+
+		out.println("Inventory Query for "+ resourceDefnName+" for "+ invPrm+ 
+    				" took "+ (t02-t01)+ "msecs for "+ rsltsArray.size() + " results." );
+    		    		    		
+		return rsltsArray;    	
+    }
+
+    
+    public List<DataTime> getNormalizedDataTimes( ResourceName rscName, int intervalMins ) throws VizException {
+    	List<DataTime> dataTimes = getDataTimes( rscName );
+    	ArrayList<DataTime> normalizedDataTimes = new ArrayList<DataTime>();
+    	
+    	for( DataTime dt : dataTimes ) {
+            long intervalMillis = intervalMins * 1000 * 60; // minutes to millisecons
+            long millis = dt.getValidTime().getTimeInMillis() + (intervalMillis / 2);
+            millis = ((millis / intervalMillis) * intervalMillis);
+            DataTime normalizedTime = new DataTime( new Date(millis) ); 
+
+            if( !normalizedDataTimes.contains( normalizedTime ) ) {
+            	normalizedDataTimes.add( normalizedTime );
+            }
+    	}
+    	
+    	return normalizedDataTimes;
+    }
+    
+    public DataTime getLatestDataTime( ResourceName rscName ) throws VizException {
+    	List<DataTime> availTimes = getDataTimes( rscName );
+    	if( availTimes != null && !availTimes.isEmpty() ) {
+    		return availTimes.get( availTimes.size()-1 );
+    	}
+    	return null;
+    }
+    
+    // update this to optionally either return all times or only matching cycle times
+    // 
+    public List<DataTime> getDataTimes( ResourceName rscName ) throws VizException {
+
+    	if( !usesInventory() ) {
+			return new ArrayList<DataTime>();
+    	}
+    	else if( inventoryEnabled && !isInventoryInitialized() ) {
+    		throw new VizException("Inventory Not Initialized.");
+    	}
+    	
+    	HashMap<String, RequestConstraint> searchConstraints = 
+    		getInventoryConstraintsFromParameters( 
+    				ResourceDefnsMngr.getInstance().getAllResourceParameters( rscName ) );
+
+    	// if the previous constraints used to get the cached times are the same
+    	//     as the searchconstraints that will be used for this resourceName and
+    	// if the cache has not expired, then we can just return the cached dataTimes.
+    	//
+    	if( constraintsUsedForTimeCache.toString().equals( 
+				searchConstraints.toString() ) ) {
+
+    		if( System.currentTimeMillis()-timesCacheQueryTime < cacheHoldTime ) {
+//    			out.println("returning cached times from "+ (System.currentTimeMillis()-timesCacheQueryTime) + " msecs ago");
+        		return availTimesCache;            	
+    		}
+    	}
+    	
+    	timesCacheQueryTime = 0;
+    	availTimesCache.clear();
+    	constraintsUsedForTimeCache = searchConstraints;
+
+    	try {
+    		DataTime dataTimeArr[] = null;
+    		
+    		// if the inventory is not disabled
+    		if( inventoryEnabled ) {
+    			
+    	    	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeQueryRequest();
+    			
+//    			String inventoryName = LocalizationManager.getInstance().getCurrentUser() + ":" +
+//    									getResourceDefnName();
+    			reqMsg.setInventoryName( inventoryAlias );
+    			reqMsg.setRequestedParam( "dataTime" );
+    			reqMsg.setReqConstraintsMap( constraintsUsedForTimeCache );
+    			
+    			Object rslts;
+
+    			long t01 = System.currentTimeMillis();
+
+    			rslts = ThriftClient.sendRequest( reqMsg );
+
+//    			out.println("inv request returned "+rslts.getClass().getCanonicalName() );
+    			
+    			if( !(rslts instanceof String[]) ) {
+    				out.println("Inventory Request Failed:"+rslts.toString() );
+    				
+    				disableInventoryUse();
+    				
+    				throw new VizException("Inventory Request Failed: "+rslts.toString() +
+    						" Disabling inventory use." );
+    			}
+
+    			long t02 = System.currentTimeMillis();
+
+    			String[] rsltsList = (String[]) rslts;
+    			dataTimeArr = new DataTime[ rsltsList.length ];
+
+//    			out.println("Inventory DataTime Query for "+ resourceDefnName+ 
+//    					" took "+ (t02-t01)+ "msecs for "+ rsltsList.length + " results." );
+    			//    		out.println("    DataTimes are " + rsltsArray.toString() );
+
+    			for( int i=0 ; i<rsltsList.length ; i++ ) {
+
+    				String rsltStr = (String)rsltsList[i];
+    				if( rsltStr == null ) {
+    					dataTimeArr[i] = new DataTime(); // ??? shouldn't happen but what to do here?
+    				}
+    				else {
+    					String[] queryResults = rsltStr.split("/");
+    					dataTimeArr[i] = new DataTime( queryResults[ queryResults.length-1 ] );
+    				}
+    			}
+    		}
+    		else  { // if the inventory is not enabled
+    			// 
+                LayerProperty property = new LayerProperty();
+
+                property.setDesiredProduct( ResourceType.PLAN_VIEW );
+                property.setEntryQueryParameters(
+                		constraintsUsedForTimeCache, true, null);
+                dataTimeArr = property.getEntryTimes();                
+        	}
+
+    		Arrays.sort( dataTimeArr );
+    		
+    		// set the cached avail times, the query time. Already set the 
+            timesCacheQueryTime = System.currentTimeMillis();
+//          rscUsedForTimesCache = rscName;
+            availTimesCache = new ArrayList<DataTime>( Arrays.asList( dataTimeArr ) );
+            
+    		return availTimesCache;
+
+    	} catch (VizException e) {
+//    		out.println("Inventory failed query for "+ resourceDefnName+
+//    				" .... "+ e.getMessage() );
+			throw new VizException( "Inventory DataTime Query Failed\n" + e.getMessage() );
+    	}
+    }
+    
+    // return a summary of the dump...
+    public String dumpInventory() throws VizException {
+    	if( !usesInventory() || !inventoryEnabled ) {
+    		throw new VizException("Inventory not enabled.");
+    	}
+    	else if( !isInventoryInitialized() ) {
+    		throw new VizException("Inventory Not Initialized.");
+    	}
+    
+    	// Create an NcInventoryRequest script to get query the ncInventory for the types.
+    	// 
+    	NcInventoryRequestMsg reqMsg = NcInventoryRequestMsg.makeDumpRequest();
+//		String inventoryName = LocalizationManager.getInstance().getCurrentUser() + ":" +
+//								getResourceDefnName();
+		reqMsg.setInventoryName( inventoryAlias );
+		reqMsg.setRequestedParam( "dataTime" );
+//		reqMsg.setDumpToFile( true );
+//		reqMsg.setReqConstraintsMap(  );
+		
+		Object rslts;
+
+		long t01 = System.currentTimeMillis();
+
+		rslts = ThriftClient.sendRequest( reqMsg );
+
+//		out.println("inv request returned "+rslts.getClass().getCanonicalName() );
+		
+		if( !(rslts instanceof String) ) {
+//			out.println("Inventory Dump Error: expecting String return." );
+			throw new VizException("Inventory Dump Request Error: String response expecting instead of "+
+					rslts.getClass().getName() );
+		}
+
+		long t02 = System.currentTimeMillis();
+
+		out.println("Inventory Dump for "+ resourceDefnName+ 
+				" took "+ (t02-t01)+ "msecs " );
+		return (String)rslts;
+    }
+    
+    public void dispose( ) {
+    	// 
+    	generatedSubTypesList.clear();
+    	generatedTypesList.clear();
+    	
+		ProductAlertObserver.removeObserver( getPluginName(), this );
+		
+		// TODO: do we need to remove the inventory alias? Shouldn't need to.
+    }
+        
+    public void queryGeneratedTypes() throws VizException {
+    	if( !isRequestable() ) {
+    		return;
+    	}
+    	    	
+    	generatedSubTypesList.clear();
+    	generatedTypesList.clear();
+    	
+    	try {
+    		// the parameters used to define the data that gets stored in the inventory.
+    		// this will be all the request constraint params that don't have a specified value
+    		// for this resource. This will be any type or sub-type generating params and any 
+    		// parameters that are specified in an attribute set. (ex. radar product codes and 
+    		// satellite imageTypes.)
+    		//		
+//    		int numSubTypeGenParams = getSubTypeGenParamsList().length;
+//    		String queryParam = getSubTypeGenParamsList()[ numSubTypeGenParams-1 ];
+
+    		HashMap<String, RequestConstraint> requestConstraints = 
+    			getInventoryConstraintsFromParameters( getResourceParameters(false) );
+
+//    		requestConstraints.put( "pluginName", new RequestConstraint( getPluginName() ) );
+
+    		if( !getRscTypeGenerator().isEmpty() ) {
+
+    			String genTypesRslts[] = CatalogQuery.performQuery( getRscTypeGenerator(), requestConstraints );
+
+    			// 
+    			for( String genType : genTypesRslts ) {							
+    				genType = getResourceDefnName()+":"+genType;
+
+    				if( !generatedTypesList.contains( genType ) ) {
+    					generatedTypesList.add( genType );
+    				}												
+    			}    		
+    		}
+    		else if( getSubTypeGenParamsList().length > 0 ) {    		
+
+    			LayerProperty prop = new LayerProperty();
+    			prop.setDesiredProduct(ResourceType.PLAN_VIEW);
+    			prop.setEntryQueryParameters(requestConstraints, false);
+    			prop.setNumberOfImages(15000); 
+    			
+    			String script = ScriptCreator.createScript(prop);
+    			if( script == null ) {
+    				throw new VizException("Error creating query script???");
+    			}
+    			
+    			Object[] pdoList;
+    			pdoList = Connector.getInstance().connect( script, null, 60000 );
+
+//    			HashMap<String,ArrayList<String>> subTypesMap = new HashMap<String,ArrayList<String>>();
+
+    			for (Object pdo : pdoList) {
+    				String subType=null;
+    				String attrSetKey=null;
+
+    				if( getResourceCategory().equals( ResourceName.SatelliteRscCategory ) ) {
+    					if( getRscImplementation().equals("GiniSatellite") ) {
+    						SatelliteRecord satRec = (SatelliteRecord) pdo;
+    						subType = satRec.getSectorID();
+    						attrSetKey = satRec.getPhysicalElement();
+    					}
+    					else if( getRscImplementation().equals("McidasSatellite") ) {
+    						McidasRecord satRec = (McidasRecord) pdo;
+    						subType = satRec.getAreaName() + "_" + 
+    								satRec.getResolution().toString() + "km";
+    						attrSetKey = satRec.getImageType();
+    					}
+    				}
+    				else if( getResourceCategory().equals( ResourceName.RadarRscCategory ) ) {
+    					// if Mosaic there is no subType so just use 'mosaic'
+    					MosaicRecord rdrRec = (MosaicRecord) pdo;
+    					subType = "mosaic";
+    					attrSetKey = rdrRec.getProdName();
+    					// if Radar then use the name of the radar as the subType
+    				}
+
+// doing this will cause the dataTime query to fail because the subType is taken as a constraint
+// when doing the time querys. 
+//	subType = subType.replaceAll(" ", "_");
+    				if( subType != null ) {
+    					if( !generatedSubTypesList.contains( subType ) ) {
+    						generatedSubTypesList.add( subType );
+    					}
+//    					if( !subTypesMap.containsKey( subType ) ) {
+//
+//    						subTypesMap.put( subType, new ArrayList<String>() );
+//    					}
+//
+//    					subTypesMap.get( subType ).add( attrSetKey );
+    				}
+    			}
+    		}
+		} catch (VizException e) {
+			throw e;
+		}
+    }
+    
+    // if the inventory is disabled then this will be called to update the generating types or subTypes
+    // from the ingested URIs    
+	@Override
+	public void alertArrived( Collection<AlertMessage> alertMessages ) {
+		
+		HashMap<String, RequestConstraint> baseConstraints = 
+			getInventoryConstraintsFromParameters( getResourceParameters(false) );
+
+		for( AlertMessage alrtMsg : alertMessages ) {
+			Map<String, Object> uriAttrValues = new HashMap<String,Object>( alrtMsg.decodedAlert );
+
+			for( String attrName : uriAttrValues.keySet() ) {
+				Object attribsObj = uriAttrValues.get( attrName );
+				if( attribsObj instanceof String && 
+						!attrName.equals("dataTime") ) {
+
+					String attrStr = ((String)attribsObj); 
+//					if( attrStr.indexOf(' ') != -1 ) {           		    	
+//						uriAttrValues.put(attrName, attrStr.replace(' ', '_') );
+//						out.println( "WARNING: URI update message for "+ alrtMsg.dataURI +
+//								"\n     Attribute "+ attrName +" has a space : '"+ (String)attribsObj +"'" );
+//					}
+				}
+			}
+
+			// check to see if this URI matches the 'base' constraints (ie. satelliteName, modelName) for this RD.
+			boolean useUri = true;
+
+			for( String prmName : baseConstraints.keySet() ) {
+
+				RequestConstraint rc = baseConstraints.get( prmName );
+
+				if( !uriAttrValues.containsKey( prmName ) ) {
+					out.println("??? dataUriNotification, "+alrtMsg.dataURI+
+							", doesn't contain value for baseConstraint,"+ prmName );
+					useUri = false;
+					break;
+				}
+				else if( !rc.evaluate( uriAttrValues.get( prmName ) ) ) {
+					useUri = false;
+					break;            		
+				}
+			}
+
+			if( !useUri ) {
+				continue; // next URI
+			}
+
+			if( !getRscTypeGenerator().isEmpty() ) {
+				if( !uriAttrValues.containsKey( getRscTypeGenerator() ) ) {
+					out.println("??? dataUriNotification, "+alrtMsg.dataURI+
+							", doesn't contain TypeGenerator,"+getRscTypeGenerator() );
+					useUri = false;
+				}
+				else {
+					String genType = getResourceDefnName()+":"+uriAttrValues.get( getRscTypeGenerator() );
+
+					if( !generatedTypesList.contains( genType ) ) {
+						generatedTypesList.add( genType );
+					}
+				}
+			}
+
+			for( String genPrm : getSubTypeGenParamsList() ) {
+
+				if( !uriAttrValues.containsKey( genPrm ) ) {
+					out.println("??? dataUriNotification, "+alrtMsg.dataURI+", doesn't contain SubTypeGenerator,"+
+							genPrm );
+					useUri = false;
+				}
+			}
+
+			if( !useUri ) {
+				continue;
+			}
+
+			String subType = null;
+			
+			if( getSubTypeGenParamsList().length == 1 ) {  // ie Gini Satellite
+				// the gini decoder puts spaces in the sectorIds and physicalElements 
+				// so replace the '_'s from the URI
+				String genPrm = getSubTypeGenParamsList()[0];
+				subType = uriAttrValues.get( genPrm ).toString().replaceAll("_", " ");
+			}
+			else if( getSubTypeGenParamsList().length == 2 ) {  // ie Mcidas Satellite
+				String genPrm1 = getSubTypeGenParamsList()[0];
+				String genPrm2 = getSubTypeGenParamsList()[1];
+				subType = uriAttrValues.get( genPrm1 ).toString();
+				subType = subType+"_"+uriAttrValues.get( genPrm2 ).toString() + "km";
+			}
+
+			if( subType != null &&
+			   !generatedSubTypesList.contains( subType ) ) {
+				
+				generatedSubTypesList.add( subType );
+			}
+		}
+
+	}
+
+	@Override
+	public int compareTo(ResourceDefinition o) {
+		return this.getResourceDefnName().compareToIgnoreCase( o.getResourceDefnName() );
+	}
 }
