@@ -1,5 +1,5 @@
 ! Attributes for the ETAMOS resource with "standard" plot model
 !
-plotModelName=etamos_standard
+plotModel=@PlotModels/bufrmosETA/standard.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

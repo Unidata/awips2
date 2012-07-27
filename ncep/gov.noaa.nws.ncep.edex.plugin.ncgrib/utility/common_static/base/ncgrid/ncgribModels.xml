@@ -444,8 +444,8 @@
 	</model>
 
 	<model>
-		<title>GFS Global 1x1 Degree Analysis</title>
-		<name>gfsAnl</name>
+		<title>GFS Global 1x1 Degree Analysis and f00. Grib header issues</title>
+		<name>gfs</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>372</grid>
@@ -2045,7 +2045,7 @@
 
 	<model>
 		<title>NAM over the contiguous US 16X Resolution(5Km) Lambert Conformal</title>
-		<name>NAM227</name>
+		<name>nam5</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>227</grid>
@@ -2057,7 +2057,7 @@
 		
 	<model>
 		<title>NAM Puerto Rico</title>
-		<name>NAMPR</name>
+		<name>namPR</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
 		<grid>407</grid>
@@ -4374,7 +4374,19 @@
 		</process>
 		<dt>6</dt>
 	</model>
-
+	
+	<model>
+		<title>RUC13</title>
+		<name>ruc13</name>
+		<center>7</center>
+		<subcenter>8</subcenter>
+		<grid>130</grid>
+		<process>
+			<id>105</id>
+		</process>
+		<dt>1</dt>
+	</model>
+	
 	<model>
 		<title>Aviation</title>
 		<name>AVIATION</name>

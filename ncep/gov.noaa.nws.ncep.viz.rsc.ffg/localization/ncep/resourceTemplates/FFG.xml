@@ -23,12 +23,20 @@
          <frameSpan>${frameSpan}</frameSpan>
          <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
          <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
-         <legendColor>${legend_color}</legendColor>
+         <legendColor>${legendColor}</legendColor>
          <ffgParam>${ffg_param}</ffgParam>
          <displayValues>${displayValues}</displayValues>
          <symbolName>${symbolName}</symbolName>
          ${colorBar}
          <requestStyle>METADATA</requestStyle>
+             <metadataMap>
+               <mapping key="pluginName">
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS" />
+               </mapping>
+             </metadataMap>
 
       </resourceData>
    </resource>

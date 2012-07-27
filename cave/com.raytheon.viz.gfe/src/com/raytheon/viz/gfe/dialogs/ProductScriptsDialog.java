@@ -21,8 +21,10 @@ package com.raytheon.viz.gfe.dialogs;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -46,7 +48,10 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.smartscript.FieldDefinition;
+import com.raytheon.viz.gfe.smartscript.FieldDefinition.FieldType;
 import com.raytheon.viz.gfe.tasks.TaskManager;
+import com.raytheon.viz.gfe.ui.runtimeui.ValuesDialog;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
@@ -127,7 +132,6 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
      * 
      */
     private void runScripts() {
-        // TODO implement this
         int[] idxs = scriptsList.getSelectionIndices();
 
         for (int idx : idxs) {
@@ -189,11 +193,10 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 // {entryButtons: <name of variable>: <list of values separated
                 // by
                 // commas>}
-                
                 int count = cmd.split("entryButtons").length - 1;                
                 if (count > 0) {
                 	int entryIdx = 0, i = 0, start = 0;
-                    HashMap<String,String[]> map = new HashMap<String,String[]>();
+                    List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition> ();
                     
                 	while (entryIdx != -1) {
                 		entryIdx = cmd.indexOf("{entryButtons:",entryIdx);
@@ -201,35 +204,78 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
                 			int endEntryIdx = cmd.indexOf("}", entryIdx);
                 			String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
                 				.split(":");
-                			map.put(entry[1],entry[2].split(","));
-                			if (i == 0) start = entryIdx;
-                			entryIdx=endEntryIdx+1;
-                			i++;
-                		}
-                	
-                		if (entryIdx == -1) {
-                			ButtonEntryDialog buttonDlg = new ButtonEntryDialog(
-                					this.getShell(), name, map);
-                			String returnMsg = buttonDlg.open();
-                			if (returnMsg == null) {
-                				// cancel pressed
-                				run = false;
-                				continue;
-                			}
-                			start = start - 3;
+                            String [] fields = entry[2].split(",");
+
+                            fieldDefs.add(new FieldDefinition((Object)entry[1], entry[1], FieldType.RADIO, (Object)fields[0],
+                            		Arrays.asList(Arrays.asList(fields).toArray(new Object[fields.length])), (float)1.0, (int)3));
+                            if (i == 0) start = entryIdx;
+                            entryIdx=endEntryIdx+1;
+                            i++;
+                        }
+
+                        if (entryIdx == -1) {
+                        	ValuesDialog buttonDlg = new ValuesDialog(name, fieldDefs, dataManager);
+                        	if (buttonDlg.open() > 0) {
+                        		run = false;
+                        		continue;
+                        	}
+                        	
+                        	Map<Object, Object> map = buttonDlg.getValues();
+                        	String returnMsg = "";
+                        	
+                        	for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                        	    returnMsg = returnMsg + entry.getValue().toString() + " ";
+                        	}
+
+                            start = start - 3;
                             cmd = cmd.substring(0, start) + returnMsg;
-                		}
-                	}
+                        }
+                    }
                 }
 
                 // The user is prompted for a list of check box values.
                 // {entryChecks: <name of variable>: <list of values separated
                 // by
                 // commas>}
-                // int entryIdx = cmd.indexOf("{entryChecks:");
-                // if (entryIdx >= 0) {
-                // int endEntryIdx = cmd.indexOf("}", entryIdx);
-                // }
+                count = cmd.split("entryChecks").length - 1;
+                if (count > 0) {
+                    int entryIdx = 0, i = 0, start = 0;
+                    List<FieldDefinition> fieldDefs = new ArrayList<FieldDefinition> ();
+
+                    while (entryIdx != -1) {
+                    	entryIdx = cmd.indexOf("{entryChecks:",entryIdx);
+                        if (entryIdx >= 0) {
+                        	int endEntryIdx = cmd.indexOf("}", entryIdx);
+                            String[] entry = cmd.substring(entryIdx + 1, endEntryIdx)
+                                            .split(":");
+                            String [] fields = entry[2].split(",");
+
+                            fieldDefs.add(new FieldDefinition((Object)entry[1], entry[1], FieldType.CHECK, (Object)null,
+                            		Arrays.asList(Arrays.asList(fields).toArray(new Object[fields.length])), (float)1.0, (int)3));
+                            if (i == 0) start = entryIdx;
+                            entryIdx=endEntryIdx+1;
+                            i++;
+                        }
+
+                        if (entryIdx == -1) {
+                        	ValuesDialog buttonDlg = new ValuesDialog(name, fieldDefs, dataManager);
+                        	if (buttonDlg.open() > 0) {
+                        		run = false;
+                        		continue;
+                        	}
+                        	
+                        	Map<Object, Object> map = buttonDlg.getValues();
+                        	String returnMsg = "";
+                        	
+                        	for (Map.Entry<Object, Object> entry : map.entrySet()) {
+                        	    returnMsg = returnMsg + entry.getValue().toString() + " ";
+                        	}
+
+                            start = start - 3;
+                            cmd = cmd.substring(0, start) + returnMsg;
+                        }
+                    }
+                }
 
                 // The user is prompted for a named variable, same as the
                 // user-supplied variables above, but for non-standard
@@ -299,7 +345,7 @@ public class ProductScriptsDialog extends CaveJFACEDialog {
         data = new GridData(GridData.FILL_HORIZONTAL);
         data.horizontalAlignment = SWT.CENTER;
         scriptsLab.setLayoutData(data);
-        scriptsList = new ToggleSelectList(top, SWT.BORDER | SWT.MULTI);
+        scriptsList = new ToggleSelectList(top, SWT.MULTI | SWT.V_SCROLL);
         String[] scriptLabels = scriptDict.keySet().toArray(
                 new String[scriptDict.size()]);
         Arrays.sort(scriptLabels);

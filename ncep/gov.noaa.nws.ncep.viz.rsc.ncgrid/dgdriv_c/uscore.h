@@ -358,6 +358,7 @@
 #define db_getevtname	db_getevtname_
 #define db_setensmbrs   db_setensmbrs_
 #define db_getensmbrs   db_getensmbrs_
+#define db_setsubgnav   db_setsubgnav_ 
 //#define db_ggemstns	db_ggemstns_
 //#define db_ggemparms	db_ggemparms_
 //#define db_getgemsfdata	db_getgemsfdata_
@@ -366,6 +367,7 @@
 */
 #define db_getduri	db_getduri_
 #define db_getgnav	db_getgnav_
+#define db_retsubgcrs   db_retsubgcrs_
 #define db_gtimgrid	db_gtimgrid_
 #define db_msgcave	db_msgcave_
 #define db_gtim		db_gtim_

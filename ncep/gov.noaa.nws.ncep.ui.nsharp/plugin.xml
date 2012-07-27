@@ -41,7 +41,7 @@
             renderingOrderId="MAP_OUTLINE" /> 
    </extension>
 	<extension
-         point="org.eclipse.ui.editors">
+       point="org.eclipse.ui.editors">
       <editor
          class="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
          default="true"
@@ -49,13 +49,25 @@
          id="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
          name="NsharpSkewt">
       </editor>
-   </extension>   
+      <editor
+         class="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
+         default="true"
+         icon="icons/skewt.gif"  
+         id="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
+         name="NsharpEditor">
+      </editor>
+   </extension> 
    <extension
          point="com.raytheon.uf.viz.core.descriptor">
       <descriptor
             class="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor"
             editor="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
             name="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor">
+      </descriptor>
+      <descriptor
+            class="gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor"
+            editor="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
+            name="gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor">
       </descriptor>
    </extension>
    <extension
@@ -69,4 +81,13 @@
 	         extensionFilter=".xml">
        </path>
     </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor"
+            default="true"
+            id="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpEditor"
+            name="NsharpEditor">
+      </editor>
+   </extension>
 </plugin>

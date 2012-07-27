@@ -10,12 +10,13 @@ Export-Package: gov.noaa.nws.ncep.edex.common.dao,
  gov.noaa.nws.ncep.edex.common.metparameters,
  gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion,
  gov.noaa.nws.ncep.edex.common.metparameters.quantity,
+ gov.noaa.nws.ncep.edex.common.ncinventory,
  gov.noaa.nws.ncep.edex.common.sounding,
  gov.noaa.nws.ncep.edex.common.stationTables,
  gov.noaa.nws.ncep.edex.locations,
  gov.noaa.nws.ncep.edex.tools.decoder,
- gov.noaa.nws.ncep.edex.util,
- gov.noaa.nws.ncep.metparameters.util
+ gov.noaa.nws.ncep.edex.util
+ 
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
  com.raytheon.uf.edex.decodertools;bundle-version="1.11.16",
  com.raytheon.uf.common.localization;bundle-version="1.11.16",
@@ -28,7 +29,10 @@ Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
-Import-Package: gov.noaa.nws.ncep.common.tools,
+Import-Package: com.raytheon.edex.uengine.tasks.query,
+ gov.noaa.nws.ncep.common.tools,
+ com.raytheon.uf.common.message.response,
+ com.raytheon.uf.common.dataplugin.radar,
  javax.measure.converter,
  javax.measure.quantity,
  javax.measure.unit

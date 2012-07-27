@@ -70,7 +70,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 06/22/09      2152       D. Hladky   Initial release
- * 
+ * 06/18/12		 DR 15108   G. Zhang	Fix County FIPS 4-digit issue
  * </pre>
  * 
  * @author dhladky
@@ -617,10 +617,10 @@ public class FFMPUtils {
      */
     @SuppressWarnings("unchecked")
     public static ArrayList<?> getCountyInfo(Long fips, String mode) {
-
+    	String ftxt = (fips>=10000 ? ""+fips : "0"+fips);// DR 15108: add a leading 0 to 4-digit FIPS. 
         String sql1 = "SELECT county.gid from " + FFMPUtils.COUNTY_TABLE
-                + " WHERE county.fips = '" + fips + "'";
-
+                + " WHERE county.fips = '" + ftxt/*fips*/ + "'";// DR 15108: use the 5-digit FIPS string.
+        System.out.println("___FFMPUtils.getCountyInfo(): county FIPS: "+ftxt);//Not a debug statement but for Template generation.
         ISpatialQuery sq1 = null;
         ArrayList<Long> gids = new ArrayList<Long>();
 

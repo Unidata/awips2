@@ -2,10 +2,8 @@
 !
 reportType=wscat-ambig1
 !
-legend_color=RGB {155, 155, 155}
-color=RGB {155, 155, 155}
-colorBar1=@ambig1ColorBar1.xml
-colorBar2=@ambig1ColorBar2.xml
+colorBar1=@ColorBars/SCAT/ambig1ColorBar1.xml
+colorBar2=@ColorBars/SCAT/ambig1ColorBar2.xml
 ! 
 skipEnable=false
 skipValue=1

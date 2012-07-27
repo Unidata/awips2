@@ -143,7 +143,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 	private int defaultDialogHeight = 205;
 	private int shellWidth = 764;
 	private Shell shell = null;
-	private FormData fd = null;
+
 	private IImageCombinerListener combineNextImageListener = new IImageCombinerListener() {
 		@Override
 		public void preferenceChanged(boolean newPref) {
@@ -261,12 +261,12 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 			if (resList != null && resList.size() > 0) {
 				for (ResourcePair rp : resList) {
 					AbstractVizResource<?, ?> resource = rp.getResource();
-					if (resource.hasCapability(ImagingCapability.class)) {
-						imageResources
-								.add((AbstractNatlCntrsResource<?, ?>) resource);
-					} else if (resource.hasCapability(ColorMapCapability.class)) {
-						cmapResources
-								.add((AbstractNatlCntrsResource<?, ?>) resource);
+					if ( resource instanceof AbstractNatlCntrsResource<?, ?>){
+					    if (resource.hasCapability(ImagingCapability.class)) {
+						      imageResources.add((AbstractNatlCntrsResource<?, ?>) resource);
+					     } else if (resource.hasCapability(ColorMapCapability.class)) {
+						        cmapResources.add((AbstractNatlCntrsResource<?, ?>) resource);
+					     }
 					}
 				}
 			}
@@ -317,7 +317,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 
 		final Spinner lenSpinner = new Spinner(newComp, SWT.BORDER);
 		fd = new FormData();
-		fd.left = new FormAttachment(lengthLabel, 20, SWT.RIGHT);
+		fd.left = new FormAttachment(lengthLabel, 10, SWT.RIGHT);
 		fd.top = new FormAttachment(newComp, 20, SWT.BOTTOM);
 		lenSpinner.setLayoutData(fd);
 		lenSpinner.setToolTipText("ColorBar length as a percentage of the screen size");
@@ -346,8 +346,8 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 		Label widthLabel = new Label(newComp, SWT.NONE);
 		widthLabel.setText("Width");
 		fd = new FormData();
-		fd.left = new FormAttachment(percentLabel, 40, SWT.RIGHT);
-		fd.top = new FormAttachment(newComp, 20, SWT.BOTTOM);
+		fd.left = new FormAttachment(anchorCombo, 40, SWT.RIGHT);
+		fd.top = new FormAttachment(lengthLabel, 20, SWT.BOTTOM);
 		widthLabel.setLayoutData(fd);
 
 		final Spinner widthSpinner = new Spinner(newComp, SWT.BORDER);
@@ -366,14 +366,14 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 
 		fd = new FormData();
 		fd.left = new FormAttachment(widthLabel, 20, SWT.RIGHT);
-		fd.top = new FormAttachment(newComp, 20, SWT.BOTTOM);
+		fd.top = new FormAttachment(lengthLabel, 20, SWT.BOTTOM);
 		widthSpinner.setLayoutData(fd);
 
 		Label pixelLabel = new Label(newComp, SWT.NONE);
 		pixelLabel.setText("pixels");
 		fd = new FormData();
 		fd.left = new FormAttachment(widthSpinner, 7, SWT.RIGHT);
-		fd.top = new FormAttachment(newComp, 20, SWT.BOTTOM);
+		fd.top = new FormAttachment(lengthLabel, 20, SWT.BOTTOM);
 		pixelLabel.setLayoutData(fd);
 
 		final Button showLabelsBtn = new Button(newComp, SWT.CHECK);
@@ -394,7 +394,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 		Composite labelColorComp = new Composite(newComp, SWT.NONE);
 		labelColorComp.setLayout(new FormLayout());
 		fd = new FormData();
-		fd.left = new FormAttachment(pixelLabel, 10, SWT.RIGHT);
+		fd.left = new FormAttachment(pixelLabel, 25, SWT.RIGHT);
 		fd.top = new FormAttachment(showLabelsBtn, 20, SWT.BOTTOM);
 		labelColorComp.setLayoutData(fd);
 		final ColorButtonSelector labelColorSelector = new ColorButtonSelector(
@@ -416,7 +416,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 		Label labelColorLbl = new Label(newComp, SWT.NONE);
 		labelColorLbl.setText("Label Color");
 		fd = new FormData();
-		fd.left = new FormAttachment(pixelLabel, 65, SWT.RIGHT);
+		fd.left = new FormAttachment(pixelLabel, 80, SWT.RIGHT);
 		fd.top = new FormAttachment(showLabelsBtn, 20, SWT.BOTTOM);
 		labelColorLbl.setLayoutData(fd);
 
@@ -453,6 +453,24 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 				refreshColorBar();
 			}
 		});
+		
+		
+		final Button reverseColorsBtn = new Button(newComp, SWT.CHECK);
+		reverseColorsBtn.setText("Reverse colors");
+		fd = new FormData();
+		fd.left = new FormAttachment(showLabelsBtn, 40, SWT.RIGHT);
+		fd.top = new FormAttachment(newComp, 20, SWT.BOTTOM);
+		reverseColorsBtn.setLayoutData(fd);
+		reverseColorsBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+                  if ( editedColorBar.getReverseOrder())
+                	    editedColorBar.setReverseOrder(false);
+                  else
+                	  editedColorBar.setReverseOrder(true);
+				refreshColorBar();
+			}
+		});
+		
 	}
 
 	private void createColorMapRangeControlSliders(Composite theColorRangeGroup) {
@@ -532,7 +550,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
+
 
 			}
 		});
@@ -547,7 +565,7 @@ public class ColorBarFromColorMapAttrsEditorComposite extends Composite {
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
+				
 
 			}
 		});

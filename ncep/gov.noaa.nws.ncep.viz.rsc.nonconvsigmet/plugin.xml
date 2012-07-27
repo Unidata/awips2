@@ -26,211 +26,263 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="icingEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="icingEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="icingColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="icingColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="icingSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="icingSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="turbulenceEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="turbulenceEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="turbulenceColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="turbulenceColor"
             defaultValue="RGB {30, 144, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbulenceLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbulenceLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbulenceSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbulenceSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="turbulenceSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="turbulenceSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="duststormEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="duststormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="duststormColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="duststormColor"
             defaultValue="RGB {255, 215, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="duststormLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="duststormLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="duststormSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="duststormSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="duststormSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="duststormSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="volcanicAshEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="volcanicAshEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="volcanicAshColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="volcanicAshColor"
             defaultValue="RGB {255, 127, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="volcanicAshLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="volcanicAshLineWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="volcanicAshSymbolWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="volcanicAshSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="volcanicAshSymbolSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="volcanicAshSymbolSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="symbolEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="symbolEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="nameNumberEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="nameNumberEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="flightLevelEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="flightLevelEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="novemberEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="novemberEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="oscarEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="oscarEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="papaEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="papaEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="quebecEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="quebecEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="romeoEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="romeoEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="uniformEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="uniformEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="victorEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="victorEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="whiskeyEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="whiskeyEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="xrayEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="xrayEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="yankeeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="yankeeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="NonconvectiveSigmet">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="NonconvectiveSigmet"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="nonconvsigmet"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="NonconvectiveSigmet"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
+      
    </extension>
 
 </plugin>

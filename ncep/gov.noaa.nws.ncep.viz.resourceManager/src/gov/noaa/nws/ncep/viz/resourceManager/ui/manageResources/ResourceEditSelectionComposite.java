@@ -5,12 +5,15 @@ import gov.noaa.nws.ncep.viz.resources.manager.AttributeSet;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -18,6 +21,7 @@ import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,7 +47,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 07/03/10      #273        Greg Hull   
  * 03/01/11      #408        Greg Hull   remove Forecast/Observed
  * 07/25/11      #450        Greg Hull   use NcPathManager for Localization
- *
+ * 03/14/12      #606        Greg Hull   get types/sub-types from ncInventory
+ * 06/06/2012     #816       Greg Hull   Alphabetize lists. Change content of listViewer to ResourceDefinitions
+
  * </pre>
  * 
  * @author ghull
@@ -330,15 +336,13 @@ public class ResourceEditSelectionComposite extends Composite {
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }    			
    		});
    		
-   		//rscCatLViewer.setLabelProvider( NmapCommon.createFileLabelProvider() );
-
     	rscTypeLViewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
 				
 				if( seldResourceName.getRscCategory().isEmpty() ) {
 					rscTypeLbl.setText("");
-					return new String[]{};
+					return new ResourceDefinition[]{};
 				}
 				else if( seldResourceName.getRscCategory().equals("PGEN" ) ) {
 					rscTypeLbl.setText("PGEN");
@@ -346,9 +350,21 @@ public class ResourceEditSelectionComposite extends Composite {
 				else {
 					rscTypeLbl.setText(seldResourceName.getRscCategory()+" Resources");
 				}
-				List<String> rscTypes = rscDefnsMngr.getResourceTypesForCategory( 
+				
+				try {
+					List<ResourceDefinition> rscTypes = rscDefnsMngr.getResourceDefnsForCategory( 
 							seldResourceName.getRscCategory(), null, false );
-					return rscTypes.toArray();				
+					return rscTypes.toArray(new ResourceDefinition[0]); 					
+				}
+				catch ( VizException e ) {
+		        	MessageDialog errDlg = new MessageDialog( 
+		        			NmapUiUtils.getCaveShell(), 
+		        			"Error", null, 
+		        			"Error getting Resource Types\n"+ e.getMessage(),
+		        			MessageDialog.ERROR, new String[]{"OK"}, 0);
+		        	errDlg.open();
+		        	return new String[]{};
+				}						
 			}
 
 			@Override
@@ -357,6 +373,32 @@ public class ResourceEditSelectionComposite extends Composite {
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }    			
    		});
+    	
+    	rscTypeLViewer.setLabelProvider(  new LabelProvider() {
+	    	public String getText( Object element ) {
+	    		ResourceDefinition rd = (ResourceDefinition)element;
+	    		return (rd == null ? "null" : rd.getResourceDefnName());
+	    	}
+        });
+    	
+    	rscTypeLViewer.setComparator( new ViewerComparator() {
+    		// TODO : implement this if we want to group definitions according to 
+    		// some meaningful category....
+    	    public int category(Object element) {
+    	    	ResourceDefinition rd = (ResourceDefinition)element;
+    	    	return ( rd.isForecast() ? 1 : 0 ); 
+    	        //return super.category(element);
+    	    }
+
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+            	//super.compare(viewer, e1, e2);
+            	int catComp = category(e1) - category(e2);            	 
+            	return ( catComp != 0 ? catComp :  
+            				rscDefnsMngr.getDefaultRscDefnComparator().compare(
+            						(ResourceDefinition)e1, (ResourceDefinition)e2 ) ); 
+            }
+    	});
     	
     	rscGroupLViewer.setContentProvider(  new IStructuredContentProvider() {
 			@Override
@@ -390,14 +432,24 @@ public class ResourceEditSelectionComposite extends Composite {
 							return rscAttrSetsList.toArray();
 						}
 					}
-					else {						
-						String[] rscGroups = rscDefnsMngr.getResourceSubTypes( rscType );
-						
-						rscTypeGroupLbl.setText( rscType+" Sub-Types");
-	
-						if( rscGroups != null && rscGroups.length != 0 ) {
-							return rscGroups;//.toArray();
+					else {			
+						try {
+							String[] rscGroups = rscDefnsMngr.getResourceSubTypes( rscType );
+
+							rscTypeGroupLbl.setText( rscType+" Sub-Types");
+
+							if( rscGroups != null && rscGroups.length != 0 ) {
+								return rscGroups;//.toArray();
+							}
 						}
+						catch ( VizException e ) {
+				        	MessageDialog errDlg = new MessageDialog( 
+				        			NmapUiUtils.getCaveShell(), 
+				        			"Error", null, 
+				        			"Error getting sub-types\n"+ e.getMessage(),
+				        			MessageDialog.ERROR, new String[]{"OK"}, 0);
+				        	errDlg.open();
+						}						
 					}
 				}
 				else {
@@ -413,6 +465,14 @@ public class ResourceEditSelectionComposite extends Composite {
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }    			
    		});    
+
+    	// enable sorting 
+    	rscGroupLViewer.setComparator( new ViewerComparator() {
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+            	return super.compare(viewer, e1, e2);
+            }
+    	});
 
 //    	rscGroupLViewer.setLabelProvider( NmapCommon.createFileLabelProvider() );
     	
@@ -437,6 +497,23 @@ public class ResourceEditSelectionComposite extends Composite {
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }    			
     	});
     			
+    	rscAttrSetLViewer.setComparator( new ViewerComparator() {
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+            	if( ((String)e1).equals("default") ||
+            		((String)e1).equals("standard")	) {
+            		return -1;
+            	}
+            	else if( ((String)e2).equals("default") ||
+                		 ((String)e2).equals("standard")	) {
+                	return 1;
+                }
+            	else {
+            		return super.compare(viewer, e1, e2);
+            	}
+            }
+    	});
+
         rscAttrSetLViewer.setLabelProvider( new LabelProvider() {
 	    	public String getText( Object element ) {
 	    		String attrSetName = (String)element;
@@ -514,7 +591,7 @@ public class ResourceEditSelectionComposite extends Composite {
             public void selectionChanged(SelectionChangedEvent event) {
             	StructuredSelection seld_elem = (StructuredSelection) event.getSelection();               
             	
-            	seldResourceName.setRscType( (String)seld_elem.getFirstElement() );
+            	seldResourceName.setRscType( ((ResourceDefinition)seld_elem.getFirstElement()).getResourceDefnName() );
             	seldResourceName.setRscGroup( "" );
             	seldResourceName.setRscAttrSetName( "" );
 
@@ -651,7 +728,7 @@ public class ResourceEditSelectionComposite extends Composite {
 			rscTypeLViewer.getList().select(0);
 			StructuredSelection seld_elem = (StructuredSelection)rscTypeLViewer.getSelection();
 			
-			seldResourceName.setRscType( (String)seld_elem.getFirstElement() );
+			seldResourceName.setRscType( ((ResourceDefinition)seld_elem.getFirstElement()).getResourceDefnName() );
 			seldResourceName.setRscGroup("");
 			seldResourceName.setRscAttrSetName(""); 
 		}

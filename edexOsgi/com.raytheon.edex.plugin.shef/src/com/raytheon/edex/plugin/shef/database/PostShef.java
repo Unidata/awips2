@@ -758,16 +758,16 @@ public class PostShef {
                                         .format("Posting data [%s] for LID [%s] to pairedValue table",
                                                 dataValue, locId));
                             }
-                        } else {
+                        } else {                        	             	
                             PostTables.postPeData(shefRecord, data, locId,
-                                    dataValue, dataQualifier, qualityCode,
+                            		data.getStringValue(), dataQualifier, qualityCode,
                                     prodId, prodTime, shefPostDuplicateDef,
                                     ingestSwitch, stats, validTime, postDate,
                                     dataType);
                             if (dataLog) {
                                 log.info(String
                                         .format("Posting data [%s] for LID [%s] for PE [%s]",
-                                                dataValue, locId, data
+                                        		data.getStringValue(), locId, data
                                                         .getPhysicalElement()
                                                         .getCode()));
                             }
