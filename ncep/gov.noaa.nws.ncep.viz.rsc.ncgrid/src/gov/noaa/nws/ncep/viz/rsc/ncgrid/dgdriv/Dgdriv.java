@@ -6,6 +6,7 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.sun.jna.Native;
@@ -13,8 +14,11 @@ import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.IntByReference;
 
 //import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 //import com.raytheon.uf.common.derivparam.tree.DataTree;
 //import com.raytheon.uf.common.derivparam.tree.LevelNode;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -29,14 +33,17 @@ import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag;
 import gov.noaa.nws.ncep.viz.gempak.grid.jna.GridDiag.gempak;
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLogger;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.DgdrivException;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.dgdriv.NcgridDataCache.NcgridData;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord;
-import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
+import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcGridInventory;
 import gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree.NcDataTree;
 //import gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree.NcLevelNode;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
@@ -50,6 +57,10 @@ import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcEnsembleResourceData;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage.CustomLatLonCoverage;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage.CustomLambertConformalCoverage;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage.CustomMercatorCoverage;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.customCoverage.CustomPolarStereoCoverage;
 
 /**
  * The Dgdriv class provides setters GEMPAK for grid diagnostic parameters
@@ -94,6 +105,11 @@ import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData;
  * 02/02/2012               X. Guo          Updated query ensemble navigation
  * 03/13/2012               X. Guo          Clean up
  * 03/28/2012               X. Guo          Don't need to convert gdfile toUppercase
+ * 05/10/2012               X. Guo          Calculated sub-grid
+ * 05/15/2012               X. Guo          Used the new NcGribInventory()
+ * 05/23/2012               X. Guo          Loaded ncgrib logger
+ * 06/07/2012               X. Guo          Catch datauri&grid data, use DbQueryResponse to query
+ *                                          dataURI instead of ScriptCreator
  * </pre>
  *
  * @author tlee
@@ -109,10 +125,16 @@ public class Dgdriv {
 	private String gdfileOriginal;
 	private NcgridResourceData gridRscData;
 	
-	private ISpatialObject spatialObj; 
+	private String ncgribPreferences;
+	
+	private ISpatialObject spatialObj, subgSpatialObj; 
 	private ArrayList<DataTime> dataForecastTimes;
 	private static Connector conn;
-	private NcInventory inventory;
+	private NcGridInventory inventory;
+	
+	private NcgridDataCache cacheData;
+	
+	private static NcgribLogger ncgribLogger = NcgribLogger.getInstance();;
 	
     public static final String PLUGIN_NAME_QUERY = "pluginName";
 
@@ -124,17 +146,20 @@ public class Dgdriv {
 
     public static final String LEVEL_ID_QUERY = "vcord";
 
-    public static final String LEVEL_ONE_QUERY = "glevel1";
+    public static final String LEVEL_ONE_QUERY = "modelInfo.level.levelonevalue";
 
-    public static final String LEVEL_TWO_QUERY = "glevel2";
+    public static final String LEVEL_TWO_QUERY = "modelInfo.level.leveltwovalue";
+    
+    public static final int LLMXGD = 1000000; //Max # grid points
+    
    /*
     * TODO Work around solution - need to find away to set logging level programmatically
     */
     private static String[] nativeLogTypes = {"|critical","|error","|info","|debug" };
-    private static int nativeLogLevel = -1;
+    private static int nativeLogLevel = 10;
     
-//	private static boolean nativeLogging = true;
-	private static boolean nativeLogging = false;
+	private static boolean nativeLogging = true;
+//	private static boolean nativeLogging = false;
 
 
 	public Dgdriv() {
@@ -152,10 +177,12 @@ public class Dgdriv {
 		scale = "";
 		garea = "";
 		proj = "";
+		ncgribPreferences = null;
+		subgSpatialObj = null;
 		scalar = false;
 		arrowVector = false;
 		dataForecastTimes = new ArrayList<DataTime>();
-	    inventory = NcInventory.getInstance();
+	    inventory = NcGridInventory.getInstance();
 		try {
 			conn = Connector.getInstance();
 		} catch (VizException e) {
@@ -232,6 +259,22 @@ public class Dgdriv {
 		
 	}
 	
+	public ISpatialObject getSubgSpatialObj () {
+		return this.subgSpatialObj;
+	}
+	
+	public void setSubgSpatialObj ( ISpatialObject obj) {
+		this.subgSpatialObj = obj;
+	}
+	
+	public void setPreferences ( String preferences) {
+		this.ncgribPreferences = preferences;
+	}
+	
+	public void setCacheData ( NcgridDataCache data ) {
+		this.cacheData = data;
+	}
+	
 	final int BUFRLENGTH = 128;
 	final int PRMLENGTH = 40;
 	final int IMISSD = -9999;
@@ -250,7 +293,7 @@ public class Dgdriv {
     IntByReference fileflg = new IntByReference(0);
     IntByReference termflg = new IntByReference(1);
     
-    IntByReference maxgrd = new IntByReference(IMISSD);
+    IntByReference maxgrd = new IntByReference(LLMXGD);
     IntByReference ix1 = new IntByReference(0);
     IntByReference iy1 = new IntByReference(0);
     IntByReference ix2 = new IntByReference(0);
@@ -288,6 +331,7 @@ public class Dgdriv {
 	ReturnNavigationCallback navCallback = null;
 	ReturnDataCallback dataCallback = null;
 	ReturnDataURICallback duriCallback = null;
+	ReturnSubgridCRSCallback subgCrsCallback = null;
 	
 	private class DiagnosticsCallback implements gempak.DbCallbackWithMessage {
 
@@ -304,7 +348,13 @@ public class Dgdriv {
 				logger.debug("C DEBUG MESSAGE " +logMessage);
 			}
 			else if ( msg.contains("|info") ) {
-				String logMessage = msg.split("\\|")[0] + ":" + msg.split(sep)[1];
+				String logMessage;
+				if ( msg.split("\\|").length > 2 ) {
+					logMessage = msg.split("\\|")[0] + ":" + msg.split(sep)[1];
+				}
+				else {
+					logMessage = msg;
+				}
 				System.out.println("\tC INFO MESSAGE " + logMessage);
 				logger.info("C INFO MESSAGE " +logMessage);
 			}
@@ -326,16 +376,39 @@ public class Dgdriv {
 				try {
 					String[] msgArr = msg.split(";");
 					if (msgArr.length == 3) {
+						boolean addData = false;
 						String dataURI = msgArr[0];
 						int nx = Integer.parseInt(msgArr[1].trim());
 						int ny = Integer.parseInt(msgArr[2].trim());
 						long t0 = System.currentTimeMillis();
-						float[] rData = retrieveData(dataURI);
+						NcgridData gData = cacheData.getGridData(dataURI);
+						float[] rData;
+						if ( gData == null ) {
+							addData = true;
+							rData = retrieveData(dataURI);
+						}
+						else {
+							if ( ncgribLogger.enableDiagnosticLogs() ) {
+								long t00 = System.currentTimeMillis();
+								logger.info("++++ retrieve data (nx:"+gData.getNx() +"-ny:" + gData.getNy()+") from cache took: " + (t00-t0));
+							}
+							rData = gData.getData();
+						}
 						long t1 = System.currentTimeMillis();				        
 						int rDataSize = rData.length;						
 						IntByReference datSize = new IntByReference(rDataSize);
 						logger.debug("retrieve data nx=" + nx +" ny=" + ny + " rDataSize=" + rDataSize);
-						gd.gem.db_returndata(flipData(rData, nx, ny),datSize);
+						if ( (nx*ny) == rDataSize ) {
+							if ( addData ) {
+								cacheData.addGridData(dataURI, nx, ny, rData);
+							}
+							gd.gem.db_returndata(flipData(rData, nx, ny),datSize);
+						}
+						else {
+							logger.debug("retrieve data size("+rDataSize+") mismatch with navigation nx=" + nx +" ny=" + ny);
+							errorURI = msg;
+							proces = false;
+						}
 						long t2 = System.currentTimeMillis();
 //						System.out.println("\tretrieve data took " + (t1-t0));
 				        logger.debug("retrieve data took " + (t1-t0));
@@ -420,6 +493,17 @@ public class Dgdriv {
 		}
 	}
 	
+	private class ReturnSubgridCRSCallback implements gempak.DbCallbackWithMessage {
+
+		@Override
+
+		public boolean callback(String msg) {
+			logger.debug("Rcv'd new subg:" + msg);
+				createNewISpatialObj ( msg );
+				return true;
+		}
+	}
+	
 	private class ReturnCycleForecastHoursCallback implements gempak.DbCallbackWithoutMessage {
 
 		@Override
@@ -485,7 +569,8 @@ public class Dgdriv {
 		gd.gem.db_dataCallback (dataCallback);
 		duriCallback = new ReturnDataURICallback();
 		gd.gem.db_duriCallback (duriCallback);
-		
+		subgCrsCallback = new ReturnSubgridCRSCallback();
+		gd.gem.db_subgCrsCallback (subgCrsCallback);
 		long t0 = System.currentTimeMillis();
 		
 		gd.gem.in_bdta_(iret);
@@ -615,39 +700,47 @@ public class Dgdriv {
 		 * Set the map projection and graphics area.
 		 */
         long t09a = System.currentTimeMillis();
-        if (proces) {
+/*        if (proces) {
         	gd.gem.dgc_fixa_ ( garea, proj, gareabuf, prjbuf, iret);
         	if ( iret.getValue () != 0 ) {
         		gd.gem.erc_wmsg ("DG", iret, "", ier);
         		proces = false;
         	}
         }
-        long t09 = System.currentTimeMillis();
+*/        long t09 = System.currentTimeMillis();
         logger.debug("dgc_fixa took: " + (t09-t09a));
 
         /*
          * Fortran wrapper used and use byte array instead of String as input!!
          */
-        if (proces) {
-        	gd.gem.ggc_maps (prjbuf, gareabuf, satfil, drpflg, iret);
-        	if ( iret.getValue () != 0 ) {
-        		gd.gem.erc_wmsg ("DG", iret, "", ier);
-        		proces = false;
-        	}
-        }
-        long t10 = System.currentTimeMillis();
-        logger.debug("ggc_maps took: " + (t10-t09));
-
-		/*
-		 * Setup the grid subset that covers the graphics area.
-		 */
 //        if (proces) {
-//        	gd.gem.dgc_subg_ (skip, maxgrd, ix1, iy1, ix2, iy2, iret);
+//        	gd.gem.ggc_maps (prjbuf, gareabuf, satfil, drpflg, iret);
 //        	if ( iret.getValue () != 0 ) {
 //        		gd.gem.erc_wmsg ("DG", iret, "", ier);
 //        		proces = false;
 //        	}
 //        }
+        long t10 = System.currentTimeMillis();
+        logger.debug("ggc_maps took: " + (t10-t09));
+
+        /*
+		 * Setup the grid subset that covers the graphics area.
+		 */
+        if ( this.ncgribPreferences != null && proces ) {
+        	String []prefs = this.ncgribPreferences.split(";");
+        	gd.gem.db_setsubgnav_(new Float(prefs[0]), new Float(prefs[1]), new Float(prefs[2]), new Float(prefs[3]), iret);
+            if ( iret.getValue() != 0 ) {
+                proces = false;
+               }
+
+            if (proces) {
+            	gd.gem.dgc_subg_ (skip, maxgrd, ix1, iy1, ix2, iy2, iret);
+            	if ( iret.getValue () != 0 ) {
+            		proces = false;
+            	}
+            }
+        }
+        
         long t11 = System.currentTimeMillis();
         logger.debug("dgc_subg took: " + (t11-t10));
 
@@ -661,7 +754,7 @@ public class Dgdriv {
         		proces = false;
         	}
         }
-        
+        logger.debug("kx:" + kx.getValue() + "  ky:" + ky.getValue());
         float[] ugrid = null;
 		float[] vgrid = null;
 		int grid_size = kx.getValue()*ky.getValue();
@@ -737,7 +830,7 @@ public class Dgdriv {
 	        long t1 = System.currentTimeMillis();
 	        logger.debug("Scaling took: " + (t1-t013));
 //	        System.out.println("Scaling took:" + (t1-t013));
-	        printInfoMessage(t1 - t0);
+//	        printInfoMessage(t1 - t0);
 	        return fds;
 		}		
 		else {
@@ -914,6 +1007,157 @@ public class Dgdriv {
 		}
 	}
 
+	/**
+	 * Create sub-grid coverage
+	 * @param subgGempakFormat -- prj;nx;ny;lllat;lllon;urlat;urlon;angle1;angle2;angle3
+	 */
+	private void createNewISpatialObj ( String subgGempakFormat) {
+		String []gareaStr = subgGempakFormat.split(";");
+		
+		if (subgSpatialObj == null && gareaStr != null && gareaStr.length >= 7) {
+			if ( gareaStr[0].equalsIgnoreCase("CED")){
+				createLatlonISPatialObj (Integer.parseInt(gareaStr[1]),Integer.parseInt(gareaStr[2]),
+						Double.parseDouble(gareaStr[3]),Double.parseDouble(gareaStr[4]),
+						Double.parseDouble(gareaStr[5]),Double.parseDouble(gareaStr[6]));
+			} else if ( gareaStr[0].equalsIgnoreCase("LCC") ) {
+				createLambertConformalISPatialObj (Integer.parseInt(gareaStr[1]),Integer.parseInt(gareaStr[2]),
+						Double.parseDouble(gareaStr[3]),Double.parseDouble(gareaStr[4]));
+			} else if ( gareaStr[0].equalsIgnoreCase("MER") ) {
+				createMercatorISPatialObj (Integer.parseInt(gareaStr[1]),Integer.parseInt(gareaStr[2]),
+						Double.parseDouble(gareaStr[3]),Double.parseDouble(gareaStr[4]),
+						Double.parseDouble(gareaStr[5]),Double.parseDouble(gareaStr[6]));
+			} else if ( gareaStr[0].equalsIgnoreCase("STR") ) {
+				createPolarStereoISPatialObj (Integer.parseInt(gareaStr[1]),Integer.parseInt(gareaStr[2]),
+						Double.parseDouble(gareaStr[3]),Double.parseDouble(gareaStr[4]));
+			}
+		}
+	}
+	
+	/**
+	 * Create Latitude/longitude coverage
+	 * @param nx  - Number of points along a parallel
+	 * @param ny  - Number of points along a meridian
+	 * @param la1 - Latitude of first grid point
+	 * @param lo1 - Longitude of the first grid point
+	 * @param la2 - Latitude of the last grid point
+	 * @param lo2 - Longitude of the last grid point
+	 */
+	private void createLatlonISPatialObj (int nx, int ny, double la1, double lo1,
+			double la2, double lo2) {
+		
+//		logger.info("nx:" + nx + " ny:" + ny + " la1:" + la1 + " lo1:" + lo1 + " la2:" + la2 + " lo2:" + lo2);
+		CustomLatLonCoverage cv = new CustomLatLonCoverage ();
+		cv.setNx(nx);
+		cv.setNy(ny);
+		cv.setLa1(la1);
+		cv.setLo1(lo1);
+		cv.setLa2(la2);
+		cv.setLo2(lo2);
+		NcgridCoverage gc = (NcgridCoverage) spatialObj;
+		
+		LatLonNcgridCoverage llgc = (LatLonNcgridCoverage) gc;
+		cv.setDx(llgc.getDx());
+		cv.setDy(llgc.getDy());
+		cv.setSpacingUnit(llgc.getSpacingUnit());
+		if ( cv.build() ) {
+			setSubgSpatialObj ((ISpatialObject)cv);
+		}
+	}
+	
+	/**
+	 * Create Lambert-Conformal coverage
+	 * @param nx	- Number of points along the x-axis 
+	 * @param ny	- Number of points along the y-axis
+	 * @param la1	- Latitude of the first grid point
+	 * @param lo1	- Longitude of the first grid point
+	 */
+	private void createLambertConformalISPatialObj (int nx, int ny, double la1, double lo1 ) {
+		
+		CustomLambertConformalCoverage cv = new CustomLambertConformalCoverage ();
+		cv.setNx(nx);
+		cv.setNy(ny);
+		cv.setLa1(la1);
+		cv.setLo1(lo1);
+
+		NcgridCoverage gc = (NcgridCoverage) spatialObj;
+		
+		LambertConformalNcgridCoverage llgc = (LambertConformalNcgridCoverage) gc;
+		cv.setMajorAxis(llgc.getMajorAxis());
+		cv.setMinorAxis(llgc.getMinorAxis());
+		cv.setLatin1(llgc.getLatin1());
+		cv.setLatin2(llgc.getLatin2());
+		cv.setLov(llgc.getLov());
+		cv.setDx(llgc.getDx());
+		cv.setDy(llgc.getDy());
+		cv.setSpacingUnit(llgc.getSpacingUnit());
+		if ( cv.build() ) {
+			setSubgSpatialObj ((ISpatialObject)cv);
+		}
+	}
+	
+	/**
+	 * Create Mercator coverage
+	 * @param nx  - Number of points along a parallel
+	 * @param ny  - Number of points along a meridian
+	 * @param la1 - Latitude of first grid point
+	 * @param lo1 - Longitude of the first grid point
+	 * @param la2 - Latitude of the last grid point
+	 * @param lo2 - Longitude of the last grid point
+	 */
+	private void createMercatorISPatialObj (int nx, int ny, double la1, double lo1,
+			double la2, double lo2) {
+		
+//		logger.info("nx:" + nx + " ny:" + ny + " la1:" + la1 + " lo1:" + lo1 + " la2:" + la2 + " lo2:" + lo2);
+		CustomMercatorCoverage cv = new CustomMercatorCoverage ();
+		cv.setNx(nx);
+		cv.setNy(ny);
+		cv.setLa1(la1);
+		cv.setLo1(lo1);
+		cv.setLa2(la2);
+		cv.setLo2(lo2);
+		NcgridCoverage gc = (NcgridCoverage) spatialObj;
+		
+		MercatorNcgridCoverage llgc = (MercatorNcgridCoverage) gc;
+		cv.setMajorAxis(llgc.getMajorAxis());
+		cv.setMinorAxis(llgc.getMinorAxis());
+		cv.setDx(llgc.getDx());
+		cv.setDy(llgc.getDy());
+		cv.setSpacingUnit(llgc.getSpacingUnit());
+		if ( cv.build() ) {
+			setSubgSpatialObj ((ISpatialObject)cv);
+		}
+	}
+	
+	/**
+	 * Create Polar-Stereo coverage
+	 * @param nx	- Number of points along the x-axis 
+	 * @param ny	- Number of points along the y-axis
+	 * @param la1	- Latitude of the first grid point
+	 * @param lo1	- Longitude of the first grid point
+	 */
+	private void createPolarStereoISPatialObj (int nx, int ny, double la1, double lo1 ) {
+		
+		CustomPolarStereoCoverage cv = new CustomPolarStereoCoverage ();
+		cv.setNx(nx);
+		cv.setNy(ny);
+		cv.setLa1(la1);
+		cv.setLo1(lo1);
+
+		NcgridCoverage gc = (NcgridCoverage) spatialObj;
+		
+		PolarStereoNcgridCoverage llgc = (PolarStereoNcgridCoverage) gc;
+		cv.setMajorAxis(llgc.getMajorAxis());
+		cv.setMinorAxis(llgc.getMinorAxis());
+		cv.setLov(llgc.getLov());
+		cv.setLov(llgc.getLov());
+		cv.setDx(llgc.getDx());
+		cv.setDy(llgc.getDy());
+		cv.setSpacingUnit(llgc.getSpacingUnit());
+		if ( cv.build() ) {
+			setSubgSpatialObj ((ISpatialObject)cv);
+		}
+	}
+	
 	private String getCycleFcstHrsString(ArrayList<DataTime> dataForecastTimes) {
 		// TODO Auto-generated method stub
 		StringBuffer resultsBuf = new StringBuffer();
@@ -1105,7 +1349,8 @@ public class Dgdriv {
 //			dr = ds.retrieve(dataURI ,dataset, request);
 			float[] data = (float[]) dr.getDataObject();
 			long t002 = System.currentTimeMillis();
-			logger.debug("Reading " + dataURI + " from hdf5 took: " + (t002-t001));
+			if ( ncgribLogger.enableDiagnosticLogs() )
+				logger.info("***Reading " + dataURI + " from hdf5 took: " + (t002-t001));
 			//System.out.println("Reading from hdf5 took: " + (t002-t001));
 			return data;
 		} catch (Exception e) {
@@ -1296,48 +1541,86 @@ public class Dgdriv {
 	private String getDataURI(String parameters) throws VizException {
 		long t0 = System.currentTimeMillis();
 		
+		String datauri = cacheData.getDataURI(parameters);
+		if ( datauri != null ) {
+			if ( ncgribLogger.enableDiagnosticLogs() ) {
+				long t00 = System.currentTimeMillis();
+				logger.info("++++ getDataURI for("+parameters+") from cache took: " + (t00-t0));
+			}
+			return datauri;
+		}
 		String[] parmList = parameters.split("\\|");
-		Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
-		if ( !parmList[1].isEmpty()) {
-			rcMap = inventory.getRequestConstraintMap(parmList[0], parmList[1],
-						parmList[2], parmList[3], parmList[4]);
+		logger.debug ("enter getDataUri - parameters:"+ parameters);
+		HashMap<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
+		rcMap.put( PLUGIN_NAME_QUERY, new RequestConstraint("ncgrib") );
+        rcMap.put( MODEL_NAME_QUERY, new RequestConstraint( parmList[0] ) );
+
+        if( !parmList[1].isEmpty()) {
+        	rcMap.put( EVENT_NAME_QUERY, new RequestConstraint( parmList[1] ) );
+        }
+        rcMap.put( PARAMETER_QUERY, new RequestConstraint( parmList[2] ) );
+        rcMap.put( LEVEL_ID_QUERY, new RequestConstraint( parmList[3] ) );
+
+        // This is now querying modelInfo.level.levelonevalue (a Double) instead of glevel1 (an int)
+        // so to get the constraint to work we will need ".0"
+        // TODO : hack until we do this the right way.
+        //
+        if( parmList[4].equals("-9999" ) ) {
+        	rcMap.put( LEVEL_ONE_QUERY, new RequestConstraint( Level.getInvalidLevelValueAsString() ) ); // "-99999.0"
+        }
+        else {
+        	rcMap.put( LEVEL_ONE_QUERY, new RequestConstraint( parmList[4]+".0" ) );
+        }
+        
+        ArrayList<String>  rslts = NcGridInventory.getInstance().searchNcGridInventory( rcMap, LEVEL_TWO_QUERY );
+        
+        long t11 = System.currentTimeMillis();
+        if ( rslts == null || rslts.isEmpty() ) {
+			logger.debug("====query NcGridInventory DB return NULL for ("+parmList[0] +"," + parmList[1] +
+					"," + parmList[2]+","+parmList[3]+","+parmList[4]+")===");
+			return null;
 		}
-		else {
-			rcMap = inventory.getRequestConstraintMap(parmList[0], parmList[2],
-					parmList[3], parmList[4]);		    
-		}
-		
+        if ( ncgribLogger.enableDiagnosticLogs() )
+        	logger.info ("NcGridInventory.searchNcGridInventory:rslts=" + rslts.toString() + " took: " +(t11-t0));
+        
+        
+        String [] tmpStr = rslts.get(0).split("/");
+        
+        // HACK: the inventory uses modelInfo.level to store the levels because they are in the URI and not glevels
+        // but the uengin script won't work querying the modelInfo.level.leveltwovalue (???) so we have to query
+        // glevel2 (an int) instead of the double modelInfo.level 
+
+        String lvl2 = tmpStr[6];        
+        if( lvl2.equals( Level.getInvalidLevelValueAsString() ) ) {
+        	lvl2 = "-9999";
+        }
+        else if( lvl2.indexOf(".") > 0 ) {
+        	lvl2 = lvl2.substring( 0, lvl2.indexOf(".") );
+        }
+        
 		String refTimeg = parmList[5].toUpperCase().split("F")[0];
 		String refTime = GempakGrid.dattimToDbtime(refTimeg);
 		refTime = refTime.substring(0, refTime.length()-2);
 	    String fcstTimeg = parmList[5].toUpperCase().split("F")[1];
 	    String fcstTime = Integer.toString(((Integer.parseInt(fcstTimeg))*3600));
-		
-		
-		if ( rcMap == null ) {
-			logger.debug("====query inventory DB return NULL for ("+parmList[0] +"," + parmList[1] +
-					"," + parmList[2]+","+parmList[3]+","+parmList[4]+")===");
-			return null;
-		}
-		Map<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>();
-	
-		if (parmList[1].isEmpty()) {
-			queryList.put(PLUGIN_NAME_QUERY, rcMap.get(PLUGIN_NAME_QUERY));
-			queryList.put(MODEL_NAME_QUERY,rcMap.get(MODEL_NAME_QUERY));
-			queryList.put(PARAMETER_QUERY,rcMap.get(PARAMETER_QUERY));
-			queryList.put(LEVEL_ID_QUERY,rcMap.get(LEVEL_ID_QUERY));
-			queryList.put(LEVEL_ONE_QUERY,rcMap.get(LEVEL_ONE_QUERY));
-			queryList.put(LEVEL_TWO_QUERY,rcMap.get(LEVEL_TWO_QUERY));
-		}
-		else {
-			queryList = rcMap;
-		}
-		queryList.put("dataTime.refTime", new RequestConstraint(refTime));
-		queryList.put("dataTime.fcstTime", new RequestConstraint(fcstTime));
+	    
+	    rcMap.remove( LEVEL_TWO_QUERY );
+        rcMap.remove( LEVEL_ONE_QUERY );        
+	    rcMap.put( "glevel2", new RequestConstraint( lvl2 ) );
+        rcMap.put( "glevel1", new RequestConstraint( parmList[4] ) );
 
+	    
+	    rcMap.put("dataTime.refTime", new RequestConstraint(refTime));
+	    rcMap.put("dataTime.fcstTime", new RequestConstraint(fcstTime));
+	    
+	    DbQueryRequest request = new DbQueryRequest();
+        request.addRequestField("dataURI");
+        request.setConstraints(rcMap);
+        
+        /*
 		LayerProperty prop = new LayerProperty();
 		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
-		prop.setEntryQueryParameters(queryList, false);
+		prop.setEntryQueryParameters(rcMap, false);
 		prop.setNumberOfImages(1);
 		
 		String script = null;
@@ -1358,8 +1641,35 @@ public class Dgdriv {
 		NcgribRecord rec = (NcgribRecord) pdoList[0];
 		long t1 = System.currentTimeMillis();
 //        System.out.println("\tgetDataURI took: " + (t1-t0));
-        logger.debug("getDataURI took: " + (t1-t0));
-		return rec.getDataURI();
+ */
+        DbQueryResponse response = (DbQueryResponse) ThriftClient
+        .sendRequest(request);
+     // extract list of results
+        List<Map<String, Object>> responseList = null;
+        if (response != null) {
+            responseList = response.getResults();
+        } else {
+            // empty list to simplify code
+            responseList = new ArrayList<Map<String, Object>>(0);
+        }
+        if (responseList.size() > 0) {
+            Object dURI = responseList.get(0).get("dataURI");
+            if (dURI != null && dURI instanceof String) {
+            	datauri = (String) dURI;
+            }
+        }
+        long t1 = System.currentTimeMillis();
+		if ( ncgribLogger.enableDiagnosticLogs() ) {
+			if ( datauri != null )
+				logger.info("### getDataURI("+datauri+") for("+parameters+") reftime:"+refTime+"("+Integer.parseInt(fcstTimeg)+") took: " + (t1-t0));
+			else
+				logger.info("??? getDataURI(null) for("+parameters+") reftime:"+refTime+"("+Integer.parseInt(fcstTimeg)+") took: " + (t1-t0));
+		}
+		
+//		datauri = rec.getDataURI();
+		if ( datauri != null )
+			cacheData.addDataURI(parameters, datauri);
+		return datauri;
 	}
 
 	public void setCycleForecastTimes(ArrayList<DataTime> dataTimes) {

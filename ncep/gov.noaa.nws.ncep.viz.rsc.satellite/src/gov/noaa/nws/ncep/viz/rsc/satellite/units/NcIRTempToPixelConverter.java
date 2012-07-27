@@ -14,7 +14,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05/25                    ghull     Initial creation
- * 
+ * 06/07         #          archana   Updated the convert() method to 
+ *                                    match legacy imttob.f   
  * </pre>
  * 
  * @author ghull
@@ -25,20 +26,26 @@ public class NcIRTempToPixelConverter extends UnitConverter {
 
 	@Override
 	public double convert(double aTemperature) throws ConversionException {
-		double result = 0.0;
+		double result = Double.NaN;
 
-		if (aTemperature < 238.15) {
-			result = 418.15 - aTemperature;
-		} else {
-			result = 656.3 - (2.0 * aTemperature);
-		}
+//		if (aTemperature < 238.15) {
+//			result = 418.15 - aTemperature;
+//		} else {
+//			result = 656.3 - (2.0 * aTemperature);
+//		}
+//
+//		if (result < 0) {
+//			result = 0.0;
+//		} else if (result > 255) {
+//			result = 255.0;
+//		}
 
-		if (result < 0) {
-			result = 0.0;
-		} else if (result > 255) {
-			result = 255.0;
-		}
-
+		if ( aTemperature < 163 || aTemperature > 330)
+			return result;
+		else if ( aTemperature <= 242 ){
+			result = 418 - aTemperature; 
+		}else
+		     result = 2 * ( 330 - aTemperature );
 		return result;
 	}
 

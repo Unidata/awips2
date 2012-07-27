@@ -1,7 +1,5 @@
 ! Attributes for WARN 
 !
-color=RGB {155, 155, 155}
-! 
 thunderstormEnable=true
 thunderstormColor=RGB {10, 232, 243}
 thunderstormSymbolWidth=3

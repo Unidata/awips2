@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-//import org.apache.log4j.Logger;
 import org.dom4j.Node;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -43,6 +42,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 05/2011					J. Wu		Added reduce-able flags.
  * 01/2012					J. Wu		Avoid null pointer in copy().
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
+ * 05/2012		#808		J. Wu		Add VOR_TEXT & processing
  * 
  * </pre>
  * 
@@ -51,9 +51,6 @@ import com.vividsolutions.jts.geom.Polygon;
 @ElementOperations( { Operation.COPY_MOVE, Operation.DELETE_PART, Operation.DELETE_POINT,
 		Operation.ADD_POINT, Operation.MODIFY, Operation.GFA_FROM } )
 public class Gfa extends Line implements IGfa, Comparable<Gfa> {
-
-	/** Logger */
-//	private final static Logger logger = Logger.getLogger(Gfa.class);
 
 	private String hazard = "";
 	private String fcstHr = "";
@@ -101,6 +98,8 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 
 	public static final String FROM = "FROM";
 	public static final String BOUNDED_BY = "BOUNDED BY";
+
+	public static final String VOR_TEXT = "FROM LINE";  //FROM line
 	
 	private static final String REDUCE_FLAGS = "REDUCE_FLAGS";
 
@@ -121,9 +120,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 	 * public constructor
 	 */
 	public Gfa() {
-		super();
-		
-//		logger.trace("Gfa created");
+		super();		
 	}
 
 	public Gfa(IAttribute attr, ArrayList<Coordinate> points) {
@@ -134,9 +131,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		this.update(attr);
 
 		setLinePoints(points);
-		
-//		logger.trace("Gfa created");
-	}
+    }
 
 	public Gfa(Coordinate[] range, Color[] colors, float lineWidth, double sizeScale,
 			boolean closed, boolean filled, List<Coordinate> linePoints, Coordinate textCoordinate,
@@ -277,25 +272,6 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		gfa.setReduceFlags( reduceFlagsCopy );
 		
 		//More AIRMET/OUTLOOK attributes
-/*		gfa.setGfaValue( Gfa.GR, new String( nvl( this.getGfaValue( Gfa.GR ) ) ) );
-		gfa.setGfaValue( Gfa.FREQUENCY, new String( nvl( this.getGfaValue( Gfa.FREQUENCY ) ) ) );
-		gfa.setGfaValue( Gfa.CATEGORY, new String( nvl( this.getGfaValue( Gfa.CATEGORY ) ) ) );
-		gfa.setGfaValue( Gfa.FZL_RANGE, new String( nvl( this.getGfaValue( Gfa.FZL_RANGE ) ) ) );
-		gfa.setGfaValue( Gfa.LEVEL, new String( nvl( this.getGfaValue( Gfa.LEVEL ) ) ) );
-		gfa.setGfaValue( Gfa.INTENSITY, new String( nvl( this.getGfaValue( Gfa.INTENSITY ) ) ) );
-		gfa.setGfaValue( Gfa.SPEED, new String( nvl( this.getGfaValue( Gfa.SPEED ) ) ) );
-		gfa.setGfaValue( Gfa.DUE_TO, new String( nvl( this.getGfaValue( Gfa.DUE_TO ) ) ) );
-		gfa.setGfaValue( Gfa.LYR, new String( nvl( this.getGfaValue( Gfa.LYR ) ) ) );
-		gfa.setGfaValue( Gfa.COVERAGE, new String( nvl( this.getGfaValue( Gfa.COVERAGE ) ) ) );
-		gfa.setGfaValue( Gfa.TOP, new String( nvl( this.getGfaValue( Gfa.TOP ) ) ) );
-		gfa.setGfaValue( Gfa.BOTTOM, new String( nvl( this.getGfaValue( Gfa.BOTTOM ) ) ) );				
-		gfa.setGfaValue( Gfa.FZL_TOP_BOTTOM, new String( nvl( this.getGfaValue( Gfa.FZL_TOP_BOTTOM ) ) ) );
-		gfa.setGfaValue( Gfa.CONTOUR, new String( nvl( this.getGfaValue( Gfa.CONTOUR ) ) ) );
-		
-		gfa.setGfaValue( Gfa.ENDG_HR, new String( nvl( this.getGfaValue( Gfa.ENDG_HR ) ) ) );
-		gfa.setGfaValue( Gfa.DVLPG_HR, new String( nvl( this.getGfaValue( Gfa.DVLPG_HR ) ) ) );		
-		gfa.setGfaValue( Gfa.SNAPSHOT_TYPE, new String( nvl( this.getGfaValue( Gfa.SNAPSHOT_TYPE ) ) ) );
-*/		
 		Calendar cal = this.getAttribute( Gfa.ISSUE_TIME, Calendar.class );
 		
 		if ( cal != null ) {
@@ -910,5 +886,55 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 	public Polygon toPolygon() {		
 		return GfaClip.getInstance().gfaToPolygon( this );
 	}
+
+	/**
+	 * Retrieve the "From line"
+	 * 
+	 * @return String
+	 */	
+	public String getGfaVorText() {
+		return getGfaValue( Gfa.VOR_TEXT );
+	}
+
+	/**
+	 * Set the "From line"
+	 * @param String
+	 */	
+	public void setGfaVorText( String vorText ) {
+		setGfaValue( Gfa.VOR_TEXT, vorText );
+	}
 	
+	/**
+	 * Builds vorText field from the input GFA.
+	 * @param gfa
+	 */
+	public static String buildVorText( Gfa gfa ){
+		
+		String s = "";
+		
+		ArrayList<Coordinate> pts = gfa.getPoints();
+		
+		pts = SnapUtil.getSnapWithStation( pts, SnapUtil.VOR_STATION_LIST,10,16, false );
+		
+		Coordinate[] a = new Coordinate[pts.size()];
+		a = pts.toArray(a);
+
+		if ( gfa.getGfaHazard().equalsIgnoreCase("FZLVL")){
+			if ( gfa.isClosedLine() ){
+				s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
+			}
+			else {
+				s = SnapUtil.getVORText(a, "-", "Line", -1, true, false, true );
+			}
+		}
+		else if ( gfa.getGfaHazard().equalsIgnoreCase("LLWS")){
+			s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
+		}
+		else {
+			s = SnapUtil.getVORText(a, " TO ", "Area", -1, true, false, true );
+		}
+		
+		return s;
+	}
+
 }

@@ -19,6 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,6 +50,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 06/09/10		  #273		Greg Hull	 Created
  * 12/22/11       #365      Greg Hull    Changes to support dynamic resources
  * 07/22/11       #450      Greg Hull    Save to User Localization
+ * 06/10/12       #816      Greg Hull    allow user to add to multiple attrSetGroups
+ * 
  *
  * </pre>
  * 
@@ -53,23 +59,27 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1
  */
 class EditAttrSetComp extends Composite implements IEditResourceComposite {
-	ResourceDefnsMngr rscDefnMngr;
-	ManageResourceControl mngrControl; // the parent composite 
+	private ResourceDefnsMngr rscDefnMngr;
+	private ManageResourceControl mngrControl; // the parent composite 
 
-	ResourceName       seldRscName=null;
-	ResourceDefinition seldRscDefn=null;
-	AttributeSet       seldAttrSet=null;
+	private ResourceName       seldRscName=null;
+	private ResourceDefinition seldRscDefn=null;
+	private AttributeSet       seldAttrSet=null;
 	
-	Text attrSetNameTxt;	
-	Text editAttrSetValuesTxt;
+	private Text attrSetNameTxt;	
+	private Text editAttrSetValuesTxt;
 	
 //	Text rscImplTxt; 
-	org.eclipse.swt.widgets.List groupsList;
-	Label groupsLbl;
+	private ListViewer addToGroupLViewer;
 
-	Button     saveAttrSetBtn;
-	Button     newAttrSetBtn;
-	Button     cancelBtn;
+//	org.eclipse.swt.widgets.List groupsList;
+	private Label groupsLbl;
+
+	private Button     saveAttrSetBtn;
+	private Button     newAttrSetBtn;
+	private Button     cancelBtn;
+	
+	private ArrayList<String> availGroupsList;
 
 	public EditAttrSetComp( Composite parent, int style, ManageResourceControl mgrCtl ) {
 		super( parent, style );
@@ -122,43 +132,68 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
     	fd.bottom = new FormAttachment( editAttrSetValuesTxt, -3, SWT.TOP );
     	fd.left = new FormAttachment( editAttrSetValuesTxt, 0, SWT.LEFT );
     	editLbl.setLayoutData( fd );
-
-//    	rscImplTxt = new Text( top_form, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY );    	
-//    	rscImplTxt.setBackground( getParent().getBackground() ); // make look read-only
+    	
+//    	groupsList = new org.eclipse.swt.widgets.List( top_form, SWT.READ_ONLY | SWT.BORDER | SWT.V_SCROLL );
+//    	groupsList.setBackground( getParent().getBackground() ); // make look read-only
+//    	
+//    	groupsList.setVisible( false );
+    	
 //    	fd = new FormData();
 //    	fd.width = 150;
-//    	fd.top = new FormAttachment( attrSetNameTxt, 60, SWT.BOTTOM );
+//    	fd.top = new FormAttachment( attrSetNameTxt, 50, SWT.BOTTOM );
 //    	fd.left = new FormAttachment( attrSetNameTxt, 0, SWT.LEFT );    	
-//    	rscImplTxt.setLayoutData( fd );
-//    	Label rscImplLbl = new Label( top_form, SWT.NONE );
-//    	rscImplLbl.setText("Applies to \nResource Implementation");
-//		fd = new FormData();
-//    	fd.bottom = new FormAttachment( rscImplTxt, -3, SWT.TOP );
-//    	fd.left = new FormAttachment( rscImplTxt, 0, SWT.LEFT );
-//    	rscImplLbl.setLayoutData( fd );
-    	
-    	groupsList = new org.eclipse.swt.widgets.List( top_form, SWT.READ_ONLY | SWT.BORDER | SWT.V_SCROLL );
-    	groupsList.setBackground( getParent().getBackground() ); // make look read-only
-    	
-    	fd = new FormData();
-    	fd.width = 150;
-//    	fd.top = new FormAttachment( rscImplTxt, 50, SWT.BOTTOM );
-//    	fd.left = new FormAttachment( rscImplTxt, 0, SWT.LEFT );    	
-    	fd.top = new FormAttachment( attrSetNameTxt, 50, SWT.BOTTOM );
+//       	fd.bottom = new FormAttachment( 100, -60 );    	
+//       	groupsList.setLayoutData( fd );
+    	availGroupsList = new ArrayList<String>();
+
+    	addToGroupLViewer = new ListViewer( top_form, 
+    			SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
+    	fd = new FormData(180, 300);
+    	fd.width = 180;
+    	fd.top = new FormAttachment( attrSetNameTxt, 40, SWT.BOTTOM );
     	fd.left = new FormAttachment( attrSetNameTxt, 0, SWT.LEFT );    	
        	fd.bottom = new FormAttachment( 100, -60 );    	
-       	groupsList.setLayoutData( fd );
+    	addToGroupLViewer.getList().setLayoutData(fd);
+    	addToGroupLViewer.getList().setToolTipText("Use <Control> to Multi-Select or <Shift> to select a group.");
 
     	groupsLbl = new Label( top_form, SWT.NONE );
     	groupsLbl.setText("In Attribute Set Groups");
 		fd = new FormData();
-    	fd.bottom = new FormAttachment( groupsList, -3, SWT.TOP );
-    	fd.left = new FormAttachment( groupsList, 0, SWT.LEFT );
+    	fd.bottom = new FormAttachment( addToGroupLViewer.getList(), -3, SWT.TOP );
+    	fd.left = new FormAttachment( addToGroupLViewer.getList(), 0, SWT.LEFT );
     	groupsLbl.setLayoutData( fd );
 
     	groupsLbl.setVisible( false );
-    	groupsList.setVisible( false );
+    	addToGroupLViewer.getList().setVisible( false );
     	
+    	addToGroupLViewer.setContentProvider( new IStructuredContentProvider() {
+    		@Override
+    		public Object[] getElements(Object inputElement) {				
+    			ArrayList<String> stringArrayList = (ArrayList<String>) inputElement;
+    			return stringArrayList.toArray();			
+    		}
+    		@Override
+    		public void dispose() { }
+
+    		@Override
+    		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { } 
+    	});
+    	
+    	addToGroupLViewer.setComparator( new ViewerComparator() {    		
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+            	String curSel = seldRscName.getRscType()+"-"+seldRscName.getRscGroup();
+            	if( curSel.equals( (String)e1 ) ) {
+            		return -1;
+            	}
+            	else if( curSel.equals( (String)e2 ) ) {
+            		return 1;
+            	}
+            	else {
+            		return ((String)e1).compareTo( (String)e2 );
+            	}
+            }
+    	});
     	
     	saveAttrSetBtn = new Button( top_form, SWT.PUSH );
     	saveAttrSetBtn.setText("Save");
@@ -306,31 +341,42 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		
 		attrSetNameTxt.setText( seldRscName.getRscAttrSetName() );
 		
-		groupsList.removeAll();
+		addToGroupLViewer.getList().removeAll();
 		
 		if( seldRscDefn.applyAttrSetGroups() ) {
 			groupsLbl.setVisible( true );
-			groupsList.setVisible( true );
+			addToGroupLViewer.getList().setVisible( true );
 			if( seldRscDefn.isPgenResource() ) {
-				groupsList.add( "All PGEN Resources");
+				addToGroupLViewer.getList().add( "All PGEN Resources");
 			}
 			else {
-				ArrayList<AttrSetGroup> attrSetGroupsList = rscDefnMngr.getAttrSetGroupsForResource( 
-						seldRscDefn.getResourceDefnName() );
-				for( AttrSetGroup asg : attrSetGroupsList ) {
-					if( asg.getAttrSetNames().contains( seldRscName.getRscAttrSetName() ) ) {
-						groupsList.add( asg.getAttrSetGroupName() );					
-					}
-				}
+		    	availGroupsList.clear();
+		    	String rscImpl = seldRscDefn.getRscImplementation();
+		    	
+		    	for( String rscType : rscDefnMngr.getRscTypesForRscImplementation( rscImpl ) ) {
+		    		for( AttrSetGroup asg : rscDefnMngr.getAttrSetGroupsForResource( rscType ) ) {
+		    			availGroupsList.add( rscType+"-"+asg.getAttrSetGroupName() );
+		    		}
+		    	}
+		    	addToGroupLViewer.setInput( availGroupsList );
+		    	// the list is sorted so that the current selected rsc-asg will 
+		    	// be first in the list.
+		    	addToGroupLViewer.getList().select(0);
 			}
 		}
 		else {
 	    	groupsLbl.setVisible( false );
-	    	groupsList.setVisible( false );
-	    	groupsList.removeAll();
+	    	addToGroupLViewer.getList().setVisible( false );
+	    	addToGroupLViewer.getList().removeAll();
 		}
 		
+		// TODO : check that the attributes are valid implementation parameters
+		//
 		
+		// TODO : instead of 'dumping' the file to the Text widget we should 
+		// present an indication of invalid attributes, attributes not present but with a 
+		// valid default, whether the attribute is editable or if it is actually a parameter...
+		// .....		
 		try {
 			FileReader fr = new FileReader( seldAttrSet.getFile().getFile() );
 			char[] attrsSetStr = new char[(int) seldAttrSet.getFile().getFile().length()];
@@ -391,16 +437,27 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		} 
 
 		String attrSetName = attrSetNameTxt.getText().trim();
-		
-//    	String applicableRsc = seldAttrSet.getApplicableResource();    	
-//    	AttributeSet existingAttrSet = rscDefnMngr.getAttrSet( seldRscName );
-    	
+		 
     	// if copying then check to make sure that the new name doesn't already exist
     	if( newAttrSet ) {
-    		ResourceName newRscName = new ResourceName( seldRscName );
-    		newRscName.setRscAttrSetName( attrSetName );
-    		AttributeSet aset = rscDefnMngr.getAttrSet( newRscName  );
-    		if( aset != null ) {
+    		boolean attrSetExists;
+    		// if groups apply then we have to check against all the avail attr sets
+    		// for the implementation, otherwise we just need to check the ones 
+    		// for this resource.
+    		if( seldRscDefn.applyAttrSetGroups() ) {
+    			List<String> availAttrSetsList = 
+    				rscDefnMngr.getAvailAttrSetsForRscImpl( seldRscDefn.getRscImplementation() );
+
+    			attrSetExists = availAttrSetsList.contains( attrSetName );    		
+    		}
+    		else {
+        		ResourceName newRscName = new ResourceName( seldRscName );
+        		newRscName.setRscAttrSetName( attrSetName );
+        		
+        		attrSetExists = (rscDefnMngr.getAttrSet( newRscName ) != null );
+    		}
+    		
+    		if( attrSetExists ) {
     			// TODO : allow user to confirm. for now just fail..
 	    		MessageDialog confirmDlg = new MessageDialog( 
 	    				getShell(), 
@@ -410,11 +467,7 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 				MessageDialog.ERROR, new String[]{"Ok"}, 0);
 				confirmDlg.open();
 				return;
-//				if( confirmDlg.getReturnCode() == MessageDialog.CANCEL ) {						
-//					return;
-//				}
-    		}
-    		
+    		}    		
     	}
 
 		try {
@@ -431,44 +484,72 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		
 		// Next if this is a new AttrSet and if attrSetGroups apply, then 
 		// prompt if the user wants to add it to the selected group
-		if( newAttrSet && seldRscDefn.applyAttrSetGroups() ) {
-			boolean addToGroup = true;
-
+		if( /*newAttrSet &&*/ seldRscDefn.applyAttrSetGroups() ) {
+//			boolean addToGroup = true;
 			// for new pgen AttrSets and for renamed attrSets we will automatically add to the attrSetGroup
 			//    otherwise for other renamed attrSets prompt the user
 			//
-			if( !seldRscDefn.isPgenResource() ) {
-				MessageDialog confirmDlg = new MessageDialog( 
-						NmapUiUtils.getCaveShell(), 
-						"New Attribute Set", null, 
-						"Do you want to add this Attribute Set\nto the group "+
-						seldRscName.getRscGroup()+"?",
-						MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
-				confirmDlg.open();
+//			if( !seldRscDefn.isPgenResource() ) {
+//				MessageDialog confirmDlg = new MessageDialog( 
+//						NmapUiUtils.getCaveShell(), 
+//						"New Attribute Set", null, 
+//						"Do you want to add this Attribute Set\nto the group "+
+//						seldRscName.getRscGroup()+"?",
+//						MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
+//				confirmDlg.open();
+//
+//				addToGroup = ( confirmDlg.getReturnCode() == MessageDialog.OK );
+//			}
+//			
+//			try {
+//				AttrSetGroup seldAsGroup = 
+//					rscDefnMngr.getAttrSetGroupForResource( seldRscName );
+//
+//				if( addToGroup ) {						
+//					if( seldAsGroup == null ) {
+//						throw new VizException("??failed to get AttributeSetGroup for resource, "+ seldRscName.toString() );
+//					}
+//					seldAsGroup.addAttrSetName(attrSetName);
+//					rscDefnMngr.saveAttrSetGroup( seldAsGroup );
+//				}
+//			} catch (VizException e) {
+//				MessageDialog errDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+//						"Error", null, "Error Saving AttrSet to AttrSetGroup\n"+
+//							e.getMessage(),
+//						MessageDialog.ERROR, new String[]{"OK"}, 0);
+//				errDlg.open();
+//				return;
+//			}
+		
 
-				addToGroup = ( confirmDlg.getReturnCode() == MessageDialog.OK );
-			}
-			
-			try {
-				AttrSetGroup seldAsGroup = 
-					rscDefnMngr.getAttrSetGroupForResource( seldRscName );
+			// save the ASGs that the user has selected to add this attrSet to. 
+			//
+			for( String selRscAndGroup : addToGroupLViewer.getList().getSelection() ) {
+				int sepIndx = selRscAndGroup.indexOf('-');
+				String applicableRsc = selRscAndGroup.substring(0, sepIndx );
+				String asgName = selRscAndGroup.substring( sepIndx+1, selRscAndGroup.length() );
 
-				if( addToGroup ) {						
-					if( seldAsGroup == null ) {
-						throw new VizException("??failed to get AttributeSetGroup for resource, "+ seldRscName.toString() );
-					}
-					seldAsGroup.addAttrSetName(attrSetName);
-					rscDefnMngr.saveAttrSetGroup( seldAsGroup );
+				AttrSetGroup attrSetGroup = rscDefnMngr.getAttrSetGroupForResource( applicableRsc, asgName );
+
+				// if the attrSet is already in the group then we don't need to do anything
+				if( !attrSetGroup.getAttrSetNames().contains( attrSetName ) ) {
+
+					attrSetGroup.addAttrSetName( attrSetName );
+
+					try {
+						rscDefnMngr.saveAttrSetGroup( attrSetGroup );
+					} catch (VizException e) {
+						MessageDialog errDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+								"Error", null, "Error Saving AttrSet to AttrSetGroup\n"+
+								e.getMessage(),
+								MessageDialog.ERROR, new String[]{"OK"}, 0);
+						errDlg.open();
+
+					}	    		
 				}
-			} catch (VizException e) {
-				MessageDialog errDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
-						"Error", null, "Error Saving AttrSet to AttrSetGroup\n"+
-							e.getMessage(),
-						MessageDialog.ERROR, new String[]{"OK"}, 0);
-				errDlg.open();
-				return;
 			}
 		}
+		
 	
 		MessageDialog infoDlg = new MessageDialog( getShell(), 
 				"Info", null, "The Attribute Set  "+ attrSetName + "  has been "+

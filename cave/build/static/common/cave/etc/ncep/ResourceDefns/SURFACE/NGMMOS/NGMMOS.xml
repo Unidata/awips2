@@ -5,14 +5,12 @@
     <resourceCategory>SURFACE</resourceCategory>
 	<resourceParameters>
 pluginName=bufrmosNGM
-reportType=NGM
 spiFile=MTR.spi
 legendString=NGMMOS
-legend_color=RGB {0, 255, 0}
-levelKey=Surface
+legendColor=RGB {0, 255, 0}
 	</resourceParameters>
     <filterLabels>Forecast,MOS</filterLabels>
-    <rscImplementation>PlotData</rscImplementation>
+    <rscImplementation>MosPlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

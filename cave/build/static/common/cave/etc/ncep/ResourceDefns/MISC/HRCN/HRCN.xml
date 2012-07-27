@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>HRCN</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legend_color=RGB {155, 155, 155}</resourceParameters>
+    <resourceParameters>
+pluginName=tcm
+reportType=TCM
+color= {155, 155, 155}
+    </resourceParameters>
     <filterLabels>Huh,Event</filterLabels>
     <rscImplementation>HRCN</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

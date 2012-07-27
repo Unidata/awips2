@@ -1,5 +1,5 @@
 ! Attributes for the GFSXMOS resource with "simple" plot model
 !
-plotModelName=simple
+plotModel=@PlotModels/bufrmosMRF/simple.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

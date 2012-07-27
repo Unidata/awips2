@@ -12,6 +12,7 @@ Require-Bundle: org.eclipse.ui,
  org.apache.log4j;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  com.sun.jna;bundle-version="3.0.9",
+ com.raytheon.viz.alerts,
  com.raytheon.uf.common.colormap;bundle-version="1.11.22",
  com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
  com.raytheon.viz.core;bundle-version="1.10.13",
@@ -37,7 +38,10 @@ Export-Package: gov.noaa.nws.ncep.viz.tools,
  gov.noaa.nws.ncep.viz.tools.frame,
  gov.noaa.nws.ncep.viz.tools.imageProperties,
  gov.noaa.nws.ncep.viz.tools.loopManagement,
+ gov.noaa.nws.ncep.viz.tools.ncInventoryControl,
  gov.noaa.nws.ncep.viz.tools.predefinedArea
 Eclipse-RegisterBuddy: org.apache.log4j
 Bundle-ClassPath: .
-Import-Package: gov.noaa.nws.ncep.common.log.logger
+Import-Package: gov.noaa.nws.ncep.common.log.logger,
+ gov.noaa.nws.ncep.edex.common.ncinventory,
+ gov.noaa.nws.ncep.viz.gempak.grid.inv

@@ -147,11 +147,11 @@
                    <requestStyle>METADATA</requestStyle> 
               <metadataMap>
                <mapping key="pluginName">
-                 <constraint constraintValue="atcf" constraintType="EQUALS" />
+                	<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
          </metadataMap>
               <mapping key="reportType">
-                 <constraint constraintValue="ATCF" constraintType="EQUALS" />
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS" />
                </mapping>
           </resourceData>
         </resource>
