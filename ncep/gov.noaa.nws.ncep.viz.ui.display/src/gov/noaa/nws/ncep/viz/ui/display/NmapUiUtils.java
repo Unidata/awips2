@@ -5,6 +5,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -47,7 +48,7 @@ import com.raytheon.viz.ui.editor.EditorInput;
  *                                      to use NCMapDescriptor.  
  *  02/10/2011              Chin Chen   handle multiple editor copies dispose issue    
  *  03/08/2011   migration  Greg Hull   move Display Name methods to DisplayNameManager
- * 
+ * 05/17/2012     #791       Quan Zhou   Added findEmptyEditor() to check if default editor is empty
  * </pre>
  * 
  * @author ghull
@@ -424,4 +425,66 @@ public class NmapUiUtils {
                 .setText(CaveTitle);
     }
 
+    public static boolean findEmptyEditor(List<String> defaultRscList) {
+//    	NCMapEditor defaultEditor = (NCMapEditor) NmapUiUtils.findDisplayByName( "Welcome" );
+    	
+    	IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		for (IWorkbenchWindow window : windows) {
+			IWorkbenchPage pages[] = window.getPages();
+			for (IWorkbenchPage page : pages) {
+				IEditorReference[] refs = page.getEditorReferences();
+				for (IEditorReference r : refs) {
+					String name = r.getName();
+					String name1 = name.substring(0, name.indexOf("-")+1);
+					String name2 = name.substring(name.indexOf("-")+1, name.length());
+					NCMapEditor defaultEditor = (NCMapEditor) (r.getEditor(false));
+					
+					if (defaultEditor != null && name != null) {
+						if (defaultEditor.getDescriptor() != null) 	{
+							ResourceList rl = defaultEditor.getDescriptor().getResourceList();
+							
+							if (rl != null ) { //&& name2.equalsIgnoreCase(defaultRscList.get(0)) && name1.equalsIgnoreCase("1-")) {
+								boolean flag = true;
+								for( ResourcePair rp : rl ) {
+					    			if( rp != null && rp.getResourceData() != null) {
+//					    				try {
+//					    					AbstractNatlCntrsResourceData resourceData = (AbstractNatlCntrsResourceData) (rp.getResourceData());
+//					    					String s = resourceData.getResourceName().toString();
+					    					String s = rp.getResourceData().getClass().getName();
+//					    				
+					    					if (defaultRscList.contains(s)) {
+												continue;	
+					    					}
+					    					else {
+					    						flag = false;
+					    						break;
+					    					}
+//					    				}
+//					    				catch (Exception e){
+//					    					try{
+//					    					AbstractResourceData resourceData = (AbstractResourceData) (rp.getResourceData());
+//					    					String s = resourceData.getClass().getName().toString(); //pirep,..  NcLeagend and NcSelectedPane are null
+//					    					if (defaultRscList.contains(s)) 
+//												continue;	
+//					    					else {
+//					    						flag = false;
+//					    						break;
+//					    					}
+//					    					}catch (Exception ex) {}
+//					    				}
+									}																				
+					    		}
+								
+								if (flag == true) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}	
+		
+		return false;
+    }
 }

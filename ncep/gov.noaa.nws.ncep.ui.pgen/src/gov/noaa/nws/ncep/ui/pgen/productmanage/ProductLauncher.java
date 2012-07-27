@@ -153,6 +153,7 @@ public class ProductLauncher extends ContributionItem {
 		                           new ProductInfo(), new ProductTime(), 
 		                           new ArrayList<Layer>() );
 	    prd.setType(  prdtype );
+	    prd.setOnOff( false ) ;
 	    prd.setOutputFile( null );
         
 	    List<PgenLayer> players = getPgenLayers( prdTypeMap.get( prdtype ) );

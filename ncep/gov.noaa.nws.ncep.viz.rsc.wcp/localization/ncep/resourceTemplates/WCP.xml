@@ -14,7 +14,7 @@
             <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
             <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
             <sourceName>WCP</sourceName>
-		    <legendColor>${legend_color}</legendColor>
+		    <legendColor>${color}</legendColor>
 		    <color>${color}</color>
 			<lineWidth>${lineWidth}</lineWidth>
 		
@@ -72,10 +72,10 @@
 			<requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
-                 <constraint constraintValue="wcp" constraintType="EQUALS" />
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
                <mapping key="reportType">
-                 <constraint constraintValue="wcp" constraintType="EQUALS" />
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS" />
                </mapping>
              </metadataMap>
           </resourceData>

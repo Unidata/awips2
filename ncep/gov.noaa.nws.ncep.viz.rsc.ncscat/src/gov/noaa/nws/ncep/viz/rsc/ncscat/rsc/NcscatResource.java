@@ -7,6 +7,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector;
 import gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType;
 import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
@@ -45,7 +46,6 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -66,7 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 14 Jan 2011  235D       B. Hebbard  Add density select; performance enhancement via new PGEN aggregate vector display
  * 03 Feb 2011  235E       B. Hebbard  Add support for ambiguity variants
  * 16 Nov 2011             B. Hebbard  Fix excess rowCount increment in paintFrame()
- * 
+ * 05/23/12       785      Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author bhebbard
@@ -615,4 +615,14 @@ public class NcscatResource extends
         	cbar2Resource.setColorBar(ncscatResourceData.getColorBar2());
         }
     }
+    
+    @Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.frameRows.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }

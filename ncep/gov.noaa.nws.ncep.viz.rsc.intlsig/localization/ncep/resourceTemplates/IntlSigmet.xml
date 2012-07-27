@@ -98,12 +98,12 @@
                    <flightLevelEnable>${flightLevelEnable}</flightLevelEnable>
                    <requestStyle>METADATA</requestStyle>
              <metadataMap>
-               <mapping key="pluginName">
-                 <constraint constraintValue="intlsigmet" constraintType="EQUALS" />
-               </mapping>
-               <mapping key="reportType">
-                 <constraint constraintValue="intlsigmet" constraintType="EQUALS" />
-               </mapping>
+				<mapping key="pluginName">
+					<constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+				</mapping>
+				<mapping key="reportType">
+					<constraint constraintValue="${reportType}" constraintType="EQUALS" />
+				</mapping>
              </metadataMap>
           </resourceData>
         </resource>

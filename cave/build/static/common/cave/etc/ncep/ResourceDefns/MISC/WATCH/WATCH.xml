@@ -3,6 +3,12 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>WATCH</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>    
+pluginName=aww
+reportType=THUNDERSTORM_REPORT,TORNADO_REPORT,WATCH_COUNTY_NOTIFICATION
+color=RGB {155, 155, 155}
+legendName=WATCH
+    </resourceParameters>
     <filterLabels>AWW,Event</filterLabels>
     <rscImplementation>WATCH</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

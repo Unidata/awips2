@@ -26,119 +26,155 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="skipEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="skipEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="skipValue"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="skipValue"
             defaultValue="5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="densityValue"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="densityValue"
             defaultValue="50"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeStampEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeStampEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="timeStampColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="timeStampColor"
             defaultValue="RGB {255, 255, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="timeStampInterval"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="timeStampInterval"
             defaultValue="30"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="timeStampLineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="timeStampLineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="ArrowStyle"
-            attributeName="arrowStyle"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="ArrowStyle"
+            paramName="arrowStyle"
             defaultValue="WIND_BARB"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="arrowWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="arrowWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="arrowSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="arrowSize"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="headSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="headSize"
             defaultValue="4"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="ColorBar"
-            attributeName="colorBar1"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="ColorBar"
+            paramName="colorBar1"
+            paramType="EDITABLE_ATTRIBUTE"
+            paramRefLocation="ncep/ColorBars/SCAT"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="ColorBar"
-            attributeName="colorBar2"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="ColorBar"
+            paramName="colorBar2"
+            paramType="EDITABLE_ATTRIBUTE"
+            paramRefLocation="ncep/ColorBars/SCAT"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="highWindSpeedEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="highWindSpeedEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="lowWindSpeedEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="lowWindSpeedEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="rainFlagEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="rainFlagEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="availabilityFlagEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="availabilityFlagEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="use2ndColorForRainEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="use2ndColorForRainEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="plotCirclesForRainEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="plotCirclesForRainEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SCAT">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            ncResourceName="SCAT"
+            paramClass="String"
+            paramName="reportType"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="SCAT"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
    </extension>
 
 </plugin>

@@ -208,7 +208,7 @@ public class PgenDeletePart extends PgenSelectingTool {
         					return false;
         				}
         				point2 = mapEditor.translateClick( screen2.x, screen2.y );
-               		    drawingLayer.deleteElementPart( des, point1 , point2 );           			
+               		    drawingLayer.deleteElementPart( des, point1 , point2 );
             		}
 
             		drawingLayer.removeGhostLine();
@@ -247,7 +247,7 @@ public class PgenDeletePart extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseDownMove(int anX, int aY, int button){
-        	return true;
+        	 return false;
         }
         
         /*
@@ -255,7 +255,7 @@ public class PgenDeletePart extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseUp(int x, int y, int button){
-        	return false;
+        	return true;
         }
 
         /**

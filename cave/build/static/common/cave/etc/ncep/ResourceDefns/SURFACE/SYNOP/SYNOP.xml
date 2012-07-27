@@ -6,11 +6,13 @@
 	<resourceParameters>
 pluginName=sfcobs 
 spiFile=synoptic.spi
-legend_color=RGB {0, 80, 255}
-levelKey=Surface	
+! reportType and legendString can be overridden in the attrSet files for SYNOP
+reportType=1001,1002,1003,1004,1005,1006,1007
+legendString=SYNOP(all-reports)
+legendColor=RGB {0, 80, 255}
 	</resourceParameters>
 	<filterLabels>Observed</filterLabels>
-    <rscImplementation>PlotData</rscImplementation>
+    <rscImplementation>SurfacePlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

@@ -3,7 +3,12 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>CSIG</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legend_color=RGB {155, 155, 155}</resourceParameters>
+    <resourceParameters>
+pluginName=convsigmet
+reportType=convsigmet
+color=RGB {155, 155, 155}
+legendName=Convective SIGMETs
+	</resourceParameters>
     <filterLabels>SigMet,Event</filterLabels>
     <rscImplementation>ConvectiveSigmet</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

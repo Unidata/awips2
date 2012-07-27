@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.ZoneTableDlg;
  * (Where is the history log for this file???)
  * 
  * Jan 25, 2010 #4281 zhao Modified the notify method
+ * Jun 16, 2012 14386 zhao Modified the notify method
  * 
  * @author
  * 
@@ -93,9 +94,9 @@ public class FogZoneTableDlg extends ZoneTableDlg {
             if (date != null) {
                 Date nominalTime = date;
 				ObMultiHrsReports obData = fog.getObData();
-				if (!isLinkedToFrame()) {
-					nominalTime = obData.getLatestNominalTime();
-				}
+//				if (!isLinkedToFrame()) {
+//					nominalTime = obData.getLatestNominalTime();
+//				}
 				FogDataGenerator fdg = new FogDataGenerator();
 				HashMap<String, CellType> fogAlgCellType = fdg
                         .getAlgCellTypes(fog.getAlgorithmData(nominalTime));

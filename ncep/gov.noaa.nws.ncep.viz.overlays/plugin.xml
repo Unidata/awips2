@@ -100,229 +100,339 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {255, 165, 79}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="DbOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="LineStyle"
-            attributeName="lineStyle"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="LineStyle"
+            paramName="lineStyle"
             defaultValue="SOLID"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="DbOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="DbOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="dbName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="DbOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="tableName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="DbOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="labelField"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="DbOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="mapName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="DbOverlay">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {255, 165, 79}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="PgenXmlOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="LineStyle"
-            attributeName="lineStyle"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="LineStyle"
+            paramName="lineStyle"
             defaultValue="SOLID"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="PgenXmlOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="PgenXmlOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="pgenProductName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="PgenXmlOverlay">
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {255, 165, 79}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="OverlayGroup">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="LineStyle"
-            attributeName="lineStyle"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="LineStyle"
+            paramName="lineStyle"
             defaultValue="SOLID"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="OverlayGroup">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="OverlayGroup">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="mapName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="OverlayGroup">
+      </nc-resourceParameter>      
+      
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {255, 165, 79}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LatlonOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="LineStyle"
-            attributeName="lineStyle"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="LineStyle"
+            paramName="lineStyle"
             defaultValue="SOLID"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LatlonOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="lineWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="lineWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LatlonOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="longitudeInterval"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="longitudeInterval"
             defaultValue="10"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LatlonOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="latitudeInterval"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="latitudeInterval"
             defaultValue="10"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LatlonOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleModel"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleModel"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scalePosition"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scalePosition"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleUnit"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleUnit"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleIntervalMode"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleIntervalMode"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleIntervalValue"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleIntervalValue"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleLatMode"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleLatMode"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleEffectiveLatitudeValue"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleEffectiveLatitudeValue"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleTextFont"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleTextFont"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleTextSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleTextSize"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="scaleTextStyle"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="scaleTextStyle"
             defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ScaleOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+      </nc-resourceParameter>
+      
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {255, 255, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="MarkerState"
-            attributeName="markerState"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="MarkerState"
+            paramName="markerState"
             defaultValue="MARKER_PLUS_TEXT"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="MarkerType"
-            attributeName="markerType"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="MarkerType"
+            paramName="markerType"
             defaultValue="ASTERISK"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="MarkerTextSize"
-            attributeName="markerTextSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="MarkerTextSize"
+            paramName="markerTextSize"
             defaultValue="MEDIUM"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="markerSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="markerSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="markerWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="markerWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="LpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="color"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="markerTextAppearanceZoomLevel"
+            defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="LpiOverlay">
+      </nc-resourceParameter>            
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="LpiFilename"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="LpiOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="mapName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="LpiOverlay">
+      </nc-resourceParameter>      
+      
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="color"
             defaultValue="RGB {255, 255, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="MarkerState"
-            attributeName="markerState"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="MarkerState"
+            paramName="markerState"
             defaultValue="MARKER_PLUS_TEXT"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="MarkerType"
-            attributeName="markerType"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="MarkerType"
+            paramName="markerType"
             defaultValue="ASTERISK"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="MarkerTextSize"
-            attributeName="markerTextSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="MarkerTextSize"
+            paramName="markerTextSize"
             defaultValue="MEDIUM"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="markerSize"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="markerSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SpiOverlay">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="markerWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="markerWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="SpiOverlay">
-      </nc-resourceAttribute>
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="SpiFilename"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="SpiOverlay">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="mapName"
+            paramType="IMPLEMENTATION_PARAM"
+            ncResourceName="SpiOverlay">
+      </nc-resourceParameter>      
    </extension>
        
    <extension

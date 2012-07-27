@@ -1,4 +1,4 @@
 ffg_param=FF12
-colorBar=@ffgColorBar.xml
+colorBar=@ColorBars/FFG/ffgColorBar.xml
 displayValues=true
 symbolName=ASTERISK
