@@ -33,7 +33,7 @@ fi
 
 # Execute the CAVE PDE Build.
 # The Sun JDK Build.
-time ./build.sh -eclipse=/opt/uframe-eclipse
+time /bin/bash build.sh -eclipse=/opt/uframe-eclipse
 RC=$?
 
 if [ ${RC} -ne 0 ]; then

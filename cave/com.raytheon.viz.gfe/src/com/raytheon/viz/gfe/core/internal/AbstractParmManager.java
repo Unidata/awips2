@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.core.internal;
 
 import java.io.File;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.eclipse.core.runtime.ListenerList;
 
@@ -103,6 +105,13 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 public abstract class AbstractParmManager implements IParmManager {
 
     private static final int NOTIFICATION_THREADS = 4;
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
+            DatabaseID.MODEL_TIME_FORMAT);
+
+    static {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
 
     protected class ParmIDVis {
         private ParmID pid;
@@ -469,8 +478,8 @@ public abstract class AbstractParmManager implements IParmManager {
             if (string.length() - pos == 14) {
                 try {
                     dtg = string.substring(pos + 1);
-                    synchronized (DatabaseID.dateFormat) {
-                        DatabaseID.dateFormat.parse(dtg);
+                    synchronized (dateFormat) {
+                        dateFormat.parse(dtg);
                     }
                 } catch (ParseException e) {
                     return null;
