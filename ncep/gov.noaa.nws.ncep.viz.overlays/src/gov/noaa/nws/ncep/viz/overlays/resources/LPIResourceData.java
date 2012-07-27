@@ -31,7 +31,8 @@ import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData;
  * July 26, 2009           mgao        Initial creation
  * Aug 06, 2009            ghull       construct() -> constructResource()
  * Dec 01, 2009            ghull       to11d6
- * Apr 14  2010    #259    ghull       set legendColor from color
+ * Apr 14  2010  #259      ghull       set legendColor from color
+ * Apr 24 2012   #744      sgurung     Added markerTextAppearanceZoomLevel
  * 
  * </pre>
  *  * 
@@ -75,7 +76,9 @@ public class LPIResourceData extends AbstractNatlCntrsResourceData
     @XmlElement
     private MarkerTextSize markerTextSize;
     
-
+    @XmlElement
+    private Float markerTextAppearanceZoomLevel;
+    
     public LPIResourceData() {
         super();
         this.nameGenerator = new AbstractNameGenerator() {
@@ -181,6 +184,14 @@ public class LPIResourceData extends AbstractNatlCntrsResourceData
 		this.markerTextSize = markerTextSize;
 	}
 
+	public float getMarkerTextAppearanceZoomLevel() {
+		return markerTextAppearanceZoomLevel;
+	}
+
+	public void setMarkerTextAppearanceZoomLevel(float markerTextAppearZoomLevel) {
+		this.markerTextAppearanceZoomLevel = markerTextAppearZoomLevel;
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {

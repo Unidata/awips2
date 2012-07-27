@@ -10,7 +10,8 @@ import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
-import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceAttrInfo;
+import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamInfo;
+import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr.ResourceParamType;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName.ResourceNameAdapter;
 
@@ -180,19 +181,25 @@ public abstract class AbstractNatlCntrsResourceData extends AbstractResourceData
 	// 
 	public ResourceAttrSet getRscAttrSet() {
 		
-		HashMap<String,ResourceAttrInfo> attrSetInfo = 
-			rscExtPointMngr.getResourceAttributes( getResourceName() );
-
-		if( attrSetInfo == null ) {
+		HashMap<String,ResourceParamInfo> rscImplParamInfo = 
+		     rscExtPointMngr.getParameterInfoForRscImplementation( getResourceName() );
+	
+		if( rscImplParamInfo == null ) {
+			System.out.println("Couldn't find rsc impl parameter info for "+getResourceName() );
 			return null;
 		}
 
 		ResourceAttrSet rscAttrSet = new ResourceAttrSet( 
 				resourceName.getRscAttrSetName() );
 
-		for( ResourceAttrInfo attrInfo : attrSetInfo.values() ) {
+		for( ResourceParamInfo prmInfo : rscImplParamInfo.values() ) {
+			
+			if( prmInfo.getParamType() != ResourceParamType.EDITABLE_ATTRIBUTE ) {
+				continue;
+			}
+
 			Method[] mthds = this.getClass().getDeclaredMethods();
-			String attrName = attrInfo.getAttrName();
+			String attrName = prmInfo.getParamName();
 
 			String getMthdName = "get"+attrName.substring(0,1).toUpperCase() +
 			attrName.substring(1);
@@ -256,16 +263,22 @@ public abstract class AbstractNatlCntrsResourceData extends AbstractResourceData
 			return false;
 		}		
 
-		HashMap<String,ResourceAttrInfo> attrSetInfo = 
-		     rscExtPointMngr.getResourceAttributes( getResourceName() );
+		HashMap<String,ResourceParamInfo> rscImplParamInfo = 
+		     rscExtPointMngr.getParameterInfoForRscImplementation( getResourceName() );
 	
-		if( attrSetInfo == null ) {
+		if( rscImplParamInfo == null ) {
+			System.out.println("Couldn't find rsc impl parameter info for "+getResourceName() );
 			return false;
 		}
 
 		// loop thru the attributes and use Java Bean utils to set the attributes on the resource    	
-		for( ResourceAttrInfo attrInfo : attrSetInfo.values() ) {
-			String attrName = attrInfo.getAttrName();
+		for( ResourceParamInfo prmInfo : rscImplParamInfo.values() ) {
+
+			if( prmInfo.getParamType() != ResourceParamType.EDITABLE_ATTRIBUTE ) {
+				continue;
+			}
+
+			String attrName = prmInfo.getParamName();
 			
 			// make sure that this attrSet has this attributeName
 			if( !newRscAttrSet.hasAttrName(attrName) ) {
@@ -276,10 +289,10 @@ public abstract class AbstractNatlCntrsResourceData extends AbstractResourceData
 			Object attrValue = rscAttr.getAttrValue();
 			Class<?> attrClass = rscAttr.getAttrClass();
 
-			if( attrClass != attrInfo.getAttrClass() ) {
+			if( attrClass != prmInfo.getParamClass() ) {
 				System.out.println("Unable to set Attribute "+attrName+" because it is defined as "+
 						" the wrong type: "+attrClass.getName()+" != "+
-						attrInfo.getAttrClass().getName() );
+						prmInfo.getParamClass().getName() );
 				continue;
 			}
 			else if( attrValue == null ) {

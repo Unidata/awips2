@@ -303,7 +303,6 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         if (resourceData.mode.equals("CZ-Pg")) {
             return null;
         }
-
         // Grab current time
         DataTime displayedDate = descriptor.getTimeForResource(this);
 

@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -104,7 +106,8 @@ public class GageHistoryDlg extends CaveSWTDialog {
      * Location text control.
      */
     private Text locationTF;
-
+    
+    private String currentLocText=null;
     /**
      * OK button.
      */
@@ -319,6 +322,20 @@ public class GageHistoryDlg extends CaveSWTDialog {
         locationTF = new Text(locationGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         locationTF.setLayoutData(gd);
         locationTF.setTextLimit(255);
+        currentLocText=locationTF.getText();
+        ModifyListener listener = new ModifyListener() {
+        	public void modifyText(ModifyEvent e) {
+        		if (locationTF.getText().length()>255){
+        			locationTF.setText(currentLocText);
+        			shell.getDisplay().beep();
+        		}
+        		else
+        			currentLocText=locationTF.getText();
+        	}
+        };
+
+        locationTF.addModifyListener(listener);
+
     }
 
     /**

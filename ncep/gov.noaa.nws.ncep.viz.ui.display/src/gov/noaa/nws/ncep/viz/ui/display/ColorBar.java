@@ -26,6 +26,10 @@ import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
  * 04/04/10      #259        Greg Hull    Initial Creation.
  * 10/25/11      #463        qzhou        Added equals()
  * 12/06/11      #572        qzhou        Modified equals and added hashCode
+ * 06/07/12      #794       Archana       Added a Boolean flag called reverseOrder to enable/disable
+ *                                        reversing the order of colors in the color-bar.
+ * 06/07/12      #717       Archana       Added the overridden methods getDisplayUnitStr() and getNumPixelsToReAlignLabel()                                                                           
+ * 
  * </pre>
  * 
  * @author ghull
@@ -53,6 +57,9 @@ public class ColorBar implements IColorBar, ISerializableObject {
 
     @XmlElement
     private Boolean showLabels = true;
+    
+    @XmlElement
+    private Boolean reverseOrder = false;    
     
 	@XmlElement 
     private Boolean drawToScale = false;
@@ -99,7 +106,7 @@ public class ColorBar implements IColorBar, ISerializableObject {
 		lengthAsRatio = cbar.lengthAsRatio;
 		widthInPixels = cbar.widthInPixels;
 		numDecimals = cbar.numDecimals;
-		
+		reverseOrder = cbar.reverseOrder;
 		for( int i=0 ; i<cbar.getNumIntervals() ; i++ ) {
 			addColorBarInterval( cbar.getIntervalMin(i),
 							     cbar.getIntervalMax(i), cbar.getRGB(i) );
@@ -252,6 +259,22 @@ public class ColorBar implements IColorBar, ISerializableObject {
 
 	public void setShowLabels(Boolean showLabels) {
 		this.showLabels = showLabels;
+	}
+
+	/**
+	 * @return the reverseOrder
+	 */
+	@Override
+	public final Boolean getReverseOrder() {
+		return reverseOrder;
+	}
+
+	/**
+	 * @param reverseOrder the reverseOrder to set
+	 */
+	@Override
+	public final void setReverseOrder(Boolean reverseOrder) {
+		this.reverseOrder = reverseOrder;
 	}
 
 	public Boolean getDrawToScale() {
@@ -608,6 +631,9 @@ public class ColorBar implements IColorBar, ISerializableObject {
 				+ ((showLabels == null) ? 0 : showLabels.hashCode());
 		result = prime * result
 				+ ((widthInPixels == null) ? 0 : widthInPixels.hashCode());
+
+		result = prime * result
+		+ ((reverseOrder == null) ? 0 : reverseOrder.hashCode());		
 		return result;
 	}
 
@@ -677,8 +703,24 @@ public class ColorBar implements IColorBar, ISerializableObject {
 				return false;
 		} else if (!widthInPixels.equals(other.widthInPixels))
 			return false;
+		
+		if (reverseOrder == null) {
+			if (other.reverseOrder != null)
+				return false;
+		} else if (!reverseOrder.equals(other.reverseOrder))
+			return false;
+		
 		return true;
 	}
 
+	@Override
+	public String getDisplayUnitStr(){
+		return null;
+	}
+	
+	@Override
+	public int getNumPixelsToReAlignLabel(){
+		return 0;
+	}
 }
 

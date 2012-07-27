@@ -62,7 +62,9 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  *    02/20/10       #226      ghull       added Pane layout info to Bundle class.
  *    09/02/10       #307      ghull       use one timeMatcher for all descriptors
  *    11/15/11                 ghull       add resolveLatestCycleTimes
- * 
+ *    04/26/12       #585      sgurung     Added rbdSequence 
+ *    06/13/12       #817      Greg Hull   add resolveDominantResource()  
+ *
  * </pre>
  * 
  * @author chammack
@@ -83,6 +85,9 @@ public class RbdBundle implements ISerializableObject {
 
     @XmlElement
     protected boolean autoUpdate;
+    
+    @XmlElement
+    protected int rbdSequence;
 
     @XmlElement
     private NCTimeMatcher timeMatcher;
@@ -163,6 +168,14 @@ public class RbdBundle implements ISerializableObject {
         this.isEdited = isEdited;
     }
 
+    public void setRbdSequence(int seq) {
+        this.rbdSequence = seq;
+    }
+
+    public int getRbdSequence() {
+        return rbdSequence;
+    }
+    
     /**
      * Default constructor
      */
@@ -489,14 +502,14 @@ public class RbdBundle implements ISerializableObject {
     	return true;
     }
 
-    // if the timeline has not been created then
-    // get the dominant resource and initialize the timeMatcher
-    public boolean initTimeline() {
-        if (getTimeMatcher().getDominantResource() == null) {
-            ResourceName domRscName = timeMatcher.getDominantResourceName();
-            if (domRscName == null || !domRscName.isValid()) {
-                return false;
-            }
+    // if the dominantResourceName is set for the timeMatcher but the dominantResourceData isn't then
+    // find the dominant resource in the list and set it.
+    public void resolveDominantResource() {
+
+        ResourceName domRscName = timeMatcher.getDominantResourceName();
+
+        if( domRscName != null && domRscName.isValid() &&
+    		timeMatcher.getDominantResource() == null) {
 
             // loop thru the displays looking for the dominant resource
             //
@@ -512,16 +525,22 @@ public class RbdBundle implements ISerializableObject {
                                 rdata.getResourceName().toString())) {
 
                             timeMatcher.setDominantResourceData(rdata);
-
-                            // timeMatcher.setCurrentRefTime();
-                            timeMatcher.loadTimes(true);
-                            break;
+                            return;
                         }
                     }
                 }
             }
         }
 
-        return (getTimeMatcher().getDominantResource() == null);
+    }
+    
+
+    // if the timeline has not been created then
+    // get the dominant resource and initialize the timeMatcher
+    public boolean initTimeline() {
+    	
+    	resolveDominantResource();
+    	
+    	return timeMatcher.loadTimes(true);
     }
 }

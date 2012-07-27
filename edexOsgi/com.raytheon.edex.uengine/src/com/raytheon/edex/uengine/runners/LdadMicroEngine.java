@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import com.raytheon.edex.uengine.exception.MicroEngineException;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
@@ -54,6 +55,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * 28May2011    8686       bkowal      Replaced useless try ... catch block.
  *                                     Added logic to utilize the trigger.
  * Sep 19, 2011 10955      rferrel     Use RunProcess
+ * 05/25/2012   DR 15015   D. Friedman Use helper script to launch triggers.
  * </pre>
  * 
  * @author mfegan
@@ -62,6 +64,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
 
 public class LdadMicroEngine extends AMicroEngine {
     private static final String TEXT_DB_QUEUE = "textdbsrvinternal";
+    private static final String SCRIPT_LAUNCHER_PATH = "util/scriptLauncher";
 
     /**
      * Constructor.
@@ -240,6 +243,9 @@ public class LdadMicroEngine extends AMicroEngine {
         for (Entry<String, String> entry : env.entrySet()) {
             strEnv.add(entry.getKey() + "=" + entry.getValue());
         }
+        String launcher = getScriptLauncher();
+        if (launcher != null)
+            script = launcher + ' ' + script;
         // DR#10955
         RunProcess.getRunProcess()
                 .exec(script, strEnv.toArray(new String[] {}));
@@ -271,6 +277,30 @@ public class LdadMicroEngine extends AMicroEngine {
     private String hexToAscii(String hexString) {
         byte[] b = new HexBinaryAdapter().unmarshal(hexString);
         return new String(b);
+    }
+    
+    /**
+     * Finds a helper script that should be used to launch triggers. The helper
+     * script terminates immediately so that resources can be freed even if the
+     * trigger takes a long time to run.
+     * 
+     * @return The absolute path of the help script or null if not found.
+     */
+    private String getScriptLauncher() {
+        File f = null;
+        try {
+            f = PathManagerFactory.getPathManager().getStaticFile(SCRIPT_LAUNCHER_PATH);
+            if (f != null) {
+                f.setExecutable(true);
+                return f.getAbsolutePath();
+            } else {
+                logger.warn("Script launcher not found");
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error finding script launcher", e);
+            return null;
+        }
     }
 
 }

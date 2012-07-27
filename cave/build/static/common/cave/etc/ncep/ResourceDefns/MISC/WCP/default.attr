@@ -1,7 +1,6 @@
 ! Attributes for WCP (Watch Corner Points) - default
 !
 lineWidth=2
-color=RGB {0, 100, 255}
 thunderstormName=Thunderstorm
 thunderstormEnable=true
 thunderstormColor=RGB {0, 255, 255}

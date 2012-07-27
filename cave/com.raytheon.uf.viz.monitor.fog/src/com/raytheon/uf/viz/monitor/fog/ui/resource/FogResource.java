@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.ColorMap;
@@ -70,7 +71,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    11Nov2009    2037        dhladky    Initial Creation.
- * 
+ *    16Jun2012    14386       zhao       Fixed a bug causing auto update to fail; 
+ *                                        also modified to keep only latest Fog record for each frame.
  * </pre>
  * 
  * @author dhladky
@@ -99,8 +101,6 @@ public class FogResource extends
 
     private String colormapfile = null;
 
-    private boolean algUpdated = false;
-
     private static String[] fogLabels = new String[] { "LOW", "MODERATE",
             "HIGH" };
 
@@ -117,6 +117,8 @@ public class FogResource extends
     public IFont font = null;
 
     private FogMonitor monitor = null;
+
+    private boolean needsUpdate = false;
 
     public FogResource(FogResourceData data, LoadProperties props) {
         super(data, props);
@@ -160,18 +162,23 @@ public class FogResource extends
      */
     private void addRecord(FogRecord pdo) {
         Calendar rh = pdo.getRefHour();
-        if (resourceData.dataObjectMap.containsKey(rh)) {
+        if (!resourceData.dataObjectMap.containsKey(rh)) {
             try {
                 record = resourceData.populateRecord(pdo);
-                resourceData.dataObjectMap.put(record.getRefHour().getTime(),
-                        record);
-                resourceData.gridImageMap.put(record.getRefHour().getTime(),
-                        null);
+                resourceData.dataObjectMap.put(record.getRefHour().getTime(), record);
+                resourceData.gridImageMap.put(record.getRefHour().getTime(), null);
             } catch (VizException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            }
+        } else if ( resourceData.dataObjectMap.containsKey(rh) ) {
+        	try {
+        		record = resourceData.populateRecord(pdo);
+        		resourceData.dataObjectMap.remove(record.getRefHour().getTime());
+                resourceData.dataObjectMap.put(record.getRefHour().getTime(), record);
+                resourceData.gridImageMap.remove(record.getRefHour().getTime());
+                resourceData.gridImageMap.put(record.getRefHour().getTime(), null);
+        	} catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             }
         }
     }
@@ -215,14 +222,18 @@ public class FogResource extends
         }
         this.record = resourceData.dataObjectMap.get(refHour);
         if (record != null) {
-            if (resourceData.gridImageMap.get(refHour) != null) {
+            if(record.getThreats()== null) needsUpdate=true;
+            if (resourceData.gridImageMap.get(refHour) != null && needsUpdate==false) {
                 gridDisplay = resourceData.gridImageMap.get(refHour);
             } else {
-                // new image
-                record = resourceData.getFogThreat().getFogThreat(record);
+                if (needsUpdate) {
+                    // new image
+                    record = resourceData.getFogThreat().getFogThreat(record);
+                }
                 gridDisplay = new GriddedImageDisplay(FloatBuffer.wrap(record
                         .getThreats()), descriptor, record.getGridGeometry());
                 resourceData.gridImageMap.put(refHour, gridDisplay);
+                needsUpdate=false;
             }
         }
         if (!refHour.equals(previousDataTime)) {
@@ -395,6 +406,16 @@ public class FogResource extends
     public void closeDialog() {
         monitor.closeDialog();
 
+    }
+    
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+            if (record != null) {
+                record.setGridGeometry2D(null);
+                resourceData.resetGridImgMap();
+                needsUpdate = false;
+                issueRefresh();
+            }
     }
 
 }

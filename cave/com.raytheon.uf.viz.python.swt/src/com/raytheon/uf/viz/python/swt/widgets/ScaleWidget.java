@@ -116,7 +116,7 @@ public class ScaleWidget extends Widget {
         maxValue = ((Number) (getOptions().get(1))).floatValue();
 
         range = Math.round((maxValue - minValue) / getResolution());
-        
+
         format = new DecimalFormat();
         format.setMaximumFractionDigits(precision);
         

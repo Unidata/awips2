@@ -130,9 +130,15 @@ public class GetColorValues {
                                     + "Metric\n"));
         }
 
-        // Try to find a user defined color set.
-        cvHead = getUserColorSet(user_id, application_name, coloruse_name,
-                duration, threshold_unit);
+        //get color values from default setting in xml file.
+        if (application_name=="hydroview" && coloruse_name=="HEIGHT" ) {
+                 cvHead = getDefaultColorSet(application_name, coloruse_name,
+                     threshold_unit);
+        } else {
+                // Try to find a user defined color set.
+                cvHead = getUserColorSet(user_id, application_name, coloruse_name,
+                                duration, threshold_unit);
+        }
 
         if (cvHead == null) {
 

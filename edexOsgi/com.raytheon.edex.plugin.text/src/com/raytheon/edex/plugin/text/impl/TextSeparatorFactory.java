@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2008            jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Finished implementation.
+ * 06/29/2012   15154      D. Friedman Fix detection of TAF collectives.
  * </pre>
  * 
  * @author jkorman
@@ -62,7 +63,7 @@ public class TextSeparatorFactory {
     private static final TextDBStaticData staticData = TextDBStaticData
             .instance(siteId);
 
-    private static Pattern TAF_PTRN = Pattern.compile("[\n\r]?TAF");
+    private static Pattern TAF_PTRN = Pattern.compile("^TAF\\s*$");
 
     /**
      * 
@@ -186,16 +187,12 @@ public class TextSeparatorFactory {
                 msgType = WMOMessageType.MSG_DISCARD;
             }
 
-            Matcher m = TAF_PTRN.matcher(startOfMessage);
-            if (m.find()) {
-                msgType = WMOMessageType.STD_COLLECTIVE;
-            }
-
             if (msgType == null) {
                 String stdAfosId = null;
 
-                int firstLineLen = WMOMessageSeparator.getLine(rawData,
-                        startIndex).length();
+                String firstLine = WMOMessageSeparator.getLine(rawData,
+                        startIndex);
+                int firstLineLen = firstLine.length();
                 if (staticData.matchStdCollective(dataDes) != null) {
                     msgType = WMOMessageType.STD_COLLECTIVE;
                 } else if (staticData.matchUACollective(dataDes) != null) {
@@ -208,7 +205,8 @@ public class TextSeparatorFactory {
                 if (msgType == null) {
                     if (!hdr.startsWith("SXUS70")
                             && !hdr.startsWith("FRUS45")
-                            && firstLineLen > 6
+                            && (firstLineLen > 6 || 
+                                    TAF_PTRN.matcher(firstLine).matches())
                             && (hdr.startsWith("SA") || hdr.startsWith("SP")
                                     || hdr.startsWith("FR") || hdr
                                     .startsWith("FT"))) {
