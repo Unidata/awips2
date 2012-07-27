@@ -71,7 +71,8 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
 
     protected int size;
 
-    public GLImage(IRenderedImageCallback preparer, Class<? extends IImagingExtension> extensionClass) {
+    public GLImage(IRenderedImageCallback preparer,
+            Class<? extends IImagingExtension> extensionClass) {
         super(extensionClass);
         theTexture = null;
         this.imagePreparer = preparer;
@@ -198,8 +199,7 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
                     fromRenderedToBuffered(rendImg), false);
         }
 
-        this.size = rendImg.getHeight() * rendImg.getWidth() * 4
-                * rendImg.getColorModel().getNumColorComponents();
+        this.size = rendImg.getHeight() * rendImg.getWidth() * 4;
         return true;
     }
 
