@@ -4,7 +4,7 @@
     <resourceDefnName>GHM</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=GHM
+GDFILE=ghm
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

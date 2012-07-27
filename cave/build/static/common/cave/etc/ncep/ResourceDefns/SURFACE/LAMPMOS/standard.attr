@@ -1,5 +1,5 @@
 ! Attributes for the LAMP resource with "standard" plot model
 !
-plotModelName=lampmos_standard
+plotModel=@PlotModels/bufrmosLAMP/standard.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

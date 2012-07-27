@@ -1978,9 +1978,12 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         rubberBandY2 = e.y;
 
         if (dialog.isZoomAction()) {
-            dialog.setZoom(true);
-            zoomed = true;
-            dialog.setZoomAction(false);
+        	if ((rubberBandX1 != rubberBandX2) || //avoid click to zoom in on 1 point
+        			(rubberBandY1 != rubberBandY2)) {
+        		dialog.setZoom(true);
+        		zoomed = true;
+        		dialog.setZoomAction(false);
+        	}
         } else if (pointSelected) {
             int[] dataPts = graphData.getTraceData(selectedTraceId)
                     .getLineData();
@@ -2060,6 +2063,25 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         redraw();
     }
 
+    /**
+     *  Reset the time series back to non-zoom-in
+     */
+    public void resetTS(){
+    	dialog.setZoom(false);
+		setZoomed(false);
+		dialog.setZoomAction(false);
+        traceArray = graphData.getTraces();
+        traceArray.trimToSize();
+
+        // Set true so new regions will be created
+        createRegions = true;
+
+        setCursor(arrowCursor);
+        redraw();
+
+    	return;
+    }
+    
     /**
      * Save the edited data.
      * 

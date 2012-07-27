@@ -16,6 +16,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaReducePoint;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.viz.common.SnapUtil;
 
@@ -30,6 +32,8 @@ import gov.noaa.nws.ncep.viz.common.SnapUtil;
  * 06/09			116		B. Yin		Use AbstractDrawingComponent
  * 02/12            597     S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo.  
  * 02/12                    S. Gurung   Moved isSnapADC() and getNumOfCompassPts() to SigmeInfo.
+ * 05/11			#808	J. Wu		Update Gfa vor text
+ * 05/12		    #610	J. Wu   	Add warning when GFA FROM lines > 3
  *
  * </pre>
  * 
@@ -70,6 +74,8 @@ public class PgenMoveElement extends PgenCopyElement {
 	    @Override
 	    public boolean handleMouseUp(int x, int y, int button) {
 	      	
+	    	if ( shiftDown || simulate ) return false;
+	    	
 	     	if ( ghostEl != null ) {
 
 	     		AbstractDrawableComponent comp = drawingLayer.getSelectedComp();
@@ -86,7 +92,7 @@ public class PgenMoveElement extends PgenCopyElement {
 	     				 PgenWatchBoxModifyTool.resnapWatchBox(mapEditor, 
 	     						 (WatchBox)ghostEl, (WatchBox)ghostEl)) ){
           			
-	     			if(SigmetInfo.isSnapADC(ghostEl)){
+	     			if ( SigmetInfo.isSnapADC(ghostEl) ){
 	        			java.util.ArrayList<Coordinate> list = SnapUtil.getSnapWithStation(
 	    						ghostEl.getPoints(), 
 	    						SnapUtil.VOR_STATION_LIST, 
@@ -97,7 +103,23 @@ public class PgenMoveElement extends PgenCopyElement {
 	    				
 	    				drawingLayer.replaceElement( comp,ghostElCp);
 	    				drawingLayer.setSelected( ghostElCp );	    				
-	        		}else{
+	        		}
+	        		else if ( ghostEl instanceof Gfa ) {
+	            		
+	        			if( ((Gfa)ghostEl).getGfaFcstHr().indexOf("-") > -1 ){
+		            		// snap
+		        			((Gfa) ghostEl).snap();
+		    				 GfaReducePoint.WarningForOverThreeLines( (Gfa)ghostEl );
+	        			}
+	        			
+	        			((Gfa)ghostEl).setGfaVorText( Gfa.buildVorText( (Gfa)ghostEl ));
+			        	
+	        			drawingLayer.replaceElement( comp, ghostEl );
+	            		drawingLayer.setSelected( ghostEl );
+	         			 
+	        		}
+
+	     			else{
 			        	drawingLayer.replaceElement( comp, ghostEl );
 	            		drawingLayer.setSelected( ghostEl );
 	        		}

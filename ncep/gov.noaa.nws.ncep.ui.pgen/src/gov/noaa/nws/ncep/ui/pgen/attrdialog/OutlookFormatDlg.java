@@ -63,6 +63,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 04/10			?		B. Yin   	Initial Creation.
  * 07/11        #450        G. Hull     NcPathManager
  * 03/12		$703		B. Yin		Generate product text from style sheet
+ * 05/12		#710		B. Yin		Format HAIL outlook first
  *
  * </pre>
  * 
@@ -316,12 +317,48 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	}
 	
 	private void otlkAll(){
+		//format hail first
 		for ( Product pd : otlkDlg.drawingLayer.getProducts()){
 			for ( Layer layer : pd.getLayers() ){
 				Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
 				while ( it.hasNext() ){
 					AbstractDrawableComponent adc = it.next();
-					if ( adc.getName().equalsIgnoreCase("Outlook")){
+					if ( adc.getName().equalsIgnoreCase("Outlook") &&
+							adc.getPgenType().equalsIgnoreCase("hail") ){
+						
+						if ( msgDlg != null ){
+							msgDlg.close();
+						}
+							msgDlg = new OutlookFormatMsgDlg(OutlookFormatDlg.this.getParentShell(),
+									OutlookFormatDlg.this, (Outlook)adc, layer);
+							msgDlg.setBlockOnOpen(true);
+							msgDlg.setMessage(formatOtlk((Outlook)adc, layer));
+
+							int rt = msgDlg.open();
+							
+							if ( rt == Dialog.CANCEL ) return;
+						
+						/*else {
+							msgDlg.setOtlk((Outlook)adc);
+							msgDlg.setLayer( layer);
+						}
+						*/
+						
+						
+						break;
+					}
+				}
+			}
+		}
+		
+		//format other outlooks
+		for ( Product pd : otlkDlg.drawingLayer.getProducts()){
+			for ( Layer layer : pd.getLayers() ){
+				Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
+				while ( it.hasNext() ){
+					AbstractDrawableComponent adc = it.next();
+					if ( adc.getName().equalsIgnoreCase("Outlook") &&
+							!adc.getPgenType().equalsIgnoreCase("hail") ){
 						
 						if ( msgDlg != null ){
 							msgDlg.close();

@@ -727,8 +727,16 @@ public class PgenFileManageDialog extends CaveJFACEDialog {
    	    PgenResource pgen = PgenSession.getInstance().getPgenResource();
    	       	       	    
    	    java.util.List<gov.noaa.nws.ncep.ui.pgen.elements.Product> pgenProds =
-   	    									ProductConverter.convert( products );
-    	
+   	    									ProductConverter.convert( products );  
+   	    
+   	    // Force all product/layer display onOff flag to be false at the start.
+/*   	    for ( gov.noaa.nws.ncep.ui.pgen.elements.Product  prd : pgenProds ) {
+   	    	prd.setOnOff( false );
+   	    	for ( gov.noaa.nws.ncep.ui.pgen.elements.Layer  lyr : prd.getLayers() ) {
+   	    		lyr.setOnOff( false );
+   	    	}
+   	    }
+*/   	    
 		if ( replace ) {
 		   	MessageDialog confirmOpen = new MessageDialog( 
 	        		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 

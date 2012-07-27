@@ -351,7 +351,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${areas} true true true false)##
+#headlineLocList(${cancelareas} true true true false)##
 ...
 ########### END NEW HEADLINE CODE ####################
 

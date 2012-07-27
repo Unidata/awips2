@@ -173,6 +173,7 @@ int db_fhrsCallback      ( void (*callback)(void) );
 int db_duriCallback      ( void (*callback)(char*) );
 int db_diagCallback      ( void (*callback)(char*) );
 int db_flnmCallback      ( void (*callback)(char*) );
+int db_subgCrsCallback   (void  (*callback)(char*));
 void db_getparm         ( char *plgn, int *iret,  size_t );
 void db_getnavtime      ( char *timeNav, int *iret,  size_t );
 void db_getevtname      ( char *evtname, int *iret,  size_t );
@@ -188,6 +189,9 @@ void db_getQueryText    ( char *queryType, char *queryText, int *iret );
 void db_getduri         ( char *queryType, char *source, char *model, char *dattim,
                           char *vcord, char *parm, char *evtname, int *level, int *level2, char *dataURI,
                           int *lDataURI, int *iret );
+void db_retsubgcrs ( char *prj, int kx, int ky,
+                   float lllat, float lllon, float urlat, float urlon,
+                   float angl1, float angl2, float angl3, int * iret );
 void db_getgnav         ( char *model, char *eventName, char *navTime,char *gridNav, int *lGridNav, int *iret );
 void db_gtimgrid        ( char *gridTimes, int *lGridTimes, int *iret );
 void db_getRData        ( char *dbHost, char *fileName, float *rdata, int *nword,
@@ -223,7 +227,7 @@ void db_returnflnm	( char *result );
 void db_msgcave		( char *functionName, char *logLevel, char *message, int *iret );
 void db_getstinfo       ( char *qry, char *gemarea, char *stinfo,
                           int *lstinfo, int *iret );
-
+void db_setsubgnav ( float lllat, float lllon, float urlat, float urlon, int *irer );
 /* DM library */
 void dm_rint ( int*, int*, int*, int*, int *iret );
 void dm_pkgd ( float*, int*, int*, int*, int*, int *, int*, int*, float*, float*, float*, int *iret );

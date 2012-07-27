@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: edex-ost
+Bundle-SymbolicName: edex-ost
+Bundle-Version: 1
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: 
+ gov.noaa.nws.ost.edex.plugin.regionalsat;bundle-version="1.0.0"

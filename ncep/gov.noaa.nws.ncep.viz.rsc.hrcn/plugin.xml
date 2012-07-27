@@ -26,240 +26,295 @@
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="hurricaneEnable"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="hurricaneEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="hurricaneColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="hurricaneColor"
             defaultValue="RGB {255, 0, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hurricaneSymbolWidth"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hurricaneSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="hurricaneSymbolSize"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="hurricaneSymbolSize"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tropicalStormEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tropicalStormEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tropicalStormColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tropicalStormColor"
             defaultValue="RGB {255, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tropicalStormSymbolWidth"
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tropicalStormSymbolWidth"
             defaultValue="2"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tropicalStormSymbolSize"
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tropicalStormSymbolSize"
             defaultValue="1.5"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="tropicalDepressionEnable"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="tropicalDepressionEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="tropicalDepressionColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="tropicalDepressionColor"
             defaultValue="RGB {0, 255, 0}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tropicalDepressionSymbolWidth"
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tropicalDepressionSymbolWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="tropicalDepressionSymbolSize"
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="tropicalDepressionSymbolSize"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="motionDirectionEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="motionDirectionEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="RGB"
-            attributeName="motionDirectionColor"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="RGB"
+            paramName="motionDirectionColor"
             defaultValue="RGB {255, 0, 255}"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="motionDirectionArrowWidth"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Integer"
+            paramName="motionDirectionArrowWidth"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-       </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="motionDirectionArrowSize"
+       </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="motionDirectionArrowSize"
             defaultValue="3"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-       <nc-resourceAttribute
-            attributeClass="Integer"
-            attributeName="motionDirectionArrowHeadSize"
+      </nc-resourceParameter>
+       <nc-resourceParameter
+            paramClass="Integer"
+            paramName="motionDirectionArrowHeadSize"
             defaultValue="1"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="timeEnable"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="timeEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="namePressureEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="namePressureEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="motionSpeedEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="motionSpeedEnable"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="windSeaFtRadiiEnable"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="windSeaFtRadiiEnable"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour00"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour00"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour06"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour06"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour12"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour12"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour18"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour18"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour24"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour24"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour30"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour30"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour36"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour36"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour42"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour42"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour48"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour48"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour54"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour54"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour60"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour60"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour66"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour66"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour72"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour72"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour78"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour78"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour84"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour84"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour90"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour90"
             defaultValue="false"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour96"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour96"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
-      <nc-resourceAttribute
-            attributeClass="Boolean"
-            attributeName="forecastPosHour120"
+      </nc-resourceParameter> 
+      <nc-resourceParameter
+            paramClass="Boolean"
+            paramName="forecastPosHour120"
             defaultValue="true"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="HRCN">
-      </nc-resourceAttribute> 
+      </nc-resourceParameter> 
+      
+      <nc-resourceParameter
+            ncResourceName="HRCN"
+            paramClass="String"
+            paramName="reportType"
+            defaultValue="TCM"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="HRCN"
+            paramClass="String"
+            paramName="color"
+            defaultValue="RGB {155, 155, 155}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+      
    </extension>
 </plugin>

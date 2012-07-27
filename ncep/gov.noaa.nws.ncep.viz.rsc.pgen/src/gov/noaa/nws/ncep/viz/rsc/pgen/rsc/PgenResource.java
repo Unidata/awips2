@@ -1,6 +1,5 @@
 package gov.noaa.nws.ncep.viz.rsc.pgen.rsc;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.AbstractElementContainer;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayProperties;
 import gov.noaa.nws.ncep.ui.pgen.display.ElementContainerFactory;
@@ -18,9 +17,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.ui.PlatformUI;
-
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;

@@ -36,6 +36,7 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
  * 02/11			?		B. Yin		Makd it work for Outlook
  * 04/11			?		B. Yin		Changed element from MulitPoint to Line
  * 										(Re-factor IAttribute)
+ * 05/11			#808	J. Wu		Update Gfa vor text
  *
  * </pre>
  * 
@@ -284,6 +285,11 @@ public class DeletePartCommand extends PgenCommand {
 			layer.removeElement(element);
 			
 		}
+		
+		if ( element1 instanceof Gfa ) {
+			((Gfa)element1).setGfaVorText( Gfa.buildVorText( (Gfa)element1 ));
+		}
+
 		
 	}
 	

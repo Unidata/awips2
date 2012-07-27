@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -15,7 +14,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -25,8 +23,10 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpLatlons;
 import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpRecord;
 import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpSevrln;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+
 
 /**
  * WCPResource - Display WCP data.
@@ -46,7 +46,7 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
  *  10/01/10      #307      Greg Hull   implement processRecords and change to 
  *                                      process WCPData as the IRscDataObj
  *  10/05/11                X. Guo      Make changes to display WCP
- *                                      
+ *  05/23/2012     785      Q. Zhou    Added getName for legend.                                    
  * </pre>
  * 
  * @author mli 
@@ -301,4 +301,14 @@ public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, IMap
 //    		font.dispose();
 //    	}
     }
+    
+    @Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.wcpDataMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+	}
 }	

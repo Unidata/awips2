@@ -1,5 +1,5 @@
 ! Alternative standard with PTSY and P03C together METAR Resource
 !
-plotModelName=standard2
+plotModel=@PlotModels/obs/standard2.xml
 plotDensity=10
-conditionalFilterName=
+conditionalFilter=

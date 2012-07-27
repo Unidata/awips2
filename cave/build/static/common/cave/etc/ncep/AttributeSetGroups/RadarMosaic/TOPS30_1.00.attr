@@ -1,5 +1,5 @@
 colorMapName=nids_tops
-colorBar=@dfltMosaicColorBar.xml
+colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=212
 prodName=TOPS30
 alpha=1.0

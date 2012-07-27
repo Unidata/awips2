@@ -972,5 +972,12 @@
             schemeId="com.raytheon.viz.ui.awips.scheme"
             sequence="H">
          </key>  
+
+         <key
+            commandId="gov.noaa.nws.ncep.viz.ui.newResource"
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+            schemeId="com.raytheon.viz.ui.awips.scheme"
+            sequence="M1+SPACE">
+         </key>
         </extension>
 </plugin>

@@ -19,9 +19,9 @@ package gov.noaa.nws.ncep.ui.nsharp.palette;
  * @version 1.0
  */
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
+import gov.noaa.nws.ncep.ui.nsharp.NsharpStationStateProperty;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
-import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpStationStateProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +139,7 @@ public class NsharpStnConfigDialog extends Dialog {
 		activateBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {   
 				NsharpSkewTResource rsc = NsharpSkewTEditor.getActiveNsharpEditor().getNsharpSkewTDescriptor().getSkewtResource();			
-				rsc.handleStationActConfig(selectedStnList, NsharpSkewTResource.State.ACTIVE);
+				rsc.handleStationActConfig(selectedStnList, NsharpConstants.State.ACTIVE);
 				selectedStnList.clear();
 				close();
 			}
@@ -152,7 +152,7 @@ public class NsharpStnConfigDialog extends Dialog {
 			public void handleEvent(Event event) {  
 				//System.out.println("Unload Selected");
 				NsharpSkewTResource rsc = NsharpSkewTEditor.getActiveNsharpEditor().getNsharpSkewTDescriptor().getSkewtResource();				
-				rsc.handleStationActConfig(selectedStnList, NsharpSkewTResource.State.INACTIVE);
+				rsc.handleStationActConfig(selectedStnList, NsharpConstants.State.INACTIVE);
 				selectedStnList.clear();
 				close();
 			}          		            	 	
@@ -178,7 +178,7 @@ public class NsharpStnConfigDialog extends Dialog {
 		List<NsharpStationStateProperty>  stnStList = rsc.getStnStateList();
 		for(NsharpStationStateProperty stn: stnStList){
 			String s;
-			if(stn.getStnState() == NsharpSkewTResource.State.INACTIVE)
+			if(stn.getStnState() == NsharpConstants.State.INACTIVE)
 				s = "--(InActive)";
 			else
 				s="--(Active)";

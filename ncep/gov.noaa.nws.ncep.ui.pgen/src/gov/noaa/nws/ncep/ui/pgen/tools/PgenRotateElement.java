@@ -101,7 +101,7 @@ public class PgenRotateElement extends AbstractPgenDrawingTool {
 			
 			// Check if mouse is in geographic extent
 			Coordinate loc = mapEditor.translateClick(x, y);
-			if (loc == null) {
+			if (loc == null || shiftDown ) {
 				return false;
 			}
 
@@ -156,7 +156,7 @@ public class PgenRotateElement extends AbstractPgenDrawingTool {
 		public boolean handleMouseDownMove(int x, int y, int button) {
 			// Check if mouse is in geographic extent
 			Coordinate loc = mapEditor.translateClick(x, y);
-			if (loc == null) return false;
+			if (loc == null || shiftDown  ) return false;
 
 			DrawableElement el = drawingLayer.getSelectedDE();
 

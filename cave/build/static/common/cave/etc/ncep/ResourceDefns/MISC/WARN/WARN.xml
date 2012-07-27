@@ -3,6 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>WARN</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>    
+pluginName=aww
+reportType=SEVERE_THUNDERSTORM_WARNING,TORNADO_WARNING,FLASH_FLOOD_WARNING
+color=RGB {155, 155, 155}
+    </resourceParameters>
     <filterLabels>AWW,Event</filterLabels>
     <rscImplementation>Warn</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
