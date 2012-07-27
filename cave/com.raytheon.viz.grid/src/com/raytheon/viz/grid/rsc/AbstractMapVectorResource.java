@@ -22,6 +22,7 @@ package com.raytheon.viz.grid.rsc;
 import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -129,7 +130,7 @@ public abstract class AbstractMapVectorResource extends
 
     protected boolean retrievedAllData = false;
 
-    private Map<DataTime, PluginDataObject> dataObjectMap;
+    protected Map<DataTime, PluginDataObject> dataObjectMap;
 
     protected String uuid;
 
@@ -330,7 +331,7 @@ public abstract class AbstractMapVectorResource extends
         this.vcrManagerJob = new VectorContourRenderableManagerJob();
         this.gdManagerJob = new GriddedDisplayManagerJob();
 
-        setDataObjectMap(new HashMap<DataTime, PluginDataObject>());
+        dataObjectMap = new HashMap<DataTime, PluginDataObject>();
         uuid = UUID.randomUUID().toString();
         resourceData.addChangeListener(new IResourceDataChanged() {
             @Override
@@ -841,8 +842,9 @@ public abstract class AbstractMapVectorResource extends
             this.gdManagerJob.shutdown();
             this.gdManagerJob.disposeInternal();
         }
-
-        getDataObjectMap().clear();
+        synchronized (dataObjectMap) {
+            dataObjectMap.clear();
+        }
         retrievedAllData = false;
     }
 
@@ -984,7 +986,9 @@ public abstract class AbstractMapVectorResource extends
      */
     @Override
     public void remove(DataTime dataTime) {
-        this.getDataObjectMap().remove(dataTime);
+        synchronized (dataObjectMap) {
+            dataObjectMap.remove(dataTime);
+        }
         this.vcrManagerJob.removeDataTime(dataTime);
         this.gdManagerJob.removeDataTime(dataTime);
         recreateDataTimes();
@@ -994,8 +998,8 @@ public abstract class AbstractMapVectorResource extends
      * Recreate all the datatimes from the objects
      */
     protected void recreateDataTimes() {
-        this.dataTimes = new ArrayList<DataTime>(getDataObjectMap().size());
-        dataTimes.addAll(this.getDataObjectMap().keySet());
+        this.dataTimes = new ArrayList<DataTime>(this.getDataObjectMap()
+                .keySet());
     }
 
     public void addRecord(PluginDataObject record) throws VizException {
@@ -1008,7 +1012,9 @@ public abstract class AbstractMapVectorResource extends
                             + record.getClass().getName());
         }
         DataTime dt = record.getDataTime();
-        getDataObjectMap().put(dt, record);
+        synchronized (dataObjectMap) {
+            dataObjectMap.put(dt, record);
+        }
 
         if (this.retrievedAllData) {
             this.addJobRequest(dt);
@@ -1062,17 +1068,20 @@ public abstract class AbstractMapVectorResource extends
         this.styleRule = styleRule;
     }
 
-    public synchronized Map<DataTime, PluginDataObject> getDataObjectMap() {
-        return dataObjectMap;
-    }
-
     /**
-     * @param dataObjectMap
-     *            the dataObjectMap to set
+     * Get a copy of dataObjectMap, this copy is safe to use without
+     * synchronizing, if you need to modify the dataObjectMap, use the field
+     * directly and synchronize on it.
+     * 
+     * @return
      */
-    protected synchronized void setDataObjectMap(
-            Map<DataTime, PluginDataObject> dataObjectMap) {
-        this.dataObjectMap = dataObjectMap;
+    protected Map<DataTime, PluginDataObject> getDataObjectMap() {
+        if (dataObjectMap == null) {
+            return Collections.emptyMap();
+        }
+        synchronized (dataObjectMap) {
+            return new HashMap<DataTime, PluginDataObject>(dataObjectMap);
+        }
     }
 
     public synchronized DataTime getDisplayedDataTime() {
