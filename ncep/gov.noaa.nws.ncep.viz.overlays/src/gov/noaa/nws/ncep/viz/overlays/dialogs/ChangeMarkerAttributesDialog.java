@@ -1,6 +1,9 @@
 package gov.noaa.nws.ncep.viz.overlays.dialogs;
 
 
+import java.io.File;
+import java.text.DecimalFormat;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -19,6 +22,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -31,6 +35,8 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorMatrixSelector;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.overlays.Activator;
 import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.MarkerState;
 import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.MarkerTextSize;
@@ -38,6 +44,7 @@ import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.MarkerType;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 /**
  * Provides an interface to modify the point overlay parameters
@@ -68,6 +75,7 @@ import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
  * 17 Jun 2009  115         Greg Hull   Integrated with AbstractEditResourceAttrsDialog
  * 31 Jul 2009              ghull       Migrate to to11
  * 27 Apr 2010   #245       Greg Hull   Added Apply Button
+ * 23 Apr 2012   #744       sgurung     Display Marker Text based on user specified zoom level
  * 
  * </pre>
  * 
@@ -87,11 +95,14 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
     private RscAttrValue markerSize     = null;    
     private RscAttrValue markerWidth    = null;   
     private RscAttrValue markerTextSize = null;    
-    private RscAttrValue markerColor    = null;
+    private RscAttrValue markerColor    = null; 
+    private RscAttrValue markerTextAppearZoomLevel = null; 
     
     private MarkerType     selMarkerType = null; // working copy
     private MarkerTextSize selMarkerTextSize = null; // working copy
     
+    private File applyZoomImageFile = NcPathManager.getInstance().getStaticFile("ncep/icons/icon_zoom.gif");
+   
     public ChangeMarkerAttributesDialog( Shell parentShell, INatlCntrsResourceData rd, Boolean apply ) {
         super(parentShell, rd, apply);
     }
@@ -109,6 +120,7 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
         markerSize  = editedRscAttrSet.getRscAttr("markerSize");
         markerWidth  = editedRscAttrSet.getRscAttr("markerWidth");
         markerColor  = editedRscAttrSet.getRscAttr("color");
+        markerTextAppearZoomLevel = editedRscAttrSet.getRscAttr("markerTextAppearanceZoomLevel");
         
         selMarkerType =     (MarkerType)markerType.getAttrValue();
         selMarkerTextSize = (MarkerTextSize)markerTextSize.getAttrValue();
@@ -119,8 +131,7 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
         		markerState.getAttrClass() != MarkerState.class ) {
         	System.out.println("markerState is null or not of expected class?");
         }
-        
-        
+                
         //  Lay out the various groups within the dialog
         
         Group selectMarkerTypeGroup = new Group ( composite, SWT.SHADOW_NONE );
@@ -188,18 +199,32 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
         formData5.left  = new FormAttachment(selectMarkerStateGroup, 10);
         formData5.right = new FormAttachment(98, 0);
         selectMarkerTextSizeGroup.setLayoutData(formData5);
-
+        
+        Group selectMarkerTxtAppZoomLvlGroup = new Group ( composite, SWT.SHADOW_NONE );
+        selectMarkerTxtAppZoomLvlGroup.setText("Text Appearance Zoom Level");
+        
+        GridLayout markerTxtAppZoomLvlGridLayout = new GridLayout();
+        markerTxtAppZoomLvlGridLayout.numColumns = 2; 
+        markerTxtAppZoomLvlGridLayout.marginLeft = 12;
+        markerTxtAppZoomLvlGridLayout.marginRight = 12;
+        selectMarkerTxtAppZoomLvlGroup.setLayout(markerTxtAppZoomLvlGridLayout);
+        
+        FormData formData6 = new FormData();
+        formData6.top   = new FormAttachment(selectMarkerTextSizeGroup, 10);
+        formData6.left  = new FormAttachment(2, 0);
+        formData6.right = new FormAttachment(98,0);        
+        selectMarkerTxtAppZoomLvlGroup.setLayoutData(formData6);
+    
         Group selectMarkerColorGroup = new Group ( composite, SWT.SHADOW_NONE );
         selectMarkerColorGroup.setText("Color");
         
-        FormData formData6 = new FormData();
-        formData6.top = new FormAttachment(selectMarkerTextSizeGroup, 4);
-        formData6.left  = new FormAttachment(2, 0);
-        formData6.right = new FormAttachment(98, 0);
-        formData6.height = 170;
-        selectMarkerColorGroup.setLayoutData(formData6);
-
-        
+        FormData formData7 = new FormData();
+        formData7.top = new FormAttachment(selectMarkerTxtAppZoomLvlGroup, 4);
+        formData7.left  = new FormAttachment(2, 0);
+        formData7.right = new FormAttachment(98, 0);
+        formData7.height = 170;
+        selectMarkerColorGroup.setLayoutData(formData7);
+          
         //  Marker Type
 	    
         /* Use a toolbar with a single drop-down button item that pops up
@@ -251,7 +276,7 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
         Image icon = mu.getItem(selMarkerType.ordinal()).getImage();
         ti.setImage(icon);
     	ti.setToolTipText(selMarkerType.getDesignator());
-
+    	
     	//  Marker Size
 	    
 	    final Label selectMarkerSizeSliderText = new Label(selectMarkerSizeGroup, SWT.NONE);
@@ -313,7 +338,58 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
             	markerTextSize.setAttrValue( (MarkerTextSize)selMarkerTextSize );
             }
         });
-
+        
+        // Marker Text Appearance Zoom Level
+                
+	    final Label selectMarkerTxtAppZoomLvlSliderText = new Label(selectMarkerTxtAppZoomLvlGroup, SWT.NONE);
+	    GridData gridData3 = new GridData();
+	    gridData3.horizontalIndent = 100;
+	    gridData3.horizontalAlignment = GridData.FILL;	                 
+	    gridData3.grabExcessHorizontalSpace = true;   
+	    selectMarkerTxtAppZoomLvlSliderText.setLayoutData(gridData3);
+	    
+	    Button applyCurZoomLvlBtn = new Button(selectMarkerTxtAppZoomLvlGroup, SWT.PUSH);
+        gridData3 = new GridData();	
+        gridData3.heightHint = 26;
+        gridData3.widthHint = 25;
+        gridData3.horizontalIndent = 10;       
+        applyCurZoomLvlBtn.setImage(new Image(Display.getCurrent(), applyZoomImageFile.getAbsolutePath()));
+        applyCurZoomLvlBtn.setToolTipText("Use Current Zoom Level");
+        applyCurZoomLvlBtn.setLayoutData(gridData3);
+        
+	    final Slider selectMarkerTxtAppZoomLvlSlider = new Slider(selectMarkerTxtAppZoomLvlGroup, SWT.HORIZONTAL);
+    	gridData3 = new GridData(GridData.HORIZONTAL_ALIGN_CENTER);
+	    gridData3.horizontalAlignment = GridData.FILL;	                 
+	     selectMarkerTxtAppZoomLvlSlider.setLayoutData(gridData3);
+    	selectMarkerTxtAppZoomLvlSlider.setMinimum(1);
+    	selectMarkerTxtAppZoomLvlSlider.setMaximum(101);
+    	selectMarkerTxtAppZoomLvlSlider.setIncrement(1);
+    	selectMarkerTxtAppZoomLvlSlider.setThumb(1);
+    	selectMarkerTxtAppZoomLvlSlider.setSelection(50);
+    	float mDSize = ((Float)markerTextAppearZoomLevel.getAttrValue()).floatValue();
+    	selectMarkerTxtAppZoomLvlSlider.setSelection((int)(mDSize * 10f + 0.5));
+	    selectMarkerTxtAppZoomLvlSlider.addSelectionListener(new SelectionAdapter() {
+	        public void widgetSelected(SelectionEvent event) {
+	        	markerTextAppearZoomLevel.setAttrValue( (Float) ((float)selectMarkerTxtAppZoomLvlSlider.getSelection() / 10 ) );
+	        	selectMarkerTxtAppZoomLvlSliderText.setText(markerTextAppearZoomLevel.getAttrValue().toString());
+	        	selectMarkerTxtAppZoomLvlSliderText.redraw();
+	        	selectMarkerTxtAppZoomLvlSliderText.update();
+	        }
+	    });
+	    selectMarkerTxtAppZoomLvlSliderText.setText(markerTextAppearZoomLevel.getAttrValue().toString());
+	   	
+	    applyCurZoomLvlBtn.addSelectionListener( new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {		
+				float currentZoomLvl = (float) NmapUiUtils.getActiveNatlCntrsEditor().getSelectedPane().getZoomLevel() * 10;
+				currentZoomLvl = Math.round(currentZoomLvl * 100.0f) / 100.0f;
+				markerTextAppearZoomLevel.setAttrValue( (Float) (currentZoomLvl) );
+	        	selectMarkerTxtAppZoomLvlSliderText.setText(markerTextAppearZoomLevel.getAttrValue().toString());
+	        	selectMarkerTxtAppZoomLvlSliderText.redraw();
+	        	selectMarkerTxtAppZoomLvlSliderText.update();
+	        	selectMarkerTxtAppZoomLvlSlider.setSelection((int)(currentZoomLvl * 10f + 0.5));				
+			}
+		});
+      	    
         //  Marker State
 
 	    Button markerOnlyButton = new Button(selectMarkerStateGroup, SWT.RADIO);
@@ -326,6 +402,8 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
         		selectMarkerSizeSlider.setEnabled(true);
         		selectMarkerWidthSliderText.setEnabled(true);
         		selectMarkerWidthSlider.setEnabled(true);
+        		selectMarkerTxtAppZoomLvlSliderText.setEnabled(false);
+        		selectMarkerTxtAppZoomLvlSlider.setEnabled(false);
             }
         });
     	
@@ -339,6 +417,8 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
         		selectMarkerSizeSlider.setEnabled(true);
         		selectMarkerWidthSliderText.setEnabled(true);
         		selectMarkerWidthSlider.setEnabled(true);
+        		selectMarkerTxtAppZoomLvlSliderText.setEnabled(true);
+        		selectMarkerTxtAppZoomLvlSlider.setEnabled(true);
             }
         });
         
@@ -352,6 +432,8 @@ public class ChangeMarkerAttributesDialog extends AbstractEditResourceAttrsDialo
         		selectMarkerSizeSlider.setEnabled(false);
         		selectMarkerWidthSliderText.setEnabled(false);
         		selectMarkerWidthSlider.setEnabled(false);
+        		selectMarkerTxtAppZoomLvlSliderText.setEnabled(true);
+        		selectMarkerTxtAppZoomLvlSlider.setEnabled(true);
             }
         });
 

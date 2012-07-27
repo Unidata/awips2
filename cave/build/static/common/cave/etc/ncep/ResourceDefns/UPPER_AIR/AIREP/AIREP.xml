@@ -4,15 +4,14 @@
     <resourceDefnName>AIREP</resourceDefnName>
     <resourceCategory>UPPER_AIR</resourceCategory>
     <resourceParameters>
-legendString=Aircraft Reports
 pluginName=ncairep
 reportType=AIREP
+legendString=Aircraft Reports
 spiFile=MTR.spi
-legend_color=RGB {0, 255, 0}
-levelKey=N/A
+legendColor=RGB {0, 255, 0}
     </resourceParameters>
     <filterLabels>Observed</filterLabels>
-    <rscImplementation>PlotData</rscImplementation>
+    <rscImplementation>SurfacePlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

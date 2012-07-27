@@ -46,9 +46,12 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 03/10		#256		B. Yin   	      Initial Creation.
- * 10/10        #289        Archana.S      Added FilterButtonKeyListener 
- * 12/11		#522		B. Yin		Made the linkage between the filter dialog and the GFA dialog.
- * 12/11                    Q.Zhou      Read HOURS from filterHour.xml instead of fixed string.
+ * 10/10        #289        Archana.S         Added FilterButtonKeyListener 
+ * 12/11		#522		B. Yin		      Made the linkage between the filter dialog and the GFA dialog.
+ * 12/11                    Q.Zhou            Read HOURS from filterHour.xml instead of fixed string.
+ * 05/12        #637        Archana.S         Updated the code to update the fcst hr in GfaAttrDialog
+ *                                            based on the current filter hour selected. 
+ *                                            Updated the hot-key behavior to match legacy. 
  * </pre>
  * 
  * @author	B. Yin
@@ -60,7 +63,7 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 	 * single instance
 	 */
 	static private PgenFilterDlg INSTANCE = null;
-	
+	private static GfaAttrDlg gfaAttrDlg= null;
 	//Pgen resource
 	private PgenResource drawingLayer;
 	
@@ -70,40 +73,48 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 	
 	//top level container for all widgets
 	private Composite top;
-	
+	private int matchIndex;
 	//check box for forecast hours
-	private Button hourBtns[];
-	
+	protected static Button hourBtns[];
+	protected int indexOfHotKeyEnabledButton = -1;
+	protected int buttonEnabledCounter = 0;
 	//Hour buttons
 	private static String HOURS[] = null; 
 	private static Document filterHourTbl = null;
 	private static String HOUR_XPATH = "/root/filterHour/label";
 	//filter map
 	private HashMap<String, ElementFilter> filterMap;
-	
+	protected FilterButtonKeyListener filterBtnKeyLstnr ;
 	//filter to block all hours
 	private ForecastHourFilter blockAll;
+	private String[] fcstCboTextArray;
+	private boolean isGfaDialogOpen;
 	
-    class FilterButtonKeyListener implements KeyListener{
+   private class FilterButtonKeyListener implements KeyListener{
     	int pivotalIndex;
-    	int prevIndex;
-    	int nextIndex;
+    	protected  int prevIndex;
+    	protected  int nextIndex;
     	int indexArraySize = 0;
     	int index;
-    	int buttonEnabledCounter = 0;
+
     	int hoursArrayLength = HOURS.length;
     	List<Integer> enabledButtonIndexList = new ArrayList<Integer>(0);
     	
 		 @Override
 		  public void keyPressed(KeyEvent e) {
 
+			 
               /*Check if any button is already enabled*/
               for(index=0;index <hoursArrayLength; index++ ){
              
             	  /*If the button is enabled...*/
               	if(hourBtns[index].getSelection()){
               		
-              		/*increment a counter*/
+              		/*increment a counter only if it does not exceed the total number of buttons*/
+              		if ( buttonEnabledCounter >= hoursArrayLength )
+    				 buttonEnabledCounter = hoursArrayLength;
+              	
+       			 else
               		buttonEnabledCounter++;
               		
               		/*and store the index of the enabled button in a list*/
@@ -111,23 +122,39 @@ public class PgenFilterDlg extends CaveJFACEDialog {
               	}
               }
               
-              /*Return if not even a single button is enabled*/
-              if(buttonEnabledCounter < 1){
-              	return;
-              }
+
+
 
               /*Else - proceed to get the size of the stored index Array*/
               indexArraySize = enabledButtonIndexList.size();
-				
+
+              /*
+               * this is to match legacy behavior. If all the buttons are enabled, then
+               * we disable all of them and enable only the right-most or left-most filter
+               * button based on the hot key pressed 
+               */
+              
+			   if (buttonEnabledCounter == hoursArrayLength ){
+				   disableAllButtons(); 
+			   }
+              
               /*Process the key-stroke...*/
               switch(e.keyCode){
 				
 				case '[':
 
-					   if ( indexArraySize > 0){
+					/*
+					 * If all the buttons are enabled, pressing the '[' key should deactivate all filters except the
+					 * first one.
+					 * If none of the filters are enabled, pressing this key should activate only the last one.
+					 */
+
+					
+					   if (buttonEnabledCounter > 0){
 						   /*If at least one button is enabled, get the index of the left-most enabled button, i.e. the first element in the list*/
 						   pivotalIndex = enabledButtonIndexList.get(0);
-					   }
+					   }else
+						   pivotalIndex = HOURS.length;
 					  
 					   /*Set the index for the preceding button*/
 				        prevIndex = pivotalIndex-1;
@@ -138,29 +165,33 @@ public class PgenFilterDlg extends CaveJFACEDialog {
                       	 prevIndex = 0;
                        }
 
-				        /*Except for the button whose index is prevIndex
-				         * disable all the other buttons and notify the corresponding selection listener
-				         * */
-                       for( index = 1; index < hoursArrayLength; index ++){
-				                if(index != prevIndex){
-				                	hourBtns[index].setSelection(false);
-				                	hourBtns[index].notifyListeners(SWT.Selection, new Event());
-				                }
-				        }
+				        /* disable all the other buttons and notify the corresponding selection listener
+				         */
+
+                       disableAllButtons(  );
                        
                       /*Activate only the button whose index is prevIndex and notify its selection listener*/ 
 				        hourBtns[prevIndex].setSelection(true);
+				        indexOfHotKeyEnabledButton = prevIndex;
+				        buttonEnabledCounter++;
 				        hourBtns[prevIndex].notifyListeners(SWT.Selection, new Event());
 
 					break;
 
 				case ']':
 
-					 /*If at least one button is enabled, get the index of the right-most enabled  button, i.e. the last element in the list*/
-					     if(indexArraySize > 0){
+
+					/*
+					 * If all the buttons are enabled, pressing the ']' key should de-activate all filters except the
+					 * last one.
+					 * If none of the filters are enabled, pressing this key should activate only the first one.
+					 * If at least one button is enabled, pressing this key should activate the next filter button. 
+					 */
+					     if(buttonEnabledCounter > 0){
 					    	 pivotalIndex = enabledButtonIndexList.get(indexArraySize - 1);
-					     }
-					     
+					    	 
+					     }else 
+					    	 pivotalIndex = -1;
 					     /*Set the index for the next button to be enabled*/
 				        nextIndex = pivotalIndex+1;
 				       
@@ -169,18 +200,15 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 				        	nextIndex --;
 				        }
 
-				        /*Except for the button whose index is nextIndex
-				         * disable all the other buttons and notify the corresponding selection listener
-				         * */    				        
-				        for(index = 0; index < hoursArrayLength; index ++){
-			                if ( index != nextIndex){
-			                	hourBtns[index].setSelection(false);
-			                	hourBtns[index].notifyListeners(SWT.Selection, new Event());
-			                }
-			            }
+				        /* disable all the other buttons and notify the corresponding selection listener
+				         */
+				        disableAllButtons();
+
 				       
-                      /*Activate only the button whose index is prevIndex and notify its selection listener*/ 
+                      /*Activate only the button whose index is nextIndex and notify its selection listener*/ 
 				        hourBtns[nextIndex].setSelection(true);
+				        indexOfHotKeyEnabledButton = nextIndex;
+				        buttonEnabledCounter++;
 				        hourBtns[nextIndex].notifyListeners(SWT.Selection, new Event());
 					break;
 
@@ -188,8 +216,13 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 					break;
 				}
               
+              if ( gfaAttrDlg.isGfaOpen() )
+                   changeFcstHrLabelInGfaDialog();
+              
               /*reset the array-list before the next key pressed event occurs*/
               enabledButtonIndexList = new ArrayList<Integer>(0);
+              /*reset the button enabled counter*/
+              buttonEnabledCounter = 0;
 
 		}
 
@@ -198,8 +231,55 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 			// no-op
 			
 		}
+		
+		private void disableAllButtons(){
+			
+	           for( index = 0; index < hoursArrayLength; index ++){
+	                   	hourBtns[index].setSelection(false);
+	                	hourBtns[index].notifyListeners(SWT.Selection, new Event());
+
+	        }
+		}
+		
+		private void changeFcstHrLabelInGfaDialog(){
+					String currentFilter = "";
+					if ( indexOfHotKeyEnabledButton != -1)
+					     currentFilter = new String ( hourBtns[ indexOfHotKeyEnabledButton ].getText()); 
+					       
+				            if ( buttonEnabledCounter <= HOURS.length 
+		        		          && buttonEnabledCounter >= 0 
+		        		          && ( currentFilter.compareTo("AIRM") != 0 )
+		        		          && ( currentFilter.compareTo("OTLK") != 0 )){
+				            	updateTheGfaFcstHrIfItMatchesFilterHr(currentFilter);
+
+		                      }
+
+			
+		}
 	
   }; 
+  
+  /**
+   * Updates the Fcst Hr combo with the selected input filter hour. 
+   * @param currentFilter
+   */
+  private void updateTheGfaFcstHrIfItMatchesFilterHr(String currentFilter){
+	  currentFilter = (currentFilter.endsWith("+") ? currentFilter.replace('+', ' ').trim() : currentFilter );
+      String[] fcstCboTextArray = gfaAttrDlg.fcstHrCbo.getItems();
+      
+      if ( currentFilter.compareTo(gfaAttrDlg.getGfaFcstHr()) != 0 ) {
+   	   int index = -1;
+           for ( String currFcstHrText : fcstCboTextArray ){
+           	index++;
+           	String fcstHr = currFcstHrText.split(" ")[0];
+                 if( fcstHr.compareTo(currentFilter ) == 0 ){
+               	    gfaAttrDlg.fcstHrCbo.setText(currFcstHrText);
+                        break;
+                   }
+
+             }
+        }
+  }
 	/*
 	 * constructor
 	 */	/**
@@ -241,13 +321,14 @@ public class PgenFilterDlg extends CaveJFACEDialog {
         HOURS = getFilterHour();
         
         filterMap = new HashMap<String,ElementFilter>();
-        
+        filterBtnKeyLstnr = new FilterButtonKeyListener();
         for ( String str : HOURS ){
         	filterMap.put(str, new ForecastHourFilter(str));
         }
         
         blockAll = new ForecastHourFilter("blockAll");
-
+        gfaAttrDlg = GfaAttrDlg.getInstance(parentShell);
+        matchIndex = -1;
 	}
 
 	
@@ -275,28 +356,117 @@ public class PgenFilterDlg extends CaveJFACEDialog {
         hourBtns = new Button[HOURS.length];
      
         
-        for (int ii = 0; ii < HOURS.length; ii++ ){
+        for (int ii = 0 ; ii < HOURS.length ; ii++ ){
         	hourBtns[ii] = new Button(top,SWT.CHECK);
         	hourBtns[ii].setText(HOURS[ii]);
-        	hourBtns[ii].addKeyListener(new FilterButtonKeyListener());
+        	hourBtns[ii].addKeyListener(filterBtnKeyLstnr);
         	hourBtns[ii].addSelectionListener(new SelectionAdapter(){
 
 				@Override
 				public void widgetSelected(SelectionEvent e) {
+					
+					
+					
+					String filterText = ((Button)e.widget).getText();
+				
 					if ( ((Button)e.widget).getSelection() ){
-						drawingLayer.getFilters().addFilter(filterMap.get(((Button)e.widget).getText()));
-
+						
+						drawingLayer.getFilters().addFilter(filterMap.get(filterText));
+						if ( gfaAttrDlg.isGfaOpen()  )
+							updateGfaDialog(true, filterText);
 					}
 					else {
-						drawingLayer.getFilters().removeFilter(filterMap.get(((Button)e.widget).getText()));
+						
+						drawingLayer.getFilters().removeFilter(filterMap.get(filterText));
+						if ( gfaAttrDlg.isGfaOpen()  )
+							updateGfaDialog(false,"");
 					}
+					
+					
 					mapEditor.refresh();
 				}
         	});
 
         }
-		
+
+       
+        
         return top;
+	}
+
+	/***
+	 * Updates the Fcst Hr combo in the GfaAttrDlg (if open) depending on the value of 
+	 * the filter hour(s) selected
+	 * @param activateButton
+	 * @param filterText
+	 */
+	private void updateGfaDialog( boolean activateButton, String filterText ){
+		
+		if(filterText.compareTo("AIRM") == 0
+				|| filterText.compareTo("OTLK") == 0 )
+			return;
+		
+		for ( int ii = HOURS.length - 1; ii >= 0; ii--){
+			if( ( ( hourBtns[ii].getText().compareTo("AIRM") == 0 )
+					||  (hourBtns[ii].getText().compareTo("OTLK") == 0) )
+					&& hourBtns[ii].getSelection()){
+				return;
+			}
+				
+		}
+		
+        fcstCboTextArray = new String[gfaAttrDlg.fcstHrCbo.getItemCount()];
+        if ( filterText.endsWith("+"))
+        	filterText = new String(filterText.replace('+', ' ').trim());
+        
+        fcstCboTextArray = gfaAttrDlg.fcstHrCbo.getItems();
+        if ( activateButton ){
+        	
+            if ( fcstCboTextArray != null && fcstCboTextArray.length > 0)  {
+
+        		 String gfaFcstHour = gfaAttrDlg.getGfaFcstHr();
+        		 
+                 if ( Integer.parseInt(filterText) > Integer.parseInt(gfaFcstHour)) {
+                    
+                	     int index = -1;
+                         for ( String currFcstHrText : fcstCboTextArray ){
+                  	           index++;
+                  	           String fcstHr = currFcstHrText.split(" ")[0] ;
+	                           if( filterText.compareTo( fcstHr) == 0 ){
+
+	                    	        if ( index > matchIndex )
+	                    	           	 gfaAttrDlg.fcstHrCbo.setText(currFcstHrText);
+
+	                     	      matchIndex= index;
+        	                      break;
+	                           }
+                        }
+                   }
+            }
+        	
+        }else{
+
+            for (int ii = HOURS.length - 1; ii >= 0 ; ii--){
+            	String thisBtnText = hourBtns[ii].getText();
+                if ( thisBtnText.endsWith("+"))
+                	thisBtnText = new String ( thisBtnText.replace('+', ' ').trim());
+            	if ( hourBtns[ii].getSelection() 
+    					&& thisBtnText.compareTo("AIRM") != 0 
+    					&& thisBtnText.compareTo("OTLK") != 0 ) {
+            		
+                     for ( String currFcstHrText : fcstCboTextArray ){
+                    	 String fcstHr = currFcstHrText.split(" ")[0] ;
+                         if( fcstHr.compareTo( thisBtnText) == 0 ){
+                        	   gfaAttrDlg.fcstHrCbo.setText(currFcstHrText);
+                               return;
+                          }
+
+                      }        		
+            		
+            	}
+            }
+        }
+        mapEditor.refresh();
 	}
 	
 	/*
@@ -309,10 +479,13 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 		
 		if ( this.getButton(IDialogConstants.OK_ID).getText().equalsIgnoreCase("All On" )) {
 			//add all filters
+	    	
 			for ( Button btn : hourBtns ){
+//		    	buttonEnabledCounter++;
 				btn.setSelection(true);
 				drawingLayer.getFilters().addFilter(filterMap.get(btn.getText()));
 			}
+			buttonEnabledCounter = hourBtns.length;
 			this.getButton(IDialogConstants.OK_ID).setText("All Off");
 		}
 		else {
@@ -321,6 +494,7 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 				btn.setSelection(false);
 				drawingLayer.getFilters().removeFilter(filterMap.get(btn.getText()));
 			}
+			buttonEnabledCounter = 0;
 			this.getButton(IDialogConstants.OK_ID).setText("All On");
 		}
 		
@@ -363,6 +537,7 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 		
    	    this.getShell().setLocation(this.getShell().getParent().getLocation());
   	    this.getButton(IDialogConstants.OK_ID).setText("All On");
+  	    this.getButton(IDialogConstants.OK_ID).addKeyListener(filterBtnKeyLstnr);
   	    this.getButton(IDialogConstants.CANCEL_ID).setText("Close");
 
   	    this.getButtonBar().pack();
@@ -510,10 +685,19 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 	 * @return
 	 */
 	static public boolean isFilterDlgOpen(){
+		
 		if ( INSTANCE != null && INSTANCE.getShell() != null){
 			return true;
 		}
 		return false;
 	}
 
+	
+	
+	@Override
+	public boolean close() {
+		     matchIndex = -1;
+			return super.close();
+	}
+	
 }

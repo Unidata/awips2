@@ -978,13 +978,15 @@ public class ObservedSoundingQuery {
         	}
         	else if(stnIdArray != null){
         		String stnIdListStr="";
-        		for ( int i=0; i < stnIdArray.length ; i++)
-        		{
-
-        			if(i < stnIdArray.length -1){
-        				stnIdListStr = stnIdListStr+stnIdArray[i]+",";			
-        			}
+        		StringBuilder stringOfStnIds = new StringBuilder(); 
+        		for ( String thisStnId : stnIdArray ){
+        			stringOfStnIds.append(thisStnId);
+        			stringOfStnIds.append(",");
         		}
+        		stnIdListStr = stringOfStnIds.toString();
+        		//get rid of the last comma
+        		stnIdListStr = stnIdListStr.substring(0, stnIdListStr.length() - 1 );
+        		
         		request.addParameter("location.stationId",stnIdListStr, "in");
         		queryByStn= true;
         	}

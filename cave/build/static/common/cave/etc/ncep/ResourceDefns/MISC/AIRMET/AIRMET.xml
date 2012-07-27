@@ -3,7 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>AIRMET</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
-    <resourceParameters>legend_color=RGB {155, 155, 155}</resourceParameters>
+    <resourceParameters>
+pluginName=airmet
+reportType=airmet
+legendColor=RGB {155, 155, 155}
+	</resourceParameters>
     <filterLabels>SigMet,Event</filterLabels>
     <rscImplementation>Airmet</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

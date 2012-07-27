@@ -4,7 +4,7 @@
     <resourceDefnName>EASTNMM</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=EASTNMM
+GDFILE=eastnmm
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

@@ -278,6 +278,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 23Apr2012   14783        rferrel     Allow line wrap at white space or hyphen.
  * 24Apr2012   14548        rferrel     Merging lines for wrap places a space beween words when needed.
  * 27Apr2012   14902        rferrel     No longer have blank line between AWIPS ID and UGC line.
+ * 06/19/2012  14975        D.Friedman  Prevent zeroed-out WMO header times.
  * </pre>
  * 
  * @author lvenable
@@ -785,12 +786,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private final String currentDateId = "DDHHMM";
 
     /**
-     * Current date used to update the header block placeholder when saving a
-     * text product.
-     */
-    private String currentDate;
-
-    /**
      * Accumulate text check box.
      */
     private Button accumChkBtn;
@@ -1095,6 +1090,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private RemoteRetrievalRequest lastRemoteRetrievalRequest;
 
     private Clipboard clipboard;
+    
+    private enum HeaderEditSession { CLOSE_ON_EXIT, IN_EDITOR }
+    
+    private HeaderEditSession headerEditSession;
 
     static {
         AUTOSAVE_DATE_FORMAT.setTimeZone(TimeZone
@@ -3737,20 +3736,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         // Edit the header block of the text product.
-        boolean editing = editHeader("warning", true);
-        if (editing) {
-            if (product == null)
-                return;
-            if (autoSave == null) {
-                // user can cancel the edit immediately when the header is
-                // displayed, verify it was not cancelled before starting the
-                // autoSave task.
-                autoSave = new AutoSaveTask(product.getWmoid(),
-                        product.getSite());
-            }
-        } else {
-            stopAutoSave();
-        }
+        editHeader("warning", true);
     }
 
     /**
@@ -3872,47 +3858,86 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @param closeEditorOnCancel
      *            True if the text editor should be closed on a cancel action,
      *            false otherwise.
-     * 
-     * @return True if the header was edited, false otherwise.
      */
-    private boolean editHeader(String warning, boolean closeEditorOnCancel) {
+    private void editHeader(String warning, boolean closeEditorOnCancel) {
+        if (headerEditSession != null)
+            return;
+
         // Create and display the AWIPS header block dialog.
         AWIPSHeaderBlockDlg awipsHeaderBlockDlg = new AWIPSHeaderBlockDlg(
                 shell, this);
+        
+        headerEditSession = closeEditorOnCancel ? 
+                HeaderEditSession.CLOSE_ON_EXIT : HeaderEditSession.IN_EDITOR;
 
-        Boolean rv = (Boolean) awipsHeaderBlockDlg.open();
-
+        awipsHeaderBlockDlg.open();
+        // headerBlockDlgDismissed() is called when the dialog is dismissed.
+    }
+    
+    /**
+     * Called by AWIPSHeaderBlockDlg when it is dismissed.
+     * 
+     * @param dialogResult
+     *            True if header block editor was dismissed by clicking the
+     *            "Enter" button, false otherwise.
+     */
+    public void headerBlockDlgDismissed(boolean dialogResult) {
+        HeaderEditSession lastSession = headerEditSession;
+        headerEditSession = null;
+        
         // If the user cancels the AWIPS header block dialog then
         // get out of edit mode.
         // Otherwise use the node, product category, and product designator.
-        if (rv == false && closeEditorOnCancel) {
-            return !cancelEditor(false);
-        }
+        
+        boolean editing = false;
+        
+        if (dialogResult == true) {
 
-        TextDisplayModel tdm = TextDisplayModel.getInstance();
-
-        // Update the buttonology.
-        updateButtonology(tdm.getAfosPil(token));
-        String bbbid = tdm.getBbbId(token);
-
-        String nnnxxx = workProductId != null ? workProductId : tdm
-                .getProductCategory(token) + tdm.getProductDesignator(token);
-        // Set the header text field.
-        if (bbbid.equals("NOR")) {
-            String wmoId = tdm.getWmoId(token);
-            wmoId = (wmoId.length() > 0 ? wmoId : "-");
-            String siteId = tdm.getSiteId(token);
-            siteId = (siteId.length() > 0 ? siteId : "-");
-            setHeaderTextField(wmoId, siteId, currentDateId, "\n", nnnxxx);
+            TextDisplayModel tdm = TextDisplayModel.getInstance();
+    
+            // Update the buttonology.
+            updateButtonology(tdm.getAfosPil(token));
+            String bbbid = tdm.getBbbId(token);
+    
+            String nnnxxx = workProductId != null ? workProductId : tdm
+                    .getProductCategory(token) + tdm.getProductDesignator(token);
+            // Set the header text field.
+            if (bbbid.equals("NOR")) {
+                String wmoId = tdm.getWmoId(token);
+                wmoId = (wmoId.length() > 0 ? wmoId : "-");
+                String siteId = tdm.getSiteId(token);
+                siteId = (siteId.length() > 0 ? siteId : "-");
+                setHeaderTextField(wmoId, siteId, currentDateId, "\n", nnnxxx);
+            } else {
+                setHeaderTextField(tdm.getWmoId(token), tdm.getSiteId(token),
+                        currentDateId + " " + bbbid, "\n", nnnxxx);
+            }
+    
+            // Update the "now editing" title of the text editor window.
+            updateNowEditingTitle();
+    
+            editing = true;
         } else {
-            setHeaderTextField(tdm.getWmoId(token), tdm.getSiteId(token),
-                    currentDateId + " " + bbbid, "\n", nnnxxx);
+            if (lastSession == HeaderEditSession.CLOSE_ON_EXIT)
+                editing = !cancelEditor(false); 
         }
-
-        // Update the "now editing" title of the text editor window.
-        updateNowEditingTitle();
-
-        return true;
+        
+        if (lastSession == HeaderEditSession.CLOSE_ON_EXIT)
+            if (editing) {
+                StdTextProduct product = TextDisplayModel.getInstance()
+                    .getStdTextProduct(token);
+                if (product == null)
+                    return;
+                if (autoSave == null) {
+                    // user can cancel the edit immediately when the header is
+                    // displayed, verify it was not cancelled before starting the
+                    // autoSave task.
+                    autoSave = new AutoSaveTask(product.getWmoid(),
+                            product.getSite());
+                }
+            } else {
+                stopAutoSave();
+            }
     }
 
     /**
@@ -4585,7 +4610,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         boolean successful = false;
 
         // Convert the text in the text editor to uppercase
-        currentDate = getCurrentDate();
+        String currentDate = getCurrentDate();
         TextDisplayModel tdmInst = TextDisplayModel.getInstance();
 
         if (!isAutoSave) {
@@ -4617,25 +4642,28 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         if (!isAutoSave) {
-            // Replace the 'DDHHMM' placeholder in the current text with the
-            // current date.
-            productText = productText.replaceFirst("DDHHMM", currentDate);
-            VtecObject vtecObj = VtecUtil.parseMessage(productText);
-            if (warnGenFlag) {
-                // TODO: Pass in some flavor of currentDate to use to set the
-                // times. Currently roll over to the next minute between getting
-                // currentDate and getting the times in this method will cause
-                // them to be different.
-                productText = updateVtecTimes(productText, vtecObj);
-                // Update editor so the proper send times are displayed.
-                String[] b = productText.split("\n");
-                StringBuilder body = new StringBuilder();
-                for (int i = 2; i < b.length; ++i) {
-                    body.append(b[i]).append("\n");
+            if (! resend) {
+                // If not a resend, set the DDHHMM field to the current time
+                productText = replaceDDHHMM(productText, currentDate);
+                
+                VtecObject vtecObj = VtecUtil.parseMessage(productText);
+                if (warnGenFlag) {
+                    // TODO: Pass in some flavor of currentDate to use to set the
+                    // times. Currently roll over to the next minute between getting
+                    // currentDate and getting the times in this method will cause
+                    // them to be different.
+                    productText = updateVtecTimes(productText, vtecObj);
+                    // Update editor so the proper send times are displayed.
+                    String[] b = productText.split("\n");
+                    StringBuilder body = new StringBuilder();
+                    for (int i = 2; i < b.length; ++i) {
+                        body.append(b[i]).append("\n");
+                    }
+                    updateTextEditor(body.toString());
                 }
-                updateTextEditor(body.toString());
+
+                storedProduct.setHdrtime(currentDate);
             }
-            storedProduct.setHdrtime(currentDate);
             storedProduct.setRefTime(System.currentTimeMillis());
             if (productText.contains(AFOSParser.DRAFT_PIL)) {
                 int start = productText.indexOf(AFOSParser.DRAFT_PIL);
@@ -4697,6 +4725,35 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
 
         return successful;
+    }
+    
+    /** Replaces the WMO heading DDHHMM field with the given text.
+     * @param productText Product text which includes the WMO heading
+     * @param ddhhmm Replacement text
+     * @return The modified product text
+     */
+    private static String replaceDDHHMM(String productText, String ddhhmm) {
+        String[] parts = productText.split("\n", 2);
+        if (parts.length > 0) {
+            String[] headerParts = parts[0].split("\\s+", 0);
+            if (headerParts.length >= 3)
+                headerParts[2] = ddhhmm;
+            // TODO: else raise error?
+            StringBuilder sb = new StringBuilder(productText.length());
+            boolean first = true;
+            for (String s : headerParts) {
+                if (first)
+                    first = false;
+                else
+                    sb.append(' ');
+                sb.append(s);
+            }
+            if (parts.length > 1)
+            sb.append('\n').append(parts[1]);
+            productText = sb.toString();
+        }
+
+        return productText;
     }
 
     /**
@@ -4816,7 +4873,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         request.setWmoid(product.getWmoid());
         request.setSite(product.getSite());
         request.setXxxid(product.getXxxid());
-        request.setCreatetime(product.getRefTime());
         CAVEMode mode = CAVEMode.getMode();
         boolean result = (CAVEMode.OPERATIONAL.equals(mode)
                 || CAVEMode.TEST.equals(mode) ? true : false);

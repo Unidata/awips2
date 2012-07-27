@@ -55,7 +55,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Mar  2011     425        Greg Hull   categories are now the plotData plugins;   
  *               					    add a Delete and Save As button
  * Jan 2012                 S. Gurung   Changed resource parameter name plugin to pluginName in init().
- * 
+ * Mar 2012      606        Greg Hull   now have 3 Plot resource Implementations. 
+ *
  * </pre>
  * 
  * @author 
@@ -321,8 +322,12 @@ public class PlotModelMngrDialog extends Dialog {
 		// and tell the user to edit attribute sets 
 		try {
 			ArrayList<String> pltRscAttrSets = 
-				ResourceDefnsMngr.getInstance().getAvailAttrSetsForRscImpl("PlotData");
-
+				ResourceDefnsMngr.getInstance().getAvailAttrSetsForRscImpl("SurfacePlot");
+			pltRscAttrSets.addAll( 
+					ResourceDefnsMngr.getInstance().getAvailAttrSetsForRscImpl("UpperAirPlot") );
+			pltRscAttrSets.addAll( 
+					ResourceDefnsMngr.getInstance().getAvailAttrSetsForRscImpl("MosPlot") );
+			
 			// don't delete BASE/SITE/DESK level plot models
 			PlotModel pm = PlotModelMngr.getInstance().getPlotModel( seldPlugin, plotModelName );
 			if( pm == null ) {
@@ -365,20 +370,21 @@ public class PlotModelMngrDialog extends Dialog {
 		try {
 			ArrayList<String> plotDataPlugins = new ArrayList<String>();
 			
-			for( String rscType : 
-				    ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation(
-				    		"PlotData" ) ) {
+			ArrayList<String> plotRscDefns =
+				ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation("SurfacePlot");
+			plotRscDefns.addAll( 
+					ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation("UpperAirPlot") );
+			plotRscDefns.addAll( 
+					ResourceDefnsMngr.getInstance().getRscTypesForRscImplementation("MosPlot") );
+			
+			for( String rscType : plotRscDefns ) {
 				ResourceDefinition rscDefn = 
 					ResourceDefnsMngr.getInstance().getResourceDefinition( rscType );
 				if( rscDefn != null ) {
-					ResourceName rscName = new ResourceName( rscDefn.getResourceCategory(), 
-							rscType, null, null );
-					
-					HashMap<String,String> rscParams = rscDefn.getResourceParameters();
-					if( rscParams.containsKey("pluginName") &&
-						!plotDataPlugins.contains( rscParams.get("pluginName") ) ) { 
-						plotDataPlugins.add( rscParams.get("pluginName") );
-						pluginNameList.add( rscParams.get("pluginName") );
+					String pluginName = rscDefn.getPluginName();
+					if( pluginName != null && !plotDataPlugins.contains( pluginName ) ) { 
+						plotDataPlugins.add( pluginName );
+						pluginNameList.add( pluginName );
 					}
 				}
 			}

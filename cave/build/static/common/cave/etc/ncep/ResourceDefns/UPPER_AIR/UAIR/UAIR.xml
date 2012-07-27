@@ -4,14 +4,14 @@
     <resourceDefnName>UAIR</resourceDefnName>
     <resourceCategory>UPPER_AIR</resourceCategory>
     <resourceParameters>
-legendString=UAIR
 pluginName=ncuair
 reportType=UAIR
+legendString=UAIR
 spiFile=MTR.spi
-legend_color=RGB {0, 255, 0}
+legendColor=RGB {0, 255, 0}
     </resourceParameters>
     <filterLabels>Observed</filterLabels>
-    <rscImplementation>PlotData</rscImplementation>
+    <rscImplementation>UpperAirPlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

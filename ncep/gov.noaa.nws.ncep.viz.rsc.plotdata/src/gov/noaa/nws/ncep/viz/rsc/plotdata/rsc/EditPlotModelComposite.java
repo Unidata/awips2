@@ -19,6 +19,8 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -52,7 +54,11 @@ import org.eclipse.swt.widgets.Scale;
  * 11/01/2011    482        Greg Hull   add tooTips, move font/size/style 
  * 11/03/2011    482        Greg Hull   add unimplemented Clear and Reset, move Text Attributes
  * 04/16/2012    615        S. Gurung   Adjusted size for PlotModelElemButton
- *  
+ * 05/02/2012    778        Q. Zhou     Changed scale from integer to double  
+ * 05/29/2012    654        S. Gurung   Added option "Apply to All" to apply text changes to all parameters;
+ * 										Added additional options to textFontOptions and textStyleOptions;
+ * 										Fixed the issue of Sky Coverage parameters not appearing in the Sky Coverage drop-down list.
+ * 
  * </pre>
  * 
  * @author ghull
@@ -70,10 +76,11 @@ public class EditPlotModelComposite extends Composite {
 	private Combo textSizeCombo = null;
 	private Combo textFontCombo = null;
 	private Combo textStyleCombo = null;
+	private Button applyToAllBtn = null;
 		
 	private final String[] textSizeOptions = {"6", "8", "10", "12", "14", "16", "18"};
-	private final String[] textFontOptions = {"Courier", "Helvetica", "Times"}; 		
-	private final String[] textStyleOptions = {"Normal", "Italic"};   		
+	private final String[] textFontOptions = {"Courier", "Helvetica", "Times", "Standard"}; 		
+	private final String[] textStyleOptions = {"Normal", "Italic", "Bold", "Bold-Italic"};   		
 
 	private final String[] plotModelElementPositions = {
 			      "TC", 
@@ -147,48 +154,80 @@ public class EditPlotModelComposite extends Composite {
 	 */
 	private void createTextAttrControls() {
 		Group textAttrGrp = new Group ( topComposite, SWT.SHADOW_NONE );
-		GridLayout gl = new GridLayout(6, false);
+		GridLayout gl = new GridLayout(7, false);
 		gl.marginTop = 7;
 		gl.marginBottom = 8;
-		gl.marginRight = 53;
+		gl.marginRight = 0;
 		textAttrGrp.setLayout( gl );
 		textAttrGrp.setText("Text");
 
 		// Text size attribute
-		new Label(textAttrGrp, SWT.NONE).setText(" size");
+		new Label(textAttrGrp, SWT.NONE).setText("size");
 		textSizeCombo = new Combo(textAttrGrp, SWT.DROP_DOWN | SWT.READ_ONLY);
 		textSizeCombo.setEnabled(false); // wait til a plot element is selected.
 		textSizeCombo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				if (seldPlotModelElemButton != null) {
 					seldPlotModelElemButton.getPlotModelElement().setTextSize( textSizeCombo.getText() );
+					
+					if (applyToAllBtn.getSelection()) {
+		    			applyTextChangesToAllParameters();
+		    		}
 				}
 			}
 		});
 
 		// Text font attribute
-		new Label(textAttrGrp, SWT.NONE).setText("     font");
+		new Label(textAttrGrp, SWT.NONE).setText(" font");
 		textFontCombo = new Combo(textAttrGrp, SWT.DROP_DOWN | SWT.READ_ONLY);
 		textFontCombo.setEnabled(false);
 		textFontCombo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				if( seldPlotModelElemButton != null ) {
 					seldPlotModelElemButton.getPlotModelElement().setTextFont(textFontCombo.getText() );
+					
+					if ("Standard".equals(textFontCombo.getText())) {
+						textStyleCombo.select(0);
+						textStyleCombo.setEnabled(false);
+					} else {
+						textStyleCombo.setEnabled(true);
+					}
+					
+					if (applyToAllBtn.getSelection()) {
+		    			applyTextChangesToAllParameters();
+		    		}					
 				}
 			}
 		});
 
 		// Text style attribute
-		new Label(textAttrGrp, SWT.NONE).setText("     style");
+		new Label(textAttrGrp, SWT.NONE).setText(" style");
 		textStyleCombo = new Combo(textAttrGrp, SWT.DROP_DOWN | SWT.READ_ONLY);
 		textStyleCombo.setEnabled(false);
 		textStyleCombo.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				if (seldPlotModelElemButton != null) {
 					seldPlotModelElemButton.getPlotModelElement().setTextStyle(textStyleCombo.getText() );
+					
+					if (applyToAllBtn.getSelection()) {
+		    			applyTextChangesToAllParameters();
+		    		}
 				}
 			}
 		});
+		
+		applyToAllBtn = new Button ( textAttrGrp, SWT.CHECK );
+        applyToAllBtn.setText("Apply to All");
+        applyToAllBtn.setToolTipText("Apply changes to all text parameters");        
+        applyToAllBtn.addSelectionListener( new SelectionAdapter() {
+        	public void widgetSelected(SelectionEvent e) {
+        		
+        		if (applyToAllBtn.getSelection()) {
+        			applyTextChangesToAllParameters();
+        		}
+        	}
+        });
+        
 	}
 
 	/*
@@ -227,23 +266,24 @@ public class EditPlotModelComposite extends Composite {
 		symbolSizeGrp.setText("Symbol\n   Size");
 
 		symSizeLabel = new Label(symbolSizeGrp, SWT.BOLD);
-		symSizeLabel.setText("    1");
+		symSizeLabel.setText("    0.5");
 
 		symbolSizeScale = new Scale(symbolSizeGrp, SWT.VERTICAL);
 		symbolSizeScale.setLayoutData(gd2);
-		symbolSizeScale.setMinimum(1);
-		symbolSizeScale.setMaximum(5);
+		symbolSizeScale.setMinimum(5);
+		symbolSizeScale.setMaximum(30);
 		symbolSizeScale.setIncrement(1);
 		symbolSizeScale.setPageIncrement(1);
-		symbolSizeScale.setSelection(1);
+		symbolSizeScale.setSelection(5);
 		symbolSizeScale.setEnabled(false); // wait til a plot element is selected
 		symbolSizeScale.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
-				String v = "    " + symbolSizeScale.getSelection();
-				symSizeLabel.setText(v);
+				double selection = symbolSizeScale.getSelection();					
+				
+				symSizeLabel.setText(String.valueOf(selection/10));
 				
 				if(seldPlotModelElemButton != null ) {
-					seldPlotModelElemButton.setSymbolSize( symbolSizeScale.getSelection() );
+					seldPlotModelElemButton.setSymbolSize( selection/10 );
 				}
 			}
 		});
@@ -477,15 +517,15 @@ public class EditPlotModelComposite extends Composite {
 			return (pltMdlElmt.getParamName() != null);
 		}
 		
-		public void setSymbolSize(Integer size) {
+		public void setSymbolSize(Double size) {
 			pltMdlElmt.setSymbolSize( size );
 		}
 
-		public Integer getSymbolSize() {
+		public Double getSymbolSize() {
 			if( pltMdlElmt.getParamName() != null )
 				return pltMdlElmt.getSymbolSize();
 			else
-				return 1;
+				return 1.0;
 		}
 
 		public String getButtonLabel() {
@@ -786,14 +826,14 @@ public class EditPlotModelComposite extends Composite {
 //		}
 		
 		@Override
-		public void setSymbolSize( Integer size ) {
+		public void setSymbolSize( Double size ) {
 			super.setSymbolSize(size);
 			wndBrbElmt.setSymbolSize(size);
 			skyCovElmt.setSymbolSize(size);
 		}
 		
 		@Override
-		public Integer getSymbolSize() {
+		public Double getSymbolSize() {
 			if( pltMdlElmt.getParamName() != null ) {
 				return pltMdlElmt.getSymbolSize();
 			}
@@ -804,7 +844,7 @@ public class EditPlotModelComposite extends Composite {
 				return wndBrbElmt.getSymbolSize();
 			}
 			else {
-				return 1;
+				return 1.0;
 			}
 		}
 		
@@ -880,10 +920,10 @@ public class EditPlotModelComposite extends Composite {
 		}
 		
 		textSizeCombo.setItems(textSizeOptions);
-		textSizeCombo.select(3); 
+		textSizeCombo.select(4); 
 
 		textFontCombo.setItems(textFontOptions);
-		textFontCombo.select(1);  // to be replaced by init
+		textFontCombo.select(0);  // to be replaced by init
 
 		textStyleCombo.setItems(textStyleOptions);
 		textStyleCombo.select(0);  // to be replaced by init
@@ -900,7 +940,7 @@ public class EditPlotModelComposite extends Composite {
 	private void createCtrParamControls() {
 		
 		availWindBarpParams = plotParamDefns.getWindBarbParams();
-		availSkyCoverParams = plotParamDefns.getSpecialTableParams();
+		availSkyCoverParams = plotParamDefns.getSkyCoverageParams(); //plotParamDefns.getSpecialTableParams();
 		
 //		if( availWindBarpParams.size() == 0 &&
 //			availSkyCoverParams.size() == 0 ) {
@@ -1040,6 +1080,7 @@ public class EditPlotModelComposite extends Composite {
 			textFontCombo.setEnabled(true);
 			textSizeCombo.setEnabled(true);
 			textStyleCombo.setEnabled(true);
+			applyToAllBtn.setEnabled(true);
 			
 			for(int i = 0; i < textSizeCombo.getItemCount(); i++) {
 				if( textSizeCombo.getItem(i).equals(
@@ -1064,6 +1105,15 @@ public class EditPlotModelComposite extends Composite {
 					break;
 				}
 			}
+			
+			if ("Standard".equals(textFontCombo.getText())) {
+				textStyleCombo.select(0);
+				textStyleCombo.setEnabled(false);
+			} 
+			
+			if (applyToAllBtn.getSelection()) {
+    			applyTextChangesToAllParameters();
+    		}
 		}
 		else {
 			textFontCombo.deselectAll();
@@ -1071,24 +1121,23 @@ public class EditPlotModelComposite extends Composite {
 			textSizeCombo.deselectAll();
 			textSizeCombo.setEnabled(false);
 			textStyleCombo.deselectAll();
-			textStyleCombo.setEnabled(false);
+			textStyleCombo.setEnabled(false);		
+			applyToAllBtn.setEnabled(false);
+			
 		}
 
 		// Set symbol size if applicable		
 		if( isSymbApplicable ) {
+			
 			symbolSizeScale.setEnabled(true);
-
-			if( seldPlotModelElemButton.getSymbolSize() < 1 ) {
-				symbolSizeScale.setSelection( 1 );		
-				symSizeLabel.setText("    "+1);							
-			}
-			else if( seldPlotModelElemButton.getSymbolSize() > 5 ) {
-				symbolSizeScale.setSelection( 5 );		
-				symSizeLabel.setText("    "+5);
+			
+			if( seldPlotModelElemButton.getSymbolSize() > 3 ) {
+				symbolSizeScale.setSelection( 30 );		
+				symSizeLabel.setText("    "+3.0);
 			}
 			else {
-				int size = seldPlotModelElemButton.getSymbolSize();
-				symbolSizeScale.setSelection( size );	
+				double size = seldPlotModelElemButton.getSymbolSize();				
+				symbolSizeScale.setSelection( (int) (size*10) );				
 				symSizeLabel.setText("    "+size);
 			}			
 		}
@@ -1109,5 +1158,23 @@ public class EditPlotModelComposite extends Composite {
 	
 	PlotModel getEditedPlotModel() {
 		return editedPlotModel;
+	}
+	
+	private void applyTextChangesToAllParameters() {	
+		for ( int i=0; i < 11; i++) {
+			PlotModelElemButton pmeBtn = plotModelElementsUIMap.get( plotModelElementPositions[i] );
+			if( pmeBtn != null ) {
+				PlotParameterDefn prmDefn = plotParamDefns.getPlotParamDefn(  
+						pmeBtn.getPlotModelElement().getParamName() );
+					
+				if( prmDefn != null ) {
+					 if (prmDefn.getPlotMode().equalsIgnoreCase("text")) {
+						 pmeBtn.getPlotModelElement().setTextSize( textSizeCombo.getText() );
+						 pmeBtn.getPlotModelElement().setTextFont(textFontCombo.getText() );
+						 pmeBtn.getPlotModelElement().setTextStyle(textStyleCombo.getText() );
+					 }
+				}        					
+			}
+		}
 	}
 }

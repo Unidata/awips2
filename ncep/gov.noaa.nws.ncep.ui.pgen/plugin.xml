@@ -3029,11 +3029,6 @@
       <extension
          point="org.eclipse.ui.preferencePages">    
       <page
-            class="gov.noaa.nws.ncep.ui.pgen.NcepPreferences"
-            id="org.eclipse.jface.Prerences"
-            name="NCEP">
-      </page>   
-      <page
             class="gov.noaa.nws.ncep.ui.pgen.PgenPreferences"
             id="gov.noaa.nws.ncep.ui.pgen.PgenPreferences"
             name="PGEN"

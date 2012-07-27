@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.rsc;
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -33,6 +34,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  *  11/16/2011             sgurung     Override populateFrame()
  *  12/05/2011             sgurung     Modify populateFrame() to fix a bug (calculateProgDisc being called multiple times)
  *  02/12/2012     #555    sgurung     Removed method populateFrame()
+ *  05/23/2012     785     Q. Zhou     Added getName for legend.
  * </pre>
  * 
  * @author ghull
@@ -79,5 +81,21 @@ public class TafPlotResource extends PlotResource2 {
         
         //processNewRscDataList();
 	}
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
 		
+		if (fd == null || fd.getFrameTime() == null || fd.isStationMapEmpty()) {
+			return legendString + "-No Data";
+		}
+		
+		if (legendString == null || legendString.equalsIgnoreCase("")) {
+			return "TAF";
+		}
+		else {
+			return legendString + " "+NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
+		}
+	}
 }

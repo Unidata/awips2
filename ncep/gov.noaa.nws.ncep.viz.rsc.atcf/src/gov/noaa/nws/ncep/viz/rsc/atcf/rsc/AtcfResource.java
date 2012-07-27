@@ -22,11 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import com.raytheon.uf.common.time.DataTime;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
 import gov.noaa.nws.ncep.edex.uengine.tasks.atcf.AtcfCyclone;
 import gov.noaa.nws.ncep.edex.uengine.tasks.atcf.AtcfTrack;
 
@@ -44,10 +43,10 @@ import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
-
-import org.apache.activemq.transport.stomp.FrameTranslator;
-import org.eclipse.swt.graphics.RGB;
 import com.vividsolutions.jts.geom.Coordinate;
+
+import org.eclipse.swt.graphics.RGB;
+
 /**
  * Displays the Automated Tropical Cyclone Forecast ( ATCF - MISC resource)  
  * 
@@ -62,7 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11-Nov-2010    307      Greg Hull   Use data with best timeMatch. adjust startTime in query.  
  * 01-Mar-2011             Greg Hull   frameInterval -> frameSpan
  * 16 Feb 2012    555      S. Gurung   Added call to setAllFramesAsPopulated() in queryRecords()
- *                                                
+ * 05/23/12       785      Q. Zhou     Added getName for legend.                                               
  * @author archana
  *</pre>
  */
@@ -1014,5 +1013,15 @@ implements INatlCntrsResource{
 		 private void setColorOfModel(RGB colorOfModel) {
 			 this.colorOfModel = colorOfModel;
 		 }
+	}
+	
+	@Override
+	public String getName() {
+		String legendString = super.getName();
+		FrameData fd = (FrameData) getCurrentFrame();
+		if (fd == null || fd.getFrameTime() == null || fd.atcfFrameCycloneMap.size() == 0) {
+			return legendString + "-No Data";
+		}
+		return legendString + " "+ NmapCommon.getTimeStringFromDataTime( fd.getFrameTime(), "/");
 	}
 }

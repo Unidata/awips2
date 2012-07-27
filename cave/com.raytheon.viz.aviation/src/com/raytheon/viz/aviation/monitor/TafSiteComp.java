@@ -124,11 +124,12 @@ public class TafSiteComp {
      * and the current observation and persistence indicators turn gray.
      * This is the timeout in milliseconds for 4 hours plus 10 minutes.
      */
-    public final static long METAR_TIMEOUT_4HR = (4L * 60L + 10L) * 60L * 1000L;
+    public final static long METAR_TIMEOUT_4HR10MIN = (4L * 60L + 10L) * 60L * 1000L;
     
     /**
      * DR14717:
      */
+    private long latestMtrTime = -1;
     private boolean persistMonitorProcessedFirst = false;
     
     /**
@@ -651,7 +652,7 @@ public class TafSiteComp {
             long currentTime = SimulatedTime.getSystemTime().getTime()
                     .getTime();
             
-            if ( currentTime > ( metarTime + METAR_TIMEOUT_4HR ) ) {
+            if ( currentTime > ( metarTime + METAR_TIMEOUT_4HR10MIN ) ) {
             	mtrTimeLbl.setText("None");
                 mtrTimeLbl.setBackground(getBackgroundColor());
             	if ( persistMonitorProcessedFirst ) {
@@ -813,5 +814,13 @@ public class TafSiteComp {
 
 	public void setPersistMonitorProcessedFirst(boolean b) {
 		persistMonitorProcessedFirst = b;
+	}
+
+	public void setLatestMtrTime(long latestMtrTime) {
+		this.latestMtrTime = latestMtrTime;
+	}
+
+	public long getLatestMtrTime() {
+		return latestMtrTime;
 	}
 }

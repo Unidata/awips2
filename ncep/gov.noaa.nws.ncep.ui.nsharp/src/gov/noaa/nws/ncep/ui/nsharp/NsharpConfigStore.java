@@ -33,27 +33,28 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 @XmlAccessorType(XmlAccessType.NONE)
 public class NsharpConfigStore implements ISerializableObject{
 
-	//@XmlElement(name = "NsharpLineProperty", required = true)
-	//private NsharpLineProperty lp;
 	
 	
-	//public NsharpLineProperty getLp() {
-	//	return lp;
-	//}
+	public NsharpConfigStore() {
+		super();
+		//set linePropertyMap default values
+		int i =0;
+		for(String lnName: NsharpConstants.lineNameArray){
+			NsharpLineProperty lp = NsharpConstants.defaultLineProperty[i];
+			linePropertyMap.put(lnName, lp);
+			i++;
+		}
+	}
 
-	//public void setLp(NsharpLineProperty lp) {
-	//	this.lp = lp;
-	//}
-	
 	@XmlElement
 	private NsharpGraphProperty graphProperty = new NsharpGraphProperty();
 	
 	@XmlElement
-	//@XmlJavaTypeAdapter(NsharpConfigHashMapAdaptor.class)
 	@XmlJavaTypeAdapter(value = NsharpConfigHashMapAdaptor.class)
 	private HashMap<String, NsharpLineProperty> linePropertyMap = new HashMap<String, NsharpLineProperty>();
 	
-
+	@XmlElement
+	NsharpDataPageProperty dataPageProperty = new NsharpDataPageProperty();
 	
 	public HashMap<String, NsharpLineProperty> getLinePropertyMap() {
 		return linePropertyMap;
@@ -72,6 +73,12 @@ public class NsharpConfigStore implements ISerializableObject{
 	public void setGraphProperty(NsharpGraphProperty graphProperty) {
 		this.graphProperty = graphProperty;
 	}
-	
-	
+
+	public NsharpDataPageProperty getDataPageProperty() {
+		return dataPageProperty;
+	}
+
+	public void setDataPageProperty(NsharpDataPageProperty dataPageProperty) {
+		this.dataPageProperty = dataPageProperty;
+	}
 }

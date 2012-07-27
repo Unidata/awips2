@@ -1,5 +1,5 @@
 colorMapName=nids_pre
-colorBar=@dfltMosaicColorBar.xml
+colorBar=@ColorBars/Radar/dfltMosaicColorBar.xml
 productCode=101
 prodName=PRCP
 alpha=1.0

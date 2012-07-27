@@ -3,6 +3,11 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>WCN</resourceDefnName>
     <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>    
+pluginName=aww
+reportType=WATCH_COUNTY_NOTIFICATION
+color=RGB {155, 155, 155}
+    </resourceParameters>
     <filterLabels>AWW,Event</filterLabels>
     <rscImplementation>WCN</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+
+<!-- GOES Satellite Rules -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 11 micron IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>      
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 6.7-6.5 micron IR (WV)</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDivWVIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+    <displayUnits>C</displayUnits>
+    <range scale="LINEAR">
+    	<minValue>255</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <samplePrefs>
+       <minValue>-109</minValue>
+       <maxValue>-35</maxValue>
+     </samplePrefs>
+	 <defaultColormap>Sat/IR/IR WV</defaultColormap>
+     <colorbarLabeling> 
+ 	    <values>-40 -60 -80</values> 
+ 	 </colorbarLabeling> 
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager Visible</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDif11u3_9uIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	<displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>-79</minValue>
+        <maxValue>177</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/CA (Low Light Vis)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>-50 0 50 100 150</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDif11u12uIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>-20</minValue>
+        <maxValue>25</maxValue>
+     </range>
+      <defaultColormap>Grid/sat gridded data</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>-20 0 20</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>satDif11u13uIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>-25</minValue>
+        <maxValue>25</maxValue>
+     </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>-20 0 20</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 12 micron IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 13 micron (IR)</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Imager 3.9 micron IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder 11.03 micron imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+       <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>      
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder 6.51 micron imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder 7.02 micron imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder 7.43 micron imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Visible imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder_3.98_micron_imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+       <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>      
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder 4.45 micron imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+       <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>      
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder 14.06 micron imagery</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+       <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>      
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Lifted Index (LI)</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+       <minValue>25</minValue>
+       <maxValue>-25.8</maxValue>
+     </range>
+     <defaultColormap>Sat/Lifted Index/Lifted Index Default</defaultColormap>
+     <colorbarLabeling> 
+ 	     <values>20 15 10 5 0 -5 -10 -15</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>Composite</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>mm</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>85.425</maxValue>
+     </range>
+     <samplePrefs>
+       <minValue>-0.3</minValue>
+       <maxValue>67</maxValue>
+     </samplePrefs>
+     <defaultColormap>Sat/Precip Water/Precip Water Default</defaultColormap>
+     <colorbarLabeling>
+        <values>10 20 30 40 50 67</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Gridded Cloud Amount</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>%</displayUnits>
+     <defaultColormap>Sat/Cloud Amount Default</defaultColormap>
+     <range scale="LINEAR">
+        <minValue>-1</minValue>
+        <maxValue>100</maxValue>
+     </range>
+     <colorbarLabeling>
+        <values>0 50</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Gridded Cloud Top Pressure or Height</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <defaultColormap>Sat/Cloud Top Height</defaultColormap>
+     <displayUnits>ft</displayUnits>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>442.3</maxValue>
+     </range>
+     <colorbarLabeling>
+        <values>50 150 250 350</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Surface Skin Temp (SFC Skin)</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+       <minValue>63</minValue>
+       <maxValue>-64</maxValue>
+     </range>
+     <samplePrefs>
+       <minValue>-37</minValue>
+       <maxValue>62.5</maxValue>
+     </samplePrefs>
+     <defaultColormap>Sat/Skin Temp/Skin Temp Default</defaultColormap>
+     <colorbarLabeling>
+        <values>50 40 30 20 10 0 -10 -20 -37</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>	
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Rain fall rate</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	  <displayUnits>mm/h</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>63.5</maxValue>
+     </range>
+     <defaultColormap>Sat/Rain Rate</defaultColormap>
+     <colorbarLabeling>
+        <values>0 6 20 40 60</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>DMSP</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>mm</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Precip Water - Polar</defaultColormap>
+     <colorbarLabeling>
+        <values>0 20 40 70</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>POES-NPOESS</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>mm</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Precip Water - Polar</defaultColormap>
+     <colorbarLabeling>
+        <values>0 20 40 70</values>
+     </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Sounder Based Derived Precipitable Water (PW)</parameter>
+     <creatingEntity>Miscellaneous</creatingEntity>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>mm</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>76</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Blended Total Precip Water</defaultColormap>
+     <colorbarLabeling>
+        <values>0 25 50 75</values>
+     </colorbarLabeling>
+     <!-- dataMapping>
+		<entry pixelValue="0" label="NO DATA" />
+     </dataMapping -->
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Percent of Normal TPW</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	 <displayUnits>%</displayUnits>
+     <range scale="LINEAR">
+       <minValue>0</minValue>
+       <maxValue>255</maxValue>
+     </range>
+     <defaultColormap>Sat/Precip Water/Percent of Normal TPW</defaultColormap>
+     <colorbarLabeling>
+        <values>50 100 150 200</values>
+     </colorbarLabeling>
+	 <dataMapping>
+		<entry pixelValue="0" label="NO DATA" />
+		<entry pixelValue="250" operator=">" label=">250%" />
+		<entry pixelValue="201" operator=">" label=">201%" />
+     </dataMapping>
+  </imageStyle>
+</styleRule>
+<!-- Polar Satellite Rules -->
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Polar IR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>      
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Polar Vis</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <range scale="LINEAR">
+        <minValue>1</minValue>
+        <maxValue>254</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>Polar 3.7u</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+     <displayUnits>C</displayUnits>
+     <range scale="LINEAR">
+        <minValue>55</minValue>
+        <maxValue>-109</maxValue>
+     </range>
+     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>40 20 0 -20 -40 -60 -80</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <paramLevelMatches>
+     <parameter>poesDif11u3_7uIR</parameter>
+  </paramLevelMatches>
+  <imageStyle>
+  	<displayUnits>bit</displayUnits>
+     <range scale="LINEAR">
+        <minValue>-79</minValue>
+        <maxValue>177</maxValue>
+     </range>
+      <defaultColormap>Sat/VIS/CA (Low Light Vis)</defaultColormap>
+      <colorbarLabeling> 
+ 	     <values>-50 0 50 100 150</values> 
+ 	  </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+
+</styleRuleset>

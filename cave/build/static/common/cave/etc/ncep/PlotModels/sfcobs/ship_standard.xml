@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<PlotModel svgTemplate="standardPlotModelTemplate.svg" plugin="sfcobs" name="ship_standard">
+<plotModel svgTemplate="standardPlotModelTemplate.svg" plugin="sfcobs" name="ship_standard">
     <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TMPF">
         <Position>UL</Position>
         <Color red="255" green="0" blue="0"/>
@@ -42,4 +42,4 @@
         <Position>BC</Position>
         <Color red="0" green="255" blue="255"/>
     </PlotModelElement>
-</PlotModel>
+</plotModel>

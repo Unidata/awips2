@@ -1,7 +1,5 @@
 ! Attributes for WOU (Watch Outline Update) - color coded markers
 !
-color=RGB {155, 155, 155}
-! 
 thunderstormEnable=true
 thunderstormColor=RGB {109, 246, 254}
 thunderstormSymbolWidth=1
