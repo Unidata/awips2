@@ -5,6 +5,8 @@ function buildQPID()
    # Arguments:
    #   ${1} == optionally -ade
 
+   pushd . > /dev/null 2>&1
+
    cd ${WORKSPACE}/rpms/awips2.qpid/deploy.builder
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
@@ -68,6 +70,8 @@ function buildQPID()
          exit 1
       fi
    fi
+
+   popd > /dev/null 2>&1
 
    return 0
 }

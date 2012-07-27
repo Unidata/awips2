@@ -584,7 +584,9 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             }
         }
         if (tileSet != null) {
-            tileSet.dispose();
+            synchronized (tileSet) {
+                tileSet.dispose();
+            }
         }
         imageMap.clear();
         for (CreateTileJob job : jobMap.values()) {
@@ -678,7 +680,9 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         }
 
         if (tileSet != null) {
-            tileSet.dispose();
+            synchronized (tileSet) {
+                tileSet.dispose();
+            }
         }
         tileSet = new ImageTileList();
         synchronized (tileSet) {
