@@ -22,6 +22,7 @@ package com.raytheon.viz.hydrobase;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -76,6 +77,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 13, 2011 5415		lbousaidi	added a dialog when 
  * 							"Compute Latest data" button runs
  * May 14, 2012 14965       wkwock      fix crash in query for data
+ * Jun 18, 2012 14377       wkwock      Correct insert data into crest table.
  * 
  * </pre>
  * 
@@ -1048,8 +1050,23 @@ public class FloodReportDlg extends CaveSWTDialog {
         Map<String, FloodReportData> dataMap = dman.getReportData();
         FloodReportData data = dataMap.get(selectedLid);
         String cremark = "Inserted from the FloodTS table via Hydrobase";
+
+        String[] selectedEvent=eventList.getSelection();
+        String stage=selectedEvent[0].substring(1, 13).trim();
+        String eventDateStr=selectedEvent[0].substring(17, 33);
+        Date eventDate=null;
+        try {
+			eventDate=fr.parse(eventDateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			MessageBox mbe = new MessageBox(shell, SWT.OK | SWT.ERROR);
+			mbe.setMessage("ERROR while attempting to parse :"+eventDateStr+" at insertRecord()");
+			mbe.open();
+			return -2;
+		}
+
         long discharge = Math.round(RatingUtils.stage2discharge(data.getLid(),
-                data.getCrest()));
+                Double.parseDouble(stage)));
 
         // Build the insert statement
         StringBuilder sql = new StringBuilder();
@@ -1060,10 +1077,10 @@ public class FloodReportDlg extends CaveSWTDialog {
         }
 
         sql.append(") values('" + data.getLid() + "', ");
-        sql.append("'" + dateFormat.format(data.getCrestDate()) + "', ");
-        sql.append("'" + hourFormat.format(data.getCrestDate()) + "', ");
+        sql.append("'" + dateFormat.format(eventDate) + "', ");
+        sql.append("'" + hourFormat.format(eventDate) + "', ");
         sql.append("'" + cremark + "', ");
-        sql.append("" + data.getCrest());
+        sql.append("" + stage);
         if (discharge != HydroConstants.RATING_CONVERT_FAILED) {
             sql.append(", " + discharge);
         }

@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -90,6 +91,7 @@ import com.raytheon.viz.warngen.util.DurationUtil;
 import com.raytheon.viz.warngen.util.FollowUpUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -115,6 +117,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                       a FontData object.
  *  Apr 16, 2012 #14515      Qinglu Lin  Added return at the beginning of changeTemplate() 
  *                                       if the newly selected product is same as current one.
+ *  Jul 10, 2012 #15099      Qinglu Lin  Add updatePolygon() and apply it in xxxSelected methods. 
  * 
  * </pre>
  * 
@@ -1810,6 +1813,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                     + "." + data.getSig());
         }
 
+        updatePolygon(newWarn);
+
         warngenLayer.setOldWarningPolygon(newWarn);
         setTimesFromFollowup(newWarn.getStartTime().getTime(), newWarn
                 .getEndTime().getTime());
@@ -1851,6 +1856,9 @@ public class WarngenDialog extends CaveSWTDialog implements
 
             newWarn = cw.getNewestByTracking(data.getEtn(), data.getPhen()
                     + "." + data.getSig());
+
+            updatePolygon(newWarn);
+
             warngenLayer.setOldWarningPolygon(newWarn);
             setTimesFromFollowup(newWarn.getStartTime().getTime(), newWarn
                     .getEndTime().getTime());
@@ -1890,6 +1898,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                     + "." + data.getSig());
         }
 
+        updatePolygon(newWarn);
+
         setTimesFromFollowup(newWarn.getStartTime().getTime(), newWarn
                 .getEndTime().getTime());
         try {
@@ -1925,6 +1935,8 @@ public class WarngenDialog extends CaveSWTDialog implements
                     + "." + data.getSig());
         }
 
+        updatePolygon(newWarn);        
+
         warngenLayer.setOldWarningPolygon(newWarn);
         setTimesFromFollowup(newWarn.getStartTime().getTime(), newWarn
                 .getEndTime().getTime());
@@ -1950,6 +1962,9 @@ public class WarngenDialog extends CaveSWTDialog implements
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
                 data.getEtn(), data.getPhen() + "." + data.getSig());
+
+        updatePolygon(newWarn);
+
         try {
             warngenLayer.createPolygonFromRecord(newWarn);
             refreshDisplay();
@@ -1978,6 +1993,8 @@ public class WarngenDialog extends CaveSWTDialog implements
         AbstractWarningRecord newWarn = CurrentWarnings.getInstance(
                 warngenLayer.getLocalizedSite()).getNewestByTracking(
                 data.getEtn(), data.getPhen() + "." + data.getSig());
+
+        updatePolygon(newWarn);
 
         recreateDurations(durationList);
         int duration = ((DurationData) durationList.getData(durationList
@@ -2069,5 +2086,34 @@ public class WarngenDialog extends CaveSWTDialog implements
                 }
             }
         });
+    }
+    
+    /**
+     * Update polygon in a warning product to remove intersected segment.
+     */
+    private boolean updatePolygon(AbstractWarningRecord oldWarning) {
+        Geometry geo = oldWarning.getGeometry();
+        Coordinate[] coords = geo.getCoordinates();
+        java.util.List<Coordinate> points = new ArrayList<Coordinate>(Arrays.asList(coords));
+
+        GeometryFactory gf = new GeometryFactory();
+        PolygonUtil.truncate(points, 2);
+        Polygon rval = gf.createPolygon(gf.createLinearRing(points
+        		.toArray(new Coordinate[points.size()])), null);
+
+        boolean invalidPolyFlag = false;
+        if (rval.isValid() == false) {
+        	invalidPolyFlag = true;
+        	points.remove(points.size()-1);
+        	PolygonUtil.removeIntersectedSeg(points);
+        	points.add(new Coordinate(points.get(0)));
+        	rval = gf.createPolygon(gf.createLinearRing(points
+        			.toArray(new Coordinate[points.size()])), null);
+        }
+        if (invalidPolyFlag) {
+        	oldWarning.setGeometry(rval);
+            return true;
+        }
+        return false;
     }
 }

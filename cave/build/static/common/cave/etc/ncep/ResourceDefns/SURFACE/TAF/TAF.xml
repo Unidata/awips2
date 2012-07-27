@@ -8,11 +8,10 @@ pluginName=nctaf
 reportType=TAF
 spiFile=MTR.spi
 legendString=TAF
-legend_color=RGB {0, 255, 0}
-levelKey=Surface
+legendColor=RGB {0, 255, 0}
     </resourceParameters>
     <filterLabels>Forecast</filterLabels>
-    <rscImplementation>PlotData</rscImplementation>
+    <rscImplementation>SurfacePlot</rscImplementation>
     <subTypeGenerator></subTypeGenerator>
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>

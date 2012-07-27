@@ -27,6 +27,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 02/12		?			B. Yin   	Initial Creation.
+ * 05/12		?			B. Yin		Changed column 'area' to 'name in SQL string
  *
  * </pre>
  * 
@@ -59,7 +60,7 @@ public class GreatLakeProvider {
 
 		if ( !greatLakesLoaded ) {
 			greatLakes = new ArrayList<GreatLake>();
-			String sql = "select bid, area, ctrloc, numblocks,id,AsBinary(the_geom) from " + "bounds.greatlakesbnds";
+			String sql = "select bid, name, ctrloc, numblocks,id,AsBinary(the_geom) from " + "bounds.greatlakesbnds";
 			List<Object[]> results;
 
 			try {

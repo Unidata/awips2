@@ -117,6 +117,7 @@ import gov.noaa.nws.ncep.gempak.parameterconversionlibrary.GempakConstants;
  * 04/16/2012   524/583     B. Hebbard  Give more detailed messages when "Unable to compute Cloud Height"
  *                                      for common cases "No sounding data available for selected location"
  *                                      and "Cloud temperature warmer than entire sounding"
+ * 05/21/2012   524         B. Hebbard  Fix regression:  Null pointer exception on start with no SAT IR.
  * 
  * @version 1
  */
@@ -690,9 +691,9 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
             }
         }
     	
-    	if( satRsc == null ) {
-			cldHghtDlg.appendStatusMsg("No Satellite IR image is loaded.");
-    	}
+//    	if( satRsc == null ) {
+//    		cldHghtDlg.appendStatusMsg("No Satellite IR image is loaded.");
+//  	}
 	         
         if( cldHghtRsc == null ) {
             try {

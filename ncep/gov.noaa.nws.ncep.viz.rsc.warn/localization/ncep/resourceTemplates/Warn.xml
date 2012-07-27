@@ -34,11 +34,11 @@
              <requestStyle>METADATA</requestStyle>
              <metadataMap>
                <mapping key="pluginName">
-              		<constraint constraintValue="aww" constraintType="EQUALS" />
+                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
                </mapping>
-              <mapping key="reportType">
-                <constraint constraintValue="SEVERE_THUNDERSTORM_WARNING,TORNADO_WARNING,FLASH_FLOOD_WARNING" constraintType="IN" />
-              </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="${reportType}" constraintType="IN" />
+               </mapping>
              </metadataMap>
           </resourceData>
         </resource>

@@ -24,9 +24,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
 
 import gov.noaa.nws.ncep.common.staticdata.SPCCounty;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
@@ -68,8 +65,6 @@ import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Label;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledlines.Turbulence;
 import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
-import gov.noaa.nws.ncep.ui.pgen.file.WatchBox.Hole;
-import gov.noaa.nws.ncep.ui.pgen.file.WatchBox.Outline;
 import gov.noaa.nws.ncep.ui.pgen.file.WatchBox.Status;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourCircle;
 import gov.noaa.nws.ncep.ui.pgen.contours.ContourMinmax;
@@ -83,8 +78,6 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.GfaWording;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.VaaInfo;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
-import gov.noaa.nws.ncep.viz.common.SnapUtil;
-
 
 /**
  * Define a ProductConverter Class - some methods to convert the products between XML format 
@@ -127,6 +120,8 @@ import gov.noaa.nws.ncep.viz.common.SnapUtil;
  * 12/11		#?			B. Yin		Changed 'TO' to '-' in LLWS vorText
  * 02/12        #597        S. Gurung   Moved snap functionalities to SnapUtil from SigmetInfo. 
  * 03/12        #676        Q. Zhou     Added Issue Office field.
+ * 03/12        #610        J. Wu		Restore issue/until times for GFA smears.
+ * 05/12        #808        J. Wu		Remove SnapUtil from converting GFA.
  * 
  * </pre>
  * 
@@ -681,6 +676,41 @@ public class ProductConverter {
 					gfa.setGfaType("");
 					gfa.setGfaValue("Type", fgfa.getType());
 				}
+				
+				String vorText = fgfa.getTextVor();
+				if ( vorText != null ) {
+					gfa.setGfaVorText( vorText );
+				}
+				else {
+					gfa.setGfaVorText( "" );
+				}
+				
+				String timeStr = fgfa.getIssueTime();
+				if ( timeStr != null && timeStr.trim().length() >= 6 ) {
+					Calendar issueTimeCal = Calendar.getInstance();
+					int day = Integer.parseInt(timeStr.substring(0, 2));
+					int hour = Integer.parseInt(timeStr.substring(2, 4));
+					int min = Integer.parseInt(timeStr.substring(4));
+					issueTimeCal.set(Calendar.DAY_OF_MONTH, day);
+					issueTimeCal.set(Calendar.HOUR_OF_DAY, hour);
+					issueTimeCal.set(Calendar.MINUTE, min);
+					issueTimeCal.set(Calendar.SECOND, 0);
+					gfa.addAttribute(Gfa.ISSUE_TIME, issueTimeCal );
+				}
+				
+				String timeStr2 = fgfa.getUntilTime();
+				if ( timeStr2 != null && timeStr2.trim().length() >= 6 ) {
+					Calendar untilTimeCal = Calendar.getInstance();
+					int day = Integer.parseInt(timeStr.substring(0, 2) );
+					int hour = Integer.parseInt(timeStr.substring(2, 4) );
+					int min = Integer.parseInt(timeStr.substring(4) );
+					untilTimeCal.set(Calendar.DAY_OF_MONTH, day);
+					untilTimeCal.set(Calendar.HOUR_OF_DAY, hour);
+					untilTimeCal.set(Calendar.MINUTE, min);
+					untilTimeCal.set(Calendar.SECOND, 0);
+					gfa.addAttribute(Gfa.UNTIL_TIME, untilTimeCal );
+				}
+
 				des.add(gfa);
 			}
 		}
@@ -786,22 +816,6 @@ public class ProductConverter {
 	    	l.setInputFile ( null );
 	    	l.setOutputFile ( null );
 
-/*
-		    String inFile = lyr.getInputFile();
-		    if ( inFile != null ) {
-		    	l.setInputFile ( inFile );
-		    }
-		    
-		    String outFile = lyr.getOutputFile();
-		    if ( outFile != null ) {
-		    	l.setOutputFile ( outFile );
-		    }
-		    else {		    	
-		    	if ( inFile != null ) {
-		    		l.setOutputFile ( inFile );
-		    	}
-		    }
-*/
 	    	l.setDrawableElement ( convertDEs( lyr.getDrawables() ) );
 		    	    	
 		    flyrs.add( l );		   
@@ -818,7 +832,7 @@ public class ProductConverter {
 		   
 		gov.noaa.nws.ncep.ui.pgen.file.DrawableElement  fde = 
 			                       new gov.noaa.nws.ncep.ui.pgen.file.DrawableElement();
-	   
+	           
 		for (  AbstractDrawableComponent adc : des ) {
 			if ( adc instanceof DrawableElement ){
 				DrawableElement de = (DrawableElement)adc;
@@ -956,31 +970,14 @@ public class ProductConverter {
 							fgfa.setOtlkCondsEndg(GfaRules.replacePlusWithCycle(w
 									.getOtlkCondsEndg(), e.getGfaCycleHour()));
 						}
+						
 						// textVOR
-						ArrayList<Coordinate> pts = e.getPoints();
-						pts = SnapUtil.getSnapWithStation(pts,SnapUtil.VOR_STATION_LIST,10,16, false) ;
-						Coordinate[] a = new Coordinate[pts.size()];
-						a = pts.toArray(a);
-						String s = "";
-						if ( fgfa.getHazard().equalsIgnoreCase("FZLVL")){
-							if ( fgfa.isClosed() ){
-								s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
-							}
-							else {
-								s = SnapUtil.getVORText(a, "-", "Line", -1, true, false, true );
-							}
-						}
-						else if ( fgfa.getHazard().equalsIgnoreCase("LLWS")){
-							s = SnapUtil.getVORText(a, "-", "Area", -1, true, false, true );
-						}
-						else {
-							s = SnapUtil.getVORText(a, " TO ", "Area", -1, true, false, true );
-						}
-						fgfa.setTextVor(s);
+						fgfa.setTextVor( nvl(((Gfa)de).getGfaVorText() ) );
 
 						fgfa.setFillPattern(nvl(((Gfa)de).getFillPattern().name()));
 						
-						fde.getGfa().add( fgfa );
+						fde.getGfa().add( fgfa );						
+						
 					} else if(de instanceof Track) {
 						fde.getTrack().add(TrackConverter.getTrackBeanByTrackElement((Track)de)); 
 					}else if  ( de instanceof Sigmet ) {
@@ -1367,7 +1364,7 @@ public class ProductConverter {
 				    fde.getDECollection().add( convertDECollection2XML((DECollection)adc));			
 				}
 			}
-		}
+		}		
 	   
 	    return fde;
     }

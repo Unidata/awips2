@@ -503,16 +503,16 @@
                 <ns2:Name>Turbulence</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="JETS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TROPO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TROPO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="CONV" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="CONV" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_High.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -577,16 +577,16 @@
                 <ns2:Name>Turbulence</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="JETS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TROPO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TROPO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="CONV" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="CONV" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_High.North.09092011.12.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -651,16 +651,16 @@
                 <ns2:Name>Turbulence</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="JETS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TROPO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TROPO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="CONV" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="CONV" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_High.South.09092011.12.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -725,16 +725,16 @@
                 <ns2:Name>Turbulence</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="JETS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TROPO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TROPO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="CONV" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="CONV" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_High.Final.09092011.12.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -799,16 +799,16 @@
                 <ns2:Name>Turbulence</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="JETS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="JETS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TROPO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TROPO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="CONV" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="CONV" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_High.Ukmet_Final.09092011.13.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1546,22 +1546,22 @@
                 <ns2:Name>SCALLOPED</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="AFC_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="AFC_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_Low.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1611,22 +1611,22 @@
                 <ns2:Name>SCALLOPED</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="AFC_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="AFC_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_Low.East.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1676,22 +1676,22 @@
                 <ns2:Name>SCALLOPED</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="AFC_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="AFC_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_Low.Cntr.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1741,22 +1741,22 @@
                 <ns2:Name>SCALLOPED</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="AFC_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="AFC_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_Low.West.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1806,22 +1806,22 @@
                 <ns2:Name>SCALLOPED</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="AFC_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="AFC_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="AFC_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FRZLVL_f24" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="SIGWX_Low.Final.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1900,13 +1900,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="03Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="03Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="05Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="05Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="07Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="07Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.01Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1947,13 +1947,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="05Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="05Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="07Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="07Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="09Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="09Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.03Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -1994,13 +1994,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="07Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="07Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="09Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="09Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="11Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="11Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.05Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2041,13 +2041,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="09Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="09Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="11Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="11Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="13Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="13Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.07Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2088,13 +2088,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="11Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="11Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="13Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="13Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="15Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="15Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.09Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2135,13 +2135,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="13Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="13Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="15Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="15Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="17Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="17Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.11Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2182,13 +2182,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="15Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="15Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="17Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="17Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="19Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="19Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.13Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2229,13 +2229,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="17Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="17Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="19Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="19Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="21Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="21Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.15Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2276,13 +2276,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="19Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="19Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="21Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="21Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="23Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="23Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.17Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2323,13 +2323,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="21Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="21Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="23Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="23Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="01Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="01Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.19Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2370,13 +2370,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="23Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="23Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="01Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="01Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="03Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="03Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.21Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2417,13 +2417,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="01Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="01Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="03Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="03Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="05Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="05Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.23Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2464,13 +2464,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="02Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="02Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="04Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="04Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="06Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="06Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.00Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2511,13 +2511,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="04Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="04Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="06Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="06Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="08Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="08Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.02Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2558,13 +2558,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="06Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="06Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="08Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="08Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="10Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="10Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.04Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2605,13 +2605,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="08Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="08Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="10Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="10Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="12Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="12Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.06Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2652,13 +2652,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="10Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="10Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="12Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="12Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="14Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="14Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.08Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2699,13 +2699,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="12Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="12Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="14Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="14Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="16Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="16Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.10Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2746,13 +2746,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="14Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="14Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="16Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="16Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="18Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="18Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.12Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2793,13 +2793,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="16Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="16Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="18Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="18Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="20Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="20Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.14Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2840,13 +2840,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="18Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="18Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="20Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="20Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="22Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="22Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.16Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2887,13 +2887,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="20Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="20Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="22Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="22Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="00Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="00Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.18Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2934,13 +2934,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="22Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="22Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="00Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="00Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="02Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="02Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.20Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -2981,13 +2981,13 @@
                 <ns2:Name>CCFP_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="00Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="00Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="02Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="02Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="04Z" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="04Z" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="CCFP.22Z.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3161,31 +3161,31 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="MT_OBSC" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="ICE" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="ICE" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="M_FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="M_FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-HI" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-HI" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-LO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-LO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="SFC_WND" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="SFC_WND" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="LLWS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3226,31 +3226,31 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="MT_OBSC" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="ICE" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="ICE" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="M_FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="M_FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-HI" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-HI" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-LO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-LO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="SFC_WND" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="SFC_WND" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="LLWS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.East.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3291,31 +3291,31 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="MT_OBSC" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="ICE" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="ICE" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="M_FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="M_FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-HI" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-HI" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-LO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-LO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="SFC_WND" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="SFC_WND" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="LLWS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.Cntr.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3356,31 +3356,31 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="MT_OBSC" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="ICE" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="ICE" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="M_FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="M_FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-HI" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-HI" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-LO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-LO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="SFC_WND" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="SFC_WND" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="LLWS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.West.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3421,31 +3421,31 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="MT_OBSC" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="ICE" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="ICE" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="M_FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="M_FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-HI" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-HI" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-LO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-LO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="SFC_WND" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="SFC_WND" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="LLWS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.Merged.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3486,31 +3486,31 @@
                 <ns2:Name>GFA</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="IFR" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="IFR" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="MT_OBSC" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="MT_OBSC" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="ICE" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="ICE" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="M_FZLVL" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="M_FZLVL" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-HI" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-HI" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="TURB-LO" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="TURB-LO" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="SFC_WND" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="SFC_WND" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="LLWS" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="LLWS" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="G_AIRMET.Metwatch.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -3537,25 +3537,30 @@
             <ns2:Name>Add Point</ns2:Name>
             <ns2:Name>Add Point Alt</ns2:Name>
         </ns2:PgenActions>
+         <ns2:PgenClass Name="Text">
+            <ns2:PgenObjects>
+                <ns2:Name>General Text</ns2:Name>
+            </ns2:PgenObjects>
+        </ns2:PgenClass>       
         <ns2:PgenClass Name="SIGMET">
             <ns2:PgenObjects>
                 <ns2:Name>VOLC_SIGMET</ns2:Name>
                 <ns2:Name>VACL_SIGMET</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="Volcano" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="Volcano" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="0" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="F00" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="F00" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="F06" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="F06" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="255" red="30" green="144" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="F12" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="F12" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="255" red="255" green="0" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="F18" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="F18" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="0" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="Volcano.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>    
@@ -10344,19 +10349,19 @@
                 <ns2:Name>LINE_FILLED_CIRCLE_ARROW</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="hail" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="hail" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="torn" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="torn" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="wind" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="wind" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="catg" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="catg" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="pr2cat" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="pr2cat" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="Convective_Outlook.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10433,16 +10438,16 @@
                 <ns2:Name>LINE_FILLED_CIRCLE_ARROW</ns2:Name>
             </ns2:PgenObjects>
         </ns2:PgenClass>
-        <ns2:PgenLayer Name="fire" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="fire" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="cat" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="cat" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="dryt" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="dryt" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
-        <ns2:PgenLayer Name="wind" OnOff="true" MonoColor="false" Filled="false">
+        <ns2:PgenLayer Name="wind" OnOff="false" MonoColor="false" Filled="false">
             <ns2:Color blue="0" red="255" green="255" alpha="255"/>
         </ns2:PgenLayer>
         <ns2:PgenSave outputFile="Fire_Weather_Outlook.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>

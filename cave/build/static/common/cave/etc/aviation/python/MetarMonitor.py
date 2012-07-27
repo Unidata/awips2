@@ -145,7 +145,10 @@
 #               Status:           TEST
 #               Title:             AvnFPS: Unable to properly set QC functions in Site Info Editor
 #
-# 
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    06JUL2012       15153         zhao           Retrieve latest METAR record in database
+#
 import logging, os, time
 import Avn, AvnLib, Globals, MonitorP, MetarMonitorP
 
@@ -176,7 +179,9 @@ class Monitor(MetarMonitorP.Monitor):
         now = time.time()
 #        metars = Globals.DRC.getMetars(self.info['sites']['metar'], True,
 #                                       now-15000.0)
-        metars = MetarData.retrieve(self.info['sites']['metar']) 
+
+# For DR15153: use 'maxSize=0' to indicate that the latest record is to be retrieved  
+        metars = MetarData.retrieve(self.info['sites']['metar'],0) 
         msg = None
         result = {}
         if not metars:

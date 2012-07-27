@@ -39,7 +39,7 @@
    <includes
          id="com.raytheon.uf.edex.cots.feature"
          version="0.0.0"/>
-         
+
    <includes
          id="com.raytheon.uf.edex.common.core.feature"
          version="0.0.0"/>
@@ -92,4 +92,24 @@
          id="com.raytheon.uf.edex.binlightning.feature"
          version="0.0.0"/>
 
+   <plugin
+         id="gov.noaa.nws.ost.edex.plugin.regionalsat"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.tafqueue"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.tafqueue"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 </feature>

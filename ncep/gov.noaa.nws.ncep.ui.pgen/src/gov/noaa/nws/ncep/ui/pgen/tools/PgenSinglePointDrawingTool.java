@@ -136,7 +136,7 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
            
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
 
         	if ( button == 1 ) {
             	            	
@@ -192,7 +192,18 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
             			defaultTxt = ((VolcanoAttrDlg)attrDlg).getVolText();
             			dec.setCollectionName("Volcano");
             		}
+            		
+            		//in case the label is enabled after symbol is placed.
+            		if (dec == null && ((SymbolAttrDlg)attrDlg).labelEnabled()){ 
+                 		dec = new DECollection("labeledSymbol");
+                 		dec.setPgenCategory(pgenCategory);
+                 		dec.setPgenType(pgenType);
+                 		dec.addElement(elem);
+                 		drawingLayer.replaceElement(elem, dec);
+            		 }
+            		 
             		PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)attrDlg).useSymbolColor(), defaultTxt, dec );
+            		dec = null;
             		elem = null;
             		
             	}
@@ -255,9 +266,11 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
         
         @Override
         public boolean handleMouseDownMove(int aX, int aY, int button) {
-        	return true;
-        }
+        	
+        	if ( shiftDown ) return false;
+        	else return true;        
 
+        }
     }
     
     /**

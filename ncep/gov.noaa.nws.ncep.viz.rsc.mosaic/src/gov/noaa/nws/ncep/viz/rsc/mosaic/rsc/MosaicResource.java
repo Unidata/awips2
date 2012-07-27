@@ -17,6 +17,7 @@ import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.measure.converter.MultiplyConverter;
@@ -52,7 +53,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.status.StatusConstants;
+import com.raytheon.uf.viz.core.style.DataMappingPreferences;
+import com.raytheon.uf.viz.core.style.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
+import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.raytheon.viz.core.units.PiecewisePixel;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -70,7 +75,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  04/2010        259        Greg Hull   Added Colorbar
  *  09/2010        307        Greg Hull   move getName to resourceData and base on 
  *                                        the productCode in the metadataMap 
- *  07/11/11                  Greg Hull   ColorBarResource                                      
+ *  07/11/11                  Greg Hull   ColorBarResource 
+ *  06-07-2012     717         Archana	  Updated setColorMapParameters() to store label information
+ *                                        for the colorbar                                     
  * 
  * </pre>
  * 
@@ -224,10 +231,10 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 	public String getName() {
 		String legendString = super.getName();
 		FrameData fd = (FrameData) getCurrentFrame();
-		if (fd == null || fd.tileTime == null ) {
-			return legendString;
+		if (fd == null || fd.tileTime == null || fd.tileSet.getMapDescriptor().getFrameCount() == 0) {
+			return legendString + "-No Data";
 		}
-		return legendString + "("+NmapCommon.getTimeStringFromDataTime( fd.tileTime, "/");
+		return legendString + NmapCommon.getTimeStringFromDataTime( fd.tileTime, "/");
 	}
 	
 	/*
@@ -345,14 +352,32 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 		}
 		int numLevels = radarRecord.getNumLevels();
 		Object[] thresholds = radarRecord.getDecodedThresholds();
+		DataMappingPreferences dmPref = new DataMappingPreferences();
+		DataMappingEntry dmEntry;
+		List<DataMappingEntry> dmEntriesList = new ArrayList<DataMappingEntry>(0);
 		if (numLevels <= 16) {
+
 			ArrayList<Integer> pixel = new ArrayList<Integer>();
 			ArrayList<Float> real = new ArrayList<Float>();
 			for (int i = 0; i < numLevels; i++) {
+				dmEntry = new DataMappingEntry();
+			    dmEntry.setPixelValue(new Double(i));
 				if (thresholds[i] instanceof Float) {
-					pixel.add(i);
-					real.add((Float) thresholds[i]);
+					   pixel.add(i);
+					   real.add((Float) thresholds[i]);
+					   dmEntry.setDisplayValue(((Float)thresholds[i]).doubleValue());
+					   dmEntry.setLabel(((Float)thresholds[i]).toString());
+				}else{
+					   dmEntry.setDisplayValue(Double.NaN);
+					   
+					   if ( ((String)thresholds[i]).compareToIgnoreCase("NO DATA") == 0 ){
+						    dmEntry.setLabel("ND");
+					   }else
+						   dmEntry.setLabel((String)thresholds[i]);
 				}
+				
+			    dmEntriesList.add(dmEntry);
+
 			}
 
 			double[] pix = new double[pixel.size()];
@@ -386,25 +411,51 @@ public class MosaicResource extends AbstractNatlCntrsResource<MosaicResourceData
 			throw new VizException("Error loading colormap: "+ radarRscData.getColorMapName() );
 		}
 
-		ColorBarFromColormap colorBar = radarRscData.getColorBar();
 
-		((ColorBarFromColormap)colorBar).setColorMap( colorMap );
-
-		ColorMapParameters colorMapParameters = new ColorMapParameters();
-
-		colorMapParameters.setColorMap( colorMap );
-
+		colorMapParameters = new ColorMapParameters();
 		if (colorMapParameters.getDisplayUnit() == null) {
 			colorMapParameters.setDisplayUnit(dataUnit);
+			
 		}
-
-		colorMapParameters.setColorMapMax(255);
+		
+		colorMapParameters.setColorMap( colorMap );
+        colorMapParameters.setColorMapMax(255);
 		colorMapParameters.setColorMapMin(0);
 		colorMapParameters.setDataMax(255);
 		colorMapParameters.setDataMin(0);
+		getCapability(ColorMapCapability.class).setColorMapParameters(
+				colorMapParameters);
+		if( dmEntriesList.size() > 0 ){
+		    DataMappingEntry[] dmEntryArray = new DataMappingEntry[dmEntriesList.size()];
+		    dmEntriesList.toArray(dmEntryArray);
+ 		    dmPref.setSerializableEntries(dmEntryArray);
+ 		    ImagePreferences imgPref = new ImagePreferences();
+ 		    imgPref.setDataMapping(dmPref);
+ 		    SamplePreferences sampPref = new SamplePreferences();
+ 		    sampPref.setMinValue(0);
+ 		    sampPref.setMaxValue(255);
+ 		    imgPref.setSamplePrefs(sampPref);
+ 		    ColorBarFromColormap cBar = (ColorBarFromColormap)this.cbarResource.getResourceData().getColorbar();
+ 		    if(cBar != null ){
+ 		       cBar.setImagePreferences(imgPref);
+ 		    
+ 		       if(!cBar.isScalingAttemptedForThisColorMap())
+ 		    	   cBar.scalePixelValues();
 
-		this.getCapability(ColorMapCapability.class).setColorMapParameters(
-				colorMapParameters);		
+ 	       	   if(radarRecord.getUnit().compareToIgnoreCase("in") == 0 ){
+		         	cBar.setDisplayUnitStr("INCHES");
+		       }else{
+		           cBar.setDisplayUnitStr(radarRecord.getUnit());
+		       } 		       
+ 		       
+ 	       	   cBar.setNumPixelsToReAlignLabel(65);
+ 	       	   cBar.setColorMap(colorMap);
+ 
+ 		       this.radarRscData.setColorBar(cBar);
+ 		    }
+
+		}
+
 	}
 	
 	

@@ -1,20 +1,18 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
+import static java.lang.System.out;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -40,12 +38,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 
 /**
@@ -72,6 +66,10 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 12/22/2011     #578       Greg Hull   Ensemble selection
  * 01/06/2012                S. Gurung   Add/display cycle times at 00Z only for nctaf
  * 01/10/2012                S. Gurung   Changed resource parameter name plugin to pluginName in updateCycleTimes()
+ * 01/31/2012     #606       Greg Hull   Get Cycle Times, Types & Sub-Types from inventory
+ * 04/08/2012     #606       Greg Hull   Don't allow selection for data that is not available
+ * 04/25/2012     #606       Greg Hull   allow disabling the inventory, add Check Availability button
+ * 06/06/2012     #816       Greg Hull   Alphabetize lists. Change content of listViewer to ResourceDefinitions
  *
  * </pre>
  * 
@@ -94,12 +92,17 @@ public class ResourceSelectionControl extends Composite {
 	
 	private Boolean isPgenMode = false;
 
+	private Boolean onlyShowAvailableData = true;
+	
 	// this list must stay in sync with the cycleTimeCombo.
 	private ArrayList<DataTime> cycleTimes = new ArrayList<DataTime>();
 		
     private Composite sel_rsc_comp = null;
 
+    private Button checkAvailBtn = null;
+    
     private Text   seldRscNameTxt = null;
+    private Label  availDataTimeLbl = null;
     private Label  cycleTimeLbl = null;
     private Combo  cycleTimeCombo = null;
     
@@ -265,16 +268,24 @@ public class ResourceSelectionControl extends Composite {
         fd.bottom = new FormAttachment( rscAttrSetLViewer.getList(), -3, SWT.TOP );
         rscAttrsLbl.setLayoutData( fd );
 
+        availDataTimeLbl = new Label( sel_rsc_comp, SWT.None );
+       	availDataTimeLbl.setText("");
+       	fd = new FormData();
+    	fd.left = new FormAttachment( rscAttrSetLViewer.getList(), 0, SWT.LEFT );
+    	fd.top  = new FormAttachment( rscAttrSetLViewer.getList(), 5, SWT.BOTTOM );
+    	fd.right = new FormAttachment( rscAttrSetLViewer.getList(), 0, SWT.RIGHT );
+    	availDataTimeLbl.setLayoutData( fd );
+        
        	seldRscNameTxt = new Text( sel_rsc_comp, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY );
 //    	fd = new FormData(360,20);
     	fd = new FormData();
     	//   	fd.bottom = new FormAttachment( 100, -50 ); // change to addResourceBtn
-    	fd.top = new FormAttachment( rscCatLViewer.getList(), 30, SWT.BOTTOM );
+    	fd.top = new FormAttachment( rscCatLViewer.getList(), 40, SWT.BOTTOM );
     	fd.left = new FormAttachment( rscCatLViewer.getList(), 0, SWT.LEFT );
     	fd.right = new FormAttachment( 75, 0 );
     	seldRscNameTxt.setLayoutData( fd );
-
-       	Label seld_rsc_name_lbl = new Label( sel_rsc_comp, SWT.None );
+    	
+    	Label seld_rsc_name_lbl = new Label( sel_rsc_comp, SWT.None );
        	seld_rsc_name_lbl.setText("Selected Resource Name");
        	fd = new FormData();
     	fd.left = new FormAttachment( seldRscNameTxt, 0, SWT.LEFT );
@@ -376,11 +387,22 @@ public class ResourceSelectionControl extends Composite {
 			public Object[] getElements(Object inputElement) {
 				//String rscCat = (String)inputElement;				
 				if( !seldResourceName.getRscCategory().isEmpty() ) {
-					List<String> rscTypes = rscDefnsMngr.getResourceTypesForCategory( 
-							seldResourceName.getRscCategory(), seldFilterStr, true );
-					return rscTypes.toArray();
+					try {
+						List<ResourceDefinition> rscTypes = rscDefnsMngr.getResourceDefnsForCategory( 
+								seldResourceName.getRscCategory(), seldFilterStr, true );
+						
+						return rscTypes.toArray();
+					}
+					catch ( VizException e ) {
+			        	MessageDialog errDlg = new MessageDialog( 
+			        			NmapUiUtils.getCaveShell(), 
+			        			"Error", null, 
+			        			"Error getting Resource Types\n"+ e.getMessage(),
+			        			MessageDialog.ERROR, new String[]{"OK"}, 0);
+			        	errDlg.open();
+					}						
 				}
-				return new String[]{};
+				return new ResourceDefinition[]{};
 			}
 
 			@Override
@@ -390,7 +412,31 @@ public class ResourceSelectionControl extends Composite {
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }    			
    		});
 
-//    	rscTypeLViewer.setLabelProvider( NmapCommon.createFileLabelProvider() );
+    	rscTypeLViewer.setComparator( new ViewerComparator() {
+    		
+    		// TODO : implement this if we want to group definitions according to 
+    		// some meaningful category....
+    	    public int category(Object element) {
+    	    	ResourceDefinition rd = (ResourceDefinition)element;
+    	    	return ( rd.isForecast() ? 1 : 0 ); 
+//    	        return super.category(element);
+    	    }
+
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+            	int catComp = category(e1) - category(e2);            	 
+            	return ( catComp != 0 ? catComp :  
+            				rscDefnsMngr.getDefaultRscDefnComparator().compare(
+            						(ResourceDefinition)e1, (ResourceDefinition)e2 ) ); 
+            }
+    	});
+
+    	rscTypeLViewer.setLabelProvider(  new LabelProvider() {
+	    	public String getText( Object element ) {
+	    		ResourceDefinition rd = (ResourceDefinition)element;
+	    		return (rd == null ? "null" : rd.getResourceDefnName());
+	    	}
+        });
     	
     	rscGroupLViewer.setContentProvider(  new IStructuredContentProvider() {
 			@Override
@@ -402,8 +448,8 @@ public class ResourceSelectionControl extends Composite {
 					// groups. (PGEN uses groups but we will list the subTypes (products)
 					// and not the single PGEN attr set group)
 					if( rscDefnsMngr.doesResourceUseAttrSetGroups( rscType ) &&
-							!seldResourceName.isPgenResource() ) {
-					 
+						!seldResourceName.isPgenResource() ) {
+						
 						List<String> rscAttrSetsList = rscDefnsMngr.getAttrSetGroupNamesForResource( rscType );
 
 						if( rscAttrSetsList != null &&
@@ -411,11 +457,21 @@ public class ResourceSelectionControl extends Composite {
 							return rscAttrSetsList.toArray();
 						}
 					}
-					else {					
-						String[] rscGroups = rscDefnsMngr.getResourceSubTypes( rscType );
+					else {				
+						try {
+							String[] rscGroups = rscDefnsMngr.getResourceSubTypes( rscType );
 
-						if( rscGroups != null && rscGroups.length != 0 ) {
-							return rscGroups;//.toArray();
+							if( rscGroups != null && rscGroups.length != 0 ) {
+								return rscGroups;//.toArray();
+							}
+						}
+						catch ( VizException e ) {
+				        	MessageDialog errDlg = new MessageDialog( 
+				        			NmapUiUtils.getCaveShell(), 
+				        			"Error", null, 
+				        			"Error getting sub-types\n"+ e.getMessage(),
+				        			MessageDialog.ERROR, new String[]{"OK"}, 0);
+				        	errDlg.open();
 						}
 					}
 				}
@@ -428,8 +484,14 @@ public class ResourceSelectionControl extends Composite {
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }    			
    		});    
+    	
+    	rscGroupLViewer.setComparator( new ViewerComparator() {
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+            	return super.compare(viewer, e1, e2);
+            }
+    	});
 
-//    	rscGroupLViewer.setLabelProvider( NmapCommon.createFileLabelProvider() );
     	
     	rscAttrSetLViewer.setContentProvider( new IStructuredContentProvider() {
 			@Override
@@ -537,14 +599,14 @@ public class ResourceSelectionControl extends Composite {
        	rscTypeLViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged(SelectionChangedEvent event) {
             	StructuredSelection seld_elem = (StructuredSelection) event.getSelection();               
-            	String seld_rsc_type = (String)seld_elem.getFirstElement();
+            	String seld_rsc_type = ((ResourceDefinition)seld_elem.getFirstElement()).getResourceDefnName();
             	
-            	seldResourceName.setRscType( (String)seld_elem.getFirstElement() );
+            	seldResourceName.setRscType( seld_rsc_type );
             	seldResourceName.setRscGroup( "" );
             	seldResourceName.setRscAttrSetName( "" );
             	seldResourceName.setCycleTime( null );
            	            	
-            	updateCycleTimes();
+//            	updateCycleTimes();
             	
             	updateResourceGroups();
             }
@@ -565,6 +627,8 @@ public class ResourceSelectionControl extends Composite {
             	StructuredSelection seld_elem = (StructuredSelection) event.getSelection(); 
             	
             	seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
+            	
+            	updateCycleTimes();
             	
             	updateSelectedResource();
             }
@@ -601,8 +665,6 @@ public class ResourceSelectionControl extends Composite {
 
        	cycleTimeCombo.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected( SelectionEvent ev ) {
-//            	seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
-
             	updateSelectedResource();
         	}
        	});
@@ -663,8 +725,6 @@ public class ResourceSelectionControl extends Composite {
 		updateResourceFilters( );
 		
 		updateResourceTypes();
-
-//   		filterResourceTypes( seldFilterStr );
    	}
 
    	// 
@@ -744,14 +804,14 @@ public class ResourceSelectionControl extends Composite {
 
 			rscTypeLViewer.getList().select(0);
 			StructuredSelection seld_elem = (StructuredSelection)rscTypeLViewer.getSelection();
-			
-			seldResourceName.setRscType( (String)seld_elem.getFirstElement() );
+			String rscType = ((ResourceDefinition)seld_elem.getFirstElement()).getResourceDefnName();
+			seldResourceName.setRscType( rscType );
 			seldResourceName.setRscGroup("");
 			seldResourceName.setRscAttrSetName(""); 
         	seldResourceName.setCycleTime( null );
 		}
 		
-		updateCycleTimes();
+//		updateCycleTimes();
 
 		updateResourceGroups();
 	}
@@ -841,77 +901,106 @@ public class ResourceSelectionControl extends Composite {
 			seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
 		}		
 		
+		updateCycleTimes();
+		
 		updateSelectedResource();
 	}
    	
-   	// when an attrSetName is selected and a valid resource name is ready for selection 
+   	// when an attrSetName is selected and resource name, with possible cycle time,
+	//   is ready for selection 
    	// 
 	public void updateSelectedResource( ) {
+
+		String availMsg = "";
+
 		// enable/disable the Add Resource Button 
 		// and set the name of the Resource 
-		if( seldResourceName.isValid() ) {
+		boolean enableSelections = true;
+
+		ResourceDefinition rscDefn = rscDefnsMngr.getResourceDefinition( 
+				seldResourceName.getRscType() );
+		
+		if( !seldResourceName.isValid() || rscDefn == null ) {
+			enableSelections = false;
+			availMsg = "Data Not Available";
+		}
+		
+		// 
+		if( enableSelections ) { 
+			if( onlyShowAvailableData ) {
+				try {
+// this call will query just for the inventory params needed to instantiate the resource 
+// (ie imageType, productCode...) and not the actual dataTimes.					
+//					rscDefnsMngr.verifyParametersExist( seldResourceName );
+					
+					if( rscDefn.isForecast() ) {
+						if( cycleTimes.isEmpty() ) {
+							availMsg = "Data Not Available";
+							enableSelections = false;
+						}
+					}
+					else if( rscDefn.isRequestable() ) {
+						// If we aren't using the inventory then the query is too slow for the gui.
+						// TODO : If the inventory doesn't pan out then we could either 
+						//   implement this in another thread and accept the delay or add a
+						// 'Check Availability' button.
+						if( rscDefn.getInventoryEnabled() ) {
+							DataTime latestTime = rscDefn.getLatestDataTime( seldResourceName );
+
+							if( latestTime == null ) {
+								availMsg = "Data Not Available";
+								enableSelections = false;
+							}
+							else {
+								availMsg = "Latest Data: "+ NmapCommon.getTimeStringFromDataTime( latestTime, "/" );
+							}
+						}
+						else {
+							availMsg = "";
+							enableSelections = true;
+						}
+					}
+				}
+				catch ( VizException vizex ) {
+					out.println( vizex.getMessage() );
+					availMsg = "Error getting data times";
+					enableSelections = false;
+				}
+			}
+		}
+		
+		if( enableSelections ) {
 			
 			addResourceBtn.setEnabled( true );	
-			//if( replaceEnabled ) {
 			replaceResourceBtn.setEnabled( replaceBtnEnabled );	
 
-			cycleTimeLbl.setEnabled( true );
-			cycleTimeCombo.setEnabled( true );
-
-			//
-			ResourceDefinition rscDefn = rscDefnsMngr.getResourceDefinition( 
-					seldResourceName.getRscType() );
-			
 			if( rscDefn.isForecast() ) {
+
+				cycleTimeLbl.setEnabled( true );
+				cycleTimeCombo.setEnabled( true );
+				cycleTimeLbl.setVisible( true );
+				cycleTimeCombo.setVisible( true );
 				
 				int seldCycleTimeIndx = cycleTimeCombo.getSelectionIndex();	// Cycle for Ensemble
 
-//				if (rscDefn.getRscImplementation().equals( "EnsembleFcstGridContours" )) {
-//					HashMap<String,String> rscParams = rscDefn.getResourceParameters();
-//					ModelListInfo modelListInfo = new ModelListInfo(rscParams.get("GDFILE"));
-//					String cycleStr = modelListInfo.getModelList().get(0).getCycle();
-//					
-//					boolean hasCycle = false;
-//					if (cycleStr != null)  {
-//						NumberFormat nf = NumberFormat.getInstance();
-//						nf.setMinimumIntegerDigits(2);
-//						nf.setMinimumFractionDigits(0);
-//						nf.setMaximumFractionDigits(2);
-//						nf.setMaximumIntegerDigits(2);
-//
-//						for (DataTime dt: cycleTimes) {
-//							Calendar cal = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
-//							cal.setTime(dt.getRefTime());
-//							String hh = nf.format(cal.get(Calendar.HOUR_OF_DAY));
-//							if (cycleStr.contains(hh)) {
-//								seldResourceName.setCycleTime(dt);
-//								hasCycle = true;
-//
-//								break;
-//							}
-//						}
-//					} 
-//
-//					// TODO : Allow the user to select 'LATEST' specifically
-//					if (!hasCycle) {
-//						seldResourceName.setCycleTimeLatest();
-//					}
-//				
-//				}	
-//				else {
-					// TODO : Allow the user to select 'LATEST' specifically
-					if( seldCycleTimeIndx == -1 ) {  
-						seldResourceName.setCycleTimeLatest();
-					}
-					else if( seldCycleTimeIndx < cycleTimes.size() ) { 
-						seldResourceName.setCycleTime( 
-								cycleTimes.get( seldCycleTimeIndx ) );
-					}
-					else { // shoulndn't happen
-						seldResourceName.setCycleTimeLatest();
-					}
+				// TODO : Allow the user to select 'LATEST' specifically
+				if( seldCycleTimeIndx == -1 ) {  
+					seldResourceName.setCycleTimeLatest();
 				}
-//			}
+				else if( seldCycleTimeIndx < cycleTimes.size() ) { 
+					seldResourceName.setCycleTime( 
+							cycleTimes.get( seldCycleTimeIndx ) );
+				}
+				else { // shoulndn't happen
+					seldResourceName.setCycleTimeLatest();
+				}
+				
+				availDataTimeLbl.setVisible( false );
+			}
+			else {
+				availDataTimeLbl.setVisible( true );
+				availDataTimeLbl.setText( availMsg );
+			}
 
 			// For now, don't let the user select 'Latest'
 			if( seldResourceName.isLatestCycleTime() ) {
@@ -925,13 +1014,15 @@ public class ResourceSelectionControl extends Composite {
 			}
 		}
 		else {
-			cycleTimeLbl.setEnabled( false );
-			cycleTimeCombo.setEnabled( false );
-
+			seldRscNameTxt.setText( "" );
 			addResourceBtn.setEnabled( false );	
 			replaceResourceBtn.setEnabled( false );	
 
-			seldRscNameTxt.setText( "" );
+			availDataTimeLbl.setVisible( true );
+			availDataTimeLbl.setText( availMsg );
+
+			cycleTimeLbl.setVisible( false );
+			cycleTimeCombo.setVisible( false );
 		}			
 
 		prevCatSeldRscNames.put( seldResourceName.getRscCategory(), seldResourceName );
@@ -974,7 +1065,6 @@ public class ResourceSelectionControl extends Composite {
 		    	rscTypeGroupLbl.setText("PGEN File");
 		    	
 		    	rscGroupLViewer.setContentProvider( createPgenFileContentProvider() );    
-//		    	rscGroupLViewer.setLabelProvider( NmapCommon.createFileLabelProvider(new String[]{".xml"}) );
 		    }
 		    else {
 		    	rscTypeLbl.setText("Resource Type");
@@ -990,9 +1080,7 @@ public class ResourceSelectionControl extends Composite {
 	// Currently the user cannot select a forecast resource without selecting an 
 	// available cycle time.
     //
-	public void updateCycleTimes() {
-        Boolean isGempakData = false;
-        
+	public void updateCycleTimes() {        
 		ResourceDefinition rscDefn = rscDefnsMngr.getResourceDefinition( seldResourceName );
 
 		if( rscDefn == null ) {    	
@@ -1005,128 +1093,24 @@ public class ResourceSelectionControl extends Composite {
 			cycleTimeCombo.setEnabled( true );
 			cycleTimeLbl.setVisible( rscDefn.isForecast() );
 			cycleTimeCombo.setVisible( rscDefn.isForecast() );
+			availDataTimeLbl.setVisible( !rscDefn.isForecast() );
 	
         	if( !rscDefn.isForecast() ) {        
         		return;
         	}
         }
 
-    	HashMap<String,RequestConstraint> constraintMap = new HashMap<String,RequestConstraint>();
-        // the parameters associated with the Resource Type and not the group or attributes.
-    	
-		// TODO : Temporary code ..... It would be nice to use the resourceData objects to 
-    	// get the query parameters but they haven't been instantiated yet...
-    	//
         try {
-            HashMap<String,String> rscParams = 
-    			rscDefnsMngr.getAllResourceParameters( seldResourceName );
-
-            if( rscDefn.getRscImplementation().equals( "ModelFcstGridContours" ) ||
-        		rscDefn.getRscImplementation().equals( "EnsembleFcstGridContours" )) {
-
-            	if( !rscParams.containsKey("pluginName") ) {
-            		System.out.println("Error: grid .prm file must specify a pluginName of either: "+
-            				"ncgrib or "+ GempakGrid.gempakPluginName );
-            		return;
-            	}
-
-            	String pluginName = rscParams.get("pluginName");
-
-            	// would like to use the constant in NcGridData but E dependency again.
-            	if( pluginName.equals( GempakGrid.gempakPluginName ) ) {
-            		isGempakData = true;
-            	} else if( pluginName.equals("ncgrib")) {
-            		
-            		constraintMap.put("pluginName", new RequestConstraint("ncgrib",
-            				ConstraintType.EQUALS));
-            		
-            		if (rscDefn.getRscImplementation().equals( "EnsembleFcstGridContours")) {
-            			// ModelListInfo modelListInfo = new ModelListInfo(rscParams.get("GDFILE"));
-            			// String modelName = modelListInfo.getModelList().get(0)
-            			//                   .getModelName().toUpperCase();
-            			
-            			// 	get the primary model stored as a Resource parameter 
-            			// (the commented out code below will get the modelname stored 
-            			// in the attributeset)            			
-            			String availModels = rscParams.get("availableModels");
-            			if( availModels == null ) {
-            				System.out.println("Error: no model names set for ensembleComponentModels");
-            				throw new VizException("Error: no model names set for ensembleComponentModels");
-            			}
-            			
-            			// get the 'primary' model which is the first in the list.
-            			String[] modelNames = availModels.split(";");
-            			String modelName = modelNames[0];
-            			
-            			// if the primary model has ensemble members. 
-            			if( modelName.indexOf(":" ) != -1 ) {
-            				modelName = modelName.split(":")[0];
-            			}
-            			
-//                    	// we can't get the if the attributeSet has not been selected yet.
-//            			// 
-//            			if( seldResourceName.getRscAttrSetName().isEmpty() ) {
-//            				cycleTimeCombo.removeAll();
-//            				cycleTimes.clear();
-//            				return;
-//            			}
-//            			
-//            			String ensCompWeights = rscParams.get("ENS_COMPONENT_WEIGHTS");
-//            			
-//            			if( ensCompWeights == null ) {
-//            				System.out.println("Error: no model names set for ensembleComponentWeights");
-//            				throw new VizException("Error: no model names set for ensembleComponentWeights");
-//            			}
-//            			// TODO : move the code below out of this class....
-//            			//EnsembleComponentData.getPrimaryModel( ensCompWeights );            				
-//            			String[] modelWeights = ensCompWeights.split(",");
-//            			String modelName = modelWeights[0].trim();
-//            			int indx1 = ( modelName.indexOf("%") != -1 ?
-//            					      modelName.indexOf("%") : modelName.indexOf("{") );
-//            			int indx2 = ( modelName.indexOf("|") != -1  ?
-//            						  modelName.indexOf("|") : modelName.indexOf("}") );
-//            			
-//            			modelName = modelName.substring( indx1+1,            					
-//            						(indx2 != -1 ? indx2 : modelName.length() ) );
-            			
-            			constraintMap.put("modelInfo.modelName",
-            					new RequestConstraint(modelName, ConstraintType.EQUALS));            				
-
-            		} else {
-            			constraintMap.put("modelInfo.modelName",
-            					new RequestConstraint(rscParams.get("GDFILE"),
-            							ConstraintType.EQUALS));
-            			
-            			if( rscParams.containsKey("eventName") ) {
-            				constraintMap.put("eventName",
-                					new RequestConstraint( rscParams.get("eventName"),
-                							ConstraintType.LIKE ) );
-            			}
-            		}
-            	}
-            } else if (rscDefn.getRscImplementation().equals("IDFT")) {
-            	constraintMap.put("pluginName", new RequestConstraint("idft",
-            			ConstraintType.EQUALS));
-            } else if (rscDefn.getRscImplementation().equals("PlotData")) {
-//            	rscParams = rscDefnsMngr
-//            	         .getResourceParametersForType(seldResourceName);
-            	constraintMap.put("pluginName", new RequestConstraint(rscParams
-            			.get("pluginName"), ConstraintType.EQUALS));
-//            	if( rscParams.containsKey("reportType") ) { // bufrmos doesn't have a reportType
-//            		constraintMap.put( "reportType",
-//            				new RequestConstraint(rscParams.get("reportType"),
-//            						ConstraintType.IN));
-//            	}
-            } else {
-            	System.out.println("Cant get cycle times for unknown fcst rsc:"
-            			+ seldResourceName.getRscType());
-            	return;
-            }
-
-            if (isGempakData) {
+		    // if this is reading from gempak
+		    //
+            // would like to use the constant in NcGridData but E dependency again.
+            if( rscDefn.getPluginName().equals( GempakGrid.gempakPluginName ) ) {
             	/*
             	 * For a GEMPAK dataSource get gridCycleTimes from the dataLocation
             	 */
+                HashMap<String,String> rscParams = 
+        			rscDefnsMngr.getAllResourceParameters( seldResourceName );
+
             	cycleTimeCombo.removeAll();
             	cycleTimes.clear();
             	try {
@@ -1150,69 +1134,59 @@ public class ResourceSelectionControl extends Composite {
             			cycleTimeCombo.select(0);
             		}
             	} catch (VizException e) {
-            		System.out.println("Error querying cycle times: "
+            		out.println("Error querying cycle times: "
             				+ e.getMessage().split(":")[1]);
             	}
+            	
+            	return;
             } 
-            else {
-            	LayerProperty property = new LayerProperty();
-            	property.setDesiredProduct(ResourceType.PLAN_VIEW);
+            
+        	List<DataTime> availableTimes = null;
 
-            	property.setEntryQueryParameters(constraintMap);
+        	// for nctaf, only add cycle times at 00Z
+        	if( rscDefn.getPluginName().equals( "nctaf" ) ) {
+        		availableTimes = rscDefn.getNormalizedDataTimes( seldResourceName, 24*60 );
+        	}
+        	else {
+        		availableTimes = rscDefn.getDataTimes( seldResourceName );
+        	}
 
-            	DataTime[] availableTimes = property.getEntryTimes();
+        	// save the currently selected cycle time.
+        	//
+        	String curSelTime = cycleTimeCombo.getText();
+        	
+            cycleTimeCombo.removeAll();
+            cycleTimes.clear();
 
-            	// ArrayList<String> cycleTimes = new ArrayList<String>();
+            // 
+            for( int t=availableTimes.size()-1 ; t >= 0 ; t-- ) {
+            	DataTime dt = availableTimes.get( t );
+            	DataTime refTime = new DataTime( dt.getRefTime() );
 
-            	cycleTimeCombo.removeAll();
-            	cycleTimes.clear();
-
-            	for (DataTime dt : availableTimes) {
-            		DataTime refTime = new DataTime(dt.getRefTime());
-
-            		if (!cycleTimes.contains(refTime)) {
-            			//cycleTimes.add(0, refTime);
-
-            			NumberFormat nf = NumberFormat.getInstance();
-            			nf.setMinimumIntegerDigits(2);
-            			nf.setMinimumFractionDigits(0);
-            			nf.setMaximumFractionDigits(2);
-            			nf.setMaximumIntegerDigits(2);
-
-            			Calendar cal = Calendar.getInstance(TimeZone
-            					.getTimeZone("GMT"));
-            			cal.setTime(dt.getRefTime());
-            			int yy = cal.get(Calendar.YEAR) % 100;
-            			String yyStr = nf.format(yy);// (yy<2000 ? yy-1900 :
-            			// yy-2000 )
-            			String mon = nf.format(cal.get(Calendar.MONTH) + 1);
-            			String dd = nf.format(cal.get(Calendar.DAY_OF_MONTH));
-            			String hh = nf.format(cal.get(Calendar.HOUR_OF_DAY));
-            			String min = nf.format(cal.get(Calendar.MINUTE));
-
-            			String cycleTimeStr = String.format("%s%s%s/%s%s",
-            					yyStr, mon, dd, hh, min);
-
-            			if (rscParams.get("pluginName") != null && rscParams.get("pluginName").equals("nctaf")) {
-            				// for nctaf, only add cycle times at 00Z
-            				if (cycleTimeStr.endsWith("0000")) {
-            					cycleTimes.add(0, refTime);
-            					cycleTimeCombo.add(NmapCommon
-            							.getTimeStringFromDataTime(dt, "_"), 0);  
-            				}
-            			}
-            			else {
-            				cycleTimes.add(0, refTime);
-        					cycleTimeCombo.add(NmapCommon
-            						.getTimeStringFromDataTime(dt, "_"), 0);            				
-            			}
-            		}
-            	}
-
-            	if (!cycleTimes.isEmpty()) {
-            		cycleTimeCombo.select(0);
+            	if (!cycleTimes.contains(refTime)) {
+            		cycleTimes.add( refTime );
+            		String timeStr = NmapCommon.getTimeStringFromDataTime( dt, "_" );
+            		cycleTimeCombo.add( timeStr );            		
             	}
             }
+
+            for( int t=0 ; t<cycleTimeCombo.getItemCount() ; t++ ) {
+        		if( cycleTimeCombo.getItem(t).equals( curSelTime ) ) {
+        			cycleTimeCombo.select( t );        			
+        			break;
+        		}
+            }
+            
+            if( cycleTimes.isEmpty() ) {
+            	cycleTimeCombo.setVisible( false );
+            	cycleTimeLbl.setVisible( false );
+            	availDataTimeLbl.setVisible( true );
+            	availDataTimeLbl.setText("No Data Available");
+            }
+            else if( cycleTimeCombo.getSelectionIndex() == -1 ){
+            	cycleTimeCombo.select(0);
+            }
+
         } catch (VizException ve ) {
         	MessageDialog errDlg = new MessageDialog( 
         			NmapUiUtils.getCaveShell(), 
