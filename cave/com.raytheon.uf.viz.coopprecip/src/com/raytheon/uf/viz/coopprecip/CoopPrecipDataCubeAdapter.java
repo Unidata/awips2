@@ -42,7 +42,6 @@ import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
@@ -99,7 +98,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         ffgDescription.parameters[6] = new ParameterDescription("stationId",
                 Type.STRING);
         ffgDescription.parameters[7] = new ParameterDescription("id", Type.INT);
-        ffgDescription.parameters[8] = new ParameterDescription("dataURI", Type.STRING);
+        ffgDescription.parameters[8] = new ParameterDescription("dataURI",
+                Type.STRING);
 
         rtpDescription.parameters = new ParameterDescription[7];
         rtpDescription.parameters[0] = new ParameterDescription("time",
@@ -113,7 +113,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         rtpDescription.parameters[4] = new ParameterDescription("stationId",
                 Type.STRING);
         rtpDescription.parameters[5] = new ParameterDescription("id", Type.INT);
-        rtpDescription.parameters[6] = new ParameterDescription("dataURI", Type.STRING);
+        rtpDescription.parameters[6] = new ParameterDescription("dataURI",
+                Type.STRING);
 
     }
 
@@ -128,7 +129,6 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         List<List<DataTime>> results = new ArrayList<List<DataTime>>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
-        	request.setSimDate(SimulatedTime.getSystemTime().getTime());
             DataTime[] result = timeQuery(request.getQueryTerms(),
                     request.isMaxQuery(), request.getBinOffset());
             if (result != null) {
@@ -243,7 +243,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
                         pdv.setFloat("3hr", Float.valueOf(parts[1]));
                         pdv.setFloat("6hr", Float.valueOf(parts[2]));
                         pdv.setString("stationId", station);
-                        pdv.setString("dataURI", "/textPoints/" + station + "/" + time);
+                        pdv.setString("dataURI", "/textPoints/" + station + "/"
+                                + time);
                         // TODO this id is not really guaranteed to be unique
                         pdv.setInt("id", ((int) time) + station.hashCode());
                     }
@@ -321,7 +322,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
                         pdv.setFloat("latitude", (float) coord.latlon.y);
                         pdv.setFloat("precip", precip);
                         pdv.setString("stationId", station);
-                        pdv.setString("dataURI", "/textPoints/" + station + "/" + time);
+                        pdv.setString("dataURI", "/textPoints/" + station + "/"
+                                + time);
                         // TODO this id is not really guaranteed to be unique
                         pdv.setInt("id", ((int) time) + station.hashCode());
                     }
