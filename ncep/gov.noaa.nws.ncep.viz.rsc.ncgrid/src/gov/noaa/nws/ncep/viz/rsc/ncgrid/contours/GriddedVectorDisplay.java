@@ -1,8 +1,11 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.contours;
 
 
+import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
+import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.edex.common.dataRecords.NcFloatDataRecord;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
+import gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgribLogger;
 import gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData;
 
 import java.nio.FloatBuffer;
@@ -44,6 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Mar 01, 2012            X. Guo       Added isDirectional and contourAttributes
  * 										 to handle vector type changes
  * Apr 03, 2012            X. Guo       Added createWireFrame
+ * May 23, 2012            X. Guo       Loaded ncgrib logger
  * </pre>
  * 
  * @author bsteffen
@@ -51,6 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
+	private static NcepLogger logger = NcepLoggerManager.getNcepLogger(GriddedVectorDisplay.class);
     private final FloatBuffer magnitude;
 
     private final FloatBuffer direction;
@@ -81,14 +86,17 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     
     private boolean isDirectional;
     
+    private static NcgribLogger ncgribLogger;
     
     public GriddedVectorDisplay(NcFloatDataRecord rec,
     		DisplayType displayType, boolean directional, IMapDescriptor descriptor, 
             ISpatialObject gridLocation, ContourAttributes attrs) {
         super(descriptor, MapUtil.getGridGeometry(gridLocation),gridLocation.getNx(),gridLocation.getNy());
-        
+        long t1 = System.currentTimeMillis();
         this.data = rec;
         this.contourAttributes = attrs;
+        ncgribLogger = NcgribLogger.getInstance();
+        
         if (directional) {
         	float[] dir = rec.getXdata();
     		float[] spd = new float[dir.length];
@@ -104,24 +112,29 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     		this.direction = FloatBuffer.wrap(dir);
         }
         else {
-        	float [] spd = new float[rec.getXdata().length];
-    		float [] dir = new float[rec.getXdata().length];
+        	float[] dirX = rec.getXdata();
+    		float[] dirY = rec.getYdata();
     		
+        	float [] spd = new float[dirX.length];
+    		float [] dir = new float[dirX.length];
+    		
+    	
     		for (int i = 0; i < spd.length; i++) {
-    			if (rec.getXdata()[i] == -999999.0f || rec.getYdata()[i] == -999999.0f) {
+    			if (dirX[i] == -999999.0f || dirY[i] == -999999.0f) {
     				spd[i] = -999999.0f;
     				dir[i] = -999999.0f;
     			}
     			else {
-    				spd[i] = (float) Math.hypot(rec.getXdata()[i], rec.getYdata()[i]);
-    				dir[i] = (float) (Math.atan2(rec.getXdata()[i], rec.getYdata()[i]) * 180 / Math.PI) + 180;
+    				spd[i] = (float) Math.hypot(dirX[i], dirY[i]);
+    				dir[i] = (float) (Math.atan2(dirX[i], dirY[i]) * 180 / Math.PI) + 180;
     			}
     		}
     		
     		this.magnitude     = FloatBuffer.wrap(spd);
     		this.direction = FloatBuffer.wrap(dir);
         }
-        
+        long t2 = System.currentTimeMillis();
+        logger.debug("GriddedVectorDisplay after check -999999 took:" + (t2-t1));
         this.gridLocation = gridLocation;
         this.displayType = displayType;
         this.gc = new GeodeticCalculator(descriptor.getCRS());
@@ -171,9 +184,13 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
     	if (lastShape == null) {
     		try {
+    			long t1 = System.currentTimeMillis();
     			lastShape = target.createWireframeShape(false, descriptor);
     			super.paint(gridRscData, target, paintProps);
     			lastShape.compile();
+    			long t4 = System.currentTimeMillis();
+    			if ( ncgribLogger.enableCntrLogs() )
+    				logger.info("--GriddedVectorDisplay: create wireframe took:" + (t4-t1));
     		}
     		catch ( VizException e) {
     			lastShape = null;

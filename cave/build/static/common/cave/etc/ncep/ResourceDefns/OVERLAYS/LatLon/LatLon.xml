@@ -3,7 +3,7 @@
     <isEnabled>true</isEnabled>
     <resourceDefnName>LatLon</resourceDefnName>
     <resourceCategory>OVERLAY</resourceCategory>
-    <resourceParameters>legend_color= RGB {255, 165, 79}</resourceParameters>
+    <resourceParameters></resourceParameters>
     <filterLabels></filterLabels>
     <rscImplementation>LatlonOverlay</rscImplementation>
     <subTypeGenerator></subTypeGenerator>

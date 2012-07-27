@@ -4,7 +4,7 @@
     <resourceDefnName>WESTNMM</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=WESTNMM
+GDFILE=westnmm
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

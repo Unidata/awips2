@@ -7,13 +7,14 @@
           <resourceData xsi:type="NC-LPIResourceData">
             <filename>${LpiFilename}</filename>
             <mapName>${mapName}</mapName>
-            <legendColor>${legend_color}</legendColor>
+            <legendColor>${color}</legendColor>
             <color>${color}</color>
             <markerState>${markerState}</markerState>
             <markerType>${markerType}</markerType>
             <markerSize>${markerSize}</markerSize>
             <markerWidth>${markerWidth}</markerWidth>
-            <markerTextSize>${markerTextSize}</markerTextSize>
+            <markerTextSize>${markerTextSize}</markerTextSize>            
+            <markerTextAppearanceZoomLevel>${markerTextAppearanceZoomLevel}</markerTextAppearanceZoomLevel>
           </resourceData>
         </resource>
 </resourceGroup>

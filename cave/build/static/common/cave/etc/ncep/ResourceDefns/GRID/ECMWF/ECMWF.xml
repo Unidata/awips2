@@ -4,7 +4,7 @@
     <resourceDefnName>ECMWF</resourceDefnName>
     <resourceCategory>GRID</resourceCategory>
     <resourceParameters>
-GDFILE=ECMWF25
+GDFILE=ecmwf25
 pluginName=ncgrib
 eventName=%
     </resourceParameters>

@@ -32,8 +32,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -65,6 +63,9 @@ import gov.noaa.nws.ncep.ui.pgen.tools.PgenTcaTool;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 06/09					S. Gilbert   	Initial Creation.
+ * 05/12		769			B. Yin			Move the creation of UTC time and 
+ *											isTimeValid, getInitialTime to PgenUtil
+ *											so that Watch can also use them.
  *
  * </pre>
  * 
@@ -395,48 +396,15 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 		/*
 		 * valid Time text field ----  REPLACED WITH DateTime WIDGETS ABOVE
 		 */
+	
 		validTime = new Text(g1, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
-		validTime.setTextLimit(4);
 		fd = new FormData();
 		fd.top = new FormAttachment(stormNameField,10, SWT.BOTTOM);
 		fd.left = new FormAttachment(validDate, 10, SWT.RIGHT);
 		//fd.right = new FormAttachment(stormTypes, 0, SWT.RIGHT);
 		validTime.setLayoutData(fd);
-		validTime.setText( getInitialTime() );
-		validTime.addVerifyListener( new VerifyListener(){
-
-			@Override
-			public void verifyText(VerifyEvent ve) {
-				final char BACKSPACE = 0x08;
-				final char DELETE = 0x7F;
-				
-				if ( Character.isDigit(ve.character) || 
-					  ve.character == BACKSPACE || ve.character == DELETE ) ve.doit = true;
-				else {
-					ve.doit = false;
-					Display.getCurrent().beep();
-				}
-			}} );
-		
-		validTime.addModifyListener( new ModifyListener() {
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				if ( isTimeValid( validTime.getText() ) )
-					validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_WHITE));
-				else
-					validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_RED));
-			}
-			
-		});
-		 
-		Label utcLabel = new Label(g1,SWT.NONE);
-		utcLabel.setText("UTC");
-		fd = new FormData();
-		fd.top = new FormAttachment(stormNameField,15, SWT.BOTTOM);
-		fd.left = new FormAttachment(validTime, 5, SWT.RIGHT);
-		fd.right = new FormAttachment(stormTypes, 0, SWT.RIGHT);
-		utcLabel.setLayoutData(fd);
+		PgenUtil.setUTCTimeTextField(g1, validTime, Calendar.getInstance( TimeZone.getTimeZone("GMT")), 
+				stormNameField, 15);
 		
 		/*
 		 * Advisory number label
@@ -558,16 +526,6 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 
 	}
 	
-	private String getInitialTime() {
-		
-		Calendar now = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
-		int minute = now.get(Calendar.MINUTE);
-		if ( minute >= 15 ) now.add(Calendar.HOUR_OF_DAY, 1);
-		int hour = now.get(Calendar.HOUR_OF_DAY);
-
-		return String.format("%02d00", hour);
-	}
-
 	/*
 	 * Create widgets used in the breakpoint modification section of the dialog
 	 */
@@ -865,7 +823,7 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 		        		MessageDialog.ERROR, new String[]{"OK"}, 0);
 		        messageDlg.open();
 			}
-			else if ( ! isTimeValid( validTime.getText() ) ) {
+			else if ( ! PgenUtil.isTimeValid( validTime.getText() ) ) {
 				StringBuilder msg = new StringBuilder("The Product Time ");
 				msg.append('"');
 				msg.append( validTime.getText() );
@@ -946,17 +904,6 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 		
 	}
 	
-	private boolean isTimeValid(String text) {
-		int time = Integer.parseInt(text);
-		int hour = time / 100;
-		int minute = time % 100;
-		
-		if ( hour >= 0 && hour <= 23 &&
-				minute >= 00 && minute <=59 ) return true;
-		
-		return false;
-	}
-
 	/*
 	 * override to do nothing
 	 */

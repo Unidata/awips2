@@ -137,6 +137,9 @@ import com.vividsolutions.jts.io.WKTReader;
  *    04/03/2012   14774/14775 D. Friedman Fixed tiling and lockup problem
  *    05/08/2012   14828       D. Friedman Use nearest-neighbor interpolation for
  *                                         reprojected grids.
+ *    06/19/2012   14988       D. Friedman Choose interpolation method based on
+ *                                         ImagingCapability.isInterpolationState().
+ *                                         Oversample reprojected grids.
  * 
  * </pre>
  * 
@@ -297,11 +300,18 @@ public class GridResource extends
                     .getLocation().getGridGeometry();
             GridGeometry2D expectedGridGeometry = this.gridGeometry[0];
             if (!realGridGeometry.equals(expectedGridGeometry)) {
-                NearestNeighborInterpolation interp = new NearestNeighborInterpolation();
-                GridReprojection reproj = new GridReprojection(
-                        realGridGeometry, expectedGridGeometry);
-                // interp.setMissingThreshold(1.0f); // Should be used for
-                // bi-linear interpolation
+                 GridReprojection reproj = new GridReprojection(realGridGeometry,
+                         expectedGridGeometry);
+                 com.raytheon.uf.common.geospatial.interpolation.Interpolation interp;
+
+                if (getCapability(ImagingCapability.class).isInterpolationState()) {
+                    BilinearInterpolation blInterp = new BilinearInterpolation();
+                    blInterp.setMissingThreshold(1.0f);
+                    interp = blInterp;
+                } else {
+                    interp = new NearestNeighborInterpolation();
+                }
+
                 if (record instanceof FloatDataRecord) {
                     float[] data = ((FloatDataRecord) record).getFloatData();
                     record = record.clone();
@@ -733,7 +743,7 @@ public class GridResource extends
             try {
                 gridGeometry2D = GridGeometry2D.wrap(MapUtil.reprojectGeometry(
                         gridGeometry2D, descriptor.getGridGeometry()
-                                .getEnvelope()));
+                                .getEnvelope(), false, 2));
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to reproject image:" + e.getLocalizedMessage(),
@@ -1490,6 +1500,17 @@ public class GridResource extends
                             pdosToParse.add(pdo);
                         }
                     }
+                }
+            }
+        } else if (type.equals(ChangeType.CAPABILITY)) {
+            if (object instanceof ImagingCapability) {
+                // TODO: check if interpolation state really changed
+                try {
+                    if (descriptor != null)
+                        project(descriptor.getGridGeometry().getCoordinateReferenceSystem());
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error updating grid resource imaging", e);
                 }
             }
         }

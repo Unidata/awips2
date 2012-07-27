@@ -36,32 +36,64 @@
    </extension>
 
    <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
-            attributeName="colorBar"
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceParameter">
+      <nc-resourceParameter
+            paramClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
+            paramName="colorBar"
+            paramType="EDITABLE_ATTRIBUTE"
+            paramRefLocation="ncep/ColorBars/Radar"
             ncResourceName="RadarMosaic">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="colorMapName"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="colorMapName"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="RadarMosaic">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="alpha"
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="alpha"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="RadarMosaic">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="brightness"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="brightness"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="RadarMosaic">
-      </nc-resourceAttribute>      
-      <nc-resourceAttribute
-            attributeClass="Float"
-            attributeName="contrast"
+      </nc-resourceParameter>      
+      <nc-resourceParameter
+            paramClass="Float"
+            paramName="contrast"
+            paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="RadarMosaic">
-      </nc-resourceAttribute>      
+      </nc-resourceParameter>      
+      
+      <!-- the productCode is given in the attrSet but we provide a
+	       default value here to pass validity checking -->                  
+      <nc-resourceParameter
+            ncResourceName="RadarMosaic"
+            paramClass="String"
+            paramName="productCode"
+            defaultValue="not-specified"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+      <nc-resourceParameter
+            ncResourceName="RadarMosaic"
+            paramClass="String"
+            paramName="prodName"
+            defaultValue="not-specified"
+            paramType="REQUEST_CONSTRAINT">
+      </nc-resourceParameter>
+
+      <nc-resourceParameter
+            ncResourceName="RadarMosaic"
+            paramClass="RGB"
+            paramName="legendColor"
+            defaultValue="RGB {200, 200, 200}"
+            paramType="IMPLEMENTATION_PARAM">
+      </nc-resourceParameter>
+
    </extension>
 
 </plugin>

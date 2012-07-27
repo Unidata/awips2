@@ -1,7 +1,7 @@
-legend_color= RGB {255,0,0}
 color= RGB {255,0,0}
 markerState=MARKER_PLUS_TEXT
 markerType=PLUS_SIGN
 markerSize=0.7
 markerWidth=1
 markerTextSize=MEDIUM
+markerTextAppearanceZoomLevel=1

@@ -12,6 +12,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -85,13 +86,13 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     protected DataTime refTime; // if null, use current
 
     // all the times in the db based on the dominant resource
-    private ArrayList<DataTime> allAvailDataTimes;
+    private List<DataTime> allAvailDataTimes;
 
     // all the times in the db based on the dominant resource
-    private ArrayList<DataTime> selectableDataTimes;
+    private List<DataTime> selectableDataTimes;
 
     // the frame times that will be used for the RBD
-    protected ArrayList<DataTime> frameTimes;
+    protected List<DataTime> frameTimes;
 
     // ie GDATTIME used to set the initial frame times
     @XmlAttribute 
@@ -210,7 +211,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         this.frameInterval = frameInterval;
     }
 
-    public ArrayList<DataTime> getFrameTimes() {
+    public List<DataTime> getFrameTimes() {
         return frameTimes;
     }
 
@@ -220,7 +221,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         numFrames = frameTimes.size();
     }
 
-    public ArrayList<DataTime> getSelectableDataTimes() {
+    public List<DataTime> getSelectableDataTimes() {
         return selectableDataTimes;
     }
 
@@ -721,8 +722,8 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                             ((INatlCntrsResourceData) resource
                                     .getResourceData()).getResourceName())) {
                 // TODO : User should not be removing the Dominant Resource
-                System.out
-                        .println("Warning : removing the Dominant Resource for this RBD");
+//                System.out
+//                        .println("Warning : removing the Dominant Resource for this RBD");
             }
 
             dominantRscData = null;

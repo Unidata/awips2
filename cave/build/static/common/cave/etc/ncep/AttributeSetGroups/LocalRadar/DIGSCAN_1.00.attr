@@ -1,9 +1,10 @@
 ! ?what is correct colormap?
 colorMapName=lingray
-colorBar=@dfltRadarColorBar.xml
+colorBar=@ColorBars/Radar/dfltRadarColorBar.xml
 ! 1km Digital Hybrid Scan Refl.
 productCode=32
 elevationNumber=0
+!primaryElevationAngle=0.0
 alpha=1.0
 brightness=1.0
 contrast=1.0

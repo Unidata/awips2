@@ -19,6 +19,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.gfa.GfaReducePoint;
 
 /**
  * Implements a modal map tool for PGEN deleting point function.
@@ -32,6 +34,7 @@ import gov.noaa.nws.ncep.ui.pgen.filter.OperationFilter;
  * 11/10		#332		B. Yin		Added cleanup() for handler
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 02/12		#665		J. Wu		Back to "Select" if no DE selected
+ * 05/12		#610		J. Wu   	Add warning when GFA FROM lines > 3
  *
  * </pre>
  * 
@@ -103,7 +106,7 @@ public class PgenDeletePoint extends PgenSelectingTool {
 
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
-        	if ( loc == null ) return false;
+        	if ( loc == null || shiftDown ) return false;
         	
         	if ( button == 1 ) {
 
@@ -134,6 +137,12 @@ public class PgenDeletePoint extends PgenSelectingTool {
         				DrawableElement newEl = (DrawableElement)drawingLayer.getSelectedDE().copy();
         				if (((IMultiPoint)newEl).getLinePoints().length <= 2 )return true;
         				newEl.getPoints().remove( ptIndex );
+        				
+        				if ( newEl instanceof Gfa ) {
+        				    ((Gfa)newEl).setGfaVorText( Gfa.buildVorText( (Gfa)newEl));
+		    				 GfaReducePoint.WarningForOverThreeLines( (Gfa)newEl );
+        				}
+
         				if ( newEl instanceof Jet.JetLine ){
 
         					Jet jet = (Jet)drawingLayer.getActiveLayer().search(drawingLayer.getSelectedDE());
@@ -149,6 +158,7 @@ public class PgenDeletePoint extends PgenSelectingTool {
     						//((MultiPointElement)newEl).setPoints(((MultiPointElement)newEl).getPoints());
     						drawingLayer.setSelected( newEl );
     					}
+        				
         				drawingLayer.removePtsSelected();
         				ptSelected = false;
         			}
@@ -187,7 +197,8 @@ public class PgenDeletePoint extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseDownMove(int anX, int aY, int button){
-        	return true;
+        	if ( shiftDown ) return false;
+        	else return true;
         }  
         
         /*

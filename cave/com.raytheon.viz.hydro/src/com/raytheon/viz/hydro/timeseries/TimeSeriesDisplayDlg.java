@@ -967,11 +967,15 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         resetMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                setZoom(false);
-                setZoomAction(false);
-                setSelectZoom(false);
-                reset = true;
-//                displayCanvas.redraw();
+            	if (groupInfo.isGroupSelected()) {
+            	    setZoom(false);
+            	    setZoomAction(false);
+            	    setSelectZoom(false);
+                    reset = true;
+                    displayCanvas.redraw();
+            	} else {
+            		displayCanvas.resetTS();
+            	}
             }
         });
     }

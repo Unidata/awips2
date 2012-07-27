@@ -45,6 +45,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import gov.noaa.nws.ncep.gempak.parameters.core.contourinterval.CINT;
@@ -72,6 +74,9 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.graphtogrid.G2GCommon;
 import gov.noaa.nws.ncep.ui.pgen.graphtogrid.GraphToGridParamDialog;
 import gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow;
+import gov.noaa.nws.ncep.ui.pgen.tools.AbstractPgenTool;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursTool;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursTool.PgenContoursHandler;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
@@ -98,6 +103,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
  * 07/11		#?			J. Wu		Updated symbol selection panel and allowed closed
  * 08/11		#?			J. Wu   	TTR78: keep line/symbol/label attr window open.
  * 01/12		#?			J. Wu   	Fixed exceptions when closing the dialog.
+ * 05/12		756			B. Yin		Fixed the place symbol exception
  * </pre>
  * 
  * @author	J. Wu
@@ -520,6 +526,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 					 if ( minmaxAttrDlg == null ){
 						 minmaxAttrDlg = new ContourMinmaxAttrDlg(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 						 minmaxAttrDlg.setPgenCategory( "SYMBOL" );
+						 minmaxAttrDlg.setPgenType( getActiveSymbolObjType());
 					 }
 					 
 					 openAttrDlg( minmaxAttrDlg );
@@ -2598,6 +2605,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 	 */
 	private class ContourMinmaxAttrDlg extends LabeledSymbolAttrDlg {
 		
+		private PgenContoursTool tool = null;
+		
 		private ContourMinmaxAttrDlg(Shell parShell) throws VizException {
 			
 	        super(parShell);
@@ -2638,8 +2647,40 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		private void initDlg() {			
 			this.getShell().setText("Contour Min/Max Attributes");
 			super.setLabelChkBox( false );
+			AbstractPgenTool apt = (AbstractPgenTool) VizPerspectiveListener.getCurrentPerspectiveManager().getToolManager().getSelectedModalTool("gov.noaa.nws.ncep.viz.ui.modalTool");
+			if ( apt instanceof PgenContoursTool ) tool = (PgenContoursTool) apt;
+			if ( tool != null ) {
+				tool.resetUndoRedoCount();
+				PgenSession.getInstance().getCommandManager().addStackListener( tool );
+			}
+		}
+		
+		@Override
+		public boolean close(){
+			if ( tool != null ){
+				tool.resetUndoRedoCount();
+				PgenSession.getInstance().getCommandManager().removeStackListener( tool );
+			}
+			return super.close();
 		}
 
+		/**
+		 * Place the symbol at location from the lat/lon text fields
+		 */
+		@Override
+		protected void placeSymbol(){
+			
+			if ( tool != null ){
+
+				((PgenContoursHandler)tool.getMouseHandler()).drawContourMinmax(
+						new Coordinate(Double.parseDouble(longitudeText.getText()),
+								Double.parseDouble(latitudeText.getText())));
+				placeBtn.setEnabled(false);
+				undoBtn.setEnabled(true);
+				undoBtn.setText("Undo Symbol");
+
+			}
+		}
 	}
 	
 
