@@ -70,6 +70,10 @@
 			<param name="feature"
 				value="com.raytheon.uf.edex.ncep.feature" />
 		</antcall>
+		<antcall target="build">
+			<param name="feature"
+				value="com.raytheon.uf.edex.ost.feature" />
+		</antcall>
 		<!-- SPECIAL CASE -->
 		<if>
 			<equals arg1="${lightning}" arg2="true" />
