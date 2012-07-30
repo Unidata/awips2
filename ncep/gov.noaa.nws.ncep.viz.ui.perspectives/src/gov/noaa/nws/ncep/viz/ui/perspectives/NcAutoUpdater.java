@@ -31,8 +31,6 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AbstractAlertMessageParser;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
@@ -82,9 +80,6 @@ public class NcAutoUpdater implements IAlertObserver {
             Object objectToSend = null;
             Map<String, Object> attribs = new HashMap<String, Object>(
                     message.decodedAlert);
-            DataTime dataTime = (DataTime) attribs.get("dataTime");
-			if (dataTime.getRefTime().before(
-					SimulatedTime.getSystemTime().getTime())) {
 				String dataURI = message.dataURI;
 				if (reqResourceData.isUpdatingOnMetadataOnly()) {
 					PluginDataObject record = RecordFactory.getInstance()
@@ -95,7 +90,6 @@ public class NcAutoUpdater implements IAlertObserver {
 					attribs.put("dataURI", message.dataURI);
 					objectToSend = Loader.loadData(attribs);
 				}
-			}
             return objectToSend;
         }
     };
