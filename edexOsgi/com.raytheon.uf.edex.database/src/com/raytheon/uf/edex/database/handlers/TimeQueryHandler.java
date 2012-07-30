@@ -94,16 +94,19 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
             // getting all times
             DatabaseQuery query = buildQuery(classname, map, true);
             List<DataTime> latestTime = runQuery(dao, query);
-            RequestConstraint timeRC = new RequestConstraint(null,
-                    ConstraintType.LESS_THAN);
-            map.put(REF_TIME, timeRC);
+            if (!map.containsKey(REF_TIME)) {
+                RequestConstraint timeRC = new RequestConstraint(null,
+                        ConstraintType.LESS_THAN);
+                map.put(REF_TIME, timeRC);
+            }
             times = new ArrayList<DataTime>(50);
             while (latestTime != null && latestTime.size() != 0) {
                 DataTime normalTime = binOffset.getNormalizedTime(latestTime
                         .get(0));
                 times.add(normalTime);
                 Date date = binOffset.getTimeRange(normalTime).getStart();
-                timeRC.setConstraintValue(new DataTime(date).toString());
+                map.get(REF_TIME).setConstraintValue(
+                        new DataTime(date).toString());
                 query = buildQuery(classname, map, true);
                 latestTime = runQuery(dao, query);
             }
@@ -111,17 +114,6 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
             DatabaseQuery query = buildQuery(classname, map,
                     request.isMaxQuery());
             times = runQuery(dao, query);
-        }
-        
-        // second check for some complex plugin requests that get by the simDate check in the query
-        ArrayList<DataTime> removes = new ArrayList<DataTime>();
-        for (DataTime time: times) {
-        	if (time.getRefTime().after(request.getSimDate())) {
-        		removes.add(time);
-        	}
-        }
-        if (removes.size() > 0) {
-        	times.removeAll(removes);
         }
 
         return times;
@@ -157,7 +149,7 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
                     constraint.getConstraintType().getOperand(), classname);
         }
 
-        //System.out.println("TimeQuery: " + query.createHQLQuery());
+        // System.out.println("TimeQuery: " + query.createHQLQuery());
         return query;
     }
 
