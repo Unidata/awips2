@@ -26,7 +26,6 @@ import java.util.Map;
 
 import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.rsc.URICatalog;
 import com.raytheon.uf.viz.core.rsc.URICatalog.IURIRefreshCallback;
@@ -66,29 +65,25 @@ public class MenuUpdater implements IAlertObserver {
             Map<String, Object> attribs = new HashMap<String, Object>(
                     message.decodedAlert);
             DataTime dataTimeStr = (DataTime) attribs.get("dataTime");
-            
-			if (dataTimeStr.getRefTime().before(
-					SimulatedTime.getSystemTime().getTime())) {
 
-				if (dataTimeStr != null) {
-					// Update the date catalog
-					List<List<IURIRefreshCallback>> dataTimeList = URICatalog
-							.getInstance().searchTree(attribs);
+            if (dataTimeStr != null) {
+                // Update the date catalog
+                List<List<IURIRefreshCallback>> dataTimeList = URICatalog
+                        .getInstance().searchTree(attribs);
 
-					// If we found listeners, update them
-					if (dataTimeList != null) {
-						DataTime dataTime = dataTimeStr.clone();
+                // If we found listeners, update them
+                if (dataTimeList != null) {
+                    DataTime dataTime = dataTimeStr.clone();
 
-						for (List<IURIRefreshCallback> refreshList : dataTimeList) {
-							for (IURIRefreshCallback callback : refreshList) {
-								if (callback != null) {
-									callback.updateTime(dataTime);
-								}
-							}
-						}
-					}
-				}
-			} 
+                    for (List<IURIRefreshCallback> refreshList : dataTimeList) {
+                        for (IURIRefreshCallback callback : refreshList) {
+                            if (callback != null) {
+                                callback.updateTime(dataTime);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
