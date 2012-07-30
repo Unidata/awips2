@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -87,11 +85,7 @@ public class GribRequestableDataFactory implements IAlertObserver {
     @Override
     public void alertArrived(Collection<AlertMessage> alertMessages) {
         for (AlertMessage mess : alertMessages) {
-        	DataTime dataTime = (DataTime) mess.decodedAlert.get("dataTime");
-			if (dataTime.getRefTime().before(
-					SimulatedTime.getSystemTime().getTime())) {
-				requestableDataMap.remove(mess.dataURI);
-			}
-		}
-	}
+            requestableDataMap.remove(mess.dataURI);
+        }
+    }
 }
