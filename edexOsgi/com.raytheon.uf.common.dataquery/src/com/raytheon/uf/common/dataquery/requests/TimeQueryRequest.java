@@ -50,7 +50,9 @@ import com.raytheon.uf.common.time.SimulatedTime;
 public class TimeQueryRequest implements IServerRequest {
 
     public TimeQueryRequest() {
-        this.simDate = SimulatedTime.getSystemTime().getTime();
+        if (!SimulatedTime.getSystemTime().isRealTime()) {
+            this.simDate = SimulatedTime.getSystemTime().getTime();
+        }
     }
 
     @DynamicSerializeElement
