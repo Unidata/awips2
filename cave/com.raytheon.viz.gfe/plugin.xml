@@ -62,10 +62,6 @@
 		<command id="com.raytheon.viz.gfe.actions.ShowEditActionsDialog"
 			name="Edit Action Dialog">
 		</command>
-		<command
-			id="com.raytheon.viz.gfe.actions.ShowDefineProceduresDialogAction"
-			name="ShowDefineProceduresDialogAction">
-		</command>
 		<command id="com.raytheon.viz.gfe.actions.ExpandTimeScale"
 			name="ExpandTimeScale">
 		</command>
@@ -414,14 +410,6 @@
 		</handler>
 		<handler class="com.raytheon.viz.gfe.actions.ShowEditActionsDialog"
 			commandId="com.raytheon.viz.gfe.actions.ShowEditActionsDialog">
-            <activeWhen>
-                <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
-                </reference>
-            </activeWhen>
-		</handler>
-		<handler
-			class="com.raytheon.viz.gfe.actions.ShowDefineProceduresDialogAction"
-			commandId="com.raytheon.viz.gfe.actions.ShowDefineProceduresDialogAction">
             <activeWhen>
                 <reference definitionId="com.raytheon.viz.gfe.inGFEActionSet">
                 </reference>
