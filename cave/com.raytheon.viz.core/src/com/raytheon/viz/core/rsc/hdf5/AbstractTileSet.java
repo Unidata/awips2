@@ -489,17 +489,17 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
                 }
 
                 drawableImages.add(di);
-            } else {
-                rsc.issueRefresh();
             }
 
-            if (image == null || image.getStatus() != Status.LOADED
-                    || tile.coverage.getMesh() == null) {
+            if (image == null || image.getStatus() != Status.LOADED) {
+                rsc.issueRefresh();
                 needDrawLower = true;
+            }
+
+            if (tile.coverage.getMesh() == null) {
                 tile.coverage.setMesh(target.getExtension(
                         IMapMeshExtension.class).constructMesh(
                         tile.imageGeometry, mapDescriptor.getGridGeometry()));
-                target.setNeedsRefresh(true);
             }
         }
 
