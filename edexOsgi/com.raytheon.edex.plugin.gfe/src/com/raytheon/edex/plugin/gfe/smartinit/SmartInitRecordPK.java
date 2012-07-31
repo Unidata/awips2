@@ -59,12 +59,17 @@ public class SmartInitRecordPK implements ISerializableObject, Serializable,
 
     private static final long serialVersionUID = 1L;
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
-            DatabaseID.MODEL_TIME_FORMAT);
+    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
 
-    static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat df = new SimpleDateFormat(
+                    DatabaseID.MODEL_TIME_FORMAT);
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return df;
+        }
+
+    };
 
     public enum State {
         PENDING, RUNNING
@@ -189,9 +194,7 @@ public class SmartInitRecordPK implements ISerializableObject, Serializable,
         tmp.append(initName);
         tmp.append(" ValidTime: ");
         if (validTime != null) {
-            synchronized (dateFormat) {
-                tmp.append(dateFormat.format(validTime));
-            }
+            tmp.append(dateFormat.get().format(validTime));
         } else {
             tmp.append("null");
         }
