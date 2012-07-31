@@ -341,7 +341,7 @@ public class DataStoreFactory {
      */
     public static String createGroupName(String groupName, String baseDataSet,
             boolean interpolated) {
-        StringBuilder interpolatedGroup = new StringBuilder();
+        StringBuilder interpolatedGroup = new StringBuilder(256);
         if (groupName != null) {
             interpolatedGroup.append(groupName);
         }
