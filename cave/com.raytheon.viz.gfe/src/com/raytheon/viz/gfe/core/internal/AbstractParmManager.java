@@ -106,12 +106,17 @@ public abstract class AbstractParmManager implements IParmManager {
 
     private static final int NOTIFICATION_THREADS = 4;
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
-            DatabaseID.MODEL_TIME_FORMAT);
+    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
 
-    static {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-    }
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat df = new SimpleDateFormat(
+                    DatabaseID.MODEL_TIME_FORMAT);
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return df;
+        }
+
+    };
 
     protected class ParmIDVis {
         private ParmID pid;
@@ -478,9 +483,7 @@ public abstract class AbstractParmManager implements IParmManager {
             if (string.length() - pos == 14) {
                 try {
                     dtg = string.substring(pos + 1);
-                    synchronized (dateFormat) {
-                        dateFormat.parse(dtg);
-                    }
+                    dateFormat.get().parse(dtg);
                 } catch (ParseException e) {
                     return null;
                 }
