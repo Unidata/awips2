@@ -111,19 +111,20 @@ def process_all_satellite():
                             f[newds] = h5py.SoftLink(oldds) 
 
                             group = f[row[DATAURI_IDX] + "/Data-interpolated"]
-                            numLevels = 1
+                            numLevels = 0
                             for n in group.keys():
-                                numLevels += 1
                                 newds = newGroupName + "/Data-interpolated/" + n
                                 if (n == '0'):
                                     # special case for this link.
                                     # dataset /Data-interpolated/0 points to /Data
+                                    # Don't count this link!
                                     oldds = row[DATAURI_IDX] + "/Data"
                                 else:
                                     oldds = row[DATAURI_IDX] + "/Data-interpolated/" + n
+                                    # Only count interpolated levels!
+                                    numLevels += 1
                                 f[newds] = h5py.SoftLink(oldds)
                             # now back up one for the Data,Data-interpolated/0 link
-                            numLevels -= 1
                             updateSql = "update satellite set datauri='" + row[DATAURI_IDX] + "/" + row[COVERAGE_IDX] + "'"
                             updateSql += ", interpolationlevels="  + repr(numLevels)
                             updateSql += " where id=" + row[0] + ";"
