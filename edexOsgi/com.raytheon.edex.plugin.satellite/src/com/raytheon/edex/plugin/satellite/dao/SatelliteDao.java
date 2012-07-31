@@ -152,10 +152,10 @@ public class SatelliteDao extends PluginDao {
                     storageRecord, fillValue);
 
             // How many interpolation levels do we need for this data?
-            // Subtract one for the base level data.
-            int levels = downScaler.getNumberOfDownscaleLevels() - 1;
+            int levels = downScaler.getNumberOfDownscaleLevels();
             // set the number of levels in the 'parent' satellite data.
-            satRecord.setInterpolationLevels(levels);
+            // Subtract one for the base level data.
+            satRecord.setInterpolationLevels(levels - 1);
             if (DataStoreFactory.isInterpolated(levels)) {
                 for (int downscaleLevel = 1; downscaleLevel <= levels; downscaleLevel++) {
                     Rectangle size = downScaler
