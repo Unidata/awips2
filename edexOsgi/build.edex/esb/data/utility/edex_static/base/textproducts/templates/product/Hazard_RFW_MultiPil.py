@@ -639,7 +639,7 @@ class TextProduct(GenericHazards.TextProduct):
                     ugcState = entry['fullStateName']
                 else:
                     ugcState = areaName  #missing fullStateName
-                    LogStream.logProblem(\
+                    LogStream.logEvent(\
                       "AreaDictionary missing fullStateName definition for [" + \
                       areaName + "].")
                 if ugcName not in ugcList:

@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -108,6 +109,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FfmpBasinTableDlg.class);
 
+    private List<FFMPTableDataLoader> retrievalQueue = new ArrayList<FFMPTableDataLoader>();
+    
     private MenuItem linkToFrameMI;
 
     private MenuItem worstCaseMI;
@@ -216,8 +219,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private Composite tableComp;
 
-    private Thread dataRetrieveThread = null;
+    private FFMPTableDataLoader dataRetrieveThread = null;
     
+    private boolean sweet = true;
+
     public FfmpBasinTableDlg(Shell parent, FFMPTableData tData,
             FFMPResource resource) {
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
@@ -1184,6 +1189,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     @Override
     public void timeDurationUpdated(double val, boolean split) {
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+
         updateTimeDurationLabel(val, split);
         if (dialogInitialized) {
             fireTimeChangedEvent(val, split, false);
@@ -1375,7 +1381,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         if (waitCursor == true) {
             shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         }
-
+        
         FFMPFieldChangeEvent ffce = new FFMPFieldChangeEvent(field);
         Iterator<FFMPListener> iter = ffmpListeners.iterator();
 
@@ -1675,11 +1681,15 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     @Override
     public void tableSelection(String pfaf, String name) {
+        if (groupLbl.getText().length() > 0) {
+            sweet = false;
+        }
+
         if ((groupLbl.getText().length() == 0)
                 || allOnlySmallBasinsMI.getSelection()) {
             groupLbl.setText(name);
         }
-
+        
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         fireScreenRecenterEvent(pfaf, 1);
     }
@@ -2028,13 +2038,29 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             FFMPTableDataLoader tableLoader = new FFMPTableDataLoader(me,
                     resource, basinTrendDlg, allowNewTableUpdate, sourceUpdate,
                     date, this);
-            if (dataRetrieveThread != null) {
-                dataRetrieveThread.interrupt();
-                dataRetrieveThread = null;
-            }
 
-            dataRetrieveThread = new Thread(tableLoader);
-            dataRetrieveThread.start();
+            synchronized (retrievalQueue) {                
+                if (dataRetrieveThread == null || dataRetrieveThread.isDone()) {
+                    retrievalQueue.clear();
+                    dataRetrieveThread = tableLoader;
+                    dataRetrieveThread.start();
+                } else {
+                    retrievalQueue.add(tableLoader);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Get the latest TableDataLoader and clear all previous loaders
+     * 
+     * @return
+     */
+    private FFMPTableDataLoader getLoader() {
+        synchronized (retrievalQueue) {
+            FFMPTableDataLoader loader = retrievalQueue.get(retrievalQueue.size() - 1);
+            retrievalQueue.clear();
+            return loader;
         }
     }
 
@@ -2071,11 +2097,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             Display.getDefault().asyncExec(new Runnable() {
                 @Override
                 public void run() {
-
                     allowNewTableUpdate = fupdateData.isAllowNewTableUpdate();
                     sourceUpdate = fupdateData.isSourceUpdate();
 
-                    if (fupdateData.getTableData() != null) {
+                    if (fupdateData.getTableData() != null && sweet) {
                         resetData(fupdateData.getTableData());
                     }
 
@@ -2088,6 +2113,12 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                     updateGapValueLabel(fupdateData.getGapValueLabel());
 
                     resetCursor();
+                    sweet = true;
+                    
+                    if (retrievalQueue.size() > 0) {
+                        dataRetrieveThread = getLoader();
+                        dataRetrieveThread.start(); 
+                    }
                 }
             });
         }

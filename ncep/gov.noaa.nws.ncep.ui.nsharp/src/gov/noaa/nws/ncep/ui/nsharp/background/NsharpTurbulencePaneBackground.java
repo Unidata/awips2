@@ -71,7 +71,7 @@ public class NsharpTurbulencePaneBackground extends NsharpGenericPaneBackground{
 	private void createAllShapes(){
 		IExtent ext = desc.getRenderableDisplay().getExtent();
         double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
-        double xmax = ext.getMaxX();  //Extent's viewable envelope min x and y
+        //double xmax = ext.getMaxX();  //Extent's viewable envelope min x and y
         double ymax = ext.getMaxY();
         double ymin = ext.getMinY();
         double dispX,pX=0;// = xmin + 20 * currentZoomLevel;
