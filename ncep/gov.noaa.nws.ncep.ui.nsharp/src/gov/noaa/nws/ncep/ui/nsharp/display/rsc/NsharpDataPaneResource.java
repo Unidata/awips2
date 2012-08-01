@@ -25,6 +25,7 @@ import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNative.NsharpLibrary._parcel;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
 import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpParcelDialog;
 
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 import org.eclipse.swt.graphics.Rectangle;
@@ -48,7 +49,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 	private int currentTextChapter= 1;
 	private int[] pageDisplayOrderNumberArray; //index is the real page defined in NsharpConstants to be shown, value is the order number of this page. index 0 point to a dummy.
 	private static final String NO_DATA = "NO VALID DATA AVAILABLE";
-	private double charHeight = NsharpConstants.CHAR_HEIGHT_;
+	//private double charHeight = NsharpConstants.CHAR_HEIGHT_;
 	private double curY;
 	private double parcelLineYStart, parcelLineYEnd;
 	private double firstToken, secondToken, thirdToken, forthToken, fifthToken, sixthToken;
@@ -127,10 +128,18 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 	@Override
 	protected void initInternal(IGraphicsTarget target) throws VizException {
 		super.initInternal(target);
-		currentCanvasBoundWidth = NsharpConstants.DATA_PANE_REC_WIDTH;
-		currentCanvasBoundHeight = NsharpConstants.DATA_PANE_REC_HEIGHT;
-		myDefaultCanvasWidth = NsharpConstants.DATA_PANE_REC_WIDTH;
-		myDefaultCanvasHeight = NsharpConstants.DATA_PANE_REC_HEIGHT;	
+		//currentCanvasBoundWidth = NsharpConstants.DATA_PANE_REC_WIDTH;
+		//currentCanvasBoundHeight = NsharpConstants.DATA_PANE_REC_HEIGHT;
+		if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR)||
+				paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR )||
+				paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			myDefaultCanvasWidth = (int) (NsharpConstants.DISPLAY_WIDTH * (1-NsharpConstants.PANE_DEF_CFG_2_LEFT_GP_WIDTH_RATIO)* NsharpConstants.PANE_DEF_CFG_2_DATA_WIDTH_RATIO);
+			myDefaultCanvasHeight = (int) (NsharpConstants.DISPLAY_HEIGHT*NsharpConstants.PANE_DEF_CFG_2_DATA_HEIGHT_RATIO);	
+		} else if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){
+			myDefaultCanvasWidth = (int) (NsharpConstants.DISPLAY_WIDTH * (1-NsharpConstants.PANE_DEF_CFG_1_LEFT_GP_WIDTH_RATIO)* NsharpConstants.PANE_DEF_CFG_1_DATA_WIDTH_RATIO);
+			myDefaultCanvasHeight = (int) (NsharpConstants.DISPLAY_HEIGHT*NsharpConstants.PANE_DEF_CFG_1_DATA_HEIGHT_RATIO);				
+		} 
+		System.out.println("data pane default canv W="+myDefaultCanvasWidth+" h="+myDefaultCanvasHeight);
 		panelRectArray[0] = dataPanel1Background.getRectangle();
 		panelRectArray[1] = dataPanel2Background.getRectangle();
 		dataPanel1Background.initInternal(target);
@@ -218,9 +227,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 	private void drawPanel1(IGraphicsTarget target, Rectangle rect
             ) throws VizException {
 		sumP1Visible =true;
-		
 		extent = new PixelExtent(rect);
-        target.setupClippingPlane(extent);
+		target.setupClippingPlane(extent);
         //font10 = target.initializeFont(fontName, 10, null);
    		 /*
    		 * Chin's NOTE::::
@@ -251,14 +259,17 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		//
    		// Start with Parcel Data
    		// 
-   		double widthGap = (rect.width-100*xRatio)/6;
-   		firstToken=rect.x+100.0*xRatio;
+   		Rectangle2D strBD = target.getStringBounds(font10, NsharpNativeConstants.PAGE1TEXT1_FCST_STR+"XX");
+		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
+		
+   		double widthGap = (rect.width-strBD.getWidth()*hRatio*xRatio)/6;//was -100*xRatio)/6;
+   		firstToken=rect.x+strBD.getWidth()*hRatio*xRatio;//was +100.0*xRatio;
    		secondToken=firstToken+widthGap;
    		thirdToken=secondToken+widthGap;
    		forthToken=thirdToken+widthGap;
    		fifthToken = forthToken+widthGap;
    		sixthToken = fifthToken+widthGap;
-   		target.drawString(font10, "Summary P1", rect.x, rect.y , 0.0,
+   		target.drawString(font10, "Sum1", rect.x, rect.y , 0.0,
 	                TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
 	                VerticalAlignment.TOP, null);
    		target.drawString(font10, "CAPE", firstToken, rect.y , 0.0,
@@ -657,8 +668,11 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		target.drawLine(rect.x, curY, 0.0, rect.x+rect.width, curY, 0.0, NsharpConstants.color_white, 1);
    		
    		//draw a vertical line from 2/3 of x axis
-   		firstToken = rect.x + (rect.width/3*2+ 25)*xRatio;
-   		target.drawLine(firstToken-10*xRatio, curY, 0.0, firstToken-10*xRatio, rect.y+rect.height, 0.0, NsharpConstants.color_white, 1);
+   		strBD = target.getStringBounds(font10, "sfc-3km AglLapseRate=xxC/x.xC/kmX");
+		firstToken=rect.x+strBD.getWidth()*hRatio*xRatio;
+   		//firstToken = rect.x + (rect.width/3*2+ 25)*xRatio;
+   		
+   		target.drawLine(firstToken, curY, 0.0, firstToken, rect.y+rect.height, 0.0, NsharpConstants.color_white, 1);
    		
    		// more thermodynamic data
    		// the following follow show_parcel_new() at xwvid.c of bigNsharp implementation
@@ -804,6 +818,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		 * show_shear_new() at xwvid3.c
 		 *
 		 */
+		
 		extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
         //font10 = target.initializeFont(fontName, 10, null);
@@ -831,7 +846,7 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
    		secondToken=firstToken+widthGap;
    		thirdToken=secondToken+widthGap;
    		forthToken=thirdToken+widthGap;
-   		target.drawString(font10, "Summary P2", rect.x, rect.y , 0.0,
+   		target.drawString(font10, "Sum2", rect.x, rect.y , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 
@@ -1150,21 +1165,31 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 		target.drawString(font10, textStr, rect.x, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_red, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
-				
+		
+		Rectangle2D strBD = target.getStringBounds(font10, textStr+"XXXX");
+		double hRatio = paintProps.getView().getExtent().getWidth() / paintProps.getCanvasBounds().width;
+		
+   		double xGap = strBD.getWidth()*hRatio*xRatio;
 		textStr = "1km";
-		target.drawString(font10, textStr, rect.x+230, curY , 0.0,
+		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_red, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
+		strBD = target.getStringBounds(font10, textStr);
+		xGap = xGap + strBD.getWidth()*hRatio*xRatio;
 		textStr = " & ";
-		target.drawString(font10, textStr, rect.x+260, curY , 0.0,
+		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
+		strBD = target.getStringBounds(font10, textStr);
+		xGap = xGap + strBD.getWidth()*hRatio*xRatio;
 		textStr = "6km";
-		target.drawString(font10, textStr, rect.x+275, curY , 0.0,
+		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_cyan, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
+		strBD = target.getStringBounds(font10, textStr);
+		xGap = xGap + strBD.getWidth()*hRatio*xRatio;
 		textStr = " AGL Wind Barb";
-		target.drawString(font10, textStr, rect.x+300, curY , 0.0,
+		target.drawString(font10, textStr, rect.x+xGap, curY , 0.0,
                 TextStyle.NORMAL, NsharpConstants.color_white, HorizontalAlignment.LEFT,
                 VerticalAlignment.TOP, null);
 		curY = curY+charHeight; //move to new line
@@ -1192,8 +1217,8 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 
 		//1 km wind barb
 		firstToken = rect.x+  rect.width * 3/4;
-		double yOri =  curY-60;
-		double barbScaleF= 12;
+		double yOri =  curY- 4* charHeight;
+		double barbScaleF= charHeight;//12;
 		List<LineStroke> barb = WindBarbFactory.getWindGraphics(
 			(double)nsharpNative.nsharpLib.iwspd(nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(1000))), 
 			(double)nsharpNative.nsharpLib.iwdir(nsharpNative.nsharpLib.ipres(nsharpNative.nsharpLib.msl(1000))));
@@ -3143,26 +3168,55 @@ public class NsharpDataPaneResource extends NsharpAbstractPaneResource{
 	public void setPageDisplayOrderNumberArray(int[] pageDisplayOrderNumberArray) {
 		this.pageDisplayOrderNumberArray = pageDisplayOrderNumberArray;
 	}
-
-
+	@Override
+	protected void adjustFontSize(float canvasW, float canvasH ) {
+		if(canvasH < myDefaultCanvasHeight/3 ||  canvasW< myDefaultCanvasWidth/3){
+			if(font10!=null){
+				font10.dispose();
+			}
+			font10 = target.initializeFont("Monospace", 8, null);
+		} else if(canvasH < myDefaultCanvasHeight/2 ||  canvasW< myDefaultCanvasWidth/2){
+			if(font10!=null){
+				font10.dispose();
+			}
+			font10 = target.initializeFont("Monospace", 8, null);
+		}
+	}
 	@Override
 	public void handleResize(){
 		super.handleResize();
+		//Chin Note; ext size is its view size Not canvas size
 		IExtent ext = getDescriptor().getRenderableDisplay().getExtent();
 		ext.reset();
+		defineCharHeight(font10);
 		float prevHeight = dataPaneHeight;
 		float prevWidth = dataPaneWidth;
-		dataPaneWidth= (int) (ext.getWidth()/2);
-		dataPaneHeight= (int) ext.getHeight();
+		if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_2_STR) || 
+				paneConfigurationName.equals(NsharpConstants.PANE_SPCWS_CFG_STR)||
+				paneConfigurationName.equals(NsharpConstants.PANE_SIMPLE_D2D_CFG_STR)){
+			//these 2 configurations lay 2 data panels side by side
+			dataPaneWidth= (int) (ext.getWidth()/2);
+			dataPaneHeight= (int) ext.getHeight();
+			dp1XOrig = (int) (ext.getMinX());
+			dp1YOrig = (int) (ext.getMinY());
+			dp2XOrig = dp1XOrig+ dataPaneWidth;
+			dp2YOrig = dp1YOrig;
+		} else if(paneConfigurationName.equals(NsharpConstants.PANE_DEF_CFG_1_STR)){
+			//this configuration lays 2 data panels top/down
+			dataPaneWidth= (int) ext.getWidth();
+			dataPaneHeight= (int) ext.getHeight()/2;
+			dp1XOrig = (int) (ext.getMinX());
+			dp1YOrig = (int) (ext.getMinY());
+			dp2XOrig = dp1XOrig;
+			dp2YOrig = dp1YOrig+dataPaneHeight;
+		}
+		
 		xRatio = xRatio* dataPaneWidth/prevWidth;
-		xRatio=1;
+		xRatio=1; //turn off
 		yRatio = yRatio* dataPaneHeight/prevHeight;
-		yRatio=1;
-		charHeight = charHeight * yRatio;
-		dp1XOrig = (int) (ext.getMinX());
-		dp1YOrig = (int) (ext.getMinY());
-		dp2XOrig = dp1XOrig+ dataPaneWidth;
-		dp2YOrig = dp1YOrig;
+		yRatio=1;//turn off
+		charHeight = (int) (charHeight * yRatio);
+		
 		Rectangle rectangle = new Rectangle(dp1XOrig, dp1YOrig,dataPaneWidth,dataPaneHeight);
 		dataPanel1Background.handleResize(rectangle);
 		rectangle = new Rectangle(dp2XOrig, dp2YOrig,dataPaneWidth,dataPaneHeight);
