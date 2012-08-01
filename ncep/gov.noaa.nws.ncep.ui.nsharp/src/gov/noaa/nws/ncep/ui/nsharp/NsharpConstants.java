@@ -23,12 +23,14 @@ import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.text.DecimalFormat;
+
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 
 public class NsharpConstants {
@@ -379,16 +381,17 @@ public class NsharpConstants {
      * 
      * 
      ****/
-    public static final int DISPLAY_SKEWT=0;
-    public static final int DISPLAY_WITO= DISPLAY_SKEWT+1; //Wind box + InferredTemp + Omega
-    public static final int DISPLAY_INSET= DISPLAY_WITO+1;
-    public static final int DISPLAY_HODO= DISPLAY_INSET+1;
-    public static final int DISPLAY_TIMESTN= DISPLAY_HODO+1;
-    public static final int DISPLAY_DATA=DISPLAY_TIMESTN+1;
-    public static final int DISPLAY_TOTAL= DISPLAY_DATA+1;
-    public static final int CHAR_HEIGHT_ = 15;
+    /*public static  final int DISPLAY_SKEWT=0;
+    public static  final int DISPLAY_WITO= DISPLAY_SKEWT+1; //Wind box + InferredTemp + Omega
+    public static  final int DISPLAY_INSET= DISPLAY_WITO+1;
+    public static  final int DISPLAY_HODO= DISPLAY_INSET+1;
+    public static  final int DISPLAY_TIMESTN= DISPLAY_HODO+1;
+    public static  final int DISPLAY_DATA=DISPLAY_TIMESTN+1;
+    public static  final int DISPLAY_SPC_GRAPHS= DISPLAY_DATA+1;
+    public static  final int DISPLAY_TOTAL= DISPLAY_SPC_GRAPHS+1;*/
+    public static  final int CHAR_HEIGHT_ = 15;
     
-    //note: dimensions are used as reference for its components inside its pane and only relative within its own pane.
+	//note: dimensions are used as reference for its components inside its pane and only relative within its own pane.
     //Sizes defined here have no significant meaning between two different panes. 
     public static final int DISPLAY_WIDTH= 1600;
     public static final int DISPLAY_HEIGHT= 820;
@@ -408,8 +411,10 @@ public class NsharpConstants {
     public static Rectangle WITO_DISPLAY_REC = new Rectangle(0, 0, WITO_PANE_REC_WIDTH, WITO_PANE_REC_HEIGHT);
     public static Rectangle HODO_DISPLAY_REC = new Rectangle(0, 0, HODO_PANE_REC_WIDTH, HODO_PANE_REC_HEIGHT);
     public static Rectangle TIMESTN_DISPLAY_REC = new Rectangle(0, 0, TIMESTN_PANE_REC_WIDTH, TIMESTN_PANE_REC_HEIGHT);
+    public static Rectangle FUTURE_DISPLAY_REC = new Rectangle(0, 0, TIMESTN_PANE_REC_WIDTH, TIMESTN_PANE_REC_HEIGHT);
     public static Rectangle DATA_DISPLAY_REC = new Rectangle(0, 0, DATA_PANE_REC_WIDTH, DATA_PANE_REC_HEIGHT);
     public static Rectangle INSET_DISPLAY_REC = new Rectangle(0, 0, INSET_PANE_REC_WIDTH, INSET_PANE_REC_HEIGHT);
+    public static Rectangle SPC_GRAPH_DISPLAY_REC = new Rectangle(0, 0, DATA_PANE_REC_WIDTH, DATA_PANE_REC_HEIGHT);
     public static final int SKEWT_WIDTH = SKEWT_PANE_REC_WIDTH;//=550
     public static final int SKEWT_HEIGHT = SKEWT_PANE_REC_HEIGHT;//570
     public static final int SKEWT_X_ORIG = 0;
@@ -443,7 +448,7 @@ public class NsharpConstants {
     public static final int OMEGA_WIDTH = WITO_PANE_REC_WIDTH/3;
     public static final int OMEGA_HEIGHT = SKEWT_HEIGHT;
     public static final int OMEGA_Y_END = SKEWT_Y_END;
-    public static final int OMEGA_MAGNIFICATION_FACTOR = 35;
+    public static final int OMEGA_MAGNIFICATION_FACTOR = 20;
     public static final int HODO_X_ORIG = 0;
     public static final int HODO_Y_ORIG = 0;//40;
     public static final int HODO_WIDTH = HODO_PANE_REC_WIDTH;
@@ -451,6 +456,11 @@ public class NsharpConstants {
     public static final int HODO_X_END = HODO_X_ORIG + HODO_WIDTH;
     public static final float HODO_CENTER_X_ = HODO_X_ORIG + (float)(5.00/12.00) * HODO_WIDTH;
     public static final float HODO_CENTER_Y_ = HODO_Y_ORIG + (float)(1.00/2.00) * HODO_HEIGHT;
+    public static final int HODO_COORDINATE_X1 = -50;
+    public static final int HODO_COORDINATE_Y1 = 75;
+    public static final int HODO_COORDINATE_X2 = 70;
+    public static final int HODO_COORDINATE_Y2 = -95;
+    
     public static final int DATA_TIMELINE_X_ORIG = 0;
     public static final int DATA_TIMELINE_Y_ORIG = 40;
     public static final int DATA_TIMELINE_WIDTH = TIMESTN_PANE_REC_WIDTH/2;
@@ -518,7 +528,93 @@ public class NsharpConstants {
     public static final int SRWINDVTRS_Y_ORIG = THETAP_Y_ORIG;
     public static final int SRWINDVTRS_X_END = SRWINDVTRS_X_ORIG+INSET_WIDTH;
     public static final int SRWINDVTRS_Y_END = SRWINDVTRS_Y_ORIG+INSET_HEIGHT;
+    
+    public static final String PANE_LEGACY_CFG_STR = "Legacy Configuration (obsoleting)";
+    public static final String PANE_DEF_CFG_1_STR = "Default Configuration 1";
+    public static final String PANE_DEF_CFG_2_STR = "Default Configuration 2";
+    public static final String PANE_SPCWS_CFG_STR = "SPC Wide Screen Configuration";
+    public static final String PANE_SIMPLE_D2D_CFG_STR = "D2D Skewt Standard Screen Configuration";
+    public static final String[] PANE_CONFIGURATION_NAME = {PANE_DEF_CFG_1_STR, PANE_DEF_CFG_2_STR,PANE_SPCWS_CFG_STR,PANE_SIMPLE_D2D_CFG_STR, PANE_LEGACY_CFG_STR};
+     
+    //pane width and height ratio to full canvas size
+    //  pane default configuration 1  
+    // full canvas consists of  left group and right group
+    // left group has left top and bottom  groups
+    // left top group contains skewt and wito panes
+    // left bottom group contains time/stn and insets panes
+    // right group has hodo and data panes
+    public static final double PANE_DEF_CFG_1_LEFT_GP_WIDTH_RATIO = 0.75;
+    public static final double PANE_DEF_CFG_1_LEFT_TOP_GP_HEIGHT_RATIO = 0.8;
+    public static final double PANE_DEF_CFG_1_RIGHT_TOP_GP_HEIGHT_RATIO = 0.4;
+    public static final double PANE_DEF_CFG_1_SKEWT_WIDTH_RATIO = 0.8;
+    public static final double PANE_DEF_CFG_1_SKEWT_HEIGHT_RATIO = PANE_DEF_CFG_1_LEFT_TOP_GP_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_1_WITO_WIDTH_RATIO = 1-PANE_DEF_CFG_1_SKEWT_WIDTH_RATIO;
+    public static final double PANE_DEF_CFG_1_WITO_HEIGHT_RATIO = PANE_DEF_CFG_1_SKEWT_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_1_HODO_WIDTH_RATIO = 1;
+    public static final double PANE_DEF_CFG_1_HODO_HEIGHT_RATIO = PANE_DEF_CFG_1_RIGHT_TOP_GP_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_1_INSET_WIDTH_RATIO = 0.5;
+    public static final double PANE_DEF_CFG_1_INSET_HEIGHT_RATIO = 1-PANE_DEF_CFG_1_SKEWT_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_1_TIMESTN_WIDTH_RATIO = 1-PANE_DEF_CFG_1_INSET_WIDTH_RATIO;
+    public static final double PANE_DEF_CFG_1_TIMESTN_HEIGHT_RATIO = PANE_DEF_CFG_1_INSET_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_1_DATA_WIDTH_RATIO = 1;
+    public static final double PANE_DEF_CFG_1_DATA_HEIGHT_RATIO = 1-PANE_DEF_CFG_1_HODO_HEIGHT_RATIO;
+    //  pane default configuration 2
+    // full canvas consists of  left group and right group
+    // both groups contains top and bottom  groups
+    // left top group contains skewt and wito panes
+    // left bottom group contains insets panes
+    // right top group has hodo and time/stn panes
+    // right bottom contains data panes
+    public static final double PANE_DEF_CFG_2_LEFT_GP_WIDTH_RATIO = 0.5;
+    public static final double PANE_DEF_CFG_2_LEFT_TOP_GP_HEIGHT_RATIO = 0.8;
+    public static final double PANE_DEF_CFG_2_RIGHT_TOP_GP_HEIGHT_RATIO = 0.7;
+    public static final double PANE_DEF_CFG_2_SKEWT_WIDTH_RATIO = 0.85;
+    public static final double PANE_DEF_CFG_2_SKEWT_HEIGHT_RATIO = PANE_DEF_CFG_2_LEFT_TOP_GP_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_2_WITO_WIDTH_RATIO = 1-PANE_DEF_CFG_2_SKEWT_WIDTH_RATIO;
+    public static final double PANE_DEF_CFG_2_WITO_HEIGHT_RATIO = PANE_DEF_CFG_2_SKEWT_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_2_HODO_WIDTH_RATIO = 0.65;
+    public static final double PANE_DEF_CFG_2_HODO_HEIGHT_RATIO = PANE_DEF_CFG_2_RIGHT_TOP_GP_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_2_INSET_WIDTH_RATIO = 1;
+    public static final double PANE_DEF_CFG_2_INSET_HEIGHT_RATIO = 1-PANE_DEF_CFG_2_SKEWT_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_2_TIMESTN_WIDTH_RATIO = 0.35;
+    public static final double PANE_DEF_CFG_2_TIMESTN_HEIGHT_RATIO = PANE_DEF_CFG_2_HODO_HEIGHT_RATIO;
+    public static final double PANE_DEF_CFG_2_DATA_WIDTH_RATIO = 1;
+    public static final double PANE_DEF_CFG_2_DATA_HEIGHT_RATIO = 1-PANE_DEF_CFG_2_HODO_HEIGHT_RATIO;
+    
+    //  pane SPC wide screen configuration
+    public static final double PANE_SPCWS_CFG_TOP_GP_HEIGHT_RATIO = 0.714; //5/7
+    public static final double PANE_SPCWS_CFG_BOT_GP_HEIGHT_RATIO = 1-PANE_SPCWS_CFG_TOP_GP_HEIGHT_RATIO;
+    //skewt, wito, hodo/inset (hodo stack on inset) panes are located on top group 
+    public static final double PANE_SPCWS_CFG_SKEWT_WIDTH_RATIO = 0.4938;//5/10.125;
+    public static final double PANE_SPCWS_CFG_SKEWT_HEIGHT_RATIO = 1;
+    public static final double PANE_SPCWS_CFG_WITO_WIDTH_RATIO = 0.1111;//1.125/10.125;
+    public static final double PANE_SPCWS_CFG_WITO_HEIGHT_RATIO = 1;
+    public static final double PANE_SPCWS_CFG_HODO_WIDTH_RATIO = 1- PANE_SPCWS_CFG_SKEWT_WIDTH_RATIO-PANE_SPCWS_CFG_WITO_WIDTH_RATIO;
+    public static final double PANE_SPCWS_CFG_HODO_HEIGHT_RATIO = 0.825;//4.125/5; 
+    public static final double PANE_SPCWS_CFG_INSET_WIDTH_RATIO = PANE_SPCWS_CFG_HODO_WIDTH_RATIO;
+    public static final double PANE_SPCWS_CFG_INSET_HEIGHT_RATIO = 1- PANE_SPCWS_CFG_HODO_HEIGHT_RATIO;
+    //data and other graphs panes are located on bottom group
+    public static final double PANE_SPCWS_CFG_DATA_WIDTH_RATIO = 0.5;
+    public static final double PANE_SPCWS_CFG_DATA_HEIGHT_RATIO = 1;
+    public static final double PANE_SPCWS_CFG_SPC_GRAPHS_WIDTH_RATIO = 0.5;
+    public static final double PANE_SPCWS_CFG_SPC_GRAPHS_HEIGHT_RATIO = 1;
 
+    //simple D2D pane configuration. 
+    // full canvas consists of  top and bottom group
+    public static final double PANE_SIMPLE_D2D_CFG_TOP_GP_HEIGHT_RATIO = 0.71;
+    public static final double PANE_SIMPLE_D2D_CFG_BOT_GP_HEIGHT_RATIO = 1-PANE_SIMPLE_D2D_CFG_TOP_GP_HEIGHT_RATIO;
+    //  top group contains left (skewt) and right groups (time/stn stack on future pane) 
+    public static final double PANE_SIMPLE_D2D_CFG_SKEWT_WIDTH_RATIO = 0.75;
+    public static final double PANE_SIMPLE_D2D_CFG_SKEWT_HEIGHT_RATIO = 1;
+    public static final double PANE_SIMPLE_D2D_CFG_TIMESTN_WIDTH_RATIO = 1-PANE_SIMPLE_D2D_CFG_SKEWT_WIDTH_RATIO;
+    public static final double PANE_SIMPLE_D2D_CFG_TIMESTN_HEIGHT_RATIO = 0.5;
+    public static final double PANE_SIMPLE_D2D_CFG_FUTURE_WIDTH_RATIO = PANE_SIMPLE_D2D_CFG_TIMESTN_WIDTH_RATIO;
+    public static final double PANE_SIMPLE_D2D_CFG_FUTURE_HEIGHT_RATIO = 1-PANE_SIMPLE_D2D_CFG_TIMESTN_HEIGHT_RATIO;
+    // bottom group has hodo on left and data pane on right
+    public static final double PANE_SIMPLE_D2D_CFG_HODO_WIDTH_RATIO = 0.34;
+    public static final double PANE_SIMPLE_D2D_CFG_HODO_HEIGHT_RATIO = 1; 
+    public static final double PANE_SIMPLE_D2D_CFG_DATA_WIDTH_RATIO = 1-PANE_SIMPLE_D2D_CFG_HODO_WIDTH_RATIO;
+    public static final double PANE_SIMPLE_D2D_CFG_DATA_HEIGHT_RATIO = 1;
     /***
      * 
      * MULTIPLE PANES IMPLEMENTATIONS end

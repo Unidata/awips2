@@ -622,8 +622,15 @@ public class FFMPProcessor {
                                 + source.getDisplayName();
                     }
 
-                    FFMPDataContainer ffgContainer = generator
-                            .getFFMPDataContainer(sourceNameString);
+					Date backDate = new Date(ffmpRec.getDataTime().getRefTime()
+							.getTime()
+
+							- (3600 * 1000 * 6));
+					ArrayList<String> hucs = new ArrayList<String>();
+					hucs.add("ALL");
+					FFMPDataContainer ffgContainer = generator
+							.getFFMPDataContainer(sourceNameString, hucs,
+									backDate);
 
                     if (ffgContainer != null
                             && ffgContainer.containsKey(source.getSourceName())) {

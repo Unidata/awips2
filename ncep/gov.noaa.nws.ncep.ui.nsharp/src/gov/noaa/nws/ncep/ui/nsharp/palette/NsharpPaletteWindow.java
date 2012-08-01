@@ -109,7 +109,7 @@ DisposeListener, IPartListener{
 	public NsharpPaletteWindow() {
 		super();
 		instance = this;
-		//System.out.println("NsharpPaletteWindow condtructed!!");
+		//System.out.println("palette NsharpPaletteWindow constructed!!");
 		printHandle = NsharpPrintHandle.getPrintHandle();
 		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
 
