@@ -23,6 +23,9 @@ package com.raytheon.uf.common.comm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.Header;
@@ -35,6 +38,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
+import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.AbstractHttpClient;
@@ -63,6 +68,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    7/1/06        #1088       chammack    Initial Creation.
  *    5/17/10      #5901       njensen        Moved to common
  *    03/02/11      #8045       rferrel     Add connect reestablished message.
+ *    07/17/12    #911         njensen    Refactored significantly
  * 
  * </pre>
  * 
@@ -80,8 +86,8 @@ public class HttpClient {
     private static HttpClient instance;
 
     /**
-     * Number of times to retry in the event of a socket exception. Default is
-     * 1.
+     * Number of times to retry in the event of a connection exception. Default
+     * is 1.
      */
     private int retryCount = 1;
 
@@ -93,6 +99,9 @@ public class HttpClient {
     private NetworkStatistics stats = NetworkStatistics.getInstance();
 
     private boolean gzipRequests = false;
+
+    /** number of requests currently in process by the application per host */
+    private Map<String, AtomicInteger> currentRequestsCount = new ConcurrentHashMap<String, AtomicInteger>();
 
     private HttpClient() {
         connManager = new ThreadSafeClientConnManager();
@@ -221,166 +230,170 @@ public class HttpClient {
         return executePostMethod(put);
     }
 
-    private byte[] executePostMethod(HttpPost put) throws IOException,
-            HttpException, CommunicationException {
+    /**
+     * Sends the request to the server, checks the status code (in case of 404,
+     * 403, etc), and returns the response if there was no error code.
+     * 
+     * @param put
+     *            the request to send
+     * @return the response from the server
+     * @throws IOException
+     * @throws CommunicationException
+     */
+    private HttpResponse postRequest(HttpPost put) throws IOException,
+            CommunicationException {
+        HttpResponse resp = client.execute(put);
+        int code = resp.getStatusLine().getStatusCode();
+        if (code != SUCCESS_CODE) {
+            throw new CommunicationException(
+                    "Error reading server response.  Got error message: "
+                            + EntityUtils.toString(resp.getEntity()));
+        } else if (previousConnectionFailed) {
+            previousConnectionFailed = false;
+            statusHandler.handle(Priority.INFO,
+                    "Connection with server reestablished.");
+        }
+        return resp;
+    }
+
+    /**
+     * Posts the request to the server and passes the response stream to the
+     * handler callback. Will also retry the request if it fails due to a
+     * timeout or IO problem.
+     * 
+     * @param put
+     *            the request to post
+     * @param handlerCallback
+     *            the handler to handle the response stream
+     * @throws CommunicationException
+     */
+    private void process(HttpPost put, IStreamHandler handlerCallback)
+            throws CommunicationException {
         int tries = 0;
         boolean retry = true;
-        // long ts = System.currentTimeMillis();
+        HttpResponse resp = null;
+        AtomicInteger ongoing = null;
 
-        while (retry) {
-            retry = false;
-            tries++;
+        try {
+            String host = put.getURI().getHost();
+            ongoing = currentRequestsCount.get(host);
+            if (ongoing == null) {
+                ongoing = new AtomicInteger();
+                currentRequestsCount.put(host, ongoing);
+            }
+            int currentCount = ongoing.incrementAndGet();
+            if (currentCount > getMaxConnectionsPerHost()) {
+                statusHandler.debug(currentCount + " ongoing http requests to "
+                        + host
+                        + ".  Likely waiting for free connection from pool.");
+            }
+            while (retry) {
+                retry = false;
+                tries++;
 
-            try {
-                HttpResponse resp = client.execute(put);
-                int code = resp.getStatusLine().getStatusCode();
-
-                if (code != SUCCESS_CODE) {
-                    throw new CommunicationException(
-                            "Error reading server response.  Got error message: "
-                                    + EntityUtils.toString(resp.getEntity()));
-                } else if (previousConnectionFailed) {
-                    previousConnectionFailed = false;
-                    statusHandler.handle(Priority.INFO,
-                            "Connection with server reestablished.");
-                }
-
-                ByteArrayOutputStream baos = null;
-                InputStream is = null;
-
+                String errorMsg = null;
+                Exception exc = null;
                 try {
-                    // long t0 = System.currentTimeMillis();
-                    HttpEntity entity = resp.getEntity();
+                    resp = postRequest(put);
+                } catch (ConnectionPoolTimeoutException e) {
+                    errorMsg = "Timed out waiting for http connection from pool: "
+                            + e.getMessage();
+                    errorMsg += ".  Currently " + ongoing.get()
+                            + " requests ongoing";
+                    exc = e;
+                } catch (IOException e) {
+                    errorMsg = "Error occurred communicating with server: "
+                            + e.getMessage();
+                    exc = e;
+                }
 
-                    // TODO: print error if entity larger than int, won't be
-                    // able to deserialize
-                    int size = (int) entity.getContentLength();
-                    is = entity.getContent();
-                    byte[] rval = null;
-
-                    if (size > 0) {
-                        rval = new byte[size];
-                        int read = 0;
-                        int index = 0;
-                        // int count = 0;
-                        do {
-                            read = is.read(rval, index, rval.length - index);
-
-                            if (read > 0) {
-                                index += read;
-                                // count++;
-                            }
-                        } while (read > 0 && index != rval.length);
-                        // long t2 = System.currentTimeMillis();
-                        // System.out.println("ContentLength: Read " +
-                        // rval.length
-                        // + " bytes in " + count + " reads, took"
-                        // + (t2 - t0) + "ms, total round trip "
-                        // + (t2 - ts));
+                if (errorMsg != null && exc != null) {
+                    if (tries > retryCount) {
+                        previousConnectionFailed = true;
+                        // close/abort connection
+                        if (put != null) {
+                            put.abort();
+                        }
+                        errorMsg += ".  Hit retry limit, aborting connection.";
+                        throw new CommunicationException(errorMsg, exc);
                     } else {
-                        // grabbing an instance of the pool to use the
-                        // underlying array so as to not create a tmp buffer all
-                        // the time
-                        // TODO: Update edex/jetty to set chunked=false so that
-                        // it sends content length, currently broken as jetty is
-                        // scrambling -128 to 63...
-                        baos = ByteArrayOutputStreamPool.getInstance()
-                                .getStream();
-                        byte[] underlyingArray = baos.getUnderlyingArray();
-                        int read = 0;
-                        int index = 0;
-                        // int count = 0;
-                        do {
-                            read = is.read(underlyingArray, index,
-                                    underlyingArray.length - index);
-
-                            if (read > 0) {
-                                index += read;
-                                // count++;
-                                if (index == underlyingArray.length) {
-                                    baos.setCapacity(underlyingArray.length << 1);
-                                    underlyingArray = baos.getUnderlyingArray();
-                                }
-                            }
-                        } while (read > 0);
-
-                        baos.setCount(index);
-                        rval = new byte[index];
-                        System.arraycopy(underlyingArray, 0, rval, 0, index);
-                        // long t2 = System.currentTimeMillis();
-                        // System.out.println("Read " + rval.length +
-                        // " bytes in "
-                        // + count + " reads, took" + (t2 - t0)
-                        // + "ms, total round trip " + (t2 - ts));
-                    }
-
-                    return rval;
-                } finally {
-                    if (baos != null) {
-                        try {
-                            baos.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    }
-
-                    // It seems we do not need to do this with 4.1 closing the
-                    // input stream from the entity ( 'is' at the time of
-                    // writing ) should allow the connection to be released
-
-                    // if (put != null) {
-                    // put.releaseConnection();
-                    // }
-
-                    if (is != null) {
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    }
-
-                    if (resp != null && resp.getEntity() != null) {
-                        try {
-                            EntityUtils.consume(resp.getEntity());
-                        } catch (IOException e) {
-                            // if there was an error reading the input stream,
-                            // notify but continue
-                            statusHandler
-                                    .handle(Priority.EVENTB,
-                                            "Error reading InputStream, assuming closed",
-                                            e);
-                        }
+                        errorMsg += ".  Retrying...";
+                        statusHandler.handle(Priority.INFO, errorMsg);
+                        retry = true;
                     }
                 }
-            } catch (IOException e) {
-                if (tries <= retryCount) {
-                    statusHandler.handle(
-                            Priority.INFO,
-                            "Error occurred communicating with server: "
-                                    + e.getMessage() + ".  Retrying...");
-                    retry = true;
-                    continue;
-                }
+            }
 
-                previousConnectionFailed = true;
-                // close/abort connection
-                if (put != null) {
-                    put.abort();
-                }
-                statusHandler.handle(Priority.EVENTA,
-                        "IO error in HttpClient, aborting connection.", e);
-                throw e;
+            // should only be able to get here if we didn't encounter the
+            // exceptions above on the most recent try
+            processResponse(resp, handlerCallback);
+        } finally {
+            if (ongoing != null) {
+                ongoing.decrementAndGet();
             }
         }
+    }
 
-        // This point should never be reached
-        CommunicationException e = new CommunicationException(
-                "Error ocurred while contacting host, did not get a reponse or an exception",
-                new Exception(
-                        "Error ocurred while contacting host, did not get a reponse or an exception"));
-        statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(), e);
-        throw e;
+    /**
+     * Streams the response content to the handler callback and closes the http
+     * connection once finished.
+     * 
+     * @param resp
+     *            the http response to stream
+     * @param handlerCallback
+     *            the handler that should process the response stream
+     * @throws CommunicationException
+     */
+    private void processResponse(HttpResponse resp,
+            IStreamHandler handlerCallback) throws CommunicationException {
+        InputStream is = null;
+        if (resp != null && resp.getEntity() != null) {
+            try {
+                is = resp.getEntity().getContent();
+                handlerCallback.handleStream(is);
+            } catch (IOException e) {
+                throw new CommunicationException(
+                        "IO error processing http response", e);
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+
+                // Closes the stream if it's still open
+                try {
+                    EntityUtils.consume(resp.getEntity());
+                } catch (IOException e) {
+                    // if there was an error reading the input stream,
+                    // notify but continue
+                    statusHandler.handle(Priority.EVENTB,
+                            "Error reading InputStream, assuming closed", e);
+                }
+            }
+        } else {
+            // this should be impossible to reach
+            throw new CommunicationException(
+                    "Error ocurred while contacting server, did not get a reponse or an exception");
+        }
+    }
+
+    /**
+     * Posts the request and uses a DefaultInternalStreamHandler to
+     * automatically stream the response into a byte[].
+     * 
+     * @param put
+     *            the post to send to the server
+     * @return the byte[] of the response
+     * @throws CommunicationException
+     */
+    private byte[] executePostMethod(HttpPost put)
+            throws CommunicationException {
+        DefaultInternalStreamHandler handlerCallback = new DefaultInternalStreamHandler();
+        this.process(put, handlerCallback);
+        return handlerCallback.byteResult;
     }
 
     /**
@@ -427,91 +440,13 @@ public class HttpClient {
      *            the message to send
      * @param handlerCallback
      *            the handler callback
-     * @throws VizCommunicationException
+     * @throws CommunicationException
      *             if an error occurred during transmission
-     * @throws VizException
-     *             if an error occurred inside the callback
      */
     public void postStreamingByteArray(String address, byte[] message,
             IStreamHandler handlerCallback) throws CommunicationException {
-        HttpPost put = new HttpPost(address);
-
-        put.setEntity(new ByteArrayEntity(message));
-        int tries = 0;
-        boolean retry = true;
-        while (retry) {
-            retry = false;
-            tries++;
-            try {
-                HttpResponse resp = client.execute(put);
-                int code = resp.getStatusLine().getStatusCode();
-
-                if (code != SUCCESS_CODE) {
-                    throw new CommunicationException(
-                            "Error reading server response.  Got error message: "
-                                    + EntityUtils.toString(resp.getEntity()));
-                } else if (previousConnectionFailed) {
-                    previousConnectionFailed = false;
-                    statusHandler.handle(Priority.INFO,
-                            "Connection with server reestablished.");
-                }
-                InputStream is = null;
-                try {
-                    is = resp.getEntity().getContent();
-                    handlerCallback.handleStream(is);
-                } finally {
-                    if (is != null) {
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    }
-
-                    // It seems we do not need to do this with 4.1 closing the
-                    // input stream from the entity ( 'is' at the time of
-                    // writing ) should allow the connection te be released
-
-                    // if (put != null) {
-                    // put.releaseConnection();
-                    // }
-
-                    try {
-                        // Do not consume if content length unknown: breaks
-                        // compression
-                        if (resp != null && resp.getEntity() != null) {
-                            EntityUtils.consume(resp.getEntity());
-                        }
-                    } catch (IOException e) {
-                        // if there was an error reading the input stream,
-                        // notify but continue
-                        statusHandler
-                                .handle(Priority.EVENTB,
-                                        "Error reading InputStream, assuming closed",
-                                        e);
-                    }
-                }
-            } catch (IOException e) {
-                if (tries <= retryCount) {
-                    statusHandler.handle(
-                            Priority.INFO,
-                            "Error occurred communicating with server: "
-                                    + e.getMessage() + ".  Retrying...");
-                    retry = true;
-                    continue;
-                }
-
-                previousConnectionFailed = true;
-                // close/abort connection
-                if (put != null) {
-                    put.abort();
-                }
-                statusHandler.handle(Priority.EVENTA,
-                        "IO error in HttpClient, aborting connection.", e);
-                throw new CommunicationException(
-                        "Error ocurred while contacting host", e);
-            }
-        }
+        postStreamingEntity(address, new ByteArrayEntity(message),
+                handlerCallback);
     }
 
     /**
@@ -526,95 +461,30 @@ public class HttpClient {
      * @param handlerCallback
      *            the handler callback
      * @throws UnsupportedEncodingException
-     * @throws VizCommunicationException
-     *             if an error occurred during transmission
-     * @throws VizException
-     *             if an error occurred inside the callback
+     * @throws CommunicationException
      */
     @Deprecated
     public void postStreamingString(String address, String message,
             IStreamHandler handlerCallback) throws CommunicationException,
             UnsupportedEncodingException {
+        postStreamingEntity(address, new StringEntity(message), handlerCallback);
+    }
+
+    /**
+     * Posts an entity to the address and stream the result back.
+     * 
+     * @param address
+     *            the http address to post to
+     * @param entity
+     *            an entity containing the message to send
+     * @param handlerCallback
+     *            the handler callback
+     * @throws CommunicationException
+     */
+    private void postStreamingEntity(String address, AbstractHttpEntity entity,
+            IStreamHandler handlerCallback) throws CommunicationException {
         HttpPost put = new HttpPost(address);
-
-        put.setEntity(new StringEntity(message));
-        int tries = 0;
-        boolean retry = true;
-        while (retry) {
-            retry = false;
-            tries++;
-            try {
-                HttpResponse resp = client.execute(put);
-                int code = resp.getStatusLine().getStatusCode();
-
-                if (code != SUCCESS_CODE) {
-                    throw new CommunicationException(
-                            "Error reading server response.  Got error message: "
-                                    + EntityUtils.toString(resp.getEntity()));
-                } else if (previousConnectionFailed) {
-                    previousConnectionFailed = false;
-                    statusHandler.handle(Priority.INFO,
-                            "Connection with server reestablished.");
-                }
-
-                InputStream is = null;
-                try {
-                    is = resp.getEntity().getContent();
-                    handlerCallback.handleStream(is);
-                } finally {
-                    try {
-                        if (is != null) {
-                            is.close();
-                        }
-                    } catch (IOException e) {
-                        // ignore
-                    }
-
-                    // It seems we do not need to do this with 4.1 closing the
-                    // input stream from the entity ( 'is' at the time of
-                    // writing ) should allow the connection te be released
-
-                    // if (put != null) {
-                    // put.releaseConnection();
-                    // }
-
-                    try {
-                        // Do not consume if content length unknown: breaks
-                        // compression
-                        if (resp != null && resp.getEntity() != null) {
-                            EntityUtils.consume(resp.getEntity());
-                        }
-                    } catch (IOException e) {
-                        // if there was an error reading the input stream,
-                        // notify but continue
-                        statusHandler
-                                .handle(Priority.EVENTB,
-                                        "Error reading InputStream, assuming closed",
-                                        e);
-                    }
-                }
-            } catch (IOException e) {
-                if (tries <= retryCount) {
-                    statusHandler.handle(
-                            Priority.INFO,
-                            "Error occurred communicating with server: "
-                                    + e.getMessage() + ".  Retrying...");
-                    retry = true;
-                    continue;
-                }
-
-                previousConnectionFailed = true;
-                // close/abort connection
-                if (put != null) {
-                    put.abort();
-                }
-                statusHandler.handle(Priority.EVENTA,
-                        "IO error in HttpClient, aborting connection.", e);
-                throw new CommunicationException(
-                        "Error ocurred while contacting host", e);
-            }
-        }
-
+        process(put, handlerCallback);
     }
 
     public void setMaxConnectionsPerHost(int maxConnections) {
@@ -679,6 +549,58 @@ public class HttpClient {
          */
         public abstract void handleStream(InputStream is)
                 throws CommunicationException;
+    }
+
+    /**
+     * Automatically reads a stream into a byte array and stores the byte array
+     * in byteResult. Should only be used internally in HttpClient with
+     * convenience methods that do not take an IStreamHandler as an argument.
+     * 
+     */
+    private static class DefaultInternalStreamHandler implements IStreamHandler {
+
+        private byte[] byteResult;
+
+        @Override
+        public void handleStream(InputStream is) throws CommunicationException {
+            ByteArrayOutputStream baos = ByteArrayOutputStreamPool
+                    .getInstance().getStream();
+            try {
+                byte[] underlyingArray = baos.getUnderlyingArray();
+                int read = 0;
+                int index = 0;
+                do {
+                    try {
+                        read = is.read(underlyingArray, index,
+                                underlyingArray.length - index);
+                    } catch (IOException e) {
+                        throw new CommunicationException(
+                                "Error reading byte response", e);
+                    }
+
+                    if (read > 0) {
+                        index += read;
+                        if (index == underlyingArray.length) {
+                            baos.setCapacity(underlyingArray.length << 1);
+                            underlyingArray = baos.getUnderlyingArray();
+                        }
+                    }
+                } while (read > 0);
+
+                baos.setCount(index);
+                byteResult = new byte[index];
+                System.arraycopy(underlyingArray, 0, byteResult, 0, index);
+            } finally {
+                if (baos != null) {
+                    try {
+                        baos.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+            }
+        }
+
     }
 
 }

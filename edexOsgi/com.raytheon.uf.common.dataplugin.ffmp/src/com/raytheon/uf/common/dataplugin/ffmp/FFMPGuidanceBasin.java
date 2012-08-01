@@ -186,15 +186,18 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
      */
     public Float getValue(String sourceName, Date date,
             FFMPGuidanceInterpolation interpolation, long expiration) {
+    	
         Float dvalue = Float.NaN;
-
-        if (getValue(sourceName, expiration) != null) {
-            dvalue = getValue(date, sourceName);
+        Float value = getValue(date, sourceName);
+    
+        if (!value.isNaN()) {
             FFFGDataMgr dman = FFFGDataMgr.getInstance();
             if (dman.isExpired() == false) {
 
                 dvalue = dman.adjustValue(dvalue, sourceName, this.pfaf,
                         this.countyFips);
+            } else {
+            	dvalue = value;
             }
         }
 
@@ -203,54 +206,34 @@ public class FFMPGuidanceBasin extends FFMPBasin implements ISerializableObject 
     }
 
     /**
-     * get youngest key
+     * Get Youngest Key
      * 
      * @param sourceName
      * @return
      */
     public Date getMostRecent(String sourceName, long expiration) {
 
-        Date markerDate = null;
-
-        if ((guidValues != null) && !guidValues.keySet().isEmpty()) {
-            markerDate = guidValues.firstKey();
-        }
-
         Date rdate = null;
-        // System.out.println("Highest time: " + markerDate);
 
-        if ((markerDate != null) && (guidValues.size() > 0)) {
-            if (guidValues.get(markerDate).containsKey(sourceName)) {
-                float val = guidValues.get(markerDate).get(sourceName);
-                if (val != FFMPUtils.MISSING) {
-                    rdate = markerDate;
-                }
-            }
-
-            if (rdate == null) {
-                // take care of interpolated guidance delays (updates to
-                // guidance
-                // data essentially)
-                long time1 = markerDate.getTime();
-                for (Date date : guidValues.keySet()) {
-
-                    long time2 = date.getTime();
-                    if ((time1 - time2) < expiration) {
-                        if (rdate == null) {
-                            rdate = date;
-                        } else {
-                            if (date.before(rdate)) {
-                                // System.out.println("New Date: " + date);
-                                Float val = guidValues.get(rdate).get(
-                                        sourceName);
-                                if ((val != null) && (val != FFMPUtils.MISSING)) {
-                                    return rdate;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        if (guidValues != null && guidValues.size() > 0) {
+        	
+        	Date markerDate = guidValues.firstKey();
+        	
+			for (Date checkDate : guidValues.keySet()) {
+				if (guidValues.get(checkDate).containsKey(sourceName)) {
+					float val = guidValues.get(checkDate).get(sourceName);
+					if (val != FFMPUtils.MISSING) {
+						
+						long time1 = markerDate.getTime();
+	                    long time2 = checkDate.getTime();
+	                    
+		                if ((time1 - time2) < expiration) {
+		                	rdate = checkDate;
+		                } 
+						break;
+					}
+				}
+			}
         }
 
         return rdate;

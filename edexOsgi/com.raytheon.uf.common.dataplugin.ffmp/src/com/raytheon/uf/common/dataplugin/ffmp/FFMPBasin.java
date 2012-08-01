@@ -153,16 +153,15 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
             long expirationTime, boolean rate) {
         float dvalue = 0.0f;
         Date prevDate = null;
+      
         // map ordered newest first, so grab from newest date to oldest date
         if (afterDate.before(beforeDate) && (values.size() > 0)) {
-            // if (values.containsKey(beforeDate) &&
-            // values.containsKey(afterDate))
 
             synchronized (values) {
 
                 ArrayList<Date> keys = new ArrayList<Date>();
 
-                for (Date date : values.keySet()) {
+                for (Date date : values.descendingKeySet()) {
                     if (date.before(beforeDate) && date.after(afterDate)) {
                         keys.add(date);
                     }
@@ -178,26 +177,32 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
                             prevDate = beforeDate;
                         }
 
-                        float factor = 0;
+						if (val > 0.0f) {
+							
+							float factor = 0.0f;
 
-                        if ((prevDate.getTime() - tdate.getTime()) > expirationTime) {
-                            // handle the gap and accumulate the book ends of it
-                            factor = (float) ((prevDate.getTime() - (prevDate
-                                    .getTime() - expirationTime)) / (1000.0 * 60.0 * 60.0));
+							if ((prevDate.getTime() - tdate.getTime()) > expirationTime) {
+								// handle the gap and accumulate the book ends
+								// of it
+								factor = (float) ((prevDate.getTime() - (prevDate
+										.getTime() - expirationTime)) / (1000.0 * 60.0 * 60.0));
 
-                        } else {
-                            factor = (float) ((prevDate.getTime() - tdate
-                                    .getTime()) / (1000.0 * 60.0 * 60.0));
-                        }
-                        val = (val * factor);
-
+							} else {
+								factor = (float) ((prevDate.getTime() - tdate
+										.getTime()) / (1000.0 * 60.0 * 60.0));
+							}
+							// do absolute values so it dosen't matter which way
+							// you traverse the list
+							val = val * Math.abs(factor);
+						}
                     }
+                    
                     dvalue += val;
                     prevDate = key;
-
                 }
             }
         }
+     
         return dvalue;
     }
 
@@ -248,7 +253,11 @@ public class FFMPBasin implements ISerializableObject, Cloneable {
 
 			for (Date date : values.keySet()) {
 				if (date.before(beforeDate) && date.after(afterDate)) {
-					val += values.get(date);
+					float val1 = values.get(date);
+					if (val1 > 0.0) {
+						val += val1;
+						i++;
+					}
 				}
 			}
 

@@ -22,7 +22,11 @@ package gov.noaa.nws.ncep.ui.nsharp.display;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
 
 import java.util.ArrayList;
-import com.raytheon.uf.viz.core.IGraphicsTarget; 
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -32,6 +36,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
     public static GeometryFactory gf = new GeometryFactory();
     protected  int paneNum =0;
@@ -47,7 +52,14 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
 	   	 
 	}
 
-    public NsharpAbstractPaneDisplay(PixelExtent pixelExtent,int paneNumber, String name, NsharpAbstractPaneDescriptor desc) {
+    public NsharpAbstractPaneDisplay() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+    public NsharpAbstractPaneDisplay(PixelExtent pixelExtent,int paneNumber) {
+        this (pixelExtent,paneNumber, "AbstractPane", new NsharpAbstractPaneDescriptor(pixelExtent, paneNumber));
+    }
+	public NsharpAbstractPaneDisplay(PixelExtent pixelExtent,int paneNumber, String name, NsharpAbstractPaneDescriptor desc) {
         super(pixelExtent, desc);
         paneNum = paneNumber;
         paneName = name;
@@ -67,7 +79,8 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
         return (NsharpAbstractPaneDescriptor) super.getDescriptor();
     }
     
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         super.paint(target, paintProps);
@@ -116,6 +129,5 @@ public class NsharpAbstractPaneDisplay extends AbstractRenderableDisplay {
 	public String getPaneName() {
 		return paneName;
 	}
-
 
 }

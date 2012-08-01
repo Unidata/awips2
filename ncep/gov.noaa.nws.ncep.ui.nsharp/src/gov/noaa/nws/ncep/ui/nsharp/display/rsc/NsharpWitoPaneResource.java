@@ -24,7 +24,6 @@ import gov.noaa.nws.ncep.ui.nsharp.background.NsharpGenericPaneBackground;
 import gov.noaa.nws.ncep.ui.nsharp.background.NsharpGenericPaneBackground.ViewablePressureContainer;
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpAbstractPaneDescriptor;
 import gov.noaa.nws.ncep.ui.nsharp.natives.NsharpNativeConstants;
-import gov.noaa.nws.ncep.ui.nsharp.view.NsharpLoadDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,18 +52,18 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	private int omegaHeight = NsharpConstants.OMEGA_HEIGHT;
 	private int omegaYEnd = NsharpConstants.OMEGA_Y_END;
 	private int omegaMF = NsharpConstants.OMEGA_MAGNIFICATION_FACTOR;
-	private int windBoxXOrig = NsharpConstants.WIND_BX_X_ORIG;
-	private int windBoxYOrig = NsharpConstants.WIND_BX_Y_ORIG;
-	private int windBoxWidth = NsharpConstants.WIND_BX_WIDTH;
-	private int windBoxHeight = NsharpConstants.WIND_BX_HEIGHT;
-	private int windBoxYEnd = windBoxYOrig + windBoxHeight;
-	private int verticalWindXOrig = NsharpConstants.VRTCAL_WIND_X_ORIG;
-	private int verticalWindYOrig = NsharpConstants.VRTCAL_WIND_Y_ORIG;
-	private int verticalWindWidth = NsharpConstants.VRTCAL_WIND_WIDTH;
-	private int verticalWindHeight = NsharpConstants.VRTCAL_WIND_HEIGHT;
-	private int verticalWindYEnd = NsharpConstants.VRTCAL_WIND_Y_END;
-	private int witoPanewidth = NsharpConstants.WITO_PANE_REC_WIDTH;
-	private int witoPaneHeight = NsharpConstants.WITO_PANE_REC_HEIGHT;
+	private float windBoxXOrig = NsharpConstants.WIND_BX_X_ORIG;
+	private float windBoxYOrig = NsharpConstants.WIND_BX_Y_ORIG;
+	private float windBoxWidth = NsharpConstants.WIND_BX_WIDTH;
+	private float windBoxHeight = NsharpConstants.WIND_BX_HEIGHT;
+	//private float windBoxYEnd = windBoxYOrig + windBoxHeight;
+	private float verticalWindXOrig = NsharpConstants.VRTCAL_WIND_X_ORIG;
+	private float verticalWindYOrig = NsharpConstants.VRTCAL_WIND_Y_ORIG;
+	private float verticalWindWidth = NsharpConstants.VRTCAL_WIND_WIDTH;
+	private float verticalWindHeight = NsharpConstants.VRTCAL_WIND_HEIGHT;
+	private float verticalWindYEnd = NsharpConstants.VRTCAL_WIND_Y_END;
+	private float witoPanewidth = NsharpConstants.WITO_PANE_REC_WIDTH;
+	private float witoPaneHeight = NsharpConstants.WITO_PANE_REC_HEIGHT;
 	private IWireframeShape omegaBkgShape = null;
 	private IWireframeShape windBoxBkgShape = null;
 	private IWireframeShape omegaRscShape=null;
@@ -104,6 +103,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 			this.font9.setScaleFont(false);
 			this.font12.setSmoothing(false);
 			this.font12.setScaleFont(false);
+			/*
 			PixelExtent extent = new PixelExtent(new Rectangle(omegaXOrig,omegaYOrig,
 					omegaWidth,omegaHeight));
 						
@@ -131,13 +131,13 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 					target.drawWireframeShape(omegaRscShape, NsharpConstants.color_cyan, commonLinewidth,
 							commonLineStyle,font10);
 				}
-			}
+			}*/
 			//target.clearClippingPlane();
 
 			//wind box background and wind
 			
-			extent = new PixelExtent(new Rectangle(windBoxXOrig,windBoxYOrig,
-					windBoxWidth,windBoxHeight));
+			PixelExtent extent = new PixelExtent(new Rectangle((int)windBoxXOrig,(int)windBoxYOrig,
+					(int)windBoxWidth,(int)windBoxHeight));
 			//target.setupClippingPlane(extent);
 			target.drawRect(extent, NsharpConstants.backgroundColor, 1.0f, 1.0f);
 			target.drawWireframeShape(windBoxBkgShape, NsharpConstants.color_white,
@@ -148,8 +148,8 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 			
 			//plot vertical wind profile (advection layer)
 			
-			extent = new PixelExtent(new Rectangle(verticalWindXOrig,verticalWindYOrig,
-					verticalWindWidth,verticalWindHeight));
+			extent = new PixelExtent(new Rectangle((int)verticalWindXOrig,(int)verticalWindYOrig,
+					(int)verticalWindWidth,(int)verticalWindHeight));
 			target.setupClippingPlane(extent);
 			target.drawRect(extent, NsharpConstants.backgroundColor, 1.0f, 1.0f);
 			float x1 = verticalWindXOrig+ (verticalWindWidth/2);
@@ -173,8 +173,8 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		myDefaultCanvasWidth = witoPanewidth;
 		myDefaultCanvasHeight = witoPaneHeight;	
 		//System.out.print("NsharpWitoPaneResource ::: initInternal entered!!!!!\n");
-		this.rectangle = new Rectangle(windBoxXOrig, windBoxYOrig,
-				witoPanewidth, witoPaneHeight);
+		this.rectangle = new Rectangle((int)windBoxXOrig,(int) windBoxYOrig,
+				(int)witoPanewidth,(int) witoPaneHeight);
 		pe = new PixelExtent(this.rectangle);
 		world = new WGraphics(this.rectangle);
 
@@ -207,7 +207,7 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 			double [][] lines2 = {{xtemp, yOri},{xtemp, yOri+windBoxHeight-2}};
 			windBoxBkgShape.addLineSegment(lines2);
 			if( (i==20) || (i==60) || (i==100)){
-				double [] lblXy2 = {xtemp,  yOri+windBoxHeight-2};
+				double [] lblXy2 = {xtemp,  yOri+windBoxHeight-10};
 				windBoxBkgShape.addLabel(String.format("%d",i), lblXy2);
 			}
 
@@ -362,11 +362,13 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		double [][] lines = {{0, 0},{0,0}}; 
 		verticalWindLabelShape.addLineSegment(lines);
 		double [] lblXy = { verticalWindXOrig+verticalWindWidth/2, verticalWindYOrig+20*yMagFactor};
-		verticalWindLabelShape.addLabel("Inferred Temp", lblXy);
+		verticalWindLabelShape.addLabel("Inferred", lblXy);
 		double [] lblXy1 = { verticalWindXOrig+verticalWindWidth/2, verticalWindYOrig+35*yMagFactor};
-		verticalWindLabelShape.addLabel("Advection", lblXy1);
-		double [] lblXy2 = { verticalWindXOrig+verticalWindWidth/2, verticalWindYOrig+55*yMagFactor};
-		verticalWindLabelShape.addLabel("(C/hr)", lblXy2);
+		verticalWindLabelShape.addLabel("Temp", lblXy1);
+		double [] lblXy2 = { verticalWindXOrig+verticalWindWidth/2, verticalWindYOrig+50*yMagFactor};
+		verticalWindLabelShape.addLabel("Advection", lblXy2);
+		double [] lblXy3 = { verticalWindXOrig+verticalWindWidth/2, verticalWindYOrig+65*yMagFactor};
+		verticalWindLabelShape.addLabel("(C/hr)", lblXy3);
 
 		verticalWindSbShape = target.createWireframeShape(false,descriptor );
 		verticalWindSbShape.allocate(72);
@@ -531,15 +533,15 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 		omegaWidth = (int) (witoPanewidth/3);
 		omegaHeight = (int) ext.getHeight();
 		omegaYEnd = omegaYOrig + omegaHeight;
-		windBoxXOrig = (int) (ext.getMinX());
-		windBoxYOrig = (int) ext.getMinY();
-		windBoxWidth = (int) (witoPanewidth/3);
-		windBoxHeight = (int) ext.getHeight();
-		windBoxYEnd = windBoxYOrig + windBoxHeight;
-		verticalWindXOrig = (int) (ext.getMinX()+witoPanewidth/3);
-		verticalWindYOrig = (int) ext.getMinY();
-		verticalWindWidth = (int) (witoPanewidth/3);
-		verticalWindHeight = (int) ext.getHeight();
+		windBoxXOrig = (float) (ext.getMinX());
+		windBoxYOrig = (float) ext.getMinY();
+		windBoxWidth = (witoPanewidth/9*5);
+		windBoxHeight =  (float) ext.getHeight();
+		//windBoxYEnd = windBoxYOrig + windBoxHeight;
+		verticalWindXOrig = (float) (ext.getMinX()+windBoxWidth);
+		verticalWindYOrig = (float) ext.getMinY();
+		verticalWindWidth = (witoPanewidth/9*4);
+		verticalWindHeight = (float) ext.getHeight();
 		verticalWindYEnd = verticalWindYOrig + verticalWindHeight;
 		//System.out.println("Wito: handle resize w="+witoPanewidth+ " h="+ witoPaneHeight);
 		createAllWireFrameShapes();
@@ -549,6 +551,18 @@ public class NsharpWitoPaneResource extends NsharpAbstractPaneResource{
 	public void handleZooming() {
 		createAllWireFrameShapes();
 	}
-	
+	@Override
+	protected void adjustFontSize(float canvasW, float canvasH) {
+		/*
+		super.adjustFontSize(canvasW, canvasH);
+		//make a bit bigger font10 size 
+		float font10Size=10;
+		if(font10!=null){
+			font10Size = font10.getFontSize()+1;
+			font10.dispose();
+		}
+		font10 = target.initializeFont("Monospace", font10Size, null);
+		*/
+	}
 	
 }
