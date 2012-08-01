@@ -107,7 +107,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
     private String siteKey;
 
     @Transient
-    protected HashMap<String, FFMPBasinData> basinsMap = new HashMap<String, FFMPBasinData>();
+    private HashMap<String, FFMPBasinData> basinsMap = new HashMap<String, FFMPBasinData>();
 
     @Transient
     private int expiration = 0;
@@ -318,7 +318,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
     public void setBasinData(FFMPBasinData basins, String hucName) {
         basinsMap.put(hucName, basins);
     }
-    
+
     /**
      * finds the correct basin bin by hucName to place into
      * 
@@ -360,7 +360,6 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
         }
 
         fbd = getBasinData(huc);
-        String key = getSiteKey();
 
         synchronized (template) {
 
@@ -368,7 +367,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                     .getSource(sourceName);
 
             for (DomainXML domain : template.getDomains()) {
-                LinkedHashMap<Long, ?> map = template.getMap(key,
+                LinkedHashMap<Long, ?> map = template.getMap(getSiteKey(),
                         domain.getCwa(), huc);
 
                 if (map != null && map.keySet().size() > 0) {
@@ -379,7 +378,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                         rec = dataStore.retrieve(uri + "/" + domain.getCwa(),
                                 huc, Request.ALL);
                     } catch (Exception e) {
-                        statusHandler.handle(Priority.PROBLEM,
+                        statusHandler.handle(Priority.DEBUG,
                                 "FFMPRecord: no data record for: " + uri + "/"
                                         + domain.getCwa());
                     }
@@ -415,9 +414,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                                                 if (curval >= 0.0f
                                                         && values[j] >= 0.0f) {
                                                     basin.setValue(sourceName,
-                                                            date, curval
-                                                                    + values[j]
-                                                                    / 2);
+                                                            date, (curval + values[j])/ 2);
                                                 } else {
                                                     basin.setValue(sourceName,
                                                             date, values[j]);
@@ -449,8 +446,7 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                                             float curval = basin.getValue(date);
                                             if (curval >= 0.0f
                                                     && values[j] >= 0.0f) {
-                                                basin.setValue(date, curval
-                                                        + values[j] / 2);
+                                                basin.setValue(date, (curval + values[j])/ 2);;
                                             } else {
                                                 basin.setValue(date, values[j]);
                                             }
@@ -468,8 +464,6 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                 }
             }
         }
-        
-        setBasinData(fbd, huc);
     }
 
     /**
@@ -610,8 +604,6 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                 }
             }
         }
-        
-        setBasinData(fbd, "ALL");
     }
 
     /**
@@ -673,9 +665,6 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
                     }
                 }
             }
-            
-            setBasinData(fbd, "ALL");
-            
         } catch (Throwable e) {
             statusHandler.handle(Priority.ERROR, "ERROR Retrieving Virtual..."
                     + "ALL");
@@ -749,6 +738,19 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
         return isRate;
     }
 
+    /**
+     * Purges out old data
+     * 
+     * @param date
+     */
+    public void purgeData(Date date) {
+
+        for (String ihuc : getBasinsMap().keySet()) {
+            FFMPBasinData basinData = getBasinsMap().get(ihuc);
+            basinData.purgeData(date);
+        }
+    }
+
     public void setSiteKey(String siteKey) {
         this.siteKey = siteKey;
     }
@@ -756,5 +758,5 @@ public class FFMPRecord extends ServerSpecificPersistablePluginDataObject
     public String getSiteKey() {
         return siteKey;
     }
-   
+
 }

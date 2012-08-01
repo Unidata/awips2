@@ -468,15 +468,19 @@ public class FFMPBasinData implements ISerializableObject {
 
         float tvalue = 0.0f;
         for (Long pfaf : pfaf_ids) {
+
             FFMPBasin basin = basins.get(pfaf);
             if (basin != null) {
-                float val = basin.getAccumValue(beforeDate, afterDate,
+          
+                float val = basin.getAccumValue(afterDate, beforeDate,
                         expirationTime, rate);
+             
                 if (val > tvalue) {
                     tvalue = val;
                 }
             }
         }
+        
         return tvalue;
     }
 
