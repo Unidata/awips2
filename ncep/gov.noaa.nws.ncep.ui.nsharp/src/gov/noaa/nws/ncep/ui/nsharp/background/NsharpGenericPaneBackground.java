@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
