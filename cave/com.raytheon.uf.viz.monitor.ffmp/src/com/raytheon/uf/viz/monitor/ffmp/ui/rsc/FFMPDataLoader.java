@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp.ui.rsc;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,12 +37,10 @@ import com.raytheon.uf.common.monitor.xml.ProductRunXML;
 import com.raytheon.uf.common.monitor.xml.ProductXML;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager;
+import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPConfig;
@@ -65,8 +65,8 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  */
 public class FFMPDataLoader extends Thread {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(FFMPDataLoader.class);
+    //private static final transient IUFStatusHandler statusHandler = UFStatus
+    //        .getHandler(FFMPDataLoader.class);
 
     private String sharePath = null;
 
@@ -102,7 +102,6 @@ public class FFMPDataLoader extends Thread {
 
         sharePath = AppsDefaults.getInstance().getToken("apps_dir")
                 + File.separator + "ffmp" + File.separator;
-        //sharePath = "/awips2/edex/data/share/hydroapps/ffmp/";
         
         this.product = resourceData.getProduct();
         this.siteKey = resourceData.siteKey;
@@ -207,7 +206,7 @@ public class FFMPDataLoader extends Thread {
 
                     NavigableMap<Date, List<String>> iguidURIs = null;
                     Date guidTime = timeBack;
-
+                   
                     if (loadType == LOADER_TYPE.GENERAL) {
                         guidTime = getMonitor().getPreviousQueryTime(siteKey,
                                 guidSource.getSourceName());
@@ -253,8 +252,7 @@ public class FFMPDataLoader extends Thread {
                             isDone);
                     FFMPBasinData qpeData = null;
 
-                    if ((loadType == LOADER_TYPE.INITIAL)
-                            || (loadType == LOADER_TYPE.SECONDARY)) {
+                    if (loadType == LOADER_TYPE.INITIAL) {
 
                         SourceXML source = getMonitor().getSourceConfig()
                                 .getSource(product.getQpe());
@@ -286,8 +284,7 @@ public class FFMPDataLoader extends Thread {
                         fireLoaderEvent(loadType, "Processing "+product.getQpf(i) + "/" + phuc,
                                 isDone);
                         FFMPBasinData qpfData = null;
-                        if ((loadType == LOADER_TYPE.INITIAL)
-                                || (loadType == LOADER_TYPE.SECONDARY)) {
+                        if (loadType == LOADER_TYPE.INITIAL) {
 
                             SourceXML source = getMonitor().getSourceConfig()
                                     .getSource(qpfSources.get(i));
@@ -342,8 +339,7 @@ public class FFMPDataLoader extends Thread {
                             isDone);
                     FFMPBasinData vgbData = null;
 
-                    if ((loadType == LOADER_TYPE.INITIAL)
-                            || (loadType == LOADER_TYPE.SECONDARY)) {
+                    if (loadType == LOADER_TYPE.INITIAL) {
 
                         SourceXML source = getMonitor().getSourceConfig()
                                 .getSource(product.getVirtual());
@@ -479,28 +475,67 @@ public class FFMPDataLoader extends Thread {
         String sourceName = source.getSourceName();
         File file = new File(sharePath + wfo + File.separator + sourceName
                 + "-" + siteKey + "-" + pdataKey + "-" + huc + ".bin");
-        System.out.println("Buddy File path: " + file.getAbsolutePath());
+        File lockFile = new File(sharePath + wfo + File.separator + sourceName
+                + "-" + siteKey + "-" + pdataKey + ".lock");
+        
+		while (lockFile.exists()) {
+			for (int i = 0; i < 4; i++) {
+				try {
+					sleep(100);
+					i++;
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			break;
+		}
 
+        System.out.println("Buddy File expected path: " + file.getAbsolutePath());
 		FFMPBasinData basinData = null;
 
 		if (file.exists()) {
 			
 			System.out.println("Last mod: " + new Date(file.lastModified()));
-			//System.out.println("6 hour mod: " + new Date((System.currentTimeMillis() - (6 * 1000 * 3600))));
-			//System.out.println("DIFF: "+(file.lastModified() - (System.currentTimeMillis() - (6 * 1000 * 3600))));
 
 			if (file.lastModified() > (System.currentTimeMillis() - (6 * 1000 * 3600))) {
-				
-				System.out.println("Buddy File path: " + file.getName());
+		
+				while (lockFile.exists()) {
+					for (int i = 0; i < 4; i++) {
+						try {
+							System.out.println("Waiting for new file: " + file.getAbsolutePath());
+							sleep(100);
+							i++;
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					
+					break;
+				}
+
+				BufferedInputStream is = null;
 				
 				try {
-					basinData = (FFMPBasinData) SerializationUtil
-							.transformFromThrift(FileUtil.file2bytes(file,
-									false));
+					
+					System.out.println("Loading file: " + file.getName());
+					is = new BufferedInputStream(
+							new FileInputStream(file));
+					DynamicSerializationManager dsm = DynamicSerializationManager
+							.getManager(SerializationType.Thrift);
+					basinData = (FFMPBasinData) dsm.deserialize(is);
 				} catch (SerializationException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
+				} finally {
+					if (is != null) {
+						try {
+							is.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 				}
 			}
 		}

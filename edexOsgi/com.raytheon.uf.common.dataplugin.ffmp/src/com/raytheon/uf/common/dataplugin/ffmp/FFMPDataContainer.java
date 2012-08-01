@@ -19,9 +19,8 @@
  **/
 package com.raytheon.uf.common.dataplugin.ffmp;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -29,12 +28,8 @@ import java.util.Set;
 
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
 import com.raytheon.uf.common.monitor.xml.SourceXML;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.util.FileUtil;
 
 
 /**
@@ -62,6 +57,8 @@ public class FFMPDataContainer {
     private HashMap<String, FFMPBasinData> basinDataMap = new HashMap<String, FFMPBasinData>();
 
     private String sourceName = null;
+    
+    private String filePath = null;
 
     public FFMPDataContainer() {
         // public unused constructor
@@ -73,7 +70,7 @@ public class FFMPDataContainer {
         // System.out.println("Creating source: " + sourceName);
     }
 
-    public FFMPDataContainer(String sourceName, Set<String> hucs) {
+    public FFMPDataContainer(String sourceName, ArrayList<String> hucs) {
         // System.out.println("Creating source with hucs: " + sourceName);
         this.sourceName = sourceName;
         for (String huc : hucs) {
@@ -105,7 +102,6 @@ public class FFMPDataContainer {
      * @param hucName
      */
     public void setBasinBuddyData(FFMPBasinData basins, String hucName) {
-         long time = System.currentTimeMillis();
         for (Entry<Long, FFMPBasin> entry : basins.getBasins().entrySet()) {
             FFMPBasin basin = getBasinData(hucName).get(entry.getKey());
             if (basin != null) {
@@ -121,8 +117,6 @@ public class FFMPDataContainer {
                 getBasinData(hucName).put(entry.getKey(), entry.getValue());
             }
         }
-         long time2 = System.currentTimeMillis();
-         System.out.println("time to load HUC: " + (time2 - time) + " ms");
     }
 
     /**
@@ -351,6 +345,9 @@ public class FFMPDataContainer {
                         orderedTimes.add(time);
                     }
                 }
+                
+                Collections.reverse(orderedTimes);
+                
                 return orderedTimes;
             }
         } catch (Exception e) {
@@ -461,13 +458,10 @@ public class FFMPDataContainer {
     public double getMaxValue(ArrayList<Long> pfafs, Date backDate,
             Date currDate, long expirationTime, boolean rate) {
 
-        // System.out.println("BackDate: " + backDate);
-        // System.out.println("CurrDate: " + currDate);
-        // System.out.println("expirationTime: " + (expirationTime / 1000) /
-        // 3600);
-
-        return getBasinData("ALL").getAccumMaxValue(pfafs, backDate, currDate,
+    	double val = getBasinData("ALL").getAccumMaxValue(pfafs, currDate, backDate,
                 expirationTime, rate);
+    	
+        return val;
     }
 
     /*
@@ -479,30 +473,12 @@ public class FFMPDataContainer {
         }
     }
 
-    /**
-     * Write out the loader buddy files
-     * 
-     * @param fileName
-     */
-    public void writeDataContainer(String fileName, String path, String wfo) {
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
 
-        if (fileName != null) {
-            try {
-                synchronized (basinDataMap) {
-                    for (String huc : basinDataMap.keySet()) {
-                        byte[] bdata = DynamicSerializationManager.getManager(
-                                SerializationType.Thrift).serialize(
-                                getBasinData(huc));
-                        File file = new File(path + wfo + "/" + fileName + "-"
-                                + huc + ".bin");
-                        FileUtil.bytes2File(bdata, file);
-                    }
-                }
-            } catch (SerializationException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+	public String getFilePath() {
+		return filePath;
+	}
+
 }

@@ -49,14 +49,16 @@ public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
      * @param paintProps
      * @throws VizException
      */
+	//private float coordinateWtoHRatio;
     public NsharpHodoPaneBackground(NsharpHodoPaneDescriptor desc) {
         super();
-        this.rectangle = new Rectangle(NsharpConstants.HODO_X_ORIG, NsharpConstants.HODO_Y_ORIG,
-        		NsharpConstants.HODO_WIDTH, NsharpConstants.HODO_HEIGHT);
+        //this.rectangle = new Rectangle(NsharpConstants.HODO_X_ORIG, NsharpConstants.HODO_Y_ORIG,
+        //		NsharpConstants.HODO_WIDTH, NsharpConstants.HODO_HEIGHT);
+        this.rectangle = new Rectangle(0,0,NsharpConstants.HODO_COORDINATE_X2-NsharpConstants.HODO_COORDINATE_X1, NsharpConstants.HODO_COORDINATE_Y2-NsharpConstants.HODO_COORDINATE_Y1);
         pe = new PixelExtent(this.rectangle);
         world = new WGraphics(this.rectangle);
-        world.setWorldCoordinates(-50,75,90,-95);//(-50, 90, 90, -50);
-        
+        world.setWorldCoordinates(NsharpConstants.HODO_COORDINATE_X1,NsharpConstants.HODO_COORDINATE_Y1,NsharpConstants.HODO_COORDINATE_X2,NsharpConstants.HODO_COORDINATE_Y2);
+        //coordinateWtoHRatio = ((float)NsharpConstants.HODO_COORDINATE_X2-(float)NsharpConstants.HODO_COORDINATE_X1)/ (NsharpConstants.HODO_COORDINATE_Y1-NsharpConstants.HODO_COORDINATE_Y2);
         //System.out.println("NsharpHodoPaneBackground constructed");
         this.desc = desc;
     }
@@ -82,8 +84,8 @@ public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
         // draw the spokes.
         //System.out.println("paintInternal Begin");
         for (double angle = 0; angle < 2 * Math.PI; angle += Math.PI / 2) {
-            double x = 200 * Math.cos(angle);
-            double y = 200 * Math.sin(angle);
+            double x = 360 * Math.cos(angle);
+            double y = 360 * Math.sin(angle);
             /*target.drawLine(c.x, c.y, 0.0, world.mapX(x), world.mapY(
                     y), 0.0, NsharpConstants.degreeSpokeColor, 1,
                     LineStyle.DOTTED);*/
@@ -94,7 +96,7 @@ public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
 
         }
      // draw circles
-        for (int spd = 10; spd <= 120; spd += 10) {
+        for (int spd = 20; spd <= 360; spd += 20) {
 
             Coordinate c0, c1;
             c0 = WxMath.uvComp(spd, 0);
@@ -105,6 +107,8 @@ public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
                 
                 c0 = c1;
             }
+            if(spd > 100 && spd%20 != 0 )
+            	continue;
           //plot speed mark at 270 degree
             Coordinate uv = WxMath.uvComp(spd, 270); 
             if (spd != 0) {
@@ -232,7 +236,10 @@ public class NsharpHodoPaneBackground extends NsharpGenericPaneBackground {
     	pe = new PixelExtent(this.rectangle);
     	desc.setNewPe(pe);
     	world = new WGraphics(this.rectangle);
-    	world.setWorldCoordinates(-50,75,90,-95);
+    	float hRatio = (NsharpConstants.HODO_COORDINATE_Y1-NsharpConstants.HODO_COORDINATE_Y2)/ (float)ext.getHeight();
+    		
+    	float x2 = hRatio* (float)ext.getWidth()+ NsharpConstants.HODO_COORDINATE_X1;
+    	world.setWorldCoordinates(NsharpConstants.HODO_COORDINATE_X1,NsharpConstants.HODO_COORDINATE_Y1,x2,NsharpConstants.HODO_COORDINATE_Y2);
     	if(hodoShape!=null){
     		hodoShape.dispose();
     		hodoShape=null;
