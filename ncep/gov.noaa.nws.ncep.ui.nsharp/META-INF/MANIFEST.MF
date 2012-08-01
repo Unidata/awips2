@@ -59,12 +59,17 @@ Import-Package: com.raytheon.edex.meteoLib,
  org.geotools.referencing,
  org.opengis.referencing.crs
 Export-Package: gov.noaa.nws.ncep.ui.nsharp,
+ gov.noaa.nws.ncep.ui.nsharp.background,
+ gov.noaa.nws.ncep.ui.nsharp.display,
+ gov.noaa.nws.ncep.ui.nsharp.display.map,
+ gov.noaa.nws.ncep.ui.nsharp.display.rsc,
  gov.noaa.nws.ncep.ui.nsharp.maprsc,
  gov.noaa.nws.ncep.ui.nsharp.menu,
  gov.noaa.nws.ncep.ui.nsharp.natives,
  gov.noaa.nws.ncep.ui.nsharp.palette,
  gov.noaa.nws.ncep.ui.nsharp.skewt,
  gov.noaa.nws.ncep.ui.nsharp.skewt.bkgd,
- gov.noaa.nws.ncep.ui.nsharp.skewt.rsc
+ gov.noaa.nws.ncep.ui.nsharp.skewt.rsc,
+ gov.noaa.nws.ncep.ui.nsharp.view
 Bundle-ClassPath: .,
  jna.jar
