@@ -41,7 +41,12 @@ public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
 		this.paneNumber = paneNumber;
 	}
     
-    public NsharpAbstractPaneDescriptor(PixelExtent pe) {
+    public NsharpAbstractPaneDescriptor() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public NsharpAbstractPaneDescriptor(PixelExtent pe) {
         super(pe);
         //System.out.println("NsharpAbstractPaneDescriptor  created " + this.toString());  
     }
@@ -53,32 +58,13 @@ public class NsharpAbstractPaneDescriptor extends GraphDescriptor {
     @SuppressWarnings("deprecation") 
     @Override
     public void changeFrame(FrameChangeOperation operation,  FrameChangeMode mode) {
-        synchronized (this) {
-        	//From stepping commands
-        	//System.out.println("NsharpAbstractPaneDescriptor changeFrame called pane= "+paneNumber);
-        }
+        //Chin: 12.8.1: Each pane has its own pane descriptor. For multiple pane architecture, we only 
+    	// let skewtPaneDescriptor to handle this function. Otherwise, stepping will cause X times frame change
+    	// as each pane will change frame once.
     }
-    @SuppressWarnings("deprecation")
-	@Override
+    //@Override
     public void checkDrawTime(LoopProperties loopProperties) {
-        super.checkDrawTime(loopProperties);
-        //System.out.println("NsharpAbstractPaneDescriptor checkDrawTime called pane= "+paneNumber);
-    //handleDataTimeIndex is no longer available since 11.5
-    //called from DrawCoordinatedPane 
-    //Chin: 11.11 note: it is now called from NsharpSkewTDisplay.paint() when animation is started.
-    	//System.out.println("NsharpAbstractPaneDescriptor checkDrawTime called ");
-    	if (loopProperties == null || getFrames() == null) {
-    		//System.out.println("NsharpAbstractPaneDescriptor checkDrawTime called but jump ");
-    		return;
-    	}
-    	if (loopProperties.isLooping() && loopProperties.isShouldDraw()) {
-    		//System.out.println("NsharpAbstractPaneDescriptor checkDrawTime  with looping called pane= "+paneNumber);
-    		NsharpEditor editor = NsharpEditor.getActiveNsharpEditor() ;
-        	if(editor!= null){
-        		
-        		editor.getRscHandler().setLoopingDataTimeLine(loopProperties);
-        	}
-    	}
+    	//Chin: 12.8.1: Same reason as changeFrame(). 
     }
     
     public NsharpAbstractPaneResource getPaneResource() {

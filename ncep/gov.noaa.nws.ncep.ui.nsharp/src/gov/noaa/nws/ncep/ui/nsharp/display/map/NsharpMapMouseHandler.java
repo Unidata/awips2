@@ -156,7 +156,7 @@ public class NsharpMapMouseHandler extends InputHandlerDefaultImpl {
     					List<NsharpStationInfo> points = NsharpMapResource.getOrCreateNsharpMapResource().getPoints();//loadDia.getNsharpMapResource().getPoints();
     					if(points.isEmpty() == false){
     						// create an editor NsharpEditor
-							NsharpEditor skewtEdt = NsharpEditor.createOrOpenEditor();
+							//NsharpEditor skewtEdt = NsharpEditor.createOrOpenEditor();
 							
     						//get the stn close to loc "enough" and retrieve  report for it
     						// Note::One stn may have more than one dataLine, if user picked multiple data time lines

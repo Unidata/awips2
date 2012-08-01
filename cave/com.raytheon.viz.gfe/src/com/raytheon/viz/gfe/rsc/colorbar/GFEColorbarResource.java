@@ -109,6 +109,8 @@ public class GFEColorbarResource extends
         IContextMenuProvider, IPickupValueChangedListener,
         IDisplayModeChangedListener, IMessageClient,
         IDisplayedParmListChangedListener {
+	
+	public static final double HEIGHT = 25.0;
 
     private class GFEColorbarInputHandler extends InputAdapter {
 
@@ -382,15 +384,11 @@ public class GFEColorbarResource extends
             PaintProperties paintProps) throws VizException {
         // this.target = target;
 
-        if (currentParm == null) {
-            return;
-        }
-
         IExtent screenExtent = paintProps.getView().getExtent();
 
-        // Construct a bar that is 25 pixels high
-        double height = 25.0 * screenExtent.getHeight()
-                / paintProps.getCanvasBounds().height;
+        // Construct a bar that is HEIGHT pixels high
+        double height = HEIGHT * screenExtent.getHeight()
+        		/ paintProps.getCanvasBounds().height;
 
         PixelExtent pe = new PixelExtent(screenExtent.getMinX(),
                 screenExtent.getMaxX(), screenExtent.getMinY(),
@@ -404,7 +402,11 @@ public class GFEColorbarResource extends
 
         // erase the whole colorbar to a black background
         target.drawShadedRect(pe, ColorUtil.BLACK, 1.0, null);
-        target.drawRect(pe, GFEColorbarResource.COLORBAR_GRAY, 1.0f, 1.0f);
+        target.drawRect(pe, GFEColorbarResource.COLORBAR_GRAY, 2.0f, 1.0f);
+        
+        if (currentParm == null) {
+            return;
+        }
 
         if (/*
              * !currentParm.getDisplayAttributes().getVisMode().equals(VisMode.

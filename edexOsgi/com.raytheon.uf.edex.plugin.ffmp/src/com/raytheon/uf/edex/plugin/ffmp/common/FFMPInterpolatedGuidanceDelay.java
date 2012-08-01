@@ -89,16 +89,19 @@ public class FFMPInterpolatedGuidanceDelay {
 
         FFMPDataContainer qpeContainer = null;
 
-        if (qpeSource.isMosaic()) {
-            qpeContainer = generator.getFFMPDataContainer(qpeSource
-                    .getSourceName());
-        } else {
-            qpeContainer = generator.getFFMPDataContainer(siteKey + "-"
-                    + qpeSource.getSourceName());
-        }
+        ArrayList<String> hucs = new ArrayList<String>();
+		hucs.add("ALL");
 
-        long expirationTime = qpeSource.getExpirationMinutes(siteKey) * 60 * 1000;
-        // determine lag_time
+		// if (qpeSource.isMosaic()) {
+		// qpeContainer = generator.getFFMPDataContainer(qpeSource
+		// .getSourceName(), hucs, backDate);
+		// } else {
+		qpeContainer = generator.getFFMPDataContainer(qpeSource.getSourceName()
+				+ "-" + siteKey + "-" + siteKey, hucs, backDate);
+		// }
+
+		long expirationTime = qpeSource.getExpirationMinutes(siteKey) * 60 * 1000;
+		// determine lag_time
         long lagTime = (currentRecord.getDataTime().getRefTime().getTime())
                 + (long) (ffgSource.getDurationHour() * 60 * 1000);
         // Determine hour fraction.
