@@ -833,7 +833,7 @@ public class GageTableDlg extends JFrame {
 
         try {
             JAXB.marshal(getSettingsXML(), newXmlFile.getFile());
-
+            newXmlFile.save();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -63,6 +63,7 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  *                                     and set default value for check hours.
  * 04/28/2011   8065       rferrel     Add flag to indicate display is current
  *                                     and implement data caching
+ * 20JUL2012    14570      gzhang/zhao Added "tempo" to alertMap  
  * 
  * </pre>
  * 
@@ -126,6 +127,7 @@ public class MetarViewer extends ViewerTab implements
      */
     private static final HashMap<String, String[]> alertMap = new HashMap<String, String[]>();
     static {
+        alertMap.put("tempo", new String[] { "<vsby>", "</vsby>", "<wind>", "</wind>", "<wx>", "</wx>", "<sky>", "</sky>" }); // 14570
         alertMap.put("vsby", new String[] { "<vsby>", "</vsby>" });
         alertMap.put("wind", new String[] { "<wind>", "</wind>" });
         alertMap.put("wx", new String[] { "<wx>", "</wx>" });
