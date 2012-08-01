@@ -69,7 +69,6 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FFMPTableData;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpBasinTableDlg;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfig;
 import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
-import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.IFFMPMonitorListener;
 import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.IFFMPResourceListener;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPDataLoader;
 import com.raytheon.uf.viz.monitor.ffmp.ui.rsc.FFMPDataLoader.LOADER_TYPE;
@@ -95,8 +94,7 @@ import com.raytheon.uf.viz.monitor.listeners.IMonitorListener;
  * @version 1
  */
 
-public class FFMPMonitor extends ResourceMonitor implements
-		IFFMPMonitorListener {
+public class FFMPMonitor extends ResourceMonitor {
 	private static long SECONDS_PER_HOUR = 60 * 60;
 
 	/** boolean for initialization **/
@@ -517,11 +515,13 @@ public class FFMPMonitor extends ResourceMonitor implements
 							fsource, fhuc);
 					if (!uris.containsKey(fdataUri)) {
 						try {
-							FFMPRecord ffmpRec = loadRecordFromDatabase(fdataUri);
+							SourceXML sourceXML = fscm.getSource(fsource);
+							FFMPCacheRecord ffmpRec = populateFFMPRecord(true,
+									fdataUri, fsiteKey, fsource, fhuc);
+							//FFMPRecord ffmpRec = loadRecordFromDatabase(fdataUri);
 							File loc = HDF5Util.findHDF5Location(ffmpRec);
 							IDataStore dataStore = DataStoreFactory
 									.getDataStore(loc);
-							SourceXML sourceXML = fscm.getSource(fsource);
 
 							if (sourceXML.getSourceType().equals(
 									SOURCE_TYPE.GAGE.getSourceType())
@@ -918,16 +918,11 @@ public class FFMPMonitor extends ResourceMonitor implements
 		if (loadType == LOADER_TYPE.SECONDARY) {
 			//hucsToLoad.remove("ALL");
 			//hucsToLoad.remove(getConfig().getFFMPConfigData().getLayer());
-
-			timeBack = new Date(
-					(long) (resource.getMostRecentTime().getTime() - ((getConfig()
-							.getFFMPConfigData().getTimeFrame() * 3) * 3600 * 1000)));
-
+			timeBack = new Date(resource.getMostRecentTime().getTime() - (6 * 1000 * 24));
 			frd.timeBack = timeBack;
 		} else if (loadType == LOADER_TYPE.TERTIARY) {
 			hucsToLoad.clear();
 			hucsToLoad.add("ALL");
-			startTime = new Date(resource.getMostRecentTime().getTime() - (3600 * 1000 * 6));
 			timeBack = new Date(resource.getMostRecentTime().getTime() - (3600 * 1000 * 24));
 		}
 
@@ -1114,24 +1109,6 @@ public class FFMPMonitor extends ResourceMonitor implements
 		}
 
 		resourceListeners.remove(listener);
-	}
-
-	@Override
-	public void updateDialogTime(DataTime tableTime) {
-
-		for (IFFMPResourceListener listener : getResourceListenerList()) {
-			if (listener instanceof FFMPResource) {
-				FFMPResource res = (FFMPResource) listener;
-				if (res.isLinkToFrame()) {
-					res.setTableTime(tableTime.getRefTime());
-					if (res.basinTableDlg != null) {
-						updateDialog(res);
-					}
-				}
-			}
-
-		}
-
 	}
 
 	public ArrayList<IFFMPResourceListener> getResourceListenerList() {
@@ -1885,7 +1862,7 @@ public class FFMPMonitor extends ResourceMonitor implements
 				public void run() {
 
 					SourceXML source = getSourceConfig().getSource(fsourceName);
-
+					
 					if (furiMap != null) {
 						for (List<String> uris : furiMap.descendingMap()
 								.values()) {
@@ -2451,7 +2428,7 @@ public class FFMPMonitor extends ResourceMonitor implements
 							curRecord = ffmpData.get(fsiteKey).get(mySource);
 							if (curRecord == null) {
 								curRecord = new FFMPCacheRecord(fffmpRec,
-										mySource);
+										mySource, getRunConfig().getRunner(wfo).getCacheDir());
 								ffmpData.get(fsiteKey).put(mySource, curRecord);
 							}
 						}
@@ -2489,7 +2466,6 @@ public class FFMPMonitor extends ResourceMonitor implements
 							statusHandler.handle(Priority.PROBLEM,
 									"FFMP Can't retrieve FFMP URI, " + dataUri,
 									e);
-							e.printStackTrace();
 						}
 					}
 

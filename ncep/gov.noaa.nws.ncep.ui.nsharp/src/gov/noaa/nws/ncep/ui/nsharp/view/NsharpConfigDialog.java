@@ -35,13 +35,14 @@ import org.eclipse.ui.PlatformUI;
 
 
 public class NsharpConfigDialog extends Dialog {
-	private Button parameterBtn, dataDisplayBtn,dataPageBtn, timeLineBtn, stnBtn;
+	private Button parameterBtn, dataDisplayBtn,dataPageBtn, timeLineBtn, stnBtn, paneCfgBtn;
 	private static NsharpConfigDialog thisDialog=null;
 	private static NsharpParametersSelectionConfigDialog parameterSelDialog = null;
 	private static NsharpDataDisplayConfigDialog dataDislpayDialog = null;
 	private static NsharpDataPageConfigDialog dataPageDialog = null;
 	private static NsharpTimeLineConfigDialog timelineDialog = null;
 	private static NsharpStnConfigDialog stnDialog = null;
+	private static NsharpPaneConfigDialog paneCfgDialog = null;
 	public NsharpConfigDialog(Shell parentShell) {
 		super(parentShell);
 		// TODO Auto-generated constructor stub
@@ -75,16 +76,18 @@ public class NsharpConfigDialog extends Dialog {
 					dataDisplayBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					parameterSelDialog.open();
 					dataDisplayBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
 		dataDisplayBtn = new Button(parent, SWT.PUSH);
-		dataDisplayBtn.setText("Data Display");
+		dataDisplayBtn.setText("Data Display Configuration");
 		dataDisplayBtn.setEnabled( true );
 		//lineBtn.setSize(btnWidth,pushbtnHeight);
 		dataDisplayBtn.addListener( SWT.MouseUp, new Listener() {
@@ -96,16 +99,18 @@ public class NsharpConfigDialog extends Dialog {
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					dataDislpayDialog.open();
 					parameterBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
 		dataPageBtn = new Button(parent, SWT.PUSH);
-		dataPageBtn.setText("Data Page");
+		dataPageBtn.setText("Data Page Configuration");
 		dataPageBtn.setEnabled( true );
 		//lineBtn.setSize(btnWidth,pushbtnHeight);
 		dataPageBtn.addListener( SWT.MouseUp, new Listener() {
@@ -117,11 +122,13 @@ public class NsharpConfigDialog extends Dialog {
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataDisplayBtn.setEnabled(false);
+					paneCfgBtn.setEnabled( false );
 					dataPageDialog.open();
 					parameterBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
 					dataDisplayBtn.setEnabled(true);
+					paneCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -138,11 +145,13 @@ public class NsharpConfigDialog extends Dialog {
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					timelineDialog.open();
 					parameterBtn.setEnabled(true);
 					dataDisplayBtn.setEnabled(true);
 					stnBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
@@ -159,11 +168,38 @@ public class NsharpConfigDialog extends Dialog {
 					parameterBtn.setEnabled(false);
 					timeLineBtn.setEnabled( false );
 					dataPageBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					stnDialog.open();
 					parameterBtn.setEnabled(true);
 					dataDisplayBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					dataPageBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
+				}	
+			}          		            	 	
+		} );
+		
+		paneCfgBtn = new Button(parent, SWT.PUSH);
+		paneCfgBtn.setText("Diaplay Pane Configuration");
+		paneCfgBtn.setEnabled( true );
+		//lineBtn.setSize(btnWidth,pushbtnHeight);
+		paneCfgBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
+				paneCfgDialog =  NsharpPaneConfigDialog.getInstance(shell);
+				if ( paneCfgDialog != null ) {
+					dataDisplayBtn.setEnabled(false);
+					parameterBtn.setEnabled(false);
+					timeLineBtn.setEnabled( false );
+					dataPageBtn.setEnabled( false );
+					stnBtn.setEnabled( false );
+					paneCfgDialog.open();
+					parameterBtn.setEnabled(true);
+					dataDisplayBtn.setEnabled(true);
+					timeLineBtn.setEnabled( true );
+					dataPageBtn.setEnabled( true );
+					stnBtn.setEnabled( true );
+					
 				}	
 			}          		            	 	
 		} );
