@@ -434,6 +434,8 @@ def executeIscExtract(parmNames, databaseName, startTime, endTime,
             argv.append(siteConfig.GFESUITE_PORT)
             argv.append("-o")
             argv.append(fname)
+            argv.append("-C")
+            argv.append("iscSendSampleDef")
             for p in dest['parms']:
                 argv.append("-p")
                 argv.append(p)

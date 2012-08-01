@@ -19,6 +19,10 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpWitoPaneResourceData;
 
@@ -29,12 +33,19 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement
 public class NsharpWitoPaneDisplay extends NsharpAbstractPaneDisplay {
     public NsharpWitoPaneDisplay(PixelExtent pixelExtent,int paneNumber) {
         super(pixelExtent,paneNumber, "witoPane", new NsharpAbstractPaneDescriptor(pixelExtent, paneNumber));
     }
-    @Override
+    
+    public NsharpWitoPaneDisplay() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
     public NsharpAbstractPaneDescriptor getDescriptor() {
         return (NsharpAbstractPaneDescriptor) super.getDescriptor();
     }
