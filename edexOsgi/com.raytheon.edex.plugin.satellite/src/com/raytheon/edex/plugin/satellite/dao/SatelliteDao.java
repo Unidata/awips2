@@ -159,21 +159,29 @@ public class SatelliteDao extends PluginDao {
             // set the number of levels in the 'parent' satellite data.
             // Subtract one for the base level data.
             satRecord.setInterpolationLevels(levels - 1);
+
+            // How many interpolation levels do we need for this data? Includes
+            // the base level!
+            // Subtract one for the base level data.
+            int downScaleLevels = downScaler.getNumberOfDownscaleLevels() - 1;
+            // set the number of downscale levels in the satellite metadata.
+            satRecord.setInterpolationLevels(downScaleLevels);
             if (DataStoreFactory.isInterpolated(levels)) {
-                for (int downscaleLevel = 1; downscaleLevel <= levels; downscaleLevel++) {
+                for (int level = 0; level < downScaleLevels; level++) {
+                    int downScaleLevel = level + 1;
                     Rectangle size = downScaler
-                            .getDownscaleSize(downscaleLevel);
+                            .getDownscaleSize(downScaleLevel);
 
                     AbstractDataWrapper dest = getDestination(storageRecord,
                             size);
                     dest.setFillValue(fillValue);
                     try {
                         // Downscale from previous level
-                        downScaler.downscale(downscaleLevel - 1,
-                                downscaleLevel, dataSource, dest);
+                        downScaler.downscale(downScaleLevel - 1,
+                                downScaleLevel, dataSource, dest);
 
                         IDataRecord dr = createDataRecord(satRecord, dest,
-                                downscaleLevel, size);
+                                downScaleLevel, size);
                         // Set the attributes and properties from the parent
                         // data.
                         dr.setDataAttributes(attributes);
