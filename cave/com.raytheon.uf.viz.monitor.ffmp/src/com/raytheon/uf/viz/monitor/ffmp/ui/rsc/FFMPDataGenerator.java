@@ -950,8 +950,8 @@ public class FFMPDataGenerator {
 				}
 				if (qpeBasin != null) {
 					qpe = qpeBasin.getAccumMaxValue(pfafs, monitor
-							.getQpeWindow().getAfterTime(), monitor
-							.getQpeWindow().getBeforeTime(), expirationTime,
+							.getQpeWindow().getBeforeTime(), monitor
+							.getQpeWindow().getAfterTime(), expirationTime,
 							isRate);
 					trd.setTableCellData(2, new FFMPTableCellData(FIELDS.QPE,
 							qpe));
@@ -1223,7 +1223,6 @@ public class FFMPDataGenerator {
 		if (resource.isWorstCase() || (resource.centeredAggregationKey != null)) {
 			// make sure that "ALL" is loaded
 			huc = "ALL";
-
 			rateRecord = monitor.getRateRecord(product, siteKey, dataKey,
 					product.getRate(), resource.getPaintTime().getRefTime(),
 					huc, true);
