@@ -148,8 +148,11 @@ public class SatelliteDao extends PluginDao {
                     SatelliteRecord.SAT_FILL_VALUE, 0.0f);
 
             SatMapCoverage coverage = satRecord.getCoverage();
-            GridDownscaler downScaler = createDownscaler(coverage,
-                    storageRecord, fillValue);
+            AbstractDataWrapper dataSource = getSource(storageRecord,
+                    coverage.getNx(), coverage.getNy());
+            dataSource.setFillValue(fillValue);
+            GridDownscaler downScaler = new GridDownscaler(
+                    MapUtil.getGridGeometry(coverage));
 
             // How many interpolation levels do we need for this data?
             int levels = downScaler.getNumberOfDownscaleLevels();
@@ -165,7 +168,9 @@ public class SatelliteDao extends PluginDao {
                             size);
                     dest.setFillValue(fillValue);
                     try {
-                        downScaler.downscale(downscaleLevel, dest);
+                        // Downscale from previous level
+                        downScaler.downscale(downscaleLevel - 1,
+                                downscaleLevel, dataSource, dest);
 
                         IDataRecord dr = createDataRecord(satRecord, dest,
                                 downscaleLevel, size);
@@ -175,6 +180,8 @@ public class SatelliteDao extends PluginDao {
                         dr.setProperties(props);
                         dataStore.addDataRecord(dr);
 
+                        // Set source to current level
+                        dataSource = dest;
                     } catch (TransformException e) {
                         throw new StorageException(
                                 "Error creating downscaled data",
@@ -468,31 +475,6 @@ public class SatelliteDao extends PluginDao {
                 SatelliteRecord.SAT_DATASET_NAME, true));
 
         return rec;
-    }
-
-    /**
-     * Create a down scaler for the given data.
-     * 
-     * @param coverage
-     *            Satellite Map Coverage for the source data.
-     * @param rec
-     *            The original data that will be down-scaled.
-     * @param fillValue
-     *            The declared fill value for the data.
-     * @return
-     */
-    private GridDownscaler createDownscaler(SatMapCoverage coverage,
-            IDataRecord rec, double fillValue) {
-        GridDownscaler downScaler = null;
-
-        AbstractDataWrapper dataSource = getSource(rec, coverage.getNx(),
-                coverage.getNy());
-        dataSource.setFillValue(fillValue);
-
-        downScaler = new GridDownscaler(MapUtil.getGridGeometry(coverage),
-                dataSource);
-
-        return downScaler;
     }
 
     /**
