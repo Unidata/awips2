@@ -20,8 +20,6 @@
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
 
-import org.eclipse.swt.widgets.Event;
-
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.palette.NsharpShowTextDialog;
