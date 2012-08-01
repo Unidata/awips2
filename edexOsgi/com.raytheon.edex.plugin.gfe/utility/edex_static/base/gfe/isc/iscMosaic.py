@@ -21,13 +21,13 @@
 
 import os, stat, time, string, bisect, getopt, sys, traceback
 import LogStream, iscTime, iscUtil, mergeGrid
-#import pupynere as netcdf
-try:
-    # dev environment
-    from Scientific.IO import NetCDF
-except:
-    # runtime we don't have the whole scientific package
-    import NetCDF
+import pupynere as NetCDF
+#try:
+#    # dev environment
+#    from Scientific.IO import NetCDF
+#except:
+#    # runtime we don't have the whole scientific package
+#    import NetCDF
 import numpy
 import JUtil
 
@@ -215,6 +215,8 @@ class IscMosaic:
         
         self.__getArgs(args)        
 
+        self.__initLogger()
+
         
     def logEvent(self,*msg):
         self.__logger.info(iscUtil.tupleToString(*msg))
@@ -322,11 +324,10 @@ class IscMosaic:
 
         self.__inFiles = JUtil.pyValToJavaObj(self.__inFiles)
         self.__processTimePeriod = (startTime, endTime)
-        self.__initLogger()
-        self.logEvent("iscMosaic Starting")
     
     def execute(self):
-        
+        self.logEvent("iscMosaic Starting")
+    
         # get the WxDefinition and DiscreteDefinition
         config = IFPServerConfigManager.getServerConfig(self.__mysite)
         self.__wxDef = config.getWxDefinition()
@@ -348,9 +349,15 @@ class IscMosaic:
         
         for i in range(0, self.__inFiles.size()):
             self.__processInputFile(str(self.__inFiles.get(i)))
+
+        self.logEvent("iscMosaic Finished")
         
     def __processInputFile(self, filename):
         
+        a = os.times()
+        cpu0 = a[0] + a[1]
+        start = a[4]
+
         self.logEvent("Processing file=", filename)
         fsize = os.stat(filename)[stat.ST_SIZE]
         self.logEvent("Input file size: ", fsize)
@@ -373,7 +380,21 @@ class IscMosaic:
                 unzippedFile.close()
                 os.remove(unzippedFile.name)
         
-        file = NetCDF.NetCDFFile(filename, "r")
+        a = os.times()
+        cpu = a[0] + a[1]
+        stop1 = a[4]
+
+        if hasattr(NetCDF, "netcdf_file"):
+            # use this for pupynere
+            
+            # TODO: Remove False flag passed to constructor to resolve memory 
+            # allocation error found in #7788. If AWIPS2 ever moves to 64-bit
+            # we'll probably have enough address space to allow the file to be
+            # memory-mapped.
+            file = NetCDF.netcdf_file(filename, "r", False) 
+        else:
+            # use this for ScientificIO.NetCDF
+            file = NetCDF.NetCDFFile(filename, "r")  
         
         # check version
         fileV = getattr(file, 'fileFormatVersion')
@@ -471,6 +492,13 @@ class IscMosaic:
             notification = UserMessageNotification(msg, Priority.EVENTA, "ISC", self.__mysite)
             SendNotifications.send(notification)
             
+        a = os.times()
+        cpugz = a[0] + a[1]
+        stop = a[4]
+        self.logEvent("Elapsed/CPU time: ", 
+          "%-.2f" % (stop1 - start), "/", "%-.2f" % (cpu - cpu0), "decompress,", 
+          "%-.2f" % (stop - stop1),  "/", "%-.2f" % (cpugz - cpu), "processing,",
+          "%-.2f" % (stop - start), "/", "%-.2f" % (cpugz - cpu0), "total")
         
     def __processParm(self, parmName, vars, history, filename):
         
@@ -540,8 +568,8 @@ class IscMosaic:
                         if tr is not None: 
                             inTimesProc.append(tr) 
                             try:
-                                #self.logDebug("Processing Grid: ", parmName, \
-                                #" TR=", self.__printTR(tr))
+                                self.logDebug("Processing Grid: ", parmName, \
+                                " TR=", self.__printTR(tr))
             
                                 # get the grid and remap it
                                 grid = self.__getGridFromNetCDF(gridType, vars, i)
@@ -631,8 +659,8 @@ class IscMosaic:
         # get the associated db grids, merge, and store
         for m in merge:
             
-            #self.logDebug("Merge: ", self.__printTR(m[0]),
-            #self.__printTR(m[1]), m[2])
+            self.logDebug("Merge: ", self.__printTR(m[0]),
+            self.__printTR(m[1]), m[2])
             gotGrid = self.__getDbGrid(m[0])
 
             if gotGrid is not None:
@@ -698,13 +726,13 @@ class IscMosaic:
             if tr not in self.__dbinv:
                 self.__dbinv = self._wec.keys()
                 #self.__dbinv = self.__dbwe.keys()
-            #self.logDebug("Store:", self.__printTR(tr))
+            self.logDebug("Store:", self.__printTR(tr))
         else:
             self._wec[tr] = None
             self.__dbinv = self._wec.keys()
             #self.__dbwe[tr] = None
             #self.__dbinv = self.__dbwe.keys()
-            #self.logDebug("Erase:", self.__printTR(tr))
+            self.logDebug("Erase:", self.__printTR(tr))
 
         
     #---------------------------------------------------------------------
@@ -868,41 +896,41 @@ class IscMosaic:
 
         # all projections have this information
         data = getattr(var, "latLonLL")
-        inProjData['latLonLL'] = (data[0], data[1])
+        inProjData['latLonLL'] = (float(data[0]), float(data[1]))
         data = getattr(var, "latLonUR")
-        inProjData['latLonUR'] = (data[0], data[1])
-        inProjData['projectionType'] = getattr(var, "projectionType")
+        inProjData['latLonUR'] = (float(data[0]), float(data[1]))
+        inProjData['projectionType'] = str(getattr(var, "projectionType"))
         data = getattr(var, "gridPointLL")
-        inProjData['gridPointLL'] = (data[0], data[1])
+        inProjData['gridPointLL'] = (int(data[0]), int(data[1]))
         data = getattr(var, "gridPointUR")
-        inProjData['gridPointUR'] = (data[0], data[1])
+        inProjData['gridPointUR'] = (int(data[0]), int(data[1]))
 
         # lambert conformal specific information
         if inProjData['projectionType'] == 'LAMBERT_CONFORMAL':
             data = getattr(var, "latLonOrigin")
-            inProjData['latLonOrigin'] = (data[0], data[1])
+            inProjData['latLonOrigin'] = (float(data[0]), float(data[1]))
             data = getattr(var, "stdParallelOne")
-            inProjData['stdParallelOne'] = data
+            inProjData['stdParallelOne'] = float(data)
             data = getattr(var, "stdParallelTwo")
-            inProjData['stdParallelTwo'] = data
+            inProjData['stdParallelTwo'] = float(data)
 
         # polar stereographic
         elif inProjData['projectionType'] == 'POLAR_STEREOGRAPHIC':
             data = getattr(var, "lonOrigin")
-            inProjData['lonOrigin'] = data
+            inProjData['lonOrigin'] = float(data)
 
         # mercator
         elif inProjData['projectionType'] == 'MERCATOR':
             data = getattr(var, "lonCenter")
-            inProjData['lonCenter'] = data
+            inProjData['lonCenter'] = float(data)
 
         # get specific grid sizes and domains
         data = getattr(var, "gridSize")
-        inProjData['gridSize'] = (data[0], data[1])
+        inProjData['gridSize'] = (int(data[0]), int(data[1]))
         origin = getattr(var, "domainOrigin")
         extent = getattr(var, "domainExtent")
         inProjData['gridDomain'] = \
-          ((origin[0], origin[1]), (extent[0], extent[1]))
+          ((float(origin[0]), float(origin[1])), (float(extent[0]), float(extent[1])))
 
         return inProjData
     
@@ -1148,17 +1176,17 @@ class IscMosaic:
     def __decodeProj(self, pdata):
         
         pid = "GrandUnifiedRemappingProj"
-        type = ProjectionType.valueOf(pdata["projectionType"]).ordinal()
-        llLL = Coordinate(float(str(pdata["latLonLL"][0])), float(str(pdata["latLonLL"][1])))
-        llUR = Coordinate(float(str(pdata["latLonUR"][0])), float(str(pdata["latLonUR"][1])))
-        llo = Coordinate(float(str(pdata["latLonOrigin"][0])), float(str(pdata["latLonOrigin"][1])))
-        sp1 = float(pdata["stdParallelOne"])
-        sp2 = float(pdata["stdParallelTwo"])
-        gpll = Point(int(str(pdata["gridPointLL"][0])), int(str(pdata["gridPointLL"][1])))
-        gpur = Point(int(str(pdata["gridPointUR"][0])), int(str(pdata["gridPointUR"][1])))
-        lati = float(pdata["latIntersect"])
-        lonc = float(pdata["lonCenter"])
-        lono = float(pdata["lonOrigin"])
+        type = ProjectionType.valueOf(pdata["projectionType"])
+        llLL = Coordinate(pdata["latLonLL"][0], pdata["latLonLL"][1])
+        llUR = Coordinate(pdata["latLonUR"][0], pdata["latLonUR"][1])
+        llo = Coordinate(pdata["latLonOrigin"][0], pdata["latLonOrigin"][1])
+        sp1 = pdata["stdParallelOne"]
+        sp2 = pdata["stdParallelTwo"]
+        gpll = Point(pdata["gridPointLL"][0], pdata["gridPointLL"][1])
+        gpur = Point(pdata["gridPointUR"][0], pdata["gridPointUR"][1])
+        lati = pdata["latIntersect"]
+        lonc = pdata["lonCenter"]
+        lono = pdata["lonOrigin"]
         
         return ProjectionData(pid, type, llLL, llUR, llo, sp1, sp2, gpll, gpur, lati, lonc, lono)
         

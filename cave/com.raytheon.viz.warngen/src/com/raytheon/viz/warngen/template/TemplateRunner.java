@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -93,6 +94,7 @@ import com.raytheon.viz.warngen.util.WeatherAdvisoryWatch;
 import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTReader;
 
@@ -111,6 +113,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * May  9, 2012   14887    Qinglu Lin  Changed one argument passed to calculatePortion().
  * May 31, 2012   15047    Qinglu Lin  Added additional logic to canOrExpCal for CAN and EXP.
  * Jun 15, 2012   15043    Qinglu Lin  Added duration to context.
+ * Jul 16, 2012   15091    Qinglu Lin  Compute intersection area, which is used for prevent 2nd timezone
+ *                                     from appearing in 2nd and 3rd bullets when not necessary.
  * 
  * </pre>
  * 
@@ -241,23 +245,77 @@ public class TemplateRunner {
                 context.put(ia, intersectAreas.get(ia));
             }
 
+            Map<String, Double> intersectSize = new HashMap<String, Double>();
+            String[] oneLetterTZ;
+            double minSize = 1.0E-3d;
             if (areas != null && areas.length > 0) {
             	Set<String> timeZones = new HashSet<String>();
                 for (AffectedAreas area : areas) {
                     if (area.getTimezone() != null) {
-                    	// Handles counties that span two counties
+                    	// Handles counties that span two time zones
                         String oneLetterTimeZones = area.getTimezone().trim();
+                        oneLetterTZ = new String[oneLetterTimeZones.length()];
                         if (oneLetterTimeZones.length() == 1) {
                             timeZones.add(String.valueOf(oneLetterTimeZones.charAt(0)));
                         } else {
+                        	// Determine if one letter timezone is going to be put into timeZones.
+                    		Polygon[] poly1, poly2;
+                    		int n1, n2;
+                    		double size, totalSize;
                         	for (int i = 0; i < oneLetterTimeZones.length(); i++) {
-                        		String oneLetterTimeZone = String.valueOf(oneLetterTimeZones.charAt(i));
-                        		Geometry timezoneGeom = warngenLayer.getTimezoneGeom(oneLetterTimeZone);
-                        		if (timezoneGeom != null && GeometryUtil.intersects(warningArea, timezoneGeom)) {
-                        		    timeZones.add(oneLetterTimeZone);
+                        		oneLetterTZ[i] = String.valueOf(oneLetterTimeZones.charAt(i));
+                        		Geometry timezoneGeom = warngenLayer.getTimezoneGeom(oneLetterTZ[i]);
+                        		t0 = System.currentTimeMillis();
+                        		poly1 = null; poly2 = null;
+                        		n1 = 0; n2 = 0;
+                        		size = 0.0d; totalSize = 0.0d;
+                        		if (timezoneGeom != null && warningArea!= null) {
+                        			if (intersectSize.get(oneLetterTZ[i]) != null) continue;
+                        			poly1 = new Polygon[warningArea.getNumGeometries()];
+                        			n1 = warningArea.getNumGeometries();
+                        			for (int j = 0; j < n1; j++) {
+                        				poly1[j] = (Polygon)warningArea.getGeometryN(j);
+                        			}
+                        			poly2 = new Polygon[timezoneGeom.getNumGeometries()];
+                        			n2 = timezoneGeom.getNumGeometries();
+                        			for (int j = 0; j < n2; j++) {
+                        				poly2[j] = (Polygon)timezoneGeom.getGeometryN(j);
+                        			}
+                        			// Calculate the total size of intersection
+                                    for (Polygon p1: poly1) {
+                        				for (Polygon p2: poly2) {
+                        					size = p1.intersection(p2).getArea();
+                        					if (size > 0.0)
+                            					totalSize += size;
+                        				}
+                    					if (totalSize > minSize) break; //save time when the size of poly1 or poly2 is large
+                        			}
+                        			intersectSize.put(oneLetterTZ[i],totalSize);
+                        		} else 
+                        			throw new VizException("Either timezoneGeom or/and warningArea is null. " +
+                        					"Timezone cannot be determined.");
+                        		System.out.println("Time to do size computation = "
+                        				+ (System.currentTimeMillis() - t0));
+                        		if (totalSize > minSize) {
+                        			timeZones.add(oneLetterTZ[i]);
                         		}
                         	}
+                        	// If timeZones has nothing in it when the hatched area is very small,
+                        	// use the timezone of larger intersection size.
+                        	if (timeZones.size() == 0 ) {
+                        		if (intersectSize.size() > 1)
+                        			if (intersectSize.get(oneLetterTZ[0]) > intersectSize.get(oneLetterTZ[1])) {
+                        				timeZones.add(oneLetterTZ[0]);
+                        			} else { 
+                        				timeZones.add(oneLetterTZ[1]);
+                        			}
+                        		else
+                        			throw new VizException("The size of intersectSize is less than 1, " + 
+                        					"timezone cannot be determined.");
+                        	}
                         }
+                    } else {
+                    	throw new VizException("Calling to area.getTimezone() returns null.");
                     }
                 }
 
