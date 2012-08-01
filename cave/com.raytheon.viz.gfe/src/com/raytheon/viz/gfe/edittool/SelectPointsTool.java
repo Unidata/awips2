@@ -178,6 +178,7 @@ public class SelectPointsTool extends AbstractFreeformTool {
             if (parms.length == 0) {
                 statusHandler.handle(Priority.VERBOSE,
                         "No displayed parms. Cannot select points.");
+                return new Coordinate[0];
             } else {
                 parm = parms[0];
             }
