@@ -73,10 +73,10 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 	private IFont fixedFont;
 	private int hodoWidth = NsharpConstants.HODO_WIDTH;
 	private int hodoHeight = NsharpConstants.HODO_HEIGHT;
-	private int hodoXOrig = NsharpConstants.HODO_X_ORIG;
-	private int hodoYOrig = NsharpConstants.HODO_Y_ORIG;
-	private int hodoXEnd = NsharpConstants.HODO_X_END;
-	private int hodoYEnd = NsharpConstants.HODO_Y_ORIG+  NsharpConstants.HODO_HEIGHT;
+	//private int hodoXOrig = NsharpConstants.HODO_X_ORIG;
+	//private int hodoYOrig = NsharpConstants.HODO_Y_ORIG;
+	//private int hodoXEnd = NsharpConstants.HODO_X_END;
+	//private int hodoYEnd = NsharpConstants.HODO_Y_ORIG+  NsharpConstants.HODO_HEIGHT;
 	private Coordinate hodoHouseC = new Coordinate(NsharpConstants.HODO_CENTER_X_, NsharpConstants.HODO_CENTER_Y_);
 	private float xRatio=1;
 	private float yRatio=1;
@@ -177,7 +177,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 
 	}
 	public void createRscHodoWindShapeAll(){
-		if(target == null || rscHandler ==null || soundingLys==null)
+		if(target == null || rscHandler ==null || soundingLys==null || hodoWindRscShapeList == null)
 			return;
 		if(hodoWindRscShapeList.size()>0){
 			for(NsharpShapeAndLineProperty shapeColor: hodoWindRscShapeList){
@@ -236,6 +236,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		//for future createHodoWindMotionBoxShape();
 
 	}
+	@SuppressWarnings("unused")
 	private void createHodoWindMotionBoxShape(/*WGraphics world*/){
 		hodoWindMotionBoxShape = target.createWireframeShape(false,descriptor );
 		hodoWindMotionBoxShape.allocate(12);
@@ -496,7 +497,7 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 		}
 	}
     //To be used later...
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "deprecation" })
 	private void drawHodoWindMotionBox(IGraphicsTarget target, Rectangle rect) throws VizException {
     	target.drawShadedRect(new PixelExtent(rect.x, rect.x+rect.width, rect.y, rect.y+rect.height), NsharpConstants.color_black, 1.0, null);
     	target.drawWireframeShape(hodoWindMotionBoxShape, NsharpConstants.color_cyan, commonLinewidth,commonLineStyle,font10);
@@ -661,22 +662,31 @@ public class NsharpHodoPaneResource extends NsharpAbstractPaneResource{
 	@Override
 	public void handleResize() {
 		
-		super.handleResize();
+		//super.handleResize();
+		this.resize=false;
 		IExtent ext = getDescriptor().getRenderableDisplay().getExtent();
 		ext.reset();
 		//System.out.println("skewtPane: handleResize");
    	 	float prevHeight = hodoHeight;
 		float prevWidth = hodoWidth;
-		hodoXOrig = (int) (ext.getMinX());
-		hodoYOrig = (int) ext.getMinY();
+		//hodoXOrig = (int) (ext.getMinX());
+		//hodoYOrig = (int) ext.getMinY();
 		hodoWidth = (int) (ext.getWidth());
 		hodoHeight = (int) ext.getHeight();
-		hodoXEnd = hodoXOrig+ hodoWidth;
-		hodoYEnd = hodoYOrig+ hodoHeight;
+		//hodoXEnd = hodoXOrig+ hodoWidth;
+		//hodoYEnd = hodoYOrig+ hodoHeight;
 		xRatio = xRatio* hodoWidth/prevWidth;
 		yRatio = yRatio* hodoHeight/prevHeight;
 		hodoBackground.handleResize(ext);
-		
+		world = hodoBackground.computeWorld();
+		Coordinate c;
+		FloatByReference value1= new FloatByReference(-999);
+		FloatByReference value2= new FloatByReference(-999);
+		FloatByReference bwdir= new FloatByReference(-999);
+		FloatByReference bwspd= new FloatByReference(-999);
+		nsharpNative.nsharpLib.bunkers_storm_motion(value1, value2, bwdir, bwspd);
+		c = WxMath.uvComp(bwspd.getValue(),bwdir.getValue());
+		hodoHouseC= world.map(c);
 		createRscHodoWindShapeAll();
 		
 	}

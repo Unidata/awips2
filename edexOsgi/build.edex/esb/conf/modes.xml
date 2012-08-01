@@ -58,37 +58,16 @@
 	 	<exclude>nctaf-ingest.xml</exclude>
 	 	<exclude>nctext-ingest.xml</exclude>
 	 	<exclude>ncuair-ingest.xml</exclude>	 	
-	 	<!--  end of ncep excludes -->
-	</mode>
-	<!-- In high memory mode, DAT runs in its own jvm -->
-	<mode name="ingestHighMem">				
-		<exclude>.*request.*</exclude>
-	 	<exclude>grib-ingest.xml</exclude>
-	 	<exclude>ncairep-ingest.xml</exclude>
-	 	<exclude>ncgrib-ingest.xml</exclude>
-		<exclude>ffmp-ingest.*.xml</exclude>
-		<exclude>scan-ingest.*.xml</exclude>
-		<exclude>cwat-ingest.*.xml</exclude>
-		<exclude>fog-ingest.*.xml</exclude>
-		<exclude>vil-ingest.*.xml</exclude>
-		<exclude>preciprate-ingest.*.xml</exclude>
-		<exclude>qpf-ingest.*.xml</exclude>
-		<exclude>fssobs-ingest.*.xml</exclude>
+	 	<!--  DAT -->
+		<exclude>ffmp-ingest.xml</exclude>
+		<exclude>scan-ingest.xml</exclude>
+		<exclude>cwat-ingest.xml</exclude>
+		<exclude>fog-ingest.xml</exclude>
+		<exclude>vil-ingest.xml</exclude>
+		<exclude>preciprate-ingest.xml</exclude>
+		<exclude>qpf-ingest.xml</exclude>
+		<exclude>fssobs-ingest.xml</exclude>
 		<exclude>cpgsrv-spring.xml</exclude>
-		<exclude>ncgrib-ingest.xml</exclude>		
-	 	<!-- ncep excludes until tested -->
-	 	<exclude>aww-ingest.xml</exclude>
-	 	<exclude>ncccfp-ingest.xml</exclude>	 	
-	 	<exclude>ncgrib-distribution.xml</exclude>
-	 	<exclude>ncep-util-on-edex-ingest</exclude>
-	 	<exclude>ncep-util-on-edex-ingestGrib</exclude> 		 	
-	 	<exclude>ncscd-ingest.xml</exclude>
-	 	<exclude>ncpafm-ingest.xml</exclude>
-	 	<exclude>ncpirep-ingest.xml</exclude>
-	 	<exclude>nctaf-ingest.xml</exclude>
-	 	<exclude>nctext-ingest.xml</exclude>
-	 	<exclude>ncuair-ingest.xml</exclude>
-	 	<!--  end of ncep excludes -->
 	</mode>
 	<mode name="ingestGrib">
 	    <include>time-common.xml</include>
@@ -107,7 +86,7 @@
 	 	<exclude>h5scd-ingest.xml</exclude>
 	 	<!-- end of ncep excludes -->	 	
 	</mode>
-	<!-- Should only be used in high memory mode -->
+	<!-- Runs separate now, not just high mem -->
 	<mode name="ingestDat">
 	    <include>time-common.xml</include>
 		<include>ffmp-ingest.xml</include>
