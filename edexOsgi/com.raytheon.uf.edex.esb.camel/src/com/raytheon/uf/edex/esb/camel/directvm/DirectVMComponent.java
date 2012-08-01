@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.camel.Endpoint;
 import org.apache.camel.component.direct.DirectComponent;
 import org.apache.camel.impl.DefaultConsumer;
+import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.util.ServiceHelper;
 
 /**
@@ -38,6 +39,7 @@ import org.apache.camel.util.ServiceHelper;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 18, 2008            chammack     Initial creation
+ * Jul 16, 2012 DR 15073   D. Friedman  Don't stop all consumer in doStop.
  * 
  * </pre>
  * 
@@ -76,11 +78,18 @@ public class DirectVMComponent extends DirectComponent {
     protected void doStop() throws Exception {
         Collection<CopyOnWriteArrayList<DefaultConsumer>> set = CONSUMERS
                 .values();
-        for (CopyOnWriteArrayList<DefaultConsumer> consumerList : set) {
-            ServiceHelper.stopService(consumerList);
-        }
+        
+        /* Stop only the consumers created through this instance of the 
+         * component.
+         */
+        for (CopyOnWriteArrayList<DefaultConsumer> consumerList : set)
+            for (DefaultConsumer consumer : consumerList) {
+                Endpoint endpoint = consumer.getEndpoint();
+                if (endpoint instanceof DefaultEndpoint)
+                    if (((DefaultEndpoint) endpoint).getComponent() == this)
+                        ServiceHelper.stopService(consumer);
+            }
 
-        CONSUMERS.clear();
         super.doStop();
     }
 }

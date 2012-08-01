@@ -20,6 +20,8 @@ package gov.noaa.nws.ncep.ui.nsharp.palette;
  */
 
 
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.window.IShellProvider;
@@ -33,14 +35,17 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+
 
 public class NsharpConfigDialog extends Dialog {
-	private Button parameterBtn, dataDisplayBtn, timeLineBtn, stnBtn;
+	private Button parameterBtn, dataDisplayBtn, timeLineBtn, stnBtn, paneCfgBtn;
 	private static NsharpConfigDialog thisDialog=null;
 	private static NsharpParametersSelectionConfigDialog parameterSelDialog = null;
 	private static NsharpDataDisplayConfigDialog dataDislpayDialog = null;
 	private static NsharpTimeLineConfigDialog timelineDialog = null;
 	private static NsharpStnConfigDialog stnDialog = null;
+	private static NsharpPaneConfigDialog paneCfgDialog = null;
 	public NsharpConfigDialog(Shell parentShell) {
 		super(parentShell);
 		// TODO Auto-generated constructor stub
@@ -73,15 +78,17 @@ public class NsharpConfigDialog extends Dialog {
 					timeLineBtn.setEnabled( false );
 					dataDisplayBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					parameterSelDialog.open();
 					dataDisplayBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
 		dataDisplayBtn = new Button(parent, SWT.PUSH);
-		dataDisplayBtn.setText("Data Display");
+		dataDisplayBtn.setText("Data Display Configuration");
 		dataDisplayBtn.setEnabled( true );
 		//lineBtn.setSize(btnWidth,pushbtnHeight);
 		dataDisplayBtn.addListener( SWT.MouseUp, new Listener() {
@@ -92,15 +99,17 @@ public class NsharpConfigDialog extends Dialog {
 					timeLineBtn.setEnabled( false );
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					dataDislpayDialog.open();
 					parameterBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
 					stnBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
 		timeLineBtn = new Button(parent, SWT.PUSH);
-		timeLineBtn.setText("Time Line");
+		timeLineBtn.setText("Time Line Activation");
 		timeLineBtn.setEnabled( true );
 		//lineBtn.setSize(btnWidth,pushbtnHeight);
 		timeLineBtn.addListener( SWT.MouseUp, new Listener() {
@@ -111,15 +120,17 @@ public class NsharpConfigDialog extends Dialog {
 					dataDisplayBtn.setEnabled(false);
 					parameterBtn.setEnabled(false);
 					stnBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					timelineDialog.open();
 					parameterBtn.setEnabled(true);
 					dataDisplayBtn.setEnabled(true);
 					stnBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
 				}	
 			}          		            	 	
 		} );
 		stnBtn = new Button(parent, SWT.PUSH);
-		stnBtn.setText("Station");
+		stnBtn.setText("Station Activation");
 		stnBtn.setEnabled( true );
 		//lineBtn.setSize(btnWidth,pushbtnHeight);
 		stnBtn.addListener( SWT.MouseUp, new Listener() {
@@ -130,10 +141,41 @@ public class NsharpConfigDialog extends Dialog {
 					dataDisplayBtn.setEnabled(false);
 					parameterBtn.setEnabled(false);
 					timeLineBtn.setEnabled( false );
+					paneCfgBtn.setEnabled( false );
 					stnDialog.open();
 					parameterBtn.setEnabled(true);
 					dataDisplayBtn.setEnabled(true);
 					timeLineBtn.setEnabled( true );
+					paneCfgBtn.setEnabled( true );
+				}	
+			}          		            	 	
+		} );
+		
+		paneCfgBtn = new Button(parent, SWT.PUSH);
+		paneCfgBtn.setText("Diaplay Pane Configuration");
+		if( VizPerspectiveListener.getCurrentPerspectiveManager()!= null){
+    		//System.out.println("changeFrame: current perspective ="+VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId());
+			if(VizPerspectiveListener.getCurrentPerspectiveManager().getPerspectiveId().equals(NmapCommon.NatlCntrsPerspectiveID))
+				paneCfgBtn.setEnabled( true );
+			else
+				paneCfgBtn.setEnabled( false );
+		}
+		//lineBtn.setSize(btnWidth,pushbtnHeight);
+		paneCfgBtn.addListener( SWT.MouseUp, new Listener() {
+			public void handleEvent(Event event) {           
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  	
+				paneCfgDialog =  NsharpPaneConfigDialog.getInstance(shell);
+				if ( paneCfgDialog != null ) {
+					dataDisplayBtn.setEnabled(false);
+					parameterBtn.setEnabled(false);
+					timeLineBtn.setEnabled( false );
+					stnBtn.setEnabled( false );
+					paneCfgDialog.open();
+					parameterBtn.setEnabled(true);
+					dataDisplayBtn.setEnabled(true);
+					timeLineBtn.setEnabled( true );
+					stnBtn.setEnabled( true );
+					
 				}	
 			}          		            	 	
 		} );
@@ -172,7 +214,7 @@ public class NsharpConfigDialog extends Dialog {
     protected void configureShell( Shell shell ) {
         super.configureShell( shell );       
         shell.setText( "Nsharp Configuration" );
-        shell.setSize(250, 250);
+        shell.setSize(250, 300);
     }
 	@Override
     public int open( ) {
