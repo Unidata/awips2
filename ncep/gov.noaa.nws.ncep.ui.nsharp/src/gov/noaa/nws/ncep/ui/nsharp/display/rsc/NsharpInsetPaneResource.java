@@ -169,6 +169,7 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 		super.paintInternal(target, paintProps);
 		if(rscHandler== null)
 			return;
+		float zoomLevel = paintProps.getZoomLevel();
 		if(zoomLevel != currentZoomLevel)
 		{
 			magnifyFont(zoomLevel);
@@ -312,13 +313,14 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
 			
 		}
 	}
+	/*
 	private void plotPsblWatchShape(IGraphicsTarget target, double zoomLevel,
             WGraphics world, Rectangle rect) throws VizException {
 		String wwtypeStr;
 		
     	double dispX, dispY;
     	//int width = getCapability(OutlineCapability.class).getOutlineWidth();
-        /* ----- Plot Label ----- */
+        // ----- Plot Label -----
         dispX = world.getViewXmin()+ 100 ;
     	dispY = world.getViewYmin()+15;
     	System.out.println("plotPsblWatchShape called w="+insetWidth+ " h="+insetHeight+" psbWatchXOrig="+psbWatchXOrig+ " psbWatchYOrig=" + psbWatchYOrig+ " dispX="+dispX+" dispY="+dispY);
@@ -370,7 +372,7 @@ public class NsharpInsetPaneResource extends NsharpAbstractPaneResource{
                 VerticalAlignment.MIDDLE, null);
 		target.drawLine(world.getViewXmin() , dispY+10,  0.0, world.getViewXmax(),dispY+10, 0.0, wwTypeColor,
 				commonLinewidth);
-	}
+	}*/
 
 	public void createBkgPsblWatchShape(WGraphics world){
 		String wwtypeStr;
