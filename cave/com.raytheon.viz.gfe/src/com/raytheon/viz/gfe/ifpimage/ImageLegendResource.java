@@ -55,6 +55,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2011            mschenke     Initial creation
  * Jun 25, 2012  15080     ryu          Ron's local time fix
+ * Jul 10, 2012  15186     ryu          Set legend font
  *
  * </pre>
  *
@@ -104,6 +105,7 @@ public class ImageLegendResource extends GFELegendResource {
         LegendEntry[] entries = new LegendEntry[data.length];
         for (int i = 0; i < entries.length; ++i) {
             entries[i] = new LegendEntry();
+            entries[i].font = font;
             entries[i].legendParts = new LegendData[] { data[i] };
         }
         return entries;

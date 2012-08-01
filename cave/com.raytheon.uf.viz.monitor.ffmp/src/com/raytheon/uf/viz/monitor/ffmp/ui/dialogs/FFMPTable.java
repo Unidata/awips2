@@ -78,6 +78,8 @@ public abstract class FFMPTable extends Composite {
     /** DR14406:  For columns with more words */
     protected static final int EXTRA_COLUMN_WIDTH = 28;
     
+    protected String currentPfaf = null;
+
     /**
      * Main table control.
      */
@@ -324,7 +326,10 @@ public abstract class FFMPTable extends Composite {
                         cols[j].setImage(null);
                         cols[j].setWidth(defaultColWidth);
                     }
-
+                    
+                    // reset the tableIndex
+                    tableIndex = -1;
+                    
                     /*
                      * Check of the column is sortable.
                      */
@@ -453,6 +458,11 @@ public abstract class FFMPTable extends Composite {
             }
 
             indexArray.add(t);
+            
+            // Check to see if this is the selected row
+            if (rowData.getPfaf().equals(currentPfaf)) {
+                tableIndex = indexArray.indexOf(t);
+            }
         }
         /*
          * VIRTUAL TABLE
