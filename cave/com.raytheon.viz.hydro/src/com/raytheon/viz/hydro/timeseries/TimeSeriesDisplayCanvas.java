@@ -769,6 +769,9 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
             int labelStartX = 0;
             int labelStartY = 0;
             
+            //store the label to be plotted on the gc legend later
+            ArrayList noDataLabels = new ArrayList<String>();
+            
             for (int j = 0; j < traceArray.size(); j++) {
                 TraceData td = traceArray.get(j);
                 boolean traceValid = true;
@@ -959,7 +962,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 setForegroundColor(td, j, gc);
 
                 if (graphData.getTraces().size() > 1) {                
-                    if (traceValid) {
+                    if (td.getLineData()!=null && td.getLineData().length>0) {
                         if (td.isTraceOn()) {
                         	if (stackLabels || ((dataString.length() * fontAveWidth) + 50 + index > canvasWidth)) {
                         		int[] xy = getLabelLocation(index, dataString, stackCount);
@@ -977,23 +980,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                             }
                         }
                     } else {
-                        // setForegroundColor(td, 23, gc);
-                        setForegroundColor(gc, SWT.COLOR_WHITE);
-                    	if (stackLabels || ((dataString.length() * fontAveWidth) + 50 + index > canvasWidth)) {
-                    		int[] xy = getLabelLocation(index, dataString, stackCount);
-                    		stackCount++;
-                    		labelStartX = xy[0];
-                    	    labelStartY = xy[1];
-                    		stackLabels = true;
-                    	} else {
-                    		labelStartX = index;
-                    		labelStartY = GRAPHBORDER - fontHeight;
-                    	}
-                        gc.drawString(noDataString, labelStartX, labelStartY);
-                        if (!stackLabels) {
-                        	index += (noDataString.length() + 2) * fontAveWidth;
-                        }
-                        setForegroundColor(td, j, gc);
+                        noDataLabels.add(noDataString);
+
                     }
                 } else {
                     if (graphData.getTraceData(0).getPe().startsWith("Q")) {
@@ -1088,6 +1076,27 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                     }
                 }
             }
+            
+            //draw no data legends
+            setForegroundColor(gc, SWT.COLOR_WHITE);
+            for (int i=0;i<noDataLabels.size();i++) {
+            	String labelString=(String)noDataLabels.get(i);
+            	if (stackLabels || ((labelString.length() * fontAveWidth) + 50 + index > canvasWidth)) {
+            		int[] xy = getLabelLocation(index, labelString, stackCount);
+            		stackCount++;
+            		labelStartX = xy[0];
+            	    labelStartY = xy[1];
+            		stackLabels = true;
+            	} else {
+            		labelStartX = index;
+            		labelStartY = GRAPHBORDER - fontHeight;
+            	}
+            	gc.drawString(labelString,labelStartX ,labelStartY);
+                if (!stackLabels) {
+                	index += (labelString.length() + 2) * fontAveWidth;
+                }
+            }
+
 
             // draw X/Y axis
             setForegroundColor(gc, SWT.COLOR_WHITE);
@@ -1536,7 +1545,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 s = getPEDTSE(td);
             }
             MenuItem mi = new MenuItem(m, SWT.CHECK);
-            if (!validGraph.get(i)) {
+            if (td.getLineData()!=null && td.getLineData().length>0) {
                 if (td.isTraceOn())
                     mi.setSelection(true);
                 else
@@ -1805,20 +1814,15 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                                 }
                             }
                         } else {
-                            for (int i = 0; i < listRegionList.size(); i++) {
-                                ArrayList<Region> rList = listRegionList.get(i);
-                                for (int j = 0; j < rList.size(); j++) {
-                                    if (rList.get(j).contains(e.x, e.y)) {
-                                        setCursor(handCursor);
-                                        selectableTrace = true;
-                                        selectedTraceId = j;
-                                        break;
-                                    } else {
-                                        setCursor(arrowCursor);
-                                        selectableTrace = false;
-                                    }
-                                }
-                            }
+                        	int traceId=findTracePoint(e.x,e.y);
+                        	if (traceId>=0){
+                        		setCursor(handCursor);
+                                selectableTrace = true;
+                                selectedTraceId = traceId;
+                        	}else {
+                        		setCursor(arrowCursor);
+                                selectableTrace = false;
+                        	}
                         }
                     }
                 }
@@ -1826,6 +1830,72 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
         }
     }
 
+    /**
+     * 
+     * @param x : location x (of mouse pointer)
+     * @param y : location y (of mouse pointer)
+     * @return the nearest trace. -999 if x,y is too far away
+     */
+    private int findTracePoint(int x, int y) {
+    	double distance=Double.MAX_VALUE;
+    	int choosingTrace=-999;
+    	ArrayList<TraceData> traceList=graphData.getTraces();
+    	
+    	//this loop is to find the closest point/line for every trace that's on
+    	int closePoints[] = new int[traceList.size()];
+        for (int traceIndex=0; traceIndex< traceList.size(); traceIndex++) {
+        	TraceData td= traceList.get(traceIndex);
+        	closePoints[traceIndex]=-999; //default to not found
+        	int[] dataPts = td.getLineData(); //dataPts stores x1,y1,x2,y2,x3...
+            if (td.isTraceOn() && dataPts!=null) {
+                for (int i = 0; i < dataPts.length - 1; i+= 2) {
+                    int x1 = dataPts[i];
+                    int y1 = dataPts[i + 1];
+                    int x2 = x1;
+                    int y2 = y1;
+                    if (i+4 <= dataPts.length) {
+                    	x2 = dataPts[i + 2];
+                    	y2 = dataPts[i + 3];
+                    }
+                    double curDistance=Double.MAX_VALUE;
+                    if (x1==x2 && y1==y2) //distance from a point
+                    	curDistance=Math.sqrt(Math.pow(x-x1,2)+Math.pow(y-y1, 2));
+                    else {//distance from a line segment
+                    //from http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+                        double p2X=x2-x1;
+                        double p2Y=y2-y1;
+
+                        double something=p2X*p2X + p2Y*p2Y;
+                        
+                        double u=((x-x1)*p2X+(y-y1)*p2Y)/something;
+
+                        if (u > 1)
+                            u = 1;
+                        else if (u < 0)
+                            u = 0;
+
+                        double xx=x1+u*p2X;
+                        double yy=y1+u*p2Y;
+
+                        double dx=xx-x;
+                        double dy=yy-y;
+
+                        curDistance=Math.sqrt(dx*dx+dy*dy);
+                    }
+                    if (curDistance<distance) {
+                    	distance=curDistance;
+                    	closePoints[traceIndex]=i;
+                    	choosingTrace=traceIndex;
+                    }
+                }
+            }
+        }
+
+        if (distance<20) //if less than 20 pixels away
+        	return choosingTrace;
+
+        return -999;
+    }
     /**
      * Handle the Mouse Down Events
      * 
@@ -2564,6 +2634,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 noFcstDataAvailable = false;
             } else {
                 noFcstDataAvailable = true;
+                traceDataList.add(traceData);//although nothing from DB
             }
         } catch (VizException e) {
             e.printStackTrace();

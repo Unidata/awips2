@@ -63,6 +63,7 @@ import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
  *                                     c)Locking does not work for areal flood advisory followup;
  *                                     d)NullointException/locking does not work for special marine warning 
  *                                       and locking beyond first paragragh. 
+ * Jul 17, 2012 14989     Qinglu Lin   Removed locks, <L> and </L>, for county names in pathcast line. 
  * 
  * </pre>
  * 
@@ -340,6 +341,7 @@ public class WarningTextHandler {
         	}
         }
 
+        boolean ruralFound=false, ruralReplace=false;
         ArrayList<String> usedAreaNotations = new ArrayList<String>();
         for (int lineIndex = 0; lineIndex < seperatedLines.length; ++lineIndex) {
             String line = seperatedLines[lineIndex];
@@ -347,7 +349,11 @@ public class WarningTextHandler {
             if (line.contains("THE NATIONAL WEATHER SERVICE IN") || line.contains("OTHER LOCATIONS IMPACTED")) {
                 before = false;
             }
-
+            
+            if (!ruralFound && line.contains("MAINLY RURAL AREAS")) {
+            	ruralFound = true;
+            }
+            
             // This prevents blank line(s) after the header from being locked.
             if (startLines && lineIndex > 1) {
                 startLines = line.trim().length() == 0;
@@ -418,6 +424,21 @@ public class WarningTextHandler {
                     sb.append(LOCK_START + line + "\n" + LOCK_END);
                     continue;
                 }
+
+                if (ruralFound)
+                	if (!ruralReplace)
+                		ruralReplace = true;
+                	else 
+                		if (ruralReplace) {
+                			if (line.trim().length() == 0)
+                				ruralFound = false;
+                			else {
+                				line = line.replace("<L>","");
+                				line = line.replace("</L>","");
+                				sb.append(line + "\n");
+                				continue;
+                			}
+                		}
 
                 if (line.trim().length() == 0) {
                     headlineFound = false;
