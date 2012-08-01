@@ -56,8 +56,6 @@ public class NsharpSaveHandle {
 				dlg.setFilterExtensions(filterExt);
 				if( rsc.getPickedStnInfoStr()!= null && rsc.getPickedStnInfoStr().length() >0){
 					StringTokenizer st = new StringTokenizer(rsc.getPickedStnInfoStr(), " \t\n\r\f/");
-					int i =0;
-
 					if(st.hasMoreTokens()== true){
 						fileName = "";
 						while (st.hasMoreTokens()) {
