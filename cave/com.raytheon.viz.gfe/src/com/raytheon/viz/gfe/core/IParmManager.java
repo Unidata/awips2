@@ -38,6 +38,7 @@ import com.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmListChangedListener;
 import com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 
 /**
  * Placeholder for ParmManager interface
@@ -47,6 +48,7 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 01/28/2008              chammack    Initial creation of skeleton.
+ * 06/25/2012    #766      dgilling    Added getVCModulePool().
  * 
  * </pre>
  * 
@@ -570,4 +572,6 @@ public interface IParmManager extends IParmInventoryChangedListener,
     public ParmID fromExpression(String parmName);
 
     public JobPool getNotificationPool();
+
+    public VCModuleJobPool getVCModulePool();
 }

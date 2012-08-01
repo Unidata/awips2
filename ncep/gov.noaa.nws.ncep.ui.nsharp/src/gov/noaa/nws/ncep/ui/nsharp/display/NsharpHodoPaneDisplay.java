@@ -19,6 +19,10 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpHodoPaneResourceData;
 
@@ -32,15 +36,28 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlRootElement
 public class NsharpHodoPaneDisplay extends NsharpAbstractPaneDisplay {
     public NsharpHodoPaneDisplay(PixelExtent pixelExtent,int paneNumber) {
         super(pixelExtent,paneNumber, "HodoPane",(NsharpAbstractPaneDescriptor)( new NsharpHodoPaneDescriptor(pixelExtent, paneNumber)));
     }
-    @Override
-    public NsharpHodoPaneDescriptor getDescriptor() {
-        return (NsharpHodoPaneDescriptor) super.getDescriptor();
-    }
+    
+    public NsharpHodoPaneDisplay() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public NsharpHodoPaneDisplay(PixelExtent pixelExtent, int paneNumber,
+			String name, NsharpAbstractPaneDescriptor desc) {
+		super(pixelExtent, paneNumber, name, desc);
+		// TODO Auto-generated constructor stub
+	}
+
+	//@Override
+    //public NsharpHodoPaneDescriptor getDescriptor() {
+    //    return (NsharpHodoPaneDescriptor) super.getDescriptor();
+    //}
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {

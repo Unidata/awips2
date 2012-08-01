@@ -15,7 +15,7 @@ Topic :: Scientific/Engineering
 Topic :: Software Development :: Libraries :: Python Modules
 """
 
-version = '1.0.13'
+version = '1.0.15'
 
 setup(
         name='pupynere',
@@ -28,10 +28,20 @@ on Numpy, so you don't need to have the NetCDF library installed.
 
 Changelog:
 
+1.0.15
+    Added fix for empty attributes.
+
+1.0.14
+    Added support for Unicode attributes.
+
+1.0.13
+    Fixed bug when reading character variables without mmap.
+
 1.0.12
+  Fixed bug.
 
 1.0.11
-  Fixed bug 
+  Fixed bug.
 
 1.0.10
   Fixed bug when packing integer attributes in 64-bit systems.
@@ -78,7 +88,7 @@ Changelog:
         keywords='netcdf data array math',
         author='Roberto De Almeida',
         author_email='roberto@dealmeida.net',
-        url='http://dealmeida.net/2008/07/14/pupynere',
+        url='http://bitbucket.org/robertodealmeida/pupynere/',
         download_url = "http://cheeseshop.python.org/packages/source/p/pupynere/pupynere-%s.tar.gz" % version,
         license='MIT',
         py_modules=['pupynere'],

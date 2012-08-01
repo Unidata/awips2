@@ -8,7 +8,8 @@
 ## Added Volcano Information for version 1.3       ##  
 ## VERSION AWIPS II 1.4 -- JAN 26 2012  OB12.1.1-1 ##   
 ## Cleaned up wind coding for version 1.4          ##
-## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ## 
+## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ##
+## BY MGAMAZAYCHIKOV	-- JUL 20 2012	DR15006    ##
 #####################################################
 ## Added Volcano Information in version 1.3 for sites where
 ## Volcanoes affect their marine zones. If sites wish to hide
@@ -81,7 +82,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...THE ${warningType} IS CANCELLED... 
+...THE ${warningType} IS CANCELLED...
 
 THE AFFECTED AREAS WERE... 
 #foreach (${area} in ${areas}) 
@@ -509,7 +510,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...THE ${warningType} IS CANCELLED... 
+...THE ${warningType} IS CANCELLED...
 
 THE AFFECTED AREAS WERE...
 #foreach (${area} in ${cancelareas}) 
@@ -922,7 +923,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...THE ${warningType} IS CANCELLED... 
+...THE ${warningType} IS CANCELLED...
 
 THE AFFECTED AREAS WERE...
 #foreach (${area} in ${cancelareas}) 
