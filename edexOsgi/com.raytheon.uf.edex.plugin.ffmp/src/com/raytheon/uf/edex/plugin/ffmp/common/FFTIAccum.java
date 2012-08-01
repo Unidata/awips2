@@ -35,16 +35,10 @@ package com.raytheon.uf.edex.plugin.ffmp.common;
  * @version 1.0
  */
 
-public class FFTIAccum {
+public class FFTIAccum extends FFTIData {
 
     private Double accumulation = 0.0;
-
-    private Double gap = 0.0;
-
-    private String name = null;;
-
-    private String unit = null;
-
+  
     public Double getAccumulation() {
         return accumulation;
     }
@@ -52,44 +46,6 @@ public class FFTIAccum {
     public void setAccumulation(Double accumulation) {
 
         this.accumulation = accumulation;
-    }
-
-    public Double getGap() {
-        return gap;
-    }
-
-    public void setGap(Double gap) {
-        this.gap = gap;
-    }
-
-    /**
-     * @param name
-     *            the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param unit
-     *            the unit to set
-     */
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    /**
-     * @return the unit
-     */
-    public String getUnit() {
-        return unit;
     }
 
 }

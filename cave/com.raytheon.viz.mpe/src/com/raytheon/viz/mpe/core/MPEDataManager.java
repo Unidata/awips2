@@ -746,10 +746,8 @@ public class MPEDataManager {
     }
 
     public Map<Date, MPEDateInfo> getDateMap(boolean update) {
-        if (dateMap == null || update) {
-            getDates(update);
-        }
-
+            
+    	getDates(update);
         return dateMap;
     }
 

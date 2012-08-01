@@ -44,6 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 11, 2010            mnash     Initial creation
+ * Jul 16, 2012 DR 14723   D.Friedman  Decompress files atomically
  * 
  * </pre>
  * 
@@ -124,18 +125,21 @@ public class RadarDecompressor {
     }
 
     /**
-     * Used for things that need to write the data back out to a file
+     * Decompress file atomically.
      * 
-     * @param messageData
+     * @param file
+     * @param headers
+     * @param keepHeader If true, keep any WMO/AWIPS heading found in file
      * @return
      */
-    public File decompressToFile(File file, Headers headers) {
-        int fileSize = (int) file.length();
-        byte[] messageData = new byte[fileSize];
+    private File decompressToFileImpl(File file, Headers headers, boolean keepHeader) {
+        byte[] messageData = null; 
         FileInputStream input = null;
 
         try {
             input = new FileInputStream(file);
+            int fileSize = (int) input.getChannel().size();
+            messageData = new byte[fileSize];
             input.read(messageData);
         } catch (FileNotFoundException e) {
             theHandler.handle(Priority.ERROR, e.getMessage());
@@ -151,6 +155,11 @@ public class RadarDecompressor {
             }
         }
 
+        /*
+         * TODO: If reading fails, the code below will NPE.  Is this 
+         * done intentionally to stop processing?
+         */
+
         String headerSearch = "";
         int start = 0;
         if (messageData.length < 80) {
@@ -164,21 +173,45 @@ public class RadarDecompressor {
         messageData = decompress(messageData, headers);
 
         FileOutputStream output = null;
+        File tmpFile = null;
         try {
-            output = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        }
-        try {
-            output.write(headerSearch.getBytes());
+            tmpFile = File.createTempFile(file.getName() + ".", ".decompress", file.getParentFile());
+            output = new FileOutputStream(tmpFile);
+            if (keepHeader)
+                output.write(headerSearch.getBytes());
             output.write(messageData);
             output.close();
+            output = null;
+            if (tmpFile.renameTo(file))
+                tmpFile = null;
+            else
+                theHandler.handle(Priority.ERROR,
+                        String.format("Cannot rename %s to %s", tmpFile, file));
         } catch (IOException e) {
             theHandler.handle(Priority.ERROR, e.getMessage());
+        } finally {
+            if (output != null)
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    theHandler.handle(Priority.ERROR, "error closing file", e);
+                }
+            if (tmpFile != null)
+                tmpFile.delete();
         }
         return file;
     }
 
+    /**
+     * Used for things that need to write the data back out to a file
+     * 
+     * @param messageData
+     * @return
+     */
+    public File decompressToFile(File file, Headers headers) {
+        return decompressToFileImpl(file, headers, true);
+    }
+    
     /**
      * Used for things that need to write the data back out to a file, without a
      * header. Same as decompressToFile, but will strip the header off before
@@ -188,52 +221,7 @@ public class RadarDecompressor {
      * @return
      */
     public File decompressToFileWithoutHeader(File file, Headers headers) {
-        int fileSize = (int) file.length();
-        byte[] messageData = new byte[fileSize];
-        FileInputStream input = null;
-
-        try {
-            input = new FileInputStream(file);
-            input.read(messageData);
-        } catch (FileNotFoundException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        } catch (IOException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    theHandler.handle(Priority.ERROR, e.getMessage());
-                }
-            }
-        }
-
-        String headerSearch = "";
-        int start = 0;
-        if (messageData.length < 80) {
-        } else {
-            // skip the WMO header if any
-            headerSearch = new String(messageData, 0, 80);
-            start = findStartRadarData(headerSearch);
-            headerSearch = headerSearch.substring(0, start);
-        }
-
-        messageData = decompress(messageData, headers);
-
-        FileOutputStream output = null;
-        try {
-            output = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        }
-        try {
-            output.write(messageData);
-            output.close();
-        } catch (IOException e) {
-            theHandler.handle(Priority.ERROR, e.getMessage());
-        }
-        return file;
+        return decompressToFileImpl(file, headers, false);
     }
 
     private int findStartRadarData(String headerInfo) {
