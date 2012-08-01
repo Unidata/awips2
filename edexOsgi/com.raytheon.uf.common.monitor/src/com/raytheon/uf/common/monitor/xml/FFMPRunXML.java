@@ -57,6 +57,9 @@ public class FFMPRunXML implements ISerializableObject {
 
     @XmlElements({ @XmlElement(name = "domain", type = DomainXML.class) })
     private ArrayList<DomainXML> domains;
+    
+    @XmlElement(name = "cacheDir")
+    private String cacheDir;
 
     public void setProducts(ArrayList<ProductRunXML> products) {
         this.products = products;
@@ -210,5 +213,13 @@ public class FFMPRunXML implements ISerializableObject {
             return false;
         }
     }
+
+	public void setCacheDir(String cacheDir) {
+		this.cacheDir = cacheDir;
+	}
+
+	public String getCacheDir() {
+		return cacheDir;
+	}
 
 }

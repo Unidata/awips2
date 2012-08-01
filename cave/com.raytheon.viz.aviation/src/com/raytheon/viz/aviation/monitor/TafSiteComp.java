@@ -90,6 +90,7 @@ import com.raytheon.viz.avnconfig.IStatusSettable;
  * 05/13/2011   8611        rferrel     Added type to Site Monitor requests and update
  *                                      Viewer when a METAR changes alert status.
  * 04/26/2012   14717       zhao        Indicator labels turn gray when Metar is outdated
+ * 20JUL2012    14570       gzhang/zhao Add data structure for highlighting correct time groups in TAF viewer
  * 
  * </pre>
  * 
@@ -383,14 +384,15 @@ public class TafSiteComp {
         monitorArray = new ArrayList<SiteMonitor>();
         alertMap = new HashMap<String, String[]>();
         ArrayList<MonitorCfg> monitorCfgs = tafMonCfg.getMonitorCfgs();
-
+        alertTimeMap = new HashMap<String,String>();/* DR 14570 */ 
+        tempoMap = new HashMap<String,String[]>();//20120711
         for (MonitorCfg monCfg : monitorCfgs) {
             SiteMonitor monitor = null;
             if ("MetarMonitor".equals(monCfg.getClassName())) {
-                monitor = new SiteMonitor(parent, this, monCfg, alertMap);
-                metarMontiorIndex = monitorArray.size();
+                monitor = new SiteMonitor(parent, this, monCfg, alertMap, /* DR 14570 */alertTimeMap,tempoMap);
+                metarMontiorIndex = monitorArray.size(); 
             } else {
-                monitor = new SiteMonitor(parent, this, monCfg, null);
+                monitor = new SiteMonitor(parent, this, monCfg, null, /* DR 14570 */null,null);
             }
             monitorArray.add(monitor);
         }
@@ -652,7 +654,7 @@ public class TafSiteComp {
             long currentTime = SimulatedTime.getSystemTime().getTime()
                     .getTime();
             
-            if ( currentTime > ( metarTime + METAR_TIMEOUT_4HR10MIN ) ) {
+            if ( currentTime > ( metarTime + METAR_TIMEOUT_4HR10MIN ) ) { 
             	mtrTimeLbl.setText("None");
                 mtrTimeLbl.setBackground(getBackgroundColor());
             	if ( persistMonitorProcessedFirst ) {
@@ -815,7 +817,7 @@ public class TafSiteComp {
 	public void setPersistMonitorProcessedFirst(boolean b) {
 		persistMonitorProcessedFirst = b;
 	}
-
+	
 	public void setLatestMtrTime(long latestMtrTime) {
 		this.latestMtrTime = latestMtrTime;
 	}
@@ -823,4 +825,10 @@ public class TafSiteComp {
 	public long getLatestMtrTime() {
 		return latestMtrTime;
 	}
+	
+	//------------------------------- DR 14570:
+	private Map<String, String[]> tempoMap = null;//20120711
+	private Map<String, String> alertTimeMap = null;
+	public Map<String,String> getAlertTimeMap(){ return alertTimeMap;}
+	public Map<String,String[]> getTempoMap(){return tempoMap;}//20120711
 }

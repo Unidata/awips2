@@ -287,9 +287,8 @@ public class ThriftClient {
                     .postBinary(httpAddress, message);
             long time = System.currentTimeMillis() - t0;
             if (time >= SIMPLE_LOG_TIME) {
-                System.out.println("Time to execute " + request);
-                System.out.println("Took " + time + "ms");
-
+                System.out.println("Took " + time + "ms to run request "
+                        + request);
             }
             if (time >= BAD_LOG_TIME) {
                 new Exception() {

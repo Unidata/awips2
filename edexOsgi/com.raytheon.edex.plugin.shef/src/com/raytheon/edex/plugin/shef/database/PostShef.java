@@ -556,7 +556,8 @@ public class PostShef {
                     break;
                 }
                 }
-                log.info(unkmsg);
+                log.warn(unkmsg);
+                stats.incrementWarningMessages();
                 continue;
             }
 
