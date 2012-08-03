@@ -359,56 +359,58 @@ public class LightningResource extends
                 .get(this.lastPaintedTime);
 
         if (cacheObject != null) {
-            LightningFrame bundle = cacheObject.getObjectAsync();
-            if (bundle == null) {
-                needsUpdate = true;
-                issueRefresh();
-            } else {
-                if (needsUpdate) {
-                    needsUpdate = false;
-                    currNegList = new ArrayList<double[]>(
-                            bundle.posLatLonList.size());
-                    currPosList = new ArrayList<double[]>(
-                            bundle.negLatLonList.size());
+            synchronized (cacheObject.getMetadata()) {
+                LightningFrame bundle = cacheObject.getObjectAsync();
+                if (bundle == null) {
+                    needsUpdate = true;
+                    issueRefresh();
+                } else {
+                    if (needsUpdate) {
+                        needsUpdate = false;
+                        currNegList = new ArrayList<double[]>(
+                                bundle.posLatLonList.size());
+                        currPosList = new ArrayList<double[]>(
+                                bundle.negLatLonList.size());
+
+                        if (resourceData.isHandlingPositiveStrikes()) {
+                            for (double[] pos : bundle.posLatLonList) {
+                                currPosList.add(descriptor.worldToPixel(pos));
+                            }
+                        }
+                        if (resourceData.isHandlingNegativeStrikes()) {
+                            for (double[] neg : bundle.negLatLonList) {
+                                currNegList.add(descriptor.worldToPixel(neg));
+                            }
+                        }
+                    }
 
                     if (resourceData.isHandlingPositiveStrikes()) {
-                        for (double[] pos : bundle.posLatLonList) {
-                            currPosList.add(descriptor.worldToPixel(pos));
+                        List<double[]> positive = new ArrayList<double[]>(
+                                currPosList.size());
+                        for (double[] pos : currPosList) {
+                            if (extent.contains(pos)) {
+                                positive.add(pos);
+                            }
                         }
+                        posCount = positive.size();
+
+                        target.drawPoints(positive, color, PointStyle.CROSS,
+                                magnification);
                     }
+
                     if (resourceData.isHandlingNegativeStrikes()) {
-                        for (double[] neg : bundle.negLatLonList) {
-                            currNegList.add(descriptor.worldToPixel(neg));
+                        List<double[]> negative = new ArrayList<double[]>(
+                                currPosList.size());
+                        for (double[] neg : currNegList) {
+                            if (extent.contains(neg)) {
+                                negative.add(neg);
+                            }
                         }
+                        negCount = negative.size();
+
+                        target.drawPoints(negative, color, PointStyle.DASH,
+                                magnification);
                     }
-                }
-
-                if (resourceData.isHandlingPositiveStrikes()) {
-                    List<double[]> positive = new ArrayList<double[]>(
-                            currPosList.size());
-                    for (double[] pos : currPosList) {
-                        if (extent.contains(pos)) {
-                            positive.add(pos);
-                        }
-                    }
-                    posCount = positive.size();
-
-                    target.drawPoints(positive, color, PointStyle.CROSS,
-                            magnification);
-                }
-
-                if (resourceData.isHandlingNegativeStrikes()) {
-                    List<double[]> negative = new ArrayList<double[]>(
-                            currPosList.size());
-                    for (double[] neg : currNegList) {
-                        if (extent.contains(neg)) {
-                            negative.add(neg);
-                        }
-                    }
-                    negCount = negative.size();
-
-                    target.drawPoints(negative, color, PointStyle.DASH,
-                            magnification);
                 }
             }
         }
