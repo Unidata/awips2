@@ -179,4 +179,37 @@ public class GLDelegateImage<T extends AbstractGLImage> extends AbstractGLImage 
         image.dispose();
     }
 
+    @Override
+    public float getBrightness() {
+        return image.getBrightness();
+    }
+
+    @Override
+    public void setBrightness(float brightness) {
+        image.setBrightness(brightness);
+        super.setBrightness(brightness);
+    }
+
+    @Override
+    public float getContrast() {
+        return image.getContrast();
+    }
+
+    @Override
+    public void setContrast(float contrast) {
+        image.setContrast(contrast);
+        super.setContrast(contrast);
+    }
+
+    @Override
+    public boolean isInterpolated() {
+        return image.isInterpolated();
+    }
+
+    @Override
+    public void setInterpolated(boolean isInterpolated) {
+        image.setInterpolated(isInterpolated);
+        super.setInterpolated(isInterpolated);
+    }
+
 }
