@@ -85,6 +85,9 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
  * ------------ ---------- ----------- --------------------------
  * Jul 27, 2009            jsanchez    Initial creation
  * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
+ * - AWIPS2 Baseline Repository --------
+ * 08/03/2012          798 jkorman     Explicitly set interpolationLevels
+ *                                     from "source" record.    
  * </pre>
  * 
  * @author jsanchez
@@ -166,6 +169,9 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
                         listOfRequests.add(request);
                         SatelliteRecord derivedRecord = new SatelliteRecord(
                                 record.getDataURI());
+                        // Make sure to get the number of interpolation levels!
+                        derivedRecord.setInterpolationLevels(record.getInterpolationLevels());
+                        
                         derivedRecord.setPhysicalElement(originalQuery.get(PE)
                                 .getConstraintValue());
                         derivedRecord.setMessageData(request);
