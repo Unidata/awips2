@@ -197,7 +197,7 @@ public class GLStats {
                     " * GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX = %dMB\n",
                     nvxDedicatedMem / 1024));
             output.append(String.format(
-                    " * GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = %dMB\n",
+                    " * GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = %dMB\n",
                     nvxTotalAvailableMem / 1024));
             output.append(String.format(
                     " * GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = %dMB\n",
