@@ -55,6 +55,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      getPersistenceTime() from new IPersistable
  * 20071129            472  jkorman     Added IDecoderGettable interface.
  * 20081106           1515  jkorman     Changed units length from 16 to 26
+ * - AWIPS2 Baseline Repository --------
+ * 07/30/2012    798        jkorman     Support for common satellite data. 
  * </pre>
  * 
  * @author bphillip
@@ -70,13 +72,26 @@ public class SatelliteRecord extends ServerSpecificPersistablePluginDataObject
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * The default dataset name to use for persisted satellite data.
+     */
     public static final String SAT_DATASET_NAME = DataStoreFactory.DEF_DATASET_NAME;
     
-    public static final String SAT_FILL_VALUE = "FILL_VALUE";
+    /**
+     * The attribute name for a value that will be used to "fill" undefined
+     * data.
+     */
+    public static final String SAT_FILL_VALUE = "_FillValue";
 
-    public static final String SAT_ADD_OFFSET = "ADD_OFFSET";
+    /**
+     * The attribute name for the data additive offset value.
+     */
+    public static final String SAT_ADD_OFFSET = "add_offset";
 
-    public static final String SAT_SCALE_FACTOR = "SCALE_FACTOR";
+    /**
+     * The attribute name for the data scale factor value..
+     */
+    public static final String SAT_SCALE_FACTOR = "scale_factor";
 
     /**
      * The source of the data - NESDIS
