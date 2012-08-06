@@ -132,7 +132,7 @@ cp -r GFEconfig/edex_static/site/gfe ${edex_site_dest}
 log_msg 80
 cp -r GFEconfig/edex_static/site/smartinit ${edex_site_si_dest}
 log_msg 90
-cp -r GFEconfig/cave_static/site ${cave_site_dest}
+cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
 log_msg 93
 log_msg "Files successfully copied!"
 
