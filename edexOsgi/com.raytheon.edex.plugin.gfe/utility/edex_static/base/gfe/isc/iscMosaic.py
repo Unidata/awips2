@@ -438,7 +438,7 @@ class IscMosaic:
                 
             # rename weather element
             if self.__renameWE:
-                siteID = getattr(vars[0], "siteID")
+                siteID = str(getattr(vars[0], "siteID"))
                 incomingOfficeType = IFPServerConfigManager.getServerConfig(self.__mysite).getOfficeType(siteID)
                 if incomingOfficeType != self.__myOfficeType:
                     idx = parmName.rfind("_")
@@ -510,13 +510,13 @@ class IscMosaic:
         numFailed = 0
             
         while retryAttempt != retries:
-            LogStream.logDebug("iscMosaic: Attempting to acquire cluster lock for:",parmName)
+            self.logDebug("iscMosaic: Attempting to acquire cluster lock for:",parmName)
             startTime = time.time()
             clusterLock = ClusterLockUtils.lock("ISC Write Lock",parmName , 120000, True)
             elapsedTime = (time.time() - startTime)*1000
-            LogStream.logDebug("iscMosaic: Request for",parmName+" took",elapsedTime,"ms")
+            self.logDebug("iscMosaic: Request for",parmName+" took",elapsedTime,"ms")
             if str(clusterLock.getLockState()) == "SUCCESSFUL":
-                LogStream.logDebug("iscMosaic: Successfully acquired cluster lock for:",parmName)
+                self.logDebug("iscMosaic: Successfully acquired cluster lock for:",parmName)
                 try:
                     # open up the ifpServer weather element
                     self.__dbwe = self.__db.getItem(parmName,ISC_USER)
@@ -531,7 +531,7 @@ class IscMosaic:
                     gridType = getattr(vars[0], "gridType")
                     minV = self.__dbwe.getGpi().getMinValue()
                     # compute the site mask 
-                    self.__siteID = getattr(vars[0], "siteID")
+                    self.__siteID = str(getattr(vars[0], "siteID"))
                     if self.__areaMask is None:
                         self.__areaMask = self.__computeAreaMask().getGrid().__numpy__[0]
                         
@@ -631,23 +631,23 @@ class IscMosaic:
                     retryAttempt = retries
                 except:
                     retryAttempt = retryAttempt + 1
-                    LogStream.logProblem("Error saving ISC data. Retrying (", retryAttempt, "/", retries, ")",traceback.format_exc())
+                    self.logProblem("Error saving ISC data. Retrying (", retryAttempt, "/", retries, ")",traceback.format_exc())
                     time.sleep(1)
                 finally:
-                    LogStream.logDebug("iscMosaic: Attempting to release cluster lock for:",parmName)
+                    self.logDebug("iscMosaic: Attempting to release cluster lock for:",parmName)
                     ClusterLockUtils.unlock(clusterLock, False)
-                    LogStream.logDebug("iscMosaic: Successfully released cluster lock for:",parmName)
+                    self.logDebug("iscMosaic: Successfully released cluster lock for:",parmName)
             elif str(clusterLock.getLockState()) == "OLD":
                 retryAttempt = retryAttempt + 1
                 # Clear old lock to retry
-                LogStream.logDebug("Old lock retrieved for ISC write. Attempting to renew lock")
+                self.logDebug("Old lock retrieved for ISC write. Attempting to renew lock")
                 ClusterLockUtils.unlock(clusterLock, False)
             elif str(clusterLock.getLockState()) == "FAILED":
                 retryAttempt = retryAttempt + 1
                 if retryAttempt == retries:
-                    LogStream.logProblem("Cluster lock could not be established for ",self._we.getParmid(),"at time range",TimeRange(tr[0],tr[1]),"Data was not saved.")
+                    self.logProblem("Cluster lock could not be established for ",self._we.getParmid(),"at time range",TimeRange(tr[0],tr[1]),"Data was not saved.")
                 else:
-                    LogStream.logProblem("Cluster lock request failed for ISC write.", retries, "Retrying (", retryAttempt, "/", retries, ")")
+                    self.logProblem("Cluster lock request failed for ISC write.", retries, "Retrying (", retryAttempt, "/", retries, ")")
                     time.sleep(1)
 
         return (pName, totalTimeRange, len(inTimesProc), numFailed)
@@ -1096,6 +1096,7 @@ class IscMosaic:
         gridType = gpi.getGridType().toString()
         
         gs = self.__decodeGridSlice(pid, grid, TimeRange())
+        
         pd = self.__decodeProj(inGeoDict)
         fill = inFillV
         ifill = int(inFillV)
@@ -1342,7 +1343,7 @@ class IscMosaic:
         # get the list of discrete keys for this parameter that are allowed
         dd = self.__disDef.keys(parmName)
         if dd.size() == 0:
-            LogStream.logProblem("Unable to validate keys for ",
+            self.logProblem("Unable to validate keys for ",
               parmName, " - no def in DiscreteDefinition")
             return grid
 
@@ -1393,7 +1394,7 @@ class IscMosaic:
 
             keyentry = "^".join(eachKey)  #join back to string
             if len(changedReasons):
-                LogStream.logProblem(smsg,
+                self.logProblem(smsg,
                     "from [" + oldEntry + "] to [" + keyentry + "]",
                     "(" + ",".join(changedReasons) + ")")
                 msg = self.__siteID + " " + parmName + " " + \
@@ -1495,7 +1496,7 @@ class IscMosaic:
 
             # report any changes
             if len(changedReasons):
-                LogStream.logProblem(smsg,
+                self.logProblem(smsg,
                   " from [" + oldEntry + "] to [" + keyentry + "]",
                     "(" + ",".join(changedReasons) + ")")
                 msg = self.__siteID + " " + parmName + " " + \
