@@ -58,7 +58,7 @@ mkdir -p $commonDest/site
 log_msg 25
 
 log_msg Making temporary cave configuration directories
-mkdir -p $caveDest/site/colormaps
+mkdir -p $caveDest/site
 log_msg 30
 
 # Copies the localization information to the staging area
@@ -78,8 +78,8 @@ log_msg Copying cave site configuration for site ${CAPS_SITE} to temporary direc
 cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/gfe $caveDest/site
 log_msg 70
 
-log_msg Copying cave site configuration for site ${CAPS_SITE} to temporary directory...
-cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/colormaps/GFE $caveDest/site/colormaps
+log_msg Copying cave site colormaps configuration for site ${CAPS_SITE} to temporary directory...
+cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/colormaps $caveDest/site
 log_msg 80
 
 # Tar up everything.
