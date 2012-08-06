@@ -22,8 +22,7 @@ package com.raytheon.uf.common.geospatial.interpolation.data;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 /**
- * Wraps a short array as an unsigned {@link DataSource} and
- * {@link DataDestination}
+ * {@link AbstractDataWrapper} implementation for unsigned byte array data.
  * 
  * <pre>
  * 
@@ -31,7 +30,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2012            mschenke     Initial creation
+ * Aug 3, 2012            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -39,27 +38,29 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * @version 1.0
  */
 
-public class UnsignedShortArrayWrapper extends ShortArrayWrapper {
+public class UnsignedByteArrayWrapper extends ByteArrayWrapper {
 
-    public UnsignedShortArrayWrapper(short[] array, GeneralGridGeometry geometry) {
+    public UnsignedByteArrayWrapper(byte[] array, GeneralGridGeometry geometry) {
         super(array, geometry);
     }
 
-    public UnsignedShortArrayWrapper(short[] array, int nx, int ny) {
+    public UnsignedByteArrayWrapper(byte[] array, int nx, int ny) {
         super(array, nx, ny);
     }
 
-    public UnsignedShortArrayWrapper(int nx, int ny) {
+    public UnsignedByteArrayWrapper(int nx, int ny) {
         super(nx, ny);
     }
 
-    public UnsignedShortArrayWrapper(GeneralGridGeometry geometry) {
-        super(geometry);
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D#
+     * getDataValueInternal(int)
+     */
     @Override
     protected double getDataValueInternal(int index) {
-        return array[index] & 0xFFFF;
+        return array[index] & 0xFF;
     }
 
 }
