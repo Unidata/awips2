@@ -8,7 +8,7 @@
 Name: awips2-python-h5py
 Summary: AWIPS II Python h5py Distribution - 64 Bit
 Version: 1.3.0
-Release: 1
+Release: 2
 Group: AWIPSII
 BuildRoot: %{_build_root}
 URL: N/A
