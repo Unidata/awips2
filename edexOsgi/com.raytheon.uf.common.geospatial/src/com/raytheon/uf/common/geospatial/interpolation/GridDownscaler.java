@@ -103,39 +103,33 @@ public class GridDownscaler {
         return downscaleSizes.toArray(new Rectangle[downscaleSizes.size()]);
     }
 
-    private DataSource dataSource;
-
-    private GeneralGridGeometry sourceGeometry;
+    private Envelope sourceEnvelope;
 
     private Rectangle[] downscaleGeometries;
 
     private Interpolation interpolation;
 
     /**
-     * Constructs a GridDownscaler for the given source geometry and data source
-     * using the default interpolation method
+     * Constructs a GridDownscaler for the given source geometry using the
+     * default interpolation method
      * 
      * @param sourceGeometry
      * @param dataSource
      */
-    public GridDownscaler(GeneralGridGeometry sourceGeometry,
-            DataSource dataSource) {
-        this(sourceGeometry, dataSource, new NearestNeighborInterpolation());
+    public GridDownscaler(GeneralGridGeometry sourceGeometry) {
+        this(sourceGeometry, new NearestNeighborInterpolation());
     }
 
     /**
      * Constructs a GridDownscaler for the given source
-     * {@link GeneralGridGeometry} and {@link DataSource} using the specified
-     * {@link Interpolation}
+     * {@link GeneralGridGeometry} using the specified {@link Interpolation}
      * 
      * @param sourceGeometry
-     * @param dataSource
      * @param interpolation
      */
     public GridDownscaler(GeneralGridGeometry sourceGeometry,
-            DataSource dataSource, Interpolation interpolation) {
-        this.sourceGeometry = sourceGeometry;
-        this.dataSource = dataSource;
+            Interpolation interpolation) {
+        this.sourceEnvelope = sourceGeometry.getEnvelope();
         this.downscaleGeometries = getDownscaleSizes(sourceGeometry);
         this.interpolation = interpolation;
     }
@@ -176,16 +170,18 @@ public class GridDownscaler {
      * @param destination
      * @throws TransformException
      */
-    public void downscale(int downscaleLevel, DataDestination destination)
-            throws TransformException {
-        Rectangle destSize = getDownscaleSize(downscaleLevel);
+    public void downscale(int fromLevel, int toLevel, DataSource source,
+            DataDestination destination) throws TransformException {
+        Rectangle sourceSize = getDownscaleSize(fromLevel);
+        GeneralGridGeometry sourceGeometry = new GeneralGridGeometry(
+                new GridEnvelope2D(sourceSize), sourceEnvelope);
+        Rectangle destSize = getDownscaleSize(toLevel);
         GeneralGridGeometry destGeometry = new GeneralGridGeometry(
-                new GridEnvelope2D(destSize), sourceGeometry.getEnvelope());
+                new GridEnvelope2D(destSize), sourceEnvelope);
         GridReprojection reprojection = new GridReprojection(sourceGeometry,
                 destGeometry);
         try {
-            reprojection
-                    .reprojectedGrid(interpolation, dataSource, destination);
+            reprojection.reprojectedGrid(interpolation, source, destination);
         } catch (FactoryException e) {
             throw new TransformException(
                     "Error creating transforms required for downscaling", e);
