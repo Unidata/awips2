@@ -76,6 +76,7 @@
          <packagereq type="default">awips2-python-pygtk</packagereq>
          <packagereq type="default">awips2-python-pycairo</packagereq>
          <packagereq type="default">awips2-localapps-environment</packagereq>
+         <packagereq type="default">awips2-data.gfe</packagereq>
       </packagelist>
    </group>
 
