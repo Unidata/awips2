@@ -802,6 +802,17 @@ public class GFEDao extends DefaultPluginDao {
                         3600 * 1000));
             }
 
+            if ((!uTimeList.isEmpty()) && (!vTimeList.isEmpty())
+                    & (uTimeList.size() == vTimeList.size())) {
+                for (TimeRange tr : uTimeList) {
+                    if (vTimeList.contains(tr)) {
+                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
+                    }
+                }
+
+                return timeList;
+            }
+
             ParmID sWindId = new ParmID(id.toString().replace("wind", "ws"));
             List<TimeRange> sTimeList = new ArrayList<TimeRange>();
             results = executeD2DParmQuery(sWindId);
@@ -818,30 +829,16 @@ public class GFEDao extends DefaultPluginDao {
                         3600 * 1000));
             }
 
-            for (TimeRange tr : uTimeList) {
-                if (vTimeList.contains(tr)) {
-                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
+            if ((!sTimeList.isEmpty()) && (!dTimeList.isEmpty())
+                    & (sTimeList.size() == dTimeList.size())) {
+                for (TimeRange tr : sTimeList) {
+                    if (dTimeList.contains(tr)) {
+                        timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
+                    }
                 }
-            }
 
-            if (uTimeList.size() != vTimeList.size()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Wind data is incomplete for " + id.toString());
-                }
+                return timeList;
             }
-
-            for (TimeRange tr : sTimeList) {
-                if (!timeList.contains(tr) && dTimeList.contains(tr)) {
-                    timeList.add(new TimeRange(tr.getStart(), tr.getStart()));
-                }
-            }
-
-            if (sTimeList.size() != dTimeList.size()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Wind data is incomplete for " + id.toString());
-                }
-            }
-
         } else {
             List<DataTime> results = executeD2DParmQuery(id);
             for (DataTime o : results) {
