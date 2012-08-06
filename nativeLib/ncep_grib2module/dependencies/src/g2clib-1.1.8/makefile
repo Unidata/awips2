@@ -22,6 +22,9 @@ INC=-I../../include \
 #CFLAGS=-q64 -O3 -qarch=auto -qcpluscmt $(INC) $(DEFS)
 CFLAGS = $(INC) $(DEFS) -O3 -fPIC
 -include ../../../../build.native/makefile.arch
+ifeq ($(ARCHFLAGS),-m64)
+	export CFLAGS := $(CFLAGS) -D__64BIT__
+endif
 
 CC=gcc
 LIB=libgrib2c.a
