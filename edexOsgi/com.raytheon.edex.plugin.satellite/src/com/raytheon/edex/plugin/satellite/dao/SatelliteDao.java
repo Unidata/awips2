@@ -53,6 +53,7 @@ import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
 import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteArrayWrapper;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -418,7 +419,7 @@ public class SatelliteDao extends PluginDao {
         AbstractDataWrapper dest = null;
 
         if (rec instanceof ByteDataRecord) {
-            dest = new ByteArrayWrapper(size.width, size.height);
+            dest = new UnsignedByteArrayWrapper(size.width, size.height);
         } else if (rec instanceof ShortDataRecord) {
             dest = new ShortArrayWrapper(size.width, size.height);
         }
@@ -442,7 +443,7 @@ public class SatelliteDao extends PluginDao {
 
         if (rec instanceof ByteDataRecord) {
             byte[] b = ((ByteDataRecord) rec).getByteData();
-            source = new ByteArrayWrapper(b, nx, ny);
+            source = new UnsignedByteArrayWrapper(b, nx, ny);
         } else if (rec instanceof ShortDataRecord) {
             short[] s = ((ShortDataRecord) rec).getShortData();
             source = new ShortArrayWrapper(s, nx, ny);
