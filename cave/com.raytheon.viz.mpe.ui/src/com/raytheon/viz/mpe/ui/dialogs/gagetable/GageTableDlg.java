@@ -271,7 +271,7 @@ public class GageTableDlg extends JFrame {
         setLocation(xCoord - (bounds.width / 2), yCoord - (bounds.height / 2));
 
         setVisible(true);
-        tableModel.refreshTable();
+//        tableModel.refreshTable();
 
         displayManager.setGageTableDlgReference(this);
     }
@@ -766,7 +766,8 @@ public class GageTableDlg extends JFrame {
             GageTableSettings settings = null;
 
             if (f.exists()) {
-                settings = JAXB.unmarshal(path, GageTableSettings.class);
+//                settings = JAXB.unmarshal(path, GageTableSettings.class);
+            	settings = JAXB.unmarshal(f, GageTableSettings.class);
             } else {
                 settings = getDefaultSettings();
             }
@@ -816,7 +817,7 @@ public class GageTableDlg extends JFrame {
             dataManager.setColumnDataList(columnDataList);
             dataManager.setColumnWidthMap(columnWidthMap);
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
             System.out.println("MPE Settings file not found");
         }
     }
