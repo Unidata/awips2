@@ -21,11 +21,11 @@ import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
  *   
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
- *    Mar 29, 2012 #14691      Qinglu Lin  Added feAreaField and its getter and setter, etc. 
+ *    Mar 29, 2012 #14691      Qinglu Lin  Added feAreaField and its getter and setter, etc.
  * 
  * </pre>
  * 
- * @author 
+ * @author
  * @version 1
  */
 
@@ -37,7 +37,7 @@ public class AreaSourceConfiguration {
     }
 
     @XmlElement
-    private AreaType areaType = AreaType.INTERSECT;
+    private AreaType type = AreaType.HATCHING;
 
     @XmlAttribute
     private String variable;
@@ -93,7 +93,6 @@ public class AreaSourceConfiguration {
     }
 
     public AreaSourceConfiguration(AreaConfiguration areaConfig) {
-        setAreaType(AreaType.HATCHING);
         setVariable("areas");
         setAreaField(areaConfig.getAreaField());
         setAreaNotationField(areaConfig.getAreaNotationField());
@@ -247,14 +246,6 @@ public class AreaSourceConfiguration {
         this.includedWatchAreaBuffer = includedWatchAreaBuffer;
     }
 
-    public AreaType getAreaType() {
-        return areaType;
-    }
-
-    public void setAreaType(AreaType areaType) {
-        this.areaType = areaType;
-    }
-
     public String getVariable() {
         return variable;
     }
@@ -263,12 +254,20 @@ public class AreaSourceConfiguration {
         this.variable = variable;
     }
 
-	public String getTimeZoneField() {
-		return timeZoneField;
-	}
+    public String getTimeZoneField() {
+        return timeZoneField;
+    }
 
-	public void setTimeZoneField(String timeZoneField) {
-		this.timeZoneField = timeZoneField;
-	}
+    public void setTimeZoneField(String timeZoneField) {
+        this.timeZoneField = timeZoneField;
+    }
+
+    public AreaType getType() {
+        return type;
+    }
+
+    public void setType(AreaType type) {
+        this.type = type;
+    }
 
 }
