@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,6 +78,8 @@ public class WarngenConfiguration implements ISerializableObject {
 
     @XmlElement
     private PathcastConfiguration pathcastConfig;
+
+    private AreaSourceConfiguration hatchedAreaSource;
 
     @XmlElement
     private AreaConfiguration areaConfig;
@@ -200,30 +200,27 @@ public class WarngenConfiguration implements ISerializableObject {
             }
         }
 
-        List<AreaSourceConfiguration> ascList = new ArrayList<AreaSourceConfiguration>();
-        if (config.getAreaConfig() != null) {
-            AreaSourceConfiguration areaSourceConfig = new AreaSourceConfiguration(
-                    config.getAreaConfig());
-            ascList.add(areaSourceConfig);
+        // TODO This section needs to be removed after new templates have been
+        // adopted dropping 'areaConfig'
+        if (config.getAreaSources() == null) {
+            ArrayList<AreaSourceConfiguration> areaSources = new ArrayList<AreaSourceConfiguration>();
+            if (config.getAreaConfig() != null) {
+                areaSources.add(new AreaSourceConfiguration(config
+                        .getAreaConfig()));
+            }
+            config.setAreaSources(areaSources
+                    .toArray(new AreaSourceConfiguration[areaSources.size()]));
         }
 
-        AreaSourceConfiguration ascs[] = config.getAreaSources();
-        if (ascs != null) {
-            ascList.addAll(Arrays.asList(ascs));
-        }
-
-        for (AreaSourceConfiguration asc : ascList) {
+        for (AreaSourceConfiguration asc : config.getAreaSources()) {
             if (asc.getAreaSource() == null) {
                 asc.setAreaSource(config.getGeospatialConfig().getAreaSource());
             }
 
-            if (asc.getAreaType() == AreaType.HATCHING) {
-                config.setAreaConfig(asc.getAreaConfig());
+            if (asc.getType() == AreaType.HATCHING) {
+                config.setHatchedAreaSource(asc);
             }
         }
-
-        config.setAreaSources(ascList
-                .toArray(new AreaSourceConfiguration[ascList.size()]));
 
         if (config.getPathcastConfig() != null
                 && config.getPathcastConfig().getPointSource() == null) {
@@ -480,6 +477,14 @@ public class WarngenConfiguration implements ISerializableObject {
 
     public void setEnableDuration(boolean enableDuration) {
         this.enableDuration = enableDuration;
+    }
+
+    public AreaSourceConfiguration getHatchedAreaSource() {
+        return hatchedAreaSource;
+    }
+
+    public void setHatchedAreaSource(AreaSourceConfiguration hatchedAreaSource) {
+        this.hatchedAreaSource = hatchedAreaSource;
     }
 
 }
