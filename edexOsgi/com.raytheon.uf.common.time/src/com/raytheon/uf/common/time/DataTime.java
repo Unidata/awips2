@@ -200,7 +200,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     public DataTime(Date refTime, int fcstTime) {
         this.refTime = refTime;
         this.fcstTime = fcstTime;
-        long validTimeMillis = refTime.getTime() + ((long)fcstTime) * 1000;
+        long validTimeMillis = refTime.getTime() + ((long) fcstTime) * 1000;
         validPeriod = new TimeRange(validTimeMillis, validTimeMillis);
         utilityFlags = EnumSet.of(FLAG.FCST_USED);
     }
@@ -227,7 +227,8 @@ public class DataTime implements Comparable<DataTime>, Serializable,
                 fcstTime = Integer.parseInt(m.group(1)) * 3600;
             }
             if (refTime != null) {
-                long validTimeMillis = refTime.getTime() + ((long)fcstTime) * 1000;
+                long validTimeMillis = refTime.getTime() + ((long) fcstTime)
+                        * 1000;
                 validPeriod = new TimeRange(validTimeMillis, validTimeMillis);
             }
             utilityFlags = EnumSet.of(FLAG.FCST_USED);
@@ -308,7 +309,8 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     public DataTime(Calendar refTime, int fcstTime) {
         this.refTime = refTime.getTime();
         this.fcstTime = fcstTime;
-        long validTimeMillis = refTime.getTimeInMillis() + ((long)fcstTime) * 1000;
+        long validTimeMillis = refTime.getTimeInMillis() + ((long) fcstTime)
+                * 1000;
         validPeriod = new TimeRange(validTimeMillis, validTimeMillis);
         utilityFlags = EnumSet.of(FLAG.FCST_USED);
     }
@@ -376,7 +378,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      */
     public Calendar getValidTime() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTimeInMillis(refTime.getTime() + (1000 * ((long)fcstTime)));
+        cal.setTimeInMillis(refTime.getTime() + (1000 * ((long) fcstTime)));
 
         return cal;
     }
@@ -400,7 +402,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @return get the matching valid time
      */
     public long getMatchValid() {
-        return refTime.getTime() + 60 * ((((long)fcstTime) * 1000) / 60);
+        return refTime.getTime() + 60 * ((((long) fcstTime) * 1000) / 60);
     }
 
     public Double getLevelValue() {
@@ -541,11 +543,11 @@ public class DataTime implements Comparable<DataTime>, Serializable,
                         return false;
                     break;
                 case VALID_TIME:
-                    if (refTime.getTime() + (((long)fcstTime) * 1000) > rhs.refTime
-                            .getTime() + (((long)rhs.fcstTime) * 1000))
+                    if (refTime.getTime() + (((long) fcstTime) * 1000) > rhs.refTime
+                            .getTime() + (((long) rhs.fcstTime) * 1000))
                         return true;
-                    if (refTime.getTime() + (((long)fcstTime) * 1000) < rhs.refTime
-                            .getTime() + (((long)rhs.fcstTime) * 1000))
+                    if (refTime.getTime() + (((long) fcstTime) * 1000) < rhs.refTime
+                            .getTime() + (((long) rhs.fcstTime) * 1000))
                         return false;
                     if (refTime.getTime() > rhs.getRefTime().getTime())
                         return true;
@@ -562,8 +564,8 @@ public class DataTime implements Comparable<DataTime>, Serializable,
                         return true;
                     break;
                 case VALID_TIME:
-                    if (refTime.getTime() + (((long)fcstTime) * 1000) > rhs.refTime
-                            .getTime() + (((long)rhs.fcstTime) * 1000))
+                    if (refTime.getTime() + (((long) fcstTime) * 1000) > rhs.refTime
+                            .getTime() + (((long) rhs.fcstTime) * 1000))
                         return true;
                 }
             }
@@ -591,7 +593,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         if ((utilityFlags.contains(FLAG.NO_VALID_PERIOD)))
             validTime = validPeriod.getEnd();
         else {
-            validTime = new Date(refTime.getTime() + (((long)fcstTime) * 1000));
+            validTime = new Date(refTime.getTime() + (((long) fcstTime) * 1000));
         }
 
         // Encode the perturbation index in the time.
@@ -639,8 +641,11 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         // Add a notation of the length of the valid period if non-zero.
         else if (validPeriod.getDuration() > 0
                 && (!utilityFlags.contains(FLAG.NO_VALID_PERIOD))) {
-            int m = (int) validPeriod.getDuration() / 60;
-            int h = m / 60 / 1000;
+            // validPeriod duration is in millis, convert to minutes
+            int m = (int) validPeriod.getDuration() / 1000 / 60;
+            // Convert minutes to hours
+            int h = m / 60;
+            // Get minutes remaining after hours
             m = m % 60;
             if (m == 0)
                 legendBuffer.append(h + "hrs ");
