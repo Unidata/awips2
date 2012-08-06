@@ -414,7 +414,7 @@
               </command>
               
            </menu>
-           <menu
+           <!--menu
                 id="NCHelp"
                 label="Help"
                 mnemonic="H">
@@ -442,7 +442,7 @@
                    name="aboutAdditions"
                    visible="false">
              </separator>
-          </menu>         			
+          </menu-->         			
          </menuContribution>
          <menuContribution
                locationURI="menu:NCHelp?after=additions">
@@ -917,10 +917,11 @@
   			pattern="com\.raytheon\.viz\.ui\.tools\.nav/.*">    <!-- Raytheons Pan and Zoom -->
 		</activityPatternBinding>
 
-  		<activityPatternBinding
+		<!-- Raytheons CAVE Menu -->
+  		<!--activityPatternBinding
   			activityId="gov.noaa.nws.ncep.NC.activity"
-  			pattern="com\.raytheon\.viz\.ui\.personalities\.awips/.*">    <!-- Raytheons CAVE Menu -->
-		</activityPatternBinding>
+  			pattern="com\.raytheon\.viz\.ui\.personalities\.awips/.*">
+		</activityPatternBinding-->
 		  		
   		<!--  this gets rid of all Raytheon menus and toolbars!!!!  activityPatternBinding
   			activityId="gov.noaa.nws.ncep.NC.activity"
