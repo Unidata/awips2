@@ -31,7 +31,7 @@ import com.raytheon.viz.warnings.DateUtil;
  * Aug 5, 2011            njensen       Refactored maps
  * Aug 22, 2011  10631   njensen  Major refactor
  * May 31, 2012 DR14992  mgamazaychikov Changed the order of strings in the
- * 										String array returned from getText method
+ *                                      String array returned from getText method
  * Jun 04, 2012 DR14992  mgamazaychikov Reversed the previous changes
  * 
  * </pre>
@@ -61,6 +61,8 @@ public abstract class AbstractWWAResource extends
         super(data, props);
         this.recordsToLoad = new ArrayList<AbstractWarningRecord>();
     }
+
+    protected final WarningRecordComparator comparator = new WarningRecordComparator();
 
     /*
      * (non-Javadoc)
