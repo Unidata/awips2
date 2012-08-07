@@ -457,7 +457,11 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
     public boolean delete() throws LocalizationOpFailedException {
         if (exists()) {
             return adapter.delete(file, context, path);
+        } else if (file.exists()) {
+            // Local file does actually exist, delete manually
+            return file.delete();
         }
+
         // File doesn't exist, it is deleted, so technically success?
         return true;
     }
@@ -533,23 +537,30 @@ public class LocalizationFile implements Comparable<LocalizationFile> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         LocalizationFile other = (LocalizationFile) obj;
         if (context == null) {
-            if (other.context != null)
+            if (other.context != null) {
                 return false;
-        } else if (!context.equals(other.context))
+            }
+        } else if (!context.equals(other.context)) {
             return false;
+        }
         if (path == null) {
-            if (other.path != null)
+            if (other.path != null) {
                 return false;
-        } else if (!path.equals(other.path))
+            }
+        } else if (!path.equals(other.path)) {
             return false;
+        }
         return true;
     }
 
