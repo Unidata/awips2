@@ -129,22 +129,15 @@ def javaObjToPyVal(obj, customConverter=None):
         retVal = []
         size = obj.size()
         for i in range(size):
-            retVal.append(javaObjToPyVal(obj.get(i)))
+            retVal.append(javaObjToPyVal(obj.get(i), customConverter))
     elif objtype == "java.util.Collections$UnmodifiableRandomAccessList":
         tempList = []
         size = obj.size()
         for i in range(size):
-            tempList.append(javaObjToPyVal(obj.get(i)))
+            tempList.append(javaObjToPyVal(obj.get(i), customConverter))
         retVal = tuple(tempList)
     elif objtype == "java.util.HashMap":
-        keys = obj.keySet()
-        itr = keys.iterator()
-        retVal = {}
-        while itr.hasNext():
-            key = itr.next()
-            val = obj.get(key)
-            fval = javaObjToPyVal(val)
-            retVal[str(key)] = fval
+        retVal = javaMapToPyDict(obj, customConverter)
     elif customConverter is not None:
         retVal = customConverter(obj)
     
