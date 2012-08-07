@@ -17,11 +17,8 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.ghg.makehazard;
+package com.raytheon.viz.gfe.makehazard;
 
-import static com.raytheon.viz.ghg.constants.StatusConstants.CATEGORY_GHG;
-
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,24 +28,24 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
-import jep.JepException;
-
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
@@ -57,14 +54,16 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.UIJob;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
@@ -77,26 +76,26 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.GFEServerException;
+import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.viz.gfe.product.TextDBUtil;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector.IZoneSelectionListener;
-import com.raytheon.viz.ghg.Activator;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
 import com.raytheon.viz.ui.statusline.StatusStore;
@@ -106,11 +105,13 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 	Jun 5, 2008				Eric Babin Initial Creation
+ * Date         Ticket#    Engineer     Description
+ * ------------ ---------- -----------  --------------------------
+ * 	Jun 5, 2008				Eric Babin  Initial Creation
  *  Sep 27,2010 5813        gzhou       get etn from param pattern hazXXXnnn
- *  Feb 28,2012 14436		mli		   Add RP.S - Rip Current
+ *  Feb 28,2012 14436		mli		    Add RP.S - Rip Current
+ *  Apr 03,2012 436         randerso    Reworked dialog to be called by Python MakeHazard procedure
+ *  Apr 09,2012 436         randerso    Merged RNK's MakeHazards_Elevation procedure
  * 
  * </pre>
  * 
@@ -119,31 +120,34 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  */
 
 public class MakeHazardDialog extends CaveSWTDialog implements
-        SelectionListener, IZoneSelectionListener {
-    private static final int LEGEND_HEIGHT = 16;
-
+        IZoneSelectionListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MakeHazardDialog.class);
 
-    private static final double DEFAULT_AREA_THRESHOLD = 0.1;
+    private static final String DEFAULT_MAP_COLOR = "red";
+
+    private static final int LEGEND_HEIGHT = 16;
+
+    private static final double DEFAULT_AREA_THRESHOLD = 0.10;
 
     private static final String ZONES_MSG = "USING MAP SELECTIONS";
 
     private static final String EDIT_AREA_MSG = "USING ACTIVE EDIT AREA";
 
-    private static final String JEP_SEPARATOR = ":";
+    private List<String> tropicalHaz;
 
-    private static final Set<String> TROPICAL_HAZ = new HashSet<String>(
-            Arrays.asList("HU.W", "HU.A", "HU.S", "TR.W", "TR.A"));
+    private int natlBaseETN;
 
-    private static final int NATL_BASE_ETN = 1001;
+    private Map<String, List<String>> localEffectAreas;
+
+    private Map<String, List<Object>> localAreaData;
 
     /**
      * Zoom step size.
      */
     private static final double ZOOM_STEP = 0.75;
 
-    private Map<String, List<String>> hazardMap;
+    private Map<String, List<String>> hazardDict;
 
     private Text etnSegNumberField;
 
@@ -174,29 +178,27 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     /**
      * The Python script to load and run methods from.
      */
-    private PythonScript makeHazardScript;
-
     private String defaultHazardType;
 
     private Map<String, List<String>> mapNames;
 
-    private Group radioGroup;
+    private Group hazardTypeGroup;
 
     private Group etnSegNumGroup;
 
+    private Group leGroup;
+
+    private Combo leCombo;
+
     private Label usingLabel;
 
-    private String defaultMapWidth;
+    private int defaultMapWidth;
 
     private RGB mapColor;
 
-    private String timeScaleEndTime;
-
-    private String areaThresholdStr;
+    private int timeScaleEndTime;
 
     private double areaThreshold = DEFAULT_AREA_THRESHOLD;
-
-    private String includePath;
 
     private TimeRange selectedTimeRange;
 
@@ -212,8 +214,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private String tcmProduct = null;
 
-    private PythonScript tcmDecoder;
-
     private Composite topComp;
 
     private Canvas excluded;
@@ -224,15 +224,46 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     private String currentHazardType;
 
-    public MakeHazardDialog(Shell parent, DataManager dataManager) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+    private String hazLocalEffect;
+
+    private boolean running;
+
+    public MakeHazardDialog(Shell parent, DataManager dataManager,
+            String colorName, int defaultMapWidth, int timeScaleEndTime,
+            float areaThreshold, String defaultHazardType,
+            Map<String, List<String>> mapNames,
+            Map<String, List<String>> hazardDict, List<String> tcmList,
+            List<String> tropicalHaz, int natlBaseETN,
+            Map<String, List<String>> localEffectAreas,
+            Map<String, List<Object>> localAreaData) {
+
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         this.dataManager = dataManager;
-        setText("MakeHazard");
+        this.defaultMapWidth = defaultMapWidth;
+        this.timeScaleEndTime = timeScaleEndTime;
+        this.areaThreshold = areaThreshold;
+        this.defaultHazardType = defaultHazardType;
+        this.mapNames = mapNames;
+        this.hazardDict = hazardDict;
+        this.tcmList = tcmList;
+        this.tropicalHaz = tropicalHaz;
+        this.natlBaseETN = natlBaseETN;
+        this.localEffectAreas = localEffectAreas;
+        this.localAreaData = localAreaData;
+        this.hazLocalEffect = "None";
+
+        try {
+            this.mapColor = RGBColors.getRGBColor(colorName);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Invalid mapColor in MakeHazard.py. Using default", e);
+            this.mapColor = RGBColors.getRGBColor(DEFAULT_MAP_COLOR);
+        }
+
+        this.setText("MakeHazard");
 
         dateFormatter = new SimpleDateFormat(gmtPattern);
         dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        initializePython();
     }
 
     @Override
@@ -252,6 +283,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         initializeComponents();
 
         this.comboDict = new HashMap<String, Integer>();
+        setHazardType(this.defaultHazardType);
         loadInitialData();
         getInitialSelections();
     }
@@ -288,9 +320,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         if (hazArray.length != 1) {
             return null;
         }
-        String hazard = hazArray[0].split(" ", 2)[0];
 
-        return hazard;
+        return hazArray[0];
     }
 
     private int getSegment() {
@@ -316,11 +347,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         return segNumber;
     }
 
-    @Override
-    protected boolean shouldOpen() {
-        return ensureSeparated();
-    }
-
     /**
      * Try to pre-load the dialog with data from the grid manager.
      */
@@ -338,35 +364,17 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         // Check for an ETN or segment #
         if (parmName != null && parmName.startsWith("haz")) {
 
-            int pos = parmName.indexOf(':');
-            if (pos >= 0) {
-                String etn = parmName.substring(pos + 1);
-                this.etnSegNumberField.setText(etn);
-            } else {
-                // DR 5813
-                // parmName example: hazXXXnnn where XXX = hazard type, nnn =
-                // etn)
-                // or segment number)
-                int index = 0;
-                for (index = parmName.length() - 1; index > 0; index--) {
-                    if (!Character.isLetter(parmName.charAt(index))) {
-                        continue;
-                    } else {
-                        break;
-                    }
-                }
+            // DR 5813
+            // parmName example: hazXXXnnn
+            // where XXX = hazard type, nnn = etn (or segment number)
+            int index = parmName.length();
+            while (Character.isDigit(parmName.charAt(--index))) {
+            }
 
-                if (index < parmName.length() - 1) {
-                    String etn = parmName.substring(index + 1);
-                    try {
-                        if (etn != null && etn.trim().length() > 0
-                                && Integer.parseInt(etn) > 0) {
-                            this.etnSegNumberField.setText(etn);
-                        }
-                    } catch (NumberFormatException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Hazard ETN/segment number INVALID.", e);
-                    }
+            if (index < parmName.length() - 1) {
+                String etn = parmName.substring(index + 1);
+                if (Integer.parseInt(etn) > 0) {
+                    this.etnSegNumberField.setText(etn);
                 }
             }
         }
@@ -396,14 +404,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         String phen_sig = parmName.substring(3, 5) + "." + parmName.charAt(5);
         pickDefaultCategory(phen_sig);
         selectMapFromGrid(grids[0]);
-
-        // Check for an ETN or segment #
-        int pos = parmName.indexOf(':');
-        if (pos >= 0) {
-            String etn = parmName.substring(pos + 1);
-            this.etnSegNumberField.setText(etn);
-        }
-
     }
 
     /**
@@ -534,134 +534,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     }
 
     /**
-     * Create a python interpreter and load a script, the methods of which we
-     * will invoke later.
-     */
-    @SuppressWarnings("unchecked")
-    private void initializePython() {
-        ResourceBundle bundle = ResourceBundle
-                .getBundle("com.raytheon.viz.ghg.rsc.MakeHazard");
-
-        String bdlIncludePath = bundle.getString("includePath");
-
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-
-        // Expand each component in includePath into a full path name for Jep
-        String[] subPaths = bdlIncludePath.split(JEP_SEPARATOR);
-        StringBuilder sb = new StringBuilder();
-        String sep = "";
-        for (String subPath : subPaths) {
-            File dir = pathMgr.getStaticFile(subPath);
-            if (dir == null) {
-                throw new RuntimeException("Path component " + subPath
-                        + " cannot be located.");
-            } else if (dir.isFile()) {
-                dir = dir.getParentFile();
-            } else if (!dir.isDirectory()) {
-                throw new RuntimeException("Path component " + subPath
-                        + " is not a directory.");
-            }
-            sb.append(sep);
-            sb.append(dir.toString());
-            sep = JEP_SEPARATOR;
-        }
-        includePath = sb.toString();
-
-        String scriptName = bundle.getString("scriptName");
-        scriptName = pathMgr.getStaticFile(scriptName).getAbsolutePath();
-        makeHazardScript = null;
-        try {
-            // Open the script to make sure it parses
-            makeHazardScript = new PythonScript(scriptName, includePath,
-                    getClass().getClassLoader());
-        } catch (JepException e) {
-            if (makeHazardScript != null) {
-                makeHazardScript.dispose();
-            }
-            makeHazardScript = null;
-            throw new RuntimeException("Error creating Python script "
-                    + scriptName, e);
-        }
-
-        String tcmScriptName = bundle.getString("tcmScriptName");
-        tcmScriptName = pathMgr.getStaticFile(tcmScriptName).getAbsolutePath();
-        tcmDecoder = null;
-        try {
-            // Open the script to make sure it parses
-            tcmDecoder = new PythonScript(tcmScriptName, includePath,
-                    getClass().getClassLoader());
-        } catch (JepException e) {
-            if (tcmDecoder != null) {
-                tcmDecoder.dispose();
-            }
-            tcmDecoder = null;
-            throw new RuntimeException("Error creating Python script "
-                    + tcmScriptName, e);
-        }
-
-        List<String> preEvals = new ArrayList<String>(6);
-
-        // The hazards dictionary resides in its own script.
-        String hazardDictScriptName = bundle.getString("hazardDict");
-        hazardDictScriptName = pathMgr.getStaticFile(hazardDictScriptName)
-                .getAbsolutePath();
-
-        // Add some getters we need "in the script" that we want hidden
-        preEvals.add("from JUtil import pyDictToJavaMap, pylistToJavaStringList");
-        preEvals.add("def getHazardDictionary() :\n     return pyDictToJavaMap(hazardDict)");
-        preEvals.add("def getDefaultHazardType() :\n     return defaultHazardType");
-        preEvals.add("def getMapNames() :\n     return pyDictToJavaMap(mapNames)");
-        preEvals.add("def getTCMList() :\n     return pylistToJavaStringList(tcmList)");
-
-        // Getter for quickConfigVal()
-        preEvals.add("def getVal(name) :\n    if name in globals(): return eval(name)");
-
-        // Open the Python interpreter using the designated script.
-        PythonScript hazardDictScript = null;
-        try {
-            hazardDictScript = new PythonScript(hazardDictScriptName,
-                    includePath, getClass().getClassLoader(), preEvals);
-            mapColor = RGBColors.getRGBColor("red");
-            String colorName = null;
-            try {
-                colorName = quickConfigVal("mapColor", hazardDictScript);
-                if (colorName != null) {
-                    mapColor = RGBColors.getRGBColor(colorName);
-                }
-            } catch (Exception e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Invalid mapColor in MakeHazardConfig.py: "
-                                        + colorName, e);
-            }
-
-            defaultMapWidth = quickConfigVal("defaultMapWidth",
-                    hazardDictScript);
-            timeScaleEndTime = quickConfigVal("timeScaleEndTime",
-                    hazardDictScript);
-            areaThresholdStr = quickConfigVal("areaThreshold", hazardDictScript);
-            defaultHazardType = (String) hazardDictScript.execute(
-                    "getDefaultHazardType", null);
-            mapNames = (Map<String, List<String>>) hazardDictScript.execute(
-                    "getMapNames", null);
-            hazardMap = (Map<String, List<String>>) (hazardDictScript.execute(
-                    "getHazardDictionary", null));
-            tcmList = (List<String>) (hazardDictScript.execute("getTCMList",
-                    null));
-        } catch (JepException e) {
-            throw new RuntimeException("Error creating Python script "
-                    + hazardDictScriptName, e);
-        } finally {
-            if (hazardDictScript != null) {
-                hazardDictScript.dispose();
-            }
-            hazardDictScript = null;
-        }
-
-        initAreaThreshold();
-    }
-
-    /**
      * Initialize the controls on the display.
      */
     private void initializeComponents() {
@@ -674,9 +546,15 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         topComp.setLayoutData(gd);
 
-        createMapComponent();
-        createSelectHazardComponent();
-        createTimeSelectComponent();
+        Composite mapComp = new Composite(topComp, SWT.BORDER);
+        createMapComponent(mapComp);
+
+        Composite hazardComp = new Composite(topComp, SWT.NONE);
+        createSelectHazardComponent(hazardComp);
+
+        Composite timeComp = new Composite(topComp, SWT.NONE);
+        createTimeSelectComponent(timeComp);
+        createLocalEffectComponent(timeComp);
         createButtons();
     }
 
@@ -687,8 +565,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * 
      * @return true if the hazard was created, false otherwise.
      */
-    private boolean doRunInternal() {
-        // //// Obtain information from the controls
+    private boolean doRunInternal(boolean dismiss) {
+
+        // Obtain information from the controls
         TimeRange timeRange = getSelectedTimeRange();
         if (!timeRange.isValid()) {
             return false;
@@ -703,57 +582,35 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         String hazard = getHazard();
         // Make sure a hazard is selected
         if (hazard == null) {
-            StatusStore.updateStatus(CATEGORY_GHG, "You must select a hazard",
-                    Importance.SIGNIFICANT);
+            StatusStore.updateStatus(StatusConstants.CATEGORY_GFE,
+                    "You must select a hazard", Importance.SIGNIFICANT);
             return false;
         }
 
-        PythonScript script = null;
         String tropicalETN = null;
-        String method = "tcmETNforTrop";
-        String instance = null;
-        Map<String, Object> argmap = new HashMap<String, Object>();
 
         // get the tropical ETN
         if (tcmProduct != null) {
-            argmap.put("tcmProduct", tcmProduct);
-            try {
-                tropicalETN = (String) tcmDecoder.execute(method, instance,
-                        argmap);
-            } catch (JepException e) {
-                // The script crashed. Write the error to the log and notify the
-                // user.
-                Activator
-                        .getDefault()
-                        .getLog()
-                        .log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-                                "Error in Python script", e));
-                StatusStore.updateStatus("GHG", "Error in Python script"
-                        + " (see error log for details).",
-                        Importance.SIGNIFICANT);
-            } finally {
-                if (script != null) {
-                    script.dispose();
-                }
-            }
+            tropicalETN = tcmETNforTrop(tcmProduct);
         }
 
         // get the segment #
+        String phenSig = hazard.substring(0, 4);
         int segNum = getSegment();
         String segmentNumber = "";
         // Validate the segment number
-        if ((TROPICAL_HAZ.contains(hazard))
-                && !(DataManager.getCurrentInstance().getSiteID().equals("GUM"))) {
+        if ((this.tropicalHaz.contains(phenSig))
+                && !(this.dataManager.getSiteID().equals("GUM"))) {
             // if ETN is already correctly assigned, use it
-            if (segNum >= NATL_BASE_ETN) {
+            if (segNum >= this.natlBaseETN) {
                 segmentNumber = Integer.toString(segNum);
             } else if ((etnSegNumberField.getText().length() > 0)
-                    && (segNum < NATL_BASE_ETN)) {
+                    && (segNum < this.natlBaseETN)) {
                 // if there is a number in the box, but it is not correct, send
                 // message
                 String msg = "Must use national tropical hazard ETN. Remove number\n"
                         + "from the ETN box and choose the appropriate TCM to get the ETN.";
-                StatusStore.updateStatus(CATEGORY_GHG, msg,
+                StatusStore.updateStatus(StatusConstants.CATEGORY_GFE, msg,
                         Importance.SIGNIFICANT);
                 return false;
             } else if ((etnSegNumberField.getText().length() == 0)
@@ -767,7 +624,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 // otherwise assigned. Send message.
                 String msg = "Must use national tropical hazard ETN. \n"
                         + "Choose the appropriate TCM to get the ETN when creating the grid.";
-                StatusStore.updateStatus(CATEGORY_GHG, msg,
+                StatusStore.updateStatus(StatusConstants.CATEGORY_GFE, msg,
                         Importance.SIGNIFICANT);
                 return false;
             }
@@ -778,54 +635,88 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             }
         }
 
-        // We need to validate that there are points selected. However, if
-        // there
-        // are no zones
-        // selected, it may be because we are creating a hazard for an edit
-        // area
-        // instead of zones.
-        // The latter is much easier to check in Python, so the validation
-        // is
+        // We need to validate that there are points selected. However, if there
+        // are no zones selected, it may be because we are creating a hazard for
+        // an edit area instead of zones.
+        // The latter is much easier to check in Python, so the validation is
         // done in the script.
 
-        // //// Use the validated inputs
-
-        method = "makeHazard";
-        instance = null;
+        // Use the validated inputs
 
         // Put arguments in a map to pass to the script.
-        argmap.clear();
-        argmap.put("hazard", hazard);
-        argmap.put("dbss", dataManager);
-        argmap.put("zones", zoneList);
-        argmap.put("segment", segmentNumber);
+        Map<String, Object> argmap = new HashMap<String, Object>();
+        argmap.put("selectedHazard", hazard);
         argmap.put("timeRange", timeRange);
+        argmap.put("areaList", zoneList);
+        argmap.put("segmentNumber", segmentNumber);
         argmap.put("selectedTimeRange", selectedTimeRange);
         argmap.put("defaultAreaList", defaultAreaList);
         argmap.put("defaultHazard", defaultHazard);
         argmap.put("defaultSegment", defaultSegment);
+        argmap.put("hazLocalEffect", hazLocalEffect);
+        argmap.put("dismiss", dismiss);
 
-        // Execute the method.
-        // It may return false if its internal validation rejects the user
-        // input.
-        Boolean result = Boolean.valueOf(false);
-        script = null;
-        try {
-            result = (Boolean) makeHazardScript.execute(method, instance,
-                    argmap);
-        } catch (JepException e) {
-            // The script crashed. Write the error to the log and notify the
-            // user.
-            Activator
-                    .getDefault()
-                    .getLog()
-                    .log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-                            "Error in Python script", e));
-            StatusStore.updateStatus("GHG", "Error in Python script"
-                    + " (see error log for details).", Importance.SIGNIFICANT);
+        setReturnValue(argmap);
+        running = false;
+
+        return true;
+    }
+
+    private String tcmETNforTrop(String tcmProductId) {
+        System.out.println("chosen TCM is " + tcmProductId);
+
+        String[] tcmProduct = getTextProductFromDB(tcmProductId);
+        String tropicalETN = null;
+        if (tcmProduct.length < 3) {
+            String msg = tcmProductId
+                    + " could not be retrieved from the text database.";
+            statusHandler.handle(Priority.SIGNIFICANT, msg);
+
+            // Just return if no TCM is found. Something's really wrong
+            return null;
+        } else {
+            String altFileName = getAltInfoFilename(tcmProduct);
+            String stormNum = altFileName.substring(2, 4);
+
+            System.out.println("storm number is " + stormNum);
+
+            String nationalBase = "10";
+            tropicalETN = nationalBase + stormNum;
+
+            System.out.println("Tropical ETN is: " + tropicalETN);
+            System.out.println("length of tropical ETN is: "
+                    + tropicalETN.length());
         }
+        return tropicalETN;
+    }
 
-        return result.booleanValue();
+    private String getAltInfoFilename(String[] tcmProduct) {
+        String altFilename = null;
+        for (int i = 0; i < tcmProduct.length; i++) {
+            if (tcmProduct[i].contains("NATIONAL HURRICANE CENTER")) {
+                String[] parts = tcmProduct[i].split("\\s");
+                altFilename = parts[parts.length - 1];
+                break;
+            }
+        }
+        return altFilename;
+    }
+
+    private String[] getTextProductFromDB(String productID) {
+        PythonPreferenceStore prefStore = Activator.getDefault()
+                .getPreferenceStore();
+        boolean testVtec;
+        if (prefStore.contains("TestVTECDecode")) {
+            testVtec = prefStore.getBoolean("TestVTECDecode");
+        } else {
+            testVtec = false;
+        }
+        boolean gfeMode = (this.dataManager.getOpMode()
+                .equals(CAVEMode.OPERATIONAL));
+        boolean opMode = testVtec || gfeMode;
+        String fullText = TextDBUtil.retrieveProduct(productID, opMode);
+        String[] textList = fullText.split("\n");
+        return textList;
     }
 
     private List<String> getZoneList() {
@@ -837,26 +728,6 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         return zoneList;
     }
 
-    /**
-     * The method invoked when the 'Run' button is pressed. This is a wrapper
-     * around doRunInternal(). Since the dialog won't be closed, the return
-     * value is ignored.
-     */
-    private void doRun() {
-        doRunInternal();
-    }
-
-    /**
-     * The method invoked when the 'Run/Dismiss' button is pressed. This is
-     * another wrapper around doRunInternal(), but it will close the dialog if
-     * the hazard is successfully created.
-     */
-    private void doRunDismiss() {
-        if (doRunInternal()) {
-            shell.close();
-        }
-    }
-
     private void createButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         Composite buttons = new Composite(shell, SWT.NONE);
@@ -866,54 +737,34 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         buttons.setLayout(fillLayout);
         runButton = new Button(buttons, SWT.PUSH);
         runButton.setText("Run");
-        runButton.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // Never called for pushbuttons
-            }
-
+        runButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                doRun();
+                doRunInternal(false);
             }
         });
 
         runDismissButton = new Button(buttons, SWT.PUSH);
         runDismissButton.setText("Run/Dismiss");
-        runDismissButton.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // Never called for pushbuttons
-            }
-
+        runDismissButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                doRunDismiss();
+                doRunInternal(true);
             }
         });
 
         cancelButton = new Button(buttons, SWT.PUSH);
         cancelButton.setText("Cancel");
-        cancelButton.addSelectionListener(new SelectionListener() {
-
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                // Never called for pushbuttons
-
-            }
-
+        cancelButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                shell.close();
+                running = false;
             }
         });
     }
 
-    private void createMapComponent() {
+    private void createMapComponent(Composite mapComp) {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        Composite mapComp = new Composite(topComp, SWT.BORDER);
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
         gl.marginWidth = 0;
@@ -928,22 +779,11 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         gl.verticalSpacing = 0;
         theMapComposite.setLayout(gl);
 
-        int width = 400;
-        if (defaultMapWidth != null) {
-            try {
-                width = Integer.parseInt(defaultMapWidth);
-            } catch (NumberFormatException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "defaultMapWidth in MakeHazardConfig.py must be an integer value");
-            }
-        }
-
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumHeight = 100;
         gd.minimumWidth = 100;
-        gd.heightHint = width;
-        gd.widthHint = width;
+        gd.heightHint = this.defaultMapWidth;
+        gd.widthHint = this.defaultMapWidth;
         theMapComposite.setLayoutData(gd);
         try {
             initializeShapeComponent(theMapComposite);
@@ -1043,12 +883,57 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             }
         });
 
-        showMapLabelsButton.addSelectionListener(this);
-        selectAllButton.addSelectionListener(this);
-        clearAllButton.addSelectionListener(this);
-        zoomInButton.addSelectionListener(this);
-        zoomOutButton.addSelectionListener(this);
-        zoomOneToOneButton.addSelectionListener(this);
+        showMapLabelsButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                zoneSelector.setLabelZones(((Button) e.getSource())
+                        .getSelection());
+            }
+        });
+
+        selectAllButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                Map<String, Integer> comboDict = new HashMap<String, Integer>();
+                for (String zoneName : zoneSelector.getZoneNames()) {
+                    comboDict.put(zoneName, 1);
+                }
+                zoneSelector.updateCombos(comboDict);
+                zoneSelected(null);
+            }
+        });
+
+        clearAllButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                zoneSelector.updateCombos(new HashMap<String, Integer>());
+                zoneSelected(null);
+            }
+        });
+
+        zoomInButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                zoneSelector.setZoomLevel(zoneSelector.getZoomLevel()
+                        * ZOOM_STEP);
+            }
+        });
+
+        zoomOutButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                zoneSelector.setZoomLevel(zoneSelector.getZoomLevel()
+                        / ZOOM_STEP);
+            }
+        });
+
+        zoomOneToOneButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // reset the display to fully zoomed extent
+                zoneSelector.setZoomLevel(1);
+            }
+        });
 
         usingLabel = new Label(buttonComp, SWT.NORMAL);
         usingLabel.setAlignment(SWT.CENTER);
@@ -1073,8 +958,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         bg.dispose();
     }
 
-    private void createSelectHazardComponent() {
-        Composite hazardComp = new Composite(topComp, SWT.NONE);
+    private void createSelectHazardComponent(Composite hazardComp) {
         GridLayout gl = new GridLayout(2, false);
         gl.marginHeight = 0;
         gl.marginWidth = 0;
@@ -1082,21 +966,31 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         GridData gd = new GridData(SWT.DEFAULT, SWT.FILL, false, true);
         hazardComp.setLayoutData(gd);
 
-        selectedHazardList = new org.eclipse.swt.widgets.List(hazardComp,
+        Group hazardGroup = new Group(hazardComp, SWT.BORDER);
+        hazardGroup.setText("Select Hazard");
+        gl = new GridLayout(1, true);
+        gl.verticalSpacing = 0;
+        gl.marginHeight = 0;
+        gl.marginWidth = 0;
+        hazardGroup.setLayout(gl);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.horizontalSpan = 2;
+        hazardGroup.setLayoutData(gd);
+
+        selectedHazardList = new org.eclipse.swt.widgets.List(hazardGroup,
                 SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.heightHint = selectedHazardList.getItemHeight() * 16
                 + selectedHazardList.getBorderWidth();
-        gd.horizontalSpan = 2;
         selectedHazardList.setLayoutData(gd);
 
-        radioGroup = new Group(hazardComp, SWT.BORDER);
-        radioGroup.setText("Hazard Type");
+        hazardTypeGroup = new Group(hazardComp, SWT.BORDER);
+        hazardTypeGroup.setText("Hazard Type");
         gl = new GridLayout(1, true);
         gl.verticalSpacing = 0;
-        radioGroup.setLayout(gl);
+        hazardTypeGroup.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        radioGroup.setLayoutData(gd);
+        hazardTypeGroup.setLayoutData(gd);
 
         etnSegNumGroup = new Group(hazardComp, SWT.BORDER);
         etnSegNumGroup.setText("ETN/Segment Number");
@@ -1108,27 +1002,71 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 .keySet());
         Collections.sort(groups);
         this.currentHazardType = "";
-        for (String k : groups) {
-            // add a radio button control to the radioComposite
-            Button radioButton = new Button(radioGroup, SWT.RADIO);
-            if (k.equalsIgnoreCase(defaultHazardType)) {
-                radioButton.setSelection(true);
-                try {
-                    updateSelectedHazardList(defaultHazardType);
-                } catch (GFEServerException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to update selected hazard list", e);
+
+        SelectionAdapter selAdapt = new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // org.eclipse.swt.widgets.List list =
+                // (org.eclipse.swt.widgets.List) e
+                // .getSource();
+                // String[] sel = list.getSelection();
+                // if (sel.length > 0) {
+                // setHazardType(sel[0]);
+                // }
+
+                Button b = (Button) e.getSource();
+                if (b.getSelection()) {
+                    String key = b.getText();
+                    setHazardType(key);
                 }
             }
+        };
+
+        // org.eclipse.swt.widgets.List hazardGroupList = new
+        // org.eclipse.swt.widgets.List(
+        // hazardTypeGroup, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
+        // | SWT.SINGLE);
+        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        // gd.heightHint = hazardGroupList.getItemHeight() * 12
+        // + hazardGroupList.getBorderWidth();
+        // hazardGroupList.setLayoutData(gd);
+        // hazardGroupList.addSelectionListener(selAdapt);
+        // for (String k : groups) {
+        // hazardGroupList.add(k);
+        // if (k.equals(this.defaultHazardType)) {
+        // hazardGroupList.select(hazardGroupList.getItemCount() - 1);
+        // }
+        // }
+
+        for (String k : groups) {
+            // add a radio button control to the radioComposite
+            Button radioButton = new Button(hazardTypeGroup, SWT.RADIO);
             radioButton.setText(k);
-            radioButton.addSelectionListener(this);
+            radioButton.addSelectionListener(selAdapt);
+            radioButton.setSelection(k.equals(this.defaultHazardType));
         }
 
         etnSegNumberField = new Text(etnSegNumGroup, SWT.BORDER);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = 40;
+        etnSegNumberField.setTextLimit(4);
+        GC gc = new GC(etnSegNumberField);
+        gd.widthHint = 4 * gc.getCharWidth('0');
+        gc.dispose();
         etnSegNumberField.setLayoutData(gd);
-        if (tcmList.size() > 0) {
+        etnSegNumberField.addVerifyListener(new VerifyListener() {
+
+            @Override
+            public void verifyText(VerifyEvent e) {
+                for (char c : e.text.toCharArray()) {
+                    if ((!Character.isDigit(c)) && (!Character.isISOControl(c))) {
+                        e.doit = false;
+                        break;
+                    }
+                }
+            }
+        });
+
+        if (!tcmList.isEmpty()) {
             Composite tcmFrameComp = new Composite(etnSegNumGroup, SWT.NONE);
             tcmFrameComp.setLayout(new GridLayout(1, true));
             tcmFrameComp.setLayoutData(new GridData(GridData.FILL, SWT.BOTTOM,
@@ -1156,8 +1094,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      * to require hazards to start and end on an hour boundary, and have a
      * duration of at least an hour.
      */
-    private void createTimeSelectComponent() {
-        Composite timeComp = new Composite(topComp, SWT.BORDER);
+    private void createTimeSelectComponent(Composite timeComp) {
         GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
         gl.marginWidth = 0;
@@ -1175,24 +1112,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         startGroup.setLayoutData(gd);
 
         // create a label to show the start time
-        startTimeLabel = new Label(startGroup, SWT.NONE);
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        startTimeLabel = new Label(startGroup, SWT.CENTER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         startTimeLabel.setLayoutData(gd);
-
-        // create a label to identify the start time slider as the start time
-        // Label lab = new Label(timeComp, SWT.NONE);
-        // lab.setText("Hazard Start Time");
-        // lab.setLayoutData(gd);
-
-        toHours = 96;
-        if (timeScaleEndTime != null) {
-            try {
-                toHours = Integer.parseInt(timeScaleEndTime);
-            } catch (NumberFormatException nfe) {
-                statusHandler.handle(Priority.WARN, "timeScaleEndTime value "
-                        + timeScaleEndTime + " cannot be parsed.");
-            }
-        }
 
         // create the start time slider
         startTimeSlider = new Scale(startGroup, SWT.HORIZONTAL);
@@ -1224,7 +1146,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             }
         });
         startTimeSlider.setMinimum(0);
-        startTimeSlider.setMaximum(toHours);
+        startTimeSlider.setMaximum(this.timeScaleEndTime);
         startTimeSlider.setIncrement(1);
         startTimeSlider.setPageIncrement(1);
         startTimeSlider.setLayoutData(new GridData(200, SWT.DEFAULT));
@@ -1247,18 +1169,10 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         endGroup.setLayoutData(gd);
 
         // Create a label to show the user the hazard end time
-        endTimeLabel = new Label(endGroup, SWT.NONE);
-        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        gd.horizontalAlignment = SWT.CENTER;
+        endTimeLabel = new Label(endGroup, SWT.CENTER);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         endTimeLabel.setLayoutData(gd);
         updateTime(1, endTimeLabel);
-
-        // Create a label to identify the end time slider
-        // Label lab2 = new Label(timeComp, SWT.NONE);
-        // lab2.setText("Hazard End Time");
-        // gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        // gd.horizontalAlignment = SWT.CENTER;
-        // lab2.setLayoutData(gd);
 
         // Create the end time slider
         endTimeSlider = new Scale(endGroup, SWT.HORIZONTAL);
@@ -1299,35 +1213,58 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
     }
 
+    private void createLocalEffectComponent(Composite comp) {
+        this.leGroup = new Group(comp, SWT.BORDER);
+        GridLayout gl = new GridLayout(1, false);
+        gl.verticalSpacing = 0;
+        leGroup.setLayout(gl);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        leGroup.setLayoutData(gd);
+        leGroup.setText("Local Effect Area");
+
+        SelectionAdapter selAdapt = new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                Combo c = (Combo) e.getSource();
+                hazardLocalEffectSelected((String) c.getData(c.getText()));
+            }
+        };
+
+        leCombo = new Combo(leGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        leCombo.setLayoutData(gd);
+        leCombo.addSelectionListener(selAdapt);
+    }
+
     private Map<String, List<String>> getHazardsDictionary() {
-        if (hazardMap == null) {
-            hazardMap = new TreeMap<String, List<String>>();
-            hazardMap.put("Winter Weather", Arrays.asList("BZ.W", "BZ.A",
+        if (hazardDict == null) {
+            hazardDict = new TreeMap<String, List<String>>();
+            hazardDict.put("Winter Weather", Arrays.asList("BZ.W", "BZ.A",
                     "BS.Y", "ZR.Y", "HS.W", "IS.W", "LE.Y", "LE.W", "LE.A",
                     "LB.Y", "IP.Y", "IP.W", "SN.Y", "SB.Y", "WC.Y", "WC.W",
                     "WC.A", "WS.W", "WS.A", "WW.Y"));
-            hazardMap.put("Hydrology", Arrays.asList("FF.A", "FA.A"));
-            hazardMap.put("Fire Weather", Arrays.asList("FW.A", "FW.W"));
-            hazardMap.put("Convective Watches", Arrays.asList("SV.A", "TO.A"));
-            hazardMap.put("Coastal Flood", Arrays.asList("CF.S", "LS.S",
-                    "CF.Y", "CF.W", "CF.A", "SU.Y", "SU.W", "RP.S", "LS.Y", "LS.W",
-                    "LS.A"));
-            hazardMap.put("Non-Precipitation", Arrays.asList("AF.W", "AF.Y",
+            hazardDict.put("Hydrology", Arrays.asList("FF.A", "FA.A"));
+            hazardDict.put("Fire Weather", Arrays.asList("FW.A", "FW.W"));
+            hazardDict.put("Convective Watches", Arrays.asList("SV.A", "TO.A"));
+            hazardDict.put("Coastal Flood", Arrays.asList("CF.S", "LS.S",
+                    "CF.Y", "CF.W", "CF.A", "SU.Y", "SU.W", "RP.S", "LS.Y",
+                    "LS.W", "LS.A"));
+            hazardDict.put("Non-Precipitation", Arrays.asList("AF.W", "AF.Y",
                     "AS.Y", "DU.Y", "DS.W", "EH.W", "EH.A", "EC.W", "EC.A",
                     "FG.Y", "FZ.W", "FZ.A", "HZ.W", "HZ.A", "ZF.Y", "FR.Y",
                     "HT.Y", "HW.W", "HW.A", "LW.Y", "SM.Y", "WI.Y"));
-            hazardMap.put("Common Marine/NPW",
+            hazardDict.put("Common Marine/NPW",
                     Arrays.asList("AF.W", "AF.Y", "FG.Y", "SM.Y"));
-            hazardMap.put("Marine", Arrays.asList("MA.S", "MH.W", "MH.Y",
+            hazardDict.put("Marine", Arrays.asList("MA.S", "MH.W", "MH.Y",
                     "BW.Y", "UP.Y", "FG.Y", "GL.A", "GL.W", "SE.A", "SE.W",
                     "UP.A", "UP.W", "HF.A", "HF.W", "LO.Y", "SC.Y", "SW.Y",
                     "RB.Y", "SI.Y", "SM.Y", "SR.A", "SR.W"));
-            hazardMap.put("Tropical Cyclone",
+            hazardDict.put("Tropical Cyclone",
                     Arrays.asList("HU.W", "HU.A", "HU.S", "TR.W", "TR.A"));
-            hazardMap.put("Tsunami", Arrays.asList("TS.A", "TS.W"));
+            hazardDict.put("Tsunami", Arrays.asList("TS.A", "TS.W"));
         }
 
-        return hazardMap;
+        return hazardDict;
     }
 
     private List<String> getHazardListForType(String key) {
@@ -1339,67 +1276,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse
-     * .swt.events.SelectionEvent)
-     */
-    @Override
-    public void widgetDefaultSelected(SelectionEvent e) {
-        // No default action defined
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt
-     * .events.SelectionEvent)
-     */
-    @Override
-    public void widgetSelected(SelectionEvent e) {
-        if (e.getSource() == this.showMapLabelsButton) {
-            this.zoneSelector.setLabelZones(this.showMapLabelsButton
-                    .getSelection());
-            return;
-        } else if (e.getSource() == this.zoomInButton) {
-            zoneSelector.setZoomLevel(zoneSelector.getZoomLevel() * ZOOM_STEP);
-            return;
-        } else if (e.getSource() == this.zoomOutButton) {
-            zoneSelector.setZoomLevel(zoneSelector.getZoomLevel() / ZOOM_STEP);
-            return;
-        } else if (e.getSource() == this.zoomOneToOneButton) {
-            // reset the display to fully zoomed extent
-            zoneSelector.setZoomLevel(1);
-            return;
-        } else if (e.getSource() == this.clearAllButton) {
-            this.zoneSelector.updateCombos(new HashMap<String, Integer>());
-
-            return;
-        } else if (e.getSource() == this.selectAllButton) {
-            Map<String, Integer> comboDict = new HashMap<String, Integer>();
-            for (String zoneName : this.zoneSelector.getZoneNames()) {
-                comboDict.put(zoneName, 1);
-            }
-            this.zoneSelector.updateCombos(comboDict);
-
-            return;
-        }
-
-        Button b = (Button) e.getSource();
-        String key = b.getText();
-        try {
-            updateSelectedHazardList(key);
-        } catch (GFEServerException e1) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to update selected hazard list", e1);
-        }
-    }
-
-    private void updateSelectedHazardList(String hazType)
-            throws GFEServerException {
+    private void updateSelectedHazardList(String hazType) {
         String prevType = this.currentHazardType;
         this.currentHazardType = hazType;
         String siteId = dataManager.getSiteID();
@@ -1431,6 +1308,12 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
         List<String> mapNames = this.mapNames.get(hazType);
 
+        if (mapNames == null) {
+            statusHandler.error("MakeHazardConfig.mapNames has no entry for \""
+                    + hazType + "\"");
+            return;
+        }
+
         if (!prevType.equals(hazType)
                 && !mapNames.equals(this.mapNames.get(prevType))) {
             this.zoneSelector.setMap(mapNames, this.comboDict,
@@ -1455,10 +1338,9 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             cal.setTime(theDate);
             cal.add(Calendar.HOUR_OF_DAY, selection);
             label.setText(dateFormatter.format(cal.getTime()));
-            label.pack(true);
         } catch (ParseException e) {
             // This shouldn't ever happen...
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Invalid hazardStartTime", e);
         }
 
     }
@@ -1468,7 +1350,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
         GridLocation gloc = dataManager.getParmManager()
                 .compositeGridLocation();
-        zoneSelector = new ZoneSelector(controlComp, gloc, null);
+        zoneSelector = new ZoneSelector(controlComp, gloc, null, this);
         zoneSelector.setLimitToOneGroup(true);
     }
 
@@ -1481,27 +1363,37 @@ public class MakeHazardDialog extends CaveSWTDialog implements
      *            the hazard type to select.
      */
     public void setHazardType(String hazardType) {
-        Control[] radioControls = radioGroup.getChildren();
-        for (Control radioControl : radioControls) {
-            if ((radioControl.getStyle() & SWT.RADIO) != 0) {
-                Button radioButton = (Button) radioControl;
-                if (radioButton.getText().equals(hazardType)) {
-                    if (!radioButton.getSelection()) {
-                        radioButton.setSelection(true);
-                        try {
-                            updateSelectedHazardList(hazardType);
-                        } catch (GFEServerException e) {
-                            statusHandler
-                                    .handle(Priority.PROBLEM,
-                                            "Server error changing hazard type radio button",
-                                            e);
-                        }
+        updateSelectedHazardList(hazardType);
+
+        if (this.localEffectAreas.containsKey(hazardType)) {
+            leGroup.setVisible(true);
+            ((GridData) leGroup.getLayoutData()).exclude = false;
+
+            leCombo.removeAll();
+            leCombo.add("None");
+            leCombo.setText("None");
+            for (String eaName : this.localEffectAreas.get(hazardType)) {
+                List<Object> laData = this.localAreaData.get(eaName);
+                if (laData != null) {
+                    String label = eaName;
+                    String display = (String) laData.get(1);
+                    if (display != null && !display.isEmpty()) {
+                        label = display;
                     }
+                    leCombo.add(label);
+                    leCombo.setData(label, eaName);
                 } else {
-                    radioButton.setSelection(false);
+                    statusHandler.error("No entry found for '" + eaName
+                            + "' in localAreaData");
                 }
             }
+        } else {
+            leGroup.setVisible(false);
+            ((GridData) leGroup.getLayoutData()).exclude = true;
+            this.hazLocalEffect = "None";
+            this.etnSegNumberField.setText("");
         }
+        leGroup.getParent().pack();
     }
 
     /**
@@ -1526,6 +1418,35 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 break;
             }
             index++;
+        }
+    }
+
+    private void hazardLocalEffectSelected(String s) {
+        this.hazLocalEffect = s;
+        List<Object> laData = this.localAreaData.get(s);
+        if (laData != null) {
+            // get the segment number
+            Integer segment = (Integer) laData.get(0);
+            if (segment != null) {
+                String segText = segment.toString();
+                this.etnSegNumberField.setText(segText);
+                this.etnSegNumberField.setSelection(segText.length());
+
+            } else {
+                this.etnSegNumberField.setText("");
+                this.etnSegNumberField.setSelection(0);
+            }
+
+            @SuppressWarnings("unchecked")
+            List<String> zoneList = (List<String>) laData.get(2);
+            if (zoneList != null && !zoneList.isEmpty()) {
+                Map<String, Integer> comboDict = new HashMap<String, Integer>(
+                        zoneList.size());
+                for (String z : zoneList) {
+                    comboDict.put(z, 1);
+                }
+                this.zoneSelector.updateCombos(comboDict);
+            }
         }
     }
 
@@ -1592,78 +1513,19 @@ public class MakeHazardDialog extends CaveSWTDialog implements
     }
 
     /**
-     * Ensure that the hazard grids are separated.
-     * 
-     * @return false if the hazard grids are not separated and cannot be
-     *         separated (normally because another station has a lock), true
-     *         otherwise.
-     */
-    private boolean ensureSeparated() {
-        Map<String, Object> argMap = new HashMap<String, Object>();
-        argMap.put("dbss", dataManager);
-        boolean separated = false;
-        PythonScript script = null;
-        try {
-            separated = (Boolean) makeHazardScript.execute("ensureSeparated",
-                    argMap);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.SIGNIFICANT,
-                    "Python error separating grids", e);
-        } finally {
-            if (script != null) {
-                script.dispose();
-            }
-        }
-        return separated;
-    }
-
-    /**
-     * @param name
-     * @return
-     */
-    private String quickConfigVal(String name, PythonScript script) {
-        Map<String, Object> args = new HashMap<String, Object>();
-        args.put("name", name);
-        Object obj = null;
-        try {
-            obj = script.execute("getVal", args);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.WARN,
-                    "Error loading configuration value " + args.get("name"), e);
-        }
-        String str = null;
-        if (obj != null) {
-            str = obj.toString();
-        }
-        return str;
-    }
-
-    /**
      * Defend against bad values for areaThreshold in config file.
      */
     protected void initAreaThreshold() {
-        if (areaThresholdStr != null) {
-            Double atTemp = null;
-            Exception exc = null;
-            try {
-                atTemp = Double.valueOf(areaThresholdStr);
-            } catch (NumberFormatException e) {
-                exc = e;
-            }
-            if (atTemp == null) {
-                statusHandler.handle(Priority.WARN,
-                        "Error setting area threshold", exc);
-            } else if (atTemp.doubleValue() > 1.0) {
-                // This wouldn't select any zones
-                statusHandler.handle(Priority.WARN,
-                        "Area threshold is greater than 100%. Using default.");
-            } else if (atTemp.doubleValue() <= 0.0) {
-                // This would always select all zones
-                statusHandler.handle(Priority.WARN,
-                        "Area threshold is 0% or below. Using default.");
-            } else {
-                areaThreshold = atTemp.doubleValue();
-            }
+        if (this.areaThreshold > 1.0) {
+            // This wouldn't select any zones
+            statusHandler.handle(Priority.WARN,
+                    "Area threshold is greater than 100%. Using default.");
+            this.areaThreshold = DEFAULT_AREA_THRESHOLD;
+        } else if (this.areaThreshold <= 0.0) {
+            // This would always select all zones
+            statusHandler.handle(Priority.WARN,
+                    "Area threshold is 0% or below. Using default.");
+            this.areaThreshold = DEFAULT_AREA_THRESHOLD;
         }
     }
 
@@ -1690,6 +1552,111 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         }
 
         return areaList;
+    }
+
+    public void openFromPython() {
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+                open();
+            }
+        });
+
+    }
+
+    public Object runFromPython() {
+        final Object[] retVal = new Object[1];
+
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+                running = true;
+                setReturnValue(null);
+                while (running) {
+                    if (!getDisplay().readAndDispatch()) {
+                        getDisplay().sleep();
+                    }
+                }
+                retVal[0] = getReturnValue();
+            }
+        });
+
+        return retVal[0];
+    }
+
+    public void closeFromPython() {
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+                close();
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    static public MakeHazardDialog createFromPython(Map<String, Object> args) {
+
+        final DataManager dataManager = (DataManager) args.get("dataManager");
+        final String colorName = (String) args.get("mapColor");
+        final int defaultMapWidth = (Integer) args.get("defaultMapWidth");
+        final int timeScaleEndTime = (Integer) args.get("timeScaleEndTime");
+        final float areaThreshold = (Float) args.get("areaThreshold");
+        final String defaultHazardType = (String) args.get("defaultHazardType");
+        final Map<String, List<String>> mapNames = (Map<String, List<String>>) args
+                .get("mapNames");
+        final Map<String, List<String>> hazardDict = (Map<String, List<String>>) args
+                .get("hazardDict");
+        final List<String> tcmList = (List<String>) args.get("tcmList");
+        final List<String> tropicalHaz = (List<String>) args.get("tropicalHaz");
+        final int natlBaseETN = (Integer) args.get("natlBaseETN");
+        final Map<String, List<String>> localEffectAreas = (Map<String, List<String>>) args
+                .get("localEffectAreas");
+        final Map<String, List<Object>> localAreaData = (Map<String, List<Object>>) args
+                .get("localAreaData");
+
+        final MakeHazardDialog[] dlg = new MakeHazardDialog[1];
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+                Shell shell = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getShell();
+                dlg[0] = new MakeHazardDialog(shell, dataManager, colorName,
+                        defaultMapWidth, timeScaleEndTime, areaThreshold,
+                        defaultHazardType, mapNames, hazardDict, tcmList,
+                        tropicalHaz, natlBaseETN, localEffectAreas,
+                        localAreaData);
+            }
+        });
+        return dlg[0];
+    }
+
+    public void setSegmentNumber(final int segNum) {
+        Job updateSegNumField = new UIJob("Updating ETN/segment number.") {
+
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                if ((!MakeHazardDialog.this.etnSegNumberField.isDisposed())
+                        && (MakeHazardDialog.this.etnSegNumberField != null)) {
+                    MakeHazardDialog.this.etnSegNumberField.setText(Integer
+                            .toString(segNum));
+                    return Status.OK_STATUS;
+                }
+
+                return Status.CANCEL_STATUS;
+            }
+        };
+        updateSegNumField.setSystem(true);
+        updateSegNumField.schedule();
+    }
+
+    @Override
+    protected void disposed() {
+        this.running = false;
+        super.disposed();
     }
 
 }

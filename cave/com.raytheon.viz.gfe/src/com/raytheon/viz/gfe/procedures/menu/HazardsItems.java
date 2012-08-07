@@ -19,10 +19,6 @@
  **/
 package com.raytheon.viz.gfe.procedures.menu;
 
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.menus.CommandContributionItem;
-import org.eclipse.ui.menus.CommandContributionItemParameter;
-
 /**
  * Specific contribution item for contributing procedures to the Hazards menu
  * 
@@ -62,18 +58,4 @@ public class HazardsItems extends AbstractProcedureMenuItems {
         return "Hazards";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.procedures.menu.AbstractProcedureMenuItems#
-     * getAdditionalItems()
-     */
-    @Override
-    protected CommandContributionItemParameter[] getAdditionalItems() {
-        return new CommandContributionItemParameter[] { new CommandContributionItemParameter(
-                PlatformUI.getWorkbench(), getId(),
-                "com.raytheon.viz.ghg.openmakehazards", null, null, null, null,
-                "MakeHazard", null, null, CommandContributionItem.STYLE_PUSH,
-                null, true) };
-    }
 }
