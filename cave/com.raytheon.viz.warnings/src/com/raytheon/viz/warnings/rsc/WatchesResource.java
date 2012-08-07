@@ -42,8 +42,6 @@ public class WatchesResource extends AbstractWatchesResource {
 
     private Map<String, WeakReference<Geometry>> geometryMap = new HashMap<String, WeakReference<Geometry>>();
 
-    private final WarningRecordComparator comparator = new WarningRecordComparator();
-
     public WatchesResource(WWAResourceData data, LoadProperties props) {
         super(data, props);
     }
