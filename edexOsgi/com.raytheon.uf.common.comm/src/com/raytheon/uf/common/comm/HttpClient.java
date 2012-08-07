@@ -255,12 +255,7 @@ public class HttpClient {
     private HttpResponse postRequest(HttpUriRequest put) throws IOException,
             CommunicationException {
         HttpResponse resp = client.execute(put);
-        int code = resp.getStatusLine().getStatusCode();
-        if (code != SUCCESS_CODE) {
-            throw new CommunicationException(
-                    "Error reading server response.  Got error message: "
-                            + EntityUtils.toString(resp.getEntity()));
-        } else if (previousConnectionFailed) {
+        if (previousConnectionFailed) {
             previousConnectionFailed = false;
             statusHandler.handle(Priority.INFO,
                     "Connection with server reestablished.");
@@ -280,8 +275,8 @@ public class HttpClient {
      * @return the http status code
      * @throws CommunicationException
      */
-    private int process(HttpUriRequest put, IStreamHandler handlerCallback)
-            throws CommunicationException {
+    private HttpClientResponse process(HttpUriRequest put,
+            IStreamHandler handlerCallback) throws CommunicationException {
         int tries = 0;
         boolean retry = true;
         HttpResponse resp = null;
@@ -340,7 +335,12 @@ public class HttpClient {
             // should only be able to get here if we didn't encounter the
             // exceptions above on the most recent try
             processResponse(resp, handlerCallback);
-            return resp.getStatusLine().getStatusCode();
+            byte[] byteResult = null;
+            if (handlerCallback instanceof DefaultInternalStreamHandler) {
+                byteResult = ((DefaultInternalStreamHandler) handlerCallback).byteResult;
+            }
+            return new HttpClientResponse(resp.getStatusLine().getStatusCode(),
+                    byteResult);
         } finally {
             if (ongoing != null) {
                 ongoing.decrementAndGet();
@@ -387,10 +387,6 @@ public class HttpClient {
                             "Error reading InputStream, assuming closed", e);
                 }
             }
-        } else {
-            // this should be impossible to reach
-            throw new CommunicationException(
-                    "Error ocurred while contacting server, did not get a reponse or an exception");
         }
     }
 
@@ -406,8 +402,9 @@ public class HttpClient {
     private byte[] executePostMethod(HttpPost put)
             throws CommunicationException {
         DefaultInternalStreamHandler handlerCallback = new DefaultInternalStreamHandler();
-        this.process(put, handlerCallback);
-        return handlerCallback.byteResult;
+        HttpClientResponse resp = this.process(put, handlerCallback);
+        checkStatusCode(resp);
+        return resp.data;
     }
 
     /**
@@ -475,8 +472,7 @@ public class HttpClient {
     public HttpClientResponse executeRequest(HttpUriRequest request)
             throws CommunicationException {
         DefaultInternalStreamHandler streamHandler = new DefaultInternalStreamHandler();
-        int statusCode = process(request, streamHandler);
-        return new HttpClientResponse(statusCode, streamHandler.byteResult);
+        return process(request, streamHandler);
     }
 
     /**
@@ -500,6 +496,16 @@ public class HttpClient {
         postStreamingEntity(address, new StringEntity(message), handlerCallback);
     }
 
+    private void checkStatusCode(HttpClientResponse response)
+            throws CommunicationException {
+        if (response.code != SUCCESS_CODE) {
+            throw new CommunicationException(
+                    "Error reading server response.  Got error message: "
+                            + response.data != null ? new String(response.data)
+                            : null);
+        }
+    }
+
     /**
      * Posts an entity to the address and stream the result back.
      * 
@@ -514,7 +520,8 @@ public class HttpClient {
     private void postStreamingEntity(String address, AbstractHttpEntity entity,
             IStreamHandler handlerCallback) throws CommunicationException {
         HttpPost put = new HttpPost(address);
-        process(put, handlerCallback);
+        HttpClientResponse resp = process(put, handlerCallback);
+        checkStatusCode(resp);
     }
 
     public void setMaxConnectionsPerHost(int maxConnections) {
