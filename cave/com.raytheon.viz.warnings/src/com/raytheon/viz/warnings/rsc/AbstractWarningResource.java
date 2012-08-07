@@ -236,6 +236,8 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
         
         protected Date timeAltered;
 
+        protected Date frameAltered;
+
         /**
          * was the alter a partial cancel? if it was then a matching CON should
          * be processed and added
@@ -364,7 +366,7 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
         int frameIdx = framesInfo.getFrameIndex();
         DataTime[] frameTimes = framesInfo.getFrameTimes();
         if (frameIdx < 0 || frameIdx >= frameTimes.length)
-        	return "NO DATA";
+            return "NO DATA";
         DataTime time = frameTimes[frameIdx];
 
         TimeRange framePeriod = null;
@@ -580,9 +582,9 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
                         // DR14992: reverse the textToPrint array to plot the strings in correct order
                         String [] textToPrintReversed = new String[textToPrint.length];
                         for(int i = 0; i < textToPrint.length; i++) {
-							textToPrintReversed[i] = textToPrint[textToPrint.length
-									- i - 1];
-						}
+                            textToPrintReversed[i] = textToPrint[textToPrint.length
+                                    - i - 1];
+                        }
                         
                         DrawableString params = new DrawableString(textToPrintReversed,
                                 color);
@@ -627,18 +629,19 @@ public abstract class AbstractWarningResource extends AbstractWWAResource
 
         // check if the warning is cancelled
         WarningAction action = WarningAction.valueOf(entry.record.getAct());
-        if (action == WarningAction.CAN
-                && refTime.equals(paintTime)) {
+        if (action == WarningAction.CAN && refTime.equals(paintTime)) {
             return false;
-        // If this entry has been altered/updated, display its pre-altered version 
-        // only in the frames prior to the time it was altered
-        } else if (entry.altered){
-        	if (frameStart.getTime() >= refTime.getTime() && 
-        		    frameStart.getTime() < (entry.timeAltered.getTime()))	
-        		return true;
-        	if (frameStart.getTime() >= (entry.timeAltered.getTime())) 
-        		return false;
-        	
+            // If this entry has been altered/updated, display its pre-altered
+            // version
+            // only in the frames prior to the time it was altered
+        } else if (entry.altered) {
+            if (frameStart.getTime() >= refTime.getTime()
+                    && frameStart.getTime() < (entry.timeAltered.getTime())
+                    && frameStart.getTime() < entry.frameAltered.getTime())
+                return true;
+            if (frameStart.getTime() >= (entry.timeAltered.getTime()))
+                return false;
+
         } else if (refTime.equals(paintTime)
                 || recordPeriod.contains(frameTime)
                 || (framePeriod.contains(centerTime) && (!lastFrame || !entry.altered))) {
