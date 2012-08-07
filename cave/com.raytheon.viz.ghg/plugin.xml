@@ -26,20 +26,12 @@
             id="com.raytheon.viz.ghg.openGhgMonitor"
             name="GHGHazardsMonnitor">
       </command>
-      <command
-            id="com.raytheon.viz.ghg.openmakehazards"
-            name="MakeHazards">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="com.raytheon.viz.ghg.GhgMonitorAction"
             commandId="com.raytheon.viz.ghg.openGhgMonitor">
-      </handler>
-      <handler
-            class="com.raytheon.viz.ghg.MakeHazardsAction"
-            commandId="com.raytheon.viz.ghg.openmakehazards">
       </handler>
    </extension>
 </plugin>
