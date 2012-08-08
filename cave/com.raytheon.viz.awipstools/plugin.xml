@@ -29,6 +29,14 @@
             sortID="2"/>
    </extension>
    <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.viz.awipstools.ui.action.PointEditAction"
+            capabilityClass="com.raytheon.viz.awipstools.ui.layer.PointsToolLayer"
+            name="Edit Points"
+            sortID="110"/>
+   </extension>
+   <extension
          point="org.eclipse.ui.commands">
      <command
             id="com.raytheon.viz.awipstools.arbitrary"
@@ -202,7 +210,7 @@
             locationURI="toolbar:d2d-2?after=tools.toolbar">
             <command
                   commandId="com.raytheon.viz.awipstools.points"
-                  icon="icons/point.gif"
+                  icon="icons/points.gif"
                   label="Points">
 				<visibleWhen>
                    <reference
