@@ -19,7 +19,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.expressions,
  com.raytheon.uf.viz.core.maps;bundle-version="1.0.0",
  com.raytheon.viz.core;bundle-version="1.12.1130",
- com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0"
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.points;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.colormap,

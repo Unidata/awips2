@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
@@ -47,6 +48,7 @@ import org.eclipse.ui.menus.IMenuService;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 2, 2011            bsteffen     Initial creation
+ * Jul 31, 2012 #875       rferrel     Added add(IAction) method.
  * 
  * </pre>
  * 
@@ -85,10 +87,23 @@ public class MultiToolbar extends Composite {
 
     /**
      * add items to the bottom toolbar, or if split has not been called than add
-     * to the onliest toolbar. If you need to relayout the toolbars after this
-     * then call split again.
+     * to the only toolbar. If you need to relayout the toolbars after this then
+     * call split again.
      **/
     public void add(IContributionItem item) {
+        getToolBarManager().add(item);
+    }
+
+    /**
+     * Add items to the bottom toolbar, or if split has not been called than add
+     * to the only toolbar. If you need to relayout the toolbars after this then
+     * call split again.
+     **/
+    public void add(IAction item) {
+        getToolBarManager().add(item);
+    }
+
+    private ToolBarManager getToolBarManager() {
         isDirty = true;
         ToolBarManager tbm = null;
         if (tbms.isEmpty()) {
@@ -96,7 +111,7 @@ public class MultiToolbar extends Composite {
         } else {
             tbm = tbms.get(tbms.size() - 1);
         }
-        tbm.add(item);
+        return tbm;
     }
 
     public void update() {
